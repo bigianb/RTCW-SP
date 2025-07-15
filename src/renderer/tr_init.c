@@ -207,16 +207,16 @@ int max_polys;
 cvar_t  *r_maxpolyverts;
 int max_polyverts;
 
-void ( APIENTRY * qglMultiTexCoord2fARB )( GLenum texture, GLfloat s, GLfloat t );
-void ( APIENTRY * qglActiveTextureARB )( GLenum texture );
-void ( APIENTRY * qglClientActiveTextureARB )( GLenum texture );
+void ( APIENTRY * qglMultiTexCoord2fARB )( GLenum texture, GLfloat s, GLfloat t ) = NULL;
+void ( APIENTRY * qglActiveTextureARB )( GLenum texture ) = NULL;
+void ( APIENTRY * qglClientActiveTextureARB )( GLenum texture ) = NULL;
 
-void ( APIENTRY * qglLockArraysEXT )( GLint, GLint );
-void ( APIENTRY * qglUnlockArraysEXT )( void );
+void ( APIENTRY * qglLockArraysEXT )( GLint, GLint ) = NULL;
+void ( APIENTRY * qglUnlockArraysEXT )( void ) = NULL;
 
 //----(SA)	added
-void ( APIENTRY * qglPNTrianglesiATI )( GLenum pname, GLint param );
-void ( APIENTRY * qglPNTrianglesfATI )( GLenum pname, GLfloat param );
+void ( APIENTRY * qglPNTrianglesiATI )( GLenum pname, GLint param ) = NULL;
+void ( APIENTRY * qglPNTrianglesfATI )( GLenum pname, GLfloat param ) = NULL;
 /*
 The tessellation level and normal generation mode are specified with:
 
@@ -299,7 +299,7 @@ static void InitOpenGL( void ) {
 	if ( glConfig.vidWidth == 0 ) {
 		GLint temp;
 
-		GLimp_Init();
+		GLimp_Init(qtrue);
 
 		strcpy( renderer_buffer, glConfig.renderer_string );
 		Q_strlwr( renderer_buffer );
@@ -490,21 +490,7 @@ R_TakeScreenshotJPEG
 ==============
 */
 void R_TakeScreenshotJPEG( int x, int y, int width, int height, char *fileName ) {
-	byte        *buffer;
 
-	buffer = ri.Hunk_AllocateTempMemory( glConfig.vidWidth * glConfig.vidHeight * 4 );
-
-	qglReadPixels( x, y, width, height, GL_RGBA, GL_UNSIGNED_BYTE, buffer );
-
-	// gamma correct
-	if ( ( tr.overbrightBits > 0 ) && glConfig.deviceSupportsGamma ) {
-		R_GammaCorrect( buffer, glConfig.vidWidth * glConfig.vidHeight * 4 );
-	}
-
-	ri.FS_WriteFile( fileName, buffer, 1 );     // create path
-	SaveJPG( fileName, 95, glConfig.vidWidth, glConfig.vidHeight, buffer );
-
-	ri.Hunk_FreeTempMemory( buffer );
 }
 
 /*

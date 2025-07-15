@@ -39,32 +39,9 @@ If you have questions concerning this license or the applicable additional terms
 int bg_pmove_gameskill_integer;
 // done
 
-// JPW NERVE -- added because I need to check single/multiplayer instances and branch accordingly
-#ifdef CGAMEDLL
-extern vmCvar_t cg_gameType;
-#endif
-#ifdef GAMEDLL
-extern vmCvar_t g_gametype;
-#endif
-
-// JPW NERVE -- stuck this here so it can be seen client & server side
 float Com_GetFlamethrowerRange( void ) {
-#ifdef CGAMEDLL
-	if ( cg_gameType.integer != GT_SINGLE_PLAYER ) {
-		return 2500; // multiplayer range is longer for balance
-	} else {
-		return 1250; // single player range remains unchanged
-	}
-#endif
-#ifdef GAMEDLL
-	if ( g_gametype.integer != GT_SINGLE_PLAYER ) {
-		return 2500;
-	} else {
-		return 1250;
-	}
-#endif
+	return 1250; // single player range remains unchanged
 }
-// jpw
 
 pmove_t     *pm;
 pml_t pml;
@@ -419,27 +396,6 @@ static float PM_CmdScale( usercmd_t *cmd ) {
 	if ( pm->ps->pm_type == PM_NOCLIP ) {
 		scale *= 3;
 	}
-
-// JPW NERVE -- half move speed if heavy weapon is carried
-// this is the counterstrike way of doing it -- ie you can switch to a non-heavy weapon and move at
-// full speed.  not completely realistic (well, sure, you can run faster with the weapon strapped to your
-// back than in carry position) but more fun to play.  If it doesn't play well this way we'll bog down the
-// player if the own the weapon at all.
-//
-// added #ifdef for game/cgame to project so we can get correct g_gametype variable and only do this in
-// multiplayer if necessary
-#ifdef CGAMEDLL
-	if ( cg_gameType.integer != GT_SINGLE_PLAYER )
-#endif
-#ifdef GAMEDLL
-	if ( g_gametype.integer != GT_SINGLE_PLAYER )
-#endif
-	{
-		if ( ( pm->ps->weapon == WP_VENOM ) || ( pm->ps->weapon == WP_PANZERFAUST ) ) {
-			scale *= 0.5;
-		}
-	}
-// jpw
 
 	return scale;
 }
@@ -921,44 +877,32 @@ static void PM_WalkMove( void ) {
 			PM_WaterMove();
 		} else {
 			PM_AirMove();
-// JPW NERVE
-#if defined ( CGAMEDLL )
-			if ( cg_gameType.integer != GT_SINGLE_PLAYER )
-#elif defined ( GAMEDLL )
-			if ( g_gametype.integer != GT_SINGLE_PLAYER )
-#endif
-			{
-				pm->ps->sprintTime -= 2500;
+
+			pm->ps->jumpTime = pm->cmd.serverTime;
+
+			stamtake = 2000;    // amount to take for jump
+
+			// take time from powerup before taking it from sprintTime
+			if ( pm->ps->powerups[PW_NOFATIGUE] ) {
+				if ( pm->ps->powerups[PW_NOFATIGUE] > stamtake ) {
+					pm->ps->powerups[PW_NOFATIGUE] -= stamtake;
+					if ( pm->ps->powerups[PW_NOFATIGUE] < 0 ) {
+						pm->ps->powerups[PW_NOFATIGUE] = 0;
+					}
+					stamtake = 0;
+				} else {
+					// don't have that much bonus.  clear what you've got and take the remainder from regular stamina
+					stamtake -= pm->ps->powerups[PW_NOFATIGUE];
+					pm->ps->powerups[PW_NOFATIGUE] = 0;
+				}
+			}
+			if ( stamtake ) {
+				pm->ps->sprintTime -= stamtake;
 				if ( pm->ps->sprintTime < 0 ) {
 					pm->ps->sprintTime = 0;
 				}
-			} else {
-				pm->ps->jumpTime = pm->cmd.serverTime;
-
-				stamtake = 2000;    // amount to take for jump
-
-				// take time from powerup before taking it from sprintTime
-				if ( pm->ps->powerups[PW_NOFATIGUE] ) {
-					if ( pm->ps->powerups[PW_NOFATIGUE] > stamtake ) {
-						pm->ps->powerups[PW_NOFATIGUE] -= stamtake;
-						if ( pm->ps->powerups[PW_NOFATIGUE] < 0 ) {
-							pm->ps->powerups[PW_NOFATIGUE] = 0;
-						}
-						stamtake = 0;
-					} else {
-						// don't have that much bonus.  clear what you've got and take the remainder from regular stamina
-						stamtake -= pm->ps->powerups[PW_NOFATIGUE];
-						pm->ps->powerups[PW_NOFATIGUE] = 0;
-					}
-				}
-				if ( stamtake ) {
-					pm->ps->sprintTime -= stamtake;
-					if ( pm->ps->sprintTime < 0 ) {
-						pm->ps->sprintTime = 0;
-					}
-				}
 			}
-// jpw
+			
 		}
 		return;
 	}
@@ -2698,25 +2642,7 @@ Generates weapon events and modifes the weapon counter
 #define VENOM_ATTACK    WEAP_ATTACK2
 #define VENOM_LOWER     WEAP_ATTACK_LASTSHOT
 
-// JPW NERVE
-#ifdef CGAMEDLL
-extern vmCvar_t cg_soldierChargeTime;
-extern vmCvar_t cg_engineerChargeTime;
-#endif
-#ifdef GAMEDLL
-extern vmCvar_t g_soldierChargeTime;
-extern vmCvar_t g_engineerChargeTime;
-#endif
-// jpw
-
-
-#ifdef CGAMEDLL
-extern vmCvar_t cg_reloading;
-#endif
-#ifdef GAMEDLL
 extern vmCvar_t g_reloading;
-#endif
-
 
 /*
 ==============
@@ -2738,14 +2664,10 @@ static void PM_Weapon( void ) {
 	}
 
 	// game is reloading (mission fail/success)
-#ifdef CGAMEDLL
-	if ( cg_reloading.integer )
-#endif
-#ifdef GAMEDLL
-	if ( g_reloading.integer )
-#endif
-	gameReloading = qtrue;
-	else {
+
+	if ( g_reloading.integer ){
+		gameReloading = qtrue;
+	}else {
 		gameReloading = qfalse;
 	}
 
@@ -2858,18 +2780,6 @@ static void PM_Weapon( void ) {
 		if ( pm->ps->grenadeTimeLeft > 0 ) {
 			if ( pm->ps->weapon == WP_DYNAMITE ) {
 				pm->ps->grenadeTimeLeft += pml.msec;
-// JPW NERVE -- in multiplayer, dynamite becomes strategic, so start timer @ 30 seconds
-#ifdef CGAMEDLL
-				if ( cg_gameType.integer != GT_SINGLE_PLAYER ) {
-#endif
-#ifdef GAMEDLL
-				if ( g_gametype.integer != GT_SINGLE_PLAYER ) {
-#endif
-				if ( pm->ps->grenadeTimeLeft < 5000 ) {
-					pm->ps->grenadeTimeLeft = 5000;
-				}
-			}
-// jpw
 
 			if ( pm->ps->grenadeTimeLeft > 8000 ) {
 				PM_AddEvent( EV_FIRE_WEAPON );
@@ -2939,64 +2849,6 @@ if ( pm->ps->weaponTime > 0 ) {
 		pm->ps->weaponTime = 0;
 	}
 
-//----(SA)	removed for DM and id
-/*
-		// RF, testing special case Pistol, which fires faster if you tap the fire button
-		if ( pm->ps->weapon == WP_LUGER ) {
-			if ( pm->ps->releasedFire ) {
-				if (pm->ps->weaponTime <= 250 && (pm->cmd.buttons & BUTTON_ATTACK)) {
-					pm->ps->weaponTime = 0;
-				}
-			} else if (!(pm->cmd.buttons & BUTTON_ATTACK)) {
-				pm->ps->releasedFire = qtrue;
-			}
-		} else if ( pm->ps->weapon == WP_COLT ) {
-			if ( pm->ps->releasedFire ) {
-				if (pm->ps->weaponTime <= 150 && (pm->cmd.buttons & BUTTON_ATTACK)) {
-					pm->ps->weaponTime = 0;
-				}
-			} else if (!(pm->cmd.buttons & BUTTON_ATTACK)) {
-				pm->ps->releasedFire = qtrue;
-			}
-		} else if ( pm->ps->weapon == WP_SILENCER ) {
-			if ( pm->ps->releasedFire ) {
-				if (pm->ps->weaponTime <= 250 && (pm->cmd.buttons & BUTTON_ATTACK)) {
-					pm->ps->weaponTime = 0;
-				}
-			} else if (!(pm->cmd.buttons & BUTTON_ATTACK)) {
-				pm->ps->releasedFire = qtrue;
-			}
-		}
-*/
-//----(SA)	end
-
-// JPW NERVE -- added back for multiplayer pistol balancing
-#ifdef CGAMEDLL
-	if ( cg_gameType.integer != GT_SINGLE_PLAYER ) {
-#endif
-#ifdef GAMEDLL
-	if ( g_gametype.integer != GT_SINGLE_PLAYER ) {
-#endif
-	if ( pm->ps->weapon == WP_LUGER ) {
-		if ( pm->ps->releasedFire ) {
-			if ( pm->ps->weaponTime <= 150 && ( pm->cmd.buttons & BUTTON_ATTACK ) ) {
-				pm->ps->weaponTime = 0;
-			}
-		} else if ( !( pm->cmd.buttons & BUTTON_ATTACK ) && ( pm->ps->weaponTime >= 50 ) ) {
-			pm->ps->releasedFire = qtrue;
-		}
-	} else if ( pm->ps->weapon == WP_COLT ) {
-		if ( pm->ps->releasedFire ) {
-			if ( pm->ps->weaponTime <= 150 && ( pm->cmd.buttons & BUTTON_ATTACK ) ) {
-				pm->ps->weaponTime = 0;
-			}
-		} else if ( !( pm->cmd.buttons & BUTTON_ATTACK ) && ( pm->ps->weaponTime >= 100 ) ) {
-			pm->ps->releasedFire = qtrue;
-		}
-	}
-}
-// jpw
-
 }
 
 
@@ -3042,39 +2894,6 @@ if ( pm->ps->weaponstate == WEAPON_RAISING ) {
 if ( pm->ps->weapon == WP_NONE ) {  // this is possible since the player starts with nothing
 	return;
 }
-
-
-// JPW NERVE -- in multiplayer, don't allow panzerfaust or dynamite to fire if charge bar isn't full
-#ifdef GAMEDLL
-if ( g_gametype.integer == GT_WOLF ) {
-	if ( pm->ps->weapon == WP_PANZERFAUST ) {
-		if ( pm->cmd.serverTime - pm->ps->classWeaponTime < g_soldierChargeTime.integer ) {
-			return;
-		}
-	}
-	if ( pm->ps->weapon == WP_DYNAMITE ) {
-		if ( pm->cmd.serverTime - pm->ps->classWeaponTime < g_engineerChargeTime.integer ) {        // had to use multiplier because chargetime is used elsewhere as bomb diffuse time FIXME not really but NOTE changing bomb diffuse time will require changing this time as well (intended function: new charge ready when old one explodes, ie every 30 seconds or so)
-
-			return;
-		}
-	}
-}
-#endif
-#ifdef CGAMEDLL
-if ( cg_gameType.integer == GT_WOLF ) {
-	if ( pm->ps->weapon == WP_PANZERFAUST ) {
-		if ( pm->cmd.serverTime - pm->ps->classWeaponTime < cg_soldierChargeTime.integer ) {
-			return;
-		}
-	}
-	if ( pm->ps->weapon == WP_DYNAMITE ) {
-		if ( pm->cmd.serverTime - pm->ps->classWeaponTime < cg_engineerChargeTime.integer ) {
-			return;
-		}
-	}
-}
-#endif
-// jpw
 
 // check for fire
 if ( !( pm->cmd.buttons & ( BUTTON_ATTACK | WBUTTON_ATTACK2 ) ) && !delayedFire ) {     // if not on fire button and there's not a delayed shot this frame...
@@ -3398,37 +3217,12 @@ case WP_GARAND:
 
 case WP_SNIPERRIFLE:        // (SA) not so much added per shot.  these weapons mostly uses player movement to get out of whack
 	addTime = ammoTable[pm->ps->weapon].nextShotTime;
-// JPW NERVE crippling the rifle a bit in multiplayer; it's way too strong so make it go completely out every time you fire
-#ifdef CGAMEDLL
-	if ( cg_gameType.integer != GT_SINGLE_PLAYER ) {
-#endif
-#ifdef GAMEDLL
-	if ( g_gametype.integer != GT_SINGLE_PLAYER ) {
-#endif
-//			addTime *= 2; // pulled this and reduced rifle damage
 	aimSpreadScaleAdd = 100;
-} else {
-// jpw
-	aimSpreadScaleAdd = 20;
-}
-break;
+	break;
 case WP_SNOOPERSCOPE:
-// JPW NERVE crippling the rifle a bit in multiplayer; it's way too strong so make it go completely out every time you fire
-// snooper doesn't do one-shot body kills, so give it a little less bounce
-addTime = ammoTable[pm->ps->weapon].nextShotTime;
-#ifdef CGAMEDLL
-if ( cg_gameType.integer != GT_SINGLE_PLAYER ) {
-#endif
-#ifdef GAMEDLL
-if ( g_gametype.integer != GT_SINGLE_PLAYER ) {
-#endif
-aimSpreadScaleAdd = 50;
-//			addTime *= 2;
-} else {
-// jpw
+	addTime = ammoTable[pm->ps->weapon].nextShotTime;
 	aimSpreadScaleAdd = 10;
-}
-break;
+	break;
 
 case WP_FG42SCOPE:
 addTime = ammoTable[pm->ps->weapon].nextShotTime;

@@ -151,7 +151,7 @@ NSDictionary *Sys_GetMatchingDisplayMode( qboolean allowStretchedModes ) {
 #define MAX_DISPLAYS 128
 
 void Sys_GetGammaTable( glwgamma_t *table ) {
-	CGTableCount tableSize = 512;
+	int tableSize = 512;
 	CGDisplayErr err;
 
 	table->tableSize = tableSize;
@@ -205,9 +205,9 @@ void Sys_StoreGammaTables() {
 
 //  This isn't a mathematically correct fade, but we don't care that much.
 void Sys_SetScreenFade( glwgamma_t *table, float fraction ) {
-	CGTableCount tableSize;
+	int tableSize;
 	CGGammaValue *red, *blue, *green;
-	CGTableCount gammaIndex;
+	int gammaIndex;
 
 	if ( !glConfig.deviceSupportsGamma ) {
 		return;
@@ -350,10 +350,8 @@ void Sys_UnfadeScreen( CGDirectDisplayID display, glwgamma_t *table ) {
 	Com_Printf( "Unfading display 0x%08x\n", display );
 
 	if ( table ) {
-		CGTableCount i;
-
 		Com_Printf( "Given table:\n" );
-		for ( i = 0; i < table->tableSize; i++ ) {
+		for ( int i = 0; i < table->tableSize; i++ ) {
 			Com_Printf( "  %f %f %f\n", table->red[i], table->blue[i], table->green[i] );
 		}
 	}

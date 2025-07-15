@@ -1,0 +1,7 @@
+{
+    "files.associations": {
+        "qcommon.h": "c",
+        "tr_local.h": "c",
+        "qgl.h": "c"
+    }
+}

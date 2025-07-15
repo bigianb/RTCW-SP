@@ -40,12 +40,7 @@ If you have questions concerning this license or the applicable additional terms
 #define GL_INDEX_TYPE       GL_UNSIGNED_INT
 typedef unsigned int glIndex_t;
 
-// fast float to int conversion
-#if id386 && !( ( defined __linux__ || defined __FreeBSD__ ) && ( defined __i386__ ) ) // rb010123
-long myftol( float f );
-#else
 #define myftol( x ) ( (int)( x ) )
-#endif
 
 
 // everything that is needed by the backend needs
@@ -1372,7 +1367,7 @@ IMPLEMENTATION SPECIFIC FUNCTIONS
 ====================================================================
 */
 
-void        GLimp_Init( void );
+void        GLimp_Init( qboolean fixedFunction );
 void        GLimp_Shutdown( void );
 void        GLimp_EndFrame( void );
 
@@ -1755,7 +1750,6 @@ void RE_StretchPicGradient( float x, float y, float w, float h,
 							float s1, float t1, float s2, float t2, qhandle_t hShader, const float *gradientColor, int gradientType );
 void RE_BeginFrame( stereoFrame_t stereoFrame );
 void RE_EndFrame( int *frontEndMsec, int *backEndMsec );
-void SaveJPG( char * filename, int quality, int image_width, int image_height, unsigned char *image_buffer );
 
 // font stuff
 void R_InitFreeType();

@@ -34,7 +34,7 @@ If you have questions concerning this license or the applicable additional terms
 
 #include <CoreServices/CoreServices.h>
 #include <CoreAudio/AudioHardware.h>
-#include <QuickTime/QuickTime.h>
+//#include <QuickTime/QuickTime.h>
 
 // For 'ri'
 #include "../renderer/tr_local.h"

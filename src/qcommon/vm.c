@@ -55,12 +55,6 @@ void VM_VmInfo_f( void );
 void VM_VmProfile_f( void );
 
 
-// converts a VM pointer to a C pointer and
-// checks to make sure that the range is acceptable
-void    *VM_VM2C( vmptr_t p, int length ) {
-	return (void *)p;
-}
-
 void VM_Debug( int level ) {
 	vm_debugLevel = level;
 }
@@ -369,7 +363,7 @@ vm_t *VM_Restart( vm_t *vm ) {
 	// DLL's can't be restarted in place
 	if ( vm->dllHandle ) {
 		char name[MAX_QPATH];
-		int ( *systemCall )( int *parms );
+		intptr_t ( *systemCall )( intptr_t *parms );
 
 		systemCall = vm->systemCall;
 		Q_strncpyz( name, vm->name, sizeof( name ) );
@@ -439,7 +433,7 @@ it will attempt to load as a system dll
 
 #define STACK_SIZE  0x20000
 
-vm_t *VM_Create( const char *module, int ( *systemCalls )(int *),
+vm_t *VM_Create( const char *module, intptr_t ( *systemCalls )(intptr_t *),
 				 vmInterpret_t interpret ) {
 	vm_t        *vm;
 	vmHeader_t  *header;

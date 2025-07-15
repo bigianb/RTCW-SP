@@ -36,7 +36,7 @@ If you have questions concerning this license or the applicable additional terms
 // Tab Size:		3
 //===========================================================================
 
-#include <malloc.h>
+#include <stdlib.h>
 #include "l_cmd.h"
 #include "l_math.h"
 #include "l_poly.h"

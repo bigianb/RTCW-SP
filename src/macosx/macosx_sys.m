@@ -372,85 +372,8 @@ qboolean Sys_IsCDROMDevice( const char *deviceName ) {
 	return isCDROM;
 }
 
-qboolean        Sys_CheckCD( void ) {
-	// DO NOT just return success here if we have a library directory.
-	// Actually look for the CD.
-
-	// We'll look through the actual mount points rather than just looking
-	// for a particular directory since (a) the mount point may change
-	// between OS version (/foo in Public Beta, /Volumes/foo after Public Beta)
-	// and (b) this way someone can't just create a directory and warez the files.
-
-	unsigned int mountCount;
-	struct statfs  *mounts;
-
-	mountCount = getmntinfo( &mounts, MNT_NOWAIT );
-	if ( mountCount <= 0 ) {
-		perror( "getmntinfo" );
-#if 1 // Q3:TA doesn't need a CD, but we still need to locate it to allow for partial installs
-		return qtrue;
-#else
-		return qfalse;
-#endif
-	}
-
-	while ( mountCount-- ) {
-		const char *lastComponent;
-
-		if ( ( mounts[mountCount].f_flags & MNT_RDONLY ) != MNT_RDONLY ) {
-			// Should have been a read only CD... this isn't it
-			continue;
-		}
-
-		if ( ( mounts[mountCount].f_flags & MNT_LOCAL ) != MNT_LOCAL ) {
-			// Should have been a local filesystem
-			continue;
-		}
-
-		lastComponent = strrchr( mounts[mountCount].f_mntonname, '/' );
-		if ( !lastComponent ) {
-			// No slash in the mount point!  How is that possible?
-			continue;
-		}
-
-		// Skip the slash and look for the game name
-		lastComponent++;
-		if ( ( strcasecmp( lastComponent, "Quake3" ) != 0 ) ) {
-			continue;
-		}
-
-
-#if 0
-		fprintf( stderr, "f_bsize: %d\n", mounts[mountCount].f_bsize );
-		fprintf( stderr, "f_blocks: %d\n", mounts[mountCount].f_blocks );
-		fprintf( stderr, "type: %d\n", mounts[mountCount].f_type );
-		fprintf( stderr, "flags: %d\n", mounts[mountCount].f_flags );
-		fprintf( stderr, "fstype: %s\n", mounts[mountCount].f_fstypename );
-		fprintf( stderr, "f_mntonname: %s\n", mounts[mountCount].f_mntonname );
-		fprintf( stderr, "f_mntfromname: %s\n", mounts[mountCount].f_mntfromname );
-		fprintf( stderr, "\n\n" );
-#endif
-
-		lastComponent = strrchr( mounts[mountCount].f_mntfromname, '/' );
-		if ( !lastComponent ) {
-			// No slash in the device name!  How is that possible?
-			continue;
-		}
-		lastComponent++;
-		if ( !Sys_IsCDROMDevice( lastComponent ) ) {
-			continue;
-		}
-
-		// This looks good
-		Sys_SetDefaultCDPath( mounts[mountCount].f_mntonname );
-		return qtrue;
-	}
-
-#if 1 // Q3:TA doesn't need a CD, but we still need to locate it to allow for partial installs
+qboolean Sys_CheckCD( void ) {
 	return qtrue;
-#else
-	return qfalse;
-#endif
 }
 
 

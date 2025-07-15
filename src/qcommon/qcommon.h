@@ -326,7 +326,7 @@ typedef enum {
 } sharedTraps_t;
 
 void    VM_Init( void );
-vm_t    *VM_Create( const char *module, int ( *systemCalls )( int * ),
+vm_t    *VM_Create( const char *module, intptr_t ( *systemCalls )( intptr_t * ),
 					vmInterpret_t interpret );
 // module should be bare: "cgame", not "cgame.dll" or "vm/cgame.qvm"
 
@@ -1068,5 +1068,15 @@ extern huffman_t clientHuffTables;
 #define SV_DECODE_START     12
 #define CL_ENCODE_START     12
 #define CL_DECODE_START     4
+
+//
+// input interface
+//
+void IN_Init( void *windowData );
+void IN_Frame( void );
+void IN_Shutdown( void );
+void IN_Restart( void );
+
+#define	MAXPRINTMSG	4096
 
 #endif // _QCOMMON_H_

@@ -790,7 +790,7 @@ CL_UISystemCalls
 The ui module is making a system call
 ====================
 */
-int CL_UISystemCalls( int *args ) {
+intptr_t CL_UISystemCalls( intptr_t *args ) {
 	switch ( args[0] ) {
 	case UI_ERROR:
 		Com_Error( ERR_DROP, "%s", VMA( 1 ) );
@@ -1083,13 +1083,13 @@ int CL_UISystemCalls( int *args ) {
 		return 0;
 
 	case UI_MEMSET:
-		return (int)memset( VMA( 1 ), args[2], args[3] );
+		return (intptr_t)memset( VMA( 1 ), args[2], args[3] );
 
 	case UI_MEMCPY:
-		return (int)memcpy( VMA( 1 ), VMA( 2 ), args[3] );
+		return (intptr_t)memcpy( VMA( 1 ), VMA( 2 ), args[3] );
 
 	case UI_STRNCPY:
-		return (int)strncpy( VMA( 1 ), VMA( 2 ), args[3] );
+		return (intptr_t)strncpy( VMA( 1 ), VMA( 2 ), args[3] );
 
 	case UI_SIN:
 		return FloatAsInt( sin( VMF( 1 ) ) );
@@ -1202,13 +1202,7 @@ void CL_InitUI( void ) {
 		interpret = Cvar_VariableValue( "vm_ui" );
 	}
 
-//----(SA)	always dll
-
-#ifdef WOLF_SP_DEMO
-	uivm = VM_Create( "ui", CL_UISystemCalls, VMI_NATIVE );
-#else
 	uivm = VM_Create( "ui", CL_UISystemCalls, Cvar_VariableValue( "vm_ui" ) );
-#endif
 
 	if ( !uivm ) {
 		Com_Error( ERR_FATAL, "VM_Create on UI failed" );

@@ -62,7 +62,7 @@ extern qboolean Sys_Unhide();
 
 typedef struct {
 	CGDirectDisplayID display;
-	CGTableCount tableSize;
+	int tableSize;
 	CGGammaValue     *red;
 	CGGammaValue     *blue;
 	CGGammaValue     *green;

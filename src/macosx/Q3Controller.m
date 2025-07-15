@@ -146,7 +146,7 @@ extern void CL_Quit_f( void );
 			bannerImage = [[NSImage alloc] initWithContentsOfFile:[[NSBundle mainBundle] pathForImageResource:@"banner.jpg"]];
 			bannerRect = NSMakeRect( 0.0, 0.0, [bannerImage size].width, [bannerImage size].height );
 
-			splashPanel = [[NSPanel alloc] initWithContentRect:bannerRect styleMask:NSBorderlessWindowMask backing:NSBackingStoreBuffered defer:NO];
+			splashPanel = [[NSPanel alloc] initWithContentRect:bannerRect styleMask:NSWindowStyleMaskBorderless backing:NSBackingStoreBuffered defer:NO];
 
 			bannerImageView = [[NSImageView alloc] initWithFrame:bannerRect];
 			[bannerImageView setImage : bannerImage];
@@ -171,10 +171,10 @@ extern void CL_Quit_f( void );
 	NSArray *pasteboardTypes;
 
 	pasteboardTypes = [pasteboard types];
-	if ([pasteboardTypes containsObject : NSStringPboardType] ) {
+	if ([pasteboardTypes containsObject : NSPasteboardTypeString] ) {
 		NSString *requestedServer;
 
-		requestedServer = [pasteboard stringForType:NSStringPboardType];
+		requestedServer = [pasteboard stringForType:NSPasteboardTypeString];
 		if ( requestedServer ) {
 			Cbuf_AddText( va( "connect %s\n", [requestedServer cString] ) );
 			return;
@@ -188,10 +188,10 @@ extern void CL_Quit_f( void );
 	NSArray *pasteboardTypes;
 
 	pasteboardTypes = [pasteboard types];
-	if ([pasteboardTypes containsObject : NSStringPboardType] ) {
+	if ([pasteboardTypes containsObject : NSPasteboardTypeString] ) {
 		NSString *requestedCommand;
 
-		requestedCommand = [pasteboard stringForType:NSStringPboardType];
+		requestedCommand = [pasteboard stringForType:NSPasteboardTypeString];
 		if ( requestedCommand ) {
 			Cbuf_AddText( va( "%s\n", [requestedCommand cString] ) );
 			return;
@@ -304,7 +304,7 @@ extern void CL_Quit_f( void );
 		[openPanel setCanChooseDirectories : YES];
 		[openPanel setCanChooseFiles : NO];
 		result = [openPanel runModalForDirectory:nil file:nil];
-		if ( result == NSOKButton ) {
+		if ( result == NSModalResponseOK ) {
 			NSArray *filenames;
 
 			filenames = [openPanel filenames];
@@ -336,7 +336,7 @@ extern void CL_Quit_f( void );
 		attributes = [NSDictionary dictionaryWithObjectsAndKeys: [NSNumber numberWithUnsignedInt: 0750], NSFilePosixPermissions, nil];
 		NS_DURING {
 			Sys_CreatePathToFile( filePath, attributes );
-			Sys_SetDefaultHomePath([homePath fileSystemRepresentation] );
+			// IJB Sys_SetDefaultHomePath([homePath fileSystemRepresentation] );
 		} NS_HANDLER {
 			NSLog( @"Exception: %@", localException );
 #ifndef DEDICATED
@@ -350,7 +350,7 @@ extern void CL_Quit_f( void );
 	Sys_CheckCD();
 
 	// Let the filesystem know where our local install is
-	Sys_SetDefaultInstallPath([installationPath cString] );
+	// IJB Sys_SetDefaultInstallPath([installationPath cString] );
 
 	// merge the command line, this is kinda silly
 	for ( commandLineLength = 1, argumentIndex = 1; argumentIndex < argc; argumentIndex++ )

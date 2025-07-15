@@ -31,7 +31,7 @@ If you have questions concerning this license or the applicable additional terms
 #if defined( WIN32 ) || defined( _WIN32 )
 #include <io.h>
 #endif
-#include <malloc.h>
+#include <stdlib.h>
 #include "l_cmd.h"
 #include "l_math.h"
 #include "l_poly.h"

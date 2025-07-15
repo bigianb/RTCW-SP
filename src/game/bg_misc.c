@@ -38,14 +38,6 @@ If you have questions concerning this license or the applicable additional terms
 #include "bg_public.h"
 
 
-#ifdef CGAMEDLL
-extern vmCvar_t cg_gameType;
-#endif
-#ifdef GAMEDLL
-extern vmCvar_t g_gametype;
-#endif
-
-
 // NOTE: weapons that share ammo (ex. colt/thompson) need to share max ammo, but not necessarily uses or max clip
 #define MAX_AMMO_45     300
 #define MAX_AMMO_9MM    300
@@ -3853,16 +3845,6 @@ qboolean    BG_CanItemBeGrabbed( const entityState_t *ent, const playerState_t *
 	if ( ent->modelindex < 1 || ent->modelindex >= bg_numItems ) {
 		Com_Error( ERR_DROP, "BG_CanItemBeGrabbed: index out of range" );
 	}
-
-//----(SA)	check for mp
-#ifdef GAMEDLL
-	if ( g_gametype.integer == GT_WOLF )
-#endif
-#ifdef CGAMEDLL
-	if ( cg_gameType.integer == GT_WOLF )
-#endif
-	multiplayer = qtrue;
-//----(SA)	end
 
 	item = &bg_itemlist[ent->modelindex];
 

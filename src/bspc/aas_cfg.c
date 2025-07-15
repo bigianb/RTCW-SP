@@ -47,9 +47,8 @@ If you have questions concerning this license or the applicable additional terms
 // TTimo: this is a f*g mess
 // I got rid of all occurences except for bspc it seems
 // all code *should* be using Q_stricmp
-#ifdef BSPC
+
 #define stricmp strcasecmp
-#endif
 
 ///////////////////////////////////
 extern void LibVarSet( char *var_name, char *value );

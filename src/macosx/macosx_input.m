@@ -39,7 +39,8 @@ If you have questions concerning this license or the applicable additional terms
 #import "macosx_timers.h"
 #import "macosx_display.h" // For Sys_SetScreenFade
 
-#import <drivers/event_status_driver.h>
+// IJB #import <drivers/event_status_driver.h>
+#include <IOKit/hidsystem/event_status_driver.h>
 #import <sys/types.h>
 #import <sys/time.h>
 #import <unistd.h>
@@ -190,7 +191,7 @@ extern void Sys_UpdateWindowMouseInputRect( void );
 
 static void Sys_StartMouseInput() {
 	NXEventHandle eventStatus;
-	CGMouseDelta dx, dy;
+	int32_t dx, dy;
 
 	if ( mouseactive ) {
 		//Com_Printf("**** Attempted to start mouse input while already started\n");
@@ -208,10 +209,10 @@ static void Sys_StartMouseInput() {
 	Sys_LockMouseInInputRect( inputRect );
 
 	// Grab any mouse delta information to reset the last delta buffer
-//    CGFix_GetLastMouseDelta(&dx, &dy);
 	CGGetLastMouseDelta( &dx, &dy );
 
 	// Turn off mouse scaling
+	/*
 	if ( ( eventStatus = NXOpenEventStatus() ) ) {
 		NXMouseScaling newScaling;
 
@@ -229,7 +230,7 @@ static void Sys_StartMouseInput() {
 		NXSetKeyRepeatThreshold( eventStatus, 86400.0f );
 
 		NXCloseEventStatus( eventStatus );
-	}
+	}*/
 
 	[NSCursor hide];
 }
@@ -250,12 +251,14 @@ static void Sys_StopMouseInput() {
 	[NSCursor unhide];
 
 	// Restore mouse scaling
+	/*
 	if ( ( eventStatus = NXOpenEventStatus() ) ) {
 		NXSetMouseScaling( eventStatus, &originalScaling );
 		NXSetKeyRepeatInterval( eventStatus,originalRepeatInterval );
 		NXSetKeyRepeatThreshold( eventStatus,originalRepeatThreshold );
 		NXCloseEventStatus( eventStatus );
 	}
+	 */
 }
 
 //===========================================================================
@@ -358,48 +361,18 @@ void Sys_SetMouseInputRect( CGRect newRect ) {
 
 
 static void Sys_ProcessMouseMovedEvent( NSEvent *mouseMovedEvent, int currentTime ) {
-	CGMouseDelta dx, dy;
+	uint32_t dx, dy;
 
 	if ( !mouseactive ) {
 		return;
 	}
 
-	// The AppKit NSEvent doesn't support delta mouse movement.  We can (and have in
-	// the past) kept track of the previous position and on each event computed the
-	// delta.  When the mouse approached the edge of the window rect, we'd warp
-	// it back to the center.  This was ugly and had a bunch of edge cases.
-	// Now, we just use the new CG API for getting the real mouse delta.
-//    CGFix_GetLastMouseDelta(&dx, &dy);
 	CGGetLastMouseDelta( &dx, &dy );
 
 	if ( in_showevents->integer ) {
 		Com_Printf( "MOUSE MOVED: %d, %d\n", dx, dy );
 	}
 	if ( dx || dy ) {
-#if 0
-		CGMouseDelta distSqr;
-		float m0, N;
-
-		distSqr = dx * dx + dy * dy;
-		//Com_Printf("distSqr = %d\n", distSqr);
-
-		/* This code is here to help people that like the feel of the Logitech USB Gaming Mouse with the Win98 drivers.  By empirical testing, the Windows drivers seem to be more heavily accelerated at the low end of the curve. */
-		N = in_mouseHighEndCutoff->value;
-
-		if ( distSqr < N * N ) {
-			float dist, accel, scale;
-
-			m0 = in_mouseLowEndSlope->value;
-			dist = sqrt( distSqr );
-			accel = ( ( ( m0 - 1.0 ) / ( N * N ) * dist + ( 2.0 - 2.0 * m0 ) / N ) * dist + m0 ) * dist;
-
-			scale = accel / dist;
-			//Com_Printf("dx = %d, dy = %d, dist = %f, accel = %f, scale = %f\n", dx, dy, dist, accel, scale);
-
-			dx *= scale;
-			dy *= scale;
-		}
-#endif
 		Sys_QueEvent( currentTime, SE_MOUSE, dx, dy, 0, NULL );
 	}
 }
@@ -412,18 +385,6 @@ static qboolean maybeHide() {
 	if ( ( currentModifierFlags & NSCommandKeyMask ) == 0 ) {
 		return qfalse;
 	}
-
-#warning TJW: Figure out the right function to call to see if the menu is up for Q3.  These are for FAKK2
-#if 0
-	if ( UI_ConsoleIsActive() ) {
-		//Com_Printf("console is active\n");
-		menuUp = qtrue;
-	}
-	if ( UI_MenuUp() ) {
-		//Com_Printf("menu is up\n");
-		menuUp = qtrue;
-	}
-#endif
 
 	if ( menuUp ) {
 		return Sys_Hide();

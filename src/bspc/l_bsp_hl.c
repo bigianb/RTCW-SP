@@ -257,11 +257,12 @@ FastChecksum
 ===============
 */
 
-int FastChecksum( void *buffer, int bytes ) {
+int FastChecksum( void *vb, int bytes ) {
 	int checksum = 0;
 
+	const char* buffer = (const char*)vb;
 	while ( bytes-- )
-		checksum = ( checksum << 4 ) ^ *( (char *)buffer )++;
+		checksum = ( checksum << 4 ) ^ *buffer++;
 
 	return checksum;
 }

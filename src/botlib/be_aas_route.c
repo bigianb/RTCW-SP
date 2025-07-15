@@ -126,7 +126,7 @@ void AAS_RoutingInfo( void ) {
 // Returns:				-
 // Changes Globals:		-
 //===========================================================================
-__inline int AAS_ClusterAreaNum( int cluster, int areanum ) {
+int AAS_ClusterAreaNum( int cluster, int areanum ) {
 	int side, areacluster;
 
 	areacluster = ( *aasworld ).areasettings[areanum].cluster;
@@ -134,14 +134,6 @@ __inline int AAS_ClusterAreaNum( int cluster, int areanum ) {
 		return ( *aasworld ).areasettings[areanum].clusterareanum;
 	} else
 	{
-/*#ifdef ROUTING_DEBUG
-		if ((*aasworld).portals[-areacluster].frontcluster != cluster &&
-				(*aasworld).portals[-areacluster].backcluster != cluster)
-		{
-			botimport.Print(PRT_ERROR, "portal %d: does not belong to cluster %d\n"
-											, -areacluster, cluster);
-		} //end if
-#endif //ROUTING_DEBUG*/
 		side = ( *aasworld ).portals[-areacluster].frontcluster != cluster;
 		return ( *aasworld ).portals[-areacluster].clusterareanum[side];
 	} //end else
@@ -197,7 +189,7 @@ int AAS_TravelFlagForType( int traveltype ) {
 // Returns:					-
 // Changes Globals:		-
 //===========================================================================
-__inline float AAS_RoutingTime( void ) {
+float AAS_RoutingTime(  ) {
 	return AAS_Time();
 } //end of the function AAS_RoutingTime
 //===========================================================================

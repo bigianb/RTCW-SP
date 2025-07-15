@@ -677,7 +677,7 @@ void GLimp_SetGamma( unsigned char red[256],
 					 unsigned char green[256],
 					 unsigned char blue[256] ) {
 	CGGammaValue redGamma[256], greenGamma[256], blueGamma[256];
-	CGTableCount i;
+	int i;
 	CGDisplayErr err;
 
 	if ( !glConfig.deviceSupportsGamma ) {

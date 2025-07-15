@@ -40,7 +40,7 @@ If you have questions concerning this license or the applicable additional terms
 //Notes:			fix: PC_StringizeTokens
 
 //#define SCREWUP
-//#define BOTLIB
+#define BOTLIB
 //#define QUAKE
 //#define QUAKEC
 //#define MEQCC

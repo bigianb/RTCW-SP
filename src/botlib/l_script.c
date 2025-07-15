@@ -36,7 +36,7 @@ If you have questions concerning this license or the applicable additional terms
  *****************************************************************************/
 
 //#define SCREWUP
-//#define BOTLIB
+#define BOTLIB
 //#define MEQCC
 //#define BSPC
 
