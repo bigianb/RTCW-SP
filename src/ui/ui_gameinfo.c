@@ -118,11 +118,11 @@ static void UI_LoadArenasFromFile( char *filename ) {
 
 	len = trap_FS_FOpenFile( filename, &f, FS_READ );
 	if ( !f ) {
-		trap_Print( va( S_COLOR_RED "file not found: %s\n", filename ) );
+		trap_UI_Print( va( S_COLOR_RED "file not found: %s\n", filename ) );
 		return;
 	}
 	if ( len >= MAX_ARENAS_TEXT ) {
-		trap_Print( va( S_COLOR_RED "file too large: %s is %i, max allowed is %i", filename, len, MAX_ARENAS_TEXT ) );
+		trap_UI_Print( va( S_COLOR_RED "file too large: %s is %i, max allowed is %i", filename, len, MAX_ARENAS_TEXT ) );
 		trap_FS_FCloseFile( f );
 		return;
 	}
@@ -168,9 +168,9 @@ void UI_LoadArenas( void ) {
 		strcat( filename, dirptr );
 		UI_LoadArenasFromFile( filename );
 	}
-	trap_Print( va( "%i arenas parsed\n", ui_numArenas ) );
+	trap_UI_Print( va( "%i arenas parsed\n", ui_numArenas ) );
 	if ( UI_OutOfMemory() ) {
-		trap_Print( S_COLOR_YELLOW "WARNING: not anough memory in pool to load all arenas\n" );
+		trap_UI_Print( S_COLOR_YELLOW "WARNING: not anough memory in pool to load all arenas\n" );
 	}
 
 	for ( n = 0; n < ui_numArenas; n++ ) {
@@ -230,11 +230,11 @@ static void UI_LoadBotsFromFile( char *filename ) {
 
 	len = trap_FS_FOpenFile( filename, &f, FS_READ );
 	if ( !f ) {
-		trap_Print( va( S_COLOR_RED "file not found: %s\n", filename ) );
+		trap_UI_Print( va( S_COLOR_RED "file not found: %s\n", filename ) );
 		return;
 	}
 	if ( len >= MAX_BOTS_TEXT ) {
-		trap_Print( va( S_COLOR_RED "file too large: %s is %i, max allowed is %i", filename, len, MAX_BOTS_TEXT ) );
+		trap_UI_Print( va( S_COLOR_RED "file too large: %s is %i, max allowed is %i", filename, len, MAX_BOTS_TEXT ) );
 		trap_FS_FCloseFile( f );
 		return;
 	}
@@ -280,7 +280,7 @@ void UI_LoadBots( void ) {
 		strcat( filename, dirptr );
 		UI_LoadBotsFromFile( filename );
 	}
-	trap_Print( va( "%i bots parsed\n", ui_numBots ) );
+	trap_UI_Print( va( "%i bots parsed\n", ui_numBots ) );
 }
 
 
@@ -291,7 +291,7 @@ UI_GetBotInfoByNumber
 */
 char *UI_GetBotInfoByNumber( int num ) {
 	if ( num < 0 || num >= ui_numBots ) {
-		trap_Print( va( S_COLOR_RED "Invalid bot number: %i\n", num ) );
+		trap_UI_Print( va( S_COLOR_RED "Invalid bot number: %i\n", num ) );
 		return NULL;
 	}
 	return ui_botInfos[num];

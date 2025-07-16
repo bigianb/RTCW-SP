@@ -249,7 +249,7 @@ inline idStr::idStr
 	char text[ 32 ];
 	int len;
 
-	sprintf( text, "%.3f", num );
+	snprintf( text, 32, "%.3f", num );
 	len = strlen( text );
 	EnsureAlloced( len + 1 );
 	strcpy( m_data->data, text );
@@ -263,7 +263,7 @@ inline idStr::idStr
 	char text[ 32 ];
 	int len;
 
-	sprintf( text, "%d", num );
+	snprintf( text, 32, "%d", num );
 	len = strlen( text );
 	EnsureAlloced( len + 1 );
 	strcpy( m_data->data, text );
@@ -277,7 +277,7 @@ inline idStr::idStr
 	char text[ 32 ];
 	int len;
 
-	sprintf( text, "%u", num );
+	snprintf( text, 32,  "%u", num );
 	len = strlen( text );
 	EnsureAlloced( len + 1 );
 	strcpy( m_data->data, text );

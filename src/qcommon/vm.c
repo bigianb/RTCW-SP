@@ -325,24 +325,8 @@ Dlls will call this directly
 
 ============
 */
-int QDECL VM_DllSyscall( int arg, ... ) {
-#if ( ( defined __linux__ ) && ( defined __powerpc__ ) )
-	// rcg010206 - see commentary above
-	int args[16];
-	int i;
-	va_list ap;
-
-	args[0] = arg;
-
-	va_start( ap, arg );
-	for ( i = 1; i < sizeof( args ) / sizeof( args[i] ); i++ )
-		args[i] = va_arg( ap, int );
-	va_end( ap );
-
-	return currentVM->systemCall( args );
-#else // original id code
+int QDECL VM_DllSyscall( intptr_t arg, ... ) {
 	return currentVM->systemCall( &arg );
-#endif
 }
 
 /*
@@ -490,11 +474,12 @@ vm_t *VM_Create( const char *module, intptr_t ( *systemCalls )(intptr_t *),
 	if ( interpret == VMI_NATIVE ) {
 		// try to load as a system dll
 //		Com_Printf( "Loading dll file %s.\n", vm->name );
+/*
 		vm->dllHandle = Sys_LoadDll( module, &vm->entryPoint, VM_DllSyscall );
 		if ( vm->dllHandle ) {
 			return vm;
 		}
-
+*/
 		Com_Printf( "Failed to load dll, looking for qvm.\n" );
 		interpret = VMI_COMPILED;
 	}
@@ -675,18 +660,11 @@ locals from sp
 #define MAX_STACK   256
 #define STACK_MASK  ( MAX_STACK - 1 )
 
-int QDECL VM_Call( vm_t *vm, int callnum, ... ) {
+intptr_t QDECL VM_Call( vm_t *vm, intptr_t callnum, ... ) {
 	vm_t    *oldVM;
-	int r;
-	//rcg010207 see dissertation at top of VM_DllSyscall() in this file.
-#if ( ( defined __linux__ ) && ( defined __powerpc__ ) )
-	int i;
-	int args[16];
-	va_list ap;
-#endif
+	intptr_t r;
 
-
-	if ( !vm ) {
+	if(!vm || !vm->name[0]) {
 		Com_Error( ERR_FATAL, "VM_Call with NULL vm" );
 	}
 
@@ -700,22 +678,9 @@ int QDECL VM_Call( vm_t *vm, int callnum, ... ) {
 
 	// if we have a dll loaded, call it directly
 	if ( vm->entryPoint ) {
-		//rcg010207 -  see dissertation at top of VM_DllSyscall() in this file.
-#if ( ( defined __linux__ ) && ( defined __powerpc__ ) )
-		va_start( ap, callnum );
-		for ( i = 0; i < sizeof( args ) / sizeof( args[i] ); i++ )
-			args[i] = va_arg( ap, int );
-		va_end( ap );
-
-		r = vm->entryPoint( callnum,  args[0],  args[1],  args[2], args[3],
-							args[4],  args[5],  args[6], args[7],
-							args[8],  args[9], args[10], args[11],
-							args[12], args[13], args[14], args[15] );
-#else // PPC above, original id code below
 		r = vm->entryPoint( ( &callnum )[0], ( &callnum )[1], ( &callnum )[2], ( &callnum )[3],
 							( &callnum )[4], ( &callnum )[5], ( &callnum )[6], ( &callnum )[7],
 							( &callnum )[8],  ( &callnum )[9],  ( &callnum )[10],  ( &callnum )[11],  ( &callnum )[12] );
-#endif
 	} else if ( vm->compiled ) {
 		r = VM_CallCompiled( vm, &callnum );
 	} else {
@@ -839,7 +804,7 @@ void VM_LogSyscalls( int *args ) {
 		f = fopen( "syscalls.log", "w" );
 	}
 	callnum++;
-	fprintf( f, "%i: %i (%i) = %i %i %i %i\n", callnum, args - (int *)currentVM->dataBase,
+	fprintf( f, "%i: %i (%i) = %i %i %i %i\n", callnum, (int)(args - (int *)currentVM->dataBase),
 			 args[0], args[1], args[2], args[3], args[4] );
 }
 

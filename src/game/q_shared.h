@@ -43,35 +43,6 @@ If you have questions concerning this license or the applicable additional terms
 #define NEW_ANIMS
 #define MAX_TEAMNAME    32
 
-#ifdef _WIN32
-
-#pragma warning(disable : 4018) // signed/unsigned mismatch
-#pragma warning(disable : 4032)
-#pragma warning(disable : 4051)
-#pragma warning(disable : 4057) // slightly different base types
-#pragma warning(disable : 4100) // unreferenced formal parameter
-#pragma warning(disable : 4115)
-#pragma warning(disable : 4125) // decimal digit terminates octal escape sequence
-#pragma warning(disable : 4127) // conditional expression is constant
-#pragma warning(disable : 4136)
-#pragma warning(disable	: 4152) // nonstandard extension, function/data pointer conversion in expression
-#pragma warning(disable : 4201)
-#pragma warning(disable : 4214)
-#pragma warning(disable : 4244)
-//#pragma warning(disable	: 4142)		// benign redefinition
-#pragma warning(disable : 4305) // truncation from const double to float
-//#pragma warning(disable : 4310)		// cast truncates constant value
-//#pragma warning(disable :	4505)		// unreferenced local function has been removed
-#pragma warning(disable : 4514)
-#pragma warning(disable : 4702) // unreachable code
-#pragma warning(disable : 4711) // selected for automatic inline expansion
-#pragma warning(disable : 4220) // varargs matches remaining parameters
-#endif
-
-#if defined( ppc ) || defined( __ppc ) || defined( __ppc__ ) || defined( __POWERPC__ )
-#define idppc 1
-#endif
-
 /**********************************************************************
   VM Considerations
 
@@ -103,12 +74,6 @@ If you have questions concerning this license or the applicable additional terms
 #include <time.h>
 #include <ctype.h>
 #include <limits.h>
-
-#endif
-
-#ifdef _WIN32
-
-//#pragma intrinsic( memset, memcpy )
 
 #endif
 
@@ -197,34 +162,11 @@ void Sys_PumpEvents( void );
 
 #endif
 
-//======================= LINUX DEFINES =================================
-
-// the mac compiler can't handle >32k of locals, so we
-// just waste space and make big arrays static...
-#ifdef __linux__
-
-#define MAC_STATIC
-
-#ifdef __i386__
-#define CPUSTRING   "linux-i386"
-#elif defined __axp__
-#define CPUSTRING   "linux-alpha"
-#else
-#define CPUSTRING   "linux-other"
-#endif
-
-#define PATH_SEP '/'
-
-#endif
-
-//=============================================================
-
-
 typedef unsigned char byte;
 
 typedef enum {qfalse, qtrue}    qboolean;
 #if defined( __MACOS__ )
-#define qboolean int    //DAJ
+#define qboolean int
 #endif
 
 typedef int qhandle_t;
@@ -406,7 +348,7 @@ typedef int fixed8_t;
 typedef int fixed16_t;
 
 #ifndef M_PI
-#define M_PI        3.14159265358979323846f // matches value in gcc v2 math.h
+#define M_PI        3.14159265358979323846f
 #endif
 
 #define NUMVERTEXNORMALS    162
@@ -652,11 +594,11 @@ void COM_BitClear( int array[], int bitNum );
 
 #ifndef TT_STRING
 //token types
-#define TT_STRING                   1           // string
-#define TT_LITERAL                  2           // literal
-#define TT_NUMBER                   3           // number
-#define TT_NAME                     4           // name
-#define TT_PUNCTUATION              5           // punctuation
+#define TT_STRING                   1
+#define TT_LITERAL                  2
+#define TT_NUMBER                   3
+#define TT_NAME                     4
+#define TT_PUNCTUATION              5
 #endif
 
 typedef struct pc_token_s
@@ -678,6 +620,7 @@ void SkipRestOfLine( char **data );
 void Parse1DMatrix( char **buf_p, int x, float *m );
 void Parse2DMatrix( char **buf_p, int y, int x, float *m );
 void Parse3DMatrix( char **buf_p, int z, int y, int x, float *m );
+int Com_HexStrToInt( const char *str );
 
 void QDECL Com_sprintf( char *dest, int size, const char *fmt, ... );
 
@@ -859,6 +802,10 @@ typedef struct cvar_s {
 	int modificationCount;          // incremented each time the cvar is changed
 	float value;                    // atof( string )
 	int integer;                    // atoi( string )
+	qboolean	validate;
+	qboolean	integral;
+	float			min;
+	float			max;
 	struct cvar_s *next;
 	struct cvar_s *hashNext;
 } cvar_t;

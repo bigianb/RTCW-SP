@@ -2,6 +2,10 @@
     "files.associations": {
         "qcommon.h": "c",
         "tr_local.h": "c",
-        "qgl.h": "c"
+        "qgl.h": "c",
+        "locale": "c",
+        "ctype.h": "c",
+        "idlib.h": "c",
+        "types.h": "c"
     }
 }

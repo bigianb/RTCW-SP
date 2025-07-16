@@ -761,7 +761,7 @@ void Cvar_Restart_f( void ) {
 			}
 			// clear the var completely, since we
 			// can't remove the index from the list
-			memset( var, 0, sizeof( var ) );
+			memset( var, 0, sizeof( *var ) );
 			continue;
 		}
 
@@ -822,6 +822,22 @@ Cvar_InfoStringBuffer
 */
 void Cvar_InfoStringBuffer( int bit, char* buff, int buffsize ) {
 	Q_strncpyz( buff,Cvar_InfoString( bit ),buffsize );
+}
+
+/*
+=====================
+Cvar_CheckRange
+=====================
+*/
+void Cvar_CheckRange( cvar_t *var, float min, float max, qboolean integral )
+{
+	var->validate = qtrue;
+	var->min = min;
+	var->max = max;
+	var->integral = integral;
+
+	// Force an initial range check
+	Cvar_Set( var->name, var->string );
 }
 
 /*

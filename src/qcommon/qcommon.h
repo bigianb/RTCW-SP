@@ -334,7 +334,7 @@ void    VM_Free( vm_t *vm );
 void    VM_Clear( void );
 vm_t    *VM_Restart( vm_t *vm );
 
-int QDECL VM_Call( vm_t *vm, int callNum, ... );
+intptr_t QDECL VM_Call( vm_t *vm, intptr_t callNum, ... );
 
 void    VM_Debug( int level );
 
@@ -498,6 +498,7 @@ char    *Cvar_InfoString_Big( int bit );
 // returns an info string containing all the cvars that have the given bit set
 // in their flags ( CVAR_USERINFO, CVAR_SERVERINFO, CVAR_SYSTEMINFO, etc )
 void    Cvar_InfoStringBuffer( int bit, char *buff, int buffsize );
+void Cvar_CheckRange( cvar_t *cv, float minVal, float maxVal, qboolean shouldBeIntegral );
 
 void    Cvar_Restart_f( void );
 
@@ -689,6 +690,27 @@ MISC
 
 #define CPUID_AMD_3DNOW         0x30            // AMD K6 3DNOW!
 
+typedef enum {
+	// EVT_NONE must be zero
+	EVT_NONE = 0,		// evTime is still valid
+	SE_KEY,			// evValue is a key code, evValue2 is the down flag
+	SE_CHAR,		// evValue is an ascii char
+	SE_MOUSE,		// evValue and evValue2 are relative signed x / y moves
+	SE_JOYSTICK_AXIS,	// evValue is an axis number and evValue2 is the current state (-127 to 127)
+	SE_CONSOLE		// evPtr is a char*
+} sysEventType_t;
+
+typedef struct {
+	int				evTime;
+	sysEventType_t	evType;
+	int				evValue, evValue2;
+	int				evPtrLength;	// bytes of data pointed to by evPtr, for journaling
+	void			*evPtr;			// this must be manually freed if not NULL
+} sysEvent_t;
+
+void		Com_QueueEvent( int time, sysEventType_t type, int value, int value2, int ptrLength, void *ptr );
+int			Com_EventLoop( void );
+sysEvent_t	Com_GetSystemEvent( void );
 
 char        *CopyString( const char *in );
 void        Info_Print( const char *s );
@@ -699,7 +721,7 @@ void QDECL Com_Printf( const char *fmt, ... );
 void QDECL Com_DPrintf( const char *fmt, ... );
 void QDECL Com_Error( int code, const char *fmt, ... );
 void        Com_Quit_f( void );
-int         Com_EventLoop( void );
+
 int         Com_Milliseconds( void );   // will be journaled properly
 unsigned    Com_BlockChecksum( const void *buffer, int length );
 unsigned    Com_BlockChecksumKey( void *buffer, int length, int key );
@@ -909,27 +931,6 @@ typedef enum {
 	MAX_JOYSTICK_AXIS
 } joystickAxis_t;
 
-typedef enum {
-	// bk001129 - make sure SE_NONE is zero
-	SE_NONE = 0,    // evTime is still valid
-	SE_KEY,     // evValue is a key code, evValue2 is the down flag
-	SE_CHAR,    // evValue is an ascii char
-	SE_MOUSE,   // evValue and evValue2 are reletive signed x / y moves
-	SE_JOYSTICK_AXIS,   // evValue is an axis number and evValue2 is the current state (-127 to 127)
-	SE_CONSOLE, // evPtr is a char*
-	SE_PACKET   // evPtr is a netadr_t followed by data bytes to evPtrLength
-} sysEventType_t;
-
-typedef struct {
-	int evTime;
-	sysEventType_t evType;
-	int evValue, evValue2;
-	int evPtrLength;                // bytes of data pointed to by evPtr, for journaling
-	void            *evPtr;         // this must be manually freed if not NULL
-} sysEvent_t;
-
-sysEvent_t  Sys_GetEvent( void );
-
 void    Sys_Init( void );
 
 void *Sys_InitializeCriticalSection();
@@ -954,7 +955,7 @@ void    *Sys_GetUIAPI( void );
 void    Sys_UnloadBotLib( void );
 void    *Sys_GetBotLibAPI( void *parms );
 
-char    *Sys_GetCurrentUser( void );
+const char    *Sys_GetCurrentUser( void );
 
 void QDECL Sys_Error( const char *error, ... );
 void    Sys_Quit( void );
@@ -994,10 +995,10 @@ qboolean    Sys_CheckCD( void );
 
 void    Sys_Mkdir( const char *path );
 char    *Sys_Cwd( void );
-char    *Sys_DefaultCDPath( void );
+const char    *Sys_DefaultCDPath( void );
 char    *Sys_DefaultBasePath( void );
 char    *Sys_DefaultInstallPath( void );
-char    *Sys_DefaultHomePath( void );
+const char    *Sys_DefaultHomePath( void );
 
 char **Sys_ListFiles( const char *directory, const char *extension, char *filter, int *numfiles, qboolean wantsubs );
 void    Sys_FreeFileList( char **list );
@@ -1009,10 +1010,7 @@ qboolean Sys_LowPhysicalMemory();
 unsigned int Sys_ProcessorCount();
 
 void Sys_StartProcess( char *exeName, qboolean doexit );            // NERVE - SMF
-// TTimo
-// show_bug.cgi?id=447
-//int Sys_ShellExecute(char *op, char *file, qboolean doexit, char *params, char *dir);	//----(SA) added
-void Sys_OpenURL( char *url, qboolean doexit );                     // NERVE - SMF
+
 int Sys_GetHighQualityCPU();
 
 /* This is based on the Adaptive Huffman algorithm described in Sayood's Data
@@ -1078,5 +1076,7 @@ void IN_Shutdown( void );
 void IN_Restart( void );
 
 #define	MAXPRINTMSG	4096
+
+#define ARRAY_LEN(x)			(sizeof(x) / sizeof(*(x)))
 
 #endif // _QCOMMON_H_

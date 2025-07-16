@@ -156,7 +156,7 @@ static int GLimp_SetMode(int mode, qboolean fullscreen, qboolean noborder, qbool
 		}
 	}
 
-	SDL_DisplayMode* desktopMode = SDL_GetDesktopDisplayMode( display );
+	const SDL_DisplayMode* desktopMode = SDL_GetDesktopDisplayMode( display );
 	if (desktopMode)
 	{
 		displayAspect = (float)desktopMode->w / (float)desktopMode->h;
@@ -343,7 +343,7 @@ static int GLimp_SetMode(int mode, qboolean fullscreen, qboolean noborder, qbool
 			//mode.refresh_rate = glConfig.displayFrequency = ri.Cvar_VariableIntegerValue( "r_displayRefresh" );
 	
 
-			if( SDL_SetWindowFullscreenMode( SDL_window, &mode ) < 0 )
+			if( !SDL_SetWindowFullscreenMode( SDL_window, &mode ))
 			{
 				ri.Printf( PRINT_DEVELOPER, "SDL_SetWindowDisplayMode failed: %s\n", SDL_GetError( ) );
 				continue;
@@ -401,7 +401,7 @@ static int GLimp_SetMode(int mode, qboolean fullscreen, qboolean noborder, qbool
 		qglClear( GL_COLOR_BUFFER_BIT );
 		SDL_GL_SwapWindow( SDL_window );
 
-		if( SDL_GL_SetSwapInterval( r_swapInterval->integer ) == -1 )
+		if( !SDL_GL_SetSwapInterval( r_swapInterval->integer ) )
 		{
 			ri.Printf( PRINT_DEVELOPER, "SDL_GL_SetSwapInterval failed: %s\n", SDL_GetError( ) );
 		}
@@ -552,7 +552,7 @@ of OpenGL
 */
 void GLimp_Init( qboolean fixedFunction )
 {
-	Printf( PRINT_DEVELOPER, "Glimp_Init( )\n" );
+	ri.Printf( PRINT_DEVELOPER, "Glimp_Init( )\n" );
 
 	r_allowSoftwareGL = Cvar_Get( "r_allowSoftwareGL", "0", CVAR_LATCH );
 	r_sdlDriver = Cvar_Get( "r_sdlDriver", "", CVAR_ROM );
@@ -567,7 +567,7 @@ void GLimp_Init( qboolean fixedFunction )
 		ri.Cvar_Set( "com_abnormalExit", "0" );
 	}
 */
-	Sys_GLimpInit( );
+	// IJB Sys_GLimpInit( );
 /*
 	// Create the window and set up the context
 	if(GLimp_StartDriverAndSetMode(r_mode->integer, r_fullscreen->integer, r_noborder->integer, fixedFunction))

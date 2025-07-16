@@ -986,8 +986,8 @@ void UI_SPSkillMenu_Cache( void );
 //
 // ui_syscalls.c
 //
-void            trap_Print( const char *string );
-void            trap_Error( const char *string );
+void            trap_UI_Print( const char *string );
+void            trap_UI_Error( const char *string );
 int             trap_Milliseconds( void );
 void            trap_Cvar_Register( vmCvar_t *vmCvar, const char *varName, const char *defaultValue, int flags );
 void            trap_Cvar_Update( vmCvar_t *vmCvar );
@@ -1008,8 +1008,8 @@ void            trap_FS_Write( const void *buffer, int len, fileHandle_t f );
 void            trap_FS_FCloseFile( fileHandle_t f );
 int             trap_FS_GetFileList(  const char *path, const char *extension, char *listbuf, int bufsize );
 int             trap_FS_Delete( const char *filename );
-qhandle_t       trap_R_RegisterModel( const char *name );
-qhandle_t       trap_R_RegisterSkin( const char *name );
+qhandle_t       trap_UI_RegisterModel( const char *name );
+qhandle_t       trap_UI_RegisterSkin( const char *name );
 qhandle_t       trap_R_RegisterShaderNoMip( const char *name );
 void            trap_R_ClearScene( void );
 void            trap_R_AddRefEntityToScene( const refEntity_t *re );
@@ -1023,7 +1023,7 @@ void            trap_R_ModelBounds( clipHandle_t model, vec3_t mins, vec3_t maxs
 void            trap_UpdateScreen( void );
 int             trap_CM_LerpTag( orientation_t *tag, const refEntity_t *refent, const char *tagName, int startIndex );
 void            trap_S_StartLocalSound( sfxHandle_t sfx, int channelNum );
-sfxHandle_t     trap_S_RegisterSound( const char *sample );
+sfxHandle_t     trap_UI_S_RegisterSound( const char *sample );
 void            trap_S_FadeAllSound( float targetvol, int time ); //----(SA)	added
 void            trap_Key_KeynumToStringBuf( int keynum, char *buf, int buflen );
 void            trap_Key_GetBindingBuf( int keynum, char *buf, int buflen );
@@ -1076,7 +1076,7 @@ int             trap_CIN_PlayCinematic( const char *arg0, int xpos, int ypos, in
 e_status        trap_CIN_StopCinematic( int handle );
 e_status        trap_CIN_RunCinematic( int handle );
 void            trap_CIN_DrawCinematic( int handle );
-void            trap_CIN_SetExtents( int handle, int x, int y, int w, int h );
+void            trap_UI_CIN_SetExtents( int handle, int x, int y, int w, int h );
 int             trap_RealTime( qtime_t *qtime );
 void            trap_R_RemapShader( const char *oldShader, const char *newShader, const char *timeOffset );
 qboolean        trap_VerifyCDKey( const char *key, const char *chksum );

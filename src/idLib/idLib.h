@@ -26,7 +26,7 @@ If you have questions concerning this license or the applicable additional terms
 ===========================================================================
 */
 
-#include "../splines/q_shared.h"
+#include "../game/q_shared.h"
 #include "../splines/util_str.h"
 
 #pragma once
@@ -35,8 +35,7 @@ If you have questions concerning this license or the applicable additional terms
 #define MAX_GENTITIES       ( 1 << GENTITYNUM_BITS )
 
 #define Com_ClearedAllocate( x ) calloc( x,1 );
-#define Com_Dealloc free
-#define Com_Allocate malloc
+
 
 typedef unsigned char byte;
 typedef unsigned long dword;

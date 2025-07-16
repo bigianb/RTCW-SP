@@ -182,13 +182,6 @@ void QDECL Com_Printf( const char *fmt, ... ) {
 			time( &aclock );
 			newtime = localtime( &aclock );
 
-#ifdef __MACOS__    //DAJ MacOS file typing
-			{
-				extern _MSL_IMP_EXP_C long _fcreator, _ftype;
-				_ftype = 'TEXT';
-				_fcreator = 'R*ch';
-			}
-#endif
 			logfile = FS_FOpenFileWrite( "rtcwconsole.log" );    //----(SA)	changed name for Wolf
 			Com_Printf( "logfile opened on %s\n", asctime( newtime ) );
 			if ( com_logfile->integer > 1 ) {
@@ -241,16 +234,6 @@ void QDECL Com_Error( int code, const char *fmt, ... ) {
 	static int lastErrorTime;
 	static int errorCount;
 	int currentTime;
-
-#if 0   //#if defined(_WIN32) && defined(_DEBUG)
-	if ( code != ERR_DISCONNECT && code != ERR_NEED_CD ) {
-		if ( !com_noErrorInterrupt->integer ) {
-			__asm {
-				int 0x03
-			}
-		}
-	}
-#endif
 
 	// when we are running automated scripts, make sure we
 	// know if anything failed
@@ -763,49 +746,6 @@ void *Z_Malloc( int size ) {
 	return buf;
 }
 
-#if 0
-/*
-================
-Z_TagMalloc
-================
-*/
-void *Z_TagMalloc( int size, int tag ) {
-
-	if ( tag != TAG_RENDERER ) {
-		assert( 0 );
-	}
-
-	if ( g_numTaggedAllocs < MAX_TAG_ALLOCS ) {
-		void *ptr = Z_Malloc( size );
-		g_taggedAllocations[g_numTaggedAllocs++] = ptr;
-		return ptr;
-	} else {
-		Com_Error( ERR_FATAL, "Z_TagMalloc: out of tagged allocation space\n" );
-	}
-	return NULL;
-}
-
-/*
-================
-Z_FreeTags
-================
-*/
-void Z_FreeTags( int tag ) {
-	int i;
-
-	if ( tag != TAG_RENDERER ) {
-		assert( 0 );
-	}
-
-	for ( i = 0; i < g_numTaggedAllocs; i++ ) {
-		free( g_taggedAllocations[i] );
-	}
-
-	g_numTaggedAllocs = 0;
-}
-
-#endif
-
 /*
 ========================
 CopyString
@@ -1095,7 +1035,7 @@ void Com_InitHunkMemory( void ) {
 		Com_Error( ERR_FATAL, "Hunk data failed to allocate %i megs", s_hunkTotal / ( 1024 * 1024 ) );
 	}
 	// cacheline align
-	s_hunkData = ( byte * )( ( (int)s_hunkData + 31 ) & ~31 );
+	s_hunkData = ( byte * )( ( (intptr_t)s_hunkData + 31 ) & ~31 );
 	Hunk_Clear();
 
 	Cmd_AddCommand( "meminfo", Com_Meminfo_f );
@@ -1467,13 +1407,7 @@ void Com_InitJournaling( void ) {
 
 	if ( com_journal->integer == 1 ) {
 		Com_Printf( "Journaling events\n" );
-#ifdef __MACOS__    //DAJ MacOS file typing
-		{
-			extern _MSL_IMP_EXP_C long _fcreator, _ftype;
-			_ftype = 'WlfB';
-			_fcreator = 'WlfS';
-		}
-#endif
+
 		com_journalFile = FS_FOpenFileWrite( "journal.dat" );
 		com_journalDataFile = FS_FOpenFileWrite( "journaldata.dat" );
 	} else if ( com_journal->integer == 2 ) {
@@ -1488,6 +1422,122 @@ void Com_InitJournaling( void ) {
 		com_journalDataFile = 0;
 		Com_Printf( "Couldn't open journal files\n" );
 	}
+}
+
+/*
+========================================================================
+
+EVENT LOOP
+
+========================================================================
+*/
+
+#define MAX_QUEUED_EVENTS  256
+#define MASK_QUEUED_EVENTS ( MAX_QUEUED_EVENTS - 1 )
+
+static sysEvent_t  eventQueue[ MAX_QUEUED_EVENTS ];
+static int         eventHead = 0;
+static int         eventTail = 0;
+
+/*
+================
+Com_QueueEvent
+
+A time of 0 will get the current time
+Ptr should either be null, or point to a block of data that can
+be freed by the game later.
+================
+*/
+void Com_QueueEvent( int time, sysEventType_t type, int value, int value2, int ptrLength, void *ptr )
+{
+	sysEvent_t  *ev;
+
+	// combine mouse movement with previous mouse event
+	if ( type == SE_MOUSE && eventHead != eventTail )
+	{
+		ev = &eventQueue[ ( eventHead + MAX_QUEUED_EVENTS - 1 ) & MASK_QUEUED_EVENTS ];
+
+		if ( ev->evType == SE_MOUSE )
+		{
+			ev->evValue += value;
+			ev->evValue2 += value2;
+			return;
+		}
+	}
+
+	ev = &eventQueue[ eventHead & MASK_QUEUED_EVENTS ];
+
+	if ( eventHead - eventTail >= MAX_QUEUED_EVENTS )
+	{
+		Com_Printf("Com_QueueEvent: overflow\n");
+		// we are discarding an event, but don't leak memory
+		if ( ev->evPtr )
+		{
+			Z_Free( ev->evPtr );
+		}
+		eventTail++;
+	}
+
+	eventHead++;
+
+	if ( time == 0 )
+	{
+		time = Sys_Milliseconds();
+	}
+
+	ev->evTime = time;
+	ev->evType = type;
+	ev->evValue = value;
+	ev->evValue2 = value2;
+	ev->evPtrLength = ptrLength;
+	ev->evPtr = ptr;
+}
+
+/*
+================
+Com_GetSystemEvent
+
+================
+*/
+sysEvent_t Com_GetSystemEvent( void )
+{
+	sysEvent_t  ev;
+	char        *s;
+
+	// return if we have data
+	if ( eventHead > eventTail )
+	{
+		eventTail++;
+		return eventQueue[ ( eventTail - 1 ) & MASK_QUEUED_EVENTS ];
+	}
+
+	// check for console commands
+	/*
+	s = Sys_ConsoleInput();
+	if ( s )
+	{
+		char  *b;
+		int   len;
+
+		len = strlen( s ) + 1;
+		b = Z_Malloc( len );
+		strcpy( b, s );
+		Com_QueueEvent( 0, SE_CONSOLE, 0, 0, len, b );
+	}
+*/
+
+	// return if we have data
+	if ( eventHead > eventTail )
+	{
+		eventTail++;
+		return eventQueue[ ( eventTail - 1 ) & MASK_QUEUED_EVENTS ];
+	}
+
+	// create an empty event to return
+	memset( &ev, 0, sizeof( ev ) );
+	ev.evTime = Sys_Milliseconds();
+
+	return ev;
 }
 
 /*
@@ -1513,7 +1563,7 @@ sysEvent_t  Com_GetRealEvent( void ) {
 			}
 		}
 	} else {
-		ev = Sys_GetEvent();
+		ev = Com_GetSystemEvent();
 
 		// write the journal value out if needed
 		if ( com_journal->integer == 1 ) {
@@ -1542,10 +1592,10 @@ Com_InitPushEvent
 // bk001129 - added
 void Com_InitPushEvent( void ) {
 	// clear the static buffer array
-	// this requires SE_NONE to be accepted as a valid but NOP event
+	// this requires EVT_NONE to be accepted as a valid but NOP event
 	memset( com_pushedEvents, 0, sizeof( com_pushedEvents ) );
 	// reset counters while we are at it
-	// beware: GetEvent might still return an SE_NONE from the buffer
+	// beware: GetEvent might still return an EVT_NONE from the buffer
 	com_pushedEventsHead = 0;
 	com_pushedEventsTail = 0;
 }
@@ -1639,7 +1689,7 @@ int Com_EventLoop( void ) {
 		ev = Com_GetEvent();
 
 		// if no more events are available
-		if ( ev.evType == SE_NONE ) {
+		if ( ev.evType == EVT_NONE ) {
 			// manually send packet events for the loopback channel
 			while ( NET_GetLoopPacket( NS_CLIENT, &evFrom, &buf ) ) {
 				CL_PacketEvent( evFrom, &buf );
@@ -1661,7 +1711,7 @@ int Com_EventLoop( void ) {
 			// bk001129 - was ev.evTime
 			Com_Error( ERR_FATAL, "Com_EventLoop: bad event type %i", ev.evType );
 			break;
-		case SE_NONE:
+		case EVT_NONE:
 			break;
 		case SE_KEY:
 			CL_KeyEvent( ev.evValue, ev.evValue2, ev.evTime );
@@ -1679,6 +1729,7 @@ int Com_EventLoop( void ) {
 			Cbuf_AddText( (char *)ev.evPtr );
 			Cbuf_AddText( "\n" );
 			break;
+/*
 		case SE_PACKET:
 			// this cvar allows simulation of connections that
 			// drop a lot of packets.  Note that loopback connections
@@ -1709,6 +1760,7 @@ int Com_EventLoop( void ) {
 				CL_PacketEvent( evFrom, &buf );
 			}
 			break;
+*/
 		}
 
 		// free any block data
@@ -1734,10 +1786,10 @@ int Com_Milliseconds( void ) {
 	do {
 
 		ev = Com_GetRealEvent();
-		if ( ev.evType != SE_NONE ) {
+		if ( ev.evType != EVT_NONE ) {
 			Com_PushEvent( &ev );
 		}
-	} while ( ev.evType != SE_NONE );
+	} while ( ev.evType != EVT_NONE );
 
 	return ev.evTime;
 }
@@ -1797,117 +1849,8 @@ A way to force a bus error for development reasons
 =================
 */
 static void Com_Crash_f( void ) {
-	*( int * ) 0 = 0x12345678;
+	__builtin_trap();
 }
-
-qboolean CL_CDKeyValidate( const char *key, const char *checksum );
-
-/*
-=================
-Com_ReadCDKey
-=================
-*/
-void Com_ReadCDKey( const char *filename ) {
-	fileHandle_t f;
-	char buffer[33];
-	char fbuffer[MAX_OSPATH];
-
-	sprintf( fbuffer, "%s/rtcwkey", filename );
-
-	FS_SV_FOpenFileRead( fbuffer, &f );
-	if ( !f ) {
-		Q_strncpyz( cl_cdkey, "                ", 17 );
-		return;
-	}
-
-	Com_Memset( buffer, 0, sizeof( buffer ) );
-
-	FS_Read( buffer, 16, f );
-	FS_FCloseFile( f );
-
-	if ( CL_CDKeyValidate( buffer, NULL ) ) {
-		Q_strncpyz( cl_cdkey, buffer, 17 );
-	} else {
-		Q_strncpyz( cl_cdkey, "                ", 17 );
-	}
-}
-
-/*
-=================
-Com_ReadCDKey
-=================
-*/
-void Com_AppendCDKey( const char *filename ) {
-	fileHandle_t f;
-	char buffer[33];
-	char fbuffer[MAX_OSPATH];
-
-	sprintf( fbuffer, "%s/rtcwkey", filename );
-
-	FS_SV_FOpenFileRead( fbuffer, &f );
-	if ( !f ) {
-		Q_strncpyz( &cl_cdkey[16], "                ", 17 );
-		return;
-	}
-
-	Com_Memset( buffer, 0, sizeof( buffer ) );
-
-	FS_Read( buffer, 16, f );
-	FS_FCloseFile( f );
-
-	if ( CL_CDKeyValidate( buffer, NULL ) ) {
-		strcat( &cl_cdkey[16], buffer );
-	} else {
-		Q_strncpyz( &cl_cdkey[16], "                ", 17 );
-	}
-}
-
-#ifndef DEDICATED // bk001204
-/*
-=================
-Com_WriteCDKey
-=================
-*/
-static void Com_WriteCDKey( const char *filename, const char *ikey ) {
-	fileHandle_t f;
-	char fbuffer[MAX_OSPATH];
-	char key[17];
-
-
-	sprintf( fbuffer, "%s/rtcwkey", filename );
-
-
-	Q_strncpyz( key, ikey, 17 );
-
-	if ( !CL_CDKeyValidate( key, NULL ) ) {
-		return;
-	}
-
-#ifdef __MACOS__    //DAJ MacOS file typing
-	{
-		extern _MSL_IMP_EXP_C long _fcreator, _ftype;
-		_ftype = 'TEXT';
-		_fcreator = 'WlfS';
-	}
-#endif
-	f = FS_SV_FOpenFileWrite( fbuffer );
-	if ( !f ) {
-		Com_Printf( "Couldn't write %s.\n", filename );
-		return;
-	}
-
-	FS_Write( key, 16, f );
-
-	FS_Printf( f, "\n// generated by RTCW, do not modify\r\n" );
-	FS_Printf( f, "// Do not give this file to ANYONE.\r\n" );
-#ifdef __MACOS__ // TTimo
-	FS_Printf( f, "// Aspyr will NOT ask you to send this file to them.\r\n" );
-#else
-	FS_Printf( f, "// id Software and Activision will NOT ask you to send this file to them.\r\n" );
-#endif
-	FS_FCloseFile( f );
-}
-#endif
 
 void Com_SetRecommended( qboolean vidrestart ) {
 	cvar_t *cv;
@@ -2175,16 +2118,6 @@ void Com_WriteConfiguration( void ) {
 	cvar_modifiedFlags &= ~CVAR_ARCHIVE;
 
 	Com_WriteConfigToFile( "wolfconfig.cfg" );
-
-	// bk001119 - tentative "not needed for dedicated"
-#ifndef DEDICATED
-	fs = Cvar_Get( "fs_game", "", CVAR_INIT | CVAR_SYSTEMINFO );
-	if ( UI_usesUniqueCDKey() && fs && fs->string[0] != 0 ) {
-		Com_WriteCDKey( fs->string, &cl_cdkey[16] );
-	} else {
-		Com_WriteCDKey( "main", cl_cdkey );
-	}
-#endif
 }
 
 

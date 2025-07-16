@@ -257,7 +257,7 @@ idStr operator+
 
 	idStr result( a );
 
-	sprintf( text, "%f", b );
+	snprintf( text, 20, "%f", b );
 	result.append( text );
 
 	return result;
@@ -272,7 +272,7 @@ idStr operator+
 
 	idStr result( a );
 
-	sprintf( text, "%d", b );
+	snprintf( text, 20, "%d", b );
 	result.append( text );
 
 	return result;
@@ -287,7 +287,7 @@ idStr operator+
 
 	idStr result( a );
 
-	sprintf( text, "%u", b );
+	snprintf( text, 20, "%u", b );
 	result.append( text );
 
 	return result;
@@ -299,7 +299,7 @@ idStr& idStr::operator+=
 ) {
 	char text[ 20 ];
 
-	sprintf( text, "%f", a );
+	snprintf( text, 20, "%f", a );
 	append( text );
 
 	return *this;
@@ -311,7 +311,7 @@ idStr& idStr::operator+=
 ) {
 	char text[ 20 ];
 
-	sprintf( text, "%d", a );
+	snprintf( text, 20, "%d", a );
 	append( text );
 
 	return *this;
@@ -323,7 +323,7 @@ idStr& idStr::operator+=
 ) {
 	char text[ 20 ];
 
-	sprintf( text, "%u", a );
+	snprintf( text, 20, "%u", a );
 	append( text );
 
 	return *this;
@@ -438,7 +438,7 @@ void idStr::snprintf
 	va_list argptr;
 
 	va_start( argptr,fmt );
-	len = vsprintf( buffer,fmt,argptr );
+	len = vsnprintf( buffer, 0x10000, fmt,argptr );
 	va_end( argptr );
 
 	assert( len < size );

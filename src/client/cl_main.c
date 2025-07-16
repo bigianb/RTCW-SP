@@ -65,6 +65,17 @@ cvar_t  *m_forward;
 cvar_t  *m_side;
 cvar_t  *m_filter;
 
+cvar_t	*j_pitch;
+cvar_t	*j_yaw;
+cvar_t	*j_forward;
+cvar_t	*j_side;
+cvar_t	*j_up;
+cvar_t	*j_pitch_axis;
+cvar_t	*j_yaw_axis;
+cvar_t	*j_forward_axis;
+cvar_t	*j_side_axis;
+cvar_t	*j_up_axis;
+
 cvar_t  *cl_activeAction;
 
 cvar_t  *cl_motdString;
@@ -83,8 +94,7 @@ cvar_t  *cl_language;
 cvar_t  *cl_debugTranslation;
 // -NERVE - SMF
 
-
-char cl_cdkey[34] = "                                ";
+cvar_t	*cl_consoleKeys;
 
 clientActive_t cl;
 clientConnection_t clc;
@@ -836,92 +846,6 @@ void CL_RequestMotd( void ) {
 	NET_OutOfBandPrint( NS_CLIENT, cls.updateServer, "getmotd \"%s\"\n", info );
 }
 
-
-/*
-===================
-CL_RequestAuthorization
-
-Authorization server protocol
------------------------------
-
-All commands are text in Q3 out of band packets (leading 0xff 0xff 0xff 0xff).
-
-Whenever the client tries to get a challenge from the server it wants to
-connect to, it also blindly fires off a packet to the authorize server:
-
-getKeyAuthorize <challenge> <cdkey>
-
-cdkey may be "demo"
-
-
-#OLD The authorize server returns a:
-#OLD
-#OLD keyAthorize <challenge> <accept | deny>
-#OLD
-#OLD A client will be accepted if the cdkey is valid and it has not been used by any other IP
-#OLD address in the last 15 minutes.
-
-
-The server sends a:
-
-getIpAuthorize <challenge> <ip>
-
-The authorize server returns a:
-
-ipAuthorize <challenge> <accept | deny | demo | unknown >
-
-A client will be accepted if a valid cdkey was sent by that ip (only) in the last 15 minutes.
-If no response is received from the authorize server after two tries, the client will be let
-in anyway.
-===================
-*/
-void CL_RequestAuthorization( void ) {
-	char nums[64];
-	int i, j, l;
-	cvar_t  *fs;
-
-	if ( !cls.authorizeServer.port ) {
-		Com_Printf( "Resolving %s\n", AUTHORIZE_SERVER_NAME );
-		if ( !NET_StringToAdr( AUTHORIZE_SERVER_NAME, &cls.authorizeServer  ) ) {
-			Com_Printf( "Couldn't resolve address\n" );
-			return;
-		}
-
-		cls.authorizeServer.port = BigShort( PORT_AUTHORIZE );
-		Com_Printf( "%s resolved to %i.%i.%i.%i:%i\n", AUTHORIZE_SERVER_NAME,
-					cls.authorizeServer.ip[0], cls.authorizeServer.ip[1],
-					cls.authorizeServer.ip[2], cls.authorizeServer.ip[3],
-					BigShort( cls.authorizeServer.port ) );
-	}
-	if ( cls.authorizeServer.type == NA_BAD ) {
-		return;
-	}
-
-	if ( Cvar_VariableValue( "fs_restrict" ) ) {
-		Q_strncpyz( nums, "demo", sizeof( nums ) );
-	} else {
-		// only grab the alphanumeric values from the cdkey, to avoid any dashes or spaces
-		j = 0;
-		l = strlen( cl_cdkey );
-		if ( l > 32 ) {
-			l = 32;
-		}
-		for ( i = 0 ; i < l ; i++ ) {
-			if ( ( cl_cdkey[i] >= '0' && cl_cdkey[i] <= '9' )
-				 || ( cl_cdkey[i] >= 'a' && cl_cdkey[i] <= 'z' )
-				 || ( cl_cdkey[i] >= 'A' && cl_cdkey[i] <= 'Z' )
-				 ) {
-				nums[j] = cl_cdkey[i];
-				j++;
-			}
-		}
-		nums[j] = 0;
-	}
-
-	fs = Cvar_Get( "cl_anonymous", "0", CVAR_INIT | CVAR_SYSTEMINFO );
-	NET_OutOfBandPrint( NS_CLIENT, cls.authorizeServer, va( "getKeyAuthorize %i %s", fs->integer, nums ) );
-}
-
 /*
 ======================================================================
 
@@ -1514,9 +1438,6 @@ void CL_CheckForResend( void ) {
 	switch ( cls.state ) {
 	case CA_CONNECTING:
 		// requesting a challenge
-		if ( !Sys_IsLANAddress( clc.serverAddress ) ) {
-			CL_RequestAuthorization();
-		}
 		NET_OutOfBandPrint( NS_CLIENT, clc.serverAddress, "getchallenge" );
 		break;
 
@@ -2379,10 +2300,6 @@ void CL_InitRef( void ) {
 
 	ret = GetRefAPI( REF_API_VERSION, &ri );
 
-#if 0 // MrE defined __USEA3D && defined __A3D_GEOM
-	hA3Dg_ExportRenderGeom( ret );
-#endif
-
 	Com_Printf( "-------------------------------\n" );
 
 	if ( !ret ) {
@@ -2413,38 +2330,7 @@ void CL_startMultiplayer_f( void ) {
 // -NERVE - SMF
 
 //----(SA) added
-/*
-==============
-CL_ShellExecute_URL_f
-Format:
-  shellExecute "open" <url> <doExit>
 
-TTimo
-  show_bug.cgi?id=447
-  only supporting "open" syntax for URL openings, others are not portable or need to be added on a case-by-case basis
-  the shellExecute syntax as been kept to remain compatible with win32 SP demo pk3, but this thing only does open URL
-
-==============
-*/
-
-void CL_ShellExecute_URL_f( void ) {
-	qboolean doexit;
-
-	Com_DPrintf( "CL_ShellExecute_URL_f\n" );
-
-	if ( Q_stricmp( Cmd_Argv( 1 ),"open" ) ) {
-		Com_DPrintf( "invalid CL_ShellExecute_URL_f syntax (shellExecute \"open\" <url> <doExit>)\n" );
-		return;
-	}
-
-	if ( Cmd_Argc() < 4 ) {
-		doexit = qtrue;
-	} else {
-		doexit = (qboolean)( atoi( Cmd_Argv( 3 ) ) );
-	}
-
-	Sys_OpenURL( Cmd_Argv( 2 ),doexit );
-}
 //----(SA) end
 //===========================================================================================
 
@@ -2526,9 +2412,30 @@ void CL_Init( void ) {
 	m_side = Cvar_Get( "m_side", "0.25", CVAR_ARCHIVE );
 	m_filter = Cvar_Get( "m_filter", "0", CVAR_ARCHIVE );
 
+	j_pitch =        Cvar_Get ("j_pitch",        "0.022", CVAR_ARCHIVE);
+	j_yaw =          Cvar_Get ("j_yaw",          "-0.022", CVAR_ARCHIVE);
+	j_forward =      Cvar_Get ("j_forward",      "-0.25", CVAR_ARCHIVE);
+	j_side =         Cvar_Get ("j_side",         "0.25", CVAR_ARCHIVE);
+	j_up =           Cvar_Get ("j_up",           "0", CVAR_ARCHIVE);
+
+	j_pitch_axis =   Cvar_Get ("j_pitch_axis",   "3", CVAR_ARCHIVE);
+	j_yaw_axis =     Cvar_Get ("j_yaw_axis",     "2", CVAR_ARCHIVE);
+	j_forward_axis = Cvar_Get ("j_forward_axis", "1", CVAR_ARCHIVE);
+	j_side_axis =    Cvar_Get ("j_side_axis",    "0", CVAR_ARCHIVE);
+	j_up_axis =      Cvar_Get ("j_up_axis",      "4", CVAR_ARCHIVE);
+
+	Cvar_CheckRange(j_pitch_axis, 0, MAX_JOYSTICK_AXIS-1, qtrue);
+	Cvar_CheckRange(j_yaw_axis, 0, MAX_JOYSTICK_AXIS-1, qtrue);
+	Cvar_CheckRange(j_forward_axis, 0, MAX_JOYSTICK_AXIS-1, qtrue);
+	Cvar_CheckRange(j_side_axis, 0, MAX_JOYSTICK_AXIS-1, qtrue);
+	Cvar_CheckRange(j_up_axis, 0, MAX_JOYSTICK_AXIS-1, qtrue);
+
 	cl_motdString = Cvar_Get( "cl_motdString", "", CVAR_ROM );
 
 	Cvar_Get( "cl_maxPing", "800", CVAR_ARCHIVE );
+
+	// ~ and `, as keys and characters
+	cl_consoleKeys = Cvar_Get( "cl_consoleKeys", "~ ` 0x7e 0x60", CVAR_ARCHIVE);
 
 	// userinfo
 	Cvar_Get( "name", "Player", CVAR_USERINFO | CVAR_ARCHIVE );
@@ -2598,13 +2505,6 @@ void CL_Init( void ) {
 
 	// RF, add this command so clients can't bind a key to send client damage commands to the server
 	Cmd_AddCommand( "cld", CL_ClientDamageCommand );
-
-	Cmd_AddCommand( "startMultiplayer", CL_startMultiplayer_f );        // NERVE - SMF
-
-	// TTimo
-	// show_bug.cgi?id=447
-	Cmd_AddCommand( "shellExecute", CL_ShellExecute_URL_f );
-	//Cmd_AddCommand ( "shellExecute", CL_ShellExecute_f );	//----(SA) added (mainly for opening web pages from the menu)
 
 	// RF, prevent users from issuing a map_restart manually
 	Cmd_AddCommand( "map_restart", CL_MapRestart_f );
@@ -2834,7 +2734,7 @@ void CL_ServerInfoPacket( netadr_t from, msg_t *msg ) {
 	Q_strncpyz( info, MSG_ReadString( msg ), MAX_INFO_STRING );
 	if ( strlen( info ) ) {
 		if ( info[strlen( info ) - 1] != '\n' ) {
-			strncat( info, "\n", sizeof( info ) );
+			strncat( info, "\n", sizeof( info ) - 1 );
 		}
 		Com_Printf( "%s: %s", NET_AdrToString( from ), info );
 	}

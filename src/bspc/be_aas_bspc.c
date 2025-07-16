@@ -165,7 +165,7 @@ void BotImport_Print( int type, char *fmt, ... ) {
 
 	va_start( argptr, fmt );
 	vsprintf( buf, fmt, argptr );
-	printf( buf );
+	printf( "%s", buf );
 	if ( buf[0] != '\r' ) {
 		Log_Write( buf );
 	}
@@ -211,13 +211,13 @@ void BotImport_BSPModelMinsMaxsOrigin( int modelnum, vec3_t angles, vec3_t outmi
 // Returns:				-
 // Changes Globals:		-
 //===========================================================================
-void Com_DPrintf( char *fmt, ... ) {
+void Com_DPrintf( const char *fmt, ... ) {
 	va_list argptr;
 	char buf[1024];
 
 	va_start( argptr, fmt );
 	vsprintf( buf, fmt, argptr );
-	printf( buf );
+	printf( "%s", buf );
 	if ( buf[0] != '\r' ) {
 		Log_Write( buf );
 	}

@@ -173,7 +173,7 @@ void G_Script_ScriptEvent( gentity_t *ent, char *eventStr, char *params );
 //====================================================================
 
 
-#define CFOFS( x ) ( (int)&( ( (gclient_t *)0 )->x ) )
+#define CFOFS( x ) ( (intptr_t)&( ( (gclient_t *)0 )->x ) )
 
 struct gentity_s {
 	entityState_t s;                // communicated by server to clients
@@ -1079,7 +1079,7 @@ extern level_locals_t level;
 extern gentity_t g_entities[MAX_GENTITIES];
 extern gentity_t       *g_camEnt;
 
-#define FOFS( x ) ( (int)&( ( (gentity_t *)0 )->x ) )
+#define FOFS( x ) ( (intptr_t)&( ( (gentity_t *)0 )->x ) )
 
 extern vmCvar_t g_gametype;
 
@@ -1180,7 +1180,7 @@ int     trap_FS_Write( const void *buffer, int len, fileHandle_t f );
 int     trap_FS_Rename( const char *from, const char *to );
 void    trap_FS_FCloseFile( fileHandle_t f );
 int     trap_FS_GetFileList( const char *path, const char *extension, char *listbuf, int bufsize );
-void    trap_SendConsoleCommand( int exec_when, const char *text );
+void    trap_game_SendConsoleCommand( int exec_when, const char *text );
 void    trap_Cvar_Register( vmCvar_t *cvar, const char *var_name, const char *value, int flags );
 void    trap_Cvar_Update( vmCvar_t *cvar );
 void    trap_Cvar_Set( const char *var_name, const char *value );

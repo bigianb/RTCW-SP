@@ -29,6 +29,10 @@ If you have questions concerning this license or the applicable additional terms
 #ifndef __Q_SHARED_H
 #define __Q_SHARED_H
 
+extern "C" {
+#include "../game/q_shared.h"
+}
+
 // q_splineshared.h -- included first by ALL program modules.
 // these are the definitions that have no dependance on
 // central system services, and can be used by any part
@@ -662,7 +666,7 @@ float   BigFloat( float l );
 float   LittleFloat( float l );
 
 void    Swap_Init( void );
-char    * QDECL va( char *format, ... );
+char    * QDECL va( const char *format, ... );
 
 #ifdef __cplusplus
 }
@@ -792,9 +796,8 @@ int         Com_IndexForGrowListElement( const growList_t *list, const void *ele
 //
 // key / value info strings
 //
-char *Info_ValueForKey( const char *s, const char *key );
+const char *Info_ValueForKey( const char *s, const char *key );
 void Info_RemoveKey( char *s, const char *key );
-void Info_SetValueForKey( char *s, const char *key, const char *value );
 qboolean Info_Validate( const char *s );
 void Info_NextPair( const char *( *s ), char key[MAX_INFO_KEY], char value[MAX_INFO_VALUE] );
 

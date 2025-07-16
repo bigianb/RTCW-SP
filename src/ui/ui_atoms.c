@@ -38,33 +38,6 @@ If you have questions concerning this license or the applicable additional terms
 uiStatic_t uis;
 qboolean m_entersound;              // after a frame, so caching won't disrupt the sound
 
-// these are here so the functions in q_shared.c can link
-#if !defined( UI_HARD_LINKED ) || defined( __MACOS__ )
-
-void QDECL Com_Error( int level, const char *error, ... ) {
-	va_list argptr;
-	char text[1024];
-
-	va_start( argptr, error );
-	vsprintf( text, error, argptr );
-	va_end( argptr );
-
-	trap_Error( va( "%s", text ) );
-}
-
-void QDECL Com_Printf( const char *msg, ... ) {
-	va_list argptr;
-	char text[1024];
-
-	va_start( argptr, msg );
-	vsprintf( text, msg, argptr );
-	va_end( argptr );
-
-	trap_Print( va( "%s", text ) );
-}
-
-#endif
-
 /*
 =================
 UI_ClampCvar

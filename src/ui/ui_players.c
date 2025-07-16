@@ -81,7 +81,7 @@ tryagain:
 	}
 
 	if ( item->classname ) {
-		pi->weaponModel = trap_R_RegisterModel( item->world_model[0] );
+		pi->weaponModel = trap_UI_RegisterModel( item->world_model[0] );
 	}
 
 	if ( pi->weaponModel == 0 ) {
@@ -98,7 +98,7 @@ tryagain:
 	strcpy( path, item->world_model[0] );
 	COM_StripExtension( path, path );
 	strcat( path, "_flash.md3" );
-	pi->flashModel = trap_R_RegisterModel( path );
+	pi->flashModel = trap_UI_RegisterModel( path );
 
 	switch ( weaponNum ) {
 	case WP_GAUNTLET:
@@ -365,137 +365,6 @@ static void UI_PositionRotatedEntityOnTag( refEntity_t *entity, const refEntity_
 	MatrixMultiply( entity->axis, ( (refEntity_t *)parent )->axis, tempAxis );
 	MatrixMultiply( lerped.axis, tempAxis, entity->axis );
 }
-
-
-/*
-===============
-UI_SetLerpFrameAnimation
-===============
-*/
-// TTimo: unused
-/*
-static void UI_SetLerpFrameAnimation( playerInfo_t *ci, lerpFrame_t *lf, int newAnimation ) {
-	animation_t	*anim;
-
-	lf->animationNumber = newAnimation;
-	newAnimation &= ~ANIM_TOGGLEBIT;
-
-	if ( newAnimation < 0 || newAnimation >= MAX_ANIMATIONS ) {
-		trap_Error( va("Bad animation number (UI_SLFA): %i", newAnimation) );
-	}
-
-	anim = &ci->animations[ newAnimation ];
-
-	lf->animation = anim;
-	lf->animationTime = lf->frameTime + anim->initialLerp;
-}
-*/
-
-/*
-===============
-UI_RunLerpFrame
-===============
-*/
-// TTimo: unused
-/*
-static void UI_RunLerpFrame( playerInfo_t *ci, lerpFrame_t *lf, int newAnimation ) {
-	int			f;
-	animation_t	*anim;
-
-	// see if the animation sequence is switching
-	if ( newAnimation != lf->animationNumber || !lf->animation ) {
-		UI_SetLerpFrameAnimation( ci, lf, newAnimation );
-	}
-
-	// if we have passed the current frame, move it to
-	// oldFrame and calculate a new frame
-	if ( dp_realtime >= lf->frameTime ) {
-		lf->oldFrame = lf->frame;
-		lf->oldFrameTime = lf->frameTime;
-
-		// get the next frame based on the animation
-		anim = lf->animation;
-		if ( dp_realtime < lf->animationTime ) {
-			lf->frameTime = lf->animationTime;		// initial lerp
-		} else {
-			lf->frameTime = lf->oldFrameTime + anim->frameLerp;
-		}
-		f = ( lf->frameTime - lf->animationTime ) / anim->frameLerp;
-		if ( f >= anim->numFrames ) {
-			f -= anim->numFrames;
-			if ( anim->loopFrames ) {
-				f %= anim->loopFrames;
-				f += anim->numFrames - anim->loopFrames;
-			} else {
-				f = anim->numFrames - 1;
-				// the animation is stuck at the end, so it
-				// can immediately transition to another sequence
-				lf->frameTime = dp_realtime;
-			}
-		}
-		lf->frame = anim->firstFrame + f;
-		if ( dp_realtime > lf->frameTime ) {
-			lf->frameTime = dp_realtime;
-		}
-	}
-
-	if ( lf->frameTime > dp_realtime + 200 ) {
-		lf->frameTime = dp_realtime;
-	}
-
-	if ( lf->oldFrameTime > dp_realtime ) {
-		lf->oldFrameTime = dp_realtime;
-	}
-	// calculate current lerp value
-	if ( lf->frameTime == lf->oldFrameTime ) {
-		lf->backlerp = 0;
-	} else {
-		lf->backlerp = 1.0 - (float)( dp_realtime - lf->oldFrameTime ) / ( lf->frameTime - lf->oldFrameTime );
-	}
-}
-*/
-
-/*
-===============
-UI_PlayerAnimation
-===============
-*/
-// TTimo: unused
-/*
-static void UI_PlayerAnimation( playerInfo_t *pi, int *legsOld, int *legs, float *legsBackLerp,
-						int *torsoOld, int *torso, float *torsoBackLerp ) {
-
-	// legs animation
-	pi->legsAnimationTimer -= uis.frametime;
-	if ( pi->legsAnimationTimer < 0 ) {
-		pi->legsAnimationTimer = 0;
-	}
-
-	UI_LegsSequencing( pi );
-
-	if ( pi->legs.yawing && ( pi->legsAnim & ~ANIM_TOGGLEBIT ) == LEGS_IDLE ) {
-		UI_RunLerpFrame( pi, &pi->legs, LEGS_TURN );
-	} else {
-		UI_RunLerpFrame( pi, &pi->legs, pi->legsAnim );
-	}
-	*legsOld = pi->legs.oldFrame;
-	*legs = pi->legs.frame;
-	*legsBackLerp = pi->legs.backlerp;
-
-	// torso animation
-	pi->torsoAnimationTimer -= uis.frametime;
-	if ( pi->torsoAnimationTimer < 0 ) {
-		pi->torsoAnimationTimer = 0;
-	}
-
-	UI_TorsoSequencing( pi );
-
-	UI_RunLerpFrame( pi, &pi->torso, pi->torsoAnim );
-	*torsoOld = pi->torso.oldFrame;
-	*torso = pi->torso.frame;
-	*torsoBackLerp = pi->torso.backlerp;
-}
-*/
 
 /*
 ==================
@@ -776,7 +645,7 @@ void UI_DrawPlayer( float x, float y, float w, float h, playerInfo_t *pi, int ti
 		pi->pendingWeapon = -1;
 		pi->weaponTimer = 0;
 		if ( pi->currentWeapon != pi->weapon ) {
-			trap_S_StartLocalSound( trap_S_RegisterSound( "sound/weapons/change.wav" ), CHAN_LOCAL );
+			trap_S_StartLocalSound( trap_UI_S_RegisterSound( "sound/weapons/change.wav" ), CHAN_LOCAL );
 		}
 	}
 
@@ -961,14 +830,14 @@ static qboolean UI_RegisterClientSkin( playerInfo_t *pi, const char *modelName, 
 
 //	Com_sprintf( filename, sizeof( filename ), "models/players/%s/lower_%s.skin", modelName, skinName );
 	Com_sprintf( filename, sizeof( filename ), "models/players/%s/body_%s.skin", modelName, skinName );      // NERVE - SMF - make this work with wolf
-	pi->legsSkin = trap_R_RegisterSkin( filename );
+	pi->legsSkin = trap_UI_RegisterSkin( filename );
 
 //	Com_sprintf( filename, sizeof( filename ), "models/players/%s/upper_%s.skin", modelName, skinName );
 	Com_sprintf( filename, sizeof( filename ), "models/players/%s/body_%s.skin", modelName, skinName );  // NERVE - SMF - make this work with wolf
-	pi->torsoSkin = trap_R_RegisterSkin( filename );
+	pi->torsoSkin = trap_UI_RegisterSkin( filename );
 
 	Com_sprintf( filename, sizeof( filename ), "models/players/%s/head_%s.skin", modelName, skinName );
-	pi->headSkin = trap_R_RegisterSkin( filename );
+	pi->headSkin = trap_UI_RegisterSkin( filename );
 
 	if ( !pi->legsSkin || !pi->torsoSkin || !pi->headSkin ) {
 		return qfalse;
@@ -1509,7 +1378,7 @@ qboolean UI_RegisterClientModelname( playerInfo_t *pi, const char *modelSkinName
 
 //	Com_sprintf( filename, sizeof( filename ), "models/players/%s/lower.md3", modelName );
 	Com_sprintf( filename, sizeof( filename ), "models/players/%s/body.mds", modelName ); // NERVE - SMF - make this work with wolf
-	pi->legsModel = trap_R_RegisterModel( filename );
+	pi->legsModel = trap_UI_RegisterModel( filename );
 	if ( !pi->legsModel ) {
 		Com_Printf( "Failed to load model file %s\n", filename );
 		return qfalse;
@@ -1517,14 +1386,14 @@ qboolean UI_RegisterClientModelname( playerInfo_t *pi, const char *modelSkinName
 
 //	Com_sprintf( filename, sizeof( filename ), "models/players/%s/upper.md3", modelName );
 	Com_sprintf( filename, sizeof( filename ), "models/players/%s/body.mds", modelName ); // NERVE - SMF - make this work with wolf
-	pi->torsoModel = trap_R_RegisterModel( filename );
+	pi->torsoModel = trap_UI_RegisterModel( filename );
 	if ( !pi->torsoModel ) {
 		Com_Printf( "Failed to load model file %s\n", filename );
 		return qfalse;
 	}
 
 	Com_sprintf( filename, sizeof( filename ), "models/players/%s/head.md3", modelName );
-	pi->headModel = trap_R_RegisterModel( filename );
+	pi->headModel = trap_UI_RegisterModel( filename );
 	if ( !pi->headModel ) {
 		Com_Printf( "Failed to load model file %s\n", filename );
 		return qfalse;
@@ -1532,11 +1401,11 @@ qboolean UI_RegisterClientModelname( playerInfo_t *pi, const char *modelSkinName
 
 	// NERVE - SMF - load backpack and helmet
 	if ( backpack ) {
-		pi->backpackModel = trap_R_RegisterModel( va( "models/players/%s/%s", modelName, backpack ) );
+		pi->backpackModel = trap_UI_RegisterModel( va( "models/players/%s/%s", modelName, backpack ) );
 	}
 
 	if ( helmet ) {
-		pi->helmetModel = trap_R_RegisterModel( va( "models/players/%s/%s", modelName, helmet ) );
+		pi->helmetModel = trap_UI_RegisterModel( va( "models/players/%s/%s", modelName, helmet ) );
 	}
 
 	// if any skins failed to load, fall back to default

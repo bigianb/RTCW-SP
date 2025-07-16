@@ -32,18 +32,12 @@ If you have questions concerning this license or the applicable additional terms
 
 static int ( QDECL * syscall )( int arg, ... ) = ( int ( QDECL * )( int, ... ) ) - 1;
 
-// TTimo: guarding
-#if defined( __MACOS__ )
-#pragma export on
-#endif
-void dllEntry( int ( QDECL  *syscallptr )( int arg,... ) ) {
-#if defined( __MACOS__ )
-#pragma export off
-#endif
+
+void dllEntry_CG( int ( QDECL  *syscallptr )( int arg,... ) ) {
 	syscall = syscallptr;
 }
 
-
+static
 int PASSFLOAT( float x ) {
 	float floatTemp;
 	floatTemp = x;
@@ -53,7 +47,7 @@ int PASSFLOAT( float x ) {
 void    trap_Print( const char *fmt ) {
 	syscall( CG_PRINT, fmt );
 }
-
+/*
 void    trap_Error( const char *fmt ) {
 	syscall( CG_ERROR, fmt );
 }
@@ -65,11 +59,11 @@ int     trap_Milliseconds( void ) {
 void    trap_Cvar_Register( vmCvar_t *vmCvar, const char *varName, const char *defaultValue, int flags ) {
 	syscall( CG_CVAR_REGISTER, vmCvar, varName, defaultValue, flags );
 }
-
+*/
 void    trap_Cvar_Update( vmCvar_t *vmCvar ) {
 	syscall( CG_CVAR_UPDATE, vmCvar );
 }
-
+/*
 void    trap_Cvar_Set( const char *var_name, const char *value ) {
 	syscall( CG_CVAR_SET, var_name, value );
 }
@@ -85,11 +79,11 @@ int     trap_Argc( void ) {
 void    trap_Argv( int n, char *buffer, int bufferLength ) {
 	syscall( CG_ARGV, n, buffer, bufferLength );
 }
-
+*/
 void    trap_Args( char *buffer, int bufferLength ) {
 	syscall( CG_ARGS, buffer, bufferLength );
 }
-
+/*
 int     trap_FS_FOpenFile( const char *qpath, fileHandle_t *f, fsMode_t mode ) {
 	return syscall( CG_FS_FOPENFILE, qpath, f, mode );
 }
@@ -105,7 +99,7 @@ void    trap_FS_Write( const void *buffer, int len, fileHandle_t f ) {
 void    trap_FS_FCloseFile( fileHandle_t f ) {
 	syscall( CG_FS_FCLOSEFILE, f );
 }
-
+*/
 void    trap_SendConsoleCommand( const char *text ) {
 	syscall( CG_SENDCONSOLECOMMAND, text );
 }
@@ -470,16 +464,8 @@ int trap_PC_SourceFileAndLine( int handle, char *filename, int *line ) {
 	return syscall( CG_PC_SOURCE_FILE_AND_LINE, handle, filename, line );
 }
 
-void    trap_S_StopBackgroundTrack( void ) {
+void  trap_S_StopBackgroundTrack( void ) {
 	syscall( CG_S_STOPBACKGROUNDTRACK );
-}
-
-int trap_RealTime( qtime_t *qtime ) {
-	return syscall( CG_REAL_TIME, qtime );
-}
-
-void trap_SnapVector( float *v ) {
-	syscall( CG_SNAPVECTOR, v );
 }
 
 void trap_SendMoveSpeedsToGame( int entnum, char *movespeeds ) {
@@ -514,10 +500,11 @@ void trap_CIN_DrawCinematic( int handle ) {
 void trap_CIN_SetExtents( int handle, int x, int y, int w, int h ) {
 	syscall( CG_CIN_SETEXTENTS, handle, x, y, w, h );
 }
-
+/*
 qboolean trap_GetEntityToken( char *buffer, int bufferSize ) {
 	return syscall( CG_GET_ENTITY_TOKEN, buffer, bufferSize );
 }
+*/
 
 //----(SA)	added
 // bring up a popup menu

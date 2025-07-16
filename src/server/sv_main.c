@@ -787,7 +787,7 @@ void SV_Frame( int msec ) {
 	if ( com_dedicated->integer && sv.timeResidual < frameMsec ) {
 		// NET_Sleep will give the OS time slices until either get a packet
 		// or time enough for a server frame has gone by
-		NET_Sleep( frameMsec - sv.timeResidual );
+		//NET_Sleep( frameMsec - sv.timeResidual );
 		return;
 	}
 

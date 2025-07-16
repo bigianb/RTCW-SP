@@ -1139,7 +1139,7 @@ void CG_RegisterWeapon( int weaponNum ) {
 		strcpy( comppath, item->world_model[W_TP_MODEL] );  // not there, use the standard view hand
 
 	}
-	if ( ( !comppath || !cg_drawFPGun.integer ) &&     // then if it didn't find the 1st person one or you are set to not use one
+	if ( ( !cg_drawFPGun.integer ) &&     // then if it didn't find the 1st person one or you are set to not use one
 		 item->world_model[W_TP_MODEL] ) {
 		strcpy( comppath, item->world_model[W_TP_MODEL] );  // use the standard view hand
 
@@ -1519,17 +1519,6 @@ void CG_RegisterItemVisuals( int itemNum ) {
 		item = BG_FindItem( "MP40" );
 		item->giAmmoIndex = WP_MP40;
 	}
-// jpw
-
-	//
-	// powerups have an accompanying ring or sphere
-	//
-//	if ( item->giType == IT_POWERUP || item->giType == IT_HEALTH ||
-//		item->giType == IT_ARMOR || item->giType == IT_HOLDABLE ) {
-//		if ( item->world_model[W_FP_MODEL] ) {
-//			itemInfo->models[W_FP_MODEL] = trap_R_RegisterModel( item->world_model[W_FP_MODEL] );
-//		}
-//	}
 }
 
 
@@ -1802,7 +1791,7 @@ static void CG_CalculateWeaponPosition( vec3_t origin, vec3_t angles ) {
 		VectorMA( origin, angles[ROLL], right, origin );
 
 		// pitch the gun down a bit to show that firing is not allowed when leaning
-		angles[PITCH] += ( abs( cg.predictedPlayerState.leanf ) / 2.0f );
+		angles[PITCH] += ( fabsf( cg.predictedPlayerState.leanf ) / 2.0f );
 
 		// this gives you some impression that the weapon stays in relatively the same
 		// position while you lean, so you appear to 'peek' over the weapon

@@ -499,14 +499,6 @@ qboolean    ConsoleCommand( void ) {
 		return qtrue;
 	}
 
-	// TTimo: took out games/g_arenas.c
-	/*
-	  if (Q_stricmp (cmd, "abort_podium") == 0) {
-		  Svcmd_AbortPodium_f();
-		  return qtrue;
-	  }
-	*/
-
 	if ( Q_stricmp( cmd, "addip" ) == 0 ) {
 		Svcmd_AddIP_f();
 		return qtrue;
@@ -518,7 +510,7 @@ qboolean    ConsoleCommand( void ) {
 	}
 
 	if ( Q_stricmp( cmd, "listip" ) == 0 ) {
-		trap_SendConsoleCommand( EXEC_INSERT, "g_banIPs\n" );
+		trap_game_SendConsoleCommand( EXEC_INSERT, "g_banIPs\n" );
 		return qtrue;
 	}
 

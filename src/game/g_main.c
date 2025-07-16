@@ -275,13 +275,8 @@ This is the only way control passes into the module.
 This must be the very first function compiled into the .q3vm file
 ================
 */
-#if defined( __MACOS__ )
-#pragma export on
-#endif
-int vmMain( int command, int arg0, int arg1, int arg2, int arg3, int arg4, int arg5, int arg6 ) {
-#if defined( __MACOS__ )
-#pragma export off
-#endif
+
+intptr_t vmMainG( int command, intptr_t arg0, intptr_t arg1, intptr_t arg2, intptr_t arg3, intptr_t arg4, intptr_t arg5, intptr_t arg6 ) {
 	switch ( command ) {
 	case GAME_INIT:
 		G_InitGame( arg0, arg1, arg2 );
@@ -290,7 +285,7 @@ int vmMain( int command, int arg0, int arg1, int arg2, int arg3, int arg4, int a
 		G_ShutdownGame( arg0 );
 		return 0;
 	case GAME_CLIENT_CONNECT:
-		return (int)ClientConnect( arg0, arg1, arg2 );
+		return (intptr_t)ClientConnect( arg0, arg1, arg2 );
 	case GAME_CLIENT_THINK:
 		ClientThink( arg0 );
 		return 0;
@@ -1849,7 +1844,7 @@ void ExitLevel( void ) {
 	if ( g_gametype.integer == GT_TOURNAMENT ) {
 		if ( !level.restarted ) {
 			RemoveTournamentLoser();
-			trap_SendConsoleCommand( EXEC_APPEND, "map_restart 0\n" );
+			trap_game_SendConsoleCommand( EXEC_APPEND, "map_restart 0\n" );
 			level.restarted = qtrue;
 			level.changemap = NULL;
 			level.intermissiontime = 0;
@@ -1858,7 +1853,7 @@ void ExitLevel( void ) {
 	}
 
 
-	trap_SendConsoleCommand( EXEC_APPEND, "vstr nextmap\n" );
+	trap_game_SendConsoleCommand( EXEC_APPEND, "vstr nextmap\n" );
 	level.changemap = NULL;
 	level.intermissiontime = 0;
 
@@ -2260,7 +2255,7 @@ void CheckTournement( void ) {
 	if ( level.time > level.warmupTime ) {
 		level.warmupTime += 10000;
 		trap_Cvar_Set( "g_restarted", "1" );
-		trap_SendConsoleCommand( EXEC_APPEND, "map_restart 0\n" );
+		trap_game_SendConsoleCommand( EXEC_APPEND, "map_restart 0\n" );
 		level.restarted = qtrue;
 		return;
 	}
@@ -2275,7 +2270,7 @@ CheckVote
 void CheckVote( void ) {
 	if ( level.voteExecuteTime && level.voteExecuteTime < level.time ) {
 		level.voteExecuteTime = 0;
-		trap_SendConsoleCommand( EXEC_APPEND, va( "%s\n", level.voteString ) );
+		trap_game_SendConsoleCommand( EXEC_APPEND, va( "%s\n", level.voteString ) );
 	}
 	if ( !level.voteTime ) {
 		return;
@@ -2314,9 +2309,9 @@ void CheckReloadStatus( void ) {
 				if ( g_reloading.integer == RELOAD_NEXTMAP_WAITING ) {
 					trap_Cvar_Set( "g_reloading", va( "%d", RELOAD_NEXTMAP ) ); // set so sv_map_f will know it's okay to start a map
 					if ( g_cheats.integer ) {
-						trap_SendConsoleCommand( EXEC_APPEND, va( "spdevmap %s\n", level.nextMap ) );
+						trap_game_SendConsoleCommand( EXEC_APPEND, va( "spdevmap %s\n", level.nextMap ) );
 					} else {
-						trap_SendConsoleCommand( EXEC_APPEND, va( "spmap %s\n", level.nextMap ) );
+						trap_game_SendConsoleCommand( EXEC_APPEND, va( "spmap %s\n", level.nextMap ) );
 					}
 
 				} else if ( g_reloading.integer == RELOAD_ENDGAME ) {
@@ -2325,7 +2320,7 @@ void CheckReloadStatus( void ) {
 				} else {
 					// set the loadgame flag, and restart the server
 					trap_Cvar_Set( "savegame_loading", "2" ); // 2 means it's a restart, so stop rendering until we are loaded
-					trap_SendConsoleCommand( EXEC_INSERT, "map_restart\n" );
+					trap_game_SendConsoleCommand( EXEC_INSERT, "map_restart\n" );
 				}
 
 				level.reloadDelayTime = 0;

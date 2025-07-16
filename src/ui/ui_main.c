@@ -183,13 +183,9 @@ void _UI_KeyEvent( int key, qboolean down );
 void _UI_MouseEvent( int dx, int dy );
 void _UI_Refresh( int realtime );
 qboolean _UI_IsFullscreen( void );
-#if defined( __MACOS__ )
-#pragma export on
-#endif
-int vmMain( int command, int arg0, int arg1, int arg2, int arg3, int arg4, int arg5, int arg6, int arg7, int arg8, int arg9, int arg10, int arg11  ) {
-#if defined( __MACOS__ )
-#pragma export off
-#endif
+
+int vmMainUI( int command, int arg0, int arg1, int arg2, int arg3, int arg4, int arg5, int arg6, int arg7, int arg8, int arg9, int arg10, int arg11  ) {
+
 	switch ( command ) {
 	case UI_GETAPIVERSION:
 		return UI_API_VERSION;
@@ -268,7 +264,6 @@ void AssetCache() {
 		uiInfo.uiDC.Assets.crosshairShader[n] = trap_R_RegisterShaderNoMip( va( "gfx/2d/crosshair%c", 'a' + n ) );
 	}
 
-//	uiInfo.newHighScoreSound = trap_S_RegisterSound("sound/feedback/voc_newhighscore.wav");
 }
 
 void _UI_DrawSides( float x, float y, float w, float h, float size ) {
@@ -353,7 +348,7 @@ int Text_Height( const char *text, int font, float scale, int limit ) {
 	float max;
 	glyphInfo_t *glyph;
 	float useScale;
-	const unsigned char *s = text;
+	const char *s = text;
 
 	fontInfo_t *fnt = &uiInfo.uiDC.Assets.textFont;
 	if ( font == UI_FONT_DEFAULT ) {
@@ -426,7 +421,7 @@ void Text_Paint( float x, float y, int font, float scale, vec4_t color, const ch
 
 	useScale = scale * fnt->glyphScale;
 	if ( text ) {
-		const unsigned char *s = text;
+		const char *s = text;
 		trap_R_SetColor( color );
 		memcpy( &newColor[0], &color[0], sizeof( vec4_t ) );
 		len = strlen( text );
@@ -507,7 +502,7 @@ void Text_PaintWithCursor( float x, float y, int font, float scale, vec4_t color
 
 	useScale = scale * fnt->glyphScale;
 	if ( text ) {
-		const unsigned char *s = text;
+		const char *s = text;
 		trap_R_SetColor( color );
 		memcpy( &newColor[0], &color[0], sizeof( vec4_t ) );
 		len = strlen( text );
@@ -768,11 +763,11 @@ char *GetMenuBuffer( const char *filename ) {
 
 	len = trap_FS_FOpenFile( filename, &f, FS_READ );
 	if ( !f ) {
-		trap_Print( va( S_COLOR_RED "menu file not found: %s, using default\n", filename ) );
+		trap_UI_Print( va( S_COLOR_RED "menu file not found: %s, using default\n", filename ) );
 		return defaultMenu;
 	}
 	if ( len >= MAX_MENUFILE ) {
-		trap_Print( va( S_COLOR_RED "menu file too large: %s is %i, max allowed is %i", filename, len, MAX_MENUFILE ) );
+		trap_UI_Print( va( S_COLOR_RED "menu file too large: %s is %i, max allowed is %i", filename, len, MAX_MENUFILE ) );
 		trap_FS_FCloseFile( f );
 		return defaultMenu;
 	}
@@ -862,7 +857,7 @@ qboolean Asset_Parse( int handle ) {
 			if ( !PC_String_Parse( handle, &tempStr ) ) {
 				return qfalse;
 			}
-			uiInfo.uiDC.Assets.menuEnterSound = trap_S_RegisterSound( tempStr );
+			uiInfo.uiDC.Assets.menuEnterSound = trap_UI_S_RegisterSound( tempStr );
 			continue;
 		}
 
@@ -871,7 +866,7 @@ qboolean Asset_Parse( int handle ) {
 			if ( !PC_String_Parse( handle, &tempStr ) ) {
 				return qfalse;
 			}
-			uiInfo.uiDC.Assets.menuExitSound = trap_S_RegisterSound( tempStr );
+			uiInfo.uiDC.Assets.menuExitSound = trap_UI_S_RegisterSound( tempStr );
 			continue;
 		}
 
@@ -880,7 +875,7 @@ qboolean Asset_Parse( int handle ) {
 			if ( !PC_String_Parse( handle, &tempStr ) ) {
 				return qfalse;
 			}
-			uiInfo.uiDC.Assets.itemFocusSound = trap_S_RegisterSound( tempStr );
+			uiInfo.uiDC.Assets.itemFocusSound = trap_UI_S_RegisterSound( tempStr );
 			continue;
 		}
 
@@ -889,7 +884,7 @@ qboolean Asset_Parse( int handle ) {
 			if ( !PC_String_Parse( handle, &tempStr ) ) {
 				return qfalse;
 			}
-			uiInfo.uiDC.Assets.menuBuzzSound = trap_S_RegisterSound( tempStr );
+			uiInfo.uiDC.Assets.menuBuzzSound = trap_UI_S_RegisterSound( tempStr );
 			continue;
 		}
 
@@ -1048,14 +1043,14 @@ void UI_LoadMenus( const char *menuFile, qboolean reset ) {
 
 	handle = trap_PC_LoadSource( menuFile );
 	if ( !handle ) {
-		trap_Error( va( S_COLOR_YELLOW "menu file not found: %s, using default\n", menuFile ) );
+		trap_UI_Error( va( S_COLOR_YELLOW "menu file not found: %s, using default\n", menuFile ) );
 #ifdef WOLF_SP_DEMO
 		handle = trap_PC_LoadSource( "ui/menus.txt" );
 #else
 		handle = trap_PC_LoadSource( "ui/demomenus.txt" );
 #endif
 		if ( !handle ) {
-			trap_Error( va( S_COLOR_RED "default menu file not found: ui/menus.txt, unable to continue!\n", menuFile ) );
+			trap_UI_Error( va( S_COLOR_RED "default menu file not found: ui/menus.txt, unable to continue!\n", menuFile ) );
 		}
 	}
 
@@ -1370,7 +1365,7 @@ static void UI_DrawClanCinematic( rectDef_t *rect, float scale, vec4_t color ) {
 			}
 			if ( uiInfo.teamList[i].cinematic >= 0 ) {
 				trap_CIN_RunCinematic( uiInfo.teamList[i].cinematic );
-				trap_CIN_SetExtents( uiInfo.teamList[i].cinematic, rect->x, rect->y, rect->w, rect->h );
+				trap_UI_CIN_SetExtents( uiInfo.teamList[i].cinematic, rect->x, rect->y, rect->w, rect->h );
 				trap_CIN_DrawCinematic( uiInfo.teamList[i].cinematic );
 			} else {
 				uiInfo.teamList[i].cinematic = -2;
@@ -1390,7 +1385,7 @@ static void UI_DrawPregameCinematic( rectDef_t *rect, float scale, vec4_t color 
 		uiInfo.previewMovie = trap_CIN_PlayCinematic( va( "%s.roq", "assault" ), 0, 0, 0, 0, ( CIN_loop | CIN_silent | CIN_system ) );
 		if ( uiInfo.previewMovie >= 0 ) {
 			trap_CIN_RunCinematic( uiInfo.previewMovie );
-			trap_CIN_SetExtents( uiInfo.previewMovie, rect->x, rect->y, rect->w, rect->h );
+			trap_UI_CIN_SetExtents( uiInfo.previewMovie, rect->x, rect->y, rect->w, rect->h );
 			trap_CIN_DrawCinematic( uiInfo.previewMovie );
 		} else {
 			uiInfo.previewMovie = -2;
@@ -1404,7 +1399,7 @@ static void UI_DrawPreviewCinematic( rectDef_t *rect, float scale, vec4_t color 
 		uiInfo.previewMovie = trap_CIN_PlayCinematic( va( "%s.roq", uiInfo.movieList[uiInfo.movieIndex] ), 0, 0, 0, 0, ( CIN_loop | CIN_silent ) );
 		if ( uiInfo.previewMovie >= 0 ) {
 			trap_CIN_RunCinematic( uiInfo.previewMovie );
-			trap_CIN_SetExtents( uiInfo.previewMovie, rect->x, rect->y, rect->w, rect->h );
+			trap_UI_CIN_SetExtents( uiInfo.previewMovie, rect->x, rect->y, rect->w, rect->h );
 			trap_CIN_DrawCinematic( uiInfo.previewMovie );
 		} else {
 			uiInfo.previewMovie = -2;
@@ -1480,7 +1475,7 @@ static void UI_DrawMapLevelshot( rectDef_t *rect ) {
 
 	DC->getCVarString( "mapname", levelname, sizeof( levelname ) );
 
-	if ( levelname && levelname[0] != 0 ) {
+	if ( levelname[0] != 0 ) {
 		levelshot = trap_R_RegisterShaderNoMip( va( "levelshots/%s.tga", levelname ) );
 	}
 
@@ -1538,9 +1533,8 @@ void UI_FilledBar( float x, float y, float w, float h, float *startColor, float 
 		if ( endColor ) {
 			endColor[3] *= ui_hudAlpha.value;
 		}
-		if ( backgroundcolor ) {
-			backgroundcolor[3] *= ui_hudAlpha.value;
-		}
+
+		backgroundcolor[3] *= ui_hudAlpha.value;
 	}
 
 	if ( flags & BAR_LERP_COLOR ) {
@@ -1704,7 +1698,7 @@ static void UI_DrawMapCinematic( rectDef_t *rect, float scale, vec4_t color, qbo
 		}
 		if ( uiInfo.mapList[map].cinematic >= 0 ) {
 			trap_CIN_RunCinematic( uiInfo.mapList[map].cinematic );
-			trap_CIN_SetExtents( uiInfo.mapList[map].cinematic, rect->x, rect->y, rect->w, rect->h );
+			trap_UI_CIN_SetExtents( uiInfo.mapList[map].cinematic, rect->x, rect->y, rect->w, rect->h );
 			trap_CIN_DrawCinematic( uiInfo.mapList[map].cinematic );
 		} else {
 			uiInfo.mapList[map].cinematic = -2;
@@ -1822,7 +1816,7 @@ static void UI_DrawNetMapCinematic( rectDef_t *rect, float scale, vec4_t color )
 
 	if ( uiInfo.serverStatus.currentServerCinematic >= 0 ) {
 		trap_CIN_RunCinematic( uiInfo.serverStatus.currentServerCinematic );
-		trap_CIN_SetExtents( uiInfo.serverStatus.currentServerCinematic, rect->x, rect->y, rect->w, rect->h );
+		trap_UI_CIN_SetExtents( uiInfo.serverStatus.currentServerCinematic, rect->x, rect->y, rect->w, rect->h );
 		trap_CIN_DrawCinematic( uiInfo.serverStatus.currentServerCinematic );
 	} else {
 		UI_DrawNetMapPreview( rect, scale, color );
@@ -6461,7 +6455,7 @@ static void UI_StopCinematic( int handle ) {
 }
 
 static void UI_DrawCinematic( int handle, float x, float y, float w, float h ) {
-	trap_CIN_SetExtents( handle, x, y, w, h );
+	trap_UI_CIN_SetExtents( handle, x, y, w, h );
 	trap_CIN_DrawCinematic( handle );
 }
 
@@ -6568,7 +6562,7 @@ void _UI_Init( qboolean inGameLoad ) {
 	uiInfo.uiDC.drawText = &Text_Paint;
 	uiInfo.uiDC.textWidth = &Text_Width;
 	uiInfo.uiDC.textHeight = &Text_Height;
-	uiInfo.uiDC.registerModel = &trap_R_RegisterModel;
+	uiInfo.uiDC.registerModel = &trap_UI_RegisterModel;
 	uiInfo.uiDC.modelBounds = &trap_R_ModelBounds;
 	uiInfo.uiDC.fillRect = &UI_FillRect;
 	uiInfo.uiDC.drawRect = &_UI_DrawRect;
@@ -6609,7 +6603,7 @@ void _UI_Init( qboolean inGameLoad ) {
 	uiInfo.uiDC.Print = &Com_Printf;
 	uiInfo.uiDC.Pause = &UI_Pause;
 	uiInfo.uiDC.ownerDrawWidth = &UI_OwnerDrawWidth;
-	uiInfo.uiDC.registerSound = &trap_S_RegisterSound;
+	uiInfo.uiDC.registerSound = &trap_UI_S_RegisterSound;
 	uiInfo.uiDC.startBackgroundTrack = &trap_S_StartBackgroundTrack;
 	uiInfo.uiDC.stopBackgroundTrack = &trap_S_StopBackgroundTrack;
 	uiInfo.uiDC.playCinematic = &UI_PlayCinematic;
@@ -6797,8 +6791,6 @@ void _UI_SetActiveMenu( uiMenuCommand_t menu ) {
 		case UIMENU_MAIN:
 			//trap_Cvar_Set( "sv_killserver", "1" );
 			trap_Key_SetCatcher( KEYCATCH_UI );
-			//trap_S_StartLocalSound( trap_S_RegisterSound("sound/misc/menu_background.wav", qfalse) , CHAN_LOCAL_SOUND );
-			//trap_S_StartBackgroundTrack("sound/misc/menu_background.wav", NULL);
 			if ( uiInfo.inGameLoad ) {
 				UI_LoadNonIngame();
 			}
@@ -7281,7 +7273,7 @@ vmCvar_t ui_prevWeapon;
 vmCvar_t ui_limboMode;
 // -NERVE - SMF
 
-cvarTable_t cvarTable[] = {
+static cvarTable_t cvarTable[] = {
 	{ &ui_ffa_fraglimit, "ui_ffa_fraglimit", "20", CVAR_ARCHIVE },
 	{ &ui_ffa_timelimit, "ui_ffa_timelimit", "0", CVAR_ARCHIVE },
 
@@ -7392,7 +7384,7 @@ cvarTable_t cvarTable[] = {
 
 };
 
-int cvarTableSize = sizeof( cvarTable ) / sizeof( cvarTable[0] );
+static int cvarTableSize = sizeof( cvarTable ) / sizeof( cvarTable[0] );
 
 
 /*

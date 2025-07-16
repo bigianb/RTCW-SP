@@ -151,7 +151,7 @@ struct vm_s {
 	byte        *codeBase;
 	int codeLength;
 
-	int         *instructionPointers;
+	intptr_t *instructionPointers;
 	int instructionPointersLength;
 
 	byte        *dataBase;
@@ -172,10 +172,10 @@ extern vm_t    *currentVM;
 extern int vm_debugLevel;
 
 void VM_Compile( vm_t *vm, vmHeader_t *header );
-int VM_CallCompiled( vm_t *vm, int *args );
+int VM_CallCompiled( vm_t *vm, intptr_t *args );
 
 void VM_PrepareInterpreter( vm_t *vm, vmHeader_t *header );
-int VM_CallInterpreted( vm_t *vm, int *args );
+intptr_t VM_CallInterpreted( vm_t *vm, intptr_t *args );
 
 vmSymbol_t *VM_ValueToFunctionSymbol( vm_t *vm, int value );
 int VM_SymbolToValue( vm_t *vm, const char *symbol );

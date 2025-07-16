@@ -167,6 +167,7 @@ demo through a file.
 
 
 typedef struct {
+	connstate_t	state;		
 
 	int clientNum;
 	int lastPacketSentTime;                 // for retransmits during connection
@@ -364,6 +365,17 @@ extern cvar_t  *m_forward;
 extern cvar_t  *m_side;
 extern cvar_t  *m_filter;
 
+extern	cvar_t	*j_pitch;
+extern	cvar_t	*j_yaw;
+extern	cvar_t	*j_forward;
+extern	cvar_t	*j_side;
+extern	cvar_t	*j_up;
+extern	cvar_t	*j_pitch_axis;
+extern	cvar_t	*j_yaw_axis;
+extern	cvar_t	*j_forward_axis;
+extern	cvar_t	*j_side_axis;
+extern	cvar_t	*j_up_axis;
+
 extern cvar_t  *cl_timedemo;
 
 extern cvar_t  *cl_activeAction;
@@ -371,6 +383,8 @@ extern cvar_t  *cl_activeAction;
 extern cvar_t  *cl_allowDownload;
 extern cvar_t  *cl_conXOffset;
 extern cvar_t  *cl_inGameVideo;
+
+extern	cvar_t	*cl_consoleKeys;
 
 extern cvar_t  *cl_missionStats;
 extern cvar_t  *cl_waitForFire;

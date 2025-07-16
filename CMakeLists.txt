@@ -6,6 +6,8 @@ set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake)
 set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 
+find_package(OpenGL REQUIRED COMPONENTS OpenGL)
+find_package(JPEG)
 find_package(SDL3 REQUIRED)
 
 
@@ -62,8 +64,8 @@ file(GLOB SPLINES_SOURCES src/splines/*.cpp)
 file(GLOB UI_INCLUDES src/ui/*.h)
 file(GLOB UI_SOURCES src/ui/*.c)
 
-file(GLOB UI_INCLUDES src/sdl/*.h)
-file(GLOB UI_SOURCES src/sdl/*.c)
+file(GLOB SDL_INCLUDES src/sdl/*.h)
+file(GLOB SDL_SOURCES src/sdl/*.c)
 
 include_directories(.)
 include_directories(${CMAKE_SOURCE_DIR}/src)
@@ -77,9 +79,6 @@ source_group("botai" FILES ${BOTAI_SOURCES})
 
 source_group("botlib" FILES ${BOTLIB_INCLUDES})
 source_group("botlib" FILES ${BOTLIB_SOURCES})
-
-source_group("bspc" FILES ${BSPC_INCLUDES})
-source_group("bspc" FILES ${BSPC_SOURCES})
 
 source_group("cgame" FILES ${CGAME_INCLUDES})
 source_group("cgame" FILES ${CGAME_SOURCES})
@@ -111,7 +110,6 @@ source_group("sdl" FILES ${SDL_SOURCES})
 set(WOLF_INCLUDES 
 	${BOTAI_INCLUDES}
 	${BOTLIB_INCLUDES}
-	${BSPC_INCLUDES}
 	${CGAME_INCLUDES}
 	${CLIENT_INCLUDES}
 	${GAME_INCLUDES}
@@ -126,7 +124,6 @@ set(WOLF_INCLUDES
 set(WOLF_SOURCES 
     ${BOTAI_SOURCES}
     ${BOTLIB_SOURCES}
-    ${BSPC_SOURCES}
     ${CGAME_SOURCES}
     ${CLIENT_SOURCES}
     ${GAME_SOURCES}
@@ -139,4 +136,4 @@ set(WOLF_SOURCES
 )
 
 add_executable(wolf WIN32 MACOSX_BUNDLE ${WOLF_INCLUDES} ${WOLF_SOURCES})
-target_link_libraries(wolf SDL3::SDL3)
+target_link_libraries(wolf SDL3::SDL3 OpenGL::GL JPEG::JPEG)

@@ -696,6 +696,44 @@ void Parse3DMatrix( char **buf_p, int z, int y, int x, float *m ) {
 	COM_MatchToken( buf_p, ")" );
 }
 
+/*
+===================
+Com_HexStrToInt
+===================
+*/
+int Com_HexStrToInt( const char *str )
+{
+	if ( !str )
+		return -1;
+
+	// check for hex code
+	if( str[ 0 ] == '0' && str[ 1 ] == 'x' && str[ 2 ] != '\0' )
+	{
+		int i, n = 0, len = strlen( str );
+
+		for( i = 2; i < len; i++ )
+		{
+			char digit;
+
+			n *= 16;
+
+			digit = tolower( str[ i ] );
+
+			if( digit >= '0' && digit <= '9' )
+				digit -= '0';
+			else if( digit >= 'a' && digit <= 'f' )
+				digit = digit - 'a' + 10;
+			else
+				return -1;
+
+			n += digit;
+		}
+
+		return n;
+	}
+
+	return -1;
+}
 
 /*
 ============================================================================
@@ -993,30 +1031,16 @@ previous strings
 */
 char    * QDECL va( char *format, ... ) {
 	va_list argptr;
-	#define MAX_VA_STRING   32000
-	static char temp_buffer[MAX_VA_STRING];
-	static char string[MAX_VA_STRING];      // in case va is called by nested functions
+	static char string[2][32000];       // in case va is called by nested functions
 	static int index = 0;
 	char    *buf;
-	int len;
 
+	buf = string[index & 1];
+	index++;
 
 	va_start( argptr, format );
-	vsprintf( temp_buffer, format,argptr );
+	vsnprintf( buf, 32000, format,argptr );
 	va_end( argptr );
-
-	if ( ( len = strlen( temp_buffer ) ) >= MAX_VA_STRING ) {
-		Com_Error( ERR_DROP, "Attempted to overrun string in call to va()\n" );
-	}
-
-	if ( len + index >= MAX_VA_STRING - 1 ) {
-		index = 0;
-	}
-
-	buf = &string[index];
-	memcpy( buf, temp_buffer, len + 1 );
-
-	index += len + 1;
 
 	return buf;
 }

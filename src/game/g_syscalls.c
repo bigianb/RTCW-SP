@@ -35,13 +35,7 @@ If you have questions concerning this license or the applicable additional terms
 
 static int ( QDECL * syscall )( int arg, ... ) = ( int ( QDECL * )( int, ... ) ) - 1;
 
-#if defined( __MACOS__ )
-#pragma export on
-#endif
-void dllEntry( int ( QDECL *syscallptr )( int arg,... ) ) {
-#if defined( __MACOS__ )
-#pragma export off
-#endif
+void dllEntry_G( int ( QDECL *syscallptr )( int arg,... ) ) {
 	syscall = syscallptr;
 }
 
@@ -102,18 +96,18 @@ int trap_FS_GetFileList(  const char *path, const char *extension, char *listbuf
 	return syscall( G_FS_GETFILELIST, path, extension, listbuf, bufsize );
 }
 
-void    trap_SendConsoleCommand( int exec_when, const char *text ) {
+void    trap_game_SendConsoleCommand( int exec_when, const char *text ) {
 	syscall( G_SEND_CONSOLE_COMMAND, exec_when, text );
 }
 
 void    trap_Cvar_Register( vmCvar_t *cvar, const char *var_name, const char *value, int flags ) {
 	syscall( G_CVAR_REGISTER, cvar, var_name, value, flags );
 }
-
+/*
 void    trap_Cvar_Update( vmCvar_t *cvar ) {
 	syscall( G_CVAR_UPDATE, cvar );
 }
-
+*/
 void trap_Cvar_Set( const char *var_name, const char *value ) {
 	syscall( G_CVAR_SET, var_name, value );
 }

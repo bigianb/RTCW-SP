@@ -178,7 +178,6 @@ void *UI_Alloc( int size ) {
 		if ( DC->Print ) {
 			DC->Print( "UI_Alloc: Failure. Out of memory!\n" );
 		}
-		//DC->trap_Print(S_COLOR_YELLOW"WARNING: UI Out of Memory!\n");
 		return NULL;
 	}
 
@@ -1362,10 +1361,10 @@ void Menu_TransitionItemByName( menuDef_t *menu, const char *p, rectDef_t rectFr
 			item->window.offsetTime = time;
 			memcpy( &item->window.rectClient, &rectFrom, sizeof( rectDef_t ) );
 			memcpy( &item->window.rectEffects, &rectTo, sizeof( rectDef_t ) );
-			item->window.rectEffects2.x = abs( rectTo.x - rectFrom.x ) / amt;
-			item->window.rectEffects2.y = abs( rectTo.y - rectFrom.y ) / amt;
-			item->window.rectEffects2.w = abs( rectTo.w - rectFrom.w ) / amt;
-			item->window.rectEffects2.h = abs( rectTo.h - rectFrom.h ) / amt;
+			item->window.rectEffects2.x = fabsf( rectTo.x - rectFrom.x ) / amt;
+			item->window.rectEffects2.y = fabsf( rectTo.y - rectFrom.y ) / amt;
+			item->window.rectEffects2.w = fabsf( rectTo.w - rectFrom.w ) / amt;
+			item->window.rectEffects2.h = fabsf( rectTo.h - rectFrom.h ) / amt;
 			Item_UpdatePosition( item );
 		}
 	}
@@ -3322,11 +3321,6 @@ void Item_Text_Paint( itemDef_t *item ) {
 
 	DC->drawText( item->textRect.x, item->textRect.y, item->font, item->textscale, color, textPtr, 0, 0, item->textStyle );
 }
-
-
-
-//float			trap_Cvar_VariableValue( const char *var_name );
-//void			trap_Cvar_VariableStringBuffer( const char *var_name, char *buffer, int bufsize );
 
 void Item_TextField_Paint( itemDef_t *item ) {
 	char buff[1024];

@@ -319,7 +319,7 @@ The module is making a system call
 
 #define VMF( x )  ( (float *)args )[x]
 
-int SV_GameSystemCalls( int *args ) {
+intptr_t SV_GameSystemCalls( intptr_t *args ) {
 	switch ( args[0] ) {
 	case G_PRINT:
 		Com_Printf( "%s", VMA( 1 ) );
@@ -864,7 +864,7 @@ int SV_GameSystemCalls( int *args ) {
 		return 0;
 
 	case TRAP_STRNCPY:
-		return (int)strncpy( VMA( 1 ), VMA( 2 ), args[3] );
+		return (intptr_t)strncpy( VMA( 1 ), VMA( 2 ), args[3] );
 
 	case TRAP_SIN:
 		return FloatAsInt( sin( VMF( 1 ) ) );

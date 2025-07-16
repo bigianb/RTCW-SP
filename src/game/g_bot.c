@@ -147,7 +147,7 @@ static void PlayerIntroSound( const char *modelAndSkin ) {
 		skin = model;
 	}
 
-	trap_SendConsoleCommand( EXEC_APPEND, va( "play sound/player/announce/%s.wav\n", skin ) );
+	trap_game_SendConsoleCommand( EXEC_APPEND, va( "play sound/player/announce/%s.wav\n", skin ) );
 }
 
 /*
@@ -214,7 +214,7 @@ void G_AddRandomBot( int team ) {
 				strncpy( netname, value, sizeof( netname ) - 1 );
 				netname[sizeof( netname ) - 1] = '\0';
 				Q_CleanStr( netname );
-				trap_SendConsoleCommand( EXEC_INSERT, va( "addbot %s %i %s %i\n", netname, skill, teamstr, 0 ) );
+				trap_game_SendConsoleCommand( EXEC_INSERT, va( "addbot %s %i %s %i\n", netname, skill, teamstr, 0 ) );
 				return;
 			}
 		}
@@ -244,7 +244,7 @@ int G_RemoveRandomBot( int team ) {
 		}
 		strcpy( netname, cl->pers.netname );
 		Q_CleanStr( netname );
-		trap_SendConsoleCommand( EXEC_INSERT, va( "kick %s\n", netname ) );
+		trap_game_SendConsoleCommand( EXEC_INSERT, va( "kick %s\n", netname ) );
 		return qtrue;
 	}
 	return qfalse;
@@ -642,111 +642,6 @@ void Svcmd_AddBot_f( void ) {
 		trap_SendServerCommand( -1, "loaddeferred\n" );   // spelling fixed (SA)
 	}
 }
-
-
-/*
-===============
-G_SpawnBots
-===============
-*/
-/*
-static void G_SpawnBots( char *botList, int baseDelay ) {
-	char		*bot;
-	char		*p;
-	int			skill;
-	int			delay;
-	char		bots[MAX_INFO_VALUE];
-
-	podium1 = NULL;
-	podium2 = NULL;
-	podium3 = NULL;
-
-	skill = trap_Cvar_VariableIntegerValue( "g_spSkill" );
-	if( skill < 1 || skill > 5 ) {
-		trap_Cvar_Set( "g_spSkill", "2" );
-		skill = 2;
-	}
-
-	Q_strncpyz( bots, botList, sizeof(bots) );
-	p = &bots[0];
-	delay = baseDelay;
-	while( *p ) {
-		//skip spaces
-		while( *p && *p == ' ' ) {
-			p++;
-		}
-		if( !p ) {
-			break;
-		}
-
-		// mark start of bot name
-		bot = p;
-
-		// skip until space of null
-		while( *p && *p != ' ' ) {
-			p++;
-		}
-		if( *p ) {
-			*p++ = 0;
-		}
-
-		// we must add the bot this way, calling G_AddBot directly at this stage
-		// does "Bad Things"
-		trap_SendConsoleCommand( EXEC_INSERT, va("addbot %s %i free %i\n", bot, skill, delay) );
-
-		delay += BOT_BEGIN_DELAY_INCREMENT;
-	}
-}
-*/
-
-
-/*
-===============
-G_LoadBots
-===============
-*/
-// TTimo: unused
-/*
-static void G_LoadBots( void ) {
-#ifdef QUAKESTUFF
-	int			len;
-	char		*filename;
-	vmCvar_t	botsFile;
-	fileHandle_t	f;
-	char		buf[MAX_BOTS_TEXT];
-
-	if ( !trap_Cvar_VariableIntegerValue( "bot_enable" ) ) {
-		return;
-	}
-
-	trap_Cvar_Register( &botsFile, "g_botsFile", "", CVAR_INIT|CVAR_ROM );
-	if( *botsFile.string ) {
-		filename = botsFile.string;
-	}
-	else {
-		filename = "scripts/bots.txt";
-	}
-
-	len = trap_FS_FOpenFile( filename, &f, FS_READ );
-	if ( !f ) {
-		trap_Printf( va( S_COLOR_RED "file not found: %s\n", filename ) );
-		return;
-	}
-	if ( len >= MAX_BOTS_TEXT ) {
-		trap_Printf( va( S_COLOR_RED "file too large: %s is %i, max allowed is %i", filename, len, MAX_BOTS_TEXT ) );
-		trap_FS_FCloseFile( f );
-		return;
-	}
-
-	trap_FS_Read( buf, len, f );
-	buf[len] = 0;
-	trap_FS_FCloseFile( f );
-
-	g_numBots = COM_ParseInfos( buf, MAX_BOTS, g_botInfos );
-	trap_Printf( va( "%i bots parsed\n", g_numBots ) );
-#endif
-}
-*/
 
 /*
 ===============

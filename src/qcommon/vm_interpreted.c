@@ -317,7 +317,7 @@ locals from sp
 
 #define DEBUGSTR va( "%s%i", VM_Indent( vm ), opStack - stack )
 
-int VM_CallInterpreted( vm_t *vm, int *args ) {
+intptr_t VM_CallInterpreted( vm_t *vm, intptr_t *args ) {
 	int stack[MAX_STACK];
 	int     *opStack;
 	int programCounter;
@@ -486,7 +486,7 @@ nextInstruction2:
 
 			src = (int *)&image[ r0 & dataMask ];
 			dest = (int *)&image[ r1 & dataMask ];
-			if ( ( (int)src | (int)dest | count ) & 3 ) {
+			if ( ( (intptr_t)src | (intptr_t)dest | count ) & 3 ) {
 				Com_Error( ERR_DROP, "OP_BLOCK_COPY not dword aligned" );
 			}
 			count >>= 2;

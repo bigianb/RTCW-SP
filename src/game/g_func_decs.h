@@ -972,7 +972,7 @@ extern int trap_Cvar_VariableIntegerValue ( const char * var_name ) ;
 extern void trap_Cvar_Set ( const char * var_name , const char * value ) ;
 extern void trap_Cvar_Update ( vmCvar_t * cvar ) ;
 extern void trap_Cvar_Register ( vmCvar_t * cvar , const char * var_name , const char * value , int flags ) ;
-extern void trap_SendConsoleCommand ( int exec_when , const char * text ) ;
+extern void trap_game_SendConsoleCommand ( int exec_when , const char * text ) ;
 extern int trap_FS_GetFileList ( const char * path , const char * extension , char * listbuf , int bufsize ) ;
 extern void trap_FS_CopyFile ( char * from , char * to ) ;
 extern void trap_FS_FCloseFile ( fileHandle_t f ) ;

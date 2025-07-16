@@ -1716,7 +1716,7 @@ static void CG_DrawAreaChat( rectDef_t *rect, int font, float scale, vec4_t colo
 }
 
 const char *CG_GetKillerText() {
-	const unsigned char *s = "";
+	const char *s = "";
 	if ( cg.killerName[0] ) {
 		s = va( "Fragged by %s", cg.killerName );
 	}
@@ -1752,7 +1752,7 @@ static void CG_Draw2ndPlace( rectDef_t *rect, int font, float scale, vec4_t colo
 }
 
 const char *CG_GetGameStatusText() {
-	const unsigned char *s = "";
+	const char *s = "";
 	if ( cgs.gametype < GT_TEAM ) {
 		if ( cg.snap->ps.persistant[PERS_TEAM] != TEAM_SPECTATOR ) {
 			s = va( "%s place with %i",CG_PlaceString( cg.snap->ps.persistant[PERS_RANK] + 1 ),cg.snap->ps.persistant[PERS_SCORE] );
@@ -1800,7 +1800,7 @@ static void CG_Text_Paint_Limit( float *maxX, float x, float y, int font, float 
 	vec4_t newColor;
 	glyphInfo_t *glyph;
 	if ( text ) {
-		const unsigned char *s = text;
+		const char *s = text;
 		float max = *maxX;
 		float useScale;
 

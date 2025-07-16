@@ -37,7 +37,7 @@ If you have questions concerning this license or the applicable additional terms
 #include <time.h>
 #include <ctype.h>
 
-#define M_PI        3.14159265358979323846  // matches value in gcc v2 math.h
+#define M_PI        3.14159265358979323846264338327950288
 
 #define LERP_DELTA 1e-6
 
@@ -145,7 +145,7 @@ char *idVec3::string( void ) {
 	s = str[ index ];
 	index = ( index + 1 ) & 7;
 
-	sprintf( s, "%.2f %.2f %.2f", x, y, z );
+	snprintf( s, 36, "%.2f %.2f %.2f", x, y, z );
 
 	return s;
 }

@@ -1535,7 +1535,7 @@ static void LoadJPG( const char *filename, unsigned char **pic, int *width, int 
 	JSAMPARRAY buffer;      /* Output row buffer */
 	int row_stride;     /* physical row width in output buffer */
 	unsigned char *out;
-	byte  *fbuffer;
+	FILE  *fbuffer;
 	byte  *bbuf;
 
 	/* In this example we want to open the input file before doing anything else,
@@ -3384,7 +3384,7 @@ void R_LoadCacheImages( void ) {
 	byte *buf;
 	char    *token, *pString;
 	char name[MAX_QPATH];
-	int parms[3], i;
+	int parms[4], i;
 
 	if ( numBackupImages ) {
 		return;

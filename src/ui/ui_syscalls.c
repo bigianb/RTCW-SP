@@ -33,30 +33,25 @@ If you have questions concerning this license or the applicable additional terms
 
 static int ( QDECL * syscall )( int arg, ... ) = ( int ( QDECL * )( int, ... ) ) - 1;
 
-#if defined( __MACOS__ )
-#pragma export on
-#endif
-void dllEntry( int ( QDECL *syscallptr )( int arg,... ) ) {
-#if defined( __MACOS__ )
-#pragma export off
-#endif
+
+void dllEntry_UI( int ( QDECL *syscallptr )( int arg,... ) ) {
 	syscall = syscallptr;
 }
 
-int PASSFLOAT( float x ) {
+static int PASSFLOAT( float x ) {
 	float floatTemp;
 	floatTemp = x;
 	return *(int *)&floatTemp;
 }
 
-void trap_Print( const char *string ) {
+void trap_UI_Print( const char *string ) {
 	syscall( UI_PRINT, string );
 }
 
-void trap_Error( const char *string ) {
+void trap_UI_Error( const char *string ) {
 	syscall( UI_ERROR, string );
 }
-
+/*
 int trap_Milliseconds( void ) {
 	return syscall( UI_MILLISECONDS );
 }
@@ -72,17 +67,17 @@ void trap_Cvar_Update( vmCvar_t *cvar ) {
 void trap_Cvar_Set( const char *var_name, const char *value ) {
 	syscall( UI_CVAR_SET, var_name, value );
 }
-
+*/
 float trap_Cvar_VariableValue( const char *var_name ) {
 	int temp;
 	temp = syscall( UI_CVAR_VARIABLEVALUE, var_name );
 	return ( *(float*)&temp );
 }
-
+/*
 void trap_Cvar_VariableStringBuffer( const char *var_name, char *buffer, int bufsize ) {
 	syscall( UI_CVAR_VARIABLESTRINGBUFFER, var_name, buffer, bufsize );
 }
-
+*/
 void trap_Cvar_SetValue( const char *var_name, float value ) {
 	syscall( UI_CVAR_SETVALUE, var_name, PASSFLOAT( value ) );
 }
@@ -98,7 +93,7 @@ void trap_Cvar_Create( const char *var_name, const char *var_value, int flags ) 
 void trap_Cvar_InfoStringBuffer( int bit, char *buffer, int bufsize ) {
 	syscall( UI_CVAR_INFOSTRINGBUFFER, bit, buffer, bufsize );
 }
-
+/*
 int trap_Argc( void ) {
 	return syscall( UI_ARGC );
 }
@@ -106,11 +101,11 @@ int trap_Argc( void ) {
 void trap_Argv( int n, char *buffer, int bufferLength ) {
 	syscall( UI_ARGV, n, buffer, bufferLength );
 }
-
+*/
 void trap_Cmd_ExecuteText( int exec_when, const char *text ) {
 	syscall( UI_CMD_EXECUTETEXT, exec_when, text );
 }
-
+/*
 int trap_FS_FOpenFile( const char *qpath, fileHandle_t *f, fsMode_t mode ) {
 	return syscall( UI_FS_FOPENFILE, qpath, f, mode );
 }
@@ -118,13 +113,13 @@ int trap_FS_FOpenFile( const char *qpath, fileHandle_t *f, fsMode_t mode ) {
 void trap_FS_Read( void *buffer, int len, fileHandle_t f ) {
 	syscall( UI_FS_READ, buffer, len, f );
 }
-
+*/
 //----(SA)	added
 void trap_FS_Seek( fileHandle_t f, long offset, int origin  ) {
 	syscall( UI_FS_SEEK, f, offset, origin );
 }
 //----(SA)	end
-
+/*
 void trap_FS_Write( const void *buffer, int len, fileHandle_t f ) {
 	syscall( UI_FS_WRITE, buffer, len, f );
 }
@@ -136,80 +131,80 @@ void trap_FS_FCloseFile( fileHandle_t f ) {
 int trap_FS_GetFileList(  const char *path, const char *extension, char *listbuf, int bufsize ) {
 	return syscall( UI_FS_GETFILELIST, path, extension, listbuf, bufsize );
 }
-
+*/
 int trap_FS_Delete( const char *filename ) {
 	return syscall( UI_FS_DELETEFILE, filename );
 }
 
-qhandle_t trap_R_RegisterModel( const char *name ) {
+qhandle_t trap_UI_RegisterModel( const char *name ) {
 	return syscall( UI_R_REGISTERMODEL, name );
 }
 
-qhandle_t trap_R_RegisterSkin( const char *name ) {
+qhandle_t trap_UI_RegisterSkin( const char *name ) {
 	return syscall( UI_R_REGISTERSKIN, name );
 }
 
-void trap_R_RegisterFont( const char *fontName, int pointSize, fontInfo_t *font ) {
+void trap_UI_RegisterFont( const char *fontName, int pointSize, fontInfo_t *font ) {
 	syscall( UI_R_REGISTERFONT, fontName, pointSize, font );
 }
 
-qhandle_t trap_R_RegisterShaderNoMip( const char *name ) {
+qhandle_t trap_UI_RegisterShaderNoMip( const char *name ) {
 	return syscall( UI_R_REGISTERSHADERNOMIP, name );
 }
 
-void trap_R_ClearScene( void ) {
+void trap_UI_ClearScene( void ) {
 	syscall( UI_R_CLEARSCENE );
 }
 
-void trap_R_AddRefEntityToScene( const refEntity_t *re ) {
+void trap_UI_AddRefEntityToScene( const refEntity_t *re ) {
 	syscall( UI_R_ADDREFENTITYTOSCENE, re );
 }
 
-void trap_R_AddPolyToScene( qhandle_t hShader, int numVerts, const polyVert_t *verts ) {
+void trap_UI_AddPolyToScene( qhandle_t hShader, int numVerts, const polyVert_t *verts ) {
 	syscall( UI_R_ADDPOLYTOSCENE, hShader, numVerts, verts );
 }
 
-void trap_R_AddLightToScene( const vec3_t org, float intensity, float r, float g, float b, int overdraw ) {
+void trap_UI_AddLightToScene( const vec3_t org, float intensity, float r, float g, float b, int overdraw ) {
 	syscall( UI_R_ADDLIGHTTOSCENE, org, PASSFLOAT( intensity ), PASSFLOAT( r ), PASSFLOAT( g ), PASSFLOAT( b ), overdraw );
 }
 
-void trap_R_AddCoronaToScene( const vec3_t org, float r, float g, float b, float scale, int id, int flags ) {
+void trap_UI_AddCoronaToScene( const vec3_t org, float r, float g, float b, float scale, int id, int flags ) {
 	syscall( UI_R_ADDCORONATOSCENE, org, PASSFLOAT( r ), PASSFLOAT( g ), PASSFLOAT( b ), PASSFLOAT( scale ), id, flags );
 }
 
-void trap_R_RenderScene( const refdef_t *fd ) {
+void trap_UI_RenderScene( const refdef_t *fd ) {
 	syscall( UI_R_RENDERSCENE, fd );
 }
 
-void trap_R_SetColor( const float *rgba ) {
+void trap_UI_SetColor( const float *rgba ) {
 	syscall( UI_R_SETCOLOR, rgba );
 }
 
-void trap_R_DrawStretchPic( float x, float y, float w, float h, float s1, float t1, float s2, float t2, qhandle_t hShader ) {
+void trap_UI_DrawStretchPic( float x, float y, float w, float h, float s1, float t1, float s2, float t2, qhandle_t hShader ) {
 	syscall( UI_R_DRAWSTRETCHPIC, PASSFLOAT( x ), PASSFLOAT( y ), PASSFLOAT( w ), PASSFLOAT( h ), PASSFLOAT( s1 ), PASSFLOAT( t1 ), PASSFLOAT( s2 ), PASSFLOAT( t2 ), hShader );
 }
 
-void    trap_R_ModelBounds( clipHandle_t model, vec3_t mins, vec3_t maxs ) {
+void    trap_UI_ModelBounds( clipHandle_t model, vec3_t mins, vec3_t maxs ) {
 	syscall( UI_R_MODELBOUNDS, model, mins, maxs );
 }
-
+/*
 void trap_UpdateScreen( void ) {
 	syscall( UI_UPDATESCREEN );
 }
-
+*/
 int trap_CM_LerpTag( orientation_t *tag, const refEntity_t *refent, const char *tagName, int startIndex ) {
 	return syscall( UI_CM_LERPTAG, tag, refent, tagName, 0 );           // NEFVE - SMF - fixed
 }
-
+/*
 void trap_S_StartLocalSound( sfxHandle_t sfx, int channelNum ) {
 	syscall( UI_S_STARTLOCALSOUND, sfx, channelNum );
 }
-
-sfxHandle_t trap_S_RegisterSound( const char *sample ) {
+*/
+sfxHandle_t trap_UI_S_RegisterSound( const char *sample ) {
 	return syscall( UI_S_REGISTERSOUND, sample );
 }
 
-//----(SA)	added (already in cg)
+/*
 void    trap_S_FadeBackgroundTrack( float targetvol, int time, int num ) {   // yes, i know.  fadebackground coming in, fadestreaming going out.  will have to see where functionality leads...
 	syscall( UI_S_FADESTREAMINGSOUND, PASSFLOAT( targetvol ), time, num ); // 'num' is '0' if it's music, '1' if it's "all streaming sounds"
 }
@@ -217,7 +212,7 @@ void    trap_S_FadeBackgroundTrack( float targetvol, int time, int num ) {   // 
 void    trap_S_FadeAllSound( float targetvol, int time ) {
 	syscall( UI_S_FADEALLSOUNDS, PASSFLOAT( targetvol ), time );
 }
-//----(SA)	end
+*/
 
 
 void trap_Key_KeynumToStringBuf( int keynum, char *buf, int buflen ) {
@@ -231,11 +226,11 @@ void trap_Key_GetBindingBuf( int keynum, char *buf, int buflen ) {
 void trap_Key_SetBinding( int keynum, const char *binding ) {
 	syscall( UI_KEY_SETBINDING, keynum, binding );
 }
-
+/*
 qboolean trap_Key_IsDown( int keynum ) {
 	return syscall( UI_KEY_ISDOWN, keynum );
 }
-
+*/
 qboolean trap_Key_GetOverstrikeMode( void ) {
 	return syscall( UI_KEY_GETOVERSTRIKEMODE );
 }
@@ -247,7 +242,7 @@ void trap_Key_SetOverstrikeMode( qboolean state ) {
 void trap_Key_ClearStates( void ) {
 	syscall( UI_KEY_CLEARSTATES );
 }
-
+/*
 int trap_Key_GetCatcher( void ) {
 	return syscall( UI_KEY_GETCATCHER );
 }
@@ -255,7 +250,7 @@ int trap_Key_GetCatcher( void ) {
 void trap_Key_SetCatcher( int catcher ) {
 	syscall( UI_KEY_SETCATCHER, catcher );
 }
-
+*/
 void trap_GetClipboardData( char *buf, int bufsize ) {
 	syscall( UI_GETCLIPBOARDDATA, buf, bufsize );
 }
@@ -263,11 +258,11 @@ void trap_GetClipboardData( char *buf, int bufsize ) {
 void trap_GetClientState( uiClientState_t *state ) {
 	syscall( UI_GETCLIENTSTATE, state );
 }
-
+/*
 void trap_GetGlconfig( glconfig_t *glconfig ) {
 	syscall( UI_GETGLCONFIG, glconfig );
 }
-
+*/
 int trap_GetConfigString( int index, char* buff, int buffsize ) {
 	return syscall( UI_GETCONFIGSTRING, index, buff, buffsize );
 }
@@ -361,11 +356,11 @@ void trap_LAN_ResetPings( int n ) {
 	syscall( UI_LAN_RESETPINGS, n );
 }
 // -NERVE - SMF
-
+/*
 int trap_MemoryRemaining( void ) {
 	return syscall( UI_MEMORY_REMAINING );
 }
-
+*/
 
 void trap_GetCDKey( char *buf, int buflen ) {
 	syscall( UI_GET_CDKEY, buf, buflen );
@@ -374,7 +369,7 @@ void trap_GetCDKey( char *buf, int buflen ) {
 void trap_SetCDKey( char *buf ) {
 	syscall( UI_SET_CDKEY, buf );
 }
-
+/*
 int trap_PC_AddGlobalDefine( char *define ) {
 	return syscall( UI_PC_ADD_GLOBAL_DEFINE, define );
 }
@@ -418,29 +413,29 @@ e_status trap_CIN_StopCinematic( int handle ) {
 	return syscall( UI_CIN_STOPCINEMATIC, handle );
 }
 
-
 // will run a frame of the cinematic but will not draw it.  Will return FMV_EOF if the end of the cinematic has been reached.
 e_status trap_CIN_RunCinematic( int handle ) {
 	return syscall( UI_CIN_RUNCINEMATIC, handle );
 }
-
+*/
 
 // draws the current frame
+/*
 void trap_CIN_DrawCinematic( int handle ) {
 	syscall( UI_CIN_DRAWCINEMATIC, handle );
 }
-
+*/
 
 // allows you to resize the animation dynamically
-void trap_CIN_SetExtents( int handle, int x, int y, int w, int h ) {
+void trap_UI_CIN_SetExtents( int handle, int x, int y, int w, int h ) {
 	syscall( UI_CIN_SETEXTENTS, handle, x, y, w, h );
 }
 
-
+/*
 void    trap_R_RemapShader( const char *oldShader, const char *newShader, const char *timeOffset ) {
 	syscall( UI_R_REMAP_SHADER, oldShader, newShader, timeOffset );
 }
-
+*/
 qboolean trap_VerifyCDKey( const char *key, const char *chksum ) {
 	return syscall( UI_VERIFY_CDKEY, key, chksum );
 }

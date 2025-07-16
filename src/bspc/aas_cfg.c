@@ -55,8 +55,8 @@ extern void LibVarSet( char *var_name, char *value );
 ///////////////////////////////////
 
 //structure field offsets
-#define BBOX_OFS( x ) (int)&( ( (aas_bbox_t *)0 )->x )
-#define CFG_OFS( x ) (int)&( ( (cfg_t *)0 )->x )
+#define BBOX_OFS( x ) (intptr_t)&( ( (aas_bbox_t *)0 )->x )
+#define CFG_OFS( x ) (intptr_t)&( ( (cfg_t *)0 )->x )
 
 //bounding box definition
 fielddef_t bbox_fields[] =
