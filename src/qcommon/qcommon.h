@@ -519,7 +519,8 @@ issues.
 ==============================================================
 */
 
-#define BASEGAME "main"
+// GOG installer makes it upper case
+#define BASEGAME "Main"
 
 // referenced flags
 // these are in loop specific order so don't change the order
