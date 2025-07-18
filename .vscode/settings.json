@@ -6,7 +6,8 @@
         "locale": "c",
         "ctype.h": "c",
         "idlib.h": "c",
-        "types.h": "c"
+        "types.h": "c",
+        "botlib.h": "c"
     },
     "cmake.debugConfig": {
         "args": ["+set", "fs_basepath", "/Users/ian/.wine/drive_c/GOG Games/Return to Castle Wolfenstein"]

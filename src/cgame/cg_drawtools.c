@@ -244,13 +244,6 @@ void CG_DrawTopBottom( float x, float y, float w, float h, float size ) {
 	trap_R_DrawStretchPic( x, y + h - size, w, size, 0, 0, 0, 0, cgs.media.whiteShader );
 }
 
-/*
-================
-UI_DrawRect
-
-Coordinates are 640*480 virtual values
-=================
-*/
 void CG_DrawRect( float x, float y, float width, float height, float size, const float *color ) {
 	vec4_t hudAlphaColor;
 

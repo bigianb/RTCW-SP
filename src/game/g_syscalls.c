@@ -30,10 +30,11 @@ If you have questions concerning this license or the applicable additional terms
 //
 #include "g_local.h"
 
-// this file is only included when building a dll
-// g_syscalls.asm is included instead when building a qvm
+static int QDECL dummySyscall(int arg, ...){
+	return 0;
+}
 
-static int ( QDECL * syscall )( int arg, ... ) = ( int ( QDECL * )( int, ... ) ) - 1;
+static int ( QDECL * syscall )( int arg, ... ) = dummySyscall;
 
 void dllEntry_G( int ( QDECL *syscallptr )( int arg,... ) ) {
 	syscall = syscallptr;

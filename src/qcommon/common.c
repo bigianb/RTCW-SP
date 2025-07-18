@@ -1013,14 +1013,8 @@ void Com_InitHunkMemory( void ) {
 	// allocate the stack based hunk allocator
 	cv = Cvar_Get( "com_hunkMegs", DEF_COMHUNKMEGS, CVAR_LATCH | CVAR_ARCHIVE );
 
-	// if we are not dedicated min allocation is 56, otherwise min is 1
-	if ( com_dedicated && com_dedicated->integer ) {
-		nMinAlloc = MIN_DEDICATED_COMHUNKMEGS;
-		pMsg = "Minimum com_hunkMegs for a dedicated server is %i, allocating %i megs.\n";
-	} else {
-		nMinAlloc = MIN_COMHUNKMEGS;
-		pMsg = "Minimum com_hunkMegs is %i, allocating %i megs.\n";
-	}
+	nMinAlloc = MIN_COMHUNKMEGS;
+	pMsg = "Minimum com_hunkMegs is %i, allocating %i megs.\n";
 
 	if ( cv->integer < nMinAlloc ) {
 		s_hunkTotal = 1024 * 1024 * nMinAlloc;
@@ -1028,7 +1022,6 @@ void Com_InitHunkMemory( void ) {
 	} else {
 		s_hunkTotal = cv->integer * 1024 * 1024;
 	}
-
 
 	s_hunkData = malloc( s_hunkTotal + 31 );
 	if ( !s_hunkData ) {
@@ -2202,7 +2195,7 @@ Com_Frame
 void Com_Frame( void ) {
 
 	int msec, minMsec;
-	static int lastTime;
+	static int lastTime = 0;
 	int key;
 
 	int timeBeforeFirstEvents;
@@ -2210,10 +2203,6 @@ void Com_Frame( void ) {
 	int timeBeforeEvents;
 	int timeBeforeClient;
 	int timeAfter;
-
-
-
-
 
 	if ( setjmp( abortframe ) ) {
 		return;         // an ERR_DROP was thrown
@@ -2227,20 +2216,8 @@ void Com_Frame( void ) {
 	timeBeforeClient = 0;
 	timeAfter = 0;
 
-
-	// old net chan encryption key
-	key = 0x87243987;
-
 	// write config file if anything changed
 	Com_WriteConfiguration();
-
-	// if "viewlog" has been modified, show or hide the log console
-	if ( com_viewlog->modified ) {
-		if ( !com_dedicated->value ) {
-			Sys_ShowConsole( com_viewlog->integer, qfalse );
-		}
-		com_viewlog->modified = qfalse;
-	}
 
 	//
 	// main event loop
@@ -2250,18 +2227,18 @@ void Com_Frame( void ) {
 	}
 
 	// we may want to spin here if things are going too fast
-	if ( !com_dedicated->integer && com_maxfps->integer > 0 && !com_timedemo->integer ) {
+	if ( com_maxfps->integer > 0 && !com_timedemo->integer ) {
 		minMsec = 1000 / com_maxfps->integer;
 	} else {
 		minMsec = 1;
 	}
-	do {
-		com_frameTime = Com_EventLoop();
-		if ( lastTime > com_frameTime ) {
-			lastTime = com_frameTime;       // possible on first frame
-		}
-		msec = com_frameTime - lastTime;
-	} while ( msec < minMsec );
+
+	IN_Frame();
+
+	lastTime = com_frameTime;
+	com_frameTime = Com_EventLoop();
+	msec = com_frameTime - lastTime;
+
 	Cbuf_Execute();
 
 	lastTime = com_frameTime;
@@ -2279,51 +2256,34 @@ void Com_Frame( void ) {
 
 	SV_Frame( msec );
 
-	// if "dedicated" has been modified, start up
-	// or shut down the client system.
-	// Do this after the server may have started,
-	// but before the client tries to auto-connect
-	if ( com_dedicated->modified ) {
-		// get the latched value
-		Cvar_Get( "dedicated", "0", 0 );
-		com_dedicated->modified = qfalse;
-		if ( !com_dedicated->integer ) {
-			CL_Init();
-			Sys_ShowConsole( com_viewlog->integer, qfalse );
-		} else {
-			CL_Shutdown();
-			Sys_ShowConsole( 1, qtrue );
-		}
-	}
-
 	//
 	// client system
 	//
-	if ( !com_dedicated->integer ) {
-		//
-		// run event loop a second time to get server to client packets
-		// without a frame of latency
-		//
-		if ( com_speeds->integer ) {
-			timeBeforeEvents = Sys_Milliseconds();
-		}
-		Com_EventLoop();
-		Cbuf_Execute();
 
-
-		//
-		// client side
-		//
-		if ( com_speeds->integer ) {
-			timeBeforeClient = Sys_Milliseconds();
-		}
-
-		CL_Frame( msec );
-
-		if ( com_speeds->integer ) {
-			timeAfter = Sys_Milliseconds();
-		}
+	//
+	// run event loop a second time to get server to client packets
+	// without a frame of latency
+	//
+	if ( com_speeds->integer ) {
+		timeBeforeEvents = Sys_Milliseconds();
 	}
+	Com_EventLoop();
+	Cbuf_Execute();
+
+
+	//
+	// client side
+	//
+	if ( com_speeds->integer ) {
+		timeBeforeClient = Sys_Milliseconds();
+	}
+
+	CL_Frame( msec );
+
+	if ( com_speeds->integer ) {
+		timeAfter = Sys_Milliseconds();
+	}
+	
 
 	//
 	// report timing information
@@ -2358,8 +2318,6 @@ void Com_Frame( void ) {
 		c_pointcontents = 0;
 	}
 
-	// old net chan encryption key
-	key = lastTime * 0x87243987;
 
 	com_frameNumber++;
 }

@@ -1232,7 +1232,11 @@ static void RoQInterrupt( void ) {
 		return;
 	}
 //resound:
-	Sys_StreamedRead( cin.file, cinTable[currentHandle].RoQFrameSize + 8, 1, cinTable[currentHandle].iFile );
+	int sizeRead = Sys_StreamedRead( cin.file, cinTable[currentHandle].RoQFrameSize + 8, 1, cinTable[currentHandle].iFile );
+	if (sizeRead != cinTable[currentHandle].RoQFrameSize + 8){
+		Com_DPrintf( "Error read %d bytes when expecting %d\n", sizeRead, cinTable[currentHandle].RoQFrameSize + 8);
+		return;
+	}
 	if ( cinTable[currentHandle].RoQPlayed >= cinTable[currentHandle].ROQSize ) {
 		if ( cinTable[currentHandle].holdAtEnd == qfalse ) {
 			if ( cinTable[currentHandle].looping ) {
@@ -1478,8 +1482,6 @@ SCR_RunCinematic
 Fetch and decompress the pending frame
 ==================
 */
-
-
 e_status CIN_RunCinematic( int handle ) {
 	// bk001204 - init
 	int start = 0;
@@ -1515,7 +1517,7 @@ e_status CIN_RunCinematic( int handle ) {
 
 	// we need to use CL_ScaledMilliseconds because of the smp mode calls from the renderer
 	thisTime = CL_ScaledMilliseconds();
-	if ( cinTable[currentHandle].shader && ( abs( thisTime - cinTable[currentHandle].lastTime ) ) > 100 ) {
+	if ( cinTable[currentHandle].shader &&  ( thisTime - cinTable[currentHandle].lastTime ) > 100 ) {
 		cinTable[currentHandle].startTime += thisTime - cinTable[currentHandle].lastTime;
 	}
 
@@ -1538,7 +1540,6 @@ e_status CIN_RunCinematic( int handle ) {
 		played = 1;
 	}
 
-//DAJ added [CIN_STREAM]'s
 	if ( played && cinTable[currentHandle].sound ) {
 		if ( s_rawend[CIN_STREAM] < s_soundtime && ( s_soundtime - s_rawend[CIN_STREAM] ) < 100 ) {
 			cinTable[currentHandle].startTime -= ( s_soundtime - s_rawend[CIN_STREAM] );
@@ -1547,9 +1548,6 @@ e_status CIN_RunCinematic( int handle ) {
 			} while ( s_rawend[CIN_STREAM] < s_soundtime &&  cinTable[currentHandle].status == FMV_PLAY );
 		}
 	}
-
-
-//----(SA)	end
 
 	cinTable[currentHandle].lastTime = thisTime;
 
@@ -1630,9 +1628,7 @@ int CIN_PlayCinematic( const char *arg, int x, int y, int w, int h, int systemBi
 
 	if ( cinTable[currentHandle].alterGameState ) {
 		// close the menu
-		if ( uivm ) {
-			VM_Call( uivm, UI_SET_ACTIVE_MENU, UIMENU_NONE );
-		}
+		UI_SetActiveMenu(UIMENU_NONE );
 	} else {
 		cinTable[currentHandle].playonwalls = cl_inGameVideo->integer;
 	}

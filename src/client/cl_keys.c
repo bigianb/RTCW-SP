@@ -1349,7 +1349,7 @@ void CL_KeyEvent( int key, qboolean down, unsigned time ) {
 
 //----(SA)	get the active menu if in ui mode
 	if ( cls.keyCatchers & KEYCATCH_UI ) {
-		activeMenu = VM_Call( uivm, UI_GET_ACTIVE_MENU );
+		activeMenu = UI_GetActiveMenu( );
 	}
 
 
@@ -1370,11 +1370,11 @@ void CL_KeyEvent( int key, qboolean down, unsigned time ) {
 
 		if ( !( cls.keyCatchers & KEYCATCH_UI ) ) {
 			if ( cls.state == CA_ACTIVE && !clc.demoplaying ) {
-				VM_Call( uivm, UI_SET_ACTIVE_MENU, UIMENU_INGAME );
+				UI_SetActiveMenu(UIMENU_INGAME );
 			} else {
 				CL_Disconnect_f();
 				S_StopAllSounds();
-				VM_Call( uivm, UI_SET_ACTIVE_MENU, UIMENU_MAIN );
+				UI_SetActiveMenu(UIMENU_MAIN );
 			}
 			return;
 		}
@@ -1383,7 +1383,7 @@ void CL_KeyEvent( int key, qboolean down, unsigned time ) {
 			return;
 		}
 
-		VM_Call( uivm, UI_KEY_EVENT, key, down );
+		UI_KeyEvent(key, down );
 		return;
 	}
 
@@ -1402,8 +1402,8 @@ void CL_KeyEvent( int key, qboolean down, unsigned time ) {
 			Cbuf_AddText( cmd );
 		}
 
-		if ( cls.keyCatchers & KEYCATCH_UI && uivm ) {
-			VM_Call( uivm, UI_KEY_EVENT, key, down );
+		if ( cls.keyCatchers & KEYCATCH_UI ) {
+			UI_KeyEvent(key, down );
 		} else if ( cls.keyCatchers & KEYCATCH_CGAME && cgvm ) {
 			VM_Call( cgvm, CG_KEY_EVENT, key, down );
 		}
@@ -1431,21 +1431,15 @@ void CL_KeyEvent( int key, qboolean down, unsigned time ) {
 
 			if ( kb ) {
 				if ( !Q_stricmp( "notebook", kb ) ) {
-					if ( VM_Call( uivm, UI_GET_ACTIVE_MENU ) == UIMENU_NOTEBOOK ) {
+					if ( UI_GetActiveMenu( ) == UIMENU_NOTEBOOK ) {
 						key = K_ESCAPE;
 					}
 				}
-
-//				if(!Q_stricmp("help", kb)) {
-//					if(VM_Call( uivm, UI_GET_ACTIVE_MENU) == UIMENU_HELP)
-//						key = K_ESCAPE;
-///				}
 			}
 		}
 
-		if ( uivm ) {
-			VM_Call( uivm, UI_KEY_EVENT, key, down );
-		}
+		UI_KeyEvent(key, down );
+		
 
 	} else if ( cls.keyCatchers & KEYCATCH_CGAME ) {
 		if ( cgvm ) {
@@ -1496,7 +1490,7 @@ void CL_CharEvent( int key ) {
 	if ( cls.keyCatchers & KEYCATCH_CONSOLE ) {
 		Field_CharEvent( &g_consoleField, key );
 	} else if ( cls.keyCatchers & KEYCATCH_UI )   {
-		VM_Call( uivm, UI_KEY_EVENT, key | K_CHAR_FLAG, qtrue );
+		UI_KeyEvent(key | K_CHAR_FLAG, qtrue );
 	} else if ( cls.keyCatchers & KEYCATCH_MESSAGE )   {
 		Field_CharEvent( &chatField, key );
 	} else if ( cls.state == CA_DISCONNECTED )   {

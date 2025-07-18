@@ -748,8 +748,8 @@ void CL_Disconnect( qboolean showMainMenu ) {
 		clc.demofile = 0;
 	}
 
-	if ( uivm && showMainMenu ) {
-		VM_Call( uivm, UI_SET_ACTIVE_MENU, UIMENU_NONE );
+	if ( showMainMenu ) {
+		UI_SetActiveMenu(UIMENU_NONE );
 	}
 
 	SCR_StopCinematic();
@@ -1906,19 +1906,15 @@ void CL_Frame( int msec ) {
 	if ( cls.cddialog ) {
 		// bring up the cd error dialog if needed
 		cls.cddialog = qfalse;
-#ifdef __MACOS__    //DAJ hide the cursor for intro movie
-		VM_Call( uivm, UI_SET_ACTIVE_MENU, UIMENU_BRIEFING );
-#else
-		VM_Call( uivm, UI_SET_ACTIVE_MENU, UIMENU_NEED_CD );
-#endif
+		UI_SetActiveMenu(UIMENU_NEED_CD );
 	} else if ( cls.endgamemenu ) {
 		cls.endgamemenu = qfalse;
-		VM_Call( uivm, UI_SET_ACTIVE_MENU, UIMENU_ENDGAME );
+		UI_SetActiveMenu(UIMENU_ENDGAME );
 	} else if ( cls.state == CA_DISCONNECTED && !( cls.keyCatchers & KEYCATCH_UI )
 				&& !com_sv_running->integer ) {
 		// if disconnected, bring up the menu
 		S_StopAllSounds();
-		VM_Call( uivm, UI_SET_ACTIVE_MENU, UIMENU_MAIN );
+		UI_SetActiveMenu(UIMENU_MAIN );
 	}
 
 	// if recording an avi, lock to a fixed fps
@@ -1965,16 +1961,8 @@ void CL_Frame( int msec ) {
 	// update the screen
 	SCR_UpdateScreen();
 
-	// Ridah, don't update if we're doing a quick reload
-//	if (Cvar_VariableIntegerValue("savegame_loading") != 2) {
-//		// if waiting at intermission, don't update sound
-//		char buf[MAX_QPATH];
-//		Cvar_VariableStringBuffer( "g_missionStats", buf, sizeof(buf) );
-//		if (strlen(buf) <= 1 ) {
-//			// update audio
-	S_Update();
-//		}
-//	}
+	// update audio
+	// IJB S_Update();
 
 	// advance local effects for next frame
 	SCR_RunCinematic();

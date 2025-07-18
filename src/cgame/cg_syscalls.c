@@ -30,7 +30,11 @@ If you have questions concerning this license or the applicable additional terms
 // cg_syscalls.asm is included instead when building a qvm
 #include "cg_local.h"
 
-static int ( QDECL * syscall )( int arg, ... ) = ( int ( QDECL * )( int, ... ) ) - 1;
+static int QDECL dummySyscall(int arg, ...){
+	return 0;
+}
+
+static int ( QDECL * syscall )( int arg, ... ) = dummySyscall;
 
 
 void dllEntry_CG( int ( QDECL  *syscallptr )( int arg,... ) ) {

@@ -373,8 +373,8 @@ extern sfxHandle_t  MenuField_Key( menufield_s* m, int* key );
 void            UI_Report();
 void            UI_Load();
 void            UI_LoadMenus( const char *menuFile, qboolean reset );
-void            _UI_SetActiveMenu( uiMenuCommand_t menu );
-uiMenuCommand_t _UI_GetActiveMenu( void );
+void            UI_SetActiveMenu( uiMenuCommand_t menu );
+uiMenuCommand_t UI_GetActiveMenu( void );
 int             UI_AdjustTimeByGame( int time );
 void            UI_ShowPostGame( qboolean newHigh );
 void            UI_ClearScores();
@@ -921,7 +921,6 @@ extern uiInfo_t uiInfo;
 
 extern void         UI_Init( void );
 extern void         UI_Shutdown( void );
-extern void         UI_KeyEvent( int key );
 extern void         UI_MouseEvent( int dx, int dy );
 extern void         UI_Refresh( int realtime );
 extern qboolean     UI_ConsoleCommand( int realTime );
@@ -929,9 +928,8 @@ extern float        UI_ClampCvar( float min, float max, float value );
 extern void         UI_DrawNamedPic( float x, float y, float width, float height, const char *picname );
 extern void         UI_DrawHandlePic( float x, float y, float w, float h, qhandle_t hShader );
 extern void         UI_FillRect( float x, float y, float width, float height, const float *color );
-extern void         UI_DrawRect( float x, float y, float width, float height, const float *color );
-extern void     UI_DrawTopBottom( float x, float y, float w, float h );
-extern void     UI_DrawSides( float x, float y, float w, float h );
+extern void 		UI_DrawRect( float x, float y, float width, float height, float size, const float *color );
+
 extern void         UI_UpdateScreen( void );
 extern void         UI_SetColor( const float *rgba );
 extern void         UI_LerpColor( vec4_t a, vec4_t b, vec4_t c, float t );
@@ -952,7 +950,7 @@ extern void         UI_ForceMenuOff( void );
 extern char         *UI_Argv( int arg );
 extern char         *UI_Cvar_VariableString( const char *var_name );
 extern void         UI_Refresh( int time );
-extern void         UI_KeyEvent( int key );
+
 extern void         UI_StartDemoLoop( void );
 void                UI_LoadBestScores( const char *map, int game );           // NERVE - SMF
 extern qboolean m_entersound;

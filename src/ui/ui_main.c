@@ -125,9 +125,6 @@ static char* netnames[] = {
 	NULL
 };
 
-// TTimo: unused
-//static char quake3worldMessage[] = "Visit www.quake3world.com - News, Community, Events, Files";
-
 static int gamecodetoui[] = {4,2,3,0,5,1,6};
 static int uitogamecode[] = {4,6,2,3,1,5,7};
 
@@ -147,22 +144,15 @@ static int UI_GetIndexFromSelection( int actual );
 // -NERVE - SMF - enabled for multiplayer
 
 static void UI_ParseGameInfo( const char *teamFile );
-//static void UI_ParseTeamInfo(const char *teamFile);
-
-//int ProcessNewUI( int command, int arg0, int arg1, int arg2, int arg3, int arg4, int arg5, int arg6 );
 
 static uiMenuCommand_t menutype = UIMENU_NONE;
 
 // externs
 extern displayContextDef_t *DC;
 
-
-//----(SA)	added for savegame sorting
 static int QDECL UI_SavegamesQsortCompare( const void *arg1, const void *arg2 );
-//----(SA)	end
 
 void Text_PaintCenter( float x, float y, int font, float scale, vec4_t color, const char *text, float adjust );
-
 
 /*
 ================
@@ -177,12 +167,12 @@ vmCvar_t ui_debug;
 vmCvar_t ui_initialized;
 vmCvar_t ui_WolfFirstRun;
 
-void _UI_Init( qboolean );
-void _UI_Shutdown( void );
-void _UI_KeyEvent( int key, qboolean down );
-void _UI_MouseEvent( int dx, int dy );
-void _UI_Refresh( int realtime );
-qboolean _UI_IsFullscreen( void );
+void UI_Init( void );
+void UI_Shutdown( void );
+void UI_KeyEvent( int key, qboolean down );
+void UI_MouseEvent( int dx, int dy );
+void UI_Refresh( int realtime );
+qboolean UI_IsFullscreen( void );
 
 int vmMainUI( int command, int arg0, int arg1, int arg2, int arg3, int arg4, int arg5, int arg6, int arg7, int arg8, int arg9, int arg10, int arg11  ) {
 
@@ -191,34 +181,34 @@ int vmMainUI( int command, int arg0, int arg1, int arg2, int arg3, int arg4, int
 		return UI_API_VERSION;
 
 	case UI_INIT:
-		_UI_Init( arg0 );
+		UI_Init( );
 		return 0;
 
 	case UI_SHUTDOWN:
-		_UI_Shutdown();
+		UI_Shutdown();
 		return 0;
 
 	case UI_KEY_EVENT:
-		_UI_KeyEvent( arg0, arg1 );
+		UI_KeyEvent( arg0, arg1 );
 		return 0;
 
 	case UI_MOUSE_EVENT:
-		_UI_MouseEvent( arg0, arg1 );
+		UI_MouseEvent( arg0, arg1 );
 		return 0;
 
 	case UI_REFRESH:
-		_UI_Refresh( arg0 );
+		UI_Refresh( arg0 );
 		return 0;
 
 	case UI_IS_FULLSCREEN:
-		return _UI_IsFullscreen();
+		return UI_IsFullscreen();
 
 	case UI_SET_ACTIVE_MENU:
-		_UI_SetActiveMenu( arg0 );
+		UI_SetActiveMenu( arg0 );
 		return 0;
 
 	case UI_GET_ACTIVE_MENU:
-		return _UI_GetActiveMenu();
+		return UI_GetActiveMenu();
 
 	case UI_CONSOLE_COMMAND:
 		return UI_ConsoleCommand( arg0 );
@@ -266,14 +256,14 @@ void AssetCache() {
 
 }
 
-void _UI_DrawSides( float x, float y, float w, float h, float size ) {
+void UI_DrawSides( float x, float y, float w, float h, float size ) {
 	UI_AdjustFrom640( &x, &y, &w, &h );
 	size *= uiInfo.uiDC.xscale;
 	trap_R_DrawStretchPic( x, y, size, h, 0, 0, 0, 0, uiInfo.uiDC.whiteShader );
 	trap_R_DrawStretchPic( x + w - size, y, size, h, 0, 0, 0, 0, uiInfo.uiDC.whiteShader );
 }
 
-void _UI_DrawTopBottom( float x, float y, float w, float h, float size ) {
+void UI_DrawTopBottom( float x, float y, float w, float h, float size ) {
 	UI_AdjustFrom640( &x, &y, &w, &h );
 	size *= uiInfo.uiDC.yscale;
 	trap_R_DrawStretchPic( x, y, w, size, 0, 0, 0, 0, uiInfo.uiDC.whiteShader );
@@ -286,11 +276,11 @@ UI_DrawRect
 Coordinates are 640*480 virtual values
 =================
 */
-void _UI_DrawRect( float x, float y, float width, float height, float size, const float *color ) {
+void UI_DrawRect( float x, float y, float width, float height, float size, const float *color ) {
 	trap_R_SetColor( color );
 
-	_UI_DrawTopBottom( x, y, width, height, size );
-	_UI_DrawSides( x, y, width, height, size );
+	UI_DrawTopBottom( x, y, width, height, size );
+	UI_DrawSides( x, y, width, height, size );
 
 	trap_R_SetColor( NULL );
 }
@@ -666,11 +656,11 @@ void UI_ShowPostGame( qboolean newHigh ) {
 	trap_Cvar_Set( "cg_thirdPerson", "0" );
 	trap_Cvar_Set( "sv_killserver", "1" );
 	uiInfo.soundHighScore = newHigh;
-	_UI_SetActiveMenu( UIMENU_POSTGAME );
+	UI_SetActiveMenu( UIMENU_POSTGAME );
 }
 /*
 =================
-_UI_Refresh
+UI_Refresh
 =================
 */
 
@@ -685,7 +675,7 @@ int frameCount = 0;
 int startTime;
 
 #define UI_FPS_FRAMES   4
-void _UI_Refresh( int realtime ) {
+void UI_Refresh( int realtime ) {
 	static int index;
 	static int previousTimes[UI_FPS_FRAMES];
 
@@ -729,28 +719,19 @@ void _UI_Refresh( int realtime ) {
 	// draw cursor
 	UI_SetColor( NULL );
 	if ( Menu_Count() > 0 ) {
-		uiMenuCommand_t mymenu = _UI_GetActiveMenu();
+		uiMenuCommand_t mymenu = UI_GetActiveMenu();
 		if ( mymenu != UIMENU_BRIEFING ) {
 			UI_DrawHandlePic( uiInfo.uiDC.cursorx - 16, uiInfo.uiDC.cursory - 16, 32, 32, uiInfo.uiDC.Assets.cursor );
 		}
 	}
-
-#ifndef NDEBUG
-	if ( uiInfo.uiDC.debug ) {
-		// cursor coordinates
-		//FIXME
-		//UI_DrawString( 0, 0, va("(%d,%d)",uis.cursorx,uis.cursory), UI_LEFT|UI_SMALLFONT, colorRed );
-	}
-#endif
-
 }
 
 /*
 =================
-_UI_Shutdown
+UI_Shutdown
 =================
 */
-void _UI_Shutdown( void ) {
+void UI_Shutdown( void ) {
 	trap_LAN_SaveCachedServers();
 }
 
@@ -6530,11 +6511,9 @@ static void UI_BuildQ3Model_List( void ) {
 UI_Init
 =================
 */
-void _UI_Init( qboolean inGameLoad ) {
+void UI_Init(  ) {
 	const char *menuSet;
 	int start;
-
-	//uiInfo.inGameLoad = inGameLoad;
 
 	UI_RegisterCvars();
 	UI_InitMemory();
@@ -6565,11 +6544,11 @@ void _UI_Init( qboolean inGameLoad ) {
 	uiInfo.uiDC.registerModel = &trap_UI_RegisterModel;
 	uiInfo.uiDC.modelBounds = &trap_R_ModelBounds;
 	uiInfo.uiDC.fillRect = &UI_FillRect;
-	uiInfo.uiDC.drawRect = &_UI_DrawRect;
-	uiInfo.uiDC.drawSides = &_UI_DrawSides;
-	uiInfo.uiDC.drawTopBottom = &_UI_DrawTopBottom;
+	uiInfo.uiDC.drawRect = &UI_DrawRect;
+	uiInfo.uiDC.drawSides = &UI_DrawSides;
+	uiInfo.uiDC.drawTopBottom = &UI_DrawTopBottom;
 	uiInfo.uiDC.clearScene = &trap_R_ClearScene;
-	uiInfo.uiDC.drawSides = &_UI_DrawSides;
+	uiInfo.uiDC.drawSides = &UI_DrawSides;
 	uiInfo.uiDC.addRefEntityToScene = &trap_R_AddRefEntityToScene;
 	uiInfo.uiDC.renderScene = &trap_R_RenderScene;
 	uiInfo.uiDC.registerFont = &trap_R_RegisterFont;
@@ -6642,15 +6621,8 @@ void _UI_Init( qboolean inGameLoad ) {
 #endif
 	}
 
-#if 0
-	if ( uiInfo.inGameLoad ) {
-		UI_LoadMenus( "ui/ingame.txt", qtrue );
-	} else {
-	}
-#else
 	UI_LoadMenus( menuSet, qtrue );
 	UI_LoadMenus( "ui/ingame.txt", qfalse );
-#endif
 
 	Menus_CloseAll();
 
@@ -6687,7 +6659,7 @@ void _UI_Init( qboolean inGameLoad ) {
 UI_KeyEvent
 =================
 */
-void _UI_KeyEvent( int key, qboolean down ) {
+void UI_KeyEvent( int key, qboolean down ) {
 
 	if ( Menu_Count() > 0 ) {
 		menuDef_t *menu = Menu_GetFocused();
@@ -6714,7 +6686,7 @@ void _UI_KeyEvent( int key, qboolean down ) {
 UI_MouseEvent
 =================
 */
-void _UI_MouseEvent( int dx, int dy ) {
+void UI_MouseEvent( int dx, int dy ) {
 	// update mouse screen position
 	uiInfo.uiDC.cursorx += dx;
 	if ( uiInfo.uiDC.cursorx < 0 ) {
@@ -6753,19 +6725,17 @@ void UI_LoadNonIngame() {
 
 
 
-//----(SA)	added
+
 /*
 ==============
-_UI_GetActiveMenu
+UI_GetActiveMenu
 ==============
 */
-uiMenuCommand_t _UI_GetActiveMenu( void ) {
+uiMenuCommand_t UI_GetActiveMenu( void ) {
 	return menutype;
 }
 
-//----(SA)	end
-
-void _UI_SetActiveMenu( uiMenuCommand_t menu ) {
+void UI_SetActiveMenu( uiMenuCommand_t menu ) {
 	char buf[256];
 
 	// this should be the ONLY way the menu system is brought up
@@ -6943,7 +6913,7 @@ void _UI_SetActiveMenu( uiMenuCommand_t menu ) {
 	}
 }
 
-qboolean _UI_IsFullscreen( void ) {
+qboolean UI_IsFullscreen( void ) {
 	return Menus_AnyFullScreenVisible();
 }
 

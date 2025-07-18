@@ -351,11 +351,6 @@ rescan:
 	}
 
 	if ( !strcmp( cmd, "popup" ) ) { // direct server to client popup request, bypassing cgame
-//		trap_UI_Popup(Cmd_Argv(1));
-//		if ( cls.state == CA_ACTIVE && !clc.demoplaying ) {
-//			VM_Call( uivm, UI_SET_ACTIVE_MENU, UIMENU_CLIPBOARD);
-//			Menus_OpenByName(Cmd_Argv(1));
-//		}
 		return qfalse;
 	}
 
@@ -794,39 +789,39 @@ intptr_t CL_CgameSystemCalls( intptr_t *args ) {
 
 	case CG_INGAME_POPUP:
 		if ( VMA( 1 ) && !Q_stricmp( VMA( 1 ), "briefing" ) ) {  //----(SA) added
-			VM_Call( uivm, UI_SET_ACTIVE_MENU, UIMENU_BRIEFING );
+			UI_SetActiveMenu(UIMENU_BRIEFING );
 			return 0;
 		}
 
 		if ( cls.state == CA_ACTIVE && !clc.demoplaying ) {
 			// NERVE - SMF
 			if ( VMA( 1 ) && !Q_stricmp( VMA( 1 ), "UIMENU_WM_PICKTEAM" ) ) {
-				VM_Call( uivm, UI_SET_ACTIVE_MENU, UIMENU_WM_PICKTEAM );
+				UI_SetActiveMenu(UIMENU_WM_PICKTEAM );
 			} else if ( VMA( 1 ) && !Q_stricmp( VMA( 1 ), "UIMENU_WM_PICKPLAYER" ) )    {
-				VM_Call( uivm, UI_SET_ACTIVE_MENU, UIMENU_WM_PICKPLAYER );
+				UI_SetActiveMenu(UIMENU_WM_PICKPLAYER );
 			} else if ( VMA( 1 ) && !Q_stricmp( VMA( 1 ), "UIMENU_WM_QUICKMESSAGE" ) )    {
-				VM_Call( uivm, UI_SET_ACTIVE_MENU, UIMENU_WM_QUICKMESSAGE );
+				UI_SetActiveMenu(UIMENU_WM_QUICKMESSAGE );
 			} else if ( VMA( 1 ) && !Q_stricmp( VMA( 1 ), "UIMENU_WM_LIMBO" ) )    {
-				VM_Call( uivm, UI_SET_ACTIVE_MENU, UIMENU_WM_LIMBO );
+				UI_SetActiveMenu(UIMENU_WM_LIMBO );
 			}
 			// -NERVE - SMF
 			else if ( VMA( 1 ) && !Q_stricmp( VMA( 1 ), "hbook1" ) ) {   //----(SA)
-				VM_Call( uivm, UI_SET_ACTIVE_MENU, UIMENU_BOOK1 );
+				UI_SetActiveMenu(UIMENU_BOOK1 );
 			} else if ( VMA( 1 ) && !Q_stricmp( VMA( 1 ), "hbook2" ) )    { //----(SA)
-				VM_Call( uivm, UI_SET_ACTIVE_MENU, UIMENU_BOOK2 );
+				UI_SetActiveMenu(UIMENU_BOOK2 );
 			} else if ( VMA( 1 ) && !Q_stricmp( VMA( 1 ), "hbook3" ) )    { //----(SA)
-				VM_Call( uivm, UI_SET_ACTIVE_MENU, UIMENU_BOOK3 );
+				UI_SetActiveMenu(UIMENU_BOOK3 );
 			} else if ( VMA( 1 ) && !Q_stricmp( VMA( 1 ), "pregame" ) )    { //----(SA) added
-				VM_Call( uivm, UI_SET_ACTIVE_MENU, UIMENU_PREGAME );
+				UI_SetActiveMenu(UIMENU_PREGAME );
 			} else {
-				VM_Call( uivm, UI_SET_ACTIVE_MENU, UIMENU_CLIPBOARD );
+				UI_SetActiveMenu(UIMENU_CLIPBOARD );
 			}
 		}
 		return 0;
 
 		// NERVE - SMF
 	case CG_INGAME_CLOSEPOPUP:
-		VM_Call( uivm, UI_KEY_EVENT, K_ESCAPE, qtrue );
+		UI_KeyEvent(K_ESCAPE, qtrue );
 		return 0;
 
 	case CG_LIMBOCHAT:

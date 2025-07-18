@@ -28,15 +28,10 @@ If you have questions concerning this license or the applicable additional terms
 
 
 #include "client.h"
-
 #include "../game/botlib.h"
 
 extern botlib_export_t *botlib_export;
-
-vm_t *uivm;
-
 extern char cl_cdkey[34];
-
 
 /*
 ====================
@@ -1128,12 +1123,7 @@ CL_ShutdownUI
 void CL_ShutdownUI( void ) {
 	cls.keyCatchers &= ~KEYCATCH_UI;
 	cls.uiStarted = qfalse;
-	if ( !uivm ) {
-		return;
-	}
-	VM_Call( uivm, UI_SHUTDOWN );
-	VM_Free( uivm );
-	uivm = NULL;
+	UI_Shutdown();
 }
 
 /*
@@ -1143,43 +1133,9 @@ CL_InitUI
 */
 
 void CL_InitUI( void ) {
-	int v;
-	vmInterpret_t interpret;
-
-	// load the dll or bytecode
-	if ( cl_connectedToPureServer != 0 ) {
-		// if sv_pure is set we only allow qvms to be loaded
-		interpret = VMI_COMPILED;
-	} else {
-		interpret = Cvar_VariableValue( "vm_ui" );
-	}
-
-	uivm = VM_Create( "ui", CL_UISystemCalls, Cvar_VariableValue( "vm_ui" ) );
-
-	if ( !uivm ) {
-		Com_Error( ERR_FATAL, "VM_Create on UI failed" );
-	}
-
-	// sanity check
-	v = VM_Call( uivm, UI_GETAPIVERSION );
-	if ( v != UI_API_VERSION ) {
-		Com_Error( ERR_FATAL, "User Interface is version %d, expected %d", v, UI_API_VERSION );
-		cls.uiStarted = qfalse;
-	}
-
-	// init for this gamestate
-//	VM_Call( uivm, UI_INIT );
-	VM_Call( uivm, UI_INIT, ( cls.state >= CA_AUTHORIZING && cls.state < CA_ACTIVE ) );
+	UI_Init();
 }
 
-
-qboolean UI_usesUniqueCDKey() {
-	if ( uivm ) {
-		return ( VM_Call( uivm, UI_HASUNIQUECDKEY ) == qtrue );
-	} else {
-		return qfalse;
-	}
-}
 
 /*
 ====================
@@ -1189,9 +1145,5 @@ See if the current console command is claimed by the ui
 ====================
 */
 qboolean UI_GameCommand( void ) {
-	if ( !uivm ) {
-		return qfalse;
-	}
-
-	return VM_Call( uivm, UI_CONSOLE_COMMAND, cls.realtime );
+	return UI_ConsoleCommand(cls.realtime);
 }

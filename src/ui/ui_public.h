@@ -179,6 +179,17 @@ typedef enum {
 	UIMENU_BRIEFING         //----(SA)	added
 } uiMenuCommand_t;
 
+void UI_Init( void );
+void UI_Shutdown( void );
+void UI_KeyEvent( int key, qboolean down );
+void UI_MouseEvent( int dx, int dy );
+void UI_Refresh( int realtime );
+uiMenuCommand_t UI_GetActiveMenu( void );
+void	UI_SetActiveMenu( uiMenuCommand_t menu );
+qboolean UI_IsFullscreen( void );
+qboolean UI_ConsoleCommand( int realTime );
+void	UI_DrawConnectScreen( qboolean overlay );
+
 #define SORT_HOST           0
 #define SORT_MAP            1
 #define SORT_CLIENTS        2

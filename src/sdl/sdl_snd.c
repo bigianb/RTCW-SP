@@ -126,6 +126,15 @@ qboolean SNDDMA_Init(void)
 	Com_DPrintf( "OK\n" );
 	Com_Printf( "SDL audio driver is \"%s\".\n", SDL_GetCurrentAudioDriver( ) );
 
+	// Tell the main app what we expect from it
+	dma.samples = s_sdlDevSamps->integer;
+	//dma.submission_chunk = submissionChunk;
+	dma.samplebits = 16;
+	//dma.buffer = (byte *)s_mixedSamples;
+	dma.channels = s_sdlChannels->integer;
+	dma.speed = 22050;
+
+
 	Com_Printf("SDL audio initialized.\n");
 	snd_inited = qtrue;
 	return qtrue;

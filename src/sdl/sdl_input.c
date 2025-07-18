@@ -992,7 +992,7 @@ static void IN_ProcessEvents( void )
 	keyNum_t key = 0;
 	static keyNum_t lastKeyDown = 0;
 
-	if( !SDL_WasInit( SDL_INIT_VIDEO ) )
+	if( SDL_WasInit( SDL_INIT_VIDEO ) != SDL_INIT_VIDEO)
 			return;
 
 	while( SDL_PollEvent( &e ) )
