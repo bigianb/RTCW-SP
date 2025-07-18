@@ -442,11 +442,11 @@ static qboolean GLimp_StartDriverAndSetMode(int mode, qboolean fullscreen, qbool
 {
 	rserr_t err;
 
-	if (!SDL_WasInit(SDL_INIT_VIDEO))
+	if (SDL_WasInit(SDL_INIT_VIDEO) != SDL_INIT_VIDEO)
 	{
 		const char *driverName;
 	
-		if (SDL_Init(SDL_INIT_VIDEO) != 0)
+		if (!SDL_Init(SDL_INIT_VIDEO))
 		{
 			ri.Printf( PRINT_ALL, "SDL_Init( SDL_INIT_VIDEO ) FAILED (%s)\n", SDL_GetError());
 			return qfalse;
@@ -575,7 +575,7 @@ void GLimp_Init( qboolean fixedFunction )
 
 	// Try again, this time in a platform specific "safe mode"
 	ri.Sys_GLimpSafeInit( );
-*/
+
 	if(GLimp_StartDriverAndSetMode(r_mode->integer, r_fullscreen->integer, qfalse, fixedFunction))
 		goto success;
 
@@ -593,6 +593,9 @@ void GLimp_Init( qboolean fixedFunction )
 	ri.Error( ERR_FATAL, "GLimp_Init() - could not load OpenGL subsystem" );
 
 success:
+*/
+	GLimp_StartDriverAndSetMode(R_MODE_FALLBACK, qfalse, qfalse, fixedFunction);
+
 	// These values force the UI to disable driver selection
 	glConfig.driverType = GLDRV_ICD;
 	glConfig.hardwareType = GLHW_GENERIC;

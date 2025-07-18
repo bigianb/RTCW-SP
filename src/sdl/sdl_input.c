@@ -341,7 +341,7 @@ IN_ActivateMouse
 */
 static void IN_ActivateMouse( qboolean isFullscreen )
 {
-	if (!mouseAvailable || !SDL_WasInit( SDL_INIT_VIDEO ) )
+	if (!mouseAvailable || SDL_WasInit( SDL_INIT_VIDEO ) != SDL_INIT_VIDEO)
 		return;
 
 	if( !mouseActive )
@@ -379,7 +379,7 @@ IN_DeactivateMouse
 */
 static void IN_DeactivateMouse( qboolean isFullscreen )
 {
-	if( !SDL_WasInit( SDL_INIT_VIDEO ) )
+	if(SDL_WasInit( SDL_INIT_VIDEO ) != SDL_INIT_VIDEO)
 		return;
 
 	// Always show the cursor when the mouse is disabled,
@@ -465,10 +465,10 @@ static void IN_InitJoystick( void )
 	// SDL_INIT_GAMECONTROLLER for SDL_JoystickOpen() to work correctly,
 	// despite https://wiki.libsdl.org/SDL_Init (retrieved 2016-08-16)
 	// indicating SDL_INIT_JOYSTICK should be initialized automatically.
-	if (!SDL_WasInit(SDL_INIT_JOYSTICK))
+	if (SDL_WasInit(SDL_INIT_JOYSTICK) != SDL_INIT_JOYSTICK)
 	{
 		Com_DPrintf("Calling SDL_Init(SDL_INIT_JOYSTICK)...\n");
-		if (SDL_Init(SDL_INIT_JOYSTICK) != 0)
+		if (!SDL_Init(SDL_INIT_JOYSTICK))
 		{
 			Com_DPrintf("SDL_Init(SDL_INIT_JOYSTICK) failed: %s\n", SDL_GetError());
 			return;
@@ -476,10 +476,10 @@ static void IN_InitJoystick( void )
 		Com_DPrintf("SDL_Init(SDL_INIT_JOYSTICK) passed.\n");
 	}
 
-	if (!SDL_WasInit(SDL_INIT_GAMEPAD))
+	if (SDL_WasInit(SDL_INIT_GAMEPAD) != SDL_INIT_GAMEPAD)
 	{
 		Com_DPrintf("Calling SDL_Init(SDL_INIT_GAMEPAD)...\n");
-		if (SDL_Init(SDL_INIT_GAMEPAD) != 0)
+		if (!SDL_Init(SDL_INIT_GAMEPAD))
 		{
 			Com_DPrintf("SDL_Init(SDL_INIT_GAMEPAD) failed: %s\n", SDL_GetError());
 			return;
@@ -545,10 +545,10 @@ IN_ShutdownJoystick
 */
 static void IN_ShutdownJoystick( void )
 {
-	if ( !SDL_WasInit( SDL_INIT_GAMEPAD ) )
+	if ( SDL_WasInit( SDL_INIT_GAMEPAD ) != SDL_INIT_GAMEPAD)
 		return;
 
-	if ( !SDL_WasInit( SDL_INIT_JOYSTICK ) )
+	if ( SDL_WasInit( SDL_INIT_JOYSTICK ) != SDL_INIT_JOYSTICK)
 		return;
 
 	if (gamepad)

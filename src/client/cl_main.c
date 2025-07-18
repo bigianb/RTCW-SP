@@ -2169,6 +2169,8 @@ void QDECL CL_RefPrintf( int print_level, const char *fmt, ... ) {
 	vsprintf( msg,fmt,argptr );
 	va_end( argptr );
 
+	Com_Printf( "%s", msg );
+	/* IJB
 	if ( print_level == PRINT_ALL ) {
 		Com_Printf( "%s", msg );
 	} else if ( print_level == PRINT_WARNING ) {
@@ -2176,6 +2178,7 @@ void QDECL CL_RefPrintf( int print_level, const char *fmt, ... ) {
 	} else if ( print_level == PRINT_DEVELOPER ) {
 		Com_DPrintf( S_COLOR_RED "%s", msg );     // red
 	}
+		*/
 }
 
 

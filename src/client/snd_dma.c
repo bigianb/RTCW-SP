@@ -1524,6 +1524,10 @@ void S_GetSoundtime( void ) {
 	static int oldsamplepos;
 	int fullsamples;
 
+	if (dma.channels == 0){
+		return;
+	}
+
 	fullsamples = dma.samples / dma.channels;
 
 	// it is possible to miscount buffers if it has wrapped twice between
@@ -1541,14 +1545,6 @@ void S_GetSoundtime( void ) {
 	oldsamplepos = samplepos;
 
 	s_soundtime = buffers * fullsamples + samplepos / dma.channels;
-
-#if 0
-// check to make sure that we haven't overshot
-	if ( s_paintedtime < s_soundtime ) {
-		Com_DPrintf( "S_GetSoundtime : overflow\n" );
-		s_paintedtime = s_soundtime;
-	}
-#endif
 
 	if ( dma.submission_chunk < 256 ) {
 		s_paintedtime = s_soundtime + s_mixPreStep->value * dma.speed;
