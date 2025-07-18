@@ -27,6 +27,9 @@ If you have questions concerning this license or the applicable additional terms
 */
 
 #include "ui_local.h"
+#include "qcommon.h"
+#include "client.h"
+#include "renderer/tr_local.h"
 
 static int QDECL dummySyscall(int arg, ...){
 	return 0;
@@ -45,11 +48,11 @@ static int PASSFLOAT( float x ) {
 }
 
 void trap_UI_Print( const char *string ) {
-	syscall( UI_PRINT, string );
+	Com_Printf( "%s", string);
 }
 
 void trap_UI_Error( const char *string ) {
-	syscall( UI_ERROR, string );
+	Com_Error( ERR_DROP, "%s", string );
 }
 /*
 int trap_Milliseconds( void ) {
@@ -69,9 +72,7 @@ void trap_Cvar_Set( const char *var_name, const char *value ) {
 }
 */
 float trap_Cvar_VariableValue( const char *var_name ) {
-	int temp;
-	temp = syscall( UI_CVAR_VARIABLEVALUE, var_name );
-	return ( *(float*)&temp );
+	return Cvar_VariableValue(var_name );
 }
 /*
 void trap_Cvar_VariableStringBuffer( const char *var_name, char *buffer, int bufsize ) {
@@ -103,7 +104,7 @@ void trap_Argv( int n, char *buffer, int bufferLength ) {
 }
 */
 void trap_Cmd_ExecuteText( int exec_when, const char *text ) {
-	syscall( UI_CMD_EXECUTETEXT, exec_when, text );
+	Cbuf_ExecuteText( exec_when, text );
 }
 /*
 int trap_FS_FOpenFile( const char *qpath, fileHandle_t *f, fsMode_t mode ) {
@@ -137,11 +138,11 @@ int trap_FS_Delete( const char *filename ) {
 }
 
 qhandle_t trap_UI_RegisterModel( const char *name ) {
-	return syscall( UI_R_REGISTERMODEL, name );
+	return RE_RegisterModel(name );
 }
 
 qhandle_t trap_UI_RegisterSkin( const char *name ) {
-	return syscall( UI_R_REGISTERSKIN, name );
+	return RE_RegisterSkin(name );
 }
 
 void trap_UI_RegisterFont( const char *fontName, int pointSize, fontInfo_t *font ) {
@@ -201,7 +202,7 @@ void trap_S_StartLocalSound( sfxHandle_t sfx, int channelNum ) {
 }
 */
 sfxHandle_t trap_UI_S_RegisterSound( const char *sample ) {
-	return syscall( UI_S_REGISTERSOUND, sample );
+	return S_RegisterSound( sample, qfalse );
 }
 
 /*
@@ -220,11 +221,11 @@ void trap_Key_KeynumToStringBuf( int keynum, char *buf, int buflen ) {
 }
 
 void trap_Key_GetBindingBuf( int keynum, char *buf, int buflen ) {
-	syscall( UI_KEY_GETBINDINGBUF, keynum, buf, buflen );
+	Key_GetBindingBuf( keynum, buf, buflen );
 }
 
 void trap_Key_SetBinding( int keynum, const char *binding ) {
-	syscall( UI_KEY_SETBINDING, keynum, binding );
+	Key_SetBinding( keynum, binding );
 }
 /*
 qboolean trap_Key_IsDown( int keynum ) {
@@ -240,17 +241,9 @@ void trap_Key_SetOverstrikeMode( qboolean state ) {
 }
 
 void trap_Key_ClearStates( void ) {
-	syscall( UI_KEY_CLEARSTATES );
-}
-/*
-int trap_Key_GetCatcher( void ) {
-	return syscall( UI_KEY_GETCATCHER );
+	Key_ClearStates();
 }
 
-void trap_Key_SetCatcher( int catcher ) {
-	syscall( UI_KEY_SETCATCHER, catcher );
-}
-*/
 void trap_GetClipboardData( char *buf, int bufsize ) {
 	syscall( UI_GETCLIPBOARDDATA, buf, bufsize );
 }
@@ -258,11 +251,7 @@ void trap_GetClipboardData( char *buf, int bufsize ) {
 void trap_GetClientState( uiClientState_t *state ) {
 	syscall( UI_GETCLIENTSTATE, state );
 }
-/*
-void trap_GetGlconfig( glconfig_t *glconfig ) {
-	syscall( UI_GETGLCONFIG, glconfig );
-}
-*/
+
 int trap_GetConfigString( int index, char* buff, int buffsize ) {
 	return syscall( UI_GETCONFIGSTRING, index, buff, buffsize );
 }
@@ -341,19 +330,19 @@ int trap_LAN_ServerStatus( const char *serverAddress, char *serverStatus, int ma
 }
 
 void trap_LAN_SaveCachedServers() {
-	syscall( UI_LAN_SAVECACHEDSERVERS );
+	//syscall( UI_LAN_SAVECACHEDSERVERS );
 }
 
 void trap_LAN_LoadCachedServers() {
-	syscall( UI_LAN_LOADCACHEDSERVERS );
+	//syscall( UI_LAN_LOADCACHEDSERVERS );
 }
 
 void trap_LAN_MarkServerVisible( int source, int n, qboolean visible ) {
-	syscall( UI_LAN_MARKSERVERVISIBLE, source, n, visible );
+	//syscall( UI_LAN_MARKSERVERVISIBLE, source, n, visible );
 }
 
 void trap_LAN_ResetPings( int n ) {
-	syscall( UI_LAN_RESETPINGS, n );
+	//syscall( UI_LAN_RESETPINGS, n );
 }
 // -NERVE - SMF
 /*

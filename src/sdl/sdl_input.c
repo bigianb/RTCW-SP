@@ -1219,9 +1219,9 @@ IN_Init
 */
 void IN_Init( void *windowData )
 {
-	int appState;
+	SDL_WindowFlags appState;
 
-	if( !SDL_WasInit( SDL_INIT_VIDEO ) )
+	if( SDL_WasInit( SDL_INIT_VIDEO ) != SDL_INIT_VIDEO)
 	{
 		Com_Error( ERR_FATAL, "IN_Init called before SDL_Init( SDL_INIT_VIDEO )" );
 		return;

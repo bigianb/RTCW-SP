@@ -667,7 +667,7 @@ static void Key_KeynumToStringBuf( int keynum, char *buf, int buflen ) {
 Key_GetBindingBuf
 ====================
 */
-static void Key_GetBindingBuf( int keynum, char *buf, int buflen ) {
+void Key_GetBindingBuf( int keynum, char *buf, int buflen ) {
 	char    *value;
 
 	value = Key_GetBinding( keynum );

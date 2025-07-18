@@ -81,11 +81,7 @@ itemDef_t *Menu_SetPrevCursorItem( menuDef_t *menu );
 itemDef_t *Menu_SetNextCursorItem( menuDef_t *menu );
 static qboolean Menu_OverActiveItem( menuDef_t *menu, float x, float y );
 
-#ifdef CGAME
-#define MEM_POOL_SIZE  128 * 1024
-#else
-#define MEM_POOL_SIZE  1024 * 1024
-#endif
+#define MEM_POOL_SIZE  1024 * 1024 * 2
 
 static char memoryPool[MEM_POOL_SIZE];
 static int allocPoint, outOfMemory;

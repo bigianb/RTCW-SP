@@ -1676,7 +1676,7 @@ typedef struct {
 	float s2, t2;
 
 	byte gradientColor[4];      // color values 0-255
-	int gradientType;       //----(SA)	added
+	int gradientType; 
 } stretchPicCommand_t;
 
 typedef struct {

@@ -4335,7 +4335,7 @@ static void UI_Update( const char *name ) {
 	} else if ( Q_stricmp( name, "ui_glCustom" ) == 0 ) {
 		switch ( val ) {
 		case 0: // high quality
-			trap_Cvar_SetValue( "r_fullScreen", 1 );
+			trap_Cvar_SetValue( "r_fullScreen", 0 );
 			trap_Cvar_SetValue( "r_subdivisions", 4 );
 			trap_Cvar_SetValue( "r_vertexlight", 0 );
 			trap_Cvar_SetValue( "r_lodbias", 0 );
@@ -4352,7 +4352,7 @@ static void UI_Update( const char *name ) {
 			trap_Cvar_Set( "r_texturemode", "GL_LINEAR_MIPMAP_LINEAR" );
 			break;
 		case 1: // normal
-			trap_Cvar_SetValue( "r_fullScreen", 1 );
+			trap_Cvar_SetValue( "r_fullScreen", 0 );
 			trap_Cvar_SetValue( "r_subdivisions", 12 );
 			trap_Cvar_SetValue( "r_vertexlight", 0 );
 			trap_Cvar_SetValue( "r_lodbias", 0 );
@@ -4369,7 +4369,7 @@ static void UI_Update( const char *name ) {
 			trap_Cvar_SetValue( "cg_shadows", 0 );
 			break;
 		case 2: // fast
-			trap_Cvar_SetValue( "r_fullScreen", 1 );
+			trap_Cvar_SetValue( "r_fullScreen", 0 );
 			trap_Cvar_SetValue( "r_subdivisions", 8 );
 			trap_Cvar_SetValue( "r_vertexlight", 0 );
 			trap_Cvar_SetValue( "r_lodbias", 1 );
@@ -4386,7 +4386,7 @@ static void UI_Update( const char *name ) {
 			trap_Cvar_Set( "r_texturemode", "GL_LINEAR_MIPMAP_NEAREST" );
 			break;
 		case 3: // fastest
-			trap_Cvar_SetValue( "r_fullScreen", 1 );
+			trap_Cvar_SetValue( "r_fullScreen", 0 );
 			trap_Cvar_SetValue( "r_subdivisions", 20 );
 			trap_Cvar_SetValue( "r_vertexlight", 1 );
 			trap_Cvar_SetValue( "r_lodbias", 2 );
@@ -6608,17 +6608,9 @@ void UI_Init(  ) {
 	uiInfo.characterCount = 0;
 	uiInfo.aliasCount = 0;
 
-//	UI_ParseTeamInfo("teaminfo.txt");
-//	UI_LoadTeams();
-//	UI_ParseGameInfo("gameinfo.txt");
-
 	menuSet = UI_Cvar_VariableString( "ui_menuFiles" );
 	if ( menuSet == NULL || menuSet[0] == '\0' ) {
-#ifdef WOLF_SP_DEMO
-		menuSet = "ui/demomenus.txt";
-#else
 		menuSet = "ui/menus.txt";
-#endif
 	}
 
 	UI_LoadMenus( menuSet, qtrue );

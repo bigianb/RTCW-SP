@@ -164,7 +164,7 @@ static int GLimp_SetMode(int mode, qboolean fullscreen, qboolean noborder, qbool
 	}
 	else
 	{
-		Com_Memset( &desktopMode, 0, sizeof( SDL_DisplayMode ) );
+		
 		ri.Printf( PRINT_ALL, "Cannot determine display aspect, assuming 1.333\n" );
 	}
 
@@ -558,6 +558,9 @@ void GLimp_Init( qboolean fixedFunction )
 	r_sdlDriver = Cvar_Get( "r_sdlDriver", "", CVAR_ROM );
 	r_allowResize = Cvar_Get( "r_allowResize", "0", CVAR_ARCHIVE | CVAR_LATCH );
 	r_centerWindow = Cvar_Get( "r_centerWindow", "0", CVAR_ARCHIVE | CVAR_LATCH );
+	
+	// IJB - force windowed while developing
+	Cvar_Set( "r_fullscreen", "0" );
 /*
 	if( ri.Cvar_VariableIntegerValue( "com_abnormalExit" ) )
 	{

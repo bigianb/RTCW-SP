@@ -26,7 +26,7 @@ If you have questions concerning this license or the applicable additional terms
 ===========================================================================
 */
 
-
+#pragma once
 
 #define CMD_BACKUP          64
 #define CMD_MASK            ( CMD_BACKUP - 1 )

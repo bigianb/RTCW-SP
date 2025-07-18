@@ -29,6 +29,9 @@ If you have questions concerning this license or the applicable additional terms
 // cg_syscalls.c -- this file is only included when building a dll
 // cg_syscalls.asm is included instead when building a qvm
 #include "cg_local.h"
+#include "client.h"
+#include "botlib/l_script.h"
+#include "botlib/l_precomp.h"
 
 static int QDECL dummySyscall(int arg, ...){
 	return 0;
@@ -446,30 +449,29 @@ int trap_Key_GetKey( const char *binding ) {
 	return syscall( CG_KEY_GETKEY, binding );
 }
 
-
 int trap_PC_AddGlobalDefine( char *define ) {
-	return syscall( CG_PC_ADD_GLOBAL_DEFINE, define );
+	return PC_AddGlobalDefine(define );
 }
 
 int trap_PC_LoadSource( const char *filename ) {
-	return syscall( CG_PC_LOAD_SOURCE, filename );
+	return PC_LoadSourceHandle(filename);
 }
 
 int trap_PC_FreeSource( int handle ) {
-	return syscall( CG_PC_FREE_SOURCE, handle );
+	return PC_FreeSourceHandle( handle );
 }
 
 int trap_PC_ReadToken( int handle, pc_token_t *pc_token ) {
-	return syscall( CG_PC_READ_TOKEN, handle, pc_token );
+	return PC_ReadTokenHandle( handle, pc_token );
 }
 
 
 int trap_PC_SourceFileAndLine( int handle, char *filename, int *line ) {
-	return syscall( CG_PC_SOURCE_FILE_AND_LINE, handle, filename, line );
+	return PC_SourceFileAndLine( handle, filename, line );
 }
 
 void  trap_S_StopBackgroundTrack( void ) {
-	syscall( CG_S_STOPBACKGROUNDTRACK );
+	S_StopBackgroundTrack();
 }
 
 void trap_SendMoveSpeedsToGame( int entnum, char *movespeeds ) {
@@ -478,37 +480,32 @@ void trap_SendMoveSpeedsToGame( int entnum, char *movespeeds ) {
 
 // this returns a handle.  arg0 is the name in the format "idlogo.roq", set arg1 to NULL, alteredstates to qfalse (do not alter gamestate)
 int trap_CIN_PlayCinematic( const char *arg0, int xpos, int ypos, int width, int height, int bits ) {
-	return syscall( CG_CIN_PLAYCINEMATIC, arg0, xpos, ypos, width, height, bits );
+	return CIN_PlayCinematic(arg0, xpos, ypos, width, height, bits );
 }
 
 // stops playing the cinematic and ends it.  should always return FMV_EOF
 // cinematics must be stopped in reverse order of when they are started
 e_status trap_CIN_StopCinematic( int handle ) {
-	return syscall( CG_CIN_STOPCINEMATIC, handle );
+	return CIN_StopCinematic(handle );
 }
 
 
 // will run a frame of the cinematic but will not draw it.  Will return FMV_EOF if the end of the cinematic has been reached.
 e_status trap_CIN_RunCinematic( int handle ) {
-	return syscall( CG_CIN_RUNCINEMATIC, handle );
+	return CIN_RunCinematic( handle );
 }
 
 
 // draws the current frame
 void trap_CIN_DrawCinematic( int handle ) {
-	syscall( CG_CIN_DRAWCINEMATIC, handle );
+	CIN_DrawCinematic( handle );
 }
 
 
 // allows you to resize the animation dynamically
 void trap_CIN_SetExtents( int handle, int x, int y, int w, int h ) {
-	syscall( CG_CIN_SETEXTENTS, handle, x, y, w, h );
+	CIN_SetExtents( handle, x, y, w, h );
 }
-/*
-qboolean trap_GetEntityToken( char *buffer, int bufferSize ) {
-	return syscall( CG_GET_ENTITY_TOKEN, buffer, bufferSize );
-}
-*/
 
 //----(SA)	added
 // bring up a popup menu
