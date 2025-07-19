@@ -729,7 +729,7 @@ unsigned    Com_BlockChecksumKey( void *buffer, int length, int key );
 int         Com_HashKey( char *string, int maxlen );
 int         Com_Filter( char *filter, char *name, int casesensitive );
 int         Com_FilterPath( char *filter, char *name, int casesensitive );
-int         Com_RealTime( qtime_t *qtime );
+time_t         Com_RealTime( qtime_t *qtime );
 qboolean    Com_SafeMode( void );
 
 void        Com_StartupVariable( const char *match );

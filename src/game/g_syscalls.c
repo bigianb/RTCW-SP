@@ -29,6 +29,7 @@ If you have questions concerning this license or the applicable additional terms
 // Copyright (C) 1999-2000 Id Software, Inc.
 //
 #include "g_local.h"
+#include "qcommon.h"
 
 static int QDECL dummySyscall(int arg, ...){
 	return 0;
@@ -47,19 +48,19 @@ int PASSFLOAT( float x ) {
 }
 
 void    trap_Printf( const char *fmt ) {
-	syscall( G_PRINT, fmt );
+	Com_Printf( "%s", fmt );
 }
 
 void    trap_Error( const char *fmt ) {
-	syscall( G_ERROR, fmt );
+	Com_Error( ERR_DROP, "%s", fmt );
 }
 
 void    trap_Endgame( void ) {
-	syscall( G_ENDGAME );
+	Com_Error( ERR_ENDGAME, "endgame" );
 }
 
 int     trap_Milliseconds( void ) {
-	return syscall( G_MILLISECONDS );
+	return Sys_Milliseconds();
 }
 int     trap_Argc( void ) {
 	return syscall( G_ARGC );
@@ -70,15 +71,15 @@ void    trap_Argv( int n, char *buffer, int bufferLength ) {
 }
 
 int     trap_FS_FOpenFile( const char *qpath, fileHandle_t *f, fsMode_t mode ) {
-	return syscall( G_FS_FOPEN_FILE, qpath, f, mode );
+	return FS_FOpenFileByMode(qpath, f, mode );
 }
 
 void    trap_FS_Read( void *buffer, int len, fileHandle_t f ) {
-	syscall( G_FS_READ, buffer, len, f );
+	FS_Read(buffer, len, f );
 }
 
 int     trap_FS_Write( const void *buffer, int len, fileHandle_t f ) {
-	return syscall( G_FS_WRITE, buffer, len, f );
+	FS_Write( buffer, len, f );
 }
 
 int     trap_FS_Rename( const char *from, const char *to ) {
@@ -86,7 +87,7 @@ int     trap_FS_Rename( const char *from, const char *to ) {
 }
 
 void    trap_FS_FCloseFile( fileHandle_t f ) {
-	syscall( G_FS_FCLOSE_FILE, f );
+	FS_FCloseFile( f );
 }
 
 void    trap_FS_CopyFile( char *from, char *to ) {  //DAJ
@@ -94,41 +95,36 @@ void    trap_FS_CopyFile( char *from, char *to ) {  //DAJ
 }
 
 int trap_FS_GetFileList(  const char *path, const char *extension, char *listbuf, int bufsize ) {
-	return syscall( G_FS_GETFILELIST, path, extension, listbuf, bufsize );
+	return FS_GetFileList( path, extension, listbuf, bufsize );
 }
 
 void    trap_game_SendConsoleCommand( int exec_when, const char *text ) {
 	syscall( G_SEND_CONSOLE_COMMAND, exec_when, text );
 }
 
-void    trap_Cvar_Register( vmCvar_t *cvar, const char *var_name, const char *value, int flags ) {
-	syscall( G_CVAR_REGISTER, cvar, var_name, value, flags );
+void trap_Cvar_Register( vmCvar_t *cvar, const char *var_name, const char *value, int flags ) {
+	Cvar_Register(cvar, var_name, value, flags );
 }
-/*
-void    trap_Cvar_Update( vmCvar_t *cvar ) {
-	syscall( G_CVAR_UPDATE, cvar );
-}
-*/
+
 void trap_Cvar_Set( const char *var_name, const char *value ) {
-	syscall( G_CVAR_SET, var_name, value );
+	Cvar_Set( var_name, value );
 }
 
 int trap_Cvar_VariableIntegerValue( const char *var_name ) {
-	return syscall( G_CVAR_VARIABLE_INTEGER_VALUE, var_name );
+	return Cvar_VariableIntegerValue( var_name );
 }
 
 void trap_Cvar_VariableStringBuffer( const char *var_name, char *buffer, int bufsize ) {
-	syscall( G_CVAR_VARIABLE_STRING_BUFFER, var_name, buffer, bufsize );
+	Cvar_VariableStringBuffer( var_name, buffer, bufsize );
 }
-
 
 void trap_LocateGameData( gentity_t *gEnts, int numGEntities, int sizeofGEntity_t,
 						  playerState_t *clients, int sizeofGClient ) {
-	syscall( G_LOCATE_GAME_DATA, gEnts, numGEntities, sizeofGEntity_t, clients, sizeofGClient );
+	SV_LocateGameData(gEnts, numGEntities, sizeofGEntity_t, clients, sizeofGClient );
 }
 
 void trap_DropClient( int clientNum, const char *reason ) {
-	syscall( G_DROP_CLIENT, clientNum, reason );
+	SV_GameDropClient( clientNum, reason );
 }
 
 void trap_SendServerCommand( int clientNum, const char *text ) {

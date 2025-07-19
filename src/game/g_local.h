@@ -26,7 +26,7 @@ If you have questions concerning this license or the applicable additional terms
 ===========================================================================
 */
 
-
+#pragma once
 
 // g_local.h -- local definitions for game module
 
@@ -1390,3 +1390,8 @@ typedef enum
 	shard_ceramic,
 	shard_rubble
 } shards_t;
+
+// sv_game.c
+void SV_LocateGameData( sharedEntity_t *gEnts, int numGEntities, int sizeofGEntity_t, playerState_t *clients, int sizeofGameClient );
+void SV_GameDropClient( int clientNum, const char *reason );
+

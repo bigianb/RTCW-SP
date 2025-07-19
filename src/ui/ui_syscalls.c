@@ -54,31 +54,11 @@ void trap_UI_Print( const char *string ) {
 void trap_UI_Error( const char *string ) {
 	Com_Error( ERR_DROP, "%s", string );
 }
-/*
-int trap_Milliseconds( void ) {
-	return syscall( UI_MILLISECONDS );
-}
 
-void trap_Cvar_Register( vmCvar_t *cvar, const char *var_name, const char *value, int flags ) {
-	syscall( UI_CVAR_REGISTER, cvar, var_name, value, flags );
-}
-
-void trap_Cvar_Update( vmCvar_t *cvar ) {
-	syscall( UI_CVAR_UPDATE, cvar );
-}
-
-void trap_Cvar_Set( const char *var_name, const char *value ) {
-	syscall( UI_CVAR_SET, var_name, value );
-}
-*/
 float trap_Cvar_VariableValue( const char *var_name ) {
 	return Cvar_VariableValue(var_name );
 }
-/*
-void trap_Cvar_VariableStringBuffer( const char *var_name, char *buffer, int bufsize ) {
-	syscall( UI_CVAR_VARIABLESTRINGBUFFER, var_name, buffer, bufsize );
-}
-*/
+
 void trap_Cvar_SetValue( const char *var_name, float value ) {
 	syscall( UI_CVAR_SETVALUE, var_name, PASSFLOAT( value ) );
 }
@@ -94,45 +74,15 @@ void trap_Cvar_Create( const char *var_name, const char *var_value, int flags ) 
 void trap_Cvar_InfoStringBuffer( int bit, char *buffer, int bufsize ) {
 	syscall( UI_CVAR_INFOSTRINGBUFFER, bit, buffer, bufsize );
 }
-/*
-int trap_Argc( void ) {
-	return syscall( UI_ARGC );
-}
 
-void trap_Argv( int n, char *buffer, int bufferLength ) {
-	syscall( UI_ARGV, n, buffer, bufferLength );
-}
-*/
 void trap_Cmd_ExecuteText( int exec_when, const char *text ) {
 	Cbuf_ExecuteText( exec_when, text );
 }
-/*
-int trap_FS_FOpenFile( const char *qpath, fileHandle_t *f, fsMode_t mode ) {
-	return syscall( UI_FS_FOPENFILE, qpath, f, mode );
-}
 
-void trap_FS_Read( void *buffer, int len, fileHandle_t f ) {
-	syscall( UI_FS_READ, buffer, len, f );
-}
-*/
-//----(SA)	added
 void trap_FS_Seek( fileHandle_t f, long offset, int origin  ) {
 	syscall( UI_FS_SEEK, f, offset, origin );
 }
-//----(SA)	end
-/*
-void trap_FS_Write( const void *buffer, int len, fileHandle_t f ) {
-	syscall( UI_FS_WRITE, buffer, len, f );
-}
 
-void trap_FS_FCloseFile( fileHandle_t f ) {
-	syscall( UI_FS_FCLOSEFILE, f );
-}
-
-int trap_FS_GetFileList(  const char *path, const char *extension, char *listbuf, int bufsize ) {
-	return syscall( UI_FS_GETFILELIST, path, extension, listbuf, bufsize );
-}
-*/
 int trap_FS_Delete( const char *filename ) {
 	return syscall( UI_FS_DELETEFILE, filename );
 }
@@ -344,12 +294,6 @@ void trap_LAN_MarkServerVisible( int source, int n, qboolean visible ) {
 void trap_LAN_ResetPings( int n ) {
 	//syscall( UI_LAN_RESETPINGS, n );
 }
-// -NERVE - SMF
-/*
-int trap_MemoryRemaining( void ) {
-	return syscall( UI_MEMORY_REMAINING );
-}
-*/
 
 void trap_GetCDKey( char *buf, int buflen ) {
 	syscall( UI_GET_CDKEY, buf, buflen );
@@ -358,73 +302,11 @@ void trap_GetCDKey( char *buf, int buflen ) {
 void trap_SetCDKey( char *buf ) {
 	syscall( UI_SET_CDKEY, buf );
 }
-/*
-int trap_PC_AddGlobalDefine( char *define ) {
-	return syscall( UI_PC_ADD_GLOBAL_DEFINE, define );
-}
-
-int trap_PC_LoadSource( const char *filename ) {
-	return syscall( UI_PC_LOAD_SOURCE, filename );
-}
-
-int trap_PC_FreeSource( int handle ) {
-	return syscall( UI_PC_FREE_SOURCE, handle );
-}
-
-int trap_PC_ReadToken( int handle, pc_token_t *pc_token ) {
-	return syscall( UI_PC_READ_TOKEN, handle, pc_token );
-}
-
-int trap_PC_SourceFileAndLine( int handle, char *filename, int *line ) {
-	return syscall( UI_PC_SOURCE_FILE_AND_LINE, handle, filename, line );
-}
-
-void trap_S_StopBackgroundTrack( void ) {
-	syscall( UI_S_STOPBACKGROUNDTRACK );
-}
-
-void trap_S_StartBackgroundTrack( const char *intro, const char *loop, int fadeupTime ) {
-	syscall( UI_S_STARTBACKGROUNDTRACK, intro, loop, fadeupTime );
-}
-
-int trap_RealTime( qtime_t *qtime ) {
-	return syscall( UI_REAL_TIME, qtime );
-}
-
-// this returns a handle.  arg0 is the name in the format "idlogo.roq", set arg1 to NULL, alteredstates to qfalse (do not alter gamestate)
-int trap_CIN_PlayCinematic( const char *arg0, int xpos, int ypos, int width, int height, int bits ) {
-	return syscall( UI_CIN_PLAYCINEMATIC, arg0, xpos, ypos, width, height, bits );
-}
-
-// stops playing the cinematic and ends it.  should always return FMV_EOF
-// cinematics must be stopped in reverse order of when they are started
-e_status trap_CIN_StopCinematic( int handle ) {
-	return syscall( UI_CIN_STOPCINEMATIC, handle );
-}
-
-// will run a frame of the cinematic but will not draw it.  Will return FMV_EOF if the end of the cinematic has been reached.
-e_status trap_CIN_RunCinematic( int handle ) {
-	return syscall( UI_CIN_RUNCINEMATIC, handle );
-}
-*/
-
-// draws the current frame
-/*
-void trap_CIN_DrawCinematic( int handle ) {
-	syscall( UI_CIN_DRAWCINEMATIC, handle );
-}
-*/
-
 // allows you to resize the animation dynamically
 void trap_UI_CIN_SetExtents( int handle, int x, int y, int w, int h ) {
 	syscall( UI_CIN_SETEXTENTS, handle, x, y, w, h );
 }
 
-/*
-void    trap_R_RemapShader( const char *oldShader, const char *newShader, const char *timeOffset ) {
-	syscall( UI_R_REMAP_SHADER, oldShader, newShader, timeOffset );
-}
-*/
 qboolean trap_VerifyCDKey( const char *key, const char *chksum ) {
 	return syscall( UI_VERIFY_CDKEY, key, chksum );
 }

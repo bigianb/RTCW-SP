@@ -1577,10 +1577,6 @@ int CIN_PlayCinematic( const char *arg, int x, int y, int w, int h, int systemBi
 	char name[MAX_OSPATH];
 	int i;
 
-
-	// TODO: Laird says don't play cine's in widescreen mode
-
-
 	if ( strstr( arg, "/" ) == NULL && strstr( arg, "\\" ) == NULL ) {
 		Com_sprintf( name, sizeof( name ), "video/%s", arg );
 	} else {
