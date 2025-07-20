@@ -1441,7 +1441,7 @@ const void  *RB_DrawBuffer( const void *data ) {
 	qglDrawBuffer( cmd->buffer );
 
 	// clear screen for debugging
-	if ( r_clear->integer ) {
+	if ( qtrue ||  r_clear->integer ) {
 		qglClearColor( 1, 0, 0.5, 1 );
 		qglClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
 	}

@@ -67,11 +67,7 @@ void R_PerformanceCounters( void ) {
 					   backEnd.pc.c_dlightVertexes, backEnd.pc.c_dlightIndexes / 3 );
 		}
 	}
-//----(SA)	this is unnecessary since it will always show 2048.  I moved this to where it is accurate for the world
-//	else if (r_speeds->integer == 5 )
-//	{
-//		ri.Printf( PRINT_ALL, "zFar: %.0f\n", tr.viewParms.zFar );
-//	}
+
 	else if ( r_speeds->integer == 6 ) {
 		ri.Printf( PRINT_ALL, "flare adds:%i tests:%i renders:%i\n",
 				   backEnd.pc.c_flareAdds, backEnd.pc.c_flareTests, backEnd.pc.c_flareRenders );

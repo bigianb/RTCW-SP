@@ -207,23 +207,6 @@ void Com_DefaultExtension( char *path, int maxSize, const char *extension ) {
 
 ============================================================================
 */
-/*
-// can't just use function pointers, or dll linkage can
-// mess up when qcommon is included in multiple places
-static short ( *_BigShort )( short l );
-static short ( *_LittleShort )( short l );
-static int ( *_BigLong )( int l );
-static int ( *_LittleLong )( int l );
-static float ( *_BigFloat )( float l );
-static float ( *_LittleFloat )( float l );
-
-short   BigShort( short l ) {return _BigShort( l );}
-short   LittleShort( short l ) {return _LittleShort( l );}
-int     BigLong( int l ) {return _BigLong( l );}
-int     LittleLong( int l ) {return _LittleLong( l );}
-float   BigFloat( float l ) {return _BigFloat( l );}
-float   LittleFloat( float l ) {return _LittleFloat( l );}
-*/
 short   ShortSwap( short l ) {
 	byte b1,b2;
 
@@ -272,35 +255,6 @@ float FloatNoSwap( float f ) {
 	return f;
 }
 
-/*
-================
-Swap_Init
-================
-*/
-/*
-void Swap_Init( void ) {
-	byte swaptest[2] = {1,0};
-
-// set the byte swapping variables in a portable manner
-	if ( *(short *)swaptest == 1 ) {
-		_BigShort = ShortSwap;
-		_LittleShort = ShortNoSwap;
-		_BigLong = LongSwap;
-		_LittleLong = LongNoSwap;
-		_BigFloat = FloatSwap;
-		_LittleFloat = FloatNoSwap;
-	} else
-	{
-		_BigShort = ShortNoSwap;
-		_LittleShort = ShortSwap;
-		_BigLong = LongNoSwap;
-		_LittleLong = LongSwap;
-		_BigFloat = FloatNoSwap;
-		_LittleFloat = FloatSwap;
-	}
-
-}
-*/
 extern "C" void Info_SetValueForKey( char *s, const char *key, const char *value );
 
 

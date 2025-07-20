@@ -434,19 +434,19 @@ qboolean trap_getCameraInfo( int camNum, int time, vec3_t *origin, vec3_t *angle
 
 
 qboolean trap_Key_IsDown( int keynum ) {
-	return syscall( CG_KEY_ISDOWN, keynum );
+	return Key_IsDown( keynum );
 }
 
 int trap_Key_GetCatcher( void ) {
-	return syscall( CG_KEY_GETCATCHER );
+	return Key_GetCatcher();
 }
 
 void trap_Key_SetCatcher( int catcher ) {
-	syscall( CG_KEY_SETCATCHER, catcher );
+	Key_SetCatcher( catcher );
 }
 
 int trap_Key_GetKey( const char *binding ) {
-	return syscall( CG_KEY_GETKEY, binding );
+	return Key_GetKey(binding );
 }
 
 int trap_PC_AddGlobalDefine( char *define ) {

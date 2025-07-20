@@ -6801,12 +6801,6 @@ void UI_SetActiveMenu( uiMenuCommand_t menu ) {
 //			UI_ConfirmMenu( "Insert the CD", NULL, NeedCDAction );
 			return;
 
-		case UIMENU_BAD_CD_KEY:
-			trap_Key_SetCatcher( KEYCATCH_UI );
-			Menus_ActivateByName( "badcd" );
-//			UI_ConfirmMenu( "Bad CD Key", NULL, NeedCDKeyAction );
-			return;
-
 		case UIMENU_POSTGAME:
 			//trap_Cvar_Set( "sv_killserver", "1" );
 			trap_Key_SetCatcher( KEYCATCH_UI );
@@ -6855,13 +6849,6 @@ void UI_SetActiveMenu( uiMenuCommand_t menu ) {
 			Menus_CloseAll();
 			Menus_ActivateByName( "clipboard" );
 			return;
-
-//		case UIMENU_HELP:
-//			trap_Cvar_Set( "cl_paused", "1" );
-//			trap_Key_SetCatcher( KEYCATCH_UI );
-//			Menus_CloseAll();
-//			Menus_ActivateByName("help");
-//			return;
 
 		case UIMENU_BRIEFING:
 			Menus_CloseAll();
