@@ -50,6 +50,7 @@ If you have questions concerning this license or the applicable additional terms
 #include "be_aas_funcs.h"
 #include "be_interface.h"
 #include "be_aas_def.h"
+#include "../qcommon/qcommon.h"
 
 #define ROUTING_DEBUG
 
@@ -929,7 +930,7 @@ void AAS_WriteRouteCache( void ) {
 	} //end for
 	  // open the file for writing
 	Com_sprintf( filename, MAX_QPATH, "maps/%s.rcd", ( *aasworld ).mapname );
-	botimport.FS_FOpenFile( filename, &fp, FS_WRITE );
+	FS_FOpenFileByMode( filename, &fp, FS_WRITE );
 	if ( !fp ) {
 		AAS_Error( "Unable to open file: %s\n", filename );
 		return;
@@ -1037,7 +1038,7 @@ int AAS_ReadRouteCache( void ) {
 	aas_routingcache_t *cache;
 
 	Com_sprintf( filename, MAX_QPATH, "maps/%s.rcd", ( *aasworld ).mapname );
-	botimport.FS_FOpenFile( filename, &fp, FS_READ );
+	FS_FOpenFileByMode( filename, &fp, FS_READ );
 	if ( !fp ) {
 		return qfalse;
 	} //end if

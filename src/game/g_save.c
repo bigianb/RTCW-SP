@@ -40,7 +40,7 @@ If you have questions concerning this license or the applicable additional terms
 #include "../game/be_ai_goal.h"
 #include "../game/be_ai_move.h"
 #include "../botai/botai.h"          //bot ai interface
-
+#include "g_save.h"
 #include "ai_cast.h"
 
 /*
@@ -68,19 +68,6 @@ char musicString[MAX_STRING_CHARS];
 
 static int ver;
 
-typedef enum {
-	F_NONE,
-	F_STRING,
-	F_ENTITY,           // index on disk, pointer in memory
-	F_ITEM,             // index on disk, pointer in memory
-	F_CLIENT,           // index on disk, pointer in memory
-	F_FUNCTION
-} saveFieldtype_t;
-
-typedef struct {
-	int ofs;
-	saveFieldtype_t type;
-} saveField_t;
 
 //.......................................................................................
 // these are the fields that cannot be saved directly, so they need to be converted
@@ -235,12 +222,7 @@ static persField_t castStatePersFields[] = {
 };
 
 
-//.......................................................................................
-// this stores all functions in the game code
-typedef struct {
-	char *funcStr;
-	byte *funcPtr;
-} funcList_t;
+
 
 //-----------------
 // MSVC likes to needlessly(?) warn about these defines, so disable certain warnings temporarily

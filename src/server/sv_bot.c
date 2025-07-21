@@ -29,7 +29,7 @@ If you have questions concerning this license or the applicable additional terms
 // sv_bot.c
 
 #include "server.h"
-#include "../game/botlib.h"
+#include "../botlib/botlib.h"
 #include "../botai/botai.h"
 
 #define MAX_DEBUGPOLYS      128
@@ -324,36 +324,6 @@ void BotImport_BSPModelMinsMaxsOrigin( int modelnum, vec3_t angles, vec3_t outmi
 
 /*
 ==================
-BotImport_GetMemory
-==================
-*/
-void *BotImport_GetMemory( int size ) {
-	return malloc( size );
-}
-
-/*
-==================
-BotImport_FreeMemory
-==================
-*/
-void BotImport_FreeMemory( void *ptr ) {
-	free( ptr );
-}
-
-/*
-=================
-BotImport_HunkAlloc
-=================
-*/
-void *BotImport_HunkAlloc( int size ) {
-	if ( Hunk_CheckMark() ) {
-		Com_Error( ERR_DROP, "SV_Bot_HunkAlloc: Alloc with marks already set\n" );
-	}
-	return Hunk_Alloc( size, h_high );
-}
-
-/*
-==================
 BotImport_DebugPolygonCreate
 ==================
 */
@@ -567,19 +537,6 @@ SV_BotInitBotLib
 void SV_BotInitBotLib( void ) {
 	botlib_import_t botlib_import;
 
-#if COPY_PROTECT
-	if ( !Cvar_VariableValue( "fs_restrict" ) && !Sys_CheckCD() ) {
-		Com_Error( ERR_NEED_CD, "Game CD not in drive" );
-	}
-#else
-	Com_Printf( "Bypassing CD checks\n" );
-#endif
-
-	/*
-	if ( botlib_export ) {
-		SV_BotLibShutdown();
-	}*/
-
 	botlib_import.Print = BotImport_Print;
 	botlib_import.Trace = BotImport_Trace;
 	botlib_import.EntityTrace = BotImport_EntityTrace;
@@ -588,11 +545,6 @@ void SV_BotInitBotLib( void ) {
 	botlib_import.BSPEntityData = BotImport_BSPEntityData;
 	botlib_import.BSPModelMinsMaxsOrigin = BotImport_BSPModelMinsMaxsOrigin;
 	botlib_import.BotClientCommand = BotClientCommand;
-
-	//memory management
-	botlib_import.GetMemory = BotImport_GetMemory;
-	botlib_import.FreeMemory = BotImport_FreeMemory;
-	botlib_import.HunkAlloc = BotImport_HunkAlloc;
 
 	// file system acess
 	botlib_import.FS_FOpenFile = FS_FOpenFileByMode;
@@ -615,7 +567,7 @@ void SV_BotInitBotLib( void ) {
 	botlib_import.AICast_CheckAttackAtPos = BotImport_AICast_CheckAttackAtPos;
 	// done.
 
-	botlib_export = (botlib_export_t *)GetBotLibAPI( BOTLIB_API_VERSION, &botlib_import );
+	// IJB botlib_export = (botlib_export_t *)GetBotLibAPI( BOTLIB_API_VERSION, &botlib_import );
 }
 
 

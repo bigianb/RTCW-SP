@@ -43,7 +43,8 @@ If you have questions concerning this license or the applicable additional terms
 #include "l_precomp.h"
 #include "l_struct.h"
 #include "aasfile.h"
-#include "../game/botlib.h"
+#include "../botlib/botlib.h"
+#include "../botlib/be_aas_entity.h"
 #include "../game/be_aas.h"
 #include "be_aas_funcs.h"
 #include "be_aas_def.h"
@@ -700,6 +701,7 @@ int BotExportTest( int parm0, char *parm1, vec3_t parm2, vec3_t parm3 ) {
 Init_AAS_Export
 ============
 */
+/* IJB
 static void Init_AAS_Export( aas_export_t *aas ) {
 	//--------------------------------------------
 	// be_aas_entity.c
@@ -755,7 +757,7 @@ static void Init_AAS_Export( aas_export_t *aas ) {
 	// done.
 
 }
-
+*/
 
 /*
 ============
@@ -764,6 +766,7 @@ Init_EA_Export
 */
 static void Init_EA_Export( ea_export_t *ea ) {
 	//ClientCommand elementary actions
+	/*
 	ea->EA_Say = EA_Say;
 	ea->EA_SayTeam = EA_SayTeam;
 	ea->EA_UseItem = EA_UseItem;
@@ -792,6 +795,7 @@ static void Init_EA_Export( ea_export_t *ea ) {
 	ea->EA_GetInput = EA_GetInput;
 	ea->EA_EndRegular = EA_EndRegular;
 	ea->EA_ResetInput = EA_ResetInput;
+	 */
 }
 
 
@@ -903,6 +907,7 @@ static void Init_AI_Export( ai_export_t *ai ) {
 GetBotLibAPI
 ============
 */
+/* IJB
 botlib_export_t *GetBotLibAPI( int apiVersion, botlib_import_t *import ) {
 	botimport = *import;
 
@@ -934,3 +939,4 @@ botlib_export_t *GetBotLibAPI( int apiVersion, botlib_import_t *import ) {
 
 	return &be_botlib_export;
 }
+*/

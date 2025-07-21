@@ -28,7 +28,7 @@ If you have questions concerning this license or the applicable additional terms
 
 
 #include "client.h"
-#include "../game/botlib.h"
+#include "../botlib/botlib.h"
 
 extern botlib_export_t *botlib_export;
 extern char cl_cdkey[34];
@@ -1055,7 +1055,7 @@ intptr_t CL_UISystemCalls( intptr_t *args ) {
 
 	case UI_CEIL:
 		return FloatAsInt( ceil( VMF( 1 ) ) );
-
+/* IJB
 	case UI_PC_ADD_GLOBAL_DEFINE:
 		return botlib_export->PC_AddGlobalDefine( VMA( 1 ) );
 	case UI_PC_LOAD_SOURCE:
@@ -1066,7 +1066,7 @@ intptr_t CL_UISystemCalls( intptr_t *args ) {
 		return botlib_export->PC_ReadTokenHandle( args[1], VMA( 2 ) );
 	case UI_PC_SOURCE_FILE_AND_LINE:
 		return botlib_export->PC_SourceFileAndLine( args[1], VMA( 2 ), VMA( 3 ) );
-
+*/
 	case UI_S_STOPBACKGROUNDTRACK:
 		S_StopBackgroundTrack();
 		return 0;

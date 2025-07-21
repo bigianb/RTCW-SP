@@ -31,6 +31,8 @@ If you have questions concerning this license or the applicable additional terms
 
 // g_public.h -- game module information visible to server
 
+#pragma once
+
 #define GAME_API_VERSION    8
 
 // entity->svFlags

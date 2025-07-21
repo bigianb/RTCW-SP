@@ -30,7 +30,7 @@ If you have questions concerning this license or the applicable additional terms
 
 #include "client.h"
 
-#include "../game/botlib.h"
+#include "../botlib/botlib.h"
 
 extern botlib_export_t *botlib_export;
 
@@ -708,7 +708,7 @@ intptr_t CL_CgameSystemCalls( intptr_t *args ) {
 		return FloatAsInt( ceil( VMF( 1 ) ) );
 	case CG_ACOS:
 		return FloatAsInt( Q_acos( VMF( 1 ) ) );
-
+/* IJB
 	case CG_PC_ADD_GLOBAL_DEFINE:
 		return botlib_export->PC_AddGlobalDefine( VMA( 1 ) );
 	case CG_PC_LOAD_SOURCE:
@@ -719,7 +719,7 @@ intptr_t CL_CgameSystemCalls( intptr_t *args ) {
 		return botlib_export->PC_ReadTokenHandle( args[1], VMA( 2 ) );
 	case CG_PC_SOURCE_FILE_AND_LINE:
 		return botlib_export->PC_SourceFileAndLine( args[1], VMA( 2 ), VMA( 3 ) );
-
+*/
 	case CG_S_STOPBACKGROUNDTRACK:
 		S_StopBackgroundTrack();
 		return 0;

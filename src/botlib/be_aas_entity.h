@@ -26,7 +26,11 @@ If you have questions concerning this license or the applicable additional terms
 ===========================================================================
 */
 
+#pragma once
 
+#include "../botlib/be_aas_def.h"
+#include "../botlib/be_aas.h"
+#include "botlib.h"
 /*****************************************************************************
  * name:		be_aas_entity.h
  *
@@ -35,7 +39,6 @@ If you have questions concerning this license or the applicable additional terms
  *
  *****************************************************************************/
 
-#ifdef AASINTERN
 //invalidates all entity infos
 void AAS_InvalidateEntities( void );
 //resets the entity AAS and BSP links (sets areas and leaves pointers to NULL)
@@ -44,7 +47,6 @@ void AAS_ResetEntityLinks( void );
 int AAS_UpdateEntity( int ent, bot_entitystate_t *state );
 //gives the entity data used for collision detection
 void AAS_EntityBSPData( int entnum, bsp_entdata_t *entdata );
-#endif //AASINTERN
 
 //returns the size of the entity bounding box in mins and maxs
 void AAS_EntitySize( int entnum, vec3_t mins, vec3_t maxs );

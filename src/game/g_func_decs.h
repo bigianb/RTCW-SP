@@ -26,6 +26,11 @@ If you have questions concerning this license or the applicable additional terms
 ===========================================================================
 */
 
+#pragma once
+
+#include "ai_cast.h"
+#include "g_save.h"
+
 extern void G_RetrieveMoveSpeedsFromClient ( int entnum , char * text ) ;
 extern void ClientDisconnect ( int clientNum ) ;
 extern void ClientSpawn ( gentity_t * ent ) ;

@@ -26,14 +26,9 @@ If you have questions concerning this license or the applicable additional terms
 ===========================================================================
 */
 
-
-/*****************************************************************************
- * name:		be_aas_def.h
- *
- * desc:		AAS
- *
- *
- *****************************************************************************/
+#pragma once
+#include "aasfile.h"
+#include "be_aas.h"
 
 //debugging on
 #define AAS_DEBUG

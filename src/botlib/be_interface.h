@@ -26,6 +26,7 @@ If you have questions concerning this license or the applicable additional terms
 ===========================================================================
 */
 
+#include "botlib.h"
 
 /*****************************************************************************
  * name:		be_interface.h

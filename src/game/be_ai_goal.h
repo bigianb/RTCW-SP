@@ -27,13 +27,7 @@ If you have questions concerning this license or the applicable additional terms
 */
 
 
-/*****************************************************************************
- * name:		be_ai_goal.h
- *
- * desc:		goal AI
- *
- *
- *****************************************************************************/
+#pragma once
 
 #define MAX_AVOIDGOALS          64
 #define MAX_GOALSTACK           8

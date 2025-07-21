@@ -26,6 +26,7 @@ If you have questions concerning this license or the applicable additional terms
 ===========================================================================
 */
 
+#pragma once
 
 /*****************************************************************************
  * name:		be_aas.h
@@ -124,8 +125,8 @@ typedef struct bsp_trace_s
 	int			ent;			// number of entity hit
 } bsp_trace_t;
 //
-*/
 
+*/
 //entity info
 typedef struct aas_entityinfo_s
 {

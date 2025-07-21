@@ -39,6 +39,7 @@ If you have questions concerning this license or the applicable additional terms
 #include "../game/botlib.h"
 #include "l_log.h"
 #include "be_interface.h"
+#include "../qcommon/qcommon.h"
 
 #ifdef _DEBUG
 	#define MEMDEBUG
@@ -51,6 +52,14 @@ If you have questions concerning this license or the applicable additional terms
 int allocatedmemory;
 int totalmemorysize;
 int numblocks;
+
+
+void *BotImport_HunkAlloc( int size ) {
+	if ( Hunk_CheckMark() ) {
+		Com_Error( ERR_DROP, "SV_Bot_HunkAlloc: Alloc with marks already set\n" );
+	}
+	return Hunk_Alloc( size, h_high );
+}
 
 #ifdef MEMORYMANEGER
 
@@ -112,7 +121,7 @@ void *GetMemory( unsigned long size )
 	void *ptr;
 	memoryblock_t *block;
 
-	ptr = botimport.GetMemory( size + sizeof( memoryblock_t ) );
+	ptr = malloc( size + sizeof( memoryblock_t ) );
 	block = (memoryblock_t *) ptr;
 	block->id = MEM_ID;
 	block->ptr = (char *) ptr + sizeof( memoryblock_t );
@@ -164,7 +173,7 @@ void *GetHunkMemory( unsigned long size )
 	void *ptr;
 	memoryblock_t *block;
 
-	ptr = botimport.HunkAlloc( size + sizeof( memoryblock_t ) );
+	ptr = BotImport_HunkAlloc( size + sizeof( memoryblock_t ) );
 	block = (memoryblock_t *) ptr;
 	block->id = HUNK_ID;
 	block->ptr = (char *) ptr + sizeof( memoryblock_t );
@@ -248,7 +257,7 @@ void FreeMemory( void *ptr ) {
 	numblocks--;
 	//
 	if ( block->id == MEM_ID ) {
-		botimport.FreeMemory( block );
+		free( block );
 	} //end if
 } //end of the function FreeMemory
 //===========================================================================
@@ -338,7 +347,7 @@ void *GetMemory( unsigned long size )
 	void *ptr;
 	unsigned long int *memid;
 
-	ptr = botimport.GetMemory( size + sizeof( unsigned long int ) );
+	ptr = malloc( size + sizeof( unsigned long int ) );
 	if ( !ptr ) {
 		return NULL;
 	}
@@ -382,7 +391,7 @@ void *GetHunkMemory( unsigned long size )
 	void *ptr;
 	unsigned long int *memid;
 
-	ptr = botimport.HunkAlloc( size + sizeof( unsigned long int ) );
+	ptr = BotImport_HunkAlloc( size + sizeof( unsigned long int ) );
 	if ( !ptr ) {
 		return NULL;
 	}
@@ -423,7 +432,7 @@ void FreeMemory( void *ptr ) {
 	memid = (unsigned long int *) ( (char *) ptr - sizeof( unsigned long int ) );
 
 	if ( *memid == MEM_ID ) {
-		botimport.FreeMemory( memid );
+		free( memid );
 	} //end if
 } //end of the function FreeMemory
 //===========================================================================

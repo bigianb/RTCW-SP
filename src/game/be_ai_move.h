@@ -26,6 +26,7 @@ If you have questions concerning this license or the applicable additional terms
 ===========================================================================
 */
 
+#pragma once
 
 /*****************************************************************************
  * name:		be_ai_move.h

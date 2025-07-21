@@ -49,6 +49,8 @@ If you have questions concerning this license or the applicable additional terms
 #include "be_interface.h"
 #include "be_aas_def.h"
 
+#include "../qcommon/qcommon.h"
+
 //#define AASFILEDEBUG
 
 //===========================================================================
@@ -383,7 +385,7 @@ int AAS_LoadAASFile( char *filename ) {
 	//dump current loaded aas file
 	AAS_DumpAASData();
 	//open the file
-	botimport.FS_FOpenFile( filename, &fp, FS_READ );
+	FS_FOpenFileByMode( filename, &fp, FS_READ );
 	if ( !fp ) {
 		AAS_Error( "can't open %s\n", filename );
 		return BLERR_CANNOTOPENAASFILE;
@@ -587,7 +589,7 @@ qboolean AAS_WriteAASFile( char *filename ) {
 	header.version = LittleLong( AASVERSION );
 	header.bspchecksum = LittleLong( ( *aasworld ).bspchecksum );
 	//open a new file
-	botimport.FS_FOpenFile( filename, &fp, FS_WRITE );
+	FS_FOpenFileByMode( filename, &fp, FS_WRITE );
 	if ( !fp ) {
 		botimport.Print( PRT_ERROR, "error opening %s\n", filename );
 		return qfalse;

@@ -46,6 +46,7 @@ If you have questions concerning this license or the applicable additional terms
 #include "../game/be_aas.h"
 #include "be_interface.h"
 #include "be_aas_def.h"
+#include "../qcommon/qcommon.h"
 
 // ugly hack to turn off route-tables, can't find a way to check cvar's
 int disable_routetable = 0;
@@ -254,7 +255,7 @@ void AAS_RT_WriteRouteTable() {
 	// open the file for writing
 	Com_sprintf( filename, MAX_QPATH, "maps/%s.rtb", ( *aasworld ).mapname );
 	botimport.Print( PRT_MESSAGE, "\nsaving route-table to %s\n", filename );
-	botimport.FS_FOpenFile( filename, &fp, FS_WRITE );
+	FS_FOpenFileByMode( filename, &fp, FS_WRITE );
 	if ( !fp ) {
 		AAS_Error( "Unable to open file: %s\n", filename );
 		return;
@@ -523,7 +524,7 @@ void AAS_RT_BuildRouteTable( void ) {
 	Com_sprintf( filename, MAX_QPATH, "maps/%s.rtb", ( *aasworld ).mapname );
 	botimport.Print( PRT_MESSAGE, "\n---------------------------------\n" );
 	botimport.Print( PRT_MESSAGE, "\ntrying to load %s\n", filename );
-	botimport.FS_FOpenFile( filename, &fp, FS_READ );
+	FS_FOpenFileByMode( filename, &fp, FS_READ );
 	if ( fp ) {
 		// read in the table..
 		if ( AAS_RT_ReadRouteTable( fp ) ) {

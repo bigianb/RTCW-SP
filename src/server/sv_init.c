@@ -26,14 +26,9 @@ If you have questions concerning this license or the applicable additional terms
 ===========================================================================
 */
 
-/*
- * name:		sv_init.c
- *
- * desc:
- *
-*/
-
 #include "server.h"
+#include "../game/g_local.h"
+#include "../game/g_func_decs.h"
 
 /*
 ===============
@@ -767,7 +762,7 @@ void SV_SpawnServer( char *server, qboolean killBots ) {
 
 	// run a few frames to allow everything to settle
 	for ( i = 0 ; i < 3 ; i++ ) {
-		VM_Call( gvm, GAME_RUN_FRAME, svs.time );
+		G_RunFrame( svs.time );
 		SV_BotFrame( svs.time );
 		svs.time += 100;
 	}
@@ -821,7 +816,7 @@ void SV_SpawnServer( char *server, qboolean killBots ) {
 	}
 
 	// run another frame to allow things to look at all the players
-	VM_Call( gvm, GAME_RUN_FRAME, svs.time );
+	G_RunFrame( svs.time );
 	SV_BotFrame( svs.time );
 	svs.time += 100;
 

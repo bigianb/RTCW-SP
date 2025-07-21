@@ -26,6 +26,7 @@ If you have questions concerning this license or the applicable additional terms
 ===========================================================================
 */
 
+#include "../botlib/botlib.h"
 
 /*****************************************************************************
  * name:		be_ea.h

@@ -26,6 +26,7 @@ If you have questions concerning this license or the applicable additional terms
 ===========================================================================
 */
 
+#pragma once
 
 /*****************************************************************************
  * name:		be_aas.h
@@ -79,7 +80,7 @@ If you have questions concerning this license or the applicable additional terms
 						TFL_JUMPPAD | TFL_FUNCBOB )	\
 					  & ~( TFL_JUMPPAD | TFL_ROCKETJUMP | TFL_BFGJUMP | TFL_GRAPPLEHOOK | TFL_DOUBLEJUMP | TFL_RAMPJUMP | TFL_STRAFEJUMP | TFL_LAVA ) )
 // RF, added that bottom line so it's the same as AICAST_TFL_DEFAULT
-
+/* Defined in botlib.h
 typedef enum
 {
 	SOLID_NOT,          // no interaction with other objects
@@ -100,7 +101,7 @@ typedef struct aas_trace_s
 	int planenum;           // number of the plane that was hit
 } aas_trace_t;
 
-/* Defined in botlib.h
+
 
 //bsp_trace_t hit surface
 typedef struct bsp_surface_s
@@ -125,7 +126,7 @@ typedef struct bsp_trace_s
 	int			ent;			// number of entity hit
 } bsp_trace_t;
 //
-*/
+
 
 //entity info
 typedef struct aas_entityinfo_s
@@ -156,7 +157,7 @@ typedef struct aas_entityinfo_s
 //	int		weapAnim;		// mask off ANIM_TOGGLEBIT	//----(SA)	added
 //----(SA)	didn't want to comment in as I wasn't sure of any implications of changing this structure.
 } aas_entityinfo_t;
-
+*/
 
 //client movement prediction stop events, stop as soon as:
 #define SE_NONE                 0
@@ -171,7 +172,7 @@ typedef struct aas_entityinfo_s
 #define SE_TOUCHTELEPORTER      256     // touching teleporter
 #define SE_ENTERAREA            512     // the given stoparea is entered
 #define SE_HITGROUNDAREA        1024    // a ground face in the area is hit
-
+/*
 typedef struct aas_clientmove_s
 {
 	vec3_t endpos;          //position at the end of movement prediction
@@ -192,3 +193,4 @@ typedef struct aas_altroutegoal_s
 	unsigned short goaltraveltime;
 	unsigned short extratraveltime;
 } aas_altroutegoal_t;
+*/

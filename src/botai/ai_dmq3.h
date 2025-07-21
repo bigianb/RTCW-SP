@@ -35,6 +35,12 @@ If you have questions concerning this license or the applicable additional terms
  *
  *****************************************************************************/
 
+#pragma once
+
+#include "../botlib/be_aas_entity.h"
+#include "../game/be_ai_move.h"
+#include "../game/be_ai_goal.h"
+
 //setup the deathmatch AI
 void BotSetupDeathmatchAI( void );
 //shutdown the deathmatch AI

@@ -35,26 +35,8 @@ If you have questions concerning this license or the applicable additional terms
  *
  *****************************************************************************/
 
-//#define SCREWUP
 #define BOTLIB
-//#define MEQCC
-//#define BSPC
 
-#ifdef SCREWUP
-#include <stdio.h>
-#include <stdlib.h>
-#include <limits.h>
-#include <string.h>
-#include <stdarg.h>
-#include "../botlib/l_memory.h"
-#include "../botlib/l_script.h"
-
-typedef enum {qfalse, qtrue}    qboolean;
-
-#endif //SCREWUP
-
-#ifdef BOTLIB
-//include files for usage in the bot library
 #include "../game/q_shared.h"
 #include "../game/botlib.h"
 #include "be_interface.h"
@@ -62,30 +44,8 @@ typedef enum {qfalse, qtrue}    qboolean;
 #include "l_memory.h"
 #include "l_log.h"
 #include "l_libvar.h"
-#endif //BOTLIB
 
-#ifdef MEQCC
-//include files for usage in MrElusive's QuakeC Compiler
-#include "qcc.h"
-#include "l_script.h"
-#include "l_memory.h"
-#include "l_log.h"
-
-#define qtrue   true
-#define qfalse  false
-#endif //MEQCC
-
-#ifdef BSPC
-//include files for usage in the BSP Converter
-#include "../bspc/qbsp.h"
-#include "../bspc/l_log.h"
-#include "../bspc/l_mem.h"
-int COM_Compress( char *data_p );
-
-#define qtrue   true
-#define qfalse  false
-#endif //BSPC
-
+#include "../qcommon/qcommon.h"
 
 #define PUNCTABLE
 
@@ -1299,25 +1259,7 @@ int ScriptSkipTo( script_t *script, char *value ) {
 		script->script_p++;
 	} while ( 1 );
 } //end of the function ScriptSkipTo
-#ifndef BOTLIB
-//============================================================================
-//
-// Parameter:				-
-// Returns:					-
-// Changes Globals:		-
-//============================================================================
-int FileLength( FILE *fp ) {
-	int pos;
-	int end;
-
-	pos = ftell( fp );
-	fseek( fp, 0, SEEK_END );
-	end = ftell( fp );
-	fseek( fp, pos, SEEK_SET );
-
-	return end;
-} //end of the function FileLength
-#endif
+	
 //============================================================================
 //
 // Parameter:				-
@@ -1325,34 +1267,21 @@ int FileLength( FILE *fp ) {
 // Changes Globals:		-
 //============================================================================
 script_t *LoadScriptFile( const char *filename ) {
-#ifdef BOTLIB
 	fileHandle_t fp;
 	char pathname[MAX_QPATH];
-#else
-	FILE *fp;
-#endif
 	int length;
 	void *buffer;
 	script_t *script;
 
-#ifdef BOTLIB
 	if ( strlen( basefolder ) ) {
 		Com_sprintf( pathname, sizeof( pathname ), "%s/%s", basefolder, filename );
 	} else {
 		Com_sprintf( pathname, sizeof( pathname ), "%s", filename );
 	}
-	length = botimport.FS_FOpenFile( pathname, &fp, FS_READ );
+	length = FS_FOpenFileByMode( pathname, &fp, FS_READ );
 	if ( !fp ) {
 		return NULL;
 	}
-#else
-	fp = fopen( filename, "rb" );
-	if ( !fp ) {
-		return NULL;
-	}
-
-	length = FileLength( fp );
-#endif
 
 	buffer = GetClearedMemory( sizeof( script_t ) + length + 1 );
 	script = (script_t *) buffer;
@@ -1375,16 +1304,8 @@ script_t *LoadScriptFile( const char *filename ) {
 	//
 	SetScriptPunctuations( script, NULL );
 	//
-#ifdef BOTLIB
-	botimport.FS_Read( script->buffer, length, fp );
-	botimport.FS_FCloseFile( fp );
-#else
-	if ( fread( script->buffer, length, 1, fp ) != 1 ) {
-		FreeMemory( buffer );
-		script = NULL;
-	} //end if
-	fclose( fp );
-#endif
+	FS_Read( script->buffer, length, fp );
+	FS_FCloseFile( fp );
 	//
 	script->length = COM_Compress( script->buffer );
 

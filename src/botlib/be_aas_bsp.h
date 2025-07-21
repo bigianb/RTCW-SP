@@ -26,14 +26,8 @@ If you have questions concerning this license or the applicable additional terms
 ===========================================================================
 */
 
-
-/*****************************************************************************
- * name:		be_aas_bsp.h
- *
- * desc:		AAS
- *
- *
- *****************************************************************************/
+#pragma once
+#include "../botai/botai.h"
 
 #ifdef AASINTERN
 //loads the given BSP file

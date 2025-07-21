@@ -30,7 +30,7 @@ If you have questions concerning this license or the applicable additional terms
 
 #include "server.h"
 
-#include "../game/botlib.h"
+#include "../botlib/botlib.h"
 
 botlib_export_t *botlib_export;
 
@@ -477,7 +477,7 @@ intptr_t SV_GameSystemCalls( intptr_t *args ) {
 		return botlib_export->BotLibVarSet( VMA( 1 ), VMA( 2 ) );
 	case BOTLIB_LIBVAR_GET:
 		return botlib_export->BotLibVarGet( VMA( 1 ), VMA( 2 ), args[3] );
-
+/* IJB avoid import issues
 	case BOTLIB_PC_ADD_GLOBAL_DEFINE:
 		return botlib_export->PC_AddGlobalDefine( VMA( 1 ) );
 	case BOTLIB_PC_LOAD_SOURCE:
@@ -488,7 +488,7 @@ intptr_t SV_GameSystemCalls( intptr_t *args ) {
 		return botlib_export->PC_ReadTokenHandle( args[1], VMA( 2 ) );
 	case BOTLIB_PC_SOURCE_FILE_AND_LINE:
 		return botlib_export->PC_SourceFileAndLine( args[1], VMA( 2 ), VMA( 3 ) );
-
+*/
 	case BOTLIB_START_FRAME:
 		return botlib_export->BotLibStartFrame( VMF( 1 ) );
 	case BOTLIB_LOAD_MAP:
@@ -564,10 +564,10 @@ intptr_t SV_GameSystemCalls( intptr_t *args ) {
 
 	case BOTLIB_AAS_FINDATTACKSPOTWITHINRANGE:
 		return botlib_export->aas.AAS_FindAttackSpotWithinRange( args[1], args[2], args[3], VMF( 4 ), args[5], VMA( 6 ) );
-
+/* IJB avoid iclude issues
 	case BOTLIB_AAS_GETROUTEFIRSTVISPOS:
 		return botlib_export->aas.AAS_GetRouteFirstVisPos( VMA( 1 ), VMA( 2 ), args[3], VMA( 4 ) );
-
+*/
 	case BOTLIB_AAS_SETAASBLOCKINGENTITY:
 		botlib_export->aas.AAS_SetAASBlockingEntity( VMA( 1 ), VMA( 2 ), args[3] );
 		return 0;
@@ -608,7 +608,7 @@ intptr_t SV_GameSystemCalls( intptr_t *args ) {
 		botlib_export->ea.EA_Attack( args[1] );
 		return 0;
 	case BOTLIB_EA_RELOAD:
-		botlib_export->ea.EA_Reload( args[1] );
+// IJB		botlib_export->ea.EA_Reload( args[1] );
 		return 0;
 	case BOTLIB_EA_USE:
 		botlib_export->ea.EA_Use( args[1] );

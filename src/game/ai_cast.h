@@ -34,9 +34,12 @@ If you have questions concerning this license or the applicable additional terms
 // Tab Size:		4 (real tabs)
 //===========================================================================
 
+
+#pragma once
+
 #include "../botai/ai_main.h"    // just so we can use the structures
 #include "../botai/ai_dmq3.h"    // just so we can use the structures
-
+#include "be_ai_move.h"
 #include "ai_cast_fight.h"
 
 //

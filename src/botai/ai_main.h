@@ -26,6 +26,7 @@ If you have questions concerning this license or the applicable additional terms
 ===========================================================================
 */
 
+#pragma once
 
 /*****************************************************************************
  * name:		ai_main.h
@@ -34,6 +35,10 @@ If you have questions concerning this license or the applicable additional terms
  *
  *
  *****************************************************************************/
+
+#include "../botlib/be_aas_def.h"
+#include "../botai/botai.h"
+#include "../game/be_ai_goal.h"
 
 //#define DEBUG
 #define CTF

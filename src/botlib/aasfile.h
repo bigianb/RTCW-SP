@@ -26,7 +26,7 @@ If you have questions concerning this license or the applicable additional terms
 ===========================================================================
 */
 
-
+#pragma once
 
 //NOTE:	int = default signed
 //					default long

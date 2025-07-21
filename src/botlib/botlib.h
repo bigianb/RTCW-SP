@@ -35,6 +35,8 @@ If you have questions concerning this license or the applicable additional terms
 // Tab Size:		3
 //===========================================================================
 
+#pragma once
+
 #define BOTLIB_API_VERSION      2
 
 struct aas_clientmove_s;
@@ -203,10 +205,8 @@ typedef struct botlib_import_s
 	//send a bot client command
 	void ( *BotClientCommand )( int client, char *command );
 	//memory allocation
-	void        *( *GetMemory )( int size );
-	void ( *FreeMemory )( void *ptr );
 	void ( *FreeZoneMemory )( void );
-	void        *( *HunkAlloc )( int size );
+
 	//file system access
 	int ( *FS_FOpenFile )( const char *qpath, fileHandle_t *file, fsMode_t mode );
 	int ( *FS_Read )( void *buffer, int len, fileHandle_t f );
