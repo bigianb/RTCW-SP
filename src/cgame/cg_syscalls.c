@@ -32,6 +32,7 @@ If you have questions concerning this license or the applicable additional terms
 #include "client.h"
 #include "botlib/l_script.h"
 #include "botlib/l_precomp.h"
+#include "../renderer/tr_local.h"
 
 static int QDECL dummySyscall(int arg, ...){
 	return 0;
@@ -68,7 +69,7 @@ void    trap_Cvar_Register( vmCvar_t *vmCvar, const char *varName, const char *d
 }
 */
 void    trap_Cvar_Update( vmCvar_t *vmCvar ) {
-	syscall( CG_CVAR_UPDATE, vmCvar );
+	Cvar_Update(vmCvar );
 }
 /*
 void    trap_Cvar_Set( const char *var_name, const char *value ) {
@@ -185,17 +186,15 @@ int     trap_CM_MarkFragments( int numPoints, const vec3_t *points,
 }
 
 void    trap_S_StartSound( vec3_t origin, int entityNum, int entchannel, sfxHandle_t sfx ) {
-	syscall( CG_S_STARTSOUND, origin, entityNum, entchannel, sfx );
+	S_StartSound(origin, entityNum, entchannel, sfx );
 }
 
-//----(SA)	added
 void    trap_S_StartSoundEx( vec3_t origin, int entityNum, int entchannel, sfxHandle_t sfx, int flags ) {
-	syscall( CG_S_STARTSOUNDEX, origin, entityNum, entchannel, sfx, flags );
+	S_StartSoundEx(origin, entityNum, entchannel, sfx, flags );
 }
-//----(SA)	end
 
 void    trap_S_StartLocalSound( sfxHandle_t sfx, int channelNum ) {
-	syscall( CG_S_STARTLOCALSOUND, sfx, channelNum );
+	S_StartLocalSound(sfx, channelNum );
 }
 
 void    trap_S_ClearLoopingSounds( qboolean killall ) {
@@ -206,11 +205,9 @@ void    trap_S_AddLoopingSound( int entityNum, const vec3_t origin, const vec3_t
 	syscall( CG_S_ADDLOOPINGSOUND, entityNum, origin, velocity, 1250, sfx, volume );     // volume was previously removed from CG_S_ADDLOOPINGSOUND.  I added 'range'
 }
 
-//----(SA)	added
 void    trap_S_AddRangedLoopingSound( int entityNum, const vec3_t origin, const vec3_t velocity, sfxHandle_t sfx, int range ) {
 	syscall( CG_S_ADDLOOPINGSOUND, entityNum, origin, velocity, range, sfx, 255 );   // RF, assume full volume, since thats how it worked before
 }
-//----(SA)	end
 
 void    trap_S_AddRealLoopingSound( int entityNum, const vec3_t origin, const vec3_t velocity, sfxHandle_t sfx ) {
 // not in use
@@ -221,11 +218,11 @@ void    trap_S_StopLoopingSound( int entityNum ) {
 	syscall( CG_S_STOPLOOPINGSOUND, entityNum );
 }
 
-//----(SA)	added
+
 void    trap_S_StopStreamingSound( int entityNum ) {
 	syscall( CG_S_STOPSTREAMINGSOUND, entityNum );
 }
-//----(SA)	end
+
 
 void    trap_S_UpdateEntityPosition( int entityNum, const vec3_t origin ) {
 	syscall( CG_S_UPDATEENTITYPOSITION, entityNum, origin );
@@ -247,15 +244,15 @@ sfxHandle_t trap_S_RegisterSound( const char *sample ) {
 }
 
 void    trap_S_StartBackgroundTrack( const char *intro, const char *loop, int fadeupTime ) {
-	syscall( CG_S_STARTBACKGROUNDTRACK, intro, loop, fadeupTime );
+	S_StartBackgroundTrack(intro, loop, fadeupTime );
 }
 
 void    trap_S_FadeBackgroundTrack( float targetvol, int time, int num ) {   // yes, i know.  fadebackground coming in, fadestreaming going out.  will have to see where functionality leads...
-	syscall( CG_S_FADESTREAMINGSOUND, PASSFLOAT( targetvol ), time, num ); // 'num' is '0' if it's music, '1' if it's "all streaming sounds"
+	S_FadeStreamingSound(targetvol, time, num ); // 'num' is '0' if it's music, '1' if it's "all streaming sounds"
 }
 
 void    trap_S_FadeAllSound( float targetvol, int time ) {
-	syscall( CG_S_FADEALLSOUNDS, PASSFLOAT( targetvol ), time );
+	S_FadeAllSounds(targetvol, time );
 }
 
 //----(SA)	end
@@ -294,15 +291,15 @@ qhandle_t trap_R_RegisterShader( const char *name ) {
 }
 
 void trap_R_RegisterFont( const char *fontName, int pointSize, fontInfo_t *font ) {
-	syscall( CG_R_REGISTERFONT, fontName, pointSize, font );
+	RE_RegisterFont(fontName, pointSize, font );
 }
 
 void    trap_R_ClearScene( void ) {
-	syscall( CG_R_CLEARSCENE );
+	RE_ClearScene();
 }
 
 void    trap_R_AddRefEntityToScene( const refEntity_t *re ) {
-	syscall( CG_R_ADDREFENTITYTOSCENE, re );
+	RE_AddRefEntityToScene(re );
 }
 
 void    trap_R_AddPolyToScene( qhandle_t hShader, int numVerts, const polyVert_t *verts ) {
@@ -335,26 +332,26 @@ void    trap_R_SetFog( int fogvar, int var1, int var2, float r, float g, float b
 }
 //----(SA)
 void    trap_R_RenderScene( const refdef_t *fd ) {
-	syscall( CG_R_RENDERSCENE, fd );
+	RE_RenderScene(fd );
 }
 
 void    trap_R_SetColor( const float *rgba ) {
-	syscall( CG_R_SETCOLOR, rgba );
+	RE_SetColor(rgba );
 }
 
 void    trap_R_DrawStretchPic( float x, float y, float w, float h,
 							   float s1, float t1, float s2, float t2, qhandle_t hShader ) {
-	syscall( CG_R_DRAWSTRETCHPIC, PASSFLOAT( x ), PASSFLOAT( y ), PASSFLOAT( w ), PASSFLOAT( h ), PASSFLOAT( s1 ), PASSFLOAT( t1 ), PASSFLOAT( s2 ), PASSFLOAT( t2 ), hShader );
+	RE_StretchPic( x , y , w , h , s1 , t1 ,  s2 , t2 , hShader );
 }
 
 void    trap_R_DrawStretchPicGradient(  float x, float y, float w, float h,
 										float s1, float t1, float s2, float t2, qhandle_t hShader,
 										const float *gradientColor, int gradientType ) {
-	syscall( CG_R_DRAWSTRETCHPIC_GRADIENT, PASSFLOAT( x ), PASSFLOAT( y ), PASSFLOAT( w ), PASSFLOAT( h ), PASSFLOAT( s1 ), PASSFLOAT( t1 ), PASSFLOAT( s2 ), PASSFLOAT( t2 ), hShader, gradientColor, gradientType  );
+	RE_StretchPicGradient(x, y, w, h, s1, t1, s2, t2, hShader, gradientColor, gradientType  );
 }
 
 void    trap_R_ModelBounds( clipHandle_t model, vec3_t mins, vec3_t maxs ) {
-	syscall( CG_R_MODELBOUNDS, model, mins, maxs );
+	R_ModelBounds(model, mins, maxs );
 }
 
 int     trap_R_LerpTag( orientation_t *tag, const refEntity_t *refent, const char *tagName, int startIndex ) {

@@ -30,7 +30,7 @@ If you have questions concerning this license or the applicable additional terms
 
 #include "g_local.h"
 #include "../botai/botai.h"
-
+#include "../qcommon/qcommon.h"
 
 static int g_numBots;
 static char g_botInfos[MAX_BOTS][MAX_INFO_STRING];
@@ -326,7 +326,7 @@ void G_CheckMinimumPlayers( void ) {
 		return;
 	}
 	checkminimumplayers_time = level.time;
-	trap_Cvar_Update( &bot_minplayers );
+	Cvar_Update( &bot_minplayers );
 	minplayers = bot_minplayers.integer;
 	if ( minplayers <= 0 ) {
 		return;

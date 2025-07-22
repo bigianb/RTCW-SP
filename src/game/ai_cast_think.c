@@ -44,6 +44,8 @@ If you have questions concerning this license or the applicable additional terms
 #include "../game/be_ai_move.h"
 #include "../botai/botai.h"          //bot ai interface
 
+#include "../qcommon/qcommon.h"
+
 #include "ai_cast.h"
 
 /*
@@ -817,15 +819,15 @@ void AICast_StartFrame( int time ) {
 		trap_Cvar_Register( &aicast_disable, "aicast_disable", "0", CVAR_CHEAT );
 	} else
 	{
-		trap_Cvar_Update( &aicast_disable );
+		Cvar_Update( &aicast_disable );
 		if ( aicast_disable.integer ) {
 			return;
 		}
 	}
 
-	trap_Cvar_Update( &aicast_debug );
-	trap_Cvar_Update( &aicast_debugname );
-	trap_Cvar_Update( &aicast_scripts );
+	Cvar_Update( &aicast_debug );
+	Cvar_Update( &aicast_debugname );
+	Cvar_Update( &aicast_scripts );
 
 	// no need to think during the intermission
 	if ( level.intermissiontime ) {
@@ -974,13 +976,13 @@ void AICast_StartServerFrame( int time ) {
 		trap_Cvar_Register( &aicast_disable, "aicast_disable", "0", CVAR_CHEAT );
 	} else
 	{
-		trap_Cvar_Update( &aicast_disable );
+		Cvar_Update( &aicast_disable );
 		if ( aicast_disable.integer ) {
 			return;
 		}
 	}
 
-	trap_Cvar_Update( &aicast_debug );
+	Cvar_Update( &aicast_debug );
 
 	// no need to think during the intermission
 	if ( level.intermissiontime ) {

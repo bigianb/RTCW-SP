@@ -48,6 +48,8 @@ If you have questions concerning this license or the applicable additional terms
 #include "../game/be_ai_weap.h"
 #include "../botai/botai.h"          //bot ai interface
 
+#include "../qcommon/qcommon.h"
+
 #include "ai_main.h"
 #include "ai_dmq3.h"
 #include "ai_chat.h"
@@ -858,15 +860,15 @@ int BotAIStartFrame( int time ) {
 		G_CheckBotSpawn();
 	}
 
-	trap_Cvar_Update( &bot_rocketjump );
-	trap_Cvar_Update( &bot_grapple );
-	trap_Cvar_Update( &bot_fastchat );
-	trap_Cvar_Update( &bot_nochat );
-	trap_Cvar_Update( &bot_testrchat );
-	trap_Cvar_Update( &bot_thinktime );
+	Cvar_Update( &bot_rocketjump );
+	Cvar_Update( &bot_grapple );
+	Cvar_Update( &bot_fastchat );
+	Cvar_Update( &bot_nochat );
+	Cvar_Update( &bot_testrchat );
+	Cvar_Update( &bot_thinktime );
 	// Ridah, set the default AAS world
 	trap_AAS_SetCurrentWorld( 0 );
-	trap_Cvar_Update( &memorydump );
+	Cvar_Update( &memorydump );
 
 	if ( memorydump.integer ) {
 		trap_BotLibVarSet( "memorydump", "1" );

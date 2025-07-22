@@ -964,7 +964,7 @@ void            trap_UI_Print( const char *string );
 void            trap_UI_Error( const char *string );
 int             trap_Milliseconds( void );
 void            trap_Cvar_Register( vmCvar_t *vmCvar, const char *varName, const char *defaultValue, int flags );
-void            trap_Cvar_Update( vmCvar_t *vmCvar );
+void            Cvar_Update( vmCvar_t *vmCvar );
 void            trap_Cvar_Set( const char *var_name, const char *value );
 float           trap_Cvar_VariableValue( const char *var_name );
 void            trap_Cvar_VariableStringBuffer( const char *var_name, char *buffer, int bufsize );
@@ -1009,8 +1009,10 @@ void            trap_Key_ClearStates( void );
 int             trap_Key_GetCatcher( void );
 void            trap_Key_SetCatcher( int catcher );
 void            trap_GetClipboardData( char *buf, int bufsize );
-void            trap_GetClientState( uiClientState_t *state );
-int             trap_GetConfigString( int index, char* buff, int buffsize );
+void            GetClientState( uiClientState_t *state );
+int             GetConfigString( int index, char* buff, int buffsize );
+void            trap_GetClientState( uiClientState_t *state );	// TODO: Remove
+int             trap_GetConfigString( int index, char* buff, int buffsize );	// TODO: Remove
 int             trap_LAN_GetServerCount( int source );          // NERVE - SMF
 int             trap_LAN_GetLocalServerCount( void );
 void            trap_LAN_GetLocalServerAddressString( int n, char *buf, int buflen );

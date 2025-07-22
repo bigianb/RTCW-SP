@@ -1638,7 +1638,7 @@ void G_LoadGame( char *filename ) {
 	trap_FS_FCloseFile( f );
 
 	// now increment the attempts field and update totalplaytime according to cvar
-	trap_Cvar_Update( &g_attempts );
+	Cvar_Update( &g_attempts );
 	trap_Cvar_Set( "g_attempts", va( "%i", g_attempts.integer + 1 ) );
 	caststates[0].attempts = g_attempts.integer + 1;
 	caststates[0].lastLoadTime = level.time;

@@ -3883,16 +3883,10 @@ void Item_Model_Paint( itemDef_t *item ) {
 		origin[0] = item->textscale;
 	}
 
-#define NEWWAY
-#ifdef NEWWAY
+
 	refdef.fov_x = ( modelPtr->fov_x ) ? modelPtr->fov_x : w;
 	refdef.fov_y = ( modelPtr->fov_y ) ? modelPtr->fov_y : h;
-#else
-	refdef.fov_x = (int)( (float)refdef.width / 640.0f * 90.0f );
-	xx = refdef.width / tan( refdef.fov_x / 360 * M_PI );
-	refdef.fov_y = atan2( refdef.height, xx );
-	refdef.fov_y *= ( 360 / M_PI );
-#endif
+
 	DC->clearScene();
 
 	refdef.time = DC->realTime;

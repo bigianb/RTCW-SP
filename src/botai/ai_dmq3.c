@@ -48,6 +48,8 @@ If you have questions concerning this license or the applicable additional terms
 #include "../game/be_ai_weap.h"
 #include "../botai/botai.h"
 //
+#include "../qcommon/qcommon.h"
+
 #include "ai_main.h"
 #include "ai_dmq3.h"
 #include "ai_chat.h"
@@ -2564,7 +2566,7 @@ void BotCheckConsoleMessages( bot_state_t *bs ) {
 				//unify the message
 				trap_UnifyWhiteSpaces( message );
 				//
-				trap_Cvar_Update( &bot_testrchat );
+				Cvar_Update( &bot_testrchat );
 				if ( bot_testrchat.integer ) {
 					//
 					trap_BotLibVarSet( "bot_testrchat", "1" );

@@ -501,7 +501,7 @@ void CG_UpdateCvars( void ) {
 	cvarTable_t *cv;
 
 	for ( i = 0, cv = cvarTable ; i < cvarTableSize ; i++, cv++ ) {
-		trap_Cvar_Update( cv->vmCvar );
+		Cvar_Update( cv->vmCvar );
 	}
 
 }

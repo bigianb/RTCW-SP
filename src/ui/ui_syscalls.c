@@ -128,7 +128,7 @@ void trap_UI_RenderScene( const refdef_t *fd ) {
 }
 
 void trap_UI_SetColor( const float *rgba ) {
-	syscall( UI_R_SETCOLOR, rgba );
+	RE_SetColor(rgba );
 }
 
 void trap_UI_DrawStretchPic( float x, float y, float w, float h, float s1, float t1, float s2, float t2, qhandle_t hShader ) {
@@ -199,11 +199,11 @@ void trap_GetClipboardData( char *buf, int bufsize ) {
 }
 
 void trap_GetClientState( uiClientState_t *state ) {
-	syscall( UI_GETCLIENTSTATE, state );
+	GetClientState( state );
 }
 
 int trap_GetConfigString( int index, char* buff, int buffsize ) {
-	return syscall( UI_GETCONFIGSTRING, index, buff, buffsize );
+	return GetConfigString(index, buff, buffsize );
 }
 
 int trap_LAN_GetLocalServerCount( void ) {
@@ -304,7 +304,7 @@ void trap_SetCDKey( char *buf ) {
 }
 // allows you to resize the animation dynamically
 void trap_UI_CIN_SetExtents( int handle, int x, int y, int w, int h ) {
-	syscall( UI_CIN_SETEXTENTS, handle, x, y, w, h );
+	CIN_SetExtents( handle, x, y, w, h );
 }
 
 qboolean trap_VerifyCDKey( const char *key, const char *chksum ) {

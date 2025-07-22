@@ -36,6 +36,7 @@ If you have questions concerning this license or the applicable additional terms
 
 #include "../game/g_local.h"
 #include "../game/q_shared.h"
+#include "../qcommon/qcommon.h"
 
 /*
 Scripting that allows the designers to control the behaviour of entities
@@ -568,7 +569,7 @@ qboolean G_Script_ScriptRun( gentity_t *ent ) {
 	//if (!g_scripts.integer)
 	//	return qtrue;
 
-	trap_Cvar_Update( &g_scriptDebug );
+	Cvar_Update( &g_scriptDebug );
 
 	if ( !ent->scriptEvents ) {
 		ent->scriptStatus.scriptEventIndex = -1;

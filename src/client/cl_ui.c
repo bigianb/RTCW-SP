@@ -38,7 +38,7 @@ extern char cl_cdkey[34];
 GetClientState
 ====================
 */
-static void GetClientState( uiClientState_t *state ) {
+void GetClientState( uiClientState_t *state ) {
 	state->connectPacketCount = clc.connectPacketCount;
 	state->connState = cls.state;
 	Q_strncpyz( state->servername, cls.servername, sizeof( state->servername ) );
@@ -701,7 +701,7 @@ void Key_SetCatcher( int catcher ) {
 GetConfigString
 ====================
 */
-static int GetConfigString( int index, char *buf, int size ) {
+int GetConfigString( int index, char *buf, int size ) {
 	int offset;
 
 	if ( index < 0 || index >= MAX_CONFIGSTRINGS ) {

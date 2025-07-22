@@ -28,7 +28,7 @@ If you have questions concerning this license or the applicable additional terms
 
 
 #include "g_local.h"
-
+#include "../qcommon/qcommon.h"
 #include "ai_cast_fight.h"   // need these for avoidance
 
 
@@ -946,7 +946,7 @@ void ClientThink_real( gentity_t *ent ) {
 			( g_gametype.integer == GT_SINGLE_PLAYER ) &&
 			!( ent->r.svFlags & SVF_CASTAI ) ) {
 
-		trap_Cvar_Update( &g_missionStats );
+		Cvar_Update( &g_missionStats );
 
 		if ( strlen( g_missionStats.string ) > 1 ) {
 
