@@ -469,15 +469,6 @@ intptr_t SV_GameSystemCalls( intptr_t *args ) {
 		return SV_GetTag( args[1], VMA( 2 ), VMA( 3 ) );
 
 		//====================================
-
-	case BOTLIB_SETUP:
-		return SV_BotLibSetup();
-	case BOTLIB_SHUTDOWN:
-		return SV_BotLibShutdown();
-	case BOTLIB_LIBVAR_SET:
-		return botlib_export->BotLibVarSet( VMA( 1 ), VMA( 2 ) );
-	case BOTLIB_LIBVAR_GET:
-		return botlib_export->BotLibVarGet( VMA( 1 ), VMA( 2 ), args[3] );
 /* IJB avoid import issues
 	case BOTLIB_PC_ADD_GLOBAL_DEFINE:
 		return botlib_export->PC_AddGlobalDefine( VMA( 1 ) );
@@ -492,8 +483,7 @@ intptr_t SV_GameSystemCalls( intptr_t *args ) {
 */
 	case BOTLIB_START_FRAME:
 		return botlib_export->BotLibStartFrame( VMF( 1 ) );
-	case BOTLIB_LOAD_MAP:
-		return botlib_export->BotLibLoadMap( VMA( 1 ) );
+
 	case BOTLIB_UPDATENTITY:
 		return botlib_export->BotLibUpdateEntity( args[1], VMA( 2 ) );
 	case BOTLIB_TEST:

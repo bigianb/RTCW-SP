@@ -31,6 +31,7 @@ If you have questions concerning this license or the applicable additional terms
 #include "g_local.h"
 #include "qcommon.h"
 #include "../server/server.h"
+#include "../botlib/be_aas_bsp.h"
 
 static int QDECL dummySyscall(int arg, ...){
 	return 0;
@@ -128,8 +129,9 @@ void trap_DropClient( int clientNum, const char *reason ) {
 	SV_GameDropClient( clientNum, reason );
 }
 
+extern void SV_GameSendServerCommand( int clientNum, const char *text );
 void trap_SendServerCommand( int clientNum, const char *text ) {
-	syscall( G_SEND_SERVER_COMMAND, clientNum, text );
+	SV_GameSendServerCommand( clientNum, text );
 }
 
 void trap_SetConfigstring( int num, const char *string ) {
@@ -141,15 +143,16 @@ void trap_GetConfigstring( int num, char *buffer, int bufferSize ) {
 }
 
 void trap_GetUserinfo( int num, char *buffer, int bufferSize ) {
-	syscall( G_GET_USERINFO, num, buffer, bufferSize );
+	SV_GetUserinfo(num, buffer, bufferSize );
 }
 
 void trap_SetUserinfo( int num, const char *buffer ) {
-	syscall( G_SET_USERINFO, num, buffer );
+	SV_SetUserinfo( num, buffer );
 }
 
+extern void SV_GetServerinfo( char *buffer, int bufferSize );
 void trap_GetServerinfo( char *buffer, int bufferSize ) {
-	syscall( G_GET_SERVERINFO, buffer, bufferSize );
+	SV_GetServerinfo(buffer, bufferSize );
 }
 
 void trap_SetBrushModel( gentity_t *ent, const char *name ) {
@@ -252,7 +255,7 @@ qboolean trap_GetTag( int clientNum, char *tagName, orientation_t *or ) {
 
 // BotLib traps start here
 int trap_BotLibSetup( void ) {
-	return syscall( BOTLIB_SETUP );
+	return SV_BotLibSetup();
 }
 
 int trap_BotLibShutdown( void ) {
@@ -278,8 +281,9 @@ int trap_BotLibStartFrame( float time ) {
 	return syscall( BOTLIB_START_FRAME, PASSFLOAT( time ) );
 }
 
+extern int Export_BotLibLoadMap( const char *mapname );
 int trap_BotLibLoadMap( const char *mapname ) {
-	return syscall( BOTLIB_LOAD_MAP, mapname );
+	return Export_BotLibLoadMap(mapname );
 }
 
 int trap_BotLibUpdateEntity( int ent, void /* struct bot_updateentity_s */ *bue ) {
@@ -339,7 +343,7 @@ int trap_AAS_PointContents( vec3_t point ) {
 }
 
 int trap_AAS_NextBSPEntity( int ent ) {
-	return syscall( BOTLIB_AAS_NEXT_BSP_ENTITY, ent );
+	return AAS_NextBSPEntity(ent);
 }
 
 int trap_AAS_ValueForBSPEpairKey( int ent, char *key, char *value, int size ) {

@@ -532,37 +532,36 @@ qboolean BotImport_AICast_CheckAttackAtPos( int entnum, int enemy, vec3_t pos, q
 SV_BotInitBotLib
 ==================
 */
+extern botlib_import_t botimport;
 void SV_BotInitBotLib( void ) {
-	botlib_import_t botlib_import;
-
-	botlib_import.Print = BotImport_Print;
-	botlib_import.Trace = BotImport_Trace;
-	botlib_import.EntityTrace = BotImport_EntityTrace;
-	botlib_import.PointContents = BotImport_PointContents;
-	botlib_import.inPVS = BotImport_inPVS;
-	botlib_import.BSPEntityData = BotImport_BSPEntityData;
-	botlib_import.BSPModelMinsMaxsOrigin = BotImport_BSPModelMinsMaxsOrigin;
-	botlib_import.BotClientCommand = BotClientCommand;
+	botimport.Print = BotImport_Print;
+	botimport.Trace = BotImport_Trace;
+	botimport.EntityTrace = BotImport_EntityTrace;
+	botimport.PointContents = BotImport_PointContents;
+	botimport.inPVS = BotImport_inPVS;
+	botimport.BSPEntityData = BotImport_BSPEntityData;
+	botimport.BSPModelMinsMaxsOrigin = BotImport_BSPModelMinsMaxsOrigin;
+	botimport.BotClientCommand = BotClientCommand;
 
 	// file system acess
-	botlib_import.FS_FOpenFile = FS_FOpenFileByMode;
-	botlib_import.FS_Read = FS_Read;
-	botlib_import.FS_Write = FS_Write;
-	botlib_import.FS_FCloseFile = FS_FCloseFile;
-	botlib_import.FS_Seek = FS_Seek;
+	botimport.FS_FOpenFile = FS_FOpenFileByMode;
+	botimport.FS_Read = FS_Read;
+	botimport.FS_Write = FS_Write;
+	botimport.FS_FCloseFile = FS_FCloseFile;
+	botimport.FS_Seek = FS_Seek;
 
 	//debug lines
-	botlib_import.DebugLineCreate = BotImport_DebugLineCreate;
-	botlib_import.DebugLineDelete = BotImport_DebugLineDelete;
-	botlib_import.DebugLineShow = BotImport_DebugLineShow;
+	botimport.DebugLineCreate = BotImport_DebugLineCreate;
+	botimport.DebugLineDelete = BotImport_DebugLineDelete;
+	botimport.DebugLineShow = BotImport_DebugLineShow;
 
 	//debug polygons
-	botlib_import.DebugPolygonCreate = BotImport_DebugPolygonCreate;
-	botlib_import.DebugPolygonDelete = BotImport_DebugPolygonDelete;
+	botimport.DebugPolygonCreate = BotImport_DebugPolygonCreate;
+	botimport.DebugPolygonDelete = BotImport_DebugPolygonDelete;
 
 	// Ridah, Cast AI
-	botlib_import.AICast_VisibleFromPos = BotImport_AICast_VisibleFromPos;
-	botlib_import.AICast_CheckAttackAtPos = BotImport_AICast_CheckAttackAtPos;
+	botimport.AICast_VisibleFromPos = BotImport_AICast_VisibleFromPos;
+	botimport.AICast_CheckAttackAtPos = BotImport_AICast_CheckAttackAtPos;
 	// done.
 
 	// IJB botlib_export = (botlib_export_t *)GetBotLibAPI( BOTLIB_API_VERSION, &botlib_import );
