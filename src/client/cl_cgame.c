@@ -29,7 +29,7 @@ If you have questions concerning this license or the applicable additional terms
 // cl_cgame.c  -- client system interaction with client game
 
 #include "client.h"
-
+#include "cgame/cg_local.h"
 #include "../botlib/botlib.h"
 
 extern botlib_export_t *botlib_export;
@@ -398,12 +398,15 @@ CL_ShutdonwCGame
 void CL_ShutdownCGame( void ) {
 	cls.keyCatchers &= ~KEYCATCH_CGAME;
 	cls.cgameStarted = qfalse;
+	/*
 	if ( !cgvm ) {
 		return;
 	}
 	VM_Call( cgvm, CG_SHUTDOWN );
 	VM_Free( cgvm );
 	cgvm = NULL;
+	 */
+	CG_Shutdown();
 }
 
 static int  FloatAsInt( float f ) {
@@ -958,6 +961,7 @@ void CL_InitCGame( void ) {
 	mapname = Info_ValueForKey( info, "mapname" );
 	Com_sprintf( cl.mapname, sizeof( cl.mapname ), "maps/%s.bsp", mapname );
 
+/*
 	// load the dll or bytecode
 	if ( cl_connectedToPureServer != 0 ) {
 		// if sv_pure is set we only allow qvms to be loaded
@@ -966,18 +970,17 @@ void CL_InitCGame( void ) {
 		interpret = Cvar_VariableValue( "vm_cgame" );
 	}
 	cgvm = VM_Create( "cgame", CL_CgameSystemCalls, interpret );
-//	cgvm = VM_Create( "cgame", CL_CgameSystemCalls, Cvar_VariableValue( "vm_cgame" ) );
 	if ( !cgvm ) {
 		Com_Error( ERR_DROP, "VM_Create on cgame failed" );
 	}
+*/
 	cls.state = CA_LOADING;
 
 	// init for this gamestate
 	// use the lastExecutedServerCommand instead of the serverCommandSequence
 	// otherwise server commands sent just before a gamestate are dropped
-	VM_Call( cgvm, CG_INIT, clc.serverMessageSequence, clc.lastExecutedServerCommand, clc.clientNum );
-//	VM_Call( cgvm, CG_INIT, clc.serverMessageSequence, clc.serverCommandSequence );
-
+//	VM_Call( cgvm, CG_INIT, clc.serverMessageSequence, clc.lastExecutedServerCommand, clc.clientNum );
+	CG_Init(clc.serverMessageSequence, clc.lastExecutedServerCommand);
 	// we will send a usercmd this frame, which
 	// will cause the server to send us the first snapshot
 	cls.state = CA_PRIMED;
@@ -1011,11 +1014,9 @@ See if the current console command is claimed by the cgame
 ====================
 */
 qboolean CL_GameCommand( void ) {
-	if ( !cgvm ) {
-		return qfalse;
-	}
-
-	return VM_Call( cgvm, CG_CONSOLE_COMMAND );
+	
+	//return VM_Call( cgvm, CG_CONSOLE_COMMAND );
+	return CG_ConsoleCommand();
 }
 
 
@@ -1026,8 +1027,9 @@ CL_CGameRendering
 =====================
 */
 void CL_CGameRendering( stereoFrame_t stereo ) {
-	VM_Call( cgvm, CG_DRAW_ACTIVE_FRAME, cl.serverTime, stereo, clc.demoplaying );
-	VM_Debug( 0 );
+	//VM_Call( cgvm, CG_DRAW_ACTIVE_FRAME, cl.serverTime, stereo, clc.demoplaying );
+	//VM_Debug( 0 );
+	CG_DrawActiveFrame(cl.serverTime, stereo, clc.demoplaying );
 }
 
 
@@ -1271,9 +1273,7 @@ CL_GetTag
 ====================
 */
 qboolean CL_GetTag( int clientNum, char *tagname, orientation_t *or ) {
-	if ( !cgvm ) {
-		return qfalse;
-	}
-
-	return VM_Call( cgvm, CG_GET_TAG, clientNum, tagname, or );
+	
+	//return VM_Call( cgvm, CG_GET_TAG, clientNum, tagname, or );
+	return CG_GetTag( clientNum, tagname, or );
 }

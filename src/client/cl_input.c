@@ -29,6 +29,7 @@ If you have questions concerning this license or the applicable additional terms
 // cl.input.c  -- builds an intended movement command to send to the server
 
 #include "client.h"
+#include "cgame/cg_local.h"
 
 unsigned frame_msec;
 int old_com_frameTime;
@@ -167,12 +168,6 @@ float CL_KeyState( kbutton_t *key ) {
 		}
 		key->downtime = com_frameTime;
 	}
-
-#if 0
-	if ( msec ) {
-		Com_Printf( "%i ", msec );
-	}
-#endif
 
 	val = (float)msec / frame_msec;
 	if ( val < 0 ) {
@@ -412,7 +407,7 @@ void CL_MouseEvent( int dx, int dy, int time ) {
 	if ( cls.keyCatchers & KEYCATCH_UI ) {
 		UI_MouseEvent(dx, dy );
 	} else if ( cls.keyCatchers & KEYCATCH_CGAME ) {
-		VM_Call( cgvm, CG_MOUSE_EVENT, dx, dy );
+		CG_MouseEvent( dx, dy );
 	} else {
 		cl.mouseDx[cl.mouseIndex] += dx;
 		cl.mouseDy[cl.mouseIndex] += dy;

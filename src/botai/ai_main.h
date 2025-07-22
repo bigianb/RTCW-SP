@@ -39,6 +39,7 @@ If you have questions concerning this license or the applicable additional terms
 #include "../botlib/be_aas_def.h"
 #include "../botai/botai.h"
 #include "../game/be_ai_goal.h"
+#include "../game/g_local.h"
 
 //#define DEBUG
 #define CTF

@@ -99,7 +99,7 @@ cvar_t	*cl_consoleKeys;
 clientActive_t cl;
 clientConnection_t clc;
 clientStatic_t cls;
-vm_t                *cgvm;
+//vm_t                *cgvm;
 
 // Structure containing functions exported from refresh DLL
 refexport_t re;

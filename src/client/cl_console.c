@@ -29,7 +29,7 @@ If you have questions concerning this license or the applicable additional terms
 // console.c
 
 #include "client.h"
-
+#include "cgame/cg_local.h"
 
 int g_console_field_width = 78;
 
@@ -131,7 +131,7 @@ Con_MessageMode3_f
 ================
 */
 void Con_MessageMode3_f( void ) {
-	chat_playerNum = VM_Call( cgvm, CG_CROSSHAIR_PLAYER );
+	chat_playerNum = CG_CrosshairPlayer(); // VM_Call( cgvm, CG_CROSSHAIR_PLAYER );
 	if ( chat_playerNum < 0 || chat_playerNum >= MAX_CLIENTS ) {
 		chat_playerNum = -1;
 		return;
@@ -149,7 +149,7 @@ Con_MessageMode4_f
 ================
 */
 void Con_MessageMode4_f( void ) {
-	chat_playerNum = VM_Call( cgvm, CG_LAST_ATTACKER );
+	chat_playerNum = CG_LastAttacker(); //VM_Call( cgvm, CG_LAST_ATTACKER );
 	if ( chat_playerNum < 0 || chat_playerNum >= MAX_CLIENTS ) {
 		chat_playerNum = -1;
 		return;

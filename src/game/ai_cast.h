@@ -41,6 +41,7 @@ If you have questions concerning this license or the applicable additional terms
 #include "../botai/ai_dmq3.h"    // just so we can use the structures
 #include "be_ai_move.h"
 #include "ai_cast_fight.h"
+#include "../game/g_local.h"
 
 //
 // constants/defines

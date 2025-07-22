@@ -31,6 +31,8 @@ If you have questions concerning this license or the applicable additional terms
 #include "server.h"
 #include "../botlib/botlib.h"
 #include "../botai/botai.h"
+#include "../game/g_local.h"
+#include "../game/g_func_decs.h"
 
 #define MAX_DEBUGPOLYS      128
 
@@ -443,11 +445,7 @@ void SV_BotFrame( int time ) {
 	if ( !bot_enable ) {
 		return;
 	}
-	//NOTE: maybe the game is already shutdown
-	if ( !gvm ) {
-		return;
-	}
-	VM_Call( gvm, BOTAI_START_FRAME, time );
+	BotAIStartFrame( time );
 }
 
 /*
@@ -516,7 +514,7 @@ BotImport_AICast_VisibleFromPos
 */
 qboolean BotImport_AICast_VisibleFromPos(   vec3_t srcpos, int srcnum,
 											vec3_t destpos, int destnum, qboolean updateVisPos ) {
-	return VM_Call( gvm, AICAST_VISIBLEFROMPOS, (intptr_t)srcpos, srcnum, (intptr_t)destpos, destnum, updateVisPos );
+	return AICast_VisibleFromPos( (intptr_t)srcpos, srcnum, (intptr_t)destpos, destnum, updateVisPos );
 }
 
 /*
@@ -525,7 +523,7 @@ BotImport_AICast_CheckAttackAtPos
 ===============
 */
 qboolean BotImport_AICast_CheckAttackAtPos( int entnum, int enemy, vec3_t pos, qboolean ducking, qboolean allowHitWorld ) {
-	return VM_Call( gvm, AICAST_CHECKATTACKATPOS, entnum, enemy, (intptr_t)pos, ducking, allowHitWorld );
+	return AICast_CheckAttackAtPos( entnum, enemy, (intptr_t)pos, ducking, allowHitWorld );
 }
 // done.
 

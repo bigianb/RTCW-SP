@@ -3737,18 +3737,6 @@ void SP_func_static( gentity_t *ent ) {
 			ent->count = 4;
 		}
 	}
-
-	// DISABLED since func_static will carve up AAS anyway, so blocking makes no sense
-	/*
-	// RF, check for blocking AAS
-	if ( ent->spawnflags & 1 ) {
-		// RF, AAS areas are now occupied
-		if (ent->model) {
-			ent->think = G_BlockThink;
-			ent->nextthink = level.time + FRAMETIME;
-		}
-	}
-	*/
 }
 
 

@@ -219,7 +219,7 @@ typedef struct {
 
 extern serverStatic_t svs;                  // persistant server info across maps
 extern server_t sv;                         // cleared each map
-extern vm_t            *gvm;                // game virtual machine
+//extern vm_t            *gvm;                // game virtual machine
 
 #define MAX_MASTER_SERVERS  5
 
@@ -341,6 +341,7 @@ void        SV_ShutdownGameProgs( void );
 void        SV_RestartGameProgs( void );
 qboolean    SV_inPVS( const vec3_t p1, const vec3_t p2 );
 qboolean SV_GetTag( int clientNum, char *tagname, orientation_t * or );
+void SV_SetBrushModel( sharedEntity_t *ent, const char *name );
 
 //
 // sv_bot.c

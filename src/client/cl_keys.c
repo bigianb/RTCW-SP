@@ -27,6 +27,7 @@ If you have questions concerning this license or the applicable additional terms
 */
 
 #include "client.h"
+#include "cgame/cg_local.h"
 
 /*
 
@@ -1364,7 +1365,8 @@ void CL_KeyEvent( int key, qboolean down, unsigned time ) {
 		// escape always gets out of CGAME stuff
 		if ( cls.keyCatchers & KEYCATCH_CGAME ) {
 			cls.keyCatchers &= ~KEYCATCH_CGAME;
-			VM_Call( cgvm, CG_EVENT_HANDLING, CGAME_EVENT_NONE );
+			CG_EventHandling(CGAME_EVENT_NONE);
+			//VM_Call( cgvm, CG_EVENT_HANDLING, CGAME_EVENT_NONE );
 			return;
 		}
 
@@ -1404,8 +1406,9 @@ void CL_KeyEvent( int key, qboolean down, unsigned time ) {
 
 		if ( cls.keyCatchers & KEYCATCH_UI ) {
 			UI_KeyEvent(key, down );
-		} else if ( cls.keyCatchers & KEYCATCH_CGAME && cgvm ) {
-			VM_Call( cgvm, CG_KEY_EVENT, key, down );
+		} else if ( cls.keyCatchers & KEYCATCH_CGAME ) {
+			CG_KeyEvent(key, down);
+			//VM_Call( cgvm, CG_KEY_EVENT, key, down );
 		}
 
 		return;
@@ -1442,9 +1445,10 @@ void CL_KeyEvent( int key, qboolean down, unsigned time ) {
 		
 
 	} else if ( cls.keyCatchers & KEYCATCH_CGAME ) {
-		if ( cgvm ) {
-			VM_Call( cgvm, CG_KEY_EVENT, key, down );
-		}
+
+			CG_KeyEvent(key, down);
+			//VM_Call( cgvm, CG_KEY_EVENT, key, down );
+		
 	} else if ( cls.keyCatchers & KEYCATCH_MESSAGE ) {
 		Message_Key( key );
 	} else if ( cls.state == CA_DISCONNECTED ) {

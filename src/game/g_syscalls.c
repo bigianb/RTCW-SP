@@ -30,6 +30,7 @@ If you have questions concerning this license or the applicable additional terms
 //
 #include "g_local.h"
 #include "qcommon.h"
+#include "../server/server.h"
 
 static int QDECL dummySyscall(int arg, ...){
 	return 0;
@@ -132,11 +133,11 @@ void trap_SendServerCommand( int clientNum, const char *text ) {
 }
 
 void trap_SetConfigstring( int num, const char *string ) {
-	syscall( G_SET_CONFIGSTRING, num, string );
+	SV_SetConfigstring( num, string );
 }
 
 void trap_GetConfigstring( int num, char *buffer, int bufferSize ) {
-	syscall( G_GET_CONFIGSTRING, num, buffer, bufferSize );
+	SV_GetConfigstring(num, buffer, bufferSize );
 }
 
 void trap_GetUserinfo( int num, char *buffer, int bufferSize ) {
@@ -152,15 +153,15 @@ void trap_GetServerinfo( char *buffer, int bufferSize ) {
 }
 
 void trap_SetBrushModel( gentity_t *ent, const char *name ) {
-	syscall( G_SET_BRUSH_MODEL, ent, name );
+	SV_SetBrushModel( ent, name );
 }
 
 void trap_Trace( trace_t *results, const vec3_t start, const vec3_t mins, const vec3_t maxs, const vec3_t end, int passEntityNum, int contentmask ) {
-	syscall( G_TRACE, results, start, mins, maxs, end, passEntityNum, contentmask );
+	SV_Trace( results, start, mins, maxs, end, passEntityNum, contentmask, qfalse );
 }
 
 void trap_TraceCapsule( trace_t *results, const vec3_t start, const vec3_t mins, const vec3_t maxs, const vec3_t end, int passEntityNum, int contentmask ) {
-	syscall( G_TRACECAPSULE, results, start, mins, maxs, end, passEntityNum, contentmask );
+	SV_Trace( results, start, mins, maxs, end, passEntityNum, contentmask, qtrue );
 }
 
 int trap_PointContents( const vec3_t point, int passEntityNum ) {
@@ -185,11 +186,11 @@ qboolean trap_AreasConnected( int area1, int area2 ) {
 }
 
 void trap_LinkEntity( gentity_t *ent ) {
-	syscall( G_LINKENTITY, ent );
+	SV_LinkEntity( ent );
 }
 
 void trap_UnlinkEntity( gentity_t *ent ) {
-	syscall( G_UNLINKENTITY, ent );
+	SV_UnlinkEntity( ent );
 }
 
 
@@ -218,7 +219,14 @@ void trap_GetUsercmd( int clientNum, usercmd_t *cmd ) {
 }
 
 qboolean trap_GetEntityToken( char *buffer, int bufferSize ) {
-	return syscall( G_GET_ENTITY_TOKEN, buffer, bufferSize );
+	
+	const char  *s = COM_Parse( &sv.entityParsePoint );
+	Q_strncpyz( buffer, s, bufferSize );
+	if ( !sv.entityParsePoint && !s[0] ) {
+		return qfalse;
+	} else {
+		return qtrue;
+	}
 }
 
 int trap_DebugPolygonCreate( int color, int numPoints, vec3_t *points ) {
@@ -248,15 +256,18 @@ int trap_BotLibSetup( void ) {
 }
 
 int trap_BotLibShutdown( void ) {
-	return syscall( BOTLIB_SHUTDOWN );
+	return SV_BotLibShutdown();
 }
 
+
+extern int Export_BotLibVarSet( char *var_name, char *value );
 int trap_BotLibVarSet( char *var_name, char *value ) {
-	return syscall( BOTLIB_LIBVAR_SET, var_name, value );
+	return Export_BotLibVarSet(var_name, value );
 }
 
+extern int Export_BotLibVarGet( char *var_name, char *value, int size );
 int trap_BotLibVarGet( char *var_name, char *value, int size ) {
-	return syscall( BOTLIB_LIBVAR_GET, var_name, value, size );
+	return Export_BotLibVarGet(var_name, value, size );
 }
 
 int trap_BotLibDefine( char *string ) {

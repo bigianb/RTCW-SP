@@ -31,6 +31,7 @@ If you have questions concerning this license or the applicable additional terms
 #include "server.h"
 
 #include "../botlib/botlib.h"
+#include "../game/g_func_decs.h"
 
 botlib_export_t *botlib_export;
 
@@ -911,12 +912,7 @@ Called every time a map changes
 ===============
 */
 void SV_ShutdownGameProgs( void ) {
-	if ( !gvm ) {
-		return;
-	}
-	VM_Call( gvm, GAME_SHUTDOWN, qfalse );
-	VM_Free( gvm );
-	gvm = NULL;
+	G_ShutdownGame(qfalse);
 }
 
 /*
@@ -934,7 +930,7 @@ static void SV_InitGameVM( qboolean restart ) {
 
 	// use the current msec count for a random seed
 	// init for this gamestate
-	VM_Call( gvm, GAME_INIT, svs.time, Com_Milliseconds(), restart );
+	G_InitGame( svs.time, Com_Milliseconds(), restart );
 
 	// clear all gentity pointers that might still be set from
 	// a previous level
@@ -953,16 +949,7 @@ Called on a map_restart, but not on a normal map change
 ===================
 */
 void SV_RestartGameProgs( void ) {
-	if ( !gvm ) {
-		return;
-	}
-	VM_Call( gvm, GAME_SHUTDOWN, qtrue );
-
-	// do a restart instead of a free
-	gvm = VM_Restart( gvm );
-	if ( !gvm ) { // bk001212 - as done below
-		Com_Error( ERR_FATAL, "VM_Restart on game failed" );
-	}
+	G_ShutdownGame(qtrue);
 
 	SV_InitGameVM( qtrue );
 }
@@ -976,6 +963,7 @@ Called on a normal map change, not on a map_restart
 ===============
 */
 void SV_InitGameProgs( void ) {
+	/*
 	cvar_t  *var;
 	//FIXME these are temp while I make bots run in vm
 	extern int bot_enable;
@@ -992,7 +980,7 @@ void SV_InitGameProgs( void ) {
 	if ( !gvm ) {
 		Com_Error( ERR_FATAL, "VM_Create on game failed" );
 	}
-
+*/
 	SV_InitGameVM( qfalse );
 }
 
@@ -1008,8 +996,7 @@ qboolean SV_GameCommand( void ) {
 	if ( sv.state != SS_GAME ) {
 		return qfalse;
 	}
-
-	return VM_Call( gvm, GAME_CONSOLE_COMMAND );
+	ConsoleCommand();
 }
 
 
@@ -1019,10 +1006,7 @@ SV_SendMoveSpeedsToGame
 ====================
 */
 void SV_SendMoveSpeedsToGame( int entnum, char *text ) {
-	if ( !gvm ) {
-		return;
-	}
-	VM_Call( gvm, GAME_RETRIEVE_MOVESPEEDS_FROM_CLIENT, entnum, text );
+	G_RetrieveMoveSpeedsFromClient(entnum, text);
 }
 
 /*
@@ -1050,5 +1034,5 @@ SV_GetModelInfo
 ===================
 */
 qboolean SV_GetModelInfo( int clientNum, char *modelName, animModelInfo_t **modelInfo ) {
-	return VM_Call( gvm, GAME_GETMODELINFO, clientNum, modelName, modelInfo );
+	return G_GetModelInfo( clientNum, modelName, modelInfo );
 }
