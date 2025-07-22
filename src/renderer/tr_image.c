@@ -1548,11 +1548,15 @@ static void LoadJPG( const char *filename, unsigned char **pic, int *width, int 
 	/* Step 3: read file parameters with jpeg_read_header() */
 
 	jpeg_read_header( &cinfo, TRUE );
+	
+	cinfo.out_color_space = JCS_RGB;
+	
 	jpeg_start_decompress( &cinfo );
 	
 	row_stride = cinfo.output_width * cinfo.output_components;
 
-	out = R_GetImageBuffer( cinfo.output_width * cinfo.output_height * cinfo.output_components, BUFFER_IMAGE );
+	// always alloc enough for RGBA even when the source is RGB
+	out = R_GetImageBuffer( cinfo.output_width * cinfo.output_height * 4, BUFFER_IMAGE );
 
 	*pic = out;
 	*width = cinfo.output_width;
@@ -1569,9 +1573,9 @@ static void LoadJPG( const char *filename, unsigned char **pic, int *width, int 
 	}
 
 	// clear all the alphas to 255
-	{
+	if (cinfo.output_components == 4){
 		int i, j;
-		byte    *buf;
+		byte *buf;
 
 		buf = *pic;
 
@@ -1579,6 +1583,21 @@ static void LoadJPG( const char *filename, unsigned char **pic, int *width, int 
 		for ( i = 3 ; i < j ; i += 4 ) {
 			buf[i] = 255;
 		}
+	} else if (cinfo.output_components == 3){
+		// convert from RGB to RGBA
+		byte * buf = out;
+
+		// Expand from RGB to RGBA
+		int sindex = cinfo.output_width * cinfo.output_height * cinfo.output_components;
+		int dindex = cinfo.output_width * cinfo.output_height * 4;
+
+		do
+		{
+			buf[--dindex] = 255;
+			buf[--dindex] = buf[--sindex];
+			buf[--dindex] = buf[--sindex];
+			buf[--dindex] = buf[--sindex];
+		} while( sindex > 0);
 	}
 
 	jpeg_finish_decompress( &cinfo );
