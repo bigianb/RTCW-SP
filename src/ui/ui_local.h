@@ -26,15 +26,11 @@ If you have questions concerning this license or the applicable additional terms
 ===========================================================================
 */
 
-#ifndef __UI_LOCAL_H__
-#define __UI_LOCAL_H__
-
-//#include <string.h>
-//#include <ctype.h>
-//#include <limits.h>
+#pragma once
 
 #include "../game/q_shared.h"
 #include "../cgame/tr_types.h"
+#include "../cgame/cg_local.h"
 #include "ui_public.h"
 #include "keycodes.h"
 #include "../game/bg_public.h"
@@ -505,26 +501,6 @@ extern void DriverInfo_Cache( void );
 //
 // ui_players.c
 //
-
-//FIXME ripped from cg_local.h
-typedef struct {
-	int oldFrame;
-	int oldFrameTime;               // time when ->oldFrame was exactly on
-
-	int frame;
-	int frameTime;                  // time when ->frame will be exactly on
-
-	float backlerp;
-
-	float yawAngle;
-	qboolean yawing;
-	float pitchAngle;
-	qboolean pitching;
-
-	int animationNumber;            // may include ANIM_TOGGLEBIT
-	animation_t *animation;
-	int animationTime;              // time when the first frame of the animation will be exact
-} lerpFrame_t;
 
 typedef struct {
 	// model info
@@ -1008,7 +984,7 @@ int             trap_FS_GetFileList(  const char *path, const char *extension, c
 int             trap_FS_Delete( const char *filename );
 qhandle_t       trap_UI_RegisterModel( const char *name );
 qhandle_t       trap_UI_RegisterSkin( const char *name );
-qhandle_t       trap_R_RegisterShaderNoMip( const char *name );
+qhandle_t       RE_RegisterShaderNoMip( const char *name );
 void            trap_R_ClearScene( void );
 void            trap_R_AddRefEntityToScene( const refEntity_t *re );
 void            trap_R_AddPolyToScene( qhandle_t hShader, int numVerts, const polyVert_t *verts );
@@ -1034,7 +1010,6 @@ int             trap_Key_GetCatcher( void );
 void            trap_Key_SetCatcher( int catcher );
 void            trap_GetClipboardData( char *buf, int bufsize );
 void            trap_GetClientState( uiClientState_t *state );
-void            trap_GetGlconfig( glconfig_t *glconfig );
 int             trap_GetConfigString( int index, char* buff, int buffsize );
 int             trap_LAN_GetServerCount( int source );          // NERVE - SMF
 int             trap_LAN_GetLocalServerCount( void );
@@ -1167,4 +1142,7 @@ void UI_SPUnlockMedals_f( void );
 
 void UI_InitGameinfo( void );
 
-#endif
+//
+// ui_main.c
+//
+void UI_OwnerDraw( float x, float y, float w, float h, float text_x, float text_y, int ownerDraw, int ownerDrawFlags, int align, float special, int font, float scale, vec4_t color, qhandle_t shader, int textStyle );

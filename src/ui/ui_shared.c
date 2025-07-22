@@ -30,6 +30,10 @@ If you have questions concerning this license or the applicable additional terms
 // string allocation/managment
 
 #include "ui_shared.h"
+#include "ui_local.h"
+
+// IJB FIXME
+int PC_SourceFileAndLine( int handle, char *filename, int *line );
 
 #define SCROLL_TIME_START                   500
 #define SCROLL_TIME_ADJUST              150
@@ -143,24 +147,6 @@ translateString_t translateStrings[] = {
 	{"or"}                       //
 };
 
-//----(SA)	added
-/*
-==============
-UI_RoQDone
-==============
-*/
-void UI_RoQDone( void ) {
-	menuDef_t *menu = Menu_GetFocused();
-	if ( menu->onROQDone ) {
-		itemDef_t it;
-		it.parent = menu;
-		Item_RunScript( &it, menu->onROQDone );
-
-	}
-}
-//----(SA)	end
-
-
 /*
 ===============
 UI_Alloc
@@ -171,9 +157,7 @@ void *UI_Alloc( int size ) {
 
 	if ( allocPoint + size > MEM_POOL_SIZE ) {
 		outOfMemory = qtrue;
-		if ( DC->Print ) {
-			DC->Print( "UI_Alloc: Failure. Out of memory!\n" );
-		}
+		Com_Printf( "UI_Alloc: Failure. Out of memory!\n" );
 		return NULL;
 	}
 
@@ -197,10 +181,6 @@ void UI_InitMemory( void ) {
 qboolean UI_OutOfMemory() {
 	return outOfMemory;
 }
-
-
-
-
 
 #define HASH_TABLE_SIZE 2048
 /*
@@ -318,31 +298,7 @@ void String_Init() {
 	UI_InitMemory();
 	Item_SetupKeywordHash();
 	Menu_SetupKeywordHash();
-	if ( DC && DC->getBindingBuf ) {
-		Controls_GetConfig();
-	}
-}
-
-/*
-=================
-PC_SourceWarning
-=================
-*/
-void PC_SourceWarning( int handle, char *format, ... ) {
-	int line;
-	char filename[128];
-	va_list argptr;
-	static char string[4096];
-
-	va_start( argptr, format );
-	vsprintf( string, format, argptr );
-	va_end( argptr );
-
-	filename[0] = '\0';
-	line = 0;
-	trap_PC_SourceFileAndLine( handle, filename, &line );
-
-	Com_Printf( S_COLOR_YELLOW "WARNING: %s, line %d: %s\n", filename, line, string );
+	Controls_GetConfig();
 }
 
 /*
@@ -362,7 +318,7 @@ void PC_SourceError( int handle, char *format, ... ) {
 
 	filename[0] = '\0';
 	line = 0;
-	trap_PC_SourceFileAndLine( handle, filename, &line );
+	PC_SourceFileAndLine( handle, filename, &line );
 
 	Com_Printf( S_COLOR_RED "ERROR: %s, line %d: %s\n", filename, line, string );
 }
@@ -411,11 +367,11 @@ qboolean PC_Float_Parse( int handle, float *f ) {
 	pc_token_t token;
 	int negative = qfalse;
 
-	if ( !trap_PC_ReadToken( handle, &token ) ) {
+	if ( !PC_ReadTokenHandle( handle, &token ) ) {
 		return qfalse;
 	}
 	if ( token.string[0] == '-' ) {
-		if ( !trap_PC_ReadToken( handle, &token ) ) {
+		if ( !PC_ReadTokenHandle( handle, &token ) ) {
 			return qfalse;
 		}
 		negative = qtrue;
@@ -494,11 +450,11 @@ qboolean PC_Int_Parse( int handle, int *i ) {
 	pc_token_t token;
 	int negative = qfalse;
 
-	if ( !trap_PC_ReadToken( handle, &token ) ) {
+	if ( !PC_ReadTokenHandle( handle, &token ) ) {
 		return qfalse;
 	}
 	if ( token.string[0] == '-' ) {
-		if ( !trap_PC_ReadToken( handle, &token ) ) {
+		if ( !PC_ReadTokenHandle( handle, &token ) ) {
 			return qfalse;
 		}
 		negative = qtrue;
@@ -574,7 +530,7 @@ PC_String_Parse
 qboolean PC_String_Parse( int handle, const char **out ) {
 	pc_token_t token;
 
-	if ( !trap_PC_ReadToken( handle, &token ) ) {
+	if ( !PC_ReadTokenHandle( handle, &token ) ) {
 		return qfalse;
 	}
 
@@ -591,7 +547,7 @@ PC_Char_Parse
 qboolean PC_Char_Parse( int handle, char *out ) {
 	pc_token_t token;
 
-	if ( !trap_PC_ReadToken( handle, &token ) ) {
+	if ( !PC_ReadTokenHandle( handle, &token ) ) {
 		return qfalse;
 	}
 
@@ -613,7 +569,7 @@ qboolean PC_Script_Parse( int handle, const char **out ) {
 	// scripts start with { and have ; separated command lists.. commands are command, arg..
 	// basically we want everything between the { } as it will be interpreted at run time
 
-	if ( !trap_PC_ReadToken( handle, &token ) ) {
+	if ( !PC_ReadTokenHandle( handle, &token ) ) {
 		return qfalse;
 	}
 	if ( Q_stricmp( token.string, "{" ) != 0 ) {
@@ -621,7 +577,7 @@ qboolean PC_Script_Parse( int handle, const char **out ) {
 	}
 
 	while ( 1 ) {
-		if ( !trap_PC_ReadToken( handle, &token ) ) {
+		if ( !PC_ReadTokenHandle( handle, &token ) ) {
 			return qfalse;
 		}
 
@@ -2378,13 +2334,13 @@ qboolean Item_TextField_HandleKey( itemDef_t *item, int key ) {
 				return qtrue;
 			}
 
-			if ( key == K_HOME || key == K_KP_HOME ) { // || ( tolower(key) == 'a' && trap_Key_IsDown( K_CTRL ) ) ) {
+			if ( key == K_HOME || key == K_KP_HOME ) { 
 				item->cursorPos = 0;
 				editPtr->paintOffset = 0;
 				return qtrue;
 			}
 
-			if ( key == K_END || key == K_KP_END ) { // ( tolower(key) == 'e' && trap_Key_IsDown( K_CTRL ) ) ) {
+			if ( key == K_END || key == K_KP_END ) {
 				item->cursorPos = len;
 				if ( item->cursorPos > editPtr->maxPaintChars ) {
 					editPtr->paintOffset = len - editPtr->maxPaintChars;
@@ -4160,67 +4116,62 @@ void Item_ListBox_Paint( itemDef_t *item ) {
 
 
 void Item_OwnerDraw_Paint( itemDef_t *item ) {
-	menuDef_t *parent;
 
 	if ( item == NULL ) {
 		return;
 	}
-
-	parent = (menuDef_t*)item->parent;
-
-	if ( DC->ownerDrawItem ) {
-		vec4_t color, lowLight;
-		menuDef_t *parent = (menuDef_t*)item->parent;
-		Fade( &item->window.flags, &item->window.foreColor[3], parent->fadeClamp, &item->window.nextTime, parent->fadeCycle, qtrue, parent->fadeAmount );
-		memcpy( &color, &item->window.foreColor, sizeof( color ) );
-		if ( item->numColors > 0 && DC->getValue ) {
-			// if the value is within one of the ranges then set color to that, otherwise leave at default
-			int i;
-			float f = DC->getValue( item->window.ownerDraw, item->colorRangeType );
-			for ( i = 0; i < item->numColors; i++ ) {
-				if ( f >= item->colorRanges[i].low && f <= item->colorRanges[i].high ) {
-					memcpy( &color, &item->colorRanges[i].color, sizeof( color ) );
-					break;
-				}
+	vec4_t color, lowLight;
+	menuDef_t *parent = (menuDef_t*)item->parent;
+	Fade( &item->window.flags, &item->window.foreColor[3], parent->fadeClamp, &item->window.nextTime, parent->fadeCycle, qtrue, parent->fadeAmount );
+	memcpy( &color, &item->window.foreColor, sizeof( color ) );
+	if ( item->numColors > 0 && DC->getValue ) {
+		// if the value is within one of the ranges then set color to that, otherwise leave at default
+		int i;
+		float f = DC->getValue( item->window.ownerDraw, item->colorRangeType );
+		for ( i = 0; i < item->numColors; i++ ) {
+			if ( f >= item->colorRanges[i].low && f <= item->colorRanges[i].high ) {
+				memcpy( &color, &item->colorRanges[i].color, sizeof( color ) );
+				break;
 			}
-		}
-
-		// take hudalpha into account unless explicitly ignoring
-		if ( !( item->window.flags & WINDOW_IGNORE_HUDALPHA ) ) {
-			color[3] *= DC->getCVarValue( "cg_hudAlpha" );;
-		}
-
-
-		if ( item->window.flags & WINDOW_HASFOCUS ) {
-			lowLight[0] = 0.8 * parent->focusColor[0];
-			lowLight[1] = 0.8 * parent->focusColor[1];
-			lowLight[2] = 0.8 * parent->focusColor[2];
-			lowLight[3] = 0.8 * parent->focusColor[3];
-			LerpColor( parent->focusColor,lowLight,color,0.5 + 0.5 * sin( DC->realTime / PULSE_DIVISOR ) );
-		} else if ( item->textStyle == ITEM_TEXTSTYLE_BLINK && !( ( DC->realTime / BLINK_DIVISOR ) & 1 ) ) {
-			lowLight[0] = 0.8 * item->window.foreColor[0];
-			lowLight[1] = 0.8 * item->window.foreColor[1];
-			lowLight[2] = 0.8 * item->window.foreColor[2];
-			lowLight[3] = 0.8 * item->window.foreColor[3];
-			LerpColor( item->window.foreColor,lowLight,color,0.5 + 0.5 * sin( DC->realTime / PULSE_DIVISOR ) );
-		}
-
-		if ( item->cvarFlags & ( CVAR_ENABLE | CVAR_DISABLE ) && !Item_EnableShowViaCvar( item, CVAR_ENABLE ) ) {
-			memcpy( color, parent->disableColor, sizeof( vec4_t ) );
-		}
-
-		if ( item->text ) {
-			Item_Text_Paint( item );
-			if ( item->text[0] ) {
-				// +8 is an offset kludge to properly align owner draw items that have text combined with them
-				DC->ownerDrawItem( item->textRect.x + item->textRect.w + 8, item->window.rect.y, item->window.rect.w, item->window.rect.h, 0, item->textaligny, item->window.ownerDraw, item->window.ownerDrawFlags, item->alignment, item->special, item->font, item->textscale, color, item->window.background, item->textStyle );
-			} else {
-				DC->ownerDrawItem( item->textRect.x + item->textRect.w, item->window.rect.y, item->window.rect.w, item->window.rect.h, 0, item->textaligny, item->window.ownerDraw, item->window.ownerDrawFlags, item->alignment, item->special, item->font, item->textscale, color, item->window.background, item->textStyle );
-			}
-		} else {
-			DC->ownerDrawItem( item->window.rect.x, item->window.rect.y, item->window.rect.w, item->window.rect.h, item->textalignx, item->textaligny, item->window.ownerDraw, item->window.ownerDrawFlags, item->alignment, item->special, item->font, item->textscale, color, item->window.background, item->textStyle );
 		}
 	}
+
+	// take hudalpha into account unless explicitly ignoring
+	if ( !( item->window.flags & WINDOW_IGNORE_HUDALPHA ) ) {
+		color[3] *= DC->getCVarValue( "cg_hudAlpha" );;
+	}
+
+
+	if ( item->window.flags & WINDOW_HASFOCUS ) {
+		lowLight[0] = 0.8 * parent->focusColor[0];
+		lowLight[1] = 0.8 * parent->focusColor[1];
+		lowLight[2] = 0.8 * parent->focusColor[2];
+		lowLight[3] = 0.8 * parent->focusColor[3];
+		LerpColor( parent->focusColor,lowLight,color,0.5 + 0.5 * sin( DC->realTime / PULSE_DIVISOR ) );
+	} else if ( item->textStyle == ITEM_TEXTSTYLE_BLINK && !( ( DC->realTime / BLINK_DIVISOR ) & 1 ) ) {
+		lowLight[0] = 0.8 * item->window.foreColor[0];
+		lowLight[1] = 0.8 * item->window.foreColor[1];
+		lowLight[2] = 0.8 * item->window.foreColor[2];
+		lowLight[3] = 0.8 * item->window.foreColor[3];
+		LerpColor( item->window.foreColor,lowLight,color,0.5 + 0.5 * sin( DC->realTime / PULSE_DIVISOR ) );
+	}
+
+	if ( item->cvarFlags & ( CVAR_ENABLE | CVAR_DISABLE ) && !Item_EnableShowViaCvar( item, CVAR_ENABLE ) ) {
+		memcpy( color, parent->disableColor, sizeof( vec4_t ) );
+	}
+
+	if ( item->text ) {
+		Item_Text_Paint( item );
+		if ( item->text[0] ) {
+			// +8 is an offset kludge to properly align owner draw items that have text combined with them
+			UI_OwnerDraw( item->textRect.x + item->textRect.w + 8, item->window.rect.y, item->window.rect.w, item->window.rect.h, 0, item->textaligny, item->window.ownerDraw, item->window.ownerDrawFlags, item->alignment, item->special, item->font, item->textscale, color, item->window.background, item->textStyle );
+		} else {
+			UI_OwnerDraw( item->textRect.x + item->textRect.w, item->window.rect.y, item->window.rect.w, item->window.rect.h, 0, item->textaligny, item->window.ownerDraw, item->window.ownerDrawFlags, item->alignment, item->special, item->font, item->textscale, color, item->window.background, item->textStyle );
+		}
+	} else {
+		UI_OwnerDraw( item->window.rect.x, item->window.rect.y, item->window.rect.w, item->window.rect.h, item->textalignx, item->textaligny, item->window.ownerDraw, item->window.ownerDrawFlags, item->alignment, item->special, item->font, item->textscale, color, item->window.background, item->textStyle );
+	}
+	
 }
 
 
@@ -4771,7 +4722,7 @@ qboolean ItemParse_textfile( itemDef_t *item, int handle ) {
 	const char  *newtext;
 	pc_token_t token;
 
-	if ( !trap_PC_ReadToken( handle, &token ) ) {
+	if ( !PC_ReadTokenHandle( handle, &token ) ) {
 		return qfalse;
 	}
 
@@ -5387,7 +5338,7 @@ qboolean ItemParse_cvarStrList( itemDef_t *item, int handle ) {
 	multiPtr->count = 0;
 	multiPtr->strDef = qtrue;
 
-	if ( !trap_PC_ReadToken( handle, &token ) ) {
+	if ( !PC_ReadTokenHandle( handle, &token ) ) {
 		return qfalse;
 	}
 	if ( *token.string != '{' ) {
@@ -5396,7 +5347,7 @@ qboolean ItemParse_cvarStrList( itemDef_t *item, int handle ) {
 
 	pass = 0;
 	while ( 1 ) {
-		if ( !trap_PC_ReadToken( handle, &token ) ) {
+		if ( !PC_ReadTokenHandle( handle, &token ) ) {
 			PC_SourceError( handle, "end of file inside menu item\n" );
 			return qfalse;
 		}
@@ -5438,7 +5389,7 @@ qboolean ItemParse_cvarFloatList( itemDef_t *item, int handle ) {
 	multiPtr->count = 0;
 	multiPtr->strDef = qfalse;
 
-	if ( !trap_PC_ReadToken( handle, &token ) ) {
+	if ( !PC_ReadTokenHandle( handle, &token ) ) {
 		return qfalse;
 	}
 	if ( *token.string != '{' ) {
@@ -5446,7 +5397,7 @@ qboolean ItemParse_cvarFloatList( itemDef_t *item, int handle ) {
 	}
 
 	while ( 1 ) {
-		if ( !trap_PC_ReadToken( handle, &token ) ) {
+		if ( !PC_ReadTokenHandle( handle, &token ) ) {
 			PC_SourceError( handle, "end of file inside menu item\n" );
 			return qfalse;
 		}
@@ -5647,14 +5598,14 @@ qboolean Item_Parse( int handle, itemDef_t *item ) {
 	keywordHash_t *key;
 
 
-	if ( !trap_PC_ReadToken( handle, &token ) ) {
+	if ( !PC_ReadTokenHandle( handle, &token ) ) {
 		return qfalse;
 	}
 	if ( *token.string != '{' ) {
 		return qfalse;
 	}
 	while ( 1 ) {
-		if ( !trap_PC_ReadToken( handle, &token ) ) {
+		if ( !PC_ReadTokenHandle( handle, &token ) ) {
 			PC_SourceError( handle, "end of file inside menu item\n" );
 			return qfalse;
 		}
@@ -6093,7 +6044,7 @@ qboolean Menu_Parse( int handle, menuDef_t *menu ) {
 	pc_token_t token;
 	keywordHash_t *key;
 
-	if ( !trap_PC_ReadToken( handle, &token ) ) {
+	if ( !PC_ReadTokenHandle( handle, &token ) ) {
 		return qfalse;
 	}
 	if ( *token.string != '{' ) {
@@ -6103,7 +6054,7 @@ qboolean Menu_Parse( int handle, menuDef_t *menu ) {
 	while ( 1 ) {
 
 		memset( &token, 0, sizeof( pc_token_t ) );
-		if ( !trap_PC_ReadToken( handle, &token ) ) {
+		if ( !PC_ReadTokenHandle( handle, &token ) ) {
 			PC_SourceError( handle, "end of file inside menu\n" );
 			return qfalse;
 		}

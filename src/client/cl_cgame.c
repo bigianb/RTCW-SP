@@ -52,11 +52,6 @@ void CL_GetGameState( gameState_t *gs ) {
 	*gs = cl.gameState;
 }
 
-/*
-====================
-CL_GetGlconfig
-====================
-*/
 void CL_GetGlconfig( glconfig_t *glconfig ) {
 	*glconfig = cls.glconfig;
 }

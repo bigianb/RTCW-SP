@@ -293,11 +293,6 @@ qhandle_t trap_R_RegisterShader( const char *name ) {
 	return syscall( CG_R_REGISTERSHADER, name );
 }
 
-qhandle_t trap_R_RegisterShaderNoMip( const char *name ) {
-	CG_DrawInformation();
-	return syscall( CG_R_REGISTERSHADERNOMIP, name );
-}
-
 void trap_R_RegisterFont( const char *fontName, int pointSize, fontInfo_t *font ) {
 	syscall( CG_R_REGISTERFONT, fontName, pointSize, font );
 }
@@ -368,10 +363,6 @@ int     trap_R_LerpTag( orientation_t *tag, const refEntity_t *refent, const cha
 
 void    trap_R_RemapShader( const char *oldShader, const char *newShader, const char *timeOffset ) {
 	syscall( CG_R_REMAP_SHADER, oldShader, newShader, timeOffset );
-}
-
-void        trap_GetGlconfig( glconfig_t *glconfig ) {
-	syscall( CG_GETGLCONFIG, glconfig );
 }
 
 void        trap_GetGameState( gameState_t *gamestate ) {
@@ -459,15 +450,6 @@ int trap_PC_LoadSource( const char *filename ) {
 
 int trap_PC_FreeSource( int handle ) {
 	return PC_FreeSourceHandle( handle );
-}
-
-int trap_PC_ReadToken( int handle, pc_token_t *pc_token ) {
-	return PC_ReadTokenHandle( handle, pc_token );
-}
-
-
-int trap_PC_SourceFileAndLine( int handle, char *filename, int *line ) {
-	return PC_SourceFileAndLine( handle, filename, line );
 }
 
 void  trap_S_StopBackgroundTrack( void ) {

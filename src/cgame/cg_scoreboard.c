@@ -326,11 +326,11 @@ int WM_DrawObjectives( int x, int y, int width, float fade ) {
 			status = atoi( Info_ValueForKey( s, "status" ) );
 
 			if ( status == 0 ) {
-				CG_DrawPic( x + width / 2 - strwidth / 2 - 16 - 24, y, 24, 16, trap_R_RegisterShaderNoMip( "ui/assets/ger_flag.tga" ) );
-				CG_DrawPic( x + width / 2 + strwidth / 2 - 12 + 4, y, 24, 16, trap_R_RegisterShaderNoMip( "ui/assets/ger_flag.tga" ) );
+				CG_DrawPic( x + width / 2 - strwidth / 2 - 16 - 24, y, 24, 16, RE_RegisterShaderNoMip( "ui/assets/ger_flag.tga" ) );
+				CG_DrawPic( x + width / 2 + strwidth / 2 - 12 + 4, y, 24, 16, RE_RegisterShaderNoMip( "ui/assets/ger_flag.tga" ) );
 			} else if ( status == 1 )   {
-				CG_DrawPic( x + width / 2 - strwidth / 2 - 16 - 24, y, 24, 16, trap_R_RegisterShaderNoMip( "ui/assets/usa_flag.tga" ) );
-				CG_DrawPic( x + width / 2 + strwidth / 2 - 12 + 4, y, 24, 16, trap_R_RegisterShaderNoMip( "ui/assets/usa_flag.tga" ) );
+				CG_DrawPic( x + width / 2 - strwidth / 2 - 16 - 24, y, 24, 16, RE_RegisterShaderNoMip( "ui/assets/usa_flag.tga" ) );
+				CG_DrawPic( x + width / 2 + strwidth / 2 - 12 + 4, y, 24, 16, RE_RegisterShaderNoMip( "ui/assets/usa_flag.tga" ) );
 			}
 
 			y += 16;

@@ -268,7 +268,7 @@ void QDECL Com_Error( int code, const char *fmt, ... ) {
 	vsprintf( com_errorMessage,fmt,argptr );
 	va_end( argptr );
 
-	if ( code != ERR_DISCONNECT && code != ERR_NEED_CD && code != ERR_ENDGAME ) {
+	if ( code != ERR_DISCONNECT && code != ERR_ENDGAME ) {
 		Cvar_Set( "com_errorMessage", com_errorMessage );
 	}
 
@@ -293,17 +293,7 @@ void QDECL Com_Error( int code, const char *fmt, ... ) {
 		CL_FlushMemory();
 		com_errorEntered = qfalse;
 		longjmp( abortframe, -1 );
-	} else if ( code == ERR_NEED_CD ) {
-		SV_Shutdown( "Server didn't have CD\n" );
-		if ( com_cl_running && com_cl_running->integer ) {
-			CL_Disconnect( qtrue );
-			CL_FlushMemory();
-			com_errorEntered = qfalse;
-			CL_CDDialog();
-		} else {
-			Com_Printf( "Server didn't have CD\n" );
-		}
-		longjmp( abortframe, -1 );
+
 	} else {
 		CL_Shutdown();
 		SV_Shutdown( va( "Server fatal crashed: %s\n", com_errorMessage ) );

@@ -37,6 +37,8 @@ If you have questions concerning this license or the applicable additional terms
  *
 */
 
+#pragma once
+
 #include "../game/q_shared.h"
 #include "tr_types.h"
 #include "../game/bg_public.h"
@@ -263,13 +265,6 @@ typedef struct {
 	qboolean forceLOD;
 
 } playerEntity_t;
-
-//----(SA)
-typedef struct {
-	char type[MAX_QPATH];           // md3_lower, md3_lbelt, md3_rbelt, etc.
-	char model[MAX_QPATH];          // lower.md3, belt1.md3, etc.
-} skinModel_t;
-//----(SA) end
 
 
 //=================================================
@@ -2337,7 +2332,7 @@ void        trap_R_LoadWorldMap( const char *mapname );
 qhandle_t   trap_R_RegisterModel( const char *name );           // returns rgb axis if not found
 qhandle_t   trap_R_RegisterSkin( const char *name );            // returns all white if not found
 qhandle_t   trap_R_RegisterShader( const char *name );          // returns all white if not found
-qhandle_t   trap_R_RegisterShaderNoMip( const char *name );         // returns all white if not found
+qhandle_t   RE_RegisterShaderNoMip( const char *name );         // returns all white if not found
 
 qboolean    trap_R_GetSkinModel( qhandle_t skinid, const char *type, char *name );   //----(SA) added
 qhandle_t   trap_R_GetShaderFromModel( qhandle_t modelid, int surfnum, int withlightmap );   //----(SA)	added
@@ -2371,11 +2366,6 @@ void        trap_R_RemapShader( const char *oldShader, const char *newShader, co
 void    trap_R_SetFog( int fogvar, int var1, int var2, float r, float g, float b, float density );
 
 //----(SA)
-
-// The glconfig_t will not change during the life of a cgame.
-// If it needs to change, the entire cgame will be restarted, because
-// all the qhandle_t are then invalid.
-void        trap_GetGlconfig( glconfig_t *glconfig );
 
 // the gamestate should be grabbed at startup, and whenever a
 // configstring changes
@@ -2458,3 +2448,5 @@ void        CG_FreeCamera( int camNum );
 void CG_StartShakeCamera( float p, int duration, vec3_t src, float radius );
 
 qboolean    trap_GetModelInfo( int clientNum, char *modelName, animModelInfo_t **modelInfo );
+
+void CL_GetGlconfig( glconfig_t *glconfig );

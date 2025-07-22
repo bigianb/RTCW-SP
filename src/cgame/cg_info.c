@@ -105,7 +105,7 @@ void CG_LoadingItem( int itemNum ) {
 
 
 	if ( item->icon && loadingItemIconCount < MAX_LOADING_ITEM_ICONS ) {
-		loadingItemIcons[loadingItemIconCount++] = trap_R_RegisterShaderNoMip( item->icon );
+		loadingItemIcons[loadingItemIconCount++] = RE_RegisterShaderNoMip( item->icon );
 	}
 
 	CG_LoadingString( cgs.itemPrintNames[item - bg_itemlist] );
@@ -142,7 +142,7 @@ void CG_LoadingClient( int clientNum ) {
 // (SA) ignore player icons for the moment
 	if ( !( cg_entities[clientNum].currentState.aiChar ) ) {
 //		if ( loadingPlayerIconCount < MAX_LOADING_PLAYER_ICONS ) {
-//			loadingPlayerIcons[loadingPlayerIconCount++] = trap_R_RegisterShaderNoMip( iconName );
+//			loadingPlayerIcons[loadingPlayerIconCount++] = RE_RegisterShaderNoMip( iconName );
 //		}
 	}
 
@@ -480,26 +480,15 @@ void CG_DrawInformation( void ) {
 
 	s = Info_ValueForKey( info, "mapname" );
 
-	//----(SA)	just the briefing now
-
 	if ( s && s[0] != 0 ) {  // there is often no 's'
-		levelshot = trap_R_RegisterShaderNoMip( va( "levelshots/%s.tga", s ) );
+		levelshot = RE_RegisterShaderNoMip( va( "levelshots/%s.tga", s ) );
 	}
 
 	if ( !levelshot ) {
-		levelshot = trap_R_RegisterShaderNoMip( "menu/art/unknownmap" );
+		levelshot = RE_RegisterShaderNoMip( "menu/art/unknownmap" );
 	}
 
 	trap_R_SetColor( NULL );
-//	CG_DrawPic( 0, 0, SCREEN_WIDTH, SCREEN_HEIGHT, levelshot );
-
-	// blend a detail texture over it
-	//detail = trap_R_RegisterShader( "levelShotDetail" );
-	//trap_R_DrawStretchPic( 0, 0, cgs.glconfig.vidWidth, cgs.glconfig.vidHeight, 0, 0, 2.5, 2, detail );
-
-
-// (SA) commented out for Drew
-//	UI_DrawProportionalString( 320, 16, va( "Loading %s", Info_ValueForKey( info, "mapname" ) ), UI_SMALLFONT|UI_CENTER|UI_DROPSHADOW, colorWhite );
 
 	// show the loading progress
 	VectorSet( color, 0.8, 0.8, 0.8 );

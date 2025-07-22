@@ -269,7 +269,6 @@ typedef struct {
 	connstate_t state;              // connection status
 	int keyCatchers;                // bit flags
 
-	qboolean cddialog;              // bring up the cd needed dialog next frame
 	qboolean endgamemenu;           // bring up the end game credits menu next frame
 
 	char servername[MAX_OSPATH];            // name of server from original connect (used by reconnect)
@@ -422,7 +421,7 @@ int CL_GetPingQueueCount( void );
 
 void CL_ShutdownRef( void );
 void CL_InitRef( void );
-qboolean CL_CDKeyValidate( const char *key, const char *checksum );
+
 int CL_ServerStatus( char *serverAddress, char *serverStatusString, int maxLen );
 
 void CL_AddToLimboChat( const char *str );                  // NERVE - SMF

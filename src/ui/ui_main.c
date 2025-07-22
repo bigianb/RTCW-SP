@@ -26,19 +26,8 @@ If you have questions concerning this license or the applicable additional terms
 ===========================================================================
 */
 
-
-
-
-
-/*
-=======================================================================
-
-  USER INTERFACE MAIN
-
-=======================================================================
-*/
-
 #include "ui_local.h"
+#include "../cgame/cg_local.h"
 
 uiInfo_t uiInfo;
 
@@ -228,30 +217,27 @@ int vmMainUI( int command, int arg0, int arg1, int arg2, int arg3, int arg4, int
 
 void AssetCache() {
 	int n;
-	//if (Assets.textFont == NULL) {
-	//}
-	//Assets.background = trap_R_RegisterShaderNoMip( ASSET_BACKGROUND );
-	//Com_Printf("Menu Size: %i bytes\n", sizeof(Menus));
-	uiInfo.uiDC.Assets.gradientBar = trap_R_RegisterShaderNoMip( ASSET_GRADIENTBAR );
-	uiInfo.uiDC.Assets.fxBasePic = trap_R_RegisterShaderNoMip( ART_FX_BASE );
-	uiInfo.uiDC.Assets.fxPic[0] = trap_R_RegisterShaderNoMip( ART_FX_RED );
-	uiInfo.uiDC.Assets.fxPic[1] = trap_R_RegisterShaderNoMip( ART_FX_YELLOW );
-	uiInfo.uiDC.Assets.fxPic[2] = trap_R_RegisterShaderNoMip( ART_FX_GREEN );
-	uiInfo.uiDC.Assets.fxPic[3] = trap_R_RegisterShaderNoMip( ART_FX_TEAL );
-	uiInfo.uiDC.Assets.fxPic[4] = trap_R_RegisterShaderNoMip( ART_FX_BLUE );
-	uiInfo.uiDC.Assets.fxPic[5] = trap_R_RegisterShaderNoMip( ART_FX_CYAN );
-	uiInfo.uiDC.Assets.fxPic[6] = trap_R_RegisterShaderNoMip( ART_FX_WHITE );
-	uiInfo.uiDC.Assets.scrollBar = trap_R_RegisterShaderNoMip( ASSET_SCROLLBAR );
-	uiInfo.uiDC.Assets.scrollBarArrowDown = trap_R_RegisterShaderNoMip( ASSET_SCROLLBAR_ARROWDOWN );
-	uiInfo.uiDC.Assets.scrollBarArrowUp = trap_R_RegisterShaderNoMip( ASSET_SCROLLBAR_ARROWUP );
-	uiInfo.uiDC.Assets.scrollBarArrowLeft = trap_R_RegisterShaderNoMip( ASSET_SCROLLBAR_ARROWLEFT );
-	uiInfo.uiDC.Assets.scrollBarArrowRight = trap_R_RegisterShaderNoMip( ASSET_SCROLLBAR_ARROWRIGHT );
-	uiInfo.uiDC.Assets.scrollBarThumb = trap_R_RegisterShaderNoMip( ASSET_SCROLL_THUMB );
-	uiInfo.uiDC.Assets.sliderBar = trap_R_RegisterShaderNoMip( ASSET_SLIDER_BAR );
-	uiInfo.uiDC.Assets.sliderThumb = trap_R_RegisterShaderNoMip( ASSET_SLIDER_THUMB );
+
+	uiInfo.uiDC.Assets.gradientBar = RE_RegisterShaderNoMip( ASSET_GRADIENTBAR );
+	uiInfo.uiDC.Assets.fxBasePic = RE_RegisterShaderNoMip( ART_FX_BASE );
+	uiInfo.uiDC.Assets.fxPic[0] = RE_RegisterShaderNoMip( ART_FX_RED );
+	uiInfo.uiDC.Assets.fxPic[1] = RE_RegisterShaderNoMip( ART_FX_YELLOW );
+	uiInfo.uiDC.Assets.fxPic[2] = RE_RegisterShaderNoMip( ART_FX_GREEN );
+	uiInfo.uiDC.Assets.fxPic[3] = RE_RegisterShaderNoMip( ART_FX_TEAL );
+	uiInfo.uiDC.Assets.fxPic[4] = RE_RegisterShaderNoMip( ART_FX_BLUE );
+	uiInfo.uiDC.Assets.fxPic[5] = RE_RegisterShaderNoMip( ART_FX_CYAN );
+	uiInfo.uiDC.Assets.fxPic[6] = RE_RegisterShaderNoMip( ART_FX_WHITE );
+	uiInfo.uiDC.Assets.scrollBar = RE_RegisterShaderNoMip( ASSET_SCROLLBAR );
+	uiInfo.uiDC.Assets.scrollBarArrowDown = RE_RegisterShaderNoMip( ASSET_SCROLLBAR_ARROWDOWN );
+	uiInfo.uiDC.Assets.scrollBarArrowUp = RE_RegisterShaderNoMip( ASSET_SCROLLBAR_ARROWUP );
+	uiInfo.uiDC.Assets.scrollBarArrowLeft = RE_RegisterShaderNoMip( ASSET_SCROLLBAR_ARROWLEFT );
+	uiInfo.uiDC.Assets.scrollBarArrowRight = RE_RegisterShaderNoMip( ASSET_SCROLLBAR_ARROWRIGHT );
+	uiInfo.uiDC.Assets.scrollBarThumb = RE_RegisterShaderNoMip( ASSET_SCROLL_THUMB );
+	uiInfo.uiDC.Assets.sliderBar = RE_RegisterShaderNoMip( ASSET_SLIDER_BAR );
+	uiInfo.uiDC.Assets.sliderThumb = RE_RegisterShaderNoMip( ASSET_SLIDER_THUMB );
 
 	for ( n = 0; n < NUM_CROSSHAIRS; n++ ) {
-		uiInfo.uiDC.Assets.crosshairShader[n] = trap_R_RegisterShaderNoMip( va( "gfx/2d/crosshair%c", 'a' + n ) );
+		uiInfo.uiDC.Assets.crosshairShader[n] = RE_RegisterShaderNoMip( va( "gfx/2d/crosshair%c", 'a' + n ) );
 	}
 
 }
@@ -765,7 +751,7 @@ qboolean Asset_Parse( int handle ) {
 	pc_token_t token;
 	const char *tempStr;
 
-	if ( !trap_PC_ReadToken( handle, &token ) ) {
+	if ( !PC_ReadTokenHandle( handle, &token ) ) {
 		return qfalse;
 	}
 	if ( Q_stricmp( token.string, "{" ) != 0 ) {
@@ -776,7 +762,7 @@ qboolean Asset_Parse( int handle ) {
 
 		memset( &token, 0, sizeof( pc_token_t ) );
 
-		if ( !trap_PC_ReadToken( handle, &token ) ) {
+		if ( !PC_ReadTokenHandle( handle, &token ) ) {
 			return qfalse;
 		}
 
@@ -829,7 +815,7 @@ qboolean Asset_Parse( int handle ) {
 			if ( !PC_String_Parse( handle, &tempStr ) ) {
 				return qfalse;
 			}
-			uiInfo.uiDC.Assets.gradientBar = trap_R_RegisterShaderNoMip( tempStr );
+			uiInfo.uiDC.Assets.gradientBar = RE_RegisterShaderNoMip( tempStr );
 			continue;
 		}
 
@@ -873,7 +859,7 @@ qboolean Asset_Parse( int handle ) {
 			if ( !PC_String_Parse( handle, &uiInfo.uiDC.Assets.cursorStr ) ) {
 				return qfalse;
 			}
-			uiInfo.uiDC.Assets.cursor = trap_R_RegisterShaderNoMip( uiInfo.uiDC.Assets.cursorStr );
+			uiInfo.uiDC.Assets.cursor = RE_RegisterShaderNoMip( uiInfo.uiDC.Assets.cursorStr );
 			continue;
 		}
 
@@ -952,7 +938,7 @@ void UI_ParseMenu( const char *menuFile ) {
 
 	while ( 1 ) {
 		memset( &token, 0, sizeof( pc_token_t ) );
-		if ( !trap_PC_ReadToken( handle, &token ) ) {
+		if ( !PC_ReadTokenHandle( handle, &token ) ) {
 			break;
 		}
 
@@ -989,7 +975,7 @@ void UI_ParseMenu( const char *menuFile ) {
 qboolean Load_Menu( int handle ) {
 	pc_token_t token;
 
-	if ( !trap_PC_ReadToken( handle, &token ) ) {
+	if ( !PC_ReadTokenHandle( handle, &token ) ) {
 		return qfalse;
 	}
 	if ( token.string[0] != '{' ) {
@@ -998,7 +984,7 @@ qboolean Load_Menu( int handle ) {
 
 	while ( 1 ) {
 
-		if ( !trap_PC_ReadToken( handle, &token ) ) {
+		if ( !PC_ReadTokenHandle( handle, &token ) ) {
 			return qfalse;
 		}
 
@@ -1042,7 +1028,7 @@ void UI_LoadMenus( const char *menuFile, qboolean reset ) {
 	}
 
 	while ( 1 ) {
-		if ( !trap_PC_ReadToken( handle, &token ) ) {
+		if ( !PC_ReadTokenHandle( handle, &token ) ) {
 			break;
 		}
 		if ( token.string[0] == 0 || token.string[0] == '}' ) {
@@ -1260,12 +1246,12 @@ static void UI_DrawSaveGameShot( rectDef_t *rect, float scale, vec4_t color ) {
 	trap_R_SetColor( color );
 
 	if ( !strlen( ui_savegameName.string ) || ui_savegameName.string[0] == '0' ) {
-		image = trap_R_RegisterShaderNoMip( "menu/art/unknownmap" );
+		image = RE_RegisterShaderNoMip( "menu/art/unknownmap" );
 	} else {
 		i = UI_SavegameIndexFromName2( ui_savegameName.string );
 //	mapName
 		if ( uiInfo.savegameList[i].sshotImage == -1 ) {
-			uiInfo.savegameList[i].sshotImage = trap_R_RegisterShaderNoMip( uiInfo.savegameList[i].imageName );
+			uiInfo.savegameList[i].sshotImage = RE_RegisterShaderNoMip( uiInfo.savegameList[i].imageName );
 		}
 
 		image = uiInfo.savegameList[i].sshotImage;
@@ -1320,9 +1306,9 @@ static void UI_DrawClanLogo( rectDef_t *rect, float scale, vec4_t color ) {
 		trap_R_SetColor( color );
 
 		if ( uiInfo.teamList[i].teamIcon == -1 ) {
-			uiInfo.teamList[i].teamIcon         = trap_R_RegisterShaderNoMip( uiInfo.teamList[i].imageName );
-			uiInfo.teamList[i].teamIcon_Metal   = trap_R_RegisterShaderNoMip( va( "%s_metal",uiInfo.teamList[i].imageName ) );
-			uiInfo.teamList[i].teamIcon_Name    = trap_R_RegisterShaderNoMip( va( "%s_name", uiInfo.teamList[i].imageName ) );
+			uiInfo.teamList[i].teamIcon         = RE_RegisterShaderNoMip( uiInfo.teamList[i].imageName );
+			uiInfo.teamList[i].teamIcon_Metal   = RE_RegisterShaderNoMip( va( "%s_metal",uiInfo.teamList[i].imageName ) );
+			uiInfo.teamList[i].teamIcon_Name    = RE_RegisterShaderNoMip( va( "%s_name", uiInfo.teamList[i].imageName ) );
 		}
 
 		UI_DrawHandlePic( rect->x, rect->y, rect->w, rect->h, uiInfo.teamList[i].teamIcon );
@@ -1457,11 +1443,11 @@ static void UI_DrawMapLevelshot( rectDef_t *rect ) {
 	DC->getCVarString( "mapname", levelname, sizeof( levelname ) );
 
 	if ( levelname[0] != 0 ) {
-		levelshot = trap_R_RegisterShaderNoMip( va( "levelshots/%s.tga", levelname ) );
+		levelshot = RE_RegisterShaderNoMip( va( "levelshots/%s.tga", levelname ) );
 	}
 
 	if ( !levelshot ) {
-		levelshot = trap_R_RegisterShaderNoMip( "menu/art/unknownmap" );
+		levelshot = RE_RegisterShaderNoMip( "menu/art/unknownmap" );
 	}
 
 	UI_DrawHandlePic( rect->x, rect->y, rect->w, rect->h, levelshot );
@@ -1631,13 +1617,13 @@ static void UI_DrawMapPreview( rectDef_t *rect, float scale, vec4_t color, qbool
 	}
 
 	if ( uiInfo.mapList[map].levelShot == -1 ) {
-		uiInfo.mapList[map].levelShot = trap_R_RegisterShaderNoMip( uiInfo.mapList[map].imageName );
+		uiInfo.mapList[map].levelShot = RE_RegisterShaderNoMip( uiInfo.mapList[map].imageName );
 	}
 
 	if ( uiInfo.mapList[map].levelShot > 0 ) {
 		UI_DrawHandlePic( rect->x, rect->y, rect->w, rect->h, uiInfo.mapList[map].levelShot );
 	} else {
-		UI_DrawHandlePic( rect->x, rect->y, rect->w, rect->h, trap_R_RegisterShaderNoMip( "menu/art/unknownmap" ) );
+		UI_DrawHandlePic( rect->x, rect->y, rect->w, rect->h, RE_RegisterShaderNoMip( "menu/art/unknownmap" ) );
 	}
 }
 
@@ -1785,7 +1771,7 @@ static void UI_DrawNetMapPreview( rectDef_t *rect, float scale, vec4_t color ) {
 	if ( uiInfo.serverStatus.currentServerPreview > 0 ) {
 		UI_DrawHandlePic( rect->x, rect->y, rect->w, rect->h, uiInfo.serverStatus.currentServerPreview );
 	} else {
-		UI_DrawHandlePic( rect->x, rect->y, rect->w, rect->h, trap_R_RegisterShaderNoMip( "menu/art/unknownmap" ) );
+		UI_DrawHandlePic( rect->x, rect->y, rect->w, rect->h, RE_RegisterShaderNoMip( "menu/art/unknownmap" ) );
 	}
 }
 
@@ -1831,7 +1817,7 @@ static void UI_DrawTierMap( rectDef_t *rect, int index ) {
 	}
 
 	if ( uiInfo.tierList[i].mapHandles[index] == -1 ) {
-		uiInfo.tierList[i].mapHandles[index] = trap_R_RegisterShaderNoMip( va( "levelshots/%s", uiInfo.tierList[i].maps[index] ) );
+		uiInfo.tierList[i].mapHandles[index] = RE_RegisterShaderNoMip( va( "levelshots/%s", uiInfo.tierList[i].maps[index] ) );
 	}
 
 	UI_DrawHandlePic( rect->x, rect->y, rect->w, rect->h, uiInfo.tierList[i].mapHandles[index] );
@@ -2007,9 +1993,9 @@ static void UI_DrawPlayerLogo( rectDef_t *rect, vec3_t color ) {
 	int i = UI_TeamIndexFromName( UI_Cvar_VariableString( "ui_teamName" ) );
 
 	if ( uiInfo.teamList[i].teamIcon == -1 ) {
-		uiInfo.teamList[i].teamIcon = trap_R_RegisterShaderNoMip( uiInfo.teamList[i].imageName );
-		uiInfo.teamList[i].teamIcon_Metal = trap_R_RegisterShaderNoMip( va( "%s_metal",uiInfo.teamList[i].imageName ) );
-		uiInfo.teamList[i].teamIcon_Name = trap_R_RegisterShaderNoMip( va( "%s_name", uiInfo.teamList[i].imageName ) );
+		uiInfo.teamList[i].teamIcon = RE_RegisterShaderNoMip( uiInfo.teamList[i].imageName );
+		uiInfo.teamList[i].teamIcon_Metal = RE_RegisterShaderNoMip( va( "%s_metal",uiInfo.teamList[i].imageName ) );
+		uiInfo.teamList[i].teamIcon_Name = RE_RegisterShaderNoMip( va( "%s_name", uiInfo.teamList[i].imageName ) );
 	}
 
 	trap_R_SetColor( color );
@@ -2020,9 +2006,9 @@ static void UI_DrawPlayerLogo( rectDef_t *rect, vec3_t color ) {
 static void UI_DrawPlayerLogoMetal( rectDef_t *rect, vec3_t color ) {
 	int i = UI_TeamIndexFromName( UI_Cvar_VariableString( "ui_teamName" ) );
 	if ( uiInfo.teamList[i].teamIcon == -1 ) {
-		uiInfo.teamList[i].teamIcon = trap_R_RegisterShaderNoMip( uiInfo.teamList[i].imageName );
-		uiInfo.teamList[i].teamIcon_Metal = trap_R_RegisterShaderNoMip( va( "%s_metal",uiInfo.teamList[i].imageName ) );
-		uiInfo.teamList[i].teamIcon_Name = trap_R_RegisterShaderNoMip( va( "%s_name", uiInfo.teamList[i].imageName ) );
+		uiInfo.teamList[i].teamIcon = RE_RegisterShaderNoMip( uiInfo.teamList[i].imageName );
+		uiInfo.teamList[i].teamIcon_Metal = RE_RegisterShaderNoMip( va( "%s_metal",uiInfo.teamList[i].imageName ) );
+		uiInfo.teamList[i].teamIcon_Name = RE_RegisterShaderNoMip( va( "%s_name", uiInfo.teamList[i].imageName ) );
 	}
 
 	trap_R_SetColor( color );
@@ -2033,9 +2019,9 @@ static void UI_DrawPlayerLogoMetal( rectDef_t *rect, vec3_t color ) {
 static void UI_DrawPlayerLogoName( rectDef_t *rect, vec3_t color ) {
 	int i = UI_TeamIndexFromName( UI_Cvar_VariableString( "ui_teamName" ) );
 	if ( uiInfo.teamList[i].teamIcon == -1 ) {
-		uiInfo.teamList[i].teamIcon = trap_R_RegisterShaderNoMip( uiInfo.teamList[i].imageName );
-		uiInfo.teamList[i].teamIcon_Metal = trap_R_RegisterShaderNoMip( va( "%s_metal",uiInfo.teamList[i].imageName ) );
-		uiInfo.teamList[i].teamIcon_Name = trap_R_RegisterShaderNoMip( va( "%s_name", uiInfo.teamList[i].imageName ) );
+		uiInfo.teamList[i].teamIcon = RE_RegisterShaderNoMip( uiInfo.teamList[i].imageName );
+		uiInfo.teamList[i].teamIcon_Metal = RE_RegisterShaderNoMip( va( "%s_metal",uiInfo.teamList[i].imageName ) );
+		uiInfo.teamList[i].teamIcon_Name = RE_RegisterShaderNoMip( va( "%s_name", uiInfo.teamList[i].imageName ) );
 	}
 
 	trap_R_SetColor( color );
@@ -2046,9 +2032,9 @@ static void UI_DrawPlayerLogoName( rectDef_t *rect, vec3_t color ) {
 static void UI_DrawOpponentLogo( rectDef_t *rect, vec3_t color ) {
 	int i = UI_TeamIndexFromName( UI_Cvar_VariableString( "ui_opponentName" ) );
 	if ( uiInfo.teamList[i].teamIcon == -1 ) {
-		uiInfo.teamList[i].teamIcon = trap_R_RegisterShaderNoMip( uiInfo.teamList[i].imageName );
-		uiInfo.teamList[i].teamIcon_Metal = trap_R_RegisterShaderNoMip( va( "%s_metal",uiInfo.teamList[i].imageName ) );
-		uiInfo.teamList[i].teamIcon_Name = trap_R_RegisterShaderNoMip( va( "%s_name", uiInfo.teamList[i].imageName ) );
+		uiInfo.teamList[i].teamIcon = RE_RegisterShaderNoMip( uiInfo.teamList[i].imageName );
+		uiInfo.teamList[i].teamIcon_Metal = RE_RegisterShaderNoMip( va( "%s_metal",uiInfo.teamList[i].imageName ) );
+		uiInfo.teamList[i].teamIcon_Name = RE_RegisterShaderNoMip( va( "%s_name", uiInfo.teamList[i].imageName ) );
 	}
 
 	trap_R_SetColor( color );
@@ -2059,9 +2045,9 @@ static void UI_DrawOpponentLogo( rectDef_t *rect, vec3_t color ) {
 static void UI_DrawOpponentLogoMetal( rectDef_t *rect, vec3_t color ) {
 	int i = UI_TeamIndexFromName( UI_Cvar_VariableString( "ui_opponentName" ) );
 	if ( uiInfo.teamList[i].teamIcon == -1 ) {
-		uiInfo.teamList[i].teamIcon = trap_R_RegisterShaderNoMip( uiInfo.teamList[i].imageName );
-		uiInfo.teamList[i].teamIcon_Metal = trap_R_RegisterShaderNoMip( va( "%s_metal",uiInfo.teamList[i].imageName ) );
-		uiInfo.teamList[i].teamIcon_Name = trap_R_RegisterShaderNoMip( va( "%s_name", uiInfo.teamList[i].imageName ) );
+		uiInfo.teamList[i].teamIcon = RE_RegisterShaderNoMip( uiInfo.teamList[i].imageName );
+		uiInfo.teamList[i].teamIcon_Metal = RE_RegisterShaderNoMip( va( "%s_metal",uiInfo.teamList[i].imageName ) );
+		uiInfo.teamList[i].teamIcon_Name = RE_RegisterShaderNoMip( va( "%s_name", uiInfo.teamList[i].imageName ) );
 	}
 
 	trap_R_SetColor( color );
@@ -2072,9 +2058,9 @@ static void UI_DrawOpponentLogoMetal( rectDef_t *rect, vec3_t color ) {
 static void UI_DrawOpponentLogoName( rectDef_t *rect, vec3_t color ) {
 	int i = UI_TeamIndexFromName( UI_Cvar_VariableString( "ui_opponentName" ) );
 	if ( uiInfo.teamList[i].teamIcon == -1 ) {
-		uiInfo.teamList[i].teamIcon = trap_R_RegisterShaderNoMip( uiInfo.teamList[i].imageName );
-		uiInfo.teamList[i].teamIcon_Metal = trap_R_RegisterShaderNoMip( va( "%s_metal",uiInfo.teamList[i].imageName ) );
-		uiInfo.teamList[i].teamIcon_Name = trap_R_RegisterShaderNoMip( va( "%s_name", uiInfo.teamList[i].imageName ) );
+		uiInfo.teamList[i].teamIcon = RE_RegisterShaderNoMip( uiInfo.teamList[i].imageName );
+		uiInfo.teamList[i].teamIcon_Metal = RE_RegisterShaderNoMip( va( "%s_metal",uiInfo.teamList[i].imageName ) );
+		uiInfo.teamList[i].teamIcon_Name = RE_RegisterShaderNoMip( va( "%s_name", uiInfo.teamList[i].imageName ) );
 	}
 
 	trap_R_SetColor( color );
@@ -2511,9 +2497,7 @@ static void UI_DrawLimboChat( rectDef_t *rect, int font, float scale, vec4_t col
 }
 // -NERVE - SMF
 
-// FIXME: table drive
-//
-static void UI_OwnerDraw( float x, float y, float w, float h, float text_x, float text_y, int ownerDraw, int ownerDrawFlags, int align, float special, int font, float scale, vec4_t color, qhandle_t shader, int textStyle ) {
+void UI_OwnerDraw( float x, float y, float w, float h, float text_x, float text_y, int ownerDraw, int ownerDrawFlags, int align, float special, int font, float scale, vec4_t color, qhandle_t shader, int textStyle ) {
 	rectDef_t rect;
 
 	rect.x = x + text_x;
@@ -3735,9 +3719,9 @@ static void UI_LoadSavegames( char *dir ) {
 			UI_ParseSavegame( i );
 
 			if ( uiInfo.savegameList[i].episode != -1 ) {
-				uiInfo.savegameList[i].sshotImage = trap_R_RegisterShaderNoMip( va( "levelshots/episodeshots/e%d.tga", uiInfo.savegameList[i].episode + 1 ) );
+				uiInfo.savegameList[i].sshotImage = RE_RegisterShaderNoMip( va( "levelshots/episodeshots/e%d.tga", uiInfo.savegameList[i].episode + 1 ) );
 			} else {
-				uiInfo.savegameList[i].sshotImage = trap_R_RegisterShaderNoMip( "levelshots/episodeshots/e_unknown.tga" );
+				uiInfo.savegameList[i].sshotImage = RE_RegisterShaderNoMip( "levelshots/episodeshots/e_unknown.tga" );
 			}
 
 
@@ -5857,7 +5841,7 @@ static qhandle_t UI_FeederItemImage( float feederID, int index ) {
 	if ( feederID == FEEDER_HEADS ) {
 		if ( index >= 0 && index < uiInfo.characterCount ) {
 			if ( uiInfo.characterList[index].headImage == -1 ) {
-				uiInfo.characterList[index].headImage = trap_R_RegisterShaderNoMip( uiInfo.characterList[index].imageName );
+				uiInfo.characterList[index].headImage = RE_RegisterShaderNoMip( uiInfo.characterList[index].imageName );
 			}
 			return uiInfo.characterList[index].headImage;
 		}
@@ -5872,14 +5856,14 @@ static qhandle_t UI_FeederItemImage( float feederID, int index ) {
 		index = actual;
 		if ( index >= 0 && index < uiInfo.mapCount ) {
 			if ( uiInfo.mapList[index].levelShot == -1 ) {
-				uiInfo.mapList[index].levelShot = trap_R_RegisterShaderNoMip( uiInfo.mapList[index].imageName );
+				uiInfo.mapList[index].levelShot = RE_RegisterShaderNoMip( uiInfo.mapList[index].imageName );
 			}
 			return uiInfo.mapList[index].levelShot;
 		}
 	} else if ( feederID == FEEDER_SAVEGAMES ) {
 		if ( index >= 0 && index < uiInfo.savegameCount ) {
 			if ( uiInfo.savegameList[uiInfo.savegameStatus.displaySavegames[index]].sshotImage == -1 ) {
-				uiInfo.savegameList[uiInfo.savegameStatus.displaySavegames[index]].sshotImage = trap_R_RegisterShaderNoMip( va( "levelshots/%s.tga",uiInfo.savegameList[uiInfo.savegameStatus.displaySavegames[index]].mapName ) );
+				uiInfo.savegameList[uiInfo.savegameStatus.displaySavegames[index]].sshotImage = RE_RegisterShaderNoMip( va( "levelshots/%s.tga",uiInfo.savegameList[uiInfo.savegameStatus.displaySavegames[index]].mapName ) );
 			}
 			return uiInfo.savegameList[uiInfo.savegameStatus.displaySavegames[index]].sshotImage;
 		}
@@ -5931,7 +5915,7 @@ static void UI_FeederSelection( float feederID, int index ) {
 		const char *mapName = NULL;
 		uiInfo.serverStatus.currentServer = index;
 		trap_LAN_GetServerInfo( ui_netSource.integer, uiInfo.serverStatus.displayServers[index], info, MAX_STRING_CHARS );
-		uiInfo.serverStatus.currentServerPreview = trap_R_RegisterShaderNoMip( va( "levelshots/%s", Info_ValueForKey( info, "mapname" ) ) );
+		uiInfo.serverStatus.currentServerPreview = RE_RegisterShaderNoMip( va( "levelshots/%s", Info_ValueForKey( info, "mapname" ) ) );
 		if ( uiInfo.serverStatus.currentServerCinematic >= 0 ) {
 			trap_CIN_StopCinematic( uiInfo.serverStatus.currentServerCinematic );
 			uiInfo.serverStatus.currentServerCinematic = -1;
@@ -6026,9 +6010,9 @@ static qboolean Team_Parse(char **p) {
 
 
 			uiInfo.teamList[uiInfo.teamCount].imageName = tempStr;
-			uiInfo.teamList[uiInfo.teamCount].teamIcon = trap_R_RegisterShaderNoMip(uiInfo.teamList[uiInfo.teamCount].imageName);
-			uiInfo.teamList[uiInfo.teamCount].teamIcon_Metal = trap_R_RegisterShaderNoMip(va("%s_metal",uiInfo.teamList[uiInfo.teamCount].imageName));
-			uiInfo.teamList[uiInfo.teamCount].teamIcon_Name = trap_R_RegisterShaderNoMip(va("%s_name", uiInfo.teamList[uiInfo.teamCount].imageName));
+			uiInfo.teamList[uiInfo.teamCount].teamIcon = RE_RegisterShaderNoMip(uiInfo.teamList[uiInfo.teamCount].imageName);
+			uiInfo.teamList[uiInfo.teamCount].teamIcon_Metal = RE_RegisterShaderNoMip(va("%s_metal",uiInfo.teamList[uiInfo.teamCount].imageName));
+			uiInfo.teamList[uiInfo.teamCount].teamIcon_Name = RE_RegisterShaderNoMip(va("%s_name", uiInfo.teamList[uiInfo.teamCount].imageName));
 
 			uiInfo.teamList[uiInfo.teamCount].cinematic = -1;
 
@@ -6322,7 +6306,7 @@ static qboolean MapList_Parse( char **p ) {
 			//  uiInfo.mapList[uiInfo.mapCount].cinematic = trap_CIN_PlayCinematic(va("%s.roq",uiInfo.mapList[uiInfo.mapCount].mapLoadName), qfalse, qfalse, qtrue, 0, 0, 0, 0);
 			//}
 			uiInfo.mapList[uiInfo.mapCount].cinematic = -1;
-			uiInfo.mapList[uiInfo.mapCount].levelShot = trap_R_RegisterShaderNoMip( va( "levelshots/%s_small", uiInfo.mapList[uiInfo.mapCount].mapLoadName ) );
+			uiInfo.mapList[uiInfo.mapCount].levelShot = RE_RegisterShaderNoMip( va( "levelshots/%s_small", uiInfo.mapList[uiInfo.mapCount].mapLoadName ) );
 
 			if ( uiInfo.mapCount < MAX_MAPS ) {
 				uiInfo.mapCount++;
@@ -6497,7 +6481,7 @@ static void UI_BuildQ3Model_List( void ) {
 				} else {
 					Com_sprintf( uiInfo.q3HeadNames[uiInfo.q3HeadCount], sizeof( uiInfo.q3HeadNames[uiInfo.q3HeadCount] ), "%s/%s",dirptr, skinname + 5 );
 				}
-				uiInfo.q3HeadIcons[uiInfo.q3HeadCount++] = trap_R_RegisterShaderNoMip( va( "models/players/%s/%s",dirptr,skinname ) );
+				uiInfo.q3HeadIcons[uiInfo.q3HeadCount++] = RE_RegisterShaderNoMip( va( "models/players/%s/%s",dirptr,skinname ) );
 			}
 
 		}
@@ -6519,7 +6503,7 @@ void UI_Init(  ) {
 	UI_InitMemory();
 
 	// cache redundant calulations
-	trap_GetGlconfig( &uiInfo.uiDC.glconfig );
+	CL_GetGlconfig( &uiInfo.uiDC.glconfig );
 
 	// for 640x480 virtualized screen
 	uiInfo.uiDC.yscale = uiInfo.uiDC.glconfig.vidHeight * ( 1.0 / 480.0 );
@@ -6534,7 +6518,7 @@ void UI_Init(  ) {
 
 
 	//UI_Load();
-	uiInfo.uiDC.registerShaderNoMip = &trap_R_RegisterShaderNoMip;
+	uiInfo.uiDC.registerShaderNoMip = &RE_RegisterShaderNoMip;
 	uiInfo.uiDC.setColor = &UI_SetColor;
 	uiInfo.uiDC.drawHandlePic = &UI_DrawHandlePic;
 	uiInfo.uiDC.drawStretchPic = &trap_R_DrawStretchPic;
@@ -6552,7 +6536,6 @@ void UI_Init(  ) {
 	uiInfo.uiDC.addRefEntityToScene = &trap_R_AddRefEntityToScene;
 	uiInfo.uiDC.renderScene = &trap_R_RenderScene;
 	uiInfo.uiDC.registerFont = &trap_R_RegisterFont;
-	uiInfo.uiDC.ownerDrawItem = &UI_OwnerDraw;
 	uiInfo.uiDC.getValue = &UI_GetValue;
 	uiInfo.uiDC.ownerDrawVisible = &UI_OwnerDrawVisible;
 	uiInfo.uiDC.runScript = &UI_RunMenuScript;
@@ -6597,8 +6580,8 @@ void UI_Init(  ) {
 	// load translation text
 	UI_LoadTranslationStrings();
 
-//	uiInfo.uiDC.cursor	= trap_R_RegisterShaderNoMip( "menu/art/3_cursor3" );
-	uiInfo.uiDC.whiteShader = trap_R_RegisterShaderNoMip( "white" );
+//	uiInfo.uiDC.cursor	= RE_RegisterShaderNoMip( "menu/art/3_cursor3" );
+	uiInfo.uiDC.whiteShader = RE_RegisterShaderNoMip( "white" );
 
 	AssetCache();
 
@@ -6760,15 +6743,7 @@ void UI_SetActiveMenu( uiMenuCommand_t menu ) {
 			Menus_ActivateByName( "main" );
 			trap_Cvar_VariableStringBuffer( "com_errorMessage", buf, sizeof( buf ) );
 			if ( strlen( buf ) ) {
-#ifdef MISSIONPACK
-				if ( !ui_singlePlayerActive.integer ) {
-#endif  // #ifdef MISSIONPACK
 				Menus_ActivateByName( "error_popmenu" );
-#ifdef MISSIONPACK
-			} else {
-				trap_Cvar_Set( "com_errorMessage", "" );
-			}
-#endif  // #ifdef MISSIONPACK
 			}
 			// ensure sound is there for the menu
 			trap_S_FadeAllSound( 1.0f, 1000 );    // make sure sound fades up
@@ -6795,12 +6770,6 @@ void UI_SetActiveMenu( uiMenuCommand_t menu ) {
 			return;
 //----(SA)	end
 
-		case UIMENU_NEED_CD:
-			trap_Key_SetCatcher( KEYCATCH_UI );
-			Menus_ActivateByName( "needcd" );
-//			UI_ConfirmMenu( "Insert the CD", NULL, NeedCDAction );
-			return;
-
 		case UIMENU_POSTGAME:
 			//trap_Cvar_Set( "sv_killserver", "1" );
 			trap_Key_SetCatcher( KEYCATCH_UI );
@@ -6809,7 +6778,6 @@ void UI_SetActiveMenu( uiMenuCommand_t menu ) {
 			}
 			Menus_CloseAll();
 			Menus_ActivateByName( "endofgame" );
-			//UI_ConfirmMenu( "Bad CD Key", NULL, NeedCDKeyAction );
 			return;
 
 		case UIMENU_INGAME:

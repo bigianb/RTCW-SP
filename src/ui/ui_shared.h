@@ -489,7 +489,6 @@ void        Display_CacheAll();
 void        *UI_Alloc( int size );
 void        UI_InitMemory( void );
 qboolean    UI_OutOfMemory();
-void        UI_RoQDone( void ); // ui callback.  roq is done, allow menu to handle if it wants
 
 void        Controls_GetConfig( void );
 void        Controls_SetConfig( qboolean restart );
@@ -498,7 +497,6 @@ void        Controls_SetDefaults( void );
 int         trap_PC_AddGlobalDefine( char *define );
 int         trap_PC_LoadSource( const char *filename );
 int         trap_PC_FreeSource( int handle );
-int         trap_PC_ReadToken( int handle, pc_token_t *pc_token );
-int         trap_PC_SourceFileAndLine( int handle, char *filename, int *line );
+int         PC_ReadTokenHandle( int handle, pc_token_t *pc_token );
 
 #endif

@@ -496,34 +496,6 @@ void CG_RegisterCvars( void ) {
 
 
 }
-
-/*
-===================
-CG_ForceModelChange
-===================
-*/
-// TTimo: unused
-/*
-static void CG_ForceModelChange( void ) {
-	int		i;
-
-	for (i=0 ; i<MAX_CLIENTS ; i++) {
-		const char		*clientInfo;
-
-		clientInfo = CG_ConfigString( CS_PLAYERS+i );
-		if ( !clientInfo[0] ) {
-			continue;
-		}
-		CG_NewClientInfo( i );
-	}
-}
-*/
-
-/*
-=================
-CG_UpdateCvars
-=================
-*/
 void CG_UpdateCvars( void ) {
 	int i;
 	cvarTable_t *cv;
@@ -531,13 +503,7 @@ void CG_UpdateCvars( void ) {
 	for ( i = 0, cv = cvarTable ; i < cvarTableSize ; i++, cv++ ) {
 		trap_Cvar_Update( cv->vmCvar );
 	}
-/* RF, disabled this, not needed anymore
-	// if force model changed
-	if ( forceModelModificationCount != cg_forceModel.modificationCount ) {
-		forceModelModificationCount = cg_forceModel.modificationCount;
-		CG_ForceModelChange();
-	}
-*/
+
 }
 
 
@@ -576,34 +542,6 @@ void QDECL CG_Error( const char *msg, ... ) {
 
 	trap_Error( text );
 }
-
-// TTimo: was commented out for Mac, guarding
-#if !defined( CGAME_HARD_LINKED ) || defined( __MACOS__ )
-// this is only here so the functions in q_shared.c and bg_*.c can link (FIXME)
-
-void QDECL Com_Error( int level, const char *error, ... ) {
-	va_list argptr;
-	char text[1024];
-
-	va_start( argptr, error );
-	vsprintf( text, error, argptr );
-	va_end( argptr );
-
-	CG_Error( "%s", text );
-}
-
-void QDECL Com_Printf( const char *msg, ... ) {
-	va_list argptr;
-	char text[1024];
-
-	va_start( argptr, msg );
-	vsprintf( text, msg, argptr );
-	va_end( argptr );
-
-	CG_Printf( "%s", text );
-}
-
-#endif
 
 /*
 ================
@@ -1225,7 +1163,7 @@ static void CG_RegisterGraphics( void ) {
 //----(SA)	end
 
 	for ( i = 0 ; i < NUM_CROSSHAIRS ; i++ ) {
-		cgs.media.crosshairShader[i] = trap_R_RegisterShaderNoMip( va( "gfx/2d/crosshair%c", 'a' + i ) );
+		cgs.media.crosshairShader[i] = RE_RegisterShaderNoMip( va( "gfx/2d/crosshair%c", 'a' + i ) );
 	}
 
 	cgs.media.crosshairFriendly =  trap_R_RegisterShader( "gfx/2d/friendlycross" );  //----(SA)	added
@@ -1315,9 +1253,9 @@ static void CG_RegisterGraphics( void ) {
 
 //	cgs.media.batModel = trap_R_RegisterModel( "models/mapobjects/bat/bat.md3" );
 
-//	cgs.media.medalImpressive = trap_R_RegisterShaderNoMip( "medal_impressive" );
-//	cgs.media.medalExcellent = trap_R_RegisterShaderNoMip( "medal_excellent" );
-//	cgs.media.medalGauntlet = trap_R_RegisterShaderNoMip( "medal_gauntlet" );
+//	cgs.media.medalImpressive = RE_RegisterShaderNoMip( "medal_impressive" );
+//	cgs.media.medalExcellent = RE_RegisterShaderNoMip( "medal_excellent" );
+//	cgs.media.medalGauntlet = RE_RegisterShaderNoMip( "medal_gauntlet" );
 
 	// Ridah, spark particles
 	cgs.media.sparkParticleShader = trap_R_RegisterShader( "sparkParticle" );
@@ -1513,9 +1451,9 @@ static void CG_RegisterGraphics( void ) {
 		}
 	}
 
-//	cgs.media.cursor = trap_R_RegisterShaderNoMip( "menu/art/3_cursor2" );
-	cgs.media.sizeCursor = trap_R_RegisterShaderNoMip( "ui/assets/sizecursor.tga" );
-	cgs.media.selectCursor = trap_R_RegisterShaderNoMip( "ui/assets/selectcursor.tga" );
+//	cgs.media.cursor = RE_RegisterShaderNoMip( "menu/art/3_cursor2" );
+	cgs.media.sizeCursor = RE_RegisterShaderNoMip( "ui/assets/sizecursor.tga" );
+	cgs.media.selectCursor = RE_RegisterShaderNoMip( "ui/assets/selectcursor.tga" );
 	CG_LoadingString( " - game media done" );
 
 }
@@ -1633,7 +1571,7 @@ qboolean CG_Asset_Parse( int handle ) {
 	pc_token_t token;
 	const char *tempStr;
 
-	if ( !trap_PC_ReadToken( handle, &token ) ) {
+	if ( !PC_ReadTokenHandle( handle, &token ) ) {
 		return qfalse;
 	}
 	if ( Q_stricmp( token.string, "{" ) != 0 ) {
@@ -1641,7 +1579,7 @@ qboolean CG_Asset_Parse( int handle ) {
 	}
 
 	while ( 1 ) {
-		if ( !trap_PC_ReadToken( handle, &token ) ) {
+		if ( !PC_ReadTokenHandle( handle, &token ) ) {
 			return qfalse;
 		}
 
@@ -1694,7 +1632,7 @@ qboolean CG_Asset_Parse( int handle ) {
 			if ( !PC_String_Parse( handle, &tempStr ) ) {
 				return qfalse;
 			}
-			cgDC.Assets.gradientBar = trap_R_RegisterShaderNoMip( tempStr );
+			cgDC.Assets.gradientBar = RE_RegisterShaderNoMip( tempStr );
 			continue;
 		}
 
@@ -1738,7 +1676,7 @@ qboolean CG_Asset_Parse( int handle ) {
 			if ( !PC_String_Parse( handle, &cgDC.Assets.cursorStr ) ) {
 				return qfalse;
 			}
-			cgDC.Assets.cursor = trap_R_RegisterShaderNoMip( cgDC.Assets.cursorStr );
+			cgDC.Assets.cursor = RE_RegisterShaderNoMip( cgDC.Assets.cursorStr );
 			continue;
 		}
 
@@ -1801,19 +1739,9 @@ void CG_ParseMenu( const char *menuFile ) {
 	}
 
 	while ( 1 ) {
-		if ( !trap_PC_ReadToken( handle, &token ) ) {
+		if ( !PC_ReadTokenHandle( handle, &token ) ) {
 			break;
 		}
-
-		//if ( Q_stricmp( token, "{" ) ) {
-		//	Com_Printf( "Missing { in menu file\n" );
-		//	break;
-		//}
-
-		//if ( menuCount == MAX_MENUS ) {
-		//	Com_Printf( "Too many menus!\n" );
-		//	break;
-		//}
 
 		if ( token.string[0] == '}' ) {
 			break;
@@ -2183,7 +2111,7 @@ void CG_LoadHudMenu() {
 	char buff[1024];
 	const char *hudSet;
 
-	cgDC.registerShaderNoMip = &trap_R_RegisterShaderNoMip;
+
 	cgDC.setColor = &trap_R_SetColor;
 	cgDC.drawHandlePic = &CG_DrawPic;
 	cgDC.drawStretchPic = &trap_R_DrawStretchPic;
@@ -2253,25 +2181,25 @@ void CG_AssetCache() {
 	//if (Assets.textFont == NULL) {
 	//  trap_R_RegisterFont("fonts/arial.ttf", 72, &Assets.textFont);
 	//}
-	//Assets.background = trap_R_RegisterShaderNoMip( ASSET_BACKGROUND );
+	//Assets.background = RE_RegisterShaderNoMip( ASSET_BACKGROUND );
 	//Com_Printf("Menu Size: %i bytes\n", sizeof(Menus));
-	cgDC.Assets.gradientBar = trap_R_RegisterShaderNoMip( ASSET_GRADIENTBAR );
-	cgDC.Assets.fxBasePic = trap_R_RegisterShaderNoMip( ART_FX_BASE );
-	cgDC.Assets.fxPic[0] = trap_R_RegisterShaderNoMip( ART_FX_RED );
-	cgDC.Assets.fxPic[1] = trap_R_RegisterShaderNoMip( ART_FX_YELLOW );
-	cgDC.Assets.fxPic[2] = trap_R_RegisterShaderNoMip( ART_FX_GREEN );
-	cgDC.Assets.fxPic[3] = trap_R_RegisterShaderNoMip( ART_FX_TEAL );
-	cgDC.Assets.fxPic[4] = trap_R_RegisterShaderNoMip( ART_FX_BLUE );
-	cgDC.Assets.fxPic[5] = trap_R_RegisterShaderNoMip( ART_FX_CYAN );
-	cgDC.Assets.fxPic[6] = trap_R_RegisterShaderNoMip( ART_FX_WHITE );
-	cgDC.Assets.scrollBar = trap_R_RegisterShaderNoMip( ASSET_SCROLLBAR );
-	cgDC.Assets.scrollBarArrowDown = trap_R_RegisterShaderNoMip( ASSET_SCROLLBAR_ARROWDOWN );
-	cgDC.Assets.scrollBarArrowUp = trap_R_RegisterShaderNoMip( ASSET_SCROLLBAR_ARROWUP );
-	cgDC.Assets.scrollBarArrowLeft = trap_R_RegisterShaderNoMip( ASSET_SCROLLBAR_ARROWLEFT );
-	cgDC.Assets.scrollBarArrowRight = trap_R_RegisterShaderNoMip( ASSET_SCROLLBAR_ARROWRIGHT );
-	cgDC.Assets.scrollBarThumb = trap_R_RegisterShaderNoMip( ASSET_SCROLL_THUMB );
-	cgDC.Assets.sliderBar = trap_R_RegisterShaderNoMip( ASSET_SLIDER_BAR );
-	cgDC.Assets.sliderThumb = trap_R_RegisterShaderNoMip( ASSET_SLIDER_THUMB );
+	cgDC.Assets.gradientBar = RE_RegisterShaderNoMip( ASSET_GRADIENTBAR );
+	cgDC.Assets.fxBasePic = RE_RegisterShaderNoMip( ART_FX_BASE );
+	cgDC.Assets.fxPic[0] = RE_RegisterShaderNoMip( ART_FX_RED );
+	cgDC.Assets.fxPic[1] = RE_RegisterShaderNoMip( ART_FX_YELLOW );
+	cgDC.Assets.fxPic[2] = RE_RegisterShaderNoMip( ART_FX_GREEN );
+	cgDC.Assets.fxPic[3] = RE_RegisterShaderNoMip( ART_FX_TEAL );
+	cgDC.Assets.fxPic[4] = RE_RegisterShaderNoMip( ART_FX_BLUE );
+	cgDC.Assets.fxPic[5] = RE_RegisterShaderNoMip( ART_FX_CYAN );
+	cgDC.Assets.fxPic[6] = RE_RegisterShaderNoMip( ART_FX_WHITE );
+	cgDC.Assets.scrollBar = RE_RegisterShaderNoMip( ASSET_SCROLLBAR );
+	cgDC.Assets.scrollBarArrowDown = RE_RegisterShaderNoMip( ASSET_SCROLLBAR_ARROWDOWN );
+	cgDC.Assets.scrollBarArrowUp = RE_RegisterShaderNoMip( ASSET_SCROLLBAR_ARROWUP );
+	cgDC.Assets.scrollBarArrowLeft = RE_RegisterShaderNoMip( ASSET_SCROLLBAR_ARROWLEFT );
+	cgDC.Assets.scrollBarArrowRight = RE_RegisterShaderNoMip( ASSET_SCROLLBAR_ARROWRIGHT );
+	cgDC.Assets.scrollBarThumb = RE_RegisterShaderNoMip( ASSET_SCROLL_THUMB );
+	cgDC.Assets.sliderBar = RE_RegisterShaderNoMip( ASSET_SLIDER_BAR );
+	cgDC.Assets.sliderThumb = RE_RegisterShaderNoMip( ASSET_SLIDER_THUMB );
 }
 
 
@@ -2307,9 +2235,9 @@ void CG_Init( int serverMessageNum, int serverCommandSequence ) {
 	cgs.media.menucharsetShader = trap_R_RegisterShader( "gfx/2d/hudchars" );
 	// END JOSEPH
 	cgs.media.whiteShader       = trap_R_RegisterShader( "white" );
-	cgs.media.charsetProp       = trap_R_RegisterShaderNoMip( "menu/art/font1_prop.tga" );
-	cgs.media.charsetPropGlow   = trap_R_RegisterShaderNoMip( "menu/art/font1_prop_glo.tga" );
-	cgs.media.charsetPropB      = trap_R_RegisterShaderNoMip( "menu/art/font2_prop.tga" );
+	cgs.media.charsetProp       = RE_RegisterShaderNoMip( "menu/art/font1_prop.tga" );
+	cgs.media.charsetPropGlow   = RE_RegisterShaderNoMip( "menu/art/font1_prop_glo.tga" );
+	cgs.media.charsetPropB      = RE_RegisterShaderNoMip( "menu/art/font2_prop.tga" );
 
 	CG_RegisterCvars();
 
@@ -2318,7 +2246,7 @@ void CG_Init( int serverMessageNum, int serverCommandSequence ) {
 //	cg.weaponSelect = WP_MP40;
 
 	// get the rendering configuration from the client system
-	trap_GetGlconfig( &cgs.glconfig );
+	CL_GetGlconfig( &cgs.glconfig );
 	cgs.screenXScale = cgs.glconfig.vidWidth / 640.0;
 	cgs.screenYScale = cgs.glconfig.vidHeight / 480.0;
 

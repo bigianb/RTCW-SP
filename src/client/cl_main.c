@@ -141,19 +141,6 @@ void CL_EndgameMenu( void ) {
 	cls.endgamemenu = qtrue;    // start it next frame
 }
 
-
-/*
-===============
-CL_CDDialog
-
-Called by Com_Error when a cd is needed
-===============
-*/
-void CL_CDDialog( void ) {
-	cls.cddialog = qtrue;   // start it next frame
-}
-
-
 /*
 =======================================================================
 
@@ -1903,15 +1890,10 @@ void CL_Frame( int msec ) {
 		return;
 	}
 
-	if ( cls.cddialog ) {
-		// bring up the cd error dialog if needed
-		cls.cddialog = qfalse;
-		UI_SetActiveMenu(UIMENU_NEED_CD );
-	} else if ( cls.endgamemenu ) {
+	if ( cls.endgamemenu ) {
 		cls.endgamemenu = qfalse;
 		UI_SetActiveMenu(UIMENU_ENDGAME );
-	} else if ( cls.state == CA_DISCONNECTED && !( cls.keyCatchers & KEYCATCH_UI )
-				&& !com_sv_running->integer ) {
+	} else if ( cls.state == CA_DISCONNECTED && !( cls.keyCatchers & KEYCATCH_UI ) && !com_sv_running->integer ) {
 		// if disconnected, bring up the menu
 		S_StopAllSounds();
 		UI_SetActiveMenu(UIMENU_MAIN );
@@ -3363,72 +3345,6 @@ void CL_ShowIP_f( void ) {
 }
 
 /*
-=================
-bool CL_CDKeyValidate
-=================
-*/
-qboolean CL_CDKeyValidate( const char *key, const char *checksum ) {
-	char ch;
-	byte sum;
-	char chs[3];
-	int i, len;
-
-	len = strlen( key );
-	if ( len != CDKEY_LEN ) {
-		return qfalse;
-	}
-
-	if ( checksum && strlen( checksum ) != CDCHKSUM_LEN ) {
-		return qfalse;
-	}
-
-	sum = 0;
-	// for loop gets rid of conditional assignment warning
-	for ( i = 0; i < len; i++ ) {
-		ch = *key++;
-		if ( ch >= 'a' && ch <= 'z' ) {
-			ch -= 32;
-		}
-		switch ( ch ) {
-		case '2':
-		case '3':
-		case '7':
-		case 'A':
-		case 'B':
-		case 'C':
-		case 'D':
-		case 'G':
-		case 'H':
-		case 'J':
-		case 'L':
-		case 'P':
-		case 'R':
-		case 'S':
-		case 'T':
-		case 'W':
-			sum += ch;
-			continue;
-		default:
-			return qfalse;
-		}
-	}
-
-
-	sprintf( chs, "%02x", sum );
-
-	if ( checksum && !Q_stricmp( chs, checksum ) ) {
-		return qtrue;
-	}
-
-	if ( !checksum ) {
-		return qtrue;
-	}
-
-	return qfalse;
-}
-
-// NERVE - SMF
-/*
 =======================
 CL_AddToLimboChat
 
@@ -3459,24 +3375,6 @@ void CL_AddToLimboChat( const char *str ) {
 	ls = NULL;
 	while ( *str ) {
 		if ( len > LIMBOCHAT_WIDTH - 1 ) {
-#if 0
-			if ( ls ) {
-				str -= ( p - ls );
-				str++;
-				p -= ( p - ls );
-			}
-			*p = 0;
-
-			if ( cl.limboChatPos < LIMBOCHAT_HEIGHT - 1 ) {
-				cl.limboChatPos++;
-			}
-			p = cl.limboChatMsgs[cl.limboChatPos];
-			*p = 0;
-			*p++ = Q_COLOR_ESCAPE;
-			*p++ = lastcolor;
-			len = 0;
-			ls = NULL;
-#endif
 			break;
 		}
 
