@@ -39,6 +39,8 @@ If you have questions concerning this license or the applicable additional terms
 
 extern aas_t( *aasworld );
 
+#endif //AASINTERN
+
 //AAS error message
 void QDECL AAS_Error( char *fmt, ... );
 //set AAS initialized
@@ -51,7 +53,7 @@ void AAS_Shutdown( void );
 int AAS_LoadMap( const char *mapname );
 //start a new time frame
 int AAS_StartFrame( float time );
-#endif //AASINTERN
+
 
 //returns true if AAS is initialized
 int AAS_Initialized( void );

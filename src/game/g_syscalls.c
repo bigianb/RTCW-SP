@@ -31,7 +31,15 @@ If you have questions concerning this license or the applicable additional terms
 #include "g_local.h"
 #include "qcommon.h"
 #include "../server/server.h"
+#include "../botlib/be_aas.h"
 #include "../botlib/be_aas_bsp.h"
+#include "../botlib/be_aas_main.h"
+#include "../botlib/be_aas_reach.h"
+#include "../botlib/be_aas_sample.h"
+#include "../game/be_ea.h"
+#include "../botlib/botlib.h"
+#include "../game/be_ai_goal.h"
+#include "../game/be_ai_move.h"
 
 static int QDECL dummySyscall(int arg, ...){
 	return 0;
@@ -65,11 +73,11 @@ int     trap_Milliseconds( void ) {
 	return Sys_Milliseconds();
 }
 int     trap_Argc( void ) {
-	return syscall( G_ARGC );
+	return Cmd_Argc(  );
 }
 
 void    trap_Argv( int n, char *buffer, int bufferLength ) {
-	syscall( G_ARGV, n, buffer, bufferLength );
+	Cmd_ArgvBuffer(n, buffer, bufferLength );
 }
 
 int     trap_FS_FOpenFile( const char *qpath, fileHandle_t *f, fsMode_t mode ) {
@@ -217,8 +225,9 @@ void trap_BotFreeClient( int clientNum ) {
 	SV_BotFreeClient(clientNum );
 }
 
+extern void SV_GetUsercmd( int clientNum, usercmd_t *cmd );
 void trap_GetUsercmd( int clientNum, usercmd_t *cmd ) {
-	syscall( G_GET_USERCMD, clientNum, cmd );
+	SV_GetUsercmd(clientNum, cmd );
 }
 
 qboolean trap_GetEntityToken( char *buffer, int bufferSize ) {
@@ -241,16 +250,15 @@ void trap_DebugPolygonDelete( int id ) {
 }
 
 int trap_RealTime( qtime_t *qtime ) {
-	return syscall( G_REAL_TIME, qtime );
+	return Com_RealTime( qtime );
 }
 
 void trap_SnapVector( float *v ) {
-	syscall( G_SNAPVECTOR, v );
-	return;
+	Sys_SnapVector( v );
 }
 
 qboolean trap_GetTag( int clientNum, char *tagName, orientation_t *or ) {
-	return syscall( G_GETTAG, clientNum, tagName, or );
+	return SV_GetTag(clientNum, tagName, or );
 }
 
 // BotLib traps start here
@@ -277,8 +285,12 @@ int trap_BotLibDefine( char *string ) {
 	return syscall( BOTLIB_PC_ADD_GLOBAL_DEFINE, string );
 }
 
+extern qboolean BotLibSetup( char *str );
 int trap_BotLibStartFrame( float time ) {
-	return syscall( BOTLIB_START_FRAME, PASSFLOAT( time ) );
+	if ( !BotLibSetup( "BotStartFrame" ) ) {
+		return BLERR_LIBRARYNOTSETUP;
+	}
+	return AAS_StartFrame( time );
 }
 
 extern int Export_BotLibLoadMap( const char *mapname );
@@ -303,7 +315,7 @@ int trap_BotGetServerCommand( int clientNum, char *message, int size ) {
 }
 
 void trap_BotUserCommand( int clientNum, usercmd_t *ucmd ) {
-	syscall( BOTLIB_USER_COMMAND, clientNum, ucmd );
+	SV_ClientThink( &svs.clients[clientNum], ucmd );
 }
 
 void trap_AAS_EntityInfo( int entnum, void /* struct aas_entityinfo_s */ *info ) {
@@ -311,7 +323,7 @@ void trap_AAS_EntityInfo( int entnum, void /* struct aas_entityinfo_s */ *info )
 }
 
 int trap_AAS_Initialized( void ) {
-	return syscall( BOTLIB_AAS_INITIALIZED );
+	return AAS_Initialized( );
 }
 
 void trap_AAS_PresenceTypeBoundingBox( int presencetype, vec3_t mins, vec3_t maxs ) {
@@ -319,27 +331,25 @@ void trap_AAS_PresenceTypeBoundingBox( int presencetype, vec3_t mins, vec3_t max
 }
 
 float trap_AAS_Time( void ) {
-	int temp;
-	temp = syscall( BOTLIB_AAS_TIME );
-	return ( *(float*)&temp );
+	return AAS_Time();
 }
 
 // Ridah, multiple AAS files
 void trap_AAS_SetCurrentWorld( int index ) {
-	syscall( BOTLIB_AAS_SETCURRENTWORLD, index );
+	AAS_SetCurrentWorld( index );
 }
 // done.
 
 int trap_AAS_PointAreaNum( vec3_t point ) {
-	return syscall( BOTLIB_AAS_POINT_AREA_NUM, point );
+	return AAS_PointAreaNum( point );
 }
 
 int trap_AAS_TraceAreas( vec3_t start, vec3_t end, int *areas, vec3_t *points, int maxareas ) {
-	return syscall( BOTLIB_AAS_TRACE_AREAS, start, end, areas, points, maxareas );
+	return AAS_TraceAreas( start, end, areas, points, maxareas );
 }
 
 int trap_AAS_PointContents( vec3_t point ) {
-	return syscall( BOTLIB_AAS_POINT_CONTENTS, point );
+	return AAS_PointContents(point );
 }
 
 int trap_AAS_NextBSPEntity( int ent ) {
@@ -347,23 +357,23 @@ int trap_AAS_NextBSPEntity( int ent ) {
 }
 
 int trap_AAS_ValueForBSPEpairKey( int ent, char *key, char *value, int size ) {
-	return syscall( BOTLIB_AAS_VALUE_FOR_BSP_EPAIR_KEY, ent, key, value, size );
+	return AAS_ValueForBSPEpairKey( ent, key, value, size );
 }
 
 int trap_AAS_VectorForBSPEpairKey( int ent, char *key, vec3_t v ) {
-	return syscall( BOTLIB_AAS_VECTOR_FOR_BSP_EPAIR_KEY, ent, key, v );
+	return AAS_VectorForBSPEpairKey( ent, key, v );
 }
 
 int trap_AAS_FloatForBSPEpairKey( int ent, char *key, float *value ) {
-	return syscall( BOTLIB_AAS_FLOAT_FOR_BSP_EPAIR_KEY, ent, key, value );
+	return AAS_FloatForBSPEpairKey( ent, key, value );
 }
 
 int trap_AAS_IntForBSPEpairKey( int ent, char *key, int *value ) {
-	return syscall( BOTLIB_AAS_INT_FOR_BSP_EPAIR_KEY, ent, key, value );
+	return AAS_IntForBSPEpairKey( ent, key, value );
 }
 
 int trap_AAS_AreaReachability( int areanum ) {
-	return syscall( BOTLIB_AAS_AREA_REACHABILITY, areanum );
+	return AAS_AreaReachability(areanum );
 }
 
 int trap_AAS_AreaTravelTimeToGoalArea( int areanum, vec3_t origin, int goalareanum, int travelflags ) {
@@ -497,7 +507,7 @@ void trap_EA_Move( int client, vec3_t dir, float speed ) {
 }
 
 void trap_EA_View( int client, vec3_t viewangles ) {
-	syscall( BOTLIB_EA_VIEW, client, viewangles );
+	EA_View(client, viewangles );
 }
 
 void trap_EA_EndRegular( int client, float thinktime ) {
@@ -505,11 +515,11 @@ void trap_EA_EndRegular( int client, float thinktime ) {
 }
 
 void trap_EA_GetInput( int client, float thinktime, void /* struct bot_input_s */ *input ) {
-	syscall( BOTLIB_EA_GET_INPUT, client, PASSFLOAT( thinktime ), input );
+	EA_GetInput(client, thinktime, input );
 }
 
 void trap_EA_ResetInput( int client, void *init ) {
-	syscall( BOTLIB_EA_RESET_INPUT, client, init );
+	EA_ResetInput( client, init );
 }
 
 int trap_BotLoadCharacter( char *charfile, int skill ) {
@@ -731,7 +741,7 @@ void trap_BotMutateGoalFuzzyLogic( int goalstate, float range ) {
 }
 
 int trap_BotAllocGoalState( int state ) {
-	return syscall( BOTLIB_AI_ALLOC_GOAL_STATE, state );
+	return BotAllocGoalState(state );
 }
 
 void trap_BotFreeGoalState( int handle ) {
@@ -771,11 +781,11 @@ int trap_BotPredictVisiblePosition( vec3_t origin, int areanum, void /* struct b
 }
 
 int trap_BotAllocMoveState( void ) {
-	return syscall( BOTLIB_AI_ALLOC_MOVE_STATE );
+	return BotAllocMoveState( );
 }
 
 void trap_BotFreeMoveState( int handle ) {
-	syscall( BOTLIB_AI_FREE_MOVE_STATE, handle );
+	BotFreeMoveState( handle );
 }
 
 void trap_BotInitMoveState( int handle, void /* struct bot_initmove_s */ *initmove ) {
@@ -784,7 +794,7 @@ void trap_BotInitMoveState( int handle, void /* struct bot_initmove_s */ *initmo
 
 // Ridah
 void trap_BotInitAvoidReach( int handle ) {
-	syscall( BOTLIB_AI_INIT_AVOID_REACH, handle );
+	BotInitAvoidReach( handle );
 }
 // Done.
 

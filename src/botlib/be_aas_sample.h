@@ -26,15 +26,6 @@ If you have questions concerning this license or the applicable additional terms
 ===========================================================================
 */
 
-
-/*****************************************************************************
- * name:		be_aas_sample.h
- *
- * desc:		AAS
- *
- *
- *****************************************************************************/
-
 #ifdef AASINTERN
 void AAS_InitAASLinkHeap( void );
 void AAS_InitAASLinkedEntities( void );
