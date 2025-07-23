@@ -1,5 +1,7 @@
 # Return to Castle Wolfenstein single player GPL source release
 
+[![Codacy Badge](https://api.codacy.com/project/badge/Grade/fa28ae38d66340fab6e04943cd7bf2d3)](https://app.codacy.com/gh/bigianb/RTCW-SP?utm_source=github.com&utm_medium=referral&utm_content=bigianb/RTCW-SP&utm_campaign=Badge_Grade)
+
 This is a very simplified port of the Return to Castle Wolfenstein code.
 The aim is to have something easy to understand. In particular the dynamic library
 loading and Quake C interpreter / recompiler have been removed.
