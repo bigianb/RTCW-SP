@@ -1388,10 +1388,6 @@ refexport_t *GetRefAPI( int apiVersion, refimport_t *rimp ) {
 	re.RemapShader      = R_RemapShader;
 	re.GetEntityToken   = R_GetEntityToken;
 
-#ifdef BLAH // MrE __USEA3D
-	re.A3D_RenderGeometry = RE_A3D_RenderGeometry;
-#endif
-
 	// RF
 	re.ZombieFXAddNewHit = RB_ZombieFXAddNewHit;
 

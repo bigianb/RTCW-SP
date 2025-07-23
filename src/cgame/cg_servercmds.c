@@ -696,7 +696,7 @@ static void CG_MapRestart( void ) {
 
 	CG_StartMusic();
 
-	trap_S_ClearLoopingSounds( qtrue );
+	trap_S_ClearLoopingSounds( 1 );
 
 	// we really should clear more parts of cg here and stop sounds
 	cg.v_dmg_time = 0;

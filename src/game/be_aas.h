@@ -70,7 +70,7 @@ If you have questions concerning this license or the applicable additional terms
 #define TFL_DONOTENTER_LARGE    0x2000000   //travel through donotenter area
 
 //default travel flags
-
+/* Defined in botlib
 //----(SA)	modified since slime is no longer deadly
 #define TFL_DEFAULT ( ( TFL_WALK | TFL_CROUCH | TFL_BARRIERJUMP | \
 						TFL_JUMP | TFL_LADDER |	\
@@ -80,7 +80,7 @@ If you have questions concerning this license or the applicable additional terms
 						TFL_JUMPPAD | TFL_FUNCBOB )	\
 					  & ~( TFL_JUMPPAD | TFL_ROCKETJUMP | TFL_BFGJUMP | TFL_GRAPPLEHOOK | TFL_DOUBLEJUMP | TFL_RAMPJUMP | TFL_STRAFEJUMP | TFL_LAVA ) )
 // RF, added that bottom line so it's the same as AICAST_TFL_DEFAULT
-/* Defined in botlib.h
+
 typedef enum
 {
 	SOLID_NOT,          // no interaction with other objects

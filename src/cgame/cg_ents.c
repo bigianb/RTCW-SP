@@ -488,10 +488,7 @@ static void CG_EntityEffects( centity_t *cent ) {
 		//			Or have they always been broken and we just never used them?
 
 		if ( cent->currentState.eType == ET_SPEAKER ) {
-			/*if(cent->currentState.density == 1) {	// NO_PVS
-				trap_S_AddRealLoopingSound( cent->currentState.number, cent->lerpOrigin, vec3_origin, cgs.gameSounds[ cent->currentState.loopSound ] );
-			}
-			else*/if ( cent->currentState.dmgFlags ) { // range is set
+			if ( cent->currentState.dmgFlags ) { // range is set
 				trap_S_AddRangedLoopingSound( cent->currentState.number, cent->lerpOrigin, vec3_origin, cgs.gameSounds[ cent->currentState.loopSound ], cent->currentState.dmgFlags );
 			} else {
 				trap_S_AddLoopingSound( cent->currentState.number, cent->lerpOrigin, vec3_origin, cgs.gameSounds[ cent->currentState.loopSound ], 255 );
@@ -513,15 +510,7 @@ static void CG_EntityEffects( centity_t *cent ) {
 		} else {
 			trap_S_AddLoopingSound( cent->currentState.number, cent->lerpOrigin, vec3_origin, cgs.gameSounds[ cent->currentState.loopSound ], 255 );
 		}
-	} /*else {
-		// stop NO_PVS speakers if they've been turned off
-		if(cent->currentState.eType == ET_SPEAKER) {
-			if(cent->currentState.density == 1) {
-				trap_S_StopLoopingSound(cent->currentState.number);
-			}
-		}
-	}*/
-
+	} 
 
 	// constant light glow
 	if ( cent->currentState.constantLight ) {

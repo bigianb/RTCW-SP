@@ -2318,20 +2318,10 @@ void CG_Init( int serverMessageNum, int serverCommandSequence ) {
 	// RF, clear all sounds, so we dont hear anything after level load
 	trap_S_ClearLoopingSounds( 2 );
 
-	// start level load music
-	// too late...
-//	trap_S_StartBackgroundTrack( "sound/music/fla_mp03.wav", "sound/music/fla_mp03.wav", 1 );
-
-
-	// NERVE - SMF
-// JPW NERVE -- commented out 'cause this moved
-
 	if ( cgs.gametype == GT_WOLF ) {
 		trap_Cvar_Set( "cg_drawTimer", "0" ); // jpw
 
 	}
-	// jpw
-	// -NERVE - SMF
 }
 
 /*

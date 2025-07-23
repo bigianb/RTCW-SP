@@ -734,17 +734,11 @@ static int FloatAsInt( float f ) {
 	return temp;
 }
 
+/*
 void *VM_ArgPtr( int intValue );
 #define VMA( x ) VM_ArgPtr( args[x] )
 #define VMF( x )  ( (float *)args )[x]
 
-/*
-====================
-CL_UISystemCalls
-
-The ui module is making a system call
-====================
-*/
 intptr_t CL_UISystemCalls( intptr_t *args ) {
 	switch ( args[0] ) {
 	case UI_ERROR:
@@ -1055,7 +1049,7 @@ intptr_t CL_UISystemCalls( intptr_t *args ) {
 
 	case UI_CEIL:
 		return FloatAsInt( ceil( VMF( 1 ) ) );
-/* IJB
+
 	case UI_PC_ADD_GLOBAL_DEFINE:
 		return botlib_export->PC_AddGlobalDefine( VMA( 1 ) );
 	case UI_PC_LOAD_SOURCE:
@@ -1066,7 +1060,7 @@ intptr_t CL_UISystemCalls( intptr_t *args ) {
 		return botlib_export->PC_ReadTokenHandle( args[1], VMA( 2 ) );
 	case UI_PC_SOURCE_FILE_AND_LINE:
 		return botlib_export->PC_SourceFileAndLine( args[1], VMA( 2 ), VMA( 3 ) );
-*/
+
 	case UI_S_STOPBACKGROUNDTRACK:
 		S_StopBackgroundTrack();
 		return 0;
@@ -1111,7 +1105,7 @@ intptr_t CL_UISystemCalls( intptr_t *args ) {
 
 	return 0;
 }
-
+*/
 /*
 ====================
 CL_ShutdownUI

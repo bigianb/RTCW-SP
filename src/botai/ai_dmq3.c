@@ -69,7 +69,7 @@ If you have questions concerning this license or the applicable additional terms
 
 //////////////////
 // from aasfile.h
-#define AREACONTENTS_MOVER              1024
+#define AREACONTENTS_MOVER              2048
 #define AREACONTENTS_MODELNUMSHIFT      24
 #define AREACONTENTS_MAXMODELNUM        0xFF
 #define AREACONTENTS_MODELNUM           ( AREACONTENTS_MAXMODELNUM << AREACONTENTS_MODELNUMSHIFT )

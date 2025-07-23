@@ -2247,7 +2247,7 @@ void        trap_Args( char *buffer, int bufferLength );
 // returns length of file
 int         trap_FS_FOpenFile( const char *qpath, fileHandle_t *f, fsMode_t mode );
 void        trap_FS_Read( void *buffer, int len, fileHandle_t f );
-void        trap_FS_Write( const void *buffer, int len, fileHandle_t f );
+int        trap_FS_Write( const void *buffer, int len, fileHandle_t f );
 void        trap_FS_FCloseFile( fileHandle_t f );
 void        trap_FS_CopyFile( char *from, char *to );   //DAJ
 
@@ -2301,16 +2301,14 @@ int         trap_CM_MarkFragments( int numPoints, const vec3_t *points,
 // moves and the listener moves
 void        trap_S_StartSound( vec3_t origin, int entityNum, int entchannel, sfxHandle_t sfx );
 void        trap_S_StartSoundEx( vec3_t origin, int entityNum, int entchannel, sfxHandle_t sfx, int flags );
-void        trap_S_StopLoopingSound( int entnum );
 
 void        trap_S_StopStreamingSound( int entnum );  // usually AI.  character is talking and needs to be shut up /now/
 
 // a local sound is always played full volume
 void        trap_S_StartLocalSound( sfxHandle_t sfx, int channelNum );
-void        trap_S_ClearLoopingSounds( qboolean killall );
+void        trap_S_ClearLoopingSounds( int killall );
 void        trap_S_AddLoopingSound( int entityNum, const vec3_t origin, const vec3_t velocity, sfxHandle_t sfx, int volume );
 void        trap_S_AddRangedLoopingSound( int entityNum, const vec3_t origin, const vec3_t velocity, sfxHandle_t sfx, int range );
-void        trap_S_AddRealLoopingSound( int entityNum, const vec3_t origin, const vec3_t velocity, sfxHandle_t sfx );
 void        trap_S_UpdateEntityPosition( int entityNum, const vec3_t origin );
 
 // Ridah, talking animations
@@ -2398,10 +2396,6 @@ qboolean    trap_GetUserCmd( int cmdNumber, usercmd_t *ucmd );
 
 // used for the weapon/holdable select and zoom
 void        trap_SetUserCmdValue( int stateValue, int holdValue, float sensitivityScale, int cld );     // NERVE - SMF - added cld
-
-// aids for VM testing
-void        testPrintInt( char *string, int i );
-void        testPrintFloat( char *string, float f );
 
 int         trap_MemoryRemaining( void );
 void        trap_R_RegisterFont( const char *fontName, int pointSize, fontInfo_t *font );

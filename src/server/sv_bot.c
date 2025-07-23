@@ -514,7 +514,7 @@ BotImport_AICast_VisibleFromPos
 */
 qboolean BotImport_AICast_VisibleFromPos(   vec3_t srcpos, int srcnum,
 											vec3_t destpos, int destnum, qboolean updateVisPos ) {
-	return AICast_VisibleFromPos( (intptr_t)srcpos, srcnum, (intptr_t)destpos, destnum, updateVisPos );
+	return AICast_VisibleFromPos( srcpos, srcnum, destpos, destnum, updateVisPos );
 }
 
 /*
@@ -523,7 +523,7 @@ BotImport_AICast_CheckAttackAtPos
 ===============
 */
 qboolean BotImport_AICast_CheckAttackAtPos( int entnum, int enemy, vec3_t pos, qboolean ducking, qboolean allowHitWorld ) {
-	return AICast_CheckAttackAtPos( entnum, enemy, (intptr_t)pos, ducking, allowHitWorld );
+	return AICast_CheckAttackAtPos( entnum, enemy, pos, ducking, allowHitWorld );
 }
 // done.
 

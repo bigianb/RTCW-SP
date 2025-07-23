@@ -5,6 +5,8 @@ The aim is to have something easy to understand. In particular the dynamic libra
 loading and Quake C interpreter / recompiler have been removed.
 The primary development environment is a mac although other platforms should also work fine.
 
+[![Codacy Badge](https://app.codacy.com/project/badge/Grade/3734c1dd820b421e8b0a96899321a641)](https://app.codacy.com/gh/bigianb/RTCW-SP/dashboard?utm_source=gh&utm_medium=referral&utm_content=&utm_campaign=Badge_grade)
+
 ## GENERAL NOTES
 
 ### Game data and patching:

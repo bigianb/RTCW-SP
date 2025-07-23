@@ -311,7 +311,7 @@ SV_GameSystemCalls
 The module is making a system call
 ====================
 */
-//rcg010207 - see my comments in VM_DllSyscall(), in qcommon/vm.c ...
+/*
 #if ( ( defined __linux__ ) && ( defined __powerpc__ ) )
 #define VMA( x ) ( (void *) args[x] )
 #else
@@ -393,14 +393,14 @@ intptr_t SV_GameSystemCalls( intptr_t *args ) {
 	case G_ENTITIES_IN_BOX:
 		return SV_AreaEntities( VMA( 1 ), VMA( 2 ), VMA( 3 ), args[4] );
 	case G_ENTITY_CONTACT:
-		return SV_EntityContact( VMA( 1 ), VMA( 2 ), VMA( 3 ), /* int capsule */ qfalse );
+		return SV_EntityContact( VMA( 1 ), VMA( 2 ), VMA( 3 ),  qfalse );
 	case G_ENTITY_CONTACTCAPSULE:
-		return SV_EntityContact( VMA( 1 ), VMA( 2 ), VMA( 3 ), /* int capsule */ qtrue );
+		return SV_EntityContact( VMA( 1 ), VMA( 2 ), VMA( 3 ),  qtrue );
 	case G_TRACE:
-		SV_Trace( VMA( 1 ), VMA( 2 ), VMA( 3 ), VMA( 4 ), VMA( 5 ), args[6], args[7], /* int capsule */ qfalse );
+		SV_Trace( VMA( 1 ), VMA( 2 ), VMA( 3 ), VMA( 4 ), VMA( 5 ), args[6], args[7],  qfalse );
 		return 0;
 	case G_TRACECAPSULE:
-		SV_Trace( VMA( 1 ), VMA( 2 ), VMA( 3 ), VMA( 4 ), VMA( 5 ), args[6], args[7], /* int capsule */ qtrue );
+		SV_Trace( VMA( 1 ), VMA( 2 ), VMA( 3 ), VMA( 4 ), VMA( 5 ), args[6], args[7],  qtrue );
 		return 0;
 	case G_POINT_CONTENTS:
 		return SV_PointContents( VMA( 1 ), args[2] );
@@ -469,7 +469,7 @@ intptr_t SV_GameSystemCalls( intptr_t *args ) {
 		return SV_GetTag( args[1], VMA( 2 ), VMA( 3 ) );
 
 		//====================================
-/* IJB avoid import issues
+ IJB avoid import issues
 	case BOTLIB_PC_ADD_GLOBAL_DEFINE:
 		return botlib_export->PC_AddGlobalDefine( VMA( 1 ) );
 	case BOTLIB_PC_LOAD_SOURCE:
@@ -480,7 +480,7 @@ intptr_t SV_GameSystemCalls( intptr_t *args ) {
 		return botlib_export->PC_ReadTokenHandle( args[1], VMA( 2 ) );
 	case BOTLIB_PC_SOURCE_FILE_AND_LINE:
 		return botlib_export->PC_SourceFileAndLine( args[1], VMA( 2 ), VMA( 3 ) );
-*/
+
 	case BOTLIB_START_FRAME:
 		return botlib_export->BotLibStartFrame( VMF( 1 ) );
 
@@ -555,10 +555,10 @@ intptr_t SV_GameSystemCalls( intptr_t *args ) {
 
 	case BOTLIB_AAS_FINDATTACKSPOTWITHINRANGE:
 		return botlib_export->aas.AAS_FindAttackSpotWithinRange( args[1], args[2], args[3], VMF( 4 ), args[5], VMA( 6 ) );
-/* IJB avoid iclude issues
+ IJB avoid iclude issues
 	case BOTLIB_AAS_GETROUTEFIRSTVISPOS:
 		return botlib_export->aas.AAS_GetRouteFirstVisPos( VMA( 1 ), VMA( 2 ), args[3], VMA( 4 ) );
-*/
+
 	case BOTLIB_AAS_SETAASBLOCKINGENTITY:
 		botlib_export->aas.AAS_SetAASBlockingEntity( VMA( 1 ), VMA( 2 ), args[3] );
 		return 0;
@@ -893,7 +893,7 @@ intptr_t SV_GameSystemCalls( intptr_t *args ) {
 	}
 	return -1;
 }
-
+*/
 /*
 ===============
 SV_ShutdownGameProgs
@@ -986,17 +986,7 @@ qboolean SV_GameCommand( void ) {
 	if ( sv.state != SS_GAME ) {
 		return qfalse;
 	}
-	ConsoleCommand();
-}
-
-
-/*
-====================
-SV_SendMoveSpeedsToGame
-====================
-*/
-void SV_SendMoveSpeedsToGame( int entnum, char *text ) {
-	G_RetrieveMoveSpeedsFromClient(entnum, text);
+	return ConsoleCommand();
 }
 
 /*
@@ -1014,15 +1004,4 @@ qboolean SV_GetTag( int clientNum, char *tagname, orientation_t *or ) {
 	}
 
 	return CL_GetTag( clientNum, tagname, or );
-}
-
-/*
-===================
-SV_GetModelInfo
-
-  request this modelinfo from the game
-===================
-*/
-qboolean SV_GetModelInfo( int clientNum, char *modelName, animModelInfo_t **modelInfo ) {
-	return G_GetModelInfo( clientNum, modelName, modelInfo );
 }

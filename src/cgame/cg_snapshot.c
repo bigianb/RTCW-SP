@@ -29,11 +29,7 @@ If you have questions concerning this license or the applicable additional terms
 // cg_snapshot.c -- things that happen on snapshot transition,
 // not necessarily every single rendered frame
 
-
-
 #include "cg_local.h"
-
-
 
 /*
 ==================
@@ -43,21 +39,12 @@ CG_ResetEntity
 static void CG_ResetEntity( centity_t *cent ) {
 	// if an event is set, assume it is new enough to use
 	// if the event had timed out, it would have been cleared
-	// RF, not needed for wolf
-	// DHM - Nerve :: Wolf is now using this.
 	cent->previousEvent = 0;
 
 	cent->trailTime = cg.snap->serverTime;
 
-	// Ridah
 	cent->headJuncIndex = 0;
 	cent->headJuncIndex2 = 0;
-	// RF, disabled this, since we clear events out now in g_main.c, this is redundant, and actually
-	// causes "double-door-sound" syndrome if a door is triggered and heard, and then comes into view before
-	// it has timed out in g_main.c, therefore playing the sound again, since it thinks it hasn't processed this
-	// event yet.
-	//cent->previousEventSequence = 0;
-	// done.
 
 	VectorCopy( cent->currentState.origin, cent->lerpOrigin );
 	VectorCopy( cent->currentState.angles, cent->lerpAngles );
@@ -65,8 +52,6 @@ static void CG_ResetEntity( centity_t *cent ) {
 		CG_ResetPlayerEntity( cent );
 	}
 }
-
-
 
 /*
 ===============

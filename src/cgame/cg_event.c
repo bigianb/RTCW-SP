@@ -2456,7 +2456,7 @@ void CG_EntityEvent( centity_t *cent, vec3_t position ) {
 
 //----(SA)	added
 	case EV_STOPSTREAMINGSOUND:
-		DEBUGNAME( "EV_STOPLOOPINGSOUND" );
+		DEBUGNAME( "EV_STOPSTREAMINGSOUND" );
 		trap_S_StopStreamingSound( es->number );
 
 		// hope this does not cause trouble.
@@ -2466,12 +2466,6 @@ void CG_EntityEvent( centity_t *cent, vec3_t position ) {
 
 		break;
 //----(SA)	end
-
-	case EV_STOPLOOPINGSOUND:
-		DEBUGNAME( "EV_STOPLOOPINGSOUND" );
-		trap_S_StopLoopingSound( es->number );
-		es->loopSound = 0;
-		break;
 
 	case EV_DEBUG_LINE:
 		DEBUGNAME( "EV_DEBUG_LINE" );

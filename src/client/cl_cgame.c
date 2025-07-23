@@ -38,11 +38,6 @@ extern qboolean loadCamera( int camNum, const char *name );
 extern void startCamera( int camNum, int time );
 extern qboolean getCameraInfo( int camNum, int time, vec3_t *origin, vec3_t *angles, float *fov );
 
-// RF, this is only used when running a local server
-extern void SV_SendMoveSpeedsToGame( int entnum, char *text );
-extern qboolean SV_GetModelInfo( int clientNum, char *modelName, animModelInfo_t **modelInfo );
-
-
 /*
 ====================
 CL_GetGameState
@@ -180,15 +175,6 @@ void CL_SetUserCmdValue( int userCmdValue, int holdableValue, float sensitivityS
 	cl.cgameUserHoldableValue   = holdableValue;
 	cl.cgameSensitivity         = sensitivityScale;
 	cl.cgameCld                 = cld;
-}
-
-/*
-==============
-CL_AddCgameCommand
-==============
-*/
-void CL_AddCgameCommand( const char *cmdName ) {
-	Cmd_AddCommand( cmdName, NULL );
 }
 
 /*
@@ -375,20 +361,6 @@ rescan:
 	return qtrue;
 }
 
-
-/*
-====================
-CL_CM_LoadMap
-
-Just adds default parameters that cgame doesn't need to know about
-====================
-*/
-void CL_CM_LoadMap( const char *mapname ) {
-	int checksum;
-
-	CM_LoadMap( mapname, qtrue, &checksum );
-}
-
 /*
 ====================
 CL_ShutdonwCGame
@@ -398,14 +370,7 @@ CL_ShutdonwCGame
 void CL_ShutdownCGame( void ) {
 	cls.keyCatchers &= ~KEYCATCH_CGAME;
 	cls.cgameStarted = qfalse;
-	/*
-	if ( !cgvm ) {
-		return;
-	}
-	VM_Call( cgvm, CG_SHUTDOWN );
-	VM_Free( cgvm );
-	cgvm = NULL;
-	 */
+
 	CG_Shutdown();
 }
 
@@ -417,6 +382,39 @@ static int  FloatAsInt( float f ) {
 	return temp;
 }
 
+void IngamePopup(const char *popupName)
+{
+	if ( popupName && !Q_stricmp( popupName, "briefing" ) ) {  //----(SA) added
+		UI_SetActiveMenu(UIMENU_BRIEFING );
+		return;
+	}
+
+	if ( cls.state == CA_ACTIVE && !clc.demoplaying ) {
+		// NERVE - SMF
+		if ( popupName && !Q_stricmp( popupName, "UIMENU_WM_PICKTEAM" ) ) {
+			UI_SetActiveMenu(UIMENU_WM_PICKTEAM );
+		} else if ( popupName && !Q_stricmp( popupName, "UIMENU_WM_PICKPLAYER" ) )    {
+			UI_SetActiveMenu(UIMENU_WM_PICKPLAYER );
+		} else if ( popupName && !Q_stricmp( popupName, "UIMENU_WM_QUICKMESSAGE" ) )    {
+			UI_SetActiveMenu(UIMENU_WM_QUICKMESSAGE );
+		} else if ( popupName && !Q_stricmp( popupName, "UIMENU_WM_LIMBO" ) )    {
+			UI_SetActiveMenu(UIMENU_WM_LIMBO );
+		}
+		// -NERVE - SMF
+		else if ( popupName && !Q_stricmp( popupName, "hbook1" ) ) {   //----(SA)
+			UI_SetActiveMenu(UIMENU_BOOK1 );
+		} else if ( popupName && !Q_stricmp( popupName, "hbook2" ) )    { //----(SA)
+			UI_SetActiveMenu(UIMENU_BOOK2 );
+		} else if ( popupName && !Q_stricmp( popupName, "hbook3" ) )    { //----(SA)
+			UI_SetActiveMenu(UIMENU_BOOK3 );
+		} else if ( popupName && !Q_stricmp( popupName, "pregame" ) )    { //----(SA) added
+			UI_SetActiveMenu(UIMENU_PREGAME );
+		} else {
+			UI_SetActiveMenu(UIMENU_CLIPBOARD );
+		}
+	}
+}
+
 /*
 ====================
 CL_CgameSystemCalls
@@ -424,6 +422,7 @@ CL_CgameSystemCalls
 The cgame module is making a system call
 ====================
 */
+/*
 #define VMA( x ) VM_ArgPtr( args[x] )
 #define VMF( x )  ( (float *)args )[x]
 intptr_t CL_CgameSystemCalls( intptr_t *args ) {
@@ -469,9 +468,7 @@ intptr_t CL_CgameSystemCalls( intptr_t *args ) {
 	case CG_SENDCONSOLECOMMAND:
 		Cbuf_AddText( VMA( 1 ) );
 		return 0;
-	case CG_ADDCOMMAND:
-		CL_AddCgameCommand( VMA( 1 ) );
-		return 0;
+
 	case CG_REMOVECOMMAND:
 		Cmd_RemoveCommand( VMA( 1 ) );
 		return 0;
@@ -486,9 +483,7 @@ intptr_t CL_CgameSystemCalls( intptr_t *args ) {
 // ZOID
 		SCR_UpdateScreen();
 		return 0;
-	case CG_CM_LOADMAP:
-		CL_CM_LoadMap( VMA( 1 ) );
-		return 0;
+
 	case CG_CM_NUMINLINEMODELS:
 		return CM_NumInlineModels();
 	case CG_CM_INLINEMODEL:
@@ -502,16 +497,16 @@ intptr_t CL_CgameSystemCalls( intptr_t *args ) {
 	case CG_CM_TRANSFORMEDPOINTCONTENTS:
 		return CM_TransformedPointContents( VMA( 1 ), args[2], VMA( 3 ), VMA( 4 ) );
 	case CG_CM_BOXTRACE:
-		CM_BoxTrace( VMA( 1 ), VMA( 2 ), VMA( 3 ), VMA( 4 ), VMA( 5 ), args[6], args[7], /*int capsule*/ qfalse );
+		CM_BoxTrace( VMA( 1 ), VMA( 2 ), VMA( 3 ), VMA( 4 ), VMA( 5 ), args[6], args[7], qfalse );
 		return 0;
 	case CG_CM_TRANSFORMEDBOXTRACE:
-		CM_TransformedBoxTrace( VMA( 1 ), VMA( 2 ), VMA( 3 ), VMA( 4 ), VMA( 5 ), args[6], args[7], VMA( 8 ), VMA( 9 ), /*int capsule*/ qfalse );
+		CM_TransformedBoxTrace( VMA( 1 ), VMA( 2 ), VMA( 3 ), VMA( 4 ), VMA( 5 ), args[6], args[7], VMA( 8 ), VMA( 9 ), / qfalse );
 		return 0;
 	case CG_CM_CAPSULETRACE:
-		CM_BoxTrace( VMA( 1 ), VMA( 2 ), VMA( 3 ), VMA( 4 ), VMA( 5 ), args[6], args[7], /*int capsule*/ qtrue );
+		CM_BoxTrace( VMA( 1 ), VMA( 2 ), VMA( 3 ), VMA( 4 ), VMA( 5 ), args[6], args[7],  qtrue );
 		return 0;
 	case CG_CM_TRANSFORMEDCAPSULETRACE:
-		CM_TransformedBoxTrace( VMA( 1 ), VMA( 2 ), VMA( 3 ), VMA( 4 ), VMA( 5 ), args[6], args[7], VMA( 8 ), VMA( 9 ), /*int capsule*/ qtrue );
+		CM_TransformedBoxTrace( VMA( 1 ), VMA( 2 ), VMA( 3 ), VMA( 4 ), VMA( 5 ), args[6], args[7], VMA( 8 ), VMA( 9 ),  qtrue );
 		return 0;
 	case CG_CM_MARKFRAGMENTS:
 		return re.MarkFragments( args[1], VMA( 2 ), VMA( 3 ), args[4], VMA( 5 ), args[6], VMA( 7 ) );
@@ -706,7 +701,7 @@ intptr_t CL_CgameSystemCalls( intptr_t *args ) {
 		return FloatAsInt( ceil( VMF( 1 ) ) );
 	case CG_ACOS:
 		return FloatAsInt( Q_acos( VMF( 1 ) ) );
-/* IJB
+
 	case CG_PC_ADD_GLOBAL_DEFINE:
 		return botlib_export->PC_AddGlobalDefine( VMA( 1 ) );
 	case CG_PC_LOAD_SOURCE:
@@ -717,7 +712,7 @@ intptr_t CL_CgameSystemCalls( intptr_t *args ) {
 		return botlib_export->PC_ReadTokenHandle( args[1], VMA( 2 ) );
 	case CG_PC_SOURCE_FILE_AND_LINE:
 		return botlib_export->PC_SourceFileAndLine( args[1], VMA( 2 ), VMA( 3 ) );
-*/
+
 	case CG_S_STOPBACKGROUNDTRACK:
 		S_StopBackgroundTrack();
 		return 0;
@@ -726,10 +721,6 @@ intptr_t CL_CgameSystemCalls( intptr_t *args ) {
 		return Com_RealTime( VMA( 1 ) );
 	case CG_SNAPVECTOR:
 		Sys_SnapVector( VMA( 1 ) );
-		return 0;
-
-	case CG_SENDMOVESPEEDSTOGAME:
-		SV_SendMoveSpeedsToGame( args[1], VMA( 2 ) );
 		return 0;
 
 	case CG_CIN_PLAYCINEMATIC:
@@ -751,13 +742,6 @@ intptr_t CL_CgameSystemCalls( intptr_t *args ) {
 
 	case CG_R_REMAP_SHADER:
 		re.RemapShader( VMA( 1 ), VMA( 2 ), VMA( 3 ) );
-		return 0;
-
-	case CG_TESTPRINTINT:
-		Com_Printf( "%s%i\n", VMA( 1 ), args[2] );
-		return 0;
-	case CG_TESTPRINTFLOAT:
-		Com_Printf( "%s%f\n", VMA( 1 ), VMF( 2 ) );
 		return 0;
 
 	case CG_LOADCAMERA:
@@ -829,15 +813,15 @@ intptr_t CL_CgameSystemCalls( intptr_t *args ) {
 		return 0;
 		// - NERVE - SMF
 
-	case CG_GETMODELINFO:
-		return SV_GetModelInfo( args[1], VMA( 2 ), VMA( 3 ) );
+//	case CG_GETMODELINFO:
+//		return G_GetModelInfo( args[1], VMA( 2 ), VMA( 3 ) );
 
 	default:
 		Com_Error( ERR_DROP, "Bad cgame system trap: %i", args[0] );
 	}
 	return 0;
 }
-
+*/
 /*
 ====================
 CL_UpdateLevelHunkUsage
@@ -1014,8 +998,6 @@ See if the current console command is claimed by the cgame
 ====================
 */
 qboolean CL_GameCommand( void ) {
-	
-	//return VM_Call( cgvm, CG_CONSOLE_COMMAND );
 	return CG_ConsoleCommand();
 }
 
@@ -1027,8 +1009,6 @@ CL_CGameRendering
 =====================
 */
 void CL_CGameRendering( stereoFrame_t stereo ) {
-	//VM_Call( cgvm, CG_DRAW_ACTIVE_FRAME, cl.serverTime, stereo, clc.demoplaying );
-	//VM_Debug( 0 );
 	CG_DrawActiveFrame(cl.serverTime, stereo, clc.demoplaying );
 }
 
@@ -1273,7 +1253,5 @@ CL_GetTag
 ====================
 */
 qboolean CL_GetTag( int clientNum, char *tagname, orientation_t *or ) {
-	
-	//return VM_Call( cgvm, CG_GET_TAG, clientNum, tagname, or );
 	return CG_GetTag( clientNum, tagname, or );
 }

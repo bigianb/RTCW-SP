@@ -33,6 +33,7 @@ If you have questions concerning this license or the applicable additional terms
 #include "botlib/l_script.h"
 #include "botlib/l_precomp.h"
 #include "../renderer/tr_local.h"
+#include "../game/g_func_decs.h"
 
 static int QDECL dummySyscall(int arg, ...){
 	return 0;
@@ -53,7 +54,7 @@ int PASSFLOAT( float x ) {
 }
 
 void    trap_Print( const char *fmt ) {
-	syscall( CG_PRINT, fmt );
+	Com_Printf( "%s", fmt );
 }
 /*
 void    trap_Error( const char *fmt ) {
@@ -89,7 +90,7 @@ void    trap_Argv( int n, char *buffer, int bufferLength ) {
 }
 */
 void    trap_Args( char *buffer, int bufferLength ) {
-	syscall( CG_ARGS, buffer, bufferLength );
+	Cmd_ArgsBuffer(buffer, bufferLength );
 }
 /*
 int     trap_FS_FOpenFile( const char *qpath, fileHandle_t *f, fsMode_t mode ) {
@@ -109,80 +110,82 @@ void    trap_FS_FCloseFile( fileHandle_t f ) {
 }
 */
 void    trap_SendConsoleCommand( const char *text ) {
-	syscall( CG_SENDCONSOLECOMMAND, text );
+	Cbuf_AddText( text );
 }
 
 void    trap_AddCommand( const char *cmdName ) {
-	syscall( CG_ADDCOMMAND, cmdName );
+	Cmd_AddCommand( cmdName, NULL );
 }
 
 void    trap_SendClientCommand( const char *s ) {
-	syscall( CG_SENDCLIENTCOMMAND, s );
+	CL_AddReliableCommand( s );
 }
 
 void    trap_UpdateScreen( void ) {
-	syscall( CG_UPDATESCREEN );
+	SCR_UpdateScreen();
 }
 
 void    trap_CM_LoadMap( const char *mapname ) {
-	syscall( CG_CM_LOADMAP, mapname );
+	int checksum;
+
+	CM_LoadMap( mapname, qtrue, &checksum );
 }
 
 int     trap_CM_NumInlineModels( void ) {
-	return syscall( CG_CM_NUMINLINEMODELS );
+	return CM_NumInlineModels();
 }
 
 clipHandle_t trap_CM_InlineModel( int index ) {
-	return syscall( CG_CM_INLINEMODEL, index );
+	return CM_InlineModel(index );
 }
 
 clipHandle_t trap_CM_TempBoxModel( const vec3_t mins, const vec3_t maxs ) {
-	return syscall( CG_CM_TEMPBOXMODEL, mins, maxs );
+	return CM_TempBoxModel( mins, maxs, qfalse );
 }
 
 clipHandle_t trap_CM_TempCapsuleModel( const vec3_t mins, const vec3_t maxs ) {
-	return syscall( CG_CM_TEMPCAPSULEMODEL, mins, maxs );
+	return CM_TempBoxModel( mins, maxs, qtrue );
 }
 
 int     trap_CM_PointContents( const vec3_t p, clipHandle_t model ) {
-	return syscall( CG_CM_POINTCONTENTS, p, model );
+	return CM_PointContents( p, model );
 }
 
 int     trap_CM_TransformedPointContents( const vec3_t p, clipHandle_t model, const vec3_t origin, const vec3_t angles ) {
-	return syscall( CG_CM_TRANSFORMEDPOINTCONTENTS, p, model, origin, angles );
+	return CM_TransformedPointContents( p, model, origin, angles );
 }
 
 void    trap_CM_BoxTrace( trace_t *results, const vec3_t start, const vec3_t end,
 						  const vec3_t mins, const vec3_t maxs,
 						  clipHandle_t model, int brushmask ) {
-	syscall( CG_CM_BOXTRACE, results, start, end, mins, maxs, model, brushmask );
+	CM_BoxTrace(results, start, end, mins, maxs, model, brushmask, qfalse );
 }
 
 void    trap_CM_TransformedBoxTrace( trace_t *results, const vec3_t start, const vec3_t end,
 									 const vec3_t mins, const vec3_t maxs,
 									 clipHandle_t model, int brushmask,
 									 const vec3_t origin, const vec3_t angles ) {
-	syscall( CG_CM_TRANSFORMEDBOXTRACE, results, start, end, mins, maxs, model, brushmask, origin, angles );
+	CM_TransformedBoxTrace(results, start, end, mins, maxs, model, brushmask, origin, angles, qfalse );
 }
 
 void    trap_CM_CapsuleTrace( trace_t *results, const vec3_t start, const vec3_t end,
 							  const vec3_t mins, const vec3_t maxs,
 							  clipHandle_t model, int brushmask ) {
-	syscall( CG_CM_CAPSULETRACE, results, start, end, mins, maxs, model, brushmask );
+	CM_BoxTrace(results, start, end, mins, maxs, model, brushmask, qtrue );
 }
 
 void    trap_CM_TransformedCapsuleTrace( trace_t *results, const vec3_t start, const vec3_t end,
 										 const vec3_t mins, const vec3_t maxs,
 										 clipHandle_t model, int brushmask,
 										 const vec3_t origin, const vec3_t angles ) {
-	syscall( CG_CM_TRANSFORMEDCAPSULETRACE, results, start, end, mins, maxs, model, brushmask, origin, angles );
+	CM_TransformedBoxTrace(results, start, end, mins, maxs, model, brushmask, origin, angles, qtrue );
 }
 
 int     trap_CM_MarkFragments( int numPoints, const vec3_t *points,
 							   const vec3_t projection,
 							   int maxPoints, vec3_t pointBuffer,
 							   int maxFragments, markFragment_t *fragmentBuffer ) {
-	return syscall( CG_CM_MARKFRAGMENTS, numPoints, points, projection, maxPoints, pointBuffer, maxFragments, fragmentBuffer );
+	return R_MarkFragments(numPoints, points, projection, maxPoints, pointBuffer, maxFragments, fragmentBuffer );
 }
 
 void    trap_S_StartSound( vec3_t origin, int entityNum, int entchannel, sfxHandle_t sfx ) {
@@ -197,50 +200,47 @@ void    trap_S_StartLocalSound( sfxHandle_t sfx, int channelNum ) {
 	S_StartLocalSound(sfx, channelNum );
 }
 
-void    trap_S_ClearLoopingSounds( qboolean killall ) {
-	syscall( CG_S_CLEARLOOPINGSOUNDS, killall );
+void    trap_S_ClearLoopingSounds( int killall ) {
+	S_ClearLoopingSounds(); 
+
+	if ( killall == 1 ) {
+		//qboolean clearStreaming, qboolean clearMusic
+		S_ClearSounds( qtrue, qfalse );
+	} else if ( killall == 2 ) {
+		S_ClearSounds( qtrue, qtrue );
+	}
 }
 
 void    trap_S_AddLoopingSound( int entityNum, const vec3_t origin, const vec3_t velocity, sfxHandle_t sfx, int volume ) {
-	syscall( CG_S_ADDLOOPINGSOUND, entityNum, origin, velocity, 1250, sfx, volume );     // volume was previously removed from CG_S_ADDLOOPINGSOUND.  I added 'range'
+	S_AddLoopingSound(entityNum, origin, velocity, 1250, sfx, volume );     // volume was previously removed from CG_S_ADDLOOPINGSOUND.  I added 'range'
 }
 
 void    trap_S_AddRangedLoopingSound( int entityNum, const vec3_t origin, const vec3_t velocity, sfxHandle_t sfx, int range ) {
-	syscall( CG_S_ADDLOOPINGSOUND, entityNum, origin, velocity, range, sfx, 255 );   // RF, assume full volume, since thats how it worked before
+	S_AddLoopingSound(entityNum, origin, velocity, range, sfx, 255 );   // RF, assume full volume, since thats how it worked before
 }
-
-void    trap_S_AddRealLoopingSound( int entityNum, const vec3_t origin, const vec3_t velocity, sfxHandle_t sfx ) {
-// not in use
-//	syscall( CG_S_ADDREALLOOPINGSOUND, entityNum, origin, velocity, 1250, sfx, 255 );	//----(SA)	modified
-}
-
-void    trap_S_StopLoopingSound( int entityNum ) {
-	syscall( CG_S_STOPLOOPINGSOUND, entityNum );
-}
-
 
 void    trap_S_StopStreamingSound( int entityNum ) {
-	syscall( CG_S_STOPSTREAMINGSOUND, entityNum );
+	S_StopEntStreamingSound(entityNum );
 }
 
 
 void    trap_S_UpdateEntityPosition( int entityNum, const vec3_t origin ) {
-	syscall( CG_S_UPDATEENTITYPOSITION, entityNum, origin );
+	S_UpdateEntityPosition(entityNum, origin );
 }
 
 // Ridah, talking animations
 int     trap_S_GetVoiceAmplitude( int entityNum ) {
-	return syscall( CG_S_GETVOICEAMPLITUDE, entityNum );
+	return S_GetVoiceAmplitude(entityNum );
 }
 // done.
 
 void    trap_S_Respatialize( int entityNum, const vec3_t origin, vec3_t axis[3], int inwater ) {
-	syscall( CG_S_RESPATIALIZE, entityNum, origin, axis, inwater );
+	S_Respatialize(entityNum, origin, axis, inwater );
 }
 
 sfxHandle_t trap_S_RegisterSound( const char *sample ) {
 	CG_DrawInformation();
-	return syscall( CG_S_REGISTERSOUND, sample );
+	return S_RegisterSound(sample, qfalse );
 }
 
 void    trap_S_StartBackgroundTrack( const char *intro, const char *loop, int fadeupTime ) {
@@ -255,39 +255,35 @@ void    trap_S_FadeAllSound( float targetvol, int time ) {
 	S_FadeAllSounds(targetvol, time );
 }
 
-//----(SA)	end
-
 void    trap_S_StartStreamingSound( const char *intro, const char *loop, int entnum, int channel, int attenuation ) {
-	syscall( CG_S_STARTSTREAMINGSOUND, intro, loop, entnum, channel, attenuation );
+	S_StartStreamingSound( intro, loop, entnum, channel, attenuation );
 }
 
 void    trap_R_LoadWorldMap( const char *mapname ) {
-	syscall( CG_R_LOADWORLDMAP, mapname );
+	RE_LoadWorldMap( mapname );
 }
 
 qhandle_t trap_R_RegisterModel( const char *name ) {
 	CG_DrawInformation();
-	return syscall( CG_R_REGISTERMODEL, name );
+	return RE_RegisterModel( name );
 }
 
-//----(SA)	added
 qboolean trap_R_GetSkinModel( qhandle_t skinid, const char *type, char *name ) {
-	return syscall( CG_R_GETSKINMODEL, skinid, type, name );
+	return RE_GetSkinModel( skinid, type, name );
 }
 
 qhandle_t trap_R_GetShaderFromModel( qhandle_t modelid, int surfnum, int withlightmap ) {
-	return syscall( CG_R_GETMODELSHADER, modelid, surfnum, withlightmap );
+	return RE_GetShaderFromModel(modelid, surfnum, withlightmap );
 }
-//----(SA)	end
 
 qhandle_t trap_R_RegisterSkin( const char *name ) {
 	CG_DrawInformation();
-	return syscall( CG_R_REGISTERSKIN, name );
+	return RE_RegisterSkin( name );
 }
 
 qhandle_t trap_R_RegisterShader( const char *name ) {
 	CG_DrawInformation();
-	return syscall( CG_R_REGISTERSHADER, name );
+	return RE_RegisterShader( name );
 }
 
 void trap_R_RegisterFont( const char *fontName, int pointSize, fontInfo_t *font ) {
@@ -306,15 +302,13 @@ void    trap_R_AddPolyToScene( qhandle_t hShader, int numVerts, const polyVert_t
 	syscall( CG_R_ADDPOLYTOSCENE, hShader, numVerts, verts );
 }
 
-// Ridah
 void    trap_R_AddPolysToScene( qhandle_t hShader, int numVerts, const polyVert_t *verts, int numPolys ) {
 	syscall( CG_R_ADDPOLYSTOSCENE, hShader, numVerts, verts, numPolys );
 }
 
 void    trap_RB_ZombieFXAddNewHit( int entityNum, const vec3_t hitPos, const vec3_t hitDir ) {
-	syscall( CG_RB_ZOMBIEFXADDNEWHIT, entityNum, hitPos, hitDir );
+	RB_ZombieFXAddNewHit(entityNum, hitPos, hitDir );
 }
-// done.
 
 void    trap_R_AddLightToScene( const vec3_t org, float intensity, float r, float g, float b, int overdraw ) {
 	syscall( CG_R_ADDLIGHTTOSCENE, org, PASSFLOAT( intensity ), PASSFLOAT( r ), PASSFLOAT( g ), PASSFLOAT( b ), overdraw );
@@ -355,47 +349,46 @@ void    trap_R_ModelBounds( clipHandle_t model, vec3_t mins, vec3_t maxs ) {
 }
 
 int     trap_R_LerpTag( orientation_t *tag, const refEntity_t *refent, const char *tagName, int startIndex ) {
-	return syscall( CG_R_LERPTAG, tag, refent, tagName, startIndex );
+	return R_LerpTag( tag, refent, tagName, startIndex );
 }
 
 void    trap_R_RemapShader( const char *oldShader, const char *newShader, const char *timeOffset ) {
-	syscall( CG_R_REMAP_SHADER, oldShader, newShader, timeOffset );
+	R_RemapShader(oldShader, newShader, timeOffset );
 }
 
+extern void CL_GetGameState( gameState_t *gs );
 void        trap_GetGameState( gameState_t *gamestate ) {
-	syscall( CG_GETGAMESTATE, gamestate );
+	CL_GetGameState( gamestate );
 }
 
+extern void    CL_GetCurrentSnapshotNumber( int *snapshotNumber, int *serverTime );
 void        trap_GetCurrentSnapshotNumber( int *snapshotNumber, int *serverTime ) {
-	syscall( CG_GETCURRENTSNAPSHOTNUMBER, snapshotNumber, serverTime );
+	CL_GetCurrentSnapshotNumber( snapshotNumber, serverTime );
 }
 
+extern qboolean    CL_GetSnapshot( int snapshotNumber, snapshot_t *snapshot );
 qboolean    trap_GetSnapshot( int snapshotNumber, snapshot_t *snapshot ) {
-	return syscall( CG_GETSNAPSHOT, snapshotNumber, snapshot );
+	return CL_GetSnapshot( snapshotNumber, snapshot );
 }
 
+extern qboolean CL_GetServerCommand( int serverCommandNumber );
 qboolean    trap_GetServerCommand( int serverCommandNumber ) {
-	return syscall( CG_GETSERVERCOMMAND, serverCommandNumber );
+	return CL_GetServerCommand( serverCommandNumber );
 }
 
+extern int CL_GetCurrentCmdNumber( void );
 int         trap_GetCurrentCmdNumber( void ) {
-	return syscall( CG_GETCURRENTCMDNUMBER );
+	return CL_GetCurrentCmdNumber();
 }
 
+extern qboolean CL_GetUserCmd( int cmdNumber, usercmd_t *ucmd );
 qboolean    trap_GetUserCmd( int cmdNumber, usercmd_t *ucmd ) {
-	return syscall( CG_GETUSERCMD, cmdNumber, ucmd );
+	return CL_GetUserCmd(cmdNumber, ucmd );
 }
 
+extern void CL_SetUserCmdValue( int userCmdValue, int holdableValue, float sensitivityScale, int cld );
 void        trap_SetUserCmdValue( int stateValue, int holdableValue, float sensitivityScale, int cld ) {    //----(SA)	// NERVE - SMF - added cld
-	syscall( CG_SETUSERCMDVALUE, stateValue, holdableValue, PASSFLOAT( sensitivityScale ), cld );
-}
-
-void        testPrintInt( char *string, int i ) {
-	syscall( CG_TESTPRINTINT, string, i );
-}
-
-void        testPrintFloat( char *string, float f ) {
-	syscall( CG_TESTPRINTFLOAT, string, PASSFLOAT( f ) );
+	CL_SetUserCmdValue(stateValue, holdableValue, sensitivityScale, cld );
 }
 
 int trap_MemoryRemaining( void ) {
@@ -410,14 +403,16 @@ void trap_startCamera( int camNum, int time ) {
 	syscall( CG_STARTCAMERA, camNum, time );
 }
 
-//----(SA)	added
 void trap_stopCamera( int camNum ) {
-	syscall( CG_STOPCAMERA, camNum );
+	if ( camNum == 0 ) {  // CAM_PRIMARY
+		cl.cameraMode = qfalse;
+	}
 }
-//----(SA)	end
+
+extern qboolean getCameraInfo( int camNum, int time, vec3_t *origin, vec3_t *angles, float *fov );
 
 qboolean trap_getCameraInfo( int camNum, int time, vec3_t *origin, vec3_t *angles, float *fov ) {
-	return syscall( CG_GETCAMERAINFO, camNum, time, origin, angles, fov );
+	return getCameraInfo(camNum, time, origin, angles, fov );
 }
 
 
@@ -454,7 +449,7 @@ void  trap_S_StopBackgroundTrack( void ) {
 }
 
 void trap_SendMoveSpeedsToGame( int entnum, char *movespeeds ) {
-	syscall( CG_SENDMOVESPEEDSTOGAME, entnum, movespeeds );
+	G_RetrieveMoveSpeedsFromClient(entnum, movespeeds );
 }
 
 // this returns a handle.  arg0 is the name in the format "idlogo.roq", set arg1 to NULL, alteredstates to qfalse (do not alter gamestate)
@@ -486,24 +481,27 @@ void trap_CIN_SetExtents( int handle, int x, int y, int w, int h ) {
 	CIN_SetExtents( handle, x, y, w, h );
 }
 
-//----(SA)	added
+
 // bring up a popup menu
 extern void Menus_OpenByName( const char *p );
 
+extern void IngamePopup(const char *arg0);
 void trap_UI_Popup( const char *arg0 ) {
-	syscall( CG_INGAME_POPUP, arg0 );
+	IngamePopup(arg0 );
 }
 
 // NERVE - SMF
 void trap_UI_LimboChat( const char *arg0 ) {
-	syscall( CG_LIMBOCHAT, arg0 );
+	if (arg0){
+		CL_AddToLimboChat(arg0 );
+	}
 }
 
 void trap_UI_ClosePopup( const char *arg0 ) {
-	syscall( CG_INGAME_CLOSEPOPUP, arg0 );
+	UI_KeyEvent(K_ESCAPE, qtrue );
 }
 // -NERVE - SMF
 
 qboolean trap_GetModelInfo( int clientNum, char *modelName, animModelInfo_t **modelInfo ) {
-	return syscall( CG_GETMODELINFO, clientNum, modelName, modelInfo );
+	return G_GetModelInfo(clientNum, modelName, modelInfo );
 }

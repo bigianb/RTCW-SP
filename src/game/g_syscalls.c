@@ -43,7 +43,7 @@ void dllEntry_G( int ( QDECL *syscallptr )( int arg,... ) ) {
 	syscall = syscallptr;
 }
 
-int PASSFLOAT( float x ) {
+static int PASSFLOAT( float x ) {
 	float floatTemp;
 	floatTemp = x;
 	return *(int *)&floatTemp;
@@ -81,7 +81,7 @@ void    trap_FS_Read( void *buffer, int len, fileHandle_t f ) {
 }
 
 int     trap_FS_Write( const void *buffer, int len, fileHandle_t f ) {
-	FS_Write( buffer, len, f );
+	return FS_Write( buffer, len, f );
 }
 
 int     trap_FS_Rename( const char *from, const char *to ) {
@@ -168,12 +168,12 @@ void trap_TraceCapsule( trace_t *results, const vec3_t start, const vec3_t mins,
 }
 
 int trap_PointContents( const vec3_t point, int passEntityNum ) {
-	return syscall( G_POINT_CONTENTS, point, passEntityNum );
+	return SV_PointContents(point, passEntityNum );
 }
 
 
 qboolean trap_InPVS( const vec3_t p1, const vec3_t p2 ) {
-	return syscall( G_IN_PVS, p1, p2 );
+	return SV_inPVS(p1, p2 );
 }
 
 qboolean trap_InPVSIgnorePortals( const vec3_t p1, const vec3_t p2 ) {
@@ -196,25 +196,25 @@ void trap_UnlinkEntity( gentity_t *ent ) {
 	SV_UnlinkEntity( ent );
 }
 
-
 int trap_EntitiesInBox( const vec3_t mins, const vec3_t maxs, int *list, int maxcount ) {
-	return syscall( G_ENTITIES_IN_BOX, mins, maxs, list, maxcount );
+	return SV_AreaEntities(mins, maxs, list, maxcount );
 }
 
+extern qboolean    SV_EntityContact( const vec3_t mins, const vec3_t maxs, const sharedEntity_t *gEnt, const int capsule );
 qboolean trap_EntityContact( const vec3_t mins, const vec3_t maxs, const gentity_t *ent ) {
-	return syscall( G_ENTITY_CONTACT, mins, maxs, ent );
+	return SV_EntityContact(mins, maxs, ent, qfalse );
 }
 
 qboolean trap_EntityContactCapsule( const vec3_t mins, const vec3_t maxs, const gentity_t *ent ) {
-	return syscall( G_ENTITY_CONTACTCAPSULE, mins, maxs, ent );
+	return SV_EntityContact(mins, maxs, ent, qtrue );
 }
 
 int trap_BotAllocateClient( void ) {
-	return syscall( G_BOT_ALLOCATE_CLIENT );
+	return SV_BotAllocateClient();
 }
 
 void trap_BotFreeClient( int clientNum ) {
-	syscall( G_BOT_FREE_CLIENT, clientNum );
+	SV_BotFreeClient(clientNum );
 }
 
 void trap_GetUsercmd( int clientNum, usercmd_t *cmd ) {

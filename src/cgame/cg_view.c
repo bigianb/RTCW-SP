@@ -1489,7 +1489,7 @@ void CG_DrawActiveFrame( int serverTime, stereoFrame_t stereoView, qboolean demo
 
 	// any looped sounds will be respecified as entities
 	// are added to the render list
-	trap_S_ClearLoopingSounds( qfalse );
+	trap_S_ClearLoopingSounds( 0 );
 
 	DEBUGTIME
 

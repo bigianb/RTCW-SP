@@ -274,6 +274,3 @@ qboolean    Sys_StringToAdr( const char *s, netadr_t *a ) {
 
 void Sys_UnloadDll( void *dllHandle ) {
 }
-
-void VM_Compile( vm_t *vm, vmHeader_t *header ) {}
-int VM_CallCompiled( vm_t *vm, int *args ) { return 0; }
