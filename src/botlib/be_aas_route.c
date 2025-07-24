@@ -992,37 +992,58 @@ void AAS_WriteRouteCache( void ) {
 // Changes Globals:		-
 //===========================================================================
 aas_routingcache_t *AAS_ReadCache( fileHandle_t fp ) {
-	int i, size;
-	aas_routingcache_t *cache;
+	int i, size, numtraveltimes;
+		aas_routingcache_t *nativecache;
+		aas_routingcache_32_t *cache;
+		unsigned char *cache_reachabilities;
 
-	botimport.FS_Read( &size, sizeof( size ), fp );
-	size = LittleLong( size );
-	cache = (aas_routingcache_t *) AAS_RoutingGetMemory( size );
-	cache->size = size;
-	botimport.FS_Read( (unsigned char *)cache + sizeof( size ), size - sizeof( size ), fp );
+		botimport.FS_Read( &size, sizeof( size ), fp );
+		size = LittleLong( size );
+		cache = (aas_routingcache_32_t *) AAS_RoutingGetMemory( size );
+		cache->size = size;
+		botimport.FS_Read( (unsigned char *)cache + sizeof( size ), size - sizeof( size ), fp );
 
-	if ( 1 != LittleLong( 1 ) ) {
-		cache->time = LittleFloat( cache->time );
-		cache->cluster = LittleLong( cache->cluster );
-		cache->areanum = LittleLong( cache->areanum );
-		cache->origin[0] = LittleFloat( cache->origin[0] );
-		cache->origin[1] = LittleFloat( cache->origin[1] );
-		cache->origin[2] = LittleFloat( cache->origin[2] );
-		cache->starttraveltime = LittleFloat( cache->starttraveltime );
-		cache->travelflags = LittleLong( cache->travelflags );
-	}
+		numtraveltimes = ( size - sizeof( aas_routingcache_32_t ) ) / 3;
 
-//	cache->reachabilities = (unsigned char *) cache + sizeof(aas_routingcache_t) - sizeof(unsigned short) +
-//		(size - sizeof(aas_routingcache_t) + sizeof(unsigned short)) / 3 * 2;
-	cache->reachabilities = (unsigned char *) cache + sizeof( aas_routingcache_t ) +
-							( ( size - sizeof( aas_routingcache_t ) ) / 3 ) * 2;
+		if ( sizeof (intptr_t) == 4 ) {
+			nativecache = (aas_routingcache_t *) cache;
+		} else {
+			int nativesize = size - sizeof (aas_routingcache_32_t) + sizeof (aas_routingcache_t);
+			nativecache = (aas_routingcache_t *) AAS_RoutingGetMemory( nativesize );
+			nativecache->size = nativesize;
+		}
 
-	//DAJ BUGFIX for missing byteswaps for traveltimes
-	size = ( size - sizeof( aas_routingcache_t ) ) / 3 + 1;
-	for ( i = 0; i < size; i++ ) {
-		cache->traveltimes[i] = LittleShort( cache->traveltimes[i] );
-	}
-	return cache;
+		// copy to native structure and/or swap
+		if ( sizeof (intptr_t) != 4 || 1 != LittleLong( 1 ) ) {
+			nativecache->time = LittleFloat( cache->time );
+			nativecache->cluster = LittleLong( cache->cluster );
+			nativecache->areanum = LittleLong( cache->areanum );
+			nativecache->origin[0] = LittleFloat( cache->origin[0] );
+			nativecache->origin[1] = LittleFloat( cache->origin[1] );
+			nativecache->origin[2] = LittleFloat( cache->origin[2] );
+			nativecache->starttraveltime = LittleFloat( cache->starttraveltime );
+			nativecache->travelflags = LittleLong( cache->travelflags );
+
+			//DAJ BUGFIX for missing byteswaps for traveltimes
+			for ( i = 0; i < numtraveltimes; i++ ) {
+				nativecache->traveltimes[i] = LittleShort( cache->traveltimes[i] );
+			}
+		}
+
+		nativecache->reachabilities = (unsigned char *) nativecache + sizeof( aas_routingcache_t ) + numtraveltimes * sizeof (nativecache->traveltimes[0]);
+
+		// copy reachabilities to native structure, free original cache
+		if ( sizeof (intptr_t) != 4 ) {
+			cache_reachabilities = (unsigned char *) cache + sizeof( aas_routingcache_32_t ) + numtraveltimes * sizeof (cache->traveltimes[0]);
+
+			for ( i = 0; i < numtraveltimes; i++ ) {
+				nativecache->reachabilities[i] = cache_reachabilities[i];
+			}
+
+			AAS_RoutingFreeMemory(cache);
+		}
+
+		return nativecache;
 } //end of the function AAS_ReadCache
 //===========================================================================
 //
@@ -1077,26 +1098,26 @@ int AAS_ReadRouteCache( void ) {
 		//AAS_Error("route cache dump has wrong number of clusters\n");
 		return qfalse;
 	} //end if
-#ifdef _WIN32                           // crc code is only good on intel machines
-	if ( routecacheheader.areacrc !=
-		 CRC_ProcessString( (unsigned char *)( *aasworld ).areas, sizeof( aas_area_t ) * ( *aasworld ).numareas ) ) {
-		botimport.FS_FCloseFile( fp );
-		//AAS_Error("route cache dump area CRC incorrect\n");
-		return qfalse;
-	} //end if
-	if ( routecacheheader.clustercrc !=
-		 CRC_ProcessString( (unsigned char *)( *aasworld ).clusters, sizeof( aas_cluster_t ) * ( *aasworld ).numclusters ) ) {
-		botimport.FS_FCloseFile( fp );
-		//AAS_Error("route cache dump cluster CRC incorrect\n");
-		return qfalse;
-	} //end if
-	if ( routecacheheader.reachcrc !=
-		 CRC_ProcessString( (unsigned char *)( *aasworld ).reachability, sizeof( aas_reachability_t ) * ( *aasworld ).reachabilitysize ) ) {
-		botimport.FS_FCloseFile( fp );
-		//AAS_Error("route cache dump reachability CRC incorrect\n");
-		return qfalse;
-	} //end if
-#endif
+	if ( 1 == LittleLong( 1 ) ) {
+		if ( routecacheheader.areacrc !=
+			CRC_ProcessString( (unsigned char *)( *aasworld ).areas, sizeof( aas_area_t ) * ( *aasworld ).numareas ) ) {
+			botimport.FS_FCloseFile( fp );
+			//AAS_Error("route cache dump area CRC incorrect\n");
+			return qfalse;
+		} //end if
+		if ( routecacheheader.clustercrc !=
+			CRC_ProcessString( (unsigned char *)( *aasworld ).clusters, sizeof( aas_cluster_t ) * ( *aasworld ).numclusters ) ) {
+			botimport.FS_FCloseFile( fp );
+			//AAS_Error("route cache dump cluster CRC incorrect\n");
+			return qfalse;
+		} //end if
+		if ( routecacheheader.reachcrc !=
+			CRC_ProcessString( (unsigned char *)( *aasworld ).reachability, sizeof( aas_reachability_t ) * ( *aasworld ).reachabilitysize ) ) {
+			botimport.FS_FCloseFile( fp );
+			//AAS_Error("route cache dump reachability CRC incorrect\n");
+			return qfalse;
+		} //end if
+	}
 	//read all the portal cache
 	for ( i = 0; i < routecacheheader.numportalcache; i++ )
 	{

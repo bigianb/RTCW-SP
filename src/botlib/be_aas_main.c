@@ -181,7 +181,8 @@ void AAS_UpdateStringIndexes( int numconfigstrings, char *configstrings[] ) {
 //===========================================================================
 int AAS_Loaded( void ) {
 	return ( *aasworld ).loaded;
-} //end of the function AAS_Loaded
+}
+
 //===========================================================================
 //
 // Parameter:				-
@@ -190,7 +191,8 @@ int AAS_Loaded( void ) {
 //===========================================================================
 int AAS_Initialized( void ) {
 	return ( *aasworld ).initialized;
-} //end of the function AAS_Initialized
+}
+
 //===========================================================================
 //
 // Parameter:				-

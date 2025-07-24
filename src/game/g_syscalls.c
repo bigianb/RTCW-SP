@@ -443,7 +443,7 @@ void trap_EA_Command( int client, char *command ) {
 }
 
 void trap_EA_SelectWeapon( int client, int weapon ) {
-	syscall( BOTLIB_EA_SELECT_WEAPON, client, weapon );
+	EA_SelectWeapon(client, weapon );
 }
 
 void trap_EA_Talk( int client ) {

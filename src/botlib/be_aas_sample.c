@@ -198,7 +198,8 @@ void AAS_FreeAASLinkedEntities( void ) {
 		FreeMemory( ( *aasworld ).arealinkedentities );
 	}
 	( *aasworld ).arealinkedentities = NULL;
-} //end of the function AAS_InitAASLinkedEntities
+}
+
 //===========================================================================
 // returns the AAS area the point is in
 //
