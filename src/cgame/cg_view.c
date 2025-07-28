@@ -1435,14 +1435,6 @@ removed CG_DrawNotebook
 
 extern void CG_SetupDlightstyles( void );
 
-
-//#define DEBUGTIME_ENABLED
-#ifdef DEBUGTIME_ENABLED
-#define DEBUGTIME CG_Printf( "t%i:%i ", dbgCnt++, elapsed = ( trap_Milliseconds() - dbgTime ) ); dbgTime += elapsed;
-#else
-#define DEBUGTIME
-#endif
-
 /*
 =================
 CG_DrawActiveFrame
@@ -1455,30 +1447,11 @@ void CG_DrawActiveFrame( int serverTime, stereoFrame_t stereoView, qboolean demo
 
 	cg.cld = 0;         // NERVE - SMF - reset clientDamage
 
-#ifdef DEBUGTIME_ENABLED
-	int dbgTime = trap_Milliseconds(),elapsed;
-	int dbgCnt = 0;
-#endif
-
 	cg.time = serverTime;
 	cg.demoPlayback = demoPlayback;
 
 	// update cvars
 	CG_UpdateCvars();
-/*
-	// RF, if we should force a weapon, then do so
-	if( !cg.weaponSelect ) {
-		if (cg_loadWeaponSelect.integer > 0) {
-			cg.weaponSelect = cg_loadWeaponSelect.integer;
-			cg.weaponSelectTime = cg.time;
-			trap_Cvar_Set( "cg_loadWeaponSelect", "0" );	// turn it off
-		}
-	}
-*/
-#ifdef DEBUGTIME_ENABLED
-	CG_Printf( "\n" );
-#endif
-	DEBUGTIME
 
 	// if we are only updating the screen as a loading
 	// pacifier, don't even try to read snapshots
@@ -1491,17 +1464,11 @@ void CG_DrawActiveFrame( int serverTime, stereoFrame_t stereoView, qboolean demo
 	// are added to the render list
 	trap_S_ClearLoopingSounds( 0 );
 
-	DEBUGTIME
-
 	// clear all the render lists
 	trap_R_ClearScene();
 
-	DEBUGTIME
-
 	// set up cg.snap and possibly cg.nextSnap
 	CG_ProcessSnapshots();
-
-	DEBUGTIME
 
 	// if we haven't received any snapshots yet, all
 	// we can draw is the information screen
@@ -1528,13 +1495,9 @@ void CG_DrawActiveFrame( int serverTime, stereoFrame_t stereoView, qboolean demo
 		}
 	}
 
-	DEBUGTIME
-
 	if ( !cg.lightstylesInited ) {
 		CG_SetupDlightstyles();
 	}
-
-	DEBUGTIME
 
 	// if we have been told not to render, don't
 	if ( cg_norender.integer ) {
@@ -1547,8 +1510,6 @@ void CG_DrawActiveFrame( int serverTime, stereoFrame_t stereoView, qboolean demo
 	// update cg.predictedPlayerState
 	CG_PredictPlayerState();
 
-	DEBUGTIME
-
 	// decide on third person view
 	cg.renderingThirdPerson = cg_thirdPerson.integer /*|| (cg.snap->ps.stats[STAT_HEALTH] <= 0)*/;
 
@@ -1558,49 +1519,31 @@ void CG_DrawActiveFrame( int serverTime, stereoFrame_t stereoView, qboolean demo
 	CG_CalcShakeCamera();
 	CG_ApplyShakeCamera();
 
-	DEBUGTIME
-
 	// RF, draw the skyboxportal
 	CG_DrawSkyBoxPortal();
-
-	DEBUGTIME
 
 	if ( inwater ) {
 		CG_UnderwaterSounds();
 	}
-
-	DEBUGTIME
 
 	// first person blend blobs, done after AnglesToAxis
 	if ( !cg.renderingThirdPerson ) {
 		CG_DamageBlendBlob();
 	}
 
-	DEBUGTIME
-
 	// build the render lists
 	if ( !cg.hyperspace ) {
 		CG_AddPacketEntities();         // adter calcViewValues, so predicted player state is correct
 		CG_AddMarks();
 
-		DEBUGTIME
-
 		// Rafael particles
 		CG_AddParticles();
 		// done.
 
-		DEBUGTIME
-
 		CG_AddLocalEntities();
-
-		DEBUGTIME
 	}
 
-
 	CG_AddViewWeapon( &cg.predictedPlayerState );
-
-
-	DEBUGTIME
 
 	// Ridah, trails
 	if ( !cg.hyperspace ) {
@@ -1609,16 +1552,12 @@ void CG_DrawActiveFrame( int serverTime, stereoFrame_t stereoView, qboolean demo
 	}
 	// done.
 
-	DEBUGTIME
-
 	// finish up the rest of the refdef
 	if ( cg.testModelEntity.hModel ) {
 		CG_AddTestModel();
 	}
 	cg.refdef.time = cg.time;
 	memcpy( cg.refdef.areamask, cg.snap->areamask, sizeof( cg.refdef.areamask ) );
-
-	DEBUGTIME
 
 	// warning sounds when powerup is wearing off
 	CG_PowerupTimerSounds();
@@ -1633,15 +1572,11 @@ void CG_DrawActiveFrame( int serverTime, stereoFrame_t stereoView, qboolean demo
 		CG_AddLagometerFrameInfo();
 	}
 
-	DEBUGTIME
-
 	// let the client system know what our weapon, holdable item and zoom settings are
 	trap_SetUserCmdValue( cg.weaponSelect, cg.holdableSelect, cg.zoomSensitivity, cg.cld );
 
 	// actually issue the rendering calls
 	CG_DrawActive( stereoView );
-
-	DEBUGTIME
 
 	// update audio positions
 	trap_S_Respatialize( cg.snap->ps.clientNum, cg.refdef.vieworg, cg.refdef.viewaxis, inwater );
@@ -1649,7 +1584,5 @@ void CG_DrawActiveFrame( int serverTime, stereoFrame_t stereoView, qboolean demo
 	if ( cg_stats.integer ) {
 		CG_Printf( "cg.clientFrame:%i\n", cg.clientFrame );
 	}
-
-	DEBUGTIME
 }
 

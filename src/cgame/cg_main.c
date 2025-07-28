@@ -45,53 +45,6 @@ void CG_Init( int serverMessageNum, int serverCommandSequence );
 void CG_Shutdown( void );
 
 
-/*
-================
-vmMain
-
-This is the only way control passes into the module.
-This must be the very first function compiled into the .q3vm file
-================
-*/
-
-intptr_t vmMainCG( intptr_t command, intptr_t arg0, intptr_t arg1, intptr_t arg2, intptr_t arg3, intptr_t arg4, intptr_t arg5, intptr_t arg6, intptr_t arg7, intptr_t arg8, intptr_t arg9, intptr_t arg10, intptr_t arg11  ) {
-	switch ( command ) {
-	case CG_GET_TAG:
-		return CG_GetTag( arg0, (char *)arg1, (orientation_t *)arg2 );
-	case CG_DRAW_ACTIVE_FRAME:
-		CG_DrawActiveFrame( arg0, arg1, arg2 );
-		return 0;
-	case CG_EVENT_HANDLING:
-		CG_EventHandling( arg0 );
-		return 0;
-	case CG_INIT:
-		CG_Init( arg0, arg1 );
-		return 0;
-	case CG_SHUTDOWN:
-		CG_Shutdown();
-		return 0;
-	case CG_CONSOLE_COMMAND:
-		return CG_ConsoleCommand();
-	case CG_CROSSHAIR_PLAYER:
-		return CG_CrosshairPlayer();
-	case CG_LAST_ATTACKER:
-		return CG_LastAttacker();
-	case CG_KEY_EVENT:
-		CG_KeyEvent( arg0, arg1 );
-		return 0;
-	case CG_MOUSE_EVENT:
-		cgDC.cursorx = cgs.cursorX;
-		cgDC.cursory = cgs.cursorY;
-		CG_MouseEvent( arg0, arg1 );
-		return 0;
-	default:
-		CG_Error( "vmMain: unknown command %i", command );
-		break;
-	}
-	return -1;
-}
-
-
 cg_t cg;
 cgs_t cgs;
 centity_t cg_entities[MAX_GENTITIES];
