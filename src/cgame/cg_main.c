@@ -2059,7 +2059,8 @@ void CG_LoadHudMenu() {
 	cgDC.drawCinematic = &CG_DrawCinematic;
 	cgDC.runCinematicFrame = &CG_RunCinematicFrame;
 
-	Init_Display( &cgDC );
+	// UI does this
+	//Init_Display( &cgDC );
 
 	//Menu_Reset();
 

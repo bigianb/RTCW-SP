@@ -93,7 +93,8 @@ int     trap_FS_Write( const void *buffer, int len, fileHandle_t f ) {
 }
 
 int     trap_FS_Rename( const char *from, const char *to ) {
-	return syscall( G_FS_RENAME, from, to );
+	FS_Rename(from, to );
+	return 0;
 }
 
 void    trap_FS_FCloseFile( fileHandle_t f ) {
@@ -101,7 +102,7 @@ void    trap_FS_FCloseFile( fileHandle_t f ) {
 }
 
 void    trap_FS_CopyFile( char *from, char *to ) {  //DAJ
-	syscall( G_FS_COPY_FILE, from, to );
+	FS_CopyFileOS(from, to );
 }
 
 int trap_FS_GetFileList(  const char *path, const char *extension, char *listbuf, int bufsize ) {
@@ -109,7 +110,7 @@ int trap_FS_GetFileList(  const char *path, const char *extension, char *listbuf
 }
 
 void    trap_game_SendConsoleCommand( int exec_when, const char *text ) {
-	syscall( G_SEND_CONSOLE_COMMAND, exec_when, text );
+	Cbuf_ExecuteText(exec_when, text );
 }
 
 void trap_Cvar_Register( vmCvar_t *cvar, const char *var_name, const char *value, int flags ) {
@@ -184,12 +185,14 @@ qboolean trap_InPVS( const vec3_t p1, const vec3_t p2 ) {
 	return SV_inPVS(p1, p2 );
 }
 
+qboolean SV_inPVSIgnorePortals( const vec3_t p1, const vec3_t p2 );
 qboolean trap_InPVSIgnorePortals( const vec3_t p1, const vec3_t p2 ) {
-	return syscall( G_IN_PVS_IGNORE_PORTALS, p1, p2 );
+	return SV_inPVSIgnorePortals(p1, p2 );
 }
 
+void SV_AdjustAreaPortalState( sharedEntity_t *ent, qboolean open );
 void trap_AdjustAreaPortalState( gentity_t *ent, qboolean open ) {
-	syscall( G_ADJUST_AREA_PORTAL_STATE, ent, open );
+	SV_AdjustAreaPortalState(ent, open );
 }
 
 qboolean trap_AreasConnected( int area1, int area2 ) {
@@ -505,7 +508,7 @@ void trap_EA_MoveRight( int client ) {
 }
 
 void trap_EA_Move( int client, vec3_t dir, float speed ) {
-	syscall( BOTLIB_EA_MOVE, client, dir, PASSFLOAT( speed ) );
+	EA_Move(client, dir, speed );
 }
 
 void trap_EA_View( int client, vec3_t viewangles ) {
@@ -763,7 +766,7 @@ int trap_BotMoveInDirection( int movestate, vec3_t dir, float speed, int type ) 
 }
 
 void trap_BotResetAvoidReach( int movestate ) {
-	syscall( BOTLIB_AI_RESET_AVOID_REACH, movestate );
+	BotResetAvoidReach( movestate );
 }
 
 void trap_BotResetLastAvoidReach( int movestate ) {
@@ -791,7 +794,7 @@ void trap_BotFreeMoveState( int handle ) {
 }
 
 void trap_BotInitMoveState( int handle, void /* struct bot_initmove_s */ *initmove ) {
-	syscall( BOTLIB_AI_INIT_MOVE_STATE, handle, initmove );
+	BotInitMoveState(handle, initmove );
 }
 
 // Ridah

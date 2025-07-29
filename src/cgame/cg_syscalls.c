@@ -299,11 +299,11 @@ void    trap_R_AddRefEntityToScene( const refEntity_t *re ) {
 }
 
 void    trap_R_AddPolyToScene( qhandle_t hShader, int numVerts, const polyVert_t *verts ) {
-	syscall( CG_R_ADDPOLYTOSCENE, hShader, numVerts, verts );
+	RE_AddPolyToScene(hShader, numVerts, verts );
 }
 
 void    trap_R_AddPolysToScene( qhandle_t hShader, int numVerts, const polyVert_t *verts, int numPolys ) {
-	syscall( CG_R_ADDPOLYSTOSCENE, hShader, numVerts, verts, numPolys );
+	RE_AddPolysToScene(hShader, numVerts, verts, numPolys );
 }
 
 void    trap_RB_ZombieFXAddNewHit( int entityNum, const vec3_t hitPos, const vec3_t hitDir ) {
@@ -311,12 +311,11 @@ void    trap_RB_ZombieFXAddNewHit( int entityNum, const vec3_t hitPos, const vec
 }
 
 void    trap_R_AddLightToScene( const vec3_t org, float intensity, float r, float g, float b, int overdraw ) {
-	syscall( CG_R_ADDLIGHTTOSCENE, org, PASSFLOAT( intensity ), PASSFLOAT( r ), PASSFLOAT( g ), PASSFLOAT( b ), overdraw );
+	RE_AddLightToScene(org, intensity, r, g, b, overdraw );
 }
 
-
 void    trap_R_AddCoronaToScene( const vec3_t org, float r, float g, float b, float scale, int id, int flags ) {
-	syscall( CG_R_ADDCORONATOSCENE, org, PASSFLOAT( r ), PASSFLOAT( g ), PASSFLOAT( b ), PASSFLOAT( scale ), id, flags );
+	RE_AddCoronaToScene(org,  r , g, b, scale, id, flags );
 }
 
 void    trap_R_SetFog( int fogvar, int var1, int var2, float r, float g, float b, float density ) {
@@ -393,16 +392,21 @@ int trap_MemoryRemaining( void ) {
 	return syscall( CG_MEMORY_REMAINING );
 }
 
+extern qboolean loadCamera( int camNum, const char *name );
 qboolean trap_loadCamera( int camNum, const char *name ) {
-	return syscall( CG_LOADCAMERA, camNum, name );
+	return loadCamera(camNum, name );
 }
 
+extern void startCamera( int camNum, int time );
 void trap_startCamera( int camNum, int time ) {
-	syscall( CG_STARTCAMERA, camNum, time );
+	if (camNum  == 0 ) {
+		cl.cameraMode = qtrue;
+	}
+	startCamera( camNum, time );
 }
 
 void trap_stopCamera( int camNum ) {
-	if ( camNum == 0 ) {  // CAM_PRIMARY
+	if ( camNum == 0 ) {
 		cl.cameraMode = qfalse;
 	}
 }
