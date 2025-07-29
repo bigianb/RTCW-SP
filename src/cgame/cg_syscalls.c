@@ -314,17 +314,15 @@ void    trap_R_AddLightToScene( const vec3_t org, float intensity, float r, floa
 	syscall( CG_R_ADDLIGHTTOSCENE, org, PASSFLOAT( intensity ), PASSFLOAT( r ), PASSFLOAT( g ), PASSFLOAT( b ), overdraw );
 }
 
-//----(SA)
+
 void    trap_R_AddCoronaToScene( const vec3_t org, float r, float g, float b, float scale, int id, int flags ) {
 	syscall( CG_R_ADDCORONATOSCENE, org, PASSFLOAT( r ), PASSFLOAT( g ), PASSFLOAT( b ), PASSFLOAT( scale ), id, flags );
 }
-//----(SA)
 
-//----(SA)
 void    trap_R_SetFog( int fogvar, int var1, int var2, float r, float g, float b, float density ) {
-	syscall( CG_R_SETFOG, fogvar, var1, var2, PASSFLOAT( r ), PASSFLOAT( g ), PASSFLOAT( b ), PASSFLOAT( density ) );
+	R_SetFog( fogvar, var1, var2, r, g, b, density );
 }
-//----(SA)
+
 void    trap_R_RenderScene( const refdef_t *fd ) {
 	RE_RenderScene(fd );
 }

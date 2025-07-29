@@ -1124,27 +1124,12 @@ static void CG_RegisterGraphics( void ) {
 	cgs.media.backTileShader = trap_R_RegisterShader( "gfx/2d/backtile" );
 	cgs.media.noammoShader = trap_R_RegisterShader( "icons/noammo" );
 
-	// powerup shaders
-//	cgs.media.quadShader = trap_R_RegisterShader("powerups/quad" );
-//	cgs.media.quadWeaponShader = trap_R_RegisterShader("powerups/quadWeapon" );
-//	cgs.media.battleSuitShader = trap_R_RegisterShader("powerups/battleSuit" );
-//	cgs.media.battleWeaponShader = trap_R_RegisterShader("powerups/battleWeapon" );
-//	cgs.media.invisShader = trap_R_RegisterShader("powerups/invisibility" );
-//	cgs.media.regenShader = trap_R_RegisterShader("powerups/regen" );
-//	cgs.media.hastePuffShader = trap_R_RegisterShader("hasteSmokePuff" );
-
 	// DHM - Nerve :: Allow flags again, will change later to more appropriate models
 	if ( cgs.gametype == GT_CTF || cgs.gametype == GT_WOLF || cg_buildScript.integer ) {
 		cgs.media.redFlagModel = trap_R_RegisterModel( "models/flags/r_flag.md3" );
 		//cgs.media.redFlagModel = trap_R_RegisterModel( "models/powerups/keys/chalice.md3" );
 		cgs.media.blueFlagModel = trap_R_RegisterModel( "models/flags/b_flag.md3" );
 	}
-
-//	if ( cgs.gametype >= GT_TEAM || cg_buildScript.integer ) {
-//		cgs.media.friendShader = trap_R_RegisterShader( "sprites/foe" );
-//		cgs.media.redQuadShader = trap_R_RegisterShader("powerups/blueflag" );
-//		cgs.media.teamStatusBar = trap_R_RegisterShader( "gfx/2d/colorbar.tga" );
-//	}
 
 	CG_LoadingString( " - models" );
 
@@ -1170,17 +1155,11 @@ static void CG_RegisterGraphics( void ) {
 	cgs.media.debWood[3] = trap_R_RegisterModel( "models/gibs/wood/wood4.md3" );
 	cgs.media.debWood[4] = trap_R_RegisterModel( "models/gibs/wood/wood5.md3" );
 	cgs.media.debWood[5] = trap_R_RegisterModel( "models/gibs/wood/wood6.md3" );
-//	cgs.media.debWoodl = trap_R_RegisterModel( "models/mapobjects/debris/woodxl.md3" );
-//	cgs.media.debWoodm = trap_R_RegisterModel( "models/mapobjects/debris/woodm.md3" );
-//	cgs.media.debWoods = trap_R_RegisterModel( "models/mapobjects/debris/woodsm.md3" );
 
 	cgs.media.debFabric[0] = trap_R_RegisterModel( "models/shards/fabric1.md3" );
 	cgs.media.debFabric[1] = trap_R_RegisterModel( "models/shards/fabric2.md3" );
 	cgs.media.debFabric[2] = trap_R_RegisterModel( "models/shards/fabric3.md3" );
 
-	//----(SA) end
-
-//	cgs.media.medicReviveShader = trap_R_RegisterShader( "sprites/medic_revive" );	//----(SA)	commented out from MP
 	cgs.media.balloonShader = trap_R_RegisterShader( "sprites/balloon3" );
 
 	for ( i = 0; i < MAX_AISTATES; i++ ) {
@@ -1189,41 +1168,15 @@ static void CG_RegisterGraphics( void ) {
 
 	cgs.media.bloodExplosionShader = trap_R_RegisterShader( "bloodExplosion" );
 
-	//cgs.media.bleedExplosionShader = trap_R_RegisterShader( "bleedExplosion" );
-
-	//----(SA)	water splash
-	//cgs.media.waterSplashModel = trap_R_RegisterModel("models/weaphits/bullet.md3");
-	//cgs.media.waterSplashShader = trap_R_RegisterShader( "waterSplash" );
-	//----(SA)	end
-
-	//cgs.media.spearModel = trap_R_RegisterModel("models/weaphits/spear.md3");	//----(SA)
-
-	//cgs.media.bulletFlashModel = trap_R_RegisterModel("models/weaphits/bullet.md3");
-	//cgs.media.ringFlashModel = trap_R_RegisterModel("models/weaphits/ring02.md3");
-	//cgs.media.dishFlashModel = trap_R_RegisterModel("models/weaphits/boom01.md3");
-//	cgs.media.teleportEffectModel = trap_R_RegisterModel( "models/misc/telep.md3" );
-//	cgs.media.teleportEffectShader = trap_R_RegisterShader( "teleportEffect" );
-
-//	cgs.media.batModel = trap_R_RegisterModel( "models/mapobjects/bat/bat.md3" );
-
-//	cgs.media.medalImpressive = RE_RegisterShaderNoMip( "medal_impressive" );
-//	cgs.media.medalExcellent = RE_RegisterShaderNoMip( "medal_excellent" );
-//	cgs.media.medalGauntlet = RE_RegisterShaderNoMip( "medal_gauntlet" );
-
 	// Ridah, spark particles
 	cgs.media.sparkParticleShader = trap_R_RegisterShader( "sparkParticle" );
 	cgs.media.smokeTrailShader = trap_R_RegisterShader( "smokeTrail" );
-//	cgs.media.fireTrailShader = trap_R_RegisterShader( "fireTrail" );
 	cgs.media.lightningBoltShader = trap_R_RegisterShader( "lightningBolt" );
-	//cgs.media.lightningBoltShaderGreen = trap_R_RegisterShader( "lightningBoltGreen" );	//----(SA)	alternate lightning color
 	cgs.media.flamethrowerFireStream = trap_R_RegisterShader( "flamethrowerFireStream" );
 	cgs.media.flamethrowerBlueStream = trap_R_RegisterShader( "flamethrowerBlueStream" );
-	//cgs.media.flamethrowerFuelStream = trap_R_RegisterShader( "flamethrowerFuelStream" );
-	//cgs.media.flamethrowerFuelShader = trap_R_RegisterShader( "flamethrowerFuel" );
+
 	cgs.media.onFireShader2 = trap_R_RegisterShader( "entityOnFire1" );
 	cgs.media.onFireShader = trap_R_RegisterShader( "entityOnFire2" );
-	//cgs.media.dripWetShader2 = trap_R_RegisterShader( "dripWet2" );
-	//cgs.media.dripWetShader = trap_R_RegisterShader( "dripWet1" );
 	cgs.media.viewFadeBlack = trap_R_RegisterShader( "viewFadeBlack" );
 	cgs.media.sparkFlareShader = trap_R_RegisterShader( "sparkFlareParticle" );
 
@@ -1237,7 +1190,6 @@ static void CG_RegisterGraphics( void ) {
 	cgs.media.spotLightLightModel = trap_R_RegisterModel( "models/mapobjects/light/searchlight1_l.md3" );
 	cgs.media.spotLightLightModelBroke = trap_R_RegisterModel( "models/mapobjects/light/searchlight_l_broke.md3" );
 
-	// end spotlight
 
 	cgs.media.lightningHitWallShader = trap_R_RegisterShader( "lightningHitWall" );
 	cgs.media.lightningWaveShader = trap_R_RegisterShader( "lightningWave" );
@@ -1247,7 +1199,6 @@ static void CG_RegisterGraphics( void ) {
 	// DHM - Nerve :: bullet hitting dirt
 	cgs.media.dirtParticle1Shader = trap_R_RegisterShader( "dirt_splash" );
 	cgs.media.dirtParticle2Shader = trap_R_RegisterShader( "water_splash" );
-	//cgs.media.dirtParticle3Shader = trap_R_RegisterShader( "dirtParticle3" );
 
 	cgs.media.teslaDamageEffectShader = trap_R_RegisterShader( "teslaDamageEffect" );
 	cgs.media.teslaAltDamageEffectShader = trap_R_RegisterShader( "teslaAltDamageEffect" );
@@ -1255,24 +1206,15 @@ static void CG_RegisterGraphics( void ) {
 	cgs.media.viewTeslaAltDamageEffectShader = trap_R_RegisterShader( "viewTeslaAltDamageEffect" );
 	// done.
 
-	cgs.media.railCoreShader = trap_R_RegisterShader( "railCore" );  // (SA) for debugging server traces
-
+	cgs.media.railCoreShader = trap_R_RegisterShader( "railCore" ); 
 
 	cgs.media.thirdPersonBinocModel = trap_R_RegisterModel( "models/powerups/holdable/binocs_thirdperson.md3" ); //----(SA)	added
 	cgs.media.cigModel = trap_R_RegisterModel( "models/players/infantryss/acc/cig.md3" );    //----(SA)	added
 
-	// RF, not used anymore
-	//cgs.media.targetEffectExplosionShader	= trap_R_RegisterShader( "targetEffectExplode" );
-	//cgs.media.rocketExplosionShader			= trap_R_RegisterShader( "rocketExplosion" );
-	//cgs.media.grenadeExplosionShader		= trap_R_RegisterShader( "grenadeExplosion" );
-
 	// zombie shot
-	//cgs.media.zombieLoogie = trap_R_RegisterModel( "models/mapobjects/bodyparts/zom_loog.md3" );
 	cgs.media.flamebarrel = trap_R_RegisterModel( "models/furniture/barrel/barrel_a.md3" );
-	//----(SA) end
 
 	cgs.media.mg42muzzleflash = trap_R_RegisterModel( "models/weapons2/machinegun/mg42_flash.md3" );
-	// cgs.media.mg42muzzleflashgg = trap_R_RegisterModel ("models/weapons2/machinegun/mg42_flash_gg.md3" );
 
 	cgs.media.planemuzzleflash = trap_R_RegisterModel( "models/mapobjects/vehicles/gunflare.md3" );
 
@@ -1775,7 +1717,7 @@ void CG_LoadMenus( const char *menuFile ) {
 
 	COM_Compress( buf );
 
-	Menu_Reset();
+	//Menu_Reset();
 
 	p = buf;
 
@@ -2119,7 +2061,7 @@ void CG_LoadHudMenu() {
 
 	Init_Display( &cgDC );
 
-	Menu_Reset();
+	//Menu_Reset();
 
 	trap_Cvar_VariableStringBuffer( "cg_hudFiles", buff, sizeof( buff ) );
 	hudSet = buff;
@@ -2222,7 +2164,7 @@ void CG_Init( int serverMessageNum, int serverCommandSequence ) {
 
 	trap_CM_LoadMap( cgs.mapname );
 
-	String_Init();
+	//String_Init();
 
 	cg.loading = qtrue;     // force players to load instead of defer
 

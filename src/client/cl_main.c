@@ -629,8 +629,8 @@ void CL_FlushMemory( void ) {
 	if ( !com_sv_running->integer ) {
 		// clear the whole hunk
 		Hunk_Clear();
-//		// clear collision map data
-//		CM_ClearMap();
+		// clear collision map data
+		CM_ClearMap();
 	} else {
 		// clear all the client data on the hunk
 		Hunk_ClearToMark();
@@ -654,10 +654,7 @@ void CL_MapLoading( void ) {
 	}
 
 	Con_Close();
-	cls.keyCatchers = 0;
-
-// this was for multi-threaded music
-//	S_StartBackgroundTrack( "sound/music/l_briefing_1.wav", "", -2);	// '-2' for 'queue looping track' (QUEUED_PLAY_LOOPED)
+	Key_SetCatcher( 0 );
 
 	// if we are already connected to the local host, stay connected
 	if ( cls.state >= CA_CONNECTED && !Q_stricmp( cls.servername, "localhost" ) ) {
@@ -673,7 +670,7 @@ void CL_MapLoading( void ) {
 		CL_Disconnect( qtrue );
 		Q_strncpyz( cls.servername, "localhost", sizeof( cls.servername ) );
 		cls.state = CA_CHALLENGING;     // so the connect screen is drawn
-		cls.keyCatchers = 0;
+		Key_SetCatcher( 0 );
 		SCR_UpdateScreen();
 		clc.connectTime = -RETRANSMIT_TIMEOUT;
 		NET_StringToAdr( cls.servername, &clc.serverAddress );
@@ -681,9 +678,6 @@ void CL_MapLoading( void ) {
 
 		CL_CheckForResend();
 	}
-
-	// make sure sound is quiet
-	S_FadeAllSounds( 0, 0 );
 }
 
 /*

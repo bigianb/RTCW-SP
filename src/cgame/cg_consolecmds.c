@@ -128,8 +128,8 @@ static void CG_LoadHud_f( void ) {
 	const char *hudSet;
 	memset( buff, 0, sizeof( buff ) );
 
-	String_Init();
-	Menu_Reset();
+	//String_Init();
+	//Menu_Reset();
 
 	trap_Cvar_VariableStringBuffer( "cg_hudFiles", buff, sizeof( buff ) );
 	hudSet = buff;

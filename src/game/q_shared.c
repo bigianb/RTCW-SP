@@ -847,16 +847,14 @@ int Q_stricmpn( const char *s1, const char *s2, int n ) {
 			return 0;       // strings are equal until end point
 		}
 
-		if ( c1 != c2 ) {
-			if ( Q_islower( c1 ) ) {
-				c1 -= ( 'a' - 'A' );
-			}
-			if ( Q_islower( c2 ) ) {
-				c2 -= ( 'a' - 'A' );
-			}
-			if ( c1 != c2 ) {
-				return c1 < c2 ? -1 : 1;
-			}
+		if (c1 != c2)
+		{
+			if (c1 >= 'a' && c1 <= 'z')
+				c1 -= ('a' - 'A');
+			if (c2 >= 'a' && c2 <= 'z')
+				c2 -= ('a' - 'A');
+			if (c1 != c2)
+				return -1;		// strings not equal
 		}
 	} while ( c1 );
 

@@ -306,23 +306,10 @@ Called on load to set the initial values from configure strings
 ================
 */
 void CG_SetConfigValues( void ) {
-#ifdef MISSIONPACK
-	const char *s;
-#endif
-
 	cgs.scores1 = atoi( CG_ConfigString( CS_SCORES1 ) );
 	cgs.scores2 = atoi( CG_ConfigString( CS_SCORES2 ) );
 	cgs.levelStartTime = atoi( CG_ConfigString( CS_LEVEL_START_TIME ) );
-#ifdef MISSIONPACK
-	if ( cgs.gametype == GT_CTF ) {
-		s = CG_ConfigString( CS_FLAGSTATUS );
-		cgs.redflag = s[0] - '0';
-		cgs.blueflag = s[1] - '0';
-	} else if ( cgs.gametype == GT_1FCTF )    {
-		s = CG_ConfigString( CS_FLAGSTATUS );
-		cgs.flagStatus = s[0] - '0';
-	}
-#endif
+
 	cg.warmup = atoi( CG_ConfigString( CS_WARMUP ) );
 }
 
@@ -413,21 +400,6 @@ static void CG_ConfigStringModified( void ) {
 		cgs.voteModified = qtrue;
 	} else if ( num == CS_VOTE_STRING ) {
 		Q_strncpyz( cgs.voteString, str, sizeof( cgs.voteString ) );
-#if 0
-		trap_S_StartLocalSound( cgs.media.voteNow, CHAN_ANNOUNCER );
-	} else if ( num >= CS_TEAMVOTE_TIME && num <= CS_TEAMVOTE_TIME + 1 ) {
-		cgs.teamVoteTime[num - CS_TEAMVOTE_TIME] = atoi( str );
-		cgs.teamVoteModified[num - CS_TEAMVOTE_TIME] = qtrue;
-	} else if ( num >= CS_TEAMVOTE_YES && num <= CS_TEAMVOTE_YES + 1 ) {
-		cgs.teamVoteYes[num - CS_TEAMVOTE_YES] = atoi( str );
-		cgs.teamVoteModified[num - CS_TEAMVOTE_YES] = qtrue;
-	} else if ( num >= CS_TEAMVOTE_NO && num <= CS_TEAMVOTE_NO + 1 ) {
-		cgs.teamVoteNo[num - CS_TEAMVOTE_NO] = atoi( str );
-		cgs.teamVoteModified[num - CS_TEAMVOTE_NO] = qtrue;
-	} else if ( num >= CS_TEAMVOTE_STRING && num <= CS_TEAMVOTE_STRING + 1 ) {
-		Q_strncpyz( cgs.teamVoteString[num - CS_TEAMVOTE_STRING], str, sizeof( cgs.teamVoteString ) );
-		trap_S_StartLocalSound( cgs.media.voteNow, CHAN_ANNOUNCER );
-#endif
 	} else if ( num == CS_INTERMISSION ) {
 		cg.intermissionStarted = atoi( str );
 	} else if ( num == CS_SCREENFADE ) {
@@ -569,49 +541,6 @@ void CG_SendMoveSpeed( animation_t *animList, int numAnims, char *modelName ) {
 	trap_SendMoveSpeedsToGame( 0, text );
 }
 
-/*
-===============
-CG_SendMoveSpeeds
-
-  send moveSpeeds for all unique models
-===============
-*/
-#if 0
-void CG_SendMoveSpeeds( void ) {
-	int i,j;
-	animModelInfo_t *modelInfo;
-	clientInfo_t *ci;
-
-	for ( i = 0; i < MAX_ANIMSCRIPT_MODELS; i++ ) {
-
-		modelInfo = cgs.animScriptData.modelInfo[i];
-
-		if ( modelInfo == NULL ) {
-			continue;
-		}
-
-		if ( !modelInfo->modelname[0] ) {
-			continue;
-		}
-/*
-		// recalc them
-		// find a client that uses this model
-		for (ci = cgs.clientinfo, j=0; j<MAX_CLIENTS; j++, ci++) {
-			if (ci->modelInfo && ci->modelInfo == modelInfo) {
-				CG_CalcMoveSpeeds( ci );
-				break;
-			}
-		}
-*/
-//		if (j==MAX_CLIENTS)
-//			CG_Error( "CG_SendMoveSpeeds: cannot find client with modelName \"%s\" for moveSpeed calc", modelInfo->modelname );
-
-		// send this model
-		//CG_SendMoveSpeed( modelInfo->animations, modelInfo->numAnimations, modelInfo->modelname );
-	}
-
-}
-#endif
 
 /*
 ===============
@@ -838,15 +767,6 @@ static void CG_ServerCommand( void ) {
 
 	if ( !strcmp( cmd, "print" ) ) {
 		CG_Printf( "%s", CG_Argv( 1 ) );
-#ifdef MISSIONPACK
-		cmd = CG_Argv( 1 );           // yes, this is obviously a hack, but so is the way we hear about
-									  // votes passing or failing
-		if ( !Q_stricmpn( cmd, "vote failed", 11 ) || !Q_stricmpn( cmd, "team vote failed", 16 ) ) {
-			trap_S_StartLocalSound( cgs.media.voteFailed, CHAN_ANNOUNCER );
-		} else if ( !Q_stricmpn( cmd, "vote passed", 11 ) || !Q_stricmpn( cmd, "team vote passed", 16 ) ) {
-			trap_S_StartLocalSound( cgs.media.votePassed, CHAN_ANNOUNCER );
-		}
-#endif
 		return;
 	}
 

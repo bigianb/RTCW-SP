@@ -953,7 +953,7 @@ Called on a normal map change, not on a map_restart
 ===============
 */
 void SV_InitGameProgs( void ) {
-	/*
+	
 	cvar_t  *var;
 	//FIXME these are temp while I make bots run in vm
 	extern int bot_enable;
@@ -964,7 +964,7 @@ void SV_InitGameProgs( void ) {
 	} else {
 		bot_enable = 0;
 	}
-
+/*
 	// load the dll or bytecode
 	gvm = VM_Create( "qagame", SV_GameSystemCalls, Cvar_VariableValue( "vm_game" ) );
 	if ( !gvm ) {

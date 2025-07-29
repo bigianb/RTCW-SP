@@ -681,16 +681,7 @@ void SV_SpawnServer( char *server, qboolean killBots ) {
 	// clear the whole hunk because we're (re)loading the server
 	Hunk_Clear();
 
-//	// clear collision map data		// (SA) NOTE: TODO: used in missionpack
-//	CM_ClearMap();
-
-	// wipe the entire per-level structure
-	SV_ClearServer();
-
-	// allocate empty config strings
-	for ( i = 0 ; i < MAX_CONFIGSTRINGS ; i++ ) {
-		sv.configstrings[i] = CopyString( "" );
-	}
+	CM_ClearMap();
 
 	// init client structures and svs.numSnapshotEntities
 	if ( !Cvar_VariableValue( "sv_running" ) ) {
@@ -716,7 +707,14 @@ void SV_SpawnServer( char *server, qboolean killBots ) {
 	// set nextmap to the same map, but it may be overriden
 	// by the game startup or another console command
 	Cvar_Set( "nextmap", "map_restart 0" );
-//	Cvar_Set( "nextmap", va("map %s", server) );
+
+	// wipe the entire per-level structure
+	SV_ClearServer();
+
+	// allocate empty config strings
+	for ( i = 0 ; i < MAX_CONFIGSTRINGS ; i++ ) {
+		sv.configstrings[i] = CopyString( "" );
+	}
 
 	// Ridah
 	if ( sv_gametype->integer == GT_SINGLE_PLAYER ) {
@@ -829,12 +827,6 @@ void SV_SpawnServer( char *server, qboolean killBots ) {
 		}
 		p = FS_LoadedPakNames();
 		Cvar_Set( "sv_pakNames", p );
-
-		// if a dedicated pure server we need to touch the cgame because it could be in a
-		// seperate pk3 file and the client will need to load the latest cgame.qvm
-		if ( com_dedicated->integer ) {
-			SV_TouchCGame();
-		}
 	} else {
 		Cvar_Set( "sv_paks", "" );
 		Cvar_Set( "sv_pakNames", "" );
@@ -865,14 +857,6 @@ void SV_SpawnServer( char *server, qboolean killBots ) {
 	Hunk_SetMark();
 
 	Com_Printf( "-----------------------------------\n" );
-
-	/* MrE: 2000-09-13: now called in CL_DownloadsComplete
-	// don't call when running dedicated
-	if ( !com_dedicated->integer ) {
-		// note that this is called after setting the hunk mark with Hunk_SetMark
-		CL_StartHunkUsers();
-	}
-	*/
 }
 
 

@@ -298,8 +298,10 @@ int trap_BotLibLoadMap( const char *mapname ) {
 	return Export_BotLibLoadMap(mapname );
 }
 
+int Export_BotLibUpdateEntity( int ent, bot_entitystate_t *state );
 int trap_BotLibUpdateEntity( int ent, void /* struct bot_updateentity_s */ *bue ) {
-	return syscall( BOTLIB_UPDATENTITY, ent, bue );
+	
+	return Export_BotLibUpdateEntity(ent, bue );
 }
 
 int trap_BotLibTest( int parm0, char *parm1, vec3_t parm2, vec3_t parm3 ) {
@@ -717,7 +719,7 @@ void trap_BotInitLevelItems( void ) {
 }
 
 void trap_BotUpdateEntityItems( void ) {
-	syscall( BOTLIB_AI_UPDATE_ENTITY_ITEMS );
+	BotUpdateEntityItems();
 }
 
 int trap_BotLoadItemWeights( int goalstate, char *filename ) {

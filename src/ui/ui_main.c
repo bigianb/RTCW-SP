@@ -1119,9 +1119,6 @@ void UI_Load() {
 	// load translation text
 	UI_LoadTranslationStrings();
 
-//	UI_ParseGameInfo("gameinfo.txt");
-//	UI_LoadArenas();
-
 	UI_LoadMenus( menuSet, qtrue );
 	Menus_CloseAll();
 	Menus_ActivateByName( lastName );
@@ -4425,7 +4422,6 @@ static void UI_RunMenuScript( char **args ) {
 	char buff[1024];
 
 	if ( String_Parse( args, &name ) ) {
-		//#ifdef MISSIONPACK			// NERVE - SMF - enabled for multiplayer
 		if ( Q_stricmp( name, "StartServer" ) == 0 ) {
 			int i, clients;
 			float skill;
@@ -4484,14 +4480,7 @@ static void UI_RunMenuScript( char **args ) {
 			UI_GameType_HandleKey( 0, 0, K_MOUSE1, qfalse );
 			UI_GameType_HandleKey( 0, 0, K_MOUSE2, qfalse );
 		} else if ( Q_stricmp( name, "resetDefaults" ) == 0 ) {
-// SP was like...
-//			trap_Cmd_ExecuteText( EXEC_APPEND, "exec default.cfg\n");
-//			trap_Cmd_ExecuteText( EXEC_APPEND, "cvar_restart\n");
-//			Controls_SetDefaults();
-//			trap_Cvar_Set("com_introPlayed", "1" );
-//			trap_Cmd_ExecuteText( EXEC_APPEND, "vid_restart\n" );
 
-// from MP 11/12/01
 			trap_Cmd_ExecuteText( EXEC_NOW, "cvar_restart\n" );            // NERVE - SMF - changed order
 			trap_Cmd_ExecuteText( EXEC_NOW, "exec default.cfg\n" );
 			trap_Cmd_ExecuteText( EXEC_NOW, "exec language.cfg\n" );       // NERVE - SMF
@@ -4500,7 +4489,7 @@ static void UI_RunMenuScript( char **args ) {
 			trap_Cvar_Set( "com_introPlayed", "1" );
 			trap_Cvar_Set( "com_recommendedSet", "1" );                   // NERVE - SMF
 			trap_Cmd_ExecuteText( EXEC_APPEND, "vid_restart\n" );
-// end from MP
+
 		} else if ( Q_stricmp( name, "getCDKey" ) == 0 ) {
 			char out[17];
 			trap_GetCDKey( buff, 17 );
@@ -4653,7 +4642,7 @@ static void UI_RunMenuScript( char **args ) {
 		} else if ( Q_stricmp( name, "Wolf" ) == 0 ) {
 			trap_Cvar_Set( "fs_game", "" );
 			trap_Cmd_ExecuteText( EXEC_APPEND, "vid_restart;" );
-			//#ifdef MISSIONPACK			// NERVE - SMF - enabled for multiplayer
+
 		} else if ( Q_stricmp( name, "closeJoin" ) == 0 ) {
 			if ( uiInfo.serverStatus.refreshActive ) {
 				UI_StopServerRefresh();
@@ -4665,9 +4654,8 @@ static void UI_RunMenuScript( char **args ) {
 				Menus_CloseByName( "joinserver" );
 				Menus_OpenByName( "main" );
 			}
-			//#endif
 		} else if ( Q_stricmp( name, "StopRefresh" ) == 0 ) {
-			//#ifdef MISSIONPACK			// NERVE - SMF - enabled for multiplayer
+
 			UI_StopServerRefresh();
 			uiInfo.serverStatus.nextDisplayRefresh = 0;
 			uiInfo.nextServerStatusRefresh = 0;
@@ -4703,7 +4691,6 @@ static void UI_RunMenuScript( char **args ) {
 			if ( uiInfo.currentFoundPlayerServer >= 0 && uiInfo.currentFoundPlayerServer < uiInfo.numFoundPlayerServers ) {
 				trap_Cmd_ExecuteText( EXEC_APPEND, va( "connect %s\n", uiInfo.foundPlayerServerAddresses[uiInfo.currentFoundPlayerServer] ) );
 			}
-			//#endif	// #ifdef MISSIONPACK
 		} else if ( Q_stricmp( name, "Quit" ) == 0 ) {
 			trap_Cvar_Set( "ui_singlePlayerActive", "0" );
 			trap_Cmd_ExecuteText( EXEC_NOW, "quit" );
@@ -4736,12 +4723,10 @@ static void UI_RunMenuScript( char **args ) {
 			trap_Key_ClearStates();
 			trap_Cvar_Set( "cl_paused", "0" );
 			Menus_CloseAll();
-			//#ifdef MISSIONPACK			// NERVE - SMF - enabled for multiplayer
 		} else if ( Q_stricmp( name, "voteMap" ) == 0 ) {
 			if ( ui_currentNetMap.integer >= 0 && ui_currentNetMap.integer < uiInfo.mapCount ) {
 				trap_Cmd_ExecuteText( EXEC_APPEND, va( "callvote map %s\n",uiInfo.mapList[ui_currentNetMap.integer].mapLoadName ) );
 			}
-			//#endif	// #ifdef MISSIONPACK
 		} else if ( Q_stricmp( name, "voteKick" ) == 0 ) {
 			if ( uiInfo.playerIndex >= 0 && uiInfo.playerIndex < uiInfo.playerCount ) {
 				trap_Cmd_ExecuteText( EXEC_APPEND, va( "callvote kick %s\n",uiInfo.playerNames[uiInfo.playerIndex] ) );
@@ -4754,7 +4739,6 @@ static void UI_RunMenuScript( char **args ) {
 			if ( uiInfo.teamIndex >= 0 && uiInfo.teamIndex < uiInfo.myTeamCount ) {
 				trap_Cmd_ExecuteText( EXEC_APPEND, va( "callteamvote leader %s\n",uiInfo.teamNames[uiInfo.teamIndex] ) );
 			}
-			//#ifdef MISSIONPACK			// NERVE - SMF - enabled for multiplayer
 		} else if ( Q_stricmp( name, "addBot" ) == 0 ) {
 			if ( trap_Cvar_VariableValue( "g_gametype" ) >= GT_TEAM ) {
 				trap_Cmd_ExecuteText( EXEC_APPEND, va( "addbot %s %i %s\n", uiInfo.characterList[uiInfo.botIndex].name, uiInfo.skillIndex + 1, ( uiInfo.redBlue == 0 ) ? "Red" : "Blue" ) );
@@ -4870,20 +4854,16 @@ static void UI_RunMenuScript( char **args ) {
 				trap_Cvar_Set( "cl_paused", "0" );
 				Menus_CloseAll();
 			}
-			//#endif	// #ifdef MISSIONPACK
 		} else if ( Q_stricmp( name, "glCustom" ) == 0 ) {
 			trap_Cvar_Set( "ui_glCustom", "4" );
 		} else if ( Q_stricmp( name, "update" ) == 0 ) {
 			if ( String_Parse( args, &name2 ) ) {
 				UI_Update( name2 );
 			}
-			// NERVE - SMF
-//----(SA)	// start other .exe
 		} else if ( Q_stricmp( name, "startSingleplayer" ) == 0 ) {  // so it doesn't barf if it gets a mp menu
 			trap_Cmd_ExecuteText( EXEC_APPEND, "startMultiplayer\n" );
 		} else if ( Q_stricmp( name, "startMultiplayer" ) == 0 ) {
 			trap_Cmd_ExecuteText( EXEC_APPEND, "startMultiplayer\n" );
-//----(SA)
 		} else if ( Q_stricmp( name, "wm_showPickPlayer" ) == 0 ) {
 			Menus_CloseAll();
 			Menus_OpenByName( "wm_pickplayer" );

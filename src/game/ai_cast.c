@@ -711,7 +711,6 @@ AICast_EnableRenderingThink
 */
 void AICast_EnableRenderingThink( gentity_t *ent ) {
 	trap_Cvar_Set( "cg_norender", "0" );
-//		trap_S_FadeAllSound(1.0f, 1000);	// fade sound up
 	G_FreeEntity( ent );
 }
 
@@ -740,17 +739,14 @@ void AICast_CheckLoadGame( void ) {
 
 	trap_Cvar_VariableStringBuffer( "savegame_loading", loading, sizeof( loading ) );
 
-//	reloading = qtrue;
 	trap_Cvar_Set( "g_reloading", "1" );
 
 	if ( strlen( loading ) > 0 && atoi( loading ) != 0 ) {
 		// screen should be black if we are at this stage
 		trap_SetConfigstring( CS_SCREENFADE, va( "1 %i 1", level.time - 10 ) );
 
-//		if (!reloading && atoi(loading) == 2) {
 		if ( !( g_reloading.integer ) && atoi( loading ) == 2 ) {
 			// (SA) hmm, this seems redundant when it sets it above...
-//			reloading = qtrue;	// this gets reset at the Map_Restart() since the server unloads the game dll
 			trap_Cvar_Set( "g_reloading", "1" );
 		}
 
@@ -769,13 +765,11 @@ void AICast_CheckLoadGame( void ) {
 			G_LoadGame( NULL );     // always load the "current" savegame
 
 			// RF, spawn a thinker that will enable rendering after the client has had time to process the entities and setup the display
-			//trap_Cvar_Set( "cg_norender", "0" );
 			ent = G_Spawn();
 			ent->nextthink = level.time + 200;
 			ent->think = AICast_EnableRenderingThink;
 
 			// wait for the clients to return from faded screen
-			//trap_SetConfigstring( CS_SCREENFADE, va("0 %i 1500", level.time + 500) );
 			trap_SetConfigstring( CS_SCREENFADE, va( "0 %i 750", level.time + 500 ) );
 			level.reloadPauseTime = level.time + 1100;
 
@@ -806,22 +800,10 @@ void AICast_CheckLoadGame( void ) {
 			pcs->lastLoadTime = 0;
 			pcs->attempts = 0;
 
-			// RF, disabled, since the pregame menu turns this off after the button is pressed, this isn't
-			// required here
-			// RF, spawn a thinker that will enable rendering after the client has had time to process the entities and setup the display
-			//trap_Cvar_Set( "cg_norender", "0" );
-			//ent = G_Spawn();
-			//ent->nextthink = level.time + 200;
-			//ent->think = AICast_EnableRenderingThink;
-
 			saveGamePending = qfalse;
 
-			// wait for the clients to return from faded screen
-//			trap_SetConfigstring( CS_SCREENFADE, va("0 %i 1500", level.time + 500) );
-//			trap_SetConfigstring( CS_SCREENFADE, va("0 %i 750", level.time + 500) );
 			// (SA) send a command that will be interpreted for both the screenfade and any other effects (music cues, pregame menu, etc)
-
-// briefing menu will handle transition, just set a cvar for it to check for drawing the 'continue' button
+			// briefing menu will handle transition, just set a cvar for it to check for drawing the 'continue' button
 			trap_SendServerCommand( -1, "rockandroll\n" );
 
 			level.reloadPauseTime = level.time + 1100;
