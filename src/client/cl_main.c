@@ -332,14 +332,6 @@ void CL_Record_f( void ) {
 	}
 
 	// open the demo file
-#ifdef __MACOS__    //DAJ MacOS file typing
-	{
-		extern _MSL_IMP_EXP_C long _fcreator, _ftype;
-		_ftype = 'WlfB';
-		_fcreator = 'WlfS';
-	}
-#endif
-
 	Com_Printf( "recording to %s.\n", name );
 	clc.demofile = FS_FOpenFileWrite( name );
 	if ( !clc.demofile ) {
@@ -752,11 +744,8 @@ void CL_Disconnect( qboolean showMainMenu ) {
 
 	cls.state = CA_DISCONNECTED;
 
-	// allow cheats locally
-#ifndef WOLF_SP_DEMO
 	// except for demo
 	Cvar_Set( "sv_cheats", "1" );
-#endif
 
 	// not connected to a pure server anymore
 	cl_connectedToPureServer = qfalse;

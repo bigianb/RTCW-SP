@@ -1221,7 +1221,7 @@ static qboolean SV_ClientCommand( client_t *cl, msg_t *msg ) {
 		return qtrue;
 	}
 
-	Com_DPrintf( "clientCommand: %s : %i : %s\n", cl->name, seq, s );
+	//Com_DPrintf( "clientCommand: %s : %i : %s\n", cl->name, seq, s );
 
 	// drop the connection if we have somehow lost commands
 	if ( seq > cl->lastClientCommand + 1 ) {

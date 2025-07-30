@@ -477,7 +477,7 @@ void AICast_Init( void ) {
 	numSpawningCast = 0;
 	saveGamePending = qtrue;
 
-	trap_Cvar_Register( &aicast_debug, "aicast_debug", "0", 0 );
+	trap_Cvar_Register( &aicast_debug, "aicast_debug", "1", 0 );
 	trap_Cvar_Register( &aicast_debugname, "aicast_debugname", "", 0 );
 	trap_Cvar_Register( &aicast_scripts, "aicast_scripts", "1", 0 );
 

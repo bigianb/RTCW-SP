@@ -1074,9 +1074,8 @@ static void IN_ProcessEvents( void )
 			case SDL_EVENT_MOUSE_MOTION:
 				if( mouseActive )
 				{
-					if( !e.motion.xrel && !e.motion.yrel )
-						break;
-					Com_QueueEvent( in_eventTime, SE_MOUSE, e.motion.xrel, e.motion.yrel, 0, NULL );
+					if( e.motion.xrel != 0.0 && e.motion.yrel != 0.0)
+						Com_QueueEvent( in_eventTime, SE_MOUSE, e.motion.xrel, e.motion.yrel, 0, NULL );
 				}
 				break;
 
