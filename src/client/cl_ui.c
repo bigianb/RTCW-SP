@@ -658,7 +658,7 @@ static void GetClipboardData( char *buf, int buflen ) {
 Key_KeynumToStringBuf
 ====================
 */
-static void Key_KeynumToStringBuf( int keynum, char *buf, int buflen ) {
+void Key_KeynumToStringBuf( int keynum, char *buf, int buflen ) {
 	Q_strncpyz( buf, Key_KeynumToString( keynum, qtrue ), buflen );
 }
 

@@ -165,9 +165,9 @@ void    trap_S_FadeAllSound( float targetvol, int time ) {
 }
 */
 
-
+extern void Key_KeynumToStringBuf( int keynum, char *buf, int buflen );
 void trap_Key_KeynumToStringBuf( int keynum, char *buf, int buflen ) {
-	syscall( UI_KEY_KEYNUMTOSTRINGBUF, keynum, buf, buflen );
+	Key_KeynumToStringBuf(keynum, buf, buflen );
 }
 
 void trap_Key_GetBindingBuf( int keynum, char *buf, int buflen ) {

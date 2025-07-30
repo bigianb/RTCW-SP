@@ -267,10 +267,7 @@ CG_StartCamera
 void CG_StartCamera( const char *name, qboolean startBlack ) {
 	char lname[MAX_QPATH];
 
-	//if ( cg.predictedPlayerState.stats[STAT_HEALTH] <= 0 )	// don't allow camera to start if you're dead
-	//	return;
-
-	COM_StripExtension( name, lname );    //----(SA)	added
+	COM_StripExtension( name, lname );
 	strcat( lname, ".camera" );
 
 	if ( trap_loadCamera( CAM_PRIMARY, va( "cameras/%s", lname ) ) ) {

@@ -734,7 +734,9 @@ static void CG_ServerCommand( void ) {
 	}
 
 	if ( !strcmp( cmd, "startCam" ) ) {
-		CG_StartCamera( CG_Argv( 1 ), atoi( CG_Argv( 2 ) ) );
+		qboolean startBlack = atoi( CG_Argv( 2 ) );
+
+		CG_StartCamera( CG_Argv( 1 ), startBlack );
 		return;
 	}
 
@@ -833,7 +835,15 @@ static void CG_ServerCommand( void ) {
 
 	if ( Q_stricmp( cmd, "remapShader" ) == 0 ) {
 		if ( trap_Argc() == 4 ) {
-			trap_R_RemapShader( CG_Argv( 1 ), CG_Argv( 2 ), CG_Argv( 3 ) );
+			char shader1[MAX_QPATH];
+			char shader2[MAX_QPATH];
+			char shader3[MAX_QPATH];
+
+			Q_strncpyz(shader1, CG_Argv(1), sizeof(shader1));
+			Q_strncpyz(shader2, CG_Argv(2), sizeof(shader2));
+			Q_strncpyz(shader3, CG_Argv(3), sizeof(shader3));
+
+			trap_R_RemapShader(shader1, shader2, shader3);
 		}
 	}
 
@@ -852,7 +862,9 @@ static void CG_ServerCommand( void ) {
 
 	// NERVE - SMF
 	if ( !Q_stricmp( cmd, "oid" ) ) {
-		CG_ObjectivePrint( CG_Argv( 2 ), SMALLCHAR_WIDTH, atoi( CG_Argv( 1 ) ) );
+		int team = atoi( CG_Argv( 1 ) );
+
+		CG_ObjectivePrint( CG_Argv( 2 ), SMALLCHAR_WIDTH, team );
 		return;
 	}
 	// -NERVE - SMF
@@ -900,12 +912,16 @@ static void CG_ServerCommand( void ) {
 	}
 
 	if ( !strcmp( cmd, "mu_fade" ) ) {
-		trap_S_FadeBackgroundTrack( atof( CG_Argv( 1 ) ), atoi( CG_Argv( 2 ) ), 0 );
+		int time = atoi( CG_Argv( 2 ) );
+
+		trap_S_FadeBackgroundTrack( atof( CG_Argv( 1 ) ), time, 0 );
 		return;
 	}
 
 	if ( !strcmp( cmd, "snd_fade" ) ) {
-		trap_S_FadeAllSound( atof( CG_Argv( 1 ) ), atoi( CG_Argv( 2 ) ) );
+		int time = atoi( CG_Argv( 2 ) );
+
+		trap_S_FadeAllSound( atof( CG_Argv( 1 ) ), time );
 		return;
 	}
 
