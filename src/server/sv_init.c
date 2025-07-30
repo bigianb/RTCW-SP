@@ -616,6 +616,7 @@ void SV_TouchCGame( void ) {
 	}
 }
 
+extern int Export_BotLibShutdown( void );
 /*
 ================
 SV_SpawnServer
@@ -679,6 +680,8 @@ void SV_SpawnServer( char *server, qboolean killBots ) {
 	CL_ShutdownAll();
 
 	// clear the whole hunk because we're (re)loading the server
+	// IJB: shared hunk so need to free the AAS first.
+	Export_BotLibShutdown();
 	Hunk_Clear();
 
 	CM_ClearMap();

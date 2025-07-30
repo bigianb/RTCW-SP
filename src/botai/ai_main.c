@@ -1163,7 +1163,7 @@ int BotAISetup( int restart ) {
 #ifdef RANDOMIZE
 	srand( (unsigned)time( NULL ) );
 #endif //RANDOMIZE
-
+	
 	trap_Cvar_Register( &bot_thinktime, "bot_thinktime", "100", 0 );
 	trap_Cvar_Register( &memorydump, "memorydump", "0", 0 );
 

@@ -1068,11 +1068,6 @@ float CG_GetValue( int ownerDraw, int type ) {
 	clientInfo_t *ci;
 	playerState_t   *ps;
 
-	if (!cg.snap){
-		// IJB: FIXME - should not happen
-		return -1;
-	}
-
 	cent = &cg_entities[cg.snap->ps.clientNum];
 	ps = &cg.snap->ps;
 

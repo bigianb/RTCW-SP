@@ -341,44 +341,15 @@ int AAS_IntForBSPEpairKey( int ent, char *key, int *value ) {
 	}
 	*value = atoi( buf );
 	return qtrue;
-} //end of the function AAS_IntForBSPEpairKey
-//===========================================================================
-//
-// Parameter:			-
-// Returns:				-
-// Changes Globals:		-
-//===========================================================================
-void AAS_FreeBSPEntities( void ) {
-// RF, optimized memory allocation
-/*
-	int i;
-	bsp_entity_t *ent;
-	bsp_epair_t *epair, *nextepair;
+}
 
-	for (i = 1; i < bspworld.numentities; i++)
-	{
-		ent = &bspworld.entities[i];
-		for (epair = ent->epairs; epair; epair = nextepair)
-		{
-			nextepair = epair->next;
-			//
-			if (epair->key) FreeMemory(epair->key);
-			if (epair->value) FreeMemory(epair->value);
-			FreeMemory(epair);
-		} //end for
-	} //end for
-*/
+void AAS_FreeBSPEntities( void ) {
 	if ( bspworld.ebuffer ) {
 		FreeMemory( bspworld.ebuffer );
 	}
 	bspworld.numentities = 0;
-} //end of the function AAS_FreeBSPEntities
-//===========================================================================
-//
-// Parameter:			-
-// Returns:				-
-// Changes Globals:		-
-//===========================================================================
+}
+
 void AAS_ParseBSPEntities( void ) {
 	script_t *script;
 	token_t token;
