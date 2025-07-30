@@ -28,6 +28,7 @@ If you have questions concerning this license or the applicable additional terms
 
 #include "ui_local.h"
 #include "../cgame/cg_local.h"
+#include "../client/client.h"
 
 uiInfo_t uiInfo;
 
@@ -205,8 +206,6 @@ int vmMainUI( int command, int arg0, int arg1, int arg2, int arg3, int arg4, int
 	case UI_DRAW_CONNECT_SCREEN:
 		UI_DrawConnectScreen( arg0 );
 		return 0;
-	case UI_HASUNIQUECDKEY:             // mod authors need to observe this
-		return qtrue;
 
 	}
 
@@ -4489,39 +4488,6 @@ static void UI_RunMenuScript( char **args ) {
 			trap_Cvar_Set( "com_introPlayed", "1" );
 			trap_Cvar_Set( "com_recommendedSet", "1" );                   // NERVE - SMF
 			trap_Cmd_ExecuteText( EXEC_APPEND, "vid_restart\n" );
-
-		} else if ( Q_stricmp( name, "getCDKey" ) == 0 ) {
-			char out[17];
-			trap_GetCDKey( buff, 17 );
-			trap_Cvar_Set( "cdkey1", "" );
-			trap_Cvar_Set( "cdkey2", "" );
-			trap_Cvar_Set( "cdkey3", "" );
-			trap_Cvar_Set( "cdkey4", "" );
-			if ( strlen( buff ) == CDKEY_LEN ) {
-				Q_strncpyz( out, buff, 5 );
-				trap_Cvar_Set( "cdkey1", out );
-				Q_strncpyz( out, buff + 4, 5 );
-				trap_Cvar_Set( "cdkey2", out );
-				Q_strncpyz( out, buff + 8, 5 );
-				trap_Cvar_Set( "cdkey3", out );
-				Q_strncpyz( out, buff + 12, 5 );
-				trap_Cvar_Set( "cdkey4", out );
-			}
-
-		} else if ( Q_stricmp( name, "verifyCDKey" ) == 0 ) {
-			buff[0] = '\0';
-			Q_strcat( buff, 1024, UI_Cvar_VariableString( "cdkey1" ) );
-			Q_strcat( buff, 1024, UI_Cvar_VariableString( "cdkey2" ) );
-			Q_strcat( buff, 1024, UI_Cvar_VariableString( "cdkey3" ) );
-			Q_strcat( buff, 1024, UI_Cvar_VariableString( "cdkey4" ) );
-			trap_Cvar_Set( "cdkey", buff );
-			if ( trap_VerifyCDKey( buff, UI_Cvar_VariableString( "cdkeychecksum" ) ) ) {
-				trap_Cvar_Set( "ui_cdkeyvalid", "CD Key Appears to be valid." );
-				trap_SetCDKey( buff );
-			} else {
-				trap_Cvar_Set( "ui_cdkeyvalid", "CD Key does not appear to be valid." );
-			}
-			//#ifdef MISSIONPACK			// NERVE - SMF - enabled for multiplayer
 		} else if ( Q_stricmp( name, "loadArenas" ) == 0 ) {
 			UI_LoadArenas();
 			UI_MapCountByGameType( qfalse );
@@ -7368,7 +7334,7 @@ static void UI_DoServerRefresh( void ) {
 	}
 
 	// if still trying to retrieve pings
-	if ( trap_LAN_UpdateVisiblePings( ui_netSource.integer ) ) {
+	if ( CL_UpdateVisiblePings_f( ui_netSource.integer ) ) {
 		uiInfo.serverStatus.refreshtime = uiInfo.uiDC.realTime + 1000;
 	} else if ( !wait ) {
 		// get the last servers in the list

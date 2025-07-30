@@ -555,7 +555,7 @@ int     FS_FOpenFileRead( const char *qpath, fileHandle_t *file, qboolean unique
 int     FS_FileIsInPAK( const char *filename, int *pChecksum );
 // returns 1 if a file is in the PAK file, otherwise -1
 
-int     FS_Delete( char *filename );    // only works inside the 'save' directory (for deleting savegames/images)
+int     FS_Delete( const char *filename );    // only works inside the 'save' directory (for deleting savegames/images)
 
 int     FS_Write( const void *buffer, int len, fileHandle_t f );
 

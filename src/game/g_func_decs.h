@@ -933,7 +933,6 @@ extern void trap_AAS_EntityInfo ( int entnum , void * info ) ;
 extern void trap_BotUserCommand ( int clientNum , usercmd_t * ucmd ) ;
 extern int trap_BotGetServerCommand ( int clientNum , char * message , int size ) ;
 extern int trap_BotGetSnapshotEntity ( int clientNum , int sequence ) ;
-extern int trap_BotLibTest ( int parm0 , char * parm1 , vec3_t parm2 , vec3_t parm3 ) ;
 extern int trap_BotLibUpdateEntity ( int ent , void * bue ) ;
 extern int trap_BotLibLoadMap ( const char * mapname ) ;
 extern int trap_BotLibStartFrame ( float time ) ;
@@ -956,7 +955,7 @@ extern qboolean trap_EntityContact ( const vec3_t mins , const vec3_t maxs , con
 extern int trap_EntitiesInBox ( const vec3_t mins , const vec3_t maxs , int * list , int maxcount ) ;
 extern void trap_UnlinkEntity ( gentity_t * ent ) ;
 extern void trap_LinkEntity ( gentity_t * ent ) ;
-extern qboolean trap_AreasConnected ( int area1 , int area2 ) ;
+
 extern void trap_AdjustAreaPortalState ( gentity_t * ent , qboolean open ) ;
 extern qboolean trap_InPVSIgnorePortals ( const vec3_t p1 , const vec3_t p2 ) ;
 extern qboolean trap_InPVS ( const vec3_t p1 , const vec3_t p2 ) ;
@@ -992,7 +991,6 @@ extern void trap_Endgame ( void ) ;
 extern void trap_Error ( const char * fmt ) ;
 extern void trap_Printf ( const char * fmt ) ;
 
-extern void dllEntry ( int ( QDECL * syscallptr ) ( int arg , ... ) ) ;
 extern void G_RunFrame ( int levelTime ) ;
 extern void G_RunThink ( gentity_t * ent ) ;
 extern void CheckCvars ( void ) ;

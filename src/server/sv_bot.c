@@ -455,7 +455,7 @@ SV_BotLibSetup
 */
 extern int Export_BotLibSetup();
 int SV_BotLibSetup( void ) {
-	Export_BotLibSetup();
+	return Export_BotLibSetup();
 }
 
 /*

@@ -1360,7 +1360,7 @@ TTimo - this was not in the 1.30 filesystem code
 using fs_homepath for the file to remove
 ==============
 */
-int FS_Delete( char *filename ) {
+int FS_Delete( const char *filename ) {
 	char *ospath;
 
 	if ( !fs_searchpaths ) {

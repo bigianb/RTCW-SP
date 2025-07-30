@@ -33,29 +33,21 @@ If you have questions concerning this license or the applicable additional terms
 #include "../server/server.h"
 #include "../botlib/be_aas.h"
 #include "../botlib/be_aas_bsp.h"
+#include "../botlib/be_aas_entity.h"
 #include "../botlib/be_aas_main.h"
+#include "../botlib/be_aas_move.h"
 #include "../botlib/be_aas_reach.h"
+#include "../botlib/be_aas_route.h"
+#include "../botlib/be_aas_routetable.h"
 #include "../botlib/be_aas_sample.h"
 #include "../game/be_ea.h"
 #include "../botlib/botlib.h"
+#include "../game/be_ai_char.h"
+#include "../game/be_ai_chat.h"
+#include "../game/be_ai_gen.h"
 #include "../game/be_ai_goal.h"
 #include "../game/be_ai_move.h"
-
-static int QDECL dummySyscall(int arg, ...){
-	return 0;
-}
-
-static int ( QDECL * syscall )( int arg, ... ) = dummySyscall;
-
-void dllEntry_G( int ( QDECL *syscallptr )( int arg,... ) ) {
-	syscall = syscallptr;
-}
-
-static int PASSFLOAT( float x ) {
-	float floatTemp;
-	floatTemp = x;
-	return *(int *)&floatTemp;
-}
+#include "../game/be_ai_weap.h"
 
 void    trap_Printf( const char *fmt ) {
 	Com_Printf( "%s", fmt );
@@ -195,10 +187,6 @@ void trap_AdjustAreaPortalState( gentity_t *ent, qboolean open ) {
 	SV_AdjustAreaPortalState(ent, open );
 }
 
-qboolean trap_AreasConnected( int area1, int area2 ) {
-	return syscall( G_AREAS_CONNECTED, area1, area2 );
-}
-
 void trap_LinkEntity( gentity_t *ent ) {
 	SV_LinkEntity( ent );
 }
@@ -245,11 +233,11 @@ qboolean trap_GetEntityToken( char *buffer, int bufferSize ) {
 }
 
 int trap_DebugPolygonCreate( int color, int numPoints, vec3_t *points ) {
-	return syscall( G_DEBUG_POLYGON_CREATE, color, numPoints, points );
+	return BotImport_DebugPolygonCreate(color, numPoints, points );
 }
 
 void trap_DebugPolygonDelete( int id ) {
-	syscall( G_DEBUG_POLYGON_DELETE, id );
+	BotImport_DebugPolygonDelete(id );
 }
 
 int trap_RealTime( qtime_t *qtime ) {
@@ -284,8 +272,9 @@ int trap_BotLibVarGet( char *var_name, char *value, int size ) {
 	return Export_BotLibVarGet(var_name, value, size );
 }
 
+extern int PC_AddGlobalDefine( char *string );
 int trap_BotLibDefine( char *string ) {
-	return syscall( BOTLIB_PC_ADD_GLOBAL_DEFINE, string );
+	return PC_AddGlobalDefine( string );
 }
 
 extern qboolean BotLibSetup( char *str );
@@ -307,16 +296,12 @@ int trap_BotLibUpdateEntity( int ent, void /* struct bot_updateentity_s */ *bue 
 	return Export_BotLibUpdateEntity(ent, bue );
 }
 
-int trap_BotLibTest( int parm0, char *parm1, vec3_t parm2, vec3_t parm3 ) {
-	return syscall( BOTLIB_TEST, parm0, parm1, parm2, parm3 );
-}
-
 int trap_BotGetSnapshotEntity( int clientNum, int sequence ) {
-	return syscall( BOTLIB_GET_SNAPSHOT_ENTITY, clientNum, sequence );
+	return SV_BotGetSnapshotEntity(clientNum, sequence );
 }
 
 int trap_BotGetServerCommand( int clientNum, char *message, int size ) {
-	return syscall( BOTLIB_GET_CONSOLE_MESSAGE, clientNum, message, size );
+	return SV_BotGetConsoleMessage(clientNum, message, size );
 }
 
 void trap_BotUserCommand( int clientNum, usercmd_t *ucmd ) {
@@ -324,7 +309,7 @@ void trap_BotUserCommand( int clientNum, usercmd_t *ucmd ) {
 }
 
 void trap_AAS_EntityInfo( int entnum, void /* struct aas_entityinfo_s */ *info ) {
-	syscall( BOTLIB_AAS_ENTITY_INFO, entnum, info );
+	AAS_EntityInfo(entnum, info );
 }
 
 int trap_AAS_Initialized( void ) {
@@ -332,7 +317,7 @@ int trap_AAS_Initialized( void ) {
 }
 
 void trap_AAS_PresenceTypeBoundingBox( int presencetype, vec3_t mins, vec3_t maxs ) {
-	syscall( BOTLIB_AAS_PRESENCE_TYPE_BOUNDING_BOX, presencetype, mins, maxs );
+	AAS_PresenceTypeBoundingBox(presencetype, mins, maxs );
 }
 
 float trap_AAS_Time( void ) {
@@ -382,69 +367,72 @@ int trap_AAS_AreaReachability( int areanum ) {
 }
 
 int trap_AAS_AreaTravelTimeToGoalArea( int areanum, vec3_t origin, int goalareanum, int travelflags ) {
-	return syscall( BOTLIB_AAS_AREA_TRAVEL_TIME_TO_GOAL_AREA, areanum, origin, goalareanum, travelflags );
+	return AAS_AreaTravelTimeToGoalArea(areanum, origin, goalareanum, travelflags );
 }
 
 int trap_AAS_Swimming( vec3_t origin ) {
-	return syscall( BOTLIB_AAS_SWIMMING, origin );
+	return AAS_Swimming( origin );
 }
 
 int trap_AAS_PredictClientMovement( void /* struct aas_clientmove_s */ *move, int entnum, vec3_t origin, int presencetype, int onground, vec3_t velocity, vec3_t cmdmove, int cmdframes, int maxframes, float frametime, int stopevent, int stopareanum, int visualize ) {
-	return syscall( BOTLIB_AAS_PREDICT_CLIENT_MOVEMENT, move, entnum, origin, presencetype, onground, velocity, cmdmove, cmdframes, maxframes, PASSFLOAT( frametime ), stopevent, stopareanum, visualize );
+	return AAS_PredictClientMovement(move, entnum, origin, presencetype, onground, velocity, cmdmove, cmdframes, maxframes, frametime, stopevent, stopareanum, visualize );
 }
 
 // Ridah, route-tables
 void trap_AAS_RT_ShowRoute( vec3_t srcpos, int srcnum, int destnum ) {
-	syscall( BOTLIB_AAS_RT_SHOWROUTE, srcpos, srcnum, destnum );
+	AAS_RT_ShowRoute(srcpos, srcnum, destnum );
 }
 
 qboolean trap_AAS_RT_GetHidePos( vec3_t srcpos, int srcnum, int srcarea, vec3_t destpos, int destnum, int destarea, vec3_t returnPos ) {
-	return syscall( BOTLIB_AAS_RT_GETHIDEPOS, srcpos, srcnum, srcarea, destpos, destnum, destarea, returnPos );
+	return AAS_RT_GetHidePos(srcpos, srcnum, srcarea, destpos, destnum, destarea, returnPos );
 }
 
+extern int AAS_FindAttackSpotWithinRange( int srcnum, int rangenum, int enemynum, float rangedist, int travelflags, float *outpos );
 int trap_AAS_FindAttackSpotWithinRange( int srcnum, int rangenum, int enemynum, float rangedist, int travelflags, float *outpos ) {
-	return syscall( BOTLIB_AAS_FINDATTACKSPOTWITHINRANGE, srcnum, rangenum, enemynum, PASSFLOAT( rangedist ), travelflags, outpos );
+	return AAS_FindAttackSpotWithinRange(srcnum, rangenum, enemynum, rangedist, travelflags, outpos );
 }
 
+extern qboolean AAS_GetRouteFirstVisPos( vec3_t srcpos, vec3_t destpos, int travelflags, vec3_t retpos );
 qboolean trap_AAS_GetRouteFirstVisPos( vec3_t srcpos, vec3_t destpos, int travelflags, vec3_t retpos ) {
-	return syscall( BOTLIB_AAS_GETROUTEFIRSTVISPOS, srcpos, destpos, travelflags, retpos );
+	return AAS_GetRouteFirstVisPos(srcpos, destpos, travelflags, retpos );
 }
 
+extern void AAS_SetAASBlockingEntity( vec3_t absmin, vec3_t absmax, qboolean blocking );
 void trap_AAS_SetAASBlockingEntity( vec3_t absmin, vec3_t absmax, qboolean blocking ) {
-	syscall( BOTLIB_AAS_SETAASBLOCKINGENTITY, absmin, absmax, blocking );
+	AAS_SetAASBlockingEntity( absmin, absmax, blocking );
 }
 // done.
 
 void trap_EA_Say( int client, char *str ) {
-	syscall( BOTLIB_EA_SAY, client, str );
+	EA_Say(client, str );
 }
 
 void trap_EA_SayTeam( int client, char *str ) {
-	syscall( BOTLIB_EA_SAY_TEAM, client, str );
+	EA_SayTeam(client, str );
 }
 
 void trap_EA_UseItem( int client, char *it ) {
-	syscall( BOTLIB_EA_USE_ITEM, client, it );
+	EA_UseItem( client, it );
 }
 
 void trap_EA_DropItem( int client, char *it ) {
-	syscall( BOTLIB_EA_DROP_ITEM, client, it );
+	EA_DropItem( client, it );
 }
 
 void trap_EA_UseInv( int client, char *inv ) {
-	syscall( BOTLIB_EA_USE_INV, client, inv );
+	EA_UseInv( client, inv );
 }
 
 void trap_EA_DropInv( int client, char *inv ) {
-	syscall( BOTLIB_EA_DROP_INV, client, inv );
+	EA_DropInv(client, inv );
 }
 
 void trap_EA_Gesture( int client ) {
-	syscall( BOTLIB_EA_GESTURE, client );
+	EA_Gesture(client );
 }
 
 void trap_EA_Command( int client, char *command ) {
-	syscall( BOTLIB_EA_COMMAND, client, command );
+	EA_Command(client, command );
 }
 
 void trap_EA_SelectWeapon( int client, int weapon ) {
@@ -452,59 +440,59 @@ void trap_EA_SelectWeapon( int client, int weapon ) {
 }
 
 void trap_EA_Talk( int client ) {
-	syscall( BOTLIB_EA_TALK, client );
+	EA_Talk(client );
 }
 
 void trap_EA_Attack( int client ) {
-	syscall( BOTLIB_EA_ATTACK, client );
+	EA_Attack(client );
 }
 
 void trap_EA_Reload( int client ) {
-	syscall( BOTLIB_EA_RELOAD, client );
+	EA_Reload( client );
 }
 
 void trap_EA_Use( int client ) {
-	syscall( BOTLIB_EA_USE, client );
+	EA_Use( client );
 }
 
 void trap_EA_Respawn( int client ) {
-	syscall( BOTLIB_EA_RESPAWN, client );
+	EA_Respawn(client );
 }
 
 void trap_EA_Jump( int client ) {
-	syscall( BOTLIB_EA_JUMP, client );
+	EA_Jump( client );
 }
 
 void trap_EA_DelayedJump( int client ) {
-	syscall( BOTLIB_EA_DELAYED_JUMP, client );
+	EA_DelayedJump( client );
 }
 
 void trap_EA_Crouch( int client ) {
-	syscall( BOTLIB_EA_CROUCH, client );
+	EA_Crouch( client );
 }
 
 void trap_EA_MoveUp( int client ) {
-	syscall( BOTLIB_EA_MOVE_UP, client );
+	EA_MoveUp( client );
 }
 
 void trap_EA_MoveDown( int client ) {
-	syscall( BOTLIB_EA_MOVE_DOWN, client );
+	EA_MoveDown( client );
 }
 
 void trap_EA_MoveForward( int client ) {
-	syscall( BOTLIB_EA_MOVE_FORWARD, client );
+	EA_MoveForward( client );
 }
 
 void trap_EA_MoveBack( int client ) {
-	syscall( BOTLIB_EA_MOVE_BACK, client );
+	EA_MoveBack( client );
 }
 
 void trap_EA_MoveLeft( int client ) {
-	syscall( BOTLIB_EA_MOVE_LEFT, client );
+	EA_MoveLeft( client );
 }
 
 void trap_EA_MoveRight( int client ) {
-	syscall( BOTLIB_EA_MOVE_RIGHT, client );
+	EA_MoveRight( client );
 }
 
 void trap_EA_Move( int client, vec3_t dir, float speed ) {
@@ -516,7 +504,7 @@ void trap_EA_View( int client, vec3_t viewangles ) {
 }
 
 void trap_EA_EndRegular( int client, float thinktime ) {
-	syscall( BOTLIB_EA_END_REGULAR, client, PASSFLOAT( thinktime ) );
+	EA_EndRegular( client, thinktime );
 }
 
 void trap_EA_GetInput( int client, float thinktime, void /* struct bot_input_s */ *input ) {
@@ -528,197 +516,191 @@ void trap_EA_ResetInput( int client, void *init ) {
 }
 
 int trap_BotLoadCharacter( char *charfile, int skill ) {
-	return syscall( BOTLIB_AI_LOAD_CHARACTER, charfile, skill );
+	return BotLoadCharacter( charfile, skill );
 }
 
 void trap_BotFreeCharacter( int character ) {
-	syscall( BOTLIB_AI_FREE_CHARACTER, character );
+	BotFreeCharacter( character );
 }
 
 float trap_Characteristic_Float( int character, int index ) {
-	int temp;
-	temp = syscall( BOTLIB_AI_CHARACTERISTIC_FLOAT, character, index );
-	return ( *(float*)&temp );
+	return Characteristic_Float( character, index );
 }
 
 float trap_Characteristic_BFloat( int character, int index, float min, float max ) {
-	int temp;
-	temp = syscall( BOTLIB_AI_CHARACTERISTIC_BFLOAT, character, index, PASSFLOAT( min ), PASSFLOAT( max ) );
-	return ( *(float*)&temp );
+	return Characteristic_BFloat(character, index,  min, max );
 }
 
 int trap_Characteristic_Integer( int character, int index ) {
-	return syscall( BOTLIB_AI_CHARACTERISTIC_INTEGER, character, index );
+	return Characteristic_Integer( character, index );
 }
 
 int trap_Characteristic_BInteger( int character, int index, int min, int max ) {
-	return syscall( BOTLIB_AI_CHARACTERISTIC_BINTEGER, character, index, min, max );
+	return Characteristic_BInteger( character, index, min, max );
 }
 
 void trap_Characteristic_String( int character, int index, char *buf, int size ) {
-	syscall( BOTLIB_AI_CHARACTERISTIC_STRING, character, index, buf, size );
+	Characteristic_String( character, index, buf, size );
 }
 
 int trap_BotAllocChatState( void ) {
-	return syscall( BOTLIB_AI_ALLOC_CHAT_STATE );
+	return BotAllocChatState( );
 }
 
 void trap_BotFreeChatState( int handle ) {
-	syscall( BOTLIB_AI_FREE_CHAT_STATE, handle );
+	BotFreeChatState( handle );
 }
 
 void trap_BotQueueConsoleMessage( int chatstate, int type, char *message ) {
-	syscall( BOTLIB_AI_QUEUE_CONSOLE_MESSAGE, chatstate, type, message );
+	BotQueueConsoleMessage( chatstate, type, message );
 }
 
 void trap_BotRemoveConsoleMessage( int chatstate, int handle ) {
-	syscall( BOTLIB_AI_REMOVE_CONSOLE_MESSAGE, chatstate, handle );
+	BotRemoveConsoleMessage(chatstate, handle );
 }
 
 int trap_BotNextConsoleMessage( int chatstate, void /* struct bot_consolemessage_s */ *cm ) {
-	return syscall( BOTLIB_AI_NEXT_CONSOLE_MESSAGE, chatstate, cm );
+	return BotNextConsoleMessage(chatstate, cm );
 }
 
 int trap_BotNumConsoleMessages( int chatstate ) {
-	return syscall( BOTLIB_AI_NUM_CONSOLE_MESSAGE, chatstate );
+	return BotNumConsoleMessages(chatstate );
 }
 
 void trap_BotInitialChat( int chatstate, char *type, int mcontext, char *var0, char *var1, char *var2, char *var3, char *var4, char *var5, char *var6, char *var7 ) {
-	syscall( BOTLIB_AI_INITIAL_CHAT, chatstate, type, mcontext, var0, var1, var2, var3, var4, var5, var6, var7 );
+	BotInitialChat(chatstate, type, mcontext, var0, var1, var2, var3, var4, var5, var6, var7 );
 }
 
 int trap_BotNumInitialChats( int chatstate, char *type ) {
-	return syscall( BOTLIB_AI_NUM_INITIAL_CHATS, chatstate, type );
+	return BotNumInitialChats(chatstate, type );
 }
 
 int trap_BotReplyChat( int chatstate, char *message, int mcontext, int vcontext, char *var0, char *var1, char *var2, char *var3, char *var4, char *var5, char *var6, char *var7 ) {
-	return syscall( BOTLIB_AI_REPLY_CHAT, chatstate, message, mcontext, vcontext, var0, var1, var2, var3, var4, var5, var6, var7 );
+	return BotReplyChat(chatstate, message, mcontext, vcontext, var0, var1, var2, var3, var4, var5, var6, var7 );
 }
 
 int trap_BotChatLength( int chatstate ) {
-	return syscall( BOTLIB_AI_CHAT_LENGTH, chatstate );
+	return BotChatLength(chatstate );
 }
 
 void trap_BotEnterChat( int chatstate, int client, int sendto ) {
-	syscall( BOTLIB_AI_ENTER_CHAT, chatstate, client, sendto );
+	BotEnterChat(chatstate, client, sendto );
 }
 
 void trap_BotGetChatMessage( int chatstate, char *buf, int size ) {
-	syscall( BOTLIB_AI_GET_CHAT_MESSAGE, chatstate, buf, size );
+	BotGetChatMessage(chatstate, buf, size );
 }
 
 int trap_StringContains( char *str1, char *str2, int casesensitive ) {
-	return syscall( BOTLIB_AI_STRING_CONTAINS, str1, str2, casesensitive );
+	return StringContains(str1, str2, casesensitive );
 }
 
 int trap_BotFindMatch( char *str, void /* struct bot_match_s */ *match, unsigned long int context ) {
-	return syscall( BOTLIB_AI_FIND_MATCH, str, match, context );
+	return BotFindMatch(str, match, context );
 }
 
 void trap_BotMatchVariable( void /* struct bot_match_s */ *match, int variable, char *buf, int size ) {
-	syscall( BOTLIB_AI_MATCH_VARIABLE, match, variable, buf, size );
+	BotMatchVariable(match, variable, buf, size );
 }
 
 void trap_UnifyWhiteSpaces( char *string ) {
-	syscall( BOTLIB_AI_UNIFY_WHITE_SPACES, string );
+	UnifyWhiteSpaces(string );
 }
 
 void trap_BotReplaceSynonyms( char *string, unsigned long int context ) {
-	syscall( BOTLIB_AI_REPLACE_SYNONYMS, string, context );
+	BotReplaceSynonyms(string, context );
 }
 
 int trap_BotLoadChatFile( int chatstate, char *chatfile, char *chatname ) {
-	return syscall( BOTLIB_AI_LOAD_CHAT_FILE, chatstate, chatfile, chatname );
+	return BotLoadChatFile(chatstate, chatfile, chatname );
 }
 
 void trap_BotSetChatGender( int chatstate, int gender ) {
-	syscall( BOTLIB_AI_SET_CHAT_GENDER, chatstate, gender );
+	BotSetChatGender(chatstate, gender );
 }
 
 void trap_BotSetChatName( int chatstate, char *name ) {
-	syscall( BOTLIB_AI_SET_CHAT_NAME, chatstate, name );
+	BotSetChatName(chatstate, name );
 }
 
 void trap_BotResetGoalState( int goalstate ) {
-	syscall( BOTLIB_AI_RESET_GOAL_STATE, goalstate );
+	BotResetGoalState(goalstate );
 }
 
 void trap_BotResetAvoidGoals( int goalstate ) {
-	syscall( BOTLIB_AI_RESET_AVOID_GOALS, goalstate );
+	BotResetAvoidGoals(goalstate );
 }
 
 void trap_BotRemoveFromAvoidGoals( int goalstate, int number ) {
-	syscall( BOTLIB_AI_REMOVE_FROM_AVOID_GOALS, goalstate, number );
+	BotRemoveFromAvoidGoals(goalstate, number );
 }
 
 void trap_BotPushGoal( int goalstate, void /* struct bot_goal_s */ *goal ) {
-	syscall( BOTLIB_AI_PUSH_GOAL, goalstate, goal );
+	BotPushGoal(goalstate, goal );
 }
 
 void trap_BotPopGoal( int goalstate ) {
-	syscall( BOTLIB_AI_POP_GOAL, goalstate );
+	BotPopGoal(goalstate );
 }
 
 void trap_BotEmptyGoalStack( int goalstate ) {
-	syscall( BOTLIB_AI_EMPTY_GOAL_STACK, goalstate );
+	BotEmptyGoalStack(goalstate );
 }
 
 void trap_BotDumpAvoidGoals( int goalstate ) {
-	syscall( BOTLIB_AI_DUMP_AVOID_GOALS, goalstate );
+	BotDumpAvoidGoals(goalstate );
 }
 
 void trap_BotDumpGoalStack( int goalstate ) {
-	syscall( BOTLIB_AI_DUMP_GOAL_STACK, goalstate );
+	BotDumpGoalStack(goalstate );
 }
 
 void trap_BotGoalName( int number, char *name, int size ) {
-	syscall( BOTLIB_AI_GOAL_NAME, number, name, size );
+	BotGoalName(number, name, size );
 }
 
 int trap_BotGetTopGoal( int goalstate, void /* struct bot_goal_s */ *goal ) {
-	return syscall( BOTLIB_AI_GET_TOP_GOAL, goalstate, goal );
+	return BotGetTopGoal(goalstate, goal );
 }
 
 int trap_BotGetSecondGoal( int goalstate, void /* struct bot_goal_s */ *goal ) {
-	return syscall( BOTLIB_AI_GET_SECOND_GOAL, goalstate, goal );
+	return BotGetSecondGoal(goalstate, goal );
 }
 
 int trap_BotChooseLTGItem( int goalstate, vec3_t origin, int *inventory, int travelflags ) {
-	return syscall( BOTLIB_AI_CHOOSE_LTG_ITEM, goalstate, origin, inventory, travelflags );
+	return BotChooseLTGItem(goalstate, origin, inventory, travelflags );
 }
 
 int trap_BotChooseNBGItem( int goalstate, vec3_t origin, int *inventory, int travelflags, void /* struct bot_goal_s */ *ltg, float maxtime ) {
-	return syscall( BOTLIB_AI_CHOOSE_NBG_ITEM, goalstate, origin, inventory, travelflags, ltg, PASSFLOAT( maxtime ) );
+	return BotChooseNBGItem(goalstate, origin, inventory, travelflags, ltg, maxtime );
 }
 
 int trap_BotTouchingGoal( vec3_t origin, void /* struct bot_goal_s */ *goal ) {
-	return syscall( BOTLIB_AI_TOUCHING_GOAL, origin, goal );
+	return BotTouchingGoal(origin, goal );
 }
 
 int trap_BotItemGoalInVisButNotVisible( int viewer, vec3_t eye, vec3_t viewangles, void /* struct bot_goal_s */ *goal ) {
-	return syscall( BOTLIB_AI_ITEM_GOAL_IN_VIS_BUT_NOT_VISIBLE, viewer, eye, viewangles, goal );
+	return BotItemGoalInVisButNotVisible(viewer, eye, viewangles, goal );
 }
 
 int trap_BotGetLevelItemGoal( int index, char *classname, void /* struct bot_goal_s */ *goal ) {
-	return syscall( BOTLIB_AI_GET_LEVEL_ITEM_GOAL, index, classname, goal );
+	return BotGetLevelItemGoal(index, classname, goal );
 }
 
 int trap_BotGetNextCampSpotGoal( int num, void /* struct bot_goal_s */ *goal ) {
-	return syscall( BOTLIB_AI_GET_NEXT_CAMP_SPOT_GOAL, num, goal );
+	return BotGetNextCampSpotGoal(num, goal );
 }
 
 int trap_BotGetMapLocationGoal( char *name, void /* struct bot_goal_s */ *goal ) {
-	return syscall( BOTLIB_AI_GET_MAP_LOCATION_GOAL, name, goal );
+	return BotGetMapLocationGoal(name, goal );
 }
 
 float trap_BotAvoidGoalTime( int goalstate, int number ) {
-	int temp;
-	temp = syscall( BOTLIB_AI_AVOID_GOAL_TIME, goalstate, number );
-	return ( *(float*)&temp );
+	return BotAvoidGoalTime(goalstate, number );
 }
 
 void trap_BotInitLevelItems( void ) {
-	syscall( BOTLIB_AI_INIT_LEVEL_ITEMS );
+	BotInitLevelItems();
 }
 
 void trap_BotUpdateEntityItems( void ) {
@@ -726,23 +708,23 @@ void trap_BotUpdateEntityItems( void ) {
 }
 
 int trap_BotLoadItemWeights( int goalstate, char *filename ) {
-	return syscall( BOTLIB_AI_LOAD_ITEM_WEIGHTS, goalstate, filename );
+	return BotLoadItemWeights(goalstate, filename );
 }
 
 void trap_BotFreeItemWeights( int goalstate ) {
-	syscall( BOTLIB_AI_FREE_ITEM_WEIGHTS, goalstate );
+	BotFreeItemWeights(goalstate );
 }
 
 void trap_BotInterbreedGoalFuzzyLogic( int parent1, int parent2, int child ) {
-	syscall( BOTLIB_AI_INTERBREED_GOAL_FUZZY_LOGIC, parent1, parent2, child );
+	BotInterbreedGoalFuzzyLogic(parent1, parent2, child );
 }
 
 void trap_BotSaveGoalFuzzyLogic( int goalstate, char *filename ) {
-	syscall( BOTLIB_AI_SAVE_GOAL_FUZZY_LOGIC, goalstate, filename );
+	BotSaveGoalFuzzyLogic(goalstate, filename );
 }
 
 void trap_BotMutateGoalFuzzyLogic( int goalstate, float range ) {
-	syscall( BOTLIB_AI_MUTATE_GOAL_FUZZY_LOGIC, goalstate, range );
+	BotMutateGoalFuzzyLogic(goalstate, range );
 }
 
 int trap_BotAllocGoalState( int state ) {
@@ -750,19 +732,19 @@ int trap_BotAllocGoalState( int state ) {
 }
 
 void trap_BotFreeGoalState( int handle ) {
-	syscall( BOTLIB_AI_FREE_GOAL_STATE, handle );
+	BotAllocGoalState(handle );
 }
 
 void trap_BotResetMoveState( int movestate ) {
-	syscall( BOTLIB_AI_RESET_MOVE_STATE, movestate );
+	BotResetMoveState(movestate );
 }
 
 void trap_BotMoveToGoal( void /* struct bot_moveresult_s */ *result, int movestate, void /* struct bot_goal_s */ *goal, int travelflags ) {
-	syscall( BOTLIB_AI_MOVE_TO_GOAL, result, movestate, goal, travelflags );
+	BotMoveToGoal(result, movestate, goal, travelflags );
 }
 
 int trap_BotMoveInDirection( int movestate, vec3_t dir, float speed, int type ) {
-	return syscall( BOTLIB_AI_MOVE_IN_DIRECTION, movestate, dir, PASSFLOAT( speed ), type );
+	return BotMoveInDirection(movestate, dir, speed, type );
 }
 
 void trap_BotResetAvoidReach( int movestate ) {
@@ -770,19 +752,19 @@ void trap_BotResetAvoidReach( int movestate ) {
 }
 
 void trap_BotResetLastAvoidReach( int movestate ) {
-	syscall( BOTLIB_AI_RESET_LAST_AVOID_REACH,movestate  );
+	BotResetAvoidReach(movestate  );
 }
 
 int trap_BotReachabilityArea( vec3_t origin, int testground ) {
-	return syscall( BOTLIB_AI_REACHABILITY_AREA, origin, testground );
+	return BotReachabilityArea(origin, testground );
 }
 
 int trap_BotMovementViewTarget( int movestate, void /* struct bot_goal_s */ *goal, int travelflags, float lookahead, vec3_t target ) {
-	return syscall( BOTLIB_AI_MOVEMENT_VIEW_TARGET, movestate, goal, travelflags, PASSFLOAT( lookahead ), target );
+	return BotMovementViewTarget(movestate, goal, travelflags, lookahead, target );
 }
 
 int trap_BotPredictVisiblePosition( vec3_t origin, int areanum, void /* struct bot_goal_s */ *goal, int travelflags, vec3_t target ) {
-	return syscall( BOTLIB_AI_PREDICT_VISIBLE_POSITION, origin, areanum, goal, travelflags, target );
+	return BotPredictVisiblePosition(origin, areanum, goal, travelflags, target );
 }
 
 int trap_BotAllocMoveState( void ) {
@@ -804,29 +786,29 @@ void trap_BotInitAvoidReach( int handle ) {
 // Done.
 
 int trap_BotChooseBestFightWeapon( int weaponstate, int *inventory ) {
-	return syscall( BOTLIB_AI_CHOOSE_BEST_FIGHT_WEAPON, weaponstate, inventory );
+	return BotChooseBestFightWeapon(weaponstate, inventory );
 }
 
 void trap_BotGetWeaponInfo( int weaponstate, int weapon, void /* struct weaponinfo_s */ *weaponinfo ) {
-	syscall( BOTLIB_AI_GET_WEAPON_INFO, weaponstate, weapon, weaponinfo );
+	BotGetWeaponInfo(weaponstate, weapon, weaponinfo );
 }
 
 int trap_BotLoadWeaponWeights( int weaponstate, char *filename ) {
-	return syscall( BOTLIB_AI_LOAD_WEAPON_WEIGHTS, weaponstate, filename );
+	return BotLoadWeaponWeights(weaponstate, filename );
 }
 
 int trap_BotAllocWeaponState( void ) {
-	return syscall( BOTLIB_AI_ALLOC_WEAPON_STATE );
+	return BotAllocWeaponState();
 }
 
 void trap_BotFreeWeaponState( int weaponstate ) {
-	syscall( BOTLIB_AI_FREE_WEAPON_STATE, weaponstate );
+	BotFreeWeaponState(weaponstate );
 }
 
 void trap_BotResetWeaponState( int weaponstate ) {
-	syscall( BOTLIB_AI_RESET_WEAPON_STATE, weaponstate );
+	BotResetWeaponState(weaponstate );
 }
 
 int trap_GeneticParentsAndChildSelection( int numranks, float *ranks, int *parent1, int *parent2, int *child ) {
-	return syscall( BOTLIB_AI_GENETIC_PARENTS_AND_CHILD_SELECTION, numranks, ranks, parent1, parent2, child );
+	return GeneticParentsAndChildSelection(numranks, ranks, parent1, parent2, child );
 }

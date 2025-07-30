@@ -26,32 +26,12 @@ If you have questions concerning this license or the applicable additional terms
 ===========================================================================
 */
 
-// cg_syscalls.c -- this file is only included when building a dll
-// cg_syscalls.asm is included instead when building a qvm
 #include "cg_local.h"
 #include "client.h"
 #include "botlib/l_script.h"
 #include "botlib/l_precomp.h"
 #include "../renderer/tr_local.h"
 #include "../game/g_func_decs.h"
-
-static int QDECL dummySyscall(int arg, ...){
-	return 0;
-}
-
-static int ( QDECL * syscall )( int arg, ... ) = dummySyscall;
-
-
-void dllEntry_CG( int ( QDECL  *syscallptr )( int arg,... ) ) {
-	syscall = syscallptr;
-}
-
-static
-int PASSFLOAT( float x ) {
-	float floatTemp;
-	floatTemp = x;
-	return *(int *)&floatTemp;
-}
 
 void    trap_Print( const char *fmt ) {
 	Com_Printf( "%s", fmt );
@@ -389,7 +369,7 @@ void        trap_SetUserCmdValue( int stateValue, int holdableValue, float sensi
 }
 
 int trap_MemoryRemaining( void ) {
-	return syscall( CG_MEMORY_REMAINING );
+	return Hunk_MemoryRemaining();
 }
 
 extern qboolean loadCamera( int camNum, const char *name );

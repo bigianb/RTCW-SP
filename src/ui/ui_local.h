@@ -1014,18 +1014,10 @@ int             GetConfigString( int index, char* buff, int buffsize );
 void            trap_GetClientState( uiClientState_t *state );	// TODO: Remove
 int             trap_GetConfigString( int index, char* buff, int buffsize );	// TODO: Remove
 int             trap_LAN_GetServerCount( int source );          // NERVE - SMF
-int             trap_LAN_GetLocalServerCount( void );
-void            trap_LAN_GetLocalServerAddressString( int n, char *buf, int buflen );
-int             trap_LAN_GetGlobalServerCount( void );
-void            trap_LAN_GetGlobalServerAddressString( int n, char *buf, int buflen );
-int             trap_LAN_GetPingQueueCount( void );
-void            trap_LAN_ClearPing( int n );
-void            trap_LAN_GetPing( int n, char *buf, int buflen, int *pingtime );
-void            trap_LAN_GetPingInfo( int n, char *buf, int buflen );
+
 int             trap_MemoryRemaining( void );
 
 // NERVE - SMF - multiplayer traps
-qboolean        trap_LAN_UpdateVisiblePings( int source );
 void            trap_LAN_MarkServerVisible( int source, int n, qboolean visible );
 void            trap_LAN_ResetPings( int n );
 void            trap_LAN_SaveCachedServers();
@@ -1054,7 +1046,7 @@ void            trap_CIN_DrawCinematic( int handle );
 void            trap_UI_CIN_SetExtents( int handle, int x, int y, int w, int h );
 int             trap_RealTime( qtime_t *qtime );
 void            trap_R_RemapShader( const char *oldShader, const char *newShader, const char *timeOffset );
-qboolean        trap_VerifyCDKey( const char *key, const char *chksum );
+
 qboolean        trap_GetLimboString( int index, char *buf );            // NERVE - SMF
 
 //
