@@ -1090,15 +1090,10 @@ The server calls this before shutting down or loading a new map
 =================
 */
 void Hunk_Clear( void ) {
-
-#ifndef DEDICATED
 	CL_ShutdownCGame();
 	CL_ShutdownUI();
-#endif
 	SV_ShutdownGameProgs();
-#ifndef DEDICATED
 	CIN_CloseAllVideos();
-#endif
 	hunk_low.mark = 0;
 	hunk_low.permanent = 0;
 	hunk_low.temp = 0;
@@ -1114,10 +1109,6 @@ void Hunk_Clear( void ) {
 
 	Cvar_Set( "com_hunkused", va( "%i", hunk_low.permanent + hunk_high.permanent ) );
 	Com_Printf( "Hunk_Clear: reset the hunk ok\n" );
-
-#ifdef HUNK_DEBUG
-	hunkblocks = NULL;
-#endif
 }
 
 static void Hunk_SwapBanks( void ) {

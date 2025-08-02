@@ -500,12 +500,12 @@ CG_CheckForExistingModelInfo
   returns qtrue if existing model found, qfalse otherwise
 ==================
 */
-extern animScriptData_t *globalScriptData;
+//extern animScriptData_t *globalScriptData;
 qboolean CG_CheckForExistingModelInfo( clientInfo_t *ci, char *modelName, animModelInfo_t **modelInfo ) {
 	int i;
 	animModelInfo_t *trav; // *firstFree=NULL; // TTimo: unused
 
-	globalScriptData = &cgs.animScriptData;
+	//globalScriptData = &cgs.animScriptData;
 
 	for ( i = 0; i < MAX_ANIMSCRIPT_MODELS; i++ ) {
 		trav = cgs.animScriptData.modelInfo[i];
