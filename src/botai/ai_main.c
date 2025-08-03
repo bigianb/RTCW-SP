@@ -360,7 +360,7 @@ void BotChangeViewAngles( bot_state_t *bs, float thinktime ) {
 	}
 	maxchange *= thinktime;
 	for ( i = 0; i < 2; i++ ) {
-		diff = fabs( AngleDifference( bs->viewangles[i], bs->ideal_viewangles[i] ) );
+		diff = fabsf( AngleDifference( bs->viewangles[i], bs->ideal_viewangles[i] ) );
 		anglespeed = diff * factor;
 		if ( anglespeed > maxchange ) {
 			anglespeed = maxchange;

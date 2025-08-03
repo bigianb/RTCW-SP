@@ -450,15 +450,12 @@ void CL_JoystickMove( usercmd_t *cmd ) {
 		anglespeed = 0.001 * cls.frametime;
 	}
 
-#ifdef __MACOS__
-	cmd->rightmove = ClampChar( cmd->rightmove + cl.joystickAxis[AXIS_SIDE] );
-#else
+
 	if ( !kb[KB_STRAFE].active ) {
 		cl.viewangles[YAW] += anglespeed * cl_yawspeed->value * cl.joystickAxis[AXIS_SIDE];
 	} else {
 		cmd->rightmove = ClampChar( cmd->rightmove + cl.joystickAxis[AXIS_SIDE] );
 	}
-#endif
 	if ( kb[KB_MLOOK].active ) {
 		cl.viewangles[PITCH] += anglespeed * cl_pitchspeed->value * cl.joystickAxis[AXIS_FORWARD];
 	} else {
@@ -496,21 +493,9 @@ void CL_MouseMove( usercmd_t *cmd ) {
 	// scale by FOV
 	accelSensitivity *= cl.cgameSensitivity;
 
-/*	NERVE - SMF - this has moved to CG_CalcFov to fix zoomed-in/out transition movement bug
-	if ( cl.snap.ps.stats[STAT_ZOOMED_VIEW] ) {
-		if(cl.snap.ps.weapon == WP_SNIPERRIFLE) {
-			accelSensitivity *= 0.1;
-		}
-		else if(cl.snap.ps.weapon == WP_SNOOPERSCOPE) {
-			accelSensitivity *= 0.2;
-		}
-	}
-*/
 	if ( rate && cl_showMouseRate->integer ) {
 		Com_Printf( "%f : %f\n", rate, accelSensitivity );
 	}
-
-// Ridah, experimenting with a slow tracking gun
 
 	// Rafael - mg42
 	if ( cl.snap.ps.persistant[PERS_HWEAPON_USE] ) {
@@ -640,7 +625,7 @@ usercmd_t CL_CreateCmd( void ) {
 
 	// RF, set the kickAngles so aiming is effected
 	recoilAdd = cl_recoilPitch->value;
-	if ( fabs( cl.viewangles[PITCH] + recoilAdd ) < 40 ) {
+	if ( fabsf( cl.viewangles[PITCH] + recoilAdd ) < 40 ) {
 		cl.viewangles[PITCH] += recoilAdd;
 	}
 	// the recoilPitch has been used, so clear it out
@@ -682,7 +667,9 @@ void CL_CreateNewCommands( void ) {
 	}
 
 	frame_msec = com_frameTime - old_com_frameTime;
-
+	if (frame_msec <= 0){
+		frame_msec = 1;
+	}
 	// if running less than 5fps, truncate the extra time to prevent
 	// unexpected moves after a hitch
 	if ( frame_msec > 200 ) {

@@ -1736,23 +1736,15 @@ static void UI_DrawPlayerModel( rectDef_t *rect ) {
 		viewangles[YAW]   = 180 - 10;
 		viewangles[PITCH] = 0;
 		viewangles[ROLL]  = 0;
-		//      VectorClear( moveangles );
-#ifdef MISSIONPACK
-		UI_PlayerInfo_SetModel( &info, model, head, team );
-#else
+
 		UI_PlayerInfo_SetModel( &info, model );
-#endif  // MISSIONPACK
 		UI_PlayerInfo_SetInfo( &info, LEGS_IDLE, TORSO_STAND, viewangles, moveangles, -1, qfalse );
-		//		UI_RegisterClientModelname( &info, model, head, team);
 		updateModel = qfalse;
 	} else {
 		VectorCopy( moveangles, info.moveAngles );
 	}
 
-	//	info.moveAngles[YAW] += 1;
-	//   UI_PlayerInfo_SetInfo( &info, LEGS_IDLE, TORSO_STAND, viewangles, moveangles, WP_MP40, qfalse );
 	UI_DrawPlayer( rect->x, rect->y, rect->w, rect->h, &info, uiInfo.uiDC.realTime / 2 );
-
 }
 
 static void UI_DrawNetSource( rectDef_t *rect, int font, float scale, vec4_t color, int textStyle ) {

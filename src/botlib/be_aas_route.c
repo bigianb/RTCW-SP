@@ -1319,9 +1319,7 @@ void AAS_UpdateAreaRoutingCache( aas_routingcache_t *areacache ) {
 #endif //ROUTING_DEBUG
 	   //number of reachability areas within this cluster
 	numreachabilityareas = ( *aasworld ).clusters[areacache->cluster].numreachabilityareas;
-	//
-	//clear the routing update fields
-//	memset((*aasworld).areaupdate, 0, (*aasworld).numareas * sizeof(aas_routingupdate_t));
+
 	//
 	badtravelflags = ~areacache->travelflags;
 	//
