@@ -925,7 +925,6 @@ extern int trap_AAS_NextBSPEntity ( int ent ) ;
 extern int trap_AAS_PointContents ( vec3_t point ) ;
 extern int trap_AAS_TraceAreas ( vec3_t start , vec3_t end , int * areas , vec3_t * points , int maxareas ) ;
 extern int trap_AAS_PointAreaNum ( vec3_t point ) ;
-extern void trap_AAS_SetCurrentWorld ( int index ) ;
 extern float trap_AAS_Time ( void ) ;
 extern void trap_AAS_PresenceTypeBoundingBox ( int presencetype , vec3_t mins , vec3_t maxs ) ;
 extern int trap_AAS_Initialized ( void ) ;
@@ -940,7 +939,7 @@ extern int trap_BotLibDefine ( char * string ) ;
 extern int trap_BotLibVarGet ( char * var_name , char * value , int size ) ;
 extern int trap_BotLibVarSet ( char * var_name , char * value ) ;
 extern int trap_BotLibShutdown ( void ) ;
-extern int trap_BotLibSetup ( void ) ;
+
 extern qboolean trap_GetTag ( int clientNum , char * tagName , orientation_t * or ) ;
 extern void trap_SnapVector ( float * v ) ;
 extern int trap_RealTime ( qtime_t * qtime ) ;

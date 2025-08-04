@@ -137,7 +137,7 @@ void PrintContents( int contents ) {
 	for ( i = 0; contentnames[i].value; i++ )
 	{
 		if ( contents & contentnames[i].value ) {
-			botimport.Print( PRT_MESSAGE, "%s\n", contentnames[i].name );
+			BotImport_Print( PRT_MESSAGE, "%s\n", contentnames[i].name );
 		} //end if
 	} //end for
 } //end of the function PrintContents
@@ -260,7 +260,7 @@ int AAS_NextBSPEntity( int ent ) {
 //===========================================================================
 int AAS_BSPEntityInRange( int ent ) {
 	if ( ent <= 0 || ent >= bspworld.numentities ) {
-		botimport.Print( PRT_MESSAGE, "bsp entity out of range\n" );
+		BotImport_Print( PRT_MESSAGE, "bsp entity out of range\n" );
 		return qfalse;
 	} //end if
 	return qtrue;
@@ -377,7 +377,7 @@ void AAS_ParseBSPEntities( void ) {
 			return;
 		} //end if
 		if ( bspworld.numentities >= MAX_BSPENTITIES ) {
-			botimport.Print( PRT_MESSAGE, "too many entities in BSP file\n" );
+			BotImport_Print( PRT_MESSAGE, "too many entities in BSP file\n" );
 			break;
 		} //end if
 		while ( PS_ReadToken( script, &token ) )

@@ -107,7 +107,7 @@ void AAS_RT_FreeMemory( void *ptr ) {
 void AAS_RT_PrintMemoryUsage() {
 #ifdef  AAS_RT_MEMORY_USAGE
 
-	botimport.Print( PRT_MESSAGE, "\n" );
+	BotImport_Print( PRT_MESSAGE, "\n" );
 
 	// TODO: print the usage from each of the aas_rt_t lumps
 
@@ -254,7 +254,7 @@ void AAS_RT_WriteRouteTable() {
 
 	// open the file for writing
 	Com_sprintf( filename, MAX_QPATH, "maps/%s.rtb", ( *aasworld ).mapname );
-	botimport.Print( PRT_MESSAGE, "\nsaving route-table to %s\n", filename );
+	BotImport_Print( PRT_MESSAGE, "\nsaving route-table to %s\n", filename );
 	FS_FOpenFileByMode( filename, &fp, FS_WRITE );
 	if ( !fp ) {
 		AAS_Error( "Unable to open file: %s\n", filename );
@@ -447,12 +447,12 @@ qboolean AAS_RT_ReadRouteTable( fileHandle_t fp ) {
 		routetable->areaChildIndexes[child->areanum] = i + 1;
 	}
 
-	botimport.Print( PRT_MESSAGE, "Total Parents: %d\n", routetable->numParents );
-	botimport.Print( PRT_MESSAGE, "Total Children: %d\n", routetable->numChildren );
-	botimport.Print( PRT_MESSAGE, "Total Memory Used: %d\n", memorycount );
+	BotImport_Print( PRT_MESSAGE, "Total Parents: %d\n", routetable->numParents );
+	BotImport_Print( PRT_MESSAGE, "Total Children: %d\n", routetable->numChildren );
+	BotImport_Print( PRT_MESSAGE, "Total Memory Used: %d\n", memorycount );
 
 #ifdef DEBUG_READING_TIME
-	botimport.Print( PRT_MESSAGE, "Route-Table read time: %i\n", Sys_MilliSeconds() - pretime );
+	BotImport_Print( PRT_MESSAGE, "Route-Table read time: %i\n", Sys_MilliSeconds() - pretime );
 #endif
 
 	botimport.FS_FCloseFile( fp );
@@ -522,28 +522,28 @@ void AAS_RT_BuildRouteTable( void ) {
 
 	// Try to load in a prepared route-table
 	Com_sprintf( filename, MAX_QPATH, "maps/%s.rtb", ( *aasworld ).mapname );
-	botimport.Print( PRT_MESSAGE, "\n---------------------------------\n" );
-	botimport.Print( PRT_MESSAGE, "\ntrying to load %s\n", filename );
+	BotImport_Print( PRT_MESSAGE, "\n---------------------------------\n" );
+	BotImport_Print( PRT_MESSAGE, "\ntrying to load %s\n", filename );
 	FS_FOpenFileByMode( filename, &fp, FS_READ );
 	if ( fp ) {
 		// read in the table..
 		if ( AAS_RT_ReadRouteTable( fp ) ) {
 			AAS_RT_PrintMemoryUsage();
 
-			botimport.Print( PRT_MESSAGE, "\nAAS Route-Table loaded.\n" );
-			botimport.Print( PRT_MESSAGE, "---------------------------------\n\n" );
+			BotImport_Print( PRT_MESSAGE, "\nAAS Route-Table loaded.\n" );
+			BotImport_Print( PRT_MESSAGE, "---------------------------------\n\n" );
 			return;
 		} else
 		{
-			botimport.Print( PRT_MESSAGE, "\nUnable to load %s, building route-table..\n", filename );
+			BotImport_Print( PRT_MESSAGE, "\nUnable to load %s, building route-table..\n", filename );
 		}
 	} else
 	{
-		botimport.Print( PRT_MESSAGE, "file not found, building route-table\n\n" );
+		BotImport_Print( PRT_MESSAGE, "file not found, building route-table\n\n" );
 	}
 
 
-	botimport.Print( PRT_MESSAGE, "\n-------------------------------------\nRoute-table memory usage figures..\n\n" );
+	BotImport_Print( PRT_MESSAGE, "\n-------------------------------------\nRoute-table memory usage figures..\n\n" );
 
 	totalcount = 0;
 	childcount = 0;
@@ -627,7 +627,7 @@ void AAS_RT_BuildRouteTable( void ) {
 			totalcount++;
 
 			if ( localinfo->numvisible >= MAX_VISIBLE_AREAS ) {
-				botimport.Print( PRT_MESSAGE, "MAX_VISIBLE_AREAS exceeded, lower MAX_VISIBLE_RANGE\n" );
+				BotImport_Print( PRT_MESSAGE, "MAX_VISIBLE_AREAS exceeded, lower MAX_VISIBLE_RANGE\n" );
 				break;
 			}
 		}
@@ -750,7 +750,7 @@ void AAS_RT_BuildRouteTable( void ) {
 
 				if ( k == localinfo->numvisible ) { // didn't find it, so add it to our list
 					if ( localinfo->numvisible >= MAX_VISIBLE_AREAS ) {
-						botimport.Print( PRT_MESSAGE, "MAX_VISIBLE_AREAS exceeded, lower MAX_VISIBLE_RANGE\n" );
+						BotImport_Print( PRT_MESSAGE, "MAX_VISIBLE_AREAS exceeded, lower MAX_VISIBLE_RANGE\n" );
 					} else
 					{
 						localinfo->visible[localinfo->numvisible] = -1 + rev_filtered_areas[thisparent->children[j]];
@@ -938,8 +938,8 @@ void AAS_RT_BuildRouteTable( void ) {
 	AAS_RT_WriteRouteTable();
 
 
-	botimport.Print( PRT_MESSAGE, "Child Areas: %i\nTotal Parents: %i\nAverage VisAreas: %i\n", (int)childcount, num_parents, (int)( childcount / num_parents ) );
-	botimport.Print( PRT_MESSAGE, "NoRoute Ratio: %i%%\n", (int)( ( 100.0 * noroutecount ) / ( 1.0 * childcount * childcount ) ) );
+	BotImport_Print( PRT_MESSAGE, "Child Areas: %i\nTotal Parents: %i\nAverage VisAreas: %i\n", (int)childcount, num_parents, (int)( childcount / num_parents ) );
+	BotImport_Print( PRT_MESSAGE, "NoRoute Ratio: %i%%\n", (int)( ( 100.0 * noroutecount ) / ( 1.0 * childcount * childcount ) ) );
 
 	memoryend = memorycount;
 
@@ -1000,9 +1000,9 @@ void AAS_RT_BuildRouteTable( void ) {
 	// check how much memory we've used, and intend to keep
 	AAS_RT_PrintMemoryUsage();
 
-	botimport.Print( PRT_MESSAGE, "Route-Table Permanent Memory Usage: %i\n", memorycount );
-	botimport.Print( PRT_MESSAGE, "Route-Table Calculation Usage: %i\n", memoryend + cachememory );
-	botimport.Print( PRT_MESSAGE, "---------------------------------\n" );
+	BotImport_Print( PRT_MESSAGE, "Route-Table Permanent Memory Usage: %i\n", memorycount );
+	BotImport_Print( PRT_MESSAGE, "Route-Table Calculation Usage: %i\n", memoryend + cachememory );
+	BotImport_Print( PRT_MESSAGE, "---------------------------------\n" );
 }
 
 //===========================================================================
@@ -1169,13 +1169,13 @@ qboolean AAS_RT_GetHidePos( vec3_t srcpos, int srcnum, int srcarea, vec3_t destp
 
 	hideareanum = AAS_NearestHideArea( srcnum, srcpos, srcarea, destnum, destpos, destarea, tfl );
 	if ( !hideareanum ) {
-//		botimport.Print(PRT_MESSAGE, "Breadth First HidePos FAILED: %i ms\n", pretime + Sys_MilliSeconds());
+//		BotImport_Print(PRT_MESSAGE, "Breadth First HidePos FAILED: %i ms\n", pretime + Sys_MilliSeconds());
 		return qfalse;
 	}
 	// we found a valid hiding area
 	VectorCopy( ( *aasworld ).areawaypoints[hideareanum], returnPos );
 
-//	botimport.Print(PRT_MESSAGE, "Breadth First HidePos: %i ms\n", pretime + Sys_MilliSeconds());
+//	BotImport_Print(PRT_MESSAGE, "Breadth First HidePos: %i ms\n", pretime + Sys_MilliSeconds());
 
 	return qtrue;
 
@@ -1422,19 +1422,19 @@ qboolean AAS_RT_GetHidePos( vec3_t srcpos, int srcnum, int srcarea, vec3_t destp
 		bestTravelTime = elapsedTravelTime;
 		//
 		if ( thisTravelTime < 300 ) {
-			botimport.Print( PRT_MESSAGE, "Fuzzy RT HidePos: %i ms\n", pretime + Sys_MilliSeconds() );
+			BotImport_Print( PRT_MESSAGE, "Fuzzy RT HidePos: %i ms\n", pretime + Sys_MilliSeconds() );
 			return qtrue;
 		}
 	}
 	//
 	// did we find something?
 	if ( bestTravelTime < MAX_HIDE_TRAVELTIME ) {
-		botimport.Print( PRT_MESSAGE, "Fuzzy RT HidePos: %i ms\n", pretime + Sys_MilliSeconds() );
+		BotImport_Print( PRT_MESSAGE, "Fuzzy RT HidePos: %i ms\n", pretime + Sys_MilliSeconds() );
 		return qtrue;
 	}
 	//
 	// couldn't find anything
-	botimport.Print( PRT_MESSAGE, "Fuzzy RT HidePos FAILED: %i ms\n", pretime + Sys_MilliSeconds() );
+	BotImport_Print( PRT_MESSAGE, "Fuzzy RT HidePos FAILED: %i ms\n", pretime + Sys_MilliSeconds() );
 	return qfalse;
 #endif
 }

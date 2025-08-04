@@ -617,7 +617,7 @@ void AICast_SightUpdate( int numchecks ) {
 		}
 
 		// make sure we are using the right AAS data for this entity (one's that don't get set will default to the player's AAS data)
-		trap_AAS_SetCurrentWorld( cs->aasWorldIndex );
+		AAS_SetCurrentWorld( cs->aasWorldIndex );
 
 		for (   destcount = 0, dest = 0, destent = g_entities;
 				//dest < aicast_maxclients && destcount < level.numPlayingClients;
@@ -694,7 +694,7 @@ void AICast_SightUpdate( int numchecks ) {
 		}
 
 		// make sure we are using the right AAS data for this entity (one's that don't get set will default to the player's AAS data)
-		trap_AAS_SetCurrentWorld( cs->aasWorldIndex );
+		AAS_SetCurrentWorld( cs->aasWorldIndex );
 
 		if ( lastdest < 0 ) {
 			lastdest = 0;

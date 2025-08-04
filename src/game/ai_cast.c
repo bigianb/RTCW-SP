@@ -503,14 +503,6 @@ void AICast_Init( void ) {
 		caststates[i].entityNum = i;
 	}
 
-/* RF, this is useless, since the AAS hasnt been loaded yet
-	// try and load in the AAS now, so we can interact with it during spawning of entities
-	i = 0;
-	trap_AAS_SetCurrentWorld(0);
-	while (!trap_AAS_Initialized() && (i++ < 10)) {
-		trap_BotLibStartFrame((float) level.time / 1000);
-	}
-*/
 }
 
 /*

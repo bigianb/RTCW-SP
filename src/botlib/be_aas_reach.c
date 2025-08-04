@@ -184,7 +184,7 @@ int AAS_BestReachableArea( vec3_t origin, vec3_t mins, vec3_t maxs, vec3_t goalo
 	aas_trace_t trace;
 
 	if ( !( *aasworld ).loaded ) {
-		botimport.Print( PRT_ERROR, "AAS_BestReachableArea: aas not loaded\n" );
+		BotImport_Print( PRT_ERROR, "AAS_BestReachableArea: aas not loaded\n" );
 		return 0;
 	} //end if
 	  //find a point in an area
@@ -237,7 +237,7 @@ int AAS_BestReachableArea( vec3_t origin, vec3_t mins, vec3_t maxs, vec3_t goalo
 				Log_Write("point %f %f %f in area %d but trace startsolid", start[0], start[1], start[2], areanum);
 				AAS_DrawPermanentCross(start, 4, LINECOLOR_RED);
 			} //end if
-			botimport.Print(PRT_MESSAGE, "AAS_BestReachableArea: start solid\n");
+			BotImport_Print(PRT_MESSAGE, "AAS_BestReachableArea: start solid\n");
 	  */
 			VectorCopy( start, goalorigin );
 			return areanum;
@@ -2632,12 +2632,12 @@ void AAS_Reachability_Teleport( void ) {
 		if ( !strcmp( classname, "trigger_multiple" ) ) {
 			AAS_ValueForBSPEpairKey( ent, "model", model, MAX_EPAIRKEY );
 //#ifdef REACHDEBUG
-			botimport.Print( PRT_MESSAGE, "trigger_multiple model = \"%s\"\n", model );
+			BotImport_Print( PRT_MESSAGE, "trigger_multiple model = \"%s\"\n", model );
 //#endif REACHDEBUG
 			AAS_BSPModelMinsMaxsOrigin( atoi( model + 1 ), angles, mins, maxs, origin );
 			//
 			if ( !AAS_ValueForBSPEpairKey( ent, "target", target, MAX_EPAIRKEY ) ) {
-				botimport.Print( PRT_ERROR, "trigger_multiple at %1.0f %1.0f %1.0f without target\n",
+				BotImport_Print( PRT_ERROR, "trigger_multiple at %1.0f %1.0f %1.0f without target\n",
 								 origin[0], origin[1], origin[2] );
 				continue;
 			} //end if
@@ -2659,19 +2659,19 @@ void AAS_Reachability_Teleport( void ) {
 				continue;
 			} //end if
 			if ( !AAS_ValueForBSPEpairKey( dest, "target", target, MAX_EPAIRKEY ) ) {
-				botimport.Print( PRT_ERROR, "target_teleporter without target\n" );
+				BotImport_Print( PRT_ERROR, "target_teleporter without target\n" );
 				continue;
 			} //end if
 		} //end else
 		else if ( !strcmp( classname, "trigger_teleport" ) ) {
 			AAS_ValueForBSPEpairKey( ent, "model", model, MAX_EPAIRKEY );
 //#ifdef REACHDEBUG
-			botimport.Print( PRT_MESSAGE, "trigger_teleport model = \"%s\"\n", model );
+			BotImport_Print( PRT_MESSAGE, "trigger_teleport model = \"%s\"\n", model );
 //#endif REACHDEBUG
 			AAS_BSPModelMinsMaxsOrigin( atoi( model + 1 ), angles, mins, maxs, origin );
 			//
 			if ( !AAS_ValueForBSPEpairKey( ent, "target", target, MAX_EPAIRKEY ) ) {
-				botimport.Print( PRT_ERROR, "trigger_teleport at %1.0f %1.0f %1.0f without target\n",
+				BotImport_Print( PRT_ERROR, "trigger_teleport at %1.0f %1.0f %1.0f without target\n",
 								 origin[0], origin[1], origin[2] );
 				continue;
 			} //end if
@@ -2693,11 +2693,11 @@ void AAS_Reachability_Teleport( void ) {
 			} //end if
 		} //end for
 		if ( !dest ) {
-			botimport.Print( PRT_ERROR, "teleporter without misc_teleporter_dest (%s)\n", target );
+			BotImport_Print( PRT_ERROR, "teleporter without misc_teleporter_dest (%s)\n", target );
 			continue;
 		} //end if
 		if ( !AAS_VectorForBSPEpairKey( dest, "origin", destorigin ) ) {
-			botimport.Print( PRT_ERROR, "teleporter destination (%s) without origin\n", target );
+			BotImport_Print( PRT_ERROR, "teleporter destination (%s) without origin\n", target );
 			continue;
 		} //end if
 		  //
@@ -2709,16 +2709,16 @@ void AAS_Reachability_Teleport( void ) {
 			end[2] -= 100;
 			trace = AAS_TraceClientBBox( destorigin, end, PRESENCE_CROUCH, -1 );
 			if ( trace.startsolid ) {
-				botimport.Print( PRT_ERROR, "teleporter destination (%s) in solid\n", target );
+				BotImport_Print( PRT_ERROR, "teleporter destination (%s) in solid\n", target );
 				continue;
 			} //end if
 			VectorCopy( trace.endpos, destorigin );
 			area2num = AAS_PointAreaNum( destorigin );
 		} //end if
 		  //
-		  //botimport.Print(PRT_MESSAGE, "teleporter brush origin at %f %f %f\n", origin[0], origin[1], origin[2]);
-		  //botimport.Print(PRT_MESSAGE, "teleporter brush mins = %f %f %f\n", mins[0], mins[1], mins[2]);
-		  //botimport.Print(PRT_MESSAGE, "teleporter brush maxs = %f %f %f\n", maxs[0], maxs[1], maxs[2]);
+		  //BotImport_Print(PRT_MESSAGE, "teleporter brush origin at %f %f %f\n", origin[0], origin[1], origin[2]);
+		  //BotImport_Print(PRT_MESSAGE, "teleporter brush mins = %f %f %f\n", mins[0], mins[1], mins[2]);
+		  //BotImport_Print(PRT_MESSAGE, "teleporter brush maxs = %f %f %f\n", maxs[0], maxs[1], maxs[2]);
 		VectorAdd( origin, mins, mins );
 		VectorAdd( origin, maxs, maxs );
 		//
@@ -2727,7 +2727,7 @@ void AAS_Reachability_Teleport( void ) {
 		//link an invalid (-1) entity
 		areas = AAS_LinkEntityClientBBox( mins, maxs, -1, PRESENCE_CROUCH );
 		if ( !areas ) {
-			botimport.Print( PRT_MESSAGE, "trigger_multiple not in any area\n" );
+			BotImport_Print( PRT_MESSAGE, "trigger_multiple not in any area\n" );
 		}
 		//
 		for ( link = areas; link; link = link->next_area )
@@ -2793,13 +2793,13 @@ void AAS_Reachability_Elevator( void ) {
 			Log_Write( "found func plat\r\n" );
 #endif //REACHDEBUG
 			if ( !AAS_ValueForBSPEpairKey( ent, "model", model, MAX_EPAIRKEY ) ) {
-				botimport.Print( PRT_ERROR, "func_plat without model\n" );
+				BotImport_Print( PRT_ERROR, "func_plat without model\n" );
 				continue;
 			} //end if
 			  //get the model number, and skip the leading *
 			modelnum = atoi( model + 1 );
 			if ( modelnum <= 0 ) {
-				botimport.Print( PRT_ERROR, "func_plat with invalid model number\n" );
+				BotImport_Print( PRT_ERROR, "func_plat with invalid model number\n" );
 				continue;
 			} //end if
 			  //get the mins, maxs and origin of the model
@@ -2829,7 +2829,7 @@ void AAS_Reachability_Elevator( void ) {
 			//get bottom position below pos1
 			pos2[2] -= height;
 			//
-			botimport.Print( PRT_MESSAGE, "pos2[2] = %1.1f pos1[2] = %1.1f\n", pos2[2], pos1[2] );
+			BotImport_Print( PRT_MESSAGE, "pos2[2] = %1.1f pos1[2] = %1.1f\n", pos2[2], pos1[2] );
 			//get a point just above the plat in the bottom position
 			VectorAdd( mins, maxs, mids );
 			VectorMA( pos2, 0.5, mids, platbottom );
@@ -2851,7 +2851,7 @@ void AAS_Reachability_Elevator( void ) {
 				maxs[i] += 1;
 			} //end for
 			  //
-			botimport.Print( PRT_MESSAGE, "platbottom[2] = %1.1f plattop[2] = %1.1f\n", platbottom[2], plattop[2] );
+			BotImport_Print( PRT_MESSAGE, "platbottom[2] = %1.1f plattop[2] = %1.1f\n", platbottom[2], plattop[2] );
 			//
 			VectorAdd( mins, maxs, mids );
 			VectorScale( mids, 0.5, mids );
@@ -3168,13 +3168,13 @@ void AAS_Reachability_FuncBobbing( void ) {
 		}
 		//
 		if ( !AAS_ValueForBSPEpairKey( ent, "model", model, MAX_EPAIRKEY ) ) {
-			botimport.Print( PRT_ERROR, "func_bobbing without model\n" );
+			BotImport_Print( PRT_ERROR, "func_bobbing without model\n" );
 			continue;
 		} //end if
 		  //get the model number, and skip the leading *
 		modelnum = atoi( model + 1 );
 		if ( modelnum <= 0 ) {
-			botimport.Print( PRT_ERROR, "func_bobbing with invalid model number\n" );
+			BotImport_Print( PRT_ERROR, "func_bobbing with invalid model number\n" );
 			continue;
 		} //end if
 		  //
@@ -3410,8 +3410,8 @@ void AAS_Reachability_JumpPad( void ) {
 		VectorAdd( origin, absmaxs, absmaxs );
 		//
 #ifdef REACHDEBUG
-		botimport.Print( PRT_MESSAGE, "absmins = %f %f %f\n", absmins[0], absmins[1], absmins[2] );
-		botimport.Print( PRT_MESSAGE, "absmaxs = %f %f %f\n", absmaxs[0], absmaxs[1], absmaxs[2] );
+		BotImport_Print( PRT_MESSAGE, "absmins = %f %f %f\n", absmins[0], absmins[1], absmins[2] );
+		BotImport_Print( PRT_MESSAGE, "absmaxs = %f %f %f\n", absmaxs[0], absmaxs[1], absmaxs[2] );
 #endif //REACHDEBUG
 		VectorAdd( absmins, absmaxs, origin );
 		VectorScale( origin, 0.5, origin );
@@ -3421,7 +3421,7 @@ void AAS_Reachability_JumpPad( void ) {
 		teststart[2] += 64;
 		trace = AAS_TraceClientBBox( teststart, origin, PRESENCE_CROUCH, -1 );
 		if ( trace.startsolid ) {
-			botimport.Print( PRT_MESSAGE, "trigger_push start solid\n" );
+			BotImport_Print( PRT_MESSAGE, "trigger_push start solid\n" );
 			VectorCopy( origin, areastart );
 		} //end if
 		else
@@ -3443,7 +3443,7 @@ void AAS_Reachability_JumpPad( void ) {
 			}
 		} //end for
 		if ( !ent2 ) {
-			botimport.Print( PRT_MESSAGE, "trigger_push without target entity %s\n", target );
+			BotImport_Print( PRT_MESSAGE, "trigger_push without target entity %s\n", target );
 			continue;
 		} //end if
 		AAS_VectorForBSPEpairKey( ent2, "origin", ent2origin );
@@ -3452,7 +3452,7 @@ void AAS_Reachability_JumpPad( void ) {
 		gravity = aassettings.sv_gravity;
 		time = sqrt( height / ( 0.5 * gravity ) );
 		if ( !time ) {
-			botimport.Print( PRT_MESSAGE, "trigger_push without time\n" );
+			BotImport_Print( PRT_MESSAGE, "trigger_push without time\n" );
 			continue;
 		} //end if
 		  // set s.origin2 to the push velocity
@@ -3479,12 +3479,12 @@ void AAS_Reachability_JumpPad( void ) {
 			}
 		} //end for
 		if ( !link ) {
-			botimport.Print( PRT_MESSAGE, "trigger_multiple not in any jump pad area\n" );
+			BotImport_Print( PRT_MESSAGE, "trigger_multiple not in any jump pad area\n" );
 			AAS_UnlinkFromAreas( areas );
 			continue;
 		} //end if
 		  //
-		botimport.Print( PRT_MESSAGE, "found a trigger_push with velocity %f %f %f\n", velocity[0], velocity[1], velocity[2] );
+		BotImport_Print( PRT_MESSAGE, "found a trigger_push with velocity %f %f %f\n", velocity[0], velocity[1], velocity[2] );
 		//if there is a horizontal velocity check for a reachability without air control
 		if ( velocity[0] || velocity[1] ) {
 			VectorSet( cmdmove, 0, 0, 0 );
@@ -3561,7 +3561,7 @@ void AAS_Reachability_JumpPad( void ) {
 					if (link->areanum == 3380)
 					{
 						visualize = qtrue;
-						botimport.Print(PRT_MESSAGE, "bah\n");
+						BotImport_Print(PRT_MESSAGE, "bah\n");
 					} //end if
 				} //end for
 			} //end if*/
@@ -3885,7 +3885,7 @@ void AAS_SetWeaponJumpAreaFlags( void ) {
 				//if not a stationary item
 				if ( !( spawnflags & 1 ) ) {
 					if ( !AAS_DropToFloor( origin, mins, maxs ) ) {
-						botimport.Print( PRT_MESSAGE, "%s in solid at (%1.1f %1.1f %1.1f)\n",
+						BotImport_Print( PRT_MESSAGE, "%s in solid at (%1.1f %1.1f %1.1f)\n",
 										 classname, origin[0], origin[1], origin[2] );
 					} //end if
 				} //end if
@@ -3895,7 +3895,7 @@ void AAS_SetWeaponJumpAreaFlags( void ) {
 				( *aasworld ).areasettings[areanum].areaflags |= AREA_WEAPONJUMP;
 				//
 				if ( !AAS_AreaGrounded( areanum ) ) {
-					botimport.Print( PRT_MESSAGE, "area not grounded\n" );
+					BotImport_Print( PRT_MESSAGE, "area not grounded\n" );
 				}
 				//
 				weaponjumpareas++;
@@ -3909,7 +3909,7 @@ void AAS_SetWeaponJumpAreaFlags( void ) {
 			weaponjumpareas++;
 		} //end if
 	} //end for
-	botimport.Print( PRT_MESSAGE, "%d weapon jump areas\n", weaponjumpareas );
+	BotImport_Print( PRT_MESSAGE, "%d weapon jump areas\n", weaponjumpareas );
 } //end of the function AAS_SetWeaponJumpAreaFlags
 //===========================================================================
 // create a possible weapon jump reachability from area1 to area2
@@ -4299,7 +4299,7 @@ int AAS_ContinueInitReachability( float time ) {
 	}
 	//if starting with area 1 (area 0 is a dummy)
 	if ( ( *aasworld ).reachabilityareas == 1 ) {
-		botimport.Print( PRT_MESSAGE, "calculating reachability...\n" );
+		BotImport_Print( PRT_MESSAGE, "calculating reachability...\n" );
 		lastpercentage = 0;
 		framereachability = 2000;
 		reachability_delay = 1000;
@@ -4384,8 +4384,8 @@ int AAS_ContinueInitReachability( float time ) {
 	} //end for
 	  //
 	if ( ( *aasworld ).reachabilityareas == ( *aasworld ).numareas ) {
-		botimport.Print( PRT_MESSAGE, "\r%6.1f%%", (float) 100.0 );
-		botimport.Print( PRT_MESSAGE, "\nplease wait while storing reachability...\n" );
+		BotImport_Print( PRT_MESSAGE, "\r%6.1f%%", (float) 100.0 );
+		BotImport_Print( PRT_MESSAGE, "\nplease wait while storing reachability...\n" );
 		( *aasworld ).reachabilityareas++;
 	} //end if
 	  //if this is the last step in the reachability calculations
@@ -4409,21 +4409,21 @@ int AAS_ContinueInitReachability( float time ) {
 		AAS_Reachability_FuncBobbing();
 		//
 //#ifdef DEBUG
-		botimport.Print( PRT_MESSAGE, "%6d reach swim\n", reach_swim );
-		botimport.Print( PRT_MESSAGE, "%6d reach equal floor\n", reach_equalfloor );
-		botimport.Print( PRT_MESSAGE, "%6d reach step\n", reach_step );
-		botimport.Print( PRT_MESSAGE, "%6d reach barrier\n", reach_barrier );
-		botimport.Print( PRT_MESSAGE, "%6d reach waterjump\n", reach_waterjump );
-		botimport.Print( PRT_MESSAGE, "%6d reach walkoffledge\n", reach_walkoffledge );
-		botimport.Print( PRT_MESSAGE, "%6d reach jump\n", reach_jump );
-		botimport.Print( PRT_MESSAGE, "%6d reach ladder\n", reach_ladder );
-		botimport.Print( PRT_MESSAGE, "%6d reach walk\n", reach_walk );
-		botimport.Print( PRT_MESSAGE, "%6d reach teleport\n", reach_teleport );
-		botimport.Print( PRT_MESSAGE, "%6d reach funcbob\n", reach_funcbob );
-		botimport.Print( PRT_MESSAGE, "%6d reach elevator\n", reach_elevator );
-		botimport.Print( PRT_MESSAGE, "%6d reach grapple\n", reach_grapple );
-		botimport.Print( PRT_MESSAGE, "%6d reach rocketjump\n", reach_rocketjump );
-		botimport.Print( PRT_MESSAGE, "%6d reach jumppad\n", reach_jumppad );
+		BotImport_Print( PRT_MESSAGE, "%6d reach swim\n", reach_swim );
+		BotImport_Print( PRT_MESSAGE, "%6d reach equal floor\n", reach_equalfloor );
+		BotImport_Print( PRT_MESSAGE, "%6d reach step\n", reach_step );
+		BotImport_Print( PRT_MESSAGE, "%6d reach barrier\n", reach_barrier );
+		BotImport_Print( PRT_MESSAGE, "%6d reach waterjump\n", reach_waterjump );
+		BotImport_Print( PRT_MESSAGE, "%6d reach walkoffledge\n", reach_walkoffledge );
+		BotImport_Print( PRT_MESSAGE, "%6d reach jump\n", reach_jump );
+		BotImport_Print( PRT_MESSAGE, "%6d reach ladder\n", reach_ladder );
+		BotImport_Print( PRT_MESSAGE, "%6d reach walk\n", reach_walk );
+		BotImport_Print( PRT_MESSAGE, "%6d reach teleport\n", reach_teleport );
+		BotImport_Print( PRT_MESSAGE, "%6d reach funcbob\n", reach_funcbob );
+		BotImport_Print( PRT_MESSAGE, "%6d reach elevator\n", reach_elevator );
+		BotImport_Print( PRT_MESSAGE, "%6d reach grapple\n", reach_grapple );
+		BotImport_Print( PRT_MESSAGE, "%6d reach rocketjump\n", reach_rocketjump );
+		BotImport_Print( PRT_MESSAGE, "%6d reach jumppad\n", reach_jumppad );
 //#endif
 		//*/
 		//store all the reachabilities
@@ -4435,12 +4435,12 @@ int AAS_ContinueInitReachability( float time ) {
 		//
 		( *aasworld ).reachabilityareas++;
 		//
-		botimport.Print( PRT_MESSAGE, "calculating clusters...\n" );
+		BotImport_Print( PRT_MESSAGE, "calculating clusters...\n" );
 	} //end if
 	else
 	{
 		lastpercentage = ( *aasworld ).reachabilityareas * 1000 / ( *aasworld ).numareas;
-		botimport.Print( PRT_MESSAGE, "\r%6.1f%%", (float) lastpercentage / 10 );
+		BotImport_Print( PRT_MESSAGE, "\r%6.1f%%", (float) lastpercentage / 10 );
 	} //end else
 	  //not yet finished
 	return qtrue;

@@ -26,15 +26,6 @@ If you have questions concerning this license or the applicable additional terms
 ===========================================================================
 */
 
-
-/*****************************************************************************
- * name:		be_aas_main.c
- *
- * desc:		AAS
- *
- *
- *****************************************************************************/
-
 #include "../game/q_shared.h"
 #include "l_memory.h"
 #include "l_libvar.h"
@@ -67,7 +58,7 @@ void QDECL AAS_Error( char *fmt, ... ) {
 	va_start( arglist, fmt );
 	vsprintf( str, fmt, arglist );
 	va_end( arglist );
-	botimport.Print( PRT_FATAL, str );
+	BotImport_Print( PRT_FATAL, str );
 } //end of the function AAS_Error
 
 // Ridah, multiple AAS worlds
@@ -96,16 +87,16 @@ void AAS_SetCurrentWorld( int index ) {
 //===========================================================================
 char *AAS_StringFromIndex( char *indexname, char *stringindex[], int numindexes, int index ) {
 	if ( !( *aasworld ).indexessetup ) {
-		botimport.Print( PRT_ERROR, "%s: index %d not setup\n", indexname, index );
+		BotImport_Print( PRT_ERROR, "%s: index %d not setup\n", indexname, index );
 		return "";
 	} //end if
 	if ( index < 0 || index >= numindexes ) {
-		botimport.Print( PRT_ERROR, "%s: index %d out of range\n", indexname, index );
+		BotImport_Print( PRT_ERROR, "%s: index %d out of range\n", indexname, index );
 		return "";
 	} //end if
 	if ( !stringindex[index] ) {
 		if ( index ) {
-			botimport.Print( PRT_ERROR, "%s: reference to unused index %d\n", indexname, index );
+			BotImport_Print( PRT_ERROR, "%s: reference to unused index %d\n", indexname, index );
 		} //end if
 		return "";
 	} //end if
@@ -120,7 +111,7 @@ char *AAS_StringFromIndex( char *indexname, char *stringindex[], int numindexes,
 int AAS_IndexFromString( char *indexname, char *stringindex[], int numindexes, char *string ) {
 	int i;
 	if ( !( *aasworld ).indexessetup ) {
-		botimport.Print( PRT_ERROR, "%s: index not setup \"%s\"\n", indexname, string );
+		BotImport_Print( PRT_ERROR, "%s: index not setup \"%s\"\n", indexname, string );
 		return 0;
 	} //end if
 	for ( i = 0; i < numindexes; i++ )
@@ -201,19 +192,11 @@ int AAS_Initialized( void ) {
 //===========================================================================
 void AAS_SetInitialized( void ) {
 	( *aasworld ).initialized = qtrue;
-	botimport.Print( PRT_MESSAGE, "AAS initialized.\n" );
-#ifdef DEBUG
-	//create all the routing cache
-	//AAS_CreateAllRoutingCache();
-	//
-	//AAS_RoutingInfo();
-#endif
+	BotImport_Print( PRT_MESSAGE, "AAS initialized.\n" );
 
-	// Ridah, build/load the route-table
 	AAS_RT_BuildRouteTable();
-	// done.
 
-} //end of the function AAS_SetInitialized
+}
 //===========================================================================
 //
 // Parameter:				-
@@ -244,11 +227,11 @@ void AAS_ContinueInit( float time ) {
 		}
 		//save the AAS file
 		if ( AAS_WriteAASFile( ( *aasworld ).filename ) ) {
-			botimport.Print( PRT_MESSAGE, "%s written succesfully\n", ( *aasworld ).filename );
+			BotImport_Print( PRT_MESSAGE, "%s written succesfully\n", ( *aasworld ).filename );
 		} //end if
 		else
 		{
-			botimport.Print( PRT_ERROR, "couldn't write %s\n", ( *aasworld ).filename );
+			BotImport_Print( PRT_ERROR, "couldn't write %s\n", ( *aasworld ).filename );
 		} //end else
 	} //end if
 	  //initialize the routing
@@ -256,50 +239,27 @@ void AAS_ContinueInit( float time ) {
 	//at this point AAS is initialized
 	AAS_SetInitialized();
 } //end of the function AAS_ContinueInit
+
 //===========================================================================
 // called at the start of every frame
 //
-// Parameter:				-
-// Returns:					-
-// Changes Globals:		-
-//===========================================================================
-int AAS_StartFrame( float time ) {
-	// Ridah, do each of the aasworlds
-	int i;
 
-	for ( i = 0; i < MAX_AAS_WORLDS; i++ )
+int AAS_StartFrame( float time ) {
+
+	for (int i = 0; i < MAX_AAS_WORLDS; i++ )
 	{
 		AAS_SetCurrentWorld( i );
 
 		( *aasworld ).time = time;
-		//invalidate the entities
 		AAS_InvalidateEntities();
 		//initialize AAS
 		AAS_ContinueInit( time );
-		//
 		( *aasworld ).frameroutingupdates = 0;
-		//
-		/* Ridah, disabled for speed
-		if (LibVarGetValue("showcacheupdates"))
-		{
-			AAS_RoutingInfo();
-			LibVarSet("showcacheupdates", "0");
-		} //end if
-		if (LibVarGetValue("showmemoryusage"))
-		{
-			PrintUsedMemorySize();
-			LibVarSet("showmemoryusage", "0");
-		} //end if
-		if (LibVarGetValue("memorydump"))
-		{
-			PrintMemoryLabels();
-			LibVarSet("memorydump", "0");
-		} //end if
-		*/
-	} //end if
+	} 
 	( *aasworld ).numframes++;
 	return BLERR_NOERROR;
-} //end of the function AAS_StartFrame
+}
+
 //===========================================================================
 //
 // Parameter:				-
@@ -321,7 +281,6 @@ float AAS_Time( void ) {
 int AAS_LoadFiles( const char *mapname ) {
 	int errnum;
 	char aasfile[MAX_PATH];
-//	char bspfile[MAX_PATH];
 
 	strcpy( ( *aasworld ).mapname, mapname );
 	//NOTE: first reset the entity links into the AAS areas and BSP leaves
@@ -340,10 +299,11 @@ int AAS_LoadFiles( const char *mapname ) {
 		return errnum;
 	}
 
-	botimport.Print( PRT_MESSAGE, "loaded %s\n", aasfile );
+	BotImport_Print( PRT_MESSAGE, "loaded %s\n", aasfile );
 	strncpy( ( *aasworld ).filename, aasfile, MAX_PATH );
 	return BLERR_NOERROR;
-} //end of the function AAS_LoadFiles
+}
+
 //===========================================================================
 // called everytime a map changes
 //
@@ -484,5 +444,5 @@ void AAS_Shutdown( void ) {
 	//NOTE: as soon as a new .bsp file is loaded the .bsp file memory is
 	// freed an reallocated, so there's no need to free that memory here
 	//print shutdown
-	botimport.Print( PRT_MESSAGE, "AAS shutdown.\n" );
+	BotImport_Print( PRT_MESSAGE, "AAS shutdown.\n" );
 } //end of the function AAS_Shutdown

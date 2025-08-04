@@ -242,7 +242,7 @@ void QDECL ScriptError( script_t *script, char *str, ... ) {
 	vsprintf( text, str, ap );
 	va_end( ap );
 #ifdef BOTLIB
-	botimport.Print( PRT_ERROR, "file %s, line %d: %s\n", script->filename, script->line, text );
+	BotImport_Print( PRT_ERROR, "file %s, line %d: %s\n", script->filename, script->line, text );
 #endif //BOTLIB
 #ifdef MEQCC
 	printf( "error: file %s, line %d: %s\n", script->filename, script->line, text );
@@ -269,7 +269,7 @@ void QDECL ScriptWarning( script_t *script, char *str, ... ) {
 	vsprintf( text, str, ap );
 	va_end( ap );
 #ifdef BOTLIB
-	botimport.Print( PRT_WARNING, "file %s, line %d: %s\n", script->filename, script->line, text );
+	BotImport_Print( PRT_WARNING, "file %s, line %d: %s\n", script->filename, script->line, text );
 #endif //BOTLIB
 #ifdef MEQCC
 	printf( "warning: file %s, line %d: %s\n", script->filename, script->line, text );

@@ -27,14 +27,6 @@ If you have questions concerning this license or the applicable additional terms
 */
 
 
-/*****************************************************************************
- * name:		be_aas_entity.c
- *
- * desc:		AAS entities
- *
- *
- *****************************************************************************/
-
 #include "../game/q_shared.h"
 #include "l_memory.h"
 #include "l_script.h"
@@ -77,7 +69,7 @@ int AAS_UpdateEntity( int entnum, bot_entitystate_t *state ) {
 	vec3_t absmins, absmaxs;
 
 	if ( !( *defaultaasworld ).loaded ) {
-		botimport.Print( PRT_MESSAGE, "AAS_UpdateEntity: not loaded\n" );
+		BotImport_Print( PRT_MESSAGE, "AAS_UpdateEntity: not loaded\n" );
 		return BLERR_NOAASFILE;
 	} //end if
 
@@ -100,9 +92,6 @@ int AAS_UpdateEntity( int entnum, bot_entitystate_t *state ) {
 	ent->i.weapon = state->weapon;
 	ent->i.legsAnim = state->legsAnim;
 	ent->i.torsoAnim = state->torsoAnim;
-
-//	ent->i.weapAnim = state->weapAnim;	//----(SA)
-//----(SA)	didn't want to comment in as I wasn't sure of any implications of changing the aas_entityinfo_t and bot_entitystate_t structures.
 
 	//number of the entity
 	ent->i.number = entnum;
@@ -167,13 +156,13 @@ int AAS_UpdateEntity( int entnum, bot_entitystate_t *state ) {
 //===========================================================================
 void AAS_EntityInfo( int entnum, aas_entityinfo_t *info ) {
 	if ( !( *defaultaasworld ).initialized ) {
-		botimport.Print( PRT_FATAL, "AAS_EntityInfo: (*defaultaasworld) not initialized\n" );
+		BotImport_Print( PRT_FATAL, "AAS_EntityInfo: (*defaultaasworld) not initialized\n" );
 		memset( info, 0, sizeof( aas_entityinfo_t ) );
 		return;
 	} //end if
 
 	if ( entnum < 0 || entnum >= ( *defaultaasworld ).maxentities ) {
-		botimport.Print( PRT_FATAL, "AAS_EntityInfo: entnum %d out of range\n", entnum );
+		BotImport_Print( PRT_FATAL, "AAS_EntityInfo: entnum %d out of range\n", entnum );
 		memset( info, 0, sizeof( aas_entityinfo_t ) );
 		return;
 	} //end if
@@ -188,7 +177,7 @@ void AAS_EntityInfo( int entnum, aas_entityinfo_t *info ) {
 //===========================================================================
 void AAS_EntityOrigin( int entnum, vec3_t origin ) {
 	if ( entnum < 0 || entnum >= ( *defaultaasworld ).maxentities ) {
-		botimport.Print( PRT_FATAL, "AAS_EntityOrigin: entnum %d out of range\n", entnum );
+		BotImport_Print( PRT_FATAL, "AAS_EntityOrigin: entnum %d out of range\n", entnum );
 		VectorClear( origin );
 		return;
 	} //end if
@@ -203,7 +192,7 @@ void AAS_EntityOrigin( int entnum, vec3_t origin ) {
 //===========================================================================
 int AAS_EntityModelindex( int entnum ) {
 	if ( entnum < 0 || entnum >= ( *defaultaasworld ).maxentities ) {
-		botimport.Print( PRT_FATAL, "AAS_EntityModelindex: entnum %d out of range\n", entnum );
+		BotImport_Print( PRT_FATAL, "AAS_EntityModelindex: entnum %d out of range\n", entnum );
 		return 0;
 	} //end if
 	return ( *defaultaasworld ).entities[entnum].i.modelindex;
@@ -220,7 +209,7 @@ int AAS_EntityType( int entnum ) {
 	}
 
 	if ( entnum < 0 || entnum >= ( *defaultaasworld ).maxentities ) {
-		botimport.Print( PRT_FATAL, "AAS_EntityType: entnum %d out of range\n", entnum );
+		BotImport_Print( PRT_FATAL, "AAS_EntityType: entnum %d out of range\n", entnum );
 		return 0;
 	} //end if
 	return ( *defaultaasworld ).entities[entnum].i.type;
@@ -237,7 +226,7 @@ int AAS_EntityModelNum( int entnum ) {
 	}
 
 	if ( entnum < 0 || entnum >= ( *defaultaasworld ).maxentities ) {
-		botimport.Print( PRT_FATAL, "AAS_EntityModelNum: entnum %d out of range\n", entnum );
+		BotImport_Print( PRT_FATAL, "AAS_EntityModelNum: entnum %d out of range\n", entnum );
 		return 0;
 	} //end if
 	return ( *defaultaasworld ).entities[entnum].i.modelindex;
@@ -278,7 +267,7 @@ void AAS_EntitySize( int entnum, vec3_t mins, vec3_t maxs ) {
 	}
 
 	if ( entnum < 0 || entnum >= ( *defaultaasworld ).maxentities ) {
-		botimport.Print( PRT_FATAL, "AAS_EntitySize: entnum %d out of range\n", entnum );
+		BotImport_Print( PRT_FATAL, "AAS_EntitySize: entnum %d out of range\n", entnum );
 		return;
 	} //end if
 
@@ -432,27 +421,7 @@ int AAS_IsEntityInArea( int entnumIgnore, int entnumIgnore2, int areanum ) {
 		}
 		return qtrue;
 	}
-/*
-	ent = (*defaultaasworld).entities;
-	for (i = 0; i < (*defaultaasworld).maxclients; i++, ent++)
-	{
-		if (!ent->i.valid)
-			continue;
-		if (!ent->i.solid)
-			continue;
-		if (i == entnumIgnore)
-			continue;
-		if (i == entnumIgnore2)
-			continue;
-		for (link = ent->areas; link; link = link->next_area)
-		{
-			if (link->areanum == areanum)
-			{
-				return qtrue;
-			} //end if
-		} //end for
-	}
-*/
+
 	return qfalse;
 }
 

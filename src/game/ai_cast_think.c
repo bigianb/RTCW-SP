@@ -452,7 +452,7 @@ void AICast_Think( int client, float thinktime ) {
 	ent = &g_entities[client];
 	//
 	// make sure we are using the right AAS data for this entity (one's that don't get set will default to the player's AAS data)
-	trap_AAS_SetCurrentWorld( cs->aasWorldIndex );
+	AAS_SetCurrentWorld( cs->aasWorldIndex );
 	//
 	// make sure we have a valid navigation system
 	//
@@ -857,7 +857,7 @@ void AICast_StartFrame( int time ) {
 	//
 	// update the player's area, only update if it's valid
 	for ( i = 0; i < 2; i++ ) {
-		trap_AAS_SetCurrentWorld( i );
+		AAS_SetCurrentWorld( i );
 		castcount = BotPointAreaNum( g_entities[0].s.pos.trBase );
 		if ( castcount ) {
 			caststates[0].lastValidAreaNum[i] = castcount;
@@ -1542,7 +1542,7 @@ void AICast_EvaluatePmove( int clientnum, pmove_t *pm ) {
 	//vec3_t pos, dir;
 	cs = AICast_GetCastState( clientnum );
 	// make sure we are using the right AAS data for this entity (one's that don't get set will default to the player's AAS data)
-	trap_AAS_SetCurrentWorld( cs->aasWorldIndex );
+	AAS_SetCurrentWorld( cs->aasWorldIndex );
 
 	// NOTE: this is only enabled for real clients, so their followers get out of their way
 	//if (cs->bs)

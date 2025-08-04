@@ -262,7 +262,7 @@ void AAS_InitBotImport( void ) {
 	botimport.FreeMemory = FreeMemory;
 	botimport.Trace = BotImport_Trace;
 	botimport.PointContents = BotImport_PointContents;
-	botimport.Print = BotImport_Print;
+
 	botimport.BSPModelMinsMaxsOrigin = BotImport_BSPModelMinsMaxsOrigin;
 } //end of the function AAS_InitBotImport
 //===========================================================================

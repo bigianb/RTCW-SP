@@ -526,7 +526,7 @@ SV_BotInitBotLib
 */
 extern botlib_import_t botimport;
 void SV_BotInitBotLib( void ) {
-	botimport.Print = BotImport_Print;
+
 	botimport.Trace = BotImport_Trace;
 	botimport.EntityTrace = BotImport_EntityTrace;
 	botimport.PointContents = BotImport_PointContents;

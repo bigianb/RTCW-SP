@@ -252,10 +252,6 @@ qboolean trap_GetTag( int clientNum, char *tagName, orientation_t *or ) {
 	return SV_GetTag(clientNum, tagName, or );
 }
 
-// BotLib traps start here
-int trap_BotLibSetup( void ) {
-	return SV_BotLibSetup();
-}
 
 int trap_BotLibShutdown( void ) {
 	return SV_BotLibShutdown();
@@ -323,12 +319,6 @@ void trap_AAS_PresenceTypeBoundingBox( int presencetype, vec3_t mins, vec3_t max
 float trap_AAS_Time( void ) {
 	return AAS_Time();
 }
-
-// Ridah, multiple AAS files
-void trap_AAS_SetCurrentWorld( int index ) {
-	AAS_SetCurrentWorld( index );
-}
-// done.
 
 int trap_AAS_PointAreaNum( vec3_t point ) {
 	return AAS_PointAreaNum( point );

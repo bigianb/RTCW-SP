@@ -1216,7 +1216,6 @@ qboolean trap_GetTag( int clientNum, char *tagName, orientation_t * or );
 int     trap_DebugPolygonCreate( int color, int numPoints, vec3_t *points );
 void    trap_DebugPolygonDelete( int id );
 
-int     trap_BotLibSetup( void );
 int     trap_BotLibShutdown( void );
 int     trap_BotLibVarSet( char *var_name, char *value );
 int     trap_BotLibVarGet( char *var_name, char *value, int size );
@@ -1235,10 +1234,6 @@ void        trap_AAS_EntityInfo( int entnum, void /* struct aas_entityinfo_s */ 
 int         trap_AAS_Initialized( void );
 void        trap_AAS_PresenceTypeBoundingBox( int presencetype, vec3_t mins, vec3_t maxs );
 float       trap_AAS_Time( void );
-
-// Ridah
-void        trap_AAS_SetCurrentWorld( int index );
-// done.
 
 int         trap_AAS_PointAreaNum( vec3_t point );
 int         trap_AAS_TraceAreas( vec3_t start, vec3_t end, int *areas, vec3_t *points, int maxareas );

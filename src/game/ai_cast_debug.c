@@ -121,7 +121,7 @@ void AICast_DBG_RouteTable_f( vec3_t org, char *param ) {
 		return;
 	}
 
-	trap_AAS_SetCurrentWorld( 0 );  // use the default world, which should have a routetable
+	AAS_SetCurrentWorld( 0 );  // use the default world, which should have a routetable
 
 	if ( Q_stricmp( param, "toggle" ) == 0 ) {
 		trap_AAS_RT_ShowRoute( vec3_origin, -666, -666 );   // stupid toggle hack

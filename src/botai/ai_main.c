@@ -48,6 +48,8 @@ If you have questions concerning this license or the applicable additional terms
 #include "../game/be_ai_weap.h"
 #include "../botai/botai.h"          //bot ai interface
 
+#include "../server/server.h"
+
 #include "../qcommon/qcommon.h"
 
 #include "ai_main.h"
@@ -60,7 +62,7 @@ If you have questions concerning this license or the applicable additional terms
 #include "inv.h"
 #include "syn.h"
 
-#define MAX_PATH        144
+#define MAX_AIPATH 144
 
 //bot states
 bot_state_t *botstates[MAX_CLIENTS];
@@ -618,7 +620,7 @@ BotAISetupClient
 ==============
 */
 int BotAISetupClient( int client, struct bot_settings_s *settings ) {
-	char filename[MAX_PATH], name[MAX_PATH], gender[MAX_PATH];
+	char filename[MAX_AIPATH], name[MAX_AIPATH], gender[MAX_AIPATH];
 	bot_state_t *bs;
 	int errnum;
 
@@ -648,7 +650,7 @@ int BotAISetupClient( int client, struct bot_settings_s *settings ) {
 	//allocate a goal state
 	bs->gs = trap_BotAllocGoalState( client );
 	//load the item weights
-	trap_Characteristic_String( bs->character, CHARACTERISTIC_ITEMWEIGHTS, filename, MAX_PATH );
+	trap_Characteristic_String( bs->character, CHARACTERISTIC_ITEMWEIGHTS, filename, MAX_AIPATH );
 	errnum = trap_BotLoadItemWeights( bs->gs, filename );
 	if ( errnum != BLERR_NOERROR ) {
 		trap_BotFreeGoalState( bs->gs );
@@ -657,7 +659,7 @@ int BotAISetupClient( int client, struct bot_settings_s *settings ) {
 	//allocate a weapon state
 	bs->ws = trap_BotAllocWeaponState();
 	//load the weapon weights
-	trap_Characteristic_String( bs->character, CHARACTERISTIC_WEAPONWEIGHTS, filename, MAX_PATH );
+	trap_Characteristic_String( bs->character, CHARACTERISTIC_WEAPONWEIGHTS, filename, MAX_AIPATH );
 	errnum = trap_BotLoadWeaponWeights( bs->ws, filename );
 	if ( errnum != BLERR_NOERROR ) {
 		trap_BotFreeGoalState( bs->gs );
@@ -667,8 +669,8 @@ int BotAISetupClient( int client, struct bot_settings_s *settings ) {
 	//allocate a chat state
 	bs->cs = trap_BotAllocChatState();
 	//load the chat file
-	trap_Characteristic_String( bs->character, CHARACTERISTIC_CHAT_FILE, filename, MAX_PATH );
-	trap_Characteristic_String( bs->character, CHARACTERISTIC_CHAT_NAME, name, MAX_PATH );
+	trap_Characteristic_String( bs->character, CHARACTERISTIC_CHAT_FILE, filename, MAX_AIPATH );
+	trap_Characteristic_String( bs->character, CHARACTERISTIC_CHAT_NAME, name, MAX_AIPATH );
 	errnum = trap_BotLoadChatFile( bs->cs, filename, name );
 	if ( errnum != BLERR_NOERROR ) {
 		trap_BotFreeChatState( bs->cs );
@@ -677,7 +679,7 @@ int BotAISetupClient( int client, struct bot_settings_s *settings ) {
 		return qfalse;
 	}
 	//get the gender characteristic
-	trap_Characteristic_String( bs->character, CHARACTERISTIC_GENDER, gender, MAX_PATH );
+	trap_Characteristic_String( bs->character, CHARACTERISTIC_GENDER, gender, MAX_AIPATH );
 	//set the chat gender
 	if ( *gender == 'f' || *gender == 'F' ) {
 		trap_BotSetChatGender( bs->cs, CHAT_GENDERFEMALE );
@@ -867,7 +869,7 @@ int BotAIStartFrame( int time ) {
 	Cvar_Update( &bot_testrchat );
 	Cvar_Update( &bot_thinktime );
 	// Ridah, set the default AAS world
-	trap_AAS_SetCurrentWorld( 0 );
+	AAS_SetCurrentWorld( 0 );
 	Cvar_Update( &memorydump );
 
 	if ( memorydump.integer ) {
@@ -897,7 +899,7 @@ int BotAIStartFrame( int time ) {
 		trap_BotLibStartFrame( (float) time / 1000 );
 
 		// Ridah, only check the default world
-		trap_AAS_SetCurrentWorld( 0 );
+		AAS_SetCurrentWorld( 0 );
 
 		if ( !trap_AAS_Initialized() ) {
 			return BLERR_NOERROR;
@@ -1149,7 +1151,7 @@ int BotInitLibrary( void ) {
 		trap_BotLibVarSet( "cddir", buf );
 	}
 	//setup the bot library
-	return trap_BotLibSetup();
+	return SV_BotLibSetup();
 }
 
 /*

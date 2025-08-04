@@ -455,6 +455,9 @@ typedef struct botlib_export_s
 //linking of bot library
 botlib_export_t *GetBotLibAPI( int apiVersion, botlib_import_t *import );
 
+void BotImport_Print( int type, char *fmt, ... );
+
+
 /* Library variables:
 
 name:						default:			module(s):			description:
