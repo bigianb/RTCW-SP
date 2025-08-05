@@ -28,12 +28,7 @@ If you have questions concerning this license or the applicable additional terms
 
 #include "cm_local.h"
 
-// always use bbox vs. bbox collision and never capsule vs. bbox or vice versa
 #define ALWAYS_BBOX_VS_BBOX
-// always use capsule vs. capsule collision and never capsule vs. bbox or vice versa
-//#define ALWAYS_CAPSULE_VS_CAPSULE
-
-//#define CAPSULE_DEBUG
 
 /*
 ===============================================================================
@@ -259,7 +254,10 @@ void CM_TestInLeaf( traceWork_t *tw, cLeaf_t *leaf ) {
 
 	// test box position against all brushes in the leaf
 	for ( k = 0 ; k < leaf->numLeafBrushes ; k++ ) {
-		brushnum = cm.leafbrushes[leaf->firstLeafBrush + k];
+		brushnum = leaf->firstLeafBrush + k;
+		if (leaf->fromSubmodel == 0){
+			brushnum = cm.leafbrushes[brushnum];
+		}
 		b = &cm.brushes[brushnum];
 		if ( b->checkcount == cm.checkcount ) {
 			continue;   // already checked this brush in another leaf
@@ -283,7 +281,11 @@ void CM_TestInLeaf( traceWork_t *tw, cLeaf_t *leaf ) {
 	if ( !cm_noCurves->integer ) {
 #endif //BSPC
 		for ( k = 0 ; k < leaf->numLeafSurfaces ; k++ ) {
-			patch = cm.surfaces[ cm.leafsurfaces[ leaf->firstLeafSurface + k ] ];
+			int surfaceNum =leaf->firstLeafSurface + k;
+			if (leaf->fromSubmodel == 0){
+				surfaceNum = cm.leafsurfaces[surfaceNum];
+			}
+			patch = cm.surfaces[ surfaceNum ];
 			if ( !patch ) {
 				continue;
 			}
@@ -678,8 +680,10 @@ void CM_TraceThroughLeaf( traceWork_t *tw, cLeaf_t *leaf ) {
 
 	// trace line against all brushes in the leaf
 	for ( k = 0 ; k < leaf->numLeafBrushes ; k++ ) {
-		brushnum = cm.leafbrushes[leaf->firstLeafBrush + k];
-
+		brushnum = leaf->firstLeafBrush + k;
+		if (leaf->fromSubmodel == 0){
+			brushnum = cm.leafbrushes[brushnum];
+		}
 		b = &cm.brushes[brushnum];
 		if ( b->checkcount == cm.checkcount ) {
 			continue;   // already checked this brush in another leaf
@@ -703,7 +707,11 @@ void CM_TraceThroughLeaf( traceWork_t *tw, cLeaf_t *leaf ) {
 	if ( !cm_noCurves->integer ) {
 #endif
 		for ( k = 0 ; k < leaf->numLeafSurfaces ; k++ ) {
-			patch = cm.surfaces[ cm.leafsurfaces[ leaf->firstLeafSurface + k ] ];
+			int surfaceNum =leaf->firstLeafSurface + k;
+			if (leaf->fromSubmodel == 0){
+				surfaceNum = cm.leafsurfaces[surfaceNum];
+			}
+			patch = cm.surfaces[ surfaceNum ];
 			if ( !patch ) {
 				continue;
 			}
@@ -1271,24 +1279,10 @@ void CM_Trace( trace_t *results, const vec3_t start, const vec3_t end,
 	//
 	if ( start[0] == end[0] && start[1] == end[1] && start[2] == end[2] ) {
 		if ( model ) {
-#ifdef ALWAYS_BBOX_VS_BBOX
 			if ( model == BOX_MODEL_HANDLE || model == CAPSULE_MODEL_HANDLE ) {
 				tw.sphere.use = qfalse;
 				CM_TestInLeaf( &tw, &cmod->leaf );
 			} else
-#elif defined( ALWAYS_CAPSULE_VS_CAPSULE )
-			if ( model == BOX_MODEL_HANDLE || model == CAPSULE_MODEL_HANDLE ) {
-				CM_TestCapsuleInCapsule( &tw, model );
-			} else
-#else
-			if ( model == CAPSULE_MODEL_HANDLE ) {
-				if ( tw.sphere.use ) {
-					CM_TestCapsuleInCapsule( &tw, model );
-				} else {
-					CM_TestBoundingBoxInCapsule( &tw, model );
-				}
-			} else
-#endif
 			{
 				CM_TestInLeaf( &tw, &cmod->leaf );
 			}
@@ -1313,24 +1307,10 @@ void CM_Trace( trace_t *results, const vec3_t start, const vec3_t end,
 		// general sweeping through world
 		//
 		if ( model ) {
-#ifdef ALWAYS_BBOX_VS_BBOX
 			if ( model == BOX_MODEL_HANDLE || model == CAPSULE_MODEL_HANDLE ) {
 				tw.sphere.use = qfalse;
 				CM_TraceThroughLeaf( &tw, &cmod->leaf );
 			} else
-#elif defined( ALWAYS_CAPSULE_VS_CAPSULE )
-			if ( model == BOX_MODEL_HANDLE || model == CAPSULE_MODEL_HANDLE ) {
-				CM_TraceCapsuleThroughCapsule( &tw, model );
-			} else
-#else
-			if ( model == CAPSULE_MODEL_HANDLE ) {
-				if ( tw.sphere.use ) {
-					CM_TraceCapsuleThroughCapsule( &tw, model );
-				} else {
-					CM_TraceBoundingBoxThroughCapsule( &tw, model );
-				}
-			} else
-#endif
 			{
 				CM_TraceThroughLeaf( &tw, &cmod->leaf );
 			}

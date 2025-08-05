@@ -51,6 +51,7 @@ void SetPlaneSignbits( cplane_t *out ) {
 // to allow boxes to be treated as brush models, we allocate
 // some extra indexes along with those needed by the map
 #define BOX_BRUSHES     1
+#define BOX_LEAF_BRUSHES 1
 #define BOX_SIDES       6
 #define BOX_LEAFS       2
 #define BOX_PLANES      12
@@ -128,16 +129,12 @@ CMod_LoadSubmodels
 =================
 */
 void CMod_LoadSubmodels( lump_t *l ) {
-	dmodel_t    *in;
-	cmodel_t    *out;
-	int i, j, count;
-	int         *indexes;
 
-	in = ( void * )( cmod_base + l->fileofs );
+	dmodel_t    *in = ( void * )( cmod_base + l->fileofs );
 	if ( l->filelen % sizeof( *in ) ) {
 		Com_Error( ERR_DROP, "CMod_LoadSubmodels: funny lump size" );
 	}
-	count = l->filelen / sizeof( *in );
+	int count = l->filelen / sizeof( *in );
 
 	if ( count < 1 ) {
 		Com_Error( ERR_DROP, "Map with no models" );
@@ -149,34 +146,23 @@ void CMod_LoadSubmodels( lump_t *l ) {
 		Com_Error( ERR_DROP, "MAX_SUBMODELS exceeded" );
 	}
 
-	for ( i = 0 ; i < count ; i++, in++, out++ )
+	for (int i = 0 ; i < count ; i++, in++ )
 	{
-		out = &cm.cmodels[i];
+		cmodel_t *out = &cm.cmodels[i];
 
-		for ( j = 0 ; j < 3 ; j++ )
+		for (int j = 0 ; j < 3 ; j++ )
 		{   // spread the mins / maxs by a pixel
 			out->mins[j] = LittleFloat( in->mins[j] ) - 1;
 			out->maxs[j] = LittleFloat( in->maxs[j] ) + 1;
 		}
 
-		if ( i == 0 ) {
-			continue;   // world model doesn't need other info
-		}
-
-		// make a "leaf" just to hold the model's brushes and surfaces
+		out->leaf.fromSubmodel = 1;
+		
 		out->leaf.numLeafBrushes = LittleLong( in->numBrushes );
-		indexes = Hunk_Alloc( out->leaf.numLeafBrushes * 4, h_high );
-		out->leaf.firstLeafBrush = indexes - cm.leafbrushes;
-		for ( j = 0 ; j < out->leaf.numLeafBrushes ; j++ ) {
-			indexes[j] = LittleLong( in->firstBrush ) + j;
-		}
+		out->leaf.firstLeafBrush = LittleLong( in->firstBrush );
 
 		out->leaf.numLeafSurfaces = LittleLong( in->numSurfaces );
-		indexes = Hunk_Alloc( out->leaf.numLeafSurfaces * 4, h_high );
-		out->leaf.firstLeafSurface = indexes - cm.leafsurfaces;
-		for ( j = 0 ; j < out->leaf.numLeafSurfaces ; j++ ) {
-			indexes[j] = LittleLong( in->firstSurface ) + j;
-		}
+		out->leaf.firstLeafSurface = LittleLong( in->firstSurface );
 	}
 }
 
@@ -301,6 +287,7 @@ void CMod_LoadLeafs( lump_t *l ) {
 	out = cm.leafs;
 	for ( i = 0 ; i < count ; i++, in++, out++ )
 	{
+		out->fromSubmodel = 0;
 		out->cluster = LittleLong( in->cluster );
 		out->area = LittleLong( in->area );
 		out->firstLeafBrush = LittleLong( in->firstLeafBrush );
@@ -380,8 +367,7 @@ void CMod_LoadLeafBrushes( lump_t *l ) {
 	}
 	count = l->filelen / sizeof( *in );
 
-    // CM_InitBoxHull does cm.leafbrushes[cm.numLeafBrushes] = cm.numBrushes;
-	cm.leafbrushes = Hunk_Alloc( (count+1) * sizeof( *cm.leafbrushes ), h_high );
+	cm.leafbrushes = Hunk_Alloc( (BOX_LEAF_BRUSHES + count) * sizeof( *cm.leafbrushes ), h_high );
 	cm.numLeafBrushes = count;
 
 	out = cm.leafbrushes;
@@ -427,14 +413,13 @@ void CMod_LoadBrushSides( lump_t *l ) {
 	int i;
 	cbrushside_t    *out;
 	dbrushside_t    *in;
-	int count;
 	int num;
 
 	in = ( void * )( cmod_base + l->fileofs );
 	if ( l->filelen % sizeof( *in ) ) {
 		Com_Error( ERR_DROP, "MOD_LoadBmodel: funny lump size" );
 	}
-	count = l->filelen / sizeof( *in );
+	int count = l->filelen / sizeof( *in );
 
 	cm.brushsides = Hunk_Alloc( ( BOX_SIDES + count ) * sizeof( *cm.brushsides ), h_high );
 	cm.numBrushSides = count;
@@ -556,42 +541,9 @@ void CMod_LoadPatches( lump_t *surfs, lump_t *verts ) {
 	}
 }
 
-//==================================================================
-
-
-#if 0 //BSPC
-/*
-==================
-CM_FreeMap
-
-Free any loaded map and all submodels
-==================
-*/
-void CM_FreeMap( void ) {
-	Com_Memset( &cm, 0, sizeof( cm ) );
-	CM_ClearLevelPatches();
-}
-#endif //BSPC
 
 unsigned CM_LumpChecksum( lump_t *lump ) {
 	return LittleLong( Com_BlockChecksum( cmod_base + lump->fileofs, lump->filelen ) );
-}
-
-unsigned CM_Checksum( dheader_t *header ) {
-	unsigned checksums[16];
-	checksums[0] = CM_LumpChecksum( &header->lumps[LUMP_SHADERS] );
-	checksums[1] = CM_LumpChecksum( &header->lumps[LUMP_LEAFS] );
-	checksums[2] = CM_LumpChecksum( &header->lumps[LUMP_LEAFBRUSHES] );
-	checksums[3] = CM_LumpChecksum( &header->lumps[LUMP_LEAFSURFACES] );
-	checksums[4] = CM_LumpChecksum( &header->lumps[LUMP_PLANES] );
-	checksums[5] = CM_LumpChecksum( &header->lumps[LUMP_BRUSHSIDES] );
-	checksums[6] = CM_LumpChecksum( &header->lumps[LUMP_BRUSHES] );
-	checksums[7] = CM_LumpChecksum( &header->lumps[LUMP_MODELS] );
-	checksums[8] = CM_LumpChecksum( &header->lumps[LUMP_NODES] );
-	checksums[9] = CM_LumpChecksum( &header->lumps[LUMP_SURFACES] );
-	checksums[10] = CM_LumpChecksum( &header->lumps[LUMP_DRAWVERTS] );
-
-	return LittleLong( Com_BlockChecksum( checksums, 11 * 4 ) );
 }
 
 /*
@@ -603,7 +555,7 @@ Loads in the map and all submodels
 */
 void CM_LoadMap( const char *name, qboolean clientload, int *checksum ) {
 	int             *buf;
-	int i;
+
 	dheader_t header;
 	int length;
 	static unsigned last_checksum;
@@ -654,7 +606,7 @@ void CM_LoadMap( const char *name, qboolean clientload, int *checksum ) {
 	*checksum = last_checksum;
 
 	header = *(dheader_t *)buf;
-	for ( i = 0 ; i < sizeof( dheader_t ) / 4 ; i++ ) {
+	for (int i = 0 ; i < sizeof( dheader_t ) / 4 ; i++ ) {
 		( (int *)&header )[i] = LittleLong( ( (int *)&header )[i] );
 	}
 
@@ -774,8 +726,7 @@ can just be stored out and get a proper clipping hull structure.
 ===================
 */
 void CM_InitBoxHull( void ) {
-	int i;
-	int side;
+
 	cplane_t    *p;
 	cbrushside_t    *s;
 
@@ -787,13 +738,12 @@ void CM_InitBoxHull( void ) {
 	box_brush->contents = CONTENTS_BODY;
 
 	box_model.leaf.numLeafBrushes = 1;
-//	box_model.leaf.firstLeafBrush = cm.numBrushes;
 	box_model.leaf.firstLeafBrush = cm.numLeafBrushes;
 	cm.leafbrushes[cm.numLeafBrushes] = cm.numBrushes;
-
-	for ( i = 0 ; i < 6 ; i++ )
+	
+	for (int i = 0 ; i < 6 ; i++ )
 	{
-		side = i & 1;
+		int side = i & 1;
 
 		// brush sides
 		s = &cm.brushsides[cm.numBrushSides + i];

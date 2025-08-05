@@ -108,7 +108,10 @@ void CM_StoreBrushes( leafList_t *ll, int nodenum ) {
 	leaf = &cm.leafs[leafnum];
 
 	for ( k = 0 ; k < leaf->numLeafBrushes ; k++ ) {
-		brushnum = cm.leafbrushes[leaf->firstLeafBrush + k];
+		brushnum = leaf->firstLeafBrush + k;
+		if (leaf->fromSubmodel == 0){
+			brushnum = cm.leafbrushes[brushnum];
+		}
 		b = &cm.brushes[brushnum];
 		if ( b->checkcount == cm.checkcount ) {
 			continue;   // already checked this brush in another leaf
@@ -128,15 +131,7 @@ void CM_StoreBrushes( leafList_t *ll, int nodenum ) {
 		}
 		( (cbrush_t **)ll->list )[ ll->count++ ] = b;
 	}
-#if 0
-	// store patches?
-	for ( k = 0 ; k < leaf->numLeafSurfaces ; k++ ) {
-		patch = cm.surfaces[ cm.leafsurfaces[ leaf->firstleafsurface + k ] ];
-		if ( !patch ) {
-			continue;
-		}
-	}
-#endif
+
 }
 
 /*
@@ -256,7 +251,10 @@ int CM_PointContents( const vec3_t p, clipHandle_t model ) {
 
 	contents = 0;
 	for ( k = 0 ; k < leaf->numLeafBrushes ; k++ ) {
-		brushnum = cm.leafbrushes[leaf->firstLeafBrush + k];
+		brushnum = leaf->firstLeafBrush + k;
+		if (leaf->fromSubmodel == 0){
+			brushnum = cm.leafbrushes[brushnum];
+		}
 		b = &cm.brushes[brushnum];
 
 		// see if the point is in the brush
