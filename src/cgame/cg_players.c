@@ -1487,28 +1487,9 @@ void CG_NewClientInfo( int clientNum ) {
 	v = Info_ValueForKey( configstring, "t" );
 	newInfo.team = atoi( v );
 
-//----(SA) modified this for head separation
-
-// (SA) note to Ryan: The problem I see with having the model set for cg_forceModel in the game (g_forcemodel)
-//		is that it was initally there for a performance/fairness thing so you can connect to a
-//		server and not use other players goofy models or whatever.  We should still have some simple
-//		client-side thing for defaulting all models to one particular player model or something.  (did that make sense?)
-
 	// head
 	v = Info_ValueForKey( configstring, "head" );
-/* RF, disabled this, not needed anymore
-	if ( cg_forceModel.integer )
-	{
-		char modelStr[MAX_QPATH];
 
-		// forcemodel makes everyone use a single model
-		// to prevent load hitches
-
-		trap_Cvar_VariableStringBuffer( "head", modelStr, sizeof( modelStr ) );
-		Q_strncpyz( newInfo.hSkinName, modelStr, sizeof( newInfo.hSkinName ) );
-	}
-	else {
-*/
 	Q_strncpyz( newInfo.hSkinName, v, sizeof( newInfo.hSkinName ) );
 //	}
 
@@ -1516,32 +1497,7 @@ void CG_NewClientInfo( int clientNum ) {
 
 	// model
 	v = Info_ValueForKey( configstring, "model" );
-/* RF, disabled this, not needed anymore
-	if ( cg_forceModel.integer ) {
-		// forcemodel makes everyone use a single model
-		// to prevent load hitches
-		char modelStr[MAX_QPATH];
-		char *skin;
 
-		trap_Cvar_VariableStringBuffer( "model", modelStr, sizeof( modelStr ) );
-		if ( ( skin = strchr( modelStr, '/' ) ) == NULL) {
-			skin = "default";
-		} else {
-			*skin++ = 0;
-		}
-
-		Q_strncpyz( newInfo.skinName, skin, sizeof( newInfo.skinName ) );
-		Q_strncpyz( newInfo.modelName, modelStr, sizeof( newInfo.modelName ) );
-
-		if ( cgs.gametype >= GT_TEAM ) {
-			// keep skin name
-			slash = strchr( v, '/' );
-			if ( slash ) {
-				Q_strncpyz( newInfo.skinName, slash + 1, sizeof( newInfo.skinName ) );
-			}
-		}
-	} else {
-*/
 	Q_strncpyz( newInfo.modelName, v, sizeof( newInfo.modelName ) );
 
 	slash = strchr( newInfo.modelName, '/' );
@@ -1561,38 +1517,7 @@ void CG_NewClientInfo( int clientNum ) {
 	// scan for an existing clientinfo that matches this modelname
 	// so we can avoid loading checks if possible
 	if ( !CG_ScanForExistingClientInfo( &newInfo ) ) {
-		qboolean forceDefer;
-
-		// RF, disabled this, we can't have this happening in Wolf. If there is not enough memory,
-		// then we have a leak or havent allocated enough hunk
-		forceDefer = qfalse;
-
-//		forceDefer = trap_MemoryRemaining() < 4000000;
-
-		// if we are defering loads, just have it pick the first valid
-//		if ( forceDefer || ( cg_deferPlayers.integer && !cg_buildScript.integer && !cg.loading ) ) {
-
-		// very temporary!  do not defer any players just yet
-		// we need to get ai's to be non-deferred players before we can
-		// do this (SA)
-		if ( forceDefer ) {
-			// keep whatever they had if it won't violate team skins
-			if ( ci->infoValid &&
-				 ( cgs.gametype < GT_TEAM || !Q_stricmp( newInfo.skinName, ci->skinName ) ) ) {
-				CG_CopyClientInfoModel( ci, &newInfo );
-				newInfo.deferred = qtrue;
-			} else {
-				// use whatever is available
-				CG_SetDeferredClientInfo( &newInfo );
-			}
-			// if we are low on memory, leave them with this model
-			if ( forceDefer ) {
-				CG_Printf( "Memory is low.  Using deferred model.\n" );
-				newInfo.deferred = qfalse;
-			}
-		} else {
-			CG_LoadClientInfo( &newInfo );
-		}
+        CG_LoadClientInfo( &newInfo );
 	}
 
 	// replace whatever was there with the new one
@@ -1601,33 +1526,6 @@ void CG_NewClientInfo( int clientNum ) {
 }
 
 
-
-/*
-======================
-CG_LoadDeferredPlayers
-
-Called each frame when a player is dead
-and the scoreboard is up
-so deferred players can be loaded
-======================
-*/
-void CG_LoadDeferredPlayers( void ) {
-	int i;
-	clientInfo_t    *ci;
-
-	// scan for a deferred player to load
-	for ( i = 0, ci = cgs.clientinfo ; i < cgs.maxclients ; i++, ci++ ) {
-		if ( ci->infoValid && ci->deferred ) {
-			// if we are low on memory, leave it deferred
-			if ( trap_MemoryRemaining() < 4000000 ) {
-				CG_Printf( "Memory is low.  Using deferred model.\n" );
-				ci->deferred = qfalse;
-				continue;
-			}
-			CG_LoadClientInfo( ci );
-		}
-	}
-}
 
 /*
 =============================================================================

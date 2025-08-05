@@ -448,7 +448,7 @@ static consoleCommand_t commands[] = {
 	{ "tell_attacker", CG_TellAttacker_f },
 	{ "tcmd", CG_TargetCommand_f },
 	{ "loadhud", CG_LoadHud_f },
-	{ "loaddeferred", CG_LoadDeferredPlayers },  // spelling fixed (SA)
+
 	{ "camera", CG_Camera_f },   // duffy
 	{ "fade", CG_Fade_f },   // duffy
 

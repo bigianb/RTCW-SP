@@ -303,9 +303,6 @@ typedef enum {
 
 #define UI_SMALLFONT75  0x00100000
 
-#if defined( _DEBUG ) && !defined( BSPC )
-	#define HUNK_DEBUG
-#endif
 
 typedef enum {
 	h_high,
@@ -313,12 +310,8 @@ typedef enum {
 	h_dontcare
 } ha_pref;
 
-#ifdef HUNK_DEBUG
-#define Hunk_Alloc( size, preference )              Hunk_AllocDebug( size, preference, # size, __FILE__, __LINE__ )
-void *Hunk_AllocDebug( int size, ha_pref preference, char *label, char *file, int line );
-#else
+
 void *Hunk_Alloc( int size, ha_pref preference );
-#endif
 
 void Com_Memset( void* dest, const int val, const size_t count );
 void Com_Memcpy( void* dest, const void* src, const size_t count );

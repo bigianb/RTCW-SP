@@ -508,7 +508,7 @@ typedef struct skin_s {
 	char name[MAX_QPATH];               // game path, including extension
 	int numSurfaces;
 	int numModels;
-	skinSurface_t   *surfaces[MD3_MAX_SURFACES];
+	skinSurface_t   *surfaces;
 	skinModel_t     *models[MAX_PART_MODELS];
 	vec3_t scale;       //----(SA)	added
 } skin_t;

@@ -619,13 +619,8 @@ void CL_FlushMemory( void ) {
 
 	// if not running a server clear the whole hunk
 	if ( !com_sv_running->integer ) {
-		// clear the whole hunk
-		Hunk_Clear();
 		// clear collision map data
 		CM_ClearMap();
-	} else {
-		// clear all the client data on the hunk
-		Hunk_ClearToMark();
 	}
 
 	CL_StartHunkUsers();
@@ -1106,15 +1101,6 @@ void CL_Vid_Restart_f( void ) {
 
 	// unpause so the cgame definately gets a snapshot and renders a frame
 	Cvar_Set( "cl_paused", "0" );
-
-	// if not running a server clear the whole hunk
-	if ( !com_sv_running->integer ) {
-		// clear the whole hunk
-		Hunk_Clear();
-	} else {
-		// clear all the client data on the hunk
-		Hunk_ClearToMark();
-	}
 
 	// initialize the renderer interface
 	CL_InitRef();
@@ -2229,7 +2215,7 @@ void CL_InitRef( void ) {
 	ri.Printf = CL_RefPrintf;
 	ri.Error = Com_Error;
 	ri.Milliseconds = CL_ScaledMilliseconds;
-	ri.Hunk_Clear = Hunk_ClearToMark;
+
 #ifdef HUNK_DEBUG
 	ri.Hunk_AllocDebug = Hunk_AllocDebug;
 #else
@@ -2455,7 +2441,6 @@ void CL_Init( void ) {
 	Cmd_AddCommand( "cache_mapchange", CL_Cache_MapChange_f );
 	Cmd_AddCommand( "cache_endgather", CL_Cache_EndGather_f );
 
-	Cmd_AddCommand( "updatehunkusage", CL_UpdateLevelHunkUsage );
 	Cmd_AddCommand( "updatescreen", SCR_UpdateScreen );
 	// done.
 

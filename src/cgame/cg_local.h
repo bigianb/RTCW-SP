@@ -727,7 +727,7 @@ typedef struct {
 
 	qboolean demoPlayback;
 	qboolean levelShot;             // taking a level menu screenshot
-	int deferredPlayerLoading;
+
 	qboolean loading;               // don't defer players at initial startup
 	qboolean intermissionStarted;       // don't play voice rewards, because game will end shortly
 
@@ -1940,8 +1940,6 @@ int CG_PointContents( const vec3_t point, int passEntityNum );
 void CG_Trace( trace_t *result, const vec3_t start, const vec3_t mins, const vec3_t maxs, const vec3_t end,
 			   int skipNumber, int mask );
 void CG_PredictPlayerState( void );
-void CG_LoadDeferredPlayers( void );
-
 
 //
 // cg_events.c
@@ -2184,12 +2182,6 @@ void CG_DrawInformation( void );
 const char *CG_translateString( const char *str );
 
 //
-// cg_scoreboard.c
-//
-qboolean CG_DrawScoreboard( void );
-void CG_DrawTourneyScoreboard( void );
-
-//
 // cg_consolecmds.c
 //
 qboolean CG_ConsoleCommand( void );
@@ -2397,7 +2389,6 @@ qboolean    trap_GetUserCmd( int cmdNumber, usercmd_t *ucmd );
 // used for the weapon/holdable select and zoom
 void        trap_SetUserCmdValue( int stateValue, int holdValue, float sensitivityScale, int cld );     // NERVE - SMF - added cld
 
-int         trap_MemoryRemaining( void );
 void        trap_R_RegisterFont( const char *fontName, int pointSize, fontInfo_t *font );
 qboolean    trap_Key_IsDown( int keynum );
 int         trap_Key_GetCatcher( void );

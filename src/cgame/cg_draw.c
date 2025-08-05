@@ -2602,55 +2602,9 @@ CG_DrawIntermission
 =================
 */
 static void CG_DrawIntermission( void ) {
-	if ( cgs.gametype == GT_SINGLE_PLAYER ) {
-		CG_DrawCenterString();
-		return;
-	}
-
-	cg.scoreFadeTime = cg.time;
-	CG_DrawScoreboard();
+    CG_DrawCenterString();
 }
 
-// NERVE - SMF
-/*
-=================
-CG_ActivateLimboMenu
-=================
-*/
-// TTimo: unused
-/*
-static void CG_ActivateLimboMenu( void ) {
-	static qboolean latch = qfalse;
-	qboolean test;
-	char buf[32];
-
-	if ( cgs.gametype != GT_WOLF )
-		return;
-
-	// should we open the limbo menu
-	test = cg.snap->ps.pm_flags & PMF_LIMBO || cg.snap->ps.persistant[PERS_TEAM] == TEAM_SPECTATOR;
-
-	if ( test && !latch ) {
-		trap_SendConsoleCommand( "startLimboMode\n" );
-		trap_SendConsoleCommand( "OpenLimboMenu\n" );
-		latch = qtrue;
-	}
-	else if ( !test && latch ) {
-		trap_SendConsoleCommand( "stopLimboMode\n" );
-		trap_SendConsoleCommand( "CloseLimboMenu\n" );
-		latch = qfalse;
-	}
-
-	// set the limbo state
-	trap_Cvar_VariableStringBuffer( "ui_limboMode", buf, sizeof( buf ) );
-
-	if ( atoi( buf ) )
-		cg.limboMenu = qtrue;
-	else
-		cg.limboMenu = qfalse;
-}
-*/
-// -NERVE - SMF
 
 /*
 =================
@@ -3395,12 +3349,9 @@ static void CG_Draw2D( void ) {
 		CG_DrawWarmup();
 	}
 
-	// don't draw center string if scoreboard is up
-	if ( !CG_DrawScoreboard() ) {
-		CG_DrawCenterString();
-
-		CG_DrawObjectiveInfo();     // NERVE - SMF
-	}
+    CG_DrawCenterString();
+    CG_DrawObjectiveInfo(); 
+	
 
 	// Ridah, draw flash blends now
 	CG_DrawFlashBlend();
@@ -3529,12 +3480,6 @@ void CG_DrawActive( stereoFrame_t stereoView ) {
 		}
 	}
 
-	// optionally draw the tournement scoreboard instead
-	if ( cg.snap->ps.persistant[PERS_TEAM] == TEAM_SPECTATOR &&
-		 ( cg.snap->ps.pm_flags & PMF_SCOREBOARD ) ) {
-		CG_DrawTourneyScoreboard();
-		return;
-	}
 
 	switch ( stereoView ) {
 	case STEREO_CENTER:

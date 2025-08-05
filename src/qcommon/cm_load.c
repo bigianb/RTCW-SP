@@ -380,7 +380,8 @@ void CMod_LoadLeafBrushes( lump_t *l ) {
 	}
 	count = l->filelen / sizeof( *in );
 
-	cm.leafbrushes = Hunk_Alloc( count * sizeof( *cm.leafbrushes ), h_high );
+    // CM_InitBoxHull does cm.leafbrushes[cm.numLeafBrushes] = cm.numBrushes;
+	cm.leafbrushes = Hunk_Alloc( (count+1) * sizeof( *cm.leafbrushes ), h_high );
 	cm.numLeafBrushes = count;
 
 	out = cm.leafbrushes;
@@ -568,7 +569,6 @@ Free any loaded map and all submodels
 */
 void CM_FreeMap( void ) {
 	Com_Memset( &cm, 0, sizeof( cm ) );
-	Hunk_ClearHigh();
 	CM_ClearLevelPatches();
 }
 #endif //BSPC
