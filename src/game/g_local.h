@@ -659,7 +659,7 @@ typedef struct {
 	int teamVoteTime[2];                // level.time vote was called
 	int teamVoteYes[2];
 	int teamVoteNo[2];
-	int numteamVotingClients[2];        // set by CalculateRanks
+	int numteamVotingClients[TEAM_NUM_TEAMS];        // set by CalculateRanks
 
 	// spawn variables
 	qboolean spawning;                  // the G_Spawn*() functions are valid
@@ -750,7 +750,7 @@ qboolean G_CallSpawn( gentity_t *ent );
 //
 // g_cmds.c
 //
-void Cmd_Score_f( gentity_t *ent );
+
 void StopFollowing( gentity_t *ent );
 //void BroadcastTeamChange( gclient_t *client, int oldTeam );
 void SetTeam( gentity_t *ent, char *s );
@@ -925,7 +925,7 @@ team_t PickTeam( int ignoreClientNum );
 void SetClientViewAngle( gentity_t *ent, vec3_t angle );
 gentity_t *SelectSpawnPoint( vec3_t avoidPoint, vec3_t origin, vec3_t angles );
 void respawn( gentity_t *ent );
-void BeginIntermission( void );
+
 void InitClientPersistant( gclient_t *client );
 void InitClientResp( gclient_t *client );
 void InitBodyQue( void );
@@ -953,7 +953,7 @@ void FireWeapon( gentity_t *ent );
 //
 void MoveClientToIntermission( gentity_t *client );
 void G_SetStats( gentity_t *ent );
-void DeathmatchScoreboardMessage( gentity_t *client );
+
 
 //
 // g_cmds.c
@@ -971,7 +971,7 @@ void G_SayTo( gentity_t *ent, gentity_t *other, int mode, int color, const char 
 void FindIntermissionPoint( void );
 void G_RunThink( gentity_t *ent );
 void QDECL G_LogPrintf( const char *fmt, ... );
-void SendScoreboardMessageToAllClients( void );
+
 void QDECL G_Printf( const char *fmt, ... );
 void QDECL G_DPrintf( const char *fmt, ... );
 void QDECL G_Error( const char *fmt, ... );

@@ -165,14 +165,18 @@ void Sys_PumpEvents( void );
 typedef unsigned char byte;
 
 typedef enum {qfalse, qtrue}    qboolean;
-#if defined( __MACOS__ )
-#define qboolean int
-#endif
+
 
 typedef int qhandle_t;
 typedef int sfxHandle_t;
 typedef int fileHandle_t;
 typedef int clipHandle_t;
+
+#define PAD(base, alignment)    (((base)+(alignment)-1) & ~((alignment)-1))
+#define PADLEN(base, alignment)    (PAD((base), (alignment)) - (base))
+
+#define PADP(base, alignment)    ((void *) PAD((intptr_t) (base), (alignment)))
+
 
 #ifndef ID_INLINE
 #ifdef _WIN32
@@ -627,8 +631,8 @@ int Q_isforfilename( int c );       //----(SA)	added
 
 // portable case insensitive compare
 int     Q_stricmp( const char *s1, const char *s2 );
-int     Q_strncmp( const char *s1, const char *s2, int n );
-int     Q_stricmpn( const char *s1, const char *s2, int n );
+int     Q_strncmp( const char *s1, const char *s2, size_t n );
+int     Q_stricmpn( const char *s1, const char *s2, size_t n );
 char    *Q_strlwr( char *s1 );
 char    *Q_strupr( char *s1 );
 char    *Q_strrchr( const char* string, int c );
@@ -640,7 +644,7 @@ char    *Q_strrchr( const char* string, int c );
 #endif
 
 // buffer size safe library replacements
-void    Q_strncpyz( char *dest, const char *src, int destsize );
+void    Q_strncpyz( char *dest, const char *src, size_t destsize );
 void    Q_strcat( char *dest, int size, const char *src );
 
 // strlen that discounts Quake color sequences

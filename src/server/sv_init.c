@@ -37,9 +37,9 @@ SV_SetConfigstring
 ===============
 */
 void SV_SetConfigstring( int index, const char *val ) {
-	int len, i;
+
 	int maxChunkSize = MAX_STRING_CHARS - 24;
-	client_t    *client;
+	
 
 	if ( index < 0 || index >= MAX_CONFIGSTRINGS ) {
 		Com_Error( ERR_DROP, "SV_SetConfigstring: bad index %i\n", index );
@@ -64,7 +64,8 @@ void SV_SetConfigstring( int index, const char *val ) {
 //		SV_SendServerCommand( NULL, "cs %i \"%s\"\n", index, val );
 
 		// send the data to all relevent clients
-		for ( i = 0, client = svs.clients; i < sv_maxclients->integer ; i++, client++ ) {
+        client_t    *client = svs.clients;
+		for (int i = 0; i < sv_maxclients->integer ; i++, client++ ) {
 			if ( client->state < CS_PRIMED ) {
 				continue;
 			}
@@ -80,7 +81,7 @@ void SV_SetConfigstring( int index, const char *val ) {
 
 //			SV_SendServerCommand( client, "cs %i \"%s\"\n", index, val );
 
-			len = strlen( val );
+			size_t len = strlen( val );
 			if ( len >= maxChunkSize ) {
 				int sent = 0;
 				int remaining = len;

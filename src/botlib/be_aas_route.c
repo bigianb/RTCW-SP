@@ -405,9 +405,7 @@ void AAS_CalculateAreaTravelTimes( void ) {
 	aas_reversedlink_t *revlink;
 	aas_reachability_t *reach;
 	aas_areasettings_t *settings;
-	int starttime;
 
-	starttime = Sys_MilliSeconds();
 	//if there are still area travel times, free the memory
 	if ( ( *aasworld ).areatraveltimes ) {
 		AAS_RoutingFreeMemory( ( *aasworld ).areatraveltimes );
@@ -422,7 +420,7 @@ void AAS_CalculateAreaTravelTimes( void ) {
 		//
 		size += settings->numreachableareas * sizeof( unsigned short * );
 		//
-		size += settings->numreachableareas * revreach->numlinks * sizeof( unsigned short );
+		size += settings->numreachableareas * PAD(revreach->numlinks, sizeof(long)) * sizeof( unsigned short );
 	} //end for
 	  //allocate memory for the area travel times
 	ptr = (char *) AAS_RoutingGetMemory( size );
@@ -443,7 +441,7 @@ void AAS_CalculateAreaTravelTimes( void ) {
 		for ( l = 0; l < settings->numreachableareas; l++, reach++ )
 		{
 			( *aasworld ).areatraveltimes[i][l] = (unsigned short *) ptr;
-			ptr += revreach->numlinks * sizeof( unsigned short );
+			ptr += PAD(revreach->numlinks, sizeof(long)) * sizeof( unsigned short );
 			//reachability link
 			//
 			for ( n = 0, revlink = revreach->first; revlink; revlink = revlink->next, n++ )
@@ -454,9 +452,7 @@ void AAS_CalculateAreaTravelTimes( void ) {
 			} //end for
 		} //end for
 	} //end for
-#ifdef DEBUG
-	BotImport_Print( PRT_MESSAGE, "area travel times %d msec\n", Sys_MilliSeconds() - starttime );
-#endif //DEBUG
+
 } //end of the function AAS_CalculateAreaTravelTimes
 //===========================================================================
 //

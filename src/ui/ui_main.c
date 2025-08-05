@@ -274,7 +274,7 @@ void UI_DrawRect( float x, float y, float width, float height, float size, const
 
 
 int Text_Width( const char *text, int font, float scale, int limit ) {
-	int count,len;
+
 	float out;
 	glyphInfo_t *glyph;
 	float useScale;
@@ -298,11 +298,11 @@ int Text_Width( const char *text, int font, float scale, int limit ) {
 	useScale = scale * fnt->glyphScale;
 	out = 0;
 	if ( text ) {
-		len = strlen( text );
+		size_t len = strlen( text );
 		if ( limit > 0 && len > limit ) {
 			len = limit;
 		}
-		count = 0;
+		size_t count = 0;
 		while ( s && *s && count < len ) {
 			if ( Q_IsColorString( s ) ) {
 				s += 2;
@@ -3662,8 +3662,6 @@ UI_LoadSavegames
 */
 static void UI_LoadSavegames( char *dir ) {
 	char sglist[4096];
-	char    *sgname;
-	int i, len;
 
 	if ( dir ) {
 		uiInfo.savegameCount = trap_FS_GetFileList( va( "save/%s", dir ), "svg", sglist, 4096 );
@@ -3675,10 +3673,10 @@ static void UI_LoadSavegames( char *dir ) {
 		if ( uiInfo.savegameCount > MAX_SAVEGAMES ) {
 			uiInfo.savegameCount = MAX_SAVEGAMES;
 		}
-		sgname = sglist;
-		for ( i = 0; i < uiInfo.savegameCount; i++ ) {
+		char *sgname = sglist;
+		for (int i = 0; i < uiInfo.savegameCount; i++ ) {
 
-			len = strlen( sgname );
+            size_t len = strlen( sgname );
 
 			if ( !Q_stricmp( sgname, "current.svg" ) ) {    // ignore some savegames that have special uses and shouldn't be loaded by the user directly
 				i--;
@@ -3734,8 +3732,6 @@ UI_LoadMovies
 */
 static void UI_LoadMovies() {
 	char movielist[4096];
-	char    *moviename;
-	int i, len;
 
 	uiInfo.movieCount = trap_FS_GetFileList( "video", "roq", movielist, 4096 );
 
@@ -3743,9 +3739,9 @@ static void UI_LoadMovies() {
 		if ( uiInfo.movieCount > MAX_MOVIES ) {
 			uiInfo.movieCount = MAX_MOVIES;
 		}
-		moviename = movielist;
-		for ( i = 0; i < uiInfo.movieCount; i++ ) {
-			len = strlen( moviename );
+		char* moviename = movielist;
+		for (int i = 0; i < uiInfo.movieCount; i++ ) {
+            size_t len = strlen( moviename );
 			if ( !Q_stricmp( moviename +  len - 4,".roq" ) ) {
 				moviename[len - 4] = '\0';
 			}
@@ -6383,17 +6379,17 @@ static void UI_BuildQ3Model_List( void ) {
 	char*   fileptr;
 	int i;
 	int j;
-	int dirlen;
-	int filelen;
 
 	uiInfo.q3HeadCount = 0;
 
 	// iterate directory of all player models
 	numdirs = trap_FS_GetFileList( "models/players", "/", dirlist, 2048 );
 	dirptr  = dirlist;
+    size_t dirlen = 0;
+    size_t filelen = 0;
 	for ( i = 0; i < numdirs && uiInfo.q3HeadCount < MAX_PLAYERMODELS; i++,dirptr += dirlen + 1 )
 	{
-		dirlen = strlen( dirptr );
+        dirlen = strlen( dirptr );
 
 		if ( dirlen && dirptr[dirlen - 1] == '/' ) {
 			dirptr[dirlen - 1] = '\0';
@@ -6408,7 +6404,7 @@ static void UI_BuildQ3Model_List( void ) {
 		fileptr  = filelist;
 		for ( j = 0; j < numfiles && uiInfo.q3HeadCount < MAX_PLAYERMODELS; j++,fileptr += filelen + 1 )
 		{
-			filelen = strlen( fileptr );
+            filelen = strlen( fileptr );
 
 			COM_StripExtension( fileptr,skinname );
 

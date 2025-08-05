@@ -752,7 +752,7 @@ float getFOV( long t ) {
 	return fov;
 }
 
-void start( long t ) {
+void start( int t ) {
 	startTime = t;
 }
 

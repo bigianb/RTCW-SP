@@ -28,71 +28,6 @@ If you have questions concerning this license or the applicable additional terms
 
 #include "g_local.h"
 
-/*
-==================
-DeathmatchScoreboardMessage
-
-==================
-*/
-void DeathmatchScoreboardMessage( gentity_t *ent ) {
-	char entry[1024];
-	char string[1400];
-	int stringlength;
-	int i, j;
-	gclient_t   *cl;
-	int numSorted;
-	int scoreFlags;
-
-	// send the latest information on all clients
-	string[0] = 0;
-	stringlength = 0;
-	scoreFlags = 0;
-
-	// don't send more than 32 scores (FIXME?)
-	numSorted = level.numConnectedClients;
-	if ( numSorted > 32 ) {
-		numSorted = 32;
-	}
-
-	for ( i = 0 ; i < numSorted ; i++ ) {
-		int ping;
-
-		cl = &level.clients[level.sortedClients[i]];
-
-		if ( cl->pers.connected == CON_CONNECTING ) {
-			ping = -1;
-		} else {
-			ping = cl->ps.ping < 999 ? cl->ps.ping : 999;
-		}
-		Com_sprintf( entry, sizeof( entry ),
-					 " %i %i %i %i %i %i", level.sortedClients[i],
-					 cl->ps.persistant[PERS_SCORE], ping, ( level.time - cl->pers.enterTime ) / 60000,
-					 scoreFlags, g_entities[level.sortedClients[i]].s.powerups );
-		j = strlen( entry );
-		if ( stringlength + j > 1024 ) {
-			break;
-		}
-		strcpy( string + stringlength, entry );
-		stringlength += j;
-	}
-
-	trap_SendServerCommand( ent - g_entities, va( "scores %i %i %i%s", i,
-												  level.teamScores[TEAM_RED], level.teamScores[TEAM_BLUE],
-												  string ) );
-}
-
-
-/*
-==================
-Cmd_Score_f
-
-Request current scoreboard information
-==================
-*/
-void Cmd_Score_f( gentity_t *ent ) {
-	DeathmatchScoreboardMessage( ent );
-}
-
 
 /*
 ==================
@@ -496,32 +431,6 @@ void Cmd_Noclip_f( gentity_t *ent ) {
 	trap_SendServerCommand( ent - g_entities, va( "print \"%s\"", msg ) );
 }
 
-
-/*
-==================
-Cmd_LevelShot_f
-
-This is just to help generate the level pictures
-for the menus.  It goes to the intermission immediately
-and sends over a command to the client to resize the view,
-hide the scoreboard, and take a special screenshot
-==================
-*/
-void Cmd_LevelShot_f( gentity_t *ent ) {
-	if ( !CheatsOk( ent ) ) {
-		return;
-	}
-
-	// doesn't work in single player
-	if ( g_gametype.integer != 0 ) {
-		trap_SendServerCommand( ent - g_entities,
-								"print \"Must be in g_gametype 0 for levelshot\n\"" );
-		return;
-	}
-
-	BeginIntermission();
-	trap_SendServerCommand( ent - g_entities, "clientLevelShot" );
-}
 
 
 /*
@@ -2078,10 +1987,6 @@ void ClientCommand( int clientNum ) {
 		Cmd_Tell_f( ent );
 		return;
 	}
-	if ( Q_stricmp( cmd, "score" ) == 0 ) {
-		Cmd_Score_f( ent );
-		return;
-	}
 
 //----(SA)	added
 	if ( Q_stricmp( cmd, "fogswitch" ) == 0 ) {
@@ -2108,8 +2013,7 @@ void ClientCommand( int clientNum ) {
 		Cmd_Noclip_f( ent );
 	} else if ( Q_stricmp( cmd, "kill" ) == 0 )  {
 		Cmd_Kill_f( ent );
-	} else if ( Q_stricmp( cmd, "levelshot" ) == 0 )  {
-		Cmd_LevelShot_f( ent );
+
 	} else if ( Q_stricmp( cmd, "follow" ) == 0 )  {
 		Cmd_Follow_f( ent );
 	} else if ( Q_stricmp( cmd, "follownext" ) == 0 )  {
@@ -2121,10 +2025,7 @@ void ClientCommand( int clientNum ) {
 	} else if ( Q_stricmp( cmd, "where" ) == 0 )  {
 		Cmd_Where_f( ent );
 	}
-//	else if (Q_stricmp (cmd, "callvote") == 0)	//----(SA)	id requests these gone in sp
-//		Cmd_CallVote_f (ent);
-//	else if (Q_stricmp (cmd, "vote") == 0)		//----(SA)	id requests these gone in sp
-//		Cmd_Vote_f (ent);
+
 	else if ( Q_stricmp( cmd, "gc" ) == 0 ) {
 		Cmd_GameCommand_f( ent );
 	} else if ( Q_stricmp( cmd, "startCamera" ) == 0 )  {

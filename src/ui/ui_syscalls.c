@@ -100,10 +100,6 @@ void trap_UI_AddPolyToScene( qhandle_t hShader, int numVerts, const polyVert_t *
 	RE_AddPolyToScene( hShader, numVerts, verts );
 }
 
-void trap_UI_AddLightToScene( const vec3_t org, float intensity, float r, float g, float b, int overdraw ) {
-	RE_AddLightToScene( org, intensity, r,  g,  b, overdraw );
-}
-
 void trap_UI_AddCoronaToScene( const vec3_t org, float r, float g, float b, float scale, int id, int flags ) {
 	RE_AddCoronaToScene(org, r, g, b, scale, id, flags );
 }

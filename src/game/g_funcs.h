@@ -996,10 +996,10 @@ If you have questions concerning this license or the applicable additional terms
 {"LogExit", (byte *)LogExit},
 {"G_LogPrintf", (byte *)G_LogPrintf},
 {"ExitLevel", (byte *)ExitLevel},
-{"BeginIntermission", (byte *)BeginIntermission},
+
 {"FindIntermissionPoint", (byte *)FindIntermissionPoint},
 {"MoveClientToIntermission", (byte *)MoveClientToIntermission},
-{"SendScoreboardMessageToAllClients", (byte *)SendScoreboardMessageToAllClients},
+
 {"CalculateRanks", (byte *)CalculateRanks},
 {"SortRanks", (byte *)SortRanks},
 {"AdjustTournamentScores", (byte *)AdjustTournamentScores},
@@ -1124,7 +1124,7 @@ If you have questions concerning this license or the applicable additional terms
 {"SetWolfData", (byte *)SetWolfData},
 {"SetTeam", (byte *)SetTeam},
 {"Cmd_Kill_f", (byte *)Cmd_Kill_f},
-{"Cmd_LevelShot_f", (byte *)Cmd_LevelShot_f},
+
 {"Cmd_Noclip_f", (byte *)Cmd_Noclip_f},
 {"Cmd_Notarget_f", (byte *)Cmd_Notarget_f},
 {"Cmd_Nofatigue_f", (byte *)Cmd_Nofatigue_f},
@@ -1136,8 +1136,8 @@ If you have questions concerning this license or the applicable additional terms
 {"SanitizeString", (byte *)SanitizeString},
 {"ConcatArgs", (byte *)ConcatArgs},
 {"CheatsOk", (byte *)CheatsOk},
-{"Cmd_Score_f", (byte *)Cmd_Score_f},
-{"DeathmatchScoreboardMessage", (byte *)DeathmatchScoreboardMessage},
+
+
 {"SP_misc_firetrails", (byte *)SP_misc_firetrails},
 {"misc_firetrails_finishspawning", (byte *)misc_firetrails_finishspawning},
 {"SP_misc_tagemitter", (byte *)SP_misc_tagemitter},

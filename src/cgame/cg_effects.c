@@ -1604,10 +1604,7 @@ void CG_Spotlight( centity_t *cent, float *color, vec3_t realstart, vec3_t light
 	// add d light at end
 	if ( !( flags & SL_NODLIGHT ) ) {
 		vec3_t dlightLoc;
-//		VectorMA(tr.endpos, -60, lightDir, dlightLoc);	// back away from the hit
 		VectorMA( tr.endpos, 0, lightDir, dlightLoc );    // back away from the hit
-//		trap_R_AddLightToScene(dlightLoc, 200, colorNorm[0], colorNorm[1], colorNorm[2], 0);	// ,REF_JUNIOR_DLIGHT);
-//		trap_R_AddLightToScene(dlightLoc, radius*2, colorNorm[0], colorNorm[1], colorNorm[2], 0);	// ,REF_JUNIOR_DLIGHT);
 		trap_R_AddLightToScene( dlightLoc, radius * 2, 0.3, 0.3, 0.3, 0 );  // ,REF_JUNIOR_DLIGHT);
 	}
 

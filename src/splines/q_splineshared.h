@@ -549,7 +549,6 @@ float TriangleArea( vec3_c a, vec3_c b, vec3_c c );
 float Com_Clamp( float min, float max, float value );
 
 #define FILE_HASH_SIZE      1024
-int Com_HashString( const char *fname );
 
 char    *Com_SkipPath( char *pathname );
 
@@ -636,14 +635,14 @@ int Q_isalpha( int c );
 
 // portable case insensitive compare
 int     Q_stricmp( const char *s1, const char *s2 );
-int     Q_strncmp( const char *s1, const char *s2, int n );
-int     Q_stricmpn( const char *s1, const char *s2, int n );
+int     Q_strncmp( const char *s1, const char *s2, size_t n );
+int     Q_stricmpn( const char *s1, const char *s2, size_t n );
 char    *Q_strlwr( char *s1 );
 char    *Q_strupr( char *s1 );
 char    *Q_strrchr( const char* string, int c );
 
 // buffer size safe library replacements
-void    Q_strncpyz( char *dest, const char *src, int destsize );
+void    Q_strncpyz( char *dest, const char *src, size_t destsize );
 void    Q_strcat( char *dest, int size, const char *src );
 
 // strlen that discounts Quake color sequences

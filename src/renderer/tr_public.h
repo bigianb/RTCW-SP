@@ -77,7 +77,7 @@ typedef struct {
 	// Ridah
 	void ( *AddPolysToScene )( qhandle_t hShader, int numVerts, const polyVert_t *verts, int numPolys );
 	// done.
-	void ( *AddLightToScene )( const vec3_t org, float intensity, float r, float g, float b, int overdraw );
+	void ( *AddLightToScene )( const vec3_t org, float intensity, float r, float g, float b, unsigned int overdraw );
 //----(SA)
 	void ( *AddCoronaToScene )( const vec3_t org, float r, float g, float b, float scale, int id, int flags );
 	void ( *SetFog )( int fogvar, int var1, int var2, float r, float g, float b, float density );

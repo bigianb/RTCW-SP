@@ -363,10 +363,9 @@ int WriteIndent( FILE *fp, int indent ) {
 //===========================================================================
 int WriteFloat( FILE *fp, float value ) {
 	char buf[128];
-	int l;
 
 	sprintf( buf, "%f", value );
-	l = strlen( buf );
+	size_t l = strlen( buf );
 	//strip any trailing zeros
 	while ( l-- > 1 )
 	{

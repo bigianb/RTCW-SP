@@ -290,7 +290,7 @@ void    trap_RB_ZombieFXAddNewHit( int entityNum, const vec3_t hitPos, const vec
 	RB_ZombieFXAddNewHit(entityNum, hitPos, hitDir );
 }
 
-void    trap_R_AddLightToScene( const vec3_t org, float intensity, float r, float g, float b, int overdraw ) {
+void    trap_R_AddLightToScene( const vec3_t org, float intensity, float r, float g, float b, unsigned int overdraw ) {
 	RE_AddLightToScene(org, intensity, r, g, b, overdraw );
 }
 

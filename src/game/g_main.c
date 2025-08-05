@@ -268,64 +268,6 @@ void AICast_Init( void );
 
 void G_RetrieveMoveSpeedsFromClient( int entnum, char *text );
 
-/*
-================
-vmMain
-
-This is the only way control passes into the module.
-This must be the very first function compiled into the .q3vm file
-================
-*/
-
-intptr_t vmMainG( int command, intptr_t arg0, intptr_t arg1, intptr_t arg2, intptr_t arg3, intptr_t arg4, intptr_t arg5, intptr_t arg6 ) {
-	switch ( command ) {
-	case GAME_INIT:
-		G_InitGame( arg0, arg1, arg2 );
-		return 0;
-	case GAME_SHUTDOWN:
-		G_ShutdownGame( arg0 );
-		return 0;
-	case GAME_CLIENT_CONNECT:
-		return (intptr_t)ClientConnect( arg0, arg1, arg2 );
-	case GAME_CLIENT_THINK:
-		ClientThink( arg0 );
-		return 0;
-	case GAME_CLIENT_USERINFO_CHANGED:
-		ClientUserinfoChanged( arg0 );
-		return 0;
-	case GAME_CLIENT_DISCONNECT:
-		ClientDisconnect( arg0 );
-		return 0;
-	case GAME_CLIENT_BEGIN:
-		ClientBegin( arg0 );
-		return 0;
-	case GAME_CLIENT_COMMAND:
-		ClientCommand( arg0 );
-		return 0;
-	case GAME_RUN_FRAME:
-		G_RunFrame( arg0 );
-		return 0;
-	case GAME_CONSOLE_COMMAND:
-		return ConsoleCommand();
-	case BOTAI_START_FRAME:
-		return BotAIStartFrame( arg0 );
-		// Ridah, Cast AI
-	case AICAST_VISIBLEFROMPOS:
-		return AICast_VisibleFromPos( (float *)arg0, arg1, (float *)arg2, arg3, arg4 );
-	case AICAST_CHECKATTACKATPOS:
-		return AICast_CheckAttackAtPos( arg0, arg1, (float *)arg2, arg3, arg4 );
-		// done.
-
-	case GAME_RETRIEVE_MOVESPEEDS_FROM_CLIENT:
-		G_RetrieveMoveSpeedsFromClient( arg0, (char *)arg1 );
-		return 0;
-	case GAME_GETMODELINFO:
-		return G_GetModelInfo( arg0, (char *)arg1, (animModelInfo_t **)arg2 );
-	}
-
-	return -1;
-}
-
 
 void QDECL G_Printf( const char *fmt, ... ) {
 	va_list argptr;
@@ -1688,10 +1630,6 @@ void CalculateRanks( void ) {
 	// see if it is time to end the level
 	CheckExitRules();
 
-	// if we are at the intermission, send the new info to everyone
-	if ( level.intermissiontime ) {
-		SendScoreboardMessageToAllClients();
-	}
 }
 
 
@@ -1703,23 +1641,6 @@ MAP CHANGING
 ========================================================================
 */
 
-/*
-========================
-SendScoreboardMessageToAllClients
-
-Do this at BeginIntermission time and whenever ranks are recalculated
-due to enters/exits/forced team changes
-========================
-*/
-void SendScoreboardMessageToAllClients( void ) {
-	int i;
-
-	for ( i = 0 ; i < level.maxclients ; i++ ) {
-		if ( level.clients[ i ].pers.connected == CON_CONNECTED ) {
-			DeathmatchScoreboardMessage( g_entities + i );
-		}
-	}
-}
 
 /*
 ========================
@@ -1781,45 +1702,6 @@ void FindIntermissionPoint( void ) {
 			}
 		}
 	}
-
-}
-
-/*
-==================
-BeginIntermission
-==================
-*/
-void BeginIntermission( void ) {
-	int i;
-	gentity_t   *client;
-
-	if ( level.intermissiontime ) {
-		return;     // already active
-	}
-
-	// if in tournement mode, change the wins / losses
-	if ( g_gametype.integer == GT_TOURNAMENT ) {
-		AdjustTournamentScores();
-	}
-
-	level.intermissiontime = level.time;
-	FindIntermissionPoint();
-
-	// move all clients to the intermission point
-	for ( i = 0 ; i < level.maxclients ; i++ ) {
-		client = g_entities + i;
-		if ( !client->inuse ) {
-			continue;
-		}
-		// respawn if dead
-		if ( client->health <= 0 ) {
-			respawn( client );
-		}
-		MoveClientToIntermission( client );
-	}
-
-	// send the current scoring to all clients
-	SendScoreboardMessageToAllClients();
 
 }
 
@@ -2116,13 +1998,6 @@ void CheckExitRules( void ) {
 		return;
 	}
 
-	if ( level.intermissionQueued ) {
-		if ( level.time - level.intermissionQueued >= INTERMISSION_DELAY_TIME ) {
-			level.intermissionQueued = 0;
-			BeginIntermission();
-		}
-		return;
-	}
 
 	if ( g_timelimit.integer && !level.warmupTime ) {
 		if ( level.time - level.startTime >= g_timelimit.integer * 60000 ) {

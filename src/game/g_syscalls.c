@@ -240,7 +240,7 @@ void trap_DebugPolygonDelete( int id ) {
 	BotImport_DebugPolygonDelete(id );
 }
 
-int trap_RealTime( qtime_t *qtime ) {
+time_t trap_RealTime( qtime_t *qtime ) {
 	return Com_RealTime( qtime );
 }
 

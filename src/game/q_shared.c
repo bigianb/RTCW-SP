@@ -709,9 +709,10 @@ int Com_HexStrToInt( const char *str )
 	// check for hex code
 	if( str[ 0 ] == '0' && str[ 1 ] == 'x' && str[ 2 ] != '\0' )
 	{
-		int i, n = 0, len = strlen( str );
+        int n = 0;
+        size_t len = strlen( str );
 
-		for( i = 2; i < len; i++ )
+		for( size_t i = 2; i < len; i++ )
 		{
 			char digit;
 
@@ -824,7 +825,7 @@ Q_strncpyz
 Safe strncpy that ensures a trailing zero
 =============
 */
-void Q_strncpyz( char *dest, const char *src, int destsize ) {
+void Q_strncpyz( char *dest, const char *src, size_t destsize ) {
 	if ( !src ) {
 		Com_Error( ERR_FATAL, "Q_strncpyz: NULL src" );
 	}
@@ -836,7 +837,7 @@ void Q_strncpyz( char *dest, const char *src, int destsize ) {
 	dest[destsize - 1] = 0;
 }
 
-int Q_stricmpn( const char *s1, const char *s2, int n ) {
+int Q_stricmpn( const char *s1, const char *s2, size_t n ) {
 	int c1, c2;
 
 	do {
@@ -861,7 +862,7 @@ int Q_stricmpn( const char *s1, const char *s2, int n ) {
 	return 0;       // strings are equal
 }
 
-int Q_strncmp( const char *s1, const char *s2, int n ) {
+int Q_strncmp( const char *s1, const char *s2, size_t n ) {
 	int c1, c2;
 
 	do {

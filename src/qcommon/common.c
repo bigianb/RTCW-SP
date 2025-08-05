@@ -1221,7 +1221,7 @@ void *Hunk_AllocateTempMemory( int size ) {
 
 	Hunk_SwapBanks();
 
-	size = ( ( size + 3 ) & ~3 ) + sizeof( hunkHeader_t );
+    size = PAD(size, sizeof(intptr_t)) + sizeof( hunkHeader_t );
 
 	if ( hunk_temp->temp + hunk_permanent->permanent + size > s_hunkTotal ) {
 		Com_Error( ERR_DROP, "Hunk_AllocateTempMemory: failed on %i", size );

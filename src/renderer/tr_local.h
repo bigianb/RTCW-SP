@@ -1558,7 +1558,7 @@ void RE_AddPolyToScene( qhandle_t hShader, int numVerts, const polyVert_t *verts
 void RE_AddPolysToScene( qhandle_t hShader, int numVerts, const polyVert_t *verts, int numPolys );
 // done.
 // Ridah
-void RE_AddLightToScene( const vec3_t org, float intensity, float r, float g, float b, int overdraw );
+void RE_AddLightToScene( const vec3_t org, float intensity, float r, float g, float b, unsigned int overdraw );
 // done.
 //----(SA)
 void RE_AddCoronaToScene( const vec3_t org, float r, float g, float b, float scale, int id, int flags );

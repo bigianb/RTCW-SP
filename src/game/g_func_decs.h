@@ -337,9 +337,9 @@ extern void Q_strcat ( char * dest , int size , const char * src ) ;
 extern char * Q_strupr ( char * s1 ) ;
 extern char * Q_strlwr ( char * s1 ) ;
 extern int Q_stricmp ( const char * s1 , const char * s2 ) ;
-extern int Q_strncmp ( const char * s1 , const char * s2 , int n ) ;
-extern int Q_stricmpn ( const char * s1 , const char * s2 , int n ) ;
-extern void Q_strncpyz ( char * dest , const char * src , int destsize ) ;
+extern int Q_strncmp ( const char * s1 , const char * s2 , size_t n ) ;
+extern int Q_stricmpn ( const char * s1 , const char * s2 , size_t n ) ;
+extern void Q_strncpyz ( char * dest , const char * src , size_t destsize ) ;
 extern char * Q_strrchr ( const char * string , int c ) ;
 extern int Q_isforfilename ( int c ) ;
 extern int Q_isalphanumeric ( int c ) ;
@@ -942,7 +942,7 @@ extern int trap_BotLibShutdown ( void ) ;
 
 extern qboolean trap_GetTag ( int clientNum , char * tagName , orientation_t * or ) ;
 extern void trap_SnapVector ( float * v ) ;
-extern int trap_RealTime ( qtime_t * qtime ) ;
+extern time_t trap_RealTime ( qtime_t * qtime ) ;
 extern void trap_DebugPolygonDelete ( int id ) ;
 extern int trap_DebugPolygonCreate ( int color , int numPoints , vec3_t * points ) ;
 extern qboolean trap_GetEntityToken ( char * buffer , int bufferSize ) ;
@@ -1002,10 +1002,10 @@ extern void CheckIntermissionExit ( void ) ;
 extern void LogExit ( const char * string ) ;
 extern void QDECL G_LogPrintf ( const char * fmt , ... ) ;
 extern void ExitLevel ( void ) ;
-extern void BeginIntermission ( void ) ;
+
 extern void FindIntermissionPoint ( void ) ;
 extern void MoveClientToIntermission ( gentity_t * ent ) ;
-extern void SendScoreboardMessageToAllClients ( void ) ;
+
 extern void CalculateRanks ( void ) ;
 extern int QDECL SortRanks ( const void * a , const void * b ) ;
 extern void AdjustTournamentScores ( void ) ;
@@ -1130,7 +1130,7 @@ extern void StopFollowing ( gentity_t * ent ) ;
 extern void SetWolfData ( gentity_t * ent , char * ptype , char * weap , char * pistol , char * grenade , char * skinnum ) ;
 extern void SetTeam ( gentity_t * ent , char * s ) ;
 extern void Cmd_Kill_f ( gentity_t * ent ) ;
-extern void Cmd_LevelShot_f ( gentity_t * ent ) ;
+
 extern void Cmd_Noclip_f ( gentity_t * ent ) ;
 extern void Cmd_Notarget_f ( gentity_t * ent ) ;
 extern void Cmd_Nofatigue_f ( gentity_t * ent ) ;
@@ -1142,8 +1142,8 @@ extern int ClientNumberFromString ( gentity_t * to , char * s ) ;
 extern void SanitizeString ( char * in , char * out ) ;
 extern char * ConcatArgs ( int start ) ;
 extern qboolean CheatsOk ( gentity_t * ent ) ;
-extern void Cmd_Score_f ( gentity_t * ent ) ;
-extern void DeathmatchScoreboardMessage ( gentity_t * ent ) ;
+
+
 extern void SP_misc_firetrails ( gentity_t * ent ) ;
 extern void misc_firetrails_finishspawning ( gentity_t * ent ) ;
 extern void SP_misc_tagemitter ( gentity_t * ent ) ;

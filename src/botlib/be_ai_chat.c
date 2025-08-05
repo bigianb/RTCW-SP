@@ -704,7 +704,9 @@ bot_synonymlist_t *BotLoadSynonyms( char *filename ) {
 							FreeSource( source );
 							return NULL;
 						} //end if
-						size += sizeof( bot_synonym_t ) + strlen( token.string ) + 1;
+                        size_t len = strlen(token.string) + 1;
+                        len = PAD(len, sizeof(long));
+                        size += sizeof(bot_synonym_t) + len;
 						if ( pass ) {
 							synonym = (bot_synonym_t *) ptr;
 							ptr += sizeof( bot_synonym_t );
@@ -1017,7 +1019,9 @@ bot_randomlist_t *BotLoadRandomStrings( char *filename ) {
 				FreeSource( source );
 				return NULL;
 			} //end if
-			size += sizeof( bot_randomlist_t ) + strlen( token.string ) + 1;
+            size_t len = strlen(token.string) + 1;
+            len = PAD(len, sizeof(long));
+            size += sizeof(bot_randomlist_t) + len;
 			if ( pass ) {
 				random = (bot_randomlist_t *) ptr;
 				ptr += sizeof( bot_randomlist_t );
@@ -1043,7 +1047,9 @@ bot_randomlist_t *BotLoadRandomStrings( char *filename ) {
 					FreeSource( source );
 					return NULL;
 				} //end if
-				size += sizeof( bot_randomstring_t ) + strlen( chatmessagestring ) + 1;
+                size_t len = strlen(chatmessagestring) + 1;
+                len = PAD(len, sizeof(long));
+                size += sizeof(bot_randomstring_t) + len;
 				if ( pass ) {
 					randomstring = (bot_randomstring_t *) ptr;
 					ptr += sizeof( bot_randomstring_t );
@@ -2013,7 +2019,9 @@ bot_chat_t *BotLoadInitialChat( char *chatfile, char *chatname ) {
 								FreeSource( source );
 								return NULL;
 							} //end if
-							if ( pass ) {
+                            size_t len = strlen(chatmessagestring) + 1;
+                            len = PAD(len, sizeof(long));
+							if ( pass && ptr ) {
 								chatmessage = (bot_chatmessage_t *) ptr;
 								chatmessage->time = -2 * CHATMESSAGE_RECENTTIME;
 								//put the chat message in the list

@@ -2349,7 +2349,7 @@ void        trap_R_AddPolyToScene( qhandle_t hShader, int numVerts, const polyVe
 void        trap_R_AddPolysToScene( qhandle_t hShader, int numVerts, const polyVert_t *verts, int numPolys );
 void        trap_RB_ZombieFXAddNewHit( int entityNum, const vec3_t hitPos, const vec3_t hitDir );
 // done.
-void        trap_R_AddLightToScene( const vec3_t org, float intensity, float r, float g, float b, int overdraw );
+void        trap_R_AddLightToScene( const vec3_t org, float intensity, float r, float g, float b, unsigned int overdraw );
 void        trap_R_AddCoronaToScene( const vec3_t org, float r, float g, float b, float scale, int id, int flags );  //----(SA)	modified
 void        trap_R_RenderScene( const refdef_t *fd );
 void        trap_R_SetColor( const float *rgba );   // NULL = 1,1,1,1

@@ -474,23 +474,6 @@ void player_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
 	}
 // jpw
 
-	Cmd_Score_f( self );        // show scores
-	// send updated scores to any clients that are following this one,
-	// or they would get stale scoreboards
-	for ( i = 0 ; i < level.maxclients ; i++ ) {
-		gclient_t   *client;
-
-		client = &level.clients[i];
-		if ( client->pers.connected != CON_CONNECTED ) {
-			continue;
-		}
-		if ( client->sess.sessionTeam != TEAM_SPECTATOR ) {
-			continue;
-		}
-		if ( client->sess.spectatorClient == self->s.number ) {
-			Cmd_Score_f( g_entities + i );
-		}
-	}
 
 	self->takedamage = qtrue;   // can still be gibbed
 

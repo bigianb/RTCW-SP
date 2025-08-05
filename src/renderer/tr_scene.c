@@ -315,7 +315,7 @@ RE_AddLightToScene
 
 =====================
 */
-void RE_AddLightToScene( const vec3_t org, float intensity, float r, float g, float b, int overdraw ) {
+void RE_AddLightToScene( const vec3_t org, float intensity, float r, float g, float b, unsigned int overdraw ) {
 	dlight_t    *dl;
 
 	if ( !tr.registered ) {

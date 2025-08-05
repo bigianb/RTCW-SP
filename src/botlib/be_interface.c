@@ -104,7 +104,7 @@ int Sys_MilliSeconds( void ) {
 
 	return sys_curtime;
 #else
-	return clock() * 1000 / CLOCKS_PER_SEC;
+	return (int)(clock() * 1000 / CLOCKS_PER_SEC);
 #endif
 } //end of the function Sys_MilliSeconds
 //===========================================================================

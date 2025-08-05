@@ -988,7 +988,7 @@ qhandle_t       RE_RegisterShaderNoMip( const char *name );
 void            trap_R_ClearScene( void );
 void            trap_R_AddRefEntityToScene( const refEntity_t *re );
 void            trap_R_AddPolyToScene( qhandle_t hShader, int numVerts, const polyVert_t *verts );
-void            trap_R_AddLightToScene( const vec3_t org, float intensity, float r, float g, float b, int overdraw );
+void            trap_R_AddLightToScene( const vec3_t org, float intensity, float r, float g, float b, unsigned int overdraw );
 void            trap_R_AddCoronaToScene( const vec3_t org, float r, float g, float b, float scale, int id, int flags );
 void            trap_R_RenderScene( const refdef_t *fd );
 void            trap_R_SetColor( const float *rgba );
