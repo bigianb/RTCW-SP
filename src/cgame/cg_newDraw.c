@@ -105,6 +105,10 @@ static void CG_DrawPlayerArmorValue( rectDef_t *rect, int font, float scale, vec
 	centity_t   *cent;
 	playerState_t   *ps;
 
+    if (cg.snap == NULL){
+        return;
+    }
+    
 	cent = &cg_entities[cg.snap->ps.clientNum];
 	ps = &cg.snap->ps;
 
@@ -280,6 +284,10 @@ static void CG_DrawPlayerAmmoIcon( rectDef_t *rect, qboolean draw2D ) {
 	vec3_t angles;
 	vec3_t origin;
 
+    if (cg.snap == NULL){
+        return;
+    }
+    
 	cent = &cg_entities[cg.snap->ps.clientNum];
 	ps = &cg.snap->ps;
 
@@ -471,6 +479,10 @@ static void CG_DrawPlayerAmmoValue( rectDef_t *rect, int font, float scale, vec4
 	int weap;
 	qboolean special = qfalse;
 
+    if (cg.snap == NULL){
+        return;
+    }
+    
 	cent = &cg_entities[cg.snap->ps.clientNum];
 	ps = &cg.snap->ps;
 
@@ -890,6 +902,10 @@ static void CG_DrawPlayerHealth( rectDef_t *rect, int font, float scale, vec4_t 
 	int value;
 	char num[16];
 
+    if (cg.snap == 0){
+        return;
+    }
+    
 	ps = &cg.snap->ps;
 
 	value = ps->stats[STAT_HEALTH];
@@ -1577,7 +1593,7 @@ void CG_DrawWeapHeat( rectDef_t *rect, int align ) {
 	vec4_t color = {1, 0, 0, 0.2f}, color2 = {1, 0, 0, 0.5f};
 	int flags = 0;
 
-	if ( !( cg.snap->ps.curWeapHeat ) ) {
+	if ( cg.snap == NULL || !( cg.snap->ps.curWeapHeat ) ) {
 		return;
 	}
 
@@ -1601,7 +1617,10 @@ CG_DrawFatigue
 */
 
 static void CG_DrawFatigue( rectDef_t *rect, vec4_t color, int align ) {
-	//	vec4_t	color = {0, 1, 0, 1}, color2 = {1, 0, 0, 1};
+    if (cg.snap == NULL){
+        return;
+    }
+    
 	vec4_t colorBonus = {1, 1, 0, 0.45f};   // yellow (a little more solid for the 'bonus' stamina)
 	float barFrac;  //, omBarFrac;
 	int flags = 0;
@@ -1661,10 +1680,6 @@ void CG_OwnerDraw( float x, float y, float w, float h, float text_x, float text_
 	if ( cg_drawStatus.integer == 0 ) {
 		return;
 	}
-
-	//if (ownerDrawFlags != 0 && !CG_OwnerDrawVisible(ownerDrawFlags)) {
-	//	return;
-	//}
 
 	rect.x = x;
 	rect.y = y;

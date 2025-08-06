@@ -1424,14 +1424,6 @@ void CG_DrawSkyBoxPortal( void ) {
 	cg.refdef = backuprefdef;
 }
 
-/*
-=========================
-removed CG_DrawNotebook
-=========================
-*/
-
-
-//=========================================================================
 
 extern void CG_SetupDlightstyles( void );
 
