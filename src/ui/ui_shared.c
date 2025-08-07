@@ -1127,8 +1127,11 @@ void Menus_CloseByName( const char *p ) {
 void Menus_CloseAll() {
 	int i;
 	for ( i = 0; i < menuCount; i++ ) {
-		Menu_RunCloseScript( &Menus[i] );
-		Menus[i].window.flags &= ~( WINDOW_HASFOCUS | WINDOW_VISIBLE );
+        // FIXME: Test don't close the hud
+        if (strcmp(Menus[i].window.name, "Stamina")){
+            Menu_RunCloseScript( &Menus[i] );
+            Menus[i].window.flags &= ~( WINDOW_HASFOCUS | WINDOW_VISIBLE );
+        }
 	}
 }
 

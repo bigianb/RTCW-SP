@@ -31,11 +31,6 @@ If you have questions concerning this license or the applicable additional terms
 #include "qcommon.h"
 #include "cm_polylib.h"
 
-
-//	(SA) DM needs more than 256 since this includes func_static and func_explosives
-//#define	MAX_SUBMODELS		256
-//#define	BOX_MODEL_HANDLE	255
-
 #define MAX_SUBMODELS           512
 #define BOX_MODEL_HANDLE        511
 #define CAPSULE_MODEL_HANDLE    510
@@ -55,6 +50,9 @@ typedef struct {
 
 	int firstLeafSurface;
 	int numLeafSurfaces;
+	
+	// If this leaf is part of a sub-model then don't index via leaf brushed
+	int fromSubmodel;
 } cLeaf_t;
 
 typedef struct cmodel_s {

@@ -368,9 +368,6 @@ void        trap_SetUserCmdValue( int stateValue, int holdableValue, float sensi
 	CL_SetUserCmdValue(stateValue, holdableValue, sensitivityScale, cld );
 }
 
-int trap_MemoryRemaining( void ) {
-	return Hunk_MemoryRemaining();
-}
 
 extern qboolean loadCamera( int camNum, const char *name );
 qboolean trap_loadCamera( int camNum, const char *name ) {

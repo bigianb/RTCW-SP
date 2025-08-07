@@ -1015,8 +1015,6 @@ void            trap_GetClientState( uiClientState_t *state );	// TODO: Remove
 int             trap_GetConfigString( int index, char* buff, int buffsize );	// TODO: Remove
 int             trap_LAN_GetServerCount( int source );          // NERVE - SMF
 
-int             trap_MemoryRemaining( void );
-
 // NERVE - SMF - multiplayer traps
 void            trap_LAN_MarkServerVisible( int source, int n, qboolean visible );
 void            trap_LAN_ResetPings( int n );

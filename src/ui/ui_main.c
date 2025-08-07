@@ -161,57 +161,8 @@ void UI_Init( void );
 void UI_Shutdown( void );
 void UI_KeyEvent( int key, qboolean down );
 void UI_MouseEvent( int dx, int dy );
-void UI_Refresh( int realtime );
+
 qboolean UI_IsFullscreen( void );
-
-int vmMainUI( int command, int arg0, int arg1, int arg2, int arg3, int arg4, int arg5, int arg6, int arg7, int arg8, int arg9, int arg10, int arg11  ) {
-
-	switch ( command ) {
-	case UI_GETAPIVERSION:
-		return UI_API_VERSION;
-
-	case UI_INIT:
-		UI_Init( );
-		return 0;
-
-	case UI_SHUTDOWN:
-		UI_Shutdown();
-		return 0;
-
-	case UI_KEY_EVENT:
-		UI_KeyEvent( arg0, arg1 );
-		return 0;
-
-	case UI_MOUSE_EVENT:
-		UI_MouseEvent( arg0, arg1 );
-		return 0;
-
-	case UI_REFRESH:
-		UI_Refresh( arg0 );
-		return 0;
-
-	case UI_IS_FULLSCREEN:
-		return UI_IsFullscreen();
-
-	case UI_SET_ACTIVE_MENU:
-		UI_SetActiveMenu( arg0 );
-		return 0;
-
-	case UI_GET_ACTIVE_MENU:
-		return UI_GetActiveMenu();
-
-	case UI_CONSOLE_COMMAND:
-		return UI_ConsoleCommand( arg0 );
-
-	case UI_DRAW_CONNECT_SCREEN:
-		UI_DrawConnectScreen( arg0 );
-		return 0;
-
-	}
-
-	return -1;
-}
-
 
 
 void AssetCache() {
@@ -567,74 +518,6 @@ void Text_PaintWithCursor( float x, float y, int font, float scale, vec4_t color
 	}
 }
 
-// TTimo: unused
-/*
-static void Text_Paint_Limit(float *maxX, float x, float y, int font, float scale, vec4_t color, const char* text, float adjust, int limit) {
-	int len, count;
-	vec4_t newColor;
-	glyphInfo_t *glyph;
-	if (text) {
-		const unsigned char *s = text;
-		float max = *maxX;
-		float useScale;
-
-		fontInfo_t *fnt = &uiInfo.uiDC.Assets.textFont;
-		if(font == UI_FONT_DEFAULT) {
-			if (scale <= ui_smallFont.value) {
-				fnt = &uiInfo.uiDC.Assets.smallFont;
-			} else if (scale > ui_bigFont.value) {
-				fnt = &uiInfo.uiDC.Assets.bigFont;
-			}
-		} else if(font == UI_FONT_BIG) {
-			fnt = &uiInfo.uiDC.Assets.bigFont;
-		} else if(font == UI_FONT_SMALL) {
-			fnt = &uiInfo.uiDC.Assets.smallFont;
-		} else if(font == UI_FONT_HANDWRITING) {
-			fnt = &uiInfo.uiDC.Assets.handwritingFont;
-		}
-
-		useScale = scale * fnt->glyphScale;
-		trap_R_SetColor( color );
-		len = strlen(text);
-		if (limit > 0 && len > limit) {
-			len = limit;
-		}
-		count = 0;
-		while (s && *s && count < len) {
-			glyph = &fnt->glyphs[*s];
-			if ( Q_IsColorString( s ) ) {
-				memcpy( newColor, g_color_table[ColorIndex(*(s+1))], sizeof( newColor ) );
-				newColor[3] = color[3];
-				trap_R_SetColor( newColor );
-				s += 2;
-				continue;
-			} else {
-				float yadj = useScale * glyph->top;
-				if (Text_Width(s, font, useScale, 1) + x > max) {
-					*maxX = 0;
-					break;
-				}
-				Text_PaintChar(x, y - yadj,
-							 glyph->imageWidth,
-							 glyph->imageHeight,
-							 font,
-							 useScale,
-							 glyph->s,
-							 glyph->t,
-							 glyph->s2,
-							 glyph->t2,
-							 glyph->glyph);
-				x += (glyph->xSkip * useScale) + adjust;
-				*maxX = x;
-				count++;
-				s++;
-			}
-		}
-		trap_R_SetColor( NULL );
-	}
-
-}
-*/
 
 void UI_ShowPostGame( qboolean newHigh ) {
 	trap_Cvar_Set( "cg_cameraOrbit", "0" );
@@ -643,11 +526,7 @@ void UI_ShowPostGame( qboolean newHigh ) {
 	uiInfo.soundHighScore = newHigh;
 	UI_SetActiveMenu( UIMENU_POSTGAME );
 }
-/*
-=================
-UI_Refresh
-=================
-*/
+
 
 void UI_DrawCenteredPic( qhandle_t image, int w, int h ) {
 	int x, y;
@@ -1258,21 +1137,6 @@ static void UI_DrawSaveGameShot( rectDef_t *rect, float scale, vec4_t color ) {
 
 }
 
-
-/*
-==============
-UI_DrawMessageIcon
-==============
-*/
-// TTimo: unused
-/*
-//----(SA)	added
-static void UI_DrawMessageIcon(rectDef_t *rect, float scale, vec4_t color) {
-	trap_R_SetColor( color );
-//	UI_DrawHandlePic( rect->x, rect->y, rect->w, rect->h, uiInfo.savegameList[uiInfo.savegameIndex].sshotImage);
-	trap_R_SetColor(NULL);
-}
-*/
 
 static int UI_TeamIndexFromName( const char *name ) {
 	int i;
@@ -2674,6 +2538,7 @@ void UI_OwnerDraw( float x, float y, float w, float h, float text_x, float text_
 		// -NERVE - SMF
 
 	default:
+            CG_OwnerDraw(x, y, w, h,  text_x,  text_y,  ownerDraw,  ownerDrawFlags,  align,  special,  font,  scale,  color,  shader,  textStyle);
 		break;
 	}
 }
@@ -6314,13 +6179,6 @@ static void UI_Pause( qboolean b ) {
 	}
 }
 
-// TTimo: unused
-/*
-static int UI_OwnerDraw_Width(int ownerDraw) {
-  // TTimo: end of non-void
-  return 0;
-}
-*/
 
 static int UI_PlayCinematic( const char *name, float x, float y, float w, float h ) {
 	return trap_CIN_PlayCinematic( name, x, y, w, h, ( CIN_loop | CIN_silent ) );

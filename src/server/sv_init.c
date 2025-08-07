@@ -683,7 +683,10 @@ void SV_SpawnServer( char *server, qboolean killBots ) {
 	// clear the whole hunk because we're (re)loading the server
 	// IJB: shared hunk so need to free the AAS first.
 	Export_BotLibShutdown();
-	Hunk_Clear();
+    // TODO: FIXME - should not be here.
+    //CL_ShutdownCGame();
+    //CL_ShutdownUI();
+    //CIN_CloseAllVideos();
 
 	CM_ClearMap();
 
@@ -857,8 +860,6 @@ void SV_SpawnServer( char *server, qboolean killBots ) {
 
 	// send a heartbeat now so the master will get up to date info
 	SV_Heartbeat_f();
-
-	Hunk_SetMark();
 
 	Com_Printf( "-----------------------------------\n" );
 }
