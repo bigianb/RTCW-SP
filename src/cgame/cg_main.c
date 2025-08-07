@@ -350,7 +350,6 @@ static cvarTable_t cvarTable[] = {
 	{ &cg_timescaleFadeEnd, "cg_timescaleFadeEnd", "1", 0},
 	{ &cg_timescaleFadeSpeed, "cg_timescaleFadeSpeed", "0", 0},
 	{ &cg_timescale, "timescale", "1", 0},
-//	{ &cg_smoothClients, "cg_smoothClients", "0", CVAR_USERINFO | CVAR_ARCHIVE},
 	{ &cg_cameraMode, "com_cameraMode", "0", CVAR_CHEAT},
 
 	{ &pmove_fixed, "pmove_fixed", "0", 0},
@@ -1434,327 +1433,11 @@ void CG_QueueMusic( void ) {
 //----(SA)	end
 
 
-char *CG_GetMenuBuffer( const char *filename ) {
-	int len;
-	fileHandle_t f;
-	static char buf[MAX_MENUFILE];
 
-	len = trap_FS_FOpenFile( filename, &f, FS_READ );
-	if ( !f ) {
-		trap_Print( va( S_COLOR_RED "menu file not found: %s, using default\n", filename ) );
-		return NULL;
-	}
-	if ( len >= MAX_MENUFILE ) {
-		trap_Print( va( S_COLOR_RED "menu file too large: %s is %i, max allowed is %i", filename, len, MAX_MENUFILE ) );
-		trap_FS_FCloseFile( f );
-		return NULL;
-	}
-
-	trap_FS_Read( buf, len, f );
-	buf[len] = 0;
-	trap_FS_FCloseFile( f );
-
-	return buf;
-}
-
-//
-// ==============================
-// new hud stuff ( mission pack )
-// ==============================
-//
-qboolean CG_Asset_Parse( int handle ) {
-	pc_token_t token;
-	const char *tempStr;
-
-	if ( !PC_ReadTokenHandle( handle, &token ) ) {
-		return qfalse;
-	}
-	if ( Q_stricmp( token.string, "{" ) != 0 ) {
-		return qfalse;
-	}
-
-	while ( 1 ) {
-		if ( !PC_ReadTokenHandle( handle, &token ) ) {
-			return qfalse;
-		}
-
-		if ( Q_stricmp( token.string, "}" ) == 0 ) {
-			return qtrue;
-		}
-
-		// font
-		if ( Q_stricmp( token.string, "font" ) == 0 ) {
-			int pointSize;
-			if ( !PC_String_Parse( handle, &tempStr ) || !PC_Int_Parse( handle, &pointSize ) ) {
-				return qfalse;
-			}
-			cgDC.registerFont( tempStr, pointSize, &cgDC.Assets.textFont );
-			continue;
-		}
-
-		// smallFont
-		if ( Q_stricmp( token.string, "smallFont" ) == 0 ) {
-			int pointSize;
-			if ( !PC_String_Parse( handle, &tempStr ) || !PC_Int_Parse( handle, &pointSize ) ) {
-				return qfalse;
-			}
-			cgDC.registerFont( tempStr, pointSize, &cgDC.Assets.smallFont );
-			continue;
-		}
-
-		// font
-		if ( Q_stricmp( token.string, "bigfont" ) == 0 ) {
-			int pointSize;
-			if ( !PC_String_Parse( handle, &tempStr ) || !PC_Int_Parse( handle, &pointSize ) ) {
-				return qfalse;
-			}
-			cgDC.registerFont( tempStr, pointSize, &cgDC.Assets.bigFont );
-			continue;
-		}
-
-		// handwriting
-		if ( Q_stricmp( token.string, "handwritingFont" ) == 0 ) {
-			int pointSize;
-			if ( !PC_String_Parse( handle, &tempStr ) || !PC_Int_Parse( handle, &pointSize ) ) {
-				return qfalse;
-			}
-			cgDC.registerFont( tempStr, pointSize, &cgDC.Assets.handwritingFont );
-			continue;
-		}
-
-		// gradientbar
-		if ( Q_stricmp( token.string, "gradientbar" ) == 0 ) {
-			if ( !PC_String_Parse( handle, &tempStr ) ) {
-				return qfalse;
-			}
-			cgDC.Assets.gradientBar = RE_RegisterShaderNoMip( tempStr );
-			continue;
-		}
-
-		// enterMenuSound
-		if ( Q_stricmp( token.string, "menuEnterSound" ) == 0 ) {
-			if ( !PC_String_Parse( handle, &tempStr ) ) {
-				return qfalse;
-			}
-			cgDC.Assets.menuEnterSound = trap_S_RegisterSound( tempStr );
-			continue;
-		}
-
-		// exitMenuSound
-		if ( Q_stricmp( token.string, "menuExitSound" ) == 0 ) {
-			if ( !PC_String_Parse( handle, &tempStr ) ) {
-				return qfalse;
-			}
-			cgDC.Assets.menuExitSound = trap_S_RegisterSound( tempStr );
-			continue;
-		}
-
-		// itemFocusSound
-		if ( Q_stricmp( token.string, "itemFocusSound" ) == 0 ) {
-			if ( !PC_String_Parse( handle, &tempStr ) ) {
-				return qfalse;
-			}
-			cgDC.Assets.itemFocusSound = trap_S_RegisterSound( tempStr );
-			continue;
-		}
-
-		// menuBuzzSound
-		if ( Q_stricmp( token.string, "menuBuzzSound" ) == 0 ) {
-			if ( !PC_String_Parse( handle, &tempStr ) ) {
-				return qfalse;
-			}
-			cgDC.Assets.menuBuzzSound = trap_S_RegisterSound( tempStr );
-			continue;
-		}
-
-		if ( Q_stricmp( token.string, "cursor" ) == 0 ) {
-			if ( !PC_String_Parse( handle, &cgDC.Assets.cursorStr ) ) {
-				return qfalse;
-			}
-			cgDC.Assets.cursor = RE_RegisterShaderNoMip( cgDC.Assets.cursorStr );
-			continue;
-		}
-
-		if ( Q_stricmp( token.string, "fadeClamp" ) == 0 ) {
-			if ( !PC_Float_Parse( handle, &cgDC.Assets.fadeClamp ) ) {
-				return qfalse;
-			}
-			continue;
-		}
-
-		if ( Q_stricmp( token.string, "fadeCycle" ) == 0 ) {
-			if ( !PC_Int_Parse( handle, &cgDC.Assets.fadeCycle ) ) {
-				return qfalse;
-			}
-			continue;
-		}
-
-		if ( Q_stricmp( token.string, "fadeAmount" ) == 0 ) {
-			if ( !PC_Float_Parse( handle, &cgDC.Assets.fadeAmount ) ) {
-				return qfalse;
-			}
-			continue;
-		}
-
-		if ( Q_stricmp( token.string, "shadowX" ) == 0 ) {
-			if ( !PC_Float_Parse( handle, &cgDC.Assets.shadowX ) ) {
-				return qfalse;
-			}
-			continue;
-		}
-
-		if ( Q_stricmp( token.string, "shadowY" ) == 0 ) {
-			if ( !PC_Float_Parse( handle, &cgDC.Assets.shadowY ) ) {
-				return qfalse;
-			}
-			continue;
-		}
-
-		if ( Q_stricmp( token.string, "shadowColor" ) == 0 ) {
-			if ( !PC_Color_Parse( handle, &cgDC.Assets.shadowColor ) ) {
-				return qfalse;
-			}
-			cgDC.Assets.shadowFadeClamp = cgDC.Assets.shadowColor[3];
-			continue;
-		}
-	}
-	//return qfalse;
-}
-
-void CG_ParseMenu( const char *menuFile ) {
-	pc_token_t token;
-	int handle;
-
-	handle = trap_PC_LoadSource( menuFile );
-	if ( !handle ) {
-		handle = trap_PC_LoadSource( "ui/testhud.menu" );
-	}
-	if ( !handle ) {
-		return;
-	}
-
-	while ( 1 ) {
-		if ( !PC_ReadTokenHandle( handle, &token ) ) {
-			break;
-		}
-
-		if ( token.string[0] == '}' ) {
-			break;
-		}
-
-		if ( Q_stricmp( token.string, "assetGlobalDef" ) == 0 ) {
-			if ( CG_Asset_Parse( handle ) ) {
-				continue;
-			} else {
-				break;
-			}
-		}
-
-
-		if ( Q_stricmp( token.string, "menudef" ) == 0 ) {
-			// start a new menu
-			Menu_New( handle );
-		}
-	}
-	trap_PC_FreeSource( handle );
-}
-
-qboolean CG_Load_Menu( char **p ) {
-	char *token;
-
-	token = COM_ParseExt( p, qtrue );
-
-	if ( token[0] != '{' ) {
-		return qfalse;
-	}
-
-	while ( 1 ) {
-
-		token = COM_ParseExt( p, qtrue );
-
-		if ( Q_stricmp( token, "}" ) == 0 ) {
-			return qtrue;
-		}
-
-		if ( !token || token[0] == 0 ) {
-			return qfalse;
-		}
-
-		CG_ParseMenu( token );
-	}
-	return qfalse;
-}
-
-
-
+extern void LoadMenus(const char*, qboolean, qboolean);
 void CG_LoadMenus( const char *menuFile ) {
-	char    *token;
-	char *p;
-	int len, start;
-	fileHandle_t f;
-	static char buf[MAX_MENUDEFFILE];
-
-	start = trap_Milliseconds();
-
-	len = trap_FS_FOpenFile( menuFile, &f, FS_READ );
-	if ( !f ) {
-		trap_Error( va( S_COLOR_YELLOW "menu file not found: %s, using default\n", menuFile ) );
-		len = trap_FS_FOpenFile( "ui/hud.txt", &f, FS_READ );
-		if ( !f ) {
-			trap_Error( va( S_COLOR_RED "default menu file not found: ui/hud.txt, unable to continue!\n", menuFile ) );
-		}
-	}
-
-	if ( len >= MAX_MENUDEFFILE ) {
-		trap_Error( va( S_COLOR_RED "menu file too large: %s is %i, max allowed is %i", menuFile, len, MAX_MENUDEFFILE ) );
-		trap_FS_FCloseFile( f );
-		return;
-	}
-
-	trap_FS_Read( buf, len, f );
-	buf[len] = 0;
-	trap_FS_FCloseFile( f );
-
-	COM_Compress( buf );
-
-	//Menu_Reset();
-
-	p = buf;
-
-	while ( 1 ) {
-		token = COM_ParseExt( &p, qtrue );
-		if ( !token || token[0] == 0 || token[0] == '}' ) {
-			break;
-		}
-
-		//if ( Q_stricmp( token, "{" ) ) {
-		//	Com_Printf( "Missing { in menu file\n" );
-		//	break;
-		//}
-
-		//if ( menuCount == MAX_MENUS ) {
-		//	Com_Printf( "Too many menus!\n" );
-		//	break;
-		//}
-
-		if ( Q_stricmp( token, "}" ) == 0 ) {
-			break;
-		}
-
-		if ( Q_stricmp( token, "loadmenu" ) == 0 ) {
-			if ( CG_Load_Menu( &p ) ) {
-				continue;
-			} else {
-				break;
-			}
-		}
-	}
-
-	Com_Printf( "UI menu load time = %d milli seconds\n", trap_Milliseconds() - start );
-
+	LoadMenus(menuFile, qtrue, qtrue);
 }
-
-
 
 static qboolean CG_OwnerDrawHandleKey( int ownerDraw, int flags, float *special, int key ) {
 	return qfalse;
@@ -1782,11 +1465,6 @@ static int CG_FeederCount( float feederID ) {
 	return count;
 }
 
-
-
-
-///////////////////////////
-///////////////////////////
 
 static clientInfo_t * CG_InfoFromScoreIndex( int index, int team, int *scoreIndex ) {
 	int i, count;
@@ -2059,11 +1737,6 @@ void CG_LoadHudMenu() {
 	cgDC.drawCinematic = &CG_DrawCinematic;
 	cgDC.runCinematicFrame = &CG_RunCinematicFrame;
 
-	// UI does this
-	//Init_Display( &cgDC );
-
-	//Menu_Reset();
-
 	trap_Cvar_VariableStringBuffer( "cg_hudFiles", buff, sizeof( buff ) );
 	hudSet = buff;
 	if ( hudSet[0] == '\0' ) {
@@ -2074,11 +1747,6 @@ void CG_LoadHudMenu() {
 }
 
 void CG_AssetCache() {
-	//if (Assets.textFont == NULL) {
-	//  trap_R_RegisterFont("fonts/arial.ttf", 72, &Assets.textFont);
-	//}
-	//Assets.background = RE_RegisterShaderNoMip( ASSET_BACKGROUND );
-	//Com_Printf("Menu Size: %i bytes\n", sizeof(Menus));
 	cgDC.Assets.gradientBar = RE_RegisterShaderNoMip( ASSET_GRADIENTBAR );
 	cgDC.Assets.fxBasePic = RE_RegisterShaderNoMip( ART_FX_BASE );
 	cgDC.Assets.fxPic[0] = RE_RegisterShaderNoMip( ART_FX_RED );

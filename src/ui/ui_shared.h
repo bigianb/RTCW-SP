@@ -463,10 +463,10 @@ qboolean PC_String_Parse( int handle, const char **out );
 qboolean PC_Script_Parse( int handle, const char **out );
 qboolean PC_Char_Parse( int handle, char *out );              // NERVE - SMF
 int Menu_Count();
-void Menu_New( int handle );
+void Menu_New( int handle, qboolean isHud );
 void Menu_PaintAll();
 menuDef_t *Menus_ActivateByName( const char *p );
-void Menu_Reset();
+void Menu_Reset(qboolean isHud);
 qboolean Menus_AnyFullScreenVisible();
 void  Menus_Activate( menuDef_t *menu );
 

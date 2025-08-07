@@ -65,11 +65,16 @@ qboolean g_editingField = qfalse;
 static itemDef_t *g_bindItem = NULL;
 itemDef_t *g_editItem = NULL;
 
+// UI Menus
 menuDef_t Menus[MAX_MENUS];      // defined menus
 int menuCount = 0;               // how many
 
 menuDef_t *menuStack[MAX_OPEN_MENUS];
 int openMenuCount = 0;
+
+// Hud menus
+menuDef_t HudMenus[MAX_MENUS];      // defined menus
+int hudMenuCount = 0;               // how many
 
 static qboolean debugMode = qfalse;
 
@@ -1094,6 +1099,11 @@ menuDef_t *Menus_FindByName( const char *p ) {
 			return &Menus[i];
 		}
 	}
+	for ( i = 0; i < hudMenuCount; i++ ) {
+		if ( Q_stricmp( HudMenus[i].window.name, p ) == 0 ) {
+			return &HudMenus[i];
+		}
+	}
 	return NULL;
 }
 
@@ -1125,13 +1135,10 @@ void Menus_CloseByName( const char *p ) {
 }
 
 void Menus_CloseAll() {
-	int i;
-	for ( i = 0; i < menuCount; i++ ) {
-        // FIXME: Test don't close the hud
-        if (strcmp(Menus[i].window.name, "Stamina")){
-            Menu_RunCloseScript( &Menus[i] );
-            Menus[i].window.flags &= ~( WINDOW_HASFOCUS | WINDOW_VISIBLE );
-        }
+	// Don't close hud menus
+	for (int i = 0; i < menuCount; i++ ) {
+		Menu_RunCloseScript( &Menus[i] );
+		Menus[i].window.flags &= ~( WINDOW_HASFOCUS | WINDOW_VISIBLE );
 	}
 }
 
@@ -1181,8 +1188,6 @@ void Script_Close( itemDef_t *item, char **args ) {
 }
 
 
-
-
 /*
 ==============
 Script_Clipboard
@@ -1193,9 +1198,6 @@ void Script_Clipboard( itemDef_t *item, char **args ) {
 	DC->getCVarString( "cg_clipboardName", curscript, sizeof( curscript ) ); // grab the string the client set
 	Menu_ShowItemByName( item->parent, curscript, qtrue );
 }
-
-
-
 
 #define NOTEBOOK_MAX_PAGES 6    // this will not be a define
 
@@ -2787,8 +2789,6 @@ void Menus_HandleOOBClick( menuDef_t *menu, int key, qboolean down ) {
 
 		for ( i = 0; i < menuCount; i++ ) {
 			if ( Menu_OverActiveItem( &Menus[i], DC->cursorx, DC->cursory ) ) {
-//				Menu_RunCloseScript(menu);			// NERVE - SMF - why do we close the calling menu instead of just removing the focus?
-//				menu->window.flags &= ~(WINDOW_HASFOCUS | WINDOW_VISIBLE);
 				menu->window.flags &= ~( WINDOW_HASFOCUS );
 				Menus_Activate( &Menus[i] );
 				Menu_HandleMouseMove( &Menus[i], DC->cursorx, DC->cursory );
@@ -6077,14 +6077,15 @@ qboolean Menu_Parse( int handle, menuDef_t *menu ) {
 Menu_New
 ===============
 */
-void Menu_New( int handle ) {
-	menuDef_t *menu = &Menus[menuCount];
+void Menu_New( int handle, qboolean isHud ) {
+	int* pMenuCount = isHud ? &hudMenuCount : &menuCount;
+	menuDef_t *menu = isHud ? &HudMenus[*pMenuCount] : &Menus[*pMenuCount];
 
-	if ( menuCount < MAX_MENUS ) {
+	if ( *pMenuCount < MAX_MENUS ) {
 		Menu_Init( menu );
 		if ( Menu_Parse( handle, menu ) ) {
 			Menu_PostParse( menu );
-			menuCount++;
+			*pMenuCount += 1;
 		}
 	}
 }
@@ -6102,6 +6103,9 @@ void Menu_PaintAll() {
 	for ( i = 0; i < Menu_Count(); i++ ) {
 		Menu_Paint( &Menus[i], qfalse );
 	}
+	for ( i = 0; i < hudMenuCount; i++ ) {
+		Menu_Paint( &HudMenus[i], qfalse );
+	}
 
 	if ( debugMode ) {
 		vec4_t v = {1, 1, 1, 1};
@@ -6109,19 +6113,17 @@ void Menu_PaintAll() {
 	}
 }
 
-void Menu_Reset() {
-	menuCount = 0;
+void Menu_Reset(qboolean isHud) {
+	if (isHud){
+		hudMenuCount = 0;
+	} else {
+		menuCount = 0;
+	}
 }
 
 displayContextDef_t *Display_GetContext() {
 	return DC;
 }
-
-// TTimo: unused
-/*
-static float captureX;
-static float captureY;
-*/
 
 void *Display_CaptureItem( int x, int y ) {
 	int i;
@@ -6193,9 +6195,6 @@ static void Window_CacheContents( windowDef_t *window ) {
 			int cin = DC->playCinematic( window->cinematicName, 0, 0, 0, 0 );
 			DC->stopCinematic( cin );
 		}
-		// (SA) added for cachinig in music
-//		if(window->
-//----(SA)	end
 	}
 }
 
