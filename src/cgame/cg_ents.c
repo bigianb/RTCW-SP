@@ -753,7 +753,7 @@ void CG_DrawHoldableSelect( void ) {
 				x = ( SCREEN_WIDTH - w ) / 2;
 //				CG_DrawBigStringColor(x, y - 22, name, color);
 				CG_DrawStringExt2( x, y + 74, name, color, qfalse, qtrue, 10, 10, 0 );
-//				CG_Text_Paint(x, y + 74, 2, 0.3f, color, name, 0, 0, 6); // ITEM_TEXTSTYLE_SHADOWEDMORE
+//				Text_Paint(x, y + 74, 2, 0.3f, color, name, 0, 0, 6); // ITEM_TEXTSTYLE_SHADOWEDMORE
 			}
 		}
 	}

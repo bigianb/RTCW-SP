@@ -1888,9 +1888,8 @@ void CG_DrawFlagModel( float x, float y, float w, float h, int team );
 
 void CG_DrawTeamBackground( int x, int y, int w, int h, float alpha, int team );
 void CG_OwnerDraw( float x, float y, float w, float h, float text_x, float text_y, int ownerDraw, int ownerDrawFlags, int align, float special, int font, float scale, vec4_t color, qhandle_t shader, int textStyle );
-void CG_Text_Paint( float x, float y, int font, float scale, vec4_t color, const char *text, float adjust, int limit, int style );    //----(SA)	modified
-int CG_Text_Width( const char *text, int font, float scale, int limit );
-int CG_Text_Height( const char *text, int font, float scale, int limit );
+void Text_Paint( float x, float y, int font, float scale, vec4_t color, const char *text, float adjust, int limit, int style );    //----(SA)	modified
+int Text_Width( const char *text, int font, float scale, int limit );
 void CG_SelectPrevPlayer();
 void CG_SelectNextPlayer();
 float CG_GetValue( int ownerDraw, int type ); // 'type' is relative or absolute (fractional-'0.5' or absolute- '50' health)
@@ -1903,7 +1902,7 @@ void CG_GetTeamColor( vec4_t *color );
 const char *CG_GetGameStatusText();
 const char *CG_GetKillerText();
 void CG_Draw3DModel( float x, float y, float w, float h, qhandle_t model, qhandle_t skin, vec3_t origin, vec3_t angles );
-void CG_Text_PaintChar( float x, float y, float width, float height, float scale, float s, float t, float s2, float t2, qhandle_t hShader );
+void Text_PaintChar( float x, float y, float width, float height, int font, float scale, float s, float t, float s2, float t2, qhandle_t hShader );
 void CG_CheckOrderPending();
 const char *CG_GameTypeString();
 qboolean CG_YourTeamHasFlag();

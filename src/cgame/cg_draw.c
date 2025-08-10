@@ -36,7 +36,6 @@ If you have questions concerning this license or the applicable additional terms
 #define STATUSBARHEIGHT 452
 //----(SA) end
 
-extern displayContextDef_t cgDC;
 menuDef_t *menuScoreboard = NULL;
 
 int sortedTeamPlayers[TEAM_MAXOVERLAY];
@@ -45,186 +44,6 @@ int numSortedTeamPlayers;
 char systemChat[256];
 char teamChat1[256];
 char teamChat2[256];
-
-int CG_Text_Width( const char *text, int font, float scale, int limit ) {
-	int count,len;
-	float out;
-	glyphInfo_t *glyph;
-	float useScale;
-	const char *s = text;
-
-	fontInfo_t *fnt = &cgDC.Assets.textFont;
-
-	if ( font == UI_FONT_DEFAULT ) {
-		if ( scale <= cg_smallFont.value ) {
-			fnt = &cgDC.Assets.smallFont;
-		} else if ( scale > cg_bigFont.value ) {
-			fnt = &cgDC.Assets.bigFont;
-		}
-	} else if ( font == UI_FONT_BIG ) {
-		fnt = &cgDC.Assets.bigFont;
-	} else if ( font == UI_FONT_SMALL ) {
-		fnt = &cgDC.Assets.smallFont;
-	} else if ( font == UI_FONT_HANDWRITING ) {
-		fnt = &cgDC.Assets.handwritingFont;
-	}
-
-	useScale = scale * fnt->glyphScale;
-	out = 0;
-	if ( text ) {
-		len = strlen( text );
-		if ( limit > 0 && len > limit ) {
-			len = limit;
-		}
-		count = 0;
-		while ( s && *s && count < len ) {
-			if ( Q_IsColorString( s ) ) {
-				s += 2;
-				continue;
-			} else {
-				glyph = &fnt->glyphs[(int)*s];
-				out += glyph->xSkip;
-				s++;
-				count++;
-			}
-		}
-	}
-	return out * useScale;
-}
-
-int CG_Text_Height( const char *text, int font, float scale, int limit ) {
-	int len, count;
-	float max;
-	glyphInfo_t *glyph;
-	float useScale;
-	const char *s = text;
-
-	fontInfo_t *fnt = &cgDC.Assets.textFont;
-	if ( font == UI_FONT_DEFAULT ) {
-		if ( scale <= cg_smallFont.value ) {
-			fnt = &cgDC.Assets.smallFont;
-		} else if ( scale > cg_bigFont.value ) {
-			fnt = &cgDC.Assets.bigFont;
-		}
-	} else if ( font == UI_FONT_BIG ) {
-		fnt = &cgDC.Assets.bigFont;
-	} else if ( font == UI_FONT_SMALL ) {
-		fnt = &cgDC.Assets.smallFont;
-	} else if ( font == UI_FONT_HANDWRITING ) {
-		fnt = &cgDC.Assets.handwritingFont;
-	}
-
-	useScale = scale * fnt->glyphScale;
-	max = 0;
-	if ( text ) {
-		len = strlen( text );
-		if ( limit > 0 && len > limit ) {
-			len = limit;
-		}
-		count = 0;
-		while ( s && *s && count < len ) {
-			if ( Q_IsColorString( s ) ) {
-				s += 2;
-				continue;
-			} else {
-				glyph = &fnt->glyphs[(int)*s];
-				if ( max < glyph->height ) {
-					max = glyph->height;
-				}
-				s++;
-				count++;
-			}
-		}
-	}
-	return max * useScale;
-}
-
-void CG_Text_PaintChar( float x, float y, float width, float height, float scale, float s, float t, float s2, float t2, qhandle_t hShader ) {
-	float w, h;
-	w = width * scale;
-	h = height * scale;
-	CG_AdjustFrom640( &x, &y, &w, &h );
-	trap_R_DrawStretchPic( x, y, w, h, s, t, s2, t2, hShader );
-}
-
-void CG_Text_Paint( float x, float y, int font, float scale, vec4_t color, const char *text, float adjust, int limit, int style ) {
-	int len, count;
-	vec4_t newColor;
-	glyphInfo_t *glyph;
-	float useScale;
-	fontInfo_t *fnt = &cgDC.Assets.textFont;
-
-	if ( font == UI_FONT_DEFAULT ) {
-		if ( scale <= cg_smallFont.value ) {
-			fnt = &cgDC.Assets.smallFont;
-		} else if ( scale > cg_bigFont.value ) {
-			fnt = &cgDC.Assets.bigFont;
-		}
-	} else if ( font == UI_FONT_BIG ) {
-		fnt = &cgDC.Assets.bigFont;
-	} else if ( font == UI_FONT_SMALL ) {
-		fnt = &cgDC.Assets.smallFont;
-	} else if ( font == UI_FONT_HANDWRITING ) {
-		fnt = &cgDC.Assets.handwritingFont;
-	}
-
-	useScale = scale * fnt->glyphScale;
-
-	color[3] *= cg_hudAlpha.value;  // (SA) adjust for cg_hudalpha
-
-	if ( text ) {
-		const char *s = text;
-		trap_R_SetColor( color );
-		memcpy( &newColor[0], &color[0], sizeof( vec4_t ) );
-		len = strlen( text );
-		if ( limit > 0 && len > limit ) {
-			len = limit;
-		}
-		count = 0;
-		while ( s && *s && count < len ) {
-			glyph = &fnt->glyphs[(int)*s];
-			if ( Q_IsColorString( s ) ) {
-				memcpy( newColor, g_color_table[ColorIndex( *( s + 1 ) )], sizeof( newColor ) );
-				newColor[3] = color[3];
-				trap_R_SetColor( newColor );
-				s += 2;
-				continue;
-			} else {
-				float yadj = useScale * glyph->top;
-				if ( style == ITEM_TEXTSTYLE_SHADOWED || style == ITEM_TEXTSTYLE_SHADOWEDMORE ) {
-					int ofs = style == ITEM_TEXTSTYLE_SHADOWED ? 1 : 2;
-					colorBlack[3] = newColor[3];
-					trap_R_SetColor( colorBlack );
-					CG_Text_PaintChar( x + ofs, y - yadj + ofs,
-									   glyph->imageWidth,
-									   glyph->imageHeight,
-									   useScale,
-									   glyph->s,
-									   glyph->t,
-									   glyph->s2,
-									   glyph->t2,
-									   glyph->glyph );
-					colorBlack[3] = 1.0;
-					trap_R_SetColor( newColor );
-				}
-				CG_Text_PaintChar( x, y - yadj,
-								   glyph->imageWidth,
-								   glyph->imageHeight,
-								   useScale,
-								   glyph->s,
-								   glyph->t,
-								   glyph->s2,
-								   glyph->t2,
-								   glyph->glyph );
-				// CG_DrawPic(x, y - yadj, scale * cgDC.Assets.textFont.glyphs[text[i]].imageWidth, scale * cgDC.Assets.textFont.glyphs[text[i]].imageHeight, cgDC.Assets.textFont.glyphs[text[i]].glyph);
-				x += ( glyph->xSkip * useScale ) + adjust;
-				s++;
-				count++;
-			}
-		}
-		trap_R_SetColor( NULL );
-	}
-}
 
 
 /*
@@ -313,8 +132,6 @@ void CG_DrawHead( float x, float y, float w, float h, int clientNum, vec3_t head
 		VectorAdd( origin, ci->modelInfo->headOffset, origin );
 
 		CG_Draw3DModel( x, y, w, h, ci->headModel, ci->headSkin, origin, headAngles );
-//	} else if ( cg_drawIcons.integer ) {
-//		CG_DrawPic( x, y, w, h, ci->modelIcon );
 	}
 
 	// if they are deferred, draw a cross out
@@ -567,21 +384,6 @@ static float CG_DrawTeamOverlay( float y ) {
 		pwidth = TEAM_OVERLAY_MAXNAME_WIDTH;
 	}
 
-#if 0
-	// max location name width
-	lwidth = 0;
-	for ( i = 0; i < numSortedTeamPlayers; i++ ) {
-		ci = cgs.clientinfo + sortedTeamPlayers[i];
-		if ( ci->infoValid &&
-			 ci->team == cg.snap->ps.persistant[PERS_TEAM] &&
-			 CG_ConfigString( CS_LOCATIONS + ci->location ) ) {
-			len = CG_DrawStrlen( CG_ConfigString( CS_LOCATIONS + ci->location ) );
-			if ( len > lwidth ) {
-				lwidth = len;
-			}
-		}
-	}
-#else
 	// max location name width
 	lwidth = 0;
 	for ( i = 1; i < MAX_LOCATIONS; i++ ) {
@@ -593,7 +395,6 @@ static float CG_DrawTeamOverlay( float y ) {
 			}
 		}
 	}
-#endif
 
 	if ( lwidth > TEAM_OVERLAY_MAXLOCATION_WIDTH ) {
 		lwidth = TEAM_OVERLAY_MAXLOCATION_WIDTH;
@@ -827,7 +628,7 @@ static void CG_DrawPickupItem( void ) {
 			color[0] = color[1] = color[2] = 1.0;
 			color[3] = fadeColor[0];
 			CG_DrawStringExt2( ICON_SIZE + 16, 398, pickupText, color, qfalse, qtrue, 10, 10, 0 );
-//			CG_Text_Paint(ICON_SIZE + 16, 398, 2, 0.3f, color, pickupText, 0, 0, ITEM_TEXTSTYLE_SHADOWEDMORE);
+//			Text_Paint(ICON_SIZE + 16, 398, 2, 0.3f, color, pickupText, 0, 0, ITEM_TEXTSTYLE_SHADOWEDMORE);
 
 
 			trap_R_SetColor( NULL );
@@ -980,7 +781,6 @@ static void CG_DrawLagometer( void ) {
 	float vscale;
 
 	if ( !cg_lagometer.integer || cgs.localServer ) {
-//	if(0) {
 		CG_DrawDisconnect();
 		return;
 	}
@@ -1162,12 +962,8 @@ static void CG_DrawCenterString( void ) {
 		x = ( SCREEN_WIDTH - w ) / 2;
 
 		CG_DrawStringExt( x, y, linebuffer, color, qfalse, qtrue, cg.centerPrintCharWidth, (int)( cg.centerPrintCharWidth * 1.5 ), 0 );
-//		CG_Text_Paint(x, y, 2, 0.3f, color, linebuffer, 0, 0, ITEM_TEXTSTYLE_SHADOWEDMORE);
-
-//		y += cg.centerPrintCharWidth * 1.5;
 		y += cg.centerPrintCharWidth * 2;
 
-//		while ( *start && ( *start != '\n' ) && !Q_strncmp(start, "\\n", 1) ) {
 		while ( *start && ( *start != '\n' ) ) {
 			if ( !Q_strncmp( start, "\\n", 1 ) ) {
 				start++;
@@ -1543,13 +1339,6 @@ static void CG_ScanForCrosshairEntity( void ) {
 	CG_Trace( &trace, start, vec3_origin, vec3_origin, end,
 			  cg.snap->ps.clientNum, CONTENTS_SOLID | CONTENTS_BODY | CONTENTS_ITEM );
 
-//----(SA)	allow targets that aren't clients
-//	if ( trace.entityNum >= MAX_CLIENTS ) {
-//		return;
-//	}
-
-//	traceEnt = &g_entities[trace.entityNum];
-
 
 	// if the player is in fog, don't show it
 	content = trap_CM_PointContents( trace.endpos, 0 );
@@ -1789,14 +1578,14 @@ static qboolean CG_DrawFollow( void ) {
 		color[1] = 0;
 		color[2] = 0;
 		if ( cgs.clientinfo[cg.snap->ps.clientNum].team == TEAM_RED ) {
-			sprintf( deploytime,"Deploying in %d seconds", (int)( (float)( cg_redlimbotime.integer - ( cg.time % cg_redlimbotime.integer ) ) * 0.001f ) );
+			snprintf( deploytime, 128, "Deploying in %d seconds", (int)( (float)( cg_redlimbotime.integer - ( cg.time % cg_redlimbotime.integer ) ) * 0.001f ) );
 		} else {
-			sprintf( deploytime,"Deploying in %d seconds", (int)( (float)( cg_bluelimbotime.integer - ( cg.time % cg_bluelimbotime.integer ) ) * 0.001f ) );
+			snprintf( deploytime, 128, "Deploying in %d seconds", (int)( (float)( cg_bluelimbotime.integer - ( cg.time % cg_bluelimbotime.integer ) ) * 0.001f ) );
 		}
 
 		x = 0.5 * ( 640 - BIGCHAR_WIDTH * strlen( deploytime ) ); //CG_DrawStrlen( deploytime ) );
 		CG_DrawStringExt( x, 24, deploytime, color, qtrue, qtrue, BIGCHAR_WIDTH, BIGCHAR_HEIGHT, 0 );
-		sprintf( deploytime,"(Following %s)",cgs.clientinfo[ cg.snap->ps.clientNum ].name );
+		snprintf( deploytime, 128, "(Following %s)",cgs.clientinfo[ cg.snap->ps.clientNum ].name );
 		x = 0.5 * ( 640 - BIGCHAR_WIDTH * strlen( deploytime ) ); //CG_DrawStrlen( deploytime ) );
 		CG_DrawStringExt( x, 48, deploytime, color, qtrue, qtrue, BIGCHAR_WIDTH, BIGCHAR_HEIGHT, 0 );
 
@@ -1823,27 +1612,6 @@ CG_DrawAmmoWarning
 static void CG_DrawAmmoWarning( void ) {
 	const char  *s;
 	int w;
-
-//----(SA)	forcing return for now
-//			if we have messages to show here, comment back in
-	return;
-
-
-	if ( cg_drawAmmoWarning.integer == 0 ) {
-		return;
-	}
-
-	if ( !cg.lowAmmoWarning ) {
-		return;
-	}
-
-	if ( cg.lowAmmoWarning == 2 ) {
-		s = "OUT OF AMMO";
-	} else {
-		s = "LOW AMMO WARNING";
-	}
-	w = CG_DrawStrlen( s ) * BIGCHAR_WIDTH;
-	CG_DrawBigString( 320 - w / 2, 64, s, 1.0F );
 }
 
 /*
@@ -2544,7 +2312,7 @@ void CG_CalcShakeCamera() {
 	float val, scale, dist, x, sx;
 	float bx = 0.0f; // TTimo: init
 	int i;
-
+	
 	// build the scale
 	scale = 0.0f;
 	sx = (float)cg.time / 600.0; // x * (float)(cg.cameraShake[i].length) / 600.0;
@@ -2563,36 +2331,33 @@ void CG_CalcShakeCamera() {
 			}
 		}
 	}
-
+	
 	// check the current rumble status
 	if ( cg.rumbleScale > scale ) {
 		scale = cg.rumbleScale;
 		bx = cg.rumbleScale;
 	}
-
+	
 	if ( scale <= 0.0f ) {
 		cg.cameraShakePhase = crandom() * M_PI; // randomize the phase
 		return;
 	}
-
+	
 	if ( scale > 1.0f ) {
 		scale = 1.0f;
 	}
-
+	
 	// up/down
 	val = sin( M_PI * 8 * sx + cg.cameraShakePhase ) * bx * 18.0f * scale;
 	cg.cameraShakeAngles[0] = val;
-	//cg.refdefViewAngles[0] += val;
-
+	
 	// left/right
 	val = sin( M_PI * 15 * sx + cg.cameraShakePhase ) * bx * 16.0f * scale;
 	cg.cameraShakeAngles[1] = val;
-	//cg.refdefViewAngles[1] += val;
-
+	
 	// roll
 	val = sin( M_PI * 12 * sx + cg.cameraShakePhase ) * bx * 10.0f * scale;
 	cg.cameraShakeAngles[2] = val;
-	//cg.refdefViewAngles[2] += val;
 }
 
 /*

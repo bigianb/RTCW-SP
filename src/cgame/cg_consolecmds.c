@@ -161,18 +161,6 @@ static void CG_TellAttacker_f( void ) {
 	trap_SendClientCommand( command );
 }
 
-// TTimo: unused
-/*
-static void CG_NextTeamMember_f( void ) {
-  CG_SelectNextPlayer();
-}
-
-static void CG_PrevTeamMember_f( void ) {
-  CG_SelectPrevPlayer();
-}
-*/
-
-/////////// cameras
 
 #define MAX_CAMERAS 64  // matches define in splines.cpp
 qboolean cameraInuse[MAX_CAMERAS];
@@ -266,47 +254,6 @@ static void CG_Fade_f( void ) {
 	CG_Fade( r, g, b, a, cg.time, duration );
 }
 
-// TTimo unused
-/*
-// NERVE - SMF
-static void CG_PickTeam_f( void ) {
-	const char	*s;
-	char buf[144];
-
-	if(cgs.gametype != GT_WOLF)
-		return;
-
-	// set map title
-	trap_Cvar_VariableStringBuffer( "sv_mapname", buf, sizeof( buf ) );
-	trap_Cvar_Set( "mp_mapTitle", "MAP" ); //buf );
-
-	// set map description
-	s = CG_ConfigString( CS_MULTI_MAPDESC );
-	if ( s )
-		trap_Cvar_Set( "mp_mapDesc", s );
-
-	trap_UI_Popup( "UIMENU_WM_PICKTEAM" );
-}
-
-static void CG_PickPlayer_f( void ) {
-	const char	*s;
-	char buf[144];
-
-	if(cgs.gametype != GT_WOLF)
-		return;
-
-	// set map title
-	trap_Cvar_VariableStringBuffer( "sv_mapname", buf, sizeof( buf ) );
-	trap_Cvar_Set( "mp_mapTitle", "MAP" ); //buf );
-
-	// set map description
-	s = CG_ConfigString( CS_MULTI_MAPDESC );
-	if ( s )
-		trap_Cvar_Set( "mp_mapDesc", s );
-
-	trap_UI_Popup( "UIMENU_WM_PICKPLAYER" );
-}
-*/
 
 static void CG_QuickMessage_f( void ) {
 	if ( cgs.gametype != GT_WOLF ) {
@@ -444,13 +391,6 @@ void CG_InitConsoleCommands( void ) {
 	trap_AddCommand( "say_team" );
 	trap_AddCommand( "say_limbo" );           // NERVE - SMF
 	trap_AddCommand( "tell" );
-//	trap_AddCommand ("vsay");
-//	trap_AddCommand ("vsay_team");
-//	trap_AddCommand ("vtell");
-//	trap_AddCommand ("vtaunt");
-//	trap_AddCommand ("vosay");
-//	trap_AddCommand ("vosay_team");
-//	trap_AddCommand ("votell");
 	trap_AddCommand( "give" );
 	trap_AddCommand( "god" );
 	trap_AddCommand( "notarget" );
@@ -462,10 +402,7 @@ void CG_InitConsoleCommands( void ) {
 	trap_AddCommand( "setviewpos" );
 	trap_AddCommand( "callvote" );
 	trap_AddCommand( "vote" );
-//	trap_AddCommand ("callteamvote");
-//	trap_AddCommand ("teamvote");
 	trap_AddCommand( "stats" );
-//	trap_AddCommand ("teamtask");
 	trap_AddCommand( "loaddeferred" );        // spelling fixed (SA)
 
 	trap_AddCommand( "startCamera" );

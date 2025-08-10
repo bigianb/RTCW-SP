@@ -1426,8 +1426,6 @@ void Script_Play( itemDef_t *item, char **args ) {
 void Script_playLooped( itemDef_t *item, char **args ) {
 	const char *val;
 	if ( String_Parse( args, &val ) ) {
-		// (SA) don't think this should happen...
-//		DC->stopBackgroundTrack();
 		DC->startBackgroundTrack( val, val, 0 );
 	}
 }
@@ -2540,7 +2538,6 @@ void Item_StopCapture( itemDef_t *item ) {
 qboolean Item_Slider_HandleKey( itemDef_t *item, int key, qboolean down ) {
 	float x, value, width, work;
 
-	//DC->Print("slider handle key\n");
 	if ( item->window.flags & WINDOW_HASFOCUS && item->cvar && Rect_ContainsPoint( &item->window.rect, DC->cursorx, DC->cursory ) ) {
 		if ( key == K_MOUSE1 || key == K_ENTER || key == K_MOUSE2 || key == K_MOUSE3 ) {
 			editFieldDef_t *editDef = item->typeData;
@@ -2557,15 +2554,11 @@ qboolean Item_Slider_HandleKey( itemDef_t *item, int key, qboolean down ) {
 				testRect.x = x;
 				value = (float)SLIDER_THUMB_WIDTH / 2;
 				testRect.x -= value;
-				//DC->Print("slider x: %f\n", testRect.x);
 				testRect.w = ( SLIDER_WIDTH + (float)SLIDER_THUMB_WIDTH / 2 );
-				//DC->Print("slider w: %f\n", testRect.w);
 				if ( Rect_ContainsPoint( &testRect, DC->cursorx, DC->cursory ) ) {
 					work = DC->cursorx - x;
 					value = work / width;
 					value *= ( editDef->maxVal - editDef->minVal );
-					// vm fuckage
-					// value = (((float)(DC->cursorx - x)/ SLIDER_WIDTH) * (editDef->maxVal - editDef->minVal));
 					value += editDef->minVal;
 					DC->setCVar( item->cvar, va( "%f", value ) );
 					return qtrue;
@@ -2573,7 +2566,6 @@ qboolean Item_Slider_HandleKey( itemDef_t *item, int key, qboolean down ) {
 			}
 		}
 	}
-	//DC->Print("slider handle key exit\n");
 	return qfalse;
 }
 
@@ -2750,7 +2742,6 @@ void  Menus_Activate( menuDef_t *menu ) {
 	}
 
 	if ( menu->soundName && *menu->soundName ) {
-//		DC->stopBackgroundTrack();					// you don't want to do this since it will reset s_rawend
 		DC->startBackgroundTrack( menu->soundName, menu->soundName, 0 );
 	}
 
@@ -3813,7 +3804,6 @@ qboolean Item_Bind_HandleKey( itemDef_t *item, int key, qboolean down ) {
 
 
 void AdjustFrom640( float *x, float *y, float *w, float *h ) {
-	//*x = *x * DC->scale + DC->bias;
 	*x *= DC->xscale;
 	*y *= DC->yscale;
 	*w *= DC->xscale;
@@ -4631,14 +4621,8 @@ int KeywordHash_Key( char *keyword ) {
 }
 
 void KeywordHash_Add( keywordHash_t *table[], keywordHash_t *key ) {
-	int hash;
+	int hash = KeywordHash_Key( key->keyword );
 
-	hash = KeywordHash_Key( key->keyword );
-/*
-	if (table[hash]) {
-		int collision = qtrue;
-	}
-*/
 	key->next = table[hash];
 	table[hash] = key;
 }
@@ -5642,10 +5626,6 @@ qboolean MenuParse_name( itemDef_t *item, int handle ) {
 	menuDef_t *menu = (menuDef_t*)item;
 	if ( !PC_String_Parse( handle, &menu->window.name ) ) {
 		return qfalse;
-	}
-	if ( Q_stricmp( menu->window.name, "main" ) == 0 ) {
-		// default main as having focus
-		//menu->window.flags |= WINDOW_HASFOCUS;
 	}
 	return qtrue;
 }

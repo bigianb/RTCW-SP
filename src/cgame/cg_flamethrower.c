@@ -192,20 +192,6 @@ void CG_FlameAdjustSpeed( flameChunk_t *f, float change ) {
 	if ( f->velSpeed < FLAME_MIN_SPEED ) {
 		f->velSpeed = FLAME_MIN_SPEED;
 	}
-/*
-	f->sizeMax = FLAME_START_MAX_SIZE + ((1.0 - (f->velSpeed / FLAME_START_SPEED)) * (FLAME_MAX_SIZE - FLAME_START_MAX_SIZE));
-
-	if (!f->ignitionOnly) {
-		if ((cg.time - f->timeStart) < f->blueLife) {
-			f->sizeRate = GET_FLAME_BLUE_SIZE_SPEED(f->sizeMax);
-		} else {
-			f->sizeMax += f->sizeRand;
-			if (f->sizeMax < FLAME_MIN_MAXSIZE)
-				f->sizeMax = FLAME_MIN_MAXSIZE;
-			f->sizeRate = GET_FLAME_SIZE_SPEED(f->sizeMax);
-		}
-	}
-*/
 }
 
 /*
@@ -1181,46 +1167,6 @@ void CG_AddFlameToScene( flameChunk_t *fHead ) {
 		if ( !f->ignitionOnly && f->velSpeed < 1 ) {
 
 			CG_AddFlameSpriteToScene( f, f->lifeFrac, 1.0 );
-/*
-		} else if (cg_entities[f->ownerCent].currentState.aiChar == AICHAR_ZOMBIE) {
-
-			if (isClientFlame && !fHead->ignitionOnly) {
-
-				if (f->lifeFrac < 0.3) {
-					skip = qfalse;
-
-					// if this is backwards from the last chunk, then skip it
-					if (!f->ignitionOnly && fNext && f != fHead && lastBlueChunk) {
-						VectorSubtract( f->org, lastBlueChunk->org, v );
-						if (VectorNormalize( v ) < f->size/4 )
-							skip = qtrue;
-						else if (DotProduct( v, f->velDir ) < 0.7)
-							skip = qtrue;
-					}
-
-					if (!skip) {
-						lastBlueChunk = f;
-						alpha = 1.0;	// new nozzle sprite
-						VectorScale( whiteColor, alpha, c );
-						shader = cgs.media.funnelFireShader[(cg.time/10)%NUM_FUNNEL_SPRITES];
-						blueTrailHead = CG_AddTrailJunc(	blueTrailHead,
-															shader,
-															cg.time,
-															STYPE_STRETCH,
-															f->org,
-															1,
-															alpha, alpha,
-															f->size*4.0*f->speedScale,
-															FLAME_MAX_SIZE,
-															TJFL_NOCULL|TJFL_FIXDISTORT,
-															c, c, 1.0, 5.0 );
-					}
-				}
-
-			} else {
-				lightSize = 0;
-			}
-*/
 			// is it in the blue ignition section of the flame?
 		} else if ( isClientFlame && f->blueLife > ( lived / 2.0 ) ) {
 

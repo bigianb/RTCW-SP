@@ -37,8 +37,6 @@ If you have questions concerning this license or the applicable additional terms
 #include "cg_local.h"
 #include "../ui/ui_shared.h"
 
-displayContextDef_t cgDC;
-
 int forceModelModificationCount = -1;
 
 void CG_Init( int serverMessageNum, int serverCommandSequence );
@@ -1480,9 +1478,6 @@ static clientInfo_t * CG_InfoFromScoreIndex( int index, int team, int *scoreInde
 }
 
 static const char *CG_FeederItemText( float feederID, int index, int column, qhandle_t *handle ) {
-#ifdef MISSIONPACK
-	gitem_t *item;
-#endif  // #ifdef MISSIONPACK
 	int scoreIndex = 0;
 	clientInfo_t *info = NULL;
 	int team = -1;
@@ -1502,49 +1497,6 @@ static const char *CG_FeederItemText( float feederID, int index, int column, qha
 	if ( info && info->infoValid ) {
 		switch ( column ) {
 		case 0:
-#ifdef MISSIONPACK
-			if ( info->powerups & ( 1 << PW_NEUTRALFLAG ) ) {
-				item = BG_FindItemForPowerup( PW_NEUTRALFLAG );
-				*handle = cg_items[ ITEM_INDEX( item ) ].icon;
-			} else if ( info->powerups & ( 1 << PW_REDFLAG ) ) {
-				item = BG_FindItemForPowerup( PW_REDFLAG );
-				*handle = cg_items[ ITEM_INDEX( item ) ].icon;
-			} else if ( info->powerups & ( 1 << PW_BLUEFLAG ) ) {
-				item = BG_FindItemForPowerup( PW_BLUEFLAG );
-				*handle = cg_items[ ITEM_INDEX( item ) ].icon;
-			} else {
-				if ( info->botSkill > 0 && info->botSkill <= 5 ) {
-					*handle = cgs.media.botSkillShaders[ info->botSkill - 1 ];
-				} else if ( info->handicap < 100 ) {
-					return va( "%i", info->handicap );
-				}
-			}
-			break;
-		case 1:
-			if ( team == -1 ) {
-				return "";
-			} else {
-				*handle = CG_StatusHandle( info->teamTask );
-			}
-			break;
-		case 2:
-			if ( cg.snap->ps.stats[ STAT_CLIENTS_READY ] & ( 1 << sp->client ) ) {
-				return "Ready";
-			}
-			if ( team == -1 ) {
-				if ( cgs.gametype == GT_TOURNAMENT ) {
-					return va( "%i/%i", info->wins, info->losses );
-				} else if ( info->infoValid && info->team == TEAM_SPECTATOR ) {
-					return "Spectator";
-				} else {
-					return "";
-				}
-			} else {
-				if ( info->teamLeader ) {
-					return "Leader";
-				}
-			}
-#endif  // #ifdef MISSIONPACK
 			break;
 		case 3:
 			return info->name;
@@ -1590,18 +1542,18 @@ static void CG_FeederSelection( float feederID, int index ) {
 }
 
 void CG_Text_PaintWithCursor( float x, float y, int font, float scale, vec4_t color, const char *text, int cursorPos, char cursor, int limit, int style ) {
-	CG_Text_Paint( x, y, font, scale, color, text, 0, limit, style );
+	Text_Paint( x, y, font, scale, color, text, 0, limit, style );
 }
 
 static int CG_OwnerDrawWidth( int ownerDraw, int font, float scale ) {
 	switch ( ownerDraw ) {
 	case CG_GAME_TYPE:
-		return CG_Text_Width( CG_GameTypeString(), font, scale, 0 );
+		return Text_Width( CG_GameTypeString(), font, scale, 0 );
 	case CG_GAME_STATUS:
-		return CG_Text_Width( CG_GetGameStatusText(), font, scale, 0 );
+		return Text_Width( CG_GetGameStatusText(), font, scale, 0 );
 		break;
 	case CG_KILLER:
-		return CG_Text_Width( CG_GetKillerText(), font, scale, 0 );
+		return Text_Width( CG_GetKillerText(), font, scale, 0 );
 		break;
 	}
 	return 0;
@@ -1663,13 +1615,13 @@ void CG_LoadHudMenu() {
 	char buff[1024];
 	const char *hudSet;
 
-
+/*
 	cgDC.setColor = &trap_R_SetColor;
 	cgDC.drawHandlePic = &CG_DrawPic;
 	cgDC.drawStretchPic = &trap_R_DrawStretchPic;
-	cgDC.drawText = &CG_Text_Paint;
-	cgDC.textWidth = &CG_Text_Width;
-	cgDC.textHeight = &CG_Text_Height;
+	cgDC.drawText = &Text_Paint;
+	cgDC.textWidth = &Text_Width;
+
 	cgDC.registerModel = &trap_R_RegisterModel;
 	cgDC.modelBounds = &trap_R_ModelBounds;
 	cgDC.fillRect = &CG_FillRect;
@@ -1699,7 +1651,6 @@ void CG_LoadHudMenu() {
 	cgDC.Error = &Com_Error;
 	cgDC.Print = &Com_Printf;
 	cgDC.ownerDrawWidth = &CG_OwnerDrawWidth;
-	//cgDC.Pause = &CG_Pause;
 	cgDC.registerSound = &trap_S_RegisterSound;
 	cgDC.startBackgroundTrack = &trap_S_StartBackgroundTrack;
 	cgDC.stopBackgroundTrack = &trap_S_StopBackgroundTrack;
@@ -1707,7 +1658,7 @@ void CG_LoadHudMenu() {
 	cgDC.stopCinematic = &CG_StopCinematic;
 	cgDC.drawCinematic = &CG_DrawCinematic;
 	cgDC.runCinematicFrame = &CG_RunCinematicFrame;
-
+*/
 	trap_Cvar_VariableStringBuffer( "cg_hudFiles", buff, sizeof( buff ) );
 	hudSet = buff;
 	if ( hudSet[0] == '\0' ) {
@@ -1716,27 +1667,6 @@ void CG_LoadHudMenu() {
 
 	CG_LoadMenus( hudSet );
 }
-
-void CG_AssetCache() {
-	cgDC.Assets.gradientBar = RE_RegisterShaderNoMip( ASSET_GRADIENTBAR );
-	cgDC.Assets.fxBasePic = RE_RegisterShaderNoMip( ART_FX_BASE );
-	cgDC.Assets.fxPic[0] = RE_RegisterShaderNoMip( ART_FX_RED );
-	cgDC.Assets.fxPic[1] = RE_RegisterShaderNoMip( ART_FX_YELLOW );
-	cgDC.Assets.fxPic[2] = RE_RegisterShaderNoMip( ART_FX_GREEN );
-	cgDC.Assets.fxPic[3] = RE_RegisterShaderNoMip( ART_FX_TEAL );
-	cgDC.Assets.fxPic[4] = RE_RegisterShaderNoMip( ART_FX_BLUE );
-	cgDC.Assets.fxPic[5] = RE_RegisterShaderNoMip( ART_FX_CYAN );
-	cgDC.Assets.fxPic[6] = RE_RegisterShaderNoMip( ART_FX_WHITE );
-	cgDC.Assets.scrollBar = RE_RegisterShaderNoMip( ASSET_SCROLLBAR );
-	cgDC.Assets.scrollBarArrowDown = RE_RegisterShaderNoMip( ASSET_SCROLLBAR_ARROWDOWN );
-	cgDC.Assets.scrollBarArrowUp = RE_RegisterShaderNoMip( ASSET_SCROLLBAR_ARROWUP );
-	cgDC.Assets.scrollBarArrowLeft = RE_RegisterShaderNoMip( ASSET_SCROLLBAR_ARROWLEFT );
-	cgDC.Assets.scrollBarArrowRight = RE_RegisterShaderNoMip( ASSET_SCROLLBAR_ARROWRIGHT );
-	cgDC.Assets.scrollBarThumb = RE_RegisterShaderNoMip( ASSET_SCROLL_THUMB );
-	cgDC.Assets.sliderBar = RE_RegisterShaderNoMip( ASSET_SLIDER_BAR );
-	cgDC.Assets.sliderThumb = RE_RegisterShaderNoMip( ASSET_SLIDER_THUMB );
-}
-
 
 /*
 =================
@@ -1820,7 +1750,6 @@ void CG_Init( int serverMessageNum, int serverCommandSequence ) {
 
 	CG_RegisterClients();       // if low on memory, some clients will be deferred
 
-	CG_AssetCache();
 	CG_LoadHudMenu();      // load new hud stuff
 
 	cg.loading = qfalse;    // future players will be deferred

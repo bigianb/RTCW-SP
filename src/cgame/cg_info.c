@@ -341,21 +341,21 @@ void CG_DrawExitStats( void ) {
 	// title
 	color2[0] = color2[1] = color2[2] = 1;
 	color2[3] = color[3];
-//	CG_Text_Paint(280, 120, 2, 0.25f, color2, va("%s", CG_translateString("end_title")), 0, 0, ITEM_TEXTSTYLE_SHADOWEDMORE);
+//	Text_Paint(280, 120, 2, 0.25f, color2, va("%s", CG_translateString("end_title")), 0, 0, ITEM_TEXTSTYLE_SHADOWEDMORE);
 	//----(SA)	scale change per MK
-	CG_Text_Paint( 270, 120, 2, 0.313f, color2, va( "%s", CG_translateString( "end_title" ) ), 0, 0, ITEM_TEXTSTYLE_SHADOWEDMORE );
+	Text_Paint( 270, 120, 2, 0.313f, color2, va( "%s", CG_translateString( "end_title" ) ), 0, 0, ITEM_TEXTSTYLE_SHADOWEDMORE );
 
 	color2[0] = color2[1] = color2[2] = 1;
 	if ( cg.cursorHintIcon == HINT_NOEXIT ) {
 		// "exit not available"
-//		CG_Text_Paint(250, 320, 2, 0.3f, color2, va("%s", CG_translateString("end_noexit")), 0, 0, ITEM_TEXTSTYLE_SHADOWEDMORE);
+//		Text_Paint(250, 320, 2, 0.3f, color2, va("%s", CG_translateString("end_noexit")), 0, 0, ITEM_TEXTSTYLE_SHADOWEDMORE);
 		//----(SA)	scale change per MK
-		CG_Text_Paint( 260, 320, 2, 0.225f, color2, va( "%s", CG_translateString( "end_noexit" ) ), 0, 0, ITEM_TEXTSTYLE_SHADOWEDMORE );
+		Text_Paint( 260, 320, 2, 0.225f, color2, va( "%s", CG_translateString( "end_noexit" ) ), 0, 0, ITEM_TEXTSTYLE_SHADOWEDMORE );
 	} else {
 		// "forward to proceed"
-//		CG_Text_Paint(230, 320, 2, 0.3f, color2, va("%s", CG_translateString("end_exit")), 0, 0, ITEM_TEXTSTYLE_SHADOWEDMORE);
+//		Text_Paint(230, 320, 2, 0.3f, color2, va("%s", CG_translateString("end_exit")), 0, 0, ITEM_TEXTSTYLE_SHADOWEDMORE);
 		//----(SA)	scale change per MK
-		CG_Text_Paint( 250, 320, 2, 0.225f, color2, va( "%s", CG_translateString( "end_exit" ) ), 0, 0, ITEM_TEXTSTYLE_SHADOWEDMORE );
+		Text_Paint( 250, 320, 2, 0.225f, color2, va( "%s", CG_translateString( "end_exit" ) ), 0, 0, ITEM_TEXTSTYLE_SHADOWEDMORE );
 	}
 
 	mstats = (char*)str + 2;    // add offset for 's='
@@ -400,7 +400,7 @@ void CG_DrawExitStats( void ) {
 				break;
 			}
 
-			CG_Text_Paint( statsItems[i].formatX, y, 2, 0.3, statsItems[i].formatColor, formatStr, 0, 0, statsItems[i].formatFlags );
+			Text_Paint( statsItems[i].formatX, y, 2, 0.3, statsItems[i].formatColor, formatStr, 0, 0, statsItems[i].formatFlags );
 //			UI_DrawProportionalString( statsItems[i].formatX, y, formatStr, statsItems[i].formatFlags, *statsItems[i].formatColor );
 		}
 
@@ -419,8 +419,8 @@ void CG_DrawExitStats( void ) {
 
 //		UI_DrawProportionalString( statsItems[i].labelX, y, statsItems[i].label, statsItems[i].labelFlags, *statsItems[i].labelColor );
 
-//		CG_Text_Paint(statsItems[i].labelX, y, 2, 0.3, statsItems[i].labelColor, va("%s:", CG_translateString(statsItems[i].label)), 0, 0, statsItems[i].labelFlags);
-		CG_Text_Paint( statsItems[i].labelX, y, 2, 0.3, color2, va( "%s:", CG_translateString( statsItems[i].label ) ), 0, 0, statsItems[i].labelFlags );
+//		Text_Paint(statsItems[i].labelX, y, 2, 0.3, statsItems[i].labelColor, va("%s:", CG_translateString(statsItems[i].label)), 0, 0, statsItems[i].labelFlags);
+		Text_Paint( statsItems[i].labelX, y, 2, 0.3, color2, va( "%s:", CG_translateString( statsItems[i].label ) ), 0, 0, statsItems[i].labelFlags );
 
 	}
 	token = COM_Parse( &mstats );

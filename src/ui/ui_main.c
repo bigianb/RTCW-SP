@@ -5636,7 +5636,6 @@ void UI_Init(  ) {
 	}
 
 
-	//UI_Load();
 	uiInfo.uiDC.registerShaderNoMip = &RE_RegisterShaderNoMip;
 	uiInfo.uiDC.setColor = &UI_SetColor;
 	uiInfo.uiDC.drawHandlePic = &UI_DrawHandlePic;
@@ -5697,7 +5696,6 @@ void UI_Init(  ) {
 	// load translation text
 	UI_LoadTranslationStrings();
 
-//	uiInfo.uiDC.cursor	= RE_RegisterShaderNoMip( "menu/art/3_cursor3" );
 	uiInfo.uiDC.whiteShader = RE_RegisterShaderNoMip( "white" );
 
 	AssetCache();

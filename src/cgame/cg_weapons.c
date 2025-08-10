@@ -288,28 +288,18 @@ static void CG_PanzerFaustEjectBrass( centity_t *cent ) {
 	le = CG_AllocLocalEntity();
 	re = &le->refEntity;
 
-//	velocity[0] = 16;
-//	velocity[1] = -50 + 40 * crandom();
-//	velocity[2] = 100 + 50 * crandom();
-
 	velocity[0] = 16;
 	velocity[1] = -200;
 	velocity[2] = 0;
 
 	le->leType = LE_FRAGMENT;
 	le->startTime = cg.time;
-//	le->startTime = cg.time + 2000;
 	le->endTime = le->startTime + ( cg_brassTime.integer * 8 ) + ( cg_brassTime.integer * random() );
 
 	le->pos.trType = TR_GRAVITY;
 	le->pos.trTime = cg.time - ( rand() & 15 );
-//	le->pos.trTime = cg.time - 2000;
 
 	AnglesToAxis( cent->lerpAngles, v );
-
-//	offset[0] = 12;
-//	offset[1] = -4;
-//	offset[2] = 24;
 
 	offset[0] = -24;    // forward
 	offset[1] = -4; // left
@@ -342,15 +332,9 @@ static void CG_PanzerFaustEjectBrass( centity_t *cent ) {
 
 	le->angles.trType = TR_LINEAR;
 	le->angles.trTime = cg.time;
-//	le->angles.trBase[0] = rand()&31;
-//	le->angles.trBase[1] = rand()&31;
-//	le->angles.trBase[2] = rand()&31;
 	le->angles.trBase[0] = 0;
 	le->angles.trBase[1] = cent->currentState.apos.trBase[1];   // rotate to match the player
 	le->angles.trBase[2] = 0;
-//	le->angles.trDelta[0] = 2;
-//	le->angles.trDelta[1] = 1;
-//	le->angles.trDelta[2] = 0;
 	le->angles.trDelta[0] = 0;
 	le->angles.trDelta[1] = 0;
 	le->angles.trDelta[2] = 0;
@@ -423,11 +407,6 @@ void CG_PyroSmokeTrail( centity_t *ent, const weaponInfo_t *wi ) {
 
 	ent->trailTime = cg.time;
 
-/* smoke pyro works fine in water (well, it's dye in real life, might wanna change this in-game)
-	if ( contents & ( CONTENTS_WATER | CONTENTS_SLIME | CONTENTS_LAVA ) )
-		return;
-*/
-
 	// drop fire trail sprites
 	for ( ; t <= ent->trailTime ; t += step ) {
 
@@ -477,17 +456,6 @@ void CG_PyroSmokeTrail( centity_t *ent, const weaponInfo_t *wi ) {
 							   0,
 							   cgs.media.smokePuffShader );
 		}
-//			CG_ParticleExplosion( "expblue", lastPos, vec3_origin, 100 + (int)(rnd*400), 4, 4 );	// fire "flare"
-
-
-		// use the optimized local entity add
-//		le->leType = LE_SCALE_FADE;
-/* this one works
-		if (rand()%4)
-			CG_ParticleExplosion( "blacksmokeanim", origin, dir, 2800+(int)(random()*1500), 15, 45+(int)(rnd*90) );	// smoke blacksmokeanim
-		else
-			CG_ParticleExplosion( "expblue", lastPos, vec3_origin, 100 + (int)(rnd*400), 4, 4 );	// fire "flare"
-*/
 	}
 }
 // jpw
@@ -694,100 +662,6 @@ static void CG_GrenadeTrail( centity_t *ent, const weaponInfo_t *wi ) {
 }
 // done.
 
-
-
-
-/*
-==========================
-CG_NailgunEjectBrass
-==========================
-*/
-// TTimo: unused
-/*
-static void CG_NailgunEjectBrass( centity_t *cent ) {
-	localEntity_t	*smoke;
-	vec3_t			origin;
-	vec3_t			v[3];
-	vec3_t			offset;
-	vec3_t			xoffset;
-	vec3_t			up;
-
-	AnglesToAxis( cent->lerpAngles, v );
-
-	offset[0] = 0;
-	offset[1] = -12;
-	offset[2] = 24;
-
-	xoffset[0] = offset[0] * v[0][0] + offset[1] * v[1][0] + offset[2] * v[2][0];
-	xoffset[1] = offset[0] * v[0][1] + offset[1] * v[1][1] + offset[2] * v[2][1];
-	xoffset[2] = offset[0] * v[0][2] + offset[1] * v[1][2] + offset[2] * v[2][2];
-	VectorAdd( cent->lerpOrigin, xoffset, origin );
-
-	VectorSet( up, 0, 0, 64 );
-
-	smoke = CG_SmokePuff( origin, up, 32, 1, 1, 1, 0.33f, 700, cg.time, 0, 0, cgs.media.smokePuffShader );
-	// use the optimized local entity add
-	smoke->leType = LE_SCALE_FADE;
-}
-
-static void CG_NailTrail( centity_t *ent, const weaponInfo_t *wi ) {
-	int		step;
-	vec3_t	origin, lastPos;
-	int		t;
-	int		startTime, contents;
-	int		lastContents;
-	entityState_t	*es;
-	vec3_t	up;
-	localEntity_t	*smoke;
-
-	up[0] = 0;
-	up[1] = 0;
-	up[2] = 0;
-
-	step = 50;
-
-	es = &ent->currentState;
-	startTime = ent->trailTime;
-	t = step * ( (startTime + step) / step );
-
-	BG_EvaluateTrajectory( &es->pos, cg.time, origin );
-	contents = CG_PointContents( origin, -1 );
-
-	// if object (e.g. grenade) is stationary, don't toss up smoke
-	if ( es->pos.trType == TR_STATIONARY ) {
-		ent->trailTime = cg.time;
-		return;
-	}
-
-	BG_EvaluateTrajectory( &es->pos, ent->trailTime, lastPos );
-	lastContents = CG_PointContents( lastPos, -1 );
-
-	ent->trailTime = cg.time;
-
-	if ( contents & ( CONTENTS_WATER | CONTENTS_SLIME | CONTENTS_LAVA ) ) {
-		if ( contents & lastContents & CONTENTS_WATER ) {
-			CG_BubbleTrail( lastPos, origin, 1, 8 );
-		}
-		return;
-	}
-
-	for ( ; t <= ent->trailTime ; t += step ) {
-		BG_EvaluateTrajectory( &es->pos, t, lastPos );
-
-		smoke = CG_SmokePuff( lastPos, up,
-					  wi->trailRadius,
-					  1, 1, 1, 0.33f,
-					  wi->wiTrailTime,
-					  t,
-					  0,
-					  0,
-					  cgs.media.nailPuffShader );
-		// use the optimized local entity add
-		smoke->leType = LE_SCALE_FADE;
-	}
-
-}
-*/
 
 /*
 ==========================
@@ -1880,39 +1754,9 @@ static void CG_FlamethrowerFlame( centity_t *cent, vec3_t origin ) {
 CG_MachinegunSpinAngle
 ======================
 */
-//#define		SPIN_SPEED	0.9
-//#define		COAST_TIME	1000
 #define     SPIN_SPEED  1
 #define     COAST_TIME  2000
 
-// TTimo: unused
-/*
-static float	CG_MachinegunSpinAngle( centity_t *cent ) {
-	int		delta;
-	float	angle;
-	float	speed;
-
-	delta = cg.time - cent->pe.barrelTime;
-	if ( cent->pe.barrelSpinning ) {
-		angle = cent->pe.barrelAngle + delta * SPIN_SPEED;
-	} else {
-		if ( delta > COAST_TIME ) {
-			delta = COAST_TIME;
-		}
-
-		speed = 0.5 * ( SPIN_SPEED + (float)( COAST_TIME - delta ) / COAST_TIME );
-		angle = cent->pe.barrelAngle + delta * speed;
-	}
-
-	if ( cent->pe.barrelSpinning == !(cent->currentState.eFlags & EF_FIRING) ) {
-		cent->pe.barrelTime = cg.time;
-		cent->pe.barrelAngle = AngleMod( angle );
-		cent->pe.barrelSpinning = !!(cent->currentState.eFlags & EF_FIRING);
-	}
-
-	return angle;
-}
-*/
 
 /*
 ==============
@@ -1920,8 +1764,6 @@ CG_TeslaSpinAngle
 ==============
 */
 
-//#define TESLA_SPINSPEED .2
-//#define TESLA_COASTTIME	2000
 #define TESLA_SPINSPEED .05
 #define TESLA_IDLESPEED .15
 #define TESLA_COASTTIME 1000
@@ -1946,43 +1788,6 @@ static float CG_TeslaSpinAngle( centity_t *cent ) {
 	cent->pe.barrelTime = cg.time;
 
 	return AngleMod( angle );
-
-//----(SA)	trying new tesla effect scheme for MK
-//	angle = -(cent->pe.barrelAngle + delta * TESLA_SPINSPEED);
-//	cent->pe.barrelAngle = AngleMod( angle );
-
-//	if(cent->currentState.eFlags & EF_FIRING)
-//		cent->pe.barrelAngle += delta * TESLA_SPINSPEED;
-//	else
-//		cent->pe.barrelAngle += delta * TESLA_IDLESPEED;
-
-	return AngleMod( cent->pe.barrelAngle );
-
-
-
-
-
-	return angle;
-
-
-	if ( cent->pe.barrelSpinning ) {
-		angle = -( cent->pe.barrelAngle + delta * TESLA_SPINSPEED );
-	} else {
-		if ( delta > TESLA_COASTTIME ) {
-			delta = TESLA_COASTTIME;
-		}
-
-		speed = 0.5 * ( TESLA_SPINSPEED + (float)( TESLA_COASTTIME - delta ) / TESLA_COASTTIME );
-		angle = -( cent->pe.barrelAngle + delta * speed );
-	}
-
-	if ( cent->pe.barrelSpinning == !( cent->currentState.eFlags & EF_FIRING ) ) {
-		cent->pe.barrelTime = cg.time;
-		cent->pe.barrelAngle = AngleMod( angle );
-		cent->pe.barrelSpinning = !!( cent->currentState.eFlags & EF_FIRING );
-	}
-
-	return angle;
 }
 
 
@@ -2050,8 +1855,6 @@ static float CG_VenomSpinAngle( centity_t *cent ) {
 }
 
 
-
-
 /*
 ==============
 CG_DrawRealWeapons
@@ -2097,54 +1900,6 @@ static void CG_AddWeaponWithPowerups( refEntity_t *gun, int powerups, playerStat
 			trap_R_AddRefEntityToScene( gun );
 		}
 	}
-/*
-	if (ps && ps->clientNum == cg.snap->ps.clientNum) {
-		float	alpha, adjust;
-		weaponInfo_t	*weapon;
-
-		weapon = &cg_weapons[ps->weapon];
-		//if (gun->hModel == weapon->handsModel)
-//		if (cg.snap->ps.onFireStart)
-		{
-
-			// add the flames if on fire
-//			alpha = 2.0 * (float)(FIRE_FLASH_TIME - (cg.time - cg.snap->ps.onFireStart))/FIRE_FLASH_TIME;
-alpha = 1;
-			if (alpha > 0) {
-				if (alpha >= 1.0) {
-					alpha = 1.0;
-				}
-				gun->shaderRGBA[3] = (unsigned char)(255.0*alpha);
-				// calc the fireRiseDir from the velocity
-				VectorNegate( cg.snap->ps.velocity, gun->fireRiseDir );
-				VectorNormalize( gun->fireRiseDir );
-				gun->fireRiseDir[2] += 1;
-				if (VectorNormalize( gun->fireRiseDir ) < 1) {
-					VectorClear( gun->fireRiseDir );
-					gun->fireRiseDir[2] = 1;
-				}
-				// now move towards the newDir
-				adjust = 5.0*(0.001*cg.frametime);
-				VectorMA( cg.v_fireRiseDir, adjust, gun->fireRiseDir, cg.v_fireRiseDir );
-				if (VectorNormalize( cg.v_fireRiseDir ) <= 0.1) {
-					VectorCopy( gun->fireRiseDir, cg.v_fireRiseDir );
-				}
-				VectorCopy( cg.v_fireRiseDir, gun->fireRiseDir );
-
-//				gun->reFlags |= REFLAG_ONLYHAND;
-gun->customShader = cgs.media.dripWetShader2;
-//				gun->customShader = cgs.media.onFireShader;
-				trap_R_AddRefEntityToScene( gun );
-//				gun->shaderTime = 500;
-//				trap_R_AddRefEntityToScene( gun );
-gun->customShader = cgs.media.dripWetShader;
-//				gun->customShader = cgs.media.onFireShader2;
-				trap_R_AddRefEntityToScene( gun );
-//				gun->reFlags &= ~REFLAG_ONLYHAND;
-			}
-		}
-	}
-*/
 }
 
 /*

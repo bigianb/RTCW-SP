@@ -30,13 +30,8 @@ If you have questions concerning this license or the applicable additional terms
 
 #include "cg_local.h"
 #include "../ui/ui_shared.h"
+#include "../ui/ui_local.h"
 
-extern displayContextDef_t cgDC;
-
-// set in CG_ParseTeamInfo
-
-//static int sortedTeamPlayers[TEAM_MAXOVERLAY];
-//static int numSortedTeamPlayers;
 int drawTeamOverlayModificationCount = -1;
 
 void CG_InitTeamChat() {
@@ -121,8 +116,8 @@ static void CG_DrawPlayerArmorValue( rectDef_t *rect, int font, float scale, vec
 		trap_R_SetColor( NULL );
 	} else {
 		Com_sprintf( num, sizeof( num ), "%i", value );
-		value = CG_Text_Width( num, font, scale, 0 );
-		CG_Text_Paint( rect->x + ( rect->w - value ) / 2, rect->y + rect->h, font, scale, color, num, 0, 0, textStyle );
+		value = Text_Width( num, font, scale, 0 );
+		Text_Paint( rect->x + ( rect->w - value ) / 2, rect->y + rect->h, font, scale, color, num, 0, 0, textStyle );
 	}
 }
 
@@ -540,14 +535,14 @@ static void CG_DrawPlayerAmmoValue( rectDef_t *rect, int font, float scale, vec4
 			trap_R_SetColor( NULL );
 		} else {
 			Com_sprintf( num, sizeof( num ), "%i", value );
-			value = CG_Text_Width( num, font, scale, 0 );
-			CG_Text_Paint( rect->x + ( rect->w - value ) / 2, rect->y + rect->h, font, scale, color, num, 0, 0, textStyle );
+			value = Text_Width( num, font, scale, 0 );
+			Text_Paint( rect->x + ( rect->w - value ) / 2, rect->y + rect->h, font, scale, color, num, 0, 0, textStyle );
 
 //			if(special) {	// draw '0' for akimbo guns
 			if ( value2 || ( special && type == 1 ) ) {
 				Com_sprintf( num, sizeof( num ), "%i /", value2 );
-				value = CG_Text_Width( num, font, scale, 0 );
-				CG_Text_Paint( -30 + rect->x + ( rect->w - value ) / 2, rect->y + rect->h, font, scale, color, num, 0, 0, textStyle );
+				value = Text_Width( num, font, scale, 0 );
+				Text_Paint( -30 + rect->x + ( rect->w - value ) / 2, rect->y + rect->h, font, scale, color, num, 0, 0, textStyle );
 			}
 		}
 	}
@@ -619,8 +614,8 @@ static void CG_DrawSelectedPlayerHealth( rectDef_t *rect, int font, float scale,
 			trap_R_SetColor( NULL );
 		} else {
 			Com_sprintf( num, sizeof( num ), "%i", ci->health );
-			value = CG_Text_Width( num, font, scale, 0 );
-			CG_Text_Paint( rect->x + ( rect->w - value ) / 2, rect->y + rect->h, font, scale, color, num, 0, 0, textStyle );
+			value = Text_Width( num, font, scale, 0 );
+			Text_Paint( rect->x + ( rect->w - value ) / 2, rect->y + rect->h, font, scale, color, num, 0, 0, textStyle );
 		}
 	}
 }
@@ -639,8 +634,8 @@ static void CG_DrawSelectedPlayerArmor( rectDef_t *rect, int font, float scale, 
 				trap_R_SetColor( NULL );
 			} else {
 				Com_sprintf( num, sizeof( num ), "%i", ci->armor );
-				value = CG_Text_Width( num, font, scale, 0 );
-				CG_Text_Paint( rect->x + ( rect->w - value ) / 2, rect->y + rect->h, font, scale, color, num, 0, 0, textStyle );
+				value = Text_Width( num, font, scale, 0 );
+				Text_Paint( rect->x + ( rect->w - value ) / 2, rect->y + rect->h, font, scale, color, num, 0, 0, textStyle );
 			}
 		}
 	}
@@ -664,7 +659,7 @@ static void CG_DrawSelectedPlayerName( rectDef_t *rect, int font, float scale, v
 //	ci = cgs.clientinfo + ((voice) ? cgs.currentVoiceClient : sortedTeamPlayers[CG_GetSelectedPlayer()]);
 	ci = cgs.clientinfo + sortedTeamPlayers[CG_GetSelectedPlayer()];
 	if ( ci ) {
-		CG_Text_Paint( rect->x, rect->y + rect->h, font, scale, color, ci->name, 0, 0, textStyle );
+		Text_Paint( rect->x, rect->y + rect->h, font, scale, color, ci->name, 0, 0, textStyle );
 	}
 }
 
@@ -677,7 +672,7 @@ static void CG_DrawSelectedPlayerLocation( rectDef_t *rect, int font, float scal
 		if ( !p || !*p ) {
 			p = "unknown";
 		}
-		CG_Text_Paint( rect->x, rect->y + rect->h, font, scale, color, p, 0, 0, textStyle );
+		Text_Paint( rect->x, rect->y + rect->h, font, scale, color, p, 0, 0, textStyle );
 	}
 }
 
@@ -688,7 +683,7 @@ static void CG_DrawPlayerLocation( rectDef_t *rect, int font, float scale, vec4_
 		if ( !p || !*p ) {
 			p = "unknown";
 		}
-		CG_Text_Paint( rect->x, rect->y + rect->h, font, scale, color, p, 0, 0, textStyle );
+		Text_Paint( rect->x, rect->y + rect->h, font, scale, color, p, 0, 0, textStyle );
 	}
 }
 
@@ -717,8 +712,8 @@ static void CG_DrawPlayerScore( rectDef_t *rect, int font, float scale, vec4_t c
 		trap_R_SetColor( NULL );
 	} else {
 		Com_sprintf( num, sizeof( num ), "%i", value );
-		value = CG_Text_Width( num, font, scale, 0 );
-		CG_Text_Paint( rect->x + ( rect->w - value ) / 2, rect->y + rect->h, font, scale, color, num, 0, 0, textStyle );
+		value = Text_Width( num, font, scale, 0 );
+		Text_Paint( rect->x + ( rect->w - value ) / 2, rect->y + rect->h, font, scale, color, num, 0, 0, textStyle );
 	}
 }
 
@@ -916,8 +911,8 @@ static void CG_DrawPlayerHealth( rectDef_t *rect, int font, float scale, vec4_t 
 		trap_R_SetColor( NULL );
 	} else {
 		Com_sprintf( num, sizeof( num ), "%i", value );
-		value = CG_Text_Width( num, font, scale, 0 );
-		CG_Text_Paint( rect->x + ( rect->w - value ) / 2, rect->y + rect->h, font, scale, color, num, 0, 0, textStyle );
+		value = Text_Width( num, font, scale, 0 );
+		Text_Paint( rect->x + ( rect->w - value ) / 2, rect->y + rect->h, font, scale, color, num, 0, 0, textStyle );
 	}
 }
 
@@ -930,8 +925,8 @@ static void CG_DrawRedScore( rectDef_t *rect, int font, float scale, vec4_t colo
 	} else {
 		Com_sprintf( num, sizeof( num ), "%i", cgs.scores1 );
 	}
-	value = CG_Text_Width( num, font, scale, 0 );
-	CG_Text_Paint( rect->x + rect->w - value, rect->y + rect->h, font, scale, color, num, 0, 0, textStyle );
+	value = Text_Width( num, font, scale, 0 );
+	Text_Paint( rect->x + rect->w - value, rect->y + rect->h, font, scale, color, num, 0, 0, textStyle );
 }
 
 static void CG_DrawBlueScore( rectDef_t *rect, int font, float scale, vec4_t color, qhandle_t shader, int textStyle ) {
@@ -943,8 +938,8 @@ static void CG_DrawBlueScore( rectDef_t *rect, int font, float scale, vec4_t col
 	} else {
 		Com_sprintf( num, sizeof( num ), "%i", cgs.scores2 );
 	}
-	value = CG_Text_Width( num, font, scale, 0 );
-	CG_Text_Paint( rect->x + rect->w - value, rect->y + rect->h, font, scale, color, num, 0, 0, textStyle );
+	value = Text_Width( num, font, scale, 0 );
+	Text_Paint( rect->x + rect->w - value, rect->y + rect->h, font, scale, color, num, 0, 0, textStyle );
 }
 
 // FIXME: team name support
@@ -1070,7 +1065,7 @@ static void CG_DrawAreaPowerUp( rectDef_t *rect, int align, float spacing, int f
 			CG_DrawPic( r2.x, r2.y, r2.w * .75, r2.h, trap_R_RegisterShader( item->icon ) );
 
 			Com_sprintf( num, sizeof( num ), "%i", sortedTime[i] / 1000 );
-			CG_Text_Paint( r2.x + ( r2.w * .75 ) + 3, r2.y + r2.h, font, scale, color, num, 0, 0, 0 );
+			Text_Paint( r2.x + ( r2.w * .75 ) + 3, r2.y + r2.h, font, scale, color, num, 0, 0, 0 );
 			*inc += r2.w + spacing;
 		}
 
@@ -1282,15 +1277,15 @@ static void CG_DrawPlayerHasFlag( rectDef_t *rect, qboolean force2D ) {
 }
 
 static void CG_DrawAreaSystemChat( rectDef_t *rect, int font, float scale, vec4_t color, qhandle_t shader ) {
-	CG_Text_Paint( rect->x, rect->y + rect->h, font, scale, color, systemChat, 0, 0, 0 );
+	Text_Paint( rect->x, rect->y + rect->h, font, scale, color, systemChat, 0, 0, 0 );
 }
 
 static void CG_DrawAreaTeamChat( rectDef_t *rect, int font, float scale, vec4_t color, qhandle_t shader ) {
-	CG_Text_Paint( rect->x, rect->y + rect->h, font, scale, color,teamChat1, 0, 0, 0 );
+	Text_Paint( rect->x, rect->y + rect->h, font, scale, color,teamChat1, 0, 0, 0 );
 }
 
 static void CG_DrawAreaChat( rectDef_t *rect, int font, float scale, vec4_t color, qhandle_t shader ) {
-	CG_Text_Paint( rect->x, rect->y + rect->h, font, scale, color, teamChat2, 0, 0, 0 );
+	Text_Paint( rect->x, rect->y + rect->h, font, scale, color, teamChat2, 0, 0, 0 );
 }
 
 const char *CG_GetKillerText() {
@@ -1306,7 +1301,7 @@ static void CG_DrawKiller( rectDef_t *rect, int font, float scale, vec4_t color,
 	// fragged by ... line
 	if ( cg.killerName[0] ) {
 		int x = rect->x + rect->w / 2;
-		CG_Text_Paint( x - CG_Text_Width( CG_GetKillerText(),font, scale, 0 ) / 2, rect->y + rect->h, font, scale, color, CG_GetKillerText(), 0, 0, textStyle );
+		Text_Paint( x - Text_Width( CG_GetKillerText(),font, scale, 0 ) / 2, rect->y + rect->h, font, scale, color, CG_GetKillerText(), 0, 0, textStyle );
 	}
 
 }
@@ -1314,18 +1309,18 @@ static void CG_DrawKiller( rectDef_t *rect, int font, float scale, vec4_t color,
 
 static void CG_DrawCapFragLimit( rectDef_t *rect, int font, float scale, vec4_t color, qhandle_t shader, int textStyle ) {
 	int limit = ( cgs.gametype >= GT_CTF ) ? cgs.capturelimit : cgs.fraglimit;
-	CG_Text_Paint( rect->x, rect->y, font, scale, color, va( "%2i", limit ),0, 0, textStyle );
+	Text_Paint( rect->x, rect->y, font, scale, color, va( "%2i", limit ),0, 0, textStyle );
 }
 
 static void CG_Draw1stPlace( rectDef_t *rect, int font, float scale, vec4_t color, qhandle_t shader, int textStyle ) {
 	if ( cgs.scores1 != SCORE_NOT_PRESENT ) {
-		CG_Text_Paint( rect->x, rect->y, font, scale, color, va( "%2i", cgs.scores1 ),0, 0, textStyle );
+		Text_Paint( rect->x, rect->y, font, scale, color, va( "%2i", cgs.scores1 ),0, 0, textStyle );
 	}
 }
 
 static void CG_Draw2ndPlace( rectDef_t *rect, int font, float scale, vec4_t color, qhandle_t shader, int textStyle ) {
 	if ( cgs.scores2 != SCORE_NOT_PRESENT ) {
-		CG_Text_Paint( rect->x, rect->y, font, scale, color, va( "%2i", cgs.scores2 ),0, 0, textStyle );
+		Text_Paint( rect->x, rect->y, font, scale, color, va( "%2i", cgs.scores2 ),0, 0, textStyle );
 	}
 }
 
@@ -1348,7 +1343,7 @@ const char *CG_GetGameStatusText() {
 }
 
 static void CG_DrawGameStatus( rectDef_t *rect, int font, float scale, vec4_t color, qhandle_t shader, int textStyle ) {
-	CG_Text_Paint( rect->x, rect->y + rect->h, font, scale, color, CG_GetGameStatusText(), 0, 0, textStyle );
+	Text_Paint( rect->x, rect->y + rect->h, font, scale, color, CG_GetGameStatusText(), 0, 0, textStyle );
 }
 
 const char *CG_GameTypeString() {
@@ -1362,7 +1357,7 @@ const char *CG_GameTypeString() {
 	return "";
 }
 static void CG_DrawGameType( rectDef_t *rect, int font, float scale, vec4_t color, qhandle_t shader, int textStyle ) {
-	CG_Text_Paint( rect->x, rect->y + rect->h, font, scale, color, CG_GameTypeString(), 0, 0, textStyle );
+	Text_Paint( rect->x, rect->y + rect->h, font, scale, color, CG_GameTypeString(), 0, 0, textStyle );
 }
 
 static void CG_Text_Paint_Limit( float *maxX, float x, float y, int font, float scale, vec4_t color, const char* text, float adjust, int limit ) {
@@ -1374,19 +1369,19 @@ static void CG_Text_Paint_Limit( float *maxX, float x, float y, int font, float 
 		float max = *maxX;
 		float useScale;
 
-		fontInfo_t *fnt = &cgDC.Assets.textFont;
+		fontInfo_t *fnt = &uiInfo.uiDC.Assets.textFont;
 		if ( font == UI_FONT_DEFAULT ) {
 			if ( scale <= cg_smallFont.value ) {
-				fnt = &cgDC.Assets.smallFont;
+				fnt = &uiInfo.uiDC.Assets.smallFont;
 			} else if ( scale > cg_bigFont.value ) {
-				fnt = &cgDC.Assets.bigFont;
+				fnt = &uiInfo.uiDC.Assets.bigFont;
 			}
 		} else if ( font == UI_FONT_BIG ) {
-			fnt = &cgDC.Assets.bigFont;
+			fnt = &uiInfo.uiDC.Assets.bigFont;
 		} else if ( font == UI_FONT_SMALL ) {
-			fnt = &cgDC.Assets.smallFont;
+			fnt = &uiInfo.uiDC.Assets.smallFont;
 		} else if ( font == UI_FONT_HANDWRITING ) {
-			fnt = &cgDC.Assets.handwritingFont;
+			fnt = &uiInfo.uiDC.Assets.handwritingFont;
 		}
 
 		useScale = scale * fnt->glyphScale;
@@ -1406,14 +1401,15 @@ static void CG_Text_Paint_Limit( float *maxX, float x, float y, int font, float 
 				continue;
 			} else {
 				float yadj = useScale * glyph->top;
-				if ( CG_Text_Width( s, font, useScale, 1 ) + x > max ) {
+				if ( Text_Width( s, font, useScale, 1 ) + x > max ) {
 					*maxX = 0;
 					break;
 				}
-				CG_Text_PaintChar( x, y - yadj,
+				Text_PaintChar( x, y - yadj,
 								   glyph->imageWidth,
 								   glyph->imageHeight,
 								   useScale,
+							   		font,
 								   glyph->s,
 								   glyph->t,
 								   glyph->s2,
@@ -1456,7 +1452,7 @@ void CG_DrawTeamSpectators( rectDef_t *rect, int font, float scale, vec4_t color
 			cg.spectatorTime = cg.time + 10;
 			if ( cg.spectatorPaintX <= rect->x + 2 ) {
 				if ( cg.spectatorOffset < cg.spectatorLen ) {
-					cg.spectatorPaintX += CG_Text_Width( &cg.spectatorList[cg.spectatorOffset], font, scale, 1 ) - 1;
+					cg.spectatorPaintX += Text_Width( &cg.spectatorList[cg.spectatorOffset], font, scale, 1 ) - 1;
 					cg.spectatorOffset++;
 				} else {
 					cg.spectatorOffset = 0;
@@ -1552,8 +1548,8 @@ void CG_DrawMedal( int ownerDraw, rectDef_t *rect, int font, float scale, vec4_t
 
 	if ( text ) {
 		color[3] = 1.0;
-		value = CG_Text_Width( text, font, scale, 0 );
-		CG_Text_Paint( rect->x + ( rect->w - value ) / 2, rect->y + rect->h + 10, font, scale, color, text, 0, 0, 0 );
+		value = Text_Width( text, font, scale, 0 );
+		Text_Paint( rect->x + ( rect->w - value ) / 2, rect->y + rect->h + 10, font, scale, color, text, 0, 0, 0 );
 	}
 	trap_R_SetColor( NULL );
 

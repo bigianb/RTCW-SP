@@ -852,7 +852,6 @@ void AICast_UpdateBattleInventory( cast_state_t *cs, int enemy ) {
 	// stock up ammo that should never run out
 	for ( i = 0; i < WP_NUM_WEAPONS; i++ ) {
 		if ( ( i >= WP_MONSTER_ATTACK1 && i <= WP_MONSTER_ATTACK3 ) || ( g_entities[cs->bs->entitynum].client->ps.ammo[ BG_FindAmmoForWeapon( i )] > 800 ) ) {
-			//g_entities[cs->bs->entitynum].client->ps.ammo[ BG_FindAmmoForWeapon(i)] = 999;
 			Add_Ammo( &g_entities[cs->entityNum], i, 999, qfalse );
 		}
 	}
