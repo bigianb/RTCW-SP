@@ -1084,6 +1084,10 @@ float CG_GetValue( int ownerDraw, int type ) {
 	clientInfo_t *ci;
 	playerState_t   *ps;
 
+	if (cg.snap == NULL){
+		return 0.0f;
+	}
+	
 	cent = &cg_entities[cg.snap->ps.clientNum];
 	ps = &cg.snap->ps;
 

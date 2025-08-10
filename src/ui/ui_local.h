@@ -966,7 +966,6 @@ int             trap_Milliseconds( void );
 void            trap_Cvar_Register( vmCvar_t *vmCvar, const char *varName, const char *defaultValue, int flags );
 void            Cvar_Update( vmCvar_t *vmCvar );
 void            trap_Cvar_Set( const char *var_name, const char *value );
-float           trap_Cvar_VariableValue( const char *var_name );
 void            trap_Cvar_VariableStringBuffer( const char *var_name, char *buffer, int bufsize );
 void            trap_Cvar_SetValue( const char *var_name, float value );
 void            trap_Cvar_Reset( const char *name );

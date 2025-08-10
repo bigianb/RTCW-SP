@@ -40,10 +40,6 @@ void trap_UI_Error( const char *string ) {
 	Com_Error( ERR_DROP, "%s", string );
 }
 
-float trap_Cvar_VariableValue( const char *var_name ) {
-	return Cvar_VariableValue(var_name );
-}
-
 void trap_Cvar_SetValue( const char *var_name, float value ) {
 	Cvar_SetValue(var_name, value );
 }

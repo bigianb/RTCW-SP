@@ -26,11 +26,9 @@ If you have questions concerning this license or the applicable additional terms
 ===========================================================================
 */
 
-//
-// string allocation/managment
-
 #include "ui_shared.h"
 #include "ui_local.h"
+#include "../qcommon/qcommon.h"
 
 // IJB FIXME
 int PC_SourceFileAndLine( int handle, char *filename, int *line );
@@ -1215,11 +1213,11 @@ Script_NotebookShowpage
 void Script_NotebookShowpage( itemDef_t *item, char **args ) {
 	int i, inc, curpage, newpage = 0, pages;
 
-	pages = DC->getCVarValue( "cg_notebookpages" );
+	pages = Cvar_VariableValue( "cg_notebookpages" );
 
 	if ( Int_Parse( args, &inc ) ) {
 
-		curpage = DC->getCVarValue( "ui_notebookCurrentPage" );
+		curpage = Cvar_VariableValue( "ui_notebookCurrentPage" );
 
 
 		if ( inc == 0 ) {  // opening
@@ -1229,14 +1227,12 @@ void Script_NotebookShowpage( itemDef_t *item, char **args ) {
 		}
 
 		if ( inc == 999 ) {            // jump to end
-//			newpage = NOTEBOOK_MAX_PAGES;	// = lastpage;
 			curpage = 0;
 			inc = -1;
 		} else if ( inc == -999 ) {    // jump to start
 			curpage = 0;
 			inc = 0;
 		} else if ( inc > 500 ) {
-//			curpage = DEBRIEFING_BASE + (inc - 500);
 			curpage = inc;
 			inc = 0;
 		}
@@ -1257,8 +1253,6 @@ void Script_NotebookShowpage( itemDef_t *item, char **args ) {
 
 					if ( pages & ( 1 << ( newpage - 1 ) ) ) {
 						dec++;
-//						if(dec == inc)
-//							break;
 						break;
 					}
 				}
@@ -1286,7 +1280,6 @@ void Script_NotebookShowpage( itemDef_t *item, char **args ) {
 
 
 		// hide all the pages
-//		Menu_ShowItemByName(item->parent, "page_*", qfalse);
 		Menu_ShowItemByName( item->parent, "cover", qfalse );
 		for ( i = 1; i <= NOTEBOOK_MAX_PAGES; i++ ) {
 			Menu_ShowItemByName( item->parent, va( "page%d", i ), qfalse );
@@ -1708,7 +1701,7 @@ float Item_Slider_ThumbPosition( itemDef_t *item ) {
 		return x;
 	}
 
-	value = DC->getCVarValue( item->cvar );
+	value = Cvar_VariableValue( item->cvar );
 
 	if ( value < editDef->minVal ) {
 		value = editDef->minVal;
@@ -1924,10 +1917,10 @@ void Item_SetMouseOver( itemDef_t *item, qboolean focus ) {
 	}
 }
 
-
+extern qboolean UI_OwnerDrawHandleKey( int ownerDraw, int flags, float *special, int key );
 qboolean Item_OwnerDraw_HandleKey( itemDef_t *item, int key ) {
-	if ( item && DC->ownerDrawHandleKey ) {
-		return DC->ownerDrawHandleKey( item->window.ownerDraw, item->window.ownerDrawFlags, &item->special, key );
+	if ( item ) {
+		return UI_OwnerDrawHandleKey( item->window.ownerDraw, item->window.ownerDrawFlags, &item->special, key );
 	}
 	return qfalse;
 }
@@ -2138,7 +2131,7 @@ qboolean Item_YesNo_HandleKey( itemDef_t *item, int key ) {
 
 	if ( Rect_ContainsPoint( &item->window.rect, DC->cursorx, DC->cursory ) && item->window.flags & WINDOW_HASFOCUS && item->cvar ) {
 		if ( key == K_MOUSE1 || key == K_ENTER || key == K_MOUSE2 || key == K_MOUSE3 ) {
-			DC->setCVar( item->cvar, va( "%i", !DC->getCVarValue( item->cvar ) ) );
+			DC->setCVar( item->cvar, va( "%i", !Cvar_VariableValue( item->cvar ) ) );
 			return qtrue;
 		}
 	}
@@ -2164,7 +2157,7 @@ int Item_Multi_FindCvarByValue( itemDef_t *item ) {
 		if ( multiPtr->strDef ) {
 			DC->getCVarString( item->cvar, buff, sizeof( buff ) );
 		} else {
-			value = DC->getCVarValue( item->cvar );
+			value = Cvar_VariableValue( item->cvar );
 		}
 		for ( i = 0; i < multiPtr->count; i++ ) {
 			if ( multiPtr->strDef ) {
@@ -2190,7 +2183,7 @@ const char *Item_Multi_Setting( itemDef_t *item ) {
 		if ( multiPtr->strDef ) {
 			DC->getCVarString( item->cvar, buff, sizeof( buff ) );
 		} else {
-			value = DC->getCVarValue( item->cvar );
+			value = Cvar_VariableValue( item->cvar );
 		}
 		for ( i = 0; i < multiPtr->count; i++ ) {
 			if ( multiPtr->strDef ) {
@@ -2903,13 +2896,13 @@ void Menu_HandleKey( menuDef_t *menu, int key, qboolean down ) {
 	switch ( key ) {
 
 	case K_F11:
-		if ( DC->getCVarValue( "developer" ) ) {
+		if ( Cvar_VariableValue( "developer" ) ) {
 			debugMode ^= 1;
 		}
 		break;
 
 	case K_F12:
-		if ( DC->getCVarValue( "developer" ) ) {
+		if ( Cvar_VariableValue( "developer" ) ) {
 			DC->executeText( EXEC_APPEND, "screenshot\n" );
 		}
 		break;
@@ -3320,7 +3313,7 @@ void Item_YesNo_Paint( itemDef_t *item ) {
 	menuDef_t *parent = (menuDef_t*)item->parent;
 	const char *yes_str = "yes", *no_str = "no";
 
-	value = ( item->cvar ) ? DC->getCVarValue( item->cvar ) : 0;
+	value = ( item->cvar ) ? Cvar_VariableValue( item->cvar ) : 0;
 
 	if ( item->window.flags & WINDOW_HASFOCUS ) {
 		lowLight[0] = 0.8 * parent->focusColor[0];
@@ -3551,15 +3544,6 @@ void Controls_GetConfig( void ) {
 		g_bindings[i].bind1 = twokeys[0];
 		g_bindings[i].bind2 = twokeys[1];
 	}
-
-	//s_controls.invertmouse.curvalue  = DC->getCVarValue( "m_pitch" ) < 0;
-	//s_controls.smoothmouse.curvalue  = UI_ClampCvar( 0, 1, Controls_GetCvarValue( "m_filter" ) );
-	//s_controls.alwaysrun.curvalue    = UI_ClampCvar( 0, 1, Controls_GetCvarValue( "cl_run" ) );
-	//s_controls.autoswitch.curvalue   = UI_ClampCvar( 0, 1, Controls_GetCvarValue( "cg_autoswitch" ) );
-	//s_controls.sensitivity.curvalue  = UI_ClampCvar( 2, 30, Controls_GetCvarValue( "sensitivity" ) );
-	//s_controls.joyenable.curvalue    = UI_ClampCvar( 0, 1, Controls_GetCvarValue( "in_joystick" ) );
-	//s_controls.joythreshold.curvalue = UI_ClampCvar( 0.05, 0.75, Controls_GetCvarValue( "joy_threshold" ) );
-	//s_controls.freelook.curvalue     = UI_ClampCvar( 0, 1, Controls_GetCvarValue( "cl_freelook" ) );
 }
 
 /*
@@ -3661,7 +3645,7 @@ void Item_Slider_Paint( itemDef_t *item ) {
 	float x, y, value;
 	menuDef_t *parent = (menuDef_t*)item->parent;
 
-	value = ( item->cvar ) ? DC->getCVarValue( item->cvar ) : 0;
+	value = ( item->cvar ) ? Cvar_VariableValue( item->cvar ) : 0;
 
 	if ( item->window.flags & WINDOW_HASFOCUS ) {
 		lowLight[0] = 0.8 * parent->focusColor[0];
@@ -3697,7 +3681,7 @@ void Item_Bind_Paint( itemDef_t *item ) {
 		maxChars = editPtr->maxPaintChars;
 	}
 
-	value = ( item->cvar ) ? DC->getCVarValue( item->cvar ) : 0;
+	value = ( item->cvar ) ? Cvar_VariableValue( item->cvar ) : 0;
 
 	if ( item->window.flags & WINDOW_HASFOCUS ) {
 		if ( g_bindItem == item ) {
@@ -4121,10 +4105,10 @@ void Item_OwnerDraw_Paint( itemDef_t *item ) {
 	menuDef_t *parent = (menuDef_t*)item->parent;
 	Fade( &item->window.flags, &item->window.foreColor[3], parent->fadeClamp, &item->window.nextTime, parent->fadeCycle, qtrue, parent->fadeAmount );
 	memcpy( &color, &item->window.foreColor, sizeof( color ) );
-	if ( item->numColors > 0 && DC->getValue ) {
+	if ( item->numColors > 0) {
 		// if the value is within one of the ranges then set color to that, otherwise leave at default
 		int i;
-		float f = DC->getValue( item->window.ownerDraw, item->colorRangeType );
+		float f = CG_GetValue( item->window.ownerDraw, item->colorRangeType );
 		for ( i = 0; i < item->numColors; i++ ) {
 			if ( f >= item->colorRanges[i].low && f <= item->colorRanges[i].high ) {
 				memcpy( &color, &item->colorRanges[i].color, sizeof( color ) );
@@ -4135,7 +4119,7 @@ void Item_OwnerDraw_Paint( itemDef_t *item ) {
 
 	// take hudalpha into account unless explicitly ignoring
 	if ( !( item->window.flags & WINDOW_IGNORE_HUDALPHA ) ) {
-		color[3] *= DC->getCVarValue( "cg_hudAlpha" );;
+		color[3] *= Cvar_VariableValue( "cg_hudAlpha" );
 	}
 
 
@@ -4318,8 +4302,6 @@ void Item_Paint( itemDef_t *item ) {
 		DC->drawRect( r->x, r->y, r->w, r->h, 1, color );
 	}
 
-	//DC->drawRect(item->window.rect.x, item->window.rect.y, item->window.rect.w, item->window.rect.h, 1, red);
-
 	switch ( item->type ) {
 	case ITEM_TYPE_OWNERDRAW:
 		Item_OwnerDraw_Paint( item );
@@ -4342,9 +4324,6 @@ void Item_Paint( itemDef_t *item ) {
 	case ITEM_TYPE_LISTBOX:
 		Item_ListBox_Paint( item );
 		break;
-//		case ITEM_TYPE_IMAGE:
-//			Item_Image_Paint(item);
-//			break;
 	case ITEM_TYPE_MENUMODEL:
 		Item_Model_Paint( item );
 		break;
@@ -4531,7 +4510,6 @@ void Menu_HandleMouseMove( menuDef_t *menu, float x, float y ) {
 					if ( IsVisible( overItem->window.flags ) ) {
 						// different one
 						Item_MouseEnter( overItem, x, y );
-						// Item_SetMouseOver(overItem, qtrue);
 
 						// if item is not a decoration see if it can take focus
 						if ( !focusSet ) {

@@ -46,12 +46,6 @@ char systemChat[256];
 char teamChat1[256];
 char teamChat2[256];
 
-////////////////////////
-////////////////////////
-////// new hud stuff
-///////////////////////
-///////////////////////
-
 int CG_Text_Width( const char *text, int font, float scale, int limit ) {
 	int count,len;
 	float out;
@@ -189,8 +183,6 @@ void CG_Text_Paint( float x, float y, int font, float scale, vec4_t color, const
 		count = 0;
 		while ( s && *s && count < len ) {
 			glyph = &fnt->glyphs[(int)*s];
-			//int yadj = Assets.textFont.glyphs[text[i]].bottom + Assets.textFont.glyphs[text[i]].top;
-			//float yadj = scale * (Assets.textFont.glyphs[text[i]].imageHeight - Assets.textFont.glyphs[text[i]].height);
 			if ( Q_IsColorString( s ) ) {
 				memcpy( newColor, g_color_table[ColorIndex( *( s + 1 ) )], sizeof( newColor ) );
 				newColor[3] = color[3];
@@ -2035,9 +2027,6 @@ static void CG_DrawFlashZoomTransition( void ) {
 		frac = frac / (float)fadeTime;
 
 		if ( cg.weaponSelect == WP_SNOOPERSCOPE ) {
-//			Vector4Set( color, 0.7f, 0.3f, 0.7f, 1.0f - frac );
-//			Vector4Set( color, 1, 0.5, 1, 1.0f - frac );
-//			Vector4Set( color, 0.5f, 0.3f, 0.5f, 1.0f - frac );
 			Vector4Set( color, 0.7f, 0.6f, 0.7f, 1.0f - frac );
 		} else {
 			Vector4Set( color, 0, 0, 0, 1.0f - frac );

@@ -1439,11 +1439,6 @@ void CG_LoadMenus( const char *menuFile ) {
 	LoadMenus(menuFile, qtrue, qtrue);
 }
 
-static qboolean CG_OwnerDrawHandleKey( int ownerDraw, int flags, float *special, int key ) {
-	return qfalse;
-}
-
-
 static int CG_FeederCount( float feederID ) {
 	int i, count;
 	count = 0;
@@ -1594,13 +1589,6 @@ static void CG_FeederSelection( float feederID, int index ) {
 	}
 }
 
-static float CG_Cvar_Get( const char *cvar ) {
-	char buff[128];
-	memset( buff, 0, sizeof( buff ) );
-	trap_Cvar_VariableStringBuffer( cvar, buff, sizeof( buff ) );
-	return atof( buff );
-}
-
 void CG_Text_PaintWithCursor( float x, float y, int font, float scale, vec4_t color, const char *text, int cursorPos, char cursor, int limit, int style ) {
 	CG_Text_Paint( x, y, font, scale, color, text, 0, limit, style );
 }
@@ -1615,15 +1603,6 @@ static int CG_OwnerDrawWidth( int ownerDraw, int font, float scale ) {
 	case CG_KILLER:
 		return CG_Text_Width( CG_GetKillerText(), font, scale, 0 );
 		break;
-#ifdef MISSIONPACK
-	case CG_RED_NAME:
-		return CG_Text_Width( cg_redTeamName.string, font, scale, 0 );
-		break;
-	case CG_BLUE_NAME:
-		return CG_Text_Width( cg_blueTeamName.string, font, scale, 0 );
-		break;
-#endif
-
 	}
 	return 0;
 }
@@ -1708,20 +1687,12 @@ void CG_LoadHudMenu() {
 	cgDC.getTeamColor = &CG_GetTeamColor;
 	cgDC.setCVar = trap_Cvar_Set;
 	cgDC.getCVarString = trap_Cvar_VariableStringBuffer;
-	cgDC.getCVarValue = CG_Cvar_Get;
 	cgDC.drawTextWithCursor = &CG_Text_PaintWithCursor;
-	//cgDC.setOverstrikeMode = &trap_Key_SetOverstrikeMode;
-	//cgDC.getOverstrikeMode = &trap_Key_GetOverstrikeMode;
 	cgDC.startLocalSound = &trap_S_StartLocalSound;
-	cgDC.ownerDrawHandleKey = &CG_OwnerDrawHandleKey;
 	cgDC.feederCount = &CG_FeederCount;
 	cgDC.feederItemImage = &CG_FeederItemImage;
 	cgDC.feederItemText = &CG_FeederItemText;
 	cgDC.feederSelection = &CG_FeederSelection;
-	//cgDC.setBinding = &trap_Key_SetBinding;
-	//cgDC.getBindingBuf = &trap_Key_GetBindingBuf;
-	//cgDC.keynumToStringBuf = &trap_Key_KeynumToStringBuf;
-	//cgDC.executeText = &trap_Cmd_ExecuteText;
 
 	cgDC.getTranslatedString = &CG_translateString;     //----(SA)	added
 
@@ -1807,8 +1778,6 @@ void CG_Init( int serverMessageNum, int serverCommandSequence ) {
 
 	CG_InitConsoleCommands();
 
-//	cg.weaponSelect = WP_MP40;
-
 	// get the rendering configuration from the client system
 	CL_GetGlconfig( &cgs.glconfig );
 	cgs.screenXScale = cgs.glconfig.vidWidth / 640.0;
@@ -1832,8 +1801,6 @@ void CG_Init( int serverMessageNum, int serverCommandSequence ) {
 	CG_LoadingString( "collision map" );
 
 	trap_CM_LoadMap( cgs.mapname );
-
-	//String_Init();
 
 	cg.loading = qtrue;     // force players to load instead of defer
 
@@ -1887,18 +1854,3 @@ void CG_Init( int serverMessageNum, int serverCommandSequence ) {
 
 	}
 }
-
-/*
-=================
-CG_Shutdown
-
-Called before every level change or subsystem restart
-=================
-*/
-void CG_Shutdown( void ) {
-
-	// some mods may need to do cleanup work here,
-	// like closing files or archiving session data
-}
-
-
