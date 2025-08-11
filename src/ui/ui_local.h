@@ -990,10 +990,10 @@ void            trap_R_AddPolyToScene( qhandle_t hShader, int numVerts, const po
 void            trap_R_AddLightToScene( const vec3_t org, float intensity, float r, float g, float b, unsigned int overdraw );
 void            trap_R_AddCoronaToScene( const vec3_t org, float r, float g, float b, float scale, int id, int flags );
 void            trap_R_RenderScene( const refdef_t *fd );
-void            trap_R_SetColor( const float *rgba );
+void            RE_SetColor( const float *rgba );
 void            trap_R_DrawStretchPic( float x, float y, float w, float h, float s1, float t1, float s2, float t2, qhandle_t hShader );
 void            trap_R_ModelBounds( clipHandle_t model, vec3_t mins, vec3_t maxs );
-void            trap_UpdateScreen( void );
+void            SCR_UpdateScreen( void );
 int             trap_CM_LerpTag( orientation_t *tag, const refEntity_t *refent, const char *tagName, int startIndex );
 void            trap_S_StartLocalSound( sfxHandle_t sfx, int channelNum );
 sfxHandle_t     trap_UI_S_RegisterSound( const char *sample );

@@ -257,7 +257,6 @@ static int gameCvarTableSize = sizeof( gameCvarTable ) / sizeof( gameCvarTable[0
 void G_InitGame( int levelTime, int randomSeed, int restart );
 void G_RunFrame( int levelTime );
 void G_ShutdownGame( int restart );
-void CheckExitRules( void );
 
 // Ridah, Cast AI
 qboolean AICast_VisibleFromPos( vec3_t srcpos, int srcnum,
@@ -274,7 +273,7 @@ void QDECL G_Printf( const char *fmt, ... ) {
 	char text[1024];
 
 	va_start( argptr, fmt );
-	vsprintf( text, fmt, argptr );
+	vsnprintf( text, 1024, fmt, argptr );
 	va_end( argptr );
 
 	trap_Printf( text );
@@ -289,7 +288,7 @@ void QDECL G_DPrintf( const char *fmt, ... ) {
 	}
 
 	va_start( argptr, fmt );
-	vsprintf( text, fmt, argptr );
+	vsnprintf( text, 1024, fmt, argptr );
 	va_end( argptr );
 
 	trap_Printf( text );
@@ -300,7 +299,7 @@ void QDECL G_Error( const char *fmt, ... ) {
 	char text[1024];
 
 	va_start( argptr, fmt );
-	vsprintf( text, fmt, argptr );
+	vsnprintf( text, 1024, fmt, argptr );
 	va_end( argptr );
 
 	trap_Error( text );
@@ -1627,9 +1626,6 @@ void CalculateRanks( void ) {
 		}
 	}
 
-	// see if it is time to end the level
-	CheckExitRules();
-
 }
 
 
@@ -1794,7 +1790,7 @@ void QDECL G_LogPrintf( const char *fmt, ... ) {
 	Com_sprintf( string, sizeof( string ), "%3i:%i%i ", min, tens, sec );
 
 	va_start( argptr, fmt );
-	vsprintf( string + 7, fmt,argptr );
+	vsnprintf( string + 7, 1024-7, fmt,argptr );
 	va_end( argptr );
 
 	if ( g_dedicated.integer ) {
@@ -1861,210 +1857,6 @@ void LogExit( const char *string ) {
 }
 
 
-/*
-=================
-CheckIntermissionExit
-
-The level will stay at the intermission for a minimum of 5 seconds
-If all players wish to continue, the level will then exit.
-If one or more players have not acknowledged the continue, the game will
-wait 10 seconds before going on.
-=================
-*/
-void CheckIntermissionExit( void ) {
-	int ready, notReady;
-	int i;
-	gclient_t   *cl;
-	int readyMask;
-
-	if ( g_gametype.integer == GT_SINGLE_PLAYER ) {
-		return;
-	}
-
-	// DHM - Nerve :: Flat 10 second timer until exit
-	if ( g_gametype.integer == GT_WOLF ) {
-		if ( level.time < level.intermissiontime + 10000 ) {
-			return;
-		}
-
-		ExitLevel();
-		return;
-	}
-	// dhm - end
-
-	// see which players are ready
-	ready = 0;
-	notReady = 0;
-	readyMask = 0;
-	for ( i = 0 ; i < g_maxclients.integer ; i++ ) {
-		cl = level.clients + i;
-		if ( cl->pers.connected != CON_CONNECTED ) {
-			continue;
-		}
-		if ( g_entities[cl->ps.clientNum].r.svFlags & SVF_BOT ) {
-			continue;
-		}
-
-		if ( cl->readyToExit ) {
-			ready++;
-			if ( i < 16 ) {
-				readyMask |= 1 << i;
-			}
-		} else {
-			notReady++;
-		}
-	}
-
-	// copy the readyMask to each player's stats so
-	// it can be displayed on the scoreboard
-	for ( i = 0 ; i < g_maxclients.integer ; i++ ) {
-		cl = level.clients + i;
-		if ( cl->pers.connected != CON_CONNECTED ) {
-			continue;
-		}
-		cl->ps.stats[STAT_CLIENTS_READY] = readyMask;
-	}
-
-	// never exit in less than five seconds
-	if ( level.time < level.intermissiontime + 5000 ) {
-		return;
-	}
-
-	// if nobody wants to go, clear timer
-	if ( !ready ) {
-		level.readyToExit = qfalse;
-		return;
-	}
-
-	// if everyone wants to go, go now
-	if ( !notReady ) {
-		ExitLevel();
-		return;
-	}
-
-	// the first person to ready starts the ten second timeout
-	if ( !level.readyToExit ) {
-		level.readyToExit = qtrue;
-		level.exitTime = level.time;
-	}
-
-	// if we have waited ten seconds since at least one player
-	// wanted to exit, go ahead
-	if ( level.time < level.exitTime + 10000 ) {
-		return;
-	}
-
-	ExitLevel();
-}
-
-/*
-=============
-ScoreIsTied
-=============
-*/
-qboolean ScoreIsTied( void ) {
-	int a, b;
-
-	if ( level.numPlayingClients < 2 ) {
-		return qfalse;
-	}
-
-	if ( g_gametype.integer >= GT_TEAM ) {
-		return level.teamScores[TEAM_RED] == level.teamScores[TEAM_BLUE];
-	}
-
-	a = level.clients[level.sortedClients[0]].ps.persistant[PERS_SCORE];
-	b = level.clients[level.sortedClients[1]].ps.persistant[PERS_SCORE];
-
-	return a == b;
-}
-
-/*
-=================
-CheckExitRules
-
-There will be a delay between the time the exit is qualified for
-and the time everyone is moved to the intermission spot, so you
-can see the last frag.
-=================
-*/
-void CheckExitRules( void ) {
-	int i;
-	gclient_t   *cl;
-	// if at the intermission, wait for all non-bots to
-	// signal ready, then go to next level
-	if ( level.intermissiontime ) {
-		CheckIntermissionExit();
-		return;
-	}
-
-
-	if ( g_timelimit.integer && !level.warmupTime ) {
-		if ( level.time - level.startTime >= g_timelimit.integer * 60000 ) {
-			// check for sudden death
-			// DHM - Nerve :: exclude GT_WOLF
-			if ( g_gametype.integer != GT_WOLF && g_gametype.integer != GT_CTF && ScoreIsTied() ) {
-				// score is tied, so don't end the game
-				return;
-			}
-			trap_SendServerCommand( -1, "print \"Timelimit hit.\n\"" );
-			LogExit( "Timelimit hit." );
-			return;
-		}
-	}
-
-	if ( level.numPlayingClients < 2 ) {
-		return;
-	}
-
-	if ( g_gametype.integer != GT_CTF && g_fraglimit.integer ) {
-		if ( level.teamScores[TEAM_RED] >= g_fraglimit.integer ) {
-			trap_SendServerCommand( -1, "print \"Red hit the fraglimit.\n\"" );
-			LogExit( "Fraglimit hit." );
-			return;
-		}
-
-		if ( level.teamScores[TEAM_BLUE] >= g_fraglimit.integer ) {
-			trap_SendServerCommand( -1, "print \"Blue hit the fraglimit.\n\"" );
-			LogExit( "Fraglimit hit." );
-			return;
-		}
-
-		for ( i = 0 ; i < g_maxclients.integer ; i++ ) {
-			cl = level.clients + i;
-			if ( cl->pers.connected != CON_CONNECTED ) {
-				continue;
-			}
-			if ( cl->sess.sessionTeam != TEAM_FREE ) {
-				continue;
-			}
-
-			if ( cl->ps.persistant[PERS_SCORE] >= g_fraglimit.integer ) {
-				LogExit( "Fraglimit hit." );
-				trap_SendServerCommand( -1, va( "print \"%s" S_COLOR_WHITE " hit the fraglimit.\n\"",
-												cl->pers.netname ) );
-				return;
-			}
-		}
-	}
-
-	if ( g_gametype.integer == GT_CTF && g_capturelimit.integer ) {
-
-		if ( level.teamScores[TEAM_RED] >= g_capturelimit.integer ) {
-			trap_SendServerCommand( -1, "print \"Red hit the capturelimit.\n\"" );
-			LogExit( "Capturelimit hit." );
-			return;
-		}
-
-		if ( level.teamScores[TEAM_BLUE] >= g_capturelimit.integer ) {
-			trap_SendServerCommand( -1, "print \"Blue hit the capturelimit.\n\"" );
-			LogExit( "Capturelimit hit." );
-			return;
-		}
-	}
-}
-
-
 
 /*
 ========================================================================
@@ -2074,102 +1866,6 @@ FUNCTIONS CALLED EVERY FRAME
 ========================================================================
 */
 
-
-/*
-=============
-CheckTournement
-
-Once a frame, check for changes in tournement player state
-=============
-*/
-void CheckTournement( void ) {
-	// check because we run 3 game frames before calling Connect and/or ClientBegin
-	// for clients on a map_restart
-	if ( g_gametype.integer != GT_TOURNAMENT ) {
-		return;
-	}
-	if ( level.numPlayingClients == 0 ) {
-		return;
-	}
-
-	// pull in a spectator if needed
-	if ( level.numPlayingClients < 2 ) {
-		AddTournamentPlayer();
-	}
-
-	// if we don't have two players, go back to "waiting for players"
-	if ( level.numPlayingClients != 2 ) {
-		if ( level.warmupTime != -1 ) {
-			level.warmupTime = -1;
-			trap_SetConfigstring( CS_WARMUP, va( "%i", level.warmupTime ) );
-			G_LogPrintf( "Warmup:\n" );
-		}
-		return;
-	}
-
-	if ( level.warmupTime == 0 ) {
-		return;
-	}
-
-	// if the warmup is changed at the console, restart it
-	if ( g_warmup.modificationCount != level.warmupModificationCount ) {
-		level.warmupModificationCount = g_warmup.modificationCount;
-		level.warmupTime = -1;
-	}
-
-	// if all players have arrived, start the countdown
-	if ( level.warmupTime < 0 ) {
-		if ( level.numPlayingClients == 2 ) {
-			// fudge by -1 to account for extra delays
-			level.warmupTime = level.time + ( g_warmup.integer - 1 ) * 1000;
-			trap_SetConfigstring( CS_WARMUP, va( "%i", level.warmupTime ) );
-		}
-		return;
-	}
-
-	// if the warmup time has counted down, restart
-	if ( level.time > level.warmupTime ) {
-		level.warmupTime += 10000;
-		trap_Cvar_Set( "g_restarted", "1" );
-		trap_game_SendConsoleCommand( EXEC_APPEND, "map_restart 0\n" );
-		level.restarted = qtrue;
-		return;
-	}
-}
-
-
-/*
-==================
-CheckVote
-==================
-*/
-void CheckVote( void ) {
-	if ( level.voteExecuteTime && level.voteExecuteTime < level.time ) {
-		level.voteExecuteTime = 0;
-		trap_game_SendConsoleCommand( EXEC_APPEND, va( "%s\n", level.voteString ) );
-	}
-	if ( !level.voteTime ) {
-		return;
-	}
-	if ( level.time - level.voteTime >= VOTE_TIME ) {
-		trap_SendServerCommand( -1, "print \"Vote failed.\n\"" );
-	} else {
-		if ( level.voteYes > level.numVotingClients / 2 ) {
-			// execute the command, then remove the vote
-			trap_SendServerCommand( -1, "print \"Vote passed.\n\"" );
-			level.voteExecuteTime = level.time + 3000;
-		} else if ( level.voteNo >= level.numVotingClients / 2 ) {
-			// same behavior as a timeout
-			trap_SendServerCommand( -1, "print \"Vote failed.\n\"" );
-		} else {
-			// still waiting for a majority
-			return;
-		}
-	}
-	level.voteTime = 0;
-	trap_SetConfigstring( CS_VOTE_TIME, "" );
-
-}
 
 /*
 =============
@@ -2270,7 +1966,6 @@ void G_RunFrame( int levelTime ) {
 	int i;
 	gentity_t   *ent;
 	int msec;
-//int start, end;
 
 	// if we are waiting for the level to restart, do nothing
 	if ( level.restarted ) {
@@ -2287,7 +1982,6 @@ void G_RunFrame( int levelTime ) {
 		extern void AICast_CheckLoadGame( void );
 		AICast_CheckLoadGame();
 	}
-	// done.
 
 	// get any cvar changes
 	G_UpdateCvars();
@@ -2412,12 +2106,10 @@ void G_RunFrame( int levelTime ) {
 
 		G_RunThink( ent );
 	}
-//end = trap_Milliseconds();
 
 	// Ridah, move the AI
 	AICast_StartServerFrame( level.time );
 
-//start = trap_Milliseconds();
 	// perform final fixups on the players
 	ent = &g_entities[0];
 	for ( i = 0 ; i < level.maxclients ; i++, ent++ ) {
@@ -2425,23 +2117,6 @@ void G_RunFrame( int levelTime ) {
 			ClientEndFrame( ent );
 		}
 	}
-//end = trap_Milliseconds();
-
-	// see if it is time to do a tournement restart
-//	CheckTournament();
-
-	// see if it is time to end the level
-	CheckExitRules();
-
-	// update to team status?
-	CheckTeamStatus();
-
-	// cancel vote if timed out
-	CheckVote();
-
-	// check team votes
-//	CheckTeamVote( TEAM_RED );
-//	CheckTeamVote( TEAM_BLUE );
 
 	// for tracking changes
 	CheckCvars();

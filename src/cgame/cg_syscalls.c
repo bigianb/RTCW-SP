@@ -36,88 +36,7 @@ If you have questions concerning this license or the applicable additional terms
 void    trap_Print( const char *fmt ) {
 	Com_Printf( "%s", fmt );
 }
-/*
-void    trap_Error( const char *fmt ) {
-	syscall( CG_ERROR, fmt );
-}
 
-int     trap_Milliseconds( void ) {
-	return syscall( CG_MILLISECONDS );
-}
-
-void    trap_Cvar_Register( vmCvar_t *vmCvar, const char *varName, const char *defaultValue, int flags ) {
-	syscall( CG_CVAR_REGISTER, vmCvar, varName, defaultValue, flags );
-}
-*/
-void    trap_Cvar_Update( vmCvar_t *vmCvar ) {
-	Cvar_Update(vmCvar );
-}
-/*
-void    trap_Cvar_Set( const char *var_name, const char *value ) {
-	syscall( CG_CVAR_SET, var_name, value );
-}
-
-void trap_Cvar_VariableStringBuffer( const char *var_name, char *buffer, int bufsize ) {
-	syscall( CG_CVAR_VARIABLESTRINGBUFFER, var_name, buffer, bufsize );
-}
-
-int     trap_Argc( void ) {
-	return syscall( CG_ARGC );
-}
-
-void    trap_Argv( int n, char *buffer, int bufferLength ) {
-	syscall( CG_ARGV, n, buffer, bufferLength );
-}
-*/
-void    trap_Args( char *buffer, int bufferLength ) {
-	Cmd_ArgsBuffer(buffer, bufferLength );
-}
-/*
-int     trap_FS_FOpenFile( const char *qpath, fileHandle_t *f, fsMode_t mode ) {
-	return syscall( CG_FS_FOPENFILE, qpath, f, mode );
-}
-
-void    trap_FS_Read( void *buffer, int len, fileHandle_t f ) {
-	syscall( CG_FS_READ, buffer, len, f );
-}
-
-void    trap_FS_Write( const void *buffer, int len, fileHandle_t f ) {
-	syscall( CG_FS_WRITE, buffer, len, f );
-}
-
-void    trap_FS_FCloseFile( fileHandle_t f ) {
-	syscall( CG_FS_FCLOSEFILE, f );
-}
-*/
-void    trap_SendConsoleCommand( const char *text ) {
-	Cbuf_AddText( text );
-}
-
-void    trap_AddCommand( const char *cmdName ) {
-	Cmd_AddCommand( cmdName, NULL );
-}
-
-void    trap_SendClientCommand( const char *s ) {
-	CL_AddReliableCommand( s );
-}
-
-void    trap_UpdateScreen( void ) {
-	SCR_UpdateScreen();
-}
-
-void    trap_CM_LoadMap( const char *mapname ) {
-	int checksum;
-
-	CM_LoadMap( mapname, qtrue, &checksum );
-}
-
-int     trap_CM_NumInlineModels( void ) {
-	return CM_NumInlineModels();
-}
-
-clipHandle_t trap_CM_InlineModel( int index ) {
-	return CM_InlineModel(index );
-}
 
 clipHandle_t trap_CM_TempBoxModel( const vec3_t mins, const vec3_t maxs ) {
 	return CM_TempBoxModel( mins, maxs, qfalse );
@@ -304,10 +223,6 @@ void    trap_R_SetFog( int fogvar, int var1, int var2, float r, float g, float b
 
 void    trap_R_RenderScene( const refdef_t *fd ) {
 	RE_RenderScene(fd );
-}
-
-void    trap_R_SetColor( const float *rgba ) {
-	RE_SetColor(rgba );
 }
 
 void    trap_R_DrawStretchPic( float x, float y, float w, float h,

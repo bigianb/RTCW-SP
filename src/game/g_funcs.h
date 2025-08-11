@@ -966,7 +966,7 @@ If you have questions concerning this license or the applicable additional terms
 {"trap_Cvar_VariableStringBuffer", (byte *)trap_Cvar_VariableStringBuffer},
 {"trap_Cvar_VariableIntegerValue", (byte *)trap_Cvar_VariableIntegerValue},
 {"trap_Cvar_Set", (byte *)trap_Cvar_Set},
-{"trap_Cvar_Update", (byte *)trap_Cvar_Update},
+
 {"trap_Cvar_Register", (byte *)trap_Cvar_Register},
 {"trap_game_SendConsoleCommand", (byte *)trap_game_SendConsoleCommand},
 {"trap_FS_GetFileList", (byte *)trap_FS_GetFileList},
@@ -988,11 +988,7 @@ If you have questions concerning this license or the applicable additional terms
 {"G_RunThink", (byte *)G_RunThink},
 {"CheckCvars", (byte *)CheckCvars},
 {"CheckReloadStatus", (byte *)CheckReloadStatus},
-{"CheckVote", (byte *)CheckVote},
-{"CheckTournement", (byte *)CheckTournement},
-{"CheckExitRules", (byte *)CheckExitRules},
-{"ScoreIsTied", (byte *)ScoreIsTied},
-{"CheckIntermissionExit", (byte *)CheckIntermissionExit},
+
 {"LogExit", (byte *)LogExit},
 {"G_LogPrintf", (byte *)G_LogPrintf},
 {"ExitLevel", (byte *)ExitLevel},

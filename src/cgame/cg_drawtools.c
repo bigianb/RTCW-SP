@@ -65,12 +65,12 @@ Coordinates are 640*480 virtual values
 =================
 */
 void CG_FillRect( float x, float y, float width, float height, const float *color ) {
-	trap_R_SetColor( color );
+	RE_SetColor( color );
 
 	CG_AdjustFrom640( &x, &y, &width, &height );
 	trap_R_DrawStretchPic( x, y, width, height, 0, 0, 0, 1, cgs.media.whiteShader );
 
-	trap_R_SetColor( NULL );
+	RE_SetColor( NULL );
 }
 
 /*
@@ -79,12 +79,12 @@ CG_FillRectGradient
 ==============
 */
 void CG_FillRectGradient( float x, float y, float width, float height, const float *color, const float *gradcolor, int gradientType ) {
-	trap_R_SetColor( color );
+	RE_SetColor( color );
 
 	CG_AdjustFrom640( &x, &y, &width, &height );
 	trap_R_DrawStretchPicGradient( x, y, width, height, 0, 0, 0, 0, cgs.media.whiteShader, gradcolor, gradientType );
 
-	trap_R_SetColor( NULL );
+	RE_SetColor( NULL );
 }
 
 
@@ -244,12 +244,12 @@ void CG_DrawRect( float x, float y, float width, float height, float size, const
 	Vector4Copy( color, hudAlphaColor );
 	hudAlphaColor[3] *= cg_hudAlpha.value;
 
-	trap_R_SetColor( hudAlphaColor );
+	RE_SetColor( hudAlphaColor );
 
 	CG_DrawTopBottom( x, y, width, height, size );
 	CG_DrawSides( x, y, width, height, size );
 
-	trap_R_SetColor( NULL );
+	RE_SetColor( NULL );
 }
 
 
@@ -370,7 +370,7 @@ void CG_DrawStringExt( int x, int y, const char *string, const float *setColor,
 	if ( shadow ) {
 		color[0] = color[1] = color[2] = 0;
 		color[3] = setColor[3];
-		trap_R_SetColor( color );
+		RE_SetColor( color );
 		s = string;
 		xx = x;
 		cnt = 0;
@@ -390,13 +390,13 @@ void CG_DrawStringExt( int x, int y, const char *string, const float *setColor,
 	s = string;
 	xx = x;
 	cnt = 0;
-	trap_R_SetColor( setColor );
+	RE_SetColor( setColor );
 	while ( *s && cnt < maxChars ) {
 		if ( Q_IsColorString( s ) ) {
 			if ( !forceColor ) {
 				memcpy( color, g_color_table[ColorIndex( *( s + 1 ) )], sizeof( color ) );
 				color[3] = setColor[3];
-				trap_R_SetColor( color );
+				RE_SetColor( color );
 			}
 			s += 2;
 			continue;
@@ -406,7 +406,7 @@ void CG_DrawStringExt( int x, int y, const char *string, const float *setColor,
 		cnt++;
 		s++;
 	}
-	trap_R_SetColor( NULL );
+	RE_SetColor( NULL );
 }
 
 /*==================
@@ -433,7 +433,7 @@ void CG_DrawStringExt2( int x, int y, const char *string, const float *setColor,
 	if ( shadow ) {
 		color[0] = color[1] = color[2] = 0;
 		color[3] = setColor[3];
-		trap_R_SetColor( color );
+		RE_SetColor( color );
 		s = string;
 		xx = x;
 		cnt = 0;
@@ -453,13 +453,13 @@ void CG_DrawStringExt2( int x, int y, const char *string, const float *setColor,
 	s = string;
 	xx = x;
 	cnt = 0;
-	trap_R_SetColor( setColor );
+	RE_SetColor( setColor );
 	while ( *s && cnt < maxChars ) {
 		if ( Q_IsColorString( s ) ) {
 			if ( !forceColor ) {
 				memcpy( color, g_color_table[ColorIndex( *( s + 1 ) )], sizeof( color ) );
 				color[3] = setColor[3];
-				trap_R_SetColor( color );
+				RE_SetColor( color );
 			}
 			s += 2;
 			continue;
@@ -469,7 +469,7 @@ void CG_DrawStringExt2( int x, int y, const char *string, const float *setColor,
 		cnt++;
 		s++;
 	}
-	trap_R_SetColor( NULL );
+	RE_SetColor( NULL );
 }
 
 /*==================
@@ -509,7 +509,7 @@ void CG_DrawStringExt3( int x, int y, const char *string, const float *setColor,
 	if ( shadow ) {
 		color[0] = color[1] = color[2] = 0;
 		color[3] = setColor[3];
-		trap_R_SetColor( color );
+		RE_SetColor( color );
 		s = string;
 		xx = x;
 		cnt = 0;
@@ -529,13 +529,13 @@ void CG_DrawStringExt3( int x, int y, const char *string, const float *setColor,
 	s = string;
 	xx = x;
 	cnt = 0;
-	trap_R_SetColor( setColor );
+	RE_SetColor( setColor );
 	while ( *s && cnt < maxChars ) {
 		if ( Q_IsColorString( s ) ) {
 			if ( !forceColor ) {
 				memcpy( color, g_color_table[ColorIndex( *( s + 1 ) )], sizeof( color ) );
 				color[3] = setColor[3];
-				trap_R_SetColor( color );
+				RE_SetColor( color );
 			}
 			s += 2;
 			continue;
@@ -545,7 +545,7 @@ void CG_DrawStringExt3( int x, int y, const char *string, const float *setColor,
 		cnt++;
 		s++;
 	}
-	trap_R_SetColor( NULL );
+	RE_SetColor( NULL );
 }
 
 
@@ -985,7 +985,7 @@ static void UI_DrawBannerString2( int x, int y, const char* str, vec4_t color ) 
 	float fheight;
 
 	// draw the colored text
-	trap_R_SetColor( color );
+	RE_SetColor( color );
 
 	ax = x * cgs.screenXScale + cgs.screenXBias;
 	ay = y * cgs.screenXScale;
@@ -1010,7 +1010,7 @@ static void UI_DrawBannerString2( int x, int y, const char* str, vec4_t color ) 
 		s++;
 	}
 
-	trap_R_SetColor( NULL );
+	RE_SetColor( NULL );
 }
 
 void UI_DrawBannerString( int x, int y, const char* str, int style, vec4_t color ) {
@@ -1092,7 +1092,7 @@ static void UI_DrawProportionalString2( int x, int y, const char* str, vec4_t co
 	float fheight;
 
 	// draw the colored text
-	trap_R_SetColor( color );
+	RE_SetColor( color );
 
 	ax = x * cgs.screenXScale + cgs.screenXBias;
 	ay = y * cgs.screenXScale;
@@ -1119,7 +1119,7 @@ static void UI_DrawProportionalString2( int x, int y, const char* str, vec4_t co
 		s++;
 	}
 
-	trap_R_SetColor( NULL );
+	RE_SetColor( NULL );
 }
 
 /*

@@ -134,19 +134,19 @@ void CG_SetInitialSnapshot( snapshot_t *snap ) {
 
 	CG_ExecuteNewServerCommands( snap->serverCommandSequence );
 
-	trap_SendClientCommand( "fogswitch 0" );   // clear it out so the set below will take
+	CL_AddReliableCommand( "fogswitch 0" );   // clear it out so the set below will take
 
 	trap_Cvar_VariableStringBuffer( "r_savegameFogColor", buf, sizeof( buf ) );
 	trap_Cvar_Set( "r_savegameFogColor", "0" );
 	if ( strlen( buf ) > 1 ) {
 		if ( !Q_stricmp( buf, "none" ) ) {
-			trap_SendClientCommand( "fogswitch 0" );   // 'off'
+			CL_AddReliableCommand( "fogswitch 0" );   // 'off'
 		} else {
-			trap_SendClientCommand( va( "fogswitch %s", buf ) );
+			CL_AddReliableCommand( va( "fogswitch %s", buf ) );
 		}
 	} else {
 		trap_Cvar_VariableStringBuffer( "r_mapFogColor", buf, sizeof( buf ) );
-		trap_SendClientCommand( va( "fogswitch %s", buf ) );
+		CL_AddReliableCommand( va( "fogswitch %s", buf ) );
 	}
 
 	// set our local weapon selection pointer to
@@ -180,7 +180,7 @@ void CG_SetInitialSnapshot( snapshot_t *snap ) {
 
 		if ( cgs.gametype == GT_WOLF && Q_stricmp( curmap, prevmap ) ) {
 			strcpy( prevmap, curmap );
-			trap_SendConsoleCommand( "openLimboMenu\n" );
+			Cbuf_AddText( "openLimboMenu\n" );
 		}
 	}
 	// -NERVE - SMF

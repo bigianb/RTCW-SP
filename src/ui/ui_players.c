@@ -513,9 +513,9 @@ void UI_DrawPlayer( float x, float y, float w, float h, playerInfo_t *pi, int ti
 
 	refdef.time = dp_realtime;
 
-	trap_R_SetColor( hcolor );
+	RE_SetColor( hcolor );
 	trap_R_ClearScene();
-	trap_R_SetColor( NULL );
+	RE_SetColor( NULL );
 
 	// get the rotation information
 	UI_PlayerAngles( pi, legs.axis, torso.axis, head.axis );

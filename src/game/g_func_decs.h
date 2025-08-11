@@ -994,11 +994,7 @@ extern void G_RunFrame ( int levelTime ) ;
 extern void G_RunThink ( gentity_t * ent ) ;
 extern void CheckCvars ( void ) ;
 extern void CheckReloadStatus ( void ) ;
-extern void CheckVote ( void ) ;
-extern void CheckTournement ( void ) ;
-extern void CheckExitRules ( void ) ;
-extern qboolean ScoreIsTied ( void ) ;
-extern void CheckIntermissionExit ( void ) ;
+
 extern void LogExit ( const char * string ) ;
 extern void QDECL G_LogPrintf ( const char * fmt , ... ) ;
 extern void ExitLevel ( void ) ;

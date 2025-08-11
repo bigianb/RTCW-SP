@@ -2230,7 +2230,7 @@ void        trap_Cvar_VariableStringBuffer( const char *var_name, char *buffer, 
 // ServerCommand and ConsoleCommand parameter access
 int         trap_Argc( void );
 void        trap_Argv( int n, char *buffer, int bufferLength );
-void        trap_Args( char *buffer, int bufferLength );
+void        Cmd_ArgsBuffer( char *buffer, int bufferLength );
 
 // filesystem access
 // returns length of file
@@ -2244,22 +2244,18 @@ void        trap_FS_CopyFile( char *from, char *to );   //DAJ
 // for map changing, etc.  The command is not executed immediately,
 // but will be executed in order the next time console commands
 // are processed
-void        trap_SendConsoleCommand( const char *text );
-
-// register a command name so the console can perform command completion.
-// FIXME: replace this with a normal console command "defineCommand"?
-void        trap_AddCommand( const char *cmdName );
+void        Cbuf_AddText( const char *text );
 
 // send a string to the server over the network
-void        trap_SendClientCommand( const char *s );
+void        CL_AddReliableCommand( const char *s );
 
 // force a screen update, only used during gamestate load
-void        trap_UpdateScreen( void );
+void        SCR_UpdateScreen( void );
 
 // model collision
-void        trap_CM_LoadMap( const char *mapname );
-int         trap_CM_NumInlineModels( void );
-clipHandle_t trap_CM_InlineModel( int index );      // 0 = world, 1+ = bmodels
+
+
+
 clipHandle_t trap_CM_TempBoxModel( const vec3_t mins, const vec3_t maxs );
 clipHandle_t trap_CM_TempCapsuleModel( const vec3_t mins, const vec3_t maxs );
 int         trap_CM_PointContents( const vec3_t p, clipHandle_t model );
@@ -2341,7 +2337,7 @@ void        trap_RB_ZombieFXAddNewHit( int entityNum, const vec3_t hitPos, const
 void        trap_R_AddLightToScene( const vec3_t org, float intensity, float r, float g, float b, unsigned int overdraw );
 void        trap_R_AddCoronaToScene( const vec3_t org, float r, float g, float b, float scale, int id, int flags );  //----(SA)	modified
 void        trap_R_RenderScene( const refdef_t *fd );
-void        trap_R_SetColor( const float *rgba );   // NULL = 1,1,1,1
+void        RE_SetColor( const float *rgba );   // NULL = 1,1,1,1
 void        trap_R_DrawStretchPic( float x, float y, float w, float h,
 								   float s1, float t1, float s2, float t2, qhandle_t hShader );
 void        trap_R_DrawStretchPicGradient( float x, float y, float w, float h,

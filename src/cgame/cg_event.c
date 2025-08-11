@@ -1825,7 +1825,7 @@ void CG_EntityEvent( centity_t *cent, vec3_t position ) {
 //			trap_R_SetFog(FOG_CMD_SWITCHFOG, FOG_WATER, 200, 0, 0, 0, 0);
 			char buff[64];
 			trap_Cvar_VariableStringBuffer( "r_waterFogColor", buff, sizeof( buff ) );
-			trap_SendClientCommand( va( "fogswitch %s", buff ) );
+			CL_AddReliableCommand( va( "fogswitch %s", buff ) );
 		}
 		break;
 	case EV_WATER_CLEAR:
@@ -1837,7 +1837,7 @@ void CG_EntityEvent( centity_t *cent, vec3_t position ) {
 //			trap_R_SetFog(FOG_CMD_SWITCHFOG, FOG_MAP, 400,0,0,0,0);
 			char buff[64];
 			trap_Cvar_VariableStringBuffer( "r_mapFogColor", buff, sizeof( buff ) );
-			trap_SendClientCommand( va( "fogswitch %s", buff ) );
+			CL_AddReliableCommand( va( "fogswitch %s", buff ) );
 		}
 		break;
 

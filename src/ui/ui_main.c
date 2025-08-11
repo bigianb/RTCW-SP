@@ -215,12 +215,12 @@ Coordinates are 640*480 virtual values
 =================
 */
 void UI_DrawRect( float x, float y, float width, float height, float size, const float *color ) {
-	trap_R_SetColor( color );
+	RE_SetColor( color );
 
 	UI_DrawTopBottom( x, y, width, height, size );
 	UI_DrawSides( x, y, width, height, size );
 
-	trap_R_SetColor( NULL );
+	RE_SetColor( NULL );
 }
 
 
@@ -350,7 +350,7 @@ void Text_Paint( float x, float y, int font, float scale, vec4_t color, const ch
 	useScale = scale * fnt->glyphScale;
 	if ( text ) {
 		const char *s = text;
-		trap_R_SetColor( color );
+		RE_SetColor( color );
 		memcpy( &newColor[0], &color[0], sizeof( vec4_t ) );
 		len = strlen( text );
 		if ( limit > 0 && len > limit ) {
@@ -364,7 +364,7 @@ void Text_Paint( float x, float y, int font, float scale, vec4_t color, const ch
 			if ( Q_IsColorString( s ) ) {
 				memcpy( newColor, g_color_table[ColorIndex( *( s + 1 ) )], sizeof( newColor ) );
 				newColor[3] = color[3];
-				trap_R_SetColor( newColor );
+				RE_SetColor( newColor );
 				s += 2;
 				continue;
 			} else {
@@ -372,7 +372,7 @@ void Text_Paint( float x, float y, int font, float scale, vec4_t color, const ch
 				if ( style == ITEM_TEXTSTYLE_SHADOWED || style == ITEM_TEXTSTYLE_SHADOWEDMORE ) {
 					int ofs = style == ITEM_TEXTSTYLE_SHADOWED ? 1 : 2;
 					colorBlack[3] = newColor[3];
-					trap_R_SetColor( colorBlack );
+					RE_SetColor( colorBlack );
 					Text_PaintChar( x + ofs, y - yadj + ofs,
 									glyph->imageWidth,
 									glyph->imageHeight,
@@ -383,7 +383,7 @@ void Text_Paint( float x, float y, int font, float scale, vec4_t color, const ch
 									glyph->s2,
 									glyph->t2,
 									glyph->glyph );
-					trap_R_SetColor( newColor );
+					RE_SetColor( newColor );
 					colorBlack[3] = 1.0;
 				}
 				Text_PaintChar( x, y - yadj,
@@ -402,7 +402,7 @@ void Text_Paint( float x, float y, int font, float scale, vec4_t color, const ch
 				count++;
 			}
 		}
-		trap_R_SetColor( NULL );
+		RE_SetColor( NULL );
 	}
 }
 
@@ -431,7 +431,7 @@ void Text_PaintWithCursor( float x, float y, int font, float scale, vec4_t color
 	useScale = scale * fnt->glyphScale;
 	if ( text ) {
 		const char *s = text;
-		trap_R_SetColor( color );
+		RE_SetColor( color );
 		memcpy( &newColor[0], &color[0], sizeof( vec4_t ) );
 		len = strlen( text );
 		if ( limit > 0 && len > limit ) {
@@ -446,7 +446,7 @@ void Text_PaintWithCursor( float x, float y, int font, float scale, vec4_t color
 			if ( Q_IsColorString( s ) ) {
 				memcpy( newColor, g_color_table[ColorIndex( *( s + 1 ) )], sizeof( newColor ) );
 				newColor[3] = color[3];
-				trap_R_SetColor( newColor );
+				RE_SetColor( newColor );
 				s += 2;
 				continue;
 			} else {
@@ -454,7 +454,7 @@ void Text_PaintWithCursor( float x, float y, int font, float scale, vec4_t color
 				if ( style == ITEM_TEXTSTYLE_SHADOWED || style == ITEM_TEXTSTYLE_SHADOWEDMORE ) {
 					int ofs = style == ITEM_TEXTSTYLE_SHADOWED ? 1 : 2;
 					colorBlack[3] = newColor[3];
-					trap_R_SetColor( colorBlack );
+					RE_SetColor( colorBlack );
 					Text_PaintChar( x + ofs, y - yadj + ofs,
 									glyph->imageWidth,
 									glyph->imageHeight,
@@ -466,7 +466,7 @@ void Text_PaintWithCursor( float x, float y, int font, float scale, vec4_t color
 									glyph->t2,
 									glyph->glyph );
 					colorBlack[3] = 1.0;
-					trap_R_SetColor( newColor );
+					RE_SetColor( newColor );
 				}
 				Text_PaintChar( x, y - yadj,
 								glyph->imageWidth,
@@ -516,7 +516,7 @@ void Text_PaintWithCursor( float x, float y, int font, float scale, vec4_t color
 		}
 
 
-		trap_R_SetColor( NULL );
+		RE_SetColor( NULL );
 	}
 }
 
@@ -1102,7 +1102,7 @@ static void UI_DrawSaveGameShot( rectDef_t *rect, float scale, vec4_t color ) {
 	int i;
 	qhandle_t image;
 
-	trap_R_SetColor( color );
+	RE_SetColor( color );
 
 	if ( !strlen( ui_savegameName.string ) || ui_savegameName.string[0] == '0' ) {
 		image = RE_RegisterShaderNoMip( "menu/art/unknownmap" );
@@ -1117,7 +1117,7 @@ static void UI_DrawSaveGameShot( rectDef_t *rect, float scale, vec4_t color ) {
 	}
 
 	UI_DrawHandlePic( rect->x, rect->y, rect->w, rect->h, image );
-	trap_R_SetColor( NULL );
+	RE_SetColor( NULL );
 
 }
 
@@ -1147,7 +1147,7 @@ static void UI_DrawClanLogo( rectDef_t *rect, float scale, vec4_t color ) {
 	int i;
 	i = UI_TeamIndexFromName( UI_Cvar_VariableString( "ui_teamName" ) );
 	if ( i >= 0 && i < uiInfo.teamCount ) {
-		trap_R_SetColor( color );
+		RE_SetColor( color );
 
 		if ( uiInfo.teamList[i].teamIcon == -1 ) {
 			uiInfo.teamList[i].teamIcon         = RE_RegisterShaderNoMip( uiInfo.teamList[i].imageName );
@@ -1156,7 +1156,7 @@ static void UI_DrawClanLogo( rectDef_t *rect, float scale, vec4_t color ) {
 		}
 
 		UI_DrawHandlePic( rect->x, rect->y, rect->w, rect->h, uiInfo.teamList[i].teamIcon );
-		trap_R_SetColor( NULL );
+		RE_SetColor( NULL );
 	}
 }
 
@@ -1182,9 +1182,9 @@ static void UI_DrawClanCinematic( rectDef_t *rect, float scale, vec4_t color ) {
 				uiInfo.teamList[i].cinematic = -2;
 			}
 		} else {
-			trap_R_SetColor( color );
+			RE_SetColor( color );
 			UI_DrawHandlePic( rect->x, rect->y, rect->w, rect->h, uiInfo.teamList[i].teamIcon );
-			trap_R_SetColor( NULL );
+			RE_SetColor( NULL );
 		}
 	}
 
@@ -1749,9 +1749,9 @@ static void UI_DrawPlayerLogo( rectDef_t *rect, vec3_t color ) {
 		uiInfo.teamList[i].teamIcon_Name = RE_RegisterShaderNoMip( va( "%s_name", uiInfo.teamList[i].imageName ) );
 	}
 
-	trap_R_SetColor( color );
+	RE_SetColor( color );
 	UI_DrawHandlePic( rect->x, rect->y, rect->w, rect->h, uiInfo.teamList[i].teamIcon );
-	trap_R_SetColor( NULL );
+	RE_SetColor( NULL );
 }
 
 static void UI_DrawPlayerLogoMetal( rectDef_t *rect, vec3_t color ) {
@@ -1762,9 +1762,9 @@ static void UI_DrawPlayerLogoMetal( rectDef_t *rect, vec3_t color ) {
 		uiInfo.teamList[i].teamIcon_Name = RE_RegisterShaderNoMip( va( "%s_name", uiInfo.teamList[i].imageName ) );
 	}
 
-	trap_R_SetColor( color );
+	RE_SetColor( color );
 	UI_DrawHandlePic( rect->x, rect->y, rect->w, rect->h, uiInfo.teamList[i].teamIcon_Metal );
-	trap_R_SetColor( NULL );
+	RE_SetColor( NULL );
 }
 
 static void UI_DrawPlayerLogoName( rectDef_t *rect, vec3_t color ) {
@@ -1775,9 +1775,9 @@ static void UI_DrawPlayerLogoName( rectDef_t *rect, vec3_t color ) {
 		uiInfo.teamList[i].teamIcon_Name = RE_RegisterShaderNoMip( va( "%s_name", uiInfo.teamList[i].imageName ) );
 	}
 
-	trap_R_SetColor( color );
+	RE_SetColor( color );
 	UI_DrawHandlePic( rect->x, rect->y, rect->w, rect->h, uiInfo.teamList[i].teamIcon_Name );
-	trap_R_SetColor( NULL );
+	RE_SetColor( NULL );
 }
 
 static void UI_DrawOpponentLogo( rectDef_t *rect, vec3_t color ) {
@@ -1788,9 +1788,9 @@ static void UI_DrawOpponentLogo( rectDef_t *rect, vec3_t color ) {
 		uiInfo.teamList[i].teamIcon_Name = RE_RegisterShaderNoMip( va( "%s_name", uiInfo.teamList[i].imageName ) );
 	}
 
-	trap_R_SetColor( color );
+	RE_SetColor( color );
 	UI_DrawHandlePic( rect->x, rect->y, rect->w, rect->h, uiInfo.teamList[i].teamIcon );
-	trap_R_SetColor( NULL );
+	RE_SetColor( NULL );
 }
 
 static void UI_DrawOpponentLogoMetal( rectDef_t *rect, vec3_t color ) {
@@ -1801,9 +1801,9 @@ static void UI_DrawOpponentLogoMetal( rectDef_t *rect, vec3_t color ) {
 		uiInfo.teamList[i].teamIcon_Name = RE_RegisterShaderNoMip( va( "%s_name", uiInfo.teamList[i].imageName ) );
 	}
 
-	trap_R_SetColor( color );
+	RE_SetColor( color );
 	UI_DrawHandlePic( rect->x, rect->y, rect->w, rect->h, uiInfo.teamList[i].teamIcon_Metal );
-	trap_R_SetColor( NULL );
+	RE_SetColor( NULL );
 }
 
 static void UI_DrawOpponentLogoName( rectDef_t *rect, vec3_t color ) {
@@ -1814,9 +1814,9 @@ static void UI_DrawOpponentLogoName( rectDef_t *rect, vec3_t color ) {
 		uiInfo.teamList[i].teamIcon_Name = RE_RegisterShaderNoMip( va( "%s_name", uiInfo.teamList[i].imageName ) );
 	}
 
-	trap_R_SetColor( color );
+	RE_SetColor( color );
 	UI_DrawHandlePic( rect->x, rect->y, rect->w, rect->h, uiInfo.teamList[i].teamIcon_Name );
-	trap_R_SetColor( NULL );
+	RE_SetColor( NULL );
 }
 
 static void UI_DrawAllMapsSelection( rectDef_t *rect, int font, float scale, vec4_t color, int textStyle, qboolean net ) {
@@ -1986,9 +1986,9 @@ static void UI_DrawCrosshair( rectDef_t *rect, float scale, vec4_t color ) {
 		return;
 	}
 
-	trap_R_SetColor( color );
+	RE_SetColor( color );
 	UI_DrawHandlePic( rect->x, rect->y - rect->h, rect->w, rect->h, uiInfo.uiDC.Assets.crosshairShader[ch] );
-	trap_R_SetColor( NULL );
+	RE_SetColor( NULL );
 }
 
 /*

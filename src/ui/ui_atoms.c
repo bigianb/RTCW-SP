@@ -214,7 +214,7 @@ void UI_SetColor( const float *rgba ) {
 }
 
 void UI_UpdateScreen( void ) {
-	trap_UpdateScreen();
+	SCR_UpdateScreen();
 }
 
 

@@ -36,6 +36,7 @@ If you have questions concerning this license or the applicable additional terms
 
 #include "cg_local.h"
 #include "../ui/ui_shared.h"
+#include "../qcommon/cm_public.h"
 
 int forceModelModificationCount = -1;
 
@@ -476,7 +477,7 @@ void QDECL CG_Printf( const char *msg, ... ) {
 	char text[1024];
 
 	va_start( argptr, msg );
-	vsprintf( text, msg, argptr );
+	vsnprintf( text, 1024, msg, argptr );
 	va_end( argptr );
 
 	trap_Print( text );
@@ -487,7 +488,7 @@ void QDECL CG_Error( const char *msg, ... ) {
 	char text[1024];
 
 	va_start( argptr, msg );
-	vsprintf( text, msg, argptr );
+	vsnprintf( text, 1024, msg, argptr );
 	va_end( argptr );
 
 	trap_Error( text );
@@ -575,8 +576,7 @@ The server says this item is used on this level
 static void CG_RegisterItemSounds( int itemNum ) {
 	gitem_t         *item;
 	char data[MAX_QPATH];
-	char            *s, *start;
-	int len;
+	char *s;
 
 	item = &bg_itemlist[ itemNum ];
 
@@ -591,12 +591,12 @@ static void CG_RegisterItemSounds( int itemNum ) {
 	}
 
 	while ( *s ) {
-		start = s;
+		char *start = s;
 		while ( *s && *s != ' ' ) {
 			s++;
 		}
 
-		len = s - start;
+		size_t len = s - start;
 		if ( len >= MAX_QPATH || len < 5 ) {
 			CG_Error( "PrecacheItem: %s has bad precache string",
 					  item->classname );
@@ -1301,7 +1301,7 @@ static void CG_RegisterGraphics( void ) {
 	CG_LoadingString( " - inline models" );
 
 	// register the inline models
-	cgs.numInlineModels = trap_CM_NumInlineModels();
+	cgs.numInlineModels = CM_NumInlineModels();
 	for ( i = 1 ; i < cgs.numInlineModels ; i++ ) {
 		char name[10];
 		vec3_t mins, maxs;
@@ -1616,7 +1616,7 @@ void CG_LoadHudMenu() {
 	const char *hudSet;
 
 /*
-	cgDC.setColor = &trap_R_SetColor;
+	cgDC.setColor = &RE_SetColor;
 	cgDC.drawHandlePic = &CG_DrawPic;
 	cgDC.drawStretchPic = &trap_R_DrawStretchPic;
 	cgDC.drawText = &Text_Paint;
@@ -1730,7 +1730,8 @@ void CG_Init( int serverMessageNum, int serverCommandSequence ) {
 	// load the new map
 	CG_LoadingString( "collision map" );
 
-	trap_CM_LoadMap( cgs.mapname );
+	int checksum;
+	CM_LoadMap( cgs.mapname, qtrue, &checksum );
 
 	cg.loading = qtrue;     // force players to load instead of defer
 

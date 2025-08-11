@@ -1091,13 +1091,13 @@ static int CG_CalcViewValues( void ) {
 			//	return 0;
 
 			VectorCopy( origin, oldOrigin );
-			trap_SendClientCommand( va( "setCameraOrigin %f %f %f", origin[0], origin[1], origin[2] ) );
+			CL_AddReliableCommand( va( "setCameraOrigin %f %f %f", origin[0], origin[1], origin[2] ) );
 			return 0;
 
 		} else {
 			cg.cameraMode = qfalse;                 // camera off in cgame
 			trap_Cvar_Set( "cg_letterbox", "0" );
-			trap_SendClientCommand( "stopCamera" );    // camera off in game
+			CL_AddReliableCommand( "stopCamera" );    // camera off in game
 			trap_stopCamera( CAM_PRIMARY );           // camera off in client
 
 			CG_Fade( 0, 0, 0, 255, 0, 0 );                // go black

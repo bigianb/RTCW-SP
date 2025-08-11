@@ -227,9 +227,9 @@ void CG_DrawTeamBackground( int x, int y, int w, int h, float alpha, int team ) 
 	} else {
 		return;
 	}
-	trap_R_SetColor( hcolor );
+	RE_SetColor( hcolor );
 	CG_DrawPic( x, y, w, h, cgs.media.teamStatusBar );
-	trap_R_SetColor( NULL );
+	RE_SetColor( NULL );
 }
 
 #define UPPERRIGHT_X 500
@@ -415,9 +415,9 @@ static float CG_DrawTeamOverlay( float y ) {
 		hcolor[2] = 1;
 		hcolor[3] = 0.33;
 	}
-	trap_R_SetColor( hcolor );
+	RE_SetColor( hcolor );
 	CG_DrawPic( x, y, w, h, cgs.media.teamStatusBar );
-	trap_R_SetColor( NULL );
+	RE_SetColor( NULL );
 
 
 	for ( i = 0; i < numSortedTeamPlayers; i++ ) {
@@ -517,81 +517,6 @@ static void CG_DrawUpperRight( void ) {
 
 
 /*
-=================
-CG_DrawTeamInfo
-=================
-*/
-static void CG_DrawTeamInfo( void ) {
-	int w, h;
-	int i, len;
-	vec4_t hcolor;
-	int chatHeight;
-
-#define CHATLOC_Y 420 // bottom end
-#define CHATLOC_X 0
-
-	if ( cg_teamChatHeight.integer < TEAMCHAT_HEIGHT ) {
-		chatHeight = cg_teamChatHeight.integer;
-	} else {
-		chatHeight = TEAMCHAT_HEIGHT;
-	}
-	if ( chatHeight <= 0 ) {
-		return; // disabled
-
-	}
-	if ( cgs.teamLastChatPos != cgs.teamChatPos ) {
-		if ( cg.time - cgs.teamChatMsgTimes[cgs.teamLastChatPos % chatHeight] > cg_teamChatTime.integer ) {
-			cgs.teamLastChatPos++;
-		}
-
-		h = ( cgs.teamChatPos - cgs.teamLastChatPos ) * TINYCHAR_HEIGHT;
-
-		w = 0;
-
-		for ( i = cgs.teamLastChatPos; i < cgs.teamChatPos; i++ ) {
-			len = CG_DrawStrlen( cgs.teamChatMsgs[i % chatHeight] );
-			if ( len > w ) {
-				w = len;
-			}
-		}
-		w *= TINYCHAR_WIDTH;
-		w += TINYCHAR_WIDTH * 2;
-
-		if ( cg.snap->ps.persistant[PERS_TEAM] == TEAM_RED ) {
-			hcolor[0] = 1;
-			hcolor[1] = 0;
-			hcolor[2] = 0;
-			hcolor[3] = 0.33;
-		} else if ( cg.snap->ps.persistant[PERS_TEAM] == TEAM_BLUE ) {
-			hcolor[0] = 0;
-			hcolor[1] = 0;
-			hcolor[2] = 1;
-			hcolor[3] = 0.33;
-		} else {
-			hcolor[0] = 0;
-			hcolor[1] = 1;
-			hcolor[2] = 0;
-			hcolor[3] = 0.33;
-		}
-
-		trap_R_SetColor( hcolor );
-		CG_DrawPic( CHATLOC_X, CHATLOC_Y - h, 640, h, cgs.media.teamStatusBar );
-		trap_R_SetColor( NULL );
-
-		hcolor[0] = hcolor[1] = hcolor[2] = 1.0;
-		hcolor[3] = 1.0;
-
-		for ( i = cgs.teamChatPos - 1; i >= cgs.teamLastChatPos; i-- ) {
-			CG_DrawStringExt( CHATLOC_X + TINYCHAR_WIDTH,
-							  CHATLOC_Y - ( cgs.teamChatPos - i ) * TINYCHAR_HEIGHT,
-							  cgs.teamChatMsgs[i % chatHeight], hcolor, qfalse, qfalse,
-							  TINYCHAR_WIDTH, TINYCHAR_HEIGHT, 0 );
-		}
-	}
-}
-
-//----(SA)	modified
-/*
 ===================
 CG_DrawPickupItem
 ===================
@@ -631,7 +556,7 @@ static void CG_DrawPickupItem( void ) {
 //			Text_Paint(ICON_SIZE + 16, 398, 2, 0.3f, color, pickupText, 0, 0, ITEM_TEXTSTYLE_SHADOWEDMORE);
 
 
-			trap_R_SetColor( NULL );
+			RE_SetColor( NULL );
 		}
 	}
 }
@@ -655,14 +580,14 @@ static void CG_DrawReward( void ) {
 		return;
 	}
 
-	trap_R_SetColor( color );
+	RE_SetColor( color );
 	y = 56;
 	x = 320 - cg.rewardCount * ICON_SIZE / 2;
 	for ( i = 0 ; i < cg.rewardCount ; i++ ) {
 		CG_DrawPic( x, y, ICON_SIZE - 4, ICON_SIZE - 4, cg.rewardShader );
 		x += ICON_SIZE;
 	}
-	trap_R_SetColor( NULL );
+	RE_SetColor( NULL );
 }
 
 
@@ -791,7 +716,7 @@ static void CG_DrawLagometer( void ) {
 	x = 640 - 48;
 	y = 480 - 48;
 
-	trap_R_SetColor( NULL );
+	RE_SetColor( NULL );
 	CG_DrawPic( x, y, 48, 48, cgs.media.lagometerShader );
 
 	ax = x;
@@ -814,7 +739,7 @@ static void CG_DrawLagometer( void ) {
 		if ( v > 0 ) {
 			if ( color != 1 ) {
 				color = 1;
-				trap_R_SetColor( g_color_table[ColorIndex( COLOR_YELLOW )] );
+				RE_SetColor( g_color_table[ColorIndex( COLOR_YELLOW )] );
 			}
 			if ( v > range ) {
 				v = range;
@@ -823,7 +748,7 @@ static void CG_DrawLagometer( void ) {
 		} else if ( v < 0 ) {
 			if ( color != 2 ) {
 				color = 2;
-				trap_R_SetColor( g_color_table[ColorIndex( COLOR_BLUE )] );
+				RE_SetColor( g_color_table[ColorIndex( COLOR_BLUE )] );
 			}
 			v = -v;
 			if ( v > range ) {
@@ -844,12 +769,12 @@ static void CG_DrawLagometer( void ) {
 			if ( lagometer.snapshotFlags[i] & SNAPFLAG_RATE_DELAYED ) {
 				if ( color != 5 ) {
 					color = 5;  // YELLOW for rate delay
-					trap_R_SetColor( g_color_table[ColorIndex( COLOR_YELLOW )] );
+					RE_SetColor( g_color_table[ColorIndex( COLOR_YELLOW )] );
 				}
 			} else {
 				if ( color != 3 ) {
 					color = 3;
-					trap_R_SetColor( g_color_table[ColorIndex( COLOR_GREEN )] );
+					RE_SetColor( g_color_table[ColorIndex( COLOR_GREEN )] );
 				}
 			}
 			v = v * vscale;
@@ -860,13 +785,13 @@ static void CG_DrawLagometer( void ) {
 		} else if ( v < 0 ) {
 			if ( color != 4 ) {
 				color = 4;      // RED for dropped snapshots
-				trap_R_SetColor( g_color_table[ColorIndex( COLOR_RED )] );
+				RE_SetColor( g_color_table[ColorIndex( COLOR_RED )] );
 			}
 			trap_R_DrawStretchPic( ax + aw - a, ay + ah - range, 1, range, 0, 0, 0, 0, cgs.media.whiteShader );
 		}
 	}
 
-	trap_R_SetColor( NULL );
+	RE_SetColor( NULL );
 
 	if ( cg_nopredict.integer || cg_synchronousClients.integer ) {
 		CG_DrawBigString( ax, ay, "snc", 1.0 );
@@ -940,7 +865,7 @@ static void CG_DrawCenterString( void ) {
 		return;
 	}
 
-	trap_R_SetColor( color );
+	RE_SetColor( color );
 
 	start = cg.centerPrint;
 
@@ -977,7 +902,7 @@ static void CG_DrawCenterString( void ) {
 		start++;
 	}
 
-	trap_R_SetColor( NULL );
+	RE_SetColor( NULL );
 }
 
 
@@ -1046,7 +971,7 @@ static void CG_DrawWeapReticle( void ) {
 		snoopercolor[0] *= snooperBrightness;
 		snoopercolor[1] *= snooperBrightness;
 		snoopercolor[2] *= snooperBrightness;
-		trap_R_SetColor( snoopercolor );
+		RE_SetColor( snoopercolor );
 //----(SA)	end
 
 		if ( cgs.media.snooperShaderSimple ) {
@@ -1276,9 +1201,9 @@ static void CG_DrawCrosshair( void ) {
 
 	// set color based on health
 	if ( cg_crosshairHealth.integer ) {
-		trap_R_SetColor( hcolor );
+		RE_SetColor( hcolor );
 	} else {
-		trap_R_SetColor( NULL );
+		RE_SetColor( NULL );
 	}
 
 	w = h = cg_crosshairSize.value;
@@ -1389,7 +1314,7 @@ static void CG_DrawDynamiteStatus( void ) {
 		color[3] = (float)timeleft / 300.0f;
 	}
 
-	trap_R_SetColor( color );
+	RE_SetColor( color );
 
 	timeleft *= 5;
 	timeleft -= ( timeleft % 5000 );
@@ -1402,7 +1327,7 @@ static void CG_DrawDynamiteStatus( void ) {
 	color[3] *= cg_hudAlpha.value;
 	CG_DrawBigStringColor( 320 - w / 2, 170, name, color );
 
-	trap_R_SetColor( NULL );
+	RE_SetColor( NULL );
 }
 
 
@@ -1462,7 +1387,7 @@ static void CG_DrawCrosshairNames( void ) {
 	color = CG_FadeColor( cg.crosshairClientTime, 1000 );
 
 	if ( !color ) {
-		trap_R_SetColor( NULL );
+		RE_SetColor( NULL );
 		return;
 	}
 
@@ -1475,7 +1400,7 @@ static void CG_DrawCrosshairNames( void ) {
 //	else
 	VectorSet( teamColor, 0.1250, 0.7608, 0.0859 );             // LIGHT-GREEN
 
-	trap_R_SetColor( teamColor );
+	RE_SetColor( teamColor );
 	// -NERVE - SMF
 
 	name = cgs.clientinfo[ cg.crosshairClientNum ].name;
@@ -1494,7 +1419,7 @@ static void CG_DrawCrosshairNames( void ) {
 	}
 	// -NERVE - SMF
 
-	trap_R_SetColor( NULL );
+	RE_SetColor( NULL );
 }
 
 
@@ -1881,9 +1806,9 @@ static void CG_DrawFlashFire( void ) {
 		col[1] = alpha;
 		col[2] = alpha;
 		col[3] = alpha;
-		trap_R_SetColor( col );
+		RE_SetColor( col );
 		CG_DrawPic( -10, -10, 650, 490, cgs.media.viewFlashFire[( cg.time / 50 ) % 16] );
-		trap_R_SetColor( NULL );
+		RE_SetColor( NULL );
 
 		trap_S_AddLoopingSound( cg.snap->ps.clientNum, cg.snap->ps.origin, vec3_origin, cgs.media.flameSound, (int)( 255.0 * alpha ) );
 		trap_S_AddLoopingSound( cg.snap->ps.clientNum, cg.snap->ps.origin, vec3_origin, cgs.media.flameCrackSound, (int)( 255.0 * alpha ) );
@@ -2005,7 +1930,7 @@ static void CG_DrawObjectiveInfo( void ) {
 		return;
 	}
 
-	trap_R_SetColor( color );
+	RE_SetColor( color );
 
 	start = cg.oidPrint;
 
@@ -2090,7 +2015,7 @@ static void CG_DrawObjectiveInfo( void ) {
 		start++;
 	}
 
-	trap_R_SetColor( NULL );
+	RE_SetColor( NULL );
 }
 // -NERVE - SMF
 
@@ -2250,9 +2175,6 @@ static void CG_Draw2D( void ) {
 			CG_DrawHoldableSelect();
 			CG_DrawPickupItem();
 			CG_DrawReward();
-		}
-		if ( cgs.gametype >= GT_TEAM ) {
-			CG_DrawTeamInfo();
 		}
 	}
 

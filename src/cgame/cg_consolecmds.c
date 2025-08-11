@@ -36,7 +36,7 @@ If you have questions concerning this license or the applicable additional terms
 
 #include "cg_local.h"
 #include "../ui/ui_shared.h"
-
+#include "../qcommon/qcommon.h"
 
 
 void CG_TargetCommand_f( void ) {
@@ -49,7 +49,7 @@ void CG_TargetCommand_f( void ) {
 	}
 
 	trap_Argv( 1, test, 4 );
-	trap_SendConsoleCommand( va( "gc %i %i", targetNum, atoi( test ) ) );
+	Cbuf_AddText( va( "gc %i %i", targetNum, atoi( test ) ) );
 }
 
 
@@ -97,7 +97,7 @@ static void CG_ScoresDown_f( void ) {
 		// the scores are more than two seconds out of data,
 		// so request new ones
 		cg.scoresRequestTime = cg.time;
-		trap_SendClientCommand( "score" );
+		CL_AddReliableCommand( "score" );
 
 		// leave the current scores up if they were already
 		// displayed, but if this is the first hit, clear them out
@@ -141,9 +141,9 @@ static void CG_TellTarget_f( void ) {
 		return;
 	}
 
-	trap_Args( message, 128 );
+	Cmd_ArgsBuffer( message, 128 );
 	Com_sprintf( command, 128, "tell %i %s", clientNum, message );
-	trap_SendClientCommand( command );
+	CL_AddReliableCommand( command );
 }
 
 static void CG_TellAttacker_f( void ) {
@@ -156,9 +156,9 @@ static void CG_TellAttacker_f( void ) {
 		return;
 	}
 
-	trap_Args( message, 128 );
+	Cmd_ArgsBuffer( message, 128 );
 	Com_sprintf( command, 128, "tell %i %s", clientNum, message );
-	trap_SendClientCommand( command );
+	CL_AddReliableCommand( command );
 }
 
 
@@ -199,12 +199,12 @@ void CG_StartCamera( const char *name, qboolean startBlack ) {
 			CG_Fade( 0, 0, 0, 255, cg.time, 0 );  // go black
 		}
 		trap_Cvar_Set( "cg_letterbox", "1" ); // go letterbox
-		trap_SendClientCommand( "startCamera" );   // camera on in game
+		CL_AddReliableCommand( "startCamera" );   // camera on in game
 		trap_startCamera( CAM_PRIMARY, cg.time ); // camera on in client
 	} else {
 //----(SA)	removed check for cams in main dir
 		cg.cameraMode = qfalse;                 // camera off in cgame
-		trap_SendClientCommand( "stopCamera" );    // camera off in game
+		CL_AddReliableCommand( "stopCamera" );    // camera off in game
 		trap_stopCamera( CAM_PRIMARY );           // camera off in client
 		CG_Fade( 0, 0, 0, 0, cg.time, 0 );        // ensure fadeup
 		trap_Cvar_Set( "cg_letterbox", "0" );
@@ -219,7 +219,7 @@ CG_SopCamera
 */
 void CG_StopCamera( void ) {
 	cg.cameraMode = qfalse;                 // camera off in cgame
-	trap_SendClientCommand( "stopCamera" );    // camera off in game
+	CL_AddReliableCommand( "stopCamera" );    // camera off in game
 	trap_stopCamera( CAM_PRIMARY );           // camera off in client
 	trap_Cvar_Set( "cg_letterbox", "0" );
 
@@ -379,38 +379,38 @@ void CG_InitConsoleCommands( void ) {
 	int i;
 
 	for ( i = 0 ; i < sizeof( commands ) / sizeof( commands[0] ) ; i++ ) {
-		trap_AddCommand( commands[i].cmd );
+		Cmd_AddCommand( commands[i].cmd, NULL );
 	}
 
 	//
 	// the game server will interpret these commands, which will be automatically
 	// forwarded to the server after they are not recognized locally
 	//
-	trap_AddCommand( "kill" );
-	trap_AddCommand( "say" );
-	trap_AddCommand( "say_team" );
-	trap_AddCommand( "say_limbo" );           // NERVE - SMF
-	trap_AddCommand( "tell" );
-	trap_AddCommand( "give" );
-	trap_AddCommand( "god" );
-	trap_AddCommand( "notarget" );
-	trap_AddCommand( "noclip" );
-	trap_AddCommand( "team" );
-	trap_AddCommand( "follow" );
-	trap_AddCommand( "levelshot" );
-	trap_AddCommand( "addbot" );
-	trap_AddCommand( "setviewpos" );
-	trap_AddCommand( "callvote" );
-	trap_AddCommand( "vote" );
-	trap_AddCommand( "stats" );
-	trap_AddCommand( "loaddeferred" );        // spelling fixed (SA)
+	Cmd_AddCommand( "kill", NULL );
+	Cmd_AddCommand( "say", NULL );
+	Cmd_AddCommand( "say_team", NULL );
+	Cmd_AddCommand( "say_limbo", NULL );           // NERVE - SMF
+	Cmd_AddCommand( "tell", NULL );
+	Cmd_AddCommand( "give", NULL );
+	Cmd_AddCommand( "god", NULL );
+	Cmd_AddCommand( "notarget", NULL );
+	Cmd_AddCommand( "noclip", NULL );
+	Cmd_AddCommand( "team", NULL );
+	Cmd_AddCommand( "follow", NULL );
+	Cmd_AddCommand( "levelshot", NULL );
+	Cmd_AddCommand( "addbot", NULL );
+	Cmd_AddCommand( "setviewpos", NULL );
+	Cmd_AddCommand( "callvote", NULL );
+	Cmd_AddCommand( "vote", NULL );
+	Cmd_AddCommand( "stats", NULL );
+	Cmd_AddCommand( "loaddeferred", NULL );        // spelling fixed (SA)
 
-	trap_AddCommand( "startCamera" );
-	trap_AddCommand( "stopCamera" );
-	trap_AddCommand( "setCameraOrigin" );
+	Cmd_AddCommand( "startCamera", NULL );
+	Cmd_AddCommand( "stopCamera", NULL );
+	Cmd_AddCommand( "setCameraOrigin", NULL );
 
 	// Rafael
-	trap_AddCommand( "nofatigue" );
+	Cmd_AddCommand( "nofatigue", NULL );
 
-	trap_AddCommand( "setspawnpt" );          // NERVE - SMF
+	Cmd_AddCommand( "setspawnpt", NULL );          // NERVE - SMF
 }

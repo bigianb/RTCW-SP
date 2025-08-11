@@ -111,9 +111,9 @@ static void CG_DrawPlayerArmorValue( rectDef_t *rect, int font, float scale, vec
 
 
 	if ( shader ) {
-		trap_R_SetColor( color );
+		RE_SetColor( color );
 		CG_DrawPic( rect->x, rect->y, rect->w, rect->h, shader );
-		trap_R_SetColor( NULL );
+		RE_SetColor( NULL );
 	} else {
 		Com_sprintf( num, sizeof( num ), "%i", value );
 		value = Text_Width( num, font, scale, 0 );
@@ -386,7 +386,7 @@ static void CG_DrawCursorhint( rectDef_t *rect ) {
 	// color
 	color = CG_FadeColor( cg.cursorHintTime, cg.cursorHintFade );
 	if ( !color ) {
-		trap_R_SetColor( NULL );
+		RE_SetColor( NULL );
 		cg.exitStatsTime = 0;   // exit stats will fade up next time they're hit
 		cg.cursorHintIcon = HINT_NONE;  // clear the hint
 		return;
@@ -411,14 +411,14 @@ static void CG_DrawCursorhint( rectDef_t *rect ) {
 	}
 
 	// set color and draw the hint
-	trap_R_SetColor( color );
+	RE_SetColor( color );
 	CG_DrawPic( rect->x - halfscale, rect->y - halfscale, rect->w + scale, rect->h + scale, icon );
 
 	if ( icon2 ) {
 		CG_DrawPic( rect->x - halfscale, rect->y - halfscale, rect->w + scale, rect->h + scale, icon2 );
 	}
 
-	trap_R_SetColor( NULL );
+	RE_SetColor( NULL );
 
 	// draw status bar under the cursor hint
 	if ( cg.cursorHintValue && ( !( cg.time - cg.cursorHintTime ) ) ) {    // don't fade bar out w/ hint icon
@@ -530,9 +530,9 @@ static void CG_DrawPlayerAmmoValue( rectDef_t *rect, int font, float scale, vec4
 
 	if ( value > -1 ) {
 		if ( shader ) {
-			trap_R_SetColor( color );
+			RE_SetColor( color );
 			CG_DrawPic( rect->x, rect->y, rect->w, rect->h, shader );
-			trap_R_SetColor( NULL );
+			RE_SetColor( NULL );
 		} else {
 			Com_sprintf( num, sizeof( num ), "%i", value );
 			value = Text_Width( num, font, scale, 0 );
@@ -609,9 +609,9 @@ static void CG_DrawSelectedPlayerHealth( rectDef_t *rect, int font, float scale,
 	ci = cgs.clientinfo + sortedTeamPlayers[CG_GetSelectedPlayer()];
 	if ( ci ) {
 		if ( shader ) {
-			trap_R_SetColor( color );
+			RE_SetColor( color );
 			CG_DrawPic( rect->x, rect->y, rect->w, rect->h, shader );
-			trap_R_SetColor( NULL );
+			RE_SetColor( NULL );
 		} else {
 			Com_sprintf( num, sizeof( num ), "%i", ci->health );
 			value = Text_Width( num, font, scale, 0 );
@@ -629,9 +629,9 @@ static void CG_DrawSelectedPlayerArmor( rectDef_t *rect, int font, float scale, 
 	if ( ci ) {
 		if ( ci->armor > 0 ) {
 			if ( shader ) {
-				trap_R_SetColor( color );
+				RE_SetColor( color );
 				CG_DrawPic( rect->x, rect->y, rect->w, rect->h, shader );
-				trap_R_SetColor( NULL );
+				RE_SetColor( NULL );
 			} else {
 				Com_sprintf( num, sizeof( num ), "%i", ci->armor );
 				value = Text_Width( num, font, scale, 0 );
@@ -707,9 +707,9 @@ static void CG_DrawPlayerScore( rectDef_t *rect, int font, float scale, vec4_t c
 	int value = cg.snap->ps.persistant[PERS_SCORE];
 
 	if ( shader ) {
-		trap_R_SetColor( color );
+		RE_SetColor( color );
 		CG_DrawPic( rect->x, rect->y, rect->w, rect->h, shader );
-		trap_R_SetColor( NULL );
+		RE_SetColor( NULL );
 	} else {
 		Com_sprintf( num, sizeof( num ), "%i", value );
 		value = Text_Width( num, font, scale, 0 );
@@ -765,7 +765,7 @@ void flubfoo() {
 
 	if ( value ) {
 
-		trap_R_SetColor( NULL );
+		RE_SetColor( NULL );
 
 		CG_RegisterItemVisuals( item - bg_itemlist );
 
@@ -906,9 +906,9 @@ static void CG_DrawPlayerHealth( rectDef_t *rect, int font, float scale, vec4_t 
 	value = ps->stats[STAT_HEALTH];
 
 	if ( shader ) {
-		trap_R_SetColor( color );
+		RE_SetColor( color );
 		CG_DrawPic( rect->x, rect->y, rect->w, rect->h, shader );
-		trap_R_SetColor( NULL );
+		RE_SetColor( NULL );
 	} else {
 		Com_sprintf( num, sizeof( num ), "%i", value );
 		value = Text_Width( num, font, scale, 0 );
@@ -1052,14 +1052,14 @@ static void CG_DrawAreaPowerUp( rectDef_t *rect, int align, float spacing, int f
 		if ( item ) {
 			t = ps->powerups[ sorted[i] ];
 			if ( t - cg.time >= POWERUP_BLINKS * POWERUP_BLINK_TIME ) {
-				trap_R_SetColor( NULL );
+				RE_SetColor( NULL );
 			} else {
 				vec4_t modulate;
 
 				f = (float)( t - cg.time ) / POWERUP_BLINK_TIME;
 				f -= (int)f;
 				modulate[0] = modulate[1] = modulate[2] = modulate[3] = f;
-				trap_R_SetColor( modulate );
+				RE_SetColor( modulate );
 			}
 
 			CG_DrawPic( r2.x, r2.y, r2.w * .75, r2.h, trap_R_RegisterShader( item->icon ) );
@@ -1070,7 +1070,7 @@ static void CG_DrawAreaPowerUp( rectDef_t *rect, int align, float spacing, int f
 		}
 
 	}
-	trap_R_SetColor( NULL );
+	RE_SetColor( NULL );
 
 }
 
@@ -1385,7 +1385,7 @@ static void CG_Text_Paint_Limit( float *maxX, float x, float y, int font, float 
 		}
 
 		useScale = scale * fnt->glyphScale;
-		trap_R_SetColor( color );
+		RE_SetColor( color );
 		len = strlen( text );
 		if ( limit > 0 && len > limit ) {
 			len = limit;
@@ -1396,7 +1396,7 @@ static void CG_Text_Paint_Limit( float *maxX, float x, float y, int font, float 
 			if ( Q_IsColorString( s ) ) {
 				memcpy( newColor, g_color_table[ColorIndex( *( s + 1 ) )], sizeof( newColor ) );
 				newColor[3] = color[3];
-				trap_R_SetColor( newColor );
+				RE_SetColor( newColor );
 				s += 2;
 				continue;
 			} else {
@@ -1421,7 +1421,7 @@ static void CG_Text_Paint_Limit( float *maxX, float x, float y, int font, float 
 				s++;
 			}
 		}
-		trap_R_SetColor( NULL );
+		RE_SetColor( NULL );
 	}
 
 }
@@ -1543,7 +1543,7 @@ void CG_DrawMedal( int ownerDraw, rectDef_t *rect, int font, float scale, vec4_t
 		}
 	}
 
-	trap_R_SetColor( color );
+	RE_SetColor( color );
 	CG_DrawPic( rect->x, rect->y, rect->w, rect->h, shader );
 
 	if ( text ) {
@@ -1551,7 +1551,7 @@ void CG_DrawMedal( int ownerDraw, rectDef_t *rect, int font, float scale, vec4_t
 		value = Text_Width( text, font, scale, 0 );
 		Text_Paint( rect->x + ( rect->w - value ) / 2, rect->y + rect->h + 10, font, scale, color, text, 0, 0, 0 );
 	}
-	trap_R_SetColor( NULL );
+	RE_SetColor( NULL );
 
 }
 

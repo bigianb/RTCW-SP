@@ -576,7 +576,7 @@ static void CG_MapRestart( void ) {
 	// reset fog to world fog (if present)
 //	trap_R_SetFog(FOG_CMD_SWITCHFOG, FOG_MAP,20,0,0,0,0);
 //	trap_Cvar_VariableStringBuffer("r_mapFogColor", buff, sizeof(buff));
-//	trap_SendClientCommand(va("fogswitch %s", buff) );
+//	CL_AddReliableCommand(va("fogswitch %s", buff) );
 
 	CG_InitLocalEntities();
 	CG_InitMarkPolys();
@@ -668,7 +668,7 @@ static void CG_MapRestart( void ) {
 	if ( cg_singlePlayerActive.integer ) {
 		trap_Cvar_Set( "ui_matchStartTime", va( "%i", cg.time ) );
 		if ( cg_recordSPDemo.integer && cg_recordSPDemoName.string && *cg_recordSPDemoName.string ) {
-			trap_SendConsoleCommand( va( "set g_synchronousclients 1 ; record %s \n", cg_recordSPDemoName.string ) );
+			Cbuf_AddText( va( "set g_synchronousclients 1 ; record %s \n", cg_recordSPDemoName.string ) );
 		}
 	}
 #endif

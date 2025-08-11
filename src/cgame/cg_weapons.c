@@ -2901,7 +2901,7 @@ void CG_DrawWeaponSelect( void ) {
 	if ( !color ) {
 		return;
 	}
-	trap_R_SetColor( color );
+	RE_SetColor( color );
 
 
 //----(SA)	neither of these overlap the weapon selection area anymore, so let them stay
@@ -6041,7 +6041,7 @@ void CG_ClientDamage( int entnum, int enemynum, int id ) {
 	}
 	// -NERVE - SMF
 	else {
-		trap_SendClientCommand( va( "cld %i %i %i", entnum, enemynum, id ) );
+		CL_AddReliableCommand( va( "cld %i %i %i", entnum, enemynum, id ) );
 	}
 }
 

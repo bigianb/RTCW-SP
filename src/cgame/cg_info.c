@@ -82,7 +82,7 @@ void CG_LoadingString( const char *s ) {
 		CG_Printf( va( "LOADING... %s\n",s ) );   //----(SA)	added so you can see from the console what's going on
 
 	}
-	trap_UpdateScreen();
+	SCR_UpdateScreen();
 }
 
 /*
@@ -488,7 +488,7 @@ void CG_DrawInformation( void ) {
 		levelshot = RE_RegisterShaderNoMip( "menu/art/unknownmap" );
 	}
 
-	trap_R_SetColor( NULL );
+	RE_SetColor( NULL );
 
 	// show the loading progress
 	VectorSet( color, 0.8, 0.8, 0.8 );
@@ -511,7 +511,7 @@ void CG_DrawInformation( void ) {
 									   UI_CENTER | UI_EXSMALLFONT | UI_DROPSHADOW, color );
 		}
 
-		trap_UpdateScreen();
+		SCR_UpdateScreen();
 		callCount--;
 		return;
 	}
@@ -536,7 +536,7 @@ void CG_DrawInformation( void ) {
 
 		trap_UI_Popup( "briefing" );
 
-		trap_UpdateScreen();
+		SCR_UpdateScreen();
 		callCount--;
 		return;
 	}

@@ -34,6 +34,7 @@ If you have questions concerning this license or the applicable additional terms
 // It also handles local physics interaction, like fragments bouncing off walls
 
 #include "cg_local.h"
+#include "../qcommon/cm_public.h"
 
 static pmove_t cg_pmove;
 
@@ -120,8 +121,7 @@ static void CG_ClipMoveToEntities( const vec3_t start, const vec3_t mins, const 
 
 		if ( ent->solid == SOLID_BMODEL ) {
 			// special value for bmodel
-			cmodel = trap_CM_InlineModel( ent->modelindex );
-//			VectorCopy( cent->lerpAngles, angles );
+			cmodel = CM_InlineModel( ent->modelindex );
 			BG_EvaluateTrajectory( &cent->currentState.apos, cg.physicsTime, angles );
 			BG_EvaluateTrajectory( &cent->currentState.pos, cg.physicsTime, origin );
 		} else {
@@ -226,7 +226,7 @@ int     CG_PointContents( const vec3_t point, int passEntityNum ) {
 			continue;
 		}
 
-		cmodel = trap_CM_InlineModel( ent->modelindex );
+		cmodel = CM_InlineModel( ent->modelindex );
 		if ( !cmodel ) {
 			continue;
 		}
@@ -448,7 +448,7 @@ static void CG_TouchTriggerPrediction( void ) {
 			continue;
 		}
 
-		cmodel = trap_CM_InlineModel( ent->modelindex );
+		cmodel = CM_InlineModel( ent->modelindex );
 		if ( !cmodel ) {
 			continue;
 		}

@@ -402,7 +402,6 @@ void CG_AddLightstyle( centity_t *cent ) {
 	float lightval;
 	int cl;
 	int r, g, b;
-	int stringlength;
 	float offset;
 	int offsetwhole;
 	int otime;
@@ -413,7 +412,7 @@ void CG_AddLightstyle( centity_t *cent ) {
 	}
 
 	otime = cg.time - cent->dl_time;
-	stringlength = strlen( cent->dl_stylestring );
+	size_t stringlength = strlen( cent->dl_stylestring );
 
 	// it's been a long time since you were updated, lets assume a reset
 	if ( otime > 2 * LS_FRAMETIME ) {
@@ -598,22 +597,6 @@ static void CG_General( centity_t *cent ) {
 		VectorScale( ent.axis[2], cent->currentState.angles2[2], ent.axis[2] );
 		ent.nonNormalizedAxes = qtrue;
 
-//		if( (cent->currentState.angles2[0] * cent->currentState.angles2[1] * cent->currentState.angles2[2]) != 1) {
-//			ent.reFlags |= REFLAG_SCALEDSPHERECULL;
-//
-//			// find greatest scaled axis
-//			ent.radius = cent->currentState.angles2[0];
-//			if(cent->currentState.angles2[1] > ent.radius)
-//				ent.radius = cent->currentState.angles2[1];
-//			if(cent->currentState.angles2[2] > ent.radius)
-//				ent.radius = cent->currentState.angles2[2];
-//		}
-
-//----(SA)	testing
-//		if(cent->currentState.apos.trType) {
-//			ent.reFlags |= REFLAG_ORIENT_LOD;
-//		}
-//----(SA)	end
 	}
 
 	// add to refresh list
@@ -672,7 +655,7 @@ void CG_DrawHoldableSelect( void ) {
 	if ( !color ) {
 		return;
 	}
-	trap_R_SetColor( color );
+	RE_SetColor( color );
 
 	// showing select clears pickup item display, but not the blend blob
 	cg.itemPickupTime = 0;
@@ -758,7 +741,7 @@ void CG_DrawHoldableSelect( void ) {
 		}
 	}
 
-	trap_R_SetColor( NULL );
+	RE_SetColor( NULL );
 }
 
 
