@@ -86,7 +86,7 @@ const char *TeamColorString( int team ) {
 }
 
 // NULL for everyone
-void QDECL PrintMsg( gentity_t *ent, const char *fmt, ... ) {
+void  PrintMsg( gentity_t *ent, const char *fmt, ... ) {
 	char msg[1024];
 	va_list argptr;
 	char        *p;

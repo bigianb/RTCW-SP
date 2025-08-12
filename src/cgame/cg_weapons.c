@@ -1432,7 +1432,8 @@ qboolean CG_GetPartFramesFromWeap( centity_t *cent, refEntity_t *part, refEntity
 	}
 
 	// find part's start frame for this animation sequence
-	for ( i = 0; i < cent->pe.weap.animationNumber; i++ ) {
+    // IJB: FIXME - how does this get out of range?
+    for ( i = 0; i < cent->pe.weap.animationNumber && i < MAX_WP_ANIMATIONS; i++ ) {
 		if ( wi->weapAnimations[i].moveSpeed & ( 1 << partid ) ) {     // this part has animation for this sequence
 			frameoffset += wi->weapAnimations[i].numFrames;
 		}

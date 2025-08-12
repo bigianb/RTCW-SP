@@ -165,7 +165,6 @@ void BotDrawDebugPolygons( void ( *drawPoly )( int color, int numPoints, float *
 			continue;
 		}
 		drawPoly( poly->color, poly->numPoints, (float *) poly->points );
-		//Com_Printf("poly %i, numpoints = %d\n", i, poly->numPoints);
 	}
 }
 
@@ -174,12 +173,12 @@ void BotDrawDebugPolygons( void ( *drawPoly )( int color, int numPoints, float *
 BotImport_Print
 ==================
 */
-void QDECL BotImport_Print( int type, char *fmt, ... ) {
+void  BotImport_Print( int type, char *fmt, ... ) {
 	char str[2048];
 	va_list ap;
 
 	va_start( ap, fmt );
-	vsprintf( str, fmt, ap );
+	vsnprintf( str, 2048, fmt, ap );
 	va_end( ap );
 
 	switch ( type ) {
@@ -556,7 +555,6 @@ void SV_BotInitBotLib( void ) {
 	botimport.AICast_CheckAttackAtPos = BotImport_AICast_CheckAttackAtPos;
 	// done.
 
-	// IJB botlib_export = (botlib_export_t *)GetBotLibAPI( BOTLIB_API_VERSION, &botlib_import );
 }
 
 
@@ -572,7 +570,7 @@ SV_BotGetConsoleMessage
 int SV_BotGetConsoleMessage( int client, char *buf, int size ) {
 	client_t    *cl;
 	int index;
-	char        *msg;
+	const char        *msg;
 
 	cl = &svs.clients[client];
 	cl->lastPacketTime = svs.time;
@@ -594,27 +592,6 @@ int SV_BotGetConsoleMessage( int client, char *buf, int size ) {
 	return qtrue;
 }
 
-#if 0
-/*
-==================
-EntityInPVS
-==================
-*/
-int EntityInPVS( int client, int entityNum ) {
-	client_t            *cl;
-	clientSnapshot_t    *frame;
-	int i;
-
-	cl = &svs.clients[client];
-	frame = &cl->frames[cl->netchan.outgoingSequence & PACKET_MASK];
-	for ( i = 0; i < frame->num_entities; i++ ) {
-		if ( svs.snapshotEntities[( frame->first_entity + i ) % svs.numSnapshotEntities].number == entityNum ) {
-			return qtrue;
-		}
-	}
-	return qfalse;
-}
-#endif
 
 /*
 ==================

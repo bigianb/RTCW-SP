@@ -139,13 +139,13 @@ to the apropriate place.
 A raw string should NEVER be passed as fmt, because of "%f" type crashers.
 =============
 */
-void QDECL Com_Printf( const char *fmt, ... ) {
+void  Com_Printf( const char *fmt, ... ) {
 	va_list argptr;
 	char msg[MAXPRINTMSG];
 	static qboolean opening_qconsole = qfalse;
 
 	va_start( argptr,fmt );
-	vsprintf( msg,fmt,argptr );
+	vsnprintf( msg, MAXPRINTMSG, fmt,argptr );
 	va_end( argptr );
 
 	if ( rd_buffer ) {
@@ -206,7 +206,7 @@ Com_DPrintf
 A Com_Printf that only shows up if the "developer" cvar is set
 ================
 */
-void QDECL Com_DPrintf( const char *fmt, ... ) {
+void  Com_DPrintf( const char *fmt, ... ) {
 	va_list argptr;
 	char msg[MAXPRINTMSG];
 
@@ -215,7 +215,7 @@ void QDECL Com_DPrintf( const char *fmt, ... ) {
 	}
 
 	va_start( argptr,fmt );
-	vsprintf( msg,fmt,argptr );
+	vsnprintf( msg, MAXPRINTMSG, fmt,argptr );
 	va_end( argptr );
 
 	Com_Printf( "%s", msg );
@@ -229,7 +229,7 @@ Both client and server can use this, and it will
 do the apropriate things.
 =============
 */
-void QDECL Com_Error( int code, const char *fmt, ... ) {
+void  Com_Error( int code, const char *fmt, ... ) {
 	va_list argptr;
 	static int lastErrorTime;
 	static int errorCount;
@@ -1403,7 +1403,7 @@ Com_Init
 void Com_Init( char *commandLine ) {
 	char    *s;
 
-	Com_Printf( "%s %s %s\n", Q3_VERSION, CPUSTRING, __DATE__ );
+	Com_Printf( "%s %s\n", Q3_VERSION, __DATE__ );
 
 	if ( setjmp( abortframe ) ) {
 		Sys_Error( "Error during initialization" );
@@ -1517,7 +1517,7 @@ void Com_Init( char *commandLine ) {
 	Cmd_AddCommand( "changeVectors", MSG_ReportChangeVectors_f );
 	Cmd_AddCommand( "writeconfig", Com_WriteConfig_f );
 
-	s = va( "%s %s %s", Q3_VERSION, CPUSTRING, __DATE__ );
+	s = va( "%s %s", Q3_VERSION, __DATE__ );
 	com_version = Cvar_Get( "version", s, CVAR_ROM | CVAR_SERVERINFO );
 
 	Sys_Init();

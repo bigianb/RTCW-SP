@@ -80,9 +80,6 @@ void    trap_FS_Read( void *buffer, int len, fileHandle_t f ) {
 	FS_Read(buffer, len, f );
 }
 
-int     trap_FS_Write( const void *buffer, int len, fileHandle_t f ) {
-	return FS_Write( buffer, len, f );
-}
 
 int     trap_FS_Rename( const char *from, const char *to ) {
 	FS_Rename(from, to );

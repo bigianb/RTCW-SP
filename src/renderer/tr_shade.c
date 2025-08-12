@@ -431,7 +431,7 @@ static void ProjectDlightTexture( void ) {
 	float   *texCoords;
 	byte    *colors;
 	byte clipBits[SHADER_MAX_VERTEXES];
-	MAC_STATIC float texCoordsArray[SHADER_MAX_VERTEXES][2];
+    float texCoordsArray[SHADER_MAX_VERTEXES][2];
 	byte colorArray[SHADER_MAX_VERTEXES][4];
 	unsigned hitIndexes[SHADER_MAX_INDEXES];
 	int numIndexes;
@@ -443,11 +443,9 @@ static void ProjectDlightTexture( void ) {
 		return;
 	}
 
-
 	if ( backEnd.refdef.rdflags & RDF_SNOOPERVIEW ) {  // no dlights for snooper
 		return;
 	}
-
 
 	for ( l = 0 ; l < backEnd.refdef.num_dlights ; l++ ) {
 		dlight_t    *dl;
@@ -477,15 +475,6 @@ static void ProjectDlightTexture( void ) {
 			}
 
 			VectorSubtract( origin, tess.xyz[i], dist );
-
-//			if(!r_dlightBacks->integer) {
-//				vec3_t	dir;
-//				VectorNormalize2(dist, dir);
-//				if( DotProduct( tess.normal[i], dir) < 0) {
-//					clipBits[i] = 255;	// not lighted (backface)
-//					continue;
-//				}
-//			}
 
 			backEnd.pc.c_dlightVertexes++;
 
@@ -538,14 +527,6 @@ static void ProjectDlightTexture( void ) {
 				continue;   // not lighted
 			}
 
-//			if(!r_dlightBacks->integer) {
-//				vec3_t	dir;
-//				VectorSubtract( origin, tess.xyz[a], dir );
-//				VectorNormalize(dir);
-//				if( DotProduct( tess.normal[i], dir) < 0) {
-//					continue;	// not lighted (backface)
-//				}
-//			}
 
 			hitIndexes[numIndexes] = a;
 			hitIndexes[numIndexes + 1] = b;
@@ -567,7 +548,6 @@ static void ProjectDlightTexture( void ) {
 		{
 			shader_t *dls = dl->dlshader;
 			if ( dls ) {
-//				if (!qglActiveTextureARB || dls->numUnfoggedPasses < 2) {
 				for ( i = 0; i < dls->numUnfoggedPasses; i++ )
 				{
 					shaderStage_t *stage = dls->stages[i];
@@ -577,49 +557,12 @@ static void ProjectDlightTexture( void ) {
 					backEnd.pc.c_totalIndexes += numIndexes;
 					backEnd.pc.c_dlightIndexes += numIndexes;
 				}
-/*
-				} else {	// optimize for multitexture
 
-					for(i=0;i<dls->numUnfoggedPasses;)
-					{
-						shaderStage_t *stage = dls->stages[i];
-
-						GL_State(stage->stateBits | GLS_DEPTHFUNC_EQUAL);
-
-						// setup each TMU
-						for (tmu=0; tmu<glConfig.maxActiveTextures && i<dls->numUnfoggedPasses; tmu++, i++) {
-
-							GL_SelectTexture( tmu );
-
-							if (tmu) {
-								qglEnable( GL_TEXTURE_2D );
-							}
-
-							R_BindAnimatedImage( &dls->stages[i]->bundle[0] );
-						}
-
-						// draw the elements
-						R_DrawElements( numIndexes, hitIndexes );
-						backEnd.pc.c_totalIndexes += numIndexes;
-						backEnd.pc.c_dlightIndexes += numIndexes;
-					}
-
-					// turn off unused TMU's
-					for (tmu=1; tmu<glConfig.maxActiveTextures; tmu++) {
-						// set back to default state
-						GL_SelectTexture( tmu );
-						qglDisable( GL_TEXTURE_2D );
-					}
-
-					// return to TEXTURE0
-					GL_SelectTexture( 0 );
-				}
-*/
 			} else
 			{
 				R_FogOff();
 
-//				if (!dl->overdraw || !qglActiveTextureARB) {
+
 				GL_Bind( tr.dlightImage );
 				// include GLS_DEPTHFUNC_EQUAL so alpha tested surfaces don't add light
 				// where they aren't rendered
@@ -635,55 +578,7 @@ static void ProjectDlightTexture( void ) {
 					backEnd.pc.c_totalIndexes += numIndexes;
 					backEnd.pc.c_dlightIndexes += numIndexes;
 				}
-/*
-				} else {	// optimize for multitexture
 
-					GL_State( GLS_SRCBLEND_DST_COLOR | GLS_DSTBLEND_ONE | GLS_DEPTHFUNC_EQUAL );
-
-					// setup each TMU (use all available TMU's)
-					for (tmu=0; tmu<glConfig.maxActiveTextures && tmu<(dl->overdraw+1); tmu++) {
-						GL_SelectTexture( tmu );
-						if (tmu) {
-							qglEnable( GL_TEXTURE_2D );
-							GL_TexEnv( GL_ADD );
-							GL_State( GLS_SRCBLEND_DST_COLOR | GLS_DSTBLEND_ONE | GLS_DEPTHFUNC_EQUAL );
-							qglEnableClientState( GL_TEXTURE_COORD_ARRAY );
-							qglTexCoordPointer( 2, GL_FLOAT, 0, texCoordsArray[0] );
-							qglEnableClientState( GL_COLOR_ARRAY );
-							qglColorPointer( 4, GL_UNSIGNED_BYTE, 0, colorArray );
-						}
-						GL_Bind( tr.dlightImage );
-					}
-
-					// draw each bundle
-					for(i=0; i<(dl->overdraw+1); i+=glConfig.maxActiveTextures)
-					{
-						// make sure we dont draw with too many TMU's
-						if (i+glConfig.maxActiveTextures>(dl->overdraw+1)) {
-							for (tmu=0; tmu<glConfig.maxActiveTextures; tmu++) {
-								if (tmu+i>=(dl->overdraw+1)) {
-									GL_SelectTexture( tmu );
-									qglDisable( GL_TEXTURE_2D );
-								}
-							}
-						}
-						// draw the elements
-						R_DrawElements( numIndexes, hitIndexes );
-						backEnd.pc.c_totalIndexes += numIndexes;
-						backEnd.pc.c_dlightIndexes += numIndexes;
-					}
-
-					// turn off unused TMU's
-					for (tmu=1; tmu<glConfig.maxActiveTextures; tmu++) {
-						// set back to default state
-						GL_SelectTexture( tmu );
-						qglDisable( GL_TEXTURE_2D );
-					}
-
-					// return to TEXTURE0
-					GL_SelectTexture( 0 );
-				}
-*/
 				R_FogOn();
 			}
 		}

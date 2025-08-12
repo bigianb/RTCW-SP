@@ -27,27 +27,6 @@ If you have questions concerning this license or the applicable additional terms
 */
 
 
-/*****************************************************************************
- * name:		l_script.h
- *
- * desc:		lexicographical parser
- *
- *
- *****************************************************************************/
-
-// Ridah, can't get it to compile without this
-#ifndef QDECL
-
-// for windows fastcall option
-#define QDECL
-//======================= WIN32 DEFINES =================================
-#ifdef WIN32
-#undef QDECL
-#define QDECL   __cdecl
-#endif
-#endif
-// done.
-
 //undef if binary numbers of the form 0b... or 0B... are not allowed
 #define BINARYNUMBERS
 //undef if not using the token.intvalue and token.floatvalue
@@ -260,9 +239,9 @@ void FreeScript( script_t *script );
 //set the base folder to load files from
 void PS_SetBaseFolder( char *path );
 //print a script error with filename and line number
-void QDECL ScriptError( script_t *script, char *str, ... );
+void  ScriptError( script_t *script, char *str, ... );
 //print a script warning with filename and line number
-void QDECL ScriptWarning( script_t *script, char *str, ... );
+void  ScriptWarning( script_t *script, char *str, ... );
 
 
 

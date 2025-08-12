@@ -173,7 +173,7 @@ void        NET_Restart( void );
 void        NET_Config( qboolean enableNetworking );
 
 void        NET_SendPacket( netsrc_t sock, int length, const void *data, netadr_t to );
-void QDECL NET_OutOfBandPrint( netsrc_t net_socket, netadr_t adr, const char *format, ... );
+void  NET_OutOfBandPrint( netsrc_t net_socket, netadr_t adr, const char *format, ... );
 
 qboolean    NET_CompareAdr( netadr_t a, netadr_t b );
 qboolean    NET_CompareBaseAdr( netadr_t a, netadr_t b );
@@ -557,7 +557,7 @@ int     FS_FileIsInPAK( const char *filename, int *pChecksum );
 
 int     FS_Delete( const char *filename );    // only works inside the 'save' directory (for deleting savegames/images)
 
-int     FS_Write( const void *buffer, int len, fileHandle_t f );
+size_t     FS_Write( const void *buffer, size_t len, fileHandle_t f );
 
 int     FS_Read( void *buffer, int len, fileHandle_t f );
 // properly handles partial reads and reads from other dlls
@@ -590,7 +590,7 @@ int     FS_FTell( fileHandle_t f );
 
 void    FS_Flush( fileHandle_t f );
 
-void QDECL FS_Printf( fileHandle_t f, const char *fmt, ... );
+void  FS_Printf( fileHandle_t f, const char *fmt, ... );
 // like fprintf
 
 int     FS_FOpenFileByMode( const char *qpath, fileHandle_t *f, fsMode_t mode );
@@ -700,9 +700,9 @@ void        Info_Print( const char *s );
 
 void Com_BeginRedirect( char *buffer, int buffersize, void ( *flush )( char * ) );
 void        Com_EndRedirect( void );
-void QDECL Com_Printf( const char *fmt, ... );
-void QDECL Com_DPrintf( const char *fmt, ... );
-void QDECL Com_Error( int code, const char *fmt, ... );
+void  Com_Printf( const char *fmt, ... );
+void  Com_DPrintf( const char *fmt, ... );
+void  Com_Error( int code, const char *fmt, ... );
 void        Com_Quit_f( void );
 
 int         Com_Milliseconds( void );   // will be journaled properly
@@ -909,8 +909,8 @@ void Sys_EnterCriticalSection( void *ptr );
 void Sys_LeaveCriticalSection( void *ptr );
 
 // general development dll loading for virtual machine testing
-void    * QDECL Sys_LoadDll( const char *name, int( QDECL * *entryPoint ) ( int, ... ),
-							 int ( QDECL * systemcalls )( int, ... ) );
+void    *  Sys_LoadDll( const char *name, int(  * *entryPoint ) ( int, ... ),
+							 int (  * systemcalls )( int, ... ) );
 void    Sys_UnloadDll( void *dllHandle );
 
 void    Sys_UnloadGame( void );
@@ -928,7 +928,7 @@ void    *Sys_GetBotLibAPI( void *parms );
 
 const char    *Sys_GetCurrentUser( void );
 
-void QDECL Sys_Error( const char *error, ... );
+void  Sys_Error( const char *error, ... );
 void    Sys_Quit( void );
 char    *Sys_GetClipboardData( void );  // note that this isn't journaled...
 

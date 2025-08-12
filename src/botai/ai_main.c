@@ -80,7 +80,7 @@ vmCvar_t memorydump;
 BotAI_Print
 ==================
 */
-void QDECL BotAI_Print( int type, char *fmt, ... ) {
+void BotAI_Print( int type, char *fmt, ... ) {
 	char str[2048];
 	va_list ap;
 
@@ -208,7 +208,7 @@ int BotAI_GetSnapshotEntity( int clientNum, int sequence, entityState_t *state )
 BotAI_BotInitialChat
 ==================
 */
-void QDECL BotAI_BotInitialChat( bot_state_t *bs, char *type, ... ) {
+void BotAI_BotInitialChat( bot_state_t *bs, char *type, ... ) {
 	int i, mcontext;
 	va_list ap;
 	char    *p;

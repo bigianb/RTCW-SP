@@ -765,213 +765,6 @@ void Cmd_FollowCycle_f( gentity_t *ent, int dir ) {
 
 /*
 ==================
-G_Say
-==================
-*/
-#define MAX_SAY_TEXT    150
-
-#define SAY_ALL     0
-#define SAY_TEAM    1
-#define SAY_TELL    2
-#define SAY_LIMBO   3           // NERVE - SMF
-
-void G_SayTo( gentity_t *ent, gentity_t *other, int mode, int color, const char *name, const char *message ) { // removed static so it would link
-	if ( !other ) {
-		return;
-	}
-	if ( !other->inuse ) {
-		return;
-	}
-	if ( !other->client ) {
-		return;
-	}
-	if ( ( mode == SAY_TEAM || mode == SAY_LIMBO )  && !OnSameTeam( ent, other ) ) {
-		return;
-	}
-	// no chatting to players in tournements
-	if ( g_gametype.integer == GT_TOURNAMENT
-		 && other->client->sess.sessionTeam == TEAM_FREE
-		 && ent->client->sess.sessionTeam != TEAM_FREE ) {
-		return;
-	}
-
-	// NERVE - SMF
-	if ( mode == SAY_LIMBO ) {
-		trap_SendServerCommand( other - g_entities, va( "%s \"%s%c%c%s\"",
-														"lchat", name, Q_COLOR_ESCAPE, color, message ) );
-	}
-	// -NERVE - SMF
-	else {
-		trap_SendServerCommand( other - g_entities, va( "%s \"%s%c%c%s\"",
-														mode == SAY_TEAM ? "tchat" : "chat",
-														name, Q_COLOR_ESCAPE, color, message ) );
-	}
-}
-
-void G_Say( gentity_t *ent, gentity_t *target, int mode, const char *chatText ) {
-	int j;
-	gentity_t   *other;
-	int color;
-	char name[64];
-	// don't let text be too long for malicious reasons
-	char text[MAX_SAY_TEXT];
-	char location[64];
-
-	if ( g_gametype.integer < GT_TEAM && mode == SAY_TEAM ) {
-		mode = SAY_ALL;
-	}
-
-	switch ( mode ) {
-	default:
-	case SAY_ALL:
-		G_LogPrintf( "say: %s: %s\n", ent->client->pers.netname, chatText );
-		Com_sprintf( name, sizeof( name ), "%s%c%c: ", ent->client->pers.netname, Q_COLOR_ESCAPE, COLOR_WHITE );
-		color = COLOR_GREEN;
-		break;
-	case SAY_TEAM:
-		G_LogPrintf( "sayteam: %s: %s\n", ent->client->pers.netname, chatText );
-		if ( Team_GetLocationMsg( ent, location, sizeof( location ) ) ) {
-			Com_sprintf( name, sizeof( name ), "(%s%c%c) (%s): ",
-						 ent->client->pers.netname, Q_COLOR_ESCAPE, COLOR_WHITE, location );
-		} else {
-			Com_sprintf( name, sizeof( name ), "(%s%c%c): ",
-						 ent->client->pers.netname, Q_COLOR_ESCAPE, COLOR_WHITE );
-		}
-		color = COLOR_CYAN;
-		break;
-	case SAY_TELL:
-		if ( target && g_gametype.integer >= GT_TEAM &&
-			 target->client->sess.sessionTeam == ent->client->sess.sessionTeam &&
-			 Team_GetLocationMsg( ent, location, sizeof( location ) ) ) {
-			Com_sprintf( name, sizeof( name ), "[%s%c%c] (%s): ", ent->client->pers.netname, Q_COLOR_ESCAPE, COLOR_WHITE, location );
-		} else {
-			Com_sprintf( name, sizeof( name ), "[%s%c%c]: ", ent->client->pers.netname, Q_COLOR_ESCAPE, COLOR_WHITE );
-		}
-		color = COLOR_MAGENTA;
-		break;
-		// NERVE - SMF
-	case SAY_LIMBO:
-		G_LogPrintf( "sayteam: %s: %s\n", ent->client->pers.netname, chatText );
-		if ( Team_GetLocationMsg( ent, location, sizeof( location ) ) ) {
-			Com_sprintf( name, sizeof( name ), "(%s%c%c) (%s): ",
-						 ent->client->pers.netname, Q_COLOR_ESCAPE, COLOR_WHITE, location );
-		} else {
-			Com_sprintf( name, sizeof( name ), "(%s%c%c): ",
-						 ent->client->pers.netname, Q_COLOR_ESCAPE, COLOR_WHITE );
-		}
-		color = COLOR_CYAN;
-		break;
-		// -NERVE - SMF
-	}
-
-	Q_strncpyz( text, chatText, sizeof( text ) );
-
-	if ( target ) {
-		G_SayTo( ent, target, mode, color, name, text );
-		return;
-	}
-
-	// echo the text to the console
-	if ( g_dedicated.integer ) {
-		G_Printf( "%s%s\n", name, text );
-	}
-
-	// send it to all the apropriate clients
-	for ( j = 0; j < level.maxclients; j++ ) {
-		other = &g_entities[j];
-		G_SayTo( ent, other, mode, color, name, text );
-	}
-}
-
-
-/*
-==================
-Cmd_Say_f
-==================
-*/
-static void Cmd_Say_f( gentity_t *ent, int mode, qboolean arg0 ) {
-	char        *p;
-
-	if ( trap_Argc() < 2 && !arg0 ) {
-		return;
-	}
-
-	if ( arg0 ) {
-		p = ConcatArgs( 0 );
-	} else
-	{
-		p = ConcatArgs( 1 );
-	}
-
-	G_Say( ent, NULL, mode, p );
-}
-
-/*
-==================
-Cmd_Tell_f
-==================
-*/
-static void Cmd_Tell_f( gentity_t *ent ) {
-	int targetNum;
-	gentity_t   *target;
-	char        *p;
-	char arg[MAX_TOKEN_CHARS];
-
-	if ( trap_Argc() < 2 ) {
-		return;
-	}
-
-	trap_Argv( 1, arg, sizeof( arg ) );
-	targetNum = atoi( arg );
-	if ( targetNum < 0 || targetNum >= level.maxclients ) {
-		return;
-	}
-
-	target = &g_entities[targetNum];
-	if ( !target || !target->inuse || !target->client ) {
-		return;
-	}
-
-	p = ConcatArgs( 2 );
-
-	G_LogPrintf( "tell: %s to %s: %s\n", ent->client->pers.netname, target->client->pers.netname, p );
-	G_Say( ent, target, SAY_TELL, p );
-	G_Say( ent, ent, SAY_TELL, p );
-}
-
-
-static char *gc_orders[] = {
-	"hold your position",
-	"hold this position",
-	"come here",
-	"cover me",
-	"guard location",
-	"search and destroy",
-	"report"
-};
-
-void Cmd_GameCommand_f( gentity_t *ent ) {
-	int player;
-	int order;
-	char str[MAX_TOKEN_CHARS];
-
-	trap_Argv( 1, str, sizeof( str ) );
-	player = atoi( str );
-	trap_Argv( 2, str, sizeof( str ) );
-	order = atoi( str );
-
-	if ( player < 0 || player >= MAX_CLIENTS ) {
-		return;
-	}
-	if ( order < 0 || order > sizeof( gc_orders ) / sizeof( char * ) ) {
-		return;
-	}
-	G_Say( ent, &g_entities[player], SAY_TELL, gc_orders[order] );
-	G_Say( ent, ent, SAY_TELL, gc_orders[order] );
-}
-
-/*
-==================
 Cmd_Where_f
 ==================
 */
@@ -979,97 +772,6 @@ void Cmd_Where_f( gentity_t *ent ) {
 	trap_SendServerCommand( ent - g_entities, va( "print \"%s\n\"", vtos( ent->s.origin ) ) );
 }
 
-
-/*
-==================
-Cmd_CallVote_f
-==================
-*/
-void Cmd_CallVote_f( gentity_t *ent ) {
-	int i;
-	char arg1[MAX_STRING_TOKENS];
-	char arg2[MAX_STRING_TOKENS];
-
-	if ( !g_allowVote.integer ) {
-		trap_SendServerCommand( ent - g_entities, "print \"Voting not allowed here.\n\"" );
-		return;
-	}
-
-	if ( level.voteTime ) {
-		trap_SendServerCommand( ent - g_entities, "print \"A vote is already in progress.\n\"" );
-		return;
-	}
-	if ( ent->client->pers.voteCount >= MAX_VOTE_COUNT ) {
-		trap_SendServerCommand( ent - g_entities, "print \"You have called the maximum number of votes.\n\"" );
-		return;
-	}
-
-	// make sure it is a valid command to vote on
-	trap_Argv( 1, arg1, sizeof( arg1 ) );
-	trap_Argv( 2, arg2, sizeof( arg2 ) );
-
-	if ( !Q_stricmp( arg1, "map_restart" ) ) {
-	} else if ( !Q_stricmp( arg1, "map" ) ) {
-	} else if ( !Q_stricmp( arg1, "g_gametype" ) ) {
-	} else if ( !Q_stricmp( arg1, "kick" ) ) {
-	} else {
-		trap_SendServerCommand( ent - g_entities, "print \"Invalid vote string.\n\"" );
-		return;
-	}
-	Com_sprintf( level.voteString, sizeof( level.voteString ), "%s %s", arg1, arg2 );
-
-	trap_SendServerCommand( -1, va( "print \"%s called a vote.\n\"", ent->client->pers.netname ) );
-
-	// start the voting, the caller autoamtically votes yes
-	level.voteTime = level.time;
-	level.voteYes = 1;
-	level.voteNo = 0;
-
-	for ( i = 0 ; i < level.maxclients ; i++ ) {
-		level.clients[i].ps.eFlags &= ~EF_VOTED;
-	}
-	ent->client->ps.eFlags |= EF_VOTED;
-
-	trap_SetConfigstring( CS_VOTE_TIME, va( "%i", level.voteTime ) );
-	trap_SetConfigstring( CS_VOTE_STRING, level.voteString );
-	trap_SetConfigstring( CS_VOTE_YES, va( "%i", level.voteYes ) );
-	trap_SetConfigstring( CS_VOTE_NO, va( "%i", level.voteNo ) );
-}
-
-/*
-==================
-Cmd_Vote_f
-==================
-*/
-void Cmd_Vote_f( gentity_t *ent ) {
-	char msg[64];
-
-	if ( !level.voteTime ) {
-		trap_SendServerCommand( ent - g_entities, "print \"No vote in progress.\n\"" );
-		return;
-	}
-	if ( ent->client->ps.eFlags & EF_VOTED ) {
-		trap_SendServerCommand( ent - g_entities, "print \"Vote already cast.\n\"" );
-		return;
-	}
-
-	trap_SendServerCommand( ent - g_entities, "print \"Vote cast.\n\"" );
-
-	ent->client->ps.eFlags |= EF_VOTED;
-
-	trap_Argv( 1, msg, sizeof( msg ) );
-
-	if ( msg[0] == 'y' || msg[1] == 'Y' || msg[1] == '1' ) {
-		level.voteYes++;
-		trap_SetConfigstring( CS_VOTE_YES, va( "%i", level.voteYes ) );
-	} else {
-		level.voteNo++;
-		trap_SetConfigstring( CS_VOTE_NO, va( "%i", level.voteNo ) );
-	}
-
-	// a majority will be determined in G_CheckVote, which will also account
-	// for players entering or leaving
-}
 
 
 qboolean G_canPickupMelee( gentity_t *ent ) {
@@ -1093,8 +795,6 @@ qboolean G_canPickupMelee( gentity_t *ent ) {
 
 	return qfalse;
 }
-
-
 
 
 /*
@@ -1140,9 +840,6 @@ void Cmd_StartCamera_f( gentity_t *ent ) {
 	ent->client->ps.eFlags |= EF_VIEWING_CAMERA;
 	ent->s.eFlags |= EF_VIEWING_CAMERA;
 
-// (SA) trying this in client to avoid 1 frame of player drawing
-//	ent->client->ps.eFlags |= EF_NODRAW;
-//	ent->s.eFlags |= EF_NODRAW;
 }
 
 /*
@@ -1161,10 +858,6 @@ void Cmd_StopCamera_f( gentity_t *ent ) {
 		ent->client->cameraPortal = NULL;
 		ent->s.eFlags &= ~EF_VIEWING_CAMERA;
 		ent->client->ps.eFlags &= ~EF_VIEWING_CAMERA;
-
-// (SA) trying this in client to avoid 1 frame of player drawing
-//		ent->s.eFlags &= ~EF_NODRAW;
-//		ent->client->ps.eFlags &= ~EF_NODRAW;
 
 		// RF, if we are near the spawn point, save the "current" game, for reloading after death
 		sp = NULL;
@@ -1969,24 +1662,6 @@ void ClientCommand( int clientNum ) {
 	}
 	// done.
 
-	if ( Q_stricmp( cmd, "say" ) == 0 ) {
-		Cmd_Say_f( ent, SAY_ALL, qfalse );
-		return;
-	}
-	if ( Q_stricmp( cmd, "say_team" ) == 0 ) {
-		Cmd_Say_f( ent, SAY_TEAM, qfalse );
-		return;
-	}
-	// NERVE - SMF
-	if ( Q_stricmp( cmd, "say_limbo" ) == 0 ) {
-		Cmd_Say_f( ent, SAY_LIMBO, qfalse );
-		return;
-	}
-	// -NERVE - SMF
-	if ( Q_stricmp( cmd, "tell" ) == 0 ) {
-		Cmd_Tell_f( ent );
-		return;
-	}
 
 //----(SA)	added
 	if ( Q_stricmp( cmd, "fogswitch" ) == 0 ) {
@@ -1995,11 +1670,6 @@ void ClientCommand( int clientNum ) {
 	}
 //----(SA)	end
 
-	// ignore all other commands when at intermission
-	if ( level.intermissiontime ) {
-		Cmd_Say_f( ent, qfalse, qtrue );
-		return;
-	}
 
 	if ( Q_stricmp( cmd, "give" ) == 0 ) {
 		Cmd_Give_f( ent );
@@ -2020,14 +1690,9 @@ void ClientCommand( int clientNum ) {
 		Cmd_FollowCycle_f( ent, 1 );
 	} else if ( Q_stricmp( cmd, "followprev" ) == 0 )  {
 		Cmd_FollowCycle_f( ent, -1 );
-	} else if ( Q_stricmp( cmd, "team" ) == 0 )  {
-		Cmd_Team_f( ent );
 	} else if ( Q_stricmp( cmd, "where" ) == 0 )  {
 		Cmd_Where_f( ent );
-	}
 
-	else if ( Q_stricmp( cmd, "gc" ) == 0 ) {
-		Cmd_GameCommand_f( ent );
 	} else if ( Q_stricmp( cmd, "startCamera" ) == 0 )  {
 		Cmd_StartCamera_f( ent );
 	} else if ( Q_stricmp( cmd, "stopCamera" ) == 0 )  {

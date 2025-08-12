@@ -1777,12 +1777,7 @@ void CG_RunLerpFrameRate( clientInfo_t *ci, lerpFrame_t *lf, int newAnimation, c
 
 	// see if the animation sequence is switching
 	if ( newAnimation != lf->animationNumber || !lf->animation ) {
-#if 0
-#ifdef _DEBUG   // RF, debugging anims
-//if ( cent->currentState.number == 3 )
-		CG_Printf( "(%i) %s anim change on %s: %s -> %s\n", cg.time, ci->modelInfo->modelname, ( lf == &cent->pe.legs ? "LEGS" : "TORSO" ), lf->animation->name, ci->modelInfo->animations[newAnimation & ~( 1 << 9 )].name );
-#endif
-#endif
+
 		CG_SetLerpFrameAnimationRate( cent, ci, lf, newAnimation );
 	}
 
@@ -1908,19 +1903,7 @@ void CG_RunLerpFrameRate( clientInfo_t *ci, lerpFrame_t *lf, int newAnimation, c
 			}
 			lf->frameTime = cent->pe.legs.frameTime;
 		} else {
-#if 0
-			lf->frameTime = lf->oldFrameTime + (int)( (float)anim->frameLerp * ( 1.0 / lf->animSpeedScale ) );
-			if ( lf->frameTime < cg.time ) {
-				lf->frameTime = cg.time;
-			}
 
-			// check for skipping frames (eg. death anims play in slo-mo if low framerate)
-			if ( cg.time > lf->frameTime && !anim->moveSpeed ) {
-				f = ( lf->frame - anim->firstFrame ) + 1 + ( cg.time - lf->frameTime ) / anim->frameLerp;
-			} else {
-				f = ( lf->frame - anim->firstFrame ) + 1;
-			}
-#else
 			if ( anim->moveSpeed || lf->frameTime + 1000 < cg.time ) {
 				lf->frameTime = lf->oldFrameTime + (int)( (float)anim->frameLerp * ( 1.0 / lf->animSpeedScale ) );
 				f = ( lf->frame - anim->firstFrame ) + 1;
@@ -1944,7 +1927,7 @@ void CG_RunLerpFrameRate( clientInfo_t *ci, lerpFrame_t *lf, int newAnimation, c
 					f++;    // f is allowed to go over anim->numFrame, since it gets adjusted later
 				}
 			}
-#endif
+
 
 			if ( f < 0 ) {
 				f = 0;
@@ -1968,22 +1951,9 @@ void CG_RunLerpFrameRate( clientInfo_t *ci, lerpFrame_t *lf, int newAnimation, c
 			// NOTE TTimo
 			// show_bug.cgi?id=424
 			// is that a related problem?
-#if 0
-// disabled, causes bad jolting when oldFrame is updated incorrectly
-			// Ridah, run the frame again until we move ahead of the current time, fixes walking speeds for zombie
-			if ( recursion > MAX_LERPFRAME_RECURSION ) {
-				lf->frameTime = cg.time;
-			} else {
-				CG_RunLerpFrameRate( ci, lf, newAnimation, cent, recursion + 1 );
-			}
-#endif
+
 			lf->frameTime = cg.time;
 
-#if 0
-			if ( cg_debugAnim.integer ) {
-				CG_Printf( "Clamp lf->frameTime\n" );
-			}
-#endif
 		}
 		lf->oldAnimationNumber = lf->animationNumber;
 	}

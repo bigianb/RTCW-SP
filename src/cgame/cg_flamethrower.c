@@ -35,6 +35,7 @@ If you have questions concerning this license or the applicable additional terms
 // NOTE: some AI's are treated different, mostly for aesthetical reasons.
 
 #include "cg_local.h"
+#include "../qcommon/qcommon.h"
 
 // a flameChunk is a ball or section of fuel which goes from fuel->blue ignition->flame ball
 // optimization is necessary, since lots of these will be spawned, but as they grow, they can be
@@ -1403,7 +1404,7 @@ void CG_GenerateShaders( char *filename, char *shaderName, char *dir, int numFra
 		} else {
 			Com_sprintf( str, sizeof( str ), "%s%i\n{\n\tnofog%s\n\tallowCompress\n\tcull none\n\t{\n\t\tmap sprites/%s/spr%i%i%i.tga\n\t\tblendFunc %s %s\n%s\t}\n}\n", shaderName, i + 1, nomipmap ? "\n\tnomipmap" : "", dir, b, c, d, srcBlend, dstBlend, extras );
 		}
-		trap_FS_Write( str, strlen( str ), f );
+		FS_Write( str, strlen( str ), f );
 	}
 	trap_FS_FCloseFile( f );
 }

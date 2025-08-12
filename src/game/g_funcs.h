@@ -604,10 +604,7 @@ If you have questions concerning this license or the applicable additional terms
 {"SnapVectorTowards", (byte *)SnapVectorTowards},
 {"CheckMeleeAttack", (byte *)CheckMeleeAttack},
 {"Weapon_Gauntlet", (byte *)Weapon_Gauntlet},
-{"Weapon_Class_Special", (byte *)Weapon_Class_Special},
-{"weapon_callAirStrike", (byte *)weapon_callAirStrike},
-{"Weapon_Engineer", (byte *)Weapon_Engineer},
-{"Weapon_Medic", (byte *)Weapon_Medic},
+
 {"Weapon_Knife", (byte *)Weapon_Knife},
 {"AICast_ScriptRun", (byte *)AICast_ScriptRun},
 {"AICast_ForceScriptEvent", (byte *)AICast_ForceScriptEvent},
@@ -973,7 +970,7 @@ If you have questions concerning this license or the applicable additional terms
 {"trap_FS_CopyFile", (byte *)trap_FS_CopyFile},
 {"trap_FS_FCloseFile", (byte *)trap_FS_FCloseFile},
 {"trap_FS_Rename", (byte *)trap_FS_Rename},
-{"trap_FS_Write", (byte *)trap_FS_Write},
+
 {"trap_FS_Read", (byte *)trap_FS_Read},
 {"trap_FS_FOpenFile", (byte *)trap_FS_FOpenFile},
 {"trap_Argv", (byte *)trap_Argv},
@@ -1107,12 +1104,10 @@ If you have questions concerning this license or the applicable additional terms
 {"Cmd_StartCamera_f", (byte *)Cmd_StartCamera_f},
 {"Cmd_SetViewpos_f", (byte *)Cmd_SetViewpos_f},
 {"G_canPickupMelee", (byte *)G_canPickupMelee},
-{"Cmd_Vote_f", (byte *)Cmd_Vote_f},
-{"Cmd_CallVote_f", (byte *)Cmd_CallVote_f},
+
 {"Cmd_Where_f", (byte *)Cmd_Where_f},
-{"Cmd_GameCommand_f", (byte *)Cmd_GameCommand_f},
-{"G_Say", (byte *)G_Say},
-{"G_SayTo", (byte *)G_SayTo},
+
+
 {"Cmd_FollowCycle_f", (byte *)Cmd_FollowCycle_f},
 {"Cmd_Follow_f", (byte *)Cmd_Follow_f},
 {"Cmd_Team_f", (byte *)Cmd_Team_f},

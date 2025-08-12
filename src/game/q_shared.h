@@ -43,27 +43,6 @@ If you have questions concerning this license or the applicable additional terms
 #define NEW_ANIMS
 #define MAX_TEAMNAME    32
 
-/**********************************************************************
-  VM Considerations
-
-  The VM can not use the standard system headers because we aren't really
-  using the compiler they were meant for.  We use bg_lib.h which contains
-  prototypes for the functions we define for our own use in bg_lib.c.
-
-  When writing mods, please add needed headers HERE, do not start including
-  stuff like <stdio.h> in the various .c files that make up each of the VMs
-  since you will be including system headers files can will have issues.
-
-  Remember, if you use a C library function that is not defined in bg_lib.c,
-  you will have to add your own version for support in the VM.
-
- **********************************************************************/
-
-#ifdef Q3_VM
-
-#include "bg_lib.h"
-
-#else
 
 #include <assert.h>
 #include <math.h>
@@ -74,93 +53,6 @@ If you have questions concerning this license or the applicable additional terms
 #include <time.h>
 #include <ctype.h>
 #include <limits.h>
-
-#endif
-
-
-// this is the define for determining if we have an asm version of a C function
-#if ( defined _M_IX86 || defined __i386__ ) && !defined __sun__  && !defined __LCC__
-#define id386   1
-#else
-#define id386   0
-#endif
-
-// for windows fastcall option
-
-#define QDECL
-
-//======================= WIN32 DEFINES =================================
-
-#ifdef WIN32
-
-#define MAC_STATIC
-
-#undef QDECL
-#define QDECL   __cdecl
-
-// buildstring will be incorporated into the version string
-#ifdef NDEBUG
-#ifdef _M_IX86
-#define CPUSTRING   "win-x86"
-#elif defined _M_ALPHA
-#define CPUSTRING   "win-AXP"
-#endif
-#else
-#ifdef _M_IX86
-#define CPUSTRING   "win-x86-debug"
-#elif defined _M_ALPHA
-#define CPUSTRING   "win-AXP-debug"
-#endif
-#endif
-
-
-#define PATH_SEP '\\'
-
-#endif
-
-//======================= MAC OS X SERVER DEFINES =====================
-
-#if defined( __MACH__ ) && defined( __APPLE__ )
-
-#define MAC_STATIC
-
-#ifdef __ppc__
-#define CPUSTRING   "MacOSXS-ppc"
-#elif defined __i386__
-#define CPUSTRING   "MacOSXS-i386"
-#else
-#define CPUSTRING   "MacOSXS-other"
-#endif
-
-#define PATH_SEP    '/'
-
-#define GAME_HARD_LINKED
-#define CGAME_HARD_LINKED
-#define UI_HARD_LINKED
-#define BOTLIB_HARD_LINKED
-
-#endif
-
-//======================= MAC DEFINES =================================
-
-#ifdef __MACOS__
-
-#include <MacTypes.h>
-//DAJ #define	MAC_STATIC	static
-#define MAC_STATIC
-
-#define CPUSTRING   "MacOS-PPC"
-
-#define PATH_SEP ':'
-
-#define GAME_HARD_LINKED
-#define CGAME_HARD_LINKED
-#define UI_HARD_LINKED
-#define BOTLIB_HARD_LINKED
-
-void Sys_PumpEvents( void );
-
-#endif
 
 typedef unsigned char byte;
 
@@ -595,7 +487,7 @@ void Parse2DMatrix( char **buf_p, int y, int x, float *m );
 void Parse3DMatrix( char **buf_p, int z, int y, int x, float *m );
 int Com_HexStrToInt( const char *str );
 
-void QDECL Com_sprintf( char *dest, int size, const char *fmt, ... );
+void Com_sprintf( char *dest, int size, const char *fmt, ... );
 
 
 // mode parm for FS_FOpenFile
@@ -676,7 +568,7 @@ float   BigFloat( float l );
 float   LittleFloat( float l );
 
 void    Swap_Init( void );
-char    * QDECL va( char *format, ... );
+char    *  va( char *format, ... );
 float   *tv( float x, float y, float z );
 
 //=============================================
@@ -693,8 +585,8 @@ qboolean Info_Validate( const char *s );
 void Info_NextPair( const char **s, char *key, char *value );
 
 // this is only here so the functions in q_shared.c and bg_*.c can link
-void QDECL Com_Error( int level, const char *error, ... );
-void QDECL Com_Printf( const char *msg, ... );
+void  Com_Error( int level, const char *error, ... );
+void  Com_Printf( const char *msg, ... );
 
 
 /*

@@ -225,6 +225,12 @@ or configs will never get loaded from disk!
 #define MAX_SEARCH_PATHS    4096
 #define MAX_FILEHASH_SIZE   1024
 
+#ifdef _WIN32
+#define PATH_SEP '\\'
+#else
+#define PATH_SEP '/'
+#endif
+
 typedef struct fileInPack_s {
 	char                    *name;      // name of the file
 	unsigned long pos;                  // file info position in zip
@@ -313,9 +319,6 @@ static char     *fs_serverReferencedPakNames[MAX_SEARCH_PATHS];     // pk3 names
 char lastValidBase[MAX_OSPATH];
 char lastValidGame[MAX_OSPATH];
 
-#ifdef FS_MISSING
-FILE*       missingFiles = NULL;
-#endif
 
 /*
 ==============
@@ -382,9 +385,7 @@ static long FS_HashFileName( const char *fname, int hashSize ) {
 		if ( letter == '\\' ) {
 			letter = '/';                   // damn path names
 		}
-		if ( letter == PATH_SEP ) {
-			letter = '/';                           // damn path names
-		}
+
 		hash += (long)( letter ) * ( i + 119 );
 		i++;
 	}
@@ -1466,9 +1467,9 @@ FS_Write
 Properly handles partial writes
 =================
 */
-int FS_Write( const void *buffer, int len, fileHandle_t h ) {
+size_t FS_Write( const void *buffer, size_t len, fileHandle_t h ) {
 	int block, remaining;
-	int written;
+
 	byte    *buf;
 	int tries;
 	FILE    *f;
@@ -1488,7 +1489,7 @@ int FS_Write( const void *buffer, int len, fileHandle_t h ) {
 	tries = 0;
 	while ( remaining ) {
 		block = remaining;
-		written = fwrite( buf, 1, block, f );
+		size_t written = fwrite( buf, 1, block, f );
 		if ( written == 0 ) {
 			if ( !tries ) {
 				tries = 1;
@@ -1513,12 +1514,12 @@ int FS_Write( const void *buffer, int len, fileHandle_t h ) {
 }
 
 #define MAXPRINTMSG 4096
-void QDECL FS_Printf( fileHandle_t h, const char *fmt, ... ) {
+void  FS_Printf( fileHandle_t h, const char *fmt, ... ) {
 	va_list argptr;
 	char msg[MAXPRINTMSG];
 
 	va_start( argptr,fmt );
-	vsprintf( msg,fmt,argptr );
+	vsnprintf( msg,MAXPRINTMSG,fmt,argptr );
 	va_end( argptr );
 
 	FS_Write( msg, strlen( msg ), h );
@@ -2600,7 +2601,7 @@ void FS_TouchFile_f( void ) {
 //===========================================================================
 
 
-static int QDECL paksort( const void *a, const void *b ) {
+static int  paksort( const void *a, const void *b ) {
 	char    *aa, *bb;
 
 	aa = *(char **)a;

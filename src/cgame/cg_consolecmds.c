@@ -255,43 +255,6 @@ static void CG_Fade_f( void ) {
 }
 
 
-static void CG_QuickMessage_f( void ) {
-	if ( cgs.gametype != GT_WOLF ) {
-		return;
-	}
-	trap_UI_Popup( "UIMENU_WM_QUICKMESSAGE" );
-}
-
-static void CG_OpenLimbo_f( void ) {
-	if ( cgs.gametype != GT_WOLF ) {
-		return;
-	}
-	trap_UI_Popup( "UIMENU_WM_LIMBO" );
-}
-
-static void CG_CloseLimbo_f( void ) {
-	if ( cgs.gametype != GT_WOLF ) {
-		return;
-	}
-	trap_UI_ClosePopup( "UIMENU_WM_LIMBO" );
-}
-
-static void CG_LimboMessage_f( void ) {
-	char teamStr[80], classStr[80], weapStr[80];
-
-	if ( cgs.gametype != GT_WOLF ) {
-		return;
-	}
-
-	Q_strncpyz( teamStr, CG_Argv( 1 ), 80 );
-	Q_strncpyz( classStr, CG_Argv( 2 ), 80 );
-	Q_strncpyz( weapStr, CG_Argv( 3 ), 80 );
-
-	CG_CenterPrint( va( "You will spawn as a %s \n%s with a %s.", teamStr, classStr, weapStr ),
-					SCREEN_HEIGHT - ( SCREEN_HEIGHT * 0.25 ), SMALLCHAR_WIDTH );
-}
-// -NERVE - SMF
-
 typedef struct {
 	char    *cmd;
 	void ( *function )( void );
@@ -333,12 +296,6 @@ static consoleCommand_t commands[] = {
 	{ "camera", CG_Camera_f },   // duffy
 	{ "fade", CG_Fade_f },   // duffy
 
-	// NERVE - SMF
-	{ "mp_QuickMessage", CG_QuickMessage_f },
-	{ "OpenLimboMenu", CG_OpenLimbo_f },
-	{ "CloseLimboMenu", CG_CloseLimbo_f },
-	{ "LimboMessage", CG_LimboMessage_f }
-	// -NERVE - SMF
 };
 
 

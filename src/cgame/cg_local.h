@@ -1787,8 +1787,8 @@ extern vmCvar_t mp_mapTitle;
 const char *CG_ConfigString( int index );
 const char *CG_Argv( int arg );
 
-void QDECL CG_Printf( const char *msg, ... );
-void QDECL CG_Error( const char *msg, ... );
+void  CG_Printf( const char *msg, ... );
+void  CG_Error( const char *msg, ... );
 
 void CG_StartMusic( void );
 void CG_QueueMusic( void ); //----(SA)	added
@@ -2236,7 +2236,7 @@ void        Cmd_ArgsBuffer( char *buffer, int bufferLength );
 // returns length of file
 int         trap_FS_FOpenFile( const char *qpath, fileHandle_t *f, fsMode_t mode );
 void        trap_FS_Read( void *buffer, int len, fileHandle_t f );
-int        trap_FS_Write( const void *buffer, int len, fileHandle_t f );
+
 void        trap_FS_FCloseFile( fileHandle_t f );
 void        trap_FS_CopyFile( char *from, char *to );   //DAJ
 

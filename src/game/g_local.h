@@ -958,7 +958,6 @@ void G_SetStats( gentity_t *ent );
 //
 // g_cmds.c
 //
-void G_SayTo( gentity_t *ent, gentity_t *other, int mode, int color, const char *name, const char *message ); // JPW NERVE removed static declaration so it would link
 
 //
 // g_pweapon.c
@@ -970,11 +969,11 @@ void G_SayTo( gentity_t *ent, gentity_t *other, int mode, int color, const char 
 //
 void FindIntermissionPoint( void );
 void G_RunThink( gentity_t *ent );
-void QDECL G_LogPrintf( const char *fmt, ... );
+void  G_LogPrintf( const char *fmt, ... );
 
-void QDECL G_Printf( const char *fmt, ... );
-void QDECL G_DPrintf( const char *fmt, ... );
-void QDECL G_Error( const char *fmt, ... );
+void  G_Printf( const char *fmt, ... );
+void  G_DPrintf( const char *fmt, ... );
+void  G_Error( const char *fmt, ... );
 //----(SA)	added
 void G_EndGame( void );
 int G_SendMissionStats( void );   // return '0' if objectives not met, '1' if met
@@ -1176,7 +1175,7 @@ void    trap_Argv( int n, char *buffer, int bufferLength );
 void    Cmd_ArgsBuffer( char *buffer, int bufferLength );
 int     trap_FS_FOpenFile( const char *qpath, fileHandle_t *f, fsMode_t mode );
 void    trap_FS_Read( void *buffer, int len, fileHandle_t f );
-int     trap_FS_Write( const void *buffer, int len, fileHandle_t f );
+
 int     trap_FS_Rename( const char *from, const char *to );
 void    trap_FS_FCloseFile( fileHandle_t f );
 int     trap_FS_GetFileList( const char *path, const char *extension, char *listbuf, int bufsize );

@@ -75,9 +75,7 @@ static long generateHashValue( const char *fname ) {
 		if ( letter == '\\' ) {
 			letter = '/';                   // damn path names
 		}
-		if ( letter == PATH_SEP ) {
-			letter = '/';                           // damn path names
-		}
+
 		hash += (long)( letter ) * ( i + 119 );
 		i++;
 	}

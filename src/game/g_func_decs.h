@@ -184,7 +184,7 @@ extern gentity_t * Team_ResetFlag ( int team ) ;
 extern void Team_CheckHurtCarrier ( gentity_t * targ , gentity_t * attacker ) ;
 extern void Team_FragBonuses ( gentity_t * targ , gentity_t * inflictor , gentity_t * attacker ) ;
 extern qboolean OnSameTeam ( gentity_t * ent1 , gentity_t * ent2 ) ;
-extern void QDECL PrintMsg ( gentity_t * ent , const char * fmt , ... ) ;
+extern void  PrintMsg ( gentity_t * ent , const char * fmt , ... ) ;
 extern const char * TeamColorString ( int team ) ;
 extern const char * OtherTeamName ( int team ) ;
 extern const char * TeamName ( int team ) ;
@@ -281,7 +281,7 @@ extern animation_t * BG_AnimationForString ( char * string , animModelInfo_t * m
 extern int BG_AnimationIndexForString ( char * string , int client ) ;
 extern animModelInfo_t * BG_ModelInfoForModelname ( char * modelname ) ;
 extern animModelInfo_t * BG_ModelInfoForClient ( int client ) ;
-extern void QDECL BG_AnimParseError ( const char * msg , ... ) ;
+extern void  BG_AnimParseError ( const char * msg , ... ) ;
 extern qboolean G_ScriptAction_SetHealth ( gentity_t * ent , char * params ) ;
 extern qboolean G_ScriptAction_RestoreScript ( gentity_t * ent , char * params ) ;
 extern qboolean G_ScriptAction_BackupScript ( gentity_t * ent , char * params ) ;
@@ -327,10 +327,10 @@ extern void Info_RemoveKey ( char * s , const char * key ) ;
 extern void Info_NextPair ( const char * * head , char * key , char * value ) ;
 extern char * Info_ValueForKey ( const char * s , const char * key ) ;
 extern float * tv ( float x , float y , float z ) ;
-extern char * QDECL va ( char * format , ... ) ;
+extern char *  va ( char * format , ... ) ;
 extern int Q_strcasecmp ( char * s1 , char * s2 ) ;
 extern int Q_strncasecmp ( char * s1 , char * s2 , int n ) ;
-extern void QDECL Com_sprintf ( char * dest , int size , const char * fmt , ... ) ;
+extern void  Com_sprintf ( char * dest , int size , const char * fmt , ... ) ;
 extern char * Q_CleanStr ( char * string ) ;
 extern int Q_PrintStrlen ( const char * string ) ;
 extern void Q_strcat ( char * dest , int size , const char * src ) ;
@@ -609,10 +609,8 @@ extern int G_GetWeaponDamage ( int weapon ) ;
 extern void SnapVectorTowards ( vec3_t v , vec3_t to ) ;
 extern trace_t * CheckMeleeAttack ( gentity_t * ent , float dist , qboolean isTest ) ;
 extern void Weapon_Gauntlet ( gentity_t * ent ) ;
-extern void Weapon_Class_Special ( gentity_t * ent ) ;
-extern void weapon_callAirStrike ( gentity_t * ent ) ;
-extern void Weapon_Engineer ( gentity_t * ent ) ;
-extern void Weapon_Medic ( gentity_t * ent ) ;
+
+
 extern void Weapon_Knife ( gentity_t * ent ) ;
 extern qboolean AICast_ScriptRun ( cast_state_t * cs , qboolean force ) ;
 extern void AICast_ForceScriptEvent ( struct cast_state_s * cs , char * eventStr , char * params ) ;
@@ -980,7 +978,7 @@ extern int trap_FS_GetFileList ( const char * path , const char * extension , ch
 extern void trap_FS_CopyFile ( char * from , char * to ) ;
 extern void trap_FS_FCloseFile ( fileHandle_t f ) ;
 extern int trap_FS_Rename ( const char * from , const char * to ) ;
-extern int trap_FS_Write ( const void * buffer , int len , fileHandle_t f ) ;
+
 extern void trap_FS_Read ( void * buffer , int len , fileHandle_t f ) ;
 extern int trap_FS_FOpenFile ( const char * qpath , fileHandle_t * f , fsMode_t mode ) ;
 extern void trap_Argv ( int n , char * buffer , int bufferLength ) ;
@@ -996,19 +994,19 @@ extern void CheckCvars ( void ) ;
 extern void CheckReloadStatus ( void ) ;
 
 extern void LogExit ( const char * string ) ;
-extern void QDECL G_LogPrintf ( const char * fmt , ... ) ;
+extern void  G_LogPrintf ( const char * fmt , ... ) ;
 extern void ExitLevel ( void ) ;
 
 extern void FindIntermissionPoint ( void ) ;
 extern void MoveClientToIntermission ( gentity_t * ent ) ;
 
 extern void CalculateRanks ( void ) ;
-extern int QDECL SortRanks ( const void * a , const void * b ) ;
+extern int  SortRanks ( const void * a , const void * b ) ;
 extern void AdjustTournamentScores ( void ) ;
 extern void RemoveTournamentLoser ( void ) ;
 extern void AddTournamentPlayer ( void ) ;
-extern void QDECL Com_Printf ( const char * msg , ... ) ;
-extern void QDECL Com_Error ( int level , const char * error , ... ) ;
+extern void  Com_Printf ( const char * msg , ... ) ;
+extern void  Com_Error ( int level , const char * error , ... ) ;
 extern void G_ShutdownGame ( int restart ) ;
 extern void G_InitGame ( int levelTime , int randomSeed , int restart ) ;
 extern int G_SendMissionStats ( ) ;
@@ -1020,9 +1018,9 @@ extern void G_FindTeams ( void ) ;
 extern void G_CheckForCursorHints ( gentity_t * ent ) ;
 extern void G_EndGame ( void ) ;
 extern qboolean G_canStealthStab ( int aiChar ) ;
-extern void QDECL G_Error ( const char * fmt , ... ) ;
-extern void QDECL G_DPrintf ( const char * fmt , ... ) ;
-extern void QDECL G_Printf ( const char * fmt , ... ) ;
+extern void  G_Error ( const char * fmt , ... ) ;
+extern void  G_DPrintf ( const char * fmt , ... ) ;
+extern void  G_Printf ( const char * fmt , ... ) ;
 extern void AICast_RegisterPain ( int entnum ) ;
 extern int AICast_NumAttempts ( int entnum ) ;
 extern int AICast_PlayTime ( int entnum ) ;
@@ -1113,12 +1111,10 @@ extern void Cmd_StopCamera_f ( gentity_t * ent ) ;
 extern void Cmd_StartCamera_f ( gentity_t * ent ) ;
 extern void Cmd_SetViewpos_f ( gentity_t * ent ) ;
 extern qboolean G_canPickupMelee ( gentity_t * ent ) ;
-extern void Cmd_Vote_f ( gentity_t * ent ) ;
-extern void Cmd_CallVote_f ( gentity_t * ent ) ;
+
 extern void Cmd_Where_f ( gentity_t * ent ) ;
-extern void Cmd_GameCommand_f ( gentity_t * ent ) ;
-extern void G_Say ( gentity_t * ent , gentity_t * target , int mode , const char * chatText ) ;
-extern void G_SayTo ( gentity_t * ent , gentity_t * other , int mode , int color , const char * name , const char * message ) ;
+
+
 extern void Cmd_FollowCycle_f ( gentity_t * ent , int dir ) ;
 extern void Cmd_Follow_f ( gentity_t * ent ) ;
 extern void Cmd_Team_f ( gentity_t * ent ) ;

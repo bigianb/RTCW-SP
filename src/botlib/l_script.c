@@ -197,7 +197,7 @@ char *PunctuationFromNum( script_t *script, int num ) {
 // Returns:					-
 // Changes Globals:		-
 //===========================================================================
-void QDECL ScriptError( script_t *script, char *str, ... ) {
+void  ScriptError( script_t *script, char *str, ... ) {
 	char text[1024];
 	va_list ap;
 
@@ -224,7 +224,7 @@ void QDECL ScriptError( script_t *script, char *str, ... ) {
 // Returns:					-
 // Changes Globals:		-
 //===========================================================================
-void QDECL ScriptWarning( script_t *script, char *str, ... ) {
+void  ScriptWarning( script_t *script, char *str, ... ) {
 	char text[1024];
 	va_list ap;
 

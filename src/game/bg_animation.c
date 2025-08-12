@@ -309,7 +309,7 @@ static long BG_StringHashValue( const char *fname ) {
 BG_AnimParseError
 =================
 */
-void QDECL BG_AnimParseError( const char *msg, ... ) {
+void  BG_AnimParseError( const char *msg, ... ) {
 	va_list argptr;
 	char text[1024];
 

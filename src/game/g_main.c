@@ -268,7 +268,7 @@ void AICast_Init( void );
 void G_RetrieveMoveSpeedsFromClient( int entnum, char *text );
 
 
-void QDECL G_Printf( const char *fmt, ... ) {
+void  G_Printf( const char *fmt, ... ) {
 	va_list argptr;
 	char text[1024];
 
@@ -279,7 +279,7 @@ void QDECL G_Printf( const char *fmt, ... ) {
 	trap_Printf( text );
 }
 
-void QDECL G_DPrintf( const char *fmt, ... ) {
+void  G_DPrintf( const char *fmt, ... ) {
 	va_list argptr;
 	char text[1024];
 
@@ -294,7 +294,7 @@ void QDECL G_DPrintf( const char *fmt, ... ) {
 	trap_Printf( text );
 }
 
-void QDECL G_Error( const char *fmt, ... ) {
+void  G_Error( const char *fmt, ... ) {
 	va_list argptr;
 	char text[1024];
 
@@ -885,17 +885,7 @@ G_RemapTeamShaders
 ==============
 */
 void G_RemapTeamShaders() {
-#ifdef MISSIONPACK
-	char string[1024];
-	float f = level.time * 0.001;
-	Com_sprintf( string, sizeof( string ), "team_icon/%s_red", g_redteam.string );
-	AddRemap( "textures/ctf2/redteam01", string, f );
-	AddRemap( "textures/ctf2/redteam02", string, f );
-	Com_sprintf( string, sizeof( string ), "team_icon/%s_blue", g_blueteam.string );
-	AddRemap( "textures/ctf2/blueteam01", string, f );
-	AddRemap( "textures/ctf2/blueteam02", string, f );
-	trap_SetConfigstring( CS_SHADERSTATE, BuildShaderStateConfig() );
-#endif
+
 }
 
 
@@ -1320,36 +1310,6 @@ void G_ShutdownGame( int restart ) {
 }
 
 
-
-//===================================================================
-
-#if !defined( GAME_HARD_LINKED ) || defined( __MACOS__ )
-// this is only here so the functions in q_shared.c and bg_*.c can link
-
-void QDECL Com_Error( int level, const char *error, ... ) {
-	va_list argptr;
-	char text[1024];
-
-	va_start( argptr, error );
-	vsprintf( text, error, argptr );
-	va_end( argptr );
-
-	G_Error( "%s", text );
-}
-
-void QDECL Com_Printf( const char *msg, ... ) {
-	va_list argptr;
-	char text[1024];
-
-	va_start( argptr, msg );
-	vsprintf( text, msg, argptr );
-	va_end( argptr );
-
-	G_Printf( "%s", text );
-}
-
-#endif
-
 /*
 ========================================================================
 
@@ -1465,7 +1425,7 @@ SortRanks
 
 =============
 */
-int QDECL SortRanks( const void *a, const void *b ) {
+int  SortRanks( const void *a, const void *b ) {
 	gclient_t   *ca, *cb;
 
 	ca = &level.clients[*(int *)a];
@@ -1775,7 +1735,7 @@ G_LogPrintf
 Print to the logfile with a time stamp if it is open
 =================
 */
-void QDECL G_LogPrintf( const char *fmt, ... ) {
+void  G_LogPrintf( const char *fmt, ... ) {
 	va_list argptr;
 	char string[1024];
 	int min, tens, sec;
@@ -1801,7 +1761,7 @@ void QDECL G_LogPrintf( const char *fmt, ... ) {
 		return;
 	}
 
-	trap_FS_Write( string, strlen( string ), level.logFile );
+	FS_Write( string, strlen( string ), level.logFile );
 }
 
 /*

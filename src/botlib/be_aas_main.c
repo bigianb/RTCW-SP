@@ -51,7 +51,7 @@ aas_t *aasworld;
 // Returns:					-
 // Changes Globals:		-
 //===========================================================================
-void QDECL AAS_Error( char *fmt, ... ) {
+void  AAS_Error( char *fmt, ... ) {
 	char str[1024];
 	va_list arglist;
 

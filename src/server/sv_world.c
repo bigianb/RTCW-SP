@@ -595,16 +595,11 @@ void SV_ClipMoveToEntities( moveclip_t *clip ) {
 			angles = vec3_origin;   // boxes don't rotate
 		}
 
-#ifdef __MACOS__
-		// compiler bug with const
-		CM_TransformedBoxTrace( &trace, (float *)clip->start, (float *)clip->end,
-								(float *)clip->mins, (float *)clip->maxs, clipHandle,  clip->contentmask,
-								origin, angles, clip->capsule );
-#else
+
 		CM_TransformedBoxTrace( &trace, clip->start, clip->end,
 								clip->mins, clip->maxs, clipHandle,  clip->contentmask,
 								origin, angles, clip->capsule );
-#endif
+
 		if ( trace.allsolid ) {
 			clip->trace.allsolid = qtrue;
 			trace.entityNum = touch->s.number;
@@ -718,12 +713,8 @@ int SV_PointContents( const vec3_t p, int passEntityNum ) {
 			angles = vec3_origin;   // boxes don't rotate
 		}
 
-		// RF, ignore this test if the origin is at the world origin
-		//if (!VectorCompare( hit->s.origin, vec3_origin )) {
 		c2 = CM_TransformedPointContents( p, clipHandle, hit->s.origin, hit->s.angles );
-
 		contents |= c2;
-		//}
 	}
 
 	return contents;

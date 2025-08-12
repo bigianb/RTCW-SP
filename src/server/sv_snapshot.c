@@ -246,7 +246,7 @@ typedef struct {
 SV_QsortEntityNumbers
 =======================
 */
-static int QDECL SV_QsortEntityNumbers( const void *a, const void *b ) {
+static int  SV_QsortEntityNumbers( const void *a, const void *b ) {
 	int *ea, *eb;
 
 	ea = (int *)a;
@@ -532,7 +532,7 @@ For viewing through other player's eyes, clent can be something other than clien
 */
 static void SV_BuildClientSnapshot( client_t *client ) {
 	vec3_t org;
-//	clientSnapshot_t			*frame, *oldframe;
+
 	clientSnapshot_t            *frame;
 	snapshotEntityNumbers_t entityNumbers;
 	int i;
@@ -548,26 +548,6 @@ static void SV_BuildClientSnapshot( client_t *client ) {
 
 	// this is the frame we are creating
 	frame = &client->frames[ client->netchan.outgoingSequence & PACKET_MASK ];
-
-//	// try to use a previous frame as the source for delta compressing the snapshot
-//	if ( client->deltaMessage <= 0 || client->state != CS_ACTIVE ) {
-//		// client is asking for a retransmit
-//		oldframe = NULL;
-//	} else if ( client->netchan.outgoingSequence - client->deltaMessage
-//		>= (PACKET_BACKUP - 3) ) {
-//		// client hasn't gotten a good message through in a long time
-//		Com_DPrintf ("%s: Delta request from out of date packet.\n", client->name);
-//		oldframe = NULL;
-//	} else {
-//		// we have a valid snapshot to delta from
-//		oldframe = &client->frames[ client->deltaMessage & PACKET_MASK ];
-//
-//		// the snapshot's entities may still have rolled off the buffer, though
-//		if ( oldframe->first_entity <= svs.nextSnapshotEntities - svs.numSnapshotEntities ) {
-//			Com_DPrintf ("%s: Delta request from out of date entities.\n", client->name);
-//			oldframe = NULL;
-//		}
-//	}
 
 	// clear everything in this snapshot
 	entityNumbers.numSnapshotEntities = 0;
@@ -610,7 +590,6 @@ static void SV_BuildClientSnapshot( client_t *client ) {
 	// add all the entities directly visible to the eye, which
 	// may include portal entities that merge other viewpoints
 	SV_AddEntitiesVisibleFromPoint( org, frame, &entityNumbers, qfalse, client->netchan.remoteAddress.type == NA_LOOPBACK );
-//	SV_AddEntitiesVisibleFromPoint( org, frame, &entityNumbers, qfalse, oldframe, client->netchan.remoteAddress.type == NA_LOOPBACK );
 
 	// if there were portals visible, there may be out of order entities
 	// in the list which will need to be resorted for the delta compression

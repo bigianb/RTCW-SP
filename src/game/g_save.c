@@ -42,6 +42,7 @@ If you have questions concerning this license or the applicable additional terms
 #include "../botai/botai.h"          //bot ai interface
 #include "g_save.h"
 #include "ai_cast.h"
+#include "../qcommon/qcommon.h"
 
 /*
 Wolf savegame system.
@@ -59,7 +60,6 @@ saveField structures below.
   of these structures, savegames will become corrupted, and there is no way of checking for this,
   so it'll just crash.
 
-NOTE TTimo: see show_bug.cgi?id=434 for v17 -> v18 savegames
 */
 
 
@@ -155,10 +155,7 @@ typedef struct {
 } ignoreField_t;
 
 static ignoreField_t gentityIgnoreFields[] = {
-	// don't process events that have already occured before the game was saved
-	//{FOFS(s.events[0]),		sizeof(int) * MAX_EVENTS},
-	//{FOFS(s.eventParms[0]),	sizeof(int) * MAX_EVENTS},
-	//{FOFS(s.eventSequence),	sizeof(int)},
+
 
 	{FOFS( numScriptEvents ), sizeof( int )},
 	{FOFS( scriptEvents ),    sizeof( g_script_event_t * ) },   // gets created upon parsing the script file, this is static while playing
@@ -167,11 +164,7 @@ static ignoreField_t gentityIgnoreFields[] = {
 };
 
 static ignoreField_t gclientIgnoreFields[] = {
-	// don't process events that have already occured before the game was saved
-	//{CFOFS(ps.events[0]),		sizeof(int) * MAX_EVENTS},
-	//{CFOFS(ps.eventParms[0]),	sizeof(int) * MAX_EVENTS},
-	//{CFOFS(ps.eventSequence),	sizeof(int)},
-	//{CFOFS(ps.oldEventSequence),sizeof(int)},
+
 
 	{0, 0}
 };
@@ -253,12 +246,9 @@ G_SaveWriteError
 ===============
 */
 void G_SaveWriteError( void ) {
-// TTimo
-#ifdef __linux__
-	G_Error( "Unable to save game.\n\nPlease check that you have at least 5mb free of disk space in your home directory." );
-#else
+
 	G_Error( "Insufficient free disk space.\n\nPlease free at least 5mb of free space on game drive." );
-#endif
+
 }
 
 static int saveByteCount;
@@ -274,7 +264,7 @@ G_SaveWrite
 int G_SaveWrite( const void *buffer, int len, fileHandle_t f ) {
 	saveByteCount += len;
 
-	return trap_FS_Write( buffer, len, f );
+	return FS_Write( buffer, len, f );
 }
 
 //=========================================================

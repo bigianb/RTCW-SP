@@ -119,7 +119,6 @@ void SV_AddServerCommand( client_t *client, const char *cmd ) {
 	if ( client->reliableSequence - client->reliableAcknowledge == MAX_RELIABLE_COMMANDS + 1 ) {
 		Com_Printf( "===== pending server commands =====\n" );
 		for ( i = client->reliableAcknowledge + 1 ; i <= client->reliableSequence ; i++ ) {
-			//Com_Printf( "cmd %5d: %s\n", i, client->reliableCommands[ i & (MAX_RELIABLE_COMMANDS-1) ] );
 			Com_Printf( "cmd %5d: %s\n", i, SV_GetReliableCommand( client, i & ( MAX_RELIABLE_COMMANDS - 1 ) ) );
 		}
 		Com_Printf( "cmd %5d: %s\n", i, cmd );
@@ -127,7 +126,6 @@ void SV_AddServerCommand( client_t *client, const char *cmd ) {
 		return;
 	}
 	index = client->reliableSequence & ( MAX_RELIABLE_COMMANDS - 1 );
-	//Q_strncpyz( client->reliableCommands[ index ], cmd, sizeof( client->reliableCommands[ index ] ) );
 	SV_AddReliableCommand( client, index, cmd );
 }
 
@@ -141,14 +139,14 @@ the client game module: "cp", "print", "chat", etc
 A NULL client will broadcast to all clients
 =================
 */
-void QDECL SV_SendServerCommand( client_t *cl, const char *fmt, ... ) {
+void  SV_SendServerCommand( client_t *cl, const char *fmt, ... ) {
 	va_list argptr;
 	byte message[MAX_MSGLEN];
 	client_t    *client;
 	int j;
 
 	va_start( argptr,fmt );
-	vsprintf( (char *)message, fmt,argptr );
+	vsnprintf( (char *)message, MAX_MSGLEN, fmt,argptr );
 	va_end( argptr );
 
 	if ( cl != NULL ) {
@@ -174,102 +172,6 @@ void QDECL SV_SendServerCommand( client_t *cl, const char *fmt, ... ) {
 		SV_AddServerCommand( client, (char *)message );
 	}
 }
-
-
-/*
-==============================================================================
-
-MASTER SERVER FUNCTIONS
-
-==============================================================================
-*/
-
-/*
-================
-SV_MasterHeartbeat
-
-Send a message to the masters every few minutes to
-let it know we are alive, and log information.
-We will also have a heartbeat sent when a server
-changes from empty to non-empty, and full to non-full,
-but not on every player enter or exit.
-================
-*/
-#define HEARTBEAT_MSEC  300 * 1000
-#define HEARTBEAT_GAME  "Wolfenstein-1"
-void SV_MasterHeartbeat( void ) {
-	static netadr_t adr[MAX_MASTER_SERVERS];
-	int i;
-
-	// "dedicated 1" is for lan play, "dedicated 2" is for inet public play
-	if ( !com_dedicated || com_dedicated->integer != 2 ) {
-		return;     // only dedicated servers send heartbeats
-	}
-
-	// if not time yet, don't send anything
-	if ( svs.time < svs.nextHeartbeatTime ) {
-		return;
-	}
-	svs.nextHeartbeatTime = svs.time + HEARTBEAT_MSEC;
-
-
-	// send to group masters
-	for ( i = 0 ; i < MAX_MASTER_SERVERS ; i++ ) {
-		if ( !sv_master[i]->string[0] ) {
-			continue;
-		}
-
-		// see if we haven't already resolved the name
-		// resolving usually causes hitches on win95, so only
-		// do it when needed
-		if ( sv_master[i]->modified ) {
-			sv_master[i]->modified = qfalse;
-
-			Com_Printf( "Resolving %s\n", sv_master[i]->string );
-			if ( !NET_StringToAdr( sv_master[i]->string, &adr[i] ) ) {
-				// if the address failed to resolve, clear it
-				// so we don't take repeated dns hits
-				Com_Printf( "Couldn't resolve address: %s\n", sv_master[i]->string );
-				Cvar_Set( sv_master[i]->name, "" );
-				sv_master[i]->modified = qfalse;
-				continue;
-			}
-			if ( !strstr( ":", sv_master[i]->string ) ) {
-				adr[i].port = BigShort( PORT_MASTER );
-			}
-			Com_Printf( "%s resolved to %i.%i.%i.%i:%i\n", sv_master[i]->string,
-						adr[i].ip[0], adr[i].ip[1], adr[i].ip[2], adr[i].ip[3],
-						BigShort( adr[i].port ) );
-		}
-
-
-		Com_Printf( "Sending heartbeat to %s\n", sv_master[i]->string );
-		// this command should be changed if the server info / status format
-		// ever incompatably changes
-		NET_OutOfBandPrint( NS_SERVER, adr[i], "heartbeat %s\n", HEARTBEAT_GAME );
-	}
-}
-
-/*
-=================
-SV_MasterShutdown
-
-Informs all masters that this server is going down
-=================
-*/
-void SV_MasterShutdown( void ) {
-	// send a hearbeat right now
-	svs.nextHeartbeatTime = -9999;
-	SV_MasterHeartbeat();
-
-	// send it again to minimize chance of drops
-	svs.nextHeartbeatTime = -9999;
-	SV_MasterHeartbeat();
-
-	// when the master tries to poll the server, it won't respond, so
-	// it will be removed from the list
-}
-
 
 /*
 ==============================================================================
@@ -391,10 +293,7 @@ void SVC_Info( netadr_t from ) {
 		Info_SetValueForKey( infostring, "game", gamedir );
 	}
 	Info_SetValueForKey( infostring, "sv_allowAnonymous", va( "%i", sv_allowAnonymous->integer ) );
-
-	// Rafael gameskill
 	Info_SetValueForKey( infostring, "gameskill", va( "%i", sv_gameskill->integer ) );
-	// done
 
 	NET_OutOfBandPrint( NS_SERVER, from, "infoResponse\n%s", infostring );
 }
@@ -816,8 +715,6 @@ void SV_Frame( int msec ) {
 	// send messages back to the clients
 	SV_SendClientMessages();
 
-	// send a heartbeat to the master if needed
-	SV_MasterHeartbeat();
 }
 
 //============================================================================

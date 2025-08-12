@@ -1000,8 +1000,6 @@ void AICast_StartServerFrame( int time ) {
 
 	pcs = AICast_GetCastState( 0 );
 
-//G_Printf( "AI startserverframe: %i\n", time );
-
 	AICast_AgePlayTime( 0 );
 
 	if ( elapsed < 0 ) {

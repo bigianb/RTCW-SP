@@ -380,18 +380,7 @@ void IngamePopup(const char *popupName)
 	}
 
 	if ( cls.state == CA_ACTIVE && !clc.demoplaying ) {
-		// NERVE - SMF
-		if ( popupName && !Q_stricmp( popupName, "UIMENU_WM_PICKTEAM" ) ) {
-			UI_SetActiveMenu(UIMENU_WM_PICKTEAM );
-		} else if ( popupName && !Q_stricmp( popupName, "UIMENU_WM_PICKPLAYER" ) )    {
-			UI_SetActiveMenu(UIMENU_WM_PICKPLAYER );
-		} else if ( popupName && !Q_stricmp( popupName, "UIMENU_WM_QUICKMESSAGE" ) )    {
-			UI_SetActiveMenu(UIMENU_WM_QUICKMESSAGE );
-		} else if ( popupName && !Q_stricmp( popupName, "UIMENU_WM_LIMBO" ) )    {
-			UI_SetActiveMenu(UIMENU_WM_LIMBO );
-		}
-		// -NERVE - SMF
-		else if ( popupName && !Q_stricmp( popupName, "hbook1" ) ) {   //----(SA)
+        if ( popupName && !Q_stricmp( popupName, "hbook1" ) ) {   //----(SA)
 			UI_SetActiveMenu(UIMENU_BOOK1 );
 		} else if ( popupName && !Q_stricmp( popupName, "hbook2" ) )    { //----(SA)
 			UI_SetActiveMenu(UIMENU_BOOK2 );

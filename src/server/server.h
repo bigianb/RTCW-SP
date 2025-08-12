@@ -110,9 +110,6 @@ typedef enum {
 	CS_ACTIVE       // client is fully in game
 } clientState_t;
 
-// RF, now using a global string buffer to hold all reliable commands
-//#define	RELIABLE_COMMANDS_MULTI		128
-//#define	RELIABLE_COMMANDS_SINGLE	256		// need more for loadgame situations
 
 #define RELIABLE_COMMANDS_CHARS     384     // we can scale this down from the max of 1024, since not all commands are going to use that many chars
 
@@ -129,7 +126,6 @@ typedef struct client_s {
 	clientState_t state;
 	char userinfo[MAX_INFO_STRING];                 // name, etc
 
-	//char			reliableCommands[MAX_RELIABLE_COMMANDS][MAX_STRING_CHARS];
 	reliableCommands_t reliableCommands;
 	int reliableSequence;                   // last added reliable message, not necesarily sent or acknowledged yet
 	int reliableAcknowledge;                // last acknowledged reliable message
@@ -219,7 +215,6 @@ typedef struct {
 
 extern serverStatic_t svs;                  // persistant server info across maps
 extern server_t sv;                         // cleared each map
-//extern vm_t            *gvm;                // game virtual machine
 
 #define MAX_MASTER_SERVERS  5
 
@@ -260,18 +255,10 @@ extern cvar_t  *sv_reloading;   //----(SA)	added
 // sv_main.c
 //
 void SV_FinalMessage( char *message );
-void QDECL SV_SendServerCommand( client_t *cl, const char *fmt, ... );
+void  SV_SendServerCommand( client_t *cl, const char *fmt, ... );
 
 
 void SV_AddOperatorCommands( void );
-void SV_RemoveOperatorCommands( void );
-
-
-void SV_MasterHeartbeat( void );
-void SV_MasterShutdown( void );
-
-
-
 
 //
 // sv_init.c
@@ -286,7 +273,7 @@ void SV_ChangeMaxClients( void );
 void SV_SpawnServer( char *server, qboolean killBots );
 
 //RF, reliable commands
-char *SV_GetReliableCommand( client_t *cl, int index );
+const char *SV_GetReliableCommand( client_t *cl, int index );
 void SV_FreeAcknowledgedReliableCommands( client_t *cl );
 qboolean SV_AddReliableCommand( client_t *cl, int index, const char *cmd );
 void SV_InitReliableCommandsForClient( client_t *cl, int commands );

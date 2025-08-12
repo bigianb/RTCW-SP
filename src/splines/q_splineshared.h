@@ -76,145 +76,19 @@ extern "C" {
 #include <stdlib.h>
 #include <time.h>
 #include <ctype.h>
+
 #ifdef WIN32                // mac doesn't have malloc.h
 #include <malloc.h>          // for _alloca()
 #endif
+
 #ifdef _WIN32
 
-//#pragma intrinsic( memset, memcpy )
-
-#endif
-
-
-// this is the define for determining if we have an asm version of a C function
-#if ( defined _M_IX86 || defined __i386__ ) && !defined __sun__  && !defined __LCC__
-#define id386   1
-#else
-#define id386   0
-#endif
-
-// for windows fastcall option
-
-#define QDECL
-
-//======================= WIN32 DEFINES =================================
-
-#ifdef WIN32
-
-#define MAC_STATIC
-
-#undef QDECL
-#define QDECL   __cdecl
-
-// buildstring will be incorporated into the version string
-#ifdef NDEBUG
-#ifdef _M_IX86
-#define CPUSTRING   "win-x86"
-#elif defined _M_ALPHA
-#define CPUSTRING   "win-AXP"
-#endif
-#else
-#ifdef _M_IX86
-#define CPUSTRING   "win-x86-debug"
-#elif defined _M_ALPHA
-#define CPUSTRING   "win-AXP-debug"
-#endif
-#endif
-
-
 #define PATH_SEP '\\'
-
-#endif
-
-//======================= MAC OS X SERVER DEFINES =====================
-
-#if defined( __MACH__ ) && defined( __APPLE__ )
-
-#define MAC_STATIC
-
-#ifdef __ppc__
-#define CPUSTRING   "MacOSXS-ppc"
-#elif defined __i386__
-#define CPUSTRING   "MacOSXS-i386"
 #else
-#define CPUSTRING   "MacOSXS-other"
-#endif
-
-#define PATH_SEP    '/'
-
-#define GAME_HARD_LINKED
-#define CGAME_HARD_LINKED
-#define UI_HARD_LINKED
-#define _alloca alloca
-
-#undef ALIGN_ON
-#undef ALIGN_OFF
-#define ALIGN_ON        # pragma align( 16 )
-#define ALIGN_OFF       # pragma align()
-
-#ifdef __cplusplus
-extern "C" {
-#endif
-
-void *osxAllocateMemory( long size );
-void osxFreeMemory( void *pointer );
-
-#ifdef __cplusplus
-}
-#endif
-
-#endif
-
-//======================= MAC DEFINES =================================
-
-#ifdef __MACOS__
-
-//DAJ #define	MAC_STATIC static
-#define MAC_STATIC
-
-#define CPUSTRING   "MacOS-PPC"
-
-#define PATH_SEP ':'
-
-void Sys_PumpEvents( void );
-
-#endif
-
-#ifdef __MRC__
-
-#define MAC_STATIC
-
-#define CPUSTRING   "MacOS-PPC"
-
-#define PATH_SEP ':'
-
-void Sys_PumpEvents( void );
-
-#undef QDECL
-#define QDECL   __cdecl
-
-#define _alloca alloca
-#endif
-
-//======================= LINUX DEFINES =================================
-
-// the mac compiler can't handle >32k of locals, so we
-// just waste space and make big arrays static...
-#ifdef __linux__
-
-#define MAC_STATIC
-
-#ifdef __i386__
-#define CPUSTRING   "linux-i386"
-#elif defined __axp__
-#define CPUSTRING   "linux-alpha"
-#else
-#define CPUSTRING   "linux-other"
-#endif
-
 #define PATH_SEP '/'
-
 #endif
+
+
 
 //=============================================================
 
@@ -609,7 +483,7 @@ void Com_Parse3DMatrix( const char *( *buf_p ), int z, int y, int x, float *m );
 extern "C" {
 #endif
 
-void QDECL Com_sprintf( char *dest, int size, const char *fmt, ... );
+void  Com_sprintf( char *dest, int size, const char *fmt, ... );
 
 
 // mode parm for FS_FOpenFile
@@ -664,7 +538,7 @@ float   BigFloat( float l );
 float   LittleFloat( float l );
 
 void    Swap_Init( void );
-char    * QDECL va( const char *format, ... );
+char    *  va( const char *format, ... );
 
 #ifdef __cplusplus
 }
@@ -767,9 +641,9 @@ drawVertMesh_t *SubdivideMapPatch( const mapPatch_t *patch, float maxError );
 extern "C" {
 #endif
 
-void QDECL Com_Error( int level, const char *error, ... );
-void QDECL Com_Printf( const char *msg, ... );
-void QDECL Com_DPrintf( const char *msg, ... );
+void  Com_Error( int level, const char *error, ... );
+void  Com_Printf( const char *msg, ... );
+void  Com_DPrintf( const char *msg, ... );
 
 #ifdef __cplusplus
 }

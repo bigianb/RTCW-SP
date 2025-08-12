@@ -200,7 +200,7 @@ void SV_AuthorizeIpPacket( netadr_t from ) {
 		if ( !r ) {
 			NET_OutOfBandPrint( NS_SERVER, svs.challenges[i].adr, "print\nAwaiting CD key authorization\n" );
 		} else {
-			sprintf( ret, "print\n%s\n", r );
+			snprintf( ret, 1024, "print\n%s\n", r );
 			NET_OutOfBandPrint( NS_SERVER, svs.challenges[i].adr, ret );
 		}
 		// clear the challenge record so it won't timeout and let them through
@@ -212,7 +212,7 @@ void SV_AuthorizeIpPacket( netadr_t from ) {
 	if ( !r ) {
 		NET_OutOfBandPrint( NS_SERVER, svs.challenges[i].adr, "print\nSomeone is using this CD Key\n" );
 	} else {
-		sprintf( ret, "print\n%s\n", r );
+		snprintf( ret, 1024, "print\n%s\n", r );
 		NET_OutOfBandPrint( NS_SERVER, svs.challenges[i].adr, ret );
 	}
 
@@ -231,7 +231,7 @@ void SV_DirectConnect( netadr_t from ) {
 	char userinfo[MAX_INFO_STRING];
 	int i;
 	client_t    *cl, *newcl;
-	MAC_STATIC client_t temp;
+    client_t temp;
 	sharedEntity_t *ent;
 	int clientNum;
 	int version;

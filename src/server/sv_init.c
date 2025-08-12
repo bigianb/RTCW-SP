@@ -61,7 +61,6 @@ void SV_SetConfigstring( int index, const char *val ) {
 	// send it to all the clients if we aren't
 	// spawning a new server
 	if ( sv.state == SS_GAME || sv.restarting ) {
-//		SV_SendServerCommand( NULL, "cs %i \"%s\"\n", index, val );
 
 		// send the data to all relevent clients
         client_t    *client = svs.clients;
@@ -78,8 +77,6 @@ void SV_SetConfigstring( int index, const char *val ) {
 			if ( client->gentity && ( client->gentity->r.svFlags & SVF_CASTAI ) ) {
 				continue;
 			}
-
-//			SV_SendServerCommand( client, "cs %i \"%s\"\n", index, val );
 
 			size_t len = strlen( val );
 			if ( len >= maxChunkSize ) {
@@ -244,23 +241,9 @@ SV_InitReliableCommands
 ===============
 */
 void SV_InitReliableCommands( client_t *clients ) {
-	int i;
-	client_t *cl;
-
-	if ( sv_gametype->integer == GT_SINGLE_PLAYER ) {
-		// single player
-		// init the actual player
-		SV_InitReliableCommandsForClient( clients, MAX_RELIABLE_COMMANDS );
-		// all others can only be bots, so are not required
-		for ( i = 1, cl = &clients[1]; i < sv_maxclients->integer; i++, cl++ ) {
-			SV_InitReliableCommandsForClient( cl, MAX_RELIABLE_COMMANDS );  // TODO, make 0's
-		}
-	} else {
-		// multiplayer
-		for ( i = 0, cl = clients; i < sv_maxclients->integer; i++, cl++ ) {
-			SV_InitReliableCommandsForClient( clients, MAX_RELIABLE_COMMANDS );
-		}
-	}
+    for (int i = 0; i < sv_maxclients->integer; i++ ) {
+        SV_InitReliableCommandsForClient( &clients[i], MAX_RELIABLE_COMMANDS );
+    }
 }
 
 /*
@@ -284,16 +267,15 @@ void SV_FreeReliableCommandsForClient( client_t *cl ) {
 SV_GetReliableCommand
 ===============
 */
-char *SV_GetReliableCommand( client_t *cl, int index ) {
-	static char *nullStr = "";
+const char *SV_GetReliableCommand( client_t *cl, int index ) {
 	if ( !cl->reliableCommands.bufSize ) {
-		return nullStr;
+		return "";
 	}
-	//
+
 	if ( !cl->reliableCommands.commandLengths[index] ) {
-		return nullStr;
+		return "";
 	}
-	//
+
 	return cl->reliableCommands.commands[index];
 }
 
@@ -303,14 +285,14 @@ SV_AddReliableCommand
 ===============
 */
 qboolean SV_AddReliableCommand( client_t *cl, int index, const char *cmd ) {
-	int length, i, j;
+	size_t i, j;
 	char    *ch, *ch2;
 	//
 	if ( !cl->reliableCommands.bufSize ) {
 		return qfalse;
 	}
 	//
-	length = strlen( cmd );
+	size_t length = strlen( cmd );
 	//
 	if ( ( cl->reliableCommands.rover - cl->reliableCommands.buf ) + length + 1 >= cl->reliableCommands.bufSize ) {
 		// go back to the start
@@ -414,21 +396,14 @@ void SV_Startup( void ) {
 	}
 	SV_BoundMaxClients( 1 );
 
-#ifdef ZONECLIENTS
-	svs.clients = Z_Malloc( sizeof( client_t ) * sv_maxclients->integer );
-#else
-	// RF, avoid trying to allocate large chunk on a fragmented zone
 	svs.clients = calloc( sizeof( client_t ) * sv_maxclients->integer, 1 );
 	if ( !svs.clients ) {
 		Com_Error( ERR_FATAL, "SV_Startup: unable to allocate svs.clients" );
 	}
-#endif
-//	SV_InitReliableCommands( svs.clients );	// RF
 
 	if ( com_dedicated->integer ) {
 		svs.numSnapshotEntities = sv_maxclients->integer * PACKET_BACKUP * 64;
 	} else {
-		// we don't need nearly as many when playing locally
 		svs.numSnapshotEntities = sv_maxclients->integer * 4 * 64;
 	}
 	svs.initialized = qtrue;
@@ -485,22 +460,18 @@ void SV_ChangeMaxClients( void ) {
 	}
 
 	// free old clients arrays
-#ifdef ZONECLIENTS
-	Z_Free( svs.clients );
-#else
+
 	free( svs.clients );    // RF, avoid trying to allocate large chunk on a fragmented zone
-#endif
+
 
 	// allocate new clients
-#ifdef ZONECLIENTS
-	svs.clients = Z_Malloc( sv_maxclients->integer * sizeof( client_t ) );
-#else
+
 	// RF, avoid trying to allocate large chunk on a fragmented zone
 	svs.clients = calloc( sizeof( client_t ) * sv_maxclients->integer, 1 );
 	if ( !svs.clients ) {
 		Com_Error( ERR_FATAL, "SV_Startup: unable to allocate svs.clients" );
 	}
-#endif
+
 
 	Com_Memset( svs.clients, 0, sv_maxclients->integer * sizeof( client_t ) );
 
@@ -683,10 +654,6 @@ void SV_SpawnServer( char *server, qboolean killBots ) {
 	// clear the whole hunk because we're (re)loading the server
 	// IJB: shared hunk so need to free the AAS first.
 	Export_BotLibShutdown();
-    // TODO: FIXME - should not be here.
-    //CL_ShutdownCGame();
-    //CL_ShutdownUI();
-    //CIN_CloseAllVideos();
 
 	CM_ClearMap();
 
@@ -902,11 +869,8 @@ void SV_Init( void ) {
 	// systeminfo
 	Cvar_Get( "sv_cheats", "0", CVAR_SYSTEMINFO | CVAR_ROM );
 	sv_serverid = Cvar_Get( "sv_serverid", "0", CVAR_SYSTEMINFO | CVAR_ROM );
-//----(SA) VERY VERY TEMPORARY!!!!!!!!!!!
-//----(SA) this is so Activision can test milestones with
-//----(SA) the default config.  remember to change this back when shipping!!!
 	sv_pure = Cvar_Get( "sv_pure", "0", CVAR_SYSTEMINFO );
-//	sv_pure = Cvar_Get ("sv_pure", "1", CVAR_SYSTEMINFO );
+
 	Cvar_Get( "sv_paks", "", CVAR_SYSTEMINFO | CVAR_ROM );
 	Cvar_Get( "sv_pakNames", "", CVAR_SYSTEMINFO | CVAR_ROM );
 	Cvar_Get( "sv_referencedPaks", "", CVAR_SYSTEMINFO | CVAR_ROM );
@@ -921,8 +885,7 @@ void SV_Init( void ) {
 	Cvar_Get( "nextmap", "", CVAR_TEMP );
 
 	sv_allowDownload = Cvar_Get( "sv_allowDownload", "1", 0 );
-//----(SA)	heh, whoops.  we've been talking to id masters since we got a connection...
-//	sv_master[0] = Cvar_Get ("sv_master1", "master3.idsoftware.com", 0 );
+
 	sv_master[0] = Cvar_Get( "sv_master1", "master.gmistudios.com", 0 );
 	sv_master[1] = Cvar_Get( "sv_master2", "", CVAR_ARCHIVE );
 	sv_master[2] = Cvar_Get( "sv_master3", "", CVAR_ARCHIVE );
@@ -934,7 +897,7 @@ void SV_Init( void ) {
 	sv_killserver = Cvar_Get( "sv_killserver", "0", 0 );
 	sv_mapChecksum = Cvar_Get( "sv_mapChecksum", "", CVAR_ROM );
 
-	sv_reloading = Cvar_Get( "g_reloading", "0", CVAR_ROM );   //----(SA)	added
+	sv_reloading = Cvar_Get( "g_reloading", "0", CVAR_ROM ); 
 
 	// initialize bot cvars so they are listed and can be set before loading the botlib
 	SV_BotInitCvars();
@@ -995,8 +958,6 @@ void SV_Shutdown( char *finalmsg ) {
 		SV_FinalMessage( finalmsg );
 	}
 
-	SV_RemoveOperatorCommands();
-	SV_MasterShutdown();
 	SV_ShutdownGameProgs();
 
 	// free current level

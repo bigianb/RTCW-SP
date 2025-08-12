@@ -1865,35 +1865,6 @@ weapon_mortar (.3 .3 1) (-16 -16 -16) (16 16 16) suspended
 	},
 
 
-// JPW NERVE -- class-specific multiplayer weapon, can't be picked up, dropped, or placed in map
-/*
-weapon_class_special (.3 .3 1) (-16 -16 -16) (16 16 16) suspended
-*/
-/*
-	{
-		"weapon_class_special",
-		"sound/misc/w_pkup.wav",
-		{	"models/multiplayer/hammer/hammer.md3",
-			"models/multiplayer/hammer/v_hammer.md3",
-			"models/multiplayer/hammer/pu_hammer.md3",
-			0, 0, },
-
-		"icons/iconw_hammer_1",	// icon
-		"icons/ammo2",			// ammo icon
-		"Special",				// pickup
-		50, // this should never be picked up
-		IT_WEAPON,
-		WP_CLASS_SPECIAL,
-		WP_CLASS_SPECIAL,
-		WP_CLASS_SPECIAL,
-		"",						// precache
-		"",						// sounds
-		{0,0,0,0}
-	},
-// jpw
-*/
-
-
 
 
 	//

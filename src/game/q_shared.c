@@ -965,7 +965,7 @@ char *Q_CleanStr( char *string ) {
 }
 
 
-void QDECL Com_sprintf( char *dest, int size, const char *fmt, ... ) {
+void  Com_sprintf( char *dest, int size, const char *fmt, ... ) {
 	int len;
 	va_list argptr;
 	char bigbuffer[32000];      // big, but small enough to fit in PPC stack
@@ -1027,7 +1027,7 @@ Ridah, modified this into a circular list, to further prevent stepping on
 previous strings
 ============
 */
-char    * QDECL va( char *format, ... ) {
+char    *  va( char *format, ... ) {
 	va_list argptr;
 	#define MAX_VA_STRING   32000
 	static char temp_buffer[MAX_VA_STRING];
