@@ -148,8 +148,7 @@ void AICast_ChangeViewAngles( cast_state_t *cs, float thinktime ) {
 			}
 			cs->viewangles[i] = BotChangeViewAngle( cs->viewangles[i],
 													cs->ideal_viewangles[i], anglespeed );
-			//BotAI_Print(PRT_MESSAGE, "ideal_angles %f %f\n", cs->ideal_viewangles[0], cs->ideal_viewangles[1], cs->ideal_viewangles[2]);`
-			//cs->viewangles[i] = cs->ideal_viewangles[i];
+
 		}
 	}
 	if ( cs->viewangles[PITCH] > 180 ) {
@@ -178,8 +177,7 @@ void AICast_InputToUserCommand( cast_state_t *cs, bot_input_t *bi, usercmd_t *uc
 	//clear the whole structure
 	memset( ucmd, 0, sizeof( usercmd_t ) );
 	//
-	//Com_Printf("dir = %f %f %f speed = %f\n", bi->dir[0], bi->dir[1], bi->dir[2], bi->speed);
-	//the duration for the user command in milli seconds
+
 	ucmd->serverTime = serverTime;
 	//crouch/movedown
 	if ( aiDefaults[cs->aiCharacter].attributes[ATTACK_CROUCH] ) {    // only crouch if this character is physically able to
@@ -666,24 +664,7 @@ void AICast_Think( int client, float thinktime ) {
 	if ( cs->leaderNum >= 0 && g_entities[cs->leaderNum].health <= 0 ) {
 		cs->leaderNum = -1;
 	}
-	//
-#if 0
-	// HACK for village2, if they are stuck, find a good position (there is a friendly guy placed inside a table)
-	{
-		trace_t tr;
-		vec3_t org;
-		trap_Trace( &tr, cs->bs->cur_ps.origin, cs->bs->cur_ps.mins, cs->bs->cur_ps.maxs, cs->bs->cur_ps.origin, cs->entityNum, CONTENTS_SOLID );
-		while ( tr.startsolid ) {
-			VectorCopy( cs->bs->cur_ps.origin, org );
-			org[0] += 96 * crandom();
-			org[1] += 96 * crandom();
-			org[2] += 16 * crandom();
-			trap_Trace( &tr, org, cs->bs->cur_ps.mins, cs->bs->cur_ps.maxs, org, cs->entityNum, CONTENTS_SOLID );
-			G_SetOrigin( &g_entities[cs->entityNum], org );
-			VectorCopy( org, g_entities[cs->entityNum].client->ps.origin );
-		}
-	}
-#endif
+
 	//add the delta angles to the cast's current view angles
 	for ( i = 0; i < 3; i++ ) {
 		cs->viewangles[i] = AngleMod( cs->viewangles[i] + SHORT2ANGLE( cs->bs->cur_ps.delta_angles[i] ) );
@@ -707,8 +688,7 @@ void AICast_Think( int client, float thinktime ) {
 		cs->movestateType = MSTYPE_NONE;
 	}
 	// crouching?
-	if (    ( cs->attackcrouch_time >= level.time ) /*&&
-			((cs->lastAttackCrouch > level.time - 500) || (cs->thinkFuncChangeTime < level.time - 1000))*/) {
+	if (    ( cs->attackcrouch_time >= level.time ) ) {
 		// if we are not moving, and we are firing, always stand, unless we are allowed to crouch + fire
 		if ( ( cs->lastucmd.forwardmove || cs->lastucmd.rightmove ) || ( cs->lastWeaponFired < level.time - 2000 ) || ( cs->aiFlags & AIFL_ATTACK_CROUCH ) ) {
 			cs->lastAttackCrouch = level.time;
@@ -725,10 +705,7 @@ void AICast_Think( int client, float thinktime ) {
 	if ( !( COM_BitCheck( cs->bs->cur_ps.weapons, cs->weaponNum ) ) || !AICast_GotEnoughAmmoForWeapon( cs, cs->weaponNum ) ) {
 		// select a weapon
 		AICast_ChooseWeapon( cs, qfalse );
-		// if still no ammo, select a blank weapon
-		//if (!AICast_GotEnoughAmmoForWeapon( cs, cs->weaponNum )) {
-		//	cs->weaponNum = WP_NONE;
-		//}
+
 	}
 	//
 	// in query mode, we do special handling (pause scripting, check for transition to alert/combat, etc)
@@ -1013,9 +990,7 @@ void AICast_StartServerFrame( int time ) {
 	//
 	// process player's current script if it exists
 	AICast_ScriptRun( AICast_GetCastState( 0 ), qfalse );
-	//
-	//AICast_SightUpdate( (int)((float)SIGHT_PER_SEC * ((float)elapsed / 1000)) );
-	//
+
 	count = 0;
 	castcount = 0;
 	clCount = 0;
@@ -1129,12 +1104,6 @@ void AICast_PredictMovement( cast_state_t *cs, int numframes, float frametime, a
 	} else {
 		checkReachMarker = qfalse;
 	}
-
-	// don't let the frametime be too high
-//	while (frametime > 0.2) {
-//		numframes *= 2;
-//		frametime /= 2;
-//	}
 
 	for ( frame = 0; frame < numframes; frame++ )
 	{
@@ -1707,32 +1676,7 @@ AICast_DeadClipWalls
 ================
 */
 void AICast_DeadClipWalls( cast_state_t *cs ) {
-/*
-	//animation_t *anim;
-	orientation_t or;
-	vec3_t	src, vel;
-	trace_t	tr;
 
-	// get the death animation we are currently playing
-	//anim = BG_GetAnimationForIndex( cs->entityNum, (cs->bs->cur_ps.torsoAnim & ~ANIM_TOGGLEBIT) );
-
-	// find the head position
-	trap_GetTag( cs->entityNum, "tag_head", &or );
-	// move up a tad
-	or.origin[2] += 3;
-
-	// trace from the base of our bounding box, to the head
-	VectorCopy( cs->bs->origin, src );
-	src[2] -= cs->bs->cur_ps.mins[2] + 3;
-	trap_Trace( &tr, src, vec3_origin, vec3_origin, or.origin, cs->entityNum, MASK_SOLID );
-
-	// if we hit something, move away from it
-	if (!tr.startsolid && !tr.allsolid && tr.fraction < 1.0) {
-		VectorScale( tr.plane.normal, 80, vel );
-		vel[2] = 0;
-		VectorAdd( g_entities[cs->entityNum].client->ps.velocity, vel, g_entities[cs->entityNum].client->ps.velocity );
-	}
-*/
 }
 
 /*

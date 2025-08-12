@@ -2399,7 +2399,7 @@ typedef enum {
 
 void trap_UI_Popup( const char *arg0 );   //----(SA)	added
 void trap_UI_ClosePopup( const char *arg0 );     // NERVE - SMF
-void trap_UI_LimboChat( const char *arg0 );     // NERVE - SMF
+
 
 int trap_CIN_PlayCinematic( const char *arg0, int xpos, int ypos, int width, int height, int bits );
 e_status trap_CIN_StopCinematic( int handle );

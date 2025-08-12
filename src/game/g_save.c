@@ -451,7 +451,6 @@ void ReadField( fileHandle_t f, saveField_t *field, byte *base ) {
 			*(byte **)p = NULL;
 		} else
 		{
-			//funcStr = G_Alloc (len);
 			if ( len > sizeof( funcStr ) ) {
 				G_Error( "ReadField: function name is greater than buffer (%i chars)", sizeof( funcStr ) );
 			}
@@ -634,10 +633,7 @@ void ReadClient( fileHandle_t f, gclient_t *client, int size ) {
 	// now copy the temp structure into the existing structure
 	memcpy( client, &temp, size );
 
-	// make sure they face the right way
-	//client->ps.pm_flags |= PMF_RESPAWNED;
-	// don't allow full run speed for a bit
-	//if (client->ps.clientNum == 0) {	// only set this for the player
+
 	client->ps.pm_flags |= PMF_TIME_LOAD;
 	client->ps.pm_time = 1000;
 	if ( client->ps.aiChar ) {
@@ -650,28 +646,7 @@ void ReadClient( fileHandle_t f, gclient_t *client, int size ) {
 	// make sure they face the right way
 	// if it's the player, see if we need to put them at a mission marker
 
-// (SA) I think this should never be hit at all, but as a precaution I'm commenting it out anyway
-/*
-	if (!(ent->r.svFlags & SVF_CASTAI) && ent->missionObjectives > 0) {
-		gentity_t *trav;
 
-		for (trav=NULL; trav = G_Find(trav, FOFS(classname), "info_player_checkpoint"); ) {
-			if (trav->missionObjectives == ent->missionObjectives && Distance(trav->s.origin, ent->r.currentOrigin) < 800) {
-				G_SetOrigin( ent, trav->s.origin );
-				VectorCopy( trav->s.origin, ent->client->ps.origin );
-
-				trap_GetUsercmd( ent->client - level.clients, &ent->client->pers.cmd );
-				SetClientViewAngle( ent, trav->s.angles );
-				break;
-			}
-		}
-
-		if (!trav) {
-			trap_GetUsercmd( ent->client - level.clients, &ent->client->pers.cmd );
-			SetClientViewAngle( ent, ent->client->ps.viewangles );
-		}
-	} else {
-*/
 	trap_GetUsercmd( ent->client - level.clients, &ent->client->pers.cmd );
 	SetClientViewAngle( ent, ent->client->ps.viewangles );
 //	}
@@ -680,14 +655,6 @@ void ReadClient( fileHandle_t f, gclient_t *client, int size ) {
 	if ( client->ps.eFlags & EF_DEAD ) {
 		client->ps.eFlags |= EF_FORCE_END_FRAME;
 	}
-
-	// RF, disabled, not required now with screen fading, causes characters to possibly spawn events
-	// before they are known in the cgame
-	// run a client frame to drop exactly to the floor,
-	// initialize animations and other things
-	//trap_GetUsercmd( ent-g_entities, &ent->client->pers.cmd );
-	//ent->client->ps.commandTime = ent->client->pers.cmd.serverTime - 100;
-	//ClientThink( ent-g_entities );
 
 	// tell the client to reset it's cgame stuff
 	if ( !( ent->r.svFlags & SVF_CASTAI ) ) {
@@ -1190,12 +1157,10 @@ qboolean G_SaveGame( char *username ) {
 	}
 
 
-//	Com_sprintf( infoString, sizeof(infoString), "Mission: %s\nDate: %s\nTime: %s\nGametime: %s\nHealth: %i",
 	Com_sprintf( infoString, sizeof( infoString ), "%s\n%s: %s\n%s: %i",
 				 mapstr,
 				 leveltime,
-//		G_Save_DateStr(),
-//		G_Save_TimeStr(),
+
 				 va( "%2ih%s%im%s%is",
 					 ( ( ( playtime / 1000 ) / 60 ) / 60 ), // hour
 					 ( minutes > 9 ? "" : "0" ), // minute padding
@@ -1230,7 +1195,7 @@ qboolean G_SaveGame( char *username ) {
 	}
 
 //----(SA)	write fog
-//	trap_Cvar_VariableStringBuffer( "sg_fog", infoString, sizeof(infoString) );
+
 	trap_GetConfigstring( CS_FOGVARS, infoString, sizeof( infoString ) );
 
 	i = strlen( infoString );
@@ -1342,10 +1307,6 @@ qboolean G_SaveGame( char *username ) {
 	}
 
 	trap_FS_FCloseFile( f );
-#ifdef __MACOS__
-	trap_FS_CopyFile( mapstr, "save\\current.svg" );
-
-#endif
 
 	return qtrue;
 }
@@ -1638,26 +1599,6 @@ void G_LoadGame( char *filename ) {
 
 	level.lastLoadTime = leveltime;
 
-/*
-	// always save to the "current" savegame
-	last = level.time;
-	level.time = leveltime;	// use the value we just for the save time
-	G_SaveGame(NULL);
-	// additionally update the last game that was loaded
-	trap_Cvar_VariableStringBuffer( "savegame_filename", mapname, sizeof(mapname) );
-	if (strlen( mapname ) > 0 && !strstr( mapname, "autosave" )) {
-		// clear it out so we dont lose it after a map_restart
-		trap_Cvar_Set( "savegame_filename", "" );
-		if (strstr(mapname, ".svg")) mapname[strstr(mapname, ".svg") - mapname] = '\0';
-		if (strstr(mapname, "/")) {
-			G_SaveGame( strstr(mapname, "/") + 1 );
-		} else {
-			G_SaveGame( mapname );
-		}
-	}
-	// restore the correct level.time
-	level.time = last;
-*/
 }
 
 //=========================================================

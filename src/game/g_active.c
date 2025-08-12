@@ -122,8 +122,6 @@ void P_WorldEffects( gentity_t *ent ) {
 
 	envirosuit = ent->client->ps.powerups[PW_BATTLESUIT] > level.time;
 
-//	G_Printf("breathe: %d   invuln: %d   nofatigue: %d\n", ent->client->ps.powerups[PW_BREATHER], level.time - ent->client->ps.powerups[PW_INVULNERABLE], ent->client->ps.powerups[PW_NOFATIGUE]);
-
 	//
 	// check for drowning
 	//
@@ -141,38 +139,31 @@ void P_WorldEffects( gentity_t *ent ) {
 		// if out of air, start drowning
 		if ( ent->client->airOutTime < level.time ) {
 
-			if ( 0 ) {
-//			if(ent->client->ps.powerups[PW_BREATHER]) {	// take air from the breather now that we need it
-//				ent->client->ps.powerups[PW_BREATHER] -= (level.time - ent->client->airOutTime);
-//				ent->client->airOutTime = level.time + (level.time - ent->client->airOutTime);
-			} else {
+            // drown!
+            ent->client->airOutTime += 1000;
+            if ( ent->health > 0 ) {
+                // take more damage the longer underwater
+                ent->damage += 2;
+                if ( ent->damage > 15 ) {
+                    ent->damage = 15;
+                }
 
+                // play a gurp sound instead of a normal pain sound
+                if ( ent->health <= ent->damage ) {
+                    G_Sound( ent, G_SoundIndex( "*drown.wav" ) );
+                } else if ( rand() & 1 ) {
+                    G_Sound( ent, G_SoundIndex( "sound/player/gurp1.wav" ) );
+                } else {
+                    G_Sound( ent, G_SoundIndex( "sound/player/gurp2.wav" ) );
+                }
 
-				// drown!
-				ent->client->airOutTime += 1000;
-				if ( ent->health > 0 ) {
-					// take more damage the longer underwater
-					ent->damage += 2;
-					if ( ent->damage > 15 ) {
-						ent->damage = 15;
-					}
+                // don't play a normal pain sound
+                ent->pain_debounce_time = level.time + 200;
 
-					// play a gurp sound instead of a normal pain sound
-					if ( ent->health <= ent->damage ) {
-						G_Sound( ent, G_SoundIndex( "*drown.wav" ) );
-					} else if ( rand() & 1 ) {
-						G_Sound( ent, G_SoundIndex( "sound/player/gurp1.wav" ) );
-					} else {
-						G_Sound( ent, G_SoundIndex( "sound/player/gurp2.wav" ) );
-					}
-
-					// don't play a normal pain sound
-					ent->pain_debounce_time = level.time + 200;
-
-					G_Damage( ent, NULL, NULL, NULL, NULL,
-							  ent->damage, DAMAGE_NO_ARMOR, MOD_WATER );
-				}
-			}
+                G_Damage( ent, NULL, NULL, NULL, NULL,
+                          ent->damage, DAMAGE_NO_ARMOR, MOD_WATER );
+            }
+        
 		}
 	} else {
 		ent->client->airOutTime = level.time + 12000;
@@ -183,8 +174,7 @@ void P_WorldEffects( gentity_t *ent ) {
 	// check for sizzle damage (move to pmove?)
 	//
 	if ( waterlevel &&
-		 ( ent->watertype & CONTENTS_LAVA ) ) { //----(SA)	modified since slime is no longer deadly
-//		(ent->watertype&(CONTENTS_LAVA|CONTENTS_SLIME)) ) {
+		 ( ent->watertype & CONTENTS_LAVA ) ) {
 		if ( ent->health > 0
 			 && ent->pain_debounce_time <= level.time    ) {
 
@@ -198,10 +188,7 @@ void P_WorldEffects( gentity_t *ent ) {
 					G_Sound( ent, G_SoundIndex( "sound/world/hurt_me.wav" ) );   // sound gets cached by target_speaker... last minute hack.
 				}
 
-//	(SA)		if (ent->watertype & CONTENTS_SLIME) {
-//					G_Damage (ent, NULL, NULL, NULL, NULL,
-//						10*waterlevel, 0, MOD_SLIME);
-//	end			}
+
 			}
 		}
 	}
@@ -246,8 +233,7 @@ void G_SetClientSound( gentity_t *ent ) {
 		return;
 	}
 
-	if ( ent->waterlevel && ( ent->watertype & CONTENTS_LAVA ) ) { //----(SA)	modified since slime is no longer deadly
-//	if (ent->waterlevel && (ent->watertype&(CONTENTS_LAVA|CONTENTS_SLIME)) )
+	if ( ent->waterlevel && ( ent->watertype & CONTENTS_LAVA ) ) {
 		ent->s.loopSound = level.snd_fry;
 	} else {
 		ent->s.loopSound = 0;
@@ -370,101 +356,6 @@ void    G_TouchTriggers( gentity_t *ent ) {
 }
 
 /*
-=================
-SpectatorThink
-=================
-*/
-void SpectatorThink( gentity_t *ent, usercmd_t *ucmd ) {
-	pmove_t pm;
-	gclient_t   *client;
-
-	client = ent->client;
-
-	if ( client->sess.spectatorState != SPECTATOR_FOLLOW ) {
-		client->ps.pm_type = PM_SPECTATOR;
-		client->ps.speed = 400; // faster than normal
-		if ( client->ps.sprintExertTime ) {
-			client->ps.speed *= 3;  // (SA) allow sprint in free-cam mode
-
-
-		}
-		// set up for pmove
-		memset( &pm, 0, sizeof( pm ) );
-		pm.ps = &client->ps;
-		pm.cmd = *ucmd;
-		pm.tracemask = MASK_PLAYERSOLID & ~CONTENTS_BODY;   // spectators can fly through bodies
-		pm.trace = trap_Trace;
-		pm.pointcontents = trap_PointContents;
-
-		Pmove( &pm ); // JPW NERVE
-
-		// Rafael - Activate
-		// Ridah, made it a latched event (occurs on keydown only)
-		if ( client->latched_buttons & BUTTON_ACTIVATE ) {
-			Cmd_Activate_f( ent );
-		}
-
-		// save results of pmove
-		VectorCopy( client->ps.origin, ent->s.origin );
-
-		G_TouchTriggers( ent );
-		trap_UnlinkEntity( ent );
-	}
-
-	if ( ent->flags & FL_NOFATIGUE ) {
-		ent->client->ps.sprintTime = 20000;
-	}
-
-
-	client->oldbuttons = client->buttons;
-	client->buttons = ucmd->buttons;
-
-//----(SA)	added
-	client->oldwbuttons = client->wbuttons;
-	client->wbuttons = ucmd->wbuttons;
-
-	// attack button cycles through spectators
-	if ( ( client->buttons & BUTTON_ATTACK ) && !( client->oldbuttons & BUTTON_ATTACK ) ) {
-		Cmd_FollowCycle_f( ent, 1 );
-	}
-}
-
-
-
-/*
-=================
-ClientInactivityTimer
-
-Returns qfalse if the client is dropped
-=================
-*/
-qboolean ClientInactivityTimer( gclient_t *client ) {
-	if ( !g_inactivity.integer ) {
-		// give everyone some time, so if the operator sets g_inactivity during
-		// gameplay, everyone isn't kicked
-		client->inactivityTime = level.time + 60 * 1000;
-		client->inactivityWarning = qfalse;
-	} else if ( client->pers.cmd.forwardmove ||
-				client->pers.cmd.rightmove ||
-				client->pers.cmd.upmove ||
-				( client->pers.cmd.wbuttons & WBUTTON_ATTACK2 ) ||
-				( client->pers.cmd.buttons & BUTTON_ATTACK ) ) {
-		client->inactivityTime = level.time + g_inactivity.integer * 1000;
-		client->inactivityWarning = qfalse;
-	} else if ( !client->pers.localClient ) {
-		if ( level.time > client->inactivityTime ) {
-			trap_DropClient( client - level.clients, "Dropped due to inactivity" );
-			return qfalse;
-		}
-		if ( level.time > client->inactivityTime - 10000 && !client->inactivityWarning ) {
-			client->inactivityWarning = qtrue;
-			trap_SendServerCommand( client - level.clients, "cp \"Ten seconds until inactivity drop!\n\"" );
-		}
-	}
-	return qtrue;
-}
-
-/*
 ==================
 ClientTimerActions
 
@@ -575,10 +466,7 @@ void ClientEvents( gentity_t *ent, int oldEventSequence ) {
 	vec3_t dir;
 	int stunTime;           //----(SA)	added
 	float fallSoundMul;
-//	vec3_t		origin, angles;
-//	qboolean	fired;
-//	gitem_t		*item;
-//	gentity_t	*drop;
+
 
 	client = ent->client;
 
@@ -651,12 +539,6 @@ void ClientEvents( gentity_t *ent, int oldEventSequence ) {
 
 		case EV_FALL_SHORT:
 
-//				 if(eventParm & (SURF_GRAVEL|SURF_GLASS))						fallSoundMul *= 0.5f;
-//			else if(eventParm & SURF_ROOF)										fallSoundMul *= 0.75f;
-//			else if(eventParm & SURF_NOSTEPS|SURF_GRASS|SURF_CARPET|SURF_SNOW)	fallSoundMul *= 0.0f;		// no sound event
-//
-//			if(fallSoundMul)
-//				AICast_AudibleEvent( ent->s.number, ent->s.pos.trBase, fallSoundMul * g_footstepAudibleRange.value);
 			break;
 //----(SA)	end
 
@@ -733,39 +615,9 @@ SendPendingPredictableEvents
 ==============
 */
 void SendPendingPredictableEvents( playerState_t *ps ) {
-	/*
-	gentity_t *t;
-	int event, seq;
-	int extEvent, number;
-
-	// if there are still events pending
-	if ( ps->entityEventSequence < ps->eventSequence ) {
-		// create a temporary entity for this event which is sent to everyone
-		// except the client generated the event
-		seq = ps->entityEventSequence & (MAX_EVENTS-1);
-		event = ps->events[ seq ] | ( ( ps->entityEventSequence & 3 ) << 8 );
-		// set external event to zero before calling BG_PlayerStateToEntityState
-		extEvent = ps->externalEvent;
-		ps->externalEvent = 0;
-		// create temporary entity for event
-		t = G_TempEntity( ps->origin, event );
-		number = t->s.number;
-		BG_PlayerStateToEntityState( ps, &t->s, qtrue );
-		t->s.number = number;
-		t->s.eType = ET_EVENTS + event;
-		t->s.eFlags |= EF_PLAYER_EVENT;
-		t->s.otherEntityNum = ps->clientNum;
-		// send to everyone except the client who generated the event
-		t->r.svFlags |= SVF_NOTSINGLECLIENT;
-		t->r.singleClient = ps->clientNum;
-		// set back external event
-		ps->externalEvent = extEvent;
-	}
-	*/
+	
 }
 
-void limbo( gentity_t *ent ); // JPW NERVE
-void reinforce( gentity_t *ent ); // JPW NERVE
 
 void ClientDamage( gentity_t *clent, int entnum, int enemynum, int id );        // NERVE - SMF
 
@@ -783,7 +635,7 @@ once for each server frame, which makes for smooth demo recording.
 void ClientThink_real( gentity_t *ent ) {
 	gclient_t   *client;
 	pmove_t pm;
-//	vec3_t		oldOrigin;
+
 	int oldEventSequence;
 	int msec;
 	usercmd_t   *ucmd;
@@ -859,8 +711,7 @@ void ClientThink_real( gentity_t *ent ) {
 
 	if ( pmove_fixed.integer || client->pers.pmoveFixed ) {
 		ucmd->serverTime = ( ( ucmd->serverTime + pmove_msec.integer - 1 ) / pmove_msec.integer ) * pmove_msec.integer;
-		//if (ucmd->serverTime - client->ps.commandTime <= 0)
-		//	return;
+
 	}
 
 	//
@@ -868,16 +719,6 @@ void ClientThink_real( gentity_t *ent ) {
 	//
 	if ( level.intermissiontime ) {
 		ClientIntermissionThink( client );
-		return;
-	}
-
-	// spectators don't do much
-	// DHM - Nerve :: In limbo use SpectatorThink
-	if ( client->sess.sessionTeam == TEAM_SPECTATOR || client->ps.pm_flags & PMF_LIMBO ) {
-		if ( client->sess.spectatorState == SPECTATOR_SCOREBOARD ) {
-			return;
-		}
-		SpectatorThink( ent, ucmd );
 		return;
 	}
 
@@ -890,23 +731,6 @@ void ClientThink_real( gentity_t *ent ) {
 			client->sniperRifleFiredTime = 0;
 		} else {
 			VectorCopy( client->ps.viewangles,muzzlebounce );
-
-// JPW old damped behavior -- feels more like a real rifle (modeled on Remington 700 7.62x51mm w/ 14x scope)
-/*
-			muzzlebounce[PITCH] -= 2*cos(1.0-(level.time - client->sniperRifleFiredTime)*3/RIFLE_SHAKE_TIME);
-			muzzlebounce[YAW] += client->sniperRifleMuzzleYaw*cos(1.0-(level.time - client->sniperRifleFiredTime)*3/RIFLE_SHAKE_TIME);
-			muzzlebounce[PITCH] -= random()*(1.0f-(level.time - client->sniperRifleFiredTime)/RIFLE_SHAKE_TIME);
-			muzzlebounce[YAW] += crandom()*(1.0f-(level.time - client->sniperRifleFiredTime)/RIFLE_SHAKE_TIME);
-*/
-
-// JPW per Id request, longer recoil time
-
-			// MP method \/
-/*			muzzlebounce[PITCH] -= 2*cos(2.5*(level.time - client->sniperRifleFiredTime)/RIFLE_SHAKE_TIME);
-			muzzlebounce[YAW] += 0.5*client->sniperRifleMuzzleYaw*cos(1.0-(level.time - client->sniperRifleFiredTime)*3/RIFLE_SHAKE_TIME);
-			muzzlebounce[PITCH] -= 0.25*random()*(1.0f-(level.time - client->sniperRifleFiredTime)/RIFLE_SHAKE_TIME);
-			muzzlebounce[YAW] += 0.5*crandom()*(1.0f-(level.time - client->sniperRifleFiredTime)/RIFLE_SHAKE_TIME);
-*/
 
 			// NOTE: ----------------- SP uses this method
 			muzzlebounce[PITCH] -= 0.25*client->sniperRifleMuzzlePitch*cos( 2.5*( level.time - client->sniperRifleFiredTime ) / RIFLE_SHAKE_TIME );
@@ -921,26 +745,7 @@ void ClientThink_real( gentity_t *ent ) {
 			client->ps.powerups[PW_REGEN] = level.time;
 		}
 	}
-	// also update weapon recharge time
-/*
-	if (g_gametype.integer != GT_SINGLE_PLAYER) {
-		if (client->ps.classWeaponTime < 1.0f) { // FIXME check based on character class
-			client->ps.classWeaponPercent += 0.001;
-		}
-		G_Printf("server %f\n",client->ps.classWeaponPercent);
-	}
-*/
-// jpw
 
-	// check for inactivity timer, but never drop the local client of a non-dedicated server
-	if ( !ClientInactivityTimer( client ) ) {
-		return;
-	}
-//----(SA) commented out
-	// clear the rewards if time
-//	if ( level.time > client->rewardTime ) {
-//		client->ps.eFlags &= ~(EF_AWARD_IMPRESSIVE | EF_AWARD_EXCELLENT | EF_AWARD_GAUNTLET | EF_AWARD_ASSIST | EF_AWARD_DEFEND | EF_AWARD_CAP );
-//	}
 
 	if (    !saveGamePending &&
 			( g_gametype.integer == GT_SINGLE_PLAYER ) &&
@@ -1038,9 +843,6 @@ void ClientThink_real( gentity_t *ent ) {
 		pm.noWeapClips = qtrue; // ensure AI characters don't use clips if they're not supposed to.
 
 	}
-	// Ridah
-//	if (ent->r.svFlags & SVF_NOFOOTSTEPS)
-//		pm.noFootsteps = qtrue;
 
 	VectorCopy( client->ps.origin, client->oldOrigin );
 
@@ -1123,14 +925,6 @@ void ClientThink_real( gentity_t *ent ) {
 					}
 				}
 
-				/*
-				VectorClear (dir);
-				dir[YAW] = angle;
-				AngleVectors (dir, forward, NULL, NULL);
-
-				VectorScale (forward, 32, kvel);
-				VectorAdd (pm.ps->velocity, kvel, pm.ps->velocity);
-				*/
 			}
 		}
 
@@ -1172,10 +966,7 @@ void ClientThink_real( gentity_t *ent ) {
 						}
 						// stop obeying monsterslick pushes
 						ent->flags |= FL_NO_MONSTERSLICK;
-					} // else {
-					 // disable headcheck, otherwise we risk a constant jitter
-					//	ent->flags |= FL_NO_HEADCHECK;
-					//}
+					}
 				}
 			}
 		}
@@ -1284,10 +1075,6 @@ void ClientThink_real( gentity_t *ent ) {
 		client->fireHeld = qfalse;      // for grapple
 	}
 
-//
-//	// use the precise origin for linking
-//	VectorCopy( ent->client->ps.origin, ent->r.currentOrigin );
-//
 //	// use the snapped origin for linking so it matches client predicted versions
 	VectorCopy( ent->s.pos.trBase, ent->r.currentOrigin );
 
@@ -1347,38 +1134,7 @@ void ClientThink_real( gentity_t *ent ) {
 		if ( client->ps.stats[STAT_HEALTH] <= 0 ) {
 			// wait for the attack button to be pressed
 			if ( level.time > client->respawnTime ) {
-				// forcerespawn is to prevent users from waiting out powerups
-				if ( ( g_gametype.integer != GT_SINGLE_PLAYER ) &&
-					 ( g_forcerespawn.integer > 0 ) &&
-					 ( ( level.time - client->respawnTime ) > g_forcerespawn.integer * 1000 )  &&
-					 ( !( ent->client->ps.pm_flags & PMF_LIMBO ) ) ) { // JPW NERVE
-					// JPW NERVE
-					if ( g_gametype.integer >= GT_WOLF ) {
-						limbo( ent );
-					} else {
-						respawn( ent );
-					}
-					// jpw
-					return;
-				}
-
-				// DHM - Nerve :: Single player game respawns immediately as before,
-				//				  but in multiplayer, require button press before respawn
-				if ( g_gametype.integer == GT_SINGLE_PLAYER ) {
-					respawn( ent );
-				}
-				// pressing attack or use is the normal respawn method
-				else if ( ( ucmd->buttons & ( BUTTON_ATTACK | BUTTON_USE_HOLDABLE ) ) &&
-						  ( !( ent->client->ps.pm_flags & PMF_LIMBO ) ) ) { // JPW NERVE
-					// JPW NERVE
-					if ( g_gametype.integer >= GT_WOLF ) {
-						limbo( ent );
-					} else {
-						respawn( ent );
-					}
-					// jpw
-				}
-				// dhm - Nerve :: end
+                respawn( ent );
 			}
 			return;
 		}
@@ -1428,115 +1184,6 @@ void G_RunClient( gentity_t *ent ) {
 	ClientThink_real( ent );
 }
 
-/*
-==================
-SpectatorClientEndFrame
-
-==================
-*/
-void SpectatorClientEndFrame( gentity_t *ent ) {
-	gclient_t   *cl;
-	int do_respawn = 0; // JPW NERVE
-	int savedScore;     // DHM
-	static int lastRedReinforceTime = 0, lastBlueReinforceTime = 0;
-	int testtime;
-
-	// if we are doing a chase cam or a remote view, grab the latest info
-	if ( ( ent->client->sess.spectatorState == SPECTATOR_FOLLOW ) || ( ent->client->ps.pm_flags & PMF_LIMBO ) ) { // JPW NERVE for limbo
-		int clientNum;
-
-// JPW NERVE check if it's time to respawn limbo players back into game
-//		G_Printf("rlt=%d blt=%d diff=%d\n",g_redlimbotime.integer,g_bluelimbotime.integer, level.time - level.redReinforceTime);
-// new way, based on constant spawnrates
-
-		if ( ent->client->sess.sessionTeam == TEAM_RED ) {
-			testtime = level.time % g_redlimbotime.integer;
-			if ( testtime < lastRedReinforceTime ) {
-				do_respawn = 1;
-			}
-			lastRedReinforceTime = testtime;
-		} else if ( ent->client->sess.sessionTeam == TEAM_BLUE )     {
-			testtime = level.time % g_bluelimbotime.integer;
-			if ( testtime < lastBlueReinforceTime ) {
-				do_respawn = 1;
-			}
-			lastBlueReinforceTime = testtime;
-		}
-
-		if ( do_respawn ) {
-			reinforce( ent );
-			return;
-		}
-
-/* old way, based on first guy to die
-		if (ent->client->ps.pm_flags & PMF_LIMBO) {
-			if (ent->client->sess.sessionTeam == TEAM_RED) {
-				ent->client->ps.pm_time = g_redlimbotime.integer - (level.time - level.redReinforceTime);
-				if (ent->client->ps.pm_time < 0) {
-					do_respawn = 1;
-					level.redReinforceTime = level.time+6000; // JPW NERVE 5 sec min delay
-				}
-			}
-			if (ent->client->sess.sessionTeam == TEAM_BLUE) {
-				ent->client->ps.pm_time =  g_bluelimbotime.integer - (level.time - level.blueReinforceTime);
-				if (ent->client->ps.pm_time < 0) {
-					do_respawn = 1;
-					level.blueReinforceTime = level.time+6000; // JPW NERVE 5 sec min delay
-				}
-			}
-		}
-		if (do_respawn) {
-			reinforce(ent);
-			return;
-		}
-*/
-// jpw
-
-		clientNum = ent->client->sess.spectatorClient;
-
-		// team follow1 and team follow2 go to whatever clients are playing
-		if ( clientNum == -1 ) {
-			clientNum = level.follow1;
-		} else if ( clientNum == -2 ) {
-			clientNum = level.follow2;
-		}
-		if ( clientNum >= 0 ) {
-			cl = &level.clients[ clientNum ];
-			if ( cl->pers.connected == CON_CONNECTED && cl->sess.sessionTeam != TEAM_SPECTATOR ) {
-//				flags = (cl->ps.eFlags & ~(EF_VOTED | EF_TEAMVOTED)) | (ent->client->ps.eFlags & (EF_VOTED | EF_TEAMVOTED));
-// JPW NERVE -- limbo latch
-				if ( ent->client->ps.pm_flags & PMF_LIMBO ) {
-					// abuse do_respawn var
-					savedScore = ent->client->ps.persistant[PERS_SCORE];
-					do_respawn = ent->client->ps.pm_time;
-					ent->client->ps = cl->ps;
-					ent->client->ps.pm_flags |= PMF_FOLLOW;
-					ent->client->ps.pm_flags |= PMF_LIMBO;
-					ent->client->ps.pm_time = do_respawn; // put pm_time back
-					ent->client->ps.persistant[PERS_SCORE] = savedScore;    // put score back
-				} else {
-					ent->client->ps = cl->ps;
-					ent->client->ps.pm_flags |= PMF_FOLLOW;
-				}
-// jpw
-//				ent->client->ps.eFlags = flags;
-				return;
-			} else {
-				// drop them to free spectators unless they are dedicated camera followers
-				if ( ent->client->sess.spectatorClient >= 0 ) {
-					ent->client->sess.spectatorState = SPECTATOR_FREE;
-					ClientBegin( ent->client - level.clients );
-				}
-			}
-		}
-	}
-
-	if ( ent->client->sess.spectatorState == SPECTATOR_SCOREBOARD ) {
-		ent->client->ps.pm_flags |= PMF_SCOREBOARD;
-	} else {
-		ent->client->ps.pm_flags &= ~PMF_SCOREBOARD;
-	}
-}
 
 /*
 ==============
@@ -1551,10 +1198,6 @@ void ClientEndFrame( gentity_t *ent ) {
 	int i;
 	clientPersistant_t  *pers;
 
-	if ( ( ent->client->sess.sessionTeam == TEAM_SPECTATOR ) || ( ent->client->ps.pm_flags & PMF_LIMBO ) ) { // JPW NERVE
-		SpectatorClientEndFrame( ent );
-		return;
-	}
 
 	pers = &ent->client->pers;
 
@@ -1571,14 +1214,6 @@ void ClientEndFrame( gentity_t *ent ) {
 			}
 		}
 	}
-
-	// save network bandwidth
-#if 0
-	if ( !g_synchronousClients->integer && ent->client->ps.pm_type == PM_NORMAL ) {
-		// FIXME: this must change eventually for non-sync demo recording
-		VectorClear( ent->client->ps.viewangles );
-	}
-#endif
 
 	//
 	// If the end of unit layout is displayed, don't give
@@ -1616,46 +1251,45 @@ void ClientEndFrame( gentity_t *ent ) {
 
 	SendPendingPredictableEvents( &ent->client->ps );
 
-	// DHM - Nerve :: Only in single player...
+
 	// Ridah, if they are using a dangerous weapon, let AI do their avoidance
-	if ( g_gametype.integer == GT_SINGLE_PLAYER ) {
-		switch ( ent->client->ps.weapon ) {
-		case WP_TESLA:          // fear the tesla
-			AICast_CheckDangerousEntity( ent, DANGER_CLIENTAIM, TESLA_RANGE + 150, 0.5, 0.6, ( ent->client->buttons & BUTTON_ATTACK ? qtrue : qfalse ) );
-			break;
-		case WP_MONSTER_ATTACK1:
-			if ( ent->aiCharacter == AICHAR_ZOMBIE ) {
-				AICast_CheckDangerousEntity( ent, DANGER_CLIENTAIM | DANGER_FLAMES, FLAMETHROWER_RANGE + 150, 0.5, 0.8, qtrue );
-			}
-			break;
-		case WP_MONSTER_ATTACK2:
-			if ( ent->aiCharacter == AICHAR_ZOMBIE ) {
-				if ( ent->client->ps.eFlags & EF_MONSTER_EFFECT ) {
-					AICast_CheckDangerousEntity( ent, 0, 4000, 0.5, 0.8, qtrue );
-				}
-			}
-			break;
-		case WP_MONSTER_ATTACK3:
-			if ( ent->aiCharacter == AICHAR_LOPER ) {
-				AICast_CheckDangerousEntity( ent, 0, LOPER_GROUND_RANGE + 100, 0.5, 0.8, qtrue );
-			}
-			break;
-		case WP_FLAMETHROWER:           // fear the flamethrower
-			AICast_CheckDangerousEntity( ent, DANGER_CLIENTAIM | DANGER_FLAMES, FLAMETHROWER_RANGE + 150, 0.5, 0.8, ( ent->client->buttons & BUTTON_ATTACK ? qtrue : qfalse ) );
-			break;
-		case WP_VENOM:              // avoid the venom
-			AICast_CheckDangerousEntity( ent, DANGER_CLIENTAIM, 4000, 0.5, 0.8, ( ent->client->buttons & BUTTON_ATTACK ? qtrue : qfalse ) );
-			break;
-		case WP_PANZERFAUST:    // just predict a rocket attack, rather than waiting for them to fire, then avoiding
-			AICast_CheckDangerousEntity( ent, DANGER_CLIENTAIM, 1000, 0.5, 0.8, ( ent->client->buttons & BUTTON_ATTACK ? qtrue : qfalse ) );
-			break;
-		case WP_GRENADE_PINEAPPLE:
-		case WP_GRENADE_LAUNCHER:   // if they are wearing down a grenade fuse, we should be very afraid
-			if ( ent->client->ps.grenadeTimeLeft && ent->client->ps.grenadeTimeLeft < 3000 ) {
-				AICast_CheckDangerousEntity( ent, DANGER_CLIENTAIM, 1000, 0.5, 0.9, qtrue );
-			}
-			break;
-		}
-	}
-	// dhm
+
+    switch ( ent->client->ps.weapon ) {
+    case WP_TESLA:          // fear the tesla
+        AICast_CheckDangerousEntity( ent, DANGER_CLIENTAIM, TESLA_RANGE + 150, 0.5, 0.6, ( ent->client->buttons & BUTTON_ATTACK ? qtrue : qfalse ) );
+        break;
+    case WP_MONSTER_ATTACK1:
+        if ( ent->aiCharacter == AICHAR_ZOMBIE ) {
+            AICast_CheckDangerousEntity( ent, DANGER_CLIENTAIM | DANGER_FLAMES, FLAMETHROWER_RANGE + 150, 0.5, 0.8, qtrue );
+        }
+        break;
+    case WP_MONSTER_ATTACK2:
+        if ( ent->aiCharacter == AICHAR_ZOMBIE ) {
+            if ( ent->client->ps.eFlags & EF_MONSTER_EFFECT ) {
+                AICast_CheckDangerousEntity( ent, 0, 4000, 0.5, 0.8, qtrue );
+            }
+        }
+        break;
+    case WP_MONSTER_ATTACK3:
+        if ( ent->aiCharacter == AICHAR_LOPER ) {
+            AICast_CheckDangerousEntity( ent, 0, LOPER_GROUND_RANGE + 100, 0.5, 0.8, qtrue );
+        }
+        break;
+    case WP_FLAMETHROWER:           // fear the flamethrower
+        AICast_CheckDangerousEntity( ent, DANGER_CLIENTAIM | DANGER_FLAMES, FLAMETHROWER_RANGE + 150, 0.5, 0.8, ( ent->client->buttons & BUTTON_ATTACK ? qtrue : qfalse ) );
+        break;
+    case WP_VENOM:              // avoid the venom
+        AICast_CheckDangerousEntity( ent, DANGER_CLIENTAIM, 4000, 0.5, 0.8, ( ent->client->buttons & BUTTON_ATTACK ? qtrue : qfalse ) );
+        break;
+    case WP_PANZERFAUST:    // just predict a rocket attack, rather than waiting for them to fire, then avoiding
+        AICast_CheckDangerousEntity( ent, DANGER_CLIENTAIM, 1000, 0.5, 0.8, ( ent->client->buttons & BUTTON_ATTACK ? qtrue : qfalse ) );
+        break;
+    case WP_GRENADE_PINEAPPLE:
+    case WP_GRENADE_LAUNCHER:   // if they are wearing down a grenade fuse, we should be very afraid
+        if ( ent->client->ps.grenadeTimeLeft && ent->client->ps.grenadeTimeLeft < 3000 ) {
+            AICast_CheckDangerousEntity( ent, DANGER_CLIENTAIM, 1000, 0.5, 0.9, qtrue );
+        }
+        break;
+    }
+
 }

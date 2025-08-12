@@ -84,16 +84,7 @@ char *AIFunc_ZombieFlameAttack( cast_state_t *cs ) {
 		ent->client->ps.legsTimer = 0;
 		return AIFunc_DefaultStart( cs );
 	}
-/*	disabled, keep going so they cant come back for the easy kill
-	//
-	// if we can't see them anymore, abort immediately
-	if (cs->vislist[cs->enemyNum].real_visible_timestamp != cs->vislist[cs->enemyNum].real_update_timestamp) {
-		ent->s.onFireEnd = level.time + 1500;
-		ent->client->ps.torsoTimer = 0;
-		ent->client->ps.legsTimer = 0;
-		return AIFunc_DefaultStart( cs );
-	}
-*/
+
 	// if outside range, move closer
 	if ( VectorDistance( cs->bs->origin, cs->vislist[cs->enemyNum].visible_pos ) > ZOMBIE_FLAME_RADIUS ) {
 		ent->s.onFireEnd = level.time + 1500;
@@ -113,15 +104,8 @@ char *AIFunc_ZombieFlameAttack( cast_state_t *cs ) {
 
 	} else {
 
-		//ent->client->ps.torsoTimer = 400;
-		//ent->client->ps.legsTimer = 400;
-
 		// draw the client-side effect
 		ent->client->ps.eFlags |= EF_MONSTER_EFFECT3;
-
-		// inform the client of our enemies position
-		//VectorCopy( g_entities[cs->enemyNum].client->ps.origin, ent->s.origin2 );
-		//ent->s.origin2[2] += g_entities[cs->enemyNum].client->ps.viewheight;
 
 		// keep facing them
 		AICast_AimAtEnemy( cs );

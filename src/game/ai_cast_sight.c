@@ -189,8 +189,7 @@ qboolean AICast_VisibleFromPos( vec3_t srcpos, int srcnum,
 		trap_Trace( &trace, start, NULL, NULL, end, ENTITYNUM_NONE /*passent*/, contents_mask );
 		//if water was hit
 		if ( trace.contents & ( CONTENTS_LAVA | CONTENTS_SLIME | CONTENTS_WATER ) ) {
-			//if the water surface is translucent
-//			if (trace.surface.flags & (SURF_TRANS33|SURF_TRANS66))
+
 			{
 				//trace through the water
 				contents_mask &= ~( CONTENTS_LAVA | CONTENTS_SLIME | CONTENTS_WATER );
@@ -246,15 +245,7 @@ qboolean AICast_CheckVisibility( gentity_t *srcent, gentity_t *destent ) {
 	if ( !destent->aiCharacter && level.lastLoadTime && ( level.lastLoadTime > level.time - 2000 ) && !vis->visible_timestamp ) {
 		return qfalse;
 	}
-	// if we heard them
-	/*
-	if (	(vis->lastcheck_timestamp) &&
-			(ocs->lastWeaponFired) &&
-			(ocs->lastWeaponFired >= vis->lastcheck_timestamp) &&
-			(AICast_GetWeaponSoundRange( ocs->lastWeaponFiredWeaponNum ) > Distance( srcent->r.currentOrigin, ocs->lastWeaponFiredPos ))) {
-		return qtrue;
-	}
-	*/
+
 	//
 	// set the FOV
 	fov = cs->attributes[FOV] * aiStateFovScales[cs->aiState];

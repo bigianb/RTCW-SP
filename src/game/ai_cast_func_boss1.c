@@ -428,13 +428,7 @@ char *AIFunc_Heinrich_SwordLunge( cast_state_t *cs ) {
 		AICast_AimAtEnemy( cs );
 		// keep checking for impact status
 		tr = CheckMeleeAttack( ent, HEINRICH_LUNGE_RANGE, qfalse );
-/*		// do we need to move?
-		if (!(tr && (tr->entityNum == cs->enemyNum))) {
-			ent->client->ps.legsTimer = 0;
-			cs->castScriptStatus.scriptNoMoveTime = 0;
-			trap_EA_MoveForward( cs->entityNum );
-		}
-*/                                                                                                                                                                                                           // ready for damage?
+                                                                                                                                                                                                      // ready for damage?
 		if ( cs->thinkFuncChangeTime < level.time - HEINRICH_LUNGE_DELAY ) {
 			cs->aiFlags |= AIFL_MISCFLAG1;
 			// do melee damage
@@ -492,9 +486,7 @@ char *AIFunc_Heinrich_SwordKnockback( cast_state_t *cs ) {
 	gentity_t *ent = &g_entities[cs->entityNum];
 	trace_t *tr;
 	vec3_t right, left;
-//	float	enemyDist;
-//	aicast_predictmove_t move;
-//	vec3_t	vec;
+
 	cast_state_t *ecs;
 
 	cs->aiFlags |= AIFL_SPECIAL_FUNC;
@@ -525,13 +517,7 @@ char *AIFunc_Heinrich_SwordKnockback( cast_state_t *cs ) {
 		AICast_AimAtEnemy( cs );
 		// keep checking for impact status
 		tr = CheckMeleeAttack( ent, HEINRICH_KNOCKBACK_RANGE, qfalse );
-/*		// do we need to move?
-		if (!(tr && (tr->entityNum == cs->enemyNum))) {
-			ent->client->ps.legsTimer = 0;
-			cs->castScriptStatus.scriptNoMoveTime = 0;
-			trap_EA_MoveForward( cs->entityNum );
-		}
-*/                                                                                                                                                                                                           // ready for damage?
+                                                                                                                                                                                                          // ready for damage?
 		if ( cs->thinkFuncChangeTime < level.time - HEINRICH_KNOCKBACK_DELAY ) {
 			cs->aiFlags |= AIFL_MISCFLAG1;
 			// do melee damage
@@ -554,24 +540,7 @@ char *AIFunc_Heinrich_SwordKnockback( cast_state_t *cs ) {
 			}
 		}
 	}
-/*	DISABLED FOR SWORDKNOCKBACK..looks bad
-	// if they are outside range, move forward
-	AICast_PredictMovement( ecs, 2, 0.3, &move, &g_entities[cs->enemyNum].client->pers.cmd, -1 );
-	VectorSubtract( move.endpos, cs->bs->origin, vec );
-	vec[2] = 0;
-	enemyDist = VectorLength( vec );
-	enemyDist -= g_entities[cs->enemyNum].r.maxs[0];
-	enemyDist -= ent->r.maxs[0];
-	if (enemyDist > 30) {	// we can get closer
-		if (ent->client->ps.legsTimer) {
-			cs->castScriptStatus.scriptNoMoveTime = level.time + 100;
-			ent->client->ps.legsTimer = 0;		// allow legs to move us
-		}
-		if (cs->castScriptStatus.scriptNoMoveTime < level.time) {
-			trap_EA_MoveForward(cs->entityNum);
-		}
-	}
-*/
+
 	return NULL;
 }
 

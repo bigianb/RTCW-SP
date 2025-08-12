@@ -858,9 +858,7 @@ int BotAIStartFrame( int time ) {
 	static int botlib_residual;
 	static int lastbotthink_time;
 
-	if ( g_gametype.integer != GT_SINGLE_PLAYER ) {
-		G_CheckBotSpawn();
-	}
+
 
 	Cvar_Update( &bot_rocketjump );
 	Cvar_Update( &bot_grapple );

@@ -40,13 +40,11 @@ extern void ClientUserinfoChanged ( int clientNum ) ;
 extern qboolean G_ParseAnimationFiles ( char * modelname , gclient_t * cl ) ;
 extern qboolean G_GetModelInfo ( int clientNum , char * modelName , animModelInfo_t * * modelInfo ) ;
 extern qboolean G_CheckForExistingModelInfo ( gclient_t * cl , char * modelName , animModelInfo_t * * modelInfo ) ;
-extern void SetWolfSpawnWeapons ( gclient_t * client ) ;
-extern void SetWolfSkin ( gclient_t * client , char * model ) ;
-extern void ForceClientSkin ( gclient_t * client , char * model , const char * skin ) ;
-extern team_t PickTeam ( int ignoreClientNum ) ;
+
+
+
 extern void respawn ( gentity_t * ent ) ;
-extern void reinforce ( gentity_t * ent ) ;
-extern void limbo ( gentity_t * ent ) ;
+
 extern void SetClientViewAngle ( gentity_t * ent , vec3_t angle ) ;
 extern void CopyToBodyQue ( gentity_t * ent ) ;
 extern void BodySink ( gentity_t * ent ) ;
@@ -389,18 +387,11 @@ extern void COM_StripFilename ( char * in , char * out ) ;
 extern void COM_StripExtension ( const char * in , char * out ) ;
 extern char * COM_SkipPath ( char * pathname ) ;
 extern float Com_Clamp ( float min , float max , float value ) ;
-extern char * G_GetBotInfoByName ( const char * name ) ;
-extern char * G_GetBotInfoByNumber ( int num ) ;
-extern void Svcmd_AddBot_f ( void ) ;
+
+
 extern qboolean G_BotConnect ( int clientNum , qboolean restart ) ;
 extern void G_QueueBotBegin ( int clientNum ) ;
-extern void G_CheckBotSpawn ( void ) ;
-extern void G_CheckMinimumPlayers ( void ) ;
-extern int G_CountBotPlayers ( int team ) ;
-extern int G_CountHumanPlayers ( int team ) ;
-extern int G_RemoveRandomBot ( int team ) ;
-extern void G_AddRandomBot ( int team ) ;
-extern const char * G_GetArenaInfoByMap ( const char * map ) ;
+
 extern void G_WriteSessionData ( void ) ;
 extern void G_InitWorldSession ( void ) ;
 extern void G_InitSessionData ( gclient_t * client , char * userinfo ) ;
@@ -1003,8 +994,8 @@ extern void MoveClientToIntermission ( gentity_t * ent ) ;
 extern void CalculateRanks ( void ) ;
 extern int  SortRanks ( const void * a , const void * b ) ;
 extern void AdjustTournamentScores ( void ) ;
-extern void RemoveTournamentLoser ( void ) ;
-extern void AddTournamentPlayer ( void ) ;
+
+
 extern void  Com_Printf ( const char * msg , ... ) ;
 extern void  Com_Error ( int level , const char * error , ... ) ;
 extern void G_ShutdownGame ( int restart ) ;
@@ -1096,7 +1087,7 @@ extern gitem_t * BG_FindItemForHoldable ( holdable_t pw ) ;
 extern gitem_t * BG_FindItemForPowerup ( powerup_t pw ) ;
 extern void Svcmd_GameMem_f ( void ) ;
 extern void G_InitMemory ( void ) ;
-extern void * G_Alloc ( int size ) ;
+extern void * G_Alloc ( size_t size ) ;
 extern void ClientCommand ( int clientNum ) ;
 extern void Cmd_SetSpawnPoint_f ( gentity_t * clent ) ;
 extern void Cmd_EntityCount_f ( gentity_t * ent ) ;
@@ -1117,10 +1108,10 @@ extern void Cmd_Where_f ( gentity_t * ent ) ;
 
 extern void Cmd_FollowCycle_f ( gentity_t * ent , int dir ) ;
 extern void Cmd_Follow_f ( gentity_t * ent ) ;
-extern void Cmd_Team_f ( gentity_t * ent ) ;
+
 extern void StopFollowing ( gentity_t * ent ) ;
 extern void SetWolfData ( gentity_t * ent , char * ptype , char * weap , char * pistol , char * grenade , char * skinnum ) ;
-extern void SetTeam ( gentity_t * ent , char * s ) ;
+
 extern void Cmd_Kill_f ( gentity_t * ent ) ;
 
 extern void Cmd_Noclip_f ( gentity_t * ent ) ;
@@ -1310,7 +1301,7 @@ extern void alarmbox_use ( gentity_t * ent , gentity_t * other , gentity_t * foo
 extern void alarmbox_updateparts ( gentity_t * ent , qboolean matestoo ) ;
 extern void alarmExplosion ( gentity_t * ent ) ;
 extern void ClientEndFrame ( gentity_t * ent ) ;
-extern void SpectatorClientEndFrame ( gentity_t * ent ) ;
+
 extern void G_RunClient ( gentity_t * ent ) ;
 extern void ClientThink ( int clientNum ) ;
 extern void ClientThink_real ( gentity_t * ent ) ;
@@ -1318,15 +1309,15 @@ extern void SendPendingPredictableEvents ( playerState_t * ps ) ;
 extern void ClientEvents ( gentity_t * ent , int oldEventSequence ) ;
 extern void ClientIntermissionThink ( gclient_t * client ) ;
 extern void ClientTimerActions ( gentity_t * ent , int msec ) ;
-extern qboolean ClientInactivityTimer ( gclient_t * client ) ;
-extern void SpectatorThink ( gentity_t * ent , usercmd_t * ucmd ) ;
+
+
 extern void G_TouchTriggers ( gentity_t * ent ) ;
 extern void ClientImpacts ( gentity_t * ent , pmove_t * pm ) ;
 extern void G_SetClientSound ( gentity_t * ent ) ;
 extern void P_WorldEffects ( gentity_t * ent ) ;
 extern void P_DamageFeedback ( gentity_t * player ) ;
 extern qboolean ConsoleCommand ( void ) ;
-extern void Svcmd_ForceTeam_f ( void ) ;
+
 extern gclient_t * ClientForString ( const char * s ) ;
 extern void Svcmd_EntityList_f ( void ) ;
 extern void Svcmd_RemoveIP_f ( void ) ;

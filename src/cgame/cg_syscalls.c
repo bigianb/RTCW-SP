@@ -384,12 +384,7 @@ void trap_UI_Popup( const char *arg0 ) {
 	IngamePopup(arg0 );
 }
 
-// NERVE - SMF
-void trap_UI_LimboChat( const char *arg0 ) {
-	if (arg0){
-		CL_AddToLimboChat(arg0 );
-	}
-}
+
 
 void trap_UI_ClosePopup( const char *arg0 ) {
 	UI_KeyEvent(K_ESCAPE, qtrue );

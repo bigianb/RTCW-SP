@@ -195,43 +195,13 @@ void AICast_DBG_Cmd_f( int clientNum ) {
 		return;
 	}
 	if ( Q_stricmp( cmd, "getname" ) == 0 ) {
-		// get name of character we're looking at
-//		AICast_DBG_GetName_f(ent);
+
 		return;
 	}
 	if ( Q_stricmp( cmd, "followme" ) == 0 ) {
 		// tell character to follow us
 		trap_Argv( 2, cmd, sizeof( cmd ) );
-//		AICast_DBG_FollowMe_f(ent->client, cmd);
+
 		return;
 	}
 }
-/*
-// Ridah, faster Win32 code
-#ifdef _WIN32
-#undef MAX_PATH		// this is an ugly hack, to temporarily ignore the current definition, since it's also defined in windows.h
-#include <windows.h>
-#undef MAX_PATH
-#define MAX_PATH	MAX_QPATH
-#endif
-
-int Sys_MilliSeconds(void)
-{
-// Ridah, faster Win32 code
-#ifdef _WIN32
-	int			sys_curtime;
-	static qboolean	initialized = qfalse;
-	static int	sys_timeBase;
-
-	if (!initialized) {
-		sys_timeBase = timeGetTime();
-		initialized = qtrue;
-	}
-	sys_curtime = timeGetTime() - sys_timeBase;
-
-	return sys_curtime;
-#else
-	return clock() * 1000 / CLOCKS_PER_SEC;
-#endif
-} //end of the function Sys_MilliSeconds
-*/

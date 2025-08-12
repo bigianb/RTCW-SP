@@ -119,7 +119,7 @@ void AICast_Printf( int type, const char *fmt, ... ) {
 	va_list ap;
 
 	va_start( ap, fmt );
-	vsprintf( str, fmt, ap );
+	vsnprintf( str, 2048, fmt, ap );
 	va_end( ap );
 
 	switch ( type ) {
@@ -209,9 +209,6 @@ int AICast_ShutdownClient( int client ) {
 
 	// now do the other bot stuff
 
-#ifdef DEBUG
-//	botai_import.DebugLineDelete(bs->debugline);
-#endif //DEBUG
 
 	trap_BotFreeMoveState( bs->ms );
 	//free the goal state
@@ -348,9 +345,6 @@ gentity_t *AICast_CreateCharacter( gentity_t *ent, float *attributes, cast_weapo
 	char            **ppStr;
 	int j;
 
-	if ( g_gametype.integer != GT_SINGLE_PLAYER ) { // no cast AI in multiplayer
-		return NULL;
-	}
 	// are bots enabled?
 	if ( !trap_Cvar_VariableIntegerValue( "bot_enable" ) ) {
 		G_Printf( S_COLOR_RED "ERROR: Unable to spawn %s, 'bot_enable' is not set\n", ent->classname );
@@ -413,8 +407,7 @@ gentity_t *AICast_CreateCharacter( gentity_t *ent, float *attributes, cast_weapo
 	AICast_ScriptParse( cs );
 	//
 	// setup bounding boxes
-	//VectorCopy( mins, client->ps.mins );
-	//VectorCopy( maxs, client->ps.maxs );
+
 	AIChar_SetBBox( newent, cs, qfalse );
 	client->ps.friction = cs->attributes[RUNNING_SPEED] / 300.0;
 	//
@@ -594,7 +587,6 @@ void AIChar_AIScript_AlertEntity( gentity_t *ent ) {
 		for ( i = 0; i < numTouch; i++ ) {
 			// RF, note we should only check against clients since zombies need to spawn inside func_explosive (so they dont clip into view after it explodes)
 			if ( g_entities[touch[i]].client && g_entities[touch[i]].r.contents == CONTENTS_BODY ) {
-				//if (g_entities[touch[i]].r.contents & MASK_PLAYERSOLID)
 				break;
 			}
 		}
@@ -922,7 +914,7 @@ void AICast_AgePlayTime( int entnum ) {
 	if ( saveGamePending ) {
 		return;
 	}
-//	if (reloading)
+
 	if ( g_reloading.integer ) {
 		return;
 	}

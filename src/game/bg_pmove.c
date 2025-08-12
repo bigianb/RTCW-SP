@@ -298,7 +298,7 @@ Handles user intended acceleration
 ==============
 */
 static void PM_Accelerate( vec3_t wishdir, float wishspeed, float accel ) {
-#if 1
+
 	// q2 style
 	int i;
 	float addspeed, accelspeed, currentspeed;
@@ -324,24 +324,7 @@ static void PM_Accelerate( vec3_t wishdir, float wishspeed, float accel ) {
 	for ( i = 0 ; i < 3 ; i++ ) {
 		pm->ps->velocity[i] += accelspeed * wishdir[i];
 	}
-#else
-	// proper way (avoids strafe jump maxspeed bug), but feels bad
-	vec3_t wishVelocity;
-	vec3_t pushDir;
-	float pushLen;
-	float canPush;
 
-	VectorScale( wishdir, wishspeed, wishVelocity );
-	VectorSubtract( wishVelocity, pm->ps->velocity, pushDir );
-	pushLen = VectorNormalize( pushDir );
-
-	canPush = accel * pml.frametime * wishspeed;
-	if ( canPush > pushLen ) {
-		canPush = pushLen;
-	}
-
-	VectorMA( pm->ps->velocity, canPush, pushDir, pm->ps->velocity );
-#endif
 }
 
 
@@ -410,8 +393,7 @@ to the facing dir
 ================
 */
 static void PM_SetMovementDir( void ) {
-// Ridah, changed this for more realistic angles (at the cost of more network traffic?)
-#if 1
+
 	float speed;
 	vec3_t moved;
 	int moveyaw;
@@ -447,36 +429,7 @@ static void PM_SetMovementDir( void ) {
 	{
 		pm->ps->movementDir = 0;
 	}
-#else
-	if ( pm->cmd.forwardmove || pm->cmd.rightmove ) {
-		if ( pm->cmd.rightmove == 0 && pm->cmd.forwardmove > 0 ) {
-			pm->ps->movementDir = 0;
-		} else if ( pm->cmd.rightmove < 0 && pm->cmd.forwardmove > 0 ) {
-			pm->ps->movementDir = 1;
-		} else if ( pm->cmd.rightmove < 0 && pm->cmd.forwardmove == 0 ) {
-			pm->ps->movementDir = 2;
-		} else if ( pm->cmd.rightmove < 0 && pm->cmd.forwardmove < 0 ) {
-			pm->ps->movementDir = 3;
-		} else if ( pm->cmd.rightmove == 0 && pm->cmd.forwardmove < 0 ) {
-			pm->ps->movementDir = 4;
-		} else if ( pm->cmd.rightmove > 0 && pm->cmd.forwardmove < 0 ) {
-			pm->ps->movementDir = 5;
-		} else if ( pm->cmd.rightmove > 0 && pm->cmd.forwardmove == 0 ) {
-			pm->ps->movementDir = 6;
-		} else if ( pm->cmd.rightmove > 0 && pm->cmd.forwardmove > 0 ) {
-			pm->ps->movementDir = 7;
-		}
-	} else {
-		// if they aren't actively going directly sideways,
-		// change the animation to the diagonal so they
-		// don't stop too crooked
-		if ( pm->ps->movementDir == 2 ) {
-			pm->ps->movementDir = 1;
-		} else if ( pm->ps->movementDir == 6 ) {
-			pm->ps->movementDir = 7;
-		}
-	}
-#endif
+
 }
 
 
@@ -486,9 +439,7 @@ PM_CheckJump
 =============
 */
 static qboolean PM_CheckJump( void ) {
-	// JPW NERVE -- jumping in multiplayer uses and requires sprint juice (to prevent turbo skating, sprint + jumps)
-	// don't allow jump accel
-//	if (pm->cmd.serverTime - pm->ps->jumpTime < 850)
+
 	if ( pm->cmd.serverTime - pm->ps->jumpTime < 500 ) {  // (SA) trying shorter time.  I find this effect annoying ;)
 		return qfalse;
 	}
@@ -616,20 +567,7 @@ static void PM_WaterMove( void ) {
 		PM_WaterJumpMove();
 		return;
 	}
-#if 0
-	// jump = head for surface
-	if ( pm->cmd.upmove >= 10 ) {
-		if ( pm->ps->velocity[2] > -300 ) {
-			if ( pm->watertype == CONTENTS_WATER ) {
-				pm->ps->velocity[2] = 100;
-			} else if ( pm->watertype == CONTENTS_SLIME ) {
-				pm->ps->velocity[2] = 80;
-			} else {
-				pm->ps->velocity[2] = 50;
-			}
-		}
-	}
-#endif
+
 	PM_Friction();
 
 	scale = PM_CmdScale( &pm->cmd );
@@ -679,23 +617,6 @@ static void PM_WaterMove( void ) {
 	PM_SlideMove( qfalse );
 }
 
-
-/*
-===================
-PM_InvulnerabilityMove
-
-Only with the invulnerability powerup
-===================
-*/
-// TTimo: unused
-/*
-static void PM_InvulnerabilityMove( void ) {
-	pm->cmd.forwardmove = 0;
-	pm->cmd.rightmove = 0;
-	pm->cmd.upmove = 0;
-	VectorClear(pm->ps->velocity);
-}
-*/
 
 /*
 ===================
@@ -766,11 +687,7 @@ static void PM_AirMove( void ) {
 
 	cmd = pm->cmd;
 	scale = PM_CmdScale( &cmd );
-
-// Ridah, moved this down, so we use the actual movement direction
-	// set the movementDir so clients can rotate the legs for strafing
-//	PM_SetMovementDir();
-
+    
 	// project moves down to flat plane
 	pml.forward[2] = 0;
 	pml.right[2] = 0;
@@ -797,55 +714,12 @@ static void PM_AirMove( void ) {
 						 pm->ps->velocity, OVERCLIP );
 	}
 
-#if 0
-	//ZOID:  If we are on the grapple, try stair-stepping
-	//this allows a player to use the grapple to pull himself
-	//over a ledge
-	if ( pm->ps->pm_flags & PMF_GRAPPLE_PULL ) {
-		PM_StepSlideMove( qtrue );
-	} else {
-		PM_SlideMove( qtrue );
-	}
-#endif
-
 	PM_StepSlideMove( qtrue );
 
 // Ridah, moved this down, so we use the actual movement direction
 	// set the movementDir so clients can rotate the legs for strafing
 	PM_SetMovementDir();
 }
-
-/*
-===================
-PM_GrappleMove
-
-===================
-*/
-// TTimo: unused
-/*
-static void PM_GrappleMove( void ) {
-// Ridah, removed this code since we don't have a grapple, and the grapplePoint was consuming valuable msg space
-#if 0
-	vec3_t vel, v;
-	float vlen;
-
-	VectorScale(pml.forward, -16, v);
-	VectorAdd(pm->ps->grapplePoint, v, v);
-	VectorSubtract(v, pm->ps->origin, vel);
-	vlen = VectorLength(vel);
-	VectorNormalize( vel );
-
-	if (vlen <= 100)
-		VectorScale(vel, 10 * vlen, vel);
-	else
-		VectorScale(vel, 800, vel);
-
-	VectorCopy(vel, pm->ps->velocity);
-
-	pml.groundPlane = qfalse;
-#endif
-}
-*/
 
 /*
 ===================
@@ -915,10 +789,6 @@ static void PM_WalkMove( void ) {
 	cmd = pm->cmd;
 	scale = PM_CmdScale( &cmd );
 
-// Ridah, moved this down, so we use the actual movement direction
-	// set the movementDir so clients can rotate the legs for strafing
-//	PM_SetMovementDir();
-
 	// project moves down to flat plane
 	pml.forward[2] = 0;
 	pml.right[2] = 0;
@@ -980,16 +850,11 @@ static void PM_WalkMove( void ) {
 
 	PM_Accelerate( wishdir, wishspeed, accelerate );
 
-	//Com_Printf("velocity = %1.1f %1.1f %1.1f\n", pm->ps->velocity[0], pm->ps->velocity[1], pm->ps->velocity[2]);
-	//Com_Printf("velocity1 = %1.1f\n", VectorLength(pm->ps->velocity));
 
 	if ( ( pml.groundTrace.surfaceFlags & SURF_SLICK ) || pm->ps->pm_flags & PMF_TIME_KNOCKBACK ) {
 		pm->ps->velocity[2] -= pm->ps->gravity * pml.frametime;
 	} else if ( ( pm->ps->stats[STAT_HEALTH] <= 0 ) && pm->ps->aiChar && ( pml.groundTrace.surfaceFlags & SURF_MONSTERSLICK ) )   {
 		pm->ps->velocity[2] -= pm->ps->gravity * pml.frametime;
-	} else {
-		// don't reset the z velocity for slopes
-//		pm->ps->velocity[2] = 0;
 	}
 
 	// show breath when standing on 'snow' surfaces
@@ -1243,16 +1108,6 @@ static void PM_CrashLand( void ) {
 		if ( pm->debugLevel ) {
 			Com_Printf( "delta: %5.2f\n", delta );
 		}
-
-//----(SA)	removed per DM
-		// Rafael gameskill
-//		if (bg_pmove_gameskill_integer == 1)
-//		{
-//			if (delta > 7)
-//				delta = 8;
-//		}
-		// done
-//----(SA)	end
 
 		if ( delta > 77 ) {
 			PM_AddFallEvent( EV_FALL_NDIE, pml.groundTrace.surfaceFlags );
@@ -2479,9 +2334,6 @@ void PM_CoolWeapons( void ) {
 	// a weapon is currently selected, convert current heat value to 0-255 range for client transmission
 	if ( pm->ps->weapon ) {
 		pm->ps->curWeapHeat = ( ( (float)pm->ps->weapHeat[pm->ps->weapon] / (float)ammoTable[pm->ps->weapon].maxHeat ) ) * 255.0f;
-
-//		if(pm->ps->weapHeat[pm->ps->weapon])
-//			Com_Printf("pm heat: %d, %d\n", pm->ps->weapHeat[pm->ps->weapon], pm->ps->curWeapHeat);
 	}
 
 }
@@ -3584,16 +3436,6 @@ void PM_CheckLadderMove( void ) {
 	pm->ps->pm_flags &= ~PMF_LADDER;    // clear ladder bit
 	ladderforward = qfalse;
 
-	/*
-	if (pm->ps->eFlags & EF_DEAD) {	// dead bodies should fall down ladders
-		return;
-	}
-
-	if (pm->ps->pm_flags & PM_DEAD && pm->ps->stats[STAT_HEALTH] <= 0)
-	{
-		return;
-	}
-	*/
 	if ( pm->ps->stats[STAT_HEALTH] <= 0 ) {
 		pm->ps->groundEntityNum = ENTITYNUM_NONE;
 		pml.groundPlane = qfalse;
@@ -3612,22 +3454,7 @@ void PM_CheckLadderMove( void ) {
 	if ( ( trace.fraction < 1 ) && ( trace.surfaceFlags & SURF_LADDER ) ) {
 		pml.ladder = qtrue;
 	}
-/*
-	if (!pml.ladder && DotProduct(pm->ps->velocity, pml.forward) < 0) {
-		// trace along the negative velocity, so we grab onto a ladder if we are trying to reverse onto it from above the ladder
-		flatforward[0] = -pm->ps->velocity[0];
-		flatforward[1] = -pm->ps->velocity[1];
-		flatforward[2] = 0;
-		VectorNormalize (flatforward);
 
-		VectorMA (pm->ps->origin, tracedist, flatforward, spot);
-		pm->trace (&trace, pm->ps->origin, pm->mins, pm->maxs, spot, pm->ps->clientNum, pm->tracemask);
-		if ((trace.fraction < 1) && (trace.surfaceFlags & SURF_LADDER))
-		{
-			pml.ladder = qtrue;
-		}
-	}
-*/
 	if ( pml.ladder ) {
 		VectorCopy( trace.plane.normal, laddervec );
 	}
@@ -4030,13 +3857,6 @@ void PmoveSingle( pmove_t *pmove ) {
 	if ( pm->ps->powerups[PW_FLIGHT] ) {
 		// flight powerup doesn't allow jump and has different friction
 		PM_FlyMove();
-// RF, removed grapple flag since it's not used
-#if 0
-	} else if ( pm->ps->pm_flags & PMF_GRAPPLE_PULL ) {
-		PM_GrappleMove();
-		// We can wiggle a bit
-		PM_AirMove();
-#endif
 		// Ridah, ladders
 	} else if ( pml.ladder ) {
 		PM_LadderMove();

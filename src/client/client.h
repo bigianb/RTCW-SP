@@ -142,11 +142,6 @@ typedef struct {
 
 	entityState_t parseEntities[MAX_PARSE_ENTITIES];
 
-	// NERVE - SMF
-	char limboChatMsgs[LIMBOCHAT_HEIGHT][LIMBOCHAT_WIDTH * 3 + 1];
-	int limboChatPos;
-	// -NERVE - SMF
-
 	qboolean cameraMode;    //----(SA)	added for control of input while watching cinematics
 
 } clientActive_t;
@@ -423,9 +418,6 @@ void CL_ShutdownRef( void );
 void CL_InitRef( void );
 
 int CL_ServerStatus( const char *serverAddress, char *serverStatusString, int maxLen );
-
-void CL_AddToLimboChat( const char *str );                  // NERVE - SMF
-qboolean CL_GetLimboString( int index, char *buf );         // NERVE - SMF
 
 //
 // cl_input

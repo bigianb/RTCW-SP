@@ -229,6 +229,3 @@ void trap_UI_CIN_SetExtents( int handle, int x, int y, int w, int h ) {
 	CIN_SetExtents( handle, x, y, w, h );
 }
 
-qboolean trap_GetLimboString( int index, char *buf ) {
-	return CL_GetLimboString(index, buf );
-}

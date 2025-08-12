@@ -453,118 +453,6 @@ void Cmd_Kill_f( gentity_t *ent ) {
 	player_die( ent, ent, ent, 100000, MOD_SUICIDE );
 }
 
-
-/*
-=================
-SetTeam
-=================
-*/
-void SetTeam( gentity_t *ent, char *s ) {
-	int team, oldTeam;
-	gclient_t           *client;
-	int clientNum;
-	spectatorState_t specState;
-	int specClient;
-
-	//
-	// see what change is requested
-	//
-	client = ent->client;
-
-	clientNum = client - level.clients;
-	specClient = 0;
-
-	specState = SPECTATOR_NOT;
-	if ( !Q_stricmp( s, "scoreboard" ) || !Q_stricmp( s, "score" )  ) {
-		team = TEAM_SPECTATOR;
-		specState = SPECTATOR_SCOREBOARD;
-	} else if ( !Q_stricmp( s, "follow1" ) ) {
-		team = TEAM_SPECTATOR;
-		specState = SPECTATOR_FOLLOW;
-		specClient = -1;
-	} else if ( !Q_stricmp( s, "follow2" ) ) {
-		team = TEAM_SPECTATOR;
-		specState = SPECTATOR_FOLLOW;
-		specClient = -2;
-	} else if ( !Q_stricmp( s, "spectator" ) || !Q_stricmp( s, "s" ) ) {
-		team = TEAM_SPECTATOR;
-		specState = SPECTATOR_FREE;
-	} else if ( g_gametype.integer >= GT_TEAM ) {
-		// if running a team game, assign player to one of the teams
-		specState = SPECTATOR_NOT;
-		if ( !Q_stricmp( s, "red" ) || !Q_stricmp( s, "r" ) ) {
-			team = TEAM_RED;
-		} else if ( !Q_stricmp( s, "blue" ) || !Q_stricmp( s, "b" ) ) {
-			team = TEAM_BLUE;
-		} else {
-			// pick the team with the least number of players
-			team = PickTeam( clientNum );
-		}
-	} else {
-		// force them to spectators if there aren't any spots free
-		team = TEAM_FREE;
-	}
-
-	// override decision if limiting the players
-	if ( g_gametype.integer == GT_TOURNAMENT
-		 && level.numNonSpectatorClients >= 2 ) {
-		team = TEAM_SPECTATOR;
-	} else if ( g_maxGameClients.integer > 0 &&
-				level.numNonSpectatorClients >= g_maxGameClients.integer ) {
-		team = TEAM_SPECTATOR;
-	}
-
-	//
-	// decide if we will allow the change
-	//
-	oldTeam = client->sess.sessionTeam;
-	if ( team == oldTeam && team != TEAM_SPECTATOR ) {
-		return;
-	}
-
-	//
-	// execute the team change
-	//
-
-	// he starts at 'base'
-	client->pers.teamState.state = TEAM_BEGIN;
-	if ( oldTeam != TEAM_SPECTATOR ) {
-		// Kill him (makes sure he loses flags, etc)
-		ent->flags &= ~FL_GODMODE;
-		ent->client->ps.stats[STAT_HEALTH] = ent->health = 0;
-		player_die( ent, ent, ent, 100000, MOD_SUICIDE );
-
-	}
-	// they go to the end of the line for tournements
-	if ( team == TEAM_SPECTATOR ) {
-		client->sess.spectatorTime = level.time;
-	}
-
-	client->sess.sessionTeam = team;
-	client->sess.spectatorState = specState;
-	client->sess.spectatorClient = specClient;
-
-	if ( team == TEAM_RED ) {
-		trap_SendServerCommand( -1, va( "cp \"%s" S_COLOR_WHITE " joined the red team.\n\"",
-										client->pers.netname ) );
-	} else if ( team == TEAM_BLUE ) {
-		trap_SendServerCommand( -1, va( "cp \"%s" S_COLOR_WHITE " joined the blue team.\n\"",
-										client->pers.netname ) );
-	} else if ( team == TEAM_SPECTATOR && oldTeam != TEAM_SPECTATOR ) {
-		trap_SendServerCommand( -1, va( "cp \"%s" S_COLOR_WHITE " joined the spectators.\n\"",
-										client->pers.netname ) );
-	} else if ( team == TEAM_FREE ) {
-		trap_SendServerCommand( -1, va( "cp \"%s" S_COLOR_WHITE " joined the battle.\n\"",
-										client->pers.netname ) );
-	}
-
-	// get and distribute relevent paramters
-	ClientUserinfoChanged( clientNum );
-
-	ClientBegin( clientNum );
-}
-
-// DHM - Nerve
 /*
 =================
 SetWolfData
@@ -599,57 +487,6 @@ void StopFollowing( gentity_t *ent ) {
 	ent->client->sess.spectatorState = SPECTATOR_FREE;
 	ent->r.svFlags &= ~SVF_BOT;
 	ent->client->ps.clientNum = ent - g_entities;
-}
-
-/*
-=================
-Cmd_Team_f
-=================
-*/
-void Cmd_Team_f( gentity_t *ent ) {
-	int oldTeam;
-	char s[MAX_TOKEN_CHARS];
-	char ptype[4], weap[4], pistol[4], grenade[4], skinnum[4];
-
-	if ( trap_Argc() < 2 ) {
-		oldTeam = ent->client->sess.sessionTeam;
-		switch ( oldTeam ) {
-		case TEAM_BLUE:
-			trap_SendServerCommand( ent - g_entities, "print \"Blue team\n\"" );
-			break;
-		case TEAM_RED:
-			trap_SendServerCommand( ent - g_entities, "print \"Red team\n\"" );
-			break;
-		case TEAM_FREE:
-			trap_SendServerCommand( ent - g_entities, "print \"Free team\n\"" );
-			break;
-		case TEAM_SPECTATOR:
-			trap_SendServerCommand( ent - g_entities, "print \"Spectator team\n\"" );
-			break;
-		}
-		return;
-	}
-
-	// if they are playing a tournement game, count as a loss
-	if ( g_gametype.integer == GT_TOURNAMENT && ent->client->sess.sessionTeam == TEAM_FREE ) {
-		ent->client->sess.losses++;
-	}
-
-	// DHM - Nerve
-	if ( g_gametype.integer == GT_WOLF ) {
-		trap_Argv( 2, ptype, sizeof( ptype ) );
-		trap_Argv( 3, weap, sizeof( weap ) );
-		trap_Argv( 4, pistol, sizeof( pistol ) );
-		trap_Argv( 5, grenade, sizeof( grenade ) );
-		trap_Argv( 6, skinnum, sizeof( skinnum ) );
-
-		SetWolfData( ent, ptype, weap, pistol, grenade, skinnum );
-	}
-	// dhm - end
-
-	trap_Argv( 1, s, sizeof( s ) );
-
-	SetTeam( ent, s );
 }
 
 
@@ -690,11 +527,6 @@ void Cmd_Follow_f( gentity_t *ent ) {
 		ent->client->sess.losses++;
 	}
 
-	// first set them to spectator
-	if ( ent->client->sess.sessionTeam != TEAM_SPECTATOR ) {
-		SetTeam( ent, "spectator" );
-	}
-
 	ent->client->sess.spectatorState = SPECTATOR_FOLLOW;
 	ent->client->sess.spectatorClient = i;
 }
@@ -711,10 +543,6 @@ void Cmd_FollowCycle_f( gentity_t *ent, int dir ) {
 	// if they are playing a tournement game, count as a loss
 	if ( g_gametype.integer == GT_TOURNAMENT && ent->client->sess.sessionTeam == TEAM_FREE ) {
 		ent->client->sess.losses++;
-	}
-	// first set them to spectator
-	if ( ( ent->client->sess.spectatorState == SPECTATOR_NOT ) && ( !( ent->client->ps.pm_flags & PMF_LIMBO ) ) ) { // JPW NERVE for limbo state
-		SetTeam( ent, "spectator" );
 	}
 
 	if ( dir != 1 && dir != -1 ) {
@@ -741,17 +569,6 @@ void Cmd_FollowCycle_f( gentity_t *ent, int dir ) {
 		if ( level.clients[ clientnum ].sess.sessionTeam == TEAM_SPECTATOR ) {
 			continue;
 		}
-
-// JPW NERVE -- couple extra checks for limbo mode
-		if ( ent->client->ps.pm_flags & PMF_LIMBO ) {
-			if ( level.clients[clientnum].ps.pm_flags & PMF_LIMBO ) {
-				continue;
-			}
-			if ( level.clients[clientnum].sess.sessionTeam != ent->client->sess.sessionTeam ) {
-				continue;
-			}
-		}
-// jpw
 
 		// this is good, we can use it
 		ent->client->sess.spectatorClient = clientnum;
@@ -788,7 +605,6 @@ qboolean G_canPickupMelee( gentity_t *ent ) {
 		return qfalse;
 	}
 
-//	if( WEAPS_ONE_HANDED & (1<<(ent->s.weapon)) )
 	if ( WEAPS_ONE_HANDED & ( 1 << ( ent->client->pers.cmd.weapon ) ) ) {
 		return qtrue;
 	}

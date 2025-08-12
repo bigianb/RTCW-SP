@@ -752,8 +752,7 @@ qboolean G_CallSpawn( gentity_t *ent );
 //
 
 void StopFollowing( gentity_t *ent );
-//void BroadcastTeamChange( gclient_t *client, int oldTeam );
-void SetTeam( gentity_t *ent, char *s );
+
 void SetWolfData( gentity_t *ent, char *ptype, char *weap, char *pistol, char *grenade, char *skinnum );    // DHM - Nerve
 void Cmd_FollowCycle_f( gentity_t *ent, int dir );
 
@@ -921,7 +920,7 @@ void CalcMuzzlePointForActivate( gentity_t *ent, vec3_t forward, vec3_t right, v
 //
 // g_client.c
 //
-team_t PickTeam( int ignoreClientNum );
+
 void SetClientViewAngle( gentity_t *ent, vec3_t angle );
 gentity_t *SelectSpawnPoint( vec3_t avoidPoint, vec3_t origin, vec3_t angles );
 void respawn( gentity_t *ent );
@@ -1005,7 +1004,7 @@ qboolean OnSameTeam( gentity_t *ent1, gentity_t *ent2 );
 //
 // g_mem.c
 //
-void *G_Alloc( int size );
+void *G_Alloc( size_t size );
 void G_InitMemory( void );
 void Svcmd_GameMem_f( void );
 
@@ -1021,13 +1020,12 @@ void G_WriteSessionData( void );
 //
 // g_bot.c
 //
-//void G_InitBots( qboolean restart );
-char *G_GetBotInfoByNumber( int num );
-char *G_GetBotInfoByName( const char *name );
-void G_CheckBotSpawn( void );
+
+
+
 void G_QueueBotBegin( int clientNum );
 qboolean G_BotConnect( int clientNum, qboolean restart );
-void Svcmd_AddBot_f( void );
+
 
 // ai_main.c
 #define MAX_FILEPATH            144

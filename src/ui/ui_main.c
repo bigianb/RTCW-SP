@@ -2113,34 +2113,6 @@ static void UI_DrawGLInfo( rectDef_t *rect, int font, float scale, vec4_t color,
 	}
 }
 
-// NERVE - SMF
-static void UI_DrawLimboChat( rectDef_t *rect, int font, float scale, vec4_t color, int textStyle ) {
-	int i, count;
-	char buf[140];
-	float x, y, w, h;
-
-	memset( buf, 0, 140 );
-
-	// first count strings
-	for ( i = 0, count = 0; ; i++, count++ ) {
-		if ( !trap_GetLimboString( i, buf ) ) {
-			break;
-		}
-	}
-
-	// now draw strings
-	for ( i = 0; i < count; i++ ) {
-		x = rect->x;
-		y = rect->y + 9 * i;
-		w = 1;
-		h = 1;
-
-		trap_GetLimboString( i, buf );
-		Text_Paint( x, y, font, scale, color, buf, 0, 0, textStyle );
-	}
-}
-// -NERVE - SMF
-
 void UI_OwnerDraw( float x, float y, float w, float h, float text_x, float text_y, int ownerDraw, int ownerDrawFlags, int align, float special, int font, float scale, vec4_t color, qhandle_t shader, int textStyle ) {
 	rectDef_t rect;
 
@@ -2323,11 +2295,6 @@ void UI_OwnerDraw( float x, float y, float w, float h, float text_x, float text_
 	case UI_KEYBINDSTATUS:
 		UI_DrawKeyBindStatus( &rect, font, scale, color, textStyle );
 		break;
-		// NERVE - SMF
-	case UI_LIMBOCHAT:
-		UI_DrawLimboChat( &rect, font, scale, color, textStyle );
-		break;
-		// -NERVE - SMF
 
 	default:
             CG_OwnerDraw(x, y, w, h,  text_x,  text_y,  ownerDraw,  ownerDrawFlags,  align,  special,  font,  scale,  color,  shader,  textStyle);
@@ -4176,62 +4143,11 @@ static void UI_RunMenuScript( char **args ) {
 				WM_PickItem( selectType, itemIndex );
 			}
 		} else if ( Q_stricmp( name, "startMultiplayer" ) == 0 ) {
-			int team, playerType, weapon, pistol, item1, i;
-			const char *teamStr, *classStr, *weapStr;
-
-			Menus_CloseAll();
-
-			// get cvars
-			team = Cvar_VariableValue( "mp_team" );
-			playerType = Cvar_VariableValue( "mp_playerType" );
-			weapon = Cvar_VariableValue( "mp_weapon" );
-			pistol = Cvar_VariableValue( "mp_pistol" );
-			item1 = Cvar_VariableValue( "mp_item1" );
-
-			// print center message
-			if ( team == 0 ) {
-				teamStr = "nazi";
-			} else if ( team == 1 ) {
-				teamStr = "allied";
-			} else {
-				teamStr = "spectator";
-			}
-
-			if ( playerType == 0 ) {
-				classStr = "soldier";
-			} else if ( playerType == 1 ) {
-				classStr = "medic";
-			} else if ( playerType == 2 ) {
-				classStr = "engineer";
-			} else {
-				classStr = "lieutenant";
-			}
-
-			weapStr = "";
-			for ( i = 0; weaponTypes[i].name; i++ ) {
-				if ( weaponTypes[i].value == weapon ) {
-					weapStr = weaponTypes[i].desc;
-				}
-			}
-
-			if ( team != 2 ) {
-				trap_Cmd_ExecuteText( EXEC_APPEND, va( "limbomessage %s %s %s\n", teamStr, classStr, weapStr ) );
-			}
-
-			// join team
-			if ( team == 0 ) {
-				trap_Cmd_ExecuteText( EXEC_APPEND, va( "team %s %i %i %i %i 1\n", "red", playerType, weapon, pistol, item1 ) );
-			} else if ( team == 1 ) {
-				trap_Cmd_ExecuteText( EXEC_APPEND, va( "team %s %i %i %i %i 1\n", "blue", playerType, weapon, pistol, item1 ) );
-			} else {
-				trap_Cmd_ExecuteText( EXEC_APPEND, va( "team %s %i %i %i %i 1\n", "s", playerType, weapon, pistol, item1 ) );
-			}
-
+			
 		} else if ( Q_stricmp( name, "limboChat" ) == 0 ) {
-			WM_LimboChat();
+
 		} else if ( Q_stricmp( name, "activateLimboChat" ) == 0 ) {
-			WM_ActivateLimboChat();
-			// -NERVE - SMF
+
 		} else if ( Q_stricmp( name, "setrecommended" ) == 0 ) {
 			trap_Cmd_ExecuteText( EXEC_APPEND, "setRecommended 1\n" );
 		} else {

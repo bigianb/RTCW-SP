@@ -230,30 +230,14 @@ static void CG_CalcVrect( void ) {
 		}
 	}
 
-//----(SA)	added transition to/from letterbox
-// normal aspect is xx:xx
-// letterbox is yy:yy  (85% of 'normal' height)
 
 	lbheight = ysize * 0.85;
 	lbdiff = ysize - lbheight;
 
 	if ( cg_letterbox.integer ) {
 		ysize = lbheight;
-//		if(letterbox_frac != 0) {
-//			letterbox_frac -= 0.01f;	// (SA) TODO: make non fps dependant
-//			if(letterbox_frac < 0)
-//				letterbox_frac = 0;
-//			ysize += (lbdiff * letterbox_frac);
-//		}
-//	} else {
-//		if(letterbox_frac != 1) {
-//			letterbox_frac += 0.01f;	// (SA) TODO: make non fps dependant
-//			if(letterbox_frac > 1)
-//				letterbox_frac = 1;
-//			ysize = lbheight + (lbdiff * letterbox_frac);
-//		}
+
 	}
-//----(SA)	end
 
 
 	cg.refdef.width = cgs.glconfig.vidWidth * xsize / 100;

@@ -407,28 +407,6 @@ gclient_t   *ClientForString( const char *s ) {
 	return NULL;
 }
 
-/*
-===================
-Svcmd_ForceTeam_f
-
-forceteam <player> <team>
-===================
-*/
-void    Svcmd_ForceTeam_f( void ) {
-	gclient_t   *cl;
-	char str[MAX_TOKEN_CHARS];
-
-	// find the player
-	trap_Argv( 1, str, sizeof( str ) );
-	cl = ClientForString( str );
-	if ( !cl ) {
-		return;
-	}
-
-	// set the team
-	trap_Argv( 2, str, sizeof( str ) );
-	SetTeam( &g_entities[cl - level.clients], str );
-}
 
 char    *ConcatArgs( int start );
 
@@ -484,20 +462,11 @@ qboolean    ConsoleCommand( void ) {
 		return qtrue;
 	}
 
-	if ( Q_stricmp( cmd, "forceteam" ) == 0 ) {
-		Svcmd_ForceTeam_f();
-		return qtrue;
-	}
-
 	if ( Q_stricmp( cmd, "game_memory" ) == 0 ) {
 		Svcmd_GameMem_f();
 		return qtrue;
 	}
 
-	if ( Q_stricmp( cmd, "addbot" ) == 0 ) {
-		Svcmd_AddBot_f();
-		return qtrue;
-	}
 
 	if ( Q_stricmp( cmd, "addip" ) == 0 ) {
 		Svcmd_AddIP_f();

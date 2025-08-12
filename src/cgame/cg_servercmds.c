@@ -62,17 +62,7 @@ static void CG_ParseScores( void ) {
 		cg.scores[i].time = atoi( CG_Argv( i * 6 + 7 ) );
 		cg.scores[i].scoreFlags = atoi( CG_Argv( i * 6 + 8 ) );
 		powerups = atoi( CG_Argv( i * 6 + 9 ) );
-		// DHM - Nerve :: the following parameters are not sent by server
-		/*
-		cg.scores[i].accuracy = atoi(CG_Argv(i * 14 + 10));
-		cg.scores[i].impressiveCount = atoi(CG_Argv(i * 14 + 11));
-		cg.scores[i].excellentCount = atoi(CG_Argv(i * 14 + 12));
-		cg.scores[i].guantletCount = atoi(CG_Argv(i * 14 + 13));
-		cg.scores[i].defendCount = atoi(CG_Argv(i * 14 + 14));
-		cg.scores[i].assistCount = atoi(CG_Argv(i * 14 + 15));
-		cg.scores[i].perfect = atoi(CG_Argv(i * 14 + 16));
-		cg.scores[i].captures = atoi(CG_Argv(i * 14 + 17));
-		*/
+		
 
 		if ( cg.scores[i].client < 0 || cg.scores[i].client >= MAX_CLIENTS ) {
 			cg.scores[i].client = 0;
@@ -148,10 +138,7 @@ void CG_ParseServerinfo( void ) {
 	trap_Cvar_Set( "g_bluelimbotime",Info_ValueForKey( info,"g_bluelimbotime" ) );
 // jpw
 
-	//	Q_strncpyz( cgs.redTeam, Info_ValueForKey( info, "g_redTeam" ), sizeof(cgs.redTeam) );
-//	trap_Cvar_Set("g_redTeam", cgs.redTeam);
-//	Q_strncpyz( cgs.blueTeam, Info_ValueForKey( info, "g_blueTeam" ), sizeof(cgs.blueTeam) );
-//	trap_Cvar_Set("g_blueTeam", cgs.blueTeam);
+
 }
 
 
@@ -573,11 +560,6 @@ static void CG_MapRestart( void ) {
 	cg.zoomTime = 0;
 	cg.zoomval = 0;
 
-	// reset fog to world fog (if present)
-//	trap_R_SetFog(FOG_CMD_SWITCHFOG, FOG_MAP,20,0,0,0,0);
-//	trap_Cvar_VariableStringBuffer("r_mapFogColor", buff, sizeof(buff));
-//	CL_AddReliableCommand(va("fogswitch %s", buff) );
-
 	CG_InitLocalEntities();
 	CG_InitMarkPolys();
 
@@ -659,19 +641,7 @@ static void CG_MapRestart( void ) {
 	memset( cg.cameraShakeAngles, 0, sizeof( cg.cameraShakeAngles ) );
 	cg.rumbleScale = 0;
 
-	// play the "fight" sound if this is a restart without warmup
-//	if ( cg.warmup == 0 /* && cgs.gametype == GT_TOURNAMENT */) {
-//		trap_S_StartLocalSound( cgs.media.countFightSound, CHAN_ANNOUNCER );
-//		CG_CenterPrint( "FIGHT!", 120, GIANTCHAR_WIDTH*2 );
-//	}
-#ifdef MISSIONPACK
-	if ( cg_singlePlayerActive.integer ) {
-		trap_Cvar_Set( "ui_matchStartTime", va( "%i", cg.time ) );
-		if ( cg_recordSPDemo.integer && cg_recordSPDemoName.string && *cg_recordSPDemoName.string ) {
-			Cbuf_AddText( va( "set g_synchronousclients 1 ; record %s \n", cg_recordSPDemoName.string ) );
-		}
-	}
-#endif
+
 	trap_Cvar_Set( "cg_thirdPerson", "0" );
 }
 
@@ -791,32 +761,6 @@ static void CG_ServerCommand( void ) {
 		return;
 	}
 
-	// NERVE - SMF - limbo chat
-	if ( !strcmp( cmd, "lchat" ) ) {
-		trap_S_StartLocalSound( cgs.media.talkSound, CHAN_LOCAL_SOUND );
-		Q_strncpyz( text, CG_Argv( 1 ), MAX_SAY_TEXT );
-		CG_RemoveChatEscapeChar( text );
-//		CG_AddToLimboChat( text );
-		trap_UI_LimboChat( text );
-		CG_Printf( "%s\n", text );
-		return;
-	}
-	// -NERVE - SMF
-
-	if ( !strcmp( cmd, "vchat" ) ) {
-//		CG_VoiceChat( SAY_ALL );
-		return;
-	}
-
-	if ( !strcmp( cmd, "vtchat" ) ) {
-//		CG_VoiceChat( SAY_TEAM );
-		return;
-	}
-
-	if ( !strcmp( cmd, "vtell" ) ) {
-//		CG_VoiceChat( SAY_TELL );
-		return;
-	}
 
 	if ( !strcmp( cmd, "scores" ) ) {
 		CG_ParseScores();

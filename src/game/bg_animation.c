@@ -314,7 +314,7 @@ void  BG_AnimParseError( const char *msg, ... ) {
 	char text[1024];
 
 	va_start( argptr, msg );
-	vsprintf( text, msg, argptr );
+	vsnprintf( text, 1024, msg, argptr );
 	va_end( argptr );
 
 	if ( globalFilename ) {
@@ -1139,11 +1139,6 @@ void BG_AnimParseAnimScript( animModelInfo_t *modelInfo, animScriptData_t *scrip
 
 	// start at the defines
 	parseMode = PARSEMODE_DEFINES;
-
-	// record which modelInfo this client is using
-	// Duffy
-	// This is done in each of the calling routines, and assumes all sorts of badness doing it this way anyway
-	//scriptData->clientModels[client] = 1 + (int)(modelInfo - *scriptData->modelInfo);
 
 	// init the global defines
 	globalFilename = filename;

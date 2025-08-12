@@ -42,35 +42,6 @@ void alarmExplosion( gentity_t *ent ) {
 	G_AddEvent( ent, EV_ENTDEATH, ent->s.eType );
 
 	G_RadiusDamage( ent->s.origin, ent, ent->damage, ent->damage, ent, MOD_EXPLOSIVE );
-	// return
-
-	// old way.  (using grenade)
-/*
-	gentity_t *bolt;
-
-	extern void G_ExplodeMissile( gentity_t *ent );
-	bolt = G_Spawn();
-	bolt->classname = "props_explosion";
-	bolt->nextthink = level.time + FRAMETIME;
-	bolt->think = G_ExplodeMissile;
-	bolt->s.eType = ET_MISSILE;
-	bolt->r.svFlags = SVF_USE_CURRENT_ORIGIN;
-
-	bolt->s.weapon = WP_NONE;
-
-	bolt->s.eFlags = EF_BOUNCE_HALF;
-	bolt->r.ownerNum = ent->s.number;
-	bolt->parent = ent;
-	bolt->damage = ent->health;
-	bolt->splashDamage = ent->health;
-	bolt->splashRadius = ent->health * 1.5;
-	bolt->methodOfDeath = MOD_GRENADE;
-	bolt->splashMethodOfDeath = MOD_GRENADE_SPLASH;
-	bolt->clipmask = MASK_SHOT;
-
-	VectorCopy (ent->r.currentOrigin, bolt->s.pos.trBase );
-	VectorCopy (ent->r.currentOrigin, bolt->r.currentOrigin);
-*/
 }
 
 
@@ -164,7 +135,6 @@ void alarmbox_use( gentity_t *ent, gentity_t *other, gentity_t *foo ) {
 	if ( other->client ) {
 		G_AddEvent( ent, EV_GENERAL_SOUND, ent->soundPos3 );
 	}
-//	G_Printf("touched alarmbox\n");
 
 }
 

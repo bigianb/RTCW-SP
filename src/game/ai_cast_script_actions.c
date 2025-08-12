@@ -1834,66 +1834,13 @@ qboolean AICast_ScriptAction_Accum( cast_state_t *cs, char *params ) {
 	return qtrue;
 }
 
-/*
-=================
-AICast_ScriptAction_SpawnCast
 
-  syntax: spawncast <classname> <targetname> <ainame>
-
-  <targetname> is the entity marker which has the position and angles of where we want the new
-  cast AI to spawn
-=================
-*/
 qboolean AICast_ScriptAction_SpawnCast( cast_state_t *cs, char *params ) {
-//	char	*pString, *token;
-//	char	*classname;
-//	gentity_t	*targetEnt, *newCast;
+
 
 	G_Error( "AI Scripting: spawncast is no longer functional. Use trigger_spawn instead.\n" );
 	return qfalse;
-/*
-	if (!params[0]) {
-		G_Error( "AI Scripting: spawncast without a classname\n" );
-	}
 
-	pString = params;
-
-	token = COM_ParseExt( &pString, qfalse );
-	if (!token[0]) {
-		G_Error( "AI Scripting: spawncast without a classname\n" );
-	}
-
-	classname = G_Alloc( strlen(token)+1 );
-	Q_strncpyz( classname, token, strlen(token)+1 );
-
-	token = COM_ParseExt( &pString, qfalse );
-	if (!token[0]) {
-		G_Error( "AI Scripting: spawncast without a targetname\n" );
-	}
-
-	targetEnt = G_Find( NULL, FOFS(targetname), token );
-	if (!targetEnt) {
-		G_Error( "AI Scripting: cannot find targetname \"%s\"\n", token );
-	}
-
-	token = COM_ParseExt( &pString, qfalse );
-	if (!token[0]) {
-		G_Error( "AI Scripting: spawncast without an ainame\n" );
-	}
-
-	newCast = G_Spawn();
-	newCast->classname = classname;
-	VectorCopy( targetEnt->s.origin, newCast->s.origin );
-	VectorCopy( targetEnt->s.angles, newCast->s.angles );
-	newCast->aiName = G_Alloc( strlen(token)+1 );
-	Q_strncpyz( newCast->aiName, token, strlen(token)+1 );
-
-	if (!G_CallSpawn( newCast )) {
-		G_Error( "AI Scripting: spawncast for unknown entity \"%s\"\n", newCast->classname );
-	}
-
-	return qtrue;
-*/
 }
 
 /*

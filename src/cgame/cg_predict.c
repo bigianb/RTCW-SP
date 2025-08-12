@@ -561,9 +561,7 @@ void CG_PredictPlayerState( void ) {
 	} else {
 		cg_pmove.tracemask = MASK_PLAYERSOLID;
 	}
-	if ( ( cg.snap->ps.persistant[PERS_TEAM] == TEAM_SPECTATOR ) || ( cg.snap->ps.pm_flags & PMF_LIMBO ) ) { // JPW NERVE limbo
-		cg_pmove.tracemask &= ~CONTENTS_BODY;   // spectators can fly through bodies
-	}
+
 	cg_pmove.noFootsteps = ( cgs.dmflags & DF_NO_FOOTSTEPS ) > 0;
 
 	//----(SA)	added

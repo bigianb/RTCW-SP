@@ -1102,12 +1102,8 @@ static void CG_DrawCrosshair( void ) {
 
 	friendInSights = (qboolean)( cg.snap->ps.serverCursorHint == HINT_PLYR_FRIEND );  //----(SA)	added
 
-	// DHM - Nerve :: show reticle in limbo and spectator
-	if ( cgs.gametype == GT_WOLF && cg.snap->ps.pm_flags & PMF_FOLLOW ) {
-		weapnum = cg.snap->ps.weapon;
-	} else {
-		weapnum = cg.weaponSelect;
-	}
+
+    weapnum = cg.weaponSelect;
 
 	switch ( weapnum ) {
 
@@ -1497,25 +1493,7 @@ static qboolean CG_DrawFollow( void ) {
 	color[2] = 1;
 	color[3] = 1;
 
-// JPW NERVE -- if in limbo, show different follow message
-	if ( cg.snap->ps.pm_flags & PMF_LIMBO ) {
-//		CG_Printf("following %s\n",cgs.clientinfo[ cg.snap->ps.clientNum ].name);
-		color[1] = 0;
-		color[2] = 0;
-		if ( cgs.clientinfo[cg.snap->ps.clientNum].team == TEAM_RED ) {
-			snprintf( deploytime, 128, "Deploying in %d seconds", (int)( (float)( cg_redlimbotime.integer - ( cg.time % cg_redlimbotime.integer ) ) * 0.001f ) );
-		} else {
-			snprintf( deploytime, 128, "Deploying in %d seconds", (int)( (float)( cg_bluelimbotime.integer - ( cg.time % cg_bluelimbotime.integer ) ) * 0.001f ) );
-		}
 
-		x = 0.5 * ( 640 - BIGCHAR_WIDTH * strlen( deploytime ) ); //CG_DrawStrlen( deploytime ) );
-		CG_DrawStringExt( x, 24, deploytime, color, qtrue, qtrue, BIGCHAR_WIDTH, BIGCHAR_HEIGHT, 0 );
-		snprintf( deploytime, 128, "(Following %s)",cgs.clientinfo[ cg.snap->ps.clientNum ].name );
-		x = 0.5 * ( 640 - BIGCHAR_WIDTH * strlen( deploytime ) ); //CG_DrawStrlen( deploytime ) );
-		CG_DrawStringExt( x, 48, deploytime, color, qtrue, qtrue, BIGCHAR_WIDTH, BIGCHAR_HEIGHT, 0 );
-
-	} else {
-// jpw
 		CG_DrawBigString( 320 - 9 * 8, 24, "following", 1.0F );
 
 		name = cgs.clientinfo[ cg.snap->ps.clientNum ].name;
@@ -1523,7 +1501,7 @@ static qboolean CG_DrawFollow( void ) {
 		x = 0.5 * ( 640 - GIANT_WIDTH * CG_DrawStrlen( name ) );
 
 		CG_DrawStringExt( x, 40, name, color, qtrue, qtrue, GIANT_WIDTH, GIANT_HEIGHT, 0 );
-	} // JPW NERVE
+
 	return qtrue;
 }
 

@@ -35,13 +35,10 @@ If you have questions concerning this license or the applicable additional terms
 {"G_ParseAnimationFiles", (byte *)G_ParseAnimationFiles},
 {"G_GetModelInfo", (byte *)G_GetModelInfo},
 {"G_CheckForExistingModelInfo", (byte *)G_CheckForExistingModelInfo},
-{"SetWolfSpawnWeapons", (byte *)SetWolfSpawnWeapons},
-{"SetWolfSkin", (byte *)SetWolfSkin},
-{"ForceClientSkin", (byte *)ForceClientSkin},
-{"PickTeam", (byte *)PickTeam},
+
+
 {"respawn", (byte *)respawn},
-{"reinforce", (byte *)reinforce},
-{"limbo", (byte *)limbo},
+
 {"SetClientViewAngle", (byte *)SetClientViewAngle},
 {"CopyToBodyQue", (byte *)CopyToBodyQue},
 {"BodySink", (byte *)BodySink},
@@ -384,18 +381,10 @@ If you have questions concerning this license or the applicable additional terms
 {"COM_StripExtension", (byte *)COM_StripExtension},
 {"COM_SkipPath", (byte *)COM_SkipPath},
 {"Com_Clamp", (byte *)Com_Clamp},
-{"G_GetBotInfoByName", (byte *)G_GetBotInfoByName},
-{"G_GetBotInfoByNumber", (byte *)G_GetBotInfoByNumber},
-{"Svcmd_AddBot_f", (byte *)Svcmd_AddBot_f},
+
 {"G_BotConnect", (byte *)G_BotConnect},
 {"G_QueueBotBegin", (byte *)G_QueueBotBegin},
-{"G_CheckBotSpawn", (byte *)G_CheckBotSpawn},
-{"G_CheckMinimumPlayers", (byte *)G_CheckMinimumPlayers},
-{"G_CountBotPlayers", (byte *)G_CountBotPlayers},
-{"G_CountHumanPlayers", (byte *)G_CountHumanPlayers},
-{"G_RemoveRandomBot", (byte *)G_RemoveRandomBot},
-{"G_AddRandomBot", (byte *)G_AddRandomBot},
-{"G_GetArenaInfoByMap", (byte *)G_GetArenaInfoByMap},
+
 {"G_WriteSessionData", (byte *)G_WriteSessionData},
 {"G_InitWorldSession", (byte *)G_InitWorldSession},
 {"G_InitSessionData", (byte *)G_InitSessionData},
@@ -996,8 +985,8 @@ If you have questions concerning this license or the applicable additional terms
 {"CalculateRanks", (byte *)CalculateRanks},
 {"SortRanks", (byte *)SortRanks},
 {"AdjustTournamentScores", (byte *)AdjustTournamentScores},
-{"RemoveTournamentLoser", (byte *)RemoveTournamentLoser},
-{"AddTournamentPlayer", (byte *)AddTournamentPlayer},
+
+
 {"Com_Printf", (byte *)Com_Printf},
 {"Com_Error", (byte *)Com_Error},
 {"G_ShutdownGame", (byte *)G_ShutdownGame},
@@ -1110,10 +1099,10 @@ If you have questions concerning this license or the applicable additional terms
 
 {"Cmd_FollowCycle_f", (byte *)Cmd_FollowCycle_f},
 {"Cmd_Follow_f", (byte *)Cmd_Follow_f},
-{"Cmd_Team_f", (byte *)Cmd_Team_f},
+
 {"StopFollowing", (byte *)StopFollowing},
 {"SetWolfData", (byte *)SetWolfData},
-{"SetTeam", (byte *)SetTeam},
+
 {"Cmd_Kill_f", (byte *)Cmd_Kill_f},
 
 {"Cmd_Noclip_f", (byte *)Cmd_Noclip_f},
@@ -1303,7 +1292,7 @@ If you have questions concerning this license or the applicable additional terms
 {"alarmbox_updateparts", (byte *)alarmbox_updateparts},
 {"alarmExplosion", (byte *)alarmExplosion},
 {"ClientEndFrame", (byte *)ClientEndFrame},
-{"SpectatorClientEndFrame", (byte *)SpectatorClientEndFrame},
+
 {"G_RunClient", (byte *)G_RunClient},
 {"ClientThink", (byte *)ClientThink},
 {"ClientThink_real", (byte *)ClientThink_real},
@@ -1311,15 +1300,15 @@ If you have questions concerning this license or the applicable additional terms
 {"ClientEvents", (byte *)ClientEvents},
 {"ClientIntermissionThink", (byte *)ClientIntermissionThink},
 {"ClientTimerActions", (byte *)ClientTimerActions},
-{"ClientInactivityTimer", (byte *)ClientInactivityTimer},
-{"SpectatorThink", (byte *)SpectatorThink},
+
+
 {"G_TouchTriggers", (byte *)G_TouchTriggers},
 {"ClientImpacts", (byte *)ClientImpacts},
 {"G_SetClientSound", (byte *)G_SetClientSound},
 {"P_WorldEffects", (byte *)P_WorldEffects},
 {"P_DamageFeedback", (byte *)P_DamageFeedback},
 {"ConsoleCommand", (byte *)ConsoleCommand},
-{"Svcmd_ForceTeam_f", (byte *)Svcmd_ForceTeam_f},
+
 {"ClientForString", (byte *)ClientForString},
 {"Svcmd_EntityList_f", (byte *)Svcmd_EntityList_f},
 {"Svcmd_RemoveIP_f", (byte *)Svcmd_RemoveIP_f},
