@@ -185,48 +185,34 @@ typedef struct bot_entitystate_s
 //----(SA)	didn't want to comment in as I wasn't sure of any implications of changing this structure.
 } bot_entitystate_t;
 
-//bot AI library exported functions
-typedef struct botlib_import_s
-{
-	//print messages from the bot library
-	void (  * Print )( int type, char *fmt, ... );
-	//trace a bbox through the world
-	void ( *Trace )( bsp_trace_t *trace, vec3_t start, vec3_t mins, vec3_t maxs, vec3_t end, int passent, int contentmask );
-	//trace a bbox against a specific entity
-	void ( *EntityTrace )( bsp_trace_t *trace, vec3_t start, vec3_t mins, vec3_t maxs, vec3_t end, int entnum, int contentmask );
-	//retrieve the contents at the given point
-	int ( *PointContents )( vec3_t point );
-	//check if the point is in potential visible sight
-	int ( *inPVS )( vec3_t p1, vec3_t p2 );
-	//retrieve the BSP entity data lump
-	char        *( *BSPEntityData )( void );
-	//
-	void ( *BSPModelMinsMaxsOrigin )( int modelnum, vec3_t angles, vec3_t mins, vec3_t maxs, vec3_t origin );
-	//send a bot client command
-	void ( *BotClientCommand )( int client, char *command );
-	//memory allocation
-	void ( *FreeZoneMemory )( void );
+//trace a bbox through the world
+void BotImport_Trace( bsp_trace_t *trace, vec3_t start, vec3_t mins, vec3_t maxs, vec3_t end, int passent, int contentmask );
 
-	//file system access
-	int ( *FS_FOpenFile )( const char *qpath, fileHandle_t *file, fsMode_t mode );
-	int ( *FS_Read )( void *buffer, int len, fileHandle_t f );
-	int ( *FS_Write )( const void *buffer, int len, fileHandle_t f );
-	void ( *FS_FCloseFile )( fileHandle_t f );
-	int ( *FS_Seek )( fileHandle_t f, long offset, int origin );
-	//debug visualisation stuff
-	int ( *DebugLineCreate )( void );
-	void ( *DebugLineDelete )( int line );
-	void ( *DebugLineShow )( int line, vec3_t start, vec3_t end, int color );
-	//
-	int ( *DebugPolygonCreate )( int color, int numPoints, vec3_t *points );
-	void ( *DebugPolygonDelete )( int id );
-	//
-	// Ridah, Cast AI stuff
-	qboolean ( *AICast_VisibleFromPos )(   vec3_t srcpos, int srcnum,
-										   vec3_t destpos, int destnum, qboolean updateVisPos );
-	qboolean ( *AICast_CheckAttackAtPos )( int entnum, int enemy, vec3_t pos, qboolean ducking, qboolean allowHitWorld );
-	// done.
-} botlib_import_t;
+//trace a bbox against a specific entity
+void BotImport_EntityTrace( bsp_trace_t *trace, vec3_t start, vec3_t mins, vec3_t maxs, vec3_t end, int entnum, int contentmask );
+
+//retrieve the contents at the given point
+int BotImport_PointContents( vec3_t point );
+
+//check if the point is in potential visible sight
+int BotImport_inPVS( vec3_t p1, vec3_t p2 );
+
+//retrieve the BSP entity data lump
+char* BotImport_BSPEntityData();
+
+void BotImport_BSPModelMinsMaxsOrigin( int modelnum, vec3_t angles, vec3_t mins, vec3_t maxs, vec3_t origin );
+
+//send a bot client command
+void BotClientCommand( int client, char *command );
+
+int BotImport_DebugLineCreate( void );
+void BotImport_DebugLineDelete( int line );
+void BotImport_DebugLineShow( int line, vec3_t start, vec3_t end, int color );
+int BotImport_DebugPolygonCreate( int color, int numPoints, vec3_t *points );
+void BotImport_DebugPolygonDelete( int id );
+qboolean BotImport_AICast_VisibleFromPos(vec3_t srcpos, int srcnum, vec3_t destpos, int destnum, qboolean updateVisPos );
+qboolean BotImport_AICast_CheckAttackAtPos( int entnum, int enemy, vec3_t pos, qboolean ducking, qboolean allowHitWorld );
+
 
 typedef struct aas_export_s
 {
@@ -451,9 +437,6 @@ typedef struct botlib_export_s
 	//just for testing
 	int ( *Test )( int parm0, char *parm1, vec3_t parm2, vec3_t parm3 );
 } botlib_export_t;
-
-//linking of bot library
-botlib_export_t *GetBotLibAPI( int apiVersion, botlib_import_t *import );
 
 void BotImport_Print( int type, char *fmt, ... );
 

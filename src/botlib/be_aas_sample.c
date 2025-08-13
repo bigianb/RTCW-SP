@@ -46,8 +46,6 @@ If you have questions concerning this license or the applicable additional terms
 #include "be_aas_funcs.h"
 #include "be_aas_def.h"
 
-extern botlib_import_t botimport;
-
 //#define AAS_SAMPLE_DEBUG
 
 #define BBOX_NORMAL_EPSILON     0.001

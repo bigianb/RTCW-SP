@@ -56,7 +56,7 @@ bot_input_t *botinputs;
 // Changes Globals:		-
 //===========================================================================
 void EA_Say( int client, char *str ) {
-	botimport.BotClientCommand( client, va( "say %s", str ) );
+	BotClientCommand( client, va( "say %s", str ) );
 } //end of the function EA_Say
 //===========================================================================
 //
@@ -65,7 +65,7 @@ void EA_Say( int client, char *str ) {
 // Changes Globals:		-
 //===========================================================================
 void EA_SayTeam( int client, char *str ) {
-	botimport.BotClientCommand( client, va( "say_team %s", str ) );
+	BotClientCommand( client, va( "say_team %s", str ) );
 } //end of the function EA_SayTeam
 //===========================================================================
 //
@@ -74,7 +74,7 @@ void EA_SayTeam( int client, char *str ) {
 // Changes Globals:		-
 //===========================================================================
 void EA_UseItem( int client, char *it ) {
-	botimport.BotClientCommand( client, va( "use %s", it ) );
+	BotClientCommand( client, va( "use %s", it ) );
 } //end of the function EA_UseItem
 //===========================================================================
 //
@@ -83,7 +83,7 @@ void EA_UseItem( int client, char *it ) {
 // Changes Globals:		-
 //===========================================================================
 void EA_DropItem( int client, char *it ) {
-	botimport.BotClientCommand( client, va( "drop %s", it ) );
+	BotClientCommand( client, va( "drop %s", it ) );
 } //end of the function EA_DropItem
 //===========================================================================
 //
@@ -92,7 +92,7 @@ void EA_DropItem( int client, char *it ) {
 // Changes Globals:		-
 //===========================================================================
 void EA_UseInv( int client, char *inv ) {
-	botimport.BotClientCommand( client, va( "invuse %s", inv ) );
+	BotClientCommand( client, va( "invuse %s", inv ) );
 } //end of the function EA_UseInv
 //===========================================================================
 //
@@ -101,7 +101,7 @@ void EA_UseInv( int client, char *inv ) {
 // Changes Globals:		-
 //===========================================================================
 void EA_DropInv( int client, char *inv ) {
-	botimport.BotClientCommand( client, va( "invdrop %s", inv ) );
+	BotClientCommand( client, va( "invdrop %s", inv ) );
 } //end of the function EA_DropInv
 //===========================================================================
 //
@@ -123,7 +123,7 @@ void EA_Gesture( int client ) {
 // Changes Globals:		-
 //===========================================================================
 void EA_Command( int client, char *command ) {
-	botimport.BotClientCommand( client, command );
+	BotClientCommand( client, command );
 } //end of the function EA_Command
 //===========================================================================
 //

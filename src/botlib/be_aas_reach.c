@@ -51,10 +51,6 @@ If you have questions concerning this license or the applicable additional terms
 
 extern int Sys_MilliSeconds( void );
 
-//#include "../../../gladiator/bspc/aas_store.h"
-
-extern botlib_import_t botimport;
-
 //#define REACHDEBUG
 
 //NOTE: all travel times are in hundreth of a second

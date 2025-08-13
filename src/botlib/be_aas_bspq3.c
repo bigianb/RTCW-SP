@@ -41,12 +41,10 @@ If you have questions concerning this license or the applicable additional terms
 #include "l_precomp.h"
 #include "l_struct.h"
 #include "aasfile.h"
-#include "../game/botlib.h"
+#include "botlib.h"
 #include "../game/be_aas.h"
 #include "be_aas_funcs.h"
 #include "be_aas_def.h"
-
-extern botlib_import_t botimport;
 
 //#define TRACE_DEBUG
 
@@ -152,7 +150,7 @@ void PrintContents( int contents ) {
 //===========================================================================
 bsp_trace_t AAS_Trace( vec3_t start, vec3_t mins, vec3_t maxs, vec3_t end, int passent, int contentmask ) {
 	bsp_trace_t bsptrace;
-	botimport.Trace( &bsptrace, start, mins, maxs, end, passent, contentmask );
+	BotImport_Trace( &bsptrace, start, mins, maxs, end, passent, contentmask );
 	return bsptrace;
 } //end of the function AAS_Trace
 //===========================================================================
@@ -163,7 +161,7 @@ bsp_trace_t AAS_Trace( vec3_t start, vec3_t mins, vec3_t maxs, vec3_t end, int p
 // Changes Globals:		-
 //===========================================================================
 int AAS_PointContents( vec3_t point ) {
-	return botimport.PointContents( point );
+	return BotImport_PointContents( point );
 } //end of the function AAS_PointContents
 //===========================================================================
 //
@@ -176,7 +174,7 @@ qboolean AAS_EntityCollision( int entnum,
 							  int contentmask, bsp_trace_t *trace ) {
 	bsp_trace_t enttrace;
 
-	botimport.EntityTrace( &enttrace, start, boxmins, boxmaxs, end, entnum, contentmask );
+	BotImport_EntityTrace( &enttrace, start, boxmins, boxmaxs, end, entnum, contentmask );
 	if ( enttrace.fraction < trace->fraction ) {
 		memcpy( trace, &enttrace, sizeof( bsp_trace_t ) );
 		return qtrue;
@@ -191,7 +189,7 @@ qboolean AAS_EntityCollision( int entnum,
 // Changes Globals:		-
 //===========================================================================
 qboolean AAS_inPVS( vec3_t p1, vec3_t p2 ) {
-	return botimport.inPVS( p1, p2 );
+	return BotImport_inPVS( p1, p2 );
 } //end of the function AAS_InPVS
 //===========================================================================
 // returns true if in Potentially Visible Set
@@ -210,7 +208,7 @@ qboolean AAS_inPHS( vec3_t p1, vec3_t p2 ) {
 // Changes Globals:		-
 //===========================================================================
 void AAS_BSPModelMinsMaxsOrigin( int modelnum, vec3_t angles, vec3_t mins, vec3_t maxs, vec3_t origin ) {
-	botimport.BSPModelMinsMaxsOrigin( modelnum, angles, mins, maxs, origin );
+	BotImport_BSPModelMinsMaxsOrigin( modelnum, angles, mins, maxs, origin );
 } //end of the function AAS_BSPModelMinsMaxs
 //===========================================================================
 // unlinks the entity from all leaves
@@ -487,9 +485,9 @@ void AAS_DumpBSPData( void ) {
 //===========================================================================
 int AAS_LoadBSPFile( void ) {
 	AAS_DumpBSPData();
-	bspworld.entdatasize = strlen( botimport.BSPEntityData() ) + 1;
+	bspworld.entdatasize = strlen( BotImport_BSPEntityData() ) + 1;
 	bspworld.dentdata = (char *) GetClearedHunkMemory( bspworld.entdatasize );
-	memcpy( bspworld.dentdata, botimport.BSPEntityData(), bspworld.entdatasize );
+	memcpy( bspworld.dentdata, BotImport_BSPEntityData(), bspworld.entdatasize );
 	AAS_ParseBSPEntities();
 	bspworld.loaded = qtrue;
 	return BLERR_NOERROR;

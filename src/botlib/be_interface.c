@@ -63,7 +63,6 @@ If you have questions concerning this license or the applicable additional terms
 botlib_globals_t botlibglobals;
 
 botlib_export_t be_botlib_export;
-botlib_import_t botimport;
 //
 int bot_developer;
 //qtrue if the library is setup

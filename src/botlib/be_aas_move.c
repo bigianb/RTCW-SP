@@ -48,8 +48,6 @@ If you have questions concerning this license or the applicable additional terms
 
 //#define BSPC
 
-extern botlib_import_t botimport;
-
 aas_settings_t aassettings;
 
 //#define AAS_MOVE_DEBUG

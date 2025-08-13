@@ -518,46 +518,6 @@ qboolean BotImport_AICast_CheckAttackAtPos( int entnum, int enemy, vec3_t pos, q
 }
 // done.
 
-/*
-==================
-SV_BotInitBotLib
-==================
-*/
-extern botlib_import_t botimport;
-void SV_BotInitBotLib( void ) {
-
-	botimport.Trace = BotImport_Trace;
-	botimport.EntityTrace = BotImport_EntityTrace;
-	botimport.PointContents = BotImport_PointContents;
-	botimport.inPVS = BotImport_inPVS;
-	botimport.BSPEntityData = BotImport_BSPEntityData;
-	botimport.BSPModelMinsMaxsOrigin = BotImport_BSPModelMinsMaxsOrigin;
-	botimport.BotClientCommand = BotClientCommand;
-
-	// file system acess
-	botimport.FS_FOpenFile = FS_FOpenFileByMode;
-	botimport.FS_Read = FS_Read;
-	botimport.FS_Write = FS_Write;
-	botimport.FS_FCloseFile = FS_FCloseFile;
-	botimport.FS_Seek = FS_Seek;
-
-	//debug lines
-	botimport.DebugLineCreate = BotImport_DebugLineCreate;
-	botimport.DebugLineDelete = BotImport_DebugLineDelete;
-	botimport.DebugLineShow = BotImport_DebugLineShow;
-
-	//debug polygons
-	botimport.DebugPolygonCreate = BotImport_DebugPolygonCreate;
-	botimport.DebugPolygonDelete = BotImport_DebugPolygonDelete;
-
-	// Ridah, Cast AI
-	botimport.AICast_VisibleFromPos = BotImport_AICast_VisibleFromPos;
-	botimport.AICast_CheckAttackAtPos = BotImport_AICast_CheckAttackAtPos;
-	// done.
-
-}
-
-
 //
 //  * * * BOT AI CODE IS BELOW THIS POINT * * *
 //
