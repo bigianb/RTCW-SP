@@ -1655,7 +1655,7 @@ void  G_LogPrintf( const char *fmt, ... ) {
 	tens = sec / 10;
 	sec -= tens * 10;
 
-	Com_sprintf( string, sizeof( string ), "%3i:%i%i ", min, tens, sec );
+	snprintf( string, sizeof( string ), "%3i:%i%i ", min, tens, sec );
 
 	va_start( argptr, fmt );
 	vsnprintf( string + 7, 1024-7, fmt,argptr );

@@ -253,7 +253,7 @@ void AAS_RT_WriteRouteTable() {
 	char filename[MAX_QPATH];
 
 	// open the file for writing
-	Com_sprintf( filename, MAX_QPATH, "maps/%s.rtb", ( *aasworld ).mapname );
+	snprintf( filename, MAX_QPATH, "maps/%s.rtb", ( *aasworld ).mapname );
 	BotImport_Print( PRT_MESSAGE, "\nsaving route-table to %s\n", filename );
 	FS_FOpenFileByMode( filename, &fp, FS_WRITE );
 	if ( !fp ) {
@@ -521,7 +521,7 @@ void AAS_RT_BuildRouteTable( void ) {
 	aasworld->routetable = (aas_rt_t *) AAS_RT_GetClearedMemory( sizeof( aas_rt_t ) );
 
 	// Try to load in a prepared route-table
-	Com_sprintf( filename, MAX_QPATH, "maps/%s.rtb", ( *aasworld ).mapname );
+	snprintf( filename, MAX_QPATH, "maps/%s.rtb", ( *aasworld ).mapname );
 	BotImport_Print( PRT_MESSAGE, "\n---------------------------------\n" );
 	BotImport_Print( PRT_MESSAGE, "\ntrying to load %s\n", filename );
 	FS_FOpenFileByMode( filename, &fp, FS_READ );

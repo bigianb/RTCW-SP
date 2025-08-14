@@ -142,7 +142,7 @@ static void CG_TellTarget_f( void ) {
 	}
 
 	Cmd_ArgsBuffer( message, 128 );
-	Com_sprintf( command, 128, "tell %i %s", clientNum, message );
+	snprintf( command, 128, "tell %i %s", clientNum, message );
 	CL_AddReliableCommand( command );
 }
 
@@ -157,7 +157,7 @@ static void CG_TellAttacker_f( void ) {
 	}
 
 	Cmd_ArgsBuffer( message, 128 );
-	Com_sprintf( command, 128, "tell %i %s", clientNum, message );
+	snprintf( command, 128, "tell %i %s", clientNum, message );
 	CL_AddReliableCommand( command );
 }
 

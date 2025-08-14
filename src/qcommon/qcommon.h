@@ -541,11 +541,11 @@ int     FS_GetModList(  char *listbuf, int bufsize );
 fileHandle_t    FS_FOpenFileWrite( const char *qpath );
 // will properly create any needed paths and deal with seperater character issues
 
-int     FS_filelength( fileHandle_t f );
+size_t     FS_filelength( fileHandle_t f );
 fileHandle_t FS_SV_FOpenFileWrite( const char *filename );
-int     FS_SV_FOpenFileRead( const char *filename, fileHandle_t *fp );
+size_t     FS_SV_FOpenFileRead( const char *filename, fileHandle_t *fp );
 void    FS_SV_Rename( const char *from, const char *to );
-int     FS_FOpenFileRead( const char *qpath, fileHandle_t *file, qboolean uniqueFILE );
+size_t  FS_FOpenFileRead( const char *qpath, fileHandle_t *file, qboolean uniqueFILE );
 // if uniqueFILE is true, then a new FILE will be fopened even if the file
 // is found in an already open pak file.  If uniqueFILE is false, you must call
 // FS_FCloseFile instead of fclose, otherwise the pak FILE would be improperly closed
@@ -558,9 +558,7 @@ int     FS_FileIsInPAK( const char *filename, int *pChecksum );
 int     FS_Delete( const char *filename );    // only works inside the 'save' directory (for deleting savegames/images)
 
 size_t     FS_Write( const void *buffer, size_t len, fileHandle_t f );
-
-int     FS_Read( void *buffer, int len, fileHandle_t f );
-// properly handles partial reads and reads from other dlls
+size_t     FS_Read( void *buffer, size_t len, fileHandle_t f );
 
 void    FS_FCloseFile( fileHandle_t f );
 // note: you can't just fclose from another DLL, due to MS libc issues
@@ -582,10 +580,8 @@ void    FS_FreeFile( void *buffer );
 void    FS_WriteFile( const char *qpath, const void *buffer, int size );
 // writes a complete file, creating any subdirectories needed
 
-int     FS_filelength( fileHandle_t f );
-// doesn't work for files that are opened from a pack file
 
-int     FS_FTell( fileHandle_t f );
+size_t     FS_FTell( fileHandle_t f );
 // where are we?
 
 void    FS_Flush( fileHandle_t f );
@@ -596,7 +592,7 @@ void  FS_Printf( fileHandle_t f, const char *fmt, ... );
 int     FS_FOpenFileByMode( const char *qpath, fileHandle_t *f, fsMode_t mode );
 // opens a file for reading, writing, or appending depending on the value of mode
 
-int     FS_Seek( fileHandle_t f, long offset, int origin );
+size_t     FS_Seek( fileHandle_t f, size_t offset, int origin );
 // seek on a file (doesn't work for zip files!!!!!!!!)
 
 qboolean FS_FilenameCompare( const char *s1, const char *s2 );
@@ -751,42 +747,6 @@ extern qboolean com_errorEntered;
 extern fileHandle_t com_journalFile;
 extern fileHandle_t com_journalDataFile;
 
-typedef enum {
-	TAG_FREE,
-	TAG_GENERAL,
-	TAG_BOTLIB,
-	TAG_RENDERER,
-	TAG_SMALL,
-	TAG_STATIC
-} memtag_t;
-
-/*
-
---- low memory ----
-server vm
-server clipmap
----mark---
-renderer initialization (shaders, etc)
-UI vm
-cgame vm
-renderer map
-renderer models
-
----free---
-
-temp file loading
---- high memory ---
-
-*/
-
-#if defined( _DEBUG ) && !defined( BSPC )
-	#define ZONE_DEBUG
-#endif
-
-void *Z_TagMalloc( int size, int tag ); // NOT 0 filled memory
-void *Z_Malloc( int size );         // returns 0 filled memory
-void Z_Free( void *ptr );
-void Z_FreeTags( int tag );
 
 void *Hunk_AllocateTempMemory( int size );
 void Hunk_FreeTempMemory( void *buf );
@@ -948,8 +908,8 @@ int     Sys_GetProcessorId( void );
 
 void    Sys_BeginStreamedFile( fileHandle_t f, int readahead );
 void    Sys_EndStreamedFile( fileHandle_t f );
-int     Sys_StreamedRead( void *buffer, int size, int count, fileHandle_t f );
-void    Sys_StreamSeek( fileHandle_t f, int offset, int origin );
+size_t     Sys_StreamedRead( void *buffer, size_t size, int count, fileHandle_t f );
+void    Sys_StreamSeek( fileHandle_t f, size_t offset, int origin );
 
 void    Sys_ShowConsole( int level, qboolean quitOnClose );
 void    Sys_SetErrorText( const char *text );

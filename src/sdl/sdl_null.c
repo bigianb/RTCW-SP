@@ -13,11 +13,11 @@ void Sys_BeginStreamedFile( fileHandle_t f, int readAhead ) {
 void Sys_EndStreamedFile( fileHandle_t f ) {
 }
 
-int Sys_StreamedRead( void *buffer, int size, int count, fileHandle_t f ) {
+size_t Sys_StreamedRead( void *buffer, size_t size, int count, fileHandle_t f ) {
 	return FS_Read( buffer, size * count, f );
 }
 
-void Sys_StreamSeek( fileHandle_t f, int offset, int origin ) {
+void Sys_StreamSeek( fileHandle_t f, size_t offset, int origin ) {
 	FS_Seek( f, offset, origin );
 }
 

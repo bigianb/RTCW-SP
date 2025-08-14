@@ -483,9 +483,6 @@ void Com_Parse3DMatrix( const char *( *buf_p ), int z, int y, int x, float *m );
 extern "C" {
 #endif
 
-void  Com_sprintf( char *dest, int size, const char *fmt, ... );
-
-
 // mode parm for FS_FOpenFile
 typedef enum {
 	FS_READ,

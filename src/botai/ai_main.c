@@ -1048,7 +1048,7 @@ int BotInitLibrary( void ) {
 		strcpy( buf, "8" );
 	}
 	trap_BotLibVarSet( "maxclients", buf );
-	Com_sprintf( buf, sizeof( buf ), "%d", MAX_GENTITIES );
+	snprintf( buf, sizeof( buf ), "%d", MAX_GENTITIES );
 	trap_BotLibVarSet( "maxentities", buf );
 	//bsp checksum
 	trap_Cvar_VariableStringBuffer( "sv_mapChecksum", buf, sizeof( buf ) );

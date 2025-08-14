@@ -933,7 +933,7 @@ static void UI_LoadTranslationStrings( void ) {
 	int len, i, numStrings;
 	char *token;
 
-	Com_sprintf( filename, MAX_QPATH, "text/strings.txt" );
+	snprintf( filename, MAX_QPATH, "text/strings.txt" );
 	len = trap_FS_FOpenFile( filename, &f, FS_READ );
 	if ( len <= 0 ) {
 //		CG_Printf( S_COLOR_RED "WARNING: string translation file (strings.txt not found in main/text)\n" );
@@ -3238,11 +3238,11 @@ static void UI_LoadDemos() {
 	char    *demoname;
 	int i, len;
 
-	Com_sprintf( demoExt, sizeof( demoExt ), "dm_%d", (int)Cvar_VariableValue( "protocol" ) );
+	snprintf( demoExt, sizeof( demoExt ), "dm_%d", (int)Cvar_VariableValue( "protocol" ) );
 
 	uiInfo.demoCount = trap_FS_GetFileList( "demos", demoExt, demolist, 4096 );
 
-	Com_sprintf( demoExt, sizeof( demoExt ), ".dm_%d", (int)Cvar_VariableValue( "protocol" ) );
+	snprintf( demoExt, sizeof( demoExt ), ".dm_%d", (int)Cvar_VariableValue( "protocol" ) );
 
 	if ( uiInfo.demoCount ) {
 		if ( uiInfo.demoCount > MAX_DEMOS ) {
@@ -3803,20 +3803,20 @@ static void UI_RunMenuScript( char **args ) {
 				int bot = Cvar_VariableValue( va( "ui_blueteam%i", i + 1 ) );
 				if ( bot > 1 ) {
 					if ( ui_actualNetGameType.integer >= GT_TEAM ) {
-						Com_sprintf( buff, sizeof( buff ), "addbot %s %f %s\n", uiInfo.characterList[bot - 2].name, skill, "Blue" );
+						snprintf( buff, sizeof( buff ), "addbot %s %f %s\n", uiInfo.characterList[bot - 2].name, skill, "Blue" );
 					} else {
 						// NERVE - SMF - no bots in wolf multiplayer
-						//						Com_sprintf( buff, sizeof(buff), "addbot %s %f \n", UI_GetBotNameByNumber(bot-2), skill);
+						//						snprintf( buff, sizeof(buff), "addbot %s %f \n", UI_GetBotNameByNumber(bot-2), skill);
 					}
 					trap_Cmd_ExecuteText( EXEC_APPEND, buff );
 				}
 				bot = Cvar_VariableValue( va( "ui_redteam%i", i + 1 ) );
 				if ( bot > 1 ) {
 					if ( ui_actualNetGameType.integer >= GT_TEAM ) {
-						Com_sprintf( buff, sizeof( buff ), "addbot %s %f %s\n", uiInfo.characterList[bot - 2].name, skill, "Red" );
+						snprintf( buff, sizeof( buff ), "addbot %s %f %s\n", uiInfo.characterList[bot - 2].name, skill, "Red" );
 					} else {
 						// NERVE - SMF - no bots in wolf multiplayer
-						//						Com_sprintf( buff, sizeof(buff), "addbot %s %f \n", UI_GetBotNameByNumber(bot-2), skill);
+						//						snprintf( buff, sizeof(buff), "addbot %s %f \n", UI_GetBotNameByNumber(bot-2), skill);
 					}
 					trap_Cmd_ExecuteText( EXEC_APPEND, buff );
 				}
@@ -4534,7 +4534,7 @@ static int UI_GetServerStatusInfo( const char *serverAddress, serverStatusInfo_t
 				}
 				*p++ = '\0';
 				name = p;
-				Com_sprintf( &info->pings[len], sizeof( info->pings ) - len, "%d", i );
+				snprintf( &info->pings[len], sizeof( info->pings ) - len, "%d", i );
 				info->lines[info->numLines][0] = &info->pings[len];
 				len += strlen( &info->pings[len] ) + 1;
 				info->lines[info->numLines][1] = score;
@@ -4767,7 +4767,7 @@ static const char *UI_FeederItemText( float feederID, int index, int column, qha
 					return Info_ValueForKey( info, "addr" );
 				} else {
 					if ( ui_netSource.integer == AS_LOCAL ) {
-						Com_sprintf( hostname, sizeof( hostname ), "%s [%s]", Info_ValueForKey( info, "hostname" ), netnames[atoi( Info_ValueForKey( info, "nettype" ) )] );
+						snprintf( hostname, sizeof( hostname ), "%s [%s]", Info_ValueForKey( info, "hostname" ), netnames[atoi( Info_ValueForKey( info, "nettype" ) )] );
 						return hostname;
 					} else {
 						return Info_ValueForKey( info, "hostname" );
@@ -4775,7 +4775,7 @@ static const char *UI_FeederItemText( float feederID, int index, int column, qha
 				}
 			case SORT_MAP: return Info_ValueForKey( info, "mapname" );
 			case SORT_CLIENTS:
-				Com_sprintf( clientBuff, sizeof( clientBuff ), "%s (%s)", Info_ValueForKey( info, "clients" ), Info_ValueForKey( info, "sv_maxclients" ) );
+				snprintf( clientBuff, sizeof( clientBuff ), "%s (%s)", Info_ValueForKey( info, "clients" ), Info_ValueForKey( info, "sv_maxclients" ) );
 				return clientBuff;
 			case SORT_GAME:
 				game = atoi( Info_ValueForKey( info, "gametype" ) );
@@ -5254,9 +5254,9 @@ static void UI_BuildQ3Model_List( void ) {
 			// look for icon_????
 			if ( Q_stricmpn( skinname, "icon_", 5 ) == 0 && !( Q_stricmp( skinname,"icon_blue" ) == 0 || Q_stricmp( skinname,"icon_red" ) == 0 ) ) {
 				if ( Q_stricmp( skinname, "icon_default" ) == 0 ) {
-					Com_sprintf( uiInfo.q3HeadNames[uiInfo.q3HeadCount], sizeof( uiInfo.q3HeadNames[uiInfo.q3HeadCount] ), dirptr );
+					snprintf( uiInfo.q3HeadNames[uiInfo.q3HeadCount], sizeof( uiInfo.q3HeadNames[uiInfo.q3HeadCount] ), dirptr );
 				} else {
-					Com_sprintf( uiInfo.q3HeadNames[uiInfo.q3HeadCount], sizeof( uiInfo.q3HeadNames[uiInfo.q3HeadCount] ), "%s/%s",dirptr, skinname + 5 );
+					snprintf( uiInfo.q3HeadNames[uiInfo.q3HeadCount], sizeof( uiInfo.q3HeadNames[uiInfo.q3HeadCount] ), "%s/%s",dirptr, skinname + 5 );
 				}
 				uiInfo.q3HeadIcons[uiInfo.q3HeadCount++] = RE_RegisterShaderNoMip( va( "models/players/%s/%s",dirptr,skinname ) );
 			}
@@ -5600,17 +5600,17 @@ static char lastLoadingText[MAX_INFO_VALUE];
 
 static void UI_ReadableSize( char *buf, int bufsize, int value ) {
 	if ( value > 1024 * 1024 * 1024 ) { // gigs
-		Com_sprintf( buf, bufsize, "%d", value / ( 1024 * 1024 * 1024 ) );
-		Com_sprintf( buf + strlen( buf ), bufsize - strlen( buf ), ".%02d GB",
+		snprintf( buf, bufsize, "%d", value / ( 1024 * 1024 * 1024 ) );
+		snprintf( buf + strlen( buf ), bufsize - strlen( buf ), ".%02d GB",
 					 ( value % ( 1024 * 1024 * 1024 ) ) * 100 / ( 1024 * 1024 * 1024 ) );
 	} else if ( value > 1024 * 1024 ) { // megs
-		Com_sprintf( buf, bufsize, "%d", value / ( 1024 * 1024 ) );
-		Com_sprintf( buf + strlen( buf ), bufsize - strlen( buf ), ".%02d MB",
+		snprintf( buf, bufsize, "%d", value / ( 1024 * 1024 ) );
+		snprintf( buf + strlen( buf ), bufsize - strlen( buf ), ".%02d MB",
 					 ( value % ( 1024 * 1024 ) ) * 100 / ( 1024 * 1024 ) );
 	} else if ( value > 1024 ) { // kilos
-		Com_sprintf( buf, bufsize, "%d KB", value / 1024 );
+		snprintf( buf, bufsize, "%d KB", value / 1024 );
 	} else { // bytes
-		Com_sprintf( buf, bufsize, "%d bytes", value );
+		snprintf( buf, bufsize, "%d bytes", value );
 	}
 }
 
@@ -5619,11 +5619,11 @@ static void UI_PrintTime( char *buf, int bufsize, int time ) {
 	time /= 1000;  // change to seconds
 
 	if ( time > 3600 ) { // in the hours range
-		Com_sprintf( buf, bufsize, "%d hr %d min", time / 3600, ( time % 3600 ) / 60 );
+		snprintf( buf, bufsize, "%d hr %d min", time / 3600, ( time % 3600 ) / 60 );
 	} else if ( time > 60 ) { // mins
-		Com_sprintf( buf, bufsize, "%d min %d sec", time / 60, time % 60 );
+		snprintf( buf, bufsize, "%d min %d sec", time / 60, time % 60 );
 	} else  { // secs
-		Com_sprintf( buf, bufsize, "%d sec", time );
+		snprintf( buf, bufsize, "%d sec", time );
 	}
 }
 

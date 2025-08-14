@@ -300,7 +300,7 @@ extern int unzCloseCurrentFile( unzFile file );
 */
 
 
-extern int unzReadCurrentFile( unzFile file, void* buf, unsigned len );
+extern int unzReadCurrentFile( unzFile file, void* buf, size_t len );
 
 /*
   Read unsigned chars from the current file (opened by unzOpenCurrentFile)

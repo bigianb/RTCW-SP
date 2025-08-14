@@ -451,7 +451,7 @@ static float CG_DrawTeamOverlay( float y ) {
 
 			CG_ColorForHealth( hcolor );
 
-			Com_sprintf( st, sizeof( st ), "%3i %3i", ci->health,  ci->armor );
+			snprintf( st, sizeof( st ), "%3i %3i", ci->health,  ci->armor );
 
 			xx = x + TINYCHAR_WIDTH * 3 +
 				 TINYCHAR_WIDTH * pwidth + TINYCHAR_WIDTH * lwidth;
@@ -537,16 +537,16 @@ static void CG_DrawPickupItem( void ) {
 			if ( bg_itemlist[ value ].giType == IT_AMMO || bg_itemlist[ value ].giType == IT_HEALTH || bg_itemlist[value].giType == IT_POWERUP ) {
 				if ( bg_itemlist[ value ].world_model[2] ) {   // this is a multi-stage item
 					// FIXME: print the correct amount for multi-stage
-					Com_sprintf( pickupText, sizeof( pickupText ), "%s", cgs.itemPrintNames[ value ] );
+					snprintf( pickupText, sizeof( pickupText ), "%s", cgs.itemPrintNames[ value ] );
 				} else {
 					if ( bg_itemlist[ value ].gameskillnumber[cg_gameSkill.integer] > 1 ) {
-						Com_sprintf( pickupText, sizeof( pickupText ), "%i  %s", bg_itemlist[ value ].gameskillnumber[cg_gameSkill.integer], cgs.itemPrintNames[ value ] );
+						snprintf( pickupText, sizeof( pickupText ), "%i  %s", bg_itemlist[ value ].gameskillnumber[cg_gameSkill.integer], cgs.itemPrintNames[ value ] );
 					} else {
-						Com_sprintf( pickupText, sizeof( pickupText ), "%s", cgs.itemPrintNames[value] );
+						snprintf( pickupText, sizeof( pickupText ), "%s", cgs.itemPrintNames[value] );
 					}
 				}
 			} else {
-				Com_sprintf( pickupText, sizeof( pickupText ), "%s", cgs.itemPrintNames[value] );
+				snprintf( pickupText, sizeof( pickupText ), "%s", cgs.itemPrintNames[value] );
 			}
 
 			//----(SA)	trying smaller text

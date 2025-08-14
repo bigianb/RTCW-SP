@@ -605,7 +605,7 @@ qboolean G_ParseAnimationFiles( char *modelname, gclient_t *cl ) {
 	Q_strncpyz( cl->modelInfo->modelname, modelname, sizeof( cl->modelInfo->modelname ) );
 
 	// load the cfg file
-	Com_sprintf( filename, sizeof( filename ), "models/players/%s/wolfanim.cfg", modelname );
+	snprintf( filename, sizeof( filename ), "models/players/%s/wolfanim.cfg", modelname );
 	len = trap_FS_FOpenFile( filename, &f, FS_READ );
 	if ( len <= 0 ) {
 		G_Printf( "G_ParseAnimationFiles(): file '%s' not found\n", filename );       //----(SA)	added
@@ -623,14 +623,14 @@ qboolean G_ParseAnimationFiles( char *modelname, gclient_t *cl ) {
 	BG_AnimParseAnimConfig( cl->modelInfo, filename, text );
 
 	// load the script file
-	Com_sprintf( filename, sizeof( filename ), "models/players/%s/wolfanim.script", modelname );
+	snprintf( filename, sizeof( filename ), "models/players/%s/wolfanim.script", modelname );
 	len = trap_FS_FOpenFile( filename, &f, FS_READ );
 	if ( len <= 0 ) {
 		if ( cl->modelInfo->version > 1 ) {
 			return qfalse;
 		}
 		// try loading the default script for old legacy models
-		Com_sprintf( filename, sizeof( filename ), "models/players/default.script", modelname );
+		snprintf( filename, sizeof( filename ), "models/players/default.script", modelname );
 		len = trap_FS_FOpenFile( filename, &f, FS_READ );
 		if ( len <= 0 ) {
 			return qfalse;

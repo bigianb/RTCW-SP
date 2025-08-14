@@ -360,7 +360,7 @@ void GL_CheckErrors( void ) {
 		strcpy( s, "GL_OUT_OF_MEMORY" );
 		break;
 	default:
-		Com_sprintf( s, sizeof( s ), "%i", err );
+		snprintf( s, sizeof( s ), "%i", err );
 		break;
 	}
 
@@ -502,7 +502,7 @@ void R_ScreenshotFilename( int lastNumber, char *fileName ) {
 	int a,b,c,d;
 
 	if ( lastNumber < 0 || lastNumber > 9999 ) {
-		Com_sprintf( fileName, MAX_OSPATH, "screenshots/shot9999.tga" );
+		snprintf( fileName, MAX_OSPATH, "screenshots/shot9999.tga" );
 		return;
 	}
 
@@ -514,7 +514,7 @@ void R_ScreenshotFilename( int lastNumber, char *fileName ) {
 	lastNumber -= c * 10;
 	d = lastNumber;
 
-	Com_sprintf( fileName, MAX_OSPATH, "screenshots/shot%i%i%i%i.tga"
+	snprintf( fileName, MAX_OSPATH, "screenshots/shot%i%i%i%i.tga"
 				 , a, b, c, d );
 }
 
@@ -527,7 +527,7 @@ void R_ScreenshotFilenameJPEG( int lastNumber, char *fileName ) {
 	int a,b,c,d;
 
 	if ( lastNumber < 0 || lastNumber > 9999 ) {
-		Com_sprintf( fileName, MAX_OSPATH, "screenshots/shot9999.jpg" );
+		snprintf( fileName, MAX_OSPATH, "screenshots/shot9999.jpg" );
 		return;
 	}
 
@@ -539,7 +539,7 @@ void R_ScreenshotFilenameJPEG( int lastNumber, char *fileName ) {
 	lastNumber -= c * 10;
 	d = lastNumber;
 
-	Com_sprintf( fileName, MAX_OSPATH, "screenshots/shot%i%i%i%i.jpg"
+	snprintf( fileName, MAX_OSPATH, "screenshots/shot%i%i%i%i.jpg"
 				 , a, b, c, d );
 }
 
@@ -639,7 +639,7 @@ void R_ScreenShot_f( void ) {
 
 	if ( ri.Cmd_Argc() == 2 && !silent ) {
 		// explicit filename
-		Com_sprintf( checkname, MAX_OSPATH, "screenshots/%s.tga", ri.Cmd_Argv( 1 ) );
+		snprintf( checkname, MAX_OSPATH, "screenshots/%s.tga", ri.Cmd_Argv( 1 ) );
 	} else {
 		// scan for a free filename
 
@@ -694,7 +694,7 @@ void R_ScreenShotJPEG_f( void ) {
 
 	if ( ri.Cmd_Argc() == 2 && !silent ) {
 		// explicit filename
-		Com_sprintf( checkname, MAX_OSPATH, "screenshots/%s.jpg", ri.Cmd_Argv( 1 ) );
+		snprintf( checkname, MAX_OSPATH, "screenshots/%s.jpg", ri.Cmd_Argv( 1 ) );
 	} else {
 		// scan for a free filename
 

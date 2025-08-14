@@ -1274,9 +1274,9 @@ script_t *LoadScriptFile( const char *filename ) {
 	script_t *script;
 
 	if ( strlen( basefolder ) ) {
-		Com_sprintf( pathname, sizeof( pathname ), "%s/%s", basefolder, filename );
+		snprintf( pathname, sizeof( pathname ), "%s/%s", basefolder, filename );
 	} else {
-		Com_sprintf( pathname, sizeof( pathname ), "%s", filename );
+		snprintf( pathname, sizeof( pathname ), "%s", filename );
 	}
 	length = FS_FOpenFileByMode( pathname, &fp, FS_READ );
 	if ( !fp ) {
@@ -1370,6 +1370,6 @@ void PS_SetBaseFolder( char *path ) {
 #ifdef BSPC
 	sprintf( basefolder, path );
 #else
-	Com_sprintf( basefolder, sizeof( basefolder ), path );
+	snprintf( basefolder, sizeof( basefolder ), path );
 #endif
 } //end of the function PS_SetBaseFolder

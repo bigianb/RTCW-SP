@@ -49,9 +49,9 @@ void Sys_ListFilteredFiles( const char *basedir, char *subdirs, char *filter, ch
 	}
 
 	if ( strlen( subdirs ) ) {
-		Com_sprintf( search, sizeof( search ), "%s/%s", basedir, subdirs );
+		snprintf( search, sizeof( search ), "%s/%s", basedir, subdirs );
 	} else {
-		Com_sprintf( search, sizeof( search ), "%s", basedir );
+		snprintf( search, sizeof( search ), "%s", basedir );
 	}
 
 	if ( ( fdir = opendir( search ) ) == NULL ) {
@@ -59,7 +59,7 @@ void Sys_ListFilteredFiles( const char *basedir, char *subdirs, char *filter, ch
 	}
 
 	while ( ( d = readdir( fdir ) ) != NULL ) {
-		Com_sprintf( filename, sizeof( filename ), "%s/%s", search, d->d_name );
+		snprintf( filename, sizeof( filename ), "%s/%s", search, d->d_name );
 		if ( stat( filename, &st ) == -1 ) {
 			continue;
 		}
@@ -67,9 +67,9 @@ void Sys_ListFilteredFiles( const char *basedir, char *subdirs, char *filter, ch
 		if ( st.st_mode & S_IFDIR ) {
 			if ( Q_stricmp( d->d_name, "." ) && Q_stricmp( d->d_name, ".." ) ) {
 				if ( strlen( subdirs ) ) {
-					Com_sprintf( newsubdirs, sizeof( newsubdirs ), "%s/%s", subdirs, d->d_name );
+					snprintf( newsubdirs, sizeof( newsubdirs ), "%s/%s", subdirs, d->d_name );
 				} else {
-					Com_sprintf( newsubdirs, sizeof( newsubdirs ), "%s", d->d_name );
+					snprintf( newsubdirs, sizeof( newsubdirs ), "%s", d->d_name );
 				}
 				Sys_ListFilteredFiles( basedir, newsubdirs, filter, list, numfiles );
 			}
@@ -77,7 +77,7 @@ void Sys_ListFilteredFiles( const char *basedir, char *subdirs, char *filter, ch
 		if ( *numfiles >= MAX_FOUND_FILES - 1 ) {
 			break;
 		}
-		Com_sprintf( filename, sizeof( filename ), "%s/%s", subdirs, d->d_name );
+		snprintf( filename, sizeof( filename ), "%s/%s", subdirs, d->d_name );
 		if ( !Com_FilterPath( filter, filename, qfalse ) ) {
 			continue;
 		}
@@ -116,7 +116,7 @@ char **Sys_ListFiles( const char *directory, const char *extension, char *filter
 			return NULL;
 		}
 
-		listCopy = Z_Malloc( ( nfiles + 1 ) * sizeof( *listCopy ) );
+		listCopy = calloc(1, ( nfiles + 1 ) * sizeof( *listCopy ) );
 		for ( i = 0 ; i < nfiles ; i++ ) {
 			listCopy[i] = list[i];
 		}
@@ -145,7 +145,7 @@ char **Sys_ListFiles( const char *directory, const char *extension, char *filter
 	}
 
 	while ( ( d = readdir( fdir ) ) != NULL ) {
-		Com_sprintf( search, sizeof( search ), "%s/%s", directory, d->d_name );
+		snprintf( search, sizeof( search ), "%s/%s", directory, d->d_name );
 		if ( stat( search, &st ) == -1 ) {
 			continue;
 		}
@@ -181,7 +181,7 @@ char **Sys_ListFiles( const char *directory, const char *extension, char *filter
 		return NULL;
 	}
 
-	listCopy = Z_Malloc( ( nfiles + 1 ) * sizeof( *listCopy ) );
+	listCopy = calloc(1, ( nfiles + 1 ) * sizeof( *listCopy ) );
 	for ( i = 0 ; i < nfiles ; i++ ) {
 		listCopy[i] = list[i];
 	}
@@ -198,10 +198,10 @@ void    Sys_FreeFileList( char **list ) {
 	}
 
 	for ( i = 0 ; list[i] ; i++ ) {
-		Z_Free( list[i] );
+		free( list[i] );
 	}
 
-	Z_Free( list );
+	free( list );
 }
 
 const char *Sys_GetCurrentUser( void ) {

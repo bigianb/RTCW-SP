@@ -2209,7 +2209,7 @@ qboolean RE_GetSkinModel( qhandle_t skinid, const char *type, char *name ) {
 	bar = tr.skins[skinid];
 
 	if ( !Q_stricmp( type, "playerscale" ) ) {    // client is requesting scale from the skin rather than a model
-		Com_sprintf( name, MAX_QPATH, "%.2f %.2f %.2f", bar->scale[0], bar->scale[1], bar->scale[2] );
+		snprintf( name, MAX_QPATH, "%.2f %.2f %.2f", bar->scale[0], bar->scale[1], bar->scale[2] );
 		return qtrue;
 	}
 
@@ -2958,7 +2958,7 @@ void    R_CropAndNumberImagesInDirectory( char *dir, char *ext, int maxWidth, in
 			continue;
 		}
 
-		Com_sprintf( filename, sizeof( filename ), "%s/%s", dir, fileList[j] );
+		snprintf( filename, sizeof( filename ), "%s/%s", dir, fileList[j] );
 		ri.Printf( PRINT_ALL, "...cropping '%s'.. ", filename );
 
 		R_LoadImage( filename, &pic, &width, &height );
@@ -2981,7 +2981,7 @@ void    R_CropAndNumberImagesInDirectory( char *dir, char *ext, int maxWidth, in
 					newWidth = maxWidth;
 				}
 				newHeight = newWidth;
-				temppic = ri.Z_Malloc( sizeof( unsigned int ) * newWidth * newHeight );
+				temppic = ri.calloc( sizeof( unsigned int ) * newWidth * newHeight );
 				ResampleTexture( (unsigned int *)pic, width, height, (unsigned int *)temppic, newWidth, newHeight );
 				memcpy( pic, temppic, sizeof( unsigned int ) * newWidth * newHeight );
 				ri.Free( temppic );
@@ -2993,7 +2993,7 @@ void    R_CropAndNumberImagesInDirectory( char *dir, char *ext, int maxWidth, in
 			// we need to force the scale downwards
 			newWidth = maxWidth;
 			newHeight = maxWidth;
-			temppic = ri.Z_Malloc( sizeof( unsigned int ) * newWidth * newHeight );
+			temppic = ri.calloc( sizeof( unsigned int ) * newWidth * newHeight );
 			ResampleTexture( (unsigned int *)pic, width, height, (unsigned int *)temppic, newWidth, newHeight );
 			memcpy( pic, temppic, sizeof( unsigned int ) * newWidth * newHeight );
 			ri.Free( temppic );
@@ -3020,7 +3020,7 @@ void    R_CropAndNumberImagesInDirectory( char *dir, char *ext, int maxWidth, in
 		c = lastNumber / 10;
 		lastNumber -= c * 10;
 		d = lastNumber;
-		Com_sprintf( outfilename, sizeof( outfilename ), "%s/spr%i%i%i.tga", filename, b, c, d );
+		snprintf( outfilename, sizeof( outfilename ), "%s/spr%i%i%i.tga", filename, b, c, d );
 
 		if ( withAlpha ) {
 			SaveTGAAlpha( outfilename, &pic, width, height );
@@ -3072,7 +3072,7 @@ R_CacheImageAlloc
 void *R_CacheImageAlloc( int size ) {
 	if ( r_cache->integer && r_cacheShaders->integer ) {
 		return malloc( size );
-		//return ri.Z_Malloc( size );
+		//return ri.calloc( size );
 	} else {
 		return ri.Hunk_Alloc( size, h_low );
 	}

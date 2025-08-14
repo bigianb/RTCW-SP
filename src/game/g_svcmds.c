@@ -142,7 +142,7 @@ static void UpdateIPBans( void ) {
 		}
 
 		*(unsigned *)b = ipFilters[i].compare;
-		Com_sprintf( iplist + strlen( iplist ), sizeof( iplist ) - strlen( iplist ),
+		snprintf( iplist + strlen( iplist ), sizeof( iplist ) - strlen( iplist ),
 					 "%i.%i.%i.%i ", b[0], b[1], b[2], b[3] );
 	}
 

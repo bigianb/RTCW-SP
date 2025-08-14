@@ -256,7 +256,7 @@ void CL_DemoFilename( int number, char *fileName ) {
 	int a,b,c,d;
 
 	if ( number < 0 || number > 9999 ) {
-		Com_sprintf( fileName, MAX_OSPATH, "demo9999.tga" );
+		snprintf( fileName, MAX_OSPATH, "demo9999.tga" );
 		return;
 	}
 
@@ -268,7 +268,7 @@ void CL_DemoFilename( int number, char *fileName ) {
 	number -= c * 10;
 	d = number;
 
-	Com_sprintf( fileName, MAX_OSPATH, "demo%i%i%i%i"
+	snprintf( fileName, MAX_OSPATH, "demo%i%i%i%i"
 				 , a, b, c, d );
 }
 
@@ -315,14 +315,14 @@ void CL_Record_f( void ) {
 	if ( Cmd_Argc() == 2 ) {
 		s = Cmd_Argv( 1 );
 		Q_strncpyz( demoName, s, sizeof( demoName ) );
-		Com_sprintf( name, sizeof( name ), "demos/%s.dm_%d", demoName, PROTOCOL_VERSION );
+		snprintf( name, sizeof( name ), "demos/%s.dm_%d", demoName, PROTOCOL_VERSION );
 	} else {
 		int number;
 
 		// scan for a free demo name
 		for ( number = 0 ; number <= 9999 ; number++ ) {
 			CL_DemoFilename( number, demoName );
-			Com_sprintf( name, sizeof( name ), "demos/%s.dm_%d", demoName, PROTOCOL_VERSION );
+			snprintf( name, sizeof( name ), "demos/%s.dm_%d", demoName, PROTOCOL_VERSION );
 
 			len = FS_ReadFile( name, NULL );
 			if ( len <= 0 ) {
@@ -508,11 +508,11 @@ void CL_PlayDemo_f( void ) {
 
 	// open the demo file
 	arg = Cmd_Argv( 1 );
-	Com_sprintf( extension, sizeof( extension ), ".dm_%d", PROTOCOL_VERSION );
+	snprintf( extension, sizeof( extension ), ".dm_%d", PROTOCOL_VERSION );
 	if ( !Q_stricmp( arg + strlen( arg ) - strlen( extension ), extension ) ) {
-		Com_sprintf( name, sizeof( name ), "demos/%s", arg );
+		snprintf( name, sizeof( name ), "demos/%s", arg );
 	} else {
-		Com_sprintf( name, sizeof( name ), "demos/%s.dm_%d", arg, PROTOCOL_VERSION );
+		snprintf( name, sizeof( name ), "demos/%s.dm_%d", arg, PROTOCOL_VERSION );
 	}
 
 	FS_FOpenFileRead( name, &clc.demofile, qtrue );
@@ -802,7 +802,7 @@ void CL_RequestMotd( void ) {
 				BigShort( cls.updateServer.port ) );
 
 	info[0] = 0;
-	Com_sprintf( cls.updateChallenge, sizeof( cls.updateChallenge ), "%i", rand() );
+	snprintf( cls.updateChallenge, sizeof( cls.updateChallenge ), "%i", rand() );
 
 	Info_SetValueForKey( info, "challenge", cls.updateChallenge );
 	Info_SetValueForKey( info, "renderer", cls.glconfig.renderer_string );
@@ -1043,7 +1043,7 @@ void CL_SendPureChecksums( void ) {
 
 	// "cp"
 	// "Yf"
-	Com_sprintf( cMsg, sizeof( cMsg ), "Yf " );
+	snprintf( cMsg, sizeof( cMsg ), "Yf " );
 	Q_strcat( cMsg, sizeof( cMsg ), pChecksums );
 	for ( i = 0; i < 2; i++ ) {
 		cMsg[i] += 10;
@@ -1274,7 +1274,7 @@ void CL_BeginDownload( const char *localName, const char *remoteName ) {
 				 "****************************\n", localName, remoteName );
 
 	Q_strncpyz( clc.downloadName, localName, sizeof( clc.downloadName ) );
-	Com_sprintf( clc.downloadTempName, sizeof( clc.downloadTempName ), "%s.tmp", localName );
+	snprintf( clc.downloadTempName, sizeof( clc.downloadTempName ), "%s.tmp", localName );
 
 	// Set so UI gets access to it
 	Cvar_Set( "cl_downloadName", remoteName );
@@ -2806,7 +2806,7 @@ void CL_ServerStatusResponse( netadr_t from, msg_t *msg ) {
 	s = MSG_ReadStringLine( msg );
 
 	len = 0;
-	Com_sprintf( &serverStatus->string[len], sizeof( serverStatus->string ) - len, "%s", s );
+	snprintf( &serverStatus->string[len], sizeof( serverStatus->string ) - len, "%s", s );
 
 	if ( serverStatus->print ) {
 		Com_Printf( "Server settings:\n" );
@@ -2838,7 +2838,7 @@ void CL_ServerStatusResponse( netadr_t from, msg_t *msg ) {
 	}
 
 	len = strlen( serverStatus->string );
-	Com_sprintf( &serverStatus->string[len], sizeof( serverStatus->string ) - len, "\\" );
+	snprintf( &serverStatus->string[len], sizeof( serverStatus->string ) - len, "\\" );
 
 	if ( serverStatus->print ) {
 		Com_Printf( "\nPlayers:\n" );
@@ -2847,7 +2847,7 @@ void CL_ServerStatusResponse( netadr_t from, msg_t *msg ) {
 	for ( i = 0, s = MSG_ReadStringLine( msg ); *s; s = MSG_ReadStringLine( msg ), i++ ) {
 
 		len = strlen( serverStatus->string );
-		Com_sprintf( &serverStatus->string[len], sizeof( serverStatus->string ) - len, "\\%s", s );
+		snprintf( &serverStatus->string[len], sizeof( serverStatus->string ) - len, "\\%s", s );
 
 		if ( serverStatus->print ) {
 			score = ping = 0;
@@ -2865,7 +2865,7 @@ void CL_ServerStatusResponse( netadr_t from, msg_t *msg ) {
 		}
 	}
 	len = strlen( serverStatus->string );
-	Com_sprintf( &serverStatus->string[len], sizeof( serverStatus->string ) - len, "\\" );
+	snprintf( &serverStatus->string[len], sizeof( serverStatus->string ) - len, "\\" );
 
 	serverStatus->time = Sys_Milliseconds();
 	serverStatus->address = from;

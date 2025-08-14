@@ -1090,10 +1090,10 @@ static void   zcfree  OF((voidp opaque, voidp ptr));
 #endif
 
 #ifndef ALLOC
-# define ALLOC(size) (Z_Malloc(size))
+# define ALLOC(size) (calloc(1, size))
 #endif
 #ifndef TRYFREE
-# define TRYFREE(p) {if (p) Z_Free(p);}
+# define TRYFREE(p) {if (p) free(p);}
 #endif
 
 #define SIZECENTRALDIRITEM (0x2e)
@@ -1987,7 +1987,7 @@ extern int unzOpenCurrentFile (unzFile file)
   return <0 with error code if there is an error
     (UNZ_ERRNO for IO error, or zLib error for uncompress error)
 */
-extern int unzReadCurrentFile  (unzFile file, void *buf, unsigned len)
+extern int unzReadCurrentFile  (unzFile file, void *buf, size_t len)
 {
 	int err=UNZ_OK;
 	uInt iRead = 0;
@@ -4317,12 +4317,12 @@ int inflateSyncPoint(z_streamp z)
 voidp zcalloc (voidp opaque, unsigned items, unsigned size)
 {
     if (opaque) items += size - size; /* make compiler happy */
-    return (voidp)Z_Malloc(items*size);
+    return (voidp)calloc(1, items*size);
 }
 
 void  zcfree (voidp opaque, voidp ptr)
 {
-    Z_Free(ptr);
+    free(ptr);
     if (opaque) return; /* make compiler happy */
 }
 

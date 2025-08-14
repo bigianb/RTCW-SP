@@ -169,7 +169,7 @@ void Com_DefaultExtension( char *path, int maxSize, const char *extension ) {
 	}
 
 	Q_strncpyz( oldPath, path, sizeof( oldPath ) );
-	Com_sprintf( path, maxSize, "%s%s", oldPath, extension );
+	snprintf( path, maxSize, "%s%s", oldPath, extension );
 }
 
 /*

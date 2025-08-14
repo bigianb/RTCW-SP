@@ -55,7 +55,7 @@ void SV_SetConfigstring( int index, const char *val ) {
 	}
 
 	// change the string in sv
-	Z_Free( sv.configstrings[index] );
+	free( sv.configstrings[index] );
 	sv.configstrings[index] = CopyString( val );
 
 	// send it to all the clients if we aren't
@@ -228,9 +228,9 @@ void SV_InitReliableCommandsForClient( client_t *cl, int commands ) {
 	}
 	//
 	cl->reliableCommands.bufSize = commands * RELIABLE_COMMANDS_CHARS;
-	cl->reliableCommands.buf = Z_Malloc( cl->reliableCommands.bufSize );
-	cl->reliableCommands.commandLengths = Z_Malloc( commands * sizeof( *cl->reliableCommands.commandLengths ) );
-	cl->reliableCommands.commands = Z_Malloc( commands * sizeof( *cl->reliableCommands.commands ) );
+	cl->reliableCommands.buf = calloc(1, cl->reliableCommands.bufSize );
+	cl->reliableCommands.commandLengths = calloc(1, commands * sizeof( *cl->reliableCommands.commandLengths ) );
+	cl->reliableCommands.commands = calloc(1, commands * sizeof( *cl->reliableCommands.commands ) );
 	//
 	cl->reliableCommands.rover = cl->reliableCommands.buf;
 }
@@ -255,9 +255,9 @@ void SV_FreeReliableCommandsForClient( client_t *cl ) {
 	if ( !cl->reliableCommands.bufSize ) {
 		return;
 	}
-	Z_Free( cl->reliableCommands.buf );
-	Z_Free( cl->reliableCommands.commandLengths );
-	Z_Free( cl->reliableCommands.commands );
+	free( cl->reliableCommands.buf );
+	free( cl->reliableCommands.commandLengths );
+	free( cl->reliableCommands.commands );
 	//
 	Com_Memset( &cl->reliableCommands, 0, sizeof( cl->reliableCommands.bufSize ) );
 }
@@ -527,7 +527,7 @@ void SV_SetExpectedHunkUsage( char *mapname ) {
 	len = FS_FOpenFileByMode( memlistfile, &handle, FS_READ );
 	if ( len >= 0 ) { // the file exists, so read it in, strip out the current entry for this map, and save it out, so we can append the new value
 
-		buf = (char *)Z_Malloc( len + 1 );
+		buf = (char *)calloc(1, len + 1 );
 		memset( buf, 0, len + 1 );
 
 		FS_Read( (void *)buf, len, handle );
@@ -542,13 +542,13 @@ void SV_SetExpectedHunkUsage( char *mapname ) {
 				if ( token && token[0] ) {
 					// this is the usage
 					Cvar_Set( "com_expectedhunkusage", token );
-					Z_Free( buf );
+					free( buf );
 					return;
 				}
 			}
 		}
 
-		Z_Free( buf );
+		free( buf );
 	}
 	// just set it to a negative number,so the cgame knows not to draw the percent bar
 	Cvar_Set( "com_expectedhunkusage", "-1" );
@@ -564,7 +564,7 @@ void SV_ClearServer( void ) {
 
 	for ( i = 0 ; i < MAX_CONFIGSTRINGS ; i++ ) {
 		if ( sv.configstrings[i] ) {
-			Z_Free( sv.configstrings[i] );
+			free( sv.configstrings[i] );
 		}
 	}
 	Com_Memset( &sv, 0, sizeof( sv ) );
@@ -581,7 +581,7 @@ void SV_TouchCGame( void ) {
 	fileHandle_t f;
 	char filename[MAX_QPATH];
 
-	Com_sprintf( filename, sizeof( filename ), "vm/%s.qvm", "cgame" );
+	snprintf( filename, sizeof( filename ), "vm/%s.qvm", "cgame" );
 	FS_FOpenFileRead( filename, &f, qfalse );
 	if ( f ) {
 		FS_FCloseFile( f );
@@ -961,7 +961,7 @@ void SV_Shutdown( char *finalmsg ) {
 
 	// free server static data
 	if ( svs.clients ) {
-		//Z_Free( svs.clients );
+		//free( svs.clients );
 		free( svs.clients );    // RF, avoid trying to allocate large chunk on a fragmented zone
 	}
 	memset( &svs, 0, sizeof( svs ) );

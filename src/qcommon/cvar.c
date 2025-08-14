@@ -216,7 +216,7 @@ cvar_t *Cvar_Get( const char *var_name, const char *var_value, int flags ) {
 		if ( ( var->flags & CVAR_USER_CREATED ) && !( flags & CVAR_USER_CREATED )
 			 && var_value[0] ) {
 			var->flags &= ~CVAR_USER_CREATED;
-			Z_Free( var->resetString );
+			free( var->resetString );
 			var->resetString = CopyString( var_value );
 
 			// ZOID--needs to be set so that cvars the game sets as
@@ -228,7 +228,7 @@ cvar_t *Cvar_Get( const char *var_name, const char *var_value, int flags ) {
 		// only allow one non-empty reset string without a warning
 		if ( !var->resetString[0] ) {
 			// we don't have a reset string yet
-			Z_Free( var->resetString );
+			free( var->resetString );
 			var->resetString = CopyString( var_value );
 		} else if ( var_value[0] && strcmp( var->resetString, var_value ) ) {
 			Com_DPrintf( "Warning: cvar \"%s\" given initial values: \"%s\" and \"%s\"\n",
@@ -241,7 +241,7 @@ cvar_t *Cvar_Get( const char *var_name, const char *var_value, int flags ) {
 			s = var->latchedString;
 			var->latchedString = NULL;  // otherwise cvar_set2 would free it
 			Cvar_Set2( var_name, s, qtrue );
-			Z_Free( s );
+			free( s );
 		}
 
 		return var;
@@ -337,7 +337,7 @@ cvar_t *Cvar_Set2( const char *var_name, const char *value, qboolean force ) {
 				if ( strcmp( value, var->latchedString ) == 0 ) {
 					return var;
 				}
-				Z_Free( var->latchedString );
+				free( var->latchedString );
 			} else
 			{
 				if ( strcmp( value, var->string ) == 0 ) {
@@ -360,7 +360,7 @@ cvar_t *Cvar_Set2( const char *var_name, const char *value, qboolean force ) {
 	} else
 	{
 		if ( var->latchedString ) {
-			Z_Free( var->latchedString );
+			free( var->latchedString );
 			var->latchedString = NULL;
 		}
 	}
@@ -372,7 +372,7 @@ cvar_t *Cvar_Set2( const char *var_name, const char *value, qboolean force ) {
 	var->modified = qtrue;
 	var->modificationCount++;
 
-	Z_Free( var->string );   // free the old value string
+	free( var->string );   // free the old value string
 
 	var->string = CopyString( value );
 	var->value = atof( var->string );
@@ -408,9 +408,9 @@ void Cvar_SetValue( const char *var_name, float value ) {
 	char val[32];
 
 	if ( value == (int)value ) {
-		Com_sprintf( val, sizeof( val ), "%i",(int)value );
+		snprintf( val, sizeof( val ), "%i",(int)value );
 	} else {
-		Com_sprintf( val, sizeof( val ), "%f",value );
+		snprintf( val, sizeof( val ), "%f",value );
 	}
 	Cvar_Set( var_name, val );
 }
@@ -630,9 +630,9 @@ void Cvar_WriteVariables( fileHandle_t f ) {
 		if ( var->flags & CVAR_ARCHIVE ) {
 			// write the latched value, even if it hasn't taken effect yet
 			if ( var->latchedString ) {
-				Com_sprintf( buffer, sizeof( buffer ), "seta %s \"%s\"\n", var->name, var->latchedString );
+				snprintf( buffer, sizeof( buffer ), "seta %s \"%s\"\n", var->name, var->latchedString );
 			} else {
-				Com_sprintf( buffer, sizeof( buffer ), "seta %s \"%s\"\n", var->name, var->string );
+				snprintf( buffer, sizeof( buffer ), "seta %s \"%s\"\n", var->name, var->string );
 			}
 			FS_Printf( f, "%s", buffer );
 		}
@@ -734,16 +734,16 @@ void Cvar_Restart_f( void ) {
 		if ( var->flags & CVAR_USER_CREATED ) {
 			*prev = var->next;
 			if ( var->name ) {
-				Z_Free( var->name );
+				free( var->name );
 			}
 			if ( var->string ) {
-				Z_Free( var->string );
+				free( var->string );
 			}
 			if ( var->latchedString ) {
-				Z_Free( var->latchedString );
+				free( var->latchedString );
 			}
 			if ( var->resetString ) {
-				Z_Free( var->resetString );
+				free( var->resetString );
 			}
 			// clear the var completely, since we
 			// can't remove the index from the list

@@ -64,7 +64,7 @@ winding_t   *AllocWinding( int points ) {
 	}
 
 	s = sizeof( vec_t ) * 3 * points + sizeof( int );
-	w = Z_Malloc( s );
+	w = calloc(1, s );
 	Com_Memset( w, 0, s );
 	return w;
 }
@@ -76,7 +76,7 @@ void FreeWinding( winding_t *w ) {
 	*(unsigned *)w = 0xdeaddead;
 
 	c_active_windings--;
-	Z_Free( w );
+	free( w );
 }
 
 /*

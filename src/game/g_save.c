@@ -1059,10 +1059,6 @@ qboolean G_SaveGame( char *username ) {
 		return qtrue;
 	}
 
-	if ( g_gametype.integer != GT_SINGLE_PLAYER ) {    // don't allow saves in MP
-		return qtrue;
-	}
-
 	G_DPrintf( "G_SaveGame '%s'\n", username );
 
 	// update the playtime
@@ -1083,7 +1079,7 @@ qboolean G_SaveGame( char *username ) {
 	saveByteCount = 0;
 
 	// open the file
-	Com_sprintf( filename, MAX_QPATH, "save\\temp.svg", username );
+	snprintf( filename, MAX_QPATH, "save\\temp.svg" );
 	if ( trap_FS_FOpenFile( filename, &f, FS_WRITE ) < 0 ) {
 		G_Error( "G_SaveGame: cannot open file for saving\n" );
 	}
@@ -1100,7 +1096,7 @@ qboolean G_SaveGame( char *username ) {
 
 	// write the mapname
 	trap_Cvar_Register( &mapname, "mapname", "", CVAR_SERVERINFO | CVAR_ROM );
-	Com_sprintf( mapstr, MAX_QPATH, mapname.string );
+	snprintf( mapstr, MAX_QPATH, mapname.string );
 	if ( !G_SaveWrite( mapstr, MAX_QPATH, f ) ) {
 		G_SaveWriteError();
 	}
@@ -1148,16 +1144,16 @@ qboolean G_SaveGame( char *username ) {
 
 	trap_Cvar_VariableStringBuffer( "svg_timestring", leveltime, sizeof( leveltime ) );
 	if ( !strlen( leveltime ) ) {
-		Com_sprintf( leveltime, sizeof( leveltime ), "Leveltime" );
+		snprintf( leveltime, sizeof( leveltime ), "Leveltime" );
 	}
 
 	trap_Cvar_VariableStringBuffer( "svg_healthstring", healthstr, sizeof( healthstr ) );
 	if ( !strlen( healthstr ) ) {
-		Com_sprintf( healthstr, sizeof( healthstr ), "Health" );
+		snprintf( healthstr, sizeof( healthstr ), "Health" );
 	}
 
 
-	Com_sprintf( infoString, sizeof( infoString ), "%s\n%s: %s\n%s: %i",
+	snprintf( infoString, sizeof( infoString ), "%s\n%s: %s\n%s: %i",
 				 mapstr,
 				 leveltime,
 
@@ -1296,7 +1292,7 @@ qboolean G_SaveGame( char *username ) {
 	trap_FS_FCloseFile( f );
 
 	// now rename the file to the actual file
-	Com_sprintf( mapstr, MAX_QPATH, "save\\%s.svg", username );
+	snprintf( mapstr, MAX_QPATH, "save\\%s.svg", username );
 	trap_FS_Rename( filename, mapstr );
 
 	// double check that it saved ok
@@ -1723,7 +1719,7 @@ qboolean G_SavePersistant( char *nextmap ) {
 	saveByteCount = 0;
 
 	// open the file
-	Com_sprintf( filename, MAX_QPATH, "save\\temp.psw" );
+	snprintf( filename, MAX_QPATH, "save\\temp.psw" );
 	if ( trap_FS_FOpenFile( filename, &f, FS_WRITE ) < 0 ) {
 		G_Error( "G_SavePersistant: cannot open '%s' for saving\n", filename );
 	}
@@ -1748,7 +1744,7 @@ qboolean G_SavePersistant( char *nextmap ) {
 	trap_FS_FCloseFile( f );
 
 	// now check that it is the correct size
-	Com_sprintf( filename, MAX_QPATH, "save\\temp.psw" );
+	snprintf( filename, MAX_QPATH, "save\\temp.psw" );
 	if ( trap_FS_FOpenFile( filename, &f, FS_READ ) < saveByteCount ) {
 		trap_FS_FCloseFile( f );
 		G_SaveWriteError();
@@ -1760,7 +1756,7 @@ qboolean G_SavePersistant( char *nextmap ) {
 	trap_FS_Rename( "save\\temp.psw", "save\\current.psw" );
 
 	// now check that it is the correct size
-	Com_sprintf( filename, MAX_QPATH, "save\\current.psw" );
+	snprintf( filename, MAX_QPATH, "save\\current.psw" );
 	if ( trap_FS_FOpenFile( filename, &f, FS_READ ) < saveByteCount ) {
 		trap_FS_FCloseFile( f );
 		G_SaveWriteError();

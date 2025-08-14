@@ -702,40 +702,6 @@ time_t Com_RealTime( qtime_t *qtime ) {
 	return t;
 }
 
-
-/*
-==============================================================================
-
-						ZONE MEMORY ALLOCATION
-
-==============================================================================
-
-  The old zone is gone, mallocs replaced it. To keep the widespread code changes down to a bare minimum
-  Z_Malloc and Z_Free still work.
-*/
-
-
-/*
-========================
-Z_Free
-========================
-*/
-void Z_Free( void *ptr ) {
-	free( ptr );
-}
-
-
-/*
-================
-Z_Malloc
-================
-*/
-void *Z_Malloc( int size ) {
-	void *buf = malloc( size );
-	Com_Memset( buf, 0, size );
-	return buf;
-}
-
 /*
 ========================
 CopyString
@@ -747,7 +713,7 @@ CopyString
 char *CopyString( const char *in ) {
 	char    *out;
 
-	out = Z_Malloc( strlen( in ) + 1 );
+	out = calloc(1,  strlen( in ) + 1 );
 	strcpy( out, in );
 	return out;
 }
@@ -975,7 +941,7 @@ void Com_QueueEvent( int time, sysEventType_t type, int value, int value2, int p
 		// we are discarding an event, but don't leak memory
 		if ( ev->evPtr )
 		{
-			Z_Free( ev->evPtr );
+			free( ev->evPtr );
 		}
 		eventTail++;
 	}
@@ -1022,7 +988,7 @@ sysEvent_t Com_GetSystemEvent( void )
 		int   len;
 
 		len = strlen( s ) + 1;
-		b = Z_Malloc( len );
+		b = calloc( len );
 		strcpy( b, s );
 		Com_QueueEvent( 0, SE_CONSOLE, 0, 0, len, b );
 	}
@@ -1058,7 +1024,7 @@ sysEvent_t  Com_GetRealEvent( void ) {
 			Com_Error( ERR_FATAL, "Error reading from journal file" );
 		}
 		if ( ev.evPtrLength ) {
-			ev.evPtr = Z_Malloc( ev.evPtrLength );
+			ev.evPtr = calloc(1,  ev.evPtrLength );
 			r = FS_Read( ev.evPtr, ev.evPtrLength, com_journalFile );
 			if ( r != ev.evPtrLength ) {
 				Com_Error( ERR_FATAL, "Error reading from journal file" );
@@ -1123,7 +1089,7 @@ void Com_PushEvent( sysEvent_t *event ) {
 		}
 
 		if ( ev->evPtr ) {
-			Z_Free( ev->evPtr );
+			free( ev->evPtr );
 		}
 		com_pushedEventsTail++;
 	} else {
@@ -1267,7 +1233,7 @@ int Com_EventLoop( void ) {
 
 		// free any block data
 		if ( ev.evPtr ) {
-			Z_Free( ev.evPtr );
+			free( ev.evPtr );
 		}
 	}
 
@@ -2017,7 +1983,7 @@ void Field_CompleteCommand( field_t *field ) {
 	Com_Memcpy( &temp, completionField, sizeof( field_t ) );
 
 	if ( matchCount == 1 ) {
-		Com_sprintf( completionField->buffer, sizeof( completionField->buffer ), "\\%s", shortestMatch );
+		snprintf( completionField->buffer, sizeof( completionField->buffer ), "\\%s", shortestMatch );
 		if ( Cmd_Argc() == 1 ) {
 			Q_strcat( completionField->buffer, sizeof( completionField->buffer ), " " );
 		} else {
@@ -2028,7 +1994,7 @@ void Field_CompleteCommand( field_t *field ) {
 	}
 
 	// multiple matches, complete to shortest
-	Com_sprintf( completionField->buffer, sizeof( completionField->buffer ), "\\%s", shortestMatch );
+	snprintf( completionField->buffer, sizeof( completionField->buffer ), "\\%s", shortestMatch );
 	completionField->cursor = strlen( completionField->buffer );
 	ConcatRemaining( temp.buffer, completionString );
 

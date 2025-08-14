@@ -53,29 +53,7 @@ LAN_LoadCachedServers
 ====================
 */
 void LAN_LoadCachedServers() {
-	// TTimo: stub, this is only relevant to MP, SP kills the servercache.dat (and favorites)
-	// show_bug.cgi?id=445
-	/*
-	  int size;
-	  fileHandle_t fileIn;
-	  cls.numglobalservers = cls.nummplayerservers = cls.numfavoriteservers = 0;
-	  cls.numGlobalServerAddresses = 0;
-	  if (FS_SV_FOpenFileRead("servercache.dat", &fileIn)) {
-		  FS_Read(&cls.numglobalservers, sizeof(int), fileIn);
-		  FS_Read(&cls.nummplayerservers, sizeof(int), fileIn);
-		  FS_Read(&cls.numfavoriteservers, sizeof(int), fileIn);
-		  FS_Read(&size, sizeof(int), fileIn);
-		  if (size == sizeof(cls.globalServers) + sizeof(cls.favoriteServers) + sizeof(cls.mplayerServers)) {
-			  FS_Read(&cls.globalServers, sizeof(cls.globalServers), fileIn);
-			  FS_Read(&cls.mplayerServers, sizeof(cls.mplayerServers), fileIn);
-			  FS_Read(&cls.favoriteServers, sizeof(cls.favoriteServers), fileIn);
-		  } else {
-			  cls.numglobalservers = cls.nummplayerservers = cls.numfavoriteservers = 0;
-			  cls.numGlobalServerAddresses = 0;
-		  }
-		  FS_FCloseFile(fileIn);
-	  }
-	*/
+	
 }
 
 /*
@@ -84,29 +62,7 @@ LAN_SaveServersToCache
 ====================
 */
 void LAN_SaveServersToCache() {
-	// TTimo: stub, this is only relevant to MP, SP kills the servercache.dat (and favorites)
-	// show_bug.cgi?id=445
-	/*
-	  int size;
-	  fileHandle_t fileOut;
-  #ifdef __MACOS__	//DAJ MacOS file typing
-	  {
-		  extern _MSL_IMP_EXP_C long _fcreator, _ftype;
-		  _ftype = 'WlfB';
-		  _fcreator = 'WlfS';
-	  }
-  #endif
-	  fileOut = FS_SV_FOpenFileWrite("servercache.dat");
-	  FS_Write(&cls.numglobalservers, sizeof(int), fileOut);
-	  FS_Write(&cls.nummplayerservers, sizeof(int), fileOut);
-	  FS_Write(&cls.numfavoriteservers, sizeof(int), fileOut);
-	  size = sizeof(cls.globalServers) + sizeof(cls.favoriteServers) + sizeof(cls.mplayerServers);
-	  FS_Write(&size, sizeof(int), fileOut);
-	  FS_Write(&cls.globalServers, sizeof(cls.globalServers), fileOut);
-	  FS_Write(&cls.mplayerServers, sizeof(cls.mplayerServers), fileOut);
-	  FS_Write(&cls.favoriteServers, sizeof(cls.favoriteServers), fileOut);
-	  FS_FCloseFile(fileOut);
-	*/
+	
 }
 
 
@@ -632,7 +588,7 @@ void GetClipboardData( char *buf, int buflen ) {
 
 	Q_strncpyz( buf, cbd, buflen );
 
-	Z_Free( cbd );
+	free( cbd );
 }
 
 /*

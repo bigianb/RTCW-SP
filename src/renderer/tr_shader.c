@@ -1164,7 +1164,7 @@ static void ParseSkyParms( char **text ) {
 	}
 	if ( strcmp( token, "-" ) ) {
 		for ( i = 0 ; i < 6 ; i++ ) {
-			Com_sprintf( pathname, sizeof( pathname ), "%s_%s.tga"
+			snprintf( pathname, sizeof( pathname ), "%s_%s.tga"
 						 , token, suf[i] );
 			shader.sky.outerbox[i] = R_FindImageFile( ( char * ) pathname, qtrue, qtrue, GL_CLAMP );
 			if ( !shader.sky.outerbox[i] ) {
@@ -1194,7 +1194,7 @@ static void ParseSkyParms( char **text ) {
 	}
 	if ( strcmp( token, "-" ) ) {
 		for ( i = 0 ; i < 6 ; i++ ) {
-			Com_sprintf( pathname, sizeof( pathname ), "%s_%s.tga"
+			snprintf( pathname, sizeof( pathname ), "%s_%s.tga"
 						 , token, suf[i] );
 			shader.sky.innerbox[i] = R_FindImageFile( ( char * ) pathname, qtrue, qtrue, GL_CLAMP );
 			if ( !shader.sky.innerbox[i] ) {
@@ -1591,10 +1591,10 @@ static qboolean ParseShader( char **text ) {
 			if ( fogvar == 0 ) {       // '0' specifies "use the map values for everything except the fog color
 				// TODO
 			} else if ( fogvar > 1 )      { // distance "linear" fog
-				Com_sprintf( fogString, sizeof( fogString ), "0 %d 1.1 %f %f %f 200", (int)fogvar, watercolor[0], watercolor[1], watercolor[2] );
+				snprintf( fogString, sizeof( fogString ), "0 %d 1.1 %f %f %f 200", (int)fogvar, watercolor[0], watercolor[1], watercolor[2] );
 //				R_SetFog(FOG_WATER, 0, fogvar, watercolor[0], watercolor[1], watercolor[2], 1.1);
 			} else {                      // density "exp" fog
-				Com_sprintf( fogString, sizeof( fogString ), "0 5 %f %f %f %f 200", fogvar, watercolor[0], watercolor[1], watercolor[2] );
+				snprintf( fogString, sizeof( fogString ), "0 5 %f %f %f %f 200", fogvar, watercolor[0], watercolor[1], watercolor[2] );
 //				R_SetFog(FOG_WATER, 0, 5, watercolor[0], watercolor[1], watercolor[2], fogvar);
 			}
 
@@ -2979,7 +2979,7 @@ static void ScanAndLoadShaderFiles( void ) {
 	{
 		char filename[MAX_QPATH];
 
-		Com_sprintf( filename, sizeof( filename ), "scripts/%s", shaderFiles[i] );
+		snprintf( filename, sizeof( filename ), "scripts/%s", shaderFiles[i] );
 		ri.Printf( PRINT_ALL, "...loading '%s'\n", filename );
 		sum += ri.FS_ReadFile( filename, (void **)&buffers[i] );
 		if ( !buffers[i] ) {
