@@ -1121,13 +1121,6 @@ static void CG_RegisterGraphics( void ) {
 	cgs.media.backTileShader = trap_R_RegisterShader( "gfx/2d/backtile" );
 	cgs.media.noammoShader = trap_R_RegisterShader( "icons/noammo" );
 
-	// DHM - Nerve :: Allow flags again, will change later to more appropriate models
-	if ( cgs.gametype == GT_CTF || cgs.gametype == GT_WOLF || cg_buildScript.integer ) {
-		cgs.media.redFlagModel = trap_R_RegisterModel( "models/flags/r_flag.md3" );
-		//cgs.media.redFlagModel = trap_R_RegisterModel( "models/powerups/keys/chalice.md3" );
-		cgs.media.blueFlagModel = trap_R_RegisterModel( "models/flags/b_flag.md3" );
-	}
-
 	CG_LoadingString( " - models" );
 
 	cgs.media.machinegunBrassModel = trap_R_RegisterModel( "models/weapons2/shells/m_shell.md3" );

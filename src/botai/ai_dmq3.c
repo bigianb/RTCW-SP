@@ -95,137 +95,6 @@ float lastteleport_time;
 //true when the map changed
 int max_bspmodelindex;  //maximum BSP model index
 
-//CTF flag goals
-bot_goal_t ctf_redflag;
-bot_goal_t ctf_blueflag;
-
-#ifdef CTF
-/*
-==================
-BotCTFCarryingFlag
-==================
-*/
-int BotCTFCarryingFlag( bot_state_t *bs ) {
-	if ( gametype != GT_CTF ) {
-		return CTF_FLAG_NONE;
-	}
-
-	if ( bs->inventory[INVENTORY_REDFLAG] > 0 ) {
-		return CTF_FLAG_RED;
-	} else if ( bs->inventory[INVENTORY_BLUEFLAG] > 0 ) {
-		return CTF_FLAG_BLUE;
-	}
-	return CTF_FLAG_NONE;
-}
-
-/*
-==================
-BotCTFTeam
-==================
-*/
-int BotCTFTeam( bot_state_t *bs ) {
-	char skin[128], *p;
-
-	if ( gametype != GT_CTF ) {
-		return CTF_TEAM_NONE;
-	}
-	ClientSkin( bs->client, skin, sizeof( skin ) );
-	p = strchr( skin, '/' );
-	if ( !p ) {
-		p = skin;
-	} else { p++;}
-	if ( Q_stricmp( p, CTF_SKIN_REDTEAM ) == 0 ) {
-		return CTF_TEAM_RED;
-	}
-	if ( Q_stricmp( p, CTF_SKIN_BLUETEAM ) == 0 ) {
-		return CTF_TEAM_BLUE;
-	}
-	return CTF_TEAM_NONE;
-}
-
-/*
-==================
-BotCTFRetreatGoals
-==================
-*/
-void BotCTFRetreatGoals( bot_state_t *bs ) {
-	//when carrying a flag in ctf the bot should rush to the base
-	if ( BotCTFCarryingFlag( bs ) ) {
-		//if not already rushing to the base
-		if ( bs->ltgtype != LTG_RUSHBASE ) {
-			bs->ltgtype = LTG_RUSHBASE;
-			bs->teamgoal_time = trap_AAS_Time() + CTF_RUSHBASE_TIME;
-			bs->rushbaseaway_time = 0;
-		}
-	}
-}
-
-/*
-==================
-BotCTFSeekGoals
-==================
-*/
-void BotCTFSeekGoals( bot_state_t *bs ) {
-	float rnd;
-
-	//when carrying a flag in ctf the bot should rush to the base
-	if ( BotCTFCarryingFlag( bs ) ) {
-		//if not already rushing to the base
-		if ( bs->ltgtype != LTG_RUSHBASE ) {
-			bs->ltgtype = LTG_RUSHBASE;
-			bs->teamgoal_time = trap_AAS_Time() + CTF_RUSHBASE_TIME;
-			bs->rushbaseaway_time = 0;
-		}
-		return;
-	}
-	//if the bot is roaming
-	if ( bs->ctfroam_time > trap_AAS_Time() ) {
-		return;
-	}
-	//if already a CTF or team goal
-	if ( bs->ltgtype == LTG_TEAMHELP ||
-		 bs->ltgtype == LTG_TEAMACCOMPANY ||
-		 bs->ltgtype == LTG_DEFENDKEYAREA ||
-		 bs->ltgtype == LTG_GETFLAG ||
-		 bs->ltgtype == LTG_RUSHBASE ||
-		 bs->ltgtype == LTG_CAMPORDER ||
-		 bs->ltgtype == LTG_PATROL ) {
-		return;
-	}
-	//if the bot has anough aggression to decide what to do
-	if ( BotAggression( bs ) < 50 ) {
-		return;
-	}
-	//set the time to send a message to the team mates
-	bs->teammessage_time = trap_AAS_Time() + 2 * random();
-	//get the flag or defend the base
-	rnd = random();
-	if ( rnd < 0.33 && ctf_redflag.areanum && ctf_blueflag.areanum ) {
-		bs->ltgtype = LTG_GETFLAG;
-		//set the time the bot will stop getting the flag
-		bs->teamgoal_time = trap_AAS_Time() + CTF_GETFLAG_TIME;
-	} else if ( rnd < 0.66 && ctf_redflag.areanum && ctf_blueflag.areanum )     {
-		//FIXME: do not always use the base flag
-		if ( BotCTFTeam( bs ) == CTF_TEAM_RED ) {
-			memcpy( &bs->teamgoal, &ctf_redflag, sizeof( bot_goal_t ) );
-		} else { memcpy( &bs->teamgoal, &ctf_blueflag, sizeof( bot_goal_t ) );}
-		//set the ltg type
-		bs->ltgtype = LTG_DEFENDKEYAREA;
-		//set the time the bot stop defending the base
-		bs->teamgoal_time = trap_AAS_Time() + TEAM_DEFENDKEYAREA_TIME;
-		bs->defendaway_time = 0;
-	} else {
-		bs->ltgtype = 0;
-		//set the time the bot will stop roaming
-		bs->ctfroam_time = trap_AAS_Time() + CTF_ROAM_TIME;
-	}
-#ifdef DEBUG
-	BotPrintTeamGoal( bs );
-#endif //DEBUG
-}
-
-#endif //CTF
-
 /*
 ==================
 BotPointAreaNum
@@ -827,16 +696,7 @@ BotWantsToRetreat
 ==================
 */
 int BotWantsToRetreat( bot_state_t *bs ) {
-#ifdef CTF
-	//always retreat when carrying a CTF flag
-	if ( BotCTFCarryingFlag( bs ) ) {
-		return qtrue;
-	}
-	//if the bot is getting the flag
-	if ( bs->ltgtype == LTG_GETFLAG ) {
-		return qtrue;
-	}
-#endif //CTF
+
 	if ( BotAggression( bs ) < 50 ) {
 		return qtrue;
 	}
@@ -849,16 +709,7 @@ BotWantsToChase
 ==================
 */
 int BotWantsToChase( bot_state_t *bs ) {
-#ifdef CTF
-	//always retreat when carrying a CTF flag
-	if ( BotCTFCarryingFlag( bs ) ) {
-		return qfalse;
-	}
-	//if the bot is getting the flag
-	if ( bs->ltgtype == LTG_GETFLAG ) {
-		return qfalse;
-	}
-#endif //CTF
+
 	if ( BotAggression( bs ) > 50 ) {
 		return qtrue;
 	}
@@ -2537,9 +2388,7 @@ void BotCheckConsoleMessages( bot_state_t *bs ) {
 		trap_UnifyWhiteSpaces( m.message );
 		//replace synonyms in the right context
 		context = CONTEXT_NORMAL | CONTEXT_NEARBYITEM | CONTEXT_NAMES;
-		if ( BotCTFTeam( bs ) == CTF_TEAM_RED ) {
-			context |= CONTEXT_CTFREDTEAM;
-		} else { context |= CONTEXT_CTFBLUETEAM;}
+
 		trap_BotReplaceSynonyms( m.message, context );
 		//if there's no match
 		if ( !BotMatchMessage( bs, m.message ) ) {
@@ -2866,15 +2715,6 @@ void BotSetupDeathmatchAI( void ) {
 	trap_Cvar_Register( &bot_fastchat, "bot_fastchat", "0", 0 );
 	trap_Cvar_Register( &bot_nochat, "bot_nochat", "0", 0 );
 	trap_Cvar_Register( &bot_testrchat, "bot_testrchat", "0", 0 );
-	//
-	if ( gametype == GT_CTF ) {
-		if ( trap_BotGetLevelItemGoal( -1, "Red Flag", &ctf_redflag ) < 0 ) {
-			BotAI_Print( PRT_WARNING, "CTF without Red Flag\n" );
-		}
-		if ( trap_BotGetLevelItemGoal( -1, "Blue Flag", &ctf_blueflag ) < 0 ) {
-			BotAI_Print( PRT_WARNING, "CTF without Blue Flag\n" );
-		}
-	}
 
 	max_bspmodelindex = 0;
 	for ( ent = trap_AAS_NextBSPEntity( 0 ); ent; ent = trap_AAS_NextBSPEntity( ent ) ) {

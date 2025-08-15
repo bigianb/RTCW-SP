@@ -63,16 +63,16 @@ bool DelRef() {      // True if killed
 	return false;
 }
 
-int len;
+size_t len;
 int refcount;
 char *data;
-int alloced;
+size_t alloced;
 };
 
 class idStr {
 protected:
 strdata *m_data;
-void EnsureAlloced( int, bool keepold = true );
+void EnsureAlloced( size_t, bool keepold = true );
 void EnsureDataWritable();
 
 public:
@@ -173,12 +173,11 @@ inline idStr::idStr
 (
 	const char *text
 ) : m_data( NULL ) {
-	int len;
 
 	assert( text );
 
 	if ( text ) {
-		len = strlen( text );
+		size_t len = strlen( text );
 		EnsureAlloced( len + 1 );
 		strcpy( m_data->data, text );
 		m_data->len = len;

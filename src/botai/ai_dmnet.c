@@ -680,76 +680,6 @@ int BotGetLongTermGoal( bot_state_t *bs, int tfl, int retreat, bot_goal_t *goal 
 		memcpy( goal, &bs->curpatrolpoint->goal, sizeof( bot_goal_t ) );
 		return qtrue;
 	}
-#ifdef CTF
-	//if going for enemy flag
-	if ( bs->ltgtype == LTG_GETFLAG ) {
-		//check for bot typing status message
-		if ( bs->teammessage_time && bs->teammessage_time < trap_AAS_Time() ) {
-			BotAI_BotInitialChat( bs, "captureflag_start", NULL );
-			trap_BotEnterChat( bs->cs, bs->client, CHAT_TEAM );
-			bs->teammessage_time = 0;
-		}
-		//
-		switch ( BotCTFTeam( bs ) ) {
-		case CTF_TEAM_RED: *goal = ctf_blueflag; break;
-		case CTF_TEAM_BLUE: *goal = ctf_redflag; break;
-		default: bs->ltgtype = 0; return qfalse;
-		}
-		//if touching the flag
-		if ( trap_BotTouchingGoal( bs->origin, goal ) ) {
-			bs->ltgtype = 0;
-		}
-		//stop after 3 minutes
-		if ( bs->teamgoal_time < trap_AAS_Time() ) {
-#ifdef DEBUG
-			BotAI_Print( PRT_MESSAGE, "%s: I quit getting the flag\n", ClientName( bs->client, netname, sizeof( netname ) ) );
-#endif //DEBUG
-			bs->ltgtype = 0;
-		}
-		return qtrue;
-	}
-	//if rushing to the base
-	if ( bs->ltgtype == LTG_RUSHBASE && bs->rushbaseaway_time < trap_AAS_Time() ) {
-		switch ( BotCTFTeam( bs ) ) {
-		case CTF_TEAM_RED: *goal = ctf_redflag; break;
-		case CTF_TEAM_BLUE: *goal = ctf_blueflag; break;
-		default: bs->ltgtype = 0; return qfalse;
-		}
-		//quit rushing after 2 minutes
-		if ( bs->teamgoal_time < trap_AAS_Time() ) {
-			bs->ltgtype = 0;
-		}
-		//if touching the base flag the bot should loose the enemy flag
-		if ( trap_BotTouchingGoal( bs->origin, goal ) ) {
-			//if the bot is still carrying the enemy flag then the
-			//base flag is gone, now just walk near the base a bit
-			if ( BotCTFCarryingFlag( bs ) ) {
-				trap_BotResetAvoidReach( bs->ms );
-				bs->rushbaseaway_time = trap_AAS_Time() + 5 + 10 * random();
-				//FIXME: add chat to tell the others to get back the flag
-			} else {
-				bs->ltgtype = 0;
-			}
-		}
-		return qtrue;
-	}
-	//returning flag
-	if ( bs->ltgtype == LTG_RETURNFLAG ) {
-		//check for bot typing status message
-		if ( bs->teammessage_time && bs->teammessage_time < trap_AAS_Time() ) {
-			EasyClientName( bs->teamgoal.entitynum, buf, sizeof( buf ) );
-			BotAI_BotInitialChat( bs, "returnflag_start", buf, NULL );
-			trap_BotEnterChat( bs->cs, bs->client, CHAT_TEAM );
-			bs->teammessage_time = 0;
-		}
-		//
-		if ( bs->teamgoal_time < trap_AAS_Time() ) {
-			bs->ltgtype = 0;
-		}
-		//just roam around
-		return BotGetItemLongTermGoal( bs, tfl, goal );
-	}
-#endif //CTF
 	   //normal goal stuff
 	return BotGetItemLongTermGoal( bs, tfl, goal );
 }
@@ -1348,12 +1278,7 @@ int AINode_Seek_LTG( bot_state_t *bs ) {
 			return qfalse;
 		}
 	}
-#ifdef CTF
-	if ( gametype == GT_CTF ) {
-		//decide what to do in CTF mode
-		BotCTFSeekGoals( bs );
-	}
-#endif //CTF
+
 	   //get the current long term goal
 	if ( !BotLongTermGoal( bs, bs->tfl, qfalse, &goal ) ) {
 		return qtrue;
@@ -1368,13 +1293,7 @@ int AINode_Seek_LTG( bot_state_t *bs ) {
 			range = 400;
 		} else { range = 150;}
 		//
-#ifdef CTF
-		//if carrying a flag the bot shouldn't be distracted too much
-		if ( BotCTFCarryingFlag( bs ) ) {
-			range = 50;
-		}
-#endif //CTF
-	   //
+
 		if ( BotNearbyGoal( bs, bs->tfl, &goal, range ) ) {
 			trap_BotResetLastAvoidReach( bs->ms );
 			//get the goal at the top of the stack
@@ -1827,12 +1746,7 @@ int AINode_Battle_Retreat( bot_state_t *bs ) {
 			return qfalse;
 		}
 	}
-	//
-#ifdef CTF
-	if ( gametype == GT_CTF ) {
-		BotCTFRetreatGoals( bs );
-	}
-#endif //CTF
+
 	   //use holdable items
 	BotBattleUseItems( bs );
 	//get the current long term goal while retreating
@@ -1843,13 +1757,7 @@ int AINode_Battle_Retreat( bot_state_t *bs ) {
 	if ( bs->check_time < trap_AAS_Time() ) {
 		bs->check_time = trap_AAS_Time() + 1;
 		range = 150;
-#ifdef CTF
-		//if carrying a flag the bot shouldn't be distracted too much
-		if ( BotCTFCarryingFlag( bs ) ) {
-			range = 100;
-		}
-#endif //CTF
-	   //
+
 		if ( BotNearbyGoal( bs, bs->tfl, &goal, range ) ) {
 			trap_BotResetLastAvoidReach( bs->ms );
 			//time the bot gets to pick up the nearby goal item

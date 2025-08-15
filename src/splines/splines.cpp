@@ -92,12 +92,6 @@ void startCamera( int camNum, int time ) {
 
 }
 
-
-//#include "../shared/windings.h"
-//#include "../qcommon/qcommon.h"
-//#include "../sys/sys_public.h"
-//#include "../game/game_entity.h"
-
 idCameraDef splineList;
 idCameraDef *g_splineList = &splineList;
 
@@ -771,9 +765,6 @@ void idCameraDef::startCamera( long t ) {
 	cameraPosition->start( t );
 	buildCamera();
 	fov.reset( 90, 90, t, 0 );
-	//for (int i = 0; i < targetPositions.Num(); i++) {
-	//	targetPositions[i]->
-	//}
 	startTime = t;
 	cameraRunning = true;
 }

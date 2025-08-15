@@ -265,7 +265,7 @@ void  Com_Error( int code, const char *fmt, ... ) {
 	com_errorEntered = qtrue;
 
 	va_start( argptr,fmt );
-	vsprintf( com_errorMessage,fmt,argptr );
+	vsnprintf( com_errorMessage, MAXPRINTMSG, fmt,argptr );
 	va_end( argptr );
 
 	if ( code != ERR_DISCONNECT && code != ERR_ENDGAME ) {
@@ -469,19 +469,17 @@ qboolean Com_AddStartupCommands( void ) {
 void Info_Print( const char *s ) {
 	char key[512];
 	char value[512];
-	char    *o;
-	int l;
 
 	if ( *s == '\\' ) {
 		s++;
 	}
 	while ( *s )
 	{
-		o = key;
+		char* o = key;
 		while ( *s && *s != '\\' )
 			*o++ = *s++;
 
-		l = o - key;
+        size_t l = o - key;
 		if ( l < 20 ) {
 			memset( o, ' ', 20 - l );
 			key[20] = 0;
@@ -514,11 +512,11 @@ Com_StringContains
 ============
 */
 char *Com_StringContains( char *str1, char *str2, int casesensitive ) {
-	int len, i, j;
 
-	len = strlen( str1 ) - strlen( str2 );
-	for ( i = 0; i <= len; i++, str1++ ) {
-		for ( j = 0; str2[j]; j++ ) {
+	size_t len = strlen( str1 ) - strlen( str2 );
+	for (int i = 0; i <= len; i++, str1++ ) {
+        int j;
+		for (j = 0; str2[j]; j++ ) {
 			if ( casesensitive ) {
 				if ( str1[j] != str2[j] ) {
 					break;
@@ -979,20 +977,6 @@ sysEvent_t Com_GetSystemEvent( void )
 		return eventQueue[ ( eventTail - 1 ) & MASK_QUEUED_EVENTS ];
 	}
 
-	// check for console commands
-	/*
-	s = Sys_ConsoleInput();
-	if ( s )
-	{
-		char  *b;
-		int   len;
-
-		len = strlen( s ) + 1;
-		b = calloc( len );
-		strcpy( b, s );
-		Com_QueueEvent( 0, SE_CONSOLE, 0, 0, len, b );
-	}
-*/
 
 	// return if we have data
 	if ( eventHead > eventTail )
@@ -1014,7 +998,7 @@ Com_GetRealEvent
 =================
 */
 sysEvent_t  Com_GetRealEvent( void ) {
-	int r;
+	size_t r;
 	sysEvent_t ev;
 
 	// either get an event from the system or the journal file
@@ -1197,38 +1181,7 @@ int Com_EventLoop( void ) {
 			Cbuf_AddText( (char *)ev.evPtr );
 			Cbuf_AddText( "\n" );
 			break;
-/*
-		case SE_PACKET:
-			// this cvar allows simulation of connections that
-			// drop a lot of packets.  Note that loopback connections
-			// don't go through here at all.
-			if ( com_dropsim->value > 0 ) {
-				static int seed;
 
-				if ( Q_random( &seed ) < com_dropsim->value ) {
-					break;      // drop this packet
-				}
-			}
-
-			evFrom = *(netadr_t *)ev.evPtr;
-			buf.cursize = ev.evPtrLength - sizeof( evFrom );
-
-			// we must copy the contents of the message out, because
-			// the event buffers are only large enough to hold the
-			// exact payload, but channel messages need to be large
-			// enough to hold fragment reassembly
-			if ( (unsigned)buf.cursize > buf.maxsize ) {
-				Com_Printf( "Com_EventLoop: oversize packet\n" );
-				continue;
-			}
-			memcpy( buf.data, ( byte * )( (netadr_t *)ev.evPtr + 1 ), buf.cursize );
-			if ( com_sv_running->integer ) {
-				Com_RunAndTimeServerPacket( &evFrom, &buf );
-			} else {
-				CL_PacketEvent( evFrom, &buf );
-			}
-			break;
-*/
 		}
 
 		// free any block data
@@ -1421,11 +1374,9 @@ void Com_Init( char *commandLine ) {
 	Com_StartupVariable( NULL );
 
 	// get dedicated here for proper hunk megs initialization
-#ifdef DEDICATED
-	com_dedicated = Cvar_Get( "dedicated", "1", CVAR_ROM );
-#else
+
 	com_dedicated = Cvar_Get( "dedicated", "0", CVAR_LATCH );
-#endif
+
 	// allocate the stack based hunk allocator
 	Com_InitHunkMemory();
 
@@ -1461,10 +1412,6 @@ void Com_Init( char *commandLine ) {
 	com_recommendedSet = Cvar_Get( "com_recommendedSet", "0", CVAR_ARCHIVE );
 
 	Cvar_Get( "savegame_loading", "0", CVAR_ROM );
-
-#if defined( _WIN32 ) && defined( _DEBUG )
-	com_noErrorInterrupt = Cvar_Get( "com_noErrorInterrupt", "0", 0 );
-#endif
 
 	com_hunkused = Cvar_Get( "com_hunkused", "0", 0 );
 
@@ -1542,16 +1489,8 @@ void Com_Init( char *commandLine ) {
 //==================================================================
 
 void Com_WriteConfigToFile( const char *filename ) {
-	fileHandle_t f;
 
-#ifdef __MACOS__    //DAJ MacOS file typing
-	{
-		extern _MSL_IMP_EXP_C long _fcreator, _ftype;
-		_ftype = 'TEXT';
-		_fcreator = 'R*ch';
-	}
-#endif
-	f = FS_FOpenFileWrite( filename );
+    fileHandle_t f = FS_FOpenFileWrite( filename );
 	if ( !f ) {
 		Com_Printf( "Couldn't write %s.\n", filename );
 		return;
@@ -1572,9 +1511,7 @@ Writes key bindings and archived cvars to config file if modified
 ===============
 */
 void Com_WriteConfiguration( void ) {
-#ifndef DEDICATED // bk001204
-	cvar_t  *fs;
-#endif
+
 	// if we are quiting without fully initializing, make sure
 	// we don't write out anything
 	if ( !com_fullyInitialized ) {
@@ -1626,8 +1563,6 @@ int Com_ModifyMsec( int msec ) {
 		msec = com_fixedtime->integer;
 	} else if ( com_timescale->value ) {
 		msec *= com_timescale->value;
-//	} else if (com_cameraMode->integer) {
-//		msec *= com_timescale->value;
 	}
 
 	// don't let it scale below 1 msec
@@ -1913,12 +1848,10 @@ static void PrintMatches( const char *s ) {
 }
 
 static void keyConcatArgs( void ) {
-	int i;
-	char    *arg;
 
-	for ( i = 1 ; i < Cmd_Argc() ; i++ ) {
+	for (int i = 1 ; i < Cmd_Argc() ; i++ ) {
 		Q_strcat( completionField->buffer, sizeof( completionField->buffer ), " " );
-		arg = Cmd_Argv( i );
+		char* arg = Cmd_Argv( i );
 		while ( *arg ) {
 			if ( *arg == ' ' ) {
 				Q_strcat( completionField->buffer, sizeof( completionField->buffer ),  "\"" );

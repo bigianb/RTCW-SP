@@ -260,26 +260,14 @@ int MSG_ReadBits( msg_t *msg, int bits ) {
 //
 
 void MSG_WriteChar( msg_t *sb, int c ) {
-#ifdef PARANOID
-	if ( c < -128 || c > 127 ) {
-		Com_Error( ERR_FATAL, "MSG_WriteChar: range error" );
-	}
-#endif
-
 	MSG_WriteBits( sb, c, 8 );
 }
 
 void MSG_WriteByte( msg_t *sb, int c ) {
-#ifdef PARANOID
-	if ( c < 0 || c > 255 ) {
-		Com_Error( ERR_FATAL, "MSG_WriteByte: range error" );
-	}
-#endif
-
 	MSG_WriteBits( sb, c, 8 );
 }
 
-void MSG_WriteData( msg_t *buf, const void *data, int length ) {
+void MSG_WriteData( msg_t *buf, const void *data, size_t length ) {
 	int i;
 	for ( i = 0; i < length; i++ ) {
 		MSG_WriteByte( buf, ( (byte *)data )[i] );
@@ -287,12 +275,6 @@ void MSG_WriteData( msg_t *buf, const void *data, int length ) {
 }
 
 void MSG_WriteShort( msg_t *sb, int c ) {
-#ifdef PARANOID
-	if ( c < ( (short)0x8000 ) || c > (short)0x7fff ) {
-		Com_Error( ERR_FATAL, "MSG_WriteShort: range error" );
-	}
-#endif
-
 	MSG_WriteBits( sb, c, 16 );
 }
 
@@ -801,8 +783,6 @@ entityState_t communication
 
 #define SMALL_VECTOR_BITS       5       // 32 compressed vectors
 
-// uncomment this define to enable the collection of new network statistics
-//#define	FIND_NEW_CHANGE_VECTORS
 
 typedef struct {
 	int count;
@@ -812,11 +792,9 @@ typedef struct {
 int c_compressedVectors;
 int c_uncompressedVectors;
 
-#ifndef FIND_NEW_CHANGE_VECTORS
+
 int numChangeVectorLogs = ( 1 << SMALL_VECTOR_BITS ) - 1;
-#else
-int numChangeVectorLogs = 0;
-#endif
+
 changeVectorLog_t changeVectorLog[ MAX_CHANGE_VECTOR_LOGS ] =
 {
 	{ 0, { 0x08,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00 } }, // 723 uses in test
@@ -869,79 +847,17 @@ int LookupChangeVector( byte *vector ) {
 			 && ( (int *)vector )[1] == ( (int *)changeVectorLog[i].vector )[1]
 			 && ( (short *)vector )[4] == ( (short *)changeVectorLog[i].vector )[4] ) {
 			changeVectorLog[i].count++;
-#ifdef FIND_NEW_CHANGE_VECTORS
-			return -1;
-#else
 			return i;
-#endif
 		}
 	}
-#ifndef FIND_NEW_CHANGE_VECTORS
 	return -1;      // not found
-#else
-	if ( numChangeVectorLogs == MAX_CHANGE_VECTOR_LOGS ) {
-		return -1;
-	}
-	( (int *)changeVectorLog[i].vector )[0] = ( (int *)vector )[0];
-	( (int *)changeVectorLog[i].vector )[1] = ( (int *)vector )[1];
-	( (short *)changeVectorLog[i].vector )[4] = ( (short *)vector )[4];
-	changeVectorLog[i].count = 1;
-	numChangeVectorLogs++;
-
-	return -1;
-#endif
 }
 
 
-/*
-=================
-MSG_ReportChangeVectors_f
-
-Prints out a table from the current statistics for copying to code
-=================
-*/
-#ifdef FIND_NEW_CHANGE_VECTORS
-static int CompareCV( const void *a, const void *b ) {
-	changeVectorLog_t   *cva, *cvb;
-
-	cva = (changeVectorLog_t *)a;
-	cvb = (changeVectorLog_t *)b;
-
-	if ( cva->count > cvb->count ) {
-		return -1;
-	}
-	if ( cva->count < cvb->count ) {
-		return 1;
-	}
-	return 0;
-}
-#endif
 void MSG_ReportChangeVectors_f( void ) {
-#ifndef FIND_NEW_CHANGE_VECTORS
+
 	Com_Printf( "FIND_NEW_CHANGE_VECTORS not defined.\n" );
 	Com_Printf( "%i%% of vectors compressed\n", 100 * c_compressedVectors / ( c_compressedVectors + c_uncompressedVectors ) );
-#else
-	int i, j;
-	int total;
-	changeVectorLog_t   *cv;
-
-	qsort( changeVectorLog, numChangeVectorLogs, sizeof( changeVectorLog_t ), CompareCV );
-	total = 0;
-	for ( i = 0 ; i < ( 1 << SMALL_VECTOR_BITS ) ; i++ ) {
-		Com_Printf( "{ 0, { " );
-		cv = &changeVectorLog[i];
-		total += cv->count;
-		for ( j = 0 ; j < CHANGE_VECTOR_BYTES ; j++ ) {
-			Com_Printf( "0x%x%x", cv->vector[j] >> 4, cv->vector[j] & 15 );
-			if ( j != CHANGE_VECTOR_BYTES - 1 ) {
-				Com_Printf( "," );
-			}
-		}
-		Com_Printf( " } }, // %i uses in test\n", cv->count );
-	}
-
-	Com_Printf( "%i%% of vectors compressed\n", 100 * total / c_uncompressedVectors );
-#endif
 }
 
 
@@ -1917,21 +1833,7 @@ void MSG_ReadDeltaPlayerstate( msg_t *msg, playerState_t *from, playerState_t *t
 		}
 	}
 
-#if 0
-// RF, optimization
-//		Send a single bit to signify whether or not the ammo/clip info changed.
-//		If it did, send individual segments specifying offset values for each item.
 
-	if ( MSG_ReadBits( msg, 1 ) ) {     // it changed
-		while ( MSG_ReadBits( msg, 1 ) ) {
-			i = MSG_ReadBits( msg, 5 );     // read the index number
-			// now read the offsets
-			to->ammo[i] += MSG_ReadChar( msg );
-			to->ammoclip[i] += MSG_ReadChar( msg );
-		}
-	}
-
-#else
 //----(SA)	I split this into two groups using shorts so it wouldn't have
 //			to use a long every time ammo changed for any weap.
 //			this seemed like a much friendlier option than making it
@@ -1971,8 +1873,6 @@ void MSG_ReadDeltaPlayerstate( msg_t *msg, playerState_t *from, playerState_t *t
 			}
 		}
 	}
-
-#endif
 
 
 	if ( print ) {

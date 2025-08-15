@@ -865,7 +865,7 @@ void CL_WritePacket( void ) {
 	if ( cl_showSend->integer ) {
 		Com_Printf( "%i ", buf.cursize );
 	}
-//	Netchan_Transmit (&clc.netchan, buf.cursize, buf.data);
+
 	CL_Netchan_Transmit( &clc.netchan, &buf );
 
 	// clients never really should have messages large enough
@@ -941,10 +941,9 @@ void CL_InitInput( void ) {
 	Cmd_AddCommand( "+speed", IN_SpeedDown );
 	Cmd_AddCommand( "-speed", IN_SpeedUp );
 
-	Cmd_AddCommand( "+attack", IN_Button0Down );   // ---- id   (primary firing)
+	Cmd_AddCommand( "+attack", IN_Button0Down );
 	Cmd_AddCommand( "-attack", IN_Button0Up );
-//	Cmd_AddCommand ("+button0", IN_Button0Down);
-//	Cmd_AddCommand ("-button0", IN_Button0Up);
+
 
 	Cmd_AddCommand( "+button1", IN_Button1Down );
 	Cmd_AddCommand( "-button1", IN_Button1Up );
@@ -952,18 +951,12 @@ void CL_InitInput( void ) {
 	Cmd_AddCommand( "+useitem", IN_UseItemDown );
 	Cmd_AddCommand( "-useitem", IN_UseItemUp );
 
-	Cmd_AddCommand( "+salute",   IN_Button3Down ); //----(SA) salute
+	Cmd_AddCommand( "+salute",   IN_Button3Down );
 	Cmd_AddCommand( "-salute",   IN_Button3Up );
-//	Cmd_AddCommand ("+button3", IN_Button3Down);
-//	Cmd_AddCommand ("-button3", IN_Button3Up);
+
 
 	Cmd_AddCommand( "+button4", IN_Button4Down );
 	Cmd_AddCommand( "-button4", IN_Button4Up );
-	//Cmd_AddCommand ("+button5", IN_Button5Down);
-	//Cmd_AddCommand ("-button5", IN_Button5Up);
-
-	//Cmd_AddCommand ("+button6", IN_Button6Down);
-	//Cmd_AddCommand ("-button6", IN_Button6Up);
 
 	// Rafael Activate
 	Cmd_AddCommand( "+activate", IN_ActivateDown );
@@ -1002,7 +995,6 @@ void CL_InitInput( void ) {
 	Cmd_AddCommand( "-mlook", IN_MLookUp );
 
 	Cmd_AddCommand( "notebook",IN_Notebook );
-//	Cmd_AddCommand ("help",IN_Help);
 
 	cl_nodelta = Cvar_Get( "cl_nodelta", "0", 0 );
 	cl_debugMove = Cvar_Get( "cl_debugMove", "0", 0 );

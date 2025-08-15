@@ -220,21 +220,15 @@ IsNumeric
 Checks a string to see if it contains only numerical values.
 ============
 */
-bool idStr::isNumeric
-(
-	const char *str
-) {
-	int len;
-	int i;
-	bool dot;
+bool idStr::isNumeric(const char *str) {
 
 	if ( *str == '-' ) {
 		str++;
 	}
 
-	dot = false;
-	len = strlen( str );
-	for ( i = 0; i < len; i++ )
+	bool dot = false;
+	size_t len = strlen( str );
+	for (int i = 0; i < len; i++ )
 	{
 		if ( !isdigit( str[ i ] ) ) {
 			if ( ( str[ i ] == '.' ) && !dot ) {
@@ -369,7 +363,7 @@ void idStr::EnsureDataWritable
 	olddata->DelRef();
 }
 
-void idStr::EnsureAlloced( int amount, bool keepold ) {
+void idStr::EnsureAlloced( size_t amount, bool keepold ) {
 
 	if ( !m_data ) {
 		m_data = new strdata();
@@ -378,7 +372,6 @@ void idStr::EnsureAlloced( int amount, bool keepold ) {
 	// Now, let's make sure it's writable
 	EnsureDataWritable();
 
-	char *newbuffer;
 	bool wasalloced = ( m_data->alloced != 0 );
 
 	if ( amount < m_data->alloced ) {
@@ -389,7 +382,7 @@ void idStr::EnsureAlloced( int amount, bool keepold ) {
 	if ( amount == 1 ) {
 		m_data->alloced = 1;
 	} else {
-		int newsize, mod;
+		size_t newsize, mod;
 		mod = amount % STR_ALLOC_GRAN;
 		if ( !mod ) {
 			newsize = amount;
@@ -399,7 +392,7 @@ void idStr::EnsureAlloced( int amount, bool keepold ) {
 		m_data->alloced = newsize;
 	}
 
-	newbuffer = new char[m_data->alloced];
+	char* newbuffer = new char[m_data->alloced];
 	if ( wasalloced && keepold ) {
 		strcpy( newbuffer, m_data->data );
 	}

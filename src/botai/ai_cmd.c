@@ -59,82 +59,6 @@ If you have questions concerning this license or the applicable additional terms
 #include "match.h"               //string matching types and vars
 
 
-#ifdef DEBUG
-/*
-==================
-BotPrintTeamGoal
-==================
-*/
-void BotPrintTeamGoal( bot_state_t *bs ) {
-	char netname[MAX_NETNAME];
-	float t;
-
-	ClientName( bs->client, netname, sizeof( netname ) );
-	t = bs->teamgoal_time - trap_AAS_Time();
-	switch ( bs->ltgtype ) {
-	case LTG_TEAMHELP:
-	{
-		BotAI_Print( PRT_MESSAGE, "%s: I'm gonna help a team mate for %1.0f secs\n", netname, t );
-		break;
-	}
-	case LTG_TEAMACCOMPANY:
-	{
-		BotAI_Print( PRT_MESSAGE, "%s: I'm gonna accompany a team mate for %1.0f secs\n", netname, t );
-		break;
-	}
-	case LTG_GETFLAG:
-	{
-		BotAI_Print( PRT_MESSAGE, "%s: I'm gonna get the flag for %1.0f secs\n", netname, t );
-		break;
-	}
-	case LTG_RUSHBASE:
-	{
-		BotAI_Print( PRT_MESSAGE, "%s: I'm gonna rush to the base for %1.0f secs\n", netname, t );
-		break;
-	}
-	case LTG_RETURNFLAG:
-	{
-		BotAI_Print( PRT_MESSAGE, "%s: I'm gonna try to return the flag for %1.0f secs\n", netname, t );
-		break;
-	}
-	case LTG_DEFENDKEYAREA:
-	{
-		BotAI_Print( PRT_MESSAGE, "%s: I'm gonna defend a key area for %1.0f secs\n", netname, t );
-		break;
-	}
-	case LTG_GETITEM:
-	{
-		BotAI_Print( PRT_MESSAGE, "%s: I'm gonna get an item for %1.0f secs\n", netname, t );
-		break;
-	}
-	case LTG_KILL:
-	{
-		BotAI_Print( PRT_MESSAGE, "%s: I'm gonna kill someone for %1.0f secs\n", netname, t );
-		break;
-	}
-	case LTG_CAMP:
-	case LTG_CAMPORDER:
-	{
-		BotAI_Print( PRT_MESSAGE, "%s: I'm gonna camp for %1.0f secs\n", netname, t );
-		break;
-	}
-	case LTG_PATROL:
-	{
-		BotAI_Print( PRT_MESSAGE, "%s: I'm gonna patrol for %1.0f secs\n", netname, t );
-		break;
-	}
-	default:
-	{
-		if ( bs->ctfroam_time > trap_AAS_Time() ) {
-			t = bs->ctfroam_time - trap_AAS_Time();
-			BotAI_Print( PRT_MESSAGE, "%s: I'm gonna roam for %1.0f secs\n", netname, t );
-		} else {
-			BotAI_Print( PRT_MESSAGE, "%s: I've got a regular goal\n", netname );
-		}
-	}
-	}
-}
-#endif //DEBUG
 
 /*
 ==================
@@ -588,9 +512,7 @@ void BotMatch_HelpAccompany( bot_state_t *bs, bot_match_t *match ) {
 		bs->formation_dist = 3.5 * 32;      //3.5 meter
 		bs->arrive_time = 0;
 	}
-#ifdef DEBUG
-	BotPrintTeamGoal( bs );
-#endif //DEBUG
+
 }
 
 /*
@@ -628,9 +550,7 @@ void BotMatch_DefendKeyArea( bot_state_t *bs, bot_match_t *match ) {
 	}
 	//away from defending
 	bs->defendaway_time = 0;
-#ifdef DEBUG
-	BotPrintTeamGoal( bs );
-#endif //DEBUG
+
 }
 
 /*
@@ -662,9 +582,7 @@ void BotMatch_GetItem( bot_state_t *bs, bot_match_t *match ) {
 	bs->ltgtype = LTG_GETITEM;
 	//set the team goal time
 	bs->teamgoal_time = trap_AAS_Time() + TEAM_GETITEM_TIME;
-#ifdef DEBUG
-	BotPrintTeamGoal( bs );
-#endif //DEBUG
+
 }
 
 /*
@@ -753,9 +671,6 @@ void BotMatch_Camp( bot_state_t *bs, bot_match_t *match ) {
 	//not arrived yet
 	bs->arrive_time = 0;
 	//
-#ifdef DEBUG
-	BotPrintTeamGoal( bs );
-#endif //DEBUG
 }
 
 /*
@@ -786,87 +701,6 @@ void BotMatch_Patrol( bot_state_t *bs, bot_match_t *match ) {
 		bs->teamgoal_time = trap_AAS_Time() + TEAM_PATROL_TIME;
 	}
 	//
-#ifdef DEBUG
-	BotPrintTeamGoal( bs );
-#endif //DEBUG
-}
-
-/*
-==================
-BotMatch_GetFlag
-==================
-*/
-void BotMatch_GetFlag( bot_state_t *bs, bot_match_t *match ) {
-	//if not in CTF mode
-	if ( gametype != GT_CTF || !ctf_redflag.areanum || !ctf_blueflag.areanum ) {
-		return;
-	}
-	//if not addressed to this bot
-	if ( !BotAddressedToBot( bs, match ) ) {
-		return;
-	}
-	//set the time to send a message to the team mates
-	bs->teammessage_time = trap_AAS_Time() + 2 * random();
-	//set the ltg type
-	bs->ltgtype = LTG_GETFLAG;
-	//set the team goal time
-	bs->teamgoal_time = trap_AAS_Time() + CTF_GETFLAG_TIME;
-#ifdef DEBUG
-	BotPrintTeamGoal( bs );
-#endif //DEBUG
-}
-
-/*
-==================
-BotMatch_RushBase
-==================
-*/
-void BotMatch_RushBase( bot_state_t *bs, bot_match_t *match ) {
-	//if not in CTF mode
-	if ( gametype != GT_CTF || !ctf_redflag.areanum || !ctf_blueflag.areanum ) {
-		return;
-	}
-	//if not addressed to this bot
-	if ( !BotAddressedToBot( bs, match ) ) {
-		return;
-	}
-	//set the time to send a message to the team mates
-	bs->teammessage_time = trap_AAS_Time() + 2 * random();
-	//set the ltg type
-	bs->ltgtype = LTG_RUSHBASE;
-	//set the team goal time
-	bs->teamgoal_time = trap_AAS_Time() + CTF_RUSHBASE_TIME;
-	bs->rushbaseaway_time = 0;
-#ifdef DEBUG
-	BotPrintTeamGoal( bs );
-#endif //DEBUG
-}
-
-
-/*
-==================
-BotMatch_ReturnFlag
-==================
-*/
-void BotMatch_ReturnFlag( bot_state_t *bs, bot_match_t *match ) {
-	//if not in CTF mode
-	if ( gametype != GT_CTF ) {
-		return;
-	}
-	//if not addressed to this bot
-	if ( !BotAddressedToBot( bs, match ) ) {
-		return;
-	}
-	//set the time to send a message to the team mates
-	bs->teammessage_time = trap_AAS_Time() + 2 * random();
-	//set the ltg type
-	bs->ltgtype = LTG_RETURNFLAG;
-	//set the team goal time
-	bs->teamgoal_time = trap_AAS_Time() + CTF_RETURNFLAG_TIME;
-	bs->rushbaseaway_time = 0;
-#ifdef DEBUG
-	BotPrintTeamGoal( bs );
-#endif //DEBUG
 }
 
 /*
@@ -1310,20 +1144,7 @@ void BotMatch_WhereAreYou( bot_state_t *bs, bot_match_t *match ) {
 		}
 	}
 	if ( bestitem != -1 ) {
-		if ( gametype == GT_CTF ) {
-			redflagtt = trap_AAS_AreaTravelTimeToGoalArea( bs->areanum, bs->origin, ctf_redflag.areanum, TFL_DEFAULT );
-			blueflagtt = trap_AAS_AreaTravelTimeToGoalArea( bs->areanum, bs->origin, ctf_blueflag.areanum, TFL_DEFAULT );
-			redtobluett = trap_AAS_AreaTravelTimeToGoalArea( ctf_redflag.areanum, ctf_redflag.origin, ctf_blueflag.areanum, TFL_DEFAULT );
-			if ( redflagtt < ( redflagtt + blueflagtt ) * 0.4 ) {
-				BotAI_BotInitialChat( bs, "ctflocation", nearbyitems[bestitem], "red", NULL );
-			} else if ( blueflagtt < ( redflagtt + blueflagtt ) * 0.4 )       {
-				BotAI_BotInitialChat( bs, "ctflocation", nearbyitems[bestitem], "blue", NULL );
-			} else {
-				BotAI_BotInitialChat( bs, "location", nearbyitems[bestitem], NULL );
-			}
-		} else {
-			BotAI_BotInitialChat( bs, "location", nearbyitems[bestitem], NULL );
-		}
+        BotAI_BotInitialChat( bs, "location", nearbyitems[bestitem], NULL );
 		trap_BotEnterChat( bs->cs, bs->client, CHAT_TEAM );
 	}
 }
@@ -1431,47 +1252,7 @@ void BotMatch_Kill( bot_state_t *bs, bot_match_t *match ) {
 	bs->ltgtype = LTG_KILL;
 	//set the team goal time
 	bs->teamgoal_time = trap_AAS_Time() + TEAM_KILL_SOMEONE;
-#ifdef DEBUG
-	BotPrintTeamGoal( bs );
-#endif //DEBUG
-}
 
-/*
-==================
-BotMatch_CTF
-==================
-*/
-void BotMatch_CTF( bot_state_t *bs, bot_match_t *match ) {
-
-	char flag[128], netname[MAX_NETNAME];
-
-	trap_BotMatchVariable( match, FLAG, flag, sizeof( flag ) );
-	if ( match->subtype & ST_GOTFLAG ) {
-		if ( !Q_stricmp( flag, "red" ) ) {
-			bs->redflagstatus = 1;
-			if ( BotCTFTeam( bs ) == CTF_TEAM_BLUE ) {
-				trap_BotMatchVariable( match, NETNAME, netname, sizeof( netname ) );
-				bs->flagcarrier = ClientFromName( netname );
-			}
-		} else {
-			bs->blueflagstatus = 1;
-			if ( BotCTFTeam( bs ) == CTF_TEAM_RED ) {
-				trap_BotMatchVariable( match, NETNAME, netname, sizeof( netname ) );
-				bs->flagcarrier = ClientFromName( netname );
-			}
-		}
-		bs->flagstatuschanged = 1;
-	} else if ( match->subtype & ST_CAPTUREDFLAG )     {
-		bs->redflagstatus = 0;
-		bs->blueflagstatus = 0;
-		bs->flagcarrier = 0;
-		bs->flagstatuschanged = 1;
-	} else if ( match->subtype & ST_RETURNEDFLAG )     {
-		if ( !Q_stricmp( flag, "red" ) ) {
-			bs->redflagstatus = 0;
-		} else { bs->blueflagstatus = 0;}
-		bs->flagstatuschanged = 1;
-	}
 }
 
 /*
@@ -1512,23 +1293,7 @@ int BotMatchMessage( bot_state_t *bs, char *message ) {
 		BotMatch_Patrol( bs, &match );
 		break;
 	}
-#ifdef CTF
-	case MSG_GETFLAG:                   //ctf get the enemy flag
-	{
-		BotMatch_GetFlag( bs, &match );
-		break;
-	}
-	case MSG_RUSHBASE:                  //ctf rush to the base
-	{
-		BotMatch_RushBase( bs, &match );
-		break;
-	}
-	case MSG_RETURNFLAG:
-	{
-		BotMatch_ReturnFlag( bs, &match );
-		break;
-	}
-#endif //CTF
+
 	case MSG_GETITEM:
 	{
 		BotMatch_GetItem( bs, &match );
@@ -1626,11 +1391,7 @@ int BotMatchMessage( bot_state_t *bs, char *message ) {
 		//EA_Say(bs->client, buf);
 		break;
 	}
-	case MSG_CTF:
-	{
-		BotMatch_CTF( bs, &match );
-		break;
-	}
+
 	case MSG_WAIT:
 	{
 		break;

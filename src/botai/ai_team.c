@@ -132,10 +132,6 @@ int BotSortTeamMatesByBaseTravelTime( bot_state_t *bs, int *teammates, int maxte
 	int traveltimes[MAX_CLIENTS];
 	bot_goal_t *goal;
 
-	if ( BotCTFTeam( bs ) == CTF_TEAM_RED ) {
-		goal = &ctf_redflag;
-	} else { goal = &ctf_blueflag;}
-
 	if ( !maxclients ) {
 		maxclients = trap_Cvar_VariableIntegerValue( "sv_maxclients" );
 	}
@@ -579,33 +575,7 @@ void BotTeamAI( bot_state_t *bs ) {
 		}
 		break;
 	}
-	case GT_CTF:
-	{
-		//
-		if ( bs->numteammates != numteammates || bs->flagstatuschanged || bs->forceorders ) {
-			bs->teamgiveorders_time = trap_AAS_Time();
-			bs->numteammates = numteammates;
-			bs->flagstatuschanged = qfalse;
-			bs->forceorders = qfalse;
-		}
-		//if it's time to give orders
-		if ( bs->teamgiveorders_time && bs->teamgiveorders_time < trap_AAS_Time() - 3 ) {
-			//
-			if ( BotCTFTeam( bs ) == CTF_TEAM_RED ) {
-				flagstatus = bs->redflagstatus * 2 + bs->blueflagstatus;
-			} else { flagstatus = bs->blueflagstatus * 2 + bs->redflagstatus;}
-			//
-			switch ( flagstatus ) {
-			case 0: BotCTFOrders_BothFlagsAtBase( bs ); break;
-			case 1: BotCTFOrders_EnemyFlagNotAtBase( bs ); break;
-			case 2: BotCTFOrders_FlagNotAtBase( bs ); break;
-			case 3: BotCTFOrders_BothFlagsNotAtBase( bs ); break;
-			}
-			//
-			bs->teamgiveorders_time = 0;
-		}
-		break;
-	}
+
 	}
 }
 

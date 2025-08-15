@@ -100,91 +100,6 @@ void Netchan_Setup( netsrc_t sock, netchan_t *chan, netadr_t adr, int qport ) {
 	chan->outgoingSequence = 1;
 }
 
-#if DO_NET_ENCODE
-/*
-==============
-Netchan_ScramblePacket
-
-A probably futile attempt to make proxy hacking somewhat
-more difficult.
-==============
-*/
-#define SCRAMBLE_START  6
-static void Netchan_ScramblePacket( msg_t *buf ) {
-	unsigned seed;
-	int i, j, c, mask, temp;
-	int seq[MAX_PACKETLEN];
-
-	seed = ( LittleLong( *(unsigned *)buf->data ) * 3 ) ^ ( buf->cursize * 123 );
-	c = buf->cursize;
-	if ( c <= SCRAMBLE_START ) {
-		return;
-	}
-	if ( c > MAX_PACKETLEN ) {
-		Com_Error( ERR_DROP, "MAX_PACKETLEN" );
-	}
-
-	// generate a sequence of "random" numbers
-	for ( i = 0 ; i < c ; i++ ) {
-		seed = ( 119 * seed + 1 );
-		seq[i] = seed;
-	}
-
-	// transpose each character
-	for ( mask = 1 ; mask < c - SCRAMBLE_START ; mask = ( mask << 1 ) + 1 ) {
-	}
-	mask >>= 1;
-	for ( i = SCRAMBLE_START ; i < c ; i++ ) {
-		j = SCRAMBLE_START + ( seq[i] & mask );
-		temp = buf->data[j];
-		buf->data[j] = buf->data[i];
-		buf->data[i] = temp;
-	}
-
-	// byte xor the data after the header
-	for ( i = SCRAMBLE_START ; i < c ; i++ ) {
-		buf->data[i] ^= seq[i];
-	}
-}
-
-static void Netchan_UnScramblePacket( msg_t *buf ) {
-	unsigned seed;
-	int i, j, c, mask, temp;
-	int seq[MAX_PACKETLEN];
-
-	seed = ( LittleLong( *(unsigned *)buf->data ) * 3 ) ^ ( buf->cursize * 123 );
-	c = buf->cursize;
-	if ( c <= SCRAMBLE_START ) {
-		return;
-	}
-	if ( c > MAX_PACKETLEN ) {
-		Com_Error( ERR_DROP, "MAX_PACKETLEN" );
-	}
-
-	// generate a sequence of "random" numbers
-	for ( i = 0 ; i < c ; i++ ) {
-		seed = ( 119 * seed + 1 );
-		seq[i] = seed;
-	}
-
-	// byte xor the data after the header
-	for ( i = SCRAMBLE_START ; i < c ; i++ ) {
-		buf->data[i] ^= seq[i];
-	}
-
-	// transpose each character in reverse order
-	for ( mask = 1 ; mask < c - SCRAMBLE_START ; mask = ( mask << 1 ) + 1 ) {
-	}
-	mask >>= 1;
-	for ( i = c - 1 ; i >= SCRAMBLE_START ; i-- ) {
-		j = SCRAMBLE_START + ( seq[i] & mask );
-		temp = buf->data[j];
-		buf->data[j] = buf->data[i];
-		buf->data[i] = temp;
-	}
-}
-#endif // DO_NET_ENCODE
-
 /*
 =================
 Netchan_TransmitNextFragment
@@ -216,9 +131,6 @@ void Netchan_TransmitNextFragment( netchan_t *chan ) {
 	MSG_WriteShort( &send, chan->unsentFragmentStart );
 	MSG_WriteShort( &send, fragmentLength );
 	MSG_WriteData( &send, chan->unsentBuffer + chan->unsentFragmentStart, fragmentLength );
-
-	// XOR scramble all data in the packet after the header
-//	Netchan_ScramblePacket( &send );
 
 	// send the datagram
 	NET_SendPacket( chan->sock, send.cursize, send.data, chan->remoteAddress );
@@ -286,8 +198,6 @@ void Netchan_Transmit( netchan_t *chan, int length, const byte *data ) {
 
 	MSG_WriteData( &send, data, length );
 
-	// XOR scramble all data in the packet after the header
-//	Netchan_ScramblePacket( &send );
 
 	// send the datagram
 	NET_SendPacket( chan->sock, send.cursize, send.data, chan->remoteAddress );
@@ -318,9 +228,6 @@ qboolean Netchan_Process( netchan_t *chan, msg_t *msg ) {
 	int qport;
 	int fragmentStart, fragmentLength;
 	qboolean fragmented;
-
-	// XOR unscramble all data in the packet after the header
-//	Netchan_UnScramblePacket( msg );
 
 	// get sequence numbers
 	MSG_BeginReadingOOB( msg );
@@ -660,7 +567,7 @@ void  NET_OutOfBandPrint( netsrc_t sock, netadr_t adr, const char *format, ... )
 	string[3] = -1;
 
 	va_start( argptr, format );
-	vsprintf( string + 4, format, argptr );
+	vsnprintf( string + 4, MAX_MSGLEN - 4, format, argptr );
 	va_end( argptr );
 
 	// send the datagram

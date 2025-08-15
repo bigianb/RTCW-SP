@@ -1219,11 +1219,6 @@ qboolean CG_OwnerDrawVisible( int flags ) {
 		}
 	}
 
-	if ( flags & CG_SHOW_CTF ) {
-		if ( cgs.gametype == GT_CTF ) {
-			return qtrue;
-		}
-	}
 
 	if ( flags & CG_SHOW_HEALTHCRITICAL ) {
 		if ( cg.snap->ps.stats[STAT_HEALTH] < 25 ) {

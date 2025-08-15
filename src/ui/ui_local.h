@@ -661,8 +661,7 @@ typedef struct {
 	qhandle_t sshotImage;           // handle to 'levelshots/<mapName>.tga'
 
 	int episode;                    // 1
-//	int			time;
-//	int			date;
+
 	const char *time;               // formatted time string
 	const char *date;
 

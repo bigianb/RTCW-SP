@@ -41,9 +41,6 @@ If you have questions concerning this license or the applicable additional terms
 #include "../game/be_ai_goal.h"
 #include "../game/g_local.h"
 
-//#define DEBUG
-#define CTF
-
 #define MAX_ITEMS                   256
 //bot flags
 #define BFL_STRAFERIGHT             1   //strafe to the right

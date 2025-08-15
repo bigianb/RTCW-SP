@@ -503,30 +503,36 @@ static void IN_InitJoystick( void )
 	// Update cvar on in_restart or controller add/remove.
 	Cvar_Set( "in_availableJoysticks", buf );
 
+    /* Always use the joystick if one is detected
 	if( !in_joystick->integer ) {
 		Com_DPrintf( "Joystick is not active.\n" );
 		SDL_QuitSubSystem(SDL_INIT_GAMEPAD);
 		return;
 	}
-
+*/
+    
 	in_joystickNo = Cvar_Get( "in_joystickNo", "0", CVAR_ARCHIVE );
 	if( in_joystickNo->integer < 0 || in_joystickNo->integer >= total )
 		Cvar_Set( "in_joystickNo", "0" );
 
-	in_joystickUseAnalog = Cvar_Get( "in_joystickUseAnalog", "0", CVAR_ARCHIVE );
+    // force analogue
+    Cvar_Set( "in_joystickUseAnalog", "1" );
+	in_joystickUseAnalog = Cvar_Get( "in_joystickUseAnalog", "1", CVAR_ARCHIVE );
 
-	stick = SDL_OpenJoystick( in_joystickNo->integer );
+    SDL_JoystickID joystickId = joystickIDs[in_joystickNo->integer];
+	stick = SDL_OpenJoystick( joystickId );
 
 	if (stick == NULL) {
 		Com_DPrintf( "No joystick opened: %s\n", SDL_GetError() );
 		return;
 	}
 
-	if (SDL_IsGamepad(in_joystickNo->integer))
-		gamepad = SDL_OpenGamepad(in_joystickNo->integer);
-
+    if (SDL_IsGamepad(joystickId)){
+        gamepad = SDL_OpenGamepad(joystickId);
+    }
 	Com_DPrintf( "Joystick %d opened\n", in_joystickNo->integer );
-	Com_DPrintf( "Name:       %s\n", SDL_GetJoystickNameForID(in_joystickNo->integer) );
+    Com_DPrintf( "JoystickId  %d\n", joystickId );
+	Com_DPrintf( "Name:       %s\n", SDL_GetJoystickNameForID(joystickId) );
 	Com_DPrintf( "Axes:       %d\n", SDL_GetNumJoystickAxes(stick) );
 	Com_DPrintf( "Hats:       %d\n", SDL_GetNumJoystickHats(stick) );
 	Com_DPrintf( "Buttons:    %d\n", SDL_GetNumJoystickButtons(stick) );
@@ -644,8 +650,8 @@ IN_GamepadMove
 static void IN_GamepadMove( void )
 {
 	int i;
-	int translatedAxes[MAX_JOYSTICK_AXIS];
-	qboolean translatedAxesSet[MAX_JOYSTICK_AXIS];
+	int translatedAxes[SDL_GAMEPAD_AXIS_COUNT];
+	qboolean translatedAxesSet[SDL_GAMEPAD_AXIS_COUNT];
 
 	SDL_UpdateGamepads();
 
@@ -655,7 +661,6 @@ static void IN_GamepadMove( void )
 		qboolean pressed = SDL_GetGamepadButton(gamepad, SDL_GAMEPAD_BUTTON_SOUTH + i);
 		if (pressed != stick_state.buttons[i])
 		{
-
 			if ( i >= SDL_GAMEPAD_BUTTON_MISC1 ) {
 				Com_QueueEvent(in_eventTime, SE_KEY, K_PAD0_MISC1 + i - SDL_GAMEPAD_BUTTON_MISC1, pressed, 0, NULL);
 			} else
@@ -670,7 +675,7 @@ static void IN_GamepadMove( void )
 	// must be done this way to prevent a later mapped axis from zeroing out a previous one
 	if (in_joystickUseAnalog->integer)
 	{
-		for (i = 0; i < MAX_JOYSTICK_AXIS; i++)
+		for (i = 0; i < SDL_GAMEPAD_AXIS_COUNT; i++)
 		{
 			translatedAxes[i] = 0;
 			translatedAxesSet[i] = qfalse;
@@ -686,9 +691,10 @@ static void IN_GamepadMove( void )
 		// Smoothly ramp from dead zone to maximum value
 		float f = ((float)abs(axis) / 32767.0f - in_joystickThreshold->value) / (1.0f - in_joystickThreshold->value);
 
-		if (f < 0.0f)
-			f = 0.0f;
-
+        if (f < 0.0f){
+            f = 0.0f;
+        }
+        
 		axis = (int)(32767 * ((axis < 0) ? -f : f));
 
 		if (axis != oldAxis)
@@ -764,8 +770,9 @@ static void IN_GamepadMove( void )
 	{
 		for (i = 0; i < MAX_JOYSTICK_AXIS; i++)
 		{
-			if (translatedAxesSet[i])
-				Com_QueueEvent(in_eventTime, SE_JOYSTICK_AXIS, i, translatedAxes[i], 0, NULL);
+            if (translatedAxesSet[i]){
+                Com_QueueEvent(in_eventTime, SE_JOYSTICK_AXIS, i, translatedAxes[i], 0, NULL);
+            }
 		}
 	}
 }
@@ -1236,7 +1243,7 @@ void IN_Init( void *windowData )
 	in_mouse = Cvar_Get( "in_mouse", "1", CVAR_ARCHIVE );
 	in_nograb = Cvar_Get( "in_nograb", "0", CVAR_ARCHIVE );
 
-	in_joystick = Cvar_Get( "in_joystick", "0", CVAR_ARCHIVE|CVAR_LATCH );
+	in_joystick = Cvar_Get( "in_joystick", "1", CVAR_ARCHIVE|CVAR_LATCH );
 	in_joystickThreshold = Cvar_Get( "joy_threshold", "0.15", CVAR_ARCHIVE );
 
 	SDL_StartTextInput( SDL_window );

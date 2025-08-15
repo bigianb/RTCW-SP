@@ -111,8 +111,7 @@ void BotAimAtEnemy( bot_state_t *bs );
 void BotCheckAttack( bot_state_t *bs );
 //AI when the bot is blocked
 void BotAIBlocked( bot_state_t *bs, bot_moveresult_t *moveresult, int activate );
-//returns the CTF team the bot is in
-int BotCTFTeam( bot_state_t *bs );
+
 //returns the flag the bot is carrying (CTFFLAG_?)
 int BotCTFCarryingFlag( bot_state_t *bs );
 //set ctf goals (defend base, get enemy flag) during seek
@@ -156,7 +155,3 @@ extern vmCvar_t bot_rocketjump;
 extern vmCvar_t bot_fastchat;
 extern vmCvar_t bot_nochat;
 extern vmCvar_t bot_testrchat;
-
-extern bot_goal_t ctf_redflag;
-extern bot_goal_t ctf_blueflag;
-
