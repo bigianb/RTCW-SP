@@ -193,34 +193,29 @@ CL_ConfigstringModified
 =====================
 */
 void CL_ConfigstringModified( void ) {
-	char        *old, *s;
-	int i, index;
-	char        *dup;
-	gameState_t oldGs;
-	int len;
 
-	index = atoi( Cmd_Argv( 1 ) );
+	char        *dup;
+	int index = atoi( Cmd_Argv( 1 ) );
 	if ( index < 0 || index >= MAX_CONFIGSTRINGS ) {
 		Com_Error( ERR_DROP, "configstring > MAX_CONFIGSTRINGS" );
 	}
-//	s = Cmd_Argv(2);
-	// get everything after "cs <num>"
-	s = Cmd_ArgsFrom( 2 );
 
-	old = cl.gameState.stringData + cl.gameState.stringOffsets[ index ];
+	char* s = Cmd_ArgsFrom( 2 );
+
+	char* old = cl.gameState.stringData + cl.gameState.stringOffsets[ index ];
 	if ( !strcmp( old, s ) ) {
 		return;     // unchanged
 	}
 
 	// build the new gameState_t
-	oldGs = cl.gameState;
+    gameState_t oldGs = cl.gameState;
 
 	memset( &cl.gameState, 0, sizeof( cl.gameState ) );
 
 	// leave the first 0 for uninitialized strings
 	cl.gameState.dataCount = 1;
 
-	for ( i = 0 ; i < MAX_CONFIGSTRINGS ; i++ ) {
+	for (int i = 0 ; i < MAX_CONFIGSTRINGS ; i++ ) {
 		if ( i == index ) {
 			dup = s;
 		} else {
@@ -230,7 +225,7 @@ void CL_ConfigstringModified( void ) {
 			continue;       // leave with the default empty string
 		}
 
-		len = strlen( dup );
+		size_t len = strlen( dup );
 
 		if ( len + 1 + cl.gameState.dataCount > MAX_GAMESTATE_CHARS ) {
 			Com_Error( ERR_DROP, "MAX_GAMESTATE_CHARS exceeded" );

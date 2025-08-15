@@ -94,7 +94,10 @@ keyname_t keynames[] =
 	{"F10", K_F10},
 	{"F11", K_F11},
 	{"F12", K_F12},
-
+    {"F13", K_F13},
+    {"F14", K_F14},
+    {"F15", K_F15},
+    
 	{"INS", K_INS},
 	{"DEL", K_DEL},
 	{"PGDN", K_PGDN},
@@ -185,6 +188,53 @@ keyname_t keynames[] =
 	{"SEMICOLON", ';'},   // because a raw semicolon seperates commands
 
 	{"COMMAND", K_COMMAND},  //mac
+
+    {"WINDOWS", K_SUPER},
+    {"COMPOSE", K_COMPOSE},
+    {"MODE", K_MODE},
+    {"HELP", K_HELP},
+    {"PRINT", K_PRINT},
+    {"SYSREQ", K_SYSREQ},
+    {"SCROLLOCK", K_SCROLLOCK },
+    {"BREAK", K_BREAK},
+    {"MENU", K_MENU},
+    {"POWER", K_POWER},
+    {"EURO", K_EURO},
+    {"UNDO", K_UNDO},
+
+    {"PAD0_A", K_PAD0_A },
+    {"PAD0_B", K_PAD0_B },
+    {"PAD0_X", K_PAD0_X },
+    {"PAD0_Y", K_PAD0_Y },
+    {"PAD0_BACK", K_PAD0_BACK },
+    {"PAD0_GUIDE", K_PAD0_GUIDE },
+    {"PAD0_START", K_PAD0_START },
+    {"PAD0_LEFTSTICK_CLICK", K_PAD0_LEFTSTICK_CLICK },
+    {"PAD0_RIGHTSTICK_CLICK", K_PAD0_RIGHTSTICK_CLICK },
+    {"PAD0_LEFTSHOULDER", K_PAD0_LEFTSHOULDER },
+    {"PAD0_RIGHTSHOULDER", K_PAD0_RIGHTSHOULDER },
+    {"PAD0_DPAD_UP", K_PAD0_DPAD_UP },
+    {"PAD0_DPAD_DOWN", K_PAD0_DPAD_DOWN },
+    {"PAD0_DPAD_LEFT", K_PAD0_DPAD_LEFT },
+    {"PAD0_DPAD_RIGHT", K_PAD0_DPAD_RIGHT },
+
+    {"PAD0_LEFTSTICK_LEFT", K_PAD0_LEFTSTICK_LEFT },
+    {"PAD0_LEFTSTICK_RIGHT", K_PAD0_LEFTSTICK_RIGHT },
+    {"PAD0_LEFTSTICK_UP", K_PAD0_LEFTSTICK_UP },
+    {"PAD0_LEFTSTICK_DOWN", K_PAD0_LEFTSTICK_DOWN },
+    {"PAD0_RIGHTSTICK_LEFT", K_PAD0_RIGHTSTICK_LEFT },
+    {"PAD0_RIGHTSTICK_RIGHT", K_PAD0_RIGHTSTICK_RIGHT },
+    {"PAD0_RIGHTSTICK_UP", K_PAD0_RIGHTSTICK_UP },
+    {"PAD0_RIGHTSTICK_DOWN", K_PAD0_RIGHTSTICK_DOWN },
+    {"PAD0_LEFTTRIGGER", K_PAD0_LEFTTRIGGER },
+    {"PAD0_RIGHTTRIGGER", K_PAD0_RIGHTTRIGGER },
+
+    {"PAD0_MISC1", K_PAD0_MISC1 },
+    {"PAD0_PADDLE1", K_PAD0_PADDLE1 },
+    {"PAD0_PADDLE2", K_PAD0_PADDLE2 },
+    {"PAD0_PADDLE3", K_PAD0_PADDLE3 },
+    {"PAD0_PADDLE4", K_PAD0_PADDLE4 },
+    {"PAD0_TOUCHPAD", K_PAD0_TOUCHPAD },
 
 	{NULL,0}
 };
@@ -1012,14 +1062,13 @@ given keynum.
 */
 char *Key_KeynumToString( int keynum, qboolean bTranslate ) {
 	keyname_t   *kn;
-	static char tinystr[5];
-	int i, j;
+	static char tinystr[6];
 
 	if ( keynum == -1 ) {
 		return "<KEY NOT FOUND>";
 	}
 
-	if ( keynum < 0 || keynum > 255 ) {
+	if ( keynum < 0 || keynum > MAX_KEYS ) {
 		return "<OUT OF RANGE>";
 	}
 
@@ -1050,14 +1099,16 @@ char *Key_KeynumToString( int keynum, qboolean bTranslate ) {
 	}
 
 	// make a hex string
-	i = keynum >> 4;
-	j = keynum & 15;
+    int k = (keynum >> 8) & 0x0f;
+	int i = (keynum >> 4) & 0x0f;
+	int j = keynum & 0x0f;
 
 	tinystr[0] = '0';
 	tinystr[1] = 'x';
-	tinystr[2] = i > 9 ? i - 10 + 'a' : i + '0';
-	tinystr[3] = j > 9 ? j - 10 + 'a' : j + '0';
-	tinystr[4] = 0;
+    tinystr[2] = k > 9 ? k - 10 + 'a' : k + '0';
+	tinystr[3] = i > 9 ? i - 10 + 'a' : i + '0';
+	tinystr[4] = j > 9 ? j - 10 + 'a' : j + '0';
+	tinystr[5] = 0;
 
 	return tinystr;
 }

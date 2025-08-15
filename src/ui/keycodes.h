@@ -306,7 +306,7 @@ typedef enum {
 	// Pseudo-key that brings the console down
 	K_CONSOLE,
 	
-	K_LAST_KEY      // this had better be <256!
+	MAX_KEYS 
 } keyNum_t;
 
 

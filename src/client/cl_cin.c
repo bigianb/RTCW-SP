@@ -114,7 +114,7 @@ typedef struct
 	unsigned int lastTime;
 	int tfps;
 	int RoQPlayed;
-	int ROQSize;
+	size_t ROQSize;
 	unsigned int RoQFrameSize;
 	int onQuad;
 	int numQuads;
