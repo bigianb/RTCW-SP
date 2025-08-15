@@ -85,7 +85,7 @@ idStr( const char ch );
 idStr( const int num );
 idStr( const float num );
 idStr( const unsigned num );
-int length( void ) const;
+size_t length( void ) const;
 int allocated( void ) const;
 const char * c_str( void ) const;
 
@@ -246,10 +246,9 @@ inline idStr::idStr
 	const float num
 ) : m_data( NULL ) {
 	char text[ 32 ];
-	int len;
 
 	snprintf( text, 32, "%.3f", num );
-	len = strlen( text );
+	size_t len = strlen( text );
 	EnsureAlloced( len + 1 );
 	strcpy( m_data->data, text );
 	m_data->len = len;
@@ -260,10 +259,9 @@ inline idStr::idStr
 	const int num
 ) : m_data( NULL ) {
 	char text[ 32 ];
-	int len;
 
 	snprintf( text, 32, "%d", num );
-	len = strlen( text );
+	size_t len = strlen( text );
 	EnsureAlloced( len + 1 );
 	strcpy( m_data->data, text );
 	m_data->len = len;
@@ -274,16 +272,15 @@ inline idStr::idStr
 	const unsigned num
 ) : m_data( NULL ) {
 	char text[ 32 ];
-	int len;
 
 	snprintf( text, 32,  "%u", num );
-	len = strlen( text );
+	size_t len = strlen( text );
 	EnsureAlloced( len + 1 );
 	strcpy( m_data->data, text );
 	m_data->len = len;
 }
 
-inline int idStr::length( void ) const {
+inline size_t idStr::length( void ) const {
 	return ( m_data != NULL ) ? m_data->len : 0;
 }
 

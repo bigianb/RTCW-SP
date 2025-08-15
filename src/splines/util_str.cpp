@@ -344,15 +344,13 @@ void idStr::EnsureDataWritable
 	void
 ) {
 	assert( m_data );
-	strdata *olddata;
-	int len;
 
 	if ( !m_data->refcount ) {
 		return;
 	}
 
-	olddata = m_data;
-	len = length();
+	strdata *olddata = m_data;
+	size_t len = length();
 
 	m_data = new strdata;
 
@@ -407,11 +405,9 @@ void idStr::BackSlashesToSlashes
 (
 	void
 ) {
-	int i;
-
 	EnsureDataWritable();
 
-	for ( i = 0; i < m_data->len; i++ )
+	for (int i = 0; i < m_data->len; i++ )
 	{
 		if ( m_data->data[i] == '\\' ) {
 			m_data->data[i] = '/';
@@ -466,7 +462,7 @@ void TestStringClass
 	idStr d( c );                       // d.len == 4, d.data == "test\0"
 	idStr e( reinterpret_cast<const char *>( NULL ) );
 	// e.len == 0, e.data == "\0"					ASSERT!
-	int i;                              // i == ?
+	size_t i;                              // i == ?
 
 	i = a.length();                 // i == 0
 	i = c.length();                 // i == 4

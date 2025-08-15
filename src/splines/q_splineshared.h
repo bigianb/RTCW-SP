@@ -670,19 +670,5 @@ void Info_RemoveKey( char *s, const char *key );
 qboolean Info_Validate( const char *s );
 void Info_NextPair( const char *( *s ), char key[MAX_INFO_KEY], char value[MAX_INFO_VALUE] );
 
-// get cvar defs, collision defs, etc
-//#include "../shared/interface.h"
-
-// get key code numbers for events
-//#include "../shared/keycodes.h"
-
-#ifdef __cplusplus
-// get the polygon winding functions
-//#include "../shared/windings.h"
-
-// get the flags class
-//#include "../shared/idflags.h"
-#endif  // __cplusplus
 
 #endif  // __Q_SHARED_H
-

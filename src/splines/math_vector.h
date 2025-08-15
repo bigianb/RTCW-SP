@@ -36,15 +36,7 @@ If you have questions concerning this license or the applicable additional terms
 #include <math.h>
 #include <assert.h>
 
-//#define DotProduct(a,b)			((a)[0]*(b)[0]+(a)[1]*(b)[1]+(a)[2]*(b)[2])
-//#define VectorSubtract(a,b,c)	((c)[0]=(a)[0]-(b)[0],(c)[1]=(a)[1]-(b)[1],(c)[2]=(a)[2]-(b)[2])
-//#define VectorAdd(a,b,c)		((c)[0]=(a)[0]+(b)[0],(c)[1]=(a)[1]+(b)[1],(c)[2]=(a)[2]+(b)[2])
-//#define VectorCopy(a,b)			((b)[0]=(a)[0],(b)[1]=(a)[1],(b)[2]=(a)[2])
-//#define VectorCopy(a,b)			((b).x=(a).x,(b).y=(a).y,(b).z=(a).z])
-
-//#define	VectorScale(v, s, o)	((o)[0]=(v)[0]*(s),(o)[1]=(v)[1]*(s),(o)[2]=(v)[2]*(s))
 #define __VectorMA( v, s, b, o )  ( ( o )[0] = ( v )[0] + ( b )[0] * ( s ),( o )[1] = ( v )[1] + ( b )[1] * ( s ),( o )[2] = ( v )[2] + ( b )[2] * ( s ) )
-//#define CrossProduct(a,b,c)		((c)[0]=(a)[1]*(b)[2]-(a)[2]*(b)[1],(c)[1]=(a)[2]*(b)[0]-(a)[0]*(b)[2],(c)[2]=(a)[0]*(b)[1]-(a)[1]*(b)[0])
 
 #define DotProduct4( x,y )        ( ( x )[0] * ( y )[0] + ( x )[1] * ( y )[1] + ( x )[2] * ( y )[2] + ( x )[3] * ( y )[3] )
 #define VectorSubtract4( a,b,c )  ( ( c )[0] = ( a )[0] - ( b )[0],( c )[1] = ( a )[1] - ( b )[1],( c )[2] = ( a )[2] - ( b )[2],( c )[3] = ( a )[3] - ( b )[3] )
@@ -53,16 +45,10 @@ If you have questions concerning this license or the applicable additional terms
 #define VectorScale4( v, s, o )   ( ( o )[0] = ( v )[0] * ( s ),( o )[1] = ( v )[1] * ( s ),( o )[2] = ( v )[2] * ( s ),( o )[3] = ( v )[3] * ( s ) )
 #define VectorMA4( v, s, b, o )   ( ( o )[0] = ( v )[0] + ( b )[0] * ( s ),( o )[1] = ( v )[1] + ( b )[1] * ( s ),( o )[2] = ( v )[2] + ( b )[2] * ( s ),( o )[3] = ( v )[3] + ( b )[3] * ( s ) )
 
-
-//#define VectorClear(a)			((a)[0]=(a)[1]=(a)[2]=0)
 #define VectorNegate( a,b )       ( ( b )[0] = -( a )[0],( b )[1] = -( a )[1],( b )[2] = -( a )[2] )
-//#define VectorSet(v, x, y, z)	((v)[0]=(x), (v)[1]=(y), (v)[2]=(z))
 #define Vector4Copy( a,b )        ( ( b )[0] = ( a )[0],( b )[1] = ( a )[1],( b )[2] = ( a )[2],( b )[3] = ( a )[3] )
 
 #define SnapVector( v ) {v[0] = (int)v[0]; v[1] = (int)v[1]; v[2] = (int)v[2];}
-
-
-//#include "util_heap.h"
 
 #ifndef EQUAL_EPSILON
 #define EQUAL_EPSILON   0.001
@@ -70,82 +56,16 @@ If you have questions concerning this license or the applicable additional terms
 
 float Q_fabs( float f );
 
-#ifndef ID_INLINE
-#ifdef _WIN32
-#define ID_INLINE __inline
-#else
-#define ID_INLINE inline
-#endif
-#endif
-
-// if this is defined, vec3 will take four elements, which may allow
-// easier SIMD optimizations
-//#define	FAT_VEC3
-//#ifdef __ppc__
-//#pragma align(16)
-//#endif
-
 class angles_t;
-#ifdef __ppc__
-// Vanilla PPC code, but since PPC has a reciprocal square root estimate instruction,
-// runs *much* faster than calling sqrt(). We'll use two Newton-Raphson
-// refinement steps to get bunch more precision in the 1/sqrt() value for very little cost.
-// We'll then multiply 1/sqrt times the original value to get the sqrt.
-// This is about 12.4 times faster than sqrt() and according to my testing (not exhaustive)
-// it returns fairly accurate results (error below 1.0e-5 up to 100000.0 in 0.1 increments).
-
-static inline float idSqrt( float x ) {
-	const float half = 0.5;
-	const float one = 1.0;
-	float B, y0, y1;
-
-	// This'll NaN if it hits frsqrte. Handle both +0.0 and -0.0
-	if ( fabs( x ) == 0.0 ) {
-		return x;
-	}
-	B = x;
-
-#ifdef __GNUC__
-	asm ( "frsqrte %0,%1" : "=f" ( y0 ) : "f" ( B ) );
-#else
-	y0 = __frsqrte( B );
-#endif
-	/* First refinement step */
-
-	y1 = y0 + half * y0 * ( one - B * y0 * y0 );
-
-	/* Second refinement step -- copy the output of the last step to the input of this step */
-
-	y0 = y1;
-	y1 = y0 + half * y0 * ( one - B * y0 * y0 );
-
-	/* Get sqrt(x) from x * 1/sqrt(x) */
-	return x * y1;
-}
-#else
 static inline double idSqrt( double x ) {
 	return sqrt( x );
 }
-#endif
 
-
-//class idVec3  : public idHeap<idVec3> {
 class idVec3 {
 public:
-#ifndef FAT_VEC3
 	float x,y,z;
-#else
-	float x,y,z,dist;
-#endif
 
-#ifndef FAT_VEC3
-	idVec3() {
-	};
-#else
-	idVec3() {
-		dist = 0.0f;
-	};
-#endif
+	idVec3() {};
 	idVec3( const float x, const float y, const float z );
 
 	operator float*();
@@ -193,32 +113,29 @@ public:
 
 extern idVec3 vec_zero;
 
-ID_INLINE idVec3::idVec3( const float x, const float y, const float z ) {
+inline idVec3::idVec3( const float x, const float y, const float z ) {
 	this->x = x;
 	this->y = y;
 	this->z = z;
-#ifdef  FAT_VEC3
-	this->dist = 0.0f;
-#endif
 }
 
-ID_INLINE float idVec3::operator[]( const int index ) const {
+inline float idVec3::operator[]( const int index ) const {
 	return ( &x )[ index ];
 }
 
-ID_INLINE float &idVec3::operator[]( const int index ) {
+inline float &idVec3::operator[]( const int index ) {
 	return ( &x )[ index ];
 }
 
-ID_INLINE idVec3::operator float*( void ) {
+inline idVec3::operator float*( void ) {
 	return &x;
 }
 
-ID_INLINE idVec3 idVec3::operator-() const {
+inline idVec3 idVec3::operator-() const {
 	return idVec3( -x, -y, -z );
 }
 
-ID_INLINE idVec3 &idVec3::operator=( const idVec3 &a ) {
+inline idVec3 &idVec3::operator=( const idVec3 &a ) {
 	x = a.x;
 	y = a.y;
 	z = a.z;
@@ -226,33 +143,33 @@ ID_INLINE idVec3 &idVec3::operator=( const idVec3 &a ) {
 	return *this;
 }
 
-ID_INLINE void idVec3::set( const float x, const float y, const float z ) {
+inline void idVec3::set( const float x, const float y, const float z ) {
 	this->x = x;
 	this->y = y;
 	this->z = z;
 }
 
-ID_INLINE idVec3 idVec3::operator-( const idVec3 &a ) const {
+inline idVec3 idVec3::operator-( const idVec3 &a ) const {
 	return idVec3( x - a.x, y - a.y, z - a.z );
 }
 
-ID_INLINE float idVec3::operator*( const idVec3 &a ) const {
+inline float idVec3::operator*( const idVec3 &a ) const {
 	return x * a.x + y * a.y + z * a.z;
 }
 
-ID_INLINE idVec3 idVec3::operator*( const float a ) const {
+inline idVec3 idVec3::operator*( const float a ) const {
 	return idVec3( x * a, y * a, z * a );
 }
 
-ID_INLINE idVec3 operator*( const float a, const idVec3 b ) {
+inline idVec3 operator*( const float a, const idVec3 b ) {
 	return idVec3( b.x * a, b.y * a, b.z * a );
 }
 
-ID_INLINE idVec3 idVec3::operator+( const idVec3 &a ) const {
+inline idVec3 idVec3::operator+( const idVec3 &a ) const {
 	return idVec3( x + a.x, y + a.y, z + a.z );
 }
 
-ID_INLINE idVec3 &idVec3::operator+=( const idVec3 &a ) {
+inline idVec3 &idVec3::operator+=( const idVec3 &a ) {
 	x += a.x;
 	y += a.y;
 	z += a.z;
@@ -260,7 +177,7 @@ ID_INLINE idVec3 &idVec3::operator+=( const idVec3 &a ) {
 	return *this;
 }
 
-ID_INLINE idVec3 &idVec3::operator-=( const idVec3 &a ) {
+inline idVec3 &idVec3::operator-=( const idVec3 &a ) {
 	x -= a.x;
 	y -= a.y;
 	z -= a.z;
@@ -268,7 +185,7 @@ ID_INLINE idVec3 &idVec3::operator-=( const idVec3 &a ) {
 	return *this;
 }
 
-ID_INLINE idVec3 &idVec3::operator*=( const float a ) {
+inline idVec3 &idVec3::operator*=( const float a ) {
 	x *= a;
 	y *= a;
 	z *= a;
@@ -276,7 +193,7 @@ ID_INLINE idVec3 &idVec3::operator*=( const float a ) {
 	return *this;
 }
 
-ID_INLINE int idVec3::operator==( const idVec3 &a ) const {
+inline int idVec3::operator==( const idVec3 &a ) const {
 	if ( Q_fabs( x - a.x ) > EQUAL_EPSILON ) {
 		return false;
 	}
@@ -292,7 +209,7 @@ ID_INLINE int idVec3::operator==( const idVec3 &a ) const {
 	return true;
 }
 
-ID_INLINE int idVec3::operator!=( const idVec3 &a ) const {
+inline int idVec3::operator!=( const idVec3 &a ) const {
 	if ( Q_fabs( x - a.x ) > EQUAL_EPSILON ) {
 		return true;
 	}
@@ -308,11 +225,11 @@ ID_INLINE int idVec3::operator!=( const idVec3 &a ) const {
 	return false;
 }
 
-ID_INLINE idVec3 idVec3::Cross( const idVec3 &a ) const {
+inline idVec3 idVec3::Cross( const idVec3 &a ) const {
 	return idVec3( y * a.z - z * a.y, z * a.x - x * a.z, x * a.y - y * a.x );
 }
 
-ID_INLINE idVec3 &idVec3::Cross( const idVec3 &a, const idVec3 &b ) {
+inline idVec3 &idVec3::Cross( const idVec3 &a, const idVec3 &b ) {
 	x = a.y * b.z - a.z * b.y;
 	y = a.z * b.x - a.x * b.z;
 	z = a.x * b.y - a.y * b.x;
@@ -320,14 +237,14 @@ ID_INLINE idVec3 &idVec3::Cross( const idVec3 &a, const idVec3 &b ) {
 	return *this;
 }
 
-ID_INLINE float idVec3::Length( void ) const {
+inline float idVec3::Length( void ) const {
 	float length;
 
 	length = x * x + y * y + z * z;
 	return ( float )idSqrt( length );
 }
 
-ID_INLINE float idVec3::Normalize( void ) {
+inline float idVec3::Normalize( void ) {
 	float length;
 	float ilength;
 
@@ -342,13 +259,13 @@ ID_INLINE float idVec3::Normalize( void ) {
 	return length;
 }
 
-ID_INLINE void idVec3::Zero( void ) {
+inline void idVec3::Zero( void ) {
 	x = 0.0f;
 	y = 0.0f;
 	z = 0.0f;
 }
 
-ID_INLINE void idVec3::Snap( void ) {
+inline void idVec3::Snap( void ) {
 	x = float( int( x ) );
 	y = float( int( y ) );
 	z = float( int( z ) );
@@ -364,7 +281,7 @@ rather than blindly truncating.  This prevents it from truncating
 into a wall.
 ======================
 */
-ID_INLINE void idVec3::SnapTowards( const idVec3 &to ) {
+inline void idVec3::SnapTowards( const idVec3 &to ) {
 	if ( to.x <= x ) {
 		x = float( int( x ) );
 	} else {
@@ -406,14 +323,14 @@ public:
 
 extern Bounds boundsZero;
 
-ID_INLINE Bounds::Bounds() {
+inline Bounds::Bounds() {
 }
 
-ID_INLINE bool Bounds::IsCleared() {
+inline bool Bounds::IsCleared() {
 	return b[0][0] > b[1][0];
 }
 
-ID_INLINE bool Bounds::ContainsPoint( const idVec3 &p ) {
+inline bool Bounds::ContainsPoint( const idVec3 &p ) {
 	if ( p[0] < b[0][0] || p[1] < b[0][1] || p[2] < b[0][2]
 		 || p[0] > b[1][0] || p[1] > b[1][1] || p[2] > b[1][2] ) {
 		return false;
@@ -421,7 +338,7 @@ ID_INLINE bool Bounds::ContainsPoint( const idVec3 &p ) {
 	return true;
 }
 
-ID_INLINE bool Bounds::IntersectsBounds( const Bounds &b2 ) {
+inline bool Bounds::IntersectsBounds( const Bounds &b2 ) {
 	if ( b2.b[1][0] < b[0][0] || b2.b[1][1] < b[0][1] || b2.b[1][2] < b[0][2]
 		 || b2.b[0][0] > b[1][0] || b2.b[0][1] > b[1][1] || b2.b[0][2] > b[1][2] ) {
 		return false;
@@ -429,26 +346,26 @@ ID_INLINE bool Bounds::IntersectsBounds( const Bounds &b2 ) {
 	return true;
 }
 
-ID_INLINE Bounds::Bounds( const idVec3 &mins, const idVec3 &maxs ) {
+inline Bounds::Bounds( const idVec3 &mins, const idVec3 &maxs ) {
 	b[0] = mins;
 	b[1] = maxs;
 }
 
-ID_INLINE idVec3 Bounds::Center() {
+inline idVec3 Bounds::Center() {
 	return idVec3( ( b[1][0] + b[0][0] ) * 0.5f, ( b[1][1] + b[0][1] ) * 0.5f, ( b[1][2] + b[0][2] ) * 0.5f );
 }
 
-ID_INLINE void Bounds::Clear() {
+inline void Bounds::Clear() {
 	b[0][0] = b[0][1] = b[0][2] = 99999;
 	b[1][0] = b[1][1] = b[1][2] = -99999;
 }
 
-ID_INLINE void Bounds::Zero() {
+inline void Bounds::Zero() {
 	b[0][0] = b[0][1] = b[0][2] =
 							b[1][0] = b[1][1] = b[1][2] = 0;
 }
 
-ID_INLINE void Bounds::AddPoint( const idVec3 &v ) {
+inline void Bounds::AddPoint( const idVec3 &v ) {
 	if ( v[0] < b[0][0] ) {
 		b[0][0] = v[0];
 	}
@@ -470,7 +387,7 @@ ID_INLINE void Bounds::AddPoint( const idVec3 &v ) {
 }
 
 
-ID_INLINE void Bounds::AddBounds( const Bounds &bb ) {
+inline void Bounds::AddBounds( const Bounds &bb ) {
 	if ( bb.b[0][0] < b[0][0] ) {
 		b[0][0] = bb.b[0][0];
 	}
@@ -492,7 +409,7 @@ ID_INLINE void Bounds::AddBounds( const Bounds &bb ) {
 	}
 }
 
-ID_INLINE float Bounds::Radius() {
+inline float Bounds::Radius() {
 	int i;
 	float total;
 	float a, aa;
@@ -523,23 +440,21 @@ public:
 	float           &operator[]( int index );
 };
 
-ID_INLINE float idVec2::operator[]( int index ) const {
+inline float idVec2::operator[]( int index ) const {
 	return ( &x )[ index ];
 }
 
-ID_INLINE float& idVec2::operator[]( int index ) {
+inline float& idVec2::operator[]( int index ) {
 	return ( &x )[ index ];
 }
 
-ID_INLINE idVec2::operator float*( void ) {
+inline idVec2::operator float*( void ) {
 	return &x;
 }
 
 class idVec4 : public idVec3 {
 public:
-#ifndef FAT_VEC3
 	float dist;
-#endif
 	idVec4();
 	~idVec4() {
 	};
@@ -549,20 +464,20 @@ public:
 	float           &operator[]( int index );
 };
 
-ID_INLINE idVec4::idVec4() {
+inline idVec4::idVec4() {
 }
-ID_INLINE idVec4::idVec4( float x, float y, float z, float dist ) {
+inline idVec4::idVec4( float x, float y, float z, float dist ) {
 	this->x = x;
 	this->y = y;
 	this->z = z;
 	this->dist = dist;
 }
 
-ID_INLINE float idVec4::operator[]( int index ) const {
+inline float idVec4::operator[]( int index ) const {
 	return ( &x )[ index ];
 }
 
-ID_INLINE float& idVec4::operator[]( int index ) {
+inline float& idVec4::operator[]( int index ) {
 	return ( &x )[ index ];
 }
 
@@ -576,11 +491,11 @@ public:
 };
 
 
-ID_INLINE float idVec5_t::operator[]( int index ) const {
+inline float idVec5_t::operator[]( int index ) const {
 	return ( &x )[ index ];
 }
 
-ID_INLINE float& idVec5_t::operator[]( int index ) {
+inline float& idVec5_t::operator[]( int index ) {
 	return ( &x )[ index ];
 }
 
