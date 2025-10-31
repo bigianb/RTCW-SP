@@ -980,7 +980,7 @@ extern void trap_Printf ( const char * fmt ) ;
 
 extern void G_RunFrame ( int levelTime ) ;
 extern void G_RunThink ( gentity_t * ent ) ;
-extern void CheckCvars ( void ) ;
+
 extern void CheckReloadStatus ( void ) ;
 
 extern void LogExit ( const char * string ) ;

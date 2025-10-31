@@ -137,15 +137,15 @@ static int GLimp_SetMode(int mode, qboolean fullscreen, qboolean noborder, qbool
 	int i = 0;
 	SDL_Surface *icon = NULL;
 	Uint32 flags = SDL_WINDOW_OPENGL;
-	;
+	
 	int display = 0;
 	int x = SDL_WINDOWPOS_UNDEFINED, y = SDL_WINDOWPOS_UNDEFINED;
 
 	ri.Printf( PRINT_ALL, "Initializing OpenGL display\n");
 
-	if ( r_allowResize->integer )
+	if ( r_allowResize->integer ){
 		flags |= SDL_WINDOW_RESIZABLE;
-
+	}
 	// If a window exists, note its display index
 	if( SDL_window != NULL )
 	{
@@ -164,7 +164,6 @@ static int GLimp_SetMode(int mode, qboolean fullscreen, qboolean noborder, qbool
 	}
 	else
 	{
-		
 		ri.Printf( PRINT_ALL, "Cannot determine display aspect, assuming 1.333\n" );
 	}
 
@@ -558,24 +557,22 @@ void GLimp_Init( qboolean fixedFunction )
 	r_sdlDriver = Cvar_Get( "r_sdlDriver", "", CVAR_ROM );
 	r_allowResize = Cvar_Get( "r_allowResize", "0", CVAR_ARCHIVE | CVAR_LATCH );
 	r_centerWindow = Cvar_Get( "r_centerWindow", "0", CVAR_ARCHIVE | CVAR_LATCH );
-	
-	// IJB - force windowed while developing
-	Cvar_Set( "r_fullscreen", "0" );
-/*
-	if( ri.Cvar_VariableIntegerValue( "com_abnormalExit" ) )
-	{
-		ri.Cvar_Set( "r_mode", va( "%d", R_MODE_FALLBACK ) );
-		ri.Cvar_Set( "r_fullscreen", "0" );
-		ri.Cvar_Set( "r_centerWindow", "0" );
-		ri.Cvar_Set( "com_abnormalExit", "0" );
-	}
-*/
-	// IJB Sys_GLimpInit( );
-/*
-	// Create the window and set up the context
-	if(GLimp_StartDriverAndSetMode(r_mode->integer, r_fullscreen->integer, r_noborder->integer, fixedFunction))
-		goto success;
 
+	if( Cvar_VariableIntegerValue( "com_abnormalExit" ) )
+	{
+		Cvar_Set( "r_mode", va( "%d", R_MODE_FALLBACK ) );
+		Cvar_Set( "r_fullscreen", "0" );
+		Cvar_Set( "r_centerWindow", "0" );
+		Cvar_Set( "com_abnormalExit", "0" );
+	}
+
+	// IJB Sys_GLimpInit( );
+
+	// Create the window and set up the context
+	if(!GLimp_StartDriverAndSetMode(r_mode->integer, r_fullscreen->integer, qfalse, fixedFunction))
+	{
+		/*
+	
 	// Try again, this time in a platform specific "safe mode"
 	ri.Sys_GLimpSafeInit( );
 
@@ -594,10 +591,8 @@ void GLimp_Init( qboolean fixedFunction )
 
 	// Nothing worked, give up
 	ri.Error( ERR_FATAL, "GLimp_Init() - could not load OpenGL subsystem" );
-
-success:
 */
-	GLimp_StartDriverAndSetMode(R_MODE_FALLBACK, qfalse, qfalse, fixedFunction);
+}
 
 	// These values force the UI to disable driver selection
 	glConfig.driverType = GLDRV_ICD;
@@ -609,8 +604,9 @@ success:
 	// get our config strings
 	Q_strncpyz( glConfig.vendor_string, (char *) qglGetString (GL_VENDOR), sizeof( glConfig.vendor_string ) );
 	Q_strncpyz( glConfig.renderer_string, (char *) qglGetString (GL_RENDERER), sizeof( glConfig.renderer_string ) );
-	if (*glConfig.renderer_string && glConfig.renderer_string[strlen(glConfig.renderer_string) - 1] == '\n')
+	if (*glConfig.renderer_string && glConfig.renderer_string[strlen(glConfig.renderer_string) - 1] == '\n'){
 		glConfig.renderer_string[strlen(glConfig.renderer_string) - 1] = 0;
+	}
 	Q_strncpyz( glConfig.version_string, (char *) qglGetString (GL_VERSION), sizeof( glConfig.version_string ) );
 
 	// initialize extensions

@@ -66,7 +66,7 @@ vmCvar_t g_fraglimit;
 vmCvar_t g_timelimit;
 vmCvar_t g_capturelimit;
 vmCvar_t g_friendlyFire;
-vmCvar_t g_password;
+
 vmCvar_t g_maxclients;
 vmCvar_t g_maxGameClients;
 vmCvar_t g_dedicated;
@@ -190,7 +190,6 @@ cvarTable_t gameCvarTable[] = {
 	{ &g_log, "g_log", "games.log", CVAR_ARCHIVE, 0, qfalse  },
 	{ &g_logSync, "g_logSync", "0", CVAR_ARCHIVE, 0, qfalse  },
 
-	{ &g_password, "g_password", "", CVAR_USERINFO, 0, qfalse  },
 	{ &g_banIPs, "g_banIPs", "", CVAR_ARCHIVE, 0, qfalse  },
 
 	{ &g_dedicated, "dedicated", "0", 0, 0, qfalse  },
@@ -1775,24 +1774,6 @@ void CheckReloadStatus( void ) {
 }
 
 /*
-==================
-CheckCvars
-==================
-*/
-void CheckCvars( void ) {
-	static int lastMod = -1;
-
-	if ( g_password.modificationCount != lastMod ) {
-		lastMod = g_password.modificationCount;
-		if ( *g_password.string && Q_stricmp( g_password.string, "none" ) ) {
-			trap_Cvar_Set( "g_needpass", "1" );
-		} else {
-			trap_Cvar_Set( "g_needpass", "0" );
-		}
-	}
-}
-
-/*
 =============
 G_RunThink
 
@@ -1800,7 +1781,6 @@ Runs thinking code for this frame if necessary
 =============
 */
 void G_RunThink( gentity_t *ent ) {
-	float thinktime;
 
 	// RF, run scripting
 	if ( ent->s.number >= MAX_CLIENTS ) {
@@ -1808,11 +1788,8 @@ void G_RunThink( gentity_t *ent ) {
 		G_Script_ScriptRun( ent );
 	}
 
-	thinktime = ent->nextthink;
-	if ( thinktime <= 0 ) {
-		return;
-	}
-	if ( thinktime > level.time ) {
+	float thinktime = ent->nextthink;
+	if ( thinktime <= 0 || thinktime > level.time) {
 		return;
 	}
 
@@ -1985,9 +1962,6 @@ void G_RunFrame( int levelTime ) {
 			ClientEndFrame( ent );
 		}
 	}
-
-	// for tracking changes
-	CheckCvars();
 
 	if ( g_listEntity.integer ) {
 		for ( i = 0; i < MAX_GENTITIES; i++ ) {

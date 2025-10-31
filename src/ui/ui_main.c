@@ -3878,13 +3878,7 @@ static void UI_RunMenuScript( char **args ) {
 			UI_LoadSavegames( NULL );
 		} else if ( Q_stricmp( name, "Loadgame" ) == 0 ) {
 			int i = UI_SavegameIndexFromName2( ui_savegameName.string );
-			// in developer, don't actually load the game
-			if ( Cvar_VariableValue( "developer" ) ) {
-				Com_Printf( "would load game (developer 0):\n   %s\n", uiInfo.savegameList[i].savegameFile );
-			} else {
-				trap_Cmd_ExecuteText( EXEC_APPEND, va( "loadgame %s\n", uiInfo.savegameList[i].savegameFile ) );
-			}
-
+			trap_Cmd_ExecuteText( EXEC_APPEND, va( "loadgame %s\n", uiInfo.savegameList[i].savegameFile ) );
 			// save.  throw dialog box if file exists
 		} else if ( Q_stricmp( name, "Savegame" ) == 0 ) {
 			int i;
@@ -3919,11 +3913,7 @@ static void UI_RunMenuScript( char **args ) {
 			}
 		} else if ( Q_stricmp( name, "DelSavegame" ) == 0 ) {
 			int i = UI_SavegameIndexFromName2( ui_savegameName.string );
-			if ( Cvar_VariableValue( "developer" ) ) {
-				Com_Printf( "would delete game (developer 0):\n   %s\n", uiInfo.savegameList[i].savegameFile );
-			} else {
-				UI_DelSavegame();
-			}
+			UI_DelSavegame();
 		} else if ( Q_stricmp( name, "SavegameSort" ) == 0 ) {
 			int sortColumn;
 			if ( Int_Parse( args, &sortColumn ) ) {
@@ -4959,10 +4949,6 @@ static void UI_FeederSelection( float feederID, int index ) {
 		uiInfo.previewMovie = -1;
 	} else if ( feederID == FEEDER_SAVEGAMES ) {
 		if ( index >= 0 && index < uiInfo.savegameCount ) {
-
-			if ( Cvar_VariableValue( "developer" ) ) {
-				Com_Printf( "setting sel save to: %s\n  (savename: %s)\n", uiInfo.savegameList[uiInfo.savegameStatus.displaySavegames[index]].savegameName,  uiInfo.savegameList[uiInfo.savegameStatus.displaySavegames[index]].savegameFile );
-			}
 
 			// the text entry box
 			trap_Cvar_Set( "ui_savegame", uiInfo.savegameList[uiInfo.savegameStatus.displaySavegames[index]].savegameName );
