@@ -1301,33 +1301,6 @@ int FS_Delete( const char *filename ) {
 	return 0;
 }
 
-
-/*
-=================
-FS_Read
-
-Properly handles partial reads
-=================
-*/
-int FS_Read2( void *buffer, int len, fileHandle_t f ) {
-	if ( !fs_searchpaths ) {
-		Com_Error( ERR_FATAL, "Filesystem call made without initialization\n" );
-	}
-
-	if ( !f ) {
-		return 0;
-	}
-	if ( fsh[f].streamed ) {
-		int r;
-		fsh[f].streamed = qfalse;
-		r = Sys_StreamedRead( buffer, len, 1, f );
-		fsh[f].streamed = qtrue;
-		return r;
-	} else {
-		return FS_Read( buffer, len, f );
-	}
-}
-
 size_t FS_Read( void *buffer, size_t len, fileHandle_t f ) {
 
 	if ( !fs_searchpaths ) {
@@ -1565,7 +1538,7 @@ Filename are relative to the quake search path
 a null buffer will just return the file length without loading
 ============
 */
-int FS_ReadFile( const char *qpath, void **buffer ) {
+size_t FS_ReadFile( const char *qpath, void **buffer ) {
 	fileHandle_t h;
 
 	qboolean isConfig;
@@ -1579,7 +1552,7 @@ int FS_ReadFile( const char *qpath, void **buffer ) {
 	}
 
 	byte* buf = NULL; // quiet compiler warning
-	int len = 0;
+	size_t len = 0;
 	// if this is a .cfg file and we are playing back a journal, read
 	// it from the journal file
 	if ( strstr( qpath, ".cfg" ) ) {
@@ -1905,16 +1878,10 @@ from all search paths
 ===============
 */
 char **FS_ListFilteredFiles( const char *path, const char *extension, char *filter, int *numfiles ) {
-	int nfiles;
+
 	char            **listCopy;
 	char            *list[MAX_FOUND_FILES];
-	searchpath_t    *search;
-	int i;
-	int pathLength;
-	int extensionLength;
-	int length, pathDepth, temp;
-	pack_t          *pak;
-	fileInPack_t    *buildBuffer;
+
 	char zpath[MAX_ZPATH];
 
 	if ( !fs_searchpaths ) {
@@ -1929,18 +1896,19 @@ char **FS_ListFilteredFiles( const char *path, const char *extension, char *filt
 		extension = "";
 	}
 
-	pathLength = strlen( path );
+	size_t pathLength = strlen( path );
 	if ( path[pathLength - 1] == '\\' || path[pathLength - 1] == '/' ) {
 		pathLength--;
 	}
-	extensionLength = strlen( extension );
-	nfiles = 0;
+	size_t extensionLength = strlen( extension );
+	int nfiles = 0;
+	int pathDepth;
 	FS_ReturnPath( path, zpath, &pathDepth );
 
 	//
 	// search through the path, one element at a time, adding to list
 	//
-	for ( search = fs_searchpaths ; search ; search = search->next ) {
+	for (searchpath_t *search = fs_searchpaths ; search ; search = search->next ) {
 		// is the element a pak file?
 		if ( search->pack ) {
 
@@ -1951,9 +1919,9 @@ char **FS_ListFilteredFiles( const char *path, const char *extension, char *filt
 			}
 
 			// look through all the pak file elements
-			pak = search->pack;
-			buildBuffer = pak->buildBuffer;
-			for ( i = 0; i < pak->numfiles; i++ ) {
+			pack_t* pak = search->pack;
+			fileInPack_t* buildBuffer = pak->buildBuffer;
+			for (int i = 0; i < pak->numfiles; i++ ) {
 				char    *name;
 				int zpathLen, depth;
 
@@ -1976,7 +1944,7 @@ char **FS_ListFilteredFiles( const char *path, const char *extension, char *filt
 					}
 
 					// check for extension match
-					length = strlen( name );
+					size_t length = strlen( name );
 					if ( length < extensionLength ) {
 						continue;
 					}
@@ -1986,7 +1954,7 @@ char **FS_ListFilteredFiles( const char *path, const char *extension, char *filt
 					}
 					// unique the match
 
-					temp = pathLength;
+					size_t temp = pathLength;
 					if ( pathLength ) {
 						temp++;     // include the '/'
 					}
@@ -2006,7 +1974,7 @@ char **FS_ListFilteredFiles( const char *path, const char *extension, char *filt
 			} else {
 				netpath = FS_BuildOSPath( search->dir->path, search->dir->gamedir, path );
 				sysFiles = Sys_ListFiles( netpath, extension, filter, &numSysFiles, qfalse );
-				for ( i = 0 ; i < numSysFiles ; i++ ) {
+				for (int i = 0 ; i < numSysFiles ; i++ ) {
 					// unique the match
 					name = sysFiles[i];
 					nfiles = FS_AddFileToList( name, list, nfiles );
@@ -2024,10 +1992,10 @@ char **FS_ListFilteredFiles( const char *path, const char *extension, char *filt
 	}
 
 	listCopy = calloc(1,  ( nfiles + 1 ) * sizeof( *listCopy ) );
-	for ( i = 0 ; i < nfiles ; i++ ) {
+	for (int i = 0 ; i < nfiles ; i++ ) {
 		listCopy[i] = list[i];
 	}
-	listCopy[i] = NULL;
+	listCopy[nfiles] = NULL;
 
 	return listCopy;
 }
@@ -2071,21 +2039,19 @@ FS_GetFileList
 ================
 */
 int FS_GetFileList(  const char *path, const char *extension, char *listbuf, int bufsize ) {
-	int nFiles, i, nTotal, nLen;
-	char **pFiles = NULL;
 
 	*listbuf = 0;
-	nFiles = 0;
-	nTotal = 0;
+	int nFiles = 0;
+	int nTotal = 0;
 
 	if ( Q_stricmp( path, "$modlist" ) == 0 ) {
 		return FS_GetModList( listbuf, bufsize );
 	}
 
-	pFiles = FS_ListFiles( path, extension, &nFiles );
+	char** pFiles = FS_ListFiles( path, extension, &nFiles );
 
-	for ( i = 0; i < nFiles; i++ ) {
-		nLen = strlen( pFiles[i] ) + 1;
+	for (int i = 0; i < nFiles; i++ ) {
+		int nLen = (int)strlen( pFiles[i] ) + 1;
 		if ( nTotal + nLen + 1 < bufsize ) {
 			strcpy( listbuf, pFiles[i] );
 			listbuf += nLen;
@@ -2178,7 +2144,7 @@ The directories are searched in base path, cd path and home path
 ================
 */
 int FS_GetModList( char *listbuf, int bufsize ) {
-	int nMods, i, j, nTotal, nLen, nPaks, nPotential, nDescLen;
+	int nMods, i, j, nTotal, nPaks, nPotential;
 	char **pFiles = NULL;
 	char **pPaks = NULL;
 	char *name, *path;
@@ -2251,13 +2217,13 @@ int FS_GetModList( char *listbuf, int bufsize ) {
 			}
 
 			if ( nPaks > 0 ) {
-				nLen = strlen( name ) + 1;
+				size_t nLen = strlen( name ) + 1;
 				// nLen is the length of the mod path
 				// we need to see if there is a description available
 				descPath[0] = '\0';
 				strcpy( descPath, name );
 				strcat( descPath, "/description.txt" );
-				nDescLen = FS_SV_FOpenFileRead( descPath, &descHandle );
+				size_t nDescLen = FS_SV_FOpenFileRead( descPath, &descHandle );
 				if ( nDescLen > 0 && descHandle ) {
 					FILE *file;
 					file = FS_FileForHandle( descHandle );

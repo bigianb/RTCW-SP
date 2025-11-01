@@ -454,7 +454,7 @@ void R_TakeScreenshot( int x, int y, int width, int height, char *fileName ) {
 	byte        *buffer;
 	int i, c, temp;
 
-	buffer = ri.Hunk_AllocateTempMemory( glConfig.vidWidth * glConfig.vidHeight * 3 + 18 );
+	buffer = Hunk_AllocateTempMemory( glConfig.vidWidth * glConfig.vidHeight * 3 + 18 );
 
 	memset( buffer, 0, 18 );
 	buffer[2] = 2;      // uncompressed type
@@ -563,9 +563,9 @@ void R_LevelShot( void ) {
 
 	sprintf( checkname, "levelshots/%s.tga", tr.world->baseName );
 
-	source = ri.Hunk_AllocateTempMemory( glConfig.vidWidth * glConfig.vidHeight * 3 );
+	source = Hunk_AllocateTempMemory( glConfig.vidWidth * glConfig.vidHeight * 3 );
 
-	buffer = ri.Hunk_AllocateTempMemory( 128 * 128 * 3 + 18 );
+	buffer = Hunk_AllocateTempMemory( 128 * 128 * 3 + 18 );
 	memset( buffer, 0, 18 );
 	buffer[2] = 2;      // uncompressed type
 	buffer[12] = 128;
@@ -653,7 +653,7 @@ void R_ScreenShot_f( void ) {
 		for ( ; lastNumber <= 9999 ; lastNumber++ ) {
 			R_ScreenshotFilename( lastNumber, checkname );
 
-			len = ri.FS_ReadFile( checkname, NULL );
+			len = FS_ReadFile( checkname, NULL );
 			if ( len <= 0 ) {
 				break;  // file doesn't exist
 			}
@@ -708,7 +708,7 @@ void R_ScreenShotJPEG_f( void ) {
 		for ( ; lastNumber <= 9999 ; lastNumber++ ) {
 			R_ScreenshotFilenameJPEG( lastNumber, checkname );
 
-			len = ri.FS_ReadFile( checkname, NULL );
+			len = FS_ReadFile( checkname, NULL );
 			if ( len <= 0 ) {
 				break;  // file doesn't exist
 			}

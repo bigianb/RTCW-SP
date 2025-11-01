@@ -417,7 +417,7 @@ static void R_MipMap2( unsigned *in, int inWidth, int inHeight ) {
 
 	outWidth = inWidth >> 1;
 	outHeight = inHeight >> 1;
-	temp = ri.Hunk_AllocateTempMemory( outWidth * outHeight * 4 );
+	temp = Hunk_AllocateTempMemory( outWidth * outHeight * 4 );
 
 	inWidthMask = inWidth - 1;
 	inHeightMask = inHeight - 1;
@@ -658,7 +658,6 @@ static void Upload32(   unsigned *data,
 	}
 
 	if ( scaled_width != width || scaled_height != height ) {
-		//resampledBuffer = ri.Hunk_AllocateTempMemory( scaled_width * scaled_height * 4 );
 		resampledBuffer = R_GetImageBuffer( scaled_width * scaled_height * 4, BUFFER_RESAMPLED );
 		ResampleTexture( data, width, height, resampledBuffer, scaled_width, scaled_height );
 		data = resampledBuffer;
@@ -725,7 +724,6 @@ static void Upload32(   unsigned *data,
 		scaled_height = 1;
 	}
 
-	//scaledBuffer = ri.Hunk_AllocateTempMemory( sizeof( unsigned ) * scaled_width * scaled_height );
 	scaledBuffer = R_GetImageBuffer( sizeof( unsigned ) * scaled_width * scaled_height, BUFFER_SCALED );
 
 	//
@@ -1019,7 +1017,7 @@ static void LoadBMP( const char *name, byte **pic, int *width, int *height ) {
 	//
 	// load the file
 	//
-	length = ri.FS_ReadFile( ( char * ) name, (void **)&buffer );
+	length = FS_ReadFile( ( char * ) name, (void **)&buffer );
 	if ( !buffer ) {
 		return;
 	}
@@ -1183,7 +1181,7 @@ static void LoadPCX( const char *filename, byte **pic, byte **palette, int *widt
 	//
 	// load the file
 	//
-	len = ri.FS_ReadFile( ( char * ) filename, (void **)&raw );
+	len = FS_ReadFile( ( char * ) filename, (void **)&raw );
 	if ( !raw ) {
 		return;
 	}
@@ -1314,7 +1312,7 @@ void LoadTGA( const char *name, byte **pic, int *width, int *height ) {
 	//
 	// load the file
 	//
-	ri.FS_ReadFile( ( char * ) name, (void **)&buffer );
+	FS_ReadFile( ( char * ) name, (void **)&buffer );
 	if ( !buffer ) {
 		return;
 	}
@@ -1524,7 +1522,7 @@ static void LoadJPG( const char *filename, unsigned char **pic, int *width, int 
 	byte  *fbuffer;
 	byte  *bbuf;
 
-	int bufLen = ri.FS_ReadFile( ( char * ) filename, (void **)&fbuffer );
+	int bufLen = FS_ReadFile( ( char * ) filename, (void **)&fbuffer );
 	if ( !fbuffer ) {
 		return;
 	}
@@ -1850,7 +1848,7 @@ static void R_CreateFogImage( void ) {
 	float d;
 	float borderColor[4];
 
-	data = ri.Hunk_AllocateTempMemory( FOG_S * FOG_T * 4 );
+	data = Hunk_AllocateTempMemory( FOG_S * FOG_T * 4 );
 
 	g = 2.0;
 
@@ -1869,7 +1867,7 @@ static void R_CreateFogImage( void ) {
 	// the border color at the edges.  OpenGL 1.2 has clamp-to-edge, which does
 	// what we want.
 	tr.fogImage = R_CreateImage( "*fog", (byte *)data, FOG_S, FOG_T, qfalse, qfalse, GL_CLAMP );
-	ri.Hunk_FreeTempMemory( data );
+	Hunk_FreeTempMemory( data );
 
 	borderColor[0] = 1.0;
 	borderColor[1] = 1.0;
@@ -2350,7 +2348,7 @@ qhandle_t RE_RegisterSkin( const char *name ) {
 	}
 
 	// load and parse the skin file
-	ri.FS_ReadFile( name, (void **)&text );
+	FS_ReadFile( name, (void **)&text );
 	if ( !text ) {
 		return 0;
 	}
@@ -2508,7 +2506,7 @@ void SaveTGA( char *name, byte **pic, int width, int height ) {
 	byte    *inpixel, *outpixel;
 	byte    *outbuf, *b;
 
-	outbuf = ri.Hunk_AllocateTempMemory( width * height * 4 + 18 );
+	outbuf = Hunk_AllocateTempMemory( width * height * 4 + 18 );
 	b = outbuf;
 
 	memset( b, 0, 18 );
@@ -2561,7 +2559,7 @@ void SaveTGAAlpha( char *name, byte **pic, int width, int height ) {
 	byte    *inpixel, *outpixel;
 	byte    *outbuf, *b;
 
-	outbuf = ri.Hunk_AllocateTempMemory( width * height * 4 + 18 );
+	outbuf = Hunk_AllocateTempMemory( width * height * 4 + 18 );
 	b = outbuf;
 
 	memset( b, 0, 18 );
@@ -3351,14 +3349,14 @@ void R_LoadCacheImages( void ) {
 		return;
 	}
 
-	len = ri.FS_ReadFile( "image.cache", NULL );
+	len = FS_ReadFile( "image.cache", NULL );
 
 	if ( len <= 0 ) {
 		return;
 	}
 
-	buf = (byte *)ri.Hunk_AllocateTempMemory( len );
-	ri.FS_ReadFile( "image.cache", (void **)&buf );
+	buf = (byte *)Hunk_AllocateTempMemory( len );
+	FS_ReadFile( "image.cache", (void **)&buf );
 	pString = (char*)buf;   //DAJ added (char*)
 
 	while ( ( token = COM_ParseExt( &pString, qtrue ) ) && token[0] ) {

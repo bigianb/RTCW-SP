@@ -379,36 +379,26 @@ Handles horizontal scrolling and cursor blinking
 x, y, amd width are in pixels
 ===================
 */
-void Field_VariableSizeDraw( field_t *edit, int x, int y, int width, int size, qboolean showCursor ) {
-	int len;
-	int drawLen;
+void Field_VariableSizeDraw( field_t *edit, int x, int y, int width, int size, qboolean showCursor )
+{
 	int prestep;
 	int cursorChar;
 	char str[MAX_STRING_CHARS];
-	int i;
 
-	drawLen = edit->widthInChars;
-	len = strlen( edit->buffer ) + 1;
+	int drawLen = edit->widthInChars;
+	int len = (int)strlen( edit->buffer ) + 1;
 
 	// guarantee that cursor will be visible
 	if ( len <= drawLen ) {
 		prestep = 0;
 	} else {
 		if ( edit->scroll + drawLen > len ) {
-			edit->scroll = len - drawLen;
+			edit->scroll = (int)(len - drawLen);
 			if ( edit->scroll < 0 ) {
 				edit->scroll = 0;
 			}
 		}
 		prestep = edit->scroll;
-
-/*
-		if ( edit->cursor < len - drawLen ) {
-			prestep = edit->cursor;	// cursor at start
-		} else {
-			prestep = len - drawLen;
-		}
-*/
 	}
 
 	if ( prestep + drawLen > len ) {
@@ -449,7 +439,7 @@ void Field_VariableSizeDraw( field_t *edit, int x, int y, int width, int size, q
 		cursorChar = 10;
 	}
 
-	i = drawLen - ( Q_PrintStrlen( str ) + 1 );
+	int i = drawLen - ( Q_PrintStrlen( str ) + 1 );
 
 	if ( size == SMALLCHAR_WIDTH ) {
 		SCR_DrawSmallChar( x + ( edit->cursor - prestep - i ) * size, y, cursorChar );
@@ -457,7 +447,6 @@ void Field_VariableSizeDraw( field_t *edit, int x, int y, int width, int size, q
 		str[0] = cursorChar;
 		str[1] = 0;
 		SCR_DrawBigString( x + ( edit->cursor - prestep - i ) * size, y, str, 1.0 );
-
 	}
 }
 
@@ -475,18 +464,16 @@ Field_Paste
 ================
 */
 void Field_Paste( field_t *edit ) {
-	char    *cbd;
-	int pasteLen, i;
 
-	cbd = Sys_GetClipboardData();
+	char* cbd = Sys_GetClipboardData();
 
 	if ( !cbd ) {
 		return;
 	}
 
 	// send as if typed, so insert / overstrike works properly
-	pasteLen = strlen( cbd );
-	for ( i = 0 ; i < pasteLen ; i++ ) {
+	size_t pasteLen = strlen( cbd );
+	for (size_t i = 0 ; i < pasteLen ; i++ ) {
 		Field_CharEvent( edit, cbd[i] );
 	}
 
@@ -504,7 +491,6 @@ Key events are used for non-printable characters, others are gotten from char ev
 =================
 */
 void Field_KeyDownEvent( field_t *edit, int key ) {
-	int len;
 
 	// shift-insert is paste
 	if ( ( ( key == K_INS ) || ( key == K_KP_INS ) ) && keys[K_SHIFT].down ) {
@@ -512,7 +498,7 @@ void Field_KeyDownEvent( field_t *edit, int key ) {
 		return;
 	}
 
-	len = strlen( edit->buffer );
+	int len = (int)strlen( edit->buffer );
 
 	if ( key == K_DEL ) {
 		if ( edit->cursor < len ) {
@@ -565,7 +551,6 @@ Field_CharEvent
 ==================
 */
 void Field_CharEvent( field_t *edit, int ch ) {
-	int len;
 
 	if ( ch == 'v' - 'a' + 1 ) {  // ctrl-v is paste
 		Field_Paste( edit );
@@ -577,7 +562,7 @@ void Field_CharEvent( field_t *edit, int ch ) {
 		return;
 	}
 
-	len = strlen( edit->buffer );
+	int len = (int)strlen( edit->buffer );
 
 	if ( ch == 'h' - 'a' + 1 ) {      // ctrl-h is backspace
 		if ( edit->cursor > 0 ) {
@@ -764,13 +749,13 @@ static void CompleteCommand( void ) {
 		} else {
 			ConcatRemaining( temp.buffer, completionString );
 		}
-		edit->cursor = strlen( edit->buffer );
+		edit->cursor = (int)strlen( edit->buffer );
 		return;
 	}
 
 	// multiple matches, complete to shortest
 	snprintf( edit->buffer, sizeof( edit->buffer ), "\\%s", shortestMatch );
-	edit->cursor = strlen( edit->buffer );
+	edit->cursor = (int)strlen( edit->buffer );
 	ConcatRemaining( temp.buffer, completionString );
 
 	Com_Printf( "]%s\n", edit->buffer );

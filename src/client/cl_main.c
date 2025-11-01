@@ -181,11 +181,10 @@ CL_ChangeReliableCommand
 ======================
 */
 void CL_ChangeReliableCommand( void ) {
-	int r, index, l;
 
-	r = clc.reliableSequence - ( random() * 5 );
-	index = clc.reliableSequence & ( MAX_RELIABLE_COMMANDS - 1 );
-	l = strlen( clc.reliableCommands[ index ] );
+	int r = clc.reliableSequence - ( random() * 5 );
+	int index = clc.reliableSequence & ( MAX_RELIABLE_COMMANDS - 1 );
+	size_t l = strlen( clc.reliableCommands[ index ] );
 	if ( l >= MAX_STRING_CHARS - 1 ) {
 		l = MAX_STRING_CHARS - 2;
 	}
@@ -289,7 +288,7 @@ void CL_Record_f( void ) {
 	byte bufData[MAX_MSGLEN];
 	msg_t buf;
 	int i;
-	int len;
+
 	entityState_t   *ent;
 	entityState_t nullstate;
 	char        *s;
@@ -326,7 +325,7 @@ void CL_Record_f( void ) {
 			CL_DemoFilename( number, demoName );
 			snprintf( name, sizeof( name ), "demos/%s.dm_%d", demoName, PROTOCOL_VERSION );
 
-			len = FS_ReadFile( name, NULL );
+			size_t len = FS_ReadFile( name, NULL );
 			if ( len <= 0 ) {
 				break;  // file doesn't exist
 			}
@@ -391,7 +390,7 @@ void CL_Record_f( void ) {
 	MSG_WriteByte( &buf, svc_EOF );
 
 	// write it to the demo file
-	len = LittleLong( clc.serverMessageSequence - 1 );
+	int len = LittleLong( clc.serverMessageSequence - 1 );
 	FS_Write( &len, 4, clc.demofile );
 
 	len = LittleLong( buf.cursize );
@@ -435,7 +434,6 @@ CL_ReadDemoMessage
 =================
 */
 void CL_ReadDemoMessage( void ) {
-	int r;
 	msg_t buf;
 	byte bufData[ MAX_MSGLEN ];
 	int s;
@@ -446,7 +444,7 @@ void CL_ReadDemoMessage( void ) {
 	}
 
 	// get the sequence number
-	r = FS_Read( &s, 4, clc.demofile );
+	size_t r = FS_Read( &s, 4, clc.demofile );
 	if ( r != 4 ) {
 		CL_DemoCompleted();
 		return;
@@ -1027,7 +1025,7 @@ void CL_Rcon_f( void ) {
 		}
 	}
 
-	NET_SendPacket( NS_CLIENT, strlen( message ) + 1, message, to );
+	NET_SendPacket( NS_CLIENT, (int)strlen( message ) + 1, message, to );
 }
 
 /*
@@ -2223,10 +2221,10 @@ void CL_InitRef( void ) {
 #else
 	ri.Hunk_Alloc = Hunk_Alloc;
 #endif
-	ri.Hunk_AllocateTempMemory = Hunk_AllocateTempMemory;
+
 	ri.Hunk_FreeTempMemory = Hunk_FreeTempMemory;
 	ri.CM_DrawDebugSurface = CM_DrawDebugSurface;
-	ri.FS_ReadFile = FS_ReadFile;
+
 	ri.FS_FreeFile = FS_FreeFile;
 	ri.FS_WriteFile = FS_WriteFile;
 	ri.FS_FreeFileList = FS_FreeFileList;
@@ -2261,21 +2259,7 @@ void CL_ClientDamageCommand( void ) {
 	// do nothing
 }
 
-// NERVE - SMF
-void CL_startMultiplayer_f( void ) {
-#ifdef __MACOS__    //DAJ
-	Sys_StartProcess( "Wolfenstein MP", qtrue );
-#elif defined( __linux__ )
-	Sys_StartProcess( "./wolf.x86", qtrue );
-#else
-	Sys_StartProcess( "WolfMP.exe", qtrue );
-#endif
-}
-// -NERVE - SMF
 
-//----(SA) added
-
-//----(SA) end
 //===========================================================================================
 
 /*
@@ -2798,7 +2782,7 @@ void CL_ServerStatusResponse( netadr_t from, msg_t *msg ) {
 	char    *s;
 	char info[MAX_INFO_STRING];
 	int i, l, score, ping;
-	int len;
+
 	serverStatus_t *serverStatus;
 
 	serverStatus = NULL;
@@ -2815,7 +2799,7 @@ void CL_ServerStatusResponse( netadr_t from, msg_t *msg ) {
 
 	s = MSG_ReadStringLine( msg );
 
-	len = 0;
+	size_t len = 0;
 	snprintf( &serverStatus->string[len], sizeof( serverStatus->string ) - len, "%s", s );
 
 	if ( serverStatus->print ) {

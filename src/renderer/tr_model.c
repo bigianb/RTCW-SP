@@ -166,7 +166,7 @@ qhandle_t RE_RegisterModel( const char *name ) {
 
 	if ( strstr( name, ".mds" ) ) {  // try loading skeletal file
 		loaded = qfalse;
-		ri.FS_ReadFile( name, (void **)&buf );
+		FS_ReadFile( name, (void **)&buf );
 		if ( buf ) {
 			loadmodel = mod;
 
@@ -203,7 +203,7 @@ qhandle_t RE_RegisterModel( const char *name ) {
 		} else {
 			filename[strlen( filename ) - 1] = 'c';  // try MDC first
 		}
-		ri.FS_ReadFile( filename, (void **)&buf );
+		FS_ReadFile( filename, (void **)&buf );
 
 		if ( !buf ) {
 			if ( r_compressModels->integer ) {
@@ -211,7 +211,7 @@ qhandle_t RE_RegisterModel( const char *name ) {
 			} else {
 				filename[strlen( filename ) - 1] = '3';  // try MD3 second
 			}
-			ri.FS_ReadFile( filename, (void **)&buf );
+			FS_ReadFile( filename, (void **)&buf );
 			if ( !buf ) {
 				continue;
 			}
@@ -231,10 +231,10 @@ qhandle_t RE_RegisterModel( const char *name ) {
 			if ( r_compressModels->integer && r_exportCompressedModels->integer && mod->mdc[lod] ) {
 				// save it out
 				filename[strlen( filename ) - 1] = 'c';
-				ri.FS_WriteFile( filename, mod->mdc[lod], mod->mdc[lod]->ofsEnd );
+				FS_WriteFile( filename, mod->mdc[lod], mod->mdc[lod]->ofsEnd );
 				// if building, open the file so it gets copied
 				if ( r_buildScript->integer ) {
-					ri.FS_ReadFile( filename, NULL );
+					FS_ReadFile( filename, NULL );
 				}
 			}
 		} else {
@@ -541,7 +541,7 @@ static qboolean R_MDC_ConvertMD3( model_t *mod, int lod, const char *mod_name ) 
 
 	md3 = mod->md3[lod];
 
-	baseFrames = ri.Hunk_AllocateTempMemory( sizeof( *baseFrames ) * md3->numFrames );
+	baseFrames = Hunk_AllocateTempMemory( sizeof( *baseFrames ) * md3->numFrames );
 
 	// the first frame is always a base frame
 	numBaseFrames = 0;
@@ -941,9 +941,9 @@ static qboolean R_LoadMD3( model_t *mod, int lod, void *buffer, const char *mod_
 	mod->dataSize += size;
 	// Ridah, convert to compressed format
 	if ( !r_compressModels->integer ) {
-		mod->md3[lod] = ri.Hunk_Alloc( size, h_low );
+		mod->md3[lod] = Hunk_Alloc( size, h_low );
 	} else {
-		mod->md3[lod] = ri.Hunk_AllocateTempMemory( size );
+		mod->md3[lod] = Hunk_AllocateTempMemory( size );
 	}
 	// done.
 
@@ -2113,14 +2113,14 @@ void R_LoadCacheModels( void ) {
 		return;
 	}
 
-	len = ri.FS_ReadFile( "model.cache", NULL );
+	len = FS_ReadFile( "model.cache", NULL );
 
 	if ( len <= 0 ) {
 		return;
 	}
 
-	buf = (byte *)ri.Hunk_AllocateTempMemory( len );
-	ri.FS_ReadFile( "model.cache", (void **)&buf );
+	buf = (byte *)Hunk_AllocateTempMemory( len );
+	FS_ReadFile( "model.cache", (void **)&buf );
 	pString = (char*)buf;       //DAJ added (char*)
 
 	while ( ( token = COM_ParseExt( &pString, qtrue ) ) && token[0] ) {

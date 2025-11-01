@@ -563,7 +563,7 @@ size_t     FS_Read( void *buffer, size_t len, fileHandle_t f );
 void    FS_FCloseFile( fileHandle_t f );
 // note: you can't just fclose from another DLL, due to MS libc issues
 
-int     FS_ReadFile( const char *qpath, void **buffer );
+size_t     FS_ReadFile( const char *qpath, void **buffer );
 // returns the length of the file
 // a null buffer will just return the file length without loading
 // as a quick check for existance. -1 length == not present
@@ -748,7 +748,7 @@ extern fileHandle_t com_journalFile;
 extern fileHandle_t com_journalDataFile;
 
 
-void *Hunk_AllocateTempMemory( int size );
+void *Hunk_AllocateTempMemory( size_t size );
 void Hunk_FreeTempMemory( void *buf );
 
 

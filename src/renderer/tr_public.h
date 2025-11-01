@@ -134,7 +134,6 @@ typedef struct {
 
 	void    *( *Hunk_Alloc )( int size, ha_pref pref );
 
-	void    *( *Hunk_AllocateTempMemory )( int size );
 	void ( *Hunk_FreeTempMemory )( void *block );
 
 	cvar_t  *( *Cvar_Get )( const char *name, const char *value, int flags );

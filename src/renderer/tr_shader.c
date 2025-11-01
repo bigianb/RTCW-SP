@@ -61,14 +61,10 @@ return a hash value for the filename
 ================
 */
 static long generateHashValue( const char *fname ) {
-	int i;
-	long hash;
-	char letter;
-
-	hash = 0;
-	i = 0;
+	long hash = 0;
+	int i = 0;
 	while ( fname[i] != '\0' ) {
-		letter = tolower( fname[i] );
+		char letter = tolower( fname[i] );
 		if ( letter == '.' ) {
 			break;                          // don't include extension
 		}
@@ -85,7 +81,7 @@ static long generateHashValue( const char *fname ) {
 
 void R_RemapShader( const char *shaderName, const char *newShaderName, const char *timeOffset ) {
 	char strippedName[MAX_QPATH];
-	int hash;
+
 	shader_t    *sh, *sh2;
 	qhandle_t h;
 
@@ -113,7 +109,7 @@ void R_RemapShader( const char *shaderName, const char *newShaderName, const cha
 	// remap all the shaders with the given name
 	// even tho they might have different lightmaps
 	COM_StripExtension( shaderName, strippedName );
-	hash = generateHashValue( strippedName );
+	long hash = generateHashValue( strippedName );
 	for ( sh = hashTable[hash]; sh; sh = sh->next ) {
 		if ( Q_stricmp( sh->name, strippedName ) == 0 ) {
 			if ( sh != sh2 ) {
@@ -1967,7 +1963,7 @@ GeneratePermanentShader
 static shader_t *GeneratePermanentShader( void ) {
 	shader_t    *newShader;
 	int i, b;
-	int size, hash;
+	int size;
 
 	if ( tr.numShaders == MAX_SHADERS ) {
 		ri.Printf( PRINT_WARNING, "WARNING: GeneratePermanentShader - MAX_SHADERS hit\n" );
@@ -2019,7 +2015,7 @@ static shader_t *GeneratePermanentShader( void ) {
 
 	SortNewShader();
 
-	hash = generateHashValue( newShader->name );
+	long hash = generateHashValue( newShader->name );
 	newShader->next = hashTable[hash];
 	hashTable[hash] = newShader;
 
@@ -2381,7 +2377,7 @@ default shader if the real one can't be found.
 */
 shader_t *R_FindShaderByName( const char *name ) {
 	char strippedName[MAX_QPATH];
-	int hash;
+
 	shader_t    *sh;
 
 	if ( ( name == NULL ) || ( name[0] == 0 ) ) {  // bk001205
@@ -2390,7 +2386,7 @@ shader_t *R_FindShaderByName( const char *name ) {
 
 	COM_StripExtension( name, strippedName );
 
-	hash = generateHashValue( strippedName );
+	long hash = generateHashValue( strippedName );
 
 	//
 	// see if the shader is already loaded
@@ -2441,7 +2437,7 @@ most world construction surfaces.
 shader_t *R_FindShader( const char *name, int lightmapIndex, qboolean mipRawImage ) {
 	char strippedName[MAX_QPATH];
 	char fileName[MAX_QPATH];
-	int i, hash;
+	int i;
 	char        *shaderText;
 	image_t     *image;
 	shader_t    *sh;
@@ -2458,22 +2454,13 @@ shader_t *R_FindShader( const char *name, int lightmapIndex, qboolean mipRawImag
 
 	COM_StripExtension( name, strippedName );
 
-	hash = generateHashValue( strippedName );
+	long hash = generateHashValue( strippedName );
 
 	//
 	// see if the shader is already loaded
 	//
 	for ( sh = hashTable[hash]; sh; sh = sh->next ) {
-		// index by name
 
-		// Ridah, modified this so we don't keep trying to load an invalid lightmap shader
-/*
-		if ( sh->lightmapIndex == lightmapIndex &&
-			!Q_stricmp(sh->name, strippedName)) {
-			// match found
-			return sh;
-		}
-*/
 		if ( ( ( sh->lightmapIndex == lightmapIndex ) || ( sh->lightmapIndex < 0 && lightmapIndex >= 0 ) ) &&
 			 !Q_stricmp( sh->name, strippedName ) ) {
 			// match found
@@ -2981,7 +2968,7 @@ static void ScanAndLoadShaderFiles( void ) {
 
 		snprintf( filename, sizeof( filename ), "scripts/%s", shaderFiles[i] );
 		ri.Printf( PRINT_ALL, "...loading '%s'\n", filename );
-		sum += ri.FS_ReadFile( filename, (void **)&buffers[i] );
+		sum += FS_ReadFile( filename, (void **)&buffers[i] );
 		if ( !buffers[i] ) {
 			ri.Error( ERR_DROP, "Couldn't load %s", filename );
 		}
@@ -3243,7 +3230,7 @@ R_LoadCacheShaders
 ===============
 */
 void R_LoadCacheShaders( void ) {
-	int len;
+
 	byte *buf;
 	char    *token, *pString;
 	char name[MAX_QPATH];
@@ -3257,14 +3244,14 @@ void R_LoadCacheShaders( void ) {
 		return;
 	}
 
-	len = ri.FS_ReadFile( "shader.cache", NULL );
+	size_t len = FS_ReadFile( "shader.cache", NULL );
 
 	if ( len <= 0 ) {
 		return;
 	}
 
-	buf = (byte *)ri.Hunk_AllocateTempMemory( len );
-	ri.FS_ReadFile( "shader.cache", (void **)&buf );
+	buf = (byte *)Hunk_AllocateTempMemory( len );
+	FS_ReadFile( "shader.cache", (void **)&buf );
 	pString = (char*)buf;   //DAJ added (char*)
 
 	while ( ( token = COM_ParseExt( &pString, qtrue ) ) != NULL && token[0] ) {
