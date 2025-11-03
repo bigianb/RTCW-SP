@@ -245,10 +245,6 @@ void trap_SnapVector( float *v ) {
 	Sys_SnapVector( v );
 }
 
-qboolean trap_GetTag( int clientNum, char *tagName, orientation_t *or ) {
-	return SV_GetTag(clientNum, tagName, or );
-}
-
 
 int trap_BotLibShutdown( void ) {
 	return SV_BotLibShutdown();

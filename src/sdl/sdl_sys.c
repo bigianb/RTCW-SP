@@ -251,7 +251,7 @@ int Sys_Milliseconds( void ) {
 		return tp.tv_usec / 1000;
 	}
 
-	return ( tp.tv_sec - sys_timeBase ) * 1000 + tp.tv_usec / 1000;
+	return (int)( tp.tv_sec - sys_timeBase ) * 1000 + tp.tv_usec / 1000;
 }
 
 void    Sys_Mkdir( const char *path ) {

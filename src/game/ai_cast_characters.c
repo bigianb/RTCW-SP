@@ -42,6 +42,7 @@ If you have questions concerning this license or the applicable additional terms
 #include "../game/be_ai_goal.h"
 #include "../game/be_ai_move.h"
 #include "../botai/botai.h"          //bot ai interface
+#include "g_func_decs.h"
 
 #include "ai_cast.h"
 
@@ -957,7 +958,7 @@ void AIChar_SetBBox( gentity_t *ent, cast_state_t *cs, qboolean useHeadTag ) {
 		VectorCopy( ent->client->ps.maxs, ent->r.maxs );
 		ent->client->ps.crouchMaxZ = aiDefaults[cs->aiCharacter].crouchstandZ[0];
 		ent->s.density = cs->aasWorldIndex;
-	} else if ( trap_GetTag( ent->s.number, "tag_head", &or ) ) {  // if not found, then just leave it
+	} else if ( CG_GetTag( ent->s.number, "tag_head", &or ) ) {  // if not found, then just leave it
 		or.origin[2] -= ent->client->ps.origin[2];  // convert to local coordinates
 		or.origin[2] += 11;
 		if ( or.origin[2] < 0 ) {
@@ -1047,14 +1048,14 @@ int AIChar_GetPainLocation( gentity_t *ent, vec3_t point ) {
 	orientation_t or;
 
 	// first make sure the client is able to retrieve tag information
-	if ( !trap_GetTag( ent->s.number, painTagNames[0], &or ) ) {
+	if ( !CG_GetTag( ent->s.number, painTagNames[0], &or ) ) {
 		return 0;
 	}
 
 	// find a correct animation to play, based on the body orientation at previous frame
 	for ( tagIndex = 0, bestDist = 0, bestTag = -1; painTagNames[tagIndex]; tagIndex++ ) {
 		// grab the tag with this name
-		if ( trap_GetTag( ent->s.number, painTagNames[tagIndex], &or ) ) {
+		if ( CG_GetTag( ent->s.number, painTagNames[tagIndex], &or ) ) {
 			dist = VectorDistance( or.origin, point );
 			if ( !bestDist || dist < bestDist ) {
 				bestTag = tagIndex;

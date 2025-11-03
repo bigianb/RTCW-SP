@@ -121,10 +121,6 @@ typedef struct serverStatus_s
 serverStatus_t cl_serverStatusList[MAX_SERVERSTATUSREQUESTS];
 int serverStatusCount;
 
-#if 0 // MrE defined __USEA3D && defined __A3D_GEOM
-void hA3Dg_ExportRenderGeom( refexport_t *incoming_re );
-#endif
-
 extern void SV_BotFrame( int time );
 void CL_CheckForResend( void );
 void CL_ShowIP_f( void );
@@ -704,13 +700,6 @@ void CL_Disconnect( qboolean showMainMenu ) {
 		CL_StopRecord_f();
 	}
 
-	if ( clc.download ) {
-		FS_FCloseFile( clc.download );
-		clc.download = 0;
-	}
-	*clc.downloadTempName = *clc.downloadName = 0;
-	Cvar_Set( "cl_downloadName", "" );
-
 	if ( clc.demofile ) {
 		FS_FCloseFile( clc.demofile );
 		clc.demofile = 0;
@@ -1197,169 +1186,6 @@ void CL_Clientinfo_f( void ) {
 	Com_Printf( "User info settings:\n" );
 	Info_Print( Cvar_InfoString( CVAR_USERINFO ) );
 	Com_Printf( "--------------------------------------\n" );
-}
-
-
-//====================================================================
-
-/*
-=================
-CL_DownloadsComplete
-
-Called when all downloading has been completed
-=================
-*/
-void CL_DownloadsComplete( void ) {
-
-	// if we downloaded files we need to restart the file system
-	if ( clc.downloadRestart ) {
-		clc.downloadRestart = qfalse;
-
-		FS_Restart( clc.checksumFeed ); // We possibly downloaded a pak, restart the file system to load it
-
-		// inform the server so we get new gamestate info
-		CL_AddReliableCommand( "donedl" );
-
-		// by sending the donenl command we request a new gamestate
-		// so we don't want to load stuff yet
-		return;
-	}
-
-	// let the client game init and load data
-	cls.state = CA_LOADING;
-
-//----(SA)	removed some loading stuff
-	Com_EventLoop();
-
-	// if the gamestate was changed by calling Com_EventLoop
-	// then we loaded everything already and we don't want to do it again.
-	if ( cls.state != CA_LOADING ) {
-		return;
-	}
-
-	// starting to load a map so we get out of full screen ui mode
-	Cvar_Set( "r_uiFullScreen", "0" );
-
-	// flush client memory and start loading stuff
-	// this will also (re)load the UI
-	// if this is a local client then only the client part of the hunk
-	// will be cleared, note that this is done after the hunk mark has been set
-	CL_FlushMemory();
-
-	// initialize the CGame
-	cls.cgameStarted = qtrue;
-	CL_InitCGame();
-
-	// set pure checksums
-	CL_SendPureChecksums();
-
-	CL_WritePacket();
-	CL_WritePacket();
-	CL_WritePacket();
-}
-
-/*
-=================
-CL_BeginDownload
-
-Requests a file to download from the server.  Stores it in the current
-game directory.
-=================
-*/
-void CL_BeginDownload( const char *localName, const char *remoteName ) {
-
-	Com_DPrintf( "***** CL_BeginDownload *****\n"
-				 "Localname: %s\n"
-				 "Remotename: %s\n"
-				 "****************************\n", localName, remoteName );
-
-	Q_strncpyz( clc.downloadName, localName, sizeof( clc.downloadName ) );
-	snprintf( clc.downloadTempName, sizeof( clc.downloadTempName ), "%s.tmp", localName );
-
-	// Set so UI gets access to it
-	Cvar_Set( "cl_downloadName", remoteName );
-	Cvar_Set( "cl_downloadSize", "0" );
-	Cvar_Set( "cl_downloadCount", "0" );
-	Cvar_SetValue( "cl_downloadTime", cls.realtime );
-
-	clc.downloadBlock = 0; // Starting new file
-	clc.downloadCount = 0;
-
-	CL_AddReliableCommand( va( "download %s", remoteName ) );
-}
-
-/*
-=================
-CL_NextDownload
-
-A download completed or failed
-=================
-*/
-void CL_NextDownload( void ) {
-	char *s;
-	char *remoteName, *localName;
-
-	// We are looking to start a download here
-	if ( *clc.downloadList ) {
-		s = clc.downloadList;
-
-		// format is:
-		//  @remotename@localname@remotename@localname, etc.
-
-		if ( *s == '@' ) {
-			s++;
-		}
-		remoteName = s;
-
-		if ( ( s = strchr( s, '@' ) ) == NULL ) {
-			CL_DownloadsComplete();
-			return;
-		}
-
-		*s++ = 0;
-		localName = s;
-		if ( ( s = strchr( s, '@' ) ) != NULL ) {
-			*s++ = 0;
-		} else {
-			s = localName + strlen( localName ); // point at the nul byte
-
-		}
-		CL_BeginDownload( localName, remoteName );
-
-		clc.downloadRestart = qtrue;
-
-		// move over the rest
-		memmove( clc.downloadList, s, strlen( s ) + 1 );
-
-		return;
-	}
-
-	CL_DownloadsComplete();
-}
-
-/*
-=================
-CL_InitDownloads
-
-After receiving a valid game state, we valid the cgame and local zip files here
-and determine if we need to download them
-=================
-*/
-void CL_InitDownloads( void ) {
-
-	if ( cl_allowDownload->integer &&
-		 FS_ComparePaks( clc.downloadList, sizeof( clc.downloadList ), qfalse ) ) {
-
-		if ( *clc.downloadList ) {
-			// if autodownloading is not enabled on the server
-			cls.state = CA_CONNECTED;
-			CL_NextDownload();
-			return;
-		}
-
-	}
-
-	CL_DownloadsComplete();
 }
 
 /*

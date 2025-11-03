@@ -5619,75 +5619,6 @@ void Text_PaintCenter( float x, float y, int font, float scale, vec4_t color, co
 }
 
 
-static void UI_DisplayDownloadInfo( const char *downloadName, float centerPoint, float yStart, int font, float scale ) {
-	static char dlText[]    = "Downloading:";
-	static char etaText[]   = "Estimated time left:";
-	static char xferText[]  = "Transfer rate:";
-
-	int downloadSize, downloadCount, downloadTime;
-	char dlSizeBuf[64], totalSizeBuf[64], xferRateBuf[64], dlTimeBuf[64];
-	int xferRate;
-	int leftWidth;
-	const char *s;
-
-	downloadSize = Cvar_VariableValue( "cl_downloadSize" );
-	downloadCount = Cvar_VariableValue( "cl_downloadCount" );
-	downloadTime = Cvar_VariableValue( "cl_downloadTime" );
-
-	leftWidth = 320;
-
-	UI_SetColor( colorWhite );
-	Text_PaintCenter( centerPoint, yStart + 112, font, scale, colorWhite, dlText, 0 );
-	Text_PaintCenter( centerPoint, yStart + 144, font, scale, colorWhite, etaText, 0 );
-	Text_PaintCenter( centerPoint, yStart + 208, font, scale, colorWhite, xferText, 0 );
-
-	if ( downloadSize > 0 ) {
-		s = va( "%s (%d%%)", downloadName, downloadCount * 100 / downloadSize );
-	} else {
-		s = downloadName;
-	}
-
-	Text_Paint( centerPoint, yStart + 244, font, 0.6f, colorWhite, s, 0, 0, ITEM_TEXTSTYLE_SHADOWEDMORE );
-
-	UI_ReadableSize( dlSizeBuf,     sizeof dlSizeBuf,       downloadCount );
-	UI_ReadableSize( totalSizeBuf,  sizeof totalSizeBuf,    downloadSize );
-
-	if ( downloadCount < 4096 || !downloadTime ) {
-		Text_PaintCenter( leftWidth, 160, font, 0.6f, colorWhite, "estimating", 0 );
-		Text_PaintCenter( leftWidth, 192, font, 0.6f, colorWhite, va( "(%s of %s copied)", dlSizeBuf, totalSizeBuf ), 0 );
-	} else {
-		if ( ( uiInfo.uiDC.realTime - downloadTime ) / 1000 ) {
-			xferRate = downloadCount / ( ( uiInfo.uiDC.realTime - downloadTime ) / 1000 );
-		} else {
-			xferRate = 0;
-		}
-		UI_ReadableSize( xferRateBuf, sizeof xferRateBuf, xferRate );
-
-		// Extrapolate estimated completion time
-		if ( downloadSize && xferRate ) {
-			int n = downloadSize / xferRate; // estimated time for entire d/l in secs
-
-			// We do it in K (/1024) because we'd overflow around 4MB
-			UI_PrintTime( dlTimeBuf, sizeof dlTimeBuf,
-						  ( n - ( ( ( downloadCount / 1024 ) * n ) / ( downloadSize / 1024 ) ) ) * 1000 );
-
-			Text_PaintCenter( leftWidth, 160, font, 0.6f, colorWhite, dlTimeBuf, 0 );
-			Text_PaintCenter( leftWidth, 192, font, 0.6f, colorWhite, va( "(%s of %s copied)", dlSizeBuf, totalSizeBuf ), 0 );
-		} else {
-			Text_PaintCenter( leftWidth, 160, font, 0.6f, colorWhite, "estimating", 0 );
-			if ( downloadSize ) {
-				Text_PaintCenter( leftWidth, 160, font, 0.6f, colorWhite, va( "(%s of %s copied)", dlSizeBuf, totalSizeBuf ), 0 );
-			} else {
-				Text_PaintCenter( leftWidth, 160, font, 0.6f, colorWhite, va( "(%s copied)", dlSizeBuf ), 0 );
-			}
-		}
-
-		if ( xferRate ) {
-			Text_PaintCenter( leftWidth, 160, font, 0.6f, colorWhite, va( "%s/Sec", xferRateBuf ), 0 );
-		}
-	}
-}
-
 /*
 ========================
 UI_DrawConnectScreen
@@ -5757,15 +5688,7 @@ void UI_DrawConnectScreen( qboolean overlay ) {
 	case CA_CHALLENGING:
 		s = va( "Awaiting challenge...%i", cstate.connectPacketCount );
 		break;
-	case CA_CONNECTED: {
-		char downloadName[MAX_INFO_VALUE];
-
-		trap_Cvar_VariableStringBuffer( "cl_downloadName", downloadName, sizeof( downloadName ) );
-		if ( *downloadName ) {
-			UI_DisplayDownloadInfo( downloadName, centerPoint, yStart, UI_FONT_DEFAULT, scale );
-			return;
-		}
-	}
+	case CA_CONNECTED: 
 		s = "Awaiting gamestate...";
 		break;
 	case CA_LOADING:

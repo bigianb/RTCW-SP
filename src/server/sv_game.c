@@ -382,20 +382,3 @@ qboolean SV_GameCommand( void ) {
 	}
 	return ConsoleCommand();
 }
-
-/*
-====================
-SV_GetTag
-
-  return qfalse if unable to retrieve tag information for this client
-====================
-*/
-extern qboolean CL_GetTag( int clientNum, char *tagname, orientation_t *or );
-
-qboolean SV_GetTag( int clientNum, char *tagname, orientation_t *or ) {
-	if ( com_dedicated->integer ) {
-		return qfalse;
-	}
-
-	return CL_GetTag( clientNum, tagname, or );
-}

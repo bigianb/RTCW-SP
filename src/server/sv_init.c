@@ -883,8 +883,6 @@ void SV_Init( void ) {
 	sv_zombietime = Cvar_Get( "sv_zombietime", "2", CVAR_TEMP );
 	Cvar_Get( "nextmap", "", CVAR_TEMP );
 
-	sv_allowDownload = Cvar_Get( "sv_allowDownload", "1", 0 );
-
 	sv_master[0] = Cvar_Get( "sv_master1", "master.gmistudios.com", 0 );
 	sv_master[1] = Cvar_Get( "sv_master2", "", CVAR_ARCHIVE );
 	sv_master[2] = Cvar_Get( "sv_master3", "", CVAR_ARCHIVE );

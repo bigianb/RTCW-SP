@@ -293,23 +293,6 @@ void Sys_Error( const char *error, ... )
 }
 
 /*
-============
-Sys_FileTime
-
-returns -1 if not present
-============
-*/
-int Sys_FileTime( char *path )
-{
-	struct stat buf;
-
-	if (stat (path,&buf) == -1)
-		return -1;
-
-	return buf.st_mtime;
-}
-
-/*
 =================
 Sys_ParseArgs
 =================
@@ -320,8 +303,6 @@ void Sys_ParseArgs( int argc, char **argv )
 	{
 		if( !strcmp( argv[1], "--version" ) || !strcmp( argv[1], "-v" ) )
 		{
-			//const char* date = PRODUCT_DATE;
-			//fprintf( stdout, Q3_VERSION " dedicated server (%s)\n", date );
 			fprintf( stdout, Q3_VERSION " dedicated server\n" );
 			Sys_Exit( 0 );
 		}
@@ -387,14 +368,14 @@ int main( int argc, char **argv )
 	for( i = 1; i < argc; i++ )
 	{
 		const qboolean containsSpaces = strchr(argv[i], ' ') != NULL;
-		if (containsSpaces)
+		if (containsSpaces){
 			Q_strcat( commandLine, sizeof( commandLine ), "\"" );
-
+		}
 		Q_strcat( commandLine, sizeof( commandLine ), argv[ i ] );
 
-		if (containsSpaces)
+		if (containsSpaces){
 			Q_strcat( commandLine, sizeof( commandLine ), "\"" );
-
+		}
 		Q_strcat( commandLine, sizeof( commandLine ), " " );
 	}
 

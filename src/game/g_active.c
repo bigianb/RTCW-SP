@@ -30,6 +30,7 @@ If you have questions concerning this license or the applicable additional terms
 #include "g_local.h"
 #include "../qcommon/qcommon.h"
 #include "ai_cast_fight.h"   // need these for avoidance
+#include "g_func_decs.h"
 
 
 extern void G_CheckForCursorHints( gentity_t *ent );
@@ -900,7 +901,7 @@ void ClientThink_real( gentity_t *ent ) {
 					vec3_t start, end;
 					qboolean slide = qtrue;
 
-					if ( trap_GetTag( ent->s.number, "tag_head", &or ) ) {
+					if ( CG_GetTag( ent->s.number, "tag_head", &or ) ) {
 						VectorCopy( or.origin, start );
 						VectorCopy( start, end );
 						end[2] += 1.0;
@@ -936,7 +937,7 @@ void ClientThink_real( gentity_t *ent ) {
 
 		if ( VectorLength( pm.ps->velocity ) < 100 && trap_InPVS( pm.ps->origin, g_entities[0].s.pos.trBase ) ) {
 			// find the head position
-			if ( trap_GetTag( ent->s.number, "tag_head", &or ) ) {
+			if ( CG_GetTag( ent->s.number, "tag_head", &or ) ) {
 				// move up a tad
 				or.origin[2] += 3;
 				// move to tip of head

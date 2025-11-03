@@ -742,17 +742,10 @@ qboolean CL_ReadyToSendPacket( void ) {
 		return qfalse;
 	}
 
-	// If we are downloading, we send no less than 50ms between packets
-	if ( *clc.downloadTempName &&
-		 cls.realtime - clc.lastPacketSentTime < 50 ) {
-		return qfalse;
-	}
-
 	// if we don't have a valid gamestate yet, only send
 	// one packet a second
 	if ( cls.state != CA_ACTIVE &&
 		 cls.state != CA_PRIMED &&
-		 !*clc.downloadTempName &&
 		 cls.realtime - clc.lastPacketSentTime < 1000 ) {
 		return qfalse;
 	}

@@ -928,7 +928,7 @@ extern int trap_BotLibVarGet ( char * var_name , char * value , int size ) ;
 extern int trap_BotLibVarSet ( char * var_name , char * value ) ;
 extern int trap_BotLibShutdown ( void ) ;
 
-extern qboolean trap_GetTag ( int clientNum , char * tagName , orientation_t * or ) ;
+extern qboolean CG_GetTag ( int clientNum , char * tagName , orientation_t * or ) ;
 extern void trap_SnapVector ( float * v ) ;
 extern time_t trap_RealTime ( qtime_t * qtime ) ;
 extern void trap_DebugPolygonDelete ( int id ) ;

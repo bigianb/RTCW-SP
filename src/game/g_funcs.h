@@ -920,7 +920,7 @@ If you have questions concerning this license or the applicable additional terms
 {"trap_BotLibVarGet", (byte *)trap_BotLibVarGet},
 {"trap_BotLibVarSet", (byte *)trap_BotLibVarSet},
 {"trap_BotLibShutdown", (byte *)trap_BotLibShutdown},
-{"trap_GetTag", (byte *)trap_GetTag},
+
 {"trap_SnapVector", (byte *)trap_SnapVector},
 {"trap_RealTime", (byte *)trap_RealTime},
 {"trap_DebugPolygonDelete", (byte *)trap_DebugPolygonDelete},

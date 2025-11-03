@@ -45,6 +45,7 @@ If you have questions concerning this license or the applicable additional terms
 #include "../botai/botai.h"          //bot ai interface
 
 #include "ai_cast.h"
+#include "g_func_decs.h"
 
 /*
 Does sight checking for Cast AI's.
@@ -276,7 +277,7 @@ qboolean AICast_CheckVisibility( gentity_t *srcent, gentity_t *destent ) {
 			vectoangles( clientHeadTags[srcent->s.number].axis[0], viewangles );
 			// and the actual position of the head
 			VectorCopy( clientHeadTags[srcent->s.number].origin, eye );
-		} else if ( trap_GetTag( srcent->s.number, "tag_head", &or ) ) {
+		} else if ( CG_GetTag( srcent->s.number, "tag_head", &or ) ) {
 			// use the actual direction the head is facing
 			vectoangles( or.axis[0], viewangles );
 			// and the actual position of the head

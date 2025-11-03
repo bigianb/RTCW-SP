@@ -695,8 +695,7 @@ void SV_SendMessageToClient( msg_t *msg, client_t *client ) {
 	if ( client->state != CS_ACTIVE ) {
 		// a gigantic connection message may have already put the nextSnapshotTime
 		// more than a second away, so don't shorten it
-		// do shorten if client is downloading
-		if ( !*client->downloadName && client->nextSnapshotTime < svs.time + 1000 ) {
+		if ( client->nextSnapshotTime < svs.time + 1000 ) {
 			client->nextSnapshotTime = svs.time + 1000;
 		}
 	}
@@ -742,9 +741,6 @@ void SV_SendClientSnapshot( client_t *client ) {
 	// send over all the relevant entityState_t
 	// and the playerState_t
 	SV_WriteSnapshotToClient( client, &msg );
-
-	// Add any download data if the client is downloading
-	SV_WriteDownloadToClient( client, &msg );
 
 	// check for overflow
 	if ( msg.overflowed ) {

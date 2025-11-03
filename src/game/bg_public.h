@@ -1066,7 +1066,7 @@ typedef struct animation_s {
 	// derived
 	//
 	int duration;
-	int nameHash;
+	long nameHash;
 	int flags;
 	int movetype;
 	float stepGap;

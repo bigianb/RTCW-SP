@@ -185,12 +185,7 @@ void        NET_Sleep( int msec );
 
 
 //----(SA)	increased for larger submodel entity counts
-#define MAX_MSGLEN              32768       // max length of a message, which may
-//#define	MAX_MSGLEN				16384		// max length of a message, which may
-// be fragmented into multiple packets
-#define MAX_DOWNLOAD_WINDOW         8       // max of eight download frames
-#define MAX_DOWNLOAD_BLKSIZE        2048    // 2048 byte block chunks
-
+#define MAX_MSGLEN              32768       // max length of a message, which may be fragmented into multiple packets
 
 /*
 Netchan handles packet fragmentation and out of order / duplicate suppression
@@ -273,7 +268,6 @@ enum svc_ops_e {
 	svc_configstring,           // [short] [string] only in gamestate messages
 	svc_baseline,               // only in gamestate messages
 	svc_serverCommand,          // [string] to be executed by client game module
-	svc_download,               // [short] size [size bytes]
 	svc_snapshot,
 	svc_EOF
 };

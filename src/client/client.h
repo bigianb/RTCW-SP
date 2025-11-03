@@ -194,16 +194,6 @@ typedef struct {
 	int lastExecutedServerCommand;              // last server command grabbed or executed with CL_GetServerCommand
 	char serverCommands[MAX_RELIABLE_COMMANDS][MAX_TOKEN_CHARS];
 
-	// file transfer from server
-	fileHandle_t download;
-	char downloadTempName[MAX_OSPATH];
-	char downloadName[MAX_OSPATH];
-	int downloadNumber;
-	int downloadBlock;          // block we are waiting for
-	int downloadCount;          // how many bytes we got
-	int downloadSize;           // how many bytes we got
-	char downloadList[MAX_INFO_STRING];        // list of paks we need to download
-	qboolean downloadRestart;       // if true, we need to do another FS_Restart because we downloaded a pak
 
 	// demo information
 	char demoName[MAX_QPATH];
@@ -375,7 +365,6 @@ extern cvar_t  *cl_timedemo;
 
 extern cvar_t  *cl_activeAction;
 
-extern cvar_t  *cl_allowDownload;
 extern cvar_t  *cl_conXOffset;
 extern cvar_t  *cl_inGameVideo;
 
@@ -407,9 +396,6 @@ void CL_Snd_Restart_f( void );
 void CL_StartDemoLoop( void );
 void CL_NextDemo( void );
 void CL_ReadDemoMessage( void );
-
-void CL_InitDownloads( void );
-void CL_NextDownload( void );
 
 void CL_GetPing( int n, char *buf, int buflen, int *pingtime );
 void CL_GetPingInfo( int n, char *buf, int buflen );

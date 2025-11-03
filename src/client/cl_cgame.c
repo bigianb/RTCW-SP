@@ -178,16 +178,6 @@ void CL_SetUserCmdValue( int userCmdValue, int holdableValue, float sensitivityS
 }
 
 /*
-==============
-CL_CgameError
-==============
-*/
-void CL_CgameError( const char *string ) {
-	Com_Error( ERR_DROP, "%s", string );
-}
-
-
-/*
 =====================
 CL_ConfigstringModified
 =====================
@@ -695,11 +685,3 @@ void CL_SetCGameTime( void ) {
 
 }
 
-/*
-====================
-CL_GetTag
-====================
-*/
-qboolean CL_GetTag( int clientNum, char *tagname, orientation_t *or ) {
-	return CG_GetTag( clientNum, tagname, or );
-}
