@@ -145,9 +145,9 @@ void CG_SoundPickOldestRandomSound( soundScript_t *sound, vec3_t org, int entnum
 				oldestSound->sfxHandle = S_RegisterSound( oldestSound->filename );
 			}
 			if ( sound->attenuation ) {
-				trap_S_StartSound( org, entnum, sound->channel, oldestSound->sfxHandle );
+				S_StartSound( org, entnum, sound->channel, oldestSound->sfxHandle );
 			} else {
-				trap_S_StartLocalSound( oldestSound->sfxHandle, sound->channel );
+				S_StartLocalSound( oldestSound->sfxHandle, sound->channel );
 			}
 		} else {
 			trap_S_StartStreamingSound( oldestSound->filename, sound->looping ? oldestSound->filename : NULL, entnum, sound->channel, sound->attenuation );

@@ -35,6 +35,7 @@ If you have questions concerning this license or the applicable additional terms
 
 #include "cg_local.h"
 #include "../qcommon/cm_public.h"
+#include "../client/client.h"
 
 static pmove_t cg_pmove;
 
@@ -137,20 +138,20 @@ static void CG_ClipMoveToEntities( const vec3_t start, const vec3_t mins, const 
 
 			// MrE: use bbox or capsule
 			if ( ent->eFlags & EF_CAPSULE ) {
-				cmodel = trap_CM_TempCapsuleModel( bmins, bmaxs );
+				cmodel = CM_TempBoxModel( bmins, bmaxs, qtrue );
 			} else {
-				cmodel = trap_CM_TempBoxModel( bmins, bmaxs );
+				cmodel = CM_TempBoxModel( bmins, bmaxs, qfalse );
 			}
 			VectorCopy( vec3_origin, angles );
 			VectorCopy( cent->lerpOrigin, origin );
 		}
 		// MrE: use bbox of capsule
 		if ( capsule ) {
-			trap_CM_TransformedCapsuleTrace( &trace, start, end,
-											 mins, maxs, cmodel,  mask, origin, angles );
+			CM_TransformedBoxTrace( &trace, start, end,
+											 mins, maxs, cmodel,  mask, origin, angles, qtrue );
 		} else {
-			trap_CM_TransformedBoxTrace( &trace, start, end,
-										 mins, maxs, cmodel,  mask, origin, angles );
+			CM_TransformedBoxTrace( &trace, start, end,
+										 mins, maxs, cmodel,  mask, origin, angles, qfalse );
 		}
 
 		if ( trace.allsolid || trace.fraction < tr->fraction ) {
@@ -174,7 +175,7 @@ void    CG_Trace( trace_t *result, const vec3_t start, const vec3_t mins, const 
 				  int skipNumber, int mask ) {
 	trace_t t;
 
-	trap_CM_BoxTrace( &t, start, end, mins, maxs, 0, mask );
+	CM_BoxTrace( &t, start, end, mins, maxs, 0, mask, qfalse );
 	t.entityNum = t.fraction != 1.0 ? ENTITYNUM_WORLD : ENTITYNUM_NONE;
 	// check all other solid models
 	CG_ClipMoveToEntities( start, mins, maxs, end, skipNumber, mask, qfalse, &t );
@@ -191,7 +192,7 @@ void    CG_TraceCapsule( trace_t *result, const vec3_t start, const vec3_t mins,
 						 int skipNumber, int mask ) {
 	trace_t t;
 
-	trap_CM_CapsuleTrace( &t, start, end, mins, maxs, 0, mask );
+	CM_BoxTrace( &t, start, end, mins, maxs, 0, mask, qtrue );
 	t.entityNum = t.fraction != 1.0 ? ENTITYNUM_WORLD : ENTITYNUM_NONE;
 	// check all other solid models
 	CG_ClipMoveToEntities( start, mins, maxs, end, skipNumber, mask, qtrue, &t );
@@ -211,7 +212,7 @@ int     CG_PointContents( const vec3_t point, int passEntityNum ) {
 	clipHandle_t cmodel;
 	int contents;
 
-	contents = trap_CM_PointContents( point, 0 );
+	contents = CM_PointContents( point, 0 );
 
 	for ( i = 0 ; i < cg_numSolidEntities ; i++ ) {
 		cent = cg_solidEntities[ i ];
@@ -231,7 +232,7 @@ int     CG_PointContents( const vec3_t point, int passEntityNum ) {
 			continue;
 		}
 
-		contents |= trap_CM_TransformedPointContents( point, cmodel, ent->origin, ent->angles );
+		contents |= CM_TransformedPointContents( point, cmodel, ent->origin, ent->angles );
 	}
 
 	return contents;
@@ -264,7 +265,7 @@ static void CG_InterpolatePlayerState( qboolean grabAngles ) {
 		int cmdNum;
 
 		cmdNum = trap_GetCurrentCmdNumber();
-		trap_GetUserCmd( cmdNum, &cmd );
+		CL_GetUserCmd( cmdNum, &cmd );
 
 		PM_UpdateViewAngles( out, &cmd, CG_Trace );
 	}
@@ -453,8 +454,8 @@ static void CG_TouchTriggerPrediction( void ) {
 			continue;
 		}
 
-		trap_CM_BoxTrace( &trace, cg.predictedPlayerState.origin, cg.predictedPlayerState.origin,
-						  cg_pmove.mins, cg_pmove.maxs, cmodel, -1 );
+		CM_BoxTrace( &trace, cg.predictedPlayerState.origin, cg.predictedPlayerState.origin,
+						  cg_pmove.mins, cg_pmove.maxs, cmodel, -1, qfalse );
 
 		if ( !trace.startsolid ) {
 			continue;
@@ -581,7 +582,7 @@ void CG_PredictPlayerState( void ) {
 	// can't accurately predict a current position, so just freeze at
 	// the last good position we had
 	cmdNum = current - CMD_BACKUP + 1;
-	trap_GetUserCmd( cmdNum, &oldestCmd );
+	CL_GetUserCmd( cmdNum, &oldestCmd );
 	if ( oldestCmd.serverTime > cg.snap->ps.commandTime
 		 && oldestCmd.serverTime < cg.time ) {  // special check for map_restart
 		if ( cg_showmiss.integer ) {
@@ -591,7 +592,7 @@ void CG_PredictPlayerState( void ) {
 	}
 
 	// get the latest command so we can know which commands are from previous map_restarts
-	trap_GetUserCmd( current, &latestCmd );
+	CL_GetUserCmd( current, &latestCmd );
 
 	// get the most recent information we have, even if
 	// the server time is beyond our current cg.time,
@@ -635,9 +636,9 @@ void CG_PredictPlayerState( void ) {
 	moved = qfalse;
 	for ( cmdNum = current - CMD_BACKUP + 1 ; cmdNum <= current ; cmdNum++ ) {
 		// get the command
-		trap_GetUserCmd( cmdNum, &cg_pmove.cmd );
+		CL_GetUserCmd( cmdNum, &cg_pmove.cmd );
 		// get the previous command
-		trap_GetUserCmd( cmdNum - 1, &cg_pmove.oldcmd );
+		CL_GetUserCmd( cmdNum - 1, &cg_pmove.oldcmd );
 
 		if ( cg_pmove.pmove_fixed ) {
 			PM_UpdateViewAngles( cg_pmove.ps, &cg_pmove.cmd, CG_Trace );

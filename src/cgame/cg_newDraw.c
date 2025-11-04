@@ -31,6 +31,7 @@ If you have questions concerning this license or the applicable additional terms
 #include "cg_local.h"
 #include "../ui/ui_shared.h"
 #include "../ui/ui_local.h"
+#include "../client/snd_public.h"
 
 int drawTeamOverlayModificationCount = -1;
 
@@ -202,22 +203,22 @@ static void CG_DrawPlayerWeaponIcon( rectDef_t *rect, qboolean drawHighlighted, 
 		// these time differently
 		if ( realweap == WP_DYNAMITE ) {
 			if ( ( ( cg.grenLastTime ) % 1000 ) > ( ( cg.predictedPlayerState.grenadeTimeLeft ) % 1000 ) ) {
-				trap_S_StartLocalSound( cgs.media.grenadePulseSound4, CHAN_LOCAL_SOUND );
+				S_StartLocalSound( cgs.media.grenadePulseSound4, CHAN_LOCAL_SOUND );
 			}
 		} else {
 			if ( ( ( cg.grenLastTime ) % 1000 ) < ( ( cg.predictedPlayerState.grenadeTimeLeft ) % 1000 ) ) {
 				switch ( cg.predictedPlayerState.grenadeTimeLeft / 1000 ) {
 				case 3:
-					trap_S_StartLocalSound( cgs.media.grenadePulseSound4, CHAN_LOCAL_SOUND );
+					S_StartLocalSound( cgs.media.grenadePulseSound4, CHAN_LOCAL_SOUND );
 					break;
 				case 2:
-					trap_S_StartLocalSound( cgs.media.grenadePulseSound3, CHAN_LOCAL_SOUND );
+					S_StartLocalSound( cgs.media.grenadePulseSound3, CHAN_LOCAL_SOUND );
 					break;
 				case 1:
-					trap_S_StartLocalSound( cgs.media.grenadePulseSound2, CHAN_LOCAL_SOUND );
+					S_StartLocalSound( cgs.media.grenadePulseSound2, CHAN_LOCAL_SOUND );
 					break;
 				case 0:
-					trap_S_StartLocalSound( cgs.media.grenadePulseSound1, CHAN_LOCAL_SOUND );
+					S_StartLocalSound( cgs.media.grenadePulseSound1, CHAN_LOCAL_SOUND );
 					break;
 				}
 			}

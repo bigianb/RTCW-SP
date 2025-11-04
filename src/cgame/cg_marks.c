@@ -29,6 +29,7 @@ If you have questions concerning this license or the applicable additional terms
 // cg_marks.c -- wall marks
 
 #include "cg_local.h"
+#include "../renderer/tr_local.h"
 
 /*
 ===================================================================
@@ -200,7 +201,7 @@ void CG_ImpactMark( qhandle_t markShader, const vec3_t origin, const vec3_t dir,
 	// get the fragments
 	//VectorScale( dir, -20, projection );
 	VectorScale( dir, radius * 2, projection );
-	numFragments = trap_CM_MarkFragments( (int)orientation, (void *)originalPoints,
+	numFragments = R_MarkFragments( (int)orientation, (void *)originalPoints,
 										  projection, MAX_MARK_POINTS, (float *)&markPoints[0],
 										  MAX_MARK_FRAGMENTS * multMaxFragments, markFragments );
 

@@ -31,6 +31,8 @@ If you have questions concerning this license or the applicable additional terms
 // processed entities, like smoke puffs, gibs, shells, etc.
 
 #include "cg_local.h"
+#include "qcommon/cm_public.h"
+#include "../client/snd_public.h"
 
 // Ridah, increased this
 //#define	MAX_LOCAL_ENTITIES	512
@@ -80,8 +82,6 @@ void CG_FreeLocalEntity( localEntity_t *le ) {
 
 	// Ridah, debugging
 	localEntCount--;
-//	trap_Print( va("FreeLocalEntity: locelEntCount = %d\n", localEntCount) );
-	// done.
 
 	// remove from the doubly linked active list
 	le->prev->next = le->next;
@@ -110,8 +110,6 @@ localEntity_t   *CG_AllocLocalEntity( void ) {
 
 	// Ridah, debugging
 	localEntCount++;
-//	trap_Print( va("AllocLocalEntity: locelEntCount = %d\n", localEntCount) );
-	// done.
 
 	le = cg_freeLocalEntities;
 	cg_freeLocalEntities = cg_freeLocalEntities->next;
@@ -256,7 +254,7 @@ void CG_FragmentBounceSound( localEntity_t *le, trace_t *trace ) {
 			} else {
 				s = cgs.media.gibBounce3Sound;
 			}
-			trap_S_StartSound( trace->endpos, ENTITYNUM_WORLD, CHAN_AUTO, s );
+			S_StartSound( trace->endpos, ENTITYNUM_WORLD, CHAN_AUTO, s );
 		}
 	} else if ( le->leBounceSoundType == LEBS_BRASS ) {
 
@@ -274,13 +272,13 @@ void CG_FragmentBounceSound( localEntity_t *le, trace_t *trace ) {
 			} else {
 				s = cgs.media.debBounce3Sound;
 			}
-			trap_S_StartSound( trace->endpos, ENTITYNUM_WORLD, CHAN_AUTO, s );
+			S_StartSound( trace->endpos, ENTITYNUM_WORLD, CHAN_AUTO, s );
 		}
 //----(SA) end
 
 	} else if ( le->leBounceSoundType == LEBS_BONE ) {
 
-		trap_S_StartSound( trace->endpos, ENTITYNUM_WORLD, CHAN_AUTO, cgs.media.boneBounceSound );
+		S_StartSound( trace->endpos, ENTITYNUM_WORLD, CHAN_AUTO, cgs.media.boneBounceSound );
 
 	}
 
@@ -580,7 +578,7 @@ void CG_AddFragment( localEntity_t *le ) {
 				}
 			}
 			if ( i == 3 ) {
-				trap_S_StartSound( cg.snap->ps.origin, cg.snap->ps.clientNum, CHAN_VOICE, cgs.media.debrisHitSound );
+				S_StartSound( cg.snap->ps.origin, cg.snap->ps.clientNum, CHAN_VOICE, cgs.media.debrisHitSound );
 				CG_ClientDamage( cg.snap->ps.clientNum, ENTITYNUM_WORLD, CLDMG_DEBRIS );
 				// disable damage now for this debris
 				le->leFlags &= ~LEF_PLAYER_DAMAGE;
@@ -632,7 +630,7 @@ void CG_AddFragment( localEntity_t *le ) {
 	// if it is in a nodrop zone, remove it
 	// this keeps gibs from waiting at the bottom of pits of death
 	// and floating levels
-	if ( trap_CM_PointContents( trace.endpos, 0 ) & CONTENTS_NODROP ) {
+	if ( CM_PointContents( trace.endpos, 0 ) & CONTENTS_NODROP ) {
 		CG_FreeLocalEntity( le );
 		return;
 	}
@@ -796,7 +794,7 @@ void CG_AddSparkElements( localEntity_t *le ) {
 		// this keeps gibs from waiting at the bottom of pits of death
 		// and floating levels
 // for some reason SFM1.BSP is one big NODROP zone
-//		if ( trap_CM_PointContents( le->refEntity.origin, 0 ) & CONTENTS_NODROP ) {
+//		if ( CM_PointContents( le->refEntity.origin, 0 ) & CONTENTS_NODROP ) {
 //			CG_FreeLocalEntity( le );
 //			return;
 //		}
@@ -1119,14 +1117,14 @@ void CG_AddClientCritter( localEntity_t *le ) {
 
 		// now trace ahead of time, if we're going to hit something, then avoid it
 		// only avoid dangers if we don't have direct sight to the enemy
-		trap_CM_BoxTrace( &trace, le->refEntity.origin, enemyPos, NULL, NULL, 0, MASK_SOLID );
+		CM_BoxTrace( &trace, le->refEntity.origin, enemyPos, NULL, NULL, 0, MASK_SOLID, qfalse );
 		if ( trace.fraction < 1.0 ) {
 			BG_EvaluateTrajectory( &le->pos, time + 1000, newOrigin );
 
 			// if we would go passed the enemy, don't bother
 			if ( VectorDistance( le->refEntity.origin, enemyPos ) > VectorDistance( le->refEntity.origin, newOrigin ) ) {
 
-				trap_CM_BoxTrace( &trace, le->refEntity.origin, newOrigin, NULL, NULL, 0, MASK_SOLID );
+				CM_BoxTrace( &trace, le->refEntity.origin, newOrigin, NULL, NULL, 0, MASK_SOLID, qfalse );
 
 				if ( trace.fraction < 1.0 ) {
 					// make sure we are not heading away from the enemy too much
@@ -1332,7 +1330,7 @@ void CG_AddDebrisElements( localEntity_t *le ) {
 		// if it is in a nodrop zone, remove it
 		// this keeps gibs from waiting at the bottom of pits of death
 		// and floating levels
-//		if ( trap_CM_PointContents( trace.endpos, 0 ) & CONTENTS_NODROP ) {
+//		if ( CM_PointContents( trace.endpos, 0 ) & CONTENTS_NODROP ) {
 //			CG_FreeLocalEntity( le );
 //			return;
 //		}
@@ -1411,7 +1409,7 @@ void CG_AddShrapnel( localEntity_t *le ) {
 	// if it is in a nodrop zone, remove it
 	// this keeps gibs from waiting at the bottom of pits of death
 	// and floating levels
-	if ( trap_CM_PointContents( trace.endpos, 0 ) & CONTENTS_NODROP ) {
+	if ( CM_PointContents( trace.endpos, 0 ) & CONTENTS_NODROP ) {
 		CG_FreeLocalEntity( le );
 		return;
 	}

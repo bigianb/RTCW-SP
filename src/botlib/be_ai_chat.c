@@ -512,10 +512,10 @@ int StringContains( char *str1, char *str2, int casesensitive ) {
 // Changes Globals:		-
 //===========================================================================
 char *StringContainsWord( char *str1, char *str2, int casesensitive ) {
-	int len, i, j;
+	int j;
 
-	len = strlen( str1 ) - strlen( str2 );
-	for ( i = 0; i <= len; i++, str1++ )
+	size_t len = strlen( str1 ) - strlen( str2 );
+	for ( int i = 0; i <= len; i++, str1++ )
 	{
 		//if not at the start of the string
 		if ( i ) {

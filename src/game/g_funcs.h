@@ -926,14 +926,6 @@ If you have questions concerning this license or the applicable additional terms
 {"trap_DebugPolygonDelete", (byte *)trap_DebugPolygonDelete},
 {"trap_DebugPolygonCreate", (byte *)trap_DebugPolygonCreate},
 {"trap_GetEntityToken", (byte *)trap_GetEntityToken},
-{"trap_GetUsercmd", (byte *)trap_GetUsercmd},
-
-{"trap_EntityContact", (byte *)trap_EntityContact},
-
-
-{"trap_AdjustAreaPortalState", (byte *)trap_AdjustAreaPortalState},
-{"trap_InPVSIgnorePortals", (byte *)trap_InPVSIgnorePortals},
-
 
 {"G_RunFrame", (byte *)G_RunFrame},
 {"G_RunThink", (byte *)G_RunThink},
@@ -946,11 +938,6 @@ If you have questions concerning this license or the applicable additional terms
 
 {"FindIntermissionPoint", (byte *)FindIntermissionPoint},
 {"MoveClientToIntermission", (byte *)MoveClientToIntermission},
-
-{"CalculateRanks", (byte *)CalculateRanks},
-{"SortRanks", (byte *)SortRanks},
-{"AdjustTournamentScores", (byte *)AdjustTournamentScores},
-
 
 {"Com_Printf", (byte *)Com_Printf},
 {"Com_Error", (byte *)Com_Error},

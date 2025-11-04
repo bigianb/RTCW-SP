@@ -372,7 +372,7 @@ void CG_FireFlameChunks( centity_t *cent, vec3_t origin, vec3_t angles, float sp
 
 		// if igniting, play start sound
 		//if (firing) {
-		//	trap_S_StartSound( org, cent->currentState.number, CHAN_AUTO, cgs.media.flameStartSound );
+		//	S_StartSound( org, cent->currentState.number, CHAN_AUTO, cgs.media.flameStartSound );
 		//}
 
 		CG_Trace( &trace, org, flameChunkMins, flameChunkMaxs, org, cent->currentState.number, MASK_SHOT );

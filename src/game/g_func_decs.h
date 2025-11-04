@@ -934,14 +934,6 @@ extern time_t trap_RealTime ( qtime_t * qtime ) ;
 extern void trap_DebugPolygonDelete ( int id ) ;
 extern int trap_DebugPolygonCreate ( int color , int numPoints , vec3_t * points ) ;
 extern qboolean trap_GetEntityToken ( char * buffer , int bufferSize ) ;
-extern void trap_GetUsercmd ( int clientNum , usercmd_t * cmd ) ;
-
-extern qboolean trap_EntityContact ( const vec3_t mins , const vec3_t maxs , const gentity_t * ent ) ;
-
-
-extern void trap_AdjustAreaPortalState ( gentity_t * ent , qboolean open ) ;
-extern qboolean trap_InPVSIgnorePortals ( const vec3_t p1 , const vec3_t p2 ) ;
-
 
 extern void Cvar_Update ( vmCvar_t * cvar ) ;
 
@@ -959,11 +951,6 @@ extern void ExitLevel ( void ) ;
 
 extern void FindIntermissionPoint ( void ) ;
 extern void MoveClientToIntermission ( gentity_t * ent ) ;
-
-extern void CalculateRanks ( void ) ;
-extern int  SortRanks ( const void * a , const void * b ) ;
-extern void AdjustTournamentScores ( void ) ;
-
 
 extern void  Com_Printf ( const char * msg , ... ) ;
 extern void  Com_Error ( int level , const char * error , ... ) ;

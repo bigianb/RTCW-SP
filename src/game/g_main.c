@@ -1073,12 +1073,6 @@ G_InitGame
 void G_InitGame( int levelTime, int randomSeed, int restart ) {
 	int i;
 
-	if ( Cvar_VariableIntegerValue( "g_gametype" ) != GT_SINGLE_PLAYER ) {
-		Com_Printf( "------- Game Initialization -------\n" );
-		Com_Printf( "gamename: %s\n", GAMEVERSION );
-		Com_Printf( "gamedate: %s\n", __DATE__ );
-	}
-
 	srand( randomSeed );
 
 	G_RegisterCvars();
@@ -1202,10 +1196,6 @@ void G_InitGame( int levelTime, int randomSeed, int restart ) {
 
 	SaveRegisteredItems();
 
-	if ( Cvar_VariableIntegerValue( "g_gametype" ) != GT_SINGLE_PLAYER ) {
-		Com_Printf( "-----------------------------------\n" );
-	}
-
 	if ( g_gametype.integer == GT_SINGLE_PLAYER || Cvar_VariableIntegerValue( "com_buildScript" ) ) {
 		G_ModelIndex( SP_PODIUM_MODEL );
 		G_SoundIndex( "sound/player/gurp1.wav" );
@@ -1230,9 +1220,6 @@ G_ShutdownGame
 =================
 */
 void G_ShutdownGame( int restart ) {
-	if ( g_gametype.integer != GT_SINGLE_PLAYER ) {
-		Com_Printf( "==== ShutdownGame ====\n" );
-	}
 
 	if ( level.logFile ) {
 		G_LogPrintf( "ShutdownGame:\n" );
@@ -1277,198 +1264,6 @@ PLAYER COUNTING / SCORE SORTING
 ========================================================================
 */
 
-
-/*
-=======================
-AdjustTournamentScores
-
-=======================
-*/
-void AdjustTournamentScores( void ) {
-	int clientNum;
-
-	clientNum = level.sortedClients[0];
-	if ( level.clients[ clientNum ].pers.connected == CON_CONNECTED ) {
-		level.clients[ clientNum ].sess.wins++;
-		ClientUserinfoChanged( clientNum );
-	}
-
-	clientNum = level.sortedClients[1];
-	if ( level.clients[ clientNum ].pers.connected == CON_CONNECTED ) {
-		level.clients[ clientNum ].sess.losses++;
-		ClientUserinfoChanged( clientNum );
-	}
-
-}
-
-/*
-=============
-SortRanks
-
-=============
-*/
-int  SortRanks( const void *a, const void *b ) {
-	gclient_t   *ca, *cb;
-
-	ca = &level.clients[*(int *)a];
-	cb = &level.clients[*(int *)b];
-
-	// sort special clients last
-	if ( ca->sess.spectatorState == SPECTATOR_SCOREBOARD || ca->sess.spectatorClient < 0 ) {
-		return 1;
-	}
-	if ( cb->sess.spectatorState == SPECTATOR_SCOREBOARD || cb->sess.spectatorClient < 0  ) {
-		return -1;
-	}
-
-	// then connecting clients
-	if ( ca->pers.connected == CON_CONNECTING ) {
-		return 1;
-	}
-	if ( cb->pers.connected == CON_CONNECTING ) {
-		return -1;
-	}
-
-
-	// then spectators
-	if ( ca->sess.sessionTeam == TEAM_SPECTATOR && cb->sess.sessionTeam == TEAM_SPECTATOR ) {
-		if ( ca->sess.spectatorTime < cb->sess.spectatorTime ) {
-			return -1;
-		}
-		if ( ca->sess.spectatorTime > cb->sess.spectatorTime ) {
-			return 1;
-		}
-		return 0;
-	}
-	if ( ca->sess.sessionTeam == TEAM_SPECTATOR ) {
-		return 1;
-	}
-	if ( cb->sess.sessionTeam == TEAM_SPECTATOR ) {
-		return -1;
-	}
-
-	// then sort by score
-	if ( ca->ps.persistant[PERS_SCORE]
-		 > cb->ps.persistant[PERS_SCORE] ) {
-		return -1;
-	}
-	if ( ca->ps.persistant[PERS_SCORE]
-		 < cb->ps.persistant[PERS_SCORE] ) {
-		return 1;
-	}
-	return 0;
-}
-
-/*
-============
-CalculateRanks
-
-Recalculates the score ranks of all players
-This will be called on every client connect, begin, disconnect, death,
-and team change.
-============
-*/
-void CalculateRanks( void ) {
-	int i;
-	int rank;
-	int score;
-	int newScore;
-	gclient_t   *cl;
-
-	level.follow1 = -1;
-	level.follow2 = -1;
-	level.numConnectedClients = 0;
-	level.numNonSpectatorClients = 0;
-	level.numPlayingClients = 0;
-	level.numVotingClients = 0;     // don't count bots
-	for ( i = 0; i < TEAM_NUM_TEAMS; i++ ) {
-		level.numteamVotingClients[i] = 0;
-	}
-	for ( i = 0 ; i < level.maxclients ; i++ ) {
-		if ( level.clients[i].pers.connected != CON_DISCONNECTED ) {
-			level.sortedClients[level.numConnectedClients] = i;
-			level.numConnectedClients++;
-
-			if ( level.clients[i].sess.sessionTeam != TEAM_SPECTATOR ) {
-				level.numNonSpectatorClients++;
-
-				// decide if this should be auto-followed
-				if ( level.clients[i].pers.connected == CON_CONNECTED ) {
-					level.numPlayingClients++;
-					if ( !( g_entities[i].r.svFlags & SVF_BOT ) ) {
-						level.numVotingClients++;
-						if ( level.clients[i].sess.sessionTeam == TEAM_RED ) {
-							level.numteamVotingClients[0]++;
-						} else if ( level.clients[i].sess.sessionTeam == TEAM_BLUE ) {
-							level.numteamVotingClients[1]++;
-						}
-					}
-					if ( level.follow1 == -1 ) {
-						level.follow1 = i;
-					} else if ( level.follow2 == -1 ) {
-						level.follow2 = i;
-					}
-				}
-			}
-		}
-	}
-
-	qsort( level.sortedClients, level.numConnectedClients,
-		   sizeof( level.sortedClients[0] ), SortRanks );
-
-	// set the rank value for all clients that are connected and not spectators
-	if ( g_gametype.integer >= GT_TEAM ) {
-		// in team games, rank is just the order of the teams, 0=red, 1=blue, 2=tied
-		for ( i = 0;  i < level.numConnectedClients; i++ ) {
-			cl = &level.clients[ level.sortedClients[i] ];
-			if ( level.teamScores[TEAM_RED] == level.teamScores[TEAM_BLUE] ) {
-				cl->ps.persistant[PERS_RANK] = 2;
-			} else if ( level.teamScores[TEAM_RED] > level.teamScores[TEAM_BLUE] ) {
-				cl->ps.persistant[PERS_RANK] = 0;
-			} else {
-				cl->ps.persistant[PERS_RANK] = 1;
-			}
-		}
-	} else {
-		rank = -1;
-		score = 0;
-		for ( i = 0;  i < level.numPlayingClients; i++ ) {
-			cl = &level.clients[ level.sortedClients[i] ];
-			newScore = cl->ps.persistant[PERS_SCORE];
-			if ( i == 0 || newScore != score ) {
-				rank = i;
-				// assume we aren't tied until the next client is checked
-				level.clients[ level.sortedClients[i] ].ps.persistant[PERS_RANK] = rank;
-			} else {
-				// we are tied with the previous client
-				level.clients[ level.sortedClients[i - 1] ].ps.persistant[PERS_RANK] = rank | RANK_TIED_FLAG;
-				level.clients[ level.sortedClients[i] ].ps.persistant[PERS_RANK] = rank | RANK_TIED_FLAG;
-			}
-			score = newScore;
-			if ( g_gametype.integer == GT_SINGLE_PLAYER && level.numPlayingClients == 1 ) {
-				level.clients[ level.sortedClients[i] ].ps.persistant[PERS_RANK] = rank | RANK_TIED_FLAG;
-			}
-		}
-	}
-
-	// set the CS_SCORES1/2 configstrings, which will be visible to everyone
-	if ( g_gametype.integer >= GT_TEAM ) {
-		SV_SetConfigstring( CS_SCORES1, va( "%i", level.teamScores[TEAM_RED] ) );
-		SV_SetConfigstring( CS_SCORES2, va( "%i", level.teamScores[TEAM_BLUE] ) );
-	} else {
-		if ( level.numConnectedClients == 0 ) {
-			SV_SetConfigstring( CS_SCORES1, va( "%i", SCORE_NOT_PRESENT ) );
-			SV_SetConfigstring( CS_SCORES2, va( "%i", SCORE_NOT_PRESENT ) );
-		} else if ( level.numConnectedClients == 1 ) {
-			SV_SetConfigstring( CS_SCORES1, va( "%i", level.clients[ level.sortedClients[0] ].ps.persistant[PERS_SCORE] ) );
-			SV_SetConfigstring( CS_SCORES2, va( "%i", SCORE_NOT_PRESENT ) );
-		} else {
-			SV_SetConfigstring( CS_SCORES1, va( "%i", level.clients[ level.sortedClients[0] ].ps.persistant[PERS_SCORE] ) );
-			SV_SetConfigstring( CS_SCORES2, va( "%i", level.clients[ level.sortedClients[1] ].ps.persistant[PERS_SCORE] ) );
-		}
-	}
-
-}
 
 
 /*

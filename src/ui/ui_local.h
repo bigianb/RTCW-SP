@@ -976,8 +976,6 @@ void            trap_R_DrawStretchPic( float x, float y, float w, float h, float
 void            trap_R_ModelBounds( clipHandle_t model, vec3_t mins, vec3_t maxs );
 void            SCR_UpdateScreen( void );
 
-void            trap_S_StartLocalSound( sfxHandle_t sfx, int channelNum );
-
 void            trap_S_FadeAllSound( float targetvol, int time ); //----(SA)	added
 
 

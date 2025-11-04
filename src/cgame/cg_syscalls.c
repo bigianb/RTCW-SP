@@ -33,72 +33,6 @@ If you have questions concerning this license or the applicable additional terms
 #include "../renderer/tr_local.h"
 #include "../game/g_func_decs.h"
 
-void    trap_Print( const char *fmt ) {
-	Com_Printf( "%s", fmt );
-}
-
-
-clipHandle_t trap_CM_TempBoxModel( const vec3_t mins, const vec3_t maxs ) {
-	return CM_TempBoxModel( mins, maxs, qfalse );
-}
-
-clipHandle_t trap_CM_TempCapsuleModel( const vec3_t mins, const vec3_t maxs ) {
-	return CM_TempBoxModel( mins, maxs, qtrue );
-}
-
-int     trap_CM_PointContents( const vec3_t p, clipHandle_t model ) {
-	return CM_PointContents( p, model );
-}
-
-int     trap_CM_TransformedPointContents( const vec3_t p, clipHandle_t model, const vec3_t origin, const vec3_t angles ) {
-	return CM_TransformedPointContents( p, model, origin, angles );
-}
-
-void    trap_CM_BoxTrace( trace_t *results, const vec3_t start, const vec3_t end,
-						  const vec3_t mins, const vec3_t maxs,
-						  clipHandle_t model, int brushmask ) {
-	CM_BoxTrace(results, start, end, mins, maxs, model, brushmask, qfalse );
-}
-
-void    trap_CM_TransformedBoxTrace( trace_t *results, const vec3_t start, const vec3_t end,
-									 const vec3_t mins, const vec3_t maxs,
-									 clipHandle_t model, int brushmask,
-									 const vec3_t origin, const vec3_t angles ) {
-	CM_TransformedBoxTrace(results, start, end, mins, maxs, model, brushmask, origin, angles, qfalse );
-}
-
-void    trap_CM_CapsuleTrace( trace_t *results, const vec3_t start, const vec3_t end,
-							  const vec3_t mins, const vec3_t maxs,
-							  clipHandle_t model, int brushmask ) {
-	CM_BoxTrace(results, start, end, mins, maxs, model, brushmask, qtrue );
-}
-
-void    trap_CM_TransformedCapsuleTrace( trace_t *results, const vec3_t start, const vec3_t end,
-										 const vec3_t mins, const vec3_t maxs,
-										 clipHandle_t model, int brushmask,
-										 const vec3_t origin, const vec3_t angles ) {
-	CM_TransformedBoxTrace(results, start, end, mins, maxs, model, brushmask, origin, angles, qtrue );
-}
-
-int     trap_CM_MarkFragments( int numPoints, const vec3_t *points,
-							   const vec3_t projection,
-							   int maxPoints, vec3_t pointBuffer,
-							   int maxFragments, markFragment_t *fragmentBuffer ) {
-	return R_MarkFragments(numPoints, points, projection, maxPoints, pointBuffer, maxFragments, fragmentBuffer );
-}
-
-void    trap_S_StartSound( vec3_t origin, int entityNum, int entchannel, sfxHandle_t sfx ) {
-	S_StartSound(origin, entityNum, entchannel, sfx );
-}
-
-void    trap_S_StartSoundEx( vec3_t origin, int entityNum, int entchannel, sfxHandle_t sfx, int flags ) {
-	S_StartSoundEx(origin, entityNum, entchannel, sfx, flags );
-}
-
-void    trap_S_StartLocalSound( sfxHandle_t sfx, int channelNum ) {
-	S_StartLocalSound(sfx, channelNum );
-}
-
 void    trap_S_ClearLoopingSounds( int killall ) {
 	S_ClearLoopingSounds(); 
 
@@ -266,11 +200,6 @@ qboolean    trap_GetServerCommand( int serverCommandNumber ) {
 extern int CL_GetCurrentCmdNumber( void );
 int         trap_GetCurrentCmdNumber( void ) {
 	return CL_GetCurrentCmdNumber();
-}
-
-extern qboolean CL_GetUserCmd( int cmdNumber, usercmd_t *ucmd );
-qboolean    trap_GetUserCmd( int cmdNumber, usercmd_t *ucmd ) {
-	return CL_GetUserCmd(cmdNumber, ucmd );
 }
 
 extern void CL_SetUserCmdValue( int userCmdValue, int holdableValue, float sensitivityScale, int cld );

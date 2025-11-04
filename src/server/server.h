@@ -319,6 +319,9 @@ void SV_GameSendServerCommand( int clientNum, const char *text );
 void SV_GetServerinfo( char *buffer, int bufferSize );
 
 qboolean    SV_EntityContact( const vec3_t mins, const vec3_t maxs, const sharedEntity_t *gEnt, const int capsule );
+void SV_AdjustAreaPortalState( sharedEntity_t *ent, qboolean open );
+
+void SV_GetUsercmd( int clientNum, usercmd_t *cmd );
 
 //
 // sv_bot.c

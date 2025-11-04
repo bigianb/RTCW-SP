@@ -564,6 +564,8 @@ void CL_SetCGameTime( void );
 void CL_FirstSnapshot( void );
 void CL_ShaderStateChanged( void );
 
+qboolean CL_GetUserCmd( int cmdNumber, usercmd_t *ucmd );
+
 // cl_ui.c
 //
 void CL_InitUI( void );

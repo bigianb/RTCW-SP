@@ -30,6 +30,7 @@ If you have questions concerning this license or the applicable additional terms
 // for a 3D rendering
 #include "cg_local.h"
 #include "../qcommon/qcommon.h"
+#include "../client/snd_public.h"
 
 //========================
 extern int notebookModel;
@@ -1197,7 +1198,7 @@ static void CG_PowerupTimerSounds( void ) {
 			continue;
 		}
 		if ( ( t - cg.time ) / POWERUP_BLINK_TIME != ( t - cg.oldTime ) / POWERUP_BLINK_TIME ) {
-			trap_S_StartSound( NULL, cg.snap->ps.clientNum, CHAN_ITEM, cgs.media.wearOffSound );
+			S_StartSound( NULL, cg.snap->ps.clientNum, CHAN_ITEM, cgs.media.wearOffSound );
 		}
 	}
 }

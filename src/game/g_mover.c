@@ -1007,7 +1007,7 @@ void Reached_BinaryMover( gentity_t *ent ) {
 
 		// close areaportals
 		if ( ent->teammaster == ent || !ent->teammaster ) {
-			trap_AdjustAreaPortalState( ent, qfalse );
+			SV_AdjustAreaPortalState( ent, qfalse );
 		}
 	} else if ( ent->moverState == MOVER_1TO2ROTATE )   {
 		// reached pos2
@@ -1071,7 +1071,7 @@ void Reached_BinaryMover( gentity_t *ent ) {
 
 		// close areaportals
 		if ( ent->teammaster == ent || !ent->teammaster ) {
-			trap_AdjustAreaPortalState( ent, qfalse );
+			SV_AdjustAreaPortalState( ent, qfalse );
 		}
 	} else {
 		Com_Error( ERR_DROP, "Reached_BinaryMover: bad moverState" );
@@ -1179,7 +1179,7 @@ void Reached_TrinaryMover( gentity_t *ent ) {
 
 		// close areaportals
 		if ( ent->teammaster == ent || !ent->teammaster ) {
-			trap_AdjustAreaPortalState( ent, qfalse );
+			SV_AdjustAreaPortalState( ent, qfalse );
 		}
 	} else if ( ent->moverState == MOVER_2TO3 )   {
 		// reached pos3
@@ -1239,7 +1239,7 @@ void Use_TrinaryMover( gentity_t *ent, gentity_t *other, gentity_t *activator ) 
 
 		// open areaportal
 		if ( ent->teammaster == ent || !ent->teammaster ) {
-			trap_AdjustAreaPortalState( ent, qtrue );
+			SV_AdjustAreaPortalState( ent, qtrue );
 		}
 		return;
 	}
@@ -1266,7 +1266,7 @@ void Use_TrinaryMover( gentity_t *ent, gentity_t *other, gentity_t *activator ) 
 
 		// open areaportal
 		if ( ent->teammaster == ent || !ent->teammaster ) {
-			trap_AdjustAreaPortalState( ent, qtrue );
+			SV_AdjustAreaPortalState( ent, qtrue );
 		}
 		return;
 	}
@@ -1436,7 +1436,7 @@ void Use_BinaryMover( gentity_t *ent, gentity_t *other, gentity_t *activator ) {
 
 		// open areaportal
 		if ( ent->teammaster == ent || !ent->teammaster ) {
-			trap_AdjustAreaPortalState( ent, qtrue );
+			SV_AdjustAreaPortalState( ent, qtrue );
 		}
 		return;
 	}
@@ -1469,7 +1469,7 @@ void Use_BinaryMover( gentity_t *ent, gentity_t *other, gentity_t *activator ) {
 
 		// open areaportal
 		if ( ent->teammaster == ent || !ent->teammaster ) {
-			trap_AdjustAreaPortalState( ent, qtrue );
+			SV_AdjustAreaPortalState( ent, qtrue );
 		}
 		return;
 	}
@@ -1505,7 +1505,7 @@ void Use_BinaryMover( gentity_t *ent, gentity_t *other, gentity_t *activator ) {
 
 		// open areaportal
 		if ( ent->teammaster == ent || !ent->teammaster ) {
-			trap_AdjustAreaPortalState( ent, qtrue );
+			SV_AdjustAreaPortalState( ent, qtrue );
 		}
 		return;
 	}

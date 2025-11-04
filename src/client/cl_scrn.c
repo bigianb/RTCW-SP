@@ -340,9 +340,9 @@ void SCR_DrawDemoRecording( void ) {
 	}
 
 	size_t pos = FS_FTell( clc.demofile );
-	snprintf( string, 1024, "RECORDING %s: %ik", clc.demoName, pos / 1024 );
+	snprintf( string, 1024, "RECORDING %s: %ik", clc.demoName, (int)(pos / 1024) );
 
-	SCR_DrawStringExt( 320 - strlen( string ) * 4, 20, 8, string, g_color_table[7], qtrue );
+	SCR_DrawStringExt( 320 - (int)strlen( string ) * 4, 20, 8, string, g_color_table[7], qtrue );
 }
 
 

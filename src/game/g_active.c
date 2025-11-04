@@ -1160,7 +1160,7 @@ void ClientThink( int clientNum ) {
 
 	ent = g_entities + clientNum;
 	ent->client->pers.oldcmd = ent->client->pers.cmd;
-	trap_GetUsercmd( clientNum, &ent->client->pers.cmd );
+	SV_GetUsercmd( clientNum, &ent->client->pers.cmd );
 
 	// mark the time we got info, so we can display the
 	// phone jack if they don't get any for a while

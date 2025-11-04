@@ -49,26 +49,6 @@ If you have questions concerning this license or the applicable additional terms
 #include "../game/be_ai_move.h"
 #include "../game/be_ai_weap.h"
 
-qboolean SV_inPVSIgnorePortals( const vec3_t p1, const vec3_t p2 );
-qboolean trap_InPVSIgnorePortals( const vec3_t p1, const vec3_t p2 ) {
-	return SV_inPVSIgnorePortals(p1, p2 );
-}
-
-void SV_AdjustAreaPortalState( sharedEntity_t *ent, qboolean open );
-void trap_AdjustAreaPortalState( gentity_t *ent, qboolean open ) {
-	SV_AdjustAreaPortalState(ent, open );
-}
-
-extern qboolean    SV_EntityContact( const vec3_t mins, const vec3_t maxs, const sharedEntity_t *gEnt, const int capsule );
-qboolean trap_EntityContact( const vec3_t mins, const vec3_t maxs, const gentity_t *ent ) {
-	return SV_EntityContact(mins, maxs, ent, qfalse );
-}
-
-extern void SV_GetUsercmd( int clientNum, usercmd_t *cmd );
-void trap_GetUsercmd( int clientNum, usercmd_t *cmd ) {
-	SV_GetUsercmd(clientNum, cmd );
-}
-
 qboolean trap_GetEntityToken( char *buffer, int bufferSize ) {
 	
 	const char  *s = COM_Parse( &sv.entityParsePoint );

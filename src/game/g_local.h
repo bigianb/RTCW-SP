@@ -652,7 +652,7 @@ typedef struct {
 	int voteExecuteTime;                // time the vote is executed
 	int voteYes;
 	int voteNo;
-	int numVotingClients;               // set by CalculateRanks
+
 
 	// team voting state
 	char teamVoteString[2][MAX_STRING_CHARS];
@@ -931,7 +931,6 @@ void InitBodyQue( void );
 void ClientSpawn( gentity_t *ent );
 void player_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int damage, int mod );
 void AddScore( gentity_t *ent, int score );
-void CalculateRanks( void );
 qboolean SpotWouldTelefrag( gentity_t *spot );
 qboolean G_GetModelInfo( int clientNum, char *modelName, animModelInfo_t **modelInfo );
 
@@ -1169,15 +1168,7 @@ void    Cmd_ArgsBuffer( char *buffer, int bufferLength );
 void    Cvar_Set( const char *var_name, const char *value );
 
 qboolean SV_inPVS( const vec3_t p1, const vec3_t p2 );
-qboolean trap_InPVSIgnorePortals( const vec3_t p1, const vec3_t p2 );
-void    trap_AdjustAreaPortalState( gentity_t *ent, qboolean open );
 
-
-qboolean trap_EntityContact( const vec3_t mins, const vec3_t maxs, const gentity_t *ent );
-
-
-
-void    trap_GetUsercmd( int clientNum, usercmd_t *cmd );
 qboolean    trap_GetEntityToken( char *buffer, int bufferSize );
 
 

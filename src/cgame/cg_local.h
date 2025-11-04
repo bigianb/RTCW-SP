@@ -2207,9 +2207,6 @@ void CG_LoadClientInfo( clientInfo_t *ci );
 // These functions are how the cgame communicates with the main game system
 //
 
-// print message on the local console
-void        trap_Print( const char *fmt );
-
 
 // milliseconds should only be used for performance tuning, never
 // for anything game related.  Get time from the CG_DrawActiveFrame parameter
@@ -2237,43 +2234,15 @@ void        SCR_UpdateScreen( void );
 
 // model collision
 
-
-
-clipHandle_t trap_CM_TempBoxModel( const vec3_t mins, const vec3_t maxs );
-clipHandle_t trap_CM_TempCapsuleModel( const vec3_t mins, const vec3_t maxs );
-int         trap_CM_PointContents( const vec3_t p, clipHandle_t model );
-int         trap_CM_TransformedPointContents( const vec3_t p, clipHandle_t model, const vec3_t origin, const vec3_t angles );
-void        trap_CM_BoxTrace( trace_t *results, const vec3_t start, const vec3_t end,
-							  const vec3_t mins, const vec3_t maxs,
-							  clipHandle_t model, int brushmask );
-void        trap_CM_TransformedBoxTrace( trace_t *results, const vec3_t start, const vec3_t end,
-										 const vec3_t mins, const vec3_t maxs,
-										 clipHandle_t model, int brushmask,
-										 const vec3_t origin, const vec3_t angles );
-
-void        trap_CM_CapsuleTrace( trace_t *results, const vec3_t start, const vec3_t end,
-								  const vec3_t mins, const vec3_t maxs,
-								  clipHandle_t model, int brushmask );
-void        trap_CM_TransformedCapsuleTrace( trace_t *results, const vec3_t start, const vec3_t end,
-											 const vec3_t mins, const vec3_t maxs,
-											 clipHandle_t model, int brushmask,
-											 const vec3_t origin, const vec3_t angles );
-
-// Returns the projection of a polygon onto the solid brushes in the world
-int         trap_CM_MarkFragments( int numPoints, const vec3_t *points,
-								   const vec3_t projection,
-								   int maxPoints, vec3_t pointBuffer,
-								   int maxFragments, markFragment_t *fragmentBuffer );
+int         CM_PointContents( const vec3_t p, clipHandle_t model );
 
 // normal sounds will have their volume dynamically changed as their entity
 // moves and the listener moves
-void        trap_S_StartSound( vec3_t origin, int entityNum, int entchannel, sfxHandle_t sfx );
-void        trap_S_StartSoundEx( vec3_t origin, int entityNum, int entchannel, sfxHandle_t sfx, int flags );
 
 void        trap_S_StopStreamingSound( int entnum );  // usually AI.  character is talking and needs to be shut up /now/
 
 // a local sound is always played full volume
-void        trap_S_StartLocalSound( sfxHandle_t sfx, int channelNum );
+
 void        trap_S_ClearLoopingSounds( int killall );
 void        trap_S_AddLoopingSound( int entityNum, const vec3_t origin, const vec3_t velocity, sfxHandle_t sfx, int volume );
 void        trap_S_AddRangedLoopingSound( int entityNum, const vec3_t origin, const vec3_t velocity, sfxHandle_t sfx, int range );
@@ -2359,8 +2328,6 @@ qboolean    trap_GetServerCommand( int serverCommandNumber );
 // snapshot, and it may be quite a few higher if it is a fast computer on
 // a lagged connection
 int         trap_GetCurrentCmdNumber( void );
-
-qboolean    trap_GetUserCmd( int cmdNumber, usercmd_t *ucmd );
 
 // used for the weapon/holdable select and zoom
 void        trap_SetUserCmdValue( int stateValue, int holdValue, float sensitivityScale, int cld );     // NERVE - SMF - added cld

@@ -2529,7 +2529,7 @@ static void CG_BreathPuffs( centity_t *cent, refEntity_t *head ) {
 		}
 	}
 
-	contents = trap_CM_PointContents( head->origin, 0 );
+	contents = CM_PointContents( head->origin, 0 );
 	if ( contents & ( CONTENTS_WATER | CONTENTS_SLIME | CONTENTS_LAVA ) ) {
 		return;
 	}
@@ -2802,7 +2802,7 @@ static qboolean CG_PlayerShadow( centity_t *cent, float *shadowPlane ) {
 	VectorCopy( cent->lerpOrigin, end );
 	end[2] -= SHADOW_DISTANCE;
 
-	trap_CM_BoxTrace( &trace, cent->lerpOrigin, end, NULL, NULL, 0, MASK_PLAYERSOLID );
+	CM_BoxTrace( &trace, cent->lerpOrigin, end, NULL, NULL, 0, MASK_PLAYERSOLID, qfalse );
 
 	// no shadow if too high
 	if ( trace.fraction == 1.0 ) {
@@ -2927,7 +2927,7 @@ static void CG_PlayerSplash( centity_t *cent ) {
 
 	// if the feet aren't in liquid, don't make a mark
 	// this won't handle moving water brushes, but they wouldn't draw right anyway...
-	contents = trap_CM_PointContents( end, 0 );
+	contents = CM_PointContents( end, 0 );
 	if ( !( contents & ( CONTENTS_WATER | CONTENTS_SLIME | CONTENTS_LAVA ) ) ) {
 		return;
 	}
@@ -2936,13 +2936,13 @@ static void CG_PlayerSplash( centity_t *cent ) {
 	start[2] += 32;
 
 	// if the head isn't out of liquid, don't make a mark
-	contents = trap_CM_PointContents( start, 0 );
+	contents = CM_PointContents( start, 0 );
 	if ( contents & ( CONTENTS_SOLID | CONTENTS_WATER | CONTENTS_SLIME | CONTENTS_LAVA ) ) {
 		return;
 	}
 
 	// trace down to find the surface
-	trap_CM_BoxTrace( &trace, start, end, NULL, NULL, 0, ( CONTENTS_WATER | CONTENTS_SLIME | CONTENTS_LAVA ) );
+	CM_BoxTrace( &trace, start, end, NULL, NULL, 0, ( CONTENTS_WATER | CONTENTS_SLIME | CONTENTS_LAVA ), qfalse );
 
 	if ( trace.fraction == 1.0 ) {
 		return;
@@ -3174,7 +3174,7 @@ void CG_AddZombieSpiritEffect( centity_t *cent ) {
 				VectorAdd( cent->lerpOrigin, v, p[i] );
 
 				// check for sinking into geometry
-				trap_CM_BoxTrace( &trace, p[i], p[i], NULL, NULL, 0, MASK_SOLID );
+				CM_BoxTrace( &trace, p[i], p[i], NULL, NULL, 0, MASK_SOLID, qfalse );
 				// if we hit something, clip the velocity, but maintain speed
 				if ( trace.startsolid ) {
 					cent->pe.zombieSpiritTrailHead[i] = -2; // kill it
@@ -3264,7 +3264,7 @@ void CG_AddZombieSpiritEffect( centity_t *cent ) {
 			VectorNormalize( v );
 			if ( DotProduct( cent->pe.zombieSpiritDir[i], v ) > 0.6 || ( cent->currentState.eFlags & EF_DEAD ) ) {
 				// check for sinking into geometry
-				trap_CM_BoxTrace( &trace, refent.origin, refent.origin, NULL, NULL, 0, MASK_SOLID );
+				CM_BoxTrace( &trace, refent.origin, refent.origin, NULL, NULL, 0, MASK_SOLID, qfalse );
 				// if we hit something, don't release it yet
 				if ( !trace.startsolid ) {
 					if ( cent->pe.zombieSpiritSpeed[i] < 300 ) {
@@ -3285,7 +3285,7 @@ void CG_AddZombieSpiritEffect( centity_t *cent ) {
 
 	if ( cg.time > cent->pe.nextZombieSpiritSound && cent->pe.cueZombieSpirit ) { //&& (cg.time < cent->pe.zombieSpiritStartTime + sndDuration)) {
 		// spawn a new sound
-		trap_S_StartSound( cent->lerpOrigin, -1, CHAN_AUTO, cgs.media.zombieSpiritSound );
+		S_StartSound( cent->lerpOrigin, -1, CHAN_AUTO, cgs.media.zombieSpiritSound );
 		cent->pe.nextZombieSpiritSound = cg.time + sndIntervalMin + (int)( (float)( sndIntervalMax - sndIntervalMin ) * random() );
 	}
 
@@ -3566,7 +3566,7 @@ void CG_AddLoperLightningEffect( centity_t *cent ) {
 			VectorCopy( testPos, cent->pe.lightningPoints[i] );
 			// play a zap sound
 			if ( cent->pe.lightningSoundTime < cg.time - 100 ) {
-				trap_S_StartSound( testPos, ENTITYNUM_WORLD, CHAN_AUTO, cgs.media.lightningZap /*cgs.media.lightningSounds[rand()%3]*/ );
+				S_StartSound( testPos, ENTITYNUM_WORLD, CHAN_AUTO, cgs.media.lightningZap /*cgs.media.lightningSounds[rand()%3]*/ );
 				cent->pe.lightningSoundTime = cg.time;
 			}
 		} else if ( ( !cent->pe.lightningTimes[i] ) ||
@@ -3595,7 +3595,7 @@ void CG_AddLoperLightningEffect( centity_t *cent ) {
 						// HACK, move ths sound away from the viewpos, to simulate lower volume
 						VectorSubtract( testPos, cg.refdef.vieworg, v );
 						VectorMA( cg.refdef.vieworg, 3.0, v, v );
-						trap_S_StartSound( v, ENTITYNUM_WORLD, CHAN_AUTO, cgs.media.lightningSounds[rand() % 3] );
+						S_StartSound( v, ENTITYNUM_WORLD, CHAN_AUTO, cgs.media.lightningSounds[rand() % 3] );
 						cent->pe.lightningSoundTime = cg.time;
 					}
 					break;
@@ -3724,7 +3724,7 @@ void CG_AddLoperGroundEffect( centity_t *cent ) {
 		cent->pe.loperLastGroundChargeTime = cg.time;
 		// make a new sound
 		VectorSet( org, org[0] + crandom() * 256, org[1] + crandom() * 256, org[2] + crandom() * 256 );
-		trap_S_StartSound( org, ENTITYNUM_WORLD, CHAN_AUTO, cgs.media.lightningZap );
+		S_StartSound( org, ENTITYNUM_WORLD, CHAN_AUTO, cgs.media.lightningZap );
 	}
 
 }
@@ -3911,7 +3911,7 @@ void CG_AddHelgaSpiritEffect( centity_t *cent ) {
 				VectorAdd( cent->lerpOrigin, v, p[i] );
 
 				// check for sinking into geometry
-				trap_CM_BoxTrace( &trace, p[i], p[i], NULL, NULL, 0, MASK_SOLID );
+				CM_BoxTrace( &trace, p[i], p[i], NULL, NULL, 0, MASK_SOLID, qfalse );
 				// if we hit something, clip the velocity, but maintain speed
 				if ( trace.startsolid ) {
 					cent->pe.zombieSpiritTrailHead[i] = -2; // kill it
@@ -4001,7 +4001,7 @@ void CG_AddHelgaSpiritEffect( centity_t *cent ) {
 			VectorNormalize( v );
 			if ( DotProduct( cent->pe.zombieSpiritDir[i], v ) > 0.4 || ( cent->currentState.eFlags & EF_DEAD ) ) {
 				// check for sinking into geometry
-				trap_CM_BoxTrace( &trace, refent.origin, refent.origin, NULL, NULL, 0, MASK_SOLID );
+				CM_BoxTrace( &trace, refent.origin, refent.origin, NULL, NULL, 0, MASK_SOLID, qfalse );
 				// if we hit something, don't release it yet
 				if ( !trace.startsolid ) {
 					if ( cent->pe.zombieSpiritSpeed[i] < 300 ) {
@@ -4022,7 +4022,7 @@ void CG_AddHelgaSpiritEffect( centity_t *cent ) {
 
 	if ( cg.time > cent->pe.nextZombieSpiritSound && cent->pe.cueZombieSpirit ) { //&& (cg.time < cent->pe.zombieSpiritStartTime + sndDuration)) {
 		// spawn a new sound
-		//trap_S_StartSound( cent->lerpOrigin, -1, CHAN_AUTO, cgs.media.helgaSpiritSound );
+		//S_StartSound( cent->lerpOrigin, -1, CHAN_AUTO, cgs.media.helgaSpiritSound );
 		CG_SoundPlayIndexedScript( cgs.media.helgaSpiritSound, NULL, cent->currentState.number );
 		cent->pe.nextZombieSpiritSound = cg.time + sndIntervalMin + (int)( (float)( sndIntervalMax - sndIntervalMin ) * random() );
 	}

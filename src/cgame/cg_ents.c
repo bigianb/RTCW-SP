@@ -35,6 +35,7 @@ If you have questions concerning this license or the applicable additional terms
 
 
 #include "cg_local.h"
+#include "../client/snd_public.h"
 
 ///////////////////////
 extern int propellerModel;
@@ -435,7 +436,7 @@ void CG_AddLightstyle( centity_t *cent ) {
 		if ( cent->dl_oldframe >= stringlength ) {
 			cent->dl_oldframe = ( cent->dl_oldframe ) % stringlength;
 			if ( cent->dl_oldframe < 3 && cent->dl_sound ) { // < 3 so if an alarm comes back into the pvs it will only start a sound if it's going to be closely synced with the light, otherwise wait till the next cycle
-				trap_S_StartSound( NULL, cent->currentState.number, CHAN_AUTO, cgs.gameSounds[cent->dl_sound] );
+				S_StartSound( NULL, cent->currentState.number, CHAN_AUTO, cgs.gameSounds[cent->dl_sound] );
 			}
 		}
 
@@ -621,7 +622,7 @@ static void CG_Speaker( centity_t *cent ) {
 		return;
 	}
 
-	trap_S_StartSound( NULL, cent->currentState.number, CHAN_ITEM, cgs.gameSounds[cent->currentState.eventParm] );
+	S_StartSound( NULL, cent->currentState.number, CHAN_ITEM, cgs.gameSounds[cent->currentState.eventParm] );
 
 	//	ent->s.frame = ent->wait * 10;
 	//	ent->s.clientNum = ent->random * 10;
@@ -1706,7 +1707,7 @@ static void CG_Efx( centity_t *cent ) {
 				VectorNormalize2( cent->lerpAngles, angNorm );
 				//		(origin, dir, speed, duration, count, 'randscale')
 				CG_AddBulletParticles( cent->lerpOrigin, angNorm, 2, 800, 4, 16.0f );
-				trap_S_StartSound( NULL, cent->currentState.number, CHAN_AUTO, cgs.media.sparkSounds[0] );
+				S_StartSound( NULL, cent->currentState.number, CHAN_AUTO, cgs.media.sparkSounds[0] );
 			}
 
 			// smoking dead light
@@ -2000,7 +2001,7 @@ static void CG_Mover( centity_t *cent ) {
 				VectorNormalize2( cent->lerpAngles, angNorm );
 				//		(origin, dir, speed, duration, count, 'randscale')
 				CG_AddBulletParticles( cent->lerpOrigin, angNorm, 2, 800, 4, 16.0f );
-				trap_S_StartSound( NULL, cent->currentState.number, CHAN_AUTO, cgs.media.sparkSounds[0] );
+				S_StartSound( NULL, cent->currentState.number, CHAN_AUTO, cgs.media.sparkSounds[0] );
 			}
 		}
 	}

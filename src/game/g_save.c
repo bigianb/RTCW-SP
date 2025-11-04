@@ -363,7 +363,7 @@ void WriteField1( saveField_t *field, byte *base ) {
 
 
 void WriteField2( fileHandle_t f, saveField_t *field, byte *base ) {
-	int len;
+	size_t len;
 	void        *p;
 	funcList_t  *func;
 
@@ -648,7 +648,7 @@ void ReadClient( fileHandle_t f, gclient_t *client, int size ) {
 	// if it's the player, see if we need to put them at a mission marker
 
 
-	trap_GetUsercmd( ent->client - level.clients, &ent->client->pers.cmd );
+	SV_GetUsercmd( ent->client - level.clients, &ent->client->pers.cmd );
 	SetClientViewAngle( ent, ent->client->ps.viewangles );
 //	}
 
@@ -788,7 +788,7 @@ void ReadEntity( fileHandle_t f, gentity_t *ent, int size ) {
 		if ( ent->teammaster == ent || !ent->teammaster ) {
 			if ( ent->moverState == MOVER_POS1ROTATE || ent->moverState == MOVER_POS1 ) {
 				// closed areaportal
-				trap_AdjustAreaPortalState( ent, qfalse );
+				SV_AdjustAreaPortalState( ent, qfalse );
 			} else {    // must be open
 				// portals are always opened before the mover starts to open, so we must move
 				// it back to the start position, link, set portals, then move it back
@@ -797,7 +797,7 @@ void ReadEntity( fileHandle_t f, gentity_t *ent, int size ) {
 				// link it at original position
 				SV_LinkEntity( ent );
 				// set portals
-				trap_AdjustAreaPortalState( ent, qtrue );
+				SV_AdjustAreaPortalState( ent, qtrue );
 				// put it back
 				*ent = backup2;
 				SV_LinkEntity( ent );

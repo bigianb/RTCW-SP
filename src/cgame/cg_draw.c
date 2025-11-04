@@ -31,6 +31,8 @@ If you have questions concerning this license or the applicable additional terms
 
 #include "cg_local.h"
 #include "../ui/ui_shared.h"
+#include "../client/snd_public.h"
+#include "../client/client.h"
 
 //----(SA) added to make it easier to raise/lower our statsubar by only changing one thing
 #define STATUSBARHEIGHT 452
@@ -667,7 +669,7 @@ static void CG_DrawDisconnect( void ) {
 
 	// draw the phone jack if we are completely past our buffers
 	cmdNum = trap_GetCurrentCmdNumber() - CMD_BACKUP + 1;
-	trap_GetUserCmd( cmdNum, &cmd );
+	CL_GetUserCmd( cmdNum, &cmd );
 	if ( cmd.serverTime <= cg.snap->ps.commandTime
 		 || cmd.serverTime > cg.time ) { // special check for map_restart // bk 0102165 - FIXME
 		return;
@@ -1262,7 +1264,7 @@ static void CG_ScanForCrosshairEntity( void ) {
 
 
 	// if the player is in fog, don't show it
-	content = trap_CM_PointContents( trace.endpos, 0 );
+	content = CM_PointContents( trace.endpos, 0 );
 	if ( content & CONTENTS_FOG ) {
 		return;
 	}
@@ -1422,47 +1424,6 @@ static void CG_DrawCrosshairNames( void ) {
 
 //==============================================================================
 
-/*
-=================
-CG_DrawSpectator
-=================
-*/
-static void CG_DrawSpectator( void ) {
-	CG_DrawBigString( 320 - 9 * 8, 440, "SPECTATOR", 1.0F );
-	if ( cgs.gametype == GT_TOURNAMENT ) {
-		CG_DrawBigString( 320 - 15 * 8, 460, "waiting to play", 1.0F );
-	}
-	if ( cgs.gametype == GT_TEAM || cgs.gametype == GT_CTF ) {
-		CG_DrawBigString( 320 - 25 * 8, 460, "use the TEAM menu to play", 1.0F );
-	}
-}
-
-/*
-=================
-CG_DrawVote
-=================
-*/
-static void CG_DrawVote( void ) {
-	char    *s;
-	int sec;
-
-	if ( !cgs.voteTime ) {
-		return;
-	}
-
-	// play a talk beep whenever it is modified
-	if ( cgs.voteModified ) {
-		cgs.voteModified = qfalse;
-		trap_S_StartLocalSound( cgs.media.talkSound, CHAN_LOCAL_SOUND );
-	}
-
-	sec = ( VOTE_TIME - ( cg.time - cgs.voteTime ) ) / 1000;
-	if ( sec < 0 ) {
-		sec = 0;
-	}
-	s = va( "VOTE(%i):%s yes(F1):%i no(F2):%i", sec, cgs.voteString, cgs.voteYes, cgs.voteNo );
-	CG_DrawSmallString( 0, 58, s, 1.0F );
-}
 
 /*
 =================
@@ -1583,13 +1544,13 @@ static void CG_DrawWarmup( void ) {
 		cg.warmupCount = sec;
 		switch ( sec ) {
 		case 0:
-			trap_S_StartLocalSound( cgs.media.count1Sound, CHAN_ANNOUNCER );
+			S_StartLocalSound( cgs.media.count1Sound, CHAN_ANNOUNCER );
 			break;
 		case 1:
-			trap_S_StartLocalSound( cgs.media.count2Sound, CHAN_ANNOUNCER );
+			S_StartLocalSound( cgs.media.count2Sound, CHAN_ANNOUNCER );
 			break;
 		case 2:
-			trap_S_StartLocalSound( cgs.media.count3Sound, CHAN_ANNOUNCER );
+			S_StartLocalSound( cgs.media.count3Sound, CHAN_ANNOUNCER );
 			break;
 		default:
 			break;
@@ -2131,32 +2092,26 @@ static void CG_Draw2D( void ) {
 
 	CG_DrawFlashBlendBehindHUD();
 
-	if ( cg.snap->ps.persistant[PERS_TEAM] == TEAM_SPECTATOR ) {
-		CG_DrawSpectator();
+
+	// don't draw any status if dead
+	if ( cg.snap->ps.stats[STAT_HEALTH] > 0 ) {
+
 		CG_DrawCrosshair();
-		CG_DrawCrosshairNames();
-	} else {
-		// don't draw any status if dead
-		if ( cg.snap->ps.stats[STAT_HEALTH] > 0 ) {
 
-			CG_DrawCrosshair();
-
-			if ( cg_drawStatus.integer ) {
-				Menu_PaintAll();
-				CG_DrawTimedMenus();
-			}
-
-			CG_DrawAmmoWarning();
-			CG_DrawDynamiteStatus();
-			CG_DrawCrosshairNames();
-			CG_DrawWeaponSelect();
-			CG_DrawHoldableSelect();
-			CG_DrawPickupItem();
-			CG_DrawReward();
+		if ( cg_drawStatus.integer ) {
+			Menu_PaintAll();
+			CG_DrawTimedMenus();
 		}
+
+		CG_DrawAmmoWarning();
+		CG_DrawDynamiteStatus();
+		CG_DrawCrosshairNames();
+		CG_DrawWeaponSelect();
+		CG_DrawHoldableSelect();
+		CG_DrawPickupItem();
+		CG_DrawReward();
 	}
 
-	CG_DrawVote();
 
 	CG_DrawLagometer();
 

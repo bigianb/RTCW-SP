@@ -890,9 +890,6 @@ char *ClientConnect( int clientNum, qboolean firstTime, qboolean isBot ) {
 		}
 	}
 
-	// count current clients and rank for scoreboard
-	CalculateRanks();
-
 	return NULL;
 }
 
@@ -973,9 +970,6 @@ void ClientBegin( int clientNum ) {
 		}
 	}
 	G_LogPrintf( "ClientBegin: %i\n", clientNum );
-
-	// count current clients and rank for scoreboard
-	CalculateRanks();
 
 }
 
@@ -1157,7 +1151,7 @@ void ClientSpawn( gentity_t *ent ) {
 	// the respawned flag will be cleared after the attack and jump keys come up
 	client->ps.pm_flags |= PMF_RESPAWNED;
 
-	trap_GetUsercmd( client - level.clients, &ent->client->pers.cmd );
+	SV_GetUsercmd( client - level.clients, &ent->client->pers.cmd );
 	SetClientViewAngle( ent, spawn_angles );
 
 	if ( ent->client->sess.sessionTeam == TEAM_SPECTATOR ) {
@@ -1274,8 +1268,6 @@ void ClientDisconnect( int clientNum ) {
 	ent->client->sess.sessionTeam = TEAM_FREE;
 
 	SV_SetConfigstring( CS_PLAYERS + clientNum, "" );
-
-	CalculateRanks();
 
 	if ( ent->r.svFlags & SVF_BOT ) {
 		BotAIShutdownClient( clientNum );

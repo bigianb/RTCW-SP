@@ -2388,7 +2388,7 @@ static qboolean UI_OwnerDrawVisible( int flags ) {
 				if ( uiInfo.soundHighScore ) {
 					if ( Cvar_VariableValue( "sv_killserver" ) == 0 ) {
 						// wait on server to go down before playing sound
-						trap_S_StartLocalSound( uiInfo.newHighScoreSound, CHAN_ANNOUNCER );
+						S_StartLocalSound( uiInfo.newHighScoreSound, CHAN_ANNOUNCER );
 						uiInfo.soundHighScore = qfalse;
 					}
 				}
@@ -5293,7 +5293,7 @@ void UI_Init(  ) {
 	uiInfo.uiDC.drawTextWithCursor = &Text_PaintWithCursor;
 
 
-	uiInfo.uiDC.startLocalSound = &trap_S_StartLocalSound;
+	uiInfo.uiDC.startLocalSound = &S_StartLocalSound;
 	uiInfo.uiDC.feederCount = &UI_FeederCount;
 	uiInfo.uiDC.feederItemImage = &UI_FeederItemImage;
 	uiInfo.uiDC.feederItemText = &UI_FeederItemText;

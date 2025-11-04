@@ -65,7 +65,7 @@ void AddScore( gentity_t *ent, int score ) {
 	if ( g_gametype.integer == GT_TEAM ) {
 		level.teamScores[ ent->client->ps.persistant[PERS_TEAM] ] += score;
 	}
-	CalculateRanks();
+
 }
 
 

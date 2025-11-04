@@ -153,7 +153,7 @@ static void CG_MachineGunEjectBrassNew( centity_t *cent ) {
 		vec3_t end;
 		VectorCopy( cent->lerpOrigin, end );
 		end[2] -= 24;
-		contents = trap_CM_PointContents( end, 0 );
+		contents = CM_PointContents( end, 0 );
 		if ( contents & ( CONTENTS_WATER | CONTENTS_SLIME | CONTENTS_LAVA ) ) {
 			le->leBounceSoundType = LEBS_NONE;
 		} else {
@@ -260,7 +260,7 @@ static void CG_MachineGunEjectBrass( centity_t *cent ) {
 		vec3_t end;
 		VectorCopy( cent->lerpOrigin, end );
 		end[2] -= 24;
-		contents = trap_CM_PointContents( end, 0 );
+		contents = CM_PointContents( end, 0 );
 		if ( contents & ( CONTENTS_WATER | CONTENTS_SLIME | CONTENTS_LAVA ) ) {
 			le->leBounceSoundType = LEBS_NONE;
 		} else {
@@ -1844,11 +1844,11 @@ static float CG_VenomSpinAngle( centity_t *cent ) {
 		// just switching between not spinning and spinning, play the appropriate weapon sound
 		if ( cent->pe.barrelSpinning ) {
 			if ( cg_weapons[WP_VENOM].spinupSound ) {
-				trap_S_StartSoundEx( NULL, cent->currentState.number, CHAN_WEAPON, cg_weapons[WP_VENOM].spinupSound, SND_OKTOCUT );
+				S_StartSoundEx( NULL, cent->currentState.number, CHAN_WEAPON, cg_weapons[WP_VENOM].spinupSound, SND_OKTOCUT );
 			}
 		} else {
 			if ( cg_weapons[WP_VENOM].spindownSound ) {
-				trap_S_StartSound( NULL, cent->currentState.number, CHAN_WEAPON, cg_weapons[WP_VENOM].spindownSound );
+				S_StartSound( NULL, cent->currentState.number, CHAN_WEAPON, cg_weapons[WP_VENOM].spindownSound );
 			}
 		}
 
@@ -2141,7 +2141,7 @@ void CG_PlayerTeslaCoilFire( centity_t *cent, vec3_t flashorigin ) {
 			if ( cent->pe.lightningSoundTime < cg.time - 200 ) {
 				CG_SoundPlayIndexedScript( cgs.media.teslaZapScript, cent->pe.teslaEndPoints[i], ENTITYNUM_WORLD );
 				CG_SoundPlayIndexedScript( cgs.media.teslaZapScript, cent->lerpOrigin, ENTITYNUM_WORLD );
-				//trap_S_StartSound( cent->pe.teslaEndPoints[i], ENTITYNUM_WORLD, CHAN_AUTO, cgs.media.lightningSounds[rand()%3] );
+				//S_StartSound( cent->pe.teslaEndPoints[i], ENTITYNUM_WORLD, CHAN_AUTO, cgs.media.lightningSounds[rand()%3] );
 				cent->pe.lightningSoundTime = cg.time + rand() % 200;
 			}
 		}
@@ -3582,7 +3582,7 @@ void CG_PlaySwitchSound( int lastweap, int newweap ) {
 		}
 	}
 
-	trap_S_StartSound( NULL, cg.snap->ps.clientNum, CHAN_WEAPON, switchsound );
+	S_StartSound( NULL, cg.snap->ps.clientNum, CHAN_WEAPON, switchsound );
 }
 
 
@@ -4316,7 +4316,7 @@ void CG_MG42EFX( centity_t *cent ) {
 	vec3_t point;
 	refEntity_t flash;
 
-//	trap_S_StartSound( NULL, cent->currentState.number, CHAN_WEAPON, hWeaponSnd );
+//	S_StartSound( NULL, cent->currentState.number, CHAN_WEAPON, hWeaponSnd );
 
 	VectorCopy( cent->currentState.origin, point );
 	AngleVectors( cent->currentState.angles, forward, NULL, NULL );
@@ -4374,7 +4374,7 @@ void CG_FLAKEFX( centity_t *cent, int whichgun ) {
 
 	trap_R_AddRefEntityToScene( &flash );
 
-	trap_S_StartSound( NULL, ent->number, CHAN_WEAPON, hflakWeaponSnd );
+	S_StartSound( NULL, ent->number, CHAN_WEAPON, hflakWeaponSnd );
 }
 
 
@@ -4516,8 +4516,8 @@ void CG_FireWeapon( centity_t *cent ) {
 			return;
 		}
 
-		trap_S_StartSound( NULL, cent->currentState.number, CHAN_WEAPON, hWeaponSnd );
-		//trap_S_StartSound( NULL, ent->number, CHAN_WEAPON, hWeaponSnd );
+		S_StartSound( NULL, cent->currentState.number, CHAN_WEAPON, hWeaponSnd );
+		//S_StartSound( NULL, ent->number, CHAN_WEAPON, hWeaponSnd );
 		if ( cg_brassTime.integer > 0 ) {
 			CG_MachineGunEjectBrass( cent );
 		}
@@ -4566,7 +4566,7 @@ void CG_FireWeapon( centity_t *cent ) {
 
 	// play quad sound if needed
 	if ( cent->currentState.powerups & ( 1 << PW_QUAD ) ) {
-		trap_S_StartSound( NULL, cent->currentState.number, CHAN_ITEM, cgs.media.quadSound );
+		S_StartSound( NULL, cent->currentState.number, CHAN_ITEM, cgs.media.quadSound );
 	}
 
 	if ( ( cent->currentState.event & ~EV_EVENT_BITS ) == EV_FIRE_WEAPON_LASTSHOT ) {
@@ -4600,7 +4600,7 @@ void CG_FireWeapon( centity_t *cent ) {
 	if ( c > 0 ) {
 		c = rand() % c;
 		if ( firesound[c] ) {
-			trap_S_StartSound( NULL, ent->number, CHAN_WEAPON, firesound[c] );
+			S_StartSound( NULL, ent->number, CHAN_WEAPON, firesound[c] );
 
 			if ( fireEchosound && fireEchosound[c] ) { // check for echo
 				centity_t   *cent;
@@ -4615,7 +4615,7 @@ void CG_FireWeapon( centity_t *cent ) {
 				if ( gdist > 512 && gdist < 4096 ) {   // temp dist.  TODO: use numbers that are weapon specific
 					// use gorg as the new sound origin
 					VectorMA( cg.refdef.vieworg, 64, norm, gorg );    // sound-on-a-stick
-					trap_S_StartSoundEx( gorg, ent->number, CHAN_WEAPON, fireEchosound[c], SND_NOCUT );
+					S_StartSoundEx( gorg, ent->number, CHAN_WEAPON, fireEchosound[c], SND_NOCUT );
 				}
 			}
 		}
@@ -5364,12 +5364,12 @@ void CG_Shard(centity_t *cent, vec3_t origin, vec3_t dir)
 	// done.
 
 	if ( sfx ) {
-		trap_S_StartSound( origin, ENTITYNUM_WORLD, CHAN_AUTO, sfx );
+		S_StartSound( origin, ENTITYNUM_WORLD, CHAN_AUTO, sfx );
 	}
 
 //----(SA)	added
 	if ( sfx2 ) {  // distant sounds for weapons with a broadcast fire sound (so you /always/ hear dynamite explosions)
-		trap_S_StartLocalSound( sfx2, CHAN_AUTO );
+		S_StartLocalSound( sfx2, CHAN_AUTO );
 	}
 //----(SA)	end
 
@@ -5468,7 +5468,7 @@ void CG_MissileHitWallSmall( int weapon, int clientNum, vec3_t origin, vec3_t di
 				  7 + rand() % 2 );     // count
 
 	if ( sfx ) {
-		trap_S_StartSound( origin, ENTITYNUM_WORLD, CHAN_AUTO, sfx );
+		S_StartSound( origin, ENTITYNUM_WORLD, CHAN_AUTO, sfx );
 	}
 
 	//
@@ -5511,7 +5511,7 @@ void CG_MissileHitPlayer( centity_t *cent, int weapon, vec3_t origin, vec3_t dir
 	case WP_KNIFE:
 		i = rand() % 4;
 		if ( cgs.media.sfx_knifehit[i] ) {
-			trap_S_StartSound( origin, cent->currentState.number, CHAN_WEAPON, cgs.media.sfx_knifehit[i] );
+			S_StartSound( origin, cent->currentState.number, CHAN_WEAPON, cgs.media.sfx_knifehit[i] );
 		}
 
 		if ( cent->currentState.number == cg.snap->ps.clientNum ) {
@@ -5607,7 +5607,7 @@ void CG_VenomFire( entityState_t *es, qboolean fullmode ) {
 		// ragepro can't alpha fade, so don't even bother with smoke
 		vec3_t up;
 
-		contents = trap_CM_PointContents( es->pos.trBase, 0 );
+		contents = CM_PointContents( es->pos.trBase, 0 );
 		if ( !( contents & CONTENTS_WATER ) ) {
 			VectorSet( up, 0, 0, 32 );
 			if ( fullmode ) {
@@ -5772,7 +5772,7 @@ void CG_Tracer( vec3_t source, vec3_t dest, int sparks ) {
 	midpoint[2] = ( start[2] + finish[2] ) * 0.5;
 
 	// add the tracer sound
-	// trap_S_StartSound( midpoint, ENTITYNUM_WORLD, CHAN_AUTO, cgs.media.tracerSound );
+	// S_StartSound( midpoint, ENTITYNUM_WORLD, CHAN_AUTO, cgs.media.tracerSound );
 
 }
 
@@ -5840,8 +5840,8 @@ void CG_Bullet( vec3_t end, int sourceEntityNum, vec3_t normal, qboolean flesh, 
 	// do trail effects
 	if ( sourceEntityNum >= 0 && cg_tracerChance.value > 0 ) {
 		if ( CG_CalcMuzzlePoint( sourceEntityNum, start ) ) {
-			sourceContentType = trap_CM_PointContents( start, 0 );
-			destContentType = trap_CM_PointContents( end, 0 );
+			sourceContentType = CM_PointContents( start, 0 );
+			destContentType = CM_PointContents( end, 0 );
 
 			// do a complete bubble trail if necessary
 			if ( ( sourceContentType == destContentType ) && ( sourceContentType & CONTENTS_WATER ) ) {
@@ -5849,7 +5849,7 @@ void CG_Bullet( vec3_t end, int sourceEntityNum, vec3_t normal, qboolean flesh, 
 			}
 			// bubble trail from water into air
 			else if ( ( sourceContentType & CONTENTS_WATER ) ) {
-				trap_CM_BoxTrace( &trace, end, start, NULL, NULL, 0, CONTENTS_WATER );
+				CM_BoxTrace( &trace, end, start, NULL, NULL, 0, CONTENTS_WATER , qfalse);
 				CG_BubbleTrail( start, trace.endpos, .5, 8 );
 			}
 			// bubble trail from air into water
@@ -5862,7 +5862,7 @@ void CG_Bullet( vec3_t end, int sourceEntityNum, vec3_t normal, qboolean flesh, 
 //							0.5, 80, 16, 0.125, "water_splash" );	// rand scale
 				// only add bubbles if effect is close to viewer
 				if ( Distance( cg.snap->ps.origin, end ) < 1024 ) {
-					trap_CM_BoxTrace( &trace, start, end, NULL, NULL, 0, CONTENTS_WATER );
+					CM_BoxTrace( &trace, start, end, NULL, NULL, 0, CONTENTS_WATER, qfalse );
 					CG_BubbleTrail( end, trace.endpos, .5, 8 );
 				}
 			}
@@ -5916,26 +5916,13 @@ void CG_Bullet( vec3_t end, int sourceEntityNum, vec3_t normal, qboolean flesh, 
 			}
 		}
 
-		/*
-		// special FX for Zombie
-		if (cent->currentState.aiChar == AICHAR_ZOMBIE) {
-			VectorSubtract( end, start, dir );
-			VectorNormalize( dir );
-			// upper
-			trap_RB_ZombieFXAddNewHit( cent->currentState.number, end, dir );
-			// lower
-			trap_RB_ZombieFXAddNewHit( cent->currentState.number | (1<<30), end, dir );
-			return;
-		}
-		*/
-
 		// if we haven't dropped a blood spat in a while, check if this is a good scenario
 		if ( lastBloodSpat > cg.time || lastBloodSpat < cg.time - 500 ) {
 			if ( CG_CalcMuzzlePoint( sourceEntityNum, start ) ) {
 				VectorSubtract( end, start, dir );
 				VectorNormalize( dir );
 				VectorMA( end, 128, dir, trend );
-				trap_CM_BoxTrace( &trace, end, trend, NULL, NULL, 0, MASK_SHOT & ~CONTENTS_BODY );
+				CM_BoxTrace( &trace, end, trend, NULL, NULL, 0, MASK_SHOT & ~CONTENTS_BODY, qfalse );
 
 				if ( trace.fraction < 1 ) {
 					CG_ImpactMark( cgs.media.bloodDotShaders[rand() % 5], trace.endpos, trace.plane.normal, random() * 360,
@@ -5945,7 +5932,7 @@ void CG_Bullet( vec3_t end, int sourceEntityNum, vec3_t normal, qboolean flesh, 
 					// drop one on the ground?
 					VectorCopy( end, trend );
 					trend[2] -= 64;
-					trap_CM_BoxTrace( &trace, end, trend, NULL, NULL, 0, MASK_SHOT & ~CONTENTS_BODY );
+					CM_BoxTrace( &trace, end, trend, NULL, NULL, 0, MASK_SHOT & ~CONTENTS_BODY, qfalse );
 
 					if ( trace.fraction < 1 ) {
 						CG_ImpactMark( cgs.media.bloodDotShaders[rand() % 5], trace.endpos, trace.plane.normal, random() * 360,
@@ -5969,14 +5956,6 @@ void CG_Bullet( vec3_t end, int sourceEntityNum, vec3_t normal, qboolean flesh, 
 			return;
 		}
 
-		// if we didn't hit flesh, spawn a moving tracer
-		// moved this up to (what seems like) the proper area.  trails above.  didn't always have valid start/end positions here.
-//		if (sourceEntityNum >= 0) {
-//			if(otherEntNum2 >=0 && otherEntNum2 != ENTITYNUM_NONE)
-//				CG_SpawnTracer( otherEntNum2, start, end );
-//			else
-//				CG_SpawnTracer( sourceEntityNum, start, end );
-//		}
 
 		if ( CG_CalcMuzzlePoint( sourceEntityNum, start )
 			 || cg.snap->ps.persistant[PERS_HWEAPON_USE] ) {
@@ -5985,25 +5964,18 @@ void CG_Bullet( vec3_t end, int sourceEntityNum, vec3_t normal, qboolean flesh, 
 			VectorNormalize( dir );
 			VectorMA( end, -4, dir, start2 );   // back off a little so it doesn't start in solid
 			VectorMA( end, 64, dir, dir );
-			trap_CM_BoxTrace( &trace, start2, dir, NULL, NULL, 0, MASK_SHOT );
+			CM_BoxTrace( &trace, start2, dir, NULL, NULL, 0, MASK_SHOT, qfalse );
 
 			if ( ( trace.surfaceFlags & SURF_METAL ) || !( rand() % 10 ) || ( otherEntNum2 != ENTITYNUM_NONE ) ) {
-				// JPW NERVE compute new spark direction from normal & dir (rotate -dir 180 degrees about normal)
-
-				// (SA) NOTE: isn't this done by the server and sent along in the 'normal' that's passed into this routine? (1107 g_weapon.c)
-
+				
 				VectorScale( dir,-1.0f,tmp );
 				RotatePointAroundVector( tmp,normal,tmp,180.0f );
-				CG_MissileHitWall( fromweap, 0, end, tmp, trace.surfaceFlags ); // sparks	//	(SA) modified to send missilehitwall surface parameters
-// jpw
-//				CG_MissileHitWall( fromweap, 0, end, normal, trace.surfaceFlags );	// sparks	//	(SA) modified to send missilehitwall surface parameters
+				CG_MissileHitWall( fromweap, 0, end, tmp, trace.surfaceFlags );
 			}
 			if ( !( sourceContentType & CONTENTS_WATER ) && ( destContentType & ( CONTENTS_WATER | CONTENTS_SLIME | CONTENTS_LAVA ) ) ) {   // only when shooting /into/ water
-				trap_CM_BoxTrace( &trace, start, end, NULL, NULL, 0, MASK_WATER );
-//				CG_Trace(&trace, start, NULL, NULL, end, -1, MASK_WATER);
-//				if (!(trace.surfaceFlags & SURF_NOMARKS)) {	// check to see if the surface should draw splashes
+				CM_BoxTrace( &trace, start, end, NULL, NULL, 0, MASK_WATER, qfalse );
+
 				CG_MissileHitWall( fromweap, 2, trace.endpos, trace.plane.normal, trace.surfaceFlags );
-//				}
 			} else {
 				CG_MissileHitWall( fromweap, 1, end, normal, trace.surfaceFlags );   // smoke puff	//	(SA) modified to send missilehitwall surface parameters
 
