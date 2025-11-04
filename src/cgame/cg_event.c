@@ -32,6 +32,7 @@ If you have questions concerning this license or the applicable additional terms
 
 #include "cg_local.h"
 #include "../ui/ui_shared.h" // for Menus_CloseAll()
+#include "../client/snd_public.h"
 
 extern int hWeaponSnd;
 
@@ -1859,9 +1860,9 @@ void CG_EntityEvent( centity_t *cent, vec3_t position ) {
 				// powerups and team items will have a separate global sound, this one
 				// will be played at prediction time
 				if ( item->giType == IT_POWERUP || item->giType == IT_TEAM ) {
-					trap_S_StartSound( NULL, es->number, CHAN_AUTO, trap_S_RegisterSound( "sound/items/n_health.wav" ) );
+					trap_S_StartSound( NULL, es->number, CHAN_AUTO, S_RegisterSound( "sound/items/n_health.wav" ) );
 				} else {
-					trap_S_StartSound( NULL, es->number, CHAN_AUTO, trap_S_RegisterSound( item->pickup_sound ) );
+					trap_S_StartSound( NULL, es->number, CHAN_AUTO, S_RegisterSound( item->pickup_sound ) );
 				}
 			}
 
@@ -1891,7 +1892,7 @@ void CG_EntityEvent( centity_t *cent, vec3_t position ) {
 			}
 			item = &bg_itemlist[ index ];
 			// powerup pickups are global
-			trap_S_StartSound( NULL, cg.snap->ps.clientNum, CHAN_AUTO, trap_S_RegisterSound( item->pickup_sound ) );
+			trap_S_StartSound( NULL, cg.snap->ps.clientNum, CHAN_AUTO, S_RegisterSound( item->pickup_sound ) );
 
 			// show icon and name on status bar
 			if ( es->number == cg.snap->ps.clientNum ) {
@@ -2414,7 +2415,7 @@ void CG_EntityEvent( centity_t *cent, vec3_t position ) {
 			cg.powerupActive = PW_BATTLESUIT;
 			cg.powerupTime = cg.time;
 		}
-		trap_S_StartSound( NULL, es->number, CHAN_ITEM, trap_S_RegisterSound( "sound/items/protect3.wav" ) );
+		trap_S_StartSound( NULL, es->number, CHAN_ITEM, S_RegisterSound( "sound/items/protect3.wav" ) );
 		break;
 	case EV_POWERUP_REGEN:
 		DEBUGNAME( "EV_POWERUP_REGEN" );
@@ -2422,7 +2423,7 @@ void CG_EntityEvent( centity_t *cent, vec3_t position ) {
 			cg.powerupActive = PW_REGEN;
 			cg.powerupTime = cg.time;
 		}
-		trap_S_StartSound( NULL, es->number, CHAN_ITEM, trap_S_RegisterSound( "sound/items/regen.wav" ) );
+		trap_S_StartSound( NULL, es->number, CHAN_ITEM, S_RegisterSound( "sound/items/regen.wav" ) );
 		break;
 
 	case EV_LOSE_HAT:

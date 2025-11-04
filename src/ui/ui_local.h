@@ -987,42 +987,21 @@ void            RE_SetColor( const float *rgba );
 void            trap_R_DrawStretchPic( float x, float y, float w, float h, float s1, float t1, float s2, float t2, qhandle_t hShader );
 void            trap_R_ModelBounds( clipHandle_t model, vec3_t mins, vec3_t maxs );
 void            SCR_UpdateScreen( void );
-int             trap_CM_LerpTag( orientation_t *tag, const refEntity_t *refent, const char *tagName, int startIndex );
+
 void            trap_S_StartLocalSound( sfxHandle_t sfx, int channelNum );
-sfxHandle_t     trap_UI_S_RegisterSound( const char *sample );
+
 void            trap_S_FadeAllSound( float targetvol, int time ); //----(SA)	added
 
-void            trap_Key_GetBindingBuf( int keynum, char *buf, int buflen );
-void            trap_Key_SetBinding( int keynum, const char *binding );
+
 qboolean        trap_Key_IsDown( int keynum );
-qboolean        trap_Key_GetOverstrikeMode( void );
+
 void            trap_Key_SetOverstrikeMode( qboolean state );
-void            trap_Key_ClearStates( void );
+
 int             trap_Key_GetCatcher( void );
 void            trap_Key_SetCatcher( int catcher );
-void            trap_GetClipboardData( char *buf, int bufsize );
+
 void            GetClientState( uiClientState_t *state );
 int             GetConfigString( int index, char* buff, int buffsize );
-void            trap_GetClientState( uiClientState_t *state );	// TODO: Remove
-int             trap_GetConfigString( int index, char* buff, int buffsize );	// TODO: Remove
-int             trap_LAN_GetServerCount( int source );          // NERVE - SMF
-
-// NERVE - SMF - multiplayer traps
-void            trap_LAN_MarkServerVisible( int source, int n, qboolean visible );
-void            trap_LAN_ResetPings( int n );
-void            trap_LAN_SaveCachedServers();
-int             trap_LAN_CompareServers( int source, int sortKey, int sortDir, int s1, int s2 );
-void            trap_LAN_GetServerAddressString( int source, int n, char *buf, int buflen );
-void trap_LAN_GetServerInfo( int source, int n, char *buf, int buflen );
-int             trap_LAN_AddServer( int source, const char *name, const char *addr );
-void            trap_LAN_RemoveServer( int source, const char *addr );
-int             trap_LAN_GetServerPing( int source, int n );
-int             trap_LAN_ServerIsVisible( int source, int n );
-int             trap_LAN_ServerStatus( const char *serverAddress, char *serverStatus, int maxLen );
-void            trap_LAN_SaveCachedServers();
-void            trap_LAN_LoadCachedServers();
-void            trap_LAN_MarkServerVisible( int source, int n, qboolean visible );
-// -NERVE - SMF
 
 void            trap_GetCDKey( char *buf, int buflen );
 void            trap_SetCDKey( char *buf );
@@ -1033,7 +1012,7 @@ int             trap_CIN_PlayCinematic( const char *arg0, int xpos, int ypos, in
 e_status        trap_CIN_StopCinematic( int handle );
 e_status        trap_CIN_RunCinematic( int handle );
 void            trap_CIN_DrawCinematic( int handle );
-void            trap_UI_CIN_SetExtents( int handle, int x, int y, int w, int h );
+
 int             trap_RealTime( qtime_t *qtime );
 void            trap_R_RemapShader( const char *oldShader, const char *newShader, const char *timeOffset );
 

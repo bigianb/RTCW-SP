@@ -1315,10 +1315,6 @@ static void CG_Bat( centity_t *cent ) {
 
 	memset( &refent, 0, sizeof( refent ) );
 
-//CG_Printf("remove me!!");
-//cgs.media.zombieSpiritLoopSound = trap_S_RegisterSound( "sound/zombie/attack/spirit_loop.wav" );
-//cgs.media.ssSpiritSkullModel = trap_R_RegisterModel( "models/players/supersoldier/ssghost.md3" );
-
 	// add the visible entity and trail
 	memset( &refent, 0, sizeof( refent ) );
 	refent.hModel = cgs.media.ssSpiritSkullModel;

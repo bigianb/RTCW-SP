@@ -34,7 +34,7 @@ If you have questions concerning this license or the applicable additional terms
 
 #include "cg_local.h"
 #include "../ui/ui_shared.h" // bk001205 - for Q3_ui as well
-
+#include "../client/snd_public.h"
 
 /*
 =================
@@ -402,7 +402,7 @@ static void CG_ConfigStringModified( void ) {
 			if ( !strstr( str, ".wav" ) ) {
 				CG_SoundScriptPrecache( str );
 			} else {
-				cgs.gameSounds[ num - CS_SOUNDS] = trap_S_RegisterSound( str );
+				cgs.gameSounds[ num - CS_SOUNDS] = S_RegisterSound( str );
 			}
 
 		}

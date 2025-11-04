@@ -34,6 +34,7 @@ If you have questions concerning this license or the applicable additional terms
 */
 
 #include "cg_local.h"
+#include "../client/snd_public.h"
 
 #define SWING_RIGHT 1
 #define SWING_LEFT  2
@@ -99,7 +100,7 @@ sfxHandle_t CG_CustomSound( int clientNum, const char *soundName ) {
 	int i;
 
 	if ( soundName[0] != '*' ) {
-		return trap_S_RegisterSound( soundName );
+		return S_RegisterSound( soundName );
 	}
 
 	if ( clientNum < 0 || clientNum >= MAX_CLIENTS ) {
@@ -702,9 +703,9 @@ static qboolean CG_RegisterClientModelname( clientInfo_t *ci, const char *modelN
 			cgs.media.skeletonHeadModel = trap_R_RegisterModel( "models/players/skel/head.md3" );
 			cgs.media.skeletonHeadSkin = trap_R_RegisterSkin( "models/players/skel/head_default.skin" );
 
-			cgs.media.zombieSpiritSound = trap_S_RegisterSound( "sound/zombie/attack/spirit_start.wav" );
-			cgs.media.zombieSpiritLoopSound = trap_S_RegisterSound( "sound/zombie/attack/spirit_loop.wav" );
-			cgs.media.zombieDeathSound = trap_S_RegisterSound( "sound/world/ceramicbreak.wav" ); // Zombie Gib
+			cgs.media.zombieSpiritSound = S_RegisterSound( "sound/zombie/attack/spirit_start.wav" );
+			cgs.media.zombieSpiritLoopSound = S_RegisterSound( "sound/zombie/attack/spirit_loop.wav" );
+			cgs.media.zombieDeathSound = S_RegisterSound( "sound/world/ceramicbreak.wav" ); // Zombie Gib
 
 			cgs.media.spiritSkullModel = trap_R_RegisterModel( "models/mapobjects/skull/skul2t.md3" );
 
@@ -713,7 +714,7 @@ static qboolean CG_RegisterClientModelname( clientInfo_t *ci, const char *modelN
 			cgs.media.helgaSpiritSkullShader = trap_R_RegisterShader( "helgaSpiritGhost" );
 			cgs.media.helgaSpiritTrailShader = trap_R_RegisterShader( "helgaSpiritTrail" );
 			cgs.media.helgaGhostModel = trap_R_RegisterModel( "models/players/beast/ghost.md3" );
-			cgs.media.helgaSpiritLoopSound = trap_S_RegisterSound( "sound/beast/tortured_souls_loop.wav" );
+			cgs.media.helgaSpiritLoopSound = S_RegisterSound( "sound/beast/tortured_souls_loop.wav" );
 			cgs.media.helgaSpiritSound = CG_SoundScriptPrecache( "helgaSpiritStartSound" );
 			cgs.media.helgaGaspSound = CG_SoundScriptPrecache( "helgaSpiritGasp" );
 		} else if ( !Q_strcasecmp( (char *)modelName, "loper" ) )      {
@@ -909,14 +910,14 @@ nodam_rtknee          attached to tag_calfright
 			cgs.media.heinrichArmorBreak = CG_SoundScriptPrecache( "Heinrich_loseArmor" );
 
 			// RF, these are also used but supersoldier "spirits" in end map
-			cgs.media.zombieSpiritLoopSound = trap_S_RegisterSound( "sound/zombie/attack/spirit_loop.wav" );
+			cgs.media.zombieSpiritLoopSound = S_RegisterSound( "sound/zombie/attack/spirit_loop.wav" );
 			cgs.media.ssSpiritSkullModel = trap_R_RegisterModel( "models/players/supersoldier/ssghost.md3" );
 
 			cgs.media.zombieSpiritTrailShader = trap_R_RegisterShader( "zombieSpiritTrail" );
-			cgs.media.zombieSpiritLoopSound = trap_S_RegisterSound( "sound/zombie/attack/spirit_loop.wav" );
+			cgs.media.zombieSpiritLoopSound = S_RegisterSound( "sound/zombie/attack/spirit_loop.wav" );
 			cgs.media.helgaGaspSound = CG_SoundScriptPrecache( "helgaSpiritGasp" );
 
-			cgs.media.debrisHitSound = trap_S_RegisterSound( "sound/world/debris_hit.wav" );
+			cgs.media.debrisHitSound = S_RegisterSound( "sound/world/debris_hit.wav" );
 
 			cgs.media.heinrichArmor[0]  = trap_R_RegisterModel( "models/players/heinrich/armor/nodam_chest.md3" );
 			cgs.media.heinrichArmor[1]  = trap_R_RegisterModel( "models/players/heinrich/armor/nodam_lftcalf.md3" );
@@ -1034,55 +1035,55 @@ nodam_rtshin            attached to tag_calfright
 
 			for ( i = 0; i < 4; i++ ) {
 				snprintf( name, sizeof( name ), "sound/player/footsteps/eliteguard/step%i.wav", i + 1 );
-				cgs.media.footsteps[FOOTSTEP_ELITE_STEP][i] = trap_S_RegisterSound( name );
+				cgs.media.footsteps[FOOTSTEP_ELITE_STEP][i] = S_RegisterSound( name );
 
 				snprintf( name, sizeof( name ), "sound/player/footsteps/eliteguard/clank%i.wav", i + 1 );
-				cgs.media.footsteps[FOOTSTEP_ELITE_METAL][i] = trap_S_RegisterSound( name );
+				cgs.media.footsteps[FOOTSTEP_ELITE_METAL][i] = S_RegisterSound( name );
 
 //				snprintf (name, sizeof(name), "sound/player/footsteps/eliteguard/roof%i.wav", i+1);
-//				cgs.media.footsteps[FOOTSTEP_ELITE_ROOF][i] = trap_S_RegisterSound (name);
+//				cgs.media.footsteps[FOOTSTEP_ELITE_ROOF][i] = S_RegisterSound (name);
 
 				snprintf( name, sizeof( name ), "sound/player/footsteps/eliteguard/wood%i.wav", i + 1 );
-				cgs.media.footsteps[FOOTSTEP_ELITE_WOOD][i] = trap_S_RegisterSound( name );
+				cgs.media.footsteps[FOOTSTEP_ELITE_WOOD][i] = S_RegisterSound( name );
 
 				snprintf( name, sizeof( name ), "sound/player/footsteps/eliteguard/gravel%i.wav", i + 1 );
-				cgs.media.footsteps[FOOTSTEP_ELITE_GRAVEL][i] = trap_S_RegisterSound( name );
+				cgs.media.footsteps[FOOTSTEP_ELITE_GRAVEL][i] = S_RegisterSound( name );
 			}
 		} else if (   !Q_strcasecmp( (char *)modelName, "protosoldier" ) )     {
 			// ProtoSoldier
 			for ( i = 0; i < 4; i++ ) {
 				snprintf( name, sizeof( name ), "sound/player/footsteps/protosoldier/step%i.wav", i + 1 );
-				cgs.media.footsteps[FOOTSTEP_PROTOSOLDIER_STEP][i] = trap_S_RegisterSound( name );
+				cgs.media.footsteps[FOOTSTEP_PROTOSOLDIER_STEP][i] = S_RegisterSound( name );
 
 				snprintf( name, sizeof( name ), "sound/player/footsteps/protosoldier/clank%i.wav", i + 1 );
-				cgs.media.footsteps[FOOTSTEP_PROTOSOLDIER_METAL][i] = trap_S_RegisterSound( name );
+				cgs.media.footsteps[FOOTSTEP_PROTOSOLDIER_METAL][i] = S_RegisterSound( name );
 
 				snprintf( name, sizeof( name ), "sound/player/footsteps/protosoldier/grass%i.wav", i + 1 );
-				cgs.media.footsteps[FOOTSTEP_PROTOSOLDIER_GRASS][i] = trap_S_RegisterSound( name );
+				cgs.media.footsteps[FOOTSTEP_PROTOSOLDIER_GRASS][i] = S_RegisterSound( name );
 
 				snprintf( name, sizeof( name ), "sound/player/footsteps/protosoldier/gravel%i.wav", i + 1 );
-				cgs.media.footsteps[FOOTSTEP_PROTOSOLDIER_GRAVEL][i] = trap_S_RegisterSound( name );
+				cgs.media.footsteps[FOOTSTEP_PROTOSOLDIER_GRAVEL][i] = S_RegisterSound( name );
 
 				snprintf( name, sizeof( name ), "sound/player/footsteps/protosoldier/wood%i.wav", i + 1 );
-				cgs.media.footsteps[FOOTSTEP_PROTOSOLDIER_WOOD][i] = trap_S_RegisterSound( name );
+				cgs.media.footsteps[FOOTSTEP_PROTOSOLDIER_WOOD][i] = S_RegisterSound( name );
 			}
 		} else if ( !Q_strcasecmp( (char *)modelName, "supersoldier" ) )        {
 			// SuperSoldier/HEINRICH
 			for ( i = 0; i < 4; i++ ) {
 				snprintf( name, sizeof( name ), "sound/player/footsteps/supersoldier/step%i.wav", i + 1 );
-				cgs.media.footsteps[FOOTSTEP_SUPERSOLDIER_STEP][i] = trap_S_RegisterSound( name );
+				cgs.media.footsteps[FOOTSTEP_SUPERSOLDIER_STEP][i] = S_RegisterSound( name );
 
 				snprintf( name, sizeof( name ), "sound/player/footsteps/supersoldier/clank%i.wav", i + 1 );
-				cgs.media.footsteps[FOOTSTEP_SUPERSOLDIER_METAL][i] = trap_S_RegisterSound( name );
+				cgs.media.footsteps[FOOTSTEP_SUPERSOLDIER_METAL][i] = S_RegisterSound( name );
 
 				snprintf( name, sizeof( name ), "sound/player/footsteps/supersoldier/grass%i.wav", i + 1 );
-				cgs.media.footsteps[FOOTSTEP_SUPERSOLDIER_GRASS][i] = trap_S_RegisterSound( name );
+				cgs.media.footsteps[FOOTSTEP_SUPERSOLDIER_GRASS][i] = S_RegisterSound( name );
 
 				snprintf( name, sizeof( name ), "sound/player/footsteps/supersoldier/gravel%i.wav", i + 1 );
-				cgs.media.footsteps[FOOTSTEP_SUPERSOLDIER_GRAVEL][i] = trap_S_RegisterSound( name );
+				cgs.media.footsteps[FOOTSTEP_SUPERSOLDIER_GRAVEL][i] = S_RegisterSound( name );
 
 				snprintf( name, sizeof( name ), "sound/player/footsteps/supersoldier/wood%i.wav", i + 1 );
-				cgs.media.footsteps[FOOTSTEP_SUPERSOLDIER_WOOD][i] = trap_S_RegisterSound( name );
+				cgs.media.footsteps[FOOTSTEP_SUPERSOLDIER_WOOD][i] = S_RegisterSound( name );
 			}
 		}
 		// Heinrich special
@@ -1090,31 +1091,31 @@ nodam_rtshin            attached to tag_calfright
 			// SuperSoldier/HEINRICH
 			for ( i = 0; i < 4; i++ ) {
 				snprintf( name, sizeof( name ), "sound/player/footsteps/heinrich/step%i.wav", i + 1 );
-				cgs.media.footsteps[FOOTSTEP_HEINRICH][i] = trap_S_RegisterSound( name );
+				cgs.media.footsteps[FOOTSTEP_HEINRICH][i] = S_RegisterSound( name );
 			}
 		} else if ( !Q_strcasecmp( (char *)modelName, "loper" ) )        {
 			// Loper
 			for ( i = 0; i < 4; i++ ) {
 				snprintf( name, sizeof( name ), "sound/player/footsteps/loper/clank%i.wav", i + 1 );
-				cgs.media.footsteps[FOOTSTEP_LOPER_METAL][i] = trap_S_RegisterSound( name );
+				cgs.media.footsteps[FOOTSTEP_LOPER_METAL][i] = S_RegisterSound( name );
 
 				snprintf( name, sizeof( name ), "sound/player/footsteps/loper/step%i.wav", i + 1 );
-				cgs.media.footsteps[FOOTSTEP_LOPER_STEP][i] = trap_S_RegisterSound( name );
+				cgs.media.footsteps[FOOTSTEP_LOPER_STEP][i] = S_RegisterSound( name );
 
 				snprintf( name, sizeof( name ), "sound/player/footsteps/loper/wood%i.wav", i + 1 );
-				cgs.media.footsteps[FOOTSTEP_LOPER_WOOD][i] = trap_S_RegisterSound( name );
+				cgs.media.footsteps[FOOTSTEP_LOPER_WOOD][i] = S_RegisterSound( name );
 			}
 		} else if ( !Q_strcasecmp( (char *)modelName, "zombie" ) )        {
 			// Zombie
 			for ( i = 0; i < 4; i++ ) {
 				snprintf( name, sizeof( name ), "sound/player/footsteps/zombie/gravel%i.wav", i + 1 );
-				cgs.media.footsteps[FOOTSTEP_ZOMBIE_GRAVEL][i] = trap_S_RegisterSound( name );
+				cgs.media.footsteps[FOOTSTEP_ZOMBIE_GRAVEL][i] = S_RegisterSound( name );
 
 				snprintf( name, sizeof( name ), "sound/player/footsteps/zombie/step%i.wav", i + 1 );
-				cgs.media.footsteps[FOOTSTEP_ZOMBIE_STEP][i] = trap_S_RegisterSound( name );
+				cgs.media.footsteps[FOOTSTEP_ZOMBIE_STEP][i] = S_RegisterSound( name );
 
 				snprintf( name, sizeof( name ), "sound/player/footsteps/zombie/wood%i.wav", i + 1 );
-				cgs.media.footsteps[FOOTSTEP_ZOMBIE_WOOD][i] = trap_S_RegisterSound( name );
+				cgs.media.footsteps[FOOTSTEP_ZOMBIE_WOOD][i] = S_RegisterSound( name );
 			}
 		} else if ( !Q_strcasecmp( (char *)modelName, "beast" ) )        {
 			// Helga Boss
@@ -1278,9 +1279,9 @@ void CG_LoadClientInfo( clientInfo_t *ci ) {
 		if ( !s ) {
 			break;
 		}
-		ci->sounds[i] = trap_S_RegisterSound( va( "sound/player/%s/%s", dir, s + 1 ) );
+		ci->sounds[i] = S_RegisterSound( va( "sound/player/%s/%s", dir, s + 1 ) );
 		if ( !ci->sounds[i] ) {
-			ci->sounds[i] = trap_S_RegisterSound( va( "sound/player/%s/%s", fallback, s + 1 ) );
+			ci->sounds[i] = S_RegisterSound( va( "sound/player/%s/%s", fallback, s + 1 ) );
 		}
 	}
 

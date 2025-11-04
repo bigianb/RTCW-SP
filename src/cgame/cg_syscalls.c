@@ -137,11 +137,6 @@ void    trap_S_Respatialize( int entityNum, const vec3_t origin, vec3_t axis[3],
 	S_Respatialize(entityNum, origin, axis, inwater );
 }
 
-sfxHandle_t trap_S_RegisterSound( const char *sample ) {
-	CG_DrawInformation();
-	return S_RegisterSound(sample, qfalse );
-}
-
 void    trap_S_StartBackgroundTrack( const char *intro, const char *loop, int fadeupTime ) {
 	S_StartBackgroundTrack(intro, loop, fadeupTime );
 }

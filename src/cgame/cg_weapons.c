@@ -34,6 +34,7 @@ If you have questions concerning this license or the applicable additional terms
 */
 
 #include "cg_local.h"
+#include "../client/snd_public.h"
 
 int wolfkickModel;
 int hWeaponSnd;
@@ -1110,101 +1111,101 @@ void CG_RegisterWeapon( int weaponNum ) {
 	case WP_AKIMBO: //----(SA)	added
 		// same as colt
 		MAKERGB( weaponInfo->flashDlightColor, 1.0, 0.6, 0.23 );
-		weaponInfo->flashSound[0] = trap_S_RegisterSound( "sound/weapons/colt/coltf1.wav" );
-		weaponInfo->flashEchoSound[0] = trap_S_RegisterSound( "sound/weapons/mp40/mp40e1.wav" ); // use same as mp40
+		weaponInfo->flashSound[0] = S_RegisterSound( "sound/weapons/colt/coltf1.wav" );
+		weaponInfo->flashEchoSound[0] = S_RegisterSound( "sound/weapons/mp40/mp40e1.wav" ); // use same as mp40
 		weaponInfo->ejectBrassFunc = CG_MachineGunEjectBrass;
 
 		// unique
-		weaponInfo->reloadSound = trap_S_RegisterSound( "sound/weapons/colt/colt_reload2.wav" );
+		weaponInfo->reloadSound = S_RegisterSound( "sound/weapons/colt/colt_reload2.wav" );
 		break;
 
 	case WP_COLT:
 		MAKERGB( weaponInfo->flashDlightColor, 1.0, 0.6, 0.23 );
-		weaponInfo->flashSound[0] = trap_S_RegisterSound( "sound/weapons/colt/coltf1.wav" );
-		weaponInfo->flashEchoSound[0] = trap_S_RegisterSound( "sound/weapons/mp40/mp40e1.wav" ); // use same as mp40
-		weaponInfo->reloadSound = trap_S_RegisterSound( "sound/weapons/colt/colt_reload.wav" );
+		weaponInfo->flashSound[0] = S_RegisterSound( "sound/weapons/colt/coltf1.wav" );
+		weaponInfo->flashEchoSound[0] = S_RegisterSound( "sound/weapons/mp40/mp40e1.wav" ); // use same as mp40
+		weaponInfo->reloadSound = S_RegisterSound( "sound/weapons/colt/colt_reload.wav" );
 		weaponInfo->ejectBrassFunc = CG_MachineGunEjectBrass;
 		break;
 
 
 	case WP_KNIFE:
-		weaponInfo->flashSound[0] = trap_S_RegisterSound( "sound/weapons/knife/knife_slash1.wav" );
-		weaponInfo->flashSound[1] = trap_S_RegisterSound( "sound/weapons/knife/knife_slash2.wav" );
+		weaponInfo->flashSound[0] = S_RegisterSound( "sound/weapons/knife/knife_slash1.wav" );
+		weaponInfo->flashSound[1] = S_RegisterSound( "sound/weapons/knife/knife_slash2.wav" );
 		break;
 
 	case WP_LUGER:
 		MAKERGB( weaponInfo->flashDlightColor, 1.0, 0.6, 0.23 );
 
-		weaponInfo->switchSound[0] = trap_S_RegisterSound( "sound/weapons/luger/silencerremove.wav" );   //----(SA)	added
+		weaponInfo->switchSound[0] = S_RegisterSound( "sound/weapons/luger/silencerremove.wav" );   //----(SA)	added
 
-		weaponInfo->flashSound[0] = trap_S_RegisterSound( "sound/weapons/luger/lugerf1.wav" );
-		weaponInfo->flashEchoSound[0] = trap_S_RegisterSound( "sound/weapons/mp40/mp40e1.wav" ); // use same as mp40
-		weaponInfo->reloadSound = trap_S_RegisterSound( "sound/weapons/luger/luger_reload.wav" );
+		weaponInfo->flashSound[0] = S_RegisterSound( "sound/weapons/luger/lugerf1.wav" );
+		weaponInfo->flashEchoSound[0] = S_RegisterSound( "sound/weapons/mp40/mp40e1.wav" ); // use same as mp40
+		weaponInfo->reloadSound = S_RegisterSound( "sound/weapons/luger/luger_reload.wav" );
 		weaponInfo->ejectBrassFunc = CG_MachineGunEjectBrass;
 		break;
 
 	case WP_SILENCER:   // luger mod
 		MAKERGB( weaponInfo->flashDlightColor, 1.0, 0.6, 0.23 );
 
-		weaponInfo->switchSound[0] = trap_S_RegisterSound( "sound/weapons/luger/silencerattatch.wav" );  //----(SA)	added
+		weaponInfo->switchSound[0] = S_RegisterSound( "sound/weapons/luger/silencerattatch.wav" );  //----(SA)	added
 
-		weaponInfo->flashSound[0] = trap_S_RegisterSound( "sound/weapons/luger/silencerf1.wav" );
-		weaponInfo->reloadSound = trap_S_RegisterSound( "sound/weapons/luger/luger_reload.wav" );
+		weaponInfo->flashSound[0] = S_RegisterSound( "sound/weapons/luger/silencerf1.wav" );
+		weaponInfo->reloadSound = S_RegisterSound( "sound/weapons/luger/luger_reload.wav" );
 		weaponInfo->ejectBrassFunc = CG_MachineGunEjectBrass;
 		break;
 
 	case WP_MAUSER:
 		MAKERGB( weaponInfo->flashDlightColor, 1.0, 0.6, 0.23 );
-		weaponInfo->flashSound[0] = trap_S_RegisterSound( "sound/weapons/mauser/mauserf1.wav" );
-		weaponInfo->flashEchoSound[0] = trap_S_RegisterSound( "sound/weapons/mauser/mausere1.wav" );
-		weaponInfo->lastShotSound[0] = trap_S_RegisterSound( "sound/weapons/mauser/mauserf1_last.wav" );
-		weaponInfo->reloadSound = trap_S_RegisterSound( "sound/weapons/mauser/mauser_reload.wav" );
+		weaponInfo->flashSound[0] = S_RegisterSound( "sound/weapons/mauser/mauserf1.wav" );
+		weaponInfo->flashEchoSound[0] = S_RegisterSound( "sound/weapons/mauser/mausere1.wav" );
+		weaponInfo->lastShotSound[0] = S_RegisterSound( "sound/weapons/mauser/mauserf1_last.wav" );
+		weaponInfo->reloadSound = S_RegisterSound( "sound/weapons/mauser/mauser_reload.wav" );
 		weaponInfo->ejectBrassFunc = CG_MachineGunEjectBrass;
 		break;
 	case WP_SNIPERRIFLE:
 		MAKERGB( weaponInfo->flashDlightColor, 1.0, 0.6, 0.23 );
-		weaponInfo->flashSound[0] = trap_S_RegisterSound( "sound/weapons/mauser/sniperf1.wav" );
-		weaponInfo->flashEchoSound[0] = trap_S_RegisterSound( "sound/weapons/mauser/mausere1.wav" );
-		weaponInfo->reloadSound = trap_S_RegisterSound( "sound/weapons/mauser/sniper_reload.wav" );
+		weaponInfo->flashSound[0] = S_RegisterSound( "sound/weapons/mauser/sniperf1.wav" );
+		weaponInfo->flashEchoSound[0] = S_RegisterSound( "sound/weapons/mauser/mausere1.wav" );
+		weaponInfo->reloadSound = S_RegisterSound( "sound/weapons/mauser/sniper_reload.wav" );
 		weaponInfo->ejectBrassFunc = CG_MachineGunEjectBrass;
 		break;
 
 	case WP_GARAND:
 		MAKERGB( weaponInfo->flashDlightColor, 1.0, 0.6, 0.23 );
-		weaponInfo->flashSound[0] = trap_S_RegisterSound( "sound/weapons/garand/garandf1.wav" );
-		weaponInfo->reloadSound = trap_S_RegisterSound( "sound/weapons/garand/garand_reload.wav" );
+		weaponInfo->flashSound[0] = S_RegisterSound( "sound/weapons/garand/garandf1.wav" );
+		weaponInfo->reloadSound = S_RegisterSound( "sound/weapons/garand/garand_reload.wav" );
 		weaponInfo->ejectBrassFunc = CG_MachineGunEjectBrass;
 		break;
 	case WP_SNOOPERSCOPE:
 		MAKERGB( weaponInfo->flashDlightColor, 1.0, 0.6, 0.23 );
-		weaponInfo->flashSound[0] = trap_S_RegisterSound( "sound/weapons/garand/snooperf1.wav" );
-		weaponInfo->reloadSound = trap_S_RegisterSound( "sound/weapons/garand/snooper_reload.wav" );
+		weaponInfo->flashSound[0] = S_RegisterSound( "sound/weapons/garand/snooperf1.wav" );
+		weaponInfo->reloadSound = S_RegisterSound( "sound/weapons/garand/snooper_reload.wav" );
 		weaponInfo->ejectBrassFunc = CG_MachineGunEjectBrass;
 		break;
 
 	case WP_THOMPSON:
 		MAKERGB( weaponInfo->flashDlightColor, 1.0, 0.6, 0.23 );
-		weaponInfo->flashSound[0] = trap_S_RegisterSound( "sound/weapons/thompson/thompson.wav" );
-		weaponInfo->flashEchoSound[0] = trap_S_RegisterSound( "sound/weapons/mp40/mp40e1.wav" ); // use same as mp40
-		weaponInfo->reloadSound = trap_S_RegisterSound( "sound/weapons/thompson/thompson_reload.wav" );
-		weaponInfo->overheatSound = trap_S_RegisterSound( "sound/weapons/thompson/thompson_overheat.wav" );
+		weaponInfo->flashSound[0] = S_RegisterSound( "sound/weapons/thompson/thompson.wav" );
+		weaponInfo->flashEchoSound[0] = S_RegisterSound( "sound/weapons/mp40/mp40e1.wav" ); // use same as mp40
+		weaponInfo->reloadSound = S_RegisterSound( "sound/weapons/thompson/thompson_reload.wav" );
+		weaponInfo->overheatSound = S_RegisterSound( "sound/weapons/thompson/thompson_overheat.wav" );
 		weaponInfo->ejectBrassFunc = CG_MachineGunEjectBrass;
 		break;
 
 	case WP_MP40:
 		MAKERGB( weaponInfo->flashDlightColor, 1.0, 0.6, 0.23 );
-		weaponInfo->flashSound[0] = trap_S_RegisterSound( "sound/weapons/mp40/mp40f1.wav" );
-		weaponInfo->flashEchoSound[0] = trap_S_RegisterSound( "sound/weapons/mp40/mp40e1.wav" );
-		weaponInfo->reloadSound = trap_S_RegisterSound( "sound/weapons/mp40/mp40_reload.wav" );
-		weaponInfo->overheatSound = trap_S_RegisterSound( "sound/weapons/mp40/mp40_overheat.wav" );
+		weaponInfo->flashSound[0] = S_RegisterSound( "sound/weapons/mp40/mp40f1.wav" );
+		weaponInfo->flashEchoSound[0] = S_RegisterSound( "sound/weapons/mp40/mp40e1.wav" );
+		weaponInfo->reloadSound = S_RegisterSound( "sound/weapons/mp40/mp40_reload.wav" );
+		weaponInfo->overheatSound = S_RegisterSound( "sound/weapons/mp40/mp40_overheat.wav" );
 		weaponInfo->ejectBrassFunc = CG_MachineGunEjectBrass;
 		break;
 
 	case WP_STEN:
 		MAKERGB( weaponInfo->flashDlightColor, 1.0, 0.6, 0.23 );
-		weaponInfo->flashSound[0] = trap_S_RegisterSound( "sound/weapons/sten/stenf1.wav" );
-		weaponInfo->reloadSound = trap_S_RegisterSound( "sound/weapons/sten/sten_reload.wav" );
-		weaponInfo->overheatSound = trap_S_RegisterSound( "sound/weapons/sten/sten_overheat.wav" );
+		weaponInfo->flashSound[0] = S_RegisterSound( "sound/weapons/sten/stenf1.wav" );
+		weaponInfo->reloadSound = S_RegisterSound( "sound/weapons/sten/sten_reload.wav" );
+		weaponInfo->overheatSound = S_RegisterSound( "sound/weapons/sten/sten_overheat.wav" );
 		weaponInfo->ejectBrassFunc = CG_MachineGunEjectBrass;
 		break;
 
@@ -1212,9 +1213,9 @@ void CG_RegisterWeapon( int weaponNum ) {
 	case WP_FG42:
 	case WP_FG42SCOPE:
 		MAKERGB( weaponInfo->flashDlightColor, 1.0, 0.6, 0.23 );
-		weaponInfo->flashSound[0] = trap_S_RegisterSound( "sound/weapons/fg42/fg42f1.wav" );
-		weaponInfo->flashEchoSound[0] = trap_S_RegisterSound( "sound/weapons/fg42/fg42e1.wav" );
-		weaponInfo->reloadSound = trap_S_RegisterSound( "sound/weapons/fg42/fg42_reload.wav" );
+		weaponInfo->flashSound[0] = S_RegisterSound( "sound/weapons/fg42/fg42f1.wav" );
+		weaponInfo->flashEchoSound[0] = S_RegisterSound( "sound/weapons/fg42/fg42e1.wav" );
+		weaponInfo->reloadSound = S_RegisterSound( "sound/weapons/fg42/fg42_reload.wav" );
 		weaponInfo->ejectBrassFunc = CG_MachineGunEjectBrass;
 		break;
 
@@ -1222,23 +1223,23 @@ void CG_RegisterWeapon( int weaponNum ) {
 	case WP_PANZERFAUST:
 		weaponInfo->ejectBrassFunc      = CG_PanzerFaustEjectBrass;
 		weaponInfo->missileModel        = trap_R_RegisterModel( "models/ammo/rocket/rocket.md3" );
-		weaponInfo->missileSound        = trap_S_RegisterSound( "sound/weapons/rocket/rockfly.wav" );
+		weaponInfo->missileSound        = S_RegisterSound( "sound/weapons/rocket/rockfly.wav" );
 		weaponInfo->missileTrailFunc    = CG_RocketTrail;
 		weaponInfo->missileDlight       = 200;
 		weaponInfo->wiTrailTime         = 2000;
 		weaponInfo->trailRadius         = 64;
 		MAKERGB( weaponInfo->flashDlightColor, 0.75, 0.3, 0.0 );
 		MAKERGB( weaponInfo->missileDlightColor, 0.75, 0.3, 0.0 );
-		weaponInfo->flashSound[0]       = trap_S_RegisterSound( "sound/weapons/rocket/rocklf1a.wav" );
-		weaponInfo->reloadSound         = trap_S_RegisterSound( "sound/weapons/rocket/rocklf_reload.wav" );
+		weaponInfo->flashSound[0]       = S_RegisterSound( "sound/weapons/rocket/rocklf1a.wav" );
+		weaponInfo->reloadSound         = S_RegisterSound( "sound/weapons/rocket/rocklf_reload.wav" );
 		cgs.media.rocketExplosionShader = trap_R_RegisterShader( "rocketExplosion" );
 		break;
 
 	case WP_MORTAR:
-		weaponInfo->flashSound[0] = trap_S_RegisterSound( "sound/weapons/mortar/mortarf1.wav" );
+		weaponInfo->flashSound[0] = S_RegisterSound( "sound/weapons/mortar/mortarf1.wav" );
 		weaponInfo->missileTrailFunc = CG_GrenadeTrail;
 		weaponInfo->missileDlight = 400;
-		weaponInfo->missileSound = trap_S_RegisterSound( "sound/weapons/rocket/rockfly.wav" );
+		weaponInfo->missileSound = S_RegisterSound( "sound/weapons/rocket/rockfly.wav" );
 		weaponInfo->wiTrailTime = 300;
 		weaponInfo->trailRadius = 32;
 		MAKERGB( weaponInfo->flashDlightColor, 1, 0.7, 0.5 );
@@ -1255,8 +1256,8 @@ void CG_RegisterWeapon( int weaponNum ) {
 // DHM - Nerve - temp effects
 	case WP_CLASS_SPECIAL:
 	case WP_MEDIC_HEAL:
-		weaponInfo->flashSound[0] = trap_S_RegisterSound( "sound/weapons/knife/knife_slash1.wav" );
-		weaponInfo->flashSound[1] = trap_S_RegisterSound( "sound/weapons/knife/knife_slash2.wav" );
+		weaponInfo->flashSound[0] = S_RegisterSound( "sound/weapons/knife/knife_slash1.wav" );
+		weaponInfo->flashSound[1] = S_RegisterSound( "sound/weapons/knife/knife_slash2.wav" );
 		break;
 // dhm
 	case WP_GRENADE_LAUNCHER:
@@ -1272,25 +1273,25 @@ void CG_RegisterWeapon( int weaponNum ) {
 		weaponInfo->wiTrailTime = 1000;
 		weaponInfo->trailRadius = 32;
 		MAKERGB( weaponInfo->flashDlightColor, 1, 0.7, 0.5 );
-		weaponInfo->flashSound[0] = trap_S_RegisterSound( "sound/weapons/grenade/grenlf1a.wav" );
-		weaponInfo->reloadSound = trap_S_RegisterSound( "sound/weapons/grenade/grenlf_reload.wav" );
+		weaponInfo->flashSound[0] = S_RegisterSound( "sound/weapons/grenade/grenlf1a.wav" );
+		weaponInfo->reloadSound = S_RegisterSound( "sound/weapons/grenade/grenlf_reload.wav" );
 		cgs.media.grenadeExplosionShader = trap_R_RegisterShader( "grenadeExplosion" );
 		break;
 
 	case WP_DYNAMITE:
 		weaponInfo->missileModel = trap_R_RegisterModel( "models/ammo/dynamite.md3" );
-//		weaponInfo->flashSound[0] = trap_S_RegisterSound( "sound/weapons/grenade/grenlf1a.wav" );
-//		weaponInfo->reloadSound = trap_S_RegisterSound( "sound/weapons/grenade/grenlf_reload.wav" );
+//		weaponInfo->flashSound[0] = S_RegisterSound( "sound/weapons/grenade/grenlf1a.wav" );
+//		weaponInfo->reloadSound = S_RegisterSound( "sound/weapons/grenade/grenlf_reload.wav" );
 		cgs.media.grenadeExplosionShader = trap_R_RegisterShader( "grenadeExplosion" );
 		break;
 
 	case WP_VENOM:
 		MAKERGB( weaponInfo->flashDlightColor, 1.0, 0.6, 0.23 );
-		weaponInfo->spinupSound = trap_S_RegisterSound( "sound/weapons/venom/venomsu1.wav" );    //----(SA)	added
-		weaponInfo->spindownSound = trap_S_RegisterSound( "sound/weapons/venom/venomsd1.wav" );  //----(SA)	added
-		weaponInfo->flashSound[0] = trap_S_RegisterSound( "sound/weapons/venom/venomf1.wav" );
-		weaponInfo->reloadSound = trap_S_RegisterSound( "sound/weapons/venom/venom_reload.wav" );
-		weaponInfo->overheatSound = trap_S_RegisterSound( "sound/weapons/venom/venom_overheat.wav" );
+		weaponInfo->spinupSound = S_RegisterSound( "sound/weapons/venom/venomsu1.wav" );    //----(SA)	added
+		weaponInfo->spindownSound = S_RegisterSound( "sound/weapons/venom/venomsd1.wav" );  //----(SA)	added
+		weaponInfo->flashSound[0] = S_RegisterSound( "sound/weapons/venom/venomf1.wav" );
+		weaponInfo->reloadSound = S_RegisterSound( "sound/weapons/venom/venom_reload.wav" );
+		weaponInfo->overheatSound = S_RegisterSound( "sound/weapons/venom/venom_overheat.wav" );
 		weaponInfo->ejectBrassFunc = CG_MachineGunEjectBrass;
 		break;
 
@@ -1300,21 +1301,21 @@ void CG_RegisterWeapon( int weaponNum ) {
 
 	case WP_TESLA:
 		MAKERGB( weaponInfo->flashDlightColor, 0.2, 0.6, 1 );
-		weaponInfo->flashSound[0] = trap_S_RegisterSound( "sound/weapons/tesla/teslaf1.wav" );
-		weaponInfo->reloadSound = trap_S_RegisterSound( "sound/weapons/tesla/tesla_reload.wav" );
-		weaponInfo->overheatSound = trap_S_RegisterSound( "sound/weapons/tesla/tesla_overheat.wav" );
+		weaponInfo->flashSound[0] = S_RegisterSound( "sound/weapons/tesla/teslaf1.wav" );
+		weaponInfo->reloadSound = S_RegisterSound( "sound/weapons/tesla/tesla_reload.wav" );
+		weaponInfo->overheatSound = S_RegisterSound( "sound/weapons/tesla/tesla_overheat.wav" );
 		break;
 
 
 	case WP_GAUNTLET:
 		MAKERGB( weaponInfo->flashDlightColor, 0.6, 0.6, 1 );
-		//weaponInfo->firingSound = trap_S_RegisterSound( "sound/weapons/melee/fstrun.wav" );
-		weaponInfo->flashSound[0] = trap_S_RegisterSound( "sound/weapons/melee/fstatck.wav" );
+		//weaponInfo->firingSound = S_RegisterSound( "sound/weapons/melee/fstrun.wav" );
+		weaponInfo->flashSound[0] = S_RegisterSound( "sound/weapons/melee/fstatck.wav" );
 		break;
 
 	default:
 		MAKERGB( weaponInfo->flashDlightColor, 1, 1, 1 );
-		weaponInfo->flashSound[0] = trap_S_RegisterSound( "sound/weapons/rocket/rocklf1a.wav" );
+		weaponInfo->flashSound[0] = S_RegisterSound( "sound/weapons/rocket/rocklf1a.wav" );
 		break;
 	}
 }
@@ -1364,9 +1365,9 @@ void CG_RegisterItemVisuals( int itemNum ) {
 	itemInfo->registered = qtrue;   //----(SA)	moved this down after the registerweapon()
 
 	wolfkickModel = trap_R_RegisterModel( "models/weapons2/foot/v_wolfoot_10f.md3" );
-	hWeaponSnd = trap_S_RegisterSound( "sound/weapons/mg42/37mm.wav" );
+	hWeaponSnd = S_RegisterSound( "sound/weapons/mg42/37mm.wav" );
 
-	hflakWeaponSnd = trap_S_RegisterSound( "sound/weapons/flak/flak.wav" );
+	hflakWeaponSnd = S_RegisterSound( "sound/weapons/flak/flak.wav" );
 
 	notebookModel = trap_R_RegisterModel( "models/mapobjects/book/book.md3" );
 

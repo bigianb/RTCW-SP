@@ -47,24 +47,6 @@ void GetClientState( uiClientState_t *state ) {
 	state->clientNum = cl.snap.ps.clientNum;
 }
 
-/*
-====================
-LAN_LoadCachedServers
-====================
-*/
-void LAN_LoadCachedServers() {
-	
-}
-
-/*
-====================
-LAN_SaveServersToCache
-====================
-*/
-void LAN_SaveServersToCache() {
-	
-}
-
 
 /*
 ====================

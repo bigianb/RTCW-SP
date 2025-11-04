@@ -29,7 +29,7 @@ If you have questions concerning this license or the applicable additional terms
 // Ridah, cg_sound.c - parsing and use of sound script files
 
 #include "cg_local.h"
-
+#include "../client/snd_public.h"
 
 // we have to define these static lists, since we can't alloc memory within the cgame
 
@@ -94,7 +94,7 @@ int CG_SoundScriptPrecache( const char *name ) {
 			scriptSound = sound->soundList;
 			if ( !sound->streaming ) {
 				while ( scriptSound ) {
-					scriptSound->sfxHandle = trap_S_RegisterSound( scriptSound->filename );
+					scriptSound->sfxHandle = S_RegisterSound( scriptSound->filename );
 					scriptSound = scriptSound->next;
 				}
 			} else /*if (cg_buildScript.integer)*/ {    // RF, 11/6/01 enabled this permanently so that streaming sounds get touched within file system on startup
@@ -141,7 +141,7 @@ void CG_SoundPickOldestRandomSound( soundScript_t *sound, vec3_t org, int entnum
 		// play this sound
 		if ( !sound->streaming ) {
 			if ( !oldestSound->sfxHandle ) {
-				oldestSound->sfxHandle = trap_S_RegisterSound( oldestSound->filename );
+				oldestSound->sfxHandle = S_RegisterSound( oldestSound->filename );
 			}
 			if ( sound->attenuation ) {
 				trap_S_StartSound( org, entnum, sound->channel, oldestSound->sfxHandle );

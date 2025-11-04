@@ -483,10 +483,9 @@ S_RegisterSound
 Creates a default buzz sound if the file can't be loaded
 ==================
 */
-sfxHandle_t S_RegisterSound( const char *name, qboolean compressed ) {
+sfxHandle_t S_RegisterSound( const char *name) {
 	sfx_t   *sfx;
 
-	compressed = qfalse;
 	if ( !snd.s_soundStarted ) {
 		return 0;
 	}
@@ -508,7 +507,7 @@ sfxHandle_t S_RegisterSound( const char *name, qboolean compressed ) {
 	}
 
 	sfx->inMemory = qfalse;
-	sfx->soundCompressed = compressed;
+	sfx->soundCompressed = qfalse;
 
 	S_memoryLoad( sfx );
 
@@ -1664,7 +1663,7 @@ void S_Play_f( void ) {
 		} else {
 			Q_strncpyz( name, Cmd_Argv( i ), sizeof( name ) );
 		}
-		h = S_RegisterSound( name, qfalse );
+		h = S_RegisterSound( name );
 		if ( h ) {
 			S_StartLocalSound( h, CHAN_LOCAL_SOUND );
 		}

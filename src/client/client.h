@@ -570,9 +570,16 @@ void CL_InitUI( void );
 void CL_ShutdownUI( void );
 int Key_GetCatcher( void );
 void Key_SetCatcher( int catcher );
-void LAN_LoadCachedServers();
-void LAN_SaveServersToCache();
 
+void LAN_ResetPings( int source );
+int LAN_GetServerCount( int source );
+int LAN_CompareServers( int source, int sortKey, int sortDir, int s1, int s2 );
+void LAN_GetServerInfo( int source, int n, char *buf, int buflen );
+int LAN_AddServer( int source, const char *name, const char *address );
+void LAN_RemoveServer( int source, const char *addr );
+int LAN_GetServerPing( int source, int n );
+int LAN_ServerIsVisible( int source, int n );
+void LAN_MarkServerVisible( int source, int n, qboolean visible );
 
 //
 // cl_net_chan.c

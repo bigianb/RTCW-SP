@@ -30,6 +30,7 @@ If you have questions concerning this license or the applicable additional terms
 #include "ui_local.h"
 #include "../qcommon/qcommon.h"
 #include "../renderer/tr_local.h"
+#include "../client/snd_public.h"
 
 #define UI_TIMER_GESTURE        2300
 #define UI_TIMER_JUMP           1000
@@ -161,7 +162,7 @@ static void UI_PositionEntityOnTag( refEntity_t *entity, const refEntity_t *pare
 	orientation_t lerped;
 
 	// lerp the tag
-	trap_CM_LerpTag( &lerped, (const refEntity_t *)parent, (const char *)tagName, 0 );
+	R_LerpTag( &lerped, (const refEntity_t *)parent, (const char *)tagName, 0 );
 
 	// FIXME: allow origin offsets along tag?
 	VectorCopy( parent->origin, entity->origin );
@@ -187,7 +188,7 @@ static void UI_PositionRotatedEntityOnTag( refEntity_t *entity, const refEntity_
 	vec3_t tempAxis[3];
 
 	// lerp the tag
-	trap_CM_LerpTag( &lerped, parent, tagName, 0 );
+	R_LerpTag( &lerped, parent, tagName, 0 );
 
 	// FIXME: allow origin offsets along tag?
 	VectorCopy( parent->origin, entity->origin );
@@ -456,7 +457,7 @@ void UI_DrawPlayer( float x, float y, float w, float h, playerInfo_t *pi, int ti
 	refEntity_t gun;
 	refEntity_t backpack;
 	refEntity_t helmet;
-//	refEntity_t		barrel;
+
 	refEntity_t flash;
 	vec3_t origin;
 	int renderfx;
@@ -479,7 +480,7 @@ void UI_DrawPlayer( float x, float y, float w, float h, playerInfo_t *pi, int ti
 		pi->pendingWeapon = -1;
 		pi->weaponTimer = 0;
 		if ( pi->currentWeapon != pi->weapon ) {
-			trap_S_StartLocalSound( trap_UI_S_RegisterSound( "sound/weapons/change.wav" ), CHAN_LOCAL );
+			trap_S_StartLocalSound( S_RegisterSound( "sound/weapons/change.wav" ), CHAN_LOCAL );
 		}
 	}
 

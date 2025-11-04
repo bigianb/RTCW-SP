@@ -372,8 +372,7 @@ typedef struct {
 	void ( *getCVarString )( const char *cvar, char *buffer, int bufsize );
 	void ( *setCVar )( const char *cvar, const char *value );
 	void ( *drawTextWithCursor )( float x, float y, int font, float scale, vec4_t color, const char *text, int cursorPos, char cursor, int limit, int style );
-	void ( *setOverstrikeMode )( qboolean b );
-	qboolean ( *getOverstrikeMode )();
+
 	void ( *startLocalSound )( sfxHandle_t sfx, int channelNum );
 	int ( *feederCount )( float feederID );
 	const char *( *feederItemText )( float feederID, int index, int column, qhandle_t * handle );
@@ -385,14 +384,11 @@ typedef struct {
 	void ( *feederSelection )( float feederID, int index );
 	void ( *feederAddItem )( float feederID, const char *name, int index );           // NERVE - SMF
 
-	void ( *getBindingBuf )( int keynum, char *buf, int buflen );
-	void ( *setBinding )( int keynum, const char *binding );
 	void ( *executeText )( int exec_when, const char *text );
 	void ( *Error )( int level, const char *error, ... );
 	void ( *Print )( const char *msg, ... );
 	void ( *Pause )( qboolean b );
 	int ( *ownerDrawWidth )( int ownerDraw, int font, float scale );
-//	sfxHandle_t (*registerSound)(const char *name, qboolean compressed);
 	sfxHandle_t ( *registerSound )( const char *name );
 	void ( *startBackgroundTrack )( const char *intro, const char *loop, int fadeupTime );
 	void ( *stopBackgroundTrack )();

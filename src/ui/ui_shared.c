@@ -2278,7 +2278,7 @@ qboolean Item_TextField_HandleKey( itemDef_t *item, int key ) {
 				}
 			}
 
-			if ( !DC->getOverstrikeMode() ) {
+			if ( !Key_GetOverstrikeMode() ) {
 				if ( ( len == MAX_EDITFIELD - 1 ) || ( editPtr->maxChars && len >= editPtr->maxChars ) ) {
 					return qtrue;
 				}
@@ -2347,7 +2347,7 @@ qboolean Item_TextField_HandleKey( itemDef_t *item, int key ) {
 			}
 
 			if ( key == K_INS || key == K_KP_INS ) {
-				DC->setOverstrikeMode( !DC->getOverstrikeMode() );
+                Key_SetOverstrikeMode( !Key_GetOverstrikeMode() );
 				return qtrue;
 			}
 		}
@@ -2934,7 +2934,7 @@ void Menu_HandleKey( menuDef_t *menu, int key, qboolean down ) {
 					item->cursorPos = 0;
 					g_editingField = qtrue;
 					g_editItem = item;
-					DC->setOverstrikeMode( qtrue );
+                    Key_SetOverstrikeMode( qtrue );
 				}
 			} else {
 				if ( Rect_ContainsPoint( &item->window.rect, DC->cursorx, DC->cursory ) ) {
@@ -2973,7 +2973,7 @@ void Menu_HandleKey( menuDef_t *menu, int key, qboolean down ) {
 				item->cursorPos = 0;
 				g_editingField = qtrue;
 				g_editItem = item;
-				DC->setOverstrikeMode( qtrue );
+                Key_SetOverstrikeMode( qtrue );
 			} else {
 				Item_Action( item );
 			}
@@ -3231,35 +3231,6 @@ void Item_Text_Paint( itemDef_t *item ) {
 
 	Item_TextColor( item, &color );
 
-	//FIXME: this is a fucking mess
-/*
-	adjust = 0;
-	if (item->textStyle == ITEM_TEXTSTYLE_OUTLINED || item->textStyle == ITEM_TEXTSTYLE_OUTLINESHADOWED) {
-		adjust = 0.5;
-	}
-
-	if (item->textStyle == ITEM_TEXTSTYLE_SHADOWED || item->textStyle == ITEM_TEXTSTYLE_OUTLINESHADOWED) {
-		Fade(&item->window.flags, &DC->Assets.shadowColor[3], DC->Assets.fadeClamp, &item->window.nextTime, DC->Assets.fadeCycle, qfalse);
-		DC->drawText(item->textRect.x + DC->Assets.shadowX, item->textRect.y + DC->Assets.shadowY, item->textscale, DC->Assets.shadowColor, textPtr, adjust);
-	}
-*/
-
-
-//	if (item->textStyle == ITEM_TEXTSTYLE_OUTLINED || item->textStyle == ITEM_TEXTSTYLE_OUTLINESHADOWED) {
-//		Fade(&item->window.flags, &item->window.outlineColor[3], DC->Assets.fadeClamp, &item->window.nextTime, DC->Assets.fadeCycle, qfalse);
-//		/*
-//		Text_Paint(item->textRect.x-1, item->textRect.y-1, item->textscale, item->window.foreColor, textPtr, adjust);
-//		Text_Paint(item->textRect.x, item->textRect.y-1, item->textscale, item->window.foreColor, textPtr, adjust);
-//		Text_Paint(item->textRect.x+1, item->textRect.y-1, item->textscale, item->window.foreColor, textPtr, adjust);
-//		Text_Paint(item->textRect.x-1, item->textRect.y, item->textscale, item->window.foreColor, textPtr, adjust);
-//		Text_Paint(item->textRect.x+1, item->textRect.y, item->textscale, item->window.foreColor, textPtr, adjust);
-//		Text_Paint(item->textRect.x-1, item->textRect.y+1, item->textscale, item->window.foreColor, textPtr, adjust);
-//		Text_Paint(item->textRect.x, item->textRect.y+1, item->textscale, item->window.foreColor, textPtr, adjust);
-//		Text_Paint(item->textRect.x+1, item->textRect.y+1, item->textscale, item->window.foreColor, textPtr, adjust);
-//		*/
-//		DC->drawText(item->textRect.x - 1, item->textRect.y + 1, item->textscale * 1.02, item->window.outlineColor, textPtr, adjust);
-//	}
-
 	DC->drawText( item->textRect.x, item->textRect.y, item->font, item->textscale, color, textPtr, 0, 0, item->textStyle );
 }
 
@@ -3292,7 +3263,7 @@ void Item_TextField_Paint( itemDef_t *item ) {
 
 	offset = ( item->text && *item->text ) ? 8 : 0;
 	if ( item->window.flags & WINDOW_HASFOCUS && g_editingField ) {
-		char cursor = DC->getOverstrikeMode() ? '_' : '|';
+		char cursor = Key_GetOverstrikeMode() ? '_' : '|';
 		DC->drawTextWithCursor( item->textRect.x + item->textRect.w + offset, item->textRect.y, item->font, item->textscale, newColor, buff + editPtr->paintOffset, item->cursorPos - editPtr->paintOffset, cursor, editPtr->maxPaintChars, item->textStyle );
 	} else {
 		DC->drawText( item->textRect.x + item->textRect.w + offset, item->textRect.y, item->font, item->textscale, newColor, buff + editPtr->paintOffset, 0, editPtr->maxPaintChars, item->textStyle );
@@ -3505,7 +3476,7 @@ static void Controls_GetKeyAssignment( char *command, int *twokeys ) {
 
 	for ( j = 0; j < 256; j++ )
 	{
-		DC->getBindingBuf( j, b, 256 );
+        Key_GetBindingBuf( j, b, 256 );
 		if ( *b == 0 ) {
 			continue;
 		}
@@ -3552,10 +3523,10 @@ void Controls_SetConfig( qboolean restart ) {
 	{
 
 		if ( g_bindings[i].bind1 != -1 ) {
-			DC->setBinding( g_bindings[i].bind1, g_bindings[i].command );
+			Key_SetBinding( g_bindings[i].bind1, g_bindings[i].command );
 
 			if ( g_bindings[i].bind2 != -1 ) {
-				DC->setBinding( g_bindings[i].bind2, g_bindings[i].command );
+                Key_SetBinding( g_bindings[i].bind2, g_bindings[i].command );
 			}
 		}
 	}
@@ -3778,11 +3749,11 @@ qboolean Item_Bind_HandleKey( itemDef_t *item, int key, qboolean down ) {
 	if ( id != -1 ) {
 		if ( key == -1 ) {
 			if ( g_bindings[id].bind1 != -1 ) {
-				DC->setBinding( g_bindings[id].bind1, "" );
+                Key_SetBinding( g_bindings[id].bind1, "" );
 				g_bindings[id].bind1 = -1;
 			}
 			if ( g_bindings[id].bind2 != -1 ) {
-				DC->setBinding( g_bindings[id].bind2, "" );
+                Key_SetBinding( g_bindings[id].bind2, "" );
 				g_bindings[id].bind2 = -1;
 			}
 		} else if ( g_bindings[id].bind1 == -1 )     {
@@ -3790,8 +3761,8 @@ qboolean Item_Bind_HandleKey( itemDef_t *item, int key, qboolean down ) {
 		} else if ( g_bindings[id].bind1 != key && g_bindings[id].bind2 == -1 )     {
 			g_bindings[id].bind2 = key;
 		} else {
-			DC->setBinding( g_bindings[id].bind1, "" );
-			DC->setBinding( g_bindings[id].bind2, "" );
+            Key_SetBinding( g_bindings[id].bind1, "" );
+            Key_SetBinding( g_bindings[id].bind2, "" );
 			g_bindings[id].bind1 = key;
 			g_bindings[id].bind2 = -1;
 		}
