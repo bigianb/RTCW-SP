@@ -787,7 +787,7 @@ char *AIFunc_StimSoldierAttack1Start( cast_state_t *cs ) {
 	} else if ( COM_BitCheck( cs->bs->cur_ps.weapons, WP_TESLA ) ) {
 		cs->weaponNum = WP_TESLA;
 	} else {    // no weapon?
-		G_Error( "stim soldier tried special jump attack without a tesla or rocket launcher\n" );
+		Com_Error( ERR_DROP, "stim soldier tried special jump attack without a tesla or rocket launcher\n" );
 	}
 	if ( !AICast_CheckAttackAtPos( cs->entityNum, cs->enemyNum, pos, qfalse, qfalse ) ) {
 		AICast_ChooseWeapon( cs, qfalse );
@@ -825,7 +825,7 @@ char *AIFunc_StimSoldierAttack2Start( cast_state_t *cs ) {
 	// face them
 	AICast_AimAtEnemy( cs );
 	// TODO!
-	G_Printf( "TODO: stim dual machinegun attack\n" );
+	Com_Printf( "TODO: stim dual machinegun attack\n" );
 	//
 	cs->aifunc = AIFunc_StimSoldierAttack2;
 	return "AIFunc_StimSoldierAttack2";

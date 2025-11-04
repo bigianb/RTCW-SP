@@ -43,6 +43,7 @@ If you have questions concerning this license or the applicable additional terms
 #include "g_save.h"
 #include "ai_cast.h"
 #include "../qcommon/qcommon.h"
+#include "../server/server.h"
 
 /*
 Wolf savegame system.
@@ -247,7 +248,7 @@ G_SaveWriteError
 */
 void G_SaveWriteError( void ) {
 
-	G_Error( "Insufficient free disk space.\n\nPlease free at least 5mb of free space on game drive." );
+	Com_Error( ERR_DROP, "Insufficient free disk space.\n\nPlease free at least 5mb of free space on game drive." );
 
 }
 
@@ -315,7 +316,7 @@ void WriteField1( saveField_t *field, byte *base ) {
 			index = *(gentity_t **)p - g_entities;
 		}
 		if ( index >= MAX_GENTITIES || index < -1 ) {
-			G_Error( "WriteField1: entity out of range (%i)", index );
+			Com_Error( ERR_DROP, "WriteField1: entity out of range (%i)", index );
 		}
 		*(int *)p = index;
 		break;
@@ -326,7 +327,7 @@ void WriteField1( saveField_t *field, byte *base ) {
 			index = *(gclient_t **)p - level.clients;
 		}
 		if ( index >= MAX_CLIENTS || index < -1 ) {
-			G_Error( "WriteField1: client out of range (%i)", index );
+			Com_Error( ERR_DROP, "WriteField1: client out of range (%i)", index );
 		}
 		*(int *)p = index;
 		break;
@@ -348,7 +349,7 @@ void WriteField1( saveField_t *field, byte *base ) {
 		} else {
 			func = G_FindFuncAtAddress( *(byte **)p );
 			if ( !func ) {
-				G_Error( "WriteField1: unknown function, cannot save game" );
+				Com_Error( ERR_DROP, "WriteField1: unknown function, cannot save game" );
 			}
 			len = strlen( func->funcStr ) + 1;
 		}
@@ -356,7 +357,7 @@ void WriteField1( saveField_t *field, byte *base ) {
 		break;
 
 	default:
-		G_Error( "WriteField1: unknown field type" );
+		Com_Error( ERR_DROP, "WriteField1: unknown field type" );
 	}
 }
 
@@ -381,7 +382,7 @@ void WriteField2( fileHandle_t f, saveField_t *field, byte *base ) {
 		if ( *(byte **)p ) {
 			func = G_FindFuncAtAddress( *(byte **)p );
 			if ( !func ) {
-				G_Error( "WriteField1: unknown function, cannot save game" );
+				Com_Error( ERR_DROP, "WriteField1: unknown function, cannot save game" );
 			}
 			len = strlen( func->funcStr ) + 1;
 			if ( !G_SaveWrite( func->funcStr, len, f ) ) {
@@ -410,13 +411,13 @@ void ReadField( fileHandle_t f, saveField_t *field, byte *base ) {
 		} else
 		{
 			*(char **)p = G_Alloc( len );
-			trap_FS_Read( *(char **)p, len, f );
+			FS_Read( *(char **)p, len, f );
 		}
 		break;
 	case F_ENTITY:
 		index = *(int *)p;
 		if ( index >= MAX_GENTITIES || index < -1 ) {
-			G_Error( "ReadField: entity out of range (%i)", index );
+			Com_Error( ERR_DROP, "ReadField: entity out of range (%i)", index );
 		}
 		if ( index == -1 ) {
 			*(gentity_t **)p = NULL;
@@ -427,7 +428,7 @@ void ReadField( fileHandle_t f, saveField_t *field, byte *base ) {
 	case F_CLIENT:
 		index = *(int *)p;
 		if ( index >= MAX_CLIENTS || index < -1 ) {
-			G_Error( "ReadField: client out of range (%i)", index );
+			Com_Error( ERR_DROP, "ReadField: client out of range (%i)", index );
 		}
 		if ( index == -1 ) {
 			*(gclient_t **)p = NULL;
@@ -452,17 +453,17 @@ void ReadField( fileHandle_t f, saveField_t *field, byte *base ) {
 		} else
 		{
 			if ( len > sizeof( funcStr ) ) {
-				G_Error( "ReadField: function name is greater than buffer (%i chars)", sizeof( funcStr ) );
+				Com_Error( ERR_DROP, "ReadField: function name is greater than buffer (%i chars)", sizeof( funcStr ) );
 			}
-			trap_FS_Read( funcStr, len, f );
+			FS_Read( funcStr, len, f );
 			if ( !( *(byte **)p = G_FindFuncByName( funcStr ) ) ) {
-				G_Error( "ReadField: unknown function '%s'\ncannot load game", funcStr );
+				Com_Error( ERR_DROP, "ReadField: unknown function '%s'\ncannot load game", funcStr );
 			}
 		}
 		break;
 
 	default:
-		G_Error( "ReadField: unknown field type" );
+		Com_Error( ERR_DROP, "ReadField: unknown field type" );
 	}
 }
 
@@ -606,14 +607,14 @@ void ReadClient( fileHandle_t f, gclient_t *client, int size ) {
 	int decodedSize;
 
 	if ( ver == 10 ) {
-		trap_FS_Read( &temp, size, f );
+		FS_Read( &temp, size, f );
 	} else {
 		// read the encoded chunk
-		trap_FS_Read( &decodedSize, sizeof( int ), f );
+		FS_Read( &decodedSize, sizeof( int ), f );
 		if ( decodedSize > sizeof( clientBuf ) ) {
-			G_Error( "G_LoadGame: encoded chunk is greater than buffer" );
+			Com_Error( ERR_DROP, "G_LoadGame: encoded chunk is greater than buffer" );
 		}
-		trap_FS_Read( clientBuf, decodedSize, f ); \
+		FS_Read( clientBuf, decodedSize, f ); \
 		// decode it
 		G_Save_Decode( clientBuf, decodedSize, (byte *)&temp, sizeof( temp ) );
 	}
@@ -663,7 +664,7 @@ void ReadClient( fileHandle_t f, gclient_t *client, int size ) {
 		Cvar_Register( &cvar, "cg_loadWeaponSelect", "0", CVAR_ROM );
 		Cvar_Set( "cg_loadWeaponSelect", va( "%i", client->ps.weapon ) );
 		//
-		trap_SendServerCommand( client->ps.clientNum, "map_restart\n" );
+		SV_GameSendServerCommand( client->ps.clientNum, "map_restart\n" );
 	}
 }
 
@@ -734,14 +735,14 @@ void ReadEntity( fileHandle_t f, gentity_t *ent, int size ) {
 	backup = *ent;
 
 	if ( ver == 10 ) {
-		trap_FS_Read( &temp, size, f );
+		FS_Read( &temp, size, f );
 	} else {
 		// read the encoded chunk
-		trap_FS_Read( &decodedSize, sizeof( int ), f );
+		FS_Read( &decodedSize, sizeof( int ), f );
 		if ( decodedSize > sizeof( entityBuf ) ) {
-			G_Error( "G_LoadGame: encoded chunk is greater than buffer" );
+			Com_Error( ERR_DROP, "G_LoadGame: encoded chunk is greater than buffer" );
 		}
-		trap_FS_Read( entityBuf, decodedSize, f );
+		FS_Read( entityBuf, decodedSize, f );
 		// decode it
 		G_Save_Decode( entityBuf, decodedSize, (byte *)&temp, sizeof( temp ) );
 	}
@@ -896,14 +897,14 @@ void ReadCastState( fileHandle_t f, cast_state_t *cs, int size ) {
 	int decodedSize;
 
 	if ( ver == 10 ) {
-		trap_FS_Read( &temp, size, f );
+		FS_Read( &temp, size, f );
 	} else {
 		// read the encoded chunk
-		trap_FS_Read( &decodedSize, sizeof( int ), f );
+		FS_Read( &decodedSize, sizeof( int ), f );
 		if ( decodedSize > sizeof( castStateBuf ) ) {
-			G_Error( "G_LoadGame: encoded chunk is greater than buffer" );
+			Com_Error( ERR_DROP, "G_LoadGame: encoded chunk is greater than buffer" );
 		}
-		trap_FS_Read( castStateBuf, decodedSize, f ); \
+		FS_Read( castStateBuf, decodedSize, f ); \
 		// decode it
 		G_Save_Decode( castStateBuf, decodedSize, (byte *)&temp, sizeof( temp ) );
 	}
@@ -967,15 +968,15 @@ ReadTime
 ==============
 */
 void ReadTime( fileHandle_t f, qtime_t *tm ) {
-	trap_FS_Read( &tm->tm_sec, sizeof( tm->tm_sec ), f );
-	trap_FS_Read( &tm->tm_min, sizeof( tm->tm_min ), f );
-	trap_FS_Read( &tm->tm_hour, sizeof( tm->tm_hour ), f );
-	trap_FS_Read( &tm->tm_mday, sizeof( tm->tm_mday ), f );
-	trap_FS_Read( &tm->tm_mon, sizeof( tm->tm_mon ), f );
-	trap_FS_Read( &tm->tm_year, sizeof( tm->tm_year ), f );
-	trap_FS_Read( &tm->tm_wday, sizeof( tm->tm_wday ), f );
-	trap_FS_Read( &tm->tm_yday, sizeof( tm->tm_yday ), f );
-	trap_FS_Read( &tm->tm_isdst, sizeof( tm->tm_isdst ), f );
+	FS_Read( &tm->tm_sec, sizeof( tm->tm_sec ), f );
+	FS_Read( &tm->tm_min, sizeof( tm->tm_min ), f );
+	FS_Read( &tm->tm_hour, sizeof( tm->tm_hour ), f );
+	FS_Read( &tm->tm_mday, sizeof( tm->tm_mday ), f );
+	FS_Read( &tm->tm_mon, sizeof( tm->tm_mon ), f );
+	FS_Read( &tm->tm_year, sizeof( tm->tm_year ), f );
+	FS_Read( &tm->tm_wday, sizeof( tm->tm_wday ), f );
+	FS_Read( &tm->tm_yday, sizeof( tm->tm_yday ), f );
+	FS_Read( &tm->tm_isdst, sizeof( tm->tm_isdst ), f );
 }
 
 /*
@@ -1059,7 +1060,7 @@ qboolean G_SaveGame( char *username ) {
 		return qtrue;
 	}
 
-	G_DPrintf( "G_SaveGame '%s'\n", username );
+	Com_Printf( "G_SaveGame '%s'\n", username );
 
 	// update the playtime
 	AICast_AgePlayTime( 0 );
@@ -1071,7 +1072,7 @@ qboolean G_SaveGame( char *username ) {
 	// validate the filename
 	for ( i = 0; i < strlen( username ); i++ ) {
 		if ( !Q_isforfilename( username[i] ) && username[i] != '\\' ) { // (allow '\\' so games can be saved in subdirs)
-			G_Printf( "G_SaveGame: '%s'.  Invalid character (%c) in filename. Must use alphanumeric characters only.\n", username, username[i] );
+			Com_Printf( "G_SaveGame: '%s'.  Invalid character (%c) in filename. Must use alphanumeric characters only.\n", username, username[i] );
 			return qtrue;
 		}
 	}
@@ -1080,8 +1081,8 @@ qboolean G_SaveGame( char *username ) {
 
 	// open the file
 	snprintf( filename, MAX_QPATH, "save\\temp.svg" );
-	if ( trap_FS_FOpenFile( filename, &f, FS_WRITE ) < 0 ) {
-		G_Error( "G_SaveGame: cannot open file for saving\n" );
+	if ( FS_FOpenFileByMode( filename, &f, FS_WRITE ) < 0 ) {
+		Com_Error( ERR_DROP, "G_SaveGame: cannot open file for saving\n" );
 	}
 
 	// write the version
@@ -1142,12 +1143,12 @@ qboolean G_SaveGame( char *username ) {
 	for ( i = 0; i < strlen( mapstr ); i++ ) mapstr[i] = toupper( mapstr[i] );
 	memset( infoString, 0, sizeof( infoString ) );
 
-	trap_Cvar_VariableStringBuffer( "svg_timestring", leveltime, sizeof( leveltime ) );
+	Cvar_VariableStringBuffer( "svg_timestring", leveltime, sizeof( leveltime ) );
 	if ( !strlen( leveltime ) ) {
 		snprintf( leveltime, sizeof( leveltime ), "Leveltime" );
 	}
 
-	trap_Cvar_VariableStringBuffer( "svg_healthstring", healthstr, sizeof( healthstr ) );
+	Cvar_VariableStringBuffer( "svg_healthstring", healthstr, sizeof( healthstr ) );
 	if ( !strlen( healthstr ) ) {
 		snprintf( healthstr, sizeof( healthstr ), "Health" );
 	}
@@ -1280,29 +1281,29 @@ qboolean G_SaveGame( char *username ) {
 	}
 
 
-	trap_FS_FCloseFile( f );
+	FS_FCloseFile( f );
 
 	// check the byte count
-	if ( ( len = trap_FS_FOpenFile( filename, &f, FS_READ ) ) != saveByteCount ) {
-		trap_FS_FCloseFile( f );
+	if ( ( len = FS_FOpenFileByMode( filename, &f, FS_READ ) ) != saveByteCount ) {
+		FS_FCloseFile( f );
 		G_SaveWriteError();
 		return qfalse;
 	}
 
-	trap_FS_FCloseFile( f );
+	FS_FCloseFile( f );
 
 	// now rename the file to the actual file
 	snprintf( mapstr, MAX_QPATH, "save\\%s.svg", username );
-	trap_FS_Rename( filename, mapstr );
+	FS_Rename( filename, mapstr );
 
 	// double check that it saved ok
-	if ( ( len = trap_FS_FOpenFile( mapstr, &f, FS_READ ) ) != saveByteCount ) {
-		trap_FS_FCloseFile( f );
+	if ( ( len = FS_FOpenFileByMode( mapstr, &f, FS_READ ) ) != saveByteCount ) {
+		FS_FCloseFile( f );
 		G_SaveWriteError();
 		return qfalse;
 	}
 
-	trap_FS_FCloseFile( f );
+	FS_FCloseFile( f );
 
 	return qtrue;
 }
@@ -1336,42 +1337,42 @@ void G_LoadGame( char *filename ) {
 		return;
 	}
 
-	G_DPrintf( "G_LoadGame '%s'\n", filename );
+    Com_Printf( "G_LoadGame '%s'\n", filename );
 
 	// enforce the "current" savegame, since that is used for all loads
 	filename = "save\\current.svg";
 
 	// open the file
-	if ( trap_FS_FOpenFile( filename, &f, FS_READ ) < 0 ) {
-		G_Error( "G_LoadGame: savegame '%s' not found\n", filename );
+	if ( FS_FOpenFileByMode( filename, &f, FS_READ ) < 0 ) {
+		Com_Error( ERR_DROP, "G_LoadGame: savegame '%s' not found\n", filename );
 	}
 
 	// read the version
-	trap_FS_Read( &i, sizeof( i ), f );
+	FS_Read( &i, sizeof( i ), f );
 	// TTimo
 	// show_bug.cgi?id=434
 	// 17 is the only version actually out in the wild
 	if ( i != SAVE_VERSION && i != 17 && i != 13 && i != 14 && i != 15 ) {    // 13 is beta7, 14 is pre "SA_MOVEDSTUFF"
-		trap_FS_FCloseFile( f );
-		G_Error( "G_LoadGame: savegame '%s' is wrong version (%i, should be %i)\n", filename, i, SAVE_VERSION );
+		FS_FCloseFile( f );
+		Com_Error( ERR_DROP, "G_LoadGame: savegame '%s' is wrong version (%i, should be %i)\n", filename, i, SAVE_VERSION );
 	}
 	ver = i;
 
 	if ( ver == 17 ) {
 		// 17 saved games can be buggy (bug #434), let's just warn about it
-		G_Printf( "WARNING: backward compatibility, loading a version 17 saved game.\n"
+		Com_Printf( "WARNING: backward compatibility, loading a version 17 saved game.\n"
 				  "some version 17 saved games may cause crashes during play.\n" );
 	}
 
 	// read the mapname (this is only used in the sever exe, so just discard it)
-	trap_FS_Read( mapname, MAX_QPATH, f );
+	FS_Read( mapname, MAX_QPATH, f );
 
 	// read the level time
-	trap_FS_Read( &i, sizeof( i ), f );
+	FS_Read( &i, sizeof( i ), f );
 	leveltime = i;
 
 	// read the totalPlayTime
-	trap_FS_Read( &i, sizeof( i ), f );
+	FS_Read( &i, sizeof( i ), f );
 	if ( i > g_totalPlayTime.integer ) {
 		Cvar_Set( "g_totalPlayTime", va( "%i", i ) );
 	}
@@ -1380,7 +1381,7 @@ void G_LoadGame( char *filename ) {
 	// this is only set in the map scripts, and was previously only handled in the menu's
 	// read the 'episode'
 	if ( ver >= 13 ) {
-		trap_FS_Read( &i, sizeof( i ), f );
+		FS_Read( &i, sizeof( i ), f );
 		Cvar_Set( "g_episode", va( "%i", i ) );
 	}
 //----(SA)	end
@@ -1388,10 +1389,10 @@ void G_LoadGame( char *filename ) {
 	// NOTE: do not change the above order without also changing the server code
 
 	// read the info string length
-	trap_FS_Read( &i, sizeof( i ), f );
+	FS_Read( &i, sizeof( i ), f );
 
 	// read the info string
-	trap_FS_Read( infoString, i, f );
+	FS_Read( infoString, i, f );
 
 	if ( ver >= SA_MOVEDSTUFF ) {
 		if ( ver > SA_ADDEDMUSIC ) {
@@ -1399,14 +1400,14 @@ void G_LoadGame( char *filename ) {
 			ReadTime( f, &tm );
 
 			// read music
-			trap_FS_Read( musicString, MAX_QPATH, f );
+			FS_Read( musicString, MAX_QPATH, f );
 
 			if ( strlen( musicString ) ) {
 				Cvar_Register( &musicCvar, "s_currentMusic", "", CVAR_ROM ); // get current music
 				if ( Q_stricmp( musicString, musicCvar.string ) ) {      // it's different than what's playing, so fade out and queue up
-//					trap_SendServerCommand(-1, "mu_fade 0 1000\n");
+//					SV_GameSendServerCommand(-1, "mu_fade 0 1000\n");
 //					trap_SetConfigstring( CS_MUSIC_QUEUE, musicString);
-					trap_SendServerCommand( -1, va( "mu_start %s 1000\n", musicString ) );       // (SA) trying this instead
+					SV_GameSendServerCommand( -1, va( "mu_start %s 1000\n", musicString ) );       // (SA) trying this instead
 				}
 			}
 
@@ -1418,9 +1419,9 @@ void G_LoadGame( char *filename ) {
 			int k;
 
 			// get length
-			trap_FS_Read( &i, sizeof( i ), f );
+			FS_Read( &i, sizeof( i ), f );
 			// get fog string
-			trap_FS_Read( infoString, i, f );
+			FS_Read( infoString, i, f );
 			infoString[i] = 0;
 
 			// set the configstring so the 'savegame current' has good fog
@@ -1449,7 +1450,7 @@ void G_LoadGame( char *filename ) {
 
 		if ( ver > 13 ) {
 			// read the game skill
-			trap_FS_Read( &i, sizeof( i ), f );
+			FS_Read( &i, sizeof( i ), f );
 			// set the skill level
 			Cvar_Set( "g_gameskill", va( "%i",i ) );
 			// update this
@@ -1464,18 +1465,18 @@ void G_LoadGame( char *filename ) {
 	trap_AAS_SetAASBlockingEntity( vec3_origin, vec3_origin, -1 );
 
 	// read the entity structures
-	trap_FS_Read( &i, sizeof( i ), f );
+	FS_Read( &i, sizeof( i ), f );
 	size = i;
 	last = 0;
 	while ( 1 )
 	{
-		trap_FS_Read( &i, sizeof( i ), f );
+		FS_Read( &i, sizeof( i ), f );
 		if ( i < 0 ) {
 			break;
 		}
 		if ( i >= MAX_GENTITIES ) {
-			trap_FS_FCloseFile( f );
-			G_Error( "G_LoadGame: entitynum out of range (%i, MAX = %i)\n", i, MAX_GENTITIES );
+			FS_FCloseFile( f );
+			Com_Error( ERR_DROP, "G_LoadGame: entitynum out of range (%i, MAX = %i)\n", i, MAX_GENTITIES );
 		}
 		if ( i >= level.num_entities ) {  // notify server
 			level.num_entities = i;
@@ -1487,7 +1488,7 @@ void G_LoadGame( char *filename ) {
 		for ( ; last < i; last++ ) {
 			if ( g_entities[last].inuse && i != ENTITYNUM_WORLD ) {
 				if ( last < MAX_CLIENTS ) {
-					trap_DropClient( last, "" );
+					SV_GameDropClient( last, "" );
 				} else {
 					G_FreeEntity( &g_entities[last] );
 				}
@@ -1505,38 +1506,38 @@ void G_LoadGame( char *filename ) {
 	}
 
 	// read the client structures
-	trap_FS_Read( &i, sizeof( i ), f );
+	FS_Read( &i, sizeof( i ), f );
 	size = i;
 	while ( 1 )
 	{
-		trap_FS_Read( &i, sizeof( i ), f );
+		FS_Read( &i, sizeof( i ), f );
 		if ( i < 0 ) {
 			break;
 		}
 		if ( i > MAX_CLIENTS ) {
-			trap_FS_FCloseFile( f );
-			G_Error( "G_LoadGame: clientnum out of range\n" );
+			FS_FCloseFile( f );
+			Com_Error( ERR_DROP, "G_LoadGame: clientnum out of range\n" );
 		}
 		cl = &level.clients[i];
 		if ( cl->pers.connected == CON_DISCONNECTED ) {
-			trap_FS_FCloseFile( f );
-			G_Error( "G_LoadGame: client mis-match in savegame" );
+			FS_FCloseFile( f );
+			Com_Error( ERR_DROP, "G_LoadGame: client mis-match in savegame" );
 		}
 		ReadClient( f, cl, size );
 	}
 
 	// read the cast_state structures
-	trap_FS_Read( &i, sizeof( i ), f );
+	FS_Read( &i, sizeof( i ), f );
 	size = i;
 	while ( 1 )
 	{
-		trap_FS_Read( &i, sizeof( i ), f );
+		FS_Read( &i, sizeof( i ), f );
 		if ( i < 0 ) {
 			break;
 		}
 		if ( i > MAX_CLIENTS ) {
-			trap_FS_FCloseFile( f );
-			G_Error( "G_LoadGame: clientnum out of range\n" );
+			FS_FCloseFile( f );
+			Com_Error( ERR_DROP, "G_LoadGame: clientnum out of range\n" );
 		}
 		cs = &caststates[i];
 		ReadCastState( f, cs, size );
@@ -1545,7 +1546,7 @@ void G_LoadGame( char *filename ) {
 	// inform server of entity count if it has increased
 	if ( serverEntityUpdate ) {
 		// let the server system know that there are more entities
-		trap_LocateGameData( level.gentities, level.num_entities, sizeof( gentity_t ),
+		SV_LocateGameData( level.gentities, level.num_entities, sizeof( gentity_t ),
 							 &level.clients[0].ps, sizeof( level.clients[0] ) );
 	}
 
@@ -1556,12 +1557,12 @@ void G_LoadGame( char *filename ) {
 			ReadTime( f, &tm );
 
 			// read music
-			trap_FS_Read( musicString, MAX_QPATH, f );
+			FS_Read( musicString, MAX_QPATH, f );
 
 			if ( strlen( musicString ) ) {
 				Cvar_Register( &musicCvar, "s_currentMusic", "", CVAR_ROM ); // get current music
 				if ( Q_stricmp( musicString, musicCvar.string ) ) {      // it's different than what's playing, so fade out and queue up
-					trap_SendServerCommand( -1, "mu_fade 0 1000\n" );
+					SV_GameSendServerCommand( -1, "mu_fade 0 1000\n" );
 					trap_SetConfigstring( CS_MUSIC_QUEUE, musicString );
 				}
 			}
@@ -1570,7 +1571,7 @@ void G_LoadGame( char *filename ) {
 
 		if ( ver > 13 ) {
 			// read the game skill
-			trap_FS_Read( &i, sizeof( i ), f );
+			FS_Read( &i, sizeof( i ), f );
 			// set the skill level
 			Cvar_Set( "g_gameskill", va( "%i",i ) );
 			// update this
@@ -1582,7 +1583,7 @@ void G_LoadGame( char *filename ) {
 
 
 
-	trap_FS_FCloseFile( f );
+	FS_FCloseFile( f );
 
 	// now increment the attempts field and update totalplaytime according to cvar
 	Cvar_Update( &g_attempts );
@@ -1625,7 +1626,7 @@ void PersReadClient( fileHandle_t f, gclient_t *cl ) {
 	// read the fields
 	for ( field = gclientPersFields ; field->len ; field++ )
 	{   // read the block
-		trap_FS_Read( ( void * )( (byte *)cl + field->ofs ), field->len, f );
+		FS_Read( ( void * )( (byte *)cl + field->ofs ), field->len, f );
 	}
 }
 
@@ -1657,7 +1658,7 @@ void PersReadEntity( fileHandle_t f, gentity_t *cl ) {
 	// read the fields
 	for ( field = gentityPersFields ; field->len ; field++ )
 	{   // read the block
-		trap_FS_Read( ( void * )( (byte *)cl + field->ofs ), field->len, f );
+		FS_Read( ( void * )( (byte *)cl + field->ofs ), field->len, f );
 	}
 }
 
@@ -1691,7 +1692,7 @@ void PersReadCastState( fileHandle_t f, cast_state_t *cs ) {
 	// read the fields
 	for ( field = castStatePersFields ; field->len ; field++ )
 	{   // read the block
-		trap_FS_Read( ( void * )( (byte *)cs + field->ofs ), field->len, f );
+		FS_Read( ( void * )( (byte *)cs + field->ofs ), field->len, f );
 	}
 }
 
@@ -1720,15 +1721,15 @@ qboolean G_SavePersistant( char *nextmap ) {
 
 	// open the file
 	snprintf( filename, MAX_QPATH, "save\\temp.psw" );
-	if ( trap_FS_FOpenFile( filename, &f, FS_WRITE ) < 0 ) {
-		G_Error( "G_SavePersistant: cannot open '%s' for saving\n", filename );
+	if ( FS_FOpenFileByMode( filename, &f, FS_WRITE ) < 0 ) {
+		Com_Error( ERR_DROP, "G_SavePersistant: cannot open '%s' for saving\n", filename );
 	}
 
 	// write the mapname
 	G_SaveWrite( nextmap, MAX_QPATH, f );
 
 	// save out the pers id
-	persid = trap_Milliseconds() + ( rand() & 0xffff );
+	persid = Sys_Milliseconds() + ( rand() & 0xffff );
 	G_SaveWrite( &persid, sizeof( persid ), f );
 	Cvar_Set( "persid", va( "%i", persid ) );
 
@@ -1741,28 +1742,28 @@ qboolean G_SavePersistant( char *nextmap ) {
 	// write out the cast_state structure
 	PersWriteCastState( f, AICast_GetCastState( 0 ) );
 
-	trap_FS_FCloseFile( f );
+	FS_FCloseFile( f );
 
 	// now check that it is the correct size
 	snprintf( filename, MAX_QPATH, "save\\temp.psw" );
-	if ( trap_FS_FOpenFile( filename, &f, FS_READ ) < saveByteCount ) {
-		trap_FS_FCloseFile( f );
+	if ( FS_FOpenFileByMode( filename, &f, FS_READ ) < saveByteCount ) {
+		FS_FCloseFile( f );
 		G_SaveWriteError();
 		return qfalse;
 	}
-	trap_FS_FCloseFile( f );
+	FS_FCloseFile( f );
 
 	// rename it to the real file
-	trap_FS_Rename( "save\\temp.psw", "save\\current.psw" );
+	FS_Rename( "save\\temp.psw", "save\\current.psw" );
 
 	// now check that it is the correct size
 	snprintf( filename, MAX_QPATH, "save\\current.psw" );
-	if ( trap_FS_FOpenFile( filename, &f, FS_READ ) < saveByteCount ) {
-		trap_FS_FCloseFile( f );
+	if ( FS_FOpenFileByMode( filename, &f, FS_READ ) < saveByteCount ) {
+		FS_FCloseFile( f );
 		G_SaveWriteError();
 		return qfalse;
 	}
-	trap_FS_FCloseFile( f );
+	FS_FCloseFile( f );
 
 	return qtrue;
 }
@@ -1782,23 +1783,23 @@ void G_LoadPersistant( void ) {
 	filename = "save\\current.psw";
 
 	// open the file
-	if ( trap_FS_FOpenFile( filename, &f, FS_READ ) < 0 ) {
+	if ( FS_FOpenFileByMode( filename, &f, FS_READ ) < 0 ) {
 		// not here, we shall assume they didn't want one
 		return;
 	}
 
 	// read the mapname, if it's not the same, then ignore the file
-	trap_FS_Read( mapstr, MAX_QPATH, f );
+	FS_Read( mapstr, MAX_QPATH, f );
 	Cvar_Register( &cvar_mapname, "mapname", "", CVAR_SERVERINFO | CVAR_ROM );
 	if ( Q_strcasecmp( cvar_mapname.string, mapstr ) ) {
-		trap_FS_FCloseFile( f );
+		FS_FCloseFile( f );
 		return;
 	}
 
 	// check the pers id
-	trap_FS_Read( &persid, sizeof( persid ), f );
-	if ( persid != trap_Cvar_VariableIntegerValue( "persid" ) ) {
-		trap_FS_FCloseFile( f );
+	FS_Read( &persid, sizeof( persid ), f );
+	if ( persid != Cvar_VariableIntegerValue( "persid" ) ) {
+		FS_FCloseFile( f );
 		return;
 	}
 
@@ -1811,7 +1812,7 @@ void G_LoadPersistant( void ) {
 	// read the cast_state structure
 	PersReadCastState( f, AICast_GetCastState( 0 ) );
 
-	trap_FS_FCloseFile( f );
+	FS_FCloseFile( f );
 
 	// clear out the persid, since the persistent data has been read
 	Cvar_Set( "persid", "0" );

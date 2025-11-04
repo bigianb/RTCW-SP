@@ -970,9 +970,8 @@ void FindIntermissionPoint( void );
 void G_RunThink( gentity_t *ent );
 void  G_LogPrintf( const char *fmt, ... );
 
-void  G_Printf( const char *fmt, ... );
-void  G_DPrintf( const char *fmt, ... );
-void  G_Error( const char *fmt, ... );
+void  Com_Printf( const char *fmt, ... );
+
 //----(SA)	added
 void G_EndGame( void );
 int G_SendMissionStats( void );   // return '0' if objectives not met, '1' if met
@@ -1163,29 +1162,12 @@ extern vmCvar_t g_soldierChargeTime;
 
 extern vmCvar_t g_playerStart;      //----(SA)	added
 
+int     Sys_Milliseconds( void );
 
-void    trap_Printf( const char *fmt );
-void    trap_Error( const char *fmt );
-void    trap_Endgame( void );   //----(SA)	added
-int     trap_Milliseconds( void );
-int     trap_Argc( void );
-void    trap_Argv( int n, char *buffer, int bufferLength );
 void    Cmd_ArgsBuffer( char *buffer, int bufferLength );
-int     trap_FS_FOpenFile( const char *qpath, fileHandle_t *f, fsMode_t mode );
-void    trap_FS_Read( void *buffer, int len, fileHandle_t f );
-
-int     trap_FS_Rename( const char *from, const char *to );
-void    trap_FS_FCloseFile( fileHandle_t f );
-int     trap_FS_GetFileList( const char *path, const char *extension, char *listbuf, int bufsize );
-void    trap_game_SendConsoleCommand( int exec_when, const char *text );
-
 
 void    Cvar_Set( const char *var_name, const char *value );
-int     trap_Cvar_VariableIntegerValue( const char *var_name );
-void    trap_Cvar_VariableStringBuffer( const char *var_name, char *buffer, int bufsize );
-void    trap_LocateGameData( gentity_t *gEnts, int numGEntities, int sizeofGEntity_t, playerState_t *gameClients, int sizeofGameClient );
-void    trap_DropClient( int clientNum, const char *reason );
-void    trap_SendServerCommand( int clientNum, const char *text );
+
 void    trap_SetConfigstring( int num, const char *string );
 void    trap_GetConfigstring( int num, char *buffer, int bufferSize );
 void    trap_GetUserinfo( int num, char *buffer, int bufferSize );

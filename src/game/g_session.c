@@ -27,7 +27,7 @@ If you have questions concerning this license or the applicable additional terms
 */
 
 #include "g_local.h"
-
+#include "../qcommon/qcommon.h"
 
 /*
 =======================================================================
@@ -81,7 +81,7 @@ void G_ReadSessionData( gclient_t *client ) {
 	const char  *var;
 
 	var = va( "session%i", client - level.clients );
-	trap_Cvar_VariableStringBuffer( var, s, sizeof( s ) );
+	Cvar_VariableStringBuffer( var, s, sizeof( s ) );
 
 	sscanf( s, "%i %i %i %i %i %i %i %i %i %i %i",       // DHM - Nerve
 			(int *)&client->sess.sessionTeam,
@@ -170,14 +170,14 @@ void G_InitWorldSession( void ) {
 	char s[MAX_STRING_CHARS];
 	int gt;
 
-	trap_Cvar_VariableStringBuffer( "session", s, sizeof( s ) );
+	Cvar_VariableStringBuffer( "session", s, sizeof( s ) );
 	gt = atoi( s );
 
 	// if the gametype changed since the last session, don't use any
 	// client sessions
 	if ( g_gametype.integer != gt ) {
 		level.newSession = qtrue;
-		G_Printf( "Gametype changed, clearing session data.\n" );
+		Com_Printf( "Gametype changed, clearing session data.\n" );
 	}
 }
 

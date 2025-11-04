@@ -678,7 +678,7 @@ void SP_Props_Radio( gentity_t *ent ) {
 
 	// Ridah, had to add this so I could load castle18dk7
 	if ( !ent->model ) {
-		G_Printf( S_COLOR_RED "props_radio with NULL model\n" );
+		Com_Printf( S_COLOR_RED "props_radio with NULL model\n" );
 		return;
 	}
 
@@ -737,7 +737,7 @@ health = defaults to 100
 void SP_Props_RadioSEVEN( gentity_t *ent ) {
 
 	if ( !ent->model ) {
-		G_Printf( S_COLOR_RED "props_radio with NULL model\n" );
+		Com_Printf( S_COLOR_RED "props_radio with NULL model\n" );
 		return;
 	}
 
@@ -788,7 +788,7 @@ void SP_Props_Locker_Tall( gentity_t *ent ) {
 
 	// Ridah, had to add this so I could load castle18dk7
 	if ( !ent->model ) {
-		G_Printf( S_COLOR_RED "props_locker_tall with NULL model\n" );
+		Com_Printf( S_COLOR_RED "props_locker_tall with NULL model\n" );
 		return;
 	}
 
@@ -1720,7 +1720,7 @@ void Use_DamageInflictor( gentity_t *ent, gentity_t *other, gentity_t *activator
 	while ( ( daent = G_Find( daent, FOFS( targetname ), daent->target ) ) != NULL )
 	{
 		if ( daent == ent ) {
-			G_Printf( "Use_DamageInflictor damaging self.\n" );
+			Com_Printf( "Use_DamageInflictor damaging self.\n" );
 		} else
 		{
 			G_Damage( daent, ent, ent, NULL, NULL, 9999, 0, MOD_CRUSH );
@@ -2489,7 +2489,7 @@ void flippy_table_use( gentity_t *ent, gentity_t *other, gentity_t *activator ) 
 
 	// it would be odd to flip a table if your standing on it
 	if ( other && other->s.groundEntityNum == ent->s.number ) {
-		// G_Printf ("can't push table over while standing on it\n");
+		// Com_Printf ("can't push table over while standing on it\n");
 		return;
 	}
 
@@ -2609,7 +2609,7 @@ void props_flippy_blocked( gentity_t *ent, gentity_t *other ) {
 void SP_Props_Flipping_Table( gentity_t *ent ) {
 
 	if ( !ent->model ) {
-		G_Printf( S_COLOR_RED "props_Flipping_Table with NULL model\n" );
+		Com_Printf( S_COLOR_RED "props_Flipping_Table with NULL model\n" );
 		return;
 	}
 
@@ -2620,7 +2620,7 @@ void SP_Props_Flipping_Table( gentity_t *ent ) {
 
 	// ent->spawnflags |= 8;
 	if ( !( ent->spawnflags & 4 ) && !( ent->spawnflags & 8 ) ) {
-		G_Printf( "you forgot to select the X or Y Axis\n" );
+		Com_Printf( "you forgot to select the X or Y Axis\n" );
 	}
 
 	VectorClear( ent->rotate );
@@ -2750,7 +2750,7 @@ void props_castlebed_touch( gentity_t *ent, gentity_t *other, trace_t *trace ) {
 		G_Damage( ent, other, other, NULL, NULL, 1, 0, MOD_CRUSH );
 
 		// TDB: need sound of bed springs for this
-		G_Printf( "SOUND sqweeky\n" );
+		Com_Printf( "SOUND sqweeky\n" );
 
 		other->client->ps.velocity[2] += 250;
 
@@ -2875,13 +2875,13 @@ void SP_props_snowGenerator( gentity_t *ent ) {
 	VectorCopy( center, ent->pos1 );
 
 	if ( !ent->target ) {
-		G_Printf( "snowGenerator at loc %s does not have a target\n", vtos( center ) );
+		Com_Printf( "snowGenerator at loc %s does not have a target\n", vtos( center ) );
 		return;
 	} else
 	{
 		target = G_Find( target, FOFS( targetname ), ent->target );
 		if ( !target ) {
-			G_Printf( "error snowGenerator at loc %s does cant find target %s\n", vtos( center ), ent->target );
+			Com_Printf( "error snowGenerator at loc %s does cant find target %s\n", vtos( center ), ent->target );
 			return;
 		}
 
@@ -3071,7 +3071,7 @@ void props_ExploPartUse( gentity_t *ent, gentity_t *other, gentity_t *activator 
 		part->s.modelindex = ent->s.modelindex;
 	} else
 	{
-		G_Printf( "props_ExploPartUse has not been assigned a model\n" );
+		Com_Printf( "props_ExploPartUse has not been assigned a model\n" );
 		return;
 	}
 
@@ -3886,8 +3886,8 @@ void props_locker_spawn_item( gentity_t *ent ) {
 
 
 	if ( !drop ) {
-		G_Printf( "-----> WARNING <-------\n" );
-		G_Printf( "props_locker_spawn_item at %s failed!\n", vtos( ent->r.currentOrigin ) );
+		Com_Printf( "-----> WARNING <-------\n" );
+		Com_Printf( "props_locker_spawn_item at %s failed!\n", vtos( ent->r.currentOrigin ) );
 	}
 }
 

@@ -38,6 +38,7 @@ If you have questions concerning this license or the applicable additional terms
 #include "../ui/ui_shared.h"
 #include "../qcommon/cm_public.h"
 #include "../client/snd_public.h"
+#include "../qcommon/qcommon.h"
 
 int forceModelModificationCount = -1;
 
@@ -438,7 +439,7 @@ void CG_RegisterCvars( void ) {
 	}
 
 	// see if we are also running the server on this machine
-	trap_Cvar_VariableStringBuffer( "sv_running", var, sizeof( var ) );
+	Cvar_VariableStringBuffer( "sv_running", var, sizeof( var ) );
 	cgs.localServer = atoi( var );
 
 	forceModelModificationCount = cg_forceModel.modificationCount;
@@ -473,28 +474,6 @@ int CG_LastAttacker( void ) {
 	return cg.snap->ps.persistant[PERS_ATTACKER];
 }
 
-void  CG_Printf( const char *msg, ... ) {
-	va_list argptr;
-	char text[1024];
-
-	va_start( argptr, msg );
-	vsnprintf( text, 1024, msg, argptr );
-	va_end( argptr );
-
-	trap_Print( text );
-}
-
-void  CG_Error( const char *msg, ... ) {
-	va_list argptr;
-	char text[1024];
-
-	va_start( argptr, msg );
-	vsnprintf( text, 1024, msg, argptr );
-	va_end( argptr );
-
-	trap_Error( text );
-}
-
 /*
 ================
 CG_Argv
@@ -503,7 +482,7 @@ CG_Argv
 const char *CG_Argv( int arg ) {
 	static char buffer[MAX_STRING_CHARS];
 
-	trap_Argv( arg, buffer, sizeof( buffer ) );
+	Cmd_ArgvBuffer( arg, buffer, sizeof( buffer ) );
 
 	return buffer;
 }
@@ -599,7 +578,7 @@ static void CG_RegisterItemSounds( int itemNum ) {
 
 		size_t len = s - start;
 		if ( len >= MAX_QPATH || len < 5 ) {
-			CG_Error( "PrecacheItem: %s has bad precache string",
+			Com_Error( ERR_DROP, "PrecacheItem: %s has bad precache string",
 					  item->classname );
 			return;
 		}
@@ -636,19 +615,19 @@ static void CG_LoadPickupNames( void ) {
 	char *token;
 
 	snprintf( filename, MAX_QPATH, "text/pickupnames.txt" );
-	len = trap_FS_FOpenFile( filename, &f, FS_READ );
+	len = FS_FOpenFileByMode( filename, &f, FS_READ );
 	if ( len <= 0 ) {
-		CG_Printf( S_COLOR_RED "WARNING: pickup name file (pickupnames.txt not found in main/text)\n" );
+		Com_Printf( S_COLOR_RED "WARNING: pickup name file (pickupnames.txt not found in main/text)\n" );
 		return;
 	}
 	if ( len > MAX_BUFFER ) {
-		CG_Error( "%s is too big, make it smaller (max = %i bytes)\n", filename, MAX_BUFFER );
+		Com_Error( ERR_DROP, "%s is too big, make it smaller (max = %i bytes)\n", filename, MAX_BUFFER );
 	}
 
 	// load the file into memory
-	trap_FS_Read( buffer, len, f );
+	FS_Read( buffer, len, f );
 	buffer[len] = 0;
-	trap_FS_FCloseFile( f );
+	FS_FCloseFile( f );
 	// parse the list
 	text = buffer;
 
@@ -679,19 +658,19 @@ static void CG_LoadTranslationStrings( void ) {
 	char *token;
 
 	snprintf( filename, MAX_QPATH, "text/strings.txt" );
-	len = trap_FS_FOpenFile( filename, &f, FS_READ );
+	len = FS_FOpenFileByMode( filename, &f, FS_READ );
 	if ( len <= 0 ) {
-		CG_Printf( S_COLOR_RED "WARNING: string translation file (strings.txt not found in main/text)\n" );
+		Com_Printf( S_COLOR_RED "WARNING: string translation file (strings.txt not found in main/text)\n" );
 		return;
 	}
 	if ( len > MAX_BUFFER ) {
-		CG_Error( "%s is too big, make it smaller (max = %i bytes)\n", filename, MAX_BUFFER );
+		Com_Error( ERR_DROP, "%s is too big, make it smaller (max = %i bytes)\n", filename, MAX_BUFFER );
 	}
 
 	// load the file into memory
-	trap_FS_Read( buffer, len, f );
+	FS_Read( buffer, len, f );
 	buffer[len] = 0;
-	trap_FS_FCloseFile( f );
+	FS_FCloseFile( f );
 	// parse the list
 	text = buffer;
 
@@ -1374,7 +1353,7 @@ CG_ConfigString
 */
 const char *CG_ConfigString( int index ) {
 	if ( index < 0 || index >= MAX_CONFIGSTRINGS ) {
-		CG_Error( "CG_ConfigString: bad index: %i", index );
+		Com_Error( ERR_DROP, "CG_ConfigString: bad index: %i", index );
 	}
 	return cgs.gameState.stringData + cgs.gameState.stringOffsets[ index ];
 }
@@ -1609,7 +1588,7 @@ void CG_LoadHudMenu() {
 	char buff[1024];
 	const char *hudSet;
 
-	trap_Cvar_VariableStringBuffer( "cg_hudFiles", buff, sizeof( buff ) );
+	Cvar_VariableStringBuffer( "cg_hudFiles", buff, sizeof( buff ) );
 	hudSet = buff;
 	if ( hudSet[0] == '\0' ) {
 		hudSet = "ui/hud.txt";
@@ -1669,7 +1648,7 @@ void CG_Init( int serverMessageNum, int serverCommandSequence ) {
 	// check version
 	s = CG_ConfigString( CS_GAME_VERSION );
 	if ( strcmp( s, GAME_VERSION ) ) {
-		CG_Error( "Client/Server game mismatch: %s/%s", GAME_VERSION, s );
+		Com_Error( ERR_DROP, "Client/Server game mismatch: %s/%s", GAME_VERSION, s );
 	}
 
 	s = CG_ConfigString( CS_LEVEL_START_TIME );

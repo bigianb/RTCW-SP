@@ -30,6 +30,7 @@ If you have questions concerning this license or the applicable additional terms
 #include <limits.h>
 
 #include "g_local.h"
+#include "../server/server.h"
 
 typedef struct teamgame_s
 {
@@ -93,7 +94,7 @@ void  PrintMsg( gentity_t *ent, const char *fmt, ... ) {
 
 	va_start( argptr,fmt );
 	if ( vsprintf( msg, fmt, argptr ) > sizeof( msg ) ) {
-		G_Error( "PrintMsg overrun" );
+		Com_Error( ERR_DROP, "PrintMsg overrun" );
 	}
 	va_end( argptr );
 
@@ -101,7 +102,7 @@ void  PrintMsg( gentity_t *ent, const char *fmt, ... ) {
 	while ( ( p = strchr( msg, '"' ) ) != NULL )
 		*p = '\'';
 
-	trap_SendServerCommand( ( ( ent == NULL ) ? -1 : ent - g_entities ), va( "print \"%s\"", msg ) );
+	SV_GameSendServerCommand( ( ( ent == NULL ) ? -1 : ent - g_entities ), va( "print \"%s\"", msg ) );
 }
 
 /*
@@ -342,7 +343,7 @@ void Team_ReturnFlagSound( gentity_t *ent, int team ) {
 	gentity_t   *te;
 
 	if ( ent == NULL ) {
-		G_Printf( "Warning:  NULL passed to Team_ReturnFlagSound\n" );
+		Com_Printf( "Warning:  NULL passed to Team_ReturnFlagSound\n" );
 		return;
 	}
 
@@ -627,7 +628,7 @@ int FindFarthestObjectiveIndex( vec3_t source ) {
 	trap_GetConfigstring( cs_obj, cs, sizeof(cs) );
 	objectivename = Info_ValueForKey( cs, "spawn_targ");
 
-	G_Printf("got furthest dist (%f) at point %d (%s) of %d\n",dist,j,objectivename,i);
+	Com_Printf("got furthest dist (%f) at point %d (%s) of %d\n",dist,j,objectivename,i);
 */
 
 	return j;
@@ -810,7 +811,7 @@ void TeamplayInfoMessage( gentity_t *ent ) {
 		}
 	}
 
-	trap_SendServerCommand( ent - g_entities, va( "tinfo %i%s", cnt, string ) );
+	SV_GameSendServerCommand( ent - g_entities, va( "tinfo %i%s", cnt, string ) );
 }
 
 void CheckTeamStatus( void ) {
@@ -939,7 +940,7 @@ void SP_team_WOLF_objective( gentity_t *ent ) {
 	G_SpawnString( "description", "WARNING: No objective description set", &objectivename );
 
 	if ( numobjectives == MAX_MULTI_SPAWNTARGETS ) {
-		G_Error( "SP_team_WOLF_objective: exceeded MAX_MULTI_SPAWNTARGETS (%d)\n",MAX_MULTI_SPAWNTARGETS );
+		Com_Error( ERR_DROP, "SP_team_WOLF_objective: exceeded MAX_MULTI_SPAWNTARGETS (%d)\n",MAX_MULTI_SPAWNTARGETS );
 	} else { // Set config strings
 		cs_obj += numobjectives;
 		trap_GetConfigstring( cs_obj, cs, sizeof( cs ) );
@@ -958,7 +959,7 @@ void SP_team_WOLF_objective( gentity_t *ent ) {
 	trap_SetConfigstring( CS_MULTI_INFO, cs );
 
 	VectorCopy( level.spawntargets[numobjectives - 1],test );
-	G_Printf( "OBJECTIVE %d: %s (total %s) x=%f %f %f\n",numobjectives,objectivename,numspawntargets,test[0],test[1],test[2] );
+	Com_Printf( "OBJECTIVE %d: %s (total %s) x=%f %f %f\n",numobjectives,objectivename,numspawntargets,test[0],test[1],test[2] );
 }
 // jpw
 
@@ -1096,7 +1097,7 @@ void checkpoint_spawntouch( gentity_t *self, gentity_t *other, trace_t *trace ) 
 
 	// activate all targets
 	if ( self->target ) {
-//		G_Printf("targetname=%s\n",self->target);
+//		Com_Printf("targetname=%s\n",self->target);
 		while ( 1 ) {
 			ent = G_Find( ent, FOFS( targetname ), self->target );
 			if ( !ent ) {
@@ -1136,7 +1137,7 @@ void SP_team_WOLF_checkpoint( gentity_t *ent ) {
 	char *capture_sound;
 
 	if ( !ent->scriptName ) {
-		G_Error( "team_WOLF_checkpoint must have a \"scriptname\"\n" );
+		Com_Error( ERR_DROP, "team_WOLF_checkpoint must have a \"scriptname\"\n" );
 	}
 
 	// Make sure the ET_TRAP entity type stays valid

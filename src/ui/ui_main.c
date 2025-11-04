@@ -407,7 +407,7 @@ void Text_Paint( float x, float y, int font, float scale, vec4_t color, const ch
 }
 
 void Text_PaintWithCursor( float x, float y, int font, float scale, vec4_t color, const char *text, int cursorPos, char cursor, int limit, int style ) {
-	int len, count;
+	int count;
 	vec4_t newColor;
 	glyphInfo_t *glyph, *glyph2;
 	float yadj;
@@ -433,7 +433,7 @@ void Text_PaintWithCursor( float x, float y, int font, float scale, vec4_t color
 		const char *s = text;
 		RE_SetColor( color );
 		memcpy( &newColor[0], &color[0], sizeof( vec4_t ) );
-		len = strlen( text );
+		size_t len = strlen( text );
 		if ( limit > 0 && len > limit ) {
 			len = limit;
 		}
@@ -605,20 +605,20 @@ char *GetMenuBuffer( const char *filename ) {
 	fileHandle_t f;
 	static char buf[MAX_MENUFILE];
 
-	len = trap_FS_FOpenFile( filename, &f, FS_READ );
+	len = FS_FOpenFileByMode( filename, &f, FS_READ );
 	if ( !f ) {
         Com_Printf( S_COLOR_RED "menu file not found: %s, using default\n", filename  );
 		return defaultMenu;
 	}
 	if ( len >= MAX_MENUFILE ) {
         Com_Printf( S_COLOR_RED "menu file too large: %s is %i, max allowed is %i", filename, len, MAX_MENUFILE  );
-		trap_FS_FCloseFile( f );
+		FS_FCloseFile( f );
 		return defaultMenu;
 	}
 
-	trap_FS_Read( buf, len, f );
+	FS_Read( buf, len, f );
 	buf[len] = 0;
-	trap_FS_FCloseFile( f );
+	FS_FCloseFile( f );
 
 	return buf;
 
@@ -873,7 +873,7 @@ void LoadMenus( const char *menuFile, qboolean reset, qboolean isHud ) {
 	int handle;
 	int start;
 
-	start = trap_Milliseconds();
+	start = Sys_Milliseconds();
 
 	handle = trap_PC_LoadSource( menuFile );
 	if ( !handle ) {
@@ -910,7 +910,7 @@ void LoadMenus( const char *menuFile, qboolean reset, qboolean isHud ) {
 		}
 	}
 
-	Com_Printf( "UI menu load time = %d milli seconds\n", trap_Milliseconds() - start );
+	Com_Printf( "UI menu load time = %d milli seconds\n", Sys_Milliseconds() - start );
 
 	trap_PC_FreeSource( handle );
 }
@@ -934,19 +934,19 @@ static void UI_LoadTranslationStrings( void ) {
 	char *token;
 
 	snprintf( filename, MAX_QPATH, "text/strings.txt" );
-	len = trap_FS_FOpenFile( filename, &f, FS_READ );
+	len = FS_FOpenFileByMode( filename, &f, FS_READ );
 	if ( len <= 0 ) {
-//		CG_Printf( S_COLOR_RED "WARNING: string translation file (strings.txt not found in main/text)\n" );
+//		Com_Printf( S_COLOR_RED "WARNING: string translation file (strings.txt not found in main/text)\n" );
 		return;
 	}
 	if ( len > MAX_BUFFER ) {
-//		CG_Error( "%s is too big, make it smaller (max = %i bytes)\n", filename, MAX_BUFFER );
+//		Com_Error( ERR_DROP, "%s is too big, make it smaller (max = %i bytes)\n", filename, MAX_BUFFER );
 	}
 
 	// load the file into memory
-	trap_FS_Read( buffer, len, f );
+	FS_Read( buffer, len, f );
 	buffer[len] = 0;
-	trap_FS_FCloseFile( f );
+	FS_FCloseFile( f );
 	// parse the list
 	text = buffer;
 
@@ -1255,7 +1255,7 @@ static void UI_DrawMapLevelshot( rectDef_t *rect ) {
 	char levelname[64];
 	qhandle_t levelshot = 0;
 
-	DC->getCVarString( "mapname", levelname, sizeof( levelname ) );
+	Cvar_VariableStringBuffer( "mapname", levelname, sizeof( levelname ) );
 
 	if ( levelname[0] != 0 ) {
 		levelshot = RE_RegisterShaderNoMip( va( "levelshots/%s.tga", levelname ) );
@@ -1399,7 +1399,7 @@ static void UI_DrawLoadStatus( rectDef_t *rect, vec4_t color, int align ) {
 
 	flags |= 16;      // BAR_BG			- draw the filled contrast box
 
-	trap_Cvar_VariableStringBuffer( "com_expectedhunkusage", hunkBuf, MAX_QPATH );
+	Cvar_VariableStringBuffer( "com_expectedhunkusage", hunkBuf, MAX_QPATH );
 	expectedHunk = atoi( hunkBuf );
 
 	if ( expectedHunk > 0 ) {
@@ -2978,7 +2978,7 @@ static void UI_LoadMods() {
 	int dirlen;
 
 	uiInfo.modCount = 0;
-	numdirs = trap_FS_GetFileList( "$modlist", "", dirlist, sizeof( dirlist ) );
+	numdirs = FS_GetFileList( "$modlist", "", dirlist, sizeof( dirlist ) );
 	dirptr  = dirlist;
 	for ( i = 0; i < numdirs; i++ ) {
 		dirlen = strlen( dirptr ) + 1;
@@ -3046,13 +3046,13 @@ void UI_ParseSavegame( int index ) {
 	static char buf[SAVE_INFOSTRING_LENGTH];
 	char mapname[MAX_QPATH];
 
-	trap_FS_FOpenFile( va( "save/%s.svg", uiInfo.savegameList[index].savegameFile ), &f, FS_READ );
+	FS_FOpenFileByMode( va( "save/%s.svg", uiInfo.savegameList[index].savegameFile ), &f, FS_READ );
 	if ( !f ) {
 		return;
 	}
 
 	// read the version
-	trap_FS_Read( &ver, sizeof( i ), f );
+	FS_Read( &ver, sizeof( i ), f );
 
 
 	// 'info' if > 11
@@ -3062,7 +3062,7 @@ void UI_ParseSavegame( int index ) {
 
 	// if the version is wrong, just set some defaults and get out
 	if ( ver < 9 ) {  // don't try anything for really old savegames
-		trap_FS_FCloseFile( f );
+		FS_FCloseFile( f );
 		uiInfo.savegameList[index].mapName          = "unknownmap";
 		uiInfo.savegameList[index].episode          = -1;
 		uiInfo.savegameList[index].savegameInfoText = "Gametime: (unknown)\nHealth: (unknown)\n(old savegame)";
@@ -3076,21 +3076,21 @@ void UI_ParseSavegame( int index ) {
 	}
 
 	// read the mapname
-	trap_FS_Read( mapname, MAX_QPATH, f );
+	FS_Read( mapname, MAX_QPATH, f );
 	uiInfo.savegameList[index].mapName = String_Alloc( &mapname[0] );
 
 	// read the level time
-	trap_FS_Read( &i, sizeof( i ), f );
+	FS_Read( &i, sizeof( i ), f );
 
 	// read the totalPlayTime
-	trap_FS_Read( &i, sizeof( i ), f );
+	FS_Read( &i, sizeof( i ), f );
 
 	// read the episode
-	trap_FS_Read( &i, sizeof( i ), f );
+	FS_Read( &i, sizeof( i ), f );
 	uiInfo.savegameList[index].episode = i;
 
 	if ( ver < 12 ) {
-		trap_FS_FCloseFile( f );
+		FS_FCloseFile( f );
 		uiInfo.savegameList[index].savegameInfoText = "Gametime: (unknown)\nHealth: (unknown)\n(old savegame)";
 		uiInfo.savegameList[index].date = "temp_date";
 		memset( &uiInfo.savegameList[index].tm, 0, sizeof( qtime_t ) );
@@ -3099,32 +3099,32 @@ void UI_ParseSavegame( int index ) {
 	}
 
 	// read the info string length
-	trap_FS_Read( &i, sizeof( i ), f );
+	FS_Read( &i, sizeof( i ), f );
 
 	// read the info string
-	trap_FS_Read( buf, i, f );
+	FS_Read( buf, i, f );
 	buf[i] = '\0';        //DAJ made it a char
 	uiInfo.savegameList[index].savegameInfoText = String_Alloc( buf );
 
 	// time
 	if ( ver > 14 ) {
 		tm = &uiInfo.savegameList[index].tm;
-		trap_FS_Read( &tm->tm_sec, sizeof( tm->tm_sec ), f );          // secs after the min
-		trap_FS_Read( &tm->tm_min, sizeof( tm->tm_min ), f );          // mins after the hour
-		trap_FS_Read( &tm->tm_hour, sizeof( tm->tm_hour ), f );        // hrs since midnight
-		trap_FS_Read( &tm->tm_mday, sizeof( tm->tm_mday ), f );
-		trap_FS_Read( &tm->tm_mon, sizeof( tm->tm_mon ), f );
-		trap_FS_Read( &tm->tm_year, sizeof( tm->tm_year ), f );        // yrs from 1900
-		trap_FS_Read( &tm->tm_wday, sizeof( tm->tm_wday ), f );
-		trap_FS_Read( &tm->tm_yday, sizeof( tm->tm_yday ), f );        // days since jan1 (0-365)
-		trap_FS_Read( &tm->tm_isdst, sizeof( tm->tm_isdst ), f );
+		FS_Read( &tm->tm_sec, sizeof( tm->tm_sec ), f );          // secs after the min
+		FS_Read( &tm->tm_min, sizeof( tm->tm_min ), f );          // mins after the hour
+		FS_Read( &tm->tm_hour, sizeof( tm->tm_hour ), f );        // hrs since midnight
+		FS_Read( &tm->tm_mday, sizeof( tm->tm_mday ), f );
+		FS_Read( &tm->tm_mon, sizeof( tm->tm_mon ), f );
+		FS_Read( &tm->tm_year, sizeof( tm->tm_year ), f );        // yrs from 1900
+		FS_Read( &tm->tm_wday, sizeof( tm->tm_wday ), f );
+		FS_Read( &tm->tm_yday, sizeof( tm->tm_yday ), f );        // days since jan1 (0-365)
+		FS_Read( &tm->tm_isdst, sizeof( tm->tm_isdst ), f );
 		uiInfo.savegameList[index].time = String_Alloc( va( "%s %i, %i   %02i:%02i", monthStr[tm->tm_mon], tm->tm_mday, 1900 + tm->tm_year, tm->tm_hour, tm->tm_min ) );
 	} else {
 		memset( &uiInfo.savegameList[index].tm, 0, sizeof( qtime_t ) );
 		uiInfo.savegameList[index].time = String_Alloc( va( "(old save ver: %d)", ver ) );
 	}
 
-	trap_FS_FCloseFile( f );
+	FS_FCloseFile( f );
 }
 
 /*
@@ -3136,9 +3136,9 @@ static void UI_LoadSavegames( char *dir ) {
 	char sglist[4096];
 
 	if ( dir ) {
-		uiInfo.savegameCount = trap_FS_GetFileList( va( "save/%s", dir ), "svg", sglist, 4096 );
+		uiInfo.savegameCount = FS_GetFileList( va( "save/%s", dir ), "svg", sglist, 4096 );
 	} else {
-		uiInfo.savegameCount = trap_FS_GetFileList( "save", "svg", sglist, 4096 );
+		uiInfo.savegameCount = FS_GetFileList( "save", "svg", sglist, 4096 );
 	}
 
 	if ( uiInfo.savegameCount ) {
@@ -3205,7 +3205,7 @@ UI_LoadMovies
 static void UI_LoadMovies() {
 	char movielist[4096];
 
-	uiInfo.movieCount = trap_FS_GetFileList( "video", "roq", movielist, 4096 );
+	uiInfo.movieCount = FS_GetFileList( "video", "roq", movielist, 4096 );
 
 	if ( uiInfo.movieCount ) {
 		if ( uiInfo.movieCount > MAX_MOVIES ) {
@@ -3240,7 +3240,7 @@ static void UI_LoadDemos() {
 
 	snprintf( demoExt, sizeof( demoExt ), "dm_%d", (int)Cvar_VariableValue( "protocol" ) );
 
-	uiInfo.demoCount = trap_FS_GetFileList( "demos", demoExt, demolist, 4096 );
+	uiInfo.demoCount = FS_GetFileList( "demos", demoExt, demolist, 4096 );
 
 	snprintf( demoExt, sizeof( demoExt ), ".dm_%d", (int)Cvar_VariableValue( "protocol" ) );
 
@@ -3578,7 +3578,7 @@ void WM_PickItem( int selectionType, int itemIndex ) {
 void WM_LimboChat() {
 	char buf[200];
 
-	trap_Cvar_VariableStringBuffer( "ui_cmd", buf, 200 );
+	Cvar_VariableStringBuffer( "ui_cmd", buf, 200 );
 
 	if ( strlen( buf ) ) {
 		Cbuf_ExecuteText( EXEC_APPEND, va( "say_limbo %s\n", buf ) );
@@ -4279,7 +4279,7 @@ static void UI_BuildServerDisplayList( qboolean force ) {
 	}
 
 	// do motd updates here too
-	trap_Cvar_VariableStringBuffer( "cl_motdString", uiInfo.serverStatus.motd, sizeof( uiInfo.serverStatus.motd ) );
+	Cvar_VariableStringBuffer( "cl_motdString", uiInfo.serverStatus.motd, sizeof( uiInfo.serverStatus.motd ) );
 	len = strlen( uiInfo.serverStatus.motd );
 	if ( len == 0 ) {
 		strcpy( uiInfo.serverStatus.motd, "Welcome to Team Arena!" );
@@ -4662,14 +4662,14 @@ static const char *UI_FileText( char *fileName ) {
 	fileHandle_t f;
 	static char buf[MAX_MENUDEFFILE];
 
-	len = trap_FS_FOpenFile( fileName, &f, FS_READ );
+	len = FS_FOpenFileByMode( fileName, &f, FS_READ );
 	if ( !f ) {
 		return NULL;
 	}
 
-	trap_FS_Read( buf, len, f );
+	FS_Read( buf, len, f );
 	buf[len] = 0;
-	trap_FS_FCloseFile( f );
+	FS_FCloseFile( f );
 	return &buf[0];
 }
 
@@ -5199,7 +5199,7 @@ static void UI_BuildQ3Model_List( void ) {
 	uiInfo.q3HeadCount = 0;
 
 	// iterate directory of all player models
-	numdirs = trap_FS_GetFileList( "models/players", "/", dirlist, 2048 );
+	numdirs = FS_GetFileList( "models/players", "/", dirlist, 2048 );
 	dirptr  = dirlist;
     size_t dirlen = 0;
     size_t filelen = 0;
@@ -5216,7 +5216,7 @@ static void UI_BuildQ3Model_List( void ) {
 		}
 
 		// iterate all skin files in directory
-		numfiles = trap_FS_GetFileList( va( "models/players/%s",dirptr ), "tga", filelist, 2048 );
+		numfiles = FS_GetFileList( va( "models/players/%s",dirptr ), "tga", filelist, 2048 );
 		fileptr  = filelist;
 		for ( j = 0; j < numfiles && uiInfo.q3HeadCount < MAX_PLAYERMODELS; j++,fileptr += filelen + 1 )
 		{
@@ -5290,7 +5290,6 @@ void UI_Init(  ) {
 	uiInfo.uiDC.runScript = &UI_RunMenuScript;
 	uiInfo.uiDC.getTeamColor = &UI_GetTeamColor;
 	uiInfo.uiDC.setCVar = Cvar_Set;
-	uiInfo.uiDC.getCVarString = trap_Cvar_VariableStringBuffer;
 	uiInfo.uiDC.drawTextWithCursor = &Text_PaintWithCursor;
 
 
@@ -5330,7 +5329,7 @@ void UI_Init(  ) {
 
 	AssetCache();
 
-	start = trap_Milliseconds();
+	start = Sys_Milliseconds();
 
 	uiInfo.teamCount = 0;
 	uiInfo.characterCount = 0;
@@ -5465,7 +5464,7 @@ void UI_SetActiveMenu( uiMenuCommand_t menu ) {
 			}
 			Menus_CloseAll();
 			Menus_ActivateByName( "main" );
-			trap_Cvar_VariableStringBuffer( "com_errorMessage", buf, sizeof( buf ) );
+			Cvar_VariableStringBuffer( "com_errorMessage", buf, sizeof( buf ) );
 			if ( strlen( buf ) ) {
 				Menus_ActivateByName( "error_popmenu" );
 			}

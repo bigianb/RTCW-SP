@@ -30,6 +30,7 @@ If you have questions concerning this license or the applicable additional terms
 
 #include "cg_local.h"
 #include "../client/snd_public.h"
+#include "../qcommon/qcommon.h"
 
 // we have to define these static lists, since we can't alloc memory within the cgame
 
@@ -101,10 +102,10 @@ int CG_SoundScriptPrecache( const char *name ) {
 				while ( scriptSound ) {
 					// just open the file so it gets copied to the build dir
 					fileHandle_t f;
-					trap_FS_FOpenFile( scriptSound->filename, &f, FS_READ );
+					FS_FOpenFileByMode( scriptSound->filename, &f, FS_READ );
 					// read a few bytes so the operating system does a better job of caching it for us
-					trap_FS_Read( buf, sizeof( buf ), f );
-					trap_FS_FCloseFile( f );
+					FS_Read( buf, sizeof( buf ), f );
+					FS_FCloseFile( f );
 					scriptSound = scriptSound->next;
 				}
 			}
@@ -166,7 +167,7 @@ void CG_SoundPickOldestRandomSound( soundScript_t *sound, vec3_t org, int entnum
 			CG_StartShakeCamera( sound->shakeScale, sound->shakeDuration, eOrg, sound->shakeRadius );
 		}
 	} else {
-		CG_Error( "Unable to locate a valid sound for soundScript: %s\n", sound->name );
+		Com_Error( ERR_DROP, "Unable to locate a valid sound for soundScript: %s\n", sound->name );
 	}
 }
 
@@ -199,7 +200,7 @@ qboolean CG_SoundPlaySoundScript( const char *name, vec3_t org, int entnum ) {
 		sound = sound->nextHash;
 	}
 
-	//CG_Printf( S_COLOR_RED "CG_SoundPlaySoundScript: cannot find sound script '%s'\n", name );
+	//Com_Printf( S_COLOR_RED "CG_SoundPlaySoundScript: cannot find sound script '%s'\n", name );
 	return qfalse;
 }
 
@@ -250,23 +251,23 @@ static void CG_SoundParseSounds( char *filename, char *buffer ) {
 		token = COM_ParseExt( text, qtrue );
 		if ( !token[0] ) {
 			if ( inSound ) {
-				CG_Error( "no concluding '}' in sound %s, file %s\n", sound.name, filename );
+				Com_Error( ERR_DROP, "no concluding '}' in sound %s, file %s\n", sound.name, filename );
 			}
 			return;
 		}
 		if ( !Q_strcasecmp( token, "{" ) ) {
 			if ( inSound ) {
-				CG_Error( "no concluding '}' in sound %s, file %s\n", sound.name, filename );
+				Com_Error( ERR_DROP, "no concluding '}' in sound %s, file %s\n", sound.name, filename );
 			}
 			if ( wantSoundName ) {
-				CG_Error( "'{' found but not expected, after %s, file %s\n", sound.name, filename );
+				Com_Error( ERR_DROP, "'{' found but not expected, after %s, file %s\n", sound.name, filename );
 			}
 			inSound = qtrue;
 			continue;
 		}
 		if ( !Q_strcasecmp( token, "}" ) ) {
 			if ( !inSound ) {
-				CG_Error( "'}' unexpected after sound %s, file %s\n", sound.name, filename );
+				Com_Error( ERR_DROP, "'}' unexpected after sound %s, file %s\n", sound.name, filename );
 			}
 
 			// end of a sound, copy it to the global list and stick it in the hashTable
@@ -276,7 +277,7 @@ static void CG_SoundParseSounds( char *filename, char *buffer ) {
 			hashTable[hash] = &soundScripts[numSoundScripts++];
 
 			if ( numSoundScripts == MAX_SOUND_SCRIPTS ) {
-				CG_Error( "MAX_SOUND_SCRIPTS exceeded.\nReduce number of sound scripts.\n" );
+				Com_Error( ERR_DROP, "MAX_SOUND_SCRIPTS exceeded.\nReduce number of sound scripts.\n" );
 			}
 
 			inSound = qfalse;
@@ -286,7 +287,7 @@ static void CG_SoundParseSounds( char *filename, char *buffer ) {
 		if ( !inSound ) {
 			// this is the identifier for a new sound
 			if ( !wantSoundName ) {
-				CG_Error( "'%s' unexpected after sound %s, file %s\n", token, sound.name, filename );
+				Com_Error( ERR_DROP, "'%s' unexpected after sound %s, file %s\n", token, sound.name, filename );
 			}
 			memset( &sound, 0, sizeof( sound ) );
 			Q_strncpyz( sound.name, token, sizeof( sound.name ) );
@@ -356,7 +357,7 @@ static void CG_SoundParseSounds( char *filename, char *buffer ) {
 			scriptSound = &soundScriptSounds[numSoundScriptSounds++];
 
 			if ( numSoundScripts == MAX_SOUND_SCRIPT_SOUNDS ) {
-				CG_Error( "MAX_SOUND_SCRIPT_SOUNDS exceeded.\nReduce number of sound scripts.\n" );
+				Com_Error( ERR_DROP, "MAX_SOUND_SCRIPT_SOUNDS exceeded.\nReduce number of sound scripts.\n" );
 			}
 
 			token = COM_ParseExt( text, qtrue );
@@ -389,18 +390,18 @@ static void CG_SoundLoadSoundFiles( void ) {
 
 	// scan for sound files
 	snprintf( filename, MAX_QPATH, "sound/scripts/filelist.txt" );
-	len = trap_FS_FOpenFile( filename, &f, FS_READ );
+	len = FS_FOpenFileByMode( filename, &f, FS_READ );
 	if ( len <= 0 ) {
-		CG_Printf( S_COLOR_RED "WARNING: no sound files found (filelist.txt not found in sound/scripts)\n" );
+		Com_Printf( S_COLOR_RED "WARNING: no sound files found (filelist.txt not found in sound/scripts)\n" );
 		return;
 	}
 	if ( len > MAX_BUFFER ) {
-		CG_Error( "%s is too big, make it smaller (max = %i bytes)\n", filename, MAX_BUFFER );
+		Com_Error( ERR_DROP, "%s is too big, make it smaller (max = %i bytes)\n", filename, MAX_BUFFER );
 	}
 	// load the file into memory
-	trap_FS_Read( buffer, len, f );
+	FS_Read( buffer, len, f );
 	buffer[len] = 0;
-	trap_FS_FCloseFile( f );
+	FS_FCloseFile( f );
 	// parse the list
 	text = buffer;
 	numSounds = 0;
@@ -413,7 +414,7 @@ static void CG_SoundLoadSoundFiles( void ) {
 	}
 
 	if ( !numSounds ) {
-		CG_Printf( S_COLOR_RED "WARNING: no sound files found\n" );
+		Com_Printf( S_COLOR_RED "WARNING: no sound files found\n" );
 		return;
 	}
 
@@ -421,17 +422,17 @@ static void CG_SoundLoadSoundFiles( void ) {
 	for ( i = 0; i < numSounds; i++ )
 	{
 		snprintf( filename, sizeof( filename ), "sound/scripts/%s", soundFiles[i] );
-		CG_Printf( "...loading '%s'\n", filename );
-		len = trap_FS_FOpenFile( filename, &f, FS_READ );
+		Com_Printf( "...loading '%s'\n", filename );
+		len = FS_FOpenFileByMode( filename, &f, FS_READ );
 		if ( len <= 0 ) {
-			CG_Error( "Couldn't load %s", filename );
+			Com_Error( ERR_DROP, "Couldn't load %s", filename );
 		}
 		if ( len > MAX_BUFFER ) {
-			CG_Error( "%s is too big, make it smaller (max = %i bytes)\n", filename, MAX_BUFFER );
+			Com_Error( ERR_DROP, "%s is too big, make it smaller (max = %i bytes)\n", filename, MAX_BUFFER );
 		}
 		memset( buffer, 0, sizeof( buffer ) );
-		trap_FS_Read( buffer, len, f );
-		trap_FS_FCloseFile( f );
+		FS_Read( buffer, len, f );
+		FS_FCloseFile( f );
 		CG_SoundParseSounds( filename, buffer );
 	}
 }
@@ -452,10 +453,10 @@ void CG_SoundInit( void ) {
 			soundScriptSounds[i].sfxHandle = 0;
 		}
 	} else {
-		CG_Printf(  "\n.........................\n"
+		Com_Printf(  "\n.........................\n"
 					"Initializing Sound Scripts\n" );
 		CG_SoundLoadSoundFiles();
-		CG_Printf(  "done.\n" );
+		Com_Printf(  "done.\n" );
 	}
 
 }

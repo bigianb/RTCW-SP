@@ -162,7 +162,7 @@ trailJunc_t *CG_SpawnTrailJunc( trailJunc_t *headJunc ) {
 	numTrailsInuse++;
 
 	// debugging
-//	CG_Printf( "NumTrails: %i\n", numTrailsInuse );
+//	Com_Printf( "NumTrails: %i\n", numTrailsInuse );
 
 	return j;
 }
@@ -192,7 +192,7 @@ int CG_AddTrailJunc( int headJuncIndex, qhandle_t shader, int spawnTime, int sTy
 
 	j = CG_SpawnTrailJunc( headJunc );
 	if ( !j ) {
-//		CG_Printf("couldnt spawn trail junc\n");
+//		Com_Printf("couldnt spawn trail junc\n");
 		return 0;
 	}
 

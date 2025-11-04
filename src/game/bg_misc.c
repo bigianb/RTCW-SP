@@ -3765,8 +3765,6 @@ grabbing them easier
 ============
 */
 
-extern int trap_Cvar_VariableIntegerValue( const char *var_name );
-
 qboolean    BG_PlayerTouchesItem( playerState_t *ps, entityState_t *item, int atTime ) {
 	vec3_t origin;
 
@@ -4288,8 +4286,6 @@ BG_AddPredictableEventToPlayerstate
 Handles the sequence numbers
 ===============
 */
-
-void    trap_Cvar_VariableStringBuffer( const char *var_name, char *buffer, int bufsize );
 
 void BG_AddPredictableEventToPlayerstate( int newEvent, int eventParm, playerState_t *ps ) {
 

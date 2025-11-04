@@ -1673,7 +1673,7 @@ FS_WriteFile
 Filename are reletive to the quake search path
 ============
 */
-void FS_WriteFile( const char *qpath, const void *buffer, int size ) {
+void FS_WriteFile( const char *qpath, const void *buffer, size_t size ) {
 	fileHandle_t f;
 
 	if ( !fs_searchpaths ) {

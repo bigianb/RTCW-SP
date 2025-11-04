@@ -31,6 +31,7 @@ If you have questions concerning this license or the applicable additional terms
 
 #include "g_local.h"
 #include "../qcommon/qcommon.h"
+#include "../server/server.h"
 
 level_locals_t level;
 
@@ -266,46 +267,6 @@ void AICast_Init( void );
 
 void G_RetrieveMoveSpeedsFromClient( int entnum, char *text );
 
-
-void  G_Printf( const char *fmt, ... ) {
-	va_list argptr;
-	char text[1024];
-
-	va_start( argptr, fmt );
-	vsnprintf( text, 1024, fmt, argptr );
-	va_end( argptr );
-
-	trap_Printf( text );
-}
-
-void  G_DPrintf( const char *fmt, ... ) {
-	va_list argptr;
-	char text[1024];
-
-	if ( !g_developer.integer ) {
-		return;
-	}
-
-	va_start( argptr, fmt );
-	vsnprintf( text, 1024, fmt, argptr );
-	va_end( argptr );
-
-	trap_Printf( text );
-}
-
-void  G_Error( const char *fmt, ... ) {
-	va_list argptr;
-	char text[1024];
-
-	va_start( argptr, fmt );
-	vsnprintf( text, 1024, fmt, argptr );
-	va_end( argptr );
-
-	trap_Error( text );
-}
-
-
-
 qboolean G_canStealthStab( int aiChar ) {
 	switch ( aiChar ) {
 	case AICHAR_SOLDIER:
@@ -325,7 +286,7 @@ G_EndGame
 ==============
 */
 void G_EndGame( void ) {
-	trap_Endgame();
+    Com_Error( ERR_ENDGAME, "endgame" );
 }
 
 
@@ -872,8 +833,8 @@ void G_FindTeams( void ) {
 		}
 	}
 
-	if ( trap_Cvar_VariableIntegerValue( "g_gametype" ) != GT_SINGLE_PLAYER ) {
-		G_Printf( "%i teams with %i entities\n", c, c2 );
+	if ( Cvar_VariableIntegerValue( "g_gametype" ) != GT_SINGLE_PLAYER ) {
+		Com_Printf( "%i teams with %i entities\n", c, c2 );
 	}
 }
 
@@ -916,13 +877,13 @@ void G_RegisterCvars( void ) {
 
 	// check some things
 	if ( g_gametype.integer < 0 || g_gametype.integer >= GT_MAX_GAME_TYPE ) {
-		G_Printf( "g_gametype %i is out of range, defaulting to 0\n", g_gametype.integer );
+		Com_Printf( "g_gametype %i is out of range, defaulting to 0\n", g_gametype.integer );
 		Cvar_Set( "g_gametype", "0" );
 	}
 
 	// Rafael gameskill
 	if ( g_gameskill.integer < GSKILL_EASY || g_gameskill.integer > GSKILL_MAX ) {
-		G_Printf( "g_gameskill %i is out of range, default to medium\n", g_gameskill.integer );
+		Com_Printf( "g_gameskill %i is out of range, default to medium\n", g_gameskill.integer );
 		Cvar_Set( "g_gameskill", va( "%d", GSKILL_MEDIUM ) ); // default to medium
 	}
 
@@ -952,7 +913,7 @@ void G_UpdateCvars( void ) {
 				cv->modificationCount = cv->vmCvar->modificationCount;
 
 				if ( cv->trackChange ) {
-					trap_SendServerCommand( -1, va( "print \"Server: %s changed to %s\n\"",
+					SV_GameSendServerCommand( -1, va( "print \"Server: %s changed to %s\n\"",
 													cv->cvarName, cv->vmCvar->string ) );
 				}
 
@@ -978,7 +939,7 @@ void G_UpdateCvars( void ) {
 						saveGamePending = qfalse;   // set it back
 
 						// save the "autosave\\<mapname>" savegame, which is taken before any cameras have been played
-						trap_Cvar_VariableStringBuffer( "mapname", mapname, sizeof( mapname ) );
+						Cvar_VariableStringBuffer( "mapname", mapname, sizeof( mapname ) );
 						Q_strncpyz( filename, "autosave\\", sizeof( filename ) );
 						Q_strcat( filename, sizeof( filename ), mapname );
 						G_SaveGame( filename );
@@ -1112,10 +1073,10 @@ G_InitGame
 void G_InitGame( int levelTime, int randomSeed, int restart ) {
 	int i;
 
-	if ( trap_Cvar_VariableIntegerValue( "g_gametype" ) != GT_SINGLE_PLAYER ) {
-		G_Printf( "------- Game Initialization -------\n" );
-		G_Printf( "gamename: %s\n", GAMEVERSION );
-		G_Printf( "gamedate: %s\n", __DATE__ );
+	if ( Cvar_VariableIntegerValue( "g_gametype" ) != GT_SINGLE_PLAYER ) {
+		Com_Printf( "------- Game Initialization -------\n" );
+		Com_Printf( "gamename: %s\n", GAMEVERSION );
+		Com_Printf( "gamedate: %s\n", __DATE__ );
 	}
 
 	srand( randomSeed );
@@ -1150,12 +1111,12 @@ void G_InitGame( int levelTime, int randomSeed, int restart ) {
 
 	if ( g_gametype.integer != GT_SINGLE_PLAYER && g_log.string[0] ) {
 		if ( g_logSync.integer ) {
-			trap_FS_FOpenFile( g_log.string, &level.logFile, FS_APPEND_SYNC );
+			FS_FOpenFileByMode( g_log.string, &level.logFile, FS_APPEND_SYNC );
 		} else {
-			trap_FS_FOpenFile( g_log.string, &level.logFile, FS_APPEND );
+			FS_FOpenFileByMode( g_log.string, &level.logFile, FS_APPEND );
 		}
 		if ( !level.logFile ) {
-			G_Printf( "WARNING: Couldn't open logfile: %s\n", g_log.string );
+			Com_Printf( "WARNING: Couldn't open logfile: %s\n", g_log.string );
 		} else {
 			char serverinfo[MAX_INFO_STRING];
 
@@ -1165,8 +1126,8 @@ void G_InitGame( int levelTime, int randomSeed, int restart ) {
 			G_LogPrintf( "InitGame: %s\n", serverinfo );
 		}
 	} else {
-		if ( trap_Cvar_VariableIntegerValue( "g_gametype" ) != GT_SINGLE_PLAYER ) {
-			G_Printf( "Not logging to disk.\n" );
+		if ( Cvar_VariableIntegerValue( "g_gametype" ) != GT_SINGLE_PLAYER ) {
+			Com_Printf( "Not logging to disk.\n" );
 		}
 	}
 
@@ -1192,7 +1153,7 @@ void G_InitGame( int levelTime, int randomSeed, int restart ) {
 	level.num_entities = MAX_CLIENTS;
 
 	// let the server system know where the entites are
-	trap_LocateGameData( level.gentities, level.num_entities, sizeof( gentity_t ),
+	SV_LocateGameData( level.gentities, level.num_entities, sizeof( gentity_t ),
 						 &level.clients[0].ps, sizeof( level.clients[0] ) );
 
 	// Ridah
@@ -1206,7 +1167,7 @@ void G_InitGame( int levelTime, int randomSeed, int restart ) {
 
 		AICast_ScriptLoad();
 
-		trap_Cvar_VariableStringBuffer( "g_missionStats", s, sizeof( s ) );
+		Cvar_VariableStringBuffer( "g_missionStats", s, sizeof( s ) );
 		if ( strlen( s ) < 1 ) {
 			// g_missionStats is used to get the player to press a key to begin
 			Cvar_Set( "g_missionStats", "xx" );
@@ -1241,17 +1202,17 @@ void G_InitGame( int levelTime, int randomSeed, int restart ) {
 
 	SaveRegisteredItems();
 
-	if ( trap_Cvar_VariableIntegerValue( "g_gametype" ) != GT_SINGLE_PLAYER ) {
-		G_Printf( "-----------------------------------\n" );
+	if ( Cvar_VariableIntegerValue( "g_gametype" ) != GT_SINGLE_PLAYER ) {
+		Com_Printf( "-----------------------------------\n" );
 	}
 
-	if ( g_gametype.integer == GT_SINGLE_PLAYER || trap_Cvar_VariableIntegerValue( "com_buildScript" ) ) {
+	if ( g_gametype.integer == GT_SINGLE_PLAYER || Cvar_VariableIntegerValue( "com_buildScript" ) ) {
 		G_ModelIndex( SP_PODIUM_MODEL );
 		G_SoundIndex( "sound/player/gurp1.wav" );
 		G_SoundIndex( "sound/player/gurp2.wav" );
 	}
 
-	if ( trap_Cvar_VariableIntegerValue( "bot_enable" ) ) {
+	if ( Cvar_VariableIntegerValue( "bot_enable" ) ) {
 		BotAISetup( restart );
 		BotAILoadMap( restart );
 //		G_InitBots( restart );
@@ -1270,13 +1231,13 @@ G_ShutdownGame
 */
 void G_ShutdownGame( int restart ) {
 	if ( g_gametype.integer != GT_SINGLE_PLAYER ) {
-		G_Printf( "==== ShutdownGame ====\n" );
+		Com_Printf( "==== ShutdownGame ====\n" );
 	}
 
 	if ( level.logFile ) {
 		G_LogPrintf( "ShutdownGame:\n" );
 		G_LogPrintf( "------------------------------------------------------------\n" );
-		trap_FS_FCloseFile( level.logFile );
+		FS_FCloseFile( level.logFile );
 	}
 
 	// RF, update the playtime
@@ -1285,13 +1246,13 @@ void G_ShutdownGame( int restart ) {
 	}
 
 	// Ridah, shutdown the Botlib, so weapons and things get reset upon doing a "map xxx" command
-	if ( trap_Cvar_VariableIntegerValue( "bot_enable" ) ) {
+	if ( Cvar_VariableIntegerValue( "bot_enable" ) ) {
 		int i;
 
 		// Ridah, kill AI cast's
 		for ( i = 0 ; i < g_maxclients.integer ; i++ ) {
 			if ( g_entities[i].r.svFlags & SVF_CASTAI ) {
-				trap_DropClient( i, "Drop Cast AI" );
+				SV_GameDropClient( i, "Drop Cast AI" );
 			}
 		}
 		// done.
@@ -1302,7 +1263,7 @@ void G_ShutdownGame( int restart ) {
 	G_WriteSessionData();
 
 
-	if ( trap_Cvar_VariableIntegerValue( "bot_enable" ) ) {
+	if ( Cvar_VariableIntegerValue( "bot_enable" ) ) {
 		BotAIShutdown( restart );
 	}
 }
@@ -1598,7 +1559,7 @@ void ExitLevel( void ) {
 
 
 
-	trap_game_SendConsoleCommand( EXEC_APPEND, "vstr nextmap\n" );
+	Cbuf_ExecuteText( EXEC_APPEND, "vstr nextmap\n" );
 	level.changemap = NULL;
 	level.intermissiontime = 0;
 
@@ -1622,7 +1583,7 @@ void ExitLevel( void ) {
 
 		// Ridah, kill AI cast's
 		if ( g_entities[i].r.svFlags & SVF_CASTAI ) {
-			trap_DropClient( i, "Drop Cast AI" );
+			SV_GameDropClient( i, "Drop Cast AI" );
 			continue;
 		}
 		// done.
@@ -1660,7 +1621,7 @@ void  G_LogPrintf( const char *fmt, ... ) {
 	va_end( argptr );
 
 	if ( g_dedicated.integer ) {
-		G_Printf( "%s", string + 7 );
+		Com_Printf( "%s", string + 7 );
 	}
 
 	if ( !level.logFile ) {
@@ -1747,9 +1708,9 @@ void CheckReloadStatus( void ) {
 				if ( g_reloading.integer == RELOAD_NEXTMAP_WAITING ) {
 					Cvar_Set( "g_reloading", va( "%d", RELOAD_NEXTMAP ) ); // set so sv_map_f will know it's okay to start a map
 					if ( g_cheats.integer ) {
-						trap_game_SendConsoleCommand( EXEC_APPEND, va( "spdevmap %s\n", level.nextMap ) );
+						Cbuf_ExecuteText( EXEC_APPEND, va( "spdevmap %s\n", level.nextMap ) );
 					} else {
-						trap_game_SendConsoleCommand( EXEC_APPEND, va( "spmap %s\n", level.nextMap ) );
+						Cbuf_ExecuteText( EXEC_APPEND, va( "spmap %s\n", level.nextMap ) );
 					}
 
 				} else if ( g_reloading.integer == RELOAD_ENDGAME ) {
@@ -1758,7 +1719,7 @@ void CheckReloadStatus( void ) {
 				} else {
 					// set the loadgame flag, and restart the server
 					Cvar_Set( "savegame_loading", "2" ); // 2 means it's a restart, so stop rendering until we are loaded
-					trap_game_SendConsoleCommand( EXEC_INSERT, "map_restart\n" );
+					Cbuf_ExecuteText( EXEC_INSERT, "map_restart\n" );
 				}
 
 				level.reloadDelayTime = 0;
@@ -1794,7 +1755,7 @@ void G_RunThink( gentity_t *ent ) {
 
 	ent->nextthink = 0;
 	if ( !ent->think ) {
-		G_Error( "NULL ent->think" );
+		Com_Error( ERR_DROP, "NULL ent->think" );
 	}
 	ent->think( ent );
 }
@@ -1833,7 +1794,7 @@ void G_RunFrame( int levelTime ) {
 	//
 	// go through all allocated objects
 	//
-	//start = trap_Milliseconds();
+	//start = Sys_Milliseconds();
 	ent = &g_entities[0];
 	for ( i = 0 ; i < level.num_entities ; i++, ent++ ) {
 		if ( !ent->inuse ) {
@@ -1964,7 +1925,7 @@ void G_RunFrame( int levelTime ) {
 
 	if ( g_listEntity.integer ) {
 		for ( i = 0; i < MAX_GENTITIES; i++ ) {
-			G_Printf( "%4i: %s\n", i, g_entities[i].classname );
+			Com_Printf( "%4i: %s\n", i, g_entities[i].classname );
 		}
 		Cvar_Set( "g_listEntity", "0" );
 	}

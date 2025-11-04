@@ -34,6 +34,7 @@ If you have questions concerning this license or the applicable additional terms
 */
 
 #include "g_local.h"
+#include "../server/server.h"
 
 typedef struct {
 	char oldShader[MAX_QPATH];
@@ -115,7 +116,7 @@ int G_FindConfigstringIndex( const char *name, int start, int max, qboolean crea
 	}
 
 	if ( i == max ) {
-		G_Error( "G_FindConfigstringIndex: overflow" );
+		Com_Error( ERR_DROP, "G_FindConfigstringIndex: overflow" );
 	}
 
 	trap_SetConfigstring( start + i, name );
@@ -148,7 +149,7 @@ void G_TeamCommand( team_t team, char *cmd ) {
 	for ( i = 0 ; i < level.maxclients ; i++ ) {
 		if ( level.clients[i].pers.connected == CON_CONNECTED ) {
 			if ( level.clients[i].sess.sessionTeam == team ) {
-				trap_SendServerCommand( i, va( "%s", cmd ) );
+				SV_GameSendServerCommand( i, va( "%s", cmd ) );
 			}
 		}
 	}
@@ -209,7 +210,7 @@ gentity_t *G_PickTarget( char *targetname ) {
 	gentity_t   *choice[MAXCHOICES];
 
 	if ( !targetname ) {
-		//G_Printf("G_PickTarget called with NULL targetname\n");
+		//Com_Printf("G_PickTarget called with NULL targetname\n");
 		return NULL;
 	}
 
@@ -226,7 +227,7 @@ gentity_t *G_PickTarget( char *targetname ) {
 	}
 
 	if ( !num_choices ) {
-		G_Printf( "G_PickTarget: target %s not found\n", targetname );
+		Com_Printf( "G_PickTarget: target %s not found\n", targetname );
 		return NULL;
 	}
 
@@ -265,10 +266,10 @@ void G_UseTargets( gentity_t *ent, gentity_t *activator ) {
 	t = NULL;
 	while ( ( t = G_Find( t, FOFS( targetname ), ent->target ) ) != NULL ) {
 		if ( t == ent ) {
-			G_Printf( "WARNING: Entity used itself.\n" );
+			Com_Printf( "WARNING: Entity used itself.\n" );
 		} else {
 			if ( t->use ) {
-				//G_Printf ("ent->classname %s ent->targetname %s t->targetname %s t->s.number %d\n", ent->classname, ent->targetname, t->targetname, t->s.number);
+				//Com_Printf ("ent->classname %s ent->targetname %s t->targetname %s t->s.number %d\n", ent->classname, ent->targetname, t->targetname, t->s.number);
 
 				t->flags |= ( ent->flags & FL_KICKACTIVATE ); // (SA) If 'ent' was kicked to activate, pass this along to it's targets.
 															  //		It may become handy to put a "KICKABLE" flag in ents so that it knows whether to pass this along or not
@@ -290,7 +291,7 @@ void G_UseTargets( gentity_t *ent, gentity_t *activator ) {
 			}
 		}
 		if ( !ent->inuse ) {
-			G_Printf( "entity was removed while using targets\n" );
+			Com_Printf( "entity was removed while using targets\n" );
 			return;
 		}
 	}
@@ -448,16 +449,16 @@ gentity_t *G_Spawn( void ) {
 	}
 	if ( i == ENTITYNUM_MAX_NORMAL ) {
 		for ( i = 0; i < MAX_GENTITIES; i++ ) {
-			G_Printf( "%4i: %s\n", i, g_entities[i].classname );
+			Com_Printf( "%4i: %s\n", i, g_entities[i].classname );
 		}
-		G_Error( "G_Spawn: no free entities" );
+		Com_Error( ERR_DROP, "G_Spawn: no free entities" );
 	}
 
 	// open up a new slot
 	level.num_entities++;
 
 	// let the server system know that there are more entities
-	trap_LocateGameData( level.gentities, level.num_entities, sizeof( gentity_t ),
+	SV_LocateGameData( level.gentities, level.num_entities, sizeof( gentity_t ),
 						 &level.clients[0].ps, sizeof( level.clients[0] ) );
 
 	G_InitGentity( e );
@@ -610,7 +611,7 @@ void G_AddEvent( gentity_t *ent, int event, int eventParm ) {
 //	int		bits;
 
 	if ( !event ) {
-		G_Printf( "G_AddEvent: zero event added for entity %i\n", ent->s.number );
+		Com_Printf( "G_AddEvent: zero event added for entity %i\n", ent->s.number );
 		return;
 	}
 
@@ -743,7 +744,7 @@ qboolean infront( gentity_t *self, gentity_t *other ) {
 
 	VectorNormalize( vec );
 	dot = DotProduct( vec, forward );
-	// G_Printf( "other %5.2f\n",	dot);
+	// Com_Printf( "other %5.2f\n",	dot);
 
 	if ( !other->aiCharacter && self->activateArc ) {  //----(SA)	make sure ai's aren't constrained to the grabarc of an mg42
 		float angle;
@@ -769,10 +770,10 @@ G_ProcessTagConnect
 */
 void G_ProcessTagConnect( gentity_t *ent, qboolean clearAngles ) {
 	if ( !ent->tagName ) {
-		G_Error( "G_ProcessTagConnect: NULL ent->tagName\n" );
+		Com_Error( ERR_DROP, "G_ProcessTagConnect: NULL ent->tagName\n" );
 	}
 	if ( !ent->tagParent ) {
-		G_Error( "G_ProcessTagConnect: NULL ent->tagParent\n" );
+		Com_Error( ERR_DROP, "G_ProcessTagConnect: NULL ent->tagParent\n" );
 	}
 	G_FindConfigstringIndex( va( "%i %i %s", ent->s.number, ent->tagParent->s.number, ent->tagName ), CS_TAGCONNECTS, MAX_TAGCONNECTS, qtrue );
 	ent->s.eFlags |= EF_TAGCONNECT;

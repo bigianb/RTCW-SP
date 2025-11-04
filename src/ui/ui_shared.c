@@ -157,7 +157,7 @@ translateString_t translateStrings[] = {
 UI_Alloc
 ===============
 */
-void *UI_Alloc( int size ) {
+void *UI_Alloc( size_t size ) {
 	char    *p;
 
 	if ( allocPoint + size > MEM_POOL_SIZE ) {
@@ -1195,7 +1195,7 @@ Script_Clipboard
 */
 void Script_Clipboard( itemDef_t *item, char **args ) {
 	char curscript[64];
-	DC->getCVarString( "cg_clipboardName", curscript, sizeof( curscript ) ); // grab the string the client set
+	Cvar_VariableStringBuffer( "cg_clipboardName", curscript, sizeof( curscript ) ); // grab the string the client set
 	Menu_ShowItemByName( item->parent, curscript, qtrue );
 }
 
@@ -1517,7 +1517,7 @@ qboolean Item_EnableShowViaCvar( itemDef_t *item, int flag ) {
 	memset( script, 0, sizeof( script ) );
 	if ( item && item->enableCvar && *item->enableCvar && item->cvarTest && *item->cvarTest ) {
 		char buff[1024];
-		DC->getCVarString( item->cvarTest, buff, sizeof( buff ) );
+		Cvar_VariableStringBuffer( item->cvarTest, buff, sizeof( buff ) );
 
 		Q_strcat( script, 1024, item->enableCvar );
 		p = script;
@@ -2155,7 +2155,7 @@ int Item_Multi_FindCvarByValue( itemDef_t *item ) {
 	multiDef_t *multiPtr = (multiDef_t*)item->typeData;
 	if ( multiPtr ) {
 		if ( multiPtr->strDef ) {
-			DC->getCVarString( item->cvar, buff, sizeof( buff ) );
+			Cvar_VariableStringBuffer( item->cvar, buff, sizeof( buff ) );
 		} else {
 			value = Cvar_VariableValue( item->cvar );
 		}
@@ -2181,7 +2181,7 @@ const char *Item_Multi_Setting( itemDef_t *item ) {
 	multiDef_t *multiPtr = (multiDef_t*)item->typeData;
 	if ( multiPtr ) {
 		if ( multiPtr->strDef ) {
-			DC->getCVarString( item->cvar, buff, sizeof( buff ) );
+			Cvar_VariableStringBuffer( item->cvar, buff, sizeof( buff ) );
 		} else {
 			value = Cvar_VariableValue( item->cvar );
 		}
@@ -2236,7 +2236,7 @@ qboolean Item_TextField_HandleKey( itemDef_t *item, int key ) {
 	if ( item->cvar ) {
 
 		memset( buff, 0, sizeof( buff ) );
-		DC->getCVarString( item->cvar, buff, sizeof( buff ) );
+		Cvar_VariableStringBuffer( item->cvar, buff, sizeof( buff ) );
 		size_t len = strlen( buff );
 		if ( editPtr->maxChars && len > editPtr->maxChars ) {
 			len = editPtr->maxChars;
@@ -3014,7 +3014,7 @@ void Item_SetTextExtents( itemDef_t *item, int *width, int *height, const char *
 			originalWidth += DC->ownerDrawWidth( item->window.ownerDraw, item->font, item->textscale );
 		} else if ( ( item->type == ITEM_TYPE_EDITFIELD || item->type == ITEM_TYPE_VALIDFILEFIELD ) && item->textalignment == ITEM_ALIGN_CENTER && item->cvar ) {
 			char buff[256];
-			DC->getCVarString( item->cvar, buff, 256 );
+			Cvar_VariableStringBuffer( item->cvar, buff, 256 );
 			originalWidth += DC->textWidth( buff, item->font, item->textscale, 0 );
 		}
 
@@ -3079,7 +3079,7 @@ void Item_Text_AutoWrapped_Paint( itemDef_t *item ) {
 		if ( item->cvar == NULL ) {
 			return;
 		} else {
-			DC->getCVarString( item->cvar, text, sizeof( text ) );
+			Cvar_VariableStringBuffer( item->cvar, text, sizeof( text ) );
 			textPtr = text;
 		}
 	} else {
@@ -3155,7 +3155,7 @@ void Item_Text_Wrapped_Paint( itemDef_t *item ) {
 		if ( item->cvar == NULL ) {
 			return;
 		} else {
-			DC->getCVarString( item->cvar, text, sizeof( text ) );
+			Cvar_VariableStringBuffer( item->cvar, text, sizeof( text ) );
 			textPtr = text;
 		}
 	} else {
@@ -3193,7 +3193,7 @@ void Item_Text_Paint( itemDef_t *item ) {
 
 //----(SA)	added
 	if ( item->textSavegameInfo ) {
-		DC->getCVarString( "ui_savegameInfo", infostring, sizeof( infostring ) );    // grab the string the client set
+		Cvar_VariableStringBuffer( "ui_savegameInfo", infostring, sizeof( infostring ) );    // grab the string the client set
 		item->text = &infostring[0];
 	}
 //----(SA)	end
@@ -3211,7 +3211,7 @@ void Item_Text_Paint( itemDef_t *item ) {
 		if ( item->cvar == NULL ) {
 			return;
 		} else {
-			DC->getCVarString( item->cvar, text, sizeof( text ) );
+			Cvar_VariableStringBuffer( item->cvar, text, sizeof( text ) );
 			if ( item->window.flags & CG_SHOW_TEXTASINT ) {
 				COM_StripExtension( text, text );
 			}
@@ -3246,7 +3246,7 @@ void Item_TextField_Paint( itemDef_t *item ) {
 	buff[0] = '\0';
 
 	if ( item->cvar ) {
-		DC->getCVarString( item->cvar, buff, sizeof( buff ) );
+		Cvar_VariableStringBuffer( item->cvar, buff, sizeof( buff ) );
 	}
 
 	parent = (menuDef_t*)item->parent;

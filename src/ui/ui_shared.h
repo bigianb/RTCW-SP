@@ -369,7 +369,7 @@ typedef struct {
 	qboolean ( *ownerDrawVisible )( int flags );
 	void ( *runScript )( char **p );
 	void ( *getTeamColor )( vec4_t *color );
-	void ( *getCVarString )( const char *cvar, char *buffer, int bufsize );
+
 	void ( *setCVar )( const char *cvar, const char *value );
 	void ( *drawTextWithCursor )( float x, float y, int font, float scale, vec4_t color, const char *text, int cursorPos, char cursor, int limit, int style );
 
@@ -479,7 +479,7 @@ void        Menu_Paint( menuDef_t *menu, qboolean forcePaint );
 void        Menu_SetFeederSelection( menuDef_t *menu, int feeder, int index, const char *name );
 void        Display_CacheAll();
 
-void        *UI_Alloc( int size );
+void        *UI_Alloc( size_t size );
 void        UI_InitMemory( void );
 qboolean    UI_OutOfMemory();
 

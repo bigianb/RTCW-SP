@@ -44,7 +44,7 @@ If you have questions concerning this license or the applicable additional terms
 #include "../game/be_ai_move.h"
 #include "../botai/botai.h"          //bot ai interface
 #include "../qcommon/qcommon.h"
-
+#include "../server/server.h"
 #include "ai_cast.h"
 
 /*
@@ -359,7 +359,7 @@ void AICast_ScriptLoad( void ) {
 
 	level.scriptAI = NULL;
 
-	trap_Cvar_VariableStringBuffer( "ai_scriptName", filename, sizeof( filename ) );
+	Cvar_VariableStringBuffer( "ai_scriptName", filename, sizeof( filename ) );
 	if ( strlen( filename ) > 0 ) {
 		Cvar_Register( &mapname, "ai_scriptName", "", CVAR_ROM );
 	} else {
@@ -369,7 +369,7 @@ void AICast_ScriptLoad( void ) {
 	Q_strcat( filename, sizeof( filename ), mapname.string );
 	Q_strcat( filename, sizeof( filename ), ".ai" );
 
-	len = trap_FS_FOpenFile( filename, &f, FS_READ );
+	len = FS_FOpenFileByMode( filename, &f, FS_READ );
 
 	// make sure we clear out the temporary scriptname
 	Cvar_Set( "ai_scriptName", "" );
@@ -379,9 +379,9 @@ void AICast_ScriptLoad( void ) {
 	}
 
 	level.scriptAI = G_Alloc( len );
-	trap_FS_Read( level.scriptAI, len, f );
+	FS_Read( level.scriptAI, len, f );
 
-	trap_FS_FCloseFile( f );
+	FS_FCloseFile( f );
 
 	return;
 }
@@ -420,7 +420,7 @@ void AICast_ScriptParse( cast_state_t *cs ) {
 		return;
 	}
 
-	buildScript = trap_Cvar_VariableIntegerValue( "com_buildScript" );
+	buildScript = Cvar_VariableIntegerValue( "com_buildScript" );
 	buildScript = qtrue;
 
 	pScript = level.scriptAI;
@@ -438,7 +438,7 @@ void AICast_ScriptParse( cast_state_t *cs ) {
 
 		if ( !token[0] ) {
 			if ( !wantName ) {
-				G_Error( "AICast_ScriptParse(), Error (line %d): '}' expected, end of script found.\n", COM_GetCurrentParseLine() );
+				Com_Error( ERR_DROP, "AICast_ScriptParse(), Error (line %d): '}' expected, end of script found.\n", COM_GetCurrentParseLine() );
 			}
 			break;
 		}
@@ -449,12 +449,12 @@ void AICast_ScriptParse( cast_state_t *cs ) {
 				break;
 			}
 			if ( wantName ) {
-				G_Error( "AICast_ScriptParse(), Error (line %d): '}' found, but not expected.\n", COM_GetCurrentParseLine() );
+				Com_Error( ERR_DROP, "AICast_ScriptParse(), Error (line %d): '}' found, but not expected.\n", COM_GetCurrentParseLine() );
 			}
 			wantName = qtrue;
 		} else if ( token[0] == '{' )    {
 			if ( wantName ) {
-				G_Error( "AICast_ScriptParse(), Error (line %d): '{' found, NAME expected.\n", COM_GetCurrentParseLine() );
+				Com_Error( ERR_DROP, "AICast_ScriptParse(), Error (line %d): '{' found, NAME expected.\n", COM_GetCurrentParseLine() );
 			}
 		} else if ( wantName )   {
 			if ( !Q_strcasecmp( ent->aiName, token ) ) {
@@ -470,10 +470,10 @@ void AICast_ScriptParse( cast_state_t *cs ) {
 			}
 			eventNum = AICast_EventForString( token );
 			if ( eventNum < 0 ) {
-				G_Error( "AICast_ScriptParse(), Error (line %d): unknown event: %s.\n", COM_GetCurrentParseLine(), token );
+				Com_Error( ERR_DROP, "AICast_ScriptParse(), Error (line %d): unknown event: %s.\n", COM_GetCurrentParseLine(), token );
 			}
 			if ( numEventItems >= MAX_SCRIPT_EVENTS ) {
-				G_Error( "AICast_ScriptParse(), Error (line %d): MAX_SCRIPT_EVENTS reached (%d)\n", COM_GetCurrentParseLine(), MAX_SCRIPT_EVENTS );
+				Com_Error( ERR_DROP, "AICast_ScriptParse(), Error (line %d): MAX_SCRIPT_EVENTS reached (%d)\n", COM_GetCurrentParseLine(), MAX_SCRIPT_EVENTS );
 			}
 
 			// if this is a "friendlysightcorpse" event, then disable corpse vis sharing
@@ -489,13 +489,13 @@ void AICast_ScriptParse( cast_state_t *cs ) {
 			while ( ( token = COM_Parse( &pScript ) ) && ( token[0] != '{' ) )
 			{
 				if ( !token[0] ) {
-					G_Error( "AICast_ScriptParse(), Error (line %d): '}' expected, end of script found.\n", COM_GetCurrentParseLine() );
+					Com_Error( ERR_DROP, "AICast_ScriptParse(), Error (line %d): '}' expected, end of script found.\n", COM_GetCurrentParseLine() );
 				}
 
 				if ( eventNum == 13 ) {   // statechange event, check params
 					if ( strlen( token ) > 1 ) {
 						if ( BG_IndexForString( token, animStateStr, qtrue ) < 0 ) {
-							G_Error( "AICast_ScriptParse(), Error (line %d): unknown state type '%s'.\n", COM_GetCurrentParseLine(), token );
+							Com_Error( ERR_DROP, "AICast_ScriptParse(), Error (line %d): unknown state type '%s'.\n", COM_GetCurrentParseLine(), token );
 						}
 					}
 				}
@@ -515,12 +515,12 @@ void AICast_ScriptParse( cast_state_t *cs ) {
 			while ( ( token = COM_Parse( &pScript ) ) && ( token[0] != '}' ) )
 			{
 				if ( !token[0] ) {
-					G_Error( "AICast_ScriptParse(), Error (line %d): '}' expected, end of script found.\n", COM_GetCurrentParseLine() );
+					Com_Error( ERR_DROP, "AICast_ScriptParse(), Error (line %d): '}' expected, end of script found.\n", COM_GetCurrentParseLine() );
 				}
 
 				action = AICast_ActionForString( cs, token );
 				if ( !action ) {
-					G_Error( "AICast_ScriptParse(), Error (line %d): unknown action: %s.\n", COM_GetCurrentParseLine(), token );
+					Com_Error( ERR_DROP, "AICast_ScriptParse(), Error (line %d): unknown action: %s.\n", COM_GetCurrentParseLine(), token );
 				}
 
 				curEvent->stack.items[curEvent->stack.numItems].action = action;
@@ -548,7 +548,7 @@ void AICast_ScriptParse( cast_state_t *cs ) {
 									!Q_stricmp( action->actionString, "startcamblack" ) )
 								) {
 							if ( strlen( token ) ) { // we know there's a [0], but don't know if it's '0'
-								trap_SendServerCommand( cs->entityNum, va( "addToBuild %s\n", token ) );
+								SV_GameSendServerCommand( cs->entityNum, va( "addToBuild %s\n", token ) );
 							}
 						}
 
@@ -581,7 +581,7 @@ void AICast_ScriptParse( cast_state_t *cs ) {
 				curEvent->stack.numItems++;
 
 				if ( curEvent->stack.numItems >= AICAST_MAX_SCRIPT_STACK_ITEMS ) {
-					G_Error( "AICast_ScriptParse(): script exceeded MAX_SCRIPT_ITEMS (%d), line %d\n", AICAST_MAX_SCRIPT_STACK_ITEMS, COM_GetCurrentParseLine() );
+					Com_Error( ERR_DROP, "AICast_ScriptParse(): script exceeded MAX_SCRIPT_ITEMS (%d), line %d\n", AICAST_MAX_SCRIPT_STACK_ITEMS, COM_GetCurrentParseLine() );
 				}
 			}
 
@@ -592,7 +592,7 @@ void AICast_ScriptParse( cast_state_t *cs ) {
 			while ( ( token = COM_Parse( &pScript ) ) )
 			{
 				if ( !token[0] ) {
-					G_Error( "AICast_ScriptParse(), Error (line %d): '}' expected, end of script found.\n", COM_GetCurrentParseLine() );
+					Com_Error( ERR_DROP, "AICast_ScriptParse(), Error (line %d): '}' expected, end of script found.\n", COM_GetCurrentParseLine() );
 				} else if ( token[0] == '{' ) {
 					bracketLevel++;
 				} else if ( token[0] == '}' ) {
@@ -670,7 +670,7 @@ void AICast_ScriptEvent( struct cast_state_s *cs, char *eventStr, char *params )
 
 	if ( eventNum < 0 ) {
 		if ( g_cheats.integer ) { // dev mode
-			G_Printf( "devmode-> AICast_ScriptEvent(), unknown event: %s\n", eventStr );
+			Com_Printf( "devmode-> AICast_ScriptEvent(), unknown event: %s\n", eventStr );
 		}
 	}
 
@@ -678,7 +678,7 @@ void AICast_ScriptEvent( struct cast_state_s *cs, char *eventStr, char *params )
 	if (    (   ( aicast_debug.integer == 1 ) ||
 				(   ( aicast_debug.integer == 2 ) &&
 					( ( strlen( aicast_debugname.string ) < 1 ) || ( g_entities[cs->entityNum].aiName && !strcmp( aicast_debugname.string, g_entities[cs->entityNum].aiName ) ) ) ) ) ) {
-		G_Printf( "(%s) AIScript event: %s %s ", g_entities[cs->entityNum].aiName, eventStr, params );
+		Com_Printf( "(%s) AIScript event: %s %s ", g_entities[cs->entityNum].aiName, eventStr, params );
 	}
 
 	cs->aiFlags &= ~AIFL_DENYACTION;
@@ -694,7 +694,7 @@ void AICast_ScriptEvent( struct cast_state_s *cs, char *eventStr, char *params )
 				if (    (   ( aicast_debug.integer == 1 ) ||
 							(   ( aicast_debug.integer == 2 ) &&
 								( ( strlen( aicast_debugname.string ) < 1 ) || ( g_entities[cs->entityNum].aiName && !strcmp( aicast_debugname.string, g_entities[cs->entityNum].aiName ) ) ) ) ) ) {
-					G_Printf( "found, calling script\n", g_entities[cs->entityNum].aiName, eventStr, params );
+					Com_Printf( "found, calling script\n", g_entities[cs->entityNum].aiName, eventStr, params );
 				}
 
 				AICast_ScriptChange( cs, i );
@@ -708,7 +708,7 @@ void AICast_ScriptEvent( struct cast_state_s *cs, char *eventStr, char *params )
 				(   ( aicast_debug.integer == 2 ) &&
 					( ( strlen( aicast_debugname.string ) < 1 ) || ( g_entities[cs->entityNum].aiName && !strcmp( aicast_debugname.string, g_entities[cs->entityNum].aiName ) ) ) ) ) ) {
 		if ( i == cs->numCastScriptEvents ) {
-			G_Printf( "not found\n" );
+			Com_Printf( "not found\n" );
 		}
 	}
 
@@ -758,7 +758,7 @@ qboolean AICast_ScriptRun( cast_state_t *cs, qboolean force ) {
 	// only allow the PLAYER'S spawn function through if we're NOT still waiting on everything to finish loading in
 	if ( !cs->entityNum && saveGamePending && Q_stricmp( "spawn", scriptEvents[cs->castScriptEvents[cs->castScriptStatus.castScriptEventIndex].eventNum].eventStr ) ) {
 		//char loading[4];
-		//trap_Cvar_VariableStringBuffer( "savegame_loading", loading, sizeof(loading) );
+		//Cvar_VariableStringBuffer( "savegame_loading", loading, sizeof(loading) );
 		//if (strlen( loading ) > 0 && atoi(loading) != 0)	// we're loading a savegame
 		return qfalse;
 	}
@@ -782,7 +782,7 @@ qboolean AICast_ScriptRun( cast_state_t *cs, qboolean force ) {
 				(   ( aicast_debug.integer == 1 ) ||
 					(   ( aicast_debug.integer == 2 ) &&
 						( ( strlen( aicast_debugname.string ) < 1 ) || ( g_entities[cs->entityNum].aiName && !strcmp( aicast_debugname.string, g_entities[cs->entityNum].aiName ) ) ) ) ) ) {
-			G_Printf( "(%s) AIScript command: %s %s\n", g_entities[cs->entityNum].aiName, stack->items[cs->castScriptStatus.castScriptStackHead].action->actionString, ( stack->items[cs->castScriptStatus.castScriptStackHead].params ? stack->items[cs->castScriptStatus.castScriptStackHead].params : "" ) );
+			Com_Printf( "(%s) AIScript command: %s %s\n", g_entities[cs->entityNum].aiName, stack->items[cs->castScriptStatus.castScriptStackHead].action->actionString, ( stack->items[cs->castScriptStatus.castScriptStackHead].params ? stack->items[cs->castScriptStatus.castScriptStackHead].params : "" ) );
 		}
 		//
 		if ( !stack->items[cs->castScriptStatus.castScriptStackHead].action->actionFunc( cs, stack->items[cs->castScriptStatus.castScriptStackHead].params ) ) {

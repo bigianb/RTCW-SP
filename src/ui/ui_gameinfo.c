@@ -33,7 +33,7 @@ If you have questions concerning this license or the applicable additional terms
 //
 
 #include "ui_local.h"
-
+#include "../qcommon/qcommon.h"
 
 //
 // arena and bot info
@@ -116,20 +116,20 @@ static void UI_LoadArenasFromFile( char *filename ) {
 	fileHandle_t f;
 	char buf[MAX_ARENAS_TEXT];
 
-	len = trap_FS_FOpenFile( filename, &f, FS_READ );
+	len = FS_FOpenFileByMode( filename, &f, FS_READ );
 	if ( !f ) {
         Com_Printf( S_COLOR_RED "file not found: %s\n", filename );
 		return;
 	}
 	if ( len >= MAX_ARENAS_TEXT ) {
         Com_Printf( S_COLOR_RED "file too large: %s is %i, max allowed is %i", filename, len, MAX_ARENAS_TEXT );
-		trap_FS_FCloseFile( f );
+		FS_FCloseFile( f );
 		return;
 	}
 
-	trap_FS_Read( buf, len, f );
+	FS_Read( buf, len, f );
 	buf[len] = 0;
-	trap_FS_FCloseFile( f );
+	FS_FCloseFile( f );
 
 	ui_numArenas += UI_ParseInfos( buf, MAX_ARENAS - ui_numArenas, &ui_arenaInfos[ui_numArenas] );
 }
@@ -160,7 +160,7 @@ void UI_LoadArenas( void ) {
 	}
 
 	// get all arenas from .arena files
-	numdirs = trap_FS_GetFileList( "scripts", ".arena", dirlist, 1024 );
+	numdirs = FS_GetFileList( "scripts", ".arena", dirlist, 1024 );
 	dirptr  = dirlist;
 	for ( i = 0; i < numdirs; i++, dirptr += dirlen + 1 ) {
 		dirlen = strlen( dirptr );
@@ -215,20 +215,20 @@ static void UI_LoadBotsFromFile( char *filename ) {
 	fileHandle_t f;
 	char buf[MAX_BOTS_TEXT];
 
-	len = trap_FS_FOpenFile( filename, &f, FS_READ );
+	len = FS_FOpenFileByMode( filename, &f, FS_READ );
 	if ( !f ) {
         Com_Printf( S_COLOR_RED "file not found: %s\n", filename );
 		return;
 	}
 	if ( len >= MAX_BOTS_TEXT ) {
         Com_Printf( S_COLOR_RED "file too large: %s is %i, max allowed is %i", filename, len, MAX_BOTS_TEXT );
-		trap_FS_FCloseFile( f );
+		FS_FCloseFile( f );
 		return;
 	}
 
-	trap_FS_Read( buf, len, f );
+	FS_Read( buf, len, f );
 	buf[len] = 0;
-	trap_FS_FCloseFile( f );
+	FS_FCloseFile( f );
 
 	COM_Compress( buf );
 
@@ -256,7 +256,7 @@ void UI_LoadBots( void ) {
 	}
 
 	// get all bots from .bot files
-	numdirs = trap_FS_GetFileList( "scripts", ".bot", dirlist, 1024 );
+	numdirs = FS_GetFileList( "scripts", ".bot", dirlist, 1024 );
 	char* dirptr  = dirlist;
 	for (int i = 0; i < numdirs; i++ ) {
 		size_t dirlen = strlen( dirptr );

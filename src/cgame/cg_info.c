@@ -31,6 +31,7 @@ If you have questions concerning this license or the applicable additional terms
 #include "cg_local.h"
 #include "../ui/ui_shared.h"
 #include "../client/snd_public.h"
+#include "../qcommon/qcommon.h"
 
 #define MAX_LOADING_PLAYER_ICONS    16
 #define MAX_LOADING_ITEM_ICONS      26
@@ -80,7 +81,7 @@ void CG_LoadingString( const char *s ) {
 	Q_strncpyz( cg.infoScreenText, s, sizeof( cg.infoScreenText ) );
 
 	if ( s && s[0] != 0 ) {
-		CG_Printf( va( "LOADING... %s\n",s ) );   //----(SA)	added so you can see from the console what's going on
+		Com_Printf( va( "LOADING... %s\n",s ) );   //----(SA)	added so you can see from the console what's going on
 
 	}
 	SCR_UpdateScreen();
@@ -235,7 +236,7 @@ void CG_DrawStats( char *stats ) {
 			for ( j = 0; j < statsItems[i].numVars; j++ ) {
 				token = COM_Parse( &str );
 				if ( !token || !token[0] ) {
-					CG_Error( "error parsing mission stats\n" );
+					Com_Error( ERR_DROP, "error parsing mission stats\n" );
 					return;
 				}
 
@@ -378,7 +379,7 @@ void CG_DrawExitStats( void ) {
 			for ( j = 0; j < statsItems[i].numVars; j++ ) {
 				token = COM_Parse( &mstats );
 				if ( !token || !token[0] ) {
-					CG_Error( "error parsing mission stats\n" );
+					Com_Error( ERR_DROP, "error parsing mission stats\n" );
 					return;
 				}
 
@@ -464,7 +465,7 @@ void CG_DrawInformation( void ) {
 		return;
 	}
 
-	ms = trap_Milliseconds();
+	ms = Sys_Milliseconds();
 	if ( ( lastDraw <= ms ) && ( lastDraw > ms - 100 ) ) {
 		return;
 	}
@@ -475,7 +476,7 @@ void CG_DrawInformation( void ) {
 	info = CG_ConfigString( CS_SERVERINFO );
 	sysInfo = CG_ConfigString( CS_SYSTEMINFO );
 
-	trap_Cvar_VariableStringBuffer( "com_expectedhunkusage", hunkBuf, MAX_QPATH );
+	Cvar_VariableStringBuffer( "com_expectedhunkusage", hunkBuf, MAX_QPATH );
 	expectedHunk = atoi( hunkBuf );
 
 

@@ -37,6 +37,7 @@ If you have questions concerning this license or the applicable additional terms
 #include "../game/g_local.h"
 #include "../game/q_shared.h"
 #include "../qcommon/qcommon.h"
+#include "../server/server.h"
 
 /*
 Scripting that allows the designers to control the behaviour of entities
@@ -251,7 +252,7 @@ void G_Script_ScriptLoad( void ) {
 
 	level.scriptEntity = NULL;
 
-	trap_Cvar_VariableStringBuffer( "g_scriptName", filename, sizeof( filename ) );
+	Cvar_VariableStringBuffer( "g_scriptName", filename, sizeof( filename ) );
 	if ( strlen( filename ) > 0 ) {
 		Cvar_Register( &mapname, "g_scriptName", "", CVAR_ROM );
 	} else {
@@ -261,7 +262,7 @@ void G_Script_ScriptLoad( void ) {
 	Q_strcat( filename, sizeof( filename ), mapname.string );
 	Q_strcat( filename, sizeof( filename ), ".script" );
 
-	len = trap_FS_FOpenFile( filename, &f, FS_READ );
+	len = FS_FOpenFileByMode( filename, &f, FS_READ );
 
 	// make sure we clear out the temporary scriptname
 	Cvar_Set( "g_scriptName", "" );
@@ -271,9 +272,9 @@ void G_Script_ScriptLoad( void ) {
 	}
 
 	level.scriptEntity = G_Alloc( len );
-	trap_FS_Read( level.scriptEntity, len, f );
+	FS_Read( level.scriptEntity, len, f );
 
-	trap_FS_FCloseFile( f );
+	FS_FCloseFile( f );
 }
 
 /*
@@ -309,7 +310,7 @@ void G_Script_ScriptParse( gentity_t *ent ) {
 		return;
 	}
 
-	buildScript = trap_Cvar_VariableIntegerValue( "com_buildScript" );
+	buildScript = Cvar_VariableIntegerValue( "com_buildScript" );
 	buildScript = qtrue;
 
 	pScript = level.scriptEntity;
@@ -327,7 +328,7 @@ void G_Script_ScriptParse( gentity_t *ent ) {
 
 		if ( !token[0] ) {
 			if ( !wantName ) {
-				G_Error( "G_Script_ScriptParse(), Error (line %d): '}' expected, end of script found.\n", COM_GetCurrentParseLine() );
+				Com_Error( ERR_DROP, "G_Script_ScriptParse(), Error (line %d): '}' expected, end of script found.\n", COM_GetCurrentParseLine() );
 			}
 			break;
 		}
@@ -338,12 +339,12 @@ void G_Script_ScriptParse( gentity_t *ent ) {
 				break;
 			}
 			if ( wantName ) {
-				G_Error( "G_Script_ScriptParse(), Error (line %d): '}' found, but not expected.\n", COM_GetCurrentParseLine() );
+				Com_Error( ERR_DROP, "G_Script_ScriptParse(), Error (line %d): '}' found, but not expected.\n", COM_GetCurrentParseLine() );
 			}
 			wantName = qtrue;
 		} else if ( token[0] == '{' )    {
 			if ( wantName ) {
-				G_Error( "G_Script_ScriptParse(), Error (line %d): '{' found, NAME expected.\n", COM_GetCurrentParseLine() );
+				Com_Error( ERR_DROP, "G_Script_ScriptParse(), Error (line %d): '{' found, NAME expected.\n", COM_GetCurrentParseLine() );
 			}
 		} else if ( wantName )   {
 			if ( !Q_strcasecmp( ent->scriptName, token ) ) {
@@ -359,10 +360,10 @@ void G_Script_ScriptParse( gentity_t *ent ) {
 			//}
 			eventNum = G_Script_EventForString( token );
 			if ( eventNum < 0 ) {
-				G_Error( "G_Script_ScriptParse(), Error (line %d): unknown event: %s.\n", COM_GetCurrentParseLine(), token );
+				Com_Error( ERR_DROP, "G_Script_ScriptParse(), Error (line %d): unknown event: %s.\n", COM_GetCurrentParseLine(), token );
 			}
 			if ( numEventItems >= MAX_SCRIPT_EVENTS ) {
-				G_Error( "G_Script_ScriptParse(), Error (line %d): MAX_SCRIPT_EVENTS reached (%d)\n", COM_GetCurrentParseLine(), MAX_SCRIPT_EVENTS );
+				Com_Error( ERR_DROP, "G_Script_ScriptParse(), Error (line %d): MAX_SCRIPT_EVENTS reached (%d)\n", COM_GetCurrentParseLine(), MAX_SCRIPT_EVENTS );
 			}
 
 			curEvent = &events[numEventItems];
@@ -373,7 +374,7 @@ void G_Script_ScriptParse( gentity_t *ent ) {
 			while ( ( token = COM_Parse( &pScript ) ) && ( token[0] != '{' ) )
 			{
 				if ( !token[0] ) {
-					G_Error( "G_Script_ScriptParse(), Error (line %d): '}' expected, end of script found.\n", COM_GetCurrentParseLine() );
+					Com_Error( ERR_DROP, "G_Script_ScriptParse(), Error (line %d): '}' expected, end of script found.\n", COM_GetCurrentParseLine() );
 				}
 
 				if ( strlen( params ) ) { // add a space between each param
@@ -391,12 +392,12 @@ void G_Script_ScriptParse( gentity_t *ent ) {
 			while ( ( token = COM_Parse( &pScript ) ) && ( token[0] != '}' ) )
 			{
 				if ( !token[0] ) {
-					G_Error( "G_Script_ScriptParse(), Error (line %d): '}' expected, end of script found.\n", COM_GetCurrentParseLine() );
+					Com_Error( ERR_DROP, "G_Script_ScriptParse(), Error (line %d): '}' expected, end of script found.\n", COM_GetCurrentParseLine() );
 				}
 
 				action = G_Script_ActionForString( token );
 				if ( !action ) {
-					G_Error( "G_Script_ScriptParse(), Error (line %d): unknown action: %s.\n", COM_GetCurrentParseLine(), token );
+					Com_Error( ERR_DROP, "G_Script_ScriptParse(), Error (line %d): unknown action: %s.\n", COM_GetCurrentParseLine(), token );
 				}
 
 				curEvent->stack.items[curEvent->stack.numItems].action = action;
@@ -424,7 +425,7 @@ void G_Script_ScriptParse( gentity_t *ent ) {
 									!Q_stricmp( action->actionString, "startcamblack" ) )
 								) {
 							if ( strlen( token ) ) { // we know there's a [0], but don't know if it's '0'
-								trap_SendServerCommand( ent->s.number, va( "addToBuild %s\n", token ) );
+								SV_GameSendServerCommand( ent->s.number, va( "addToBuild %s\n", token ) );
 							}
 						}
 					}
@@ -451,7 +452,7 @@ void G_Script_ScriptParse( gentity_t *ent ) {
 				curEvent->stack.numItems++;
 
 				if ( curEvent->stack.numItems >= G_MAX_SCRIPT_STACK_ITEMS ) {
-					G_Error( "G_Script_ScriptParse(): script exceeded MAX_SCRIPT_ITEMS (%d), line %d\n", G_MAX_SCRIPT_STACK_ITEMS, COM_GetCurrentParseLine() );
+					Com_Error( ERR_DROP, "G_Script_ScriptParse(): script exceeded MAX_SCRIPT_ITEMS (%d), line %d\n", G_MAX_SCRIPT_STACK_ITEMS, COM_GetCurrentParseLine() );
 				}
 			}
 
@@ -462,7 +463,7 @@ void G_Script_ScriptParse( gentity_t *ent ) {
 			while ( ( token = COM_Parse( &pScript ) ) )
 			{
 				if ( !token[0] ) {
-					G_Error( "G_Script_ScriptParse(), Error (line %d): '}' expected, end of script found.\n", COM_GetCurrentParseLine() );
+					Com_Error( ERR_DROP, "G_Script_ScriptParse(), Error (line %d): '}' expected, end of script found.\n", COM_GetCurrentParseLine() );
 				} else if ( token[0] == '{' ) {
 					bracketLevel++;
 				} else if ( token[0] == '}' ) {
@@ -530,7 +531,7 @@ void G_Script_ScriptEvent( gentity_t *ent, char *eventStr, char *params ) {
 
 	if ( eventNum < 0 ) {
 		if ( g_cheats.integer ) { // dev mode
-			G_Printf( "devmode-> G_Script_ScriptEvent(), unknown event: %s\n", eventStr );
+			Com_Printf( "devmode-> G_Script_ScriptEvent(), unknown event: %s\n", eventStr );
 		}
 		return;
 	}
@@ -600,7 +601,7 @@ qboolean G_Script_ScriptRun( gentity_t *ent ) {
 	// show debugging info
 	if ( g_scriptDebug.integer && ent->scriptStatus.scriptStackChangeTime == level.time ) {
 		if ( ent->scriptStatus.scriptStackHead < stack->numItems ) {
-			G_Printf( "%i : (%s) GScript command: %s %s\n", level.time, ent->scriptName, stack->items[ent->scriptStatus.scriptStackHead].action->actionString, ( stack->items[ent->scriptStatus.scriptStackHead].params ? stack->items[ent->scriptStatus.scriptStackHead].params : "" ) );
+			Com_Printf( "%i : (%s) GScript command: %s %s\n", level.time, ent->scriptName, stack->items[ent->scriptStatus.scriptStackHead].action->actionString, ( stack->items[ent->scriptStatus.scriptStackHead].params ? stack->items[ent->scriptStatus.scriptStackHead].params : "" ) );
 		}
 	}
 	//
@@ -617,7 +618,7 @@ qboolean G_Script_ScriptRun( gentity_t *ent ) {
 		// show debugging info
 		if ( g_scriptDebug.integer ) {
 			if ( ent->scriptStatus.scriptStackHead < stack->numItems ) {
-				G_Printf( "%i : (%s) GScript command: %s %s\n", level.time, ent->scriptName, stack->items[ent->scriptStatus.scriptStackHead].action->actionString, ( stack->items[ent->scriptStatus.scriptStackHead].params ? stack->items[ent->scriptStatus.scriptStackHead].params : "" ) );
+				Com_Printf( "%i : (%s) GScript command: %s %s\n", level.time, ent->scriptName, stack->items[ent->scriptStatus.scriptStackHead].action->actionString, ( stack->items[ent->scriptStatus.scriptStackHead].params ? stack->items[ent->scriptStatus.scriptStackHead].params : "" ) );
 			}
 		}
 	}
@@ -722,10 +723,10 @@ void SP_script_mover( gentity_t *ent ) {
 	vec3_t scalevec;
 
 	if ( !ent->model ) {
-		G_Error( "script_model_med must have a \"model\"\n" );
+		Com_Error( ERR_DROP, "script_model_med must have a \"model\"\n" );
 	}
 	if ( !ent->scriptName ) {
-		G_Error( "script_model_med must have a \"scriptname\"\n" );
+		Com_Error( ERR_DROP, "script_model_med must have a \"scriptname\"\n" );
 	}
 
 	ent->blocked = script_mover_blocked;
@@ -808,10 +809,10 @@ straight through it
 */
 void SP_script_model_med( gentity_t *ent ) {
 	if ( !ent->model ) {
-		G_Error( "script_model_med %s must have a \"model\"\n", ent->scriptName );
+		Com_Error( ERR_DROP, "script_model_med %s must have a \"model\"\n", ent->scriptName );
 	}
 	if ( !ent->scriptName ) {
-		G_Error( "script_model_med must have a \"scriptname\"\n" );
+		Com_Error( ERR_DROP, "script_model_med must have a \"scriptname\"\n" );
 	}
 
 	ent->s.eType = ET_GENERAL;
@@ -841,7 +842,7 @@ void SP_script_model_med( gentity_t *ent ) {
 */
 void SP_script_camera( gentity_t *ent ) {
 	if ( !ent->scriptName ) {
-		G_Error( "%s must have a \"scriptname\"\n", ent->classname );
+		Com_Error( ERR_DROP, "%s must have a \"scriptname\"\n", ent->classname );
 	}
 
 	ent->s.eType = ET_CAMERA;
@@ -867,7 +868,7 @@ void SP_script_camera( gentity_t *ent ) {
 */
 void SP_script_multiplayer( gentity_t *ent ) {
 	if ( !ent->scriptName ) {
-		G_Error( "%s must have a \"scriptname\"\n", ent->classname );
+		Com_Error( ERR_DROP, "%s must have a \"scriptname\"\n", ent->classname );
 	}
 
 	ent->s.eType = ET_INVISIBLE;

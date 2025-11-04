@@ -295,7 +295,7 @@ void CG_FireFlameChunks( centity_t *cent, vec3_t origin, vec3_t angles, float sp
 			f = CG_SpawnFlameChunk( of );
 
 			if ( !f ) {
-				CG_Printf( "Out of flame chunks\n" );
+				Com_Printf( "Out of flame chunks\n" );
 				return;
 			}
 
@@ -385,7 +385,7 @@ void CG_FireFlameChunks( centity_t *cent, vec3_t origin, vec3_t angles, float sp
 		f = CG_SpawnFlameChunk( NULL );
 
 		if ( !f ) {
-			CG_Printf( "Out of flame chunks\n" );
+			Com_Printf( "Out of flame chunks\n" );
 			return;
 		}
 
@@ -558,7 +558,7 @@ flameChunk_t *CG_SpawnFlameChunk( flameChunk_t *headFlameChunk ) {
 
 	// debugging
 	if ( cg_drawRewards.integer > 1 && numFlameChunksInuse > cg_drawRewards.integer ) {
-		CG_Printf( "NumFlameChunks: %i\n", numFlameChunksInuse );
+		Com_Printf( "NumFlameChunks: %i\n", numFlameChunksInuse );
 	}
 
 	return f;
@@ -625,7 +625,7 @@ CG_MergeFlameChunks
 */
 void CG_MergeFlameChunks( flameChunk_t *f1, flameChunk_t *f2 ) {
 	if ( f1->nextFlameChunk != f2 ) {
-		CG_Error( "CG_MergeFlameChunks: f2 doesn't follow f1, cannot merge\n" );
+		Com_Error( ERR_DROP, "CG_MergeFlameChunks: f2 doesn't follow f1, cannot merge\n" );
 	}
 
 	f1->nextFlameChunk = f2->nextFlameChunk;
@@ -1390,7 +1390,7 @@ void CG_GenerateShaders( char *filename, char *shaderName, char *dir, int numFra
 	char str[512];
 	int i;
 
-	trap_FS_FOpenFile( filename, &f, FS_WRITE );
+	FS_FOpenFileByMode( filename, &f, FS_WRITE );
 	for ( i = 0; i < numFrames; i++ ) {
 		lastNumber = i;
 		b = lastNumber / 100;
@@ -1406,7 +1406,7 @@ void CG_GenerateShaders( char *filename, char *shaderName, char *dir, int numFra
 		}
 		FS_Write( str, strlen( str ), f );
 	}
-	trap_FS_FCloseFile( f );
+	FS_FCloseFile( f );
 }
 
 /*

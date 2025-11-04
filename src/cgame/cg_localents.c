@@ -75,7 +75,7 @@ CG_FreeLocalEntity
 */
 void CG_FreeLocalEntity( localEntity_t *le ) {
 	if ( !le->prev ) {
-		CG_Error( "CG_FreeLocalEntity: not active" );
+		Com_Error( ERR_DROP, "CG_FreeLocalEntity: not active" );
 	}
 
 	// Ridah, debugging
@@ -661,7 +661,7 @@ void CG_AddFragment( localEntity_t *le ) {
 
 		clientNum = le->ownerNum;
 		if ( clientNum < 0 || clientNum >= MAX_CLIENTS ) {
-			CG_Error( "Bad clientNum on player entity" );
+			Com_Error( ERR_DROP, "Bad clientNum on player entity" );
 		}
 		ci = &cgs.clientinfo[ clientNum ];
 
@@ -1706,7 +1706,7 @@ void CG_AddLocalEntities( void ) {
 		}
 		switch ( le->leType ) {
 		default:
-			CG_Error( "Bad leType: %i", le->leType );
+			Com_Error( ERR_DROP, "Bad leType: %i", le->leType );
 			break;
 
 			// Ridah

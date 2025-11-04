@@ -39,7 +39,7 @@ If you have questions concerning this license or the applicable additional terms
 */
 
 #include "g_local.h"
-
+#include "../qcommon/qcommon.h"
 
 
 #define RESPAWN_SP          -1
@@ -578,7 +578,7 @@ void RespawnItem( gentity_t *ent ) {
 		int choice;
 
 		if ( !ent->teammaster ) {
-			G_Error( "RespawnItem: bad teammaster" );
+			Com_Error( ERR_DROP, "RespawnItem: bad teammaster" );
 		}
 		master = ent->teammaster;
 
@@ -1002,7 +1002,7 @@ void FinishSpawningItem( gentity_t *ent ) {
 		trap_Trace( &tr, ent->s.origin, ent->r.mins, maxs, dest, ent->s.number, MASK_SOLID );
 #endif
 		if ( tr.startsolid ) {
-			G_Printf( "FinishSpawningItem: %s startsolid at %s\n", ent->classname, vtos( ent->s.origin ) );
+			Com_Printf( "FinishSpawningItem: %s startsolid at %s\n", ent->classname, vtos( ent->s.origin ) );
 			G_FreeEntity( ent );
 			return;
 		}
@@ -1095,7 +1095,7 @@ The item will be added to the precache list
 */
 void RegisterItem( gitem_t *item ) {
 	if ( !item ) {
-		G_Error( "RegisterItem: NULL" );
+		Com_Error( ERR_DROP, "RegisterItem: NULL" );
 	}
 	itemRegistered[ item - bg_itemlist ] = qtrue;
 }
@@ -1125,8 +1125,8 @@ void SaveRegisteredItems( void ) {
 	}
 	string[ bg_numItems ] = 0;
 
-	if ( trap_Cvar_VariableIntegerValue( "g_gametype" ) != GT_SINGLE_PLAYER ) {
-		G_Printf( "%i items registered\n", count );
+	if ( Cvar_VariableIntegerValue( "g_gametype" ) != GT_SINGLE_PLAYER ) {
+		Com_Printf( "%i items registered\n", count );
 	}
 	trap_SetConfigstring( CS_ITEMS, string );
 }

@@ -1011,7 +1011,7 @@ char *AIFunc_InspectBulletImpact( cast_state_t *cs ) {
 			}
 			// make sure we didnt change thinkfunc
 			if ( cs->aifunc != AIFunc_InspectBulletImpact ) {
-				//G_Error( "scripting passed control out of AIFunc_InspectBulletImpact(), this is bad" );
+				//Com_Error( ERR_DROP, "scripting passed control out of AIFunc_InspectBulletImpact(), this is bad" );
 				return NULL;
 			}
 		}
@@ -2747,7 +2747,7 @@ char *AIFunc_BattleChase( cast_state_t *cs ) {
 		 ( Distance( cs->bs->origin, cs->vislist[cs->enemyNum].visible_pos ) > 100 ) &&
 		 ( Distance( cs->bs->origin, cs->vislist[cs->enemyNum].visible_pos ) < 1400 ) ) {
 		// try and flush them out with a grenade
-		//G_Printf("pineapple?\n");
+		//Com_Printf("pineapple?\n");
 		return AIFunc_GrenadeFlushStart( cs );
 	} else if ( ( lastGrenadeFlush > level.time || lastGrenadeFlush < level.time - 5000 ) &&
 				( cs->aiState >= AISTATE_COMBAT ) &&
@@ -2760,7 +2760,7 @@ char *AIFunc_BattleChase( cast_state_t *cs ) {
 				( Distance( cs->bs->origin, cs->vislist[cs->enemyNum].visible_pos ) > 100 ) &&
 				( Distance( cs->bs->origin, cs->vislist[cs->enemyNum].visible_pos ) < 1400 ) ) {
 		// try and flush them out with a grenade
-		//G_Printf("pineapple?\n");
+		//Com_Printf("pineapple?\n");
 		return AIFunc_GrenadeFlushStart( cs );
 	}
 	//
@@ -3054,7 +3054,7 @@ char *AIFunc_AvoidDanger( cast_state_t *cs ) {
 	// TODO: if we are on fire, play the correct torso animation
 	if ( ent->s.onFireEnd > level.time ) {
 		// set the animation, and a short timer, but long enough to last until the next frame
-		//if (g_cheats.integer) G_Printf( "TODO: torso onfire animation\n" );
+		//if (g_cheats.integer) Com_Printf( "TODO: torso onfire animation\n" );
 	}
 	//
 	// is the danger gone?
@@ -3116,7 +3116,7 @@ char *AIFunc_AvoidDanger( cast_state_t *cs ) {
 		// is our current destination still safe?
 		if ( Distance( cs->dangerEntityPos, cs->takeCoverPos ) < cs->dangerDist &&
 			 AICast_VisibleFromPos( cs->dangerEntityPos, cs->dangerEntity, cs->takeCoverPos, cs->entityNum, qfalse ) ) {
-			//G_Printf("current coverPos is dangerous, looking for a better place..\n" );
+			//Com_Printf("current coverPos is dangerous, looking for a better place..\n" );
 			if ( !AICast_GetTakeCoverPos( cs, cs->dangerEntity, cs->dangerEntityPos, cs->takeCoverPos ) ) {
 				// just run away from it ???
 			}
@@ -3667,7 +3667,7 @@ char *AIFunc_GrenadeFlush( cast_state_t *cs ) {
 				}
 			}
 			if ( hitclient == -1 ) {  // doh
-				//G_Printf("aborted grenade\n");
+				//Com_Printf("aborted grenade\n");
 				cs->castScriptStatus.scriptNoMoveTime = 0;
 				cs->lockViewAnglesTime = 0;
 				AICast_ChooseWeapon( cs, qfalse );
@@ -3738,7 +3738,7 @@ char *AIFunc_GrenadeFlush( cast_state_t *cs ) {
 	if (    AICast_CheckAttack( cs, cs->enemyNum, qfalse )
 			&&  cs->obstructingTime < level.time ) { // give us some time to throw the grenade, otherwise go back to attack state
 												   //if ((cs->grenadeFlushEndTime > 0 && cs->grenadeFlushEndTime < level.time)) {
-		//G_Printf("aborting, enemy is attackable\n");
+		//Com_Printf("aborting, enemy is attackable\n");
 		return AIFunc_BattleStart( cs );
 
 	} else {
@@ -3750,7 +3750,7 @@ char *AIFunc_GrenadeFlush( cast_state_t *cs ) {
 			VectorSubtract( g_entities[cs->enemyNum].client->ps.origin, cs->vislist[cs->enemyNum].visible_pos, dir );
 			vectoangles( dir, cs->ideal_viewangles );
 			//
-			//G_Printf("aborting, reached visible pos\n");
+			//Com_Printf("aborting, reached visible pos\n");
 			return AIFunc_DefaultStart( cs );
 		}
 	}
@@ -3770,7 +3770,7 @@ char *AIFunc_GrenadeFlush( cast_state_t *cs ) {
 		for ( i = 0; i < numEnemies; i++ ) {
 			if ( enemies[i] != cs->enemyNum && AICast_CheckAttack( cs, enemies[i], qfalse ) ) {
 				cs->enemyNum = enemies[i];
-				//G_Printf("aborting, other enemy\n");
+				//Com_Printf("aborting, other enemy\n");
 				return AIFunc_BattleStart( cs );
 			}
 		}
@@ -3792,7 +3792,7 @@ char *AIFunc_GrenadeFlush( cast_state_t *cs ) {
 		//
 		if ( followent->client && followent->health <= 0 ) {
 			cs->enemyNum = -1;
-			//G_Printf("aborting, enemy dead\n");
+			//Com_Printf("aborting, enemy dead\n");
 			return AIFunc_DefaultStart( cs );
 		}
 		//
@@ -3840,7 +3840,7 @@ char *AIFunc_GrenadeFlush( cast_state_t *cs ) {
 			moveresult = AICast_MoveToPos( cs, destorg, cs->enemyNum );
 			if ( moveresult && moveresult->failure ) {    // no path, so go back to idle behaviour
 				cs->enemyNum = -1;
-				//G_Printf("aborting, movement failure\n");
+				//Com_Printf("aborting, movement failure\n");
 				return AIFunc_DefaultStart( cs );
 			} else {
 				moved = qtrue;
@@ -3883,7 +3883,7 @@ char *AIFunc_GrenadeFlush( cast_state_t *cs ) {
 	} else if ( hitclient == -1 ) {
 		// hit a friendly
 		cs->startGrenadeFlushTime = level.time + 3000;  // don't try again for a while
-		//G_Printf("aborting, too dangerous\n");
+		//Com_Printf("aborting, too dangerous\n");
 		return AIFunc_DefaultStart( cs );
 	} else if ( hitclient == -2 ) {
 		// went too far, so angle down a bit
@@ -4600,7 +4600,7 @@ char *AIFunc_Battle( cast_state_t *cs ) {
 			 ( Distance( cs->bs->origin, cs->vislist[cs->enemyNum].real_visible_pos ) < 1200 ) &&
 			 ( AICast_WantsToChase( cs ) ) ) {
 			// try and flush them out with a grenade
-			//G_Printf("get outta there..\n");
+			//Com_Printf("get outta there..\n");
 			return AIFunc_GrenadeFlushStart( cs );
 		} else
 		// not visible, should we chase them?
@@ -4686,7 +4686,7 @@ char *AIFunc_Battle( cast_state_t *cs ) {
 		 ( Distance( cs->bs->origin, cs->vislist[cs->enemyNum].real_visible_pos ) > 100 ) &&
 		 ( Distance( cs->bs->origin, cs->vislist[cs->enemyNum].real_visible_pos ) < 2000 ) ) {
 		// try and flush them out with a grenade
-		//G_Printf("pineapple?\n");
+		//Com_Printf("pineapple?\n");
 		return AIFunc_GrenadeFlushStart( cs );
 	}
 	if ( ( lastGrenadeFlush > level.time || lastGrenadeFlush < level.time - 7000 ) &&
@@ -4700,7 +4700,7 @@ char *AIFunc_Battle( cast_state_t *cs ) {
 		 ( Distance( cs->bs->origin, cs->vislist[cs->enemyNum].real_visible_pos ) > 100 ) &&
 		 ( Distance( cs->bs->origin, cs->vislist[cs->enemyNum].real_visible_pos ) < 2000 ) ) {
 		// try and flush them out with a grenade
-		//G_Printf("pineapple?\n");
+		//Com_Printf("pineapple?\n");
 		return AIFunc_GrenadeFlushStart( cs );
 	}
 	//

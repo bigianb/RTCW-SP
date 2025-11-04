@@ -189,7 +189,7 @@ char *AIFunc_Helga_Melee( cast_state_t *cs ) {
 		// animation interupted
 		cs->aiFlags &= ~AIFL_SPECIAL_FUNC;
 		return AIFunc_DefaultStart( cs );
-		//G_Error( "AIFunc_HelgaZombieMelee: helgaBoss using invalid or unknown attack anim" );
+		//Com_Error( ERR_DROP, "AIFunc_HelgaZombieMelee: helgaBoss using invalid or unknown attack anim" );
 	}
 	if ( cs->animHitCount < MAX_HELGA_IMPACTS && helgaHitTimes[anim][cs->animHitCount] >= 0 ) {
 

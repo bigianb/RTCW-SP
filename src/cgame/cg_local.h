@@ -1787,8 +1787,7 @@ extern vmCvar_t mp_mapTitle;
 const char *CG_ConfigString( int index );
 const char *CG_Argv( int arg );
 
-void  CG_Printf( const char *msg, ... );
-void  CG_Error( const char *msg, ... );
+void  Com_Printf( const char *msg, ... );
 
 void CG_StartMusic( void );
 void CG_QueueMusic( void ); //----(SA)	added
@@ -2211,34 +2210,18 @@ void CG_LoadClientInfo( clientInfo_t *ci );
 // print message on the local console
 void        trap_Print( const char *fmt );
 
-// abort the game
-void        trap_Error( const char *fmt );
-
-// exit game to main menu (credits/etc)
-void        trap_Endgame( void );   //----(SA)	added
 
 // milliseconds should only be used for performance tuning, never
 // for anything game related.  Get time from the CG_DrawActiveFrame parameter
-int         trap_Milliseconds( void );
+int         Sys_Milliseconds( void );
 
 // console variable interaction
 void        Cvar_Register( vmCvar_t *vmCvar, const char *varName, const char *defaultValue, int flags );
 void        Cvar_Update( vmCvar_t *vmCvar );
 void        Cvar_Set( const char *var_name, const char *value );
-void        trap_Cvar_VariableStringBuffer( const char *var_name, char *buffer, int bufsize );
 
 // ServerCommand and ConsoleCommand parameter access
-int         trap_Argc( void );
-void        trap_Argv( int n, char *buffer, int bufferLength );
 void        Cmd_ArgsBuffer( char *buffer, int bufferLength );
-
-// filesystem access
-// returns length of file
-int         trap_FS_FOpenFile( const char *qpath, fileHandle_t *f, fsMode_t mode );
-void        trap_FS_Read( void *buffer, int len, fileHandle_t f );
-
-void        trap_FS_FCloseFile( fileHandle_t f );
-void        trap_FS_CopyFile( char *from, char *to );   //DAJ
 
 // add commands to the local console as if they were typed in
 // for map changing, etc.  The command is not executed immediately,

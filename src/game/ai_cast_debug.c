@@ -42,7 +42,7 @@ If you have questions concerning this license or the applicable additional terms
 #include "../game/be_ai_goal.h"
 #include "../game/be_ai_move.h"
 #include "../botai/botai.h"          //bot ai interface
-
+#include "../qcommon/qcommon.h"
 #include "ai_cast.h"
 
 static int numaifuncs;
@@ -65,7 +65,7 @@ AICast_DBG_AddAIFunc
 void AICast_DBG_AddAIFunc( cast_state_t *cs, char *funcname ) {
 	if ( aicast_debug.integer ) {
 		if ( aicast_debug.integer != 2 || ( g_entities[cs->entityNum].aiName && !strcmp( aicast_debugname.string, g_entities[cs->entityNum].aiName ) ) ) {
-			G_Printf( "%s: %s\n", g_entities[cs->entityNum].aiName, funcname );
+			Com_Printf( "%s: %s\n", g_entities[cs->entityNum].aiName, funcname );
 		}
 	}
 	aifuncs[numaifuncs] = funcname;
@@ -117,7 +117,7 @@ void AICast_DBG_RouteTable_f( vec3_t org, char *param ) {
 //	extern botlib_export_t botlib; // TTimo: unused
 
 	if ( !param || strlen( param ) < 1 ) {
-		trap_Printf( "You must specify 'src', 'dest' or 'show'\n" );
+        Com_Printf( "You must specify 'src', 'dest' or 'show'\n" );
 		return;
 	}
 
@@ -139,7 +139,7 @@ void AICast_DBG_RouteTable_f( vec3_t org, char *param ) {
 		trap_AAS_RT_ShowRoute( org, srcarea - 1, dstarea - 1 );
 	} else
 	{
-		trap_Printf( "You must specify 'src' & 'dest' first\n" );
+        Com_Printf( "You must specify 'src' & 'dest' first\n" );
 	}
 }
 
@@ -160,7 +160,7 @@ void AICast_DBG_Spawn_f( gclient_t *client, char *cmd ) {
 	VectorMA( client->ps.origin, 96, dir, ent->s.origin );
 
 	if ( !G_CallSpawn( ent ) ) {
-		G_Printf( "Error: unable to spawn \"%s\" entity\n", cmd );
+		Com_Printf( "Error: unable to spawn \"%s\" entity\n", cmd );
 	}
 }
 
@@ -181,16 +181,16 @@ void AICast_DBG_Cmd_f( int clientNum ) {
 	}
 
 	// get the first word following "aicast"
-	trap_Argv( 1, cmd, sizeof( cmd ) );
+	Cmd_ArgvBuffer( 1, cmd, sizeof( cmd ) );
 
 	if ( Q_stricmp( cmd, "dbg_routetable" ) == 0 ) {
-		trap_Argv( 2, cmd, sizeof( cmd ) );
+		Cmd_ArgvBuffer( 2, cmd, sizeof( cmd ) );
 		AICast_DBG_RouteTable_f( ent->client->ps.origin, cmd );
 		return;
 	}
 	if ( Q_stricmp( cmd, "spawn" ) == 0 ) {
 		// spawn a given character
-		trap_Argv( 2, cmd, sizeof( cmd ) );
+		Cmd_ArgvBuffer( 2, cmd, sizeof( cmd ) );
 		AICast_DBG_Spawn_f( ent->client, cmd );
 		return;
 	}
@@ -200,7 +200,7 @@ void AICast_DBG_Cmd_f( int clientNum ) {
 	}
 	if ( Q_stricmp( cmd, "followme" ) == 0 ) {
 		// tell character to follow us
-		trap_Argv( 2, cmd, sizeof( cmd ) );
+		Cmd_ArgvBuffer( 2, cmd, sizeof( cmd ) );
 
 		return;
 	}

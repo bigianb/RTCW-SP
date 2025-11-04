@@ -45,6 +45,7 @@ If you have questions concerning this license or the applicable additional terms
 #include "../botai/botai.h"          //bot ai interface
 #include "../qcommon/qcommon.h"
 #include "ai_cast.h"
+#include "../server/server.h"
 
 /*
 The Wolfenstein AI uses the bot movement functions, and goal handling.
@@ -124,12 +125,12 @@ void AICast_Printf( int type, const char *fmt, ... ) {
 
 	switch ( type ) {
 	case AICAST_PRT_ALWAYS: {
-		G_Printf( "%s", str );
+		Com_Printf( "%s", str );
 		break;
 	}
 	default: {
 		if ( aicast_debug.integer >= type ) {
-			G_Printf( "%s", str );
+			Com_Printf( "%s", str );
 		}
 		break;
 	}
@@ -248,7 +249,7 @@ gentity_t *AICast_AddCastToGame( gentity_t *ent, char *castname, char *model, ch
 	// have the server allocate a client slot
 	clientNum = trap_BotAllocateClient();
 	if ( clientNum == -1 ) {
-		G_Printf( S_COLOR_RED "BotAllocateClient failed\n" );
+		Com_Printf( S_COLOR_RED "BotAllocateClient failed\n" );
 		return NULL;
 	}
 	bot = &g_entities[ clientNum ];
@@ -346,15 +347,15 @@ gentity_t *AICast_CreateCharacter( gentity_t *ent, float *attributes, cast_weapo
 	int j;
 
 	// are bots enabled?
-	if ( !trap_Cvar_VariableIntegerValue( "bot_enable" ) ) {
-		G_Printf( S_COLOR_RED "ERROR: Unable to spawn %s, 'bot_enable' is not set\n", ent->classname );
+	if ( !Cvar_VariableIntegerValue( "bot_enable" ) ) {
+		Com_Printf( S_COLOR_RED "ERROR: Unable to spawn %s, 'bot_enable' is not set\n", ent->classname );
 		return NULL;
 	}
 	//
 	// make sure we have a free slot for them
 	//
 	if ( level.numPlayingClients + 1 > aicast_maxclients ) {
-		G_Error( "Exceeded sv_maxclients (%d), unable to create %s\n", aicast_maxclients, ent->classname );
+		Com_Error( ERR_DROP, "Exceeded sv_maxclients (%d), unable to create %s\n", aicast_maxclients, ent->classname );
 		return NULL;
 	}
 	//
@@ -481,14 +482,14 @@ void AICast_Init( void ) {
 	// so if the level has more than 30 AI cast's, they could start to bunch up, resulting in slower thinks
 
 	Cvar_Register( &cvar, "aicast_thinktime", "50", 0 );
-	aicast_thinktime = trap_Cvar_VariableIntegerValue( "aicast_thinktime" );
+	aicast_thinktime = Cvar_VariableIntegerValue( "aicast_thinktime" );
 
 	Cvar_Register( &cvar, "aicast_maxthink", "4", 0 );
-	aicast_maxthink = trap_Cvar_VariableIntegerValue( "aicast_maxthink" );
+	aicast_maxthink = Cvar_VariableIntegerValue( "aicast_maxthink" );
 
-	aicast_maxclients = trap_Cvar_VariableIntegerValue( "sv_maxclients" );
+	aicast_maxclients = Cvar_VariableIntegerValue( "sv_maxclients" );
 
-	aicast_skillscale = (float)trap_Cvar_VariableIntegerValue( "g_gameSkill" ) / (float)GSKILL_MAX;
+	aicast_skillscale = (float)Cvar_VariableIntegerValue( "g_gameSkill" ) / (float)GSKILL_MAX;
 
 	caststates = G_Alloc( aicast_maxclients * sizeof( cast_state_t ) );
 	memset( caststates, 0, aicast_maxclients * sizeof( cast_state_t ) );
@@ -721,7 +722,7 @@ void AICast_CheckLoadGame( void ) {
 	// tell the cgame NOT to render the scene while we are waiting for things to settle
 	Cvar_Set( "cg_norender", "1" );
 
-	trap_Cvar_VariableStringBuffer( "savegame_loading", loading, sizeof( loading ) );
+	Cvar_VariableStringBuffer( "savegame_loading", loading, sizeof( loading ) );
 
 	Cvar_Set( "g_reloading", "1" );
 
@@ -758,7 +759,7 @@ void AICast_CheckLoadGame( void ) {
 			level.reloadPauseTime = level.time + 1100;
 
 			// make sure sound fades up
-			trap_SendServerCommand( -1, va( "snd_fade 1 %d", 2000 ) );  //----(SA)	added
+			SV_GameSendServerCommand( -1, va( "snd_fade 1 %d", 2000 ) );  //----(SA)	added
 
 			AICast_CastScriptThink();
 		}
@@ -788,7 +789,7 @@ void AICast_CheckLoadGame( void ) {
 
 			// (SA) send a command that will be interpreted for both the screenfade and any other effects (music cues, pregame menu, etc)
 			// briefing menu will handle transition, just set a cvar for it to check for drawing the 'continue' button
-			trap_SendServerCommand( -1, "rockandroll\n" );
+			SV_GameSendServerCommand( -1, "rockandroll\n" );
 
 			level.reloadPauseTime = level.time + 1100;
 

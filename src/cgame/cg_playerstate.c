@@ -369,7 +369,7 @@ void CG_CheckChangedPredictableEvents( playerState_t *ps ) {
 				cg.predictableEvents[ i & ( MAX_PREDICTED_EVENTS - 1 ) ] = event;
 
 				if ( cg_showmiss.integer ) {
-					CG_Printf( "WARNING: changed predicted event\n" );
+					Com_Printf( "WARNING: changed predicted event\n" );
 				}
 			}
 		}
@@ -434,7 +434,7 @@ void CG_CheckLocalSounds( playerState_t *ps, playerState_t *ops ) {
 			}
 			break;
 		default:
-			CG_Error( "Bad reward_t" );
+			Com_Error( ERR_DROP, "Bad reward_t" );
 		}
 	} else {
 		// lead changes (only if no reward)

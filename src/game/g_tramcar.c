@@ -252,7 +252,7 @@ void Calc_Roll( gentity_t *ent ) {
 	}
 
 
-// G_Printf ("dot: %5.2f dot2: %5.2f\n", dot, dot2);
+// Com_Printf ("dot: %5.2f dot2: %5.2f\n", dot, dot2);
 
 
 //	VectorCopy (ent->r.currentAngles, ent->TargetAngles);
@@ -275,7 +275,7 @@ void GetNextTrack( gentity_t *ent ) {
 	next = ent->nextTrain;
 
 	if ( !( next->track ) ) {
-		G_Printf( "NULL track name for %s on %s\n", ent->classname, next->targetname );
+		Com_Printf( "NULL track name for %s on %s\n", ent->classname, next->targetname );
 		return;
 	}
 
@@ -295,7 +295,7 @@ void GetNextTrack( gentity_t *ent ) {
 	}
 
 	if ( !num_choices ) {
-		G_Printf( "GetNextTrack didnt find a track\n" );
+		Com_Printf( "GetNextTrack didnt find a track\n" );
 		return;
 	}
 
@@ -320,7 +320,7 @@ void Reached_Tramcar( gentity_t *ent ) {
 
 	// Rafael
 	if ( next->wait == -1 && next->count ) {
-		// G_Printf ("stoped wait = -1 count %i\n",next->count);
+		// Com_Printf ("stoped wait = -1 count %i\n",next->count);
 		return;
 	}
 
@@ -339,9 +339,9 @@ void Reached_Tramcar( gentity_t *ent ) {
 
 				next = ent->nextTrain;
 
-				G_Printf( "changed track to %s\n", next->targetname );
+				Com_Printf( "changed track to %s\n", next->targetname );
 			} else {
-				G_Printf( "%s lap %i\n", next->targetname, next->count );
+				Com_Printf( "%s lap %i\n", next->targetname, next->count );
 			}
 		} else if ( ( next->spawnflags & 1 ) && !( next->count ) && ent->health > 0 )         { // SCRIPT flag
 			GetNextTrack( ent );
@@ -416,7 +416,7 @@ void Reached_Tramcar( gentity_t *ent ) {
 		ent->think = props_me109_think;
 		ent->nextthink = level.time + 50;
 	} else if ( !Q_stricmp( ent->classname, "truck_cam" ) )       {
-		G_Printf( "target: %s\n", next->targetname );
+		Com_Printf( "target: %s\n", next->targetname );
 
 		if ( next->spawnflags & 2 ) { // END
 			ent->s.loopSound = 0; // stop sound
@@ -624,14 +624,14 @@ void TramCarUse( gentity_t *ent, gentity_t *other, gentity_t *activator ) {
 
 		if ( next->wait == -1 && next->count ) {
 			next->count = 0;
-			//G_Printf ("Moving next->count %i\n", next->count);
+			//Com_Printf ("Moving next->count %i\n", next->count);
 		}
 
 		Reached_Tramcar( ent );
 
 	}
 //	else
-//		G_Printf ("no can do havent reached yet\n");
+//		Com_Printf ("no can do havent reached yet\n");
 
 }
 
@@ -708,7 +708,7 @@ void SP_func_tramcar( gentity_t *self ) {
 	}
 
 	if ( !self->target ) {
-		G_Printf( "func_tramcar without a target at %s\n", vtos( self->r.absmin ) );
+		Com_Printf( "func_tramcar without a target at %s\n", vtos( self->r.absmin ) );
 		G_FreeEntity( self );
 		return;
 	}
@@ -811,7 +811,7 @@ the entity will fire its target when reached
 void SP_plane_waypoint( gentity_t *self ) {
 
 	if ( !self->targetname ) {
-		G_Printf( "plane_waypoint with no targetname at %s\n", vtos( self->s.origin ) );
+		Com_Printf( "plane_waypoint with no targetname at %s\n", vtos( self->s.origin ) );
 		G_FreeEntity( self );
 		return;
 	}
@@ -877,7 +877,7 @@ void ExplodePlaneSndFx( gentity_t *self ) {
 		part = fire_flamebarrel( temp, start, dir );
 
 		if ( !part ) {
-			G_Printf( "ExplodePlaneSndFx Failed to spawn part\n" );
+			Com_Printf( "ExplodePlaneSndFx Failed to spawn part\n" );
 			return;
 		}
 
@@ -919,7 +919,7 @@ void ExplodePlaneSndFx( gentity_t *self ) {
 }
 
 void props_me109_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int damage, int mod ) {
-	G_Printf( "dead\n" );
+	Com_Printf( "dead\n" );
 
 	VectorClear( self->rotate );
 	VectorSet( self->rotate, 0, 1, 0 ); //sigh
@@ -937,7 +937,7 @@ void props_me109_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker
 void props_me109_pain( gentity_t *self, gentity_t *attacker, int damage, vec3_t point ) {
 	vec3_t temp;
 
-	G_Printf( "pain: health = %i\n", self->health );
+	Com_Printf( "pain: health = %i\n", self->health );
 
 	VectorCopy( self->r.currentOrigin, temp );
 	VectorCopy( self->pos3, self->r.currentOrigin );
@@ -1081,7 +1081,7 @@ void Think_SetupAirplaneWaypoints( gentity_t *ent ) {
 
 	ent->nextTrain = G_Find( NULL, FOFS( targetname ), ent->target );
 	if ( !ent->nextTrain ) {
-		G_Printf( "plane at %s with an unfound target\n",
+		Com_Printf( "plane at %s with an unfound target\n",
 				  vtos( ent->r.absmin ) );
 		return;
 	}
@@ -1093,7 +1093,7 @@ void Think_SetupAirplaneWaypoints( gentity_t *ent ) {
 		}
 
 		if ( !path->target ) {
-			G_Printf( "plane at %s without a target\n",
+			Com_Printf( "plane at %s without a target\n",
 					  vtos( path->s.origin ) );
 			return;
 		}
@@ -1105,7 +1105,7 @@ void Think_SetupAirplaneWaypoints( gentity_t *ent ) {
 		do {
 			next = G_Find( next, FOFS( targetname ), path->target );
 			if ( !next ) {
-				G_Printf( "plane at %s without a target path_corner\n",
+				Com_Printf( "plane at %s without a target path_corner\n",
 						  vtos( path->s.origin ) );
 				return;
 			}
@@ -1133,14 +1133,14 @@ void PlaneUse( gentity_t *ent, gentity_t *other, gentity_t *activator ) {
 
 		if ( next->wait == -1 && next->count ) {
 			next->count = 0;
-			//G_Printf ("Moving next->count %i\n", next->count);
+			//Com_Printf ("Moving next->count %i\n", next->count);
 		}
 
 		Reached_Tramcar( ent );
 
 	}
 //	else
-//		G_Printf ("no can do havent reached yet\n");
+//		Com_Printf ("no can do havent reached yet\n");
 
 }
 
@@ -1248,7 +1248,7 @@ void truck_cam_touch( gentity_t *self, gentity_t *other, trace_t *trace ) {
 	player = AICast_FindEntityForName( "player" );
 
 	if ( player && player != other ) {
-		// G_Printf ("other: %s\n", other->aiName);
+		// Com_Printf ("other: %s\n", other->aiName);
 		return;
 	}
 
@@ -1295,7 +1295,7 @@ void SP_truck_cam( gentity_t *self ) {
 	}
 
 	if ( !self->target ) {
-		G_Printf( "truck_cam without a target at %s\n", vtos( self->r.absmin ) );
+		Com_Printf( "truck_cam without a target at %s\n", vtos( self->r.absmin ) );
 		G_FreeEntity( self );
 		return;
 	}

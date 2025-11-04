@@ -48,7 +48,7 @@ void CG_TargetCommand_f( void ) {
 		return;
 	}
 
-	trap_Argv( 1, test, 4 );
+	Cmd_ArgvBuffer( 1, test, 4 );
 	Cbuf_AddText( va( "gc %i %i", targetNum, atoi( test ) ) );
 }
 
@@ -86,7 +86,7 @@ Debugging command to print the current position
 =============
 */
 static void CG_Viewpos_f( void ) {
-	CG_Printf( "(%i %i %i) : %i\n", (int)cg.refdef.vieworg[0],
+	Com_Printf( "(%i %i %i) : %i\n", (int)cg.refdef.vieworg[0],
 			   (int)cg.refdef.vieworg[1], (int)cg.refdef.vieworg[2],
 			   (int)cg.refdefViewAngles[YAW] );
 }
@@ -208,7 +208,7 @@ void CG_StartCamera( const char *name, qboolean startBlack ) {
 		trap_stopCamera( CAM_PRIMARY );           // camera off in client
 		CG_Fade( 0, 0, 0, 0, cg.time, 0 );        // ensure fadeup
 		Cvar_Set( "cg_letterbox", "0" );
-		CG_Printf( "Unable to load camera %s\n",lname );
+		Com_Printf( "Unable to load camera %s\n",lname );
 	}
 }
 
@@ -231,7 +231,7 @@ void CG_StopCamera( void ) {
 
 static void CG_Camera_f( void ) {
 	char name[MAX_QPATH];
-	trap_Argv( 1, name, sizeof( name ) );
+	Cmd_ArgvBuffer( 1, name, sizeof( name ) );
 
 	CG_StartCamera( name, qfalse );
 }
@@ -240,7 +240,7 @@ static void CG_Fade_f( void ) {
 	int r, g, b, a;
 	float duration;
 
-	if ( trap_Argc() < 6 ) {
+	if ( Cmd_Argc() < 6 ) {
 		return;
 	}
 

@@ -53,6 +53,7 @@ If you have questions concerning this license or the applicable additional terms
 #include "ai_cmd.h"
 #include "ai_dmnet.h"
 
+#include "../qcommon/qcommon.h"
 
 /*
 ==================
@@ -80,7 +81,7 @@ int BotNumTeamMates( bot_state_t *bs ) {
 	static int maxclients;
 
 	if ( !maxclients ) {
-		maxclients = trap_Cvar_VariableIntegerValue( "sv_maxclients" );
+		maxclients = Cvar_VariableIntegerValue( "sv_maxclients" );
 	}
 
 	numplayers = 0;
@@ -133,7 +134,7 @@ int BotSortTeamMatesByBaseTravelTime( bot_state_t *bs, int *teammates, int maxte
 	bot_goal_t *goal;
 
 	if ( !maxclients ) {
-		maxclients = trap_Cvar_VariableIntegerValue( "sv_maxclients" );
+		maxclients = Cvar_VariableIntegerValue( "sv_maxclients" );
 	}
 
 	numteammates = 0;

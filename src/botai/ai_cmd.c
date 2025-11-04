@@ -58,7 +58,7 @@ If you have questions concerning this license or the applicable additional terms
 #include "syn.h"             //synonyms
 #include "match.h"               //string matching types and vars
 
-
+#include "../qcommon/qcommon.h"
 
 /*
 ==================
@@ -150,7 +150,7 @@ int FindClientByName( char *name ) {
 	static int maxclients;
 
 	if ( !maxclients ) {
-		maxclients = trap_Cvar_VariableIntegerValue( "sv_maxclients" );
+		maxclients = Cvar_VariableIntegerValue( "sv_maxclients" );
 	}
 	for ( i = 0; i < maxclients && i < MAX_CLIENTS; i++ ) {
 		ClientName( i, buf, sizeof( buf ) );
@@ -178,7 +178,7 @@ int FindEnemyByName( bot_state_t *bs, char *name ) {
 	static int maxclients;
 
 	if ( !maxclients ) {
-		maxclients = trap_Cvar_VariableIntegerValue( "sv_maxclients" );
+		maxclients = Cvar_VariableIntegerValue( "sv_maxclients" );
 	}
 	for ( i = 0; i < maxclients && i < MAX_CLIENTS; i++ ) {
 		if ( BotSameTeam( bs, i ) ) {
@@ -212,7 +212,7 @@ int NumPlayersOnSameTeam( bot_state_t *bs ) {
 	static int maxclients;
 
 	if ( !maxclients ) {
-		maxclients = trap_Cvar_VariableIntegerValue( "sv_maxclients" );
+		maxclients = Cvar_VariableIntegerValue( "sv_maxclients" );
 	}
 
 	num = 0;

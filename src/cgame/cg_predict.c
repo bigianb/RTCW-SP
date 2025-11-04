@@ -585,7 +585,7 @@ void CG_PredictPlayerState( void ) {
 	if ( oldestCmd.serverTime > cg.snap->ps.commandTime
 		 && oldestCmd.serverTime < cg.time ) {  // special check for map_restart
 		if ( cg_showmiss.integer ) {
-			CG_Printf( "exceeded PACKET_BACKUP on commands\n" );
+			Com_Printf( "exceeded PACKET_BACKUP on commands\n" );
 		}
 //		return;
 	}
@@ -666,7 +666,7 @@ void CG_PredictPlayerState( void ) {
 				// a teleport will not cause an error decay
 				VectorClear( cg.predictedError );
 				if ( cg_showmiss.integer ) {
-					CG_Printf( "PredictionTeleport\n" );
+					Com_Printf( "PredictionTeleport\n" );
 				}
 				cg.thisFrameTeleport = qfalse;
 			} else {
@@ -678,14 +678,14 @@ void CG_PredictPlayerState( void ) {
 
 				if ( cg_showmiss.integer ) {
 					if ( !VectorCompare( oldPlayerState.origin, adjusted ) ) {
-						CG_Printf( "prediction error\n" );
+						Com_Printf( "prediction error\n" );
 					}
 				}
 				VectorSubtract( oldPlayerState.origin, adjusted, delta );
 				len = VectorLength( delta );
 				if ( len > 0.1 ) {
 					if ( cg_showmiss.integer ) {
-						CG_Printf( "Prediction miss: %f\n", len );
+						Com_Printf( "Prediction miss: %f\n", len );
 					}
 					if ( cg_errorDecay.integer ) {
 						int t;
@@ -697,7 +697,7 @@ void CG_PredictPlayerState( void ) {
 							f = 0;
 						}
 						if ( f > 0 && cg_showmiss.integer ) {
-							CG_Printf( "Double prediction decay: %f\n", f );
+							Com_Printf( "Double prediction decay: %f\n", f );
 						}
 						VectorScale( cg.predictedError, f, cg.predictedError );
 					} else {
@@ -742,12 +742,12 @@ void CG_PredictPlayerState( void ) {
 	}
 
 	if ( cg_showmiss.integer > 1 ) {
-		CG_Printf( "[%i : %i] ", cg_pmove.cmd.serverTime, cg.time );
+		Com_Printf( "[%i : %i] ", cg_pmove.cmd.serverTime, cg.time );
 	}
 
 	if ( !moved ) {
 		if ( cg_showmiss.integer ) {
-			CG_Printf( "not moved\n" );
+			Com_Printf( "not moved\n" );
 		}
 		return;
 	}

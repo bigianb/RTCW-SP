@@ -45,6 +45,7 @@ If you have questions concerning this license or the applicable additional terms
 #include "../botai/botai.h"          //bot ai interface
 
 #include "ai_cast.h"
+#include "../qcommon/qcommon.h"
 
 /*
 Contains response functions for various events that require specific handling
@@ -107,7 +108,7 @@ void AICast_Pain( gentity_t *targ, gentity_t *attacker, int damage, vec3_t point
 
 	// print debugging message
 	if ( aicast_debug.integer == 2 && attacker->s.number == 0 ) {
-		G_Printf( "hit %s %i\n", targ->aiName, targ->health );
+		Com_Printf( "hit %s %i\n", targ->aiName, targ->health );
 	}
 
 	// if we are below alert mode, then go there immediately
@@ -164,7 +165,7 @@ void AICast_Die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
 
 	// print debugging message
 	if ( aicast_debug.integer == 2 && attacker->s.number == 0 ) {
-		G_Printf( "killed %s\n", self->aiName );
+		Com_Printf( "killed %s\n", self->aiName );
 	}
 
 	cs = AICast_GetCastState( self->s.number );
@@ -327,7 +328,7 @@ void AICast_Die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
 		// if end map, sink into ground
 		cs->deadSinkStartTime = 0;
 		if ( cs->aiCharacter == AICHAR_WARZOMBIE ) {
-			trap_Cvar_VariableStringBuffer( "mapname", mapname, sizeof( mapname ) );
+			Cvar_VariableStringBuffer( "mapname", mapname, sizeof( mapname ) );
 			if ( !Q_strncmp( mapname, "end", 3 ) ) {    // !! FIXME: post beta2, make this a spawnflag!
 				cs->deadSinkStartTime = level.time + 4000;
 			}
@@ -411,7 +412,7 @@ void AICast_AIDoor_Touch( gentity_t *ent, gentity_t *aidoor_trigger, gentity_t *
 
 	// does the aidoor have ai_marker's?
 	if ( !aidoor_trigger->targetname ) {
-		G_Printf( "trigger_aidoor has no ai_marker's at %s\n", vtos( ent->r.currentOrigin ) );
+		Com_Printf( "trigger_aidoor has no ai_marker's at %s\n", vtos( ent->r.currentOrigin ) );
 		return;
 	}
 

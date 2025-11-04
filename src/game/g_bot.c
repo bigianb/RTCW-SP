@@ -76,7 +76,7 @@ static void AddBotToSpawnQueue( int clientNum, int delay ) {
 		}
 	}
 
-	G_Printf( S_COLOR_YELLOW "Unable to delay spawn\n" );
+	Com_Printf( S_COLOR_YELLOW "Unable to delay spawn\n" );
 	ClientBegin( clientNum );
 }
 
@@ -108,7 +108,7 @@ qboolean G_BotConnect( int clientNum, qboolean restart ) {
 	Q_strncpyz( settings.team, Info_ValueForKey( userinfo, "team" ), sizeof( settings.team ) );
 
 	if ( !BotAISetupClient( clientNum, &settings ) ) {
-		trap_DropClient( clientNum, "BotAISetupClient failed" );
+		SV_GameDropClient( clientNum, "BotAISetupClient failed" );
 		return qfalse;
 	}
 

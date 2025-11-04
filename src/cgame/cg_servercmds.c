@@ -35,6 +35,7 @@ If you have questions concerning this license or the applicable additional terms
 #include "cg_local.h"
 #include "../ui/ui_shared.h" // bk001205 - for Q3_ui as well
 #include "../client/snd_public.h"
+#include "../qcommon/qcommon.h"
 
 /*
 =================
@@ -415,7 +416,7 @@ static void CG_ConfigStringModified( void ) {
 	}
 //----(SA)	have not reached this code yet so I don't know if I really need this here
 	else if ( num >= CS_DLIGHTS && num < CS_DLIGHTS + MAX_DLIGHTS ) {
-		CG_Printf( ">>>>>>>>>>>got configstring for dlight: %d\ntell Sherman!!!!!!!!!!", num - CS_DLIGHTS );
+		Com_Printf( ">>>>>>>>>>>got configstring for dlight: %d\ntell Sherman!!!!!!!!!!", num - CS_DLIGHTS );
 //----(SA)
 	} else if ( num == CS_SHADERSTATE )   {
 		CG_ShaderStateChanged();
@@ -544,7 +545,7 @@ static void CG_MapRestart( void ) {
 //	char buff[64];
 	int i;
 	if ( cg_showmiss.integer ) {
-		CG_Printf( "CG_MapRestart\n" );
+		Com_Printf( "CG_MapRestart\n" );
 	}
 
 	memset( &cg.lastWeapSelInBank[0], 0, MAX_WEAP_BANKS * sizeof( int ) );  // clear weapon bank selections
@@ -738,7 +739,7 @@ static void CG_ServerCommand( void ) {
 	}
 
 	if ( !strcmp( cmd, "print" ) ) {
-		CG_Printf( "%s", CG_Argv( 1 ) );
+		Com_Printf( "%s", CG_Argv( 1 ) );
 		return;
 	}
 
@@ -747,7 +748,7 @@ static void CG_ServerCommand( void ) {
 			trap_S_StartLocalSound( cgs.media.talkSound, CHAN_LOCAL_SOUND );
 			Q_strncpyz( text, CG_Argv( 1 ), MAX_SAY_TEXT );
 			CG_RemoveChatEscapeChar( text );
-			CG_Printf( "%s\n", text );
+			Com_Printf( "%s\n", text );
 		}
 		return;
 	}
@@ -757,7 +758,7 @@ static void CG_ServerCommand( void ) {
 		Q_strncpyz( text, CG_Argv( 1 ), MAX_SAY_TEXT );
 		CG_RemoveChatEscapeChar( text );
 		CG_AddToTeamChat( text );
-		CG_Printf( "%s\n", text );
+		Com_Printf( "%s\n", text );
 		return;
 	}
 
@@ -778,7 +779,7 @@ static void CG_ServerCommand( void ) {
 	}
 
 	if ( Q_stricmp( cmd, "remapShader" ) == 0 ) {
-		if ( trap_Argc() == 4 ) {
+		if ( Cmd_Argc() == 4 ) {
 			char shader1[MAX_QPATH];
 			char shader2[MAX_QPATH];
 			char shader3[MAX_QPATH];
@@ -886,13 +887,13 @@ static void CG_ServerCommand( void ) {
 
 		// just open the file so it gets copied to the build dir
 		//CG_FileTouchForBuild(CG_Argv(1));
-		trap_FS_FOpenFile( CG_Argv( 1 ), &f, FS_READ );
-		trap_FS_FCloseFile( f );
+		FS_FOpenFileByMode( CG_Argv( 1 ), &f, FS_READ );
+		FS_FCloseFile( f );
 		return;
 	}
 
 
-	CG_Printf( "Unknown client game command: %s\n", cmd );
+	Com_Printf( "Unknown client game command: %s\n", cmd );
 }
 
 

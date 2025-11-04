@@ -179,7 +179,7 @@ int ClientFromName( char *name ) {
 	static int maxclients;
 
 	if ( !maxclients ) {
-		maxclients = trap_Cvar_VariableIntegerValue( "sv_maxclients" );
+		maxclients = Cvar_VariableIntegerValue( "sv_maxclients" );
 	}
 	for ( i = 0; i < maxclients && i < MAX_CLIENTS; i++ ) {
 		trap_GetConfigstring( CS_PLAYERS + i, buf, sizeof( buf ) );
@@ -2704,10 +2704,10 @@ void BotSetupDeathmatchAI( void ) {
 	int ent, modelnum;
 	char model[128];
 
-	gametype = trap_Cvar_VariableIntegerValue( "g_gametype" );
+	gametype = Cvar_VariableIntegerValue( "g_gametype" );
 
 	// Rafael gameskill
-	gameskill = trap_Cvar_VariableIntegerValue( "g_gameskill" );
+	gameskill = Cvar_VariableIntegerValue( "g_gameskill" );
 	// done
 
 	Cvar_Register( &bot_rocketjump, "bot_rocketjump", "1", 0 );

@@ -50,7 +50,7 @@ void UI_StartDemoLoop( void ) {
 char *UI_Argv( int arg ) {
 	static char buffer[MAX_STRING_CHARS];
 
-	trap_Argv( arg, buffer, sizeof( buffer ) );
+	Cmd_ArgvBuffer( arg, buffer, sizeof( buffer ) );
 
 	return buffer;
 }
@@ -59,7 +59,7 @@ char *UI_Argv( int arg ) {
 char *UI_Cvar_VariableString( const char *var_name ) {
 	static char buffer[MAX_STRING_CHARS];
 
-	trap_Cvar_VariableStringBuffer( var_name, buffer, sizeof( buffer ) );
+	Cvar_VariableStringBuffer( var_name, buffer, sizeof( buffer ) );
 
 	return buffer;
 }
@@ -107,7 +107,7 @@ qboolean UI_ConsoleCommand( int realTime ) {
 	}
 
 	if ( Q_stricmp( cmd, "remapShader" ) == 0 ) {
-		if ( trap_Argc() == 4 ) {
+		if ( Cmd_Argc() == 4 ) {
 			char shader1[MAX_QPATH];
 			char shader2[MAX_QPATH];
 			Q_strncpyz( shader1, UI_Argv( 1 ), sizeof( shader1 ) );

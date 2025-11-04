@@ -86,7 +86,7 @@ void SP_ai_marker( gentity_t *ent ) {
 		trap_Trace( &tr, ent->r.currentOrigin, checkMins, checkMaxs, dest, ent->s.number, MASK_PLAYERSOLID | CONTENTS_MONSTERCLIP );
 
 		if ( tr.startsolid ) {
-			G_Printf( "WARNING: ai_marker (%s) in solid at %s\n", ent->targetname, vtos( ent->r.currentOrigin ) );
+			Com_Printf( "WARNING: ai_marker (%s) in solid at %s\n", ent->targetname, vtos( ent->r.currentOrigin ) );
 			return;
 		}
 
@@ -115,7 +115,7 @@ void ai_effect_think( gentity_t *ent ) {
 		ent->think = ai_effect_think;
 		ent->nextthink = level.time + 200;
 		return;
-		//G_Error( "ai_effect with invalid aiName at %s\n", vtos(ent->s.origin) );
+		//Com_Error( ERR_DROP, "ai_effect with invalid aiName at %s\n", vtos(ent->s.origin) );
 	}
 
 	// make sure the clients can use this association
@@ -213,10 +213,10 @@ void SP_ai_trigger( gentity_t *ent ) {
 	G_SpawnFloat( "wait", "-1", &ent->wait );
 
 	if ( !ent->aiName ) {
-		G_Error( "ai_trigger without \"ainame\"\n" );
+		Com_Error( ERR_DROP, "ai_trigger without \"ainame\"\n" );
 	}
 	if ( !ent->target ) {
-		G_Error( "ai_trigger without \"target\"\n" );
+		Com_Error( ERR_DROP, "ai_trigger without \"target\"\n" );
 	}
 
 	if ( ent->spawnflags & 1 ) { // TriggerSpawn

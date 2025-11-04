@@ -993,7 +993,7 @@ static qboolean UI_ParseAnimationFile( const char *filename, playerInfo_t *pi ) 
 	memset( pi->animations, 0, sizeof( animation_t ) * MAX_ANIMATIONS );
 
 	// load the file
-	len = trap_FS_FOpenFile( filename, &f, FS_READ );
+	len = FS_FOpenFileByMode( filename, &f, FS_READ );
 	if ( len <= 0 ) {
 		return qfalse;
 	}
@@ -1001,9 +1001,9 @@ static qboolean UI_ParseAnimationFile( const char *filename, playerInfo_t *pi ) 
 		Com_Printf( "File %s too long\n", filename );
 		return qfalse;
 	}
-	trap_FS_Read( text, len, f );
+	FS_Read( text, len, f );
 	text[len] = 0;
-	trap_FS_FCloseFile( f );
+	FS_FCloseFile( f );
 
 	// parse the text
 	text_p = text;

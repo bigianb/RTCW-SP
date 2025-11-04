@@ -63,7 +63,6 @@ static void SV_Map_f( void ) {
 		// open the savegame, read the mapname, and copy it to the map string
 		char savemap[MAX_QPATH];
 		byte *buffer;
-		int size, csize;
 
 		if ( !( strstr( map, "save/" ) == map ) ) {
 			snprintf( savemap, sizeof( savemap ), "save/%s", map );
@@ -71,7 +70,7 @@ static void SV_Map_f( void ) {
 			strcpy( savemap, map );
 		}
 
-		size = FS_ReadFile( savemap, NULL );
+		size_t size = FS_ReadFile( savemap, NULL );
 		if ( size < 0 ) {
 			Com_Printf( "Can't find savegame %s\n", savemap );
 			return;
@@ -83,7 +82,7 @@ static void SV_Map_f( void ) {
 			// copy it to the current savegame file
 			FS_WriteFile( "save/current.svg", buffer, size );
 			// make sure it is the correct size
-			csize = FS_ReadFile( "save/current.svg", NULL );
+			size_t csize = FS_ReadFile( "save/current.svg", NULL );
 			if ( csize != size ) {
 				Hunk_FreeTempMemory( buffer );
 				FS_Delete( "save/current.svg" );

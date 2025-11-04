@@ -213,7 +213,7 @@ void CG_LoseArmor( centity_t *cent, int index ) {
 
 	clientNum = cent->currentState.clientNum;
 	if ( clientNum < 0 || clientNum >= MAX_CLIENTS ) {
-		CG_Error( "Bad clientNum on player entity" );
+		Com_Error( ERR_DROP, "Bad clientNum on player entity" );
 	}
 	ci = &cgs.clientinfo[ clientNum ];
 
@@ -839,7 +839,7 @@ void CG_Item_f( void ) {
 
 	cg.holdableSelectTime = cg.time;
 
-	CG_Printf( "Item set to: d\n", num );
+	Com_Printf( "Item set to: d\n", num );
 }
 
 
@@ -941,7 +941,7 @@ static void CG_Item( centity_t *cent ) {
 	// (item index is stored in es->modelindex for item)
 
 	if ( es->modelindex >= bg_numItems ) {
-		CG_Error( "Bad item index %i on entity", es->modelindex );
+		Com_Error( ERR_DROP, "Bad item index %i on entity", es->modelindex );
 	}
 
 	// if set to invisible, skip
@@ -1574,7 +1574,7 @@ static void CG_Corona( centity_t *cent ) {
 	}
 	// yeah, I could calc side planes to clip against, but would that be worth it? (much better than dumb dot>= thing?)
 
-//	CG_Printf("dot: %f\n", dot);
+//	Com_Printf("dot: %f\n", dot);
 
 	if ( cg_coronas.integer == 2 ) {   // if set to '2' trace everything
 		behind = qfalse;
@@ -2120,7 +2120,7 @@ static void CG_Prop( centity_t *cent ) {
 			ent.backlerp = 1 - cg.frameInterpolation;
 			ent.renderfx = RF_DEPTHHACK | RF_FIRST_PERSON;
 
-			//CG_Printf ("frame %d oldframe %d\n", ent.frame, ent.oldframe);
+			//Com_Printf ("frame %d oldframe %d\n", ent.frame, ent.oldframe);
 		} else if ( ent.frame )     {
 			ent.oldframe -= 1;
 			ent.backlerp = 1 - cg.frameInterpolation;
@@ -2270,7 +2270,7 @@ static void CG_InterpolateEntityPosition( centity_t *cent ) {
 	// it would be an internal error to find an entity that interpolates without
 	// a snapshot ahead of the current one
 	if ( cg.nextSnap == NULL ) {
-		CG_Error( "CG_InterpoateEntityPosition: cg.nextSnap == NULL" );
+		Com_Error( ERR_DROP, "CG_InterpoateEntityPosition: cg.nextSnap == NULL" );
 	}
 
 	f = cg.frameInterpolation;
@@ -2325,7 +2325,7 @@ CG_ProcessEntity
 static void CG_ProcessEntity( centity_t *cent ) {
 	switch ( cent->currentState.eType ) {
 	default:
-		CG_Error( "Bad entity type: %i\n", cent->currentState.eType );
+		Com_Error( ERR_DROP, "Bad entity type: %i\n", cent->currentState.eType );
 		break;
 	case ET_CAMERA:
 	case ET_INVISIBLE:
@@ -2487,17 +2487,17 @@ static void CG_AddEntityToTag( centity_t *cent ) {
 		if ( atoi( token ) == s1->number ) {
 			token = COM_Parse( &cs );
 			if ( !token[0] ) {
-				CG_Error( "CG_EntityTagConnected: missing parameter in configstring" );
+				Com_Error( ERR_DROP, "CG_EntityTagConnected: missing parameter in configstring" );
 			}
 			pi = atoi( token );
 			if ( pi < 0 || pi >= MAX_GENTITIES ) {
-				CG_Error( "CG_EntityTagConnected: parent out of range" );
+				Com_Error( ERR_DROP, "CG_EntityTagConnected: parent out of range" );
 			}
 			centParent = &cg_entities[pi];
 			sParent = &( cg_entities[pi].currentState );
 			token = COM_Parse( &cs );
 			if ( !token[0] ) {
-				CG_Error( "CG_EntityTagConnected: missing parameter in configstring" );
+				Com_Error( ERR_DROP, "CG_EntityTagConnected: missing parameter in configstring" );
 			}
 
 			// NOTE: token is now the tag name to attach to
@@ -2508,7 +2508,7 @@ static void CG_AddEntityToTag( centity_t *cent ) {
 
 	if ( !sParent ) {
 		//return;	// assume the configstring hasn't arrived yet?
-		CG_Error( "CG_EntityTagConnected: unable to find configstring to perform connection" );
+		Com_Error( ERR_DROP, "CG_EntityTagConnected: unable to find configstring to perform connection" );
 	}
 
 	// if parent isn't visible, then don't draw us

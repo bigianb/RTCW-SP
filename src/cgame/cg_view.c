@@ -29,6 +29,7 @@ If you have questions concerning this license or the applicable additional terms
 // cg_view.c -- setup all the parameters (position, angle, etc)
 // for a 3D rendering
 #include "cg_local.h"
+#include "../qcommon/qcommon.h"
 
 //========================
 extern int notebookModel;
@@ -81,20 +82,20 @@ void CG_TestModel_f( void ) {
 	vec3_t angles;
 
 	memset( &cg.testModelEntity, 0, sizeof( cg.testModelEntity ) );
-	if ( trap_Argc() < 2 ) {
+	if ( Cmd_Argc() < 2 ) {
 		return;
 	}
 
 	Q_strncpyz( cg.testModelName, CG_Argv( 1 ), MAX_QPATH );
 	cg.testModelEntity.hModel = trap_R_RegisterModel( cg.testModelName );
 
-	if ( trap_Argc() == 3 ) {
+	if ( Cmd_Argc() == 3 ) {
 		cg.testModelEntity.backlerp = atof( CG_Argv( 2 ) );
 		cg.testModelEntity.frame = 1;
 		cg.testModelEntity.oldframe = 0;
 	}
 	if ( !cg.testModelEntity.hModel ) {
-		CG_Printf( "Can't register model\n" );
+		Com_Printf( "Can't register model\n" );
 		return;
 	}
 
@@ -124,7 +125,7 @@ void CG_TestGun_f( void ) {
 
 void CG_TestModelNextFrame_f( void ) {
 	cg.testModelEntity.frame++;
-	CG_Printf( "frame %i\n", cg.testModelEntity.frame );
+	Com_Printf( "frame %i\n", cg.testModelEntity.frame );
 }
 
 void CG_TestModelPrevFrame_f( void ) {
@@ -132,12 +133,12 @@ void CG_TestModelPrevFrame_f( void ) {
 	if ( cg.testModelEntity.frame < 0 ) {
 		cg.testModelEntity.frame = 0;
 	}
-	CG_Printf( "frame %i\n", cg.testModelEntity.frame );
+	Com_Printf( "frame %i\n", cg.testModelEntity.frame );
 }
 
 void CG_TestModelNextSkin_f( void ) {
 	cg.testModelEntity.skinNum++;
-	CG_Printf( "skin %i\n", cg.testModelEntity.skinNum );
+	Com_Printf( "skin %i\n", cg.testModelEntity.skinNum );
 }
 
 void CG_TestModelPrevSkin_f( void ) {
@@ -145,7 +146,7 @@ void CG_TestModelPrevSkin_f( void ) {
 	if ( cg.testModelEntity.skinNum < 0 ) {
 		cg.testModelEntity.skinNum = 0;
 	}
-	CG_Printf( "skin %i\n", cg.testModelEntity.skinNum );
+	Com_Printf( "skin %i\n", cg.testModelEntity.skinNum );
 }
 
 static void CG_AddTestModel( void ) {
@@ -154,7 +155,7 @@ static void CG_AddTestModel( void ) {
 	// re-register the model, because the level may have changed
 	cg.testModelEntity.hModel = trap_R_RegisterModel( cg.testModelName );
 	if ( !cg.testModelEntity.hModel ) {
-		CG_Printf( "Can't register model\n" );
+		Com_Printf( "Can't register model\n" );
 		return;
 	}
 
@@ -1237,25 +1238,25 @@ void CG_DrawSkyBoxPortal( void ) {
 	if ( cg_skybox.integer ) {
 		token = COM_ParseExt( &cstr, qfalse );
 		if ( !token || !token[0] ) {
-			CG_Error( "CG_DrawSkyBoxPortal: error parsing skybox configstring\n" );
+			Com_Error( ERR_DROP, "CG_DrawSkyBoxPortal: error parsing skybox configstring\n" );
 		}
 		cg.refdef.vieworg[0] = atof( token );
 
 		token = COM_ParseExt( &cstr, qfalse );
 		if ( !token || !token[0] ) {
-			CG_Error( "CG_DrawSkyBoxPortal: error parsing skybox configstring\n" );
+			Com_Error( ERR_DROP, "CG_DrawSkyBoxPortal: error parsing skybox configstring\n" );
 		}
 		cg.refdef.vieworg[1] = atof( token );
 
 		token = COM_ParseExt( &cstr, qfalse );
 		if ( !token || !token[0] ) {
-			CG_Error( "CG_DrawSkyBoxPortal: error parsing skybox configstring\n" );
+			Com_Error( ERR_DROP, "CG_DrawSkyBoxPortal: error parsing skybox configstring\n" );
 		}
 		cg.refdef.vieworg[2] = atof( token );
 
 		token = COM_ParseExt( &cstr, qfalse );
 		if ( !token || !token[0] ) {
-			CG_Error( "CG_DrawSkyBoxPortal: error parsing skybox configstring\n" );
+			Com_Error( ERR_DROP, "CG_DrawSkyBoxPortal: error parsing skybox configstring\n" );
 		}
 		fov_x = atoi( token );
 
@@ -1267,7 +1268,7 @@ void CG_DrawSkyBoxPortal( void ) {
 		// setup fog the first time, ignore this part of the configstring after that
 		token = COM_ParseExt( &cstr, qfalse );
 		if ( !token || !token[0] ) {
-			CG_Error( "CG_DrawSkyBoxPortal: error parsing skybox configstring.  No fog state\n" );
+			Com_Error( ERR_DROP, "CG_DrawSkyBoxPortal: error parsing skybox configstring.  No fog state\n" );
 		} else {
 			vec4_t fogColor;
 			int fogStart, fogEnd;
@@ -1277,19 +1278,19 @@ void CG_DrawSkyBoxPortal( void ) {
 				if ( 1 ) {
 					token = COM_ParseExt( &cstr, qfalse );
 					if ( !token || !token[0] ) {
-						CG_Error( "CG_DrawSkyBoxPortal: error parsing skybox configstring.  No fog[0]\n" );
+						Com_Error( ERR_DROP, "CG_DrawSkyBoxPortal: error parsing skybox configstring.  No fog[0]\n" );
 					}
 					fogColor[0] = atof( token );
 
 					token = COM_ParseExt( &cstr, qfalse );
 					if ( !token || !token[0] ) {
-						CG_Error( "CG_DrawSkyBoxPortal: error parsing skybox configstring.  No fog[1]\n" );
+						Com_Error( ERR_DROP, "CG_DrawSkyBoxPortal: error parsing skybox configstring.  No fog[1]\n" );
 					}
 					fogColor[1] = atof( token );
 
 					token = COM_ParseExt( &cstr, qfalse );
 					if ( !token || !token[0] ) {
-						CG_Error( "CG_DrawSkyBoxPortal: error parsing skybox configstring.  No fog[2]\n" );
+						Com_Error( ERR_DROP, "CG_DrawSkyBoxPortal: error parsing skybox configstring.  No fog[2]\n" );
 					}
 					fogColor[2] = atof( token );
 
@@ -1558,7 +1559,7 @@ void CG_DrawActiveFrame( int serverTime, stereoFrame_t stereoView, qboolean demo
 	trap_S_Respatialize( cg.snap->ps.clientNum, cg.refdef.vieworg, cg.refdef.viewaxis, inwater );
 
 	if ( cg_stats.integer ) {
-		CG_Printf( "cg.clientFrame:%i\n", cg.clientFrame );
+		Com_Printf( "cg.clientFrame:%i\n", cg.clientFrame );
 	}
 }
 

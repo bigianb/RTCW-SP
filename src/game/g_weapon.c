@@ -393,7 +393,7 @@ float G_GetWeaponSpread( int weapon ) {
 		case WP_SNOOPERSCOPE: return 700;
 		}
 	}
-	G_Printf( "shouldn't ever get here (weapon %d)\n",weapon );
+	Com_Printf( "shouldn't ever get here (weapon %d)\n",weapon );
 	// jpw
 	return 0;   // shouldn't get here
 }
@@ -457,7 +457,7 @@ void Tesla_Fire( gentity_t *ent ) {
 	// TODO: Find all targets in the client's view frame, and lock onto them all, applying damage
 	// and telling all clients to draw the appropriate effects.
 
-	//G_Printf("TODO: Tesla damage/effects\n" );
+	//Com_Printf("TODO: Tesla damage/effects\n" );
 }
 
 
@@ -1550,11 +1550,11 @@ void FireWeapon( gentity_t *ent ) {
 			break;
 		case AICHAR_ZOMBIE:
 			// temp just to show it works
-			// G_Printf("ptoo\n");
+			// Com_Printf("ptoo\n");
 			weapon_zombiespit( ent );
 			break;
 		default:
-			//G_Printf( "FireWeapon: unknown ai weapon: %s attack1\n", ent->classname );
+			//Com_Printf( "FireWeapon: unknown ai weapon: %s attack1\n", ent->classname );
 			// ??? bug ???
 			break;
 		}
@@ -1563,7 +1563,7 @@ void FireWeapon( gentity_t *ent ) {
 		break;
 
 	default:
-// FIXME		G_Error( "Bad ent->s.weapon" );
+// FIXME		Com_Error( ERR_DROP, "Bad ent->s.weapon" );
 		break;
 	}
 

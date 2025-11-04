@@ -269,7 +269,7 @@ static float CG_DrawFPS( float y ) {
 
 	// don't use serverTime, because that will be drifting to
 	// correct for internet lag changes, timescales, timedemos, etc
-	t = trap_Milliseconds();
+	t = Sys_Milliseconds();
 	frameTime = t - previous;
 	previous = t;
 
@@ -1630,7 +1630,7 @@ static void CG_DrawFlashFade( void ) {
 	if ( cgs.scrFadeStartTime + cgs.scrFadeDuration < cg.time ) {
 		cgs.scrFadeAlphaCurrent = cgs.scrFadeAlpha;
 	} else if ( cgs.scrFadeAlphaCurrent != cgs.scrFadeAlpha ) {
-		elapsed = ( time = trap_Milliseconds() ) - lastTime;  // we need to use trap_Milliseconds() here since the cg.time gets modified upon reloading
+		elapsed = ( time = Sys_Milliseconds() ) - lastTime;  // we need to use Sys_Milliseconds() here since the cg.time gets modified upon reloading
 		lastTime = time;
 		if ( elapsed < 500 && elapsed > 0 ) {
 			if ( cgs.scrFadeAlphaCurrent > cgs.scrFadeAlpha ) {
@@ -1648,7 +1648,7 @@ static void CG_DrawFlashFade( void ) {
 	}
 	// now draw the fade
 	if ( cgs.scrFadeAlphaCurrent > 0.0 ) {
-//		CG_Printf("fade: %f\n", cgs.scrFadeAlphaCurrent);
+//		Com_Printf("fade: %f\n", cgs.scrFadeAlphaCurrent);
 		VectorClear( col );
 		col[3] = cgs.scrFadeAlphaCurrent;
 //		CG_FillRect( -10, -10, 650, 490, col );
@@ -2306,7 +2306,7 @@ void CG_DrawActive( stereoFrame_t stereoView ) {
 		break;
 	default:
 		separation = 0;
-		CG_Error( "CG_DrawActive: Undefined stereoView" );
+		Com_Error( ERR_DROP, "CG_DrawActive: Undefined stereoView" );
 	}
 
 	// offset vieworg appropriately if we're doing stereo separation

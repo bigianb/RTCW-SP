@@ -35,6 +35,7 @@ If you have questions concerning this license or the applicable additional terms
 
 #include "g_local.h"
 #include "g_func_decs.h"
+#include "../server/server.h"
 
 /*
 ============
@@ -505,9 +506,9 @@ void player_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
 	memset( self->client->ps.powerups, 0, sizeof( self->client->ps.powerups ) );
 
 	if ( g_gametype.integer == GT_SINGLE_PLAYER ) {
-		trap_SendServerCommand( -1, "mu_play sound/music/l_failed_1.wav 0\n" );
+		SV_GameSendServerCommand( -1, "mu_play sound/music/l_failed_1.wav 0\n" );
 		trap_SetConfigstring( CS_MUSIC_QUEUE, "" );  // clear queue so it'll be quiet after hit
-		trap_SendServerCommand( -1, "cp missionfail0" );
+		SV_GameSendServerCommand( -1, "cp missionfail0" );
 	}
 
 
@@ -1246,7 +1247,7 @@ void G_Damage( gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
 
 
 	if ( g_debugDamage.integer ) {
-		G_Printf( "client:%i health:%i damage:%i armor:%i\n", targ->s.number,
+		Com_Printf( "client:%i health:%i damage:%i armor:%i\n", targ->s.number,
 				  targ->health, take, asave );
 	}
 
@@ -1294,7 +1295,7 @@ void G_Damage( gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
 			}
 		}
 
-		//G_Printf("health at: %d\n", targ->health);
+		//Com_Printf("health at: %d\n", targ->health);
 		if ( targ->health <= 0 ) {
 			if ( client ) {
 				targ->flags |= FL_NO_KNOCKBACK;

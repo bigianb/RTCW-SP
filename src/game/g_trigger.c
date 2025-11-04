@@ -27,7 +27,7 @@ If you have questions concerning this license or the applicable additional terms
 */
 
 #include "g_local.h"
-
+#include "../server/server.h"
 
 void InitTrigger( gentity_t *self ) {
 	if ( !VectorCompare( self->s.angles, vec3_origin ) ) {
@@ -185,7 +185,7 @@ void SP_trigger_multiple( gentity_t *ent ) {
 
 	if ( ent->random >= ent->wait && ent->wait >= 0 ) {
 		ent->random = ent->wait - FRAMETIME;
-		G_Printf( "trigger_multiple has random >= wait\n" );
+		Com_Printf( "trigger_multiple has random >= wait\n" );
 	}
 
 	ent->touch = Touch_Multi;
@@ -418,7 +418,7 @@ void trigger_teleporter_touch( gentity_t *self, gentity_t *other, trace_t *trace
 
 	dest =  G_PickTarget( self->target );
 	if ( !dest ) {
-		G_Printf( "Couldn't find teleporter destination\n" );
+		Com_Printf( "Couldn't find teleporter destination\n" );
 		return;
 	}
 
@@ -621,7 +621,7 @@ void SP_func_timer( gentity_t *self ) {
 
 	if ( self->random >= self->wait ) {
 		self->random = self->wait - FRAMETIME;
-		G_Printf( "func_timer at %s has random >= wait\n", vtos( self->s.origin ) );
+		Com_Printf( "func_timer at %s has random >= wait\n", vtos( self->s.origin ) );
 	}
 
 	if ( self->spawnflags & 1 ) {
@@ -667,7 +667,7 @@ void SP_trigger_deathCheck( gentity_t *ent ) {
 	VectorCopy( ent->s.angles, ent->s.angles2 );
 
 	if ( !( ent->aiName ) ) {
-		G_Error( "trigger_once_enabledeath does not have an aiName \n" );
+		Com_Error( ERR_DROP, "trigger_once_enabledeath does not have an aiName \n" );
 	}
 
 	ent->wait   = -1;           // this will remove itself after one use
@@ -692,14 +692,14 @@ void trigger_aidoor_stayopen( gentity_t * ent, gentity_t * other, trace_t * trac
 	if ( other->client && other->health > 0 ) {
 		if ( !ent->target || !( strlen( ent->target ) ) ) {
 			// ent->target of "" will crash game in Q_stricmp()
-			G_Printf( "trigger_aidoor at loc %s does not have a target\n", vtos( ent->s.origin ) );
+			Com_Printf( "trigger_aidoor at loc %s does not have a target\n", vtos( ent->s.origin ) );
 			return;
 		}
 
 		door = G_Find( NULL, FOFS( targetname ), ent->target );
 
 		if ( !door ) {
-			G_Printf( "trigger_aidoor at loc %s cannot find target '%s'\n", vtos( ent->s.origin ), ent->target );
+			Com_Printf( "trigger_aidoor at loc %s cannot find target '%s'\n", vtos( ent->s.origin ), ent->target );
 			return;
 		}
 
@@ -749,7 +749,7 @@ void trigger_aidoor_stayopen( gentity_t * ent, gentity_t * other, trace_t * trac
 
 void SP_trigger_aidoor( gentity_t *ent ) {
 	if ( !ent->targetname ) {
-		G_Printf( "trigger_aidoor at loc %s does not have a targetname for ai_marker assignments\n", vtos( ent->s.origin ) );
+		Com_Printf( "trigger_aidoor at loc %s does not have a targetname for ai_marker assignments\n", vtos( ent->s.origin ) );
 	}
 
 	ent->touch = trigger_aidoor_stayopen;
@@ -921,19 +921,19 @@ void Touch_objective_info( gentity_t *ent, gentity_t *other, trace_t *trace ) {
 
 	if ( ent->track ) {
 		if ( ent->spawnflags & AXIS_OBJECTIVE ) {
-			trap_SendServerCommand( other - g_entities, va( "oid 0 \"" S_COLOR_RED "You are near %s\n\"", ent->track ) );
+			SV_GameSendServerCommand( other - g_entities, va( "oid 0 \"" S_COLOR_RED "You are near %s\n\"", ent->track ) );
 		} else if ( ent->spawnflags & ALLIED_OBJECTIVE ) {
-			trap_SendServerCommand( other - g_entities, va( "oid 1 \"" S_COLOR_BLUE "You are near %s\n\"", ent->track ) );
+			SV_GameSendServerCommand( other - g_entities, va( "oid 1 \"" S_COLOR_BLUE "You are near %s\n\"", ent->track ) );
 		} else {
-			trap_SendServerCommand( other - g_entities, va( "oid -1 \"You are near %s\n\"", ent->track ) );
+			SV_GameSendServerCommand( other - g_entities, va( "oid -1 \"You are near %s\n\"", ent->track ) );
 		}
 	} else {
 		if ( ent->spawnflags & AXIS_OBJECTIVE ) {
-			trap_SendServerCommand( other - g_entities, va( "oid 0 \"" S_COLOR_RED "You are near objective #%i\n\"", ent->count ) );
+			SV_GameSendServerCommand( other - g_entities, va( "oid 0 \"" S_COLOR_RED "You are near objective #%i\n\"", ent->count ) );
 		} else if ( ent->spawnflags & ALLIED_OBJECTIVE ) {
-			trap_SendServerCommand( other - g_entities, va( "oid 1 \"" S_COLOR_BLUE "You are near objective #%i\n\"", ent->count ) );
+			SV_GameSendServerCommand( other - g_entities, va( "oid 1 \"" S_COLOR_BLUE "You are near objective #%i\n\"", ent->count ) );
 		} else {
-			trap_SendServerCommand( other - g_entities, va( "oid -1 \"You are near objective #%i\n\"", ent->count ) );
+			SV_GameSendServerCommand( other - g_entities, va( "oid -1 \"You are near objective #%i\n\"", ent->count ) );
 		}
 	}
 

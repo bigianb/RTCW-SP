@@ -340,7 +340,7 @@ grabber_use
 ==============
 */
 void grabber_use( gentity_t *ent, gentity_t *other, gentity_t *activator ) {
-	G_Printf( "grabber_use: %d\n", level.time );
+	Com_Printf( "grabber_use: %d\n", level.time );
 
 	if ( !ent->active ) {
 		grabber_wake( ent );
@@ -635,7 +635,7 @@ For safety, you should have each dummy only point at one entity (however, it's o
 void SP_misc_vis_dummy( gentity_t *ent ) {
 
 	if ( !ent->target ) { //----(SA)	added safety check
-		G_Printf( "Couldn't find target for misc_vis_dummy at %s\n", vtos( ent->r.currentOrigin ) );
+		Com_Printf( "Couldn't find target for misc_vis_dummy at %s\n", vtos( ent->r.currentOrigin ) );
 		G_FreeEntity( ent );
 		return;
 	}
@@ -658,7 +658,7 @@ This entity was created to have multiple speakers targeting it
 */
 void SP_misc_vis_dummy_multiple( gentity_t *ent ) {
 	if ( !ent->targetname ) {
-		G_Printf( "misc_vis_dummy_multiple needs a targetname at %s\n", vtos( ent->r.currentOrigin ) );
+		Com_Printf( "misc_vis_dummy_multiple needs a targetname at %s\n", vtos( ent->r.currentOrigin ) );
 		G_FreeEntity( ent );
 		return;
 	}
@@ -692,7 +692,7 @@ void locateCamera( gentity_t *ent ) {
 
 	owner = G_PickTarget( ent->target );
 	if ( !owner ) {
-		G_Printf( "Couldn't find target for misc_partal_surface\n" );
+		Com_Printf( "Couldn't find target for misc_partal_surface\n" );
 		G_FreeEntity( ent );
 		return;
 	}
@@ -938,7 +938,7 @@ void shooter_tesla_finish_spawning( gentity_t *ent ) {
 	// locate the target and set the location
 	tent = G_PickTarget( ent->target );
 	if ( !tent ) { // if there's a problem with tent
-		G_Printf( "shooter_tesla (%s) at %s has no target.\n", ent->target, vtos( ent->s.origin ) );
+		Com_Printf( "shooter_tesla (%s) at %s has no target.\n", ent->target, vtos( ent->s.origin ) );
 		return;
 	}
 
@@ -1082,7 +1082,7 @@ void brush_activate_sniper( gentity_t *ent, gentity_t *other, trace_t *trace ) {
 	player = AICast_FindEntityForName( "player" );
 
 	if ( player && player != other ) {
-		// G_Printf ("other: %s\n", other->aiName);
+		// Com_Printf ("other: %s\n", other->aiName);
 		return;
 	}
 
@@ -1093,7 +1093,7 @@ void brush_activate_sniper( gentity_t *ent, gentity_t *other, trace_t *trace ) {
 	sniper = G_Find( NULL, FOFS( targetname ), ent->target );
 
 	if ( !sniper ) {
-		G_Printf( "sniper not found: %s\n" );
+		Com_Printf( "sniper not found: %s\n" );
 	} else
 	{
 		if ( visible( sniper, other ) ) {
@@ -1139,7 +1139,7 @@ void sniper_brush_init( gentity_t *ent ) {
 		VectorSubtract( ent->r.maxs, ent->r.mins, center );
 		VectorScale( center, 0.5, center );
 
-		G_Printf( "sniper_brush at %s without a target\n", vtos( center ) );
+		Com_Printf( "sniper_brush at %s without a target\n", vtos( center ) );
 	}
 }
 
@@ -1463,11 +1463,11 @@ void snowInPVS( gentity_t *ent ) {
 
 	if ( ent->active ) {
 		tent = G_TempEntity( player->r.currentOrigin, EV_SNOW_ON );
-// G_Printf( "on\n");
+// Com_Printf( "on\n");
 	} else
 	{
 		tent = G_TempEntity( player->r.currentOrigin, EV_SNOW_OFF );
-// G_Printf( "off\n");
+// Com_Printf( "off\n");
 	}
 
 	tent->s.frame = ent->s.number;
@@ -1785,7 +1785,7 @@ void clamp_hweapontofirearc( gentity_t *self, gentity_t *other, vec3_t dang ) {
 		}
 	}
 
-//	G_Printf ("dang[0] = %5.2f\n", dang[0]);
+//	Com_Printf ("dang[0] = %5.2f\n", dang[0]);
 
 	if ( !Q_stricmp( self->classname, "misc_mg42" ) || !( self->active ) ) {
 		diff = AngleDifference( dang[YAW], self->s.angles[YAW] );
@@ -1830,11 +1830,11 @@ void clamp_hweapontofirearc( gentity_t *self, gentity_t *other, vec3_t dang ) {
 			dang[YAW] = AngleMod( self->s.angles[YAW] - self->harc );
 		}
 
-//		G_Printf ("dang %5.2f ang %5.2f diff %5.2f\n", dang[YAW], self->s.angles[YAW], diff);
+//		Com_Printf ("dang %5.2f ang %5.2f diff %5.2f\n", dang[YAW], self->s.angles[YAW], diff);
 
 	}
 //	else
-//		G_Printf ("not clamped cang %5.2f\n", self->TargetAngles[YAW]);
+//		Com_Printf ("not clamped cang %5.2f\n", self->TargetAngles[YAW]);
 
 
 	if ( other && clamped ) {
@@ -1856,7 +1856,7 @@ void clamp_hweapontofirearc( gentity_t *self, gentity_t *other, vec3_t dang ) {
 
 
 	if ( g_mg42arc.integer ) {
-		G_Printf( "varc = %5.2f\n", dang[0] );
+		Com_Printf( "varc = %5.2f\n", dang[0] );
 	}
 }
 
@@ -1949,7 +1949,7 @@ void mg42_track( gentity_t *self, gentity_t *other ) {
 	if ( other->active ) {
 		if ( ( !( level.time % 100 ) ) && ( other->client ) && ( other->client->buttons & BUTTON_ATTACK ) ) {
 			if ( self->s.frame && !is_flak ) {
-				// G_Printf ("gun: destroyed = %d\n", self->s.frame);
+				// Com_Printf ("gun: destroyed = %d\n", self->s.frame);
 				G_AddEvent( self, EV_GENERAL_SOUND, snd_noammo );
 				other->client->ps.gunfx = 1;
 			} else
@@ -2048,7 +2048,7 @@ void mg42_track( gentity_t *self, gentity_t *other ) {
 #define GUN4_LASTFIRE   15
 
 void Flak_Animate( gentity_t *ent ) {
-	//G_Printf ("frame %i\n", ent->s.frame);
+	//Com_Printf ("frame %i\n", ent->s.frame);
 
 	if ( ent->s.frame == GUN1_IDLE
 		 || ent->s.frame == GUN2_IDLE
@@ -2132,7 +2132,7 @@ void mg42_think( gentity_t *self ) {
 				clamp_playerbehindgun( self, owner, vec3_origin );
 			}
 
-//G_Printf ("len %5.2f\n", len);
+//Com_Printf ("len %5.2f\n", len);
 /*
 			if (owner->r.svFlags & SVF_CASTAI)
 			{
@@ -2151,7 +2151,7 @@ void mg42_think( gentity_t *self ) {
 						if (visible (player, self))
 						{
 							self->use (self, NULL, NULL);
-							// G_Printf ("force use dismount cause not infront\n");
+							// Com_Printf ("force use dismount cause not infront\n");
 						}
 
 					}
@@ -2165,7 +2165,7 @@ void mg42_think( gentity_t *self ) {
 			return;
 		}
 
-		// G_Printf ("FAILED len %5.2f\n", len);
+		// Com_Printf ("FAILED len %5.2f\n", len);
 
 
 	}
@@ -2267,7 +2267,7 @@ void mg42_use( gentity_t *ent, gentity_t *other, gentity_t *activator ) {
 		owner->client->ps.gunfx = 0;
 	}
 
-	// G_Printf ("mg42 called use function\n");
+	// Com_Printf ("mg42 called use function\n");
 
 	trap_LinkEntity( ent );
 }
@@ -2522,8 +2522,8 @@ void misc_spawner_think( gentity_t *ent ) {
 	drop = Drop_Item( ent, item, 0, qfalse );
 
 	if ( !drop ) {
-		G_Printf( "-----> WARNING <-------\n" );
-		G_Printf( "misc_spawner used at %s failed to drop!\n", vtos( ent->r.currentOrigin ) );
+		Com_Printf( "-----> WARNING <-------\n" );
+		Com_Printf( "misc_spawner used at %s failed to drop!\n", vtos( ent->r.currentOrigin ) );
 	}
 
 }
@@ -2543,8 +2543,8 @@ void misc_spawner_use( gentity_t *ent, gentity_t *other, gentity_t *activator ) 
 
 void SP_misc_spawner( gentity_t *ent ) {
 	if ( !ent->spawnitem ) {
-		G_Printf( "-----> WARNING <-------\n" );
-		G_Printf( "misc_spawner at loc %s has no spawnitem!\n", vtos( ent->s.origin ) );
+		Com_Printf( "-----> WARNING <-------\n" );
+		Com_Printf( "misc_spawner at loc %s has no spawnitem!\n", vtos( ent->s.origin ) );
 		return;
 	}
 
@@ -2597,7 +2597,7 @@ void misc_tagemitter_finishspawning( gentity_t *ent ) {
 
 	parent = G_Find( NULL, FOFS( targetname ), ent->target );
 	if ( !parent ) {
-		G_Error( "misc_tagemitter: can't find parent script mover with targetname \"%s\"\n", ent->target );
+		Com_Error( ERR_DROP, "misc_tagemitter: can't find parent script mover with targetname \"%s\"\n", ent->target );
 	}
 
 	emitter = ent->target_ent;
@@ -2624,7 +2624,7 @@ void SP_misc_tagemitter( gentity_t *ent ) {
 	ent->nextthink = level.time + 100;
 
 	if ( !G_SpawnString( "tag", NULL, &tagName ) ) {
-		G_Error( "misc_tagemitter: no 'tag' specified\n" );
+		Com_Error( ERR_DROP, "misc_tagemitter: no 'tag' specified\n" );
 	}
 
 	ent->target_ent = G_Spawn();    // spawn the emitter
@@ -2650,7 +2650,7 @@ void misc_firetrails_finishspawning( gentity_t *ent ) {
 
 	airplane = G_Find( NULL, FOFS( targetname ), ent->target );
 	if ( !airplane ) {
-		G_Error( "can't find airplane with targetname \"%s\" for firetrails", ent->target );
+		Com_Error( ERR_DROP, "can't find airplane with targetname \"%s\" for firetrails", ent->target );
 	}
 
 	// left fire trail

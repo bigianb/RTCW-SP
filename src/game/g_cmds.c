@@ -27,8 +27,8 @@ If you have questions concerning this license or the applicable additional terms
 */
 
 #include "g_local.h"
-
-
+#include "../qcommon/qcommon.h"
+#include "../server/server.h"
 /*
 ==================
 CheatsOk
@@ -36,11 +36,11 @@ CheatsOk
 */
 qboolean    CheatsOk( gentity_t *ent ) {
 	if ( !g_cheats.integer ) {
-		trap_SendServerCommand( ent - g_entities, va( "print \"Cheats are not enabled on this server.\n\"" ) );
+		SV_GameSendServerCommand( ent - g_entities, va( "print \"Cheats are not enabled on this server.\n\"" ) );
 		return qfalse;
 	}
 	if ( ent->health <= 0 ) {
-		trap_SendServerCommand( ent - g_entities, va( "print \"You must be alive to use this command.\n\"" ) );
+		SV_GameSendServerCommand( ent - g_entities, va( "print \"You must be alive to use this command.\n\"" ) );
 		return qfalse;
 	}
 	return qtrue;
@@ -59,9 +59,9 @@ char    *ConcatArgs( int start ) {
 	char arg[MAX_STRING_CHARS];
 
 	len = 0;
-	c = trap_Argc();
+	c = Cmd_Argc();
 	for ( i = start ; i < c ; i++ ) {
-		trap_Argv( i, arg, sizeof( arg ) );
+		Cmd_ArgvBuffer( i, arg, sizeof( arg ) );
 		tlen = strlen( arg );
 		if ( len + tlen >= MAX_STRING_CHARS - 1 ) {
 			break;
@@ -120,13 +120,13 @@ int ClientNumberFromString( gentity_t *to, char *s ) {
 	if ( s[0] >= '0' && s[0] <= '9' ) {
 		idnum = atoi( s );
 		if ( idnum < 0 || idnum >= level.maxclients ) {
-			trap_SendServerCommand( to - g_entities, va( "print \"Bad client slot: %i\n\"", idnum ) );
+			SV_GameSendServerCommand( to - g_entities, va( "print \"Bad client slot: %i\n\"", idnum ) );
 			return -1;
 		}
 
 		cl = &level.clients[idnum];
 		if ( cl->pers.connected != CON_CONNECTED ) {
-			trap_SendServerCommand( to - g_entities, va( "print \"Client %i is not active\n\"", idnum ) );
+			SV_GameSendServerCommand( to - g_entities, va( "print \"Client %i is not active\n\"", idnum ) );
 			return -1;
 		}
 		return idnum;
@@ -144,7 +144,7 @@ int ClientNumberFromString( gentity_t *to, char *s ) {
 		}
 	}
 
-	trap_SendServerCommand( to - g_entities, va( "print \"User %s is not on the server\n\"", s ) );
+	SV_GameSendServerCommand( to - g_entities, va( "print \"User %s is not on the server\n\"", s ) );
 	return -1;
 }
 
@@ -350,7 +350,7 @@ void Cmd_God_f( gentity_t *ent ) {
 		msg = "godmode ON\n";
 	}
 
-	trap_SendServerCommand( ent - g_entities, va( "print \"%s\"", msg ) );
+	SV_GameSendServerCommand( ent - g_entities, va( "print \"%s\"", msg ) );
 }
 
 /*
@@ -377,7 +377,7 @@ void Cmd_Nofatigue_f( gentity_t *ent ) {
 		msg = "nofatigue ON\n";
 	}
 
-	trap_SendServerCommand( ent - g_entities, va( "print \"%s\"", msg ) );
+	SV_GameSendServerCommand( ent - g_entities, va( "print \"%s\"", msg ) );
 }
 
 /*
@@ -403,7 +403,7 @@ void Cmd_Notarget_f( gentity_t *ent ) {
 		msg = "notarget ON\n";
 	}
 
-	trap_SendServerCommand( ent - g_entities, va( "print \"%s\"", msg ) );
+	SV_GameSendServerCommand( ent - g_entities, va( "print \"%s\"", msg ) );
 }
 
 
@@ -428,7 +428,7 @@ void Cmd_Noclip_f( gentity_t *ent ) {
 	}
 	ent->client->noclip = !ent->client->noclip;
 
-	trap_SendServerCommand( ent - g_entities, va( "print \"%s\"", msg ) );
+	SV_GameSendServerCommand( ent - g_entities, va( "print \"%s\"", msg ) );
 }
 
 
@@ -499,14 +499,14 @@ void Cmd_Follow_f( gentity_t *ent ) {
 	int i;
 	char arg[MAX_TOKEN_CHARS];
 
-	if ( trap_Argc() != 2 ) {
+	if ( Cmd_Argc() != 2 ) {
 		if ( ent->client->sess.spectatorState == SPECTATOR_FOLLOW ) {
 			StopFollowing( ent );
 		}
 		return;
 	}
 
-	trap_Argv( 1, arg, sizeof( arg ) );
+	Cmd_ArgvBuffer( 1, arg, sizeof( arg ) );
 	i = ClientNumberFromString( ent, arg );
 	if ( i == -1 ) {
 		return;
@@ -546,7 +546,7 @@ void Cmd_FollowCycle_f( gentity_t *ent, int dir ) {
 	}
 
 	if ( dir != 1 && dir != -1 ) {
-		G_Error( "Cmd_FollowCycle_f: bad dir %i", dir );
+		Com_Error( ERR_DROP, "Cmd_FollowCycle_f: bad dir %i", dir );
 	}
 
 	clientnum = ent->client->sess.spectatorClient;
@@ -586,7 +586,7 @@ Cmd_Where_f
 ==================
 */
 void Cmd_Where_f( gentity_t *ent ) {
-	trap_SendServerCommand( ent - g_entities, va( "print \"%s\n\"", vtos( ent->s.origin ) ) );
+	SV_GameSendServerCommand( ent - g_entities, va( "print \"%s\n\"", vtos( ent->s.origin ) ) );
 }
 
 
@@ -624,21 +624,21 @@ void Cmd_SetViewpos_f( gentity_t *ent ) {
 	int i;
 
 	if ( !g_cheats.integer ) {
-		trap_SendServerCommand( ent - g_entities, va( "print \"Cheats are not enabled on this server.\n\"" ) );
+		SV_GameSendServerCommand( ent - g_entities, va( "print \"Cheats are not enabled on this server.\n\"" ) );
 		return;
 	}
-	if ( trap_Argc() != 5 ) {
-		trap_SendServerCommand( ent - g_entities, va( "print \"usage: setviewpos x y z yaw\n\"" ) );
+	if ( Cmd_Argc() != 5 ) {
+		SV_GameSendServerCommand( ent - g_entities, va( "print \"usage: setviewpos x y z yaw\n\"" ) );
 		return;
 	}
 
 	VectorClear( angles );
 	for ( i = 0 ; i < 3 ; i++ ) {
-		trap_Argv( i + 1, buffer, sizeof( buffer ) );
+		Cmd_ArgvBuffer( i + 1, buffer, sizeof( buffer ) );
 		origin[i] = atof( buffer );
 	}
 
-	trap_Argv( 4, buffer, sizeof( buffer ) );
+	Cmd_ArgvBuffer( 4, buffer, sizeof( buffer ) );
 	angles[YAW] = atof( buffer );
 
 	TeleportPlayer( ent, origin, angles );
@@ -696,13 +696,13 @@ void Cmd_SetCameraOrigin_f( gentity_t *ent ) {
 	char buffer[MAX_TOKEN_CHARS];
 	int i;
 
-	if ( trap_Argc() != 4 ) {
+	if ( Cmd_Argc() != 4 ) {
 		return;
 	}
 
 	VectorClear( ent->client->cameraOrigin );
 	for ( i = 0 ; i < 3 ; i++ ) {
-		trap_Argv( i + 1, buffer, sizeof( buffer ) );
+		Cmd_ArgvBuffer( i + 1, buffer, sizeof( buffer ) );
 		ent->client->cameraOrigin[i] = atof( buffer );
 	}
 }
@@ -812,7 +812,7 @@ void Cmd_Activate_f( gentity_t *ent ) {
 
 	traceEnt = &g_entities[ tr.entityNum ];
 
-	// G_Printf( "%s activate %s\n", ent->classname, traceEnt->classname);
+	// Com_Printf( "%s activate %s\n", ent->classname, traceEnt->classname);
 
 	// Ridah, check for using a friendly AI
 	if ( traceEnt->aiCharacter ) {
@@ -1165,20 +1165,20 @@ void Cmd_ClientMonsterSlickAngle (gentity_t *clent) {
 	vec3_t	dir, kvel;
 	vec3_t	forward;
 
-	if (trap_Argc() != 3) {
-		G_Printf( "ClientDamage command issued with incorrect number of args\n" );
+	if (Cmd_Argc() != 3) {
+		Com_Printf( "ClientDamage command issued with incorrect number of args\n" );
 	}
 
-	trap_Argv( 1, s, sizeof( s ) );
+	Cmd_ArgvBuffer( 1, s, sizeof( s ) );
 	entnum = atoi(s);
 	ent = &g_entities[entnum];
 
-	trap_Argv( 2, s, sizeof( s ) );
+	Cmd_ArgvBuffer( 2, s, sizeof( s ) );
 	angle = atoi(s);
 
 	// sanity check (also protect from cheaters)
 	if (g_gametype.integer != GT_SINGLE_PLAYER && entnum != clent->s.number) {
-		trap_DropClient( clent->s.number, "Dropped due to illegal ClientMonsterSlick command\n" );
+		SV_GameDropClient( clent->s.number, "Dropped due to illegal ClientMonsterSlick command\n" );
 		return;
 	}
 
@@ -1204,15 +1204,6 @@ void ClientDamage( gentity_t *clent, int entnum, int enemynum, int id ) {
 	ent = &g_entities[entnum];
 
 	enemy = &g_entities[enemynum];
-
-	// NERVE - SMF - took this out, this is causing more problems than its helping
-	//  Either a new way has to be found, or this check needs to change.
-	// sanity check (also protect from cheaters)
-//	if (g_gametype.integer != GT_SINGLE_PLAYER && entnum != clent->s.number) {
-//		trap_DropClient( clent->s.number, "Dropped due to illegal ClientDamage command\n" );
-//		return;
-//	}
-	// -NERVE - SMF
 
 	// if the attacker can't see the target, then don't allow damage
 	if ( g_gametype.integer != GT_SINGLE_PLAYER ) {
@@ -1346,17 +1337,17 @@ void Cmd_ClientDamage_f( gentity_t *clent ) {
 	char s[MAX_STRING_CHARS];
 	int entnum, id, enemynum;
 
-	if ( trap_Argc() != 4 ) {
-		G_Printf( "ClientDamage command issued with incorrect number of args\n" );
+	if ( Cmd_Argc() != 4 ) {
+		Com_Printf( "ClientDamage command issued with incorrect number of args\n" );
 	}
 
-	trap_Argv( 1, s, sizeof( s ) );
+	Cmd_ArgvBuffer( 1, s, sizeof( s ) );
 	entnum = atoi( s );
 
-	trap_Argv( 2, s, sizeof( s ) );
+	Cmd_ArgvBuffer( 2, s, sizeof( s ) );
 	enemynum = atoi( s );
 
-	trap_Argv( 3, s, sizeof( s ) );
+	Cmd_ArgvBuffer( 3, s, sizeof( s ) );
 	id = atoi( s );
 
 	ClientDamage( clent, entnum, enemynum, id );
@@ -1375,7 +1366,7 @@ void Cmd_EntityCount_f( gentity_t *ent ) {
 		return;
 	}
 
-	G_Printf( "entity count = %i\n", level.num_entities );
+	Com_Printf( "entity count = %i\n", level.num_entities );
 
 	{
 		int kills[2];
@@ -1421,7 +1412,7 @@ void Cmd_EntityCount_f( gentity_t *ent ) {
 				}
 			}
 		}
-		G_Printf( "kills %i/%i nazis %i/%i monsters %i/%i \n",kills[0], kills[1], nazis[0], nazis[1], monsters[0], monsters[1] );
+		Com_Printf( "kills %i/%i nazis %i/%i monsters %i/%i \n",kills[0], kills[1], nazis[0], nazis[1], monsters[0], monsters[1] );
 
 	}
 }
@@ -1436,11 +1427,11 @@ void Cmd_SetSpawnPoint_f( gentity_t *clent ) {
 	char arg[MAX_TOKEN_CHARS];
 	int spawnIndex;
 
-	if ( trap_Argc() != 2 ) {
+	if ( Cmd_Argc() != 2 ) {
 		return;
 	}
 
-	trap_Argv( 1, arg, sizeof( arg ) );
+	Cmd_ArgvBuffer( 1, arg, sizeof( arg ) );
 	spawnIndex = atoi( arg );
 }
 // -NERVE - SMF
@@ -1460,7 +1451,7 @@ void ClientCommand( int clientNum ) {
 	}
 
 
-	trap_Argv( 0, cmd, sizeof( cmd ) );
+	Cmd_ArgvBuffer( 0, cmd, sizeof( cmd ) );
 
 	// Ridah, AI Cast debugging
 	if ( Q_stricmp( cmd, "aicast" ) == 0 ) {
@@ -1524,6 +1515,6 @@ void ClientCommand( int clientNum ) {
 	} else if ( Q_stricmp( cmd, "setspawnpt" ) == 0 )  {
 		Cmd_SetSpawnPoint_f( ent );
 	} else {
-		trap_SendServerCommand( clientNum, va( "print \"unknown cmd %s\n\"", cmd ) );
+		SV_GameSendServerCommand( clientNum, va( "print \"unknown cmd %s\n\"", cmd ) );
 	}
 }

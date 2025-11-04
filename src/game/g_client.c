@@ -27,6 +27,8 @@ If you have questions concerning this license or the applicable additional terms
 */
 
 #include "g_local.h"
+#include "../qcommon/qcommon.h"
+#include "../server/server.h"
 
 // g_client.c -- client functions that don't happen every frame
 
@@ -211,7 +213,7 @@ gentity_t *SelectSpawnPoint( vec3_t avoidPoint, vec3_t origin, vec3_t angles ) {
 
 	// find a single player start spot
 	if ( !spot ) {
-		G_Error( "Couldn't find a spawn point" );
+		Com_Error( ERR_DROP, "Couldn't find a spawn point" );
 	}
 
 	VectorCopy( spot->s.origin, origin );
@@ -434,7 +436,7 @@ void respawn( gentity_t *ent ) {
 
         level.reloadDelayTime = level.time + 6000;
 
-        trap_SendServerCommand( -1, va( "snd_fade 0 %d", 6000 ) );  // fade sound out
+        SV_GameSendServerCommand( -1, va( "snd_fade 0 %d", 6000 ) );  // fade sound out
 
         return;
     }
@@ -567,7 +569,7 @@ qboolean G_CheckForExistingModelInfo( gclient_t *cl, char *modelName, animModelI
 		}
 	}
 
-	G_Error( "unable to find a free modelinfo slot, cannot continue\n" );
+	Com_Error( ERR_DROP, "unable to find a free modelinfo slot, cannot continue\n" );
 	// qfalse signifies that we need to parse the information from the script files
 	return qfalse;
 }
@@ -583,7 +585,7 @@ qboolean G_GetModelInfo( int clientNum, char *modelName, animModelInfo_t **model
 	if ( !G_CheckForExistingModelInfo( &level.clients[clientNum], modelName, modelInfo ) ) {
 		level.clients[clientNum].modelInfo = *modelInfo;
 		if ( !G_ParseAnimationFiles( modelName, &level.clients[clientNum] ) ) {
-			G_Error( "Failed to load animation scripts for model %s\n", modelName );
+			Com_Error( ERR_DROP, "Failed to load animation scripts for model %s\n", modelName );
 		}
 	}
 
@@ -606,50 +608,50 @@ qboolean G_ParseAnimationFiles( char *modelname, gclient_t *cl ) {
 
 	// load the cfg file
 	snprintf( filename, sizeof( filename ), "models/players/%s/wolfanim.cfg", modelname );
-	len = trap_FS_FOpenFile( filename, &f, FS_READ );
+	len = FS_FOpenFileByMode( filename, &f, FS_READ );
 	if ( len <= 0 ) {
-		G_Printf( "G_ParseAnimationFiles(): file '%s' not found\n", filename );       //----(SA)	added
+		Com_Printf( "G_ParseAnimationFiles(): file '%s' not found\n", filename );       //----(SA)	added
 		return qfalse;
 	}
 	if ( len >= sizeof( text ) - 1 ) {
-		G_Printf( "File %s too long\n", filename );
+		Com_Printf( "File %s too long\n", filename );
 		return qfalse;
 	}
-	trap_FS_Read( text, len, f );
+	FS_Read( text, len, f );
 	text[len] = 0;
-	trap_FS_FCloseFile( f );
+	FS_FCloseFile( f );
 
 	// parse the text
 	BG_AnimParseAnimConfig( cl->modelInfo, filename, text );
 
 	// load the script file
 	snprintf( filename, sizeof( filename ), "models/players/%s/wolfanim.script", modelname );
-	len = trap_FS_FOpenFile( filename, &f, FS_READ );
+	len = FS_FOpenFileByMode( filename, &f, FS_READ );
 	if ( len <= 0 ) {
 		if ( cl->modelInfo->version > 1 ) {
 			return qfalse;
 		}
 		// try loading the default script for old legacy models
 		snprintf( filename, sizeof( filename ), "models/players/default.script", modelname );
-		len = trap_FS_FOpenFile( filename, &f, FS_READ );
+		len = FS_FOpenFileByMode( filename, &f, FS_READ );
 		if ( len <= 0 ) {
 			return qfalse;
 		}
 	}
 	if ( len >= sizeof( text ) - 1 ) {
-		G_Printf( "File %s too long\n", filename );
+		Com_Printf( "File %s too long\n", filename );
 		return qfalse;
 	}
-	trap_FS_Read( text, len, f );
+	FS_Read( text, len, f );
 	text[len] = 0;
-	trap_FS_FCloseFile( f );
+	FS_FCloseFile( f );
 
 	// parse the text
 	BG_AnimParseAnimScript( cl->modelInfo, &level.animScriptData, cl->ps.clientNum, filename, text );
 
 	// ask the client to send us the movespeeds if available
 	if ( g_gametype.integer == GT_SINGLE_PLAYER && g_entities[0].client && g_entities[0].client->pers.connected == CON_CONNECTED ) {
-		trap_SendServerCommand( 0, va( "mvspd %s", modelname ) );
+		SV_GameSendServerCommand( 0, va( "mvspd %s", modelname ) );
 	}
 
 	return qtrue;
@@ -735,7 +737,7 @@ void ClientUserinfoChanged( int clientNum ) {
 
 	if ( client->pers.connected == CON_CONNECTED ) {
 		if ( strcmp( oldname, client->pers.netname ) ) {
-			trap_SendServerCommand( -1, va( "print \"%s" S_COLOR_WHITE " renamed to %s\n\"", oldname,
+			SV_GameSendServerCommand( -1, va( "print \"%s" S_COLOR_WHITE " renamed to %s\n\"", oldname,
 											client->pers.netname ) );
 		}
 	}
@@ -770,7 +772,7 @@ void ClientUserinfoChanged( int clientNum ) {
 
 	if ( !G_CheckForExistingModelInfo( client, modelname, &client->modelInfo ) ) {
 		if ( !G_ParseAnimationFiles( modelname, client ) ) {
-			G_Error( "Failed to load animation scripts for model %s\n", modelname );
+			Com_Error( ERR_DROP, "Failed to load animation scripts for model %s\n", modelname );
 		}
 	}
 
@@ -884,7 +886,7 @@ char *ClientConnect( int clientNum, qboolean firstTime, qboolean isBot ) {
 		// Ridah
 		if ( !(ent->r.svFlags & SVF_CASTAI) ) {
 			// done.
-			trap_SendServerCommand( -1, va( "print \"%s" S_COLOR_WHITE " connected\n\"", client->pers.netname ) );
+			SV_GameSendServerCommand( -1, va( "print \"%s" S_COLOR_WHITE " connected\n\"", client->pers.netname ) );
 		}
 	}
 
@@ -966,7 +968,7 @@ void ClientBegin( int clientNum ) {
 			// Ridah
 			if ( !(ent->r.svFlags & SVF_CASTAI) ) {
 				// done.
-				trap_SendServerCommand( -1, va( "print \"%s" S_COLOR_WHITE " entered the game\n\"", client->pers.netname ) );
+				SV_GameSendServerCommand( -1, va( "print \"%s" S_COLOR_WHITE " entered the game\n\"", client->pers.netname ) );
 			}
 		}
 	}
@@ -1212,7 +1214,7 @@ Called when a player drops from the server.
 Will not be called between levels.
 
 This should NOT be called directly by any game logic,
-call trap_DropClient(), which will call this and do
+call SV_GameDropClient(), which will call this and do
 server system housekeeping.
 ============
 */
@@ -1296,7 +1298,7 @@ void G_RetrieveMoveSpeedsFromClient( int entnum, char *text ) {
 	// get the model name
 	token = COM_Parse( &text_p );
 	if ( !token || !token[0] ) {
-		G_Error( "G_RetrieveMoveSpeedsFromClient: internal error" );
+		Com_Error( ERR_DROP, "G_RetrieveMoveSpeedsFromClient: internal error" );
 	}
 
 	modelInfo = BG_ModelInfoForModelname( token );
@@ -1315,20 +1317,20 @@ void G_RetrieveMoveSpeedsFromClient( int entnum, char *text ) {
 		// this is a name
 		anim = BG_AnimationForString( token, modelInfo );
 		if ( anim->moveSpeed == 0 ) {
-			G_Error( "G_RetrieveMoveSpeedsFromClient: trying to set movespeed for non-moving animation" );
+			Com_Error( ERR_DROP, "G_RetrieveMoveSpeedsFromClient: trying to set movespeed for non-moving animation" );
 		}
 
 		// get the movespeed
 		token = COM_Parse( &text_p );
 		if ( !token || !token[0] ) {
-			G_Error( "G_RetrieveMoveSpeedsFromClient: missing movespeed" );
+			Com_Error( ERR_DROP, "G_RetrieveMoveSpeedsFromClient: missing movespeed" );
 		}
 		anim->moveSpeed = atoi( token );
 
 		// get the stepgap
 		token = COM_Parse( &text_p );
 		if ( !token || !token[0] ) {
-			G_Error( "G_RetrieveMoveSpeedsFromClient: missing stepGap" );
+			Com_Error( ERR_DROP, "G_RetrieveMoveSpeedsFromClient: missing stepGap" );
 		}
 		anim->stepGap = atoi( token );
 	}

@@ -27,6 +27,7 @@ If you have questions concerning this license or the applicable additional terms
 */
 
 #include "g_local.h"
+#include "../server/server.h"
 
 #define MISSILE_PRESTEP_TIME    50
 
@@ -301,7 +302,7 @@ void Concussive_think( gentity_t *ent ) {
 	VectorSubtract( player->r.currentOrigin, ent->s.origin, vec );
 	len = VectorLength( vec );
 
-//	G_Printf ("len = %5.3f\n", len);
+//	Com_Printf ("len = %5.3f\n", len);
 
 	if ( len > 512 ) {
 		return;
@@ -368,7 +369,7 @@ void Concussive_fx( vec3_t origin ) {
 		VectorCopy (ent->s.origin, tent->s.origin);
 		tent->s.density = player->s.number;
 
-		// G_Printf ("sending concussive event\n");
+		// Com_Printf ("sending concussive event\n");
 	}
 */
 
@@ -978,7 +979,7 @@ gentity_t *fire_grenade( gentity_t *self, vec3_t start, vec3_t dir, int grenadeW
 	case WP_DYNAMITE:
 		// oh, this is /so/ cheap...
 		// you need to pick up new code ;)
-		trap_SendServerCommand( self - g_entities, va( "dp %d", ( bolt->nextthink - level.time ) / 1000 ) );
+		SV_GameSendServerCommand( self - g_entities, va( "dp %d", ( bolt->nextthink - level.time ) / 1000 ) );
 // JPW NERVE
 		if ( g_gametype.integer != GT_SINGLE_PLAYER ) {
 // check if player is in trigger objective field -- swiped from G_TouchTriggers()
@@ -999,9 +1000,9 @@ gentity_t *fire_grenade( gentity_t *self, vec3_t start, vec3_t dir, int grenadeW
 				}
 				if ( !strcmp( hit->classname,"trigger_objective_info" ) ) {
 					if ( hit->track ) {
-						trap_SendServerCommand( -1, va( "cp \"%s\"", va( "Det charge planted near %s!", hit->track ) ) );
+						SV_GameSendServerCommand( -1, va( "cp \"%s\"", va( "Det charge planted near %s!", hit->track ) ) );
 					} else {
-						trap_SendServerCommand( -1, va( "cp \"%s\"", va( "Det charge planted near objective %d!", hit->count ) ) );
+						SV_GameSendServerCommand( -1, va( "cp \"%s\"", va( "Det charge planted near objective %d!", hit->count ) ) );
 					}
 					i = num;
 				}

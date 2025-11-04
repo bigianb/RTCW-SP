@@ -34,6 +34,7 @@ If you have questions concerning this license or the applicable additional terms
 */
 
 #include "g_local.h"
+#include "../server/server.h"
 
 //==========================================================
 
@@ -153,7 +154,7 @@ If "private", only the activator gets the message.  If no checks, all clients ge
 */
 void Use_Target_Print( gentity_t *ent, gentity_t *other, gentity_t *activator ) {
 	if ( activator->client && ( ent->spawnflags & 4 ) ) {
-		trap_SendServerCommand( activator - g_entities, va( "cp \"%s\"", ent->message ) );
+		SV_GameSendServerCommand( activator - g_entities, va( "cp \"%s\"", ent->message ) );
 		return;
 	}
 
@@ -167,7 +168,7 @@ void Use_Target_Print( gentity_t *ent, gentity_t *other, gentity_t *activator ) 
 		return;
 	}
 
-	trap_SendServerCommand( -1, va( "cp \"%s\"", ent->message ) );
+	SV_GameSendServerCommand( -1, va( "cp \"%s\"", ent->message ) );
 }
 
 void SP_target_print( gentity_t *ent ) {
@@ -213,7 +214,7 @@ void target_speaker_multiple( gentity_t *ent ) {
 	gentity_t *vis_dummy = NULL;
 
 	if ( !( ent->target ) ) {
-		G_Error( "target_speaker missing target at pos %s", vtos( ent->s.origin ) );
+		Com_Error( ERR_DROP, "target_speaker missing target at pos %s", vtos( ent->s.origin ) );
 	}
 
 	vis_dummy = G_Find( NULL, FOFS( targetname ), ent->target );
@@ -221,7 +222,7 @@ void target_speaker_multiple( gentity_t *ent ) {
 	if ( vis_dummy ) {
 		ent->s.otherEntityNum = vis_dummy->s.number;
 	} else {
-		G_Error( "target_speaker cant find vis_dummy_multiple %s", vtos( ent->s.origin ) );
+		Com_Error( ERR_DROP, "target_speaker cant find vis_dummy_multiple %s", vtos( ent->s.origin ) );
 	}
 
 }
@@ -234,7 +235,7 @@ void SP_target_speaker( gentity_t *ent ) {
 	G_SpawnFloat( "random", "0", &ent->random );
 
 	if ( !G_SpawnString( "noise", "NOSOUND", &s ) ) {
-		G_Error( "target_speaker without a noise key at %s", vtos( ent->s.origin ) );
+		Com_Error( ERR_DROP, "target_speaker without a noise key at %s", vtos( ent->s.origin ) );
 	}
 
 	// force all client reletive sounds to be "activator" speakers that
@@ -364,7 +365,7 @@ void target_laser_start( gentity_t *self ) {
 	if ( self->target ) {
 		ent = G_Find( NULL, FOFS( targetname ), self->target );
 		if ( !ent ) {
-			G_Printf( "%s at %s: %s is a bad target\n", self->classname, vtos( self->s.origin ), self->target );
+			Com_Printf( "%s at %s: %s is a bad target\n", self->classname, vtos( self->s.origin ), self->target );
 		}
 		self->enemy = ent;
 	} else {
@@ -402,7 +403,7 @@ void target_teleporter_use( gentity_t *self, gentity_t *other, gentity_t *activa
 	}
 	dest =  G_PickTarget( self->target );
 	if ( !dest ) {
-		G_Printf( "Couldn't find teleporter destination\n" );
+		Com_Printf( "Couldn't find teleporter destination\n" );
 		return;
 	}
 
@@ -414,7 +415,7 @@ The activator will be teleported away.
 */
 void SP_target_teleporter( gentity_t *self ) {
 	if ( !self->targetname ) {
-		G_Printf( "untargeted %s at %s\n", self->classname, vtos( self->s.origin ) );
+		Com_Printf( "untargeted %s at %s\n", self->classname, vtos( self->s.origin ) );
 	}
 
 	self->use = target_teleporter_use;
@@ -522,7 +523,7 @@ void SP_target_relay( gentity_t *self ) {
 		if ( key == -1 ) {
 			self->key = KEY_LOCKED_ENT; // locked
 		} else if ( self->key > KEY_NUM_KEYS || self->key < KEY_NONE ) {          // if the key is invalid, set the key in the finishSpawning routine
-			G_Error( "invalid key (%d) set for func_door_rotating\n", self->key );
+			Com_Error( ERR_DROP, "invalid key (%d) set for func_door_rotating\n", self->key );
 			self->key = KEY_NONE;   // un-locked
 		}
 	} else {
@@ -672,10 +673,10 @@ void Use_Target_Counter( gentity_t *ent, gentity_t *other, gentity_t *activator 
 
 	ent->count -= 1;    // dec count
 
-//	G_Printf("count at: %d\n", ent->count);
+//	Com_Printf("count at: %d\n", ent->count);
 
 	if ( !ent->count ) {   // specified count is now hit
-//		G_Printf("firing!!\n");
+//		Com_Printf("firing!!\n");
 		G_UseTargets( ent, other );
 	}
 }
@@ -735,7 +736,7 @@ Increments the counter pointed to.
 "count" is the key for the count value
 */
 void SP_target_counter( gentity_t *ent ) {
-//	G_Printf("target counter created with val of: %d\n", ent->count);
+//	Com_Printf("target counter created with val of: %d\n", ent->count);
 	ent->use = Use_Target_Counter;
 }
 

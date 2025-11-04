@@ -90,27 +90,27 @@ void BotAI_Print( int type, char *fmt, ... ) {
 
 	switch ( type ) {
 	case PRT_MESSAGE: {
-		G_Printf( "%s", str );
+		Com_Printf( "%s", str );
 		break;
 	}
 	case PRT_WARNING: {
-		G_Printf( S_COLOR_YELLOW "Warning: %s", str );
+		Com_Printf( S_COLOR_YELLOW "Warning: %s", str );
 		break;
 	}
 	case PRT_ERROR: {
-		G_Printf( S_COLOR_RED "Error: %s", str );
+		Com_Printf( S_COLOR_RED "Error: %s", str );
 		break;
 	}
 	case PRT_FATAL: {
-		G_Printf( S_COLOR_RED "Fatal: %s", str );
+		Com_Printf( S_COLOR_RED "Fatal: %s", str );
 		break;
 	}
 	case PRT_EXIT: {
-		G_Error( S_COLOR_RED "Exit: %s", str );
+		Com_Error( ERR_DROP, S_COLOR_RED "Exit: %s", str );
 		break;
 	}
 	default: {
-		G_Printf( "unknown print type\n" );
+		Com_Printf( "unknown print type\n" );
 		break;
 	}
 	}
@@ -693,7 +693,7 @@ int BotAISetupClient( int client, struct bot_settings_s *settings ) {
 	bs->walker = trap_Characteristic_BFloat( bs->character, CHARACTERISTIC_WALKER, 0, 1 );
 	numbots++;
 
-	if ( trap_Cvar_VariableIntegerValue( "bot_testichat" ) ) {
+	if ( Cvar_VariableIntegerValue( "bot_testichat" ) ) {
 		trap_BotLibVarSet( "bot_testichat", "1" );
 		BotChatTest( bs );
 	}
@@ -1040,7 +1040,7 @@ int BotInitLibrary( void ) {
 	char buf[144];
 
 	//set the maxclients and maxentities library variables before calling BotSetupLibrary
-	trap_Cvar_VariableStringBuffer( "sv_maxclients", buf, sizeof( buf ) );
+	Cvar_VariableStringBuffer( "sv_maxclients", buf, sizeof( buf ) );
 	if ( !strlen( buf ) ) {
 		strcpy( buf, "8" );
 	}
@@ -1048,100 +1048,100 @@ int BotInitLibrary( void ) {
 	snprintf( buf, sizeof( buf ), "%d", MAX_GENTITIES );
 	trap_BotLibVarSet( "maxentities", buf );
 	//bsp checksum
-	trap_Cvar_VariableStringBuffer( "sv_mapChecksum", buf, sizeof( buf ) );
+	Cvar_VariableStringBuffer( "sv_mapChecksum", buf, sizeof( buf ) );
 	if ( strlen( buf ) ) {
 		trap_BotLibVarSet( "sv_mapChecksum", buf );
 	}
 	//maximum number of aas links
-	trap_Cvar_VariableStringBuffer( "max_aaslinks", buf, sizeof( buf ) );
+	Cvar_VariableStringBuffer( "max_aaslinks", buf, sizeof( buf ) );
 	if ( strlen( buf ) ) {
 		trap_BotLibVarSet( "max_aaslinks", buf );
 	}
 	//maximum number of items in a level
-	trap_Cvar_VariableStringBuffer( "max_levelitems", buf, sizeof( buf ) );
+	Cvar_VariableStringBuffer( "max_levelitems", buf, sizeof( buf ) );
 	if ( strlen( buf ) ) {
 		trap_BotLibVarSet( "max_levelitems", buf );
 	}
 	//automatically launch WinBSPC if AAS file not available
-	trap_Cvar_VariableStringBuffer( "autolaunchbspc", buf, sizeof( buf ) );
+	Cvar_VariableStringBuffer( "autolaunchbspc", buf, sizeof( buf ) );
 	if ( strlen( buf ) ) {
 		trap_BotLibVarSet( "autolaunchbspc", "1" );
 	}
 	//
-	trap_Cvar_VariableStringBuffer( "g_gametype", buf, sizeof( buf ) );
+	Cvar_VariableStringBuffer( "g_gametype", buf, sizeof( buf ) );
 	if ( !strlen( buf ) ) {
 		strcpy( buf, "0" );
 	}
 	trap_BotLibVarSet( "g_gametype", buf );
 	//
 	// Rafael gameskill
-	trap_Cvar_VariableStringBuffer( "g_gameskill", buf, sizeof( buf ) );
+	Cvar_VariableStringBuffer( "g_gameskill", buf, sizeof( buf ) );
 	if ( !strlen( buf ) ) {
 		strcpy( buf, "0" );
 	}
 	trap_BotLibVarSet( "g_gamekill", buf );
 	// done
 	//
-	trap_Cvar_VariableStringBuffer( "bot_developer", buf, sizeof( buf ) );
+	Cvar_VariableStringBuffer( "bot_developer", buf, sizeof( buf ) );
 	if ( !strlen( buf ) ) {
 		strcpy( buf, "0" );
 	}
 	trap_BotLibVarSet( "bot_developer", buf );
 	//log file
-	trap_Cvar_VariableStringBuffer( "bot_developer", buf, sizeof( buf ) );
+	Cvar_VariableStringBuffer( "bot_developer", buf, sizeof( buf ) );
 	if ( !strlen( buf ) ) {
 		strcpy( buf, "0" );
 	}
 	trap_BotLibVarSet( "log", buf );
 	//no chatting
-	trap_Cvar_VariableStringBuffer( "bot_nochat", buf, sizeof( buf ) );
+	Cvar_VariableStringBuffer( "bot_nochat", buf, sizeof( buf ) );
 	if ( strlen( buf ) ) {
 		trap_BotLibVarSet( "nochat", "0" );
 	}
 	//forced clustering calculations
-	trap_Cvar_VariableStringBuffer( "forceclustering", buf, sizeof( buf ) );
+	Cvar_VariableStringBuffer( "forceclustering", buf, sizeof( buf ) );
 	if ( strlen( buf ) ) {
 		trap_BotLibVarSet( "forceclustering", buf );
 	}
 	//forced reachability calculations
-	trap_Cvar_VariableStringBuffer( "forcereachability", buf, sizeof( buf ) );
+	Cvar_VariableStringBuffer( "forcereachability", buf, sizeof( buf ) );
 	if ( strlen( buf ) ) {
 		trap_BotLibVarSet( "forcereachability", buf );
 	}
 	//force writing of AAS to file
-	trap_Cvar_VariableStringBuffer( "forcewrite", buf, sizeof( buf ) );
+	Cvar_VariableStringBuffer( "forcewrite", buf, sizeof( buf ) );
 	if ( strlen( buf ) ) {
 		trap_BotLibVarSet( "forcewrite", buf );
 	}
 	//no AAS optimization
-	trap_Cvar_VariableStringBuffer( "nooptimize", buf, sizeof( buf ) );
+	Cvar_VariableStringBuffer( "nooptimize", buf, sizeof( buf ) );
 	if ( strlen( buf ) ) {
 		trap_BotLibVarSet( "nooptimize", buf );
 	}
 	//number of reachabilities to calculate each frame
-	trap_Cvar_VariableStringBuffer( "framereachability", buf, sizeof( buf ) );
+	Cvar_VariableStringBuffer( "framereachability", buf, sizeof( buf ) );
 	if ( !strlen( buf ) ) {
 		strcpy( buf, "20" );
 	}
 	trap_BotLibVarSet( "framereachability", buf );
 	//
-	trap_Cvar_VariableStringBuffer( "bot_reloadcharacters", buf, sizeof( buf ) );
+	Cvar_VariableStringBuffer( "bot_reloadcharacters", buf, sizeof( buf ) );
 	if ( !strlen( buf ) ) {
 		strcpy( buf, "0" );
 	}
 	trap_BotLibVarSet( "bot_reloadcharacters", buf );
 	//base directory
-	trap_Cvar_VariableStringBuffer( "fs_basepath", buf, sizeof( buf ) );
+	Cvar_VariableStringBuffer( "fs_basepath", buf, sizeof( buf ) );
 	if ( strlen( buf ) ) {
 		trap_BotLibVarSet( "basedir", buf );
 	}
 	//game directory
-	trap_Cvar_VariableStringBuffer( "fs_game", buf, sizeof( buf ) );
+	Cvar_VariableStringBuffer( "fs_game", buf, sizeof( buf ) );
 	if ( strlen( buf ) ) {
 		trap_BotLibVarSet( "gamedir", buf );
 	}
 	//cd directory
-	trap_Cvar_VariableStringBuffer( "fs_cdpath", buf, sizeof( buf ) );
+	Cvar_VariableStringBuffer( "fs_cdpath", buf, sizeof( buf ) );
 	if ( strlen( buf ) ) {
 		trap_BotLibVarSet( "cddir", buf );
 	}

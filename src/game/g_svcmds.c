@@ -32,7 +32,8 @@ If you have questions concerning this license or the applicable additional terms
 // this file holds commands that can be executed by the server console, but not remote clients
 
 #include "g_local.h"
-
+#include "../server/server.h"
+#include "../qcommon/qcommon.h"
 
 /*
 ==============================================================================
@@ -97,7 +98,7 @@ static qboolean StringToFilter( char *s, ipFilter_t *f ) {
 	for ( i = 0 ; i < 4 ; i++ )
 	{
 		if ( *s < '0' || *s > '9' ) {
-			G_Printf( "Bad filter address: %s\n", s );
+			Com_Printf( "Bad filter address: %s\n", s );
 			return qfalse;
 		}
 
@@ -198,7 +199,7 @@ static void AddIP( char *str ) {
 		}               // free spot
 	if ( i == numIPFilters ) {
 		if ( numIPFilters == MAX_IPFILTERS ) {
-			G_Printf( "IP filter list is full\n" );
+			Com_Printf( "IP filter list is full\n" );
 			return;
 		}
 		numIPFilters++;
@@ -245,12 +246,12 @@ Svcmd_AddIP_f
 void Svcmd_AddIP_f( void ) {
 	char str[MAX_TOKEN_CHARS];
 
-	if ( trap_Argc() < 2 ) {
-		G_Printf( "Usage:  addip <ip-mask>\n" );
+	if ( Cmd_Argc() < 2 ) {
+		Com_Printf( "Usage:  addip <ip-mask>\n" );
 		return;
 	}
 
-	trap_Argv( 1, str, sizeof( str ) );
+	Cmd_ArgvBuffer( 1, str, sizeof( str ) );
 
 	AddIP( str );
 
@@ -266,12 +267,12 @@ void Svcmd_RemoveIP_f( void ) {
 	int i;
 	char str[MAX_TOKEN_CHARS];
 
-	if ( trap_Argc() < 2 ) {
-		G_Printf( "Usage:  sv removeip <ip-mask>\n" );
+	if ( Cmd_Argc() < 2 ) {
+		Com_Printf( "Usage:  sv removeip <ip-mask>\n" );
 		return;
 	}
 
-	trap_Argv( 1, str, sizeof( str ) );
+	Cmd_ArgvBuffer( 1, str, sizeof( str ) );
 
 	if ( !StringToFilter( str, &f ) ) {
 		return;
@@ -281,14 +282,14 @@ void Svcmd_RemoveIP_f( void ) {
 		if ( ipFilters[i].mask == f.mask &&
 			 ipFilters[i].compare == f.compare ) {
 			ipFilters[i].compare = 0xffffffffu;
-			G_Printf( "Removed.\n" );
+			Com_Printf( "Removed.\n" );
 
 			UpdateIPBans();
 			return;
 		}
 	}
 
-	G_Printf( "Didn't find %s.\n", str );
+	Com_Printf( "Didn't find %s.\n", str );
 }
 
 /*
@@ -305,68 +306,68 @@ void    Svcmd_EntityList_f( void ) {
 		if ( !check->inuse ) {
 			continue;
 		}
-		G_Printf( "%3i:", e );
+		Com_Printf( "%3i:", e );
 		switch ( check->s.eType ) {
 		case ET_GENERAL:
-			G_Printf( "ET_GENERAL          " );
+			Com_Printf( "ET_GENERAL          " );
 			break;
 		case ET_PLAYER:
-			G_Printf( "ET_PLAYER           " );
+			Com_Printf( "ET_PLAYER           " );
 			break;
 		case ET_ITEM:
-			G_Printf( "ET_ITEM             " );
+			Com_Printf( "ET_ITEM             " );
 			break;
 		case ET_MISSILE:
-			G_Printf( "ET_MISSILE          " );
+			Com_Printf( "ET_MISSILE          " );
 			break;
 		case ET_MOVER:
-			G_Printf( "ET_MOVER            " );
+			Com_Printf( "ET_MOVER            " );
 			break;
 		case ET_BEAM:
-			G_Printf( "ET_BEAM             " );
+			Com_Printf( "ET_BEAM             " );
 			break;
 		case ET_PORTAL:
-			G_Printf( "ET_PORTAL           " );
+			Com_Printf( "ET_PORTAL           " );
 			break;
 		case ET_SPEAKER:
-			G_Printf( "ET_SPEAKER          " );
+			Com_Printf( "ET_SPEAKER          " );
 			break;
 		case ET_PUSH_TRIGGER:
-			G_Printf( "ET_PUSH_TRIGGER     " );
+			Com_Printf( "ET_PUSH_TRIGGER     " );
 			break;
 		case ET_TELEPORT_TRIGGER:
-			G_Printf( "ET_TELEPORT_TRIGGER " );
+			Com_Printf( "ET_TELEPORT_TRIGGER " );
 			break;
 		case ET_INVISIBLE:
-			G_Printf( "ET_INVISIBLE        " );
+			Com_Printf( "ET_INVISIBLE        " );
 			break;
 		case ET_GRAPPLE:
-			G_Printf( "ET_GRAPPLE          " );
+			Com_Printf( "ET_GRAPPLE          " );
 			break;
 		case ET_EXPLOSIVE:
-			G_Printf( "ET_EXPLOSIVE        " );
+			Com_Printf( "ET_EXPLOSIVE        " );
 			break;
 		case ET_TESLA_EF:
-			G_Printf( "ET_TESLA_EF         " );
+			Com_Printf( "ET_TESLA_EF         " );
 			break;
 		case ET_SPOTLIGHT_EF:
-			G_Printf( "ET_SPOTLIGHT_EF     " );
+			Com_Printf( "ET_SPOTLIGHT_EF     " );
 			break;
 		case ET_EFFECT3:
-			G_Printf( "ET_EFFECT3          " );
+			Com_Printf( "ET_EFFECT3          " );
 			break;
 		case ET_ALARMBOX:
-			G_Printf( "ET_ALARMBOX          " );
+			Com_Printf( "ET_ALARMBOX          " );
 			break;
 		default:
-			G_Printf( "%3i                 ", check->s.eType );
+			Com_Printf( "%3i                 ", check->s.eType );
 			break;
 		}
 
 		if ( check->classname ) {
-			G_Printf( "%s", check->classname );
+			Com_Printf( "%s", check->classname );
 		}
-		G_Printf( "\n" );
+		Com_Printf( "\n" );
 	}
 }
 
@@ -385,7 +386,7 @@ gclient_t   *ClientForString( const char *s ) {
 
 		cl = &level.clients[idnum];
 		if ( cl->pers.connected == CON_DISCONNECTED ) {
-			G_Printf( "Client %i is not connected\n", idnum );
+			Com_Printf( "Client %i is not connected\n", idnum );
 			return NULL;
 		}
 		return cl;
@@ -402,7 +403,7 @@ gclient_t   *ClientForString( const char *s ) {
 		}
 	}
 
-	G_Printf( "User %s is not on the server\n", s );
+	Com_Printf( "User %s is not on the server\n", s );
 
 	return NULL;
 }
@@ -419,7 +420,7 @@ ConsoleCommand
 qboolean    ConsoleCommand( void ) {
 	char cmd[MAX_TOKEN_CHARS];
 
-	trap_Argv( 0, cmd, sizeof( cmd ) );
+	Cmd_ArgvBuffer( 0, cmd, sizeof( cmd ) );
 
 	// Ridah, savegame
 	if ( Q_stricmp( cmd, "savegame" ) == 0 ) {
@@ -432,7 +433,7 @@ qboolean    ConsoleCommand( void ) {
 			return qtrue;
 		}
 
-		trap_Argv( 1, cmd, sizeof( cmd ) );
+		Cmd_ArgvBuffer( 1, cmd, sizeof( cmd ) );
 		if ( strlen( cmd ) > 0 ) {
 			// strip the extension if provided
 			if ( strrchr( cmd, '.' ) ) {
@@ -444,13 +445,13 @@ qboolean    ConsoleCommand( void ) {
 			}
 
 			if ( G_SaveGame( cmd ) ) {
-				trap_SendServerCommand( -1, "cp gamesaved" );  // deletedgame
+				SV_GameSendServerCommand( -1, "cp gamesaved" );  // deletedgame
 			} else {
-				G_Printf( "Unable to save game.\n" );
+				Com_Printf( "Unable to save game.\n" );
 			}
 
 		} else {    // need a name
-			G_Printf( "syntax: savegame <name>\n" );
+			Com_Printf( "syntax: savegame <name>\n" );
 		}
 
 		return qtrue;
@@ -479,17 +480,17 @@ qboolean    ConsoleCommand( void ) {
 	}
 
 	if ( Q_stricmp( cmd, "listip" ) == 0 ) {
-		trap_game_SendConsoleCommand( EXEC_INSERT, "g_banIPs\n" );
+		Cbuf_ExecuteText( EXEC_INSERT, "g_banIPs\n" );
 		return qtrue;
 	}
 
 	if ( g_dedicated.integer ) {
 		if ( Q_stricmp( cmd, "say" ) == 0 ) {
-			trap_SendServerCommand( -1, va( "print \"server: %s\"", ConcatArgs( 1 ) ) );
+			SV_GameSendServerCommand( -1, va( "print \"server: %s\"", ConcatArgs( 1 ) ) );
 			return qtrue;
 		}
 		// everything else will also be printed as a say command
-		trap_SendServerCommand( -1, va( "print \"server: %s\"", ConcatArgs( 0 ) ) );
+		SV_GameSendServerCommand( -1, va( "print \"server: %s\"", ConcatArgs( 0 ) ) );
 		return qtrue;
 	}
 

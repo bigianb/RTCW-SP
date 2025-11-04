@@ -30,7 +30,7 @@ If you have questions concerning this license or the applicable additional terms
 // not necessarily every single rendered frame
 
 #include "cg_local.h"
-
+#include "../qcommon/qcommon.h"
 /*
 ==================
 CG_ResetEntity
@@ -136,7 +136,7 @@ void CG_SetInitialSnapshot( snapshot_t *snap ) {
 
 	CL_AddReliableCommand( "fogswitch 0" );   // clear it out so the set below will take
 
-	trap_Cvar_VariableStringBuffer( "r_savegameFogColor", buf, sizeof( buf ) );
+	Cvar_VariableStringBuffer( "r_savegameFogColor", buf, sizeof( buf ) );
 	Cvar_Set( "r_savegameFogColor", "0" );
 	if ( strlen( buf ) > 1 ) {
 		if ( !Q_stricmp( buf, "none" ) ) {
@@ -145,7 +145,7 @@ void CG_SetInitialSnapshot( snapshot_t *snap ) {
 			CL_AddReliableCommand( va( "fogswitch %s", buf ) );
 		}
 	} else {
-		trap_Cvar_VariableStringBuffer( "r_mapFogColor", buf, sizeof( buf ) );
+		Cvar_VariableStringBuffer( "r_mapFogColor", buf, sizeof( buf ) );
 		CL_AddReliableCommand( va( "fogswitch %s", buf ) );
 	}
 
@@ -176,7 +176,7 @@ void CG_SetInitialSnapshot( snapshot_t *snap ) {
 		static char prevmap[64] = { 0 };
 		char curmap[64];
 
-		trap_Cvar_VariableStringBuffer( "mapname", curmap, 64 );
+		Cvar_VariableStringBuffer( "mapname", curmap, 64 );
 
 		if ( cgs.gametype == GT_WOLF && Q_stricmp( curmap, prevmap ) ) {
 			strcpy( prevmap, curmap );
@@ -200,10 +200,10 @@ static void CG_TransitionSnapshot( void ) {
 	int i;
 
 	if ( !cg.snap ) {
-		CG_Error( "CG_TransitionSnapshot: NULL cg.snap" );
+		Com_Error( ERR_DROP, "CG_TransitionSnapshot: NULL cg.snap" );
 	}
 	if ( !cg.nextSnap ) {
-		CG_Error( "CG_TransitionSnapshot: NULL cg.nextSnap" );
+		Com_Error( ERR_DROP, "CG_TransitionSnapshot: NULL cg.nextSnap" );
 	}
 
 	// execute any server string commands before transitioning entities
@@ -329,7 +329,7 @@ static snapshot_t *CG_ReadNextSnapshot( void ) {
 	snapshot_t  *dest;
 
 	if ( cg.latestSnapshotNum > cgs.processedSnapshotNum + 1000 ) {
-		CG_Printf( "WARNING: CG_ReadNextSnapshot: way out of range, %i > %i",
+		Com_Printf( "WARNING: CG_ReadNextSnapshot: way out of range, %i > %i",
 				   cg.latestSnapshotNum, cgs.processedSnapshotNum );
 	}
 
@@ -443,7 +443,7 @@ void CG_ProcessSnapshots( void ) {
 	if ( n != cg.latestSnapshotNum ) {
 		if ( n < cg.latestSnapshotNum ) {
 			// this should never happen
-			CG_Error( "CG_ProcessSnapshots: n < cg.latestSnapshotNum" );
+			Com_Error( ERR_DROP, "CG_ProcessSnapshots: n < cg.latestSnapshotNum" );
 		}
 		cg.latestSnapshotNum = n;
 	}
@@ -483,7 +483,7 @@ void CG_ProcessSnapshots( void ) {
 
 			// if time went backwards, we have a level restart
 			if ( cg.nextSnap->serverTime < cg.snap->serverTime ) {
-				CG_Error( "CG_ProcessSnapshots: Server time went backwards" );
+				Com_Error( ERR_DROP, "CG_ProcessSnapshots: Server time went backwards" );
 			}
 		}
 
@@ -498,14 +498,14 @@ void CG_ProcessSnapshots( void ) {
 
 	// assert our valid conditions upon exiting
 	if ( cg.snap == NULL ) {
-		CG_Error( "CG_ProcessSnapshots: cg.snap == NULL" );
+		Com_Error( ERR_DROP, "CG_ProcessSnapshots: cg.snap == NULL" );
 	}
 	if ( cg.time < cg.snap->serverTime ) {
 		// this can happen right after a vid_restart
 		cg.time = cg.snap->serverTime;
 	}
 	if ( cg.nextSnap != NULL && cg.nextSnap->serverTime <= cg.time ) {
-		CG_Error( "CG_ProcessSnapshots: cg.nextSnap->serverTime <= cg.time" );
+		Com_Error( ERR_DROP, "CG_ProcessSnapshots: cg.nextSnap->serverTime <= cg.time" );
 	}
 
 }

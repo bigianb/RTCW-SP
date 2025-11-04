@@ -955,28 +955,11 @@ extern void trap_SetUserinfo ( int num , const char * buffer ) ;
 extern void trap_GetUserinfo ( int num , char * buffer , int bufferSize ) ;
 extern void trap_GetConfigstring ( int num , char * buffer , int bufferSize ) ;
 extern void trap_SetConfigstring ( int num , const char * string ) ;
-extern void trap_SendServerCommand ( int clientNum , const char * text ) ;
-extern void trap_DropClient ( int clientNum , const char * reason ) ;
-extern void trap_LocateGameData ( gentity_t * gEnts , int numGEntities , int sizeofGEntity_t , playerState_t * clients , int sizeofGClient ) ;
-extern void trap_Cvar_VariableStringBuffer ( const char * var_name , char * buffer , int bufsize ) ;
-extern int trap_Cvar_VariableIntegerValue ( const char * var_name ) ;
 
 extern void Cvar_Update ( vmCvar_t * cvar ) ;
 
-extern void trap_game_SendConsoleCommand ( int exec_when , const char * text ) ;
-extern int trap_FS_GetFileList ( const char * path , const char * extension , char * listbuf , int bufsize ) ;
-extern void trap_FS_CopyFile ( char * from , char * to ) ;
-extern void trap_FS_FCloseFile ( fileHandle_t f ) ;
-extern int trap_FS_Rename ( const char * from , const char * to ) ;
 
-extern void trap_FS_Read ( void * buffer , int len , fileHandle_t f ) ;
-extern int trap_FS_FOpenFile ( const char * qpath , fileHandle_t * f , fsMode_t mode ) ;
-extern void trap_Argv ( int n , char * buffer , int bufferLength ) ;
-extern int trap_Argc ( void ) ;
-extern int trap_Milliseconds ( void ) ;
-extern void trap_Endgame ( void ) ;
-extern void trap_Error ( const char * fmt ) ;
-extern void trap_Printf ( const char * fmt ) ;
+extern int FS_GetFileList ( const char * path , const char * extension , char * listbuf , int bufsize ) ;
 
 extern void G_RunFrame ( int levelTime ) ;
 extern void G_RunThink ( gentity_t * ent ) ;
@@ -1008,9 +991,8 @@ extern void G_FindTeams ( void ) ;
 extern void G_CheckForCursorHints ( gentity_t * ent ) ;
 extern void G_EndGame ( void ) ;
 extern qboolean G_canStealthStab ( int aiChar ) ;
-extern void  G_Error ( const char * fmt , ... ) ;
-extern void  G_DPrintf ( const char * fmt , ... ) ;
-extern void  G_Printf ( const char * fmt , ... ) ;
+
+extern void  Com_Printf ( const char * fmt , ... ) ;
 extern void AICast_RegisterPain ( int entnum ) ;
 extern int AICast_NumAttempts ( int entnum ) ;
 extern int AICast_PlayTime ( int entnum ) ;

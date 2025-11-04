@@ -225,7 +225,7 @@ localEntity_t *CG_MakeExplosion( vec3_t origin, vec3_t dir,
 	vec3_t tmpVec, newOrigin;
 
 	if ( msec <= 0 ) {
-		CG_Error( "CG_MakeExplosion: msec = %i", msec );
+		Com_Error( ERR_DROP, "CG_MakeExplosion: msec = %i", msec );
 	}
 
 	// skew the time a bit so they aren't all in sync
@@ -527,7 +527,7 @@ void CG_LoseHat( centity_t *cent, vec3_t dir ) {
 
 	clientNum = cent->currentState.clientNum;
 	if ( clientNum < 0 || clientNum >= MAX_CLIENTS ) {
-		CG_Error( "Bad clientNum on player entity" );
+		Com_Error( ERR_DROP, "Bad clientNum on player entity" );
 	}
 	ci = &cgs.clientinfo[ clientNum ];
 
@@ -733,7 +733,7 @@ void CG_GibPlayer( centity_t *cent, vec3_t playerOrigin, vec3_t gdir ) {
 
 	clientNum = cent->currentState.clientNum;
 	if ( clientNum < 0 || clientNum >= MAX_CLIENTS ) {
-		CG_Error( "Bad clientNum on player entity" );
+		Com_Error( ERR_DROP, "Bad clientNum on player entity" );
 	}
 	ci = &cgs.clientinfo[ clientNum ];
 
@@ -865,7 +865,7 @@ void CG_GibPlayer( centity_t *cent, vec3_t playerOrigin, vec3_t gdir ) {
 
 	if ( !count ) {
 
-		//	CG_Printf("falling back to old-style gibs\n");
+		//	Com_Printf("falling back to old-style gibs\n");
 
 		// old style gibs
 

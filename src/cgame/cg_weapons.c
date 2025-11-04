@@ -35,6 +35,7 @@ If you have questions concerning this license or the applicable additional terms
 
 #include "cg_local.h"
 #include "../client/snd_public.h"
+#include "../qcommon/qcommon.h"
 
 int wolfkickModel;
 int hWeaponSnd;
@@ -774,19 +775,19 @@ static qboolean CG_ParseWeaponConfig( const char *filename, weaponInfo_t *wi ) {
 	fileHandle_t f;
 
 	// load the file
-	len = trap_FS_FOpenFile( filename, &f, FS_READ );
+	len = FS_FOpenFileByMode( filename, &f, FS_READ );
 	if ( len <= 0 ) {
 		return qfalse;
 	}
 
 	if ( len >= sizeof( text ) - 1 ) {
-		CG_Printf( "File %s too long\n", filename );
+		Com_Printf( "File %s too long\n", filename );
 		return qfalse;
 	}
 
-	trap_FS_Read( text, len, f );
+	FS_Read( text, len, f );
 	text[len] = 0;
-	trap_FS_FCloseFile( f );
+	FS_FCloseFile( f );
 
 	// parse the text
 	text_p = text;
@@ -887,7 +888,7 @@ static qboolean CG_ParseWeaponConfig( const char *filename, weaponInfo_t *wi ) {
 	}
 
 	if ( i != MAX_WP_ANIMATIONS ) {
-		CG_Printf( "Error parsing weapon animation file: %s", filename );
+		Com_Printf( "Error parsing weapon animation file: %s", filename );
 		return qfalse;
 	}
 
@@ -946,7 +947,7 @@ void CG_RegisterWeapon( int weaponNum ) {
 		}
 	}
 	if ( !item->classname ) {
-		CG_Error( "Couldn't find weapon %i", weaponNum );
+		Com_Error( ERR_DROP, "Couldn't find weapon %i", weaponNum );
 	}
 	CG_RegisterItemVisuals( item - bg_itemlist );
 
@@ -966,10 +967,10 @@ void CG_RegisterWeapon( int weaponNum ) {
 		//	ie. every weapon and it's associated effects/parts/sounds etc. are loaded for every level.
 		// This was turned off when we started (the "only load what the level calls for" thing) because when
 		// DM does a "give all" and fires, he doesn't want to wait for everything to load.  So perhaps a "cacheallweaps" or something.
-//		CG_Printf( "Couldn't register weapon model %i (unable to load view model)", weaponNum );
+//		Com_Printf( "Couldn't register weapon model %i (unable to load view model)", weaponNum );
 // RF, I need to be able to run the game, I dont have the silencer weapon (19)
 #ifndef _DEBUG
-//		CG_Error( "Couldn't register weapon model %i (unable to load view model)", weaponNum );
+//		Com_Error( ERR_DROP, "Couldn't register weapon model %i (unable to load view model)", weaponNum );
 #endif
 		return;
 	}
@@ -980,7 +981,7 @@ void CG_RegisterWeapon( int weaponNum ) {
 	if ( item->world_model[W_FP_MODEL] ) {
 		COM_StripFilename( item->world_model[W_FP_MODEL], path );
 		if ( !CG_ParseWeaponConfig( va( "%sweapon.cfg", path ), weaponInfo ) ) {
-			CG_Error( "Couldn't register weapon %i (%s) (failed to parse weapon.cfg)", weaponNum, path );
+			Com_Error( ERR_DROP, "Couldn't register weapon %i (%s) (failed to parse weapon.cfg)", weaponNum, path );
 		}
 	}
 //----(SA)	end
@@ -1465,7 +1466,7 @@ static void CG_SetWeapLerpFrameAnimation( weaponInfo_t *wi, lerpFrame_t *lf, int
 	newAnimation &= ~ANIM_TOGGLEBIT;
 
 	if ( newAnimation < 0 || newAnimation >= MAX_WP_ANIMATIONS ) {
-		CG_Error( "Bad animation number (CG_SWLFA): %i", newAnimation );
+		Com_Error( ERR_DROP, "Bad animation number (CG_SWLFA): %i", newAnimation );
 	}
 
 	anim = &wi->weapAnimations[ newAnimation ];
@@ -1474,7 +1475,7 @@ static void CG_SetWeapLerpFrameAnimation( weaponInfo_t *wi, lerpFrame_t *lf, int
 	lf->animationTime   = lf->frameTime + anim->initialLerp;
 
 	if ( cg_debugAnim.integer & 2 ) {
-		CG_Printf( "Weap Anim: %d\n", newAnimation );
+		Com_Printf( "Weap Anim: %d\n", newAnimation );
 	}
 }
 
@@ -1561,7 +1562,7 @@ static void CG_RunWeapLerpFrame( clientInfo_t *ci, weaponInfo_t *wi, lerpFrame_t
 		if ( cg.time > lf->frameTime ) {
 			lf->frameTime = cg.time;
 			if ( cg_debugAnim.integer ) {
-//				CG_Printf( "Clamp lf->frameTime\n");
+//				Com_Printf( "Clamp lf->frameTime\n");
 			}
 		}
 	}
@@ -1607,7 +1608,7 @@ static void CG_WeaponAnimation( playerState_t *ps, weaponInfo_t *weapon, int *we
 	*weapBackLerp   = cent->pe.weap.backlerp;
 
 	if ( cg_debugAnim.integer == 3 ) {
-		CG_Printf( "oldframe: %d   frame: %d   backlerp: %f\n", cent->pe.weap.oldFrame, cent->pe.weap.frame, cent->pe.weap.backlerp );
+		Com_Printf( "oldframe: %d   frame: %d   backlerp: %f\n", cent->pe.weap.oldFrame, cent->pe.weap.frame, cent->pe.weap.backlerp );
 	}
 }
 
@@ -2338,21 +2339,21 @@ void CG_AddPlayerWeapon( refEntity_t *parent, playerState_t *ps, centity_t *cent
 
 	if ( !gun.hModel ) {
 		if ( debuggingweapon ) {
-			CG_Printf( "returning due to: !gun.hModel\n" );
+			Com_Printf( "returning due to: !gun.hModel\n" );
 		}
 		return;
 	}
 
 	if ( weaponNum == WP_GAUNTLET ) {  // (SA) this is the 'knife'.  no model yet, so we can give it to the zombie and have him visually 'unarmed'
 		if ( debuggingweapon ) {
-			CG_Printf( "returning due to: weaponNum == WP_GAUNTLET\n" );
+			Com_Printf( "returning due to: weaponNum == WP_GAUNTLET\n" );
 		}
 		return;
 	}
 
 	if ( !ps && cg.snap->ps.pm_flags & PMF_LADDER && isPlayer ) {      //----(SA) player on ladder
 		if ( debuggingweapon ) {
-			CG_Printf( "returning due to: !ps && cg.snap->ps.pm_flags & PMF_LADDER\n" );
+			Com_Printf( "returning due to: !ps && cg.snap->ps.pm_flags & PMF_LADDER\n" );
 		}
 		return;
 	}
@@ -2720,7 +2721,7 @@ void CG_AddPlayerFoot( refEntity_t *parent, playerState_t *ps, centity_t *cent )
 
 	frame = cg.snap->ps.persistant[PERS_WOLFKICK];
 
-//	CG_Printf("frame: %d\n", frame);
+//	Com_Printf("frame: %d\n", frame);
 
 	wolfkick.frame = frame;
 	wolfkick.oldframe = frame - 1;
@@ -4530,7 +4531,7 @@ void CG_FireWeapon( centity_t *cent ) {
 		return;
 	}
 	if ( ent->weapon >= WP_NUM_WEAPONS ) {
-		CG_Error( "CG_FireWeapon: ent->weapon >= WP_NUM_WEAPONS" );
+		Com_Error( ERR_DROP, "CG_FireWeapon: ent->weapon >= WP_NUM_WEAPONS" );
 		return;
 	}
 	weap = &cg_weapons[ ent->weapon ];
@@ -4556,7 +4557,7 @@ void CG_FireWeapon( centity_t *cent ) {
 				  ent->weapon == WP_DYNAMITE ||
 				  ent->weapon == WP_GRENADE_SMOKE ) { // JPW NERVE
 		if ( ent->weapon == WP_GRENADE_SMOKE ) {
-			CG_Printf( "smoke grenade!\n" );
+			Com_Printf( "smoke grenade!\n" );
 		}
 		if ( ent->apos.trBase[0] > 0 ) { // underhand
 			return;
@@ -5853,7 +5854,7 @@ void CG_Bullet( vec3_t end, int sourceEntityNum, vec3_t normal, qboolean flesh, 
 			}
 			// bubble trail from air into water
 			else if ( ( destContentType & CONTENTS_WATER ) ) {
-//				CG_Printf( "Dist: %f\n", Distance(cg.refdef.vieworg, end) );
+//				Com_Printf( "Dist: %f\n", Distance(cg.refdef.vieworg, end) );
 //				CG_AddDirtBulletParticles( end, dir,
 //							190,	// speed
 //							900,	// duration
@@ -6030,7 +6031,7 @@ CG_ClientDamage
 */
 void CG_ClientDamage( int entnum, int enemynum, int id ) {
 	if ( id > CLDMG_MAX ) {
-		CG_Error( "CG_ClientDamage: unknown damage type: %i\n", id );
+		Com_Error( ERR_DROP, "CG_ClientDamage: unknown damage type: %i\n", id );
 	}
 
 	// NERVE - SMF - clientDamage commands are now sent through usercmds for multiplayer

@@ -33,6 +33,7 @@ If you have questions concerning this license or the applicable additional terms
 #include "cg_local.h"
 #include "../ui/ui_shared.h" // for Menus_CloseAll()
 #include "../client/snd_public.h"
+#include "../qcommon/qcommon.h"
 
 extern int hWeaponSnd;
 
@@ -110,7 +111,7 @@ static void CG_Obituary( entityState_t *ent ) {
 	mod = ent->eventParm;
 
 	if ( target < 0 || target >= MAX_CLIENTS ) {
-		CG_Error( "CG_Obituary: target out of range" );
+		Com_Error( ERR_DROP, "CG_Obituary: target out of range" );
 	}
 	ci = &cgs.clientinfo[target];
 
@@ -202,7 +203,7 @@ static void CG_Obituary( entityState_t *ent ) {
 	}
 
 	if ( message ) {
-		CG_Printf( "%s %s.\n", targetName, message );
+		Com_Printf( "%s %s.\n", targetName, message );
 		return;
 	}
 
@@ -326,7 +327,7 @@ static void CG_Obituary( entityState_t *ent ) {
 		}
 
 		if ( message ) {
-			CG_Printf( "%s %s %s%s\n",
+			Com_Printf( "%s %s %s%s\n",
 					   targetName, message, attackerName, message2 );
 			return;
 		}
@@ -336,10 +337,10 @@ static void CG_Obituary( entityState_t *ent ) {
 // JPW NERVE added mod check for machinegun (prolly mortar here too)
 	switch ( mod ) {
 	case MOD_MACHINEGUN:
-		CG_Printf( "%s was riddled by machinegun fire\n",targetName );
+		Com_Printf( "%s was riddled by machinegun fire\n",targetName );
 		break;
 	default:
-		CG_Printf( "%s died.\n", targetName );
+		Com_Printf( "%s died.\n", targetName );
 		break;
 	}
 // jpw
@@ -1321,7 +1322,7 @@ void CG_Shard( centity_t *cent, vec3_t origin, vec3_t dir ) {
 			}
 
 		} else {
-			CG_Printf( "CG_Debris has an unknown type\n" );
+			Com_Printf( "CG_Debris has an unknown type\n" );
 		}
 
 		// location
@@ -1473,7 +1474,7 @@ An entity has an event value
 also called by CG_CheckPlayerstateEvents
 ==============
 */
-#define DEBUGNAME( x ) if ( cg_debugEvents.integer ) {CG_Printf( x "\n" );}
+#define DEBUGNAME( x ) if ( cg_debugEvents.integer ) {Com_Printf( x "\n" );}
 void CG_EntityEvent( centity_t *cent, vec3_t position ) {
 	entityState_t   *es;
 	int event;
@@ -1490,7 +1491,7 @@ void CG_EntityEvent( centity_t *cent, vec3_t position ) {
 	event = es->event & ~EV_EVENT_BITS;
 
 	if ( cg_debugEvents.integer ) {
-		CG_Printf( "ent:%3i  event:%3i ", es->number, event );
+		Com_Printf( "ent:%3i  event:%3i ", es->number, event );
 	}
 
 	if ( !event ) {
@@ -1825,7 +1826,7 @@ void CG_EntityEvent( centity_t *cent, vec3_t position ) {
 //			trap_R_SetFog(FOG_WATER, 0, 400, .1, .1, .1, 111);
 //			trap_R_SetFog(FOG_CMD_SWITCHFOG, FOG_WATER, 200, 0, 0, 0, 0);
 			char buff[64];
-			trap_Cvar_VariableStringBuffer( "r_waterFogColor", buff, sizeof( buff ) );
+			Cvar_VariableStringBuffer( "r_waterFogColor", buff, sizeof( buff ) );
 			CL_AddReliableCommand( va( "fogswitch %s", buff ) );
 		}
 		break;
@@ -1837,7 +1838,7 @@ void CG_EntityEvent( centity_t *cent, vec3_t position ) {
 		if ( cgs.gametype == GT_SINGLE_PLAYER && clientNum == cg.predictedPlayerState.clientNum ) {
 //			trap_R_SetFog(FOG_CMD_SWITCHFOG, FOG_MAP, 400,0,0,0,0);
 			char buff[64];
-			trap_Cvar_VariableStringBuffer( "r_mapFogColor", buff, sizeof( buff ) );
+			Cvar_VariableStringBuffer( "r_mapFogColor", buff, sizeof( buff ) );
 			CL_AddReliableCommand( va( "fogswitch %s", buff ) );
 		}
 		break;
@@ -2144,7 +2145,7 @@ void CG_EntityEvent( centity_t *cent, vec3_t position ) {
 	case EV_GRENADE_BOUNCE:
 		DEBUGNAME( "EV_GRENADE_BOUNCE" );
 
-//		CG_Printf("bounce on: %d\n", es->eventParm);
+//		Com_Printf("bounce on: %d\n", es->eventParm);
 
 		// DYNAMITE
 		if ( es->weapon == WP_DYNAMITE ) {
@@ -2430,7 +2431,7 @@ void CG_EntityEvent( centity_t *cent, vec3_t position ) {
 		DEBUGNAME( "EV_LOSE_HAT" );
 		ByteToDir( es->eventParm, dir );
 		// (SA) okay, some events not getting through, so I'm still testing.  Works except for that tho.
-//		CG_Printf("lose had dir: %2.4f   %2.4f   %2.4f\n", dir[0], dir[1], dir[2]);
+//		Com_Printf("lose had dir: %2.4f   %2.4f   %2.4f\n", dir[0], dir[1], dir[2]);
 		CG_LoseHat( cent, dir );
 		break;
 
@@ -2713,7 +2714,7 @@ void CG_EntityEvent( centity_t *cent, vec3_t position ) {
 
 	default:
 		DEBUGNAME( "UNKNOWN" );
-		CG_Error( "Unknown event: %i", event );
+		Com_Error( ERR_DROP, "Unknown event: %i", event );
 		break;
 	}
 

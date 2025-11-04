@@ -85,7 +85,7 @@ void alarmbox_updateparts( gentity_t *ent, qboolean matestoo ) {
 	while ( ( t = G_Find( t, FOFS( targetname ), ent->target ) ) != NULL )
 	{
 		if ( t == ent ) {
-			G_Printf( "WARNING: Entity used itself.\n" );
+			Com_Printf( "WARNING: Entity used itself.\n" );
 		} else
 		{
 			// give the dlight the sound
@@ -159,7 +159,7 @@ void alarmbox_die( gentity_t *ent, gentity_t *inflictor, gentity_t *attacker, in
 		while ( ( t = G_Find( t, FOFS( targetname ), ent->targetdeath ) ) != NULL )
 		{
 			if ( t == ent ) {
-				G_Printf( "WARNING: Entity used itself.\n" );
+				Com_Printf( "WARNING: Entity used itself.\n" );
 			} else {
 				// fire target
 				t->use( t, ent, attacker );
@@ -209,7 +209,7 @@ void SP_alarm_box( gentity_t *ent ) {
 	char *s;
 
 	if ( !ent->model ) {
-		G_Printf( S_COLOR_RED "alarm_box with NULL model\n" );
+		Com_Printf( S_COLOR_RED "alarm_box with NULL model\n" );
 		return;
 	}
 

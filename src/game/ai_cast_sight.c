@@ -47,6 +47,8 @@ If you have questions concerning this license or the applicable additional terms
 #include "ai_cast.h"
 #include "g_func_decs.h"
 
+#include "../qcommon/qcommon.h"
+
 /*
 Does sight checking for Cast AI's.
 */
@@ -353,9 +355,9 @@ void AICast_UpdateVisibility( gentity_t *srcent, gentity_t *destent, qboolean sh
 	if ( aicast_debug.integer == 1 ) {
 		if ( !vis->visible_timestamp || vis->visible_timestamp < level.time - 5000 ) {
 			if ( directview ) {
-				G_Printf( "SIGHT (direct): %s sees %s\n", srcent->aiName, destent->aiName );
+				Com_Printf( "SIGHT (direct): %s sees %s\n", srcent->aiName, destent->aiName );
 			} else {
-				G_Printf( "SIGHT (non-direct/audible): %s sees %s\n", srcent->aiName, destent->aiName );
+				Com_Printf( "SIGHT (non-direct/audible): %s sees %s\n", srcent->aiName, destent->aiName );
 			}
 		}
 	}
@@ -572,7 +574,7 @@ void AICast_SightUpdate( int numchecks ) {
 		numchecks = 5;
 	}
 
-	if ( trap_Cvar_VariableIntegerValue( "savegame_loading" ) ) {
+	if ( Cvar_VariableIntegerValue( "savegame_loading" ) ) {
 		return;
 	}
 

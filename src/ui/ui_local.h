@@ -960,21 +960,9 @@ void UI_SPSkillMenu_Cache( void );
 // ui_syscalls.c
 //
 
-int             trap_Milliseconds( void );
+int             Sys_Milliseconds( void );
 
 void            Cvar_Update( vmCvar_t *vmCvar );
-
-void            trap_Cvar_VariableStringBuffer( const char *var_name, char *buffer, int bufsize );
-
-int             trap_Argc( void );
-void            trap_Argv( int n, char *buffer, int bufferLength );
-
-int             trap_FS_FOpenFile( const char *qpath, fileHandle_t *f, fsMode_t mode );
-void            trap_FS_Read( void *buffer, int len, fileHandle_t f );
-
-
-void            trap_FS_FCloseFile( fileHandle_t f );
-int             trap_FS_GetFileList(  const char *path, const char *extension, char *listbuf, int bufsize );
 
 qhandle_t       RE_RegisterShaderNoMip( const char *name );
 void            trap_R_ClearScene( void );

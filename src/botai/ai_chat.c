@@ -58,6 +58,7 @@ If you have questions concerning this license or the applicable additional terms
 #include "syn.h"             //synonyms
 #include "match.h"               //string matching types and vars
 
+#include "../qcommon/qcommon.h"
 
 /*
 ==================
@@ -70,7 +71,7 @@ int BotNumActivePlayers( void ) {
 	static int maxclients;
 
 	if ( !maxclients ) {
-		maxclients = trap_Cvar_VariableIntegerValue( "sv_maxclients" );
+		maxclients = Cvar_VariableIntegerValue( "sv_maxclients" );
 	}
 
 	num = 0;
@@ -102,7 +103,7 @@ int BotIsFirstInRankings( bot_state_t *bs ) {
 	playerState_t ps;
 
 	if ( !maxclients ) {
-		maxclients = trap_Cvar_VariableIntegerValue( "sv_maxclients" );
+		maxclients = Cvar_VariableIntegerValue( "sv_maxclients" );
 	}
 
 	score = bs->cur_ps.persistant[PERS_SCORE];
@@ -137,7 +138,7 @@ int BotIsLastInRankings( bot_state_t *bs ) {
 	playerState_t ps;
 
 	if ( !maxclients ) {
-		maxclients = trap_Cvar_VariableIntegerValue( "sv_maxclients" );
+		maxclients = Cvar_VariableIntegerValue( "sv_maxclients" );
 	}
 
 	score = bs->cur_ps.persistant[PERS_SCORE];
@@ -173,7 +174,7 @@ char *BotFirstClientInRankings( void ) {
 	playerState_t ps;
 
 	if ( !maxclients ) {
-		maxclients = trap_Cvar_VariableIntegerValue( "sv_maxclients" );
+		maxclients = Cvar_VariableIntegerValue( "sv_maxclients" );
 	}
 
 	bestscore = -999999;
@@ -212,7 +213,7 @@ char *BotLastClientInRankings( void ) {
 	playerState_t ps;
 
 	if ( !maxclients ) {
-		maxclients = trap_Cvar_VariableIntegerValue( "sv_maxclients" );
+		maxclients = Cvar_VariableIntegerValue( "sv_maxclients" );
 	}
 
 	worstscore = 999999;
@@ -251,7 +252,7 @@ char *BotRandomOpponentName( bot_state_t *bs ) {
 	static char name[32];
 
 	if ( !maxclients ) {
-		maxclients = trap_Cvar_VariableIntegerValue( "sv_maxclients" );
+		maxclients = Cvar_VariableIntegerValue( "sv_maxclients" );
 	}
 
 	numopponents = 0;

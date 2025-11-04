@@ -273,7 +273,7 @@ qboolean    G_TryPushingEntity( gentity_t *check, gentity_t *pusher, vec3_t move
 
 	// save off the old position
 	if ( pushed_p > &pushed[MAX_GENTITIES] ) {
-		G_Error( "pushed_p > &pushed[MAX_GENTITIES]" );
+		Com_Error( ERR_DROP, "pushed_p > &pushed[MAX_GENTITIES]" );
 	}
 	pushed_p->ent = check;
 	VectorCopy( check->s.pos.trBase, pushed_p->origin );
@@ -1073,7 +1073,7 @@ void Reached_BinaryMover( gentity_t *ent ) {
 			trap_AdjustAreaPortalState( ent, qfalse );
 		}
 	} else {
-		G_Error( "Reached_BinaryMover: bad moverState" );
+		Com_Error( ERR_DROP, "Reached_BinaryMover: bad moverState" );
 	}
 
 //	ent->flags &= ~(FL_KICKACTIVATE|FL_SOFTACTIVATE);	// (SA) it was not opened normally.  Clear this so it thinks it's closed normally
@@ -1209,7 +1209,7 @@ void Reached_TrinaryMover( gentity_t *ent ) {
 		// play sound
 		G_AddEvent( ent, EV_GENERAL_SOUND, ent->soundPos3 );
 	} else {
-		G_Error( "Reached_BinaryMover: bad moverState" );
+		Com_Error( ERR_DROP, "Reached_BinaryMover: bad moverState" );
 	}
 }
 // END JOSEPH
@@ -2309,7 +2309,7 @@ void SP_func_door( gentity_t *ent ) {
 		if ( key == -1 ) {
 			ent->key = KEY_LOCKED_ENT;
 		} else if ( ent->key > KEY_NUM_KEYS || ent->key < KEY_NONE ) {            // if the key is invalid, set the key in the finishSpawning routine
-			G_Error( "invalid key (%d) set for func_door_rotating\n", ent->key );
+			Com_Error( ERR_DROP, "invalid key (%d) set for func_door_rotating\n", ent->key );
 			ent->key = KEY_UNLOCKED_ENT;
 		}
 	} else {
@@ -2424,7 +2424,7 @@ void SP_func_secret( gentity_t *ent ) {
 		if ( key == -1 ) {
 			ent->key = KEY_LOCKED_ENT;
 		} else if ( ent->key > KEY_NUM_KEYS || ent->key < KEY_NONE ) {            // if the key is invalid, set the key in the finishSpawning routine
-			G_Error( "invalid key (%d) set for func_door_rotating\n", ent->key );
+			Com_Error( ERR_DROP, "invalid key (%d) set for func_door_rotating\n", ent->key );
 			ent->key = KEY_UNLOCKED_ENT;
 		}
 	} else {
@@ -2828,7 +2828,7 @@ void Think_SetupTrainTargets( gentity_t *ent ) {
 
 	ent->nextTrain = G_Find( NULL, FOFS( targetname ), ent->target );
 	if ( !ent->nextTrain ) {
-		G_Printf( "func_train at %s with an unfound target\n",
+		Com_Printf( "func_train at %s with an unfound target\n",
 				  vtos( ent->r.absmin ) );
 		return;
 	}
@@ -2843,7 +2843,7 @@ void Think_SetupTrainTargets( gentity_t *ent ) {
 			}
 
 			if ( !path->target ) {
-				G_Printf( "Train corner at %s without a target\n",
+				Com_Printf( "Train corner at %s without a target\n",
 						  vtos( path->s.origin ) );
 				return;
 			}
@@ -2855,7 +2855,7 @@ void Think_SetupTrainTargets( gentity_t *ent ) {
 			do {
 				next = G_Find( next, FOFS( targetname ), path->target );
 				if ( !next ) {
-					G_Printf( "Train corner at %s without a target path_corner\n",
+					Com_Printf( "Train corner at %s without a target path_corner\n",
 							  vtos( path->s.origin ) );
 					return;
 				}
@@ -2872,7 +2872,7 @@ void Think_SetupTrainTargets( gentity_t *ent ) {
 			}
 
 			if ( !path->target ) {
-				G_Printf( "Train corner at %s without a target\n",
+				Com_Printf( "Train corner at %s without a target\n",
 						  vtos( path->s.origin ) );
 				return;
 			}
@@ -2884,7 +2884,7 @@ void Think_SetupTrainTargets( gentity_t *ent ) {
 			do {
 				next = G_Find( next, FOFS( targetname ), path->target );
 				if ( !next ) {
-					G_Printf( "Train corner at %s without a target path_corner\n",
+					Com_Printf( "Train corner at %s without a target path_corner\n",
 							  vtos( path->s.origin ) );
 					return;
 				}
@@ -2943,7 +2943,7 @@ Target: next path corner and other targets to fire
 */
 void SP_path_corner( gentity_t *self ) {
 	if ( !self->targetname ) {
-		G_Printf( "path_corner with no targetname at %s\n", vtos( self->s.origin ) );
+		Com_Printf( "path_corner with no targetname at %s\n", vtos( self->s.origin ) );
 		G_FreeEntity( self );
 		return;
 	}
@@ -2985,7 +2985,7 @@ void SP_func_train( gentity_t *self ) {
 	}
 
 	if ( !self->target ) {
-		G_Printf( "func_train without a target at %s\n", vtos( self->r.absmin ) );
+		Com_Printf( "func_train without a target at %s\n", vtos( self->r.absmin ) );
 		G_FreeEntity( self );
 		return;
 	}
@@ -3241,7 +3241,7 @@ void FuncEndSpiritsThink( gentity_t *self ) {
 	VectorCopy( g_entities[0].s.pos.trBase, enemyPos );
 	cEnt = G_Find( NULL, FOFS( targetname ), self->target );
 	if ( !cEnt ) {
-		G_Error( "couldnt find center marker for spirit spawner" );
+		Com_Error( ERR_DROP, "couldnt find center marker for spirit spawner" );
 	}
 	if ( VectorDistance( enemyPos, cEnt->s.origin ) > self->radius ) {
 		// also make sure the player is between us and the center entity
@@ -3386,10 +3386,10 @@ void Reached_Train_rotating( gentity_t *ent ) {
 		ent->TargetFlag = 0;
 	}
 
-	//G_Printf( "Train angles %s\n",
+	//Com_Printf( "Train angles %s\n",
 	//			vtos(ent->s.angles) );
 
-	//G_Printf( "Add  X  Y  X %s\n",
+	//Com_Printf( "Add  X  Y  X %s\n",
 	//			vtos(ent->rotate) );
 
 	// X
@@ -3446,7 +3446,7 @@ void Think_SetupTrainTargets_rotating( gentity_t *ent ) {
 
 	ent->nextTrain = G_Find( NULL, FOFS( targetname ), ent->target );
 	if ( !ent->nextTrain ) {
-		G_Printf( "func_train at %s with an unfound target\n",
+		Com_Printf( "func_train at %s with an unfound target\n",
 				  vtos( ent->r.absmin ) );
 		return;
 	}
@@ -3462,7 +3462,7 @@ void Think_SetupTrainTargets_rotating( gentity_t *ent ) {
 		}
 
 		if ( !path->target ) {
-			G_Printf( "Train corner at %s without a target\n",
+			Com_Printf( "Train corner at %s without a target\n",
 					  vtos( path->s.origin ) );
 			return;
 		}
@@ -3474,7 +3474,7 @@ void Think_SetupTrainTargets_rotating( gentity_t *ent ) {
 		do {
 			next = G_Find( next, FOFS( targetname ), path->target );
 			if ( !next ) {
-				G_Printf( "Train corner at %s without a target path_corner\n",
+				Com_Printf( "Train corner at %s without a target path_corner\n",
 						  vtos( path->s.origin ) );
 				return;
 			}
@@ -3523,7 +3523,7 @@ void SP_func_train_rotating( gentity_t *self ) {
 	}
 
 	if ( !self->target ) {
-		G_Printf( "func_train without a target at %s\n", vtos( self->r.absmin ) );
+		Com_Printf( "func_train without a target at %s\n", vtos( self->r.absmin ) );
 		G_FreeEntity( self );
 		return;
 	}
@@ -3988,7 +3988,7 @@ void SP_func_door_rotating( gentity_t *ent ) {
 		if ( key == -1 ) {
 			ent->key = KEY_LOCKED_ENT;
 		} else if ( ent->key > KEY_NUM_KEYS || ent->key < KEY_NONE ) {            // if the key is invalid, set the key in the finishSpawning routine
-			G_Error( "invalid key (%d) set for func_door_rotating\n", ent->key );
+			Com_Error( ERR_DROP, "invalid key (%d) set for func_door_rotating\n", ent->key );
 			ent->key = KEY_UNLOCKED_ENT;
 		}
 	} else {
@@ -4005,7 +4005,7 @@ void SP_func_door_rotating( gentity_t *ent ) {
 	} else { ent->rotate[1] = 1;}
 
 	if ( VectorLength( ent->rotate ) > 1 ) { // check that rotation is only set for one axis
-		G_Error( "Too many axis marked in func_door_rotating entity.  Only choose one axis of rotation. (defaulting to standard door rotation)" );
+		Com_Error( ERR_DROP, "Too many axis marked in func_door_rotating entity.  Only choose one axis of rotation. (defaulting to standard door rotation)" );
 		VectorClear( ent->rotate );
 		ent->rotate[1] = 1;
 	}
@@ -4614,7 +4614,7 @@ void use_invisible_user( gentity_t *ent, gentity_t *other, gentity_t *activator 
 
 			G_UseTargets( ent, other );
 
-			// G_Printf ("ent%s used by %s\n", ent->classname, other->classname);
+			// Com_Printf ("ent%s used by %s\n", ent->classname, other->classname);
 		}
 
 		return;

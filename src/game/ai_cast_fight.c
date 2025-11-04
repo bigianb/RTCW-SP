@@ -249,7 +249,7 @@ int AICast_ScanForEnemies( cast_state_t *cs, int *enemies ) {
 	for ( i = 0; i < enemyCount; i++ ) {
 		distances[i] = Distance( cs->bs->origin, g_entities[enemies[i]].client->ps.origin );
 		if ( !distances[i] ) {
-			G_Printf( "WARNING: zero distance between enemies:\n%s at %s, %s at %s\n", g_entities[cs->entityNum].aiName, vtos( cs->bs->origin ), g_entities[enemies[i]].aiName, vtos( g_entities[enemies[i]].client->ps.origin ) );
+			Com_Printf( "WARNING: zero distance between enemies:\n%s at %s, %s at %s\n", g_entities[cs->entityNum].aiName, vtos( cs->bs->origin ), g_entities[enemies[i]].aiName, vtos( g_entities[enemies[i]].client->ps.origin ) );
 			distances[i] = 999998;  // try to ignore them (HACK)
 		}
 	}
@@ -263,7 +263,7 @@ int AICast_ScanForEnemies( cast_state_t *cs, int *enemies ) {
 			}
 		}
 		if ( best < 0 ) {
-			G_Error( "error sorting enemies by distance\n" );
+			Com_Error( ERR_DROP, "error sorting enemies by distance\n" );
 		}
 		sortedEnemies[j] = enemies[best];
 		distances[best] = -1;
@@ -820,7 +820,7 @@ qboolean AICast_CheckAttack( cast_state_t *cs, int enemy, qboolean allowHitWorld
 				&&  ( cs->checkAttackCache.enemy == enemy )
 				&&  ( cs->checkAttackCache.weapon == cs->weaponNum )
 				&&  ( cs->checkAttackCache.allowHitWorld == allowHitWorld ) ) {
-			//G_Printf( "checkattack cache hit\n" );
+			//Com_Printf( "checkattack cache hit\n" );
 			return ( cs->checkAttackCache.result );
 		} else {
 			cs->checkAttackCache.allowHitWorld = allowHitWorld;
@@ -1191,7 +1191,7 @@ void AICast_ChooseWeapon( cast_state_t *cs, qboolean battleFunc ) {
 	if ( !gotOne && ( cs->weaponNum < WP_MONSTER_ATTACK1 || cs->weaponNum > WP_MONSTER_ATTACK3 ) ) {
 		if ( g_cheats.integer && ( !cs->bs->cur_ps.weapons[0] && !cs->bs->cur_ps.weapons[1] ) ) {
 // (SA) the print statement is a bit much.  lots of actors have no ammo...
-//			G_Printf( "AI: %s has no ammo\n", g_entities[cs->entityNum].aiName);
+//			Com_Printf( "AI: %s has no ammo\n", g_entities[cs->entityNum].aiName);
 		}
 		// select no weapon
 		cs->weaponNum = WP_NONE;
@@ -1342,7 +1342,7 @@ int AICast_WantsToTakeCover( cast_state_t *cs, qboolean attacking ) {
 		VectorNormalize( enemyVec );
 		// if they are looking at us, we should avoid them
 		if ( DotProduct( aim, enemyVec ) > 0.97 ) {
-			//G_Printf("%s: I'm in danger, I should probably avoid\n", g_entities[cs->entityNum].aiName);
+			//Com_Printf("%s: I'm in danger, I should probably avoid\n", g_entities[cs->entityNum].aiName);
 			aggrScale *= 0.6;
 		}
 	}
@@ -1351,7 +1351,7 @@ int AICast_WantsToTakeCover( cast_state_t *cs, qboolean attacking ) {
 	// function, so we only attack if our aggression is greater than
 	// the danger
 	if ( AICast_Aggression( cs ) * aggrScale < 0.4 ) {
-		//G_Printf("%s: run for your life!\n", g_entities[cs->entityNum].aiName);
+		//Com_Printf("%s: run for your life!\n", g_entities[cs->entityNum].aiName);
 		return qtrue;
 	}
 	//
@@ -1885,7 +1885,7 @@ float AICast_GetWeaponSoundRange( int weapon ) {
 		return 1000;
 	}
 
-	G_Error( "AICast_GetWeaponSoundRange: unknown weapon index: %i\n", weapon );
+	Com_Error( ERR_DROP, "AICast_GetWeaponSoundRange: unknown weapon index: %i\n", weapon );
 	return 0;   // shutup the compiler
 }
 
@@ -2312,13 +2312,13 @@ void AICast_AudibleEvent( int srcnum, vec3_t pos, float range ) {
 	// dhm
 
 	if ( g_debugAudibleEvents.integer ) {
-		G_Printf( "AICast_AudibleEvent: (%0.1f %0.1f %0.1f) range: %0.0f\n",  pos[0], pos[1], pos[2], range );
+		Com_Printf( "AICast_AudibleEvent: (%0.1f %0.1f %0.1f) range: %0.0f\n",  pos[0], pos[1], pos[2], range );
 	}
 
 	sent = &g_entities[srcnum];
 	if ( sent->flags & FL_NOTARGET ) {
 		if ( g_debugAudibleEvents.integer ) {
-			G_Printf( "NOTARGET enabled, aborting\n" );
+			Com_Printf( "NOTARGET enabled, aborting\n" );
 		}
 		return;
 	}
@@ -2360,7 +2360,7 @@ void AICast_AudibleEvent( int srcnum, vec3_t pos, float range ) {
 		// we heard it
 
 		if ( g_debugAudibleEvents.integer ) {
-			G_Printf( "AICast_AudibleEvent heard: %s \"%s\" (dist:%0.0f s:%0.2f pvss:%0.2f)\n", ent->classname, ent->aiName, ( sqrt( localDist ) ), cs->attributes[HEARING_SCALE], cs->attributes[HEARING_SCALE_NOT_PVS] );
+			Com_Printf( "AICast_AudibleEvent heard: %s \"%s\" (dist:%0.0f s:%0.2f pvss:%0.2f)\n", ent->classname, ent->aiName, ( sqrt( localDist ) ), cs->attributes[HEARING_SCALE], cs->attributes[HEARING_SCALE_NOT_PVS] );
 		}
 
 		cs->audibleEventTime = level.time + 200 + rand() % 300;   // random reaction delay

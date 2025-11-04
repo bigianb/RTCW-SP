@@ -35,6 +35,7 @@ If you have questions concerning this license or the applicable additional terms
 
 #include "cg_local.h"
 #include "../client/snd_public.h"
+#include "../qcommon/qcommon.h"
 
 #define SWING_RIGHT 1
 #define SWING_LEFT  2
@@ -114,7 +115,7 @@ sfxHandle_t CG_CustomSound( int clientNum, const char *soundName ) {
 		}
 	}
 
-	CG_Error( "Unknown custom sound: %s", soundName );
+	Com_Error( ERR_DROP, "Unknown custom sound: %s", soundName );
 	return 0;
 }
 
@@ -146,17 +147,17 @@ static qboolean CG_ParseGibModels( const char *filename, clientInfo_t *ci ) {
 	memset( ci->gibModels, 0, sizeof( ci->gibModels ) );
 
 	// load the file
-	len = trap_FS_FOpenFile( filename, &f, FS_READ );
+	len = FS_FOpenFileByMode( filename, &f, FS_READ );
 	if ( len <= 0 ) {
 		return qfalse;
 	}
 	if ( len >= sizeof( text ) - 1 ) {
-		CG_Printf( "File %s too long\n", filename );
+		Com_Printf( "File %s too long\n", filename );
 		return qfalse;
 	}
-	trap_FS_Read( text, len, f );
+	FS_Read( text, len, f );
 	text[len] = 0;
-	trap_FS_FCloseFile( f );
+	FS_FCloseFile( f );
 
 	// parse the text
 	text_p = text;
@@ -214,7 +215,7 @@ void CG_CalcMoveSpeeds( clientInfo_t *ci ) {
 		// for each foot
 		for ( k = 0; k < 2; k++ ) {
 			if ( trap_R_LerpTag( &o[k], &refent, tags[k], 0 ) < 0 ) {
-				CG_Error( "CG_CalcMoveSpeeds: unable to find tag %s, cannot calculate movespeed", tags[k] );
+				Com_Error( ERR_DROP, "CG_CalcMoveSpeeds: unable to find tag %s, cannot calculate movespeed", tags[k] );
 			}
 		}
 		// save the positions
@@ -243,7 +244,7 @@ void CG_CalcMoveSpeeds( clientInfo_t *ci ) {
 			// for each foot
 			for ( k = 0; k < 2; k++ ) {
 				if ( trap_R_LerpTag( &o[k], &refent, tags[k], 0 ) < 0 ) {
-					CG_Error( "CG_CalcMoveSpeeds: unable to find tag %s, cannot calculate movespeed", tags[k] );
+					Com_Error( ERR_DROP, "CG_CalcMoveSpeeds: unable to find tag %s, cannot calculate movespeed", tags[k] );
 				}
 			}
 
@@ -337,23 +338,23 @@ static qboolean CG_ParseAnimationFiles( const char *modelname, clientInfo_t *ci,
 
 	// load the cfg file
 	snprintf( filename, sizeof( filename ), "models/players/%s/wolfanim.cfg", modelname );
-	len = trap_FS_FOpenFile( filename, &f, FS_READ );
+	len = FS_FOpenFileByMode( filename, &f, FS_READ );
 	if ( len <= 0 ) {
 		return qfalse;
 	}
 	if ( len >= sizeof( text ) - 1 ) {
-		CG_Printf( "File %s too long\n", filename );
+		Com_Printf( "File %s too long\n", filename );
 		return qfalse;
 	}
-	trap_FS_Read( text, len, f );
+	FS_Read( text, len, f );
 	text[len] = 0;
-	trap_FS_FCloseFile( f );
+	FS_FCloseFile( f );
 
 	// parse the text
 	BG_AnimParseAnimConfig( ci->modelInfo, filename, text );
 
 	if ( ci->isSkeletal != ci->modelInfo->isSkeletal ) {
-		CG_Error( "Mis-match in %s, loaded skeletal model, but file does not specify SKELETAL\n", filename );
+		Com_Error( ERR_DROP, "Mis-match in %s, loaded skeletal model, but file does not specify SKELETAL\n", filename );
 	}
 
 	// calc movespeed values if required
@@ -361,25 +362,25 @@ static qboolean CG_ParseAnimationFiles( const char *modelname, clientInfo_t *ci,
 
 	// load the script file
 	snprintf( filename, sizeof( filename ), "models/players/%s/wolfanim.script", modelname );
-	len = trap_FS_FOpenFile( filename, &f, FS_READ );
+	len = FS_FOpenFileByMode( filename, &f, FS_READ );
 	if ( len <= 0 ) {
 		if ( ci->modelInfo->version > 1 ) {
 			return qfalse;
 		}
 		// try loading the default script for old legacy models
 		snprintf( filename, sizeof( filename ), "models/players/default.script", modelname );
-		len = trap_FS_FOpenFile( filename, &f, FS_READ );
+		len = FS_FOpenFileByMode( filename, &f, FS_READ );
 		if ( len <= 0 ) {
 			return qfalse;
 		}
 	}
 	if ( len >= sizeof( text ) - 1 ) {
-		CG_Printf( "File %s too long\n", filename );
+		Com_Printf( "File %s too long\n", filename );
 		return qfalse;
 	}
-	trap_FS_Read( text, len, f );
+	FS_Read( text, len, f );
 	text[len] = 0;
-	trap_FS_FCloseFile( f );
+	FS_FCloseFile( f );
 
 	// parse the text
 	BG_AnimParseAnimScript( ci->modelInfo, &cgs.animScriptData, ci->clientNum, filename, text );
@@ -534,12 +535,12 @@ qboolean CG_CheckForExistingModelInfo( clientInfo_t *ci, char *modelName, animMo
 			}
 
 			// huh!?
-			CG_Error( "CG_CheckForExistingModelInfo: unable to optain modelInfo from server" );
+			Com_Error( ERR_DROP, "CG_CheckForExistingModelInfo: unable to optain modelInfo from server" );
 		}
 
 	}
 
-	CG_Error( "unable to find a free modelinfo slot, cannot continue\n" );
+	Com_Error( ERR_DROP, "unable to find a free modelinfo slot, cannot continue\n" );
 	// qfalse signifies that we need to parse the information from the script files
 	return qfalse;
 }
@@ -1225,43 +1226,43 @@ void CG_LoadClientInfo( clientInfo_t *ci ) {
 
 	if ( !CG_RegisterClientHeadname( ci, ci->modelName, ci->hSkinName ) ) {
 		if ( cg_buildScript.integer ) {
-			CG_Error( "CG_RegisterClientHeadname( %s, %s ) failed.  setting default", ci->modelName, ci->hSkinName );
+			Com_Error( ERR_DROP, "CG_RegisterClientHeadname( %s, %s ) failed.  setting default", ci->modelName, ci->hSkinName );
 		}
 
 		// fall back to default head
 		if ( !CG_RegisterClientHeadname( ci, ci->modelName, "default" ) ) {
 			headfail = 1;
 			if ( cg_buildScript.integer ) {
-				CG_Error( "head model/skin (%s/default) failed to register", ci->modelName );    //----(SA)
+				Com_Error( ERR_DROP, "head model/skin (%s/default) failed to register", ci->modelName );    //----(SA)
 			}
 		}
 	}
 
 	if ( headfail || !CG_RegisterClientModelname( ci, ci->modelName, ci->skinName ) ) {
 		if ( cg_buildScript.integer ) {
-			CG_Error( "CG_RegisterClientModelname( %s, %s ) failed", ci->modelName, ci->skinName );
+			Com_Error( ERR_DROP, "CG_RegisterClientModelname( %s, %s ) failed", ci->modelName, ci->skinName );
 		}
 
 		// fall back
 		if ( cgs.gametype >= GT_TEAM ) {
 			// keep skin name but set default model
 			if ( !CG_RegisterClientModelname( ci, DEFAULT_MODEL, ci->skinName ) ) {
-				CG_Error( "DEFAULT_MODEL / skin (%s/%s) failed to register", DEFAULT_MODEL, ci->skinName );
+				Com_Error( ERR_DROP, "DEFAULT_MODEL / skin (%s/%s) failed to register", DEFAULT_MODEL, ci->skinName );
 			}
 		} else if ( cgs.gametype == GT_SINGLE_PLAYER && !headfail ) {
 			// try to keep the model but default the skin (so you can tell bad guys from good)
 			if ( !CG_RegisterClientModelname( ci, ci->modelName, "default" ) ) {
-				CG_Error( "DEFAULT_MODEL (%s/default) failed to register", ci->modelName );
+				Com_Error( ERR_DROP, "DEFAULT_MODEL (%s/default) failed to register", ci->modelName );
 			}
 		} else {
 			// go totally default
 			if ( !CG_RegisterClientModelname( ci, DEFAULT_MODEL, "default" ) ) {
-				CG_Error( "DEFAULT_MODEL (%s/default) failed to register", DEFAULT_MODEL );
+				Com_Error( ERR_DROP, "DEFAULT_MODEL (%s/default) failed to register", DEFAULT_MODEL );
 			}
 
 			// fall back to default head
 			if ( !CG_RegisterClientHeadname( ci, DEFAULT_MODEL, "default" ) ) {
-				CG_Error( "model/ DEFAULT_HEAD / skin (%s/default) failed to register", DEFAULT_HEAD );
+				Com_Error( ERR_DROP, "model/ DEFAULT_HEAD / skin (%s/default) failed to register", DEFAULT_HEAD );
 			}
 
 		}
@@ -1428,7 +1429,7 @@ static void CG_SetDeferredClientInfo( clientInfo_t *ci ) {
 	}
 
 	// we should never get here...
-	CG_Printf( "CG_SetDeferredClientInfo: no valid clients!\n" );
+	Com_Printf( "CG_SetDeferredClientInfo: no valid clients!\n" );
 
 	CG_LoadClientInfo( ci );
 }
@@ -1555,7 +1556,7 @@ static void CG_SetLerpFrameAnimation( clientInfo_t *ci, lerpFrame_t *lf, int new
 	newAnimation &= ~ANIM_TOGGLEBIT;
 
 	if ( newAnimation < 0 || newAnimation >= ci->modelInfo->numAnimations ) {
-		CG_Error( "Bad animation number (CG_SLFA): %i", newAnimation );
+		Com_Error( ERR_DROP, "Bad animation number (CG_SLFA): %i", newAnimation );
 	}
 
 	anim = &ci->modelInfo->animations[ newAnimation ];
@@ -1564,7 +1565,7 @@ static void CG_SetLerpFrameAnimation( clientInfo_t *ci, lerpFrame_t *lf, int new
 	lf->animationTime = lf->frameTime + anim->initialLerp;
 
 	if ( cg_debugAnim.integer == 1 ) {              // DHM - Nerve :: extra debug info
-		CG_Printf( "Anim: %i, %s\n", newAnimation, ci->modelInfo->animations[newAnimation].name );
+		Com_Printf( "Anim: %i, %s\n", newAnimation, ci->modelInfo->animations[newAnimation].name );
 	}
 }
 
@@ -1625,7 +1626,7 @@ void CG_RunLerpFrame( clientInfo_t *ci, lerpFrame_t *lf, int newAnimation, float
 		if ( cg.time > lf->frameTime ) {
 			lf->frameTime = cg.time;
 			if ( cg_debugAnim.integer ) {
-				CG_Printf( "Clamp lf->frameTime\n" );
+				Com_Printf( "Clamp lf->frameTime\n" );
 			}
 		}
 	}
@@ -1689,7 +1690,7 @@ void CG_SetLerpFrameAnimationRate( centity_t *cent, clientInfo_t *ci, lerpFrame_
 	newAnimation &= ~ANIM_TOGGLEBIT;
 
 	if ( newAnimation < 0 || newAnimation >= ci->modelInfo->numAnimations ) {
-		CG_Error( "Bad animation number (CG_SLFAR): %i", newAnimation );
+		Com_Error( ERR_DROP, "Bad animation number (CG_SLFAR): %i", newAnimation );
 	}
 
 	anim = &ci->modelInfo->animations[ newAnimation ];
@@ -1742,7 +1743,7 @@ void CG_SetLerpFrameAnimationRate( centity_t *cent, clientInfo_t *ci, lerpFrame_
 	}
 
 	if ( cg_debugAnim.integer == 1 ) {           // DHM - Nerve :: extra debug info
-		CG_Printf( "Anim: %i, %s\n", newAnimation, ci->modelInfo->animations[newAnimation].name );
+		Com_Printf( "Anim: %i, %s\n", newAnimation, ci->modelInfo->animations[newAnimation].name );
 	}
 }
 
@@ -2013,7 +2014,7 @@ static void CG_PlayerAnimation( centity_t *cent, int *legsOld, int *legs, float 
 
 	// do the shuffle turn frames locally
 	if ( !( cent->currentState.eFlags & ( EF_DEAD | EF_NO_TURN_ANIM ) ) && cent->pe.legs.yawing ) {
-//CG_Printf("turn: %i\n", cg.time );
+//Com_Printf("turn: %i\n", cg.time );
 		tempIndex = BG_GetAnimScriptAnimation( clientNum, cent->currentState.aiState, ( cent->pe.legs.yawing == SWING_RIGHT ? ANIM_MT_TURNRIGHT : ANIM_MT_TURNLEFT ) );
 		if ( tempIndex > -1 ) {
 			animIndex = tempIndex;
@@ -4349,7 +4350,7 @@ void CG_Player( centity_t *cent ) {
 	// multiple corpses on the level using the same clientinfo
 	clientNum = cent->currentState.clientNum;
 	if ( clientNum < 0 || clientNum >= MAX_CLIENTS ) {
-		CG_Error( "Bad clientNum on player entity" );
+		Com_Error( ERR_DROP, "Bad clientNum on player entity" );
 	}
 	ci = &cgs.clientinfo[ clientNum ];
 
@@ -4429,7 +4430,7 @@ void CG_Player( centity_t *cent ) {
 	// set renderfx for accessories
 	acc.renderfx    = renderfx;
 
-//CG_Printf("%i cl_org: %s\n", clientNum, vtosf(cent->lerpOrigin) );
+//Com_Printf("%i cl_org: %s\n", clientNum, vtosf(cent->lerpOrigin) );
 
 	VectorCopy( cent->lerpOrigin, lightorigin );
 	lightorigin[2] += 31 + (float)cg_drawFPGun.integer;
@@ -4624,7 +4625,7 @@ void CG_Player( centity_t *cent ) {
 				cent->pe.head.frame = emotion * HEAD_EMOTION_SUBTYPES + talk_frame; //ci->modelInfo->headAnims[emotion*HEAD_EMOTION_SUBTYPES].firstFrame + talk_frame;
 				cent->pe.head.frameTime = cg.time + 80 + rand() % 40; // interpolate for smoother animation vs latency
 
-				//CG_Printf("%i head: frame %i, oldframe %i, nextframetime %i\n", cg.time, cent->pe.head.frame, cent->pe.head.oldFrame, cent->pe.head.frameTime );
+				//Com_Printf("%i head: frame %i, oldframe %i, nextframetime %i\n", cg.time, cent->pe.head.frame, cent->pe.head.oldFrame, cent->pe.head.frameTime );
 
 				//if (closed)
 				//	cent->pe.head.frameTime += 30;		// slow it down a bit
@@ -4635,7 +4636,7 @@ void CG_Player( centity_t *cent ) {
 					cent->pe.head.frame = ci->headAnims[0].firstFrame;
 				}
 				cent->pe.head.frameTime = cg.time + 2000;
-				CG_Printf( "%d - %d\n", cent->currentState.number, cent->pe.head.oldFrame );
+				Com_Printf( "%d - %d\n", cent->currentState.number, cent->pe.head.oldFrame );
 #else
 				while ( ( emotion = rand() % NUM_EMOTIONS ) == 1 ) ; // don't use happy emotion
 				if ( ( cent->pe.head.frame - ci->modelInfo->headAnims[0].firstFrame ) % HEAD_EMOTION_SUBTYPES ) {
@@ -5094,7 +5095,7 @@ void CG_ResetPlayerEntity( centity_t *cent ) {
 	VectorCopy( cent->lerpAngles, cent->rawAngles );
 
 	if ( cg_debugPosition.integer ) {
-		CG_Printf( "%i ResetPlayerEntity yaw=%i\n", cent->currentState.number, cent->pe.torso.yawAngle );
+		Com_Printf( "%i ResetPlayerEntity yaw=%i\n", cent->currentState.number, cent->pe.torso.yawAngle );
 	}
 
 	cent->pe.painAnimLegs = -1;

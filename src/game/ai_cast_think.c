@@ -579,7 +579,7 @@ void AICast_Think( int client, float thinktime ) {
 				ent->s.effect3Time = cs->deadSinkStartTime;
 				// if they are gone
 				if ( cs->deadSinkStartTime + DEAD_SINK_DURATION < level.time ) {
-					trap_DropClient( cs->entityNum, "" );
+					SV_GameDropClient( cs->entityNum, "" );
 					return;
 				}
 			}
@@ -779,7 +779,7 @@ void AICast_StartFrame( int time ) {
 	static vmCvar_t aicast_disable;
 	gentity_t *ent;
 
-	if ( trap_Cvar_VariableIntegerValue( "savegame_loading" ) ) {
+	if ( Cvar_VariableIntegerValue( "savegame_loading" ) ) {
 		return;
 	}
 
@@ -820,7 +820,7 @@ void AICast_StartFrame( int time ) {
 		return;         // no time has elapsed
 	}
 
-//G_Printf( "AI startframe: %i\n", time );
+//Com_Printf( "AI startframe: %i\n", time );
 
 	if ( elapsed < 0 ) {
 		elapsed = 0;
@@ -932,7 +932,7 @@ void AICast_StartServerFrame( int time ) {
 	qboolean highPriority;
 	int oldLegsTimer;
 
-	if ( trap_Cvar_VariableIntegerValue( "savegame_loading" ) ) {
+	if ( Cvar_VariableIntegerValue( "savegame_loading" ) ) {
 		return;
 	}
 
@@ -1062,7 +1062,7 @@ void AICast_StartServerFrame( int time ) {
 	lasttime = time;
 	//
 	if ( aicast_debug.integer == 3 ) {
-		G_Printf( "AI Active Count: %i\n", activeCount );
+		Com_Printf( "AI Active Count: %i\n", activeCount );
 	}
 }
 
@@ -1084,7 +1084,7 @@ void AICast_PredictMovement( cast_state_t *cs, int numframes, float frametime, a
 	bot_input_t bi;
 
 //int pretime = Sys_MilliSeconds();
-//G_Printf("PredictMovement: %f duration, %i frames\n", frametime, numframes );
+//Com_Printf("PredictMovement: %f duration, %i frames\n", frametime, numframes );
 
 	if ( cs->bs ) {
 		ps = cs->bs->cur_ps;
@@ -1198,7 +1198,7 @@ done:
 	memcpy( move->touchents, pm.touchents, sizeof( pm.touchents ) );
 	move->groundEntityNum = pm.ps->groundEntityNum;
 
-//G_Printf("PredictMovement: %i ms\n", -pretime + Sys_MilliSeconds() );
+//Com_Printf("PredictMovement: %i ms\n", -pretime + Sys_MilliSeconds() );
 }
 
 /*
@@ -1321,7 +1321,7 @@ qboolean AICast_GetAvoid( cast_state_t *cs, bot_goal_t *goal, vec3_t outpos, qbo
 		return qfalse;
 	}
 
-//G_Printf("GetAvoid: %i ms\n", -pretime + Sys_MilliSeconds() );
+//Com_Printf("GetAvoid: %i ms\n", -pretime + Sys_MilliSeconds() );
 }
 
 /*
@@ -1383,7 +1383,7 @@ void AICast_Blocked( cast_state_t *cs, bot_moveresult_t *moveresult, int activat
 					}
 					// if we are close to the impact point, then avoid this entity
 					else if ( VectorDistance( cs->bs->origin, move.endpos ) < 10 ) {
-						//G_Printf("AI (%s) avoiding %s\n", g_entities[cs->entityNum].aiName, g_entities[move.touchents[i]].classname );
+						//Com_Printf("AI (%s) avoiding %s\n", g_entities[cs->entityNum].aiName, g_entities[move.touchents[i]].classname );
 						blockEnt = move.touchents[i];
 					}
 					continue;
