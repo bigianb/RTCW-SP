@@ -927,25 +927,13 @@ If you have questions concerning this license or the applicable additional terms
 {"trap_DebugPolygonCreate", (byte *)trap_DebugPolygonCreate},
 {"trap_GetEntityToken", (byte *)trap_GetEntityToken},
 {"trap_GetUsercmd", (byte *)trap_GetUsercmd},
-{"trap_BotFreeClient", (byte *)trap_BotFreeClient},
-{"trap_BotAllocateClient", (byte *)trap_BotAllocateClient},
-{"trap_EntityContactCapsule", (byte *)trap_EntityContactCapsule},
+
 {"trap_EntityContact", (byte *)trap_EntityContact},
-{"trap_EntitiesInBox", (byte *)trap_EntitiesInBox},
-{"trap_UnlinkEntity", (byte *)trap_UnlinkEntity},
-{"trap_LinkEntity", (byte *)trap_LinkEntity},
+
+
 {"trap_AdjustAreaPortalState", (byte *)trap_AdjustAreaPortalState},
 {"trap_InPVSIgnorePortals", (byte *)trap_InPVSIgnorePortals},
-{"trap_InPVS", (byte *)trap_InPVS},
-{"trap_PointContents", (byte *)trap_PointContents},
-{"trap_TraceCapsule", (byte *)trap_TraceCapsule},
-{"trap_Trace", (byte *)trap_Trace},
-{"trap_SetBrushModel", (byte *)trap_SetBrushModel},
-{"trap_GetServerinfo", (byte *)trap_GetServerinfo},
-{"trap_SetUserinfo", (byte *)trap_SetUserinfo},
-{"trap_GetUserinfo", (byte *)trap_GetUserinfo},
-{"trap_GetConfigstring", (byte *)trap_GetConfigstring},
-{"trap_SetConfigstring", (byte *)trap_SetConfigstring},
+
 
 {"G_RunFrame", (byte *)G_RunFrame},
 {"G_RunThink", (byte *)G_RunThink},

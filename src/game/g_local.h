@@ -1168,25 +1168,15 @@ void    Cmd_ArgsBuffer( char *buffer, int bufferLength );
 
 void    Cvar_Set( const char *var_name, const char *value );
 
-void    trap_SetConfigstring( int num, const char *string );
-void    trap_GetConfigstring( int num, char *buffer, int bufferSize );
-void    trap_GetUserinfo( int num, char *buffer, int bufferSize );
-void    trap_SetUserinfo( int num, const char *buffer );
-void    trap_GetServerinfo( char *buffer, int bufferSize );
-void    trap_SetBrushModel( gentity_t *ent, const char *name );
-void    trap_Trace( trace_t *results, const vec3_t start, const vec3_t mins, const vec3_t maxs, const vec3_t end, int passEntityNum, int contentmask );
-void    trap_TraceCapsule( trace_t *results, const vec3_t start, const vec3_t mins, const vec3_t maxs, const vec3_t end, int passEntityNum, int contentmask );
-int     trap_PointContents( const vec3_t point, int passEntityNum );
-qboolean trap_InPVS( const vec3_t p1, const vec3_t p2 );
+qboolean SV_inPVS( const vec3_t p1, const vec3_t p2 );
 qboolean trap_InPVSIgnorePortals( const vec3_t p1, const vec3_t p2 );
 void    trap_AdjustAreaPortalState( gentity_t *ent, qboolean open );
-void    trap_LinkEntity( gentity_t *ent );
-void    trap_UnlinkEntity( gentity_t *ent );
-int     trap_EntitiesInBox( const vec3_t mins, const vec3_t maxs, int *entityList, int maxcount );
+
+
 qboolean trap_EntityContact( const vec3_t mins, const vec3_t maxs, const gentity_t *ent );
-qboolean trap_EntityContactCapsule( const vec3_t mins, const vec3_t maxs, const gentity_t *ent );
-int     trap_BotAllocateClient( void );
-void    trap_BotFreeClient( int clientNum );
+
+
+
 void    trap_GetUsercmd( int clientNum, usercmd_t *cmd );
 qboolean    trap_GetEntityToken( char *buffer, int bufferSize );
 

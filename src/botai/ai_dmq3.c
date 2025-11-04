@@ -49,6 +49,7 @@ If you have questions concerning this license or the applicable additional terms
 #include "../botai/botai.h"
 //
 #include "../qcommon/qcommon.h"
+#include "../server/server.h"
 
 #include "ai_main.h"
 #include "ai_dmq3.h"
@@ -143,7 +144,7 @@ char *ClientName( int client, char *name, int size ) {
 		BotAI_Print( PRT_ERROR, "ClientName: client out of range\n" );
 		return "[client out of range]";
 	}
-	trap_GetConfigstring( CS_PLAYERS + client, buf, sizeof( buf ) );
+	SV_GetConfigstring( CS_PLAYERS + client, buf, sizeof( buf ) );
 	strncpy( name, Info_ValueForKey( buf, "n" ), size - 1 );
 	name[size - 1] = '\0';
 	Q_CleanStr( name );
@@ -162,7 +163,7 @@ char *ClientSkin( int client, char *skin, int size ) {
 		BotAI_Print( PRT_ERROR, "ClientSkin: client out of range\n" );
 		return "[client out of range]";
 	}
-	trap_GetConfigstring( CS_PLAYERS + client, buf, sizeof( buf ) );
+	SV_GetConfigstring( CS_PLAYERS + client, buf, sizeof( buf ) );
 	strncpy( skin, Info_ValueForKey( buf, "model" ), size - 1 );
 	skin[size - 1] = '\0';
 	return skin;
@@ -182,7 +183,7 @@ int ClientFromName( char *name ) {
 		maxclients = Cvar_VariableIntegerValue( "sv_maxclients" );
 	}
 	for ( i = 0; i < maxclients && i < MAX_CLIENTS; i++ ) {
-		trap_GetConfigstring( CS_PLAYERS + i, buf, sizeof( buf ) );
+		SV_GetConfigstring( CS_PLAYERS + i, buf, sizeof( buf ) );
 		Q_CleanStr( buf );
 		if ( !Q_stricmp( Info_ValueForKey( buf, "n" ), name ) ) {
 			return i;
@@ -430,7 +431,7 @@ qboolean BotIsObserver( bot_state_t *bs ) {
 	if ( bs->cur_ps.pm_type == PM_SPECTATOR ) {
 		return qtrue;
 	}
-	trap_GetConfigstring( CS_PLAYERS + bs->client, buf, sizeof( buf ) );
+	SV_GetConfigstring( CS_PLAYERS + bs->client, buf, sizeof( buf ) );
 	if ( atoi( Info_ValueForKey( buf, "t" ) ) == TEAM_SPECTATOR ) {
 		return qtrue;
 	}
@@ -943,7 +944,7 @@ void BotRoamGoal( bot_state_t *bs, vec3_t goal ) {
 			//
 			if ( !trace.startsolid ) {
 				trace.endpos[2]++;
-				pc = trap_PointContents( trace.endpos,bs->entitynum );
+				pc = SV_PointContents( trace.endpos,bs->entitynum );
 				if ( !( pc & CONTENTS_LAVA ) ) {    //----(SA)	modified since slime is no longer deadly
 //				if (!(pc & (CONTENTS_LAVA | CONTENTS_SLIME))) {
 					VectorCopy( bestorg, goal );
@@ -1116,8 +1117,8 @@ int BotSameTeam( bot_state_t *bs, int entnum ) {
 		return qfalse;
 	}
 	if ( gametype == GT_TEAM || gametype == GT_CTF ) {
-		trap_GetConfigstring( CS_PLAYERS + bs->client, info1, sizeof( info1 ) );
-		trap_GetConfigstring( CS_PLAYERS + entnum, info2, sizeof( info2 ) );
+		SV_GetConfigstring( CS_PLAYERS + bs->client, info1, sizeof( info1 ) );
+		SV_GetConfigstring( CS_PLAYERS + entnum, info2, sizeof( info2 ) );
 		//
 		if ( atoi( Info_ValueForKey( info1, "t" ) ) == atoi( Info_ValueForKey( info2, "t" ) ) ) {
 			return qtrue;
@@ -1786,7 +1787,7 @@ void BotMapScripts( bot_state_t *bs ) {
 	aas_entityinfo_t entinfo;
 	vec3_t dir;
 
-	trap_GetServerinfo( info, sizeof( info ) );
+	SV_GetServerinfo( info, sizeof( info ) );
 
 	strncpy( mapname, Info_ValueForKey( info, "mapname" ), sizeof( mapname ) - 1 );
 	mapname[sizeof( mapname ) - 1] = '\0';
@@ -2516,7 +2517,7 @@ void BotCheckEvents( bot_state_t *bs, entityState_t *state ) {
 			BotAI_Print( PRT_ERROR, "EV_GLOBAL_SOUND: eventParm (%d) out of range\n", state->eventParm );
 			break;
 		}
-		trap_GetConfigstring( CS_SOUNDS + state->eventParm, buf, sizeof( buf ) );
+		SV_GetConfigstring( CS_SOUNDS + state->eventParm, buf, sizeof( buf ) );
 		if ( !strcmp( buf, "sound/teamplay/flagret_red.wav" ) ) {
 			//red flag is returned
 			bs->redflagstatus = 0;
@@ -2546,7 +2547,7 @@ void BotCheckEvents( bot_state_t *bs, entityState_t *state ) {
 				break;
 			}
 			//check out the sound
-			trap_GetConfigstring( CS_SOUNDS + state->eventParm, buf, sizeof( buf ) );
+			SV_GetConfigstring( CS_SOUNDS + state->eventParm, buf, sizeof( buf ) );
 			//if falling into a death pit
 			if ( !strcmp( buf, "*falling1.wav" ) ) {
 				//if the bot has a personal teleporter
@@ -2618,9 +2619,9 @@ void BotDeathmatchAI( bot_state_t *bs, float thinktime ) {
 		//get the gender characteristic
 		trap_Characteristic_String( bs->character, CHARACTERISTIC_GENDER, gender, sizeof( gender ) );
 		//set the bot gender
-		trap_GetUserinfo( bs->client, userinfo, sizeof( userinfo ) );
+		SV_GetUserinfo( bs->client, userinfo, sizeof( userinfo ) );
 		Info_SetValueForKey( userinfo, "sex", gender );
-		trap_SetUserinfo( bs->client, userinfo );
+		SV_SetUserinfo( bs->client, userinfo );
 		//set the team
 		if ( g_gametype.integer != GT_TOURNAMENT ) {
 			snprintf( buf, sizeof( buf ), "team %s", bs->settings.team );

@@ -58,6 +58,8 @@ If you have questions concerning this license or the applicable additional terms
 #include "syn.h"         //synonyms
 #include "match.h"           //string matching types and vars
 
+#include "../server/server.h"
+
 //goal flag, see be_ai_goal.h for the other GFL_*
 #define GFL_AIR         16
 
@@ -612,7 +614,7 @@ int BotGetLongTermGoal( bot_state_t *bs, int tfl, int retreat, bot_goal_t *goal 
 				bs->attackcrouch_time = trap_AAS_Time() - 1;
 			}
 			//make sure the bot is not gonna drown
-			if ( trap_PointContents( bs->eye,bs->entitynum ) & ( CONTENTS_WATER | CONTENTS_SLIME | CONTENTS_LAVA ) ) {
+			if ( SV_PointContents( bs->eye,bs->entitynum ) & ( CONTENTS_WATER | CONTENTS_SLIME | CONTENTS_LAVA ) ) {
 				if ( bs->ltgtype == LTG_CAMPORDER ) {
 					BotAI_BotInitialChat( bs, "camp_stop", NULL );
 					trap_BotEnterChat( bs->cs, bs->client, CHAT_TEAM );

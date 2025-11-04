@@ -935,26 +935,13 @@ extern void trap_DebugPolygonDelete ( int id ) ;
 extern int trap_DebugPolygonCreate ( int color , int numPoints , vec3_t * points ) ;
 extern qboolean trap_GetEntityToken ( char * buffer , int bufferSize ) ;
 extern void trap_GetUsercmd ( int clientNum , usercmd_t * cmd ) ;
-extern void trap_BotFreeClient ( int clientNum ) ;
-extern int trap_BotAllocateClient ( void ) ;
-extern qboolean trap_EntityContactCapsule ( const vec3_t mins , const vec3_t maxs , const gentity_t * ent ) ;
+
 extern qboolean trap_EntityContact ( const vec3_t mins , const vec3_t maxs , const gentity_t * ent ) ;
-extern int trap_EntitiesInBox ( const vec3_t mins , const vec3_t maxs , int * list , int maxcount ) ;
-extern void trap_UnlinkEntity ( gentity_t * ent ) ;
-extern void trap_LinkEntity ( gentity_t * ent ) ;
+
 
 extern void trap_AdjustAreaPortalState ( gentity_t * ent , qboolean open ) ;
 extern qboolean trap_InPVSIgnorePortals ( const vec3_t p1 , const vec3_t p2 ) ;
-extern qboolean trap_InPVS ( const vec3_t p1 , const vec3_t p2 ) ;
-extern int trap_PointContents ( const vec3_t point , int passEntityNum ) ;
-extern void trap_TraceCapsule ( trace_t * results , const vec3_t start , const vec3_t mins , const vec3_t maxs , const vec3_t end , int passEntityNum , int contentmask ) ;
-extern void trap_Trace ( trace_t * results , const vec3_t start , const vec3_t mins , const vec3_t maxs , const vec3_t end , int passEntityNum , int contentmask ) ;
-extern void trap_SetBrushModel ( gentity_t * ent , const char * name ) ;
-extern void trap_GetServerinfo ( char * buffer , int bufferSize ) ;
-extern void trap_SetUserinfo ( int num , const char * buffer ) ;
-extern void trap_GetUserinfo ( int num , char * buffer , int bufferSize ) ;
-extern void trap_GetConfigstring ( int num , char * buffer , int bufferSize ) ;
-extern void trap_SetConfigstring ( int num , const char * string ) ;
+
 
 extern void Cvar_Update ( vmCvar_t * cvar ) ;
 

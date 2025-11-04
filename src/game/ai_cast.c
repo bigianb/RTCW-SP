@@ -247,7 +247,7 @@ gentity_t *AICast_AddCastToGame( gentity_t *ent, char *castname, char *model, ch
 	Info_SetValueForKey( userinfo, "color", color );
 
 	// have the server allocate a client slot
-	clientNum = trap_BotAllocateClient();
+	clientNum = SV_BotAllocateClient();
 	if ( clientNum == -1 ) {
 		Com_Printf( S_COLOR_RED "BotAllocateClient failed\n" );
 		return NULL;
@@ -257,7 +257,7 @@ gentity_t *AICast_AddCastToGame( gentity_t *ent, char *castname, char *model, ch
 	bot->r.svFlags |= SVF_CASTAI;       // flag it for special Cast AI behaviour
 
 	// register the userinfo
-	trap_SetUserinfo( bot->s.number, userinfo );
+	SV_SetUserinfo( bot->s.number, userinfo );
 
 	// have it connect to the game as a normal client
 //----(SA) ClientConnect requires a third 'isbot' parameter.  setting to qfalse and noting
@@ -579,9 +579,9 @@ void AIChar_AIScript_AlertEntity( gentity_t *ent ) {
 	// if the current bounding box is invalid, then wait
 	VectorAdd( ent->r.currentOrigin, ent->r.mins, mins );
 	VectorAdd( ent->r.currentOrigin, ent->r.maxs, maxs );
-	trap_UnlinkEntity( ent );
+	SV_UnlinkEntity( ent );
 
-	numTouch = trap_EntitiesInBox( mins, maxs, touch, 10 );
+	numTouch = SV_AreaEntities( mins, maxs, touch, 10 );
 
 	// check that another client isn't inside us
 	if ( numTouch ) {
@@ -606,7 +606,7 @@ void AIChar_AIScript_AlertEntity( gentity_t *ent ) {
 	//ent->AIScript_AlertEntity = NULL;
 	cs->aiFlags &= ~AIFL_WAITINGTOSPAWN;
 	ent->aiInactive = qfalse;
-	trap_LinkEntity( ent );
+	SV_LinkEntity( ent );
 
 	// trigger a spawn script event
 	AICast_ScriptEvent( AICast_GetCastState( ent->s.number ), "spawn", "" );
@@ -728,7 +728,7 @@ void AICast_CheckLoadGame( void ) {
 
 	if ( strlen( loading ) > 0 && atoi( loading ) != 0 ) {
 		// screen should be black if we are at this stage
-		trap_SetConfigstring( CS_SCREENFADE, va( "1 %i 1", level.time - 10 ) );
+		SV_SetConfigstring( CS_SCREENFADE, va( "1 %i 1", level.time - 10 ) );
 
 		if ( !( g_reloading.integer ) && atoi( loading ) == 2 ) {
 			// (SA) hmm, this seems redundant when it sets it above...
@@ -755,7 +755,7 @@ void AICast_CheckLoadGame( void ) {
 			ent->think = AICast_EnableRenderingThink;
 
 			// wait for the clients to return from faded screen
-			trap_SetConfigstring( CS_SCREENFADE, va( "0 %i 750", level.time + 500 ) );
+			SV_SetConfigstring( CS_SCREENFADE, va( "0 %i 750", level.time + 500 ) );
 			level.reloadPauseTime = level.time + 1100;
 
 			// make sure sound fades up
@@ -810,7 +810,7 @@ qboolean AICast_SolidsInBBox( vec3_t pos, vec3_t mins, vec3_t maxs, int entnum, 
 		return qfalse;
 	}
 
-	trap_Trace( &tr, pos, mins, maxs, pos, entnum, mask );
+    SV_Trace( &tr, pos, mins, maxs, pos, entnum, mask, qfalse );
 	if ( tr.startsolid || tr.allsolid ) {
 		return qtrue;
 	} else {

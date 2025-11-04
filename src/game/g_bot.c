@@ -31,6 +31,7 @@ If you have questions concerning this license or the applicable additional terms
 #include "g_local.h"
 #include "../botai/botai.h"
 #include "../qcommon/qcommon.h"
+#include "../server/server.h"
 
 static int g_numBots;
 static char g_botInfos[MAX_BOTS][MAX_INFO_STRING];
@@ -101,7 +102,7 @@ qboolean G_BotConnect( int clientNum, qboolean restart ) {
 	bot_settings_t settings;
 	char userinfo[MAX_INFO_STRING];
 
-	trap_GetUserinfo( clientNum, userinfo, sizeof( userinfo ) );
+	SV_GetUserinfo( clientNum, userinfo, sizeof( userinfo ) );
 
 	Q_strncpyz( settings.characterfile, Info_ValueForKey( userinfo, "characterfile" ), sizeof( settings.characterfile ) );
 	settings.skill = atoi( Info_ValueForKey( userinfo, "skill" ) );

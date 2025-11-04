@@ -45,6 +45,7 @@ If you have questions concerning this license or the applicable additional terms
 #include "g_func_decs.h"
 
 #include "ai_cast.h"
+#include "../server/server.h"
 
 //---------------------------------------------------------------------------
 // Character specific attributes (defaults, these can be altered in the editor (TODO!))
@@ -978,7 +979,7 @@ void AIChar_SetBBox( gentity_t *ent, cast_state_t *cs, qboolean useHeadTag ) {
 
 		if ( bbox[1][2] > ent->client->ps.maxs[2] ) {
 			// check this area is clear
-			trap_TraceCapsule( &tr, ent->client->ps.origin, bbox[0], bbox[1], ent->client->ps.origin, ent->s.number, ent->clipmask );
+			SV_TraceCapsule( &tr, ent->client->ps.origin, bbox[0], bbox[1], ent->client->ps.origin, ent->s.number, ent->clipmask );
 		}
 
 		if ( !tr.startsolid && !tr.allsolid ) {
@@ -993,7 +994,7 @@ void AIChar_SetBBox( gentity_t *ent, cast_state_t *cs, qboolean useHeadTag ) {
 
 	// if they are linked, then relink to update bbox
 	if ( ent->r.linked ) {
-		trap_LinkEntity( ent );
+		SV_LinkEntity( ent );
 	}
 }
 
@@ -1493,7 +1494,7 @@ void AIChar_spawn( gentity_t *ent ) {
 		// trigger a spawn script event
 		AICast_ScriptEvent( cs, "spawn", "" );
 	} else {
-		trap_UnlinkEntity( ent );
+		SV_UnlinkEntity( ent );
 	}
 
 }

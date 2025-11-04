@@ -109,7 +109,7 @@ qboolean SpotWouldTelefrag( gentity_t *spot ) {
 
 	VectorAdd( spot->s.origin, playerMins, mins );
 	VectorAdd( spot->s.origin, playerMaxs, maxs );
-	num = trap_EntitiesInBox( mins, maxs, touch, MAX_GENTITIES );
+	num = SV_AreaEntities( mins, maxs, touch, MAX_GENTITIES );
 
 	for ( i = 0 ; i < num ; i++ ) {
 		hit = &g_entities[touch[i]];
@@ -303,7 +303,7 @@ After sitting around for five seconds, fall into the ground and dissapear
 void BodySink( gentity_t *ent ) {
 	if ( level.time - ent->timestamp > 6500 ) {
 		// the body ques are never actually freed, they are just unlinked
-		trap_UnlinkEntity( ent );
+		SV_UnlinkEntity( ent );
 		ent->physicsObject = qfalse;
 		return;
 	}
@@ -323,10 +323,10 @@ void CopyToBodyQue( gentity_t *ent ) {
 	gentity_t       *body;
 	int contents, i;
 
-	trap_UnlinkEntity( ent );
+	SV_UnlinkEntity( ent );
 
 	// if client is in a nodrop area, don't leave the body
-	contents = trap_PointContents( ent->s.origin, -1 );
+	contents = SV_PointContents( ent->s.origin, -1 );
 	if ( contents & CONTENTS_NODROP ) {
 		return;
 	}
@@ -335,7 +335,7 @@ void CopyToBodyQue( gentity_t *ent ) {
 	body = level.bodyQue[ level.bodyQueIndex ];
 	level.bodyQueIndex = ( level.bodyQueIndex + 1 ) % BODY_QUEUE_SIZE;
 
-	trap_UnlinkEntity( body );
+	SV_UnlinkEntity( body );
 
 	body->s = ent->s;
 	body->s.eFlags = EF_DEAD;       // clear EF_TALK, etc
@@ -389,7 +389,7 @@ void CopyToBodyQue( gentity_t *ent ) {
 
 
 	VectorCopy( body->s.pos.trBase, body->r.currentOrigin );
-	trap_LinkEntity( body );
+	SV_LinkEntity( body );
 }
 
 //======================================================================
@@ -430,7 +430,7 @@ void respawn( gentity_t *ent ) {
     if ( !( ent->r.svFlags & SVF_CASTAI ) ) {
         // Fast method, just do a map_restart, and then load in the savegame
         // once everything is settled.
-        trap_SetConfigstring( CS_SCREENFADE, va( "1 %i 4000", level.time + 2000 ) );
+        SV_SetConfigstring( CS_SCREENFADE, va( "1 %i 4000", level.time + 2000 ) );
 
         Cvar_Set( "g_reloading", "1" );
 
@@ -665,7 +665,7 @@ ClientUserInfoChanged
 Called from ClientConnect when the player first connects and
 directly by the server system when the player updates a userinfo variable.
 
-The game can override any of the settings and call trap_SetUserinfo
+The game can override any of the settings and call SV_SetUserinfo
 if desired.
 ============
 */
@@ -687,7 +687,7 @@ void ClientUserinfoChanged( int clientNum ) {
 
 	client->ps.clientNum = clientNum;
 
-	trap_GetUserinfo( clientNum, userinfo, sizeof( userinfo ) );
+	SV_GetUserinfo( clientNum, userinfo, sizeof( userinfo ) );
 
 	// check for malformed or illegal info strings
 	if ( !Info_Validate( userinfo ) ) {
@@ -816,7 +816,7 @@ void ClientUserinfoChanged( int clientNum ) {
 
 //----(SA) end
 
-	trap_SetConfigstring( CS_PLAYERS + clientNum, s );
+	SV_SetConfigstring( CS_PLAYERS + clientNum, s );
 
 	G_LogPrintf( "ClientUserinfoChanged: %i %s\n", clientNum, s );
 }
@@ -850,7 +850,7 @@ char *ClientConnect( int clientNum, qboolean firstTime, qboolean isBot ) {
 
 	ent = &g_entities[ clientNum ];
 
-	trap_GetUserinfo( clientNum, userinfo, sizeof( userinfo ) );
+	SV_GetUserinfo( clientNum, userinfo, sizeof( userinfo ) );
 
 	// check to see if they are on the banned IP list
 	value = Info_ValueForKey( userinfo, "ip" );
@@ -923,7 +923,7 @@ void ClientBegin( int clientNum ) {
 	client = level.clients + clientNum;
 
 	if ( ent->r.linked ) {
-		trap_UnlinkEntity( ent );
+		SV_UnlinkEntity( ent );
 	}
 	G_InitGentity( ent );
 	ent->touch = 0;
@@ -1164,7 +1164,7 @@ void ClientSpawn( gentity_t *ent ) {
 
 	} else {
 		G_KillBox( ent );
-		trap_LinkEntity( ent );
+		SV_LinkEntity( ent );
 	}
 
 	// don't allow full run speed for a bit
@@ -1195,7 +1195,7 @@ void ClientSpawn( gentity_t *ent ) {
 	if ( ent->client->sess.sessionTeam != TEAM_SPECTATOR ) {
 		BG_PlayerStateToEntityState( &client->ps, &ent->s, qtrue );
 		VectorCopy( ent->client->ps.origin, ent->r.currentOrigin );
-		trap_LinkEntity( ent );
+		SV_LinkEntity( ent );
 	}
 
 	// run the presend to set anything else
@@ -1265,7 +1265,7 @@ void ClientDisconnect( int clientNum ) {
 		ClientUserinfoChanged( level.sortedClients[0] );
 	}
 
-	trap_UnlinkEntity( ent );
+	SV_UnlinkEntity( ent );
 	ent->s.modelindex = 0;
 	ent->inuse = qfalse;
 	ent->classname = "disconnected";
@@ -1273,7 +1273,7 @@ void ClientDisconnect( int clientNum ) {
 	ent->client->ps.persistant[PERS_TEAM] = TEAM_FREE;
 	ent->client->sess.sessionTeam = TEAM_FREE;
 
-	trap_SetConfigstring( CS_PLAYERS + clientNum, "" );
+	SV_SetConfigstring( CS_PLAYERS + clientNum, "" );
 
 	CalculateRanks();
 

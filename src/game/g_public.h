@@ -78,7 +78,7 @@ typedef struct {
 	int singleClient;               // only send to this client when SVF_SINGLECLIENT is set
 
 	qboolean bmodel;                // if false, assume an explicit mins / maxs bounding box
-									// only set by trap_SetBrushModel
+									// only set by SV_SetBrushModel
 	vec3_t mins, maxs;
 	int contents;                   // CONTENTS_TRIGGER, CONTENTS_SOLID, CONTENTS_BODY, etc
 									// a non-solid entity should set to 0

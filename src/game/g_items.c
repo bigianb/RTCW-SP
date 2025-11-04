@@ -40,7 +40,7 @@ If you have questions concerning this license or the applicable additional terms
 
 #include "g_local.h"
 #include "../qcommon/qcommon.h"
-
+#include "../server/server.h"
 
 #define RESPAWN_SP          -1
 #define RESPAWN_KEY         4
@@ -136,7 +136,7 @@ int Pickup_Powerup( gentity_t *ent, gentity_t *other ) {
 			}
 
 			// if not line of sight, no sound
-			trap_Trace( &tr, client->ps.origin, NULL, NULL, ent->s.pos.trBase, ENTITYNUM_NONE, CONTENTS_SOLID );
+			SV_Trace( &tr, client->ps.origin, NULL, NULL, ent->s.pos.trBase, ENTITYNUM_NONE, CONTENTS_SOLID, qfalse );
 			if ( tr.fraction != 1.0 ) {
 				continue;
 			}
@@ -595,7 +595,7 @@ void RespawnItem( gentity_t *ent ) {
 	//ent->s.eFlags &= ~EF_NODRAW;
 	ent->flags &= ~FL_NODRAW;
 	ent->r.svFlags &= ~SVF_NOCLIENT;
-	trap_LinkEntity( ent );
+	SV_LinkEntity( ent );
 
 /*
 	if ( ent->item->giType == IT_POWERUP && g_gametype.integer != GT_SINGLE_PLAYER) {
@@ -764,7 +764,7 @@ void Touch_Item( gentity_t *ent, gentity_t *other, trace_t *trace ) {
 	if ( respawn == RESPAWN_PARTIAL_DONE ) {
 		ent->s.density = ( 1 << 9 );    // (10 bits of data transmission for density)
 		ent->active = qtrue;        // re-activate
-		trap_LinkEntity( ent );
+		SV_LinkEntity( ent );
 		return;
 	}
 
@@ -772,7 +772,7 @@ void Touch_Item( gentity_t *ent, gentity_t *other, trace_t *trace ) {
 		ent->s.density--;
 		if ( ent->s.density ) {        // still not completely used up ( (SA) this will change to == 0 and stage 1 will be a destroyable item (plate/etc.) )
 			ent->active = qtrue;        // re-activate
-			trap_LinkEntity( ent );
+			SV_LinkEntity( ent );
 			return;
 		}
 	}
@@ -815,7 +815,7 @@ void Touch_Item( gentity_t *ent, gentity_t *other, trace_t *trace ) {
 		ent->nextthink = level.time + respawn * 1000;
 		ent->think = RespawnItem;
 	}
-	trap_LinkEntity( ent );
+	SV_LinkEntity( ent );
 }
 
 
@@ -870,7 +870,7 @@ gentity_t *LaunchItem( gitem_t *item, vec3_t origin, vec3_t velocity ) {
 
 	dropped->flags = FL_DROPPED_ITEM;
 
-	trap_LinkEntity( dropped );
+	SV_LinkEntity( dropped );
 
 	return dropped;
 }
@@ -984,7 +984,7 @@ void FinishSpawningItem( gentity_t *ent ) {
 	} else {
 
 		VectorSet( dest, ent->s.origin[0], ent->s.origin[1], ent->s.origin[2] - 4096 );
-		trap_Trace( &tr, ent->s.origin, ent->r.mins, maxs, dest, ent->s.number, MASK_SOLID );
+		SV_Trace( &tr, ent->s.origin, ent->r.mins, maxs, dest, ent->s.number, MASK_SOLID, qfalse );
 
 		if ( tr.startsolid ) {
 			vec3_t temp;
@@ -993,14 +993,9 @@ void FinishSpawningItem( gentity_t *ent ) {
 			temp[2] -= ITEM_RADIUS;
 
 			VectorSet( dest, ent->s.origin[0], ent->s.origin[1], ent->s.origin[2] - 4096 );
-			trap_Trace( &tr, temp, ent->r.mins, maxs, dest, ent->s.number, MASK_SOLID );
+			SV_Trace( &tr, temp, ent->r.mins, maxs, dest, ent->s.number, MASK_SOLID, qfalse);
 		}
 
-#if 0
-		// drop to floor
-		VectorSet( dest, ent->s.origin[0], ent->s.origin[1], ent->s.origin[2] - 4096 );
-		trap_Trace( &tr, ent->s.origin, ent->r.mins, maxs, dest, ent->s.number, MASK_SOLID );
-#endif
 		if ( tr.startsolid ) {
 			Com_Printf( "FinishSpawningItem: %s startsolid at %s\n", ent->classname, vtos( ent->s.origin ) );
 			G_FreeEntity( ent );
@@ -1054,7 +1049,7 @@ void FinishSpawningItem( gentity_t *ent ) {
 		return;
 	}
 
-	trap_LinkEntity( ent );
+	SV_LinkEntity( ent );
 }
 
 
@@ -1128,7 +1123,7 @@ void SaveRegisteredItems( void ) {
 	if ( Cvar_VariableIntegerValue( "g_gametype" ) != GT_SINGLE_PLAYER ) {
 		Com_Printf( "%i items registered\n", count );
 	}
-	trap_SetConfigstring( CS_ITEMS, string );
+	SV_SetConfigstring( CS_ITEMS, string );
 }
 
 
@@ -1238,8 +1233,8 @@ void G_RunItemProp( gentity_t *ent, vec3_t origin ) {
 	VectorCopy( origin, end );
 	end[2] += 1;
 
-	trap_Trace( &trace, ent->r.currentOrigin, ent->r.mins, ent->r.maxs, end,
-				ent->r.ownerNum, MASK_SHOT );
+	SV_Trace( &trace, ent->r.currentOrigin, ent->r.mins, ent->r.maxs, end,
+				ent->r.ownerNum, MASK_SHOT, qfalse );
 
 	traceEnt = &g_entities[ trace.entityNum ];
 
@@ -1298,8 +1293,8 @@ void G_RunItem( gentity_t *ent ) {
 	} else {
 		mask = MASK_SOLID | CONTENTS_MISSILECLIP;
 	}
-	trap_Trace( &tr, ent->r.currentOrigin, ent->r.mins, ent->r.maxs, origin,
-				ent->r.ownerNum, mask );
+	SV_Trace( &tr, ent->r.currentOrigin, ent->r.mins, ent->r.maxs, origin,
+				ent->r.ownerNum, mask, qfalse );
 
 	if ( ent->isProp && ent->takedamage ) {
 		G_RunItemProp( ent, origin );
@@ -1311,7 +1306,7 @@ void G_RunItem( gentity_t *ent ) {
 		tr.fraction = 0;
 	}
 
-	trap_LinkEntity( ent ); // FIXME: avoid this for stationary?
+	SV_LinkEntity( ent ); // FIXME: avoid this for stationary?
 
 	// check think function
 	G_RunThink( ent );
@@ -1321,7 +1316,7 @@ void G_RunItem( gentity_t *ent ) {
 	}
 
 	// if it is in a nodrop volume, remove it
-	contents = trap_PointContents( ent->r.currentOrigin, -1 );
+	contents = SV_PointContents( ent->r.currentOrigin, -1 );
 	if ( contents & CONTENTS_NODROP ) {
 		if ( ent->item && ent->item->giType == IT_TEAM ) {
 			Team_FreeEntity( ent );

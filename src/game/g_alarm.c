@@ -27,6 +27,7 @@ If you have questions concerning this license or the applicable additional terms
 */
 
 #include "g_local.h"
+#include "../server/server.h"
 
 /*
 ==============
@@ -214,7 +215,7 @@ void SP_alarm_box( gentity_t *ent ) {
 	}
 
 	// model
-	trap_SetBrushModel( ent, ent->model );
+	SV_SetBrushModel( ent, ent->model );
 	ent->s.modelindex2 = G_ModelIndex( "models/mapobjects/electronics/alarmbox.md3" );
 
 	// sound
@@ -250,7 +251,7 @@ void SP_alarm_box( gentity_t *ent ) {
 	ent->think      = alarmbox_finishspawning;
 	ent->nextthink  = level.time + FRAMETIME;
 
-	trap_LinkEntity( ent );
+	SV_LinkEntity( ent );
 }
 
 

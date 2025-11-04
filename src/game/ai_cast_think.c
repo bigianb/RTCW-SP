@@ -45,6 +45,7 @@ If you have questions concerning this license or the applicable additional terms
 #include "../botai/botai.h"          //bot ai interface
 
 #include "../qcommon/qcommon.h"
+#include "../server/server.h"
 
 #include "ai_cast.h"
 
@@ -513,9 +514,9 @@ void AICast_Think( int client, float thinktime ) {
 
 			VectorAdd( ent->r.currentOrigin, ent->r.mins, mins );
 			VectorAdd( ent->r.currentOrigin, ent->r.maxs, maxs );
-			trap_UnlinkEntity( ent );
+			SV_UnlinkEntity( ent );
 
-			numTouch = trap_EntitiesInBox( mins, maxs, touch, 10 );
+			numTouch = SV_AreaEntities( mins, maxs, touch, 10 );
 
 			if ( numTouch ) {
 				for ( i = 0; i < numTouch; i++ ) {
@@ -562,7 +563,7 @@ void AICast_Think( int client, float thinktime ) {
 				ent->r.maxs[2] = oldmaxZ;
 				ent->client->ps.maxs[2] = ent->r.maxs[2];
 			}
-			trap_LinkEntity( ent );
+			SV_LinkEntity( ent );
 		}
 		// ZOMBIE should set effect flag if really dead
 		if ( cs->aiCharacter == AICHAR_ZOMBIE && !ent->r.contents ) {
@@ -1028,7 +1029,7 @@ void AICast_StartServerFrame( int time ) {
 							||  ( VectorLength( ent->client->ps.velocity ) > 0 )
 							||  ( highPriority && ( cs->lastucmd.forwardmove || cs->lastucmd.rightmove || cs->lastucmd.upmove > 0 || cs->lastucmd.buttons || cs->lastucmd.wbuttons ) )
 							// !!NOTE: always allow thinking if in PVS, otherwise bosses won't gib, and dead guys might not push away from clipped walls
-							||  ( trap_InPVS( cs->bs->origin, g_entities[0].s.pos.trBase ) ) ) { // do pvs check last, since it's the most expensive to call
+							||  ( SV_inPVS( cs->bs->origin, g_entities[0].s.pos.trBase ) ) ) { // do pvs check last, since it's the most expensive to call
 						oldLegsTimer = ent->client->ps.legsTimer;
 						//
 						// send it's movement commands
@@ -1049,7 +1050,7 @@ void AICast_StartServerFrame( int time ) {
 					}
 				}
 			} else {
-				trap_UnlinkEntity( ent );
+				SV_UnlinkEntity( ent );
 			}
 			//
 			// see if we've checked all cast AI's
@@ -1115,8 +1116,8 @@ void AICast_PredictMovement( cast_state_t *cs, int numframes, float frametime, a
 		pm.cmd.serverTime = (int)( 1000.0 * frametime );
 		pm.tracemask = g_entities[cs->entityNum].clipmask; //MASK_PLAYERSOLID;
 
-		pm.trace = trap_TraceCapsule; //trap_Trace;
-		pm.pointcontents = trap_PointContents;
+		pm.trace = SV_TraceCapsule; //SV_Trace;
+		pm.pointcontents = SV_PointContents;
 		pm.debugLevel = qfalse;
 		pm.noFootsteps = qtrue;
 		// RF, not needed for prediction
@@ -1182,7 +1183,7 @@ done:
 	if ( move->groundEntityNum == ENTITYNUM_NONE ) {
 		VectorCopy( move->endpos, end );
 		end[2] -= 32;
-		trap_Trace( &tr, move->endpos, pm.mins, pm.maxs, end, pm.ps->clientNum, pm.tracemask );
+		SV_Trace( &tr, move->endpos, pm.mins, pm.maxs, end, pm.ps->clientNum, pm.tracemask, qfalse );
 		if ( !tr.startsolid && !tr.allsolid && tr.fraction < 1 ) {
 			VectorCopy( tr.endpos, pm.ps->origin );
 			pm.ps->groundEntityNum = tr.entityNum;

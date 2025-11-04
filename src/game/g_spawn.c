@@ -34,6 +34,7 @@ If you have questions concerning this license or the applicable additional terms
 */
 
 #include "g_local.h"
+#include "../server/server.h"
 
 qboolean    G_SpawnString( const char *key, const char *defaultString, char **out ) {
 	int i;
@@ -105,9 +106,9 @@ typedef struct
 	int ofs;
 	fieldtype_t type;
 	int flags;
-} field_t;
+} gentity_field_t;
 
-field_t fields[] = {
+gentity_field_t fields[] = {
 	{"classname",    FOFS( classname ),    F_LSTRING},
 	{"origin",       FOFS( s.origin ),     F_VECTOR},
 	{"model",        FOFS( model ),        F_LSTRING},
@@ -781,7 +782,7 @@ in a gentity
 ===============
 */
 void G_ParseField( const char *key, const char *value, gentity_t *ent ) {
-	field_t *f;
+	gentity_field_t *f;
 	byte    *b;
 	float v;
 	vec3_t vec;
@@ -978,17 +979,17 @@ void SP_worldspawn( void ) {
 	}
 
 	// make some data visible to connecting client
-	trap_SetConfigstring( CS_GAME_VERSION, GAME_VERSION );
+	SV_SetConfigstring( CS_GAME_VERSION, GAME_VERSION );
 
-	trap_SetConfigstring( CS_LEVEL_START_TIME, va( "%i", level.startTime ) );
+	SV_SetConfigstring( CS_LEVEL_START_TIME, va( "%i", level.startTime ) );
 
 	G_SpawnString( "music", "", &s );
-	trap_SetConfigstring( CS_MUSIC, s );
+	SV_SetConfigstring( CS_MUSIC, s );
 
 	G_SpawnString( "message", "", &s );
-	trap_SetConfigstring( CS_MESSAGE, s );              // map specific message
+	SV_SetConfigstring( CS_MESSAGE, s );              // map specific message
 
-	trap_SetConfigstring( CS_MOTD, g_motd.string );     // message of the day
+	SV_SetConfigstring( CS_MOTD, g_motd.string );     // message of the day
 
 	G_SpawnString( "gravity", "800", &s );
 	Cvar_Set( "g_gravity", s );
@@ -999,7 +1000,7 @@ void SP_worldspawn( void ) {
 	g_entities[ENTITYNUM_WORLD].classname = "worldspawn";
 
 	// see if we want a warmup time
-	trap_SetConfigstring( CS_WARMUP, "" );
+	SV_SetConfigstring( CS_WARMUP, "" );
 	if ( g_restarted.integer ) {
 		Cvar_Set( "g_restarted", "0" );
 		level.warmupTime = 0;

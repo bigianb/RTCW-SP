@@ -634,7 +634,7 @@ qboolean G_Script_ScriptRun( gentity_t *ent ) {
 void script_linkentity( gentity_t *ent ) {
 
 	// this is required since non-solid brushes need to be linked but not solid
-	trap_LinkEntity( ent );
+	SV_LinkEntity( ent );
 
 //	if ((ent->s.eType == ET_MOVER) && !(ent->spawnflags & 2)) {
 //		ent->s.solid = 0;
@@ -659,7 +659,7 @@ void script_mover_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacke
 	G_Script_ScriptEvent( self, "death", "" );
 	self->die = NULL;
 
-	trap_UnlinkEntity( self );
+	SV_UnlinkEntity( self );
 	G_FreeEntity( self );
 }
 
@@ -737,14 +737,14 @@ void SP_script_mover( gentity_t *ent ) {
 //	VectorCopy( ent->r.currentOrigin, ent->pos1 );
 	VectorCopy( ent->pos1, ent->pos2 ); // don't go anywhere just yet
 
-	trap_SetBrushModel( ent, ent->model );
+	SV_SetBrushModel( ent, ent->model );
 
 	InitMover( ent );
 	ent->reached = NULL;
 
 	if ( ent->spawnflags & 1 ) {
 		ent->use = script_mover_use;
-		trap_UnlinkEntity( ent ); // make sure it's not visible
+		SV_UnlinkEntity( ent ); // make sure it's not visible
 		return;
 	}
 
@@ -793,7 +793,7 @@ void script_model_med_spawn( gentity_t *ent ) {
 	VectorCopy( ent->s.origin, ent->s.pos.trBase );
 	ent->s.pos.trType = TR_STATIONARY;
 
-	trap_LinkEntity( ent );
+	SV_LinkEntity( ent );
 }
 
 void script_model_med_use( gentity_t *ent, gentity_t *other, gentity_t *activator ) {
@@ -824,7 +824,7 @@ void SP_script_model_med( gentity_t *ent ) {
 
 	if ( ent->spawnflags & 1 ) {
 		ent->use = script_model_med_use;
-		trap_UnlinkEntity( ent ); // make sure it's not visible
+		SV_UnlinkEntity( ent ); // make sure it's not visible
 		return;
 	}
 

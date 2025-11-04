@@ -778,9 +778,9 @@ void ReadEntity( fileHandle_t f, gentity_t *ent, int size ) {
 
 	// notify server of changes in position/orientation
 	if ( ent->r.linked && ( !( ent->r.svFlags & SVF_CASTAI ) || !ent->aiInactive ) ) {
-		trap_LinkEntity( ent );
+		SV_LinkEntity( ent );
 	} else {
-		trap_UnlinkEntity( ent );
+		SV_UnlinkEntity( ent );
 	}
 
 	// if this is a mover, check areaportals
@@ -795,12 +795,12 @@ void ReadEntity( fileHandle_t f, gentity_t *ent, int size ) {
 				backup2 = *ent;
 				*ent = backup;
 				// link it at original position
-				trap_LinkEntity( ent );
+				SV_LinkEntity( ent );
 				// set portals
 				trap_AdjustAreaPortalState( ent, qtrue );
 				// put it back
 				*ent = backup2;
-				trap_LinkEntity( ent );
+				SV_LinkEntity( ent );
 			}
 		}
 	}
@@ -1193,7 +1193,7 @@ qboolean G_SaveGame( char *username ) {
 
 //----(SA)	write fog
 
-	trap_GetConfigstring( CS_FOGVARS, infoString, sizeof( infoString ) );
+	SV_GetConfigstring( CS_FOGVARS, infoString, sizeof( infoString ) );
 
 	i = strlen( infoString );
 	if ( !G_SaveWrite( &i, sizeof( i ), f ) ) {
@@ -1406,7 +1406,7 @@ void G_LoadGame( char *filename ) {
 				Cvar_Register( &musicCvar, "s_currentMusic", "", CVAR_ROM ); // get current music
 				if ( Q_stricmp( musicString, musicCvar.string ) ) {      // it's different than what's playing, so fade out and queue up
 //					SV_GameSendServerCommand(-1, "mu_fade 0 1000\n");
-//					trap_SetConfigstring( CS_MUSIC_QUEUE, musicString);
+//					SV_SetConfigstring( CS_MUSIC_QUEUE, musicString);
 					SV_GameSendServerCommand( -1, va( "mu_start %s 1000\n", musicString ) );       // (SA) trying this instead
 				}
 			}
@@ -1444,7 +1444,7 @@ void G_LoadGame( char *filename ) {
 				Cvar_Set( "r_savegameFogColor", infoString );
 			}
 
-			trap_SetConfigstring( CS_FOGVARS, infoString );
+			SV_SetConfigstring( CS_FOGVARS, infoString );
 		}
 //----(SA)	end
 
@@ -1563,7 +1563,7 @@ void G_LoadGame( char *filename ) {
 				Cvar_Register( &musicCvar, "s_currentMusic", "", CVAR_ROM ); // get current music
 				if ( Q_stricmp( musicString, musicCvar.string ) ) {      // it's different than what's playing, so fade out and queue up
 					SV_GameSendServerCommand( -1, "mu_fade 0 1000\n" );
-					trap_SetConfigstring( CS_MUSIC_QUEUE, musicString );
+					SV_SetConfigstring( CS_MUSIC_QUEUE, musicString );
 				}
 			}
 

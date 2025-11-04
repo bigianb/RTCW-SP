@@ -45,6 +45,7 @@ If you have questions concerning this license or the applicable additional terms
 #include "../botai/botai.h"          //bot ai interface
 
 #include "ai_cast.h"
+#include "../server/server.h"
 
 // TTimo: unused
 //static vec3_t forward, right, up;
@@ -215,7 +216,7 @@ char *AIFunc_Helga_Melee( cast_state_t *cs ) {
 			enemyDist -= g_entities[cs->enemyNum].r.maxs[0];
 			enemyDist -= ent->r.maxs[0];
 			if ( enemyDist < 10 + AICast_WeaponRange( cs, cs->weaponNum ) ) {
-				trap_Trace( &tr, ent->r.currentOrigin, NULL, NULL, enemy->r.currentOrigin, ent->s.number, MASK_SHOT );
+                SV_Trace( &tr, ent->r.currentOrigin, NULL, NULL, enemy->r.currentOrigin, ent->s.number, MASK_SHOT, qfalse );
 				if ( tr.entityNum == cs->enemyNum ) {
 					G_Damage( &g_entities[tr.entityNum], ent, ent, vec3_origin, tr.endpos,
 							  helgaHitDamage[anim], 0, MOD_GAUNTLET );

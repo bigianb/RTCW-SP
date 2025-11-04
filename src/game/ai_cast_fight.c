@@ -46,6 +46,7 @@ If you have questions concerning this license or the applicable additional terms
 #include "../botai/botai.h"          //bot ai interface
 
 #include "ai_cast.h"
+#include "../server/server.h"
 
 /*
 Support routines for the Decision Making layer.
@@ -717,13 +718,13 @@ qboolean AICast_CheckAttack_real( cast_state_t *cs, int enemy, qboolean allowHit
 			VectorMA( end, halfHeight * 0.9 * ( ( (float)( ( i - 1 ) - ( ( i - 1 ) % 2 ) ) / 2 - 1.0 ) ), up, end );
 		}
 
-		if ( /*allowHitWorld &&*/ !trap_InPVS( start, end ) ) {
+		if ( /*allowHitWorld &&*/ !SV_inPVS( start, end ) ) {
 			// not possibly attackable
 			//continue;
 			return qfalse;
 		}
 
-		trap_Trace( &trace, start, mins, maxs, end, passEnt, traceMask );
+        SV_Trace( &trace, start, mins, maxs, end, passEnt, traceMask, qfalse );
 		if ( trace.fraction == 1.0 ) {
 			if ( !trace.startsolid ) {
 				return qtrue;   // not sure why, but this fixes blackguards in chateau shooting through glass ceiling
@@ -1052,7 +1053,7 @@ qboolean AICast_WeaponUsable( cast_state_t *cs, int weaponNum ) {
 					vec3_t mins;
 					VectorCopy( cs->bs->cur_ps.mins, mins );
 					mins[0] = 0;
-					trap_Trace( &trace, g_entities[cs->entityNum].client->ps.origin, mins, cs->bs->cur_ps.maxs, g_entities[cs->enemyNum].client->ps.origin, cs->entityNum, g_entities[cs->entityNum].clipmask );
+                    SV_Trace( &trace, g_entities[cs->entityNum].client->ps.origin, mins, cs->bs->cur_ps.maxs, g_entities[cs->enemyNum].client->ps.origin, cs->entityNum, g_entities[cs->entityNum].clipmask, qfalse );
 					if ( trace.entityNum != cs->enemyNum && trace.fraction < 1.0 ) {
 						return qfalse;
 					}
@@ -2265,7 +2266,7 @@ void AICast_ProcessBullet( gentity_t *attacker, vec3_t start, vec3_t end ) {
 		if ( dist <= cs->attributes[INNER_DETECTION_RADIUS] ) {
 			// close enough to hear/see the impact?
 			// first check pvs
-			if ( !trap_InPVS( tent->client->ps.origin, end ) ) {
+			if ( !SV_inPVS( tent->client->ps.origin, end ) ) {
 				continue;
 			}
 			// heard it
@@ -2351,7 +2352,7 @@ void AICast_AudibleEvent( int srcnum, vec3_t pos, float range ) {
 		if ( localDist > adjustedRange * adjustedRange ) {  // fast out if already outside range
 			continue;
 		}
-		if ( !trap_InPVS( pos, ent->s.pos.trBase ) ) {
+		if ( !SV_inPVS( pos, ent->s.pos.trBase ) ) {
 			adjustedRange *= cs->attributes[HEARING_SCALE_NOT_PVS];
 		}
 		if ( localDist > adjustedRange * adjustedRange ) {

@@ -5072,7 +5072,7 @@ void CG_MissileHitWall( int weapon, int clientNum, vec3_t origin, vec3_t dir, in
 
 						sfx->s.frame = 3 + (rand()%3) ;
 
-						trap_LinkEntity (sfx);
+						SV_LinkEntity (sfx);
 
 
 void CG_Shard(centity_t *cent, vec3_t origin, vec3_t dir)

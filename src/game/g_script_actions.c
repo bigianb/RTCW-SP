@@ -466,7 +466,7 @@ qboolean G_ScriptAction_MusicQueue( gentity_t *ent, char *params ) {
 	}
 	Q_strncpyz( cvarName, token, sizeof( cvarName ) );
 
-	trap_SetConfigstring( CS_MUSIC_QUEUE, cvarName );
+	SV_SetConfigstring( CS_MUSIC_QUEUE, cvarName );
 
 	return qtrue;
 }
@@ -764,7 +764,7 @@ qboolean G_ScriptAction_MissionFailed( gentity_t *ent, char *params ) {
 
 	// play mission fail music
 	SV_GameSendServerCommand( -1, "mu_play sound/music/l_failed_1.wav 0\n" );
-	trap_SetConfigstring( CS_MUSIC_QUEUE, "" );  // clear queue so it'll be quiet after hit
+	SV_SetConfigstring( CS_MUSIC_QUEUE, "" );  // clear queue so it'll be quiet after hit
 
 	SV_GameSendServerCommand( -1, va( "snd_fade 0 %d", time * 1000 ) );   //----(SA)	added
 
@@ -774,7 +774,7 @@ qboolean G_ScriptAction_MissionFailed( gentity_t *ent, char *params ) {
 	SV_GameSendServerCommand( -1, va( "cp missionfail%d", mof ) );
 
 	// reload the current savegame, after a delay
-	trap_SetConfigstring( CS_SCREENFADE, va( "1 %i %i", level.time + 250, time * 1000 ) );
+	SV_SetConfigstring( CS_SCREENFADE, va( "1 %i %i", level.time + 250, time * 1000 ) );
 //	reloading = RELOAD_FAILED;
 	Cvar_Set( "g_reloading", va( "%d", RELOAD_FAILED ) );
 
@@ -1129,7 +1129,7 @@ qboolean G_ScriptAction_MapDescription( gentity_t *ent, char *params ) {
 	pString = params;
 	token = COM_Parse( &pString );
 
-	trap_SetConfigstring( CS_MULTI_MAPDESC, token );
+	SV_SetConfigstring( CS_MULTI_MAPDESC, token );
 
 	return qtrue;
 }
@@ -1200,11 +1200,11 @@ qboolean G_ScriptAction_NumberofObjectives( gentity_t *ent, char *params ) {
 		Com_Error( ERR_DROP, "G_ScriptAction_NumberofObjectives: Invalid number of objectives\n" );
 	}
 
-	trap_GetConfigstring( CS_MULTI_INFO, cs, sizeof( cs ) );
+	SV_GetConfigstring( CS_MULTI_INFO, cs, sizeof( cs ) );
 
 	Info_SetValueForKey( cs, "numobjectives", token );
 
-	trap_SetConfigstring( CS_MULTI_INFO, cs );
+	SV_SetConfigstring( CS_MULTI_INFO, cs );
 
 	return qtrue;
 }
@@ -1241,11 +1241,11 @@ qboolean G_ScriptAction_ObjectiveAxisDesc( gentity_t *ent, char *params ) {
 	// Move to correct objective config string
 	cs_obj += ( num - 1 );
 
-	trap_GetConfigstring( cs_obj, cs, sizeof( cs ) );
+	SV_GetConfigstring( cs_obj, cs, sizeof( cs ) );
 
 	Info_SetValueForKey( cs, "axis_desc", token );
 
-	trap_SetConfigstring( cs_obj, cs );
+	SV_SetConfigstring( cs_obj, cs );
 
 	return qtrue;
 }
@@ -1282,11 +1282,11 @@ qboolean G_ScriptAction_ObjectiveAlliedDesc( gentity_t *ent, char *params ) {
 	// Move to correct objective config string
 	cs_obj += ( num - 1 );
 
-	trap_GetConfigstring( cs_obj, cs, sizeof( cs ) );
+	SV_GetConfigstring( cs_obj, cs, sizeof( cs ) );
 
 	Info_SetValueForKey( cs, "allied_desc", token );
 
-	trap_SetConfigstring( cs_obj, cs );
+	SV_SetConfigstring( cs_obj, cs );
 
 	return qtrue;
 }
@@ -1317,11 +1317,11 @@ qboolean G_ScriptAction_SetWinner( gentity_t *ent, char *params ) {
 		Com_Error( ERR_DROP, "G_ScriptAction_SetWinner: Invalid team number\n" );
 	}
 
-	trap_GetConfigstring( CS_MULTI_INFO, cs, sizeof( cs ) );
+	SV_GetConfigstring( CS_MULTI_INFO, cs, sizeof( cs ) );
 
 	Info_SetValueForKey( cs, "winner", token );
 
-	trap_SetConfigstring( CS_MULTI_INFO, cs );
+	SV_SetConfigstring( CS_MULTI_INFO, cs );
 
 	return qtrue;
 }
@@ -1365,11 +1365,11 @@ qboolean G_ScriptAction_SetObjectiveStatus( gentity_t *ent, char *params ) {
 	// Move to correct objective config string
 	cs_obj += ( num - 1 );
 
-	trap_GetConfigstring( cs_obj, cs, sizeof( cs ) );
+	SV_GetConfigstring( cs_obj, cs, sizeof( cs ) );
 
 	Info_SetValueForKey( cs, "status", token );
 
-	trap_SetConfigstring( cs_obj, cs );
+	SV_SetConfigstring( cs_obj, cs );
 
 	return qtrue;
 }

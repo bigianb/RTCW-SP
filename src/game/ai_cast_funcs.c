@@ -45,6 +45,7 @@ If you have questions concerning this license or the applicable additional terms
 #include "../botai/botai.h"          //bot ai interface
 
 #include "ai_cast.h"
+#include "../server/server.h"
 
 /*
 This file contains the generic thinking states for the characters.
@@ -123,7 +124,7 @@ float AICast_GetRandomViewAngle( cast_state_t *cs, float tracedist ) {
 		AngleVectors( vec, dir, NULL, NULL );
 		VectorMA( start, tracedist, dir, end );
 		//
-		trap_Trace( &trace, start, NULL, NULL, end, passent, contents_mask );
+        SV_Trace( &trace, start, NULL, NULL, end, passent, contents_mask, qfalse );
 		//
 		if ( trace.fraction >= 1 ) {
 			return vec[YAW];
@@ -743,7 +744,7 @@ char *AIFunc_InspectFriendly( cast_state_t *cs ) {
 
 			if ( !simTest ) {
 				// trace will eliminate most unsuccessful paths
-				trap_Trace( &tr, cs->bs->origin, NULL /*g_entities[cs->entityNum].r.mins*/, NULL /*g_entities[cs->entityNum].r.maxs*/, followent->r.currentOrigin, cs->entityNum, g_entities[cs->entityNum].clipmask );
+				SV_Trace( &tr, cs->bs->origin, NULL /*g_entities[cs->entityNum].r.mins*/, NULL /*g_entities[cs->entityNum].r.maxs*/, followent->r.currentOrigin, cs->entityNum, g_entities[cs->entityNum].clipmask, qfalse );
 				if ( tr.entityNum == cs->followEntity || tr.fraction == 1 ) {
 					simTest = qtrue;
 				}
@@ -1091,7 +1092,7 @@ char *AIFunc_InspectBulletImpactStart( cast_state_t *cs ) {
 	}
 	//
 	// if the origin is not visible, set the bullet origin to the closest visible area from the src
-	if ( !trap_InPVS( cs->bulletImpactStart, cs->bs->origin ) ) {
+	if ( !SV_inPVS( cs->bulletImpactStart, cs->bs->origin ) ) {
 		// if it fails, then just look at the source
 		trap_AAS_GetRouteFirstVisPos( g_entities[cs->bulletImpactEntity].s.pos.trBase, cs->bs->origin, cs->travelflags, cs->bulletImpactStart );
 	}
@@ -1182,7 +1183,7 @@ char *AIFunc_InspectAudibleEvent( cast_state_t *cs ) {
 
 			if ( !simTest ) {
 				// trace will eliminate most unsuccessful paths
-				trap_Trace( &tr, cs->bs->origin, NULL /*g_entities[cs->entityNum].r.mins*/, NULL /*g_entities[cs->entityNum].r.maxs*/, destorg, cs->entityNum, g_entities[cs->entityNum].clipmask );
+				SV_Trace( &tr, cs->bs->origin, NULL /*g_entities[cs->entityNum].r.mins*/, NULL /*g_entities[cs->entityNum].r.maxs*/, destorg, cs->entityNum, g_entities[cs->entityNum].clipmask, qfalse );
 				if ( tr.fraction == 1 ) {
 					simTest = qtrue;
 				}
@@ -1242,7 +1243,7 @@ char *AIFunc_InspectAudibleEvent( cast_state_t *cs ) {
 				}
 				return AIFunc_DefaultStart( cs );
 			} else if ( !moveresult ) {   // face it?
-				if ( trap_InPVS( destorg, cs->bs->origin ) ) {
+				if ( SV_inPVS( destorg, cs->bs->origin ) ) {
 					VectorSubtract( destorg, cs->bs->origin, vec );
 					VectorNormalize( vec );
 					vectoangles( vec, cs->ideal_viewangles );
@@ -1613,7 +1614,7 @@ char *AIFunc_ChaseGoal( cast_state_t *cs ) {
 				} else {
 					trace_t tr;
 					// if we have a clear line to our leader, move closer, since there may be others following also
-					trap_Trace( &tr, cs->bs->origin, cs->bs->cur_ps.mins, cs->bs->cur_ps.maxs, g_entities[cs->followEntity].r.currentOrigin, cs->entityNum, g_entities[cs->entityNum].clipmask );
+					SV_Trace( &tr, cs->bs->origin, cs->bs->cur_ps.mins, cs->bs->cur_ps.maxs, g_entities[cs->followEntity].r.currentOrigin, cs->entityNum, g_entities[cs->entityNum].clipmask, qfalse );
 					if ( tr.entityNum != cs->followEntity ) {
 						AICast_EndChase( cs );
 						return AIFunc_IdleStart( cs );
@@ -1657,7 +1658,7 @@ char *AIFunc_ChaseGoal( cast_state_t *cs ) {
 
 		if ( !simTest ) {
 			// trace will eliminate most unsuccessful paths
-			trap_Trace( &tr, cs->bs->origin, NULL /*g_entities[cs->entityNum].r.mins*/, NULL /*g_entities[cs->entityNum].r.maxs*/, followent->r.currentOrigin, cs->entityNum, g_entities[cs->entityNum].clipmask );
+			SV_Trace( &tr, cs->bs->origin, NULL /*g_entities[cs->entityNum].r.mins*/, NULL /*g_entities[cs->entityNum].r.maxs*/, followent->r.currentOrigin, cs->entityNum, g_entities[cs->entityNum].clipmask, qfalse );
 			if ( tr.entityNum == cs->followEntity || tr.fraction == 1 ) {
 				simTest = qtrue;
 			}
@@ -2704,7 +2705,7 @@ char *AIFunc_BattleChase( cast_state_t *cs ) {
 	//
 	// if the enemy is inside a CONTENTS_DONOTENTER brush, and we are close enough, stop chasing them
 	if ( AICast_EntityVisible( cs, cs->enemyNum, qtrue ) && VectorDistance( cs->bs->origin, destorg ) < 384 ) {
-		if ( trap_PointContents( destorg, cs->enemyNum ) & ( CONTENTS_DONOTENTER | CONTENTS_DONOTENTER_LARGE ) ) {
+		if ( SV_PointContents( destorg, cs->enemyNum ) & ( CONTENTS_DONOTENTER | CONTENTS_DONOTENTER_LARGE ) ) {
 			// just stay here, and hope they move out of the brush without finding a spot where they can hit us but we can't hit them
 			return NULL;
 		}
@@ -2796,7 +2797,7 @@ char *AIFunc_BattleChase( cast_state_t *cs ) {
 		trace_t tr;
 
 		// trace will eliminate most unsuccessful paths
-		trap_Trace( &tr, cs->bs->origin, NULL, NULL, followent->r.currentOrigin, cs->entityNum, g_entities[cs->entityNum].clipmask );
+		SV_Trace( &tr, cs->bs->origin, NULL, NULL, followent->r.currentOrigin, cs->entityNum, g_entities[cs->entityNum].clipmask, qfalse );
 		if ( tr.entityNum == followent->s.number ) {
 			// try walking straight to them
 			VectorSubtract( followent->r.currentOrigin, cs->bs->origin, dir );
@@ -2817,7 +2818,7 @@ char *AIFunc_BattleChase( cast_state_t *cs ) {
 				// RF, if we are really close, we might be stuck on a corner, so randomly move sideways
 				if ( ( VectorLength( followent->client->ps.velocity ) < 50 ) && ( dist < 10 + ( sqrt( cs->bs->cur_ps.maxs[0] * cs->bs->cur_ps.maxs[0] * 8.0 ) / 2.0 + sqrt( followent->client->ps.maxs[0] * followent->client->ps.maxs[0] * 8.0 ) / 2.0 ) ) ) {
 					// if the box trace is unsuccessful
-					trap_Trace( &tr, cs->bs->origin, cs->bs->cur_ps.mins, cs->bs->cur_ps.maxs, followent->r.currentOrigin, cs->entityNum, g_entities[cs->entityNum].clipmask );
+					SV_Trace( &tr, cs->bs->origin, cs->bs->cur_ps.mins, cs->bs->cur_ps.maxs, followent->r.currentOrigin, cs->entityNum, g_entities[cs->entityNum].clipmask, qfalse );
 					if ( tr.entityNum != followent->s.number ) {
 						if ( level.time % 6000 < 2000 ) {
 							trap_EA_MoveRight( cs->entityNum );
@@ -3079,13 +3080,13 @@ char *AIFunc_AvoidDanger( cast_state_t *cs ) {
 					cs->takeCoverPos[2] += -ent->r.mins[2] + 12;
 					VectorCopy( cs->takeCoverPos, end );
 					end[2] -= 90;
-					trap_Trace( &tr, cs->takeCoverPos, ent->r.mins, ent->r.maxs, end, cs->entityNum, MASK_SOLID );
+					SV_Trace( &tr, cs->takeCoverPos, ent->r.mins, ent->r.maxs, end, cs->entityNum, MASK_SOLID, qfalse);
 					VectorCopy( tr.endpos, cs->takeCoverPos );
 					if ( !tr.startsolid && ( tr.fraction < 1.0 ) &&
 						 VectorDistance( cs->bs->origin, cs->takeCoverPos ) < cs->attributes[RUNNING_SPEED] * 0.0004 * ( danger->nextthink - level.time - 2000 ) ) {
 
 						// check for a clear path to the grenade
-						trap_Trace( &tr, cs->bs->origin, ent->r.mins, ent->r.maxs, cs->takeCoverPos, cs->entityNum, MASK_SOLID );
+						SV_Trace( &tr, cs->bs->origin, ent->r.mins, ent->r.maxs, cs->takeCoverPos, cs->entityNum, MASK_SOLID, qfalse );
 
 						if ( VectorDistance( tr.endpos, cs->takeCoverPos ) < 8 ) {
 							danger->flags |= FL_AI_GRENADE_KICK;
@@ -3809,7 +3810,7 @@ char *AIFunc_GrenadeFlush( cast_state_t *cs ) {
 			trace_t tr;
 
 			// trace will eliminate most unsuccessful paths
-			trap_Trace( &tr, cs->bs->origin, g_entities[cs->entityNum].r.mins, g_entities[cs->entityNum].r.maxs, followent->r.currentOrigin, cs->entityNum, g_entities[cs->entityNum].clipmask );
+			SV_Trace( &tr, cs->bs->origin, g_entities[cs->entityNum].r.mins, g_entities[cs->entityNum].r.maxs, followent->r.currentOrigin, cs->entityNum, g_entities[cs->entityNum].clipmask, qfalse );
 			if ( tr.entityNum == followent->s.number ) {
 				// try walking straight to them
 				VectorSubtract( followent->r.currentOrigin, cs->bs->origin, dir );
@@ -4361,7 +4362,7 @@ char *AIFunc_GrenadeKick( cast_state_t *cs ) {
 		cs->takeCoverPos[2] += -ent->r.mins[2] + 8;
 		VectorCopy( cs->takeCoverPos, end );
 		end[2] -= 80;
-		trap_Trace( &tr, cs->takeCoverPos, ent->r.mins, ent->r.maxs, end, cs->entityNum, MASK_SOLID );
+		SV_Trace( &tr, cs->takeCoverPos, ent->r.mins, ent->r.maxs, end, cs->entityNum, MASK_SOLID, qfalse );
 		if ( tr.startsolid ) {    // not a valid position, abort
 			level.lastGrenadeKick = level.time;
 			return AIFunc_DefaultStart( cs );

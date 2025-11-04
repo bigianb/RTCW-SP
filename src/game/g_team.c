@@ -552,7 +552,7 @@ gentity_t *Team_GetLocation( gentity_t *ent ) {
 			continue;
 		}
 
-		if ( !trap_InPVS( origin, eloc->r.currentOrigin ) ) {
+		if ( !SV_inPVS( origin, eloc->r.currentOrigin ) ) {
 			continue;
 		}
 
@@ -625,7 +625,7 @@ int FindFarthestObjectiveIndex( vec3_t source ) {
 
 /*
 	cs_obj += j;
-	trap_GetConfigstring( cs_obj, cs, sizeof(cs) );
+	SV_GetConfigstring( cs_obj, cs, sizeof(cs) );
 	objectivename = Info_ValueForKey( cs, "spawn_targ");
 
 	Com_Printf("got furthest dist (%f) at point %d (%s) of %d\n",dist,j,objectivename,i);
@@ -943,9 +943,9 @@ void SP_team_WOLF_objective( gentity_t *ent ) {
 		Com_Error( ERR_DROP, "SP_team_WOLF_objective: exceeded MAX_MULTI_SPAWNTARGETS (%d)\n",MAX_MULTI_SPAWNTARGETS );
 	} else { // Set config strings
 		cs_obj += numobjectives;
-		trap_GetConfigstring( cs_obj, cs, sizeof( cs ) );
+		SV_GetConfigstring( cs_obj, cs, sizeof( cs ) );
 		Info_SetValueForKey( cs, "spawn_targ", objectivename );
-		trap_SetConfigstring( cs_obj, cs );
+		SV_SetConfigstring( cs_obj, cs );
 		VectorCopy( ent->s.origin, level.spawntargets[numobjectives] );
 	}
 
@@ -953,10 +953,10 @@ void SP_team_WOLF_objective( gentity_t *ent ) {
 
 	// set current # spawntargets
 	level.numspawntargets = numobjectives;
-	trap_GetConfigstring( CS_MULTI_INFO, cs, sizeof( cs ) );
+	SV_GetConfigstring( CS_MULTI_INFO, cs, sizeof( cs ) );
 	snprintf( numspawntargets,128,"%d",numobjectives );
 	Info_SetValueForKey( cs, "numspawntargets", numspawntargets );
-	trap_SetConfigstring( CS_MULTI_INFO, cs );
+	SV_SetConfigstring( CS_MULTI_INFO, cs );
 
 	VectorCopy( level.spawntargets[numobjectives - 1],test );
 	Com_Printf( "OBJECTIVE %d: %s (total %s) x=%f %f %f\n",numobjectives,objectivename,numspawntargets,test[0],test[1],test[2] );
@@ -1183,5 +1183,5 @@ void SP_team_WOLF_checkpoint( gentity_t *ent ) {
 // jpw
 	ent->use        = checkpoint_use;       // allow 'capture' from trigger
 
-	trap_LinkEntity( ent );
+	SV_LinkEntity( ent );
 }

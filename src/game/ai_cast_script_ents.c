@@ -45,6 +45,7 @@ If you have questions concerning this license or the applicable additional terms
 #include "../botai/botai.h"          //bot ai interface
 
 #include "ai_cast.h"
+#include "../server/server.h"
 
 /*QUAKED ai_marker (1 0.5 0) (-18 -18 -24) (18 18 48) NODROP
 AI marker
@@ -83,7 +84,7 @@ void SP_ai_marker( gentity_t *ent ) {
 		// drop to floor
 		ent->r.currentOrigin[2] += 1.0; // fixes QErad -> engine bug?
 		VectorSet( dest, ent->r.currentOrigin[0], ent->r.currentOrigin[1], ent->r.currentOrigin[2] - 4096 );
-		trap_Trace( &tr, ent->r.currentOrigin, checkMins, checkMaxs, dest, ent->s.number, MASK_PLAYERSOLID | CONTENTS_MONSTERCLIP );
+		SV_Trace( &tr, ent->r.currentOrigin, checkMins, checkMaxs, dest, ent->s.number, MASK_PLAYERSOLID | CONTENTS_MONSTERCLIP, qfalse );
 
 		if ( tr.startsolid ) {
 			Com_Printf( "WARNING: ai_marker (%s) in solid at %s\n", ent->targetname, vtos( ent->r.currentOrigin ) );
@@ -123,7 +124,7 @@ void ai_effect_think( gentity_t *ent ) {
 
 	ent->s.eType = ET_AI_EFFECT;
 	G_SetOrigin( ent, ent->s.origin );
-	trap_LinkEntity( ent );
+	SV_LinkEntity( ent );
 	ent->r.svFlags |= SVF_BROADCAST;    // make sure all clients are aware of this entity
 }
 
@@ -197,7 +198,7 @@ void ai_trigger_activate( gentity_t *self ) {
 	self->touch = AICast_Touch_Trigger;
 
 	InitTrigger( self );
-	trap_LinkEntity( self );
+	SV_LinkEntity( self );
 }
 
 void ai_trigger_use( gentity_t *self, gentity_t *other, gentity_t *activator ) {
@@ -222,7 +223,7 @@ void SP_ai_trigger( gentity_t *ent ) {
 	if ( ent->spawnflags & 1 ) { // TriggerSpawn
 		ent->AIScript_AlertEntity = ai_trigger_activate;
 		ent->use = ai_trigger_use;
-		trap_UnlinkEntity( ent );
+		SV_UnlinkEntity( ent );
 	} else {
 		ai_trigger_activate( ent );
 	}

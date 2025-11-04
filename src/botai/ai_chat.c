@@ -59,6 +59,7 @@ If you have questions concerning this license or the applicable additional terms
 #include "match.h"               //string matching types and vars
 
 #include "../qcommon/qcommon.h"
+#include "../server/server.h"
 
 /*
 ==================
@@ -76,7 +77,7 @@ int BotNumActivePlayers( void ) {
 
 	num = 0;
 	for ( i = 0; i < maxclients && i < MAX_CLIENTS; i++ ) {
-		trap_GetConfigstring( CS_PLAYERS + i, buf, sizeof( buf ) );
+		SV_GetConfigstring( CS_PLAYERS + i, buf, sizeof( buf ) );
 		//if no config string or no name
 		if ( !strlen( buf ) || !strlen( Info_ValueForKey( buf, "n" ) ) ) {
 			continue;
@@ -108,7 +109,7 @@ int BotIsFirstInRankings( bot_state_t *bs ) {
 
 	score = bs->cur_ps.persistant[PERS_SCORE];
 	for ( i = 0; i < maxclients && i < MAX_CLIENTS; i++ ) {
-		trap_GetConfigstring( CS_PLAYERS + i, buf, sizeof( buf ) );
+		SV_GetConfigstring( CS_PLAYERS + i, buf, sizeof( buf ) );
 		//if no config string or no name
 		if ( !strlen( buf ) || !strlen( Info_ValueForKey( buf, "n" ) ) ) {
 			continue;
@@ -143,7 +144,7 @@ int BotIsLastInRankings( bot_state_t *bs ) {
 
 	score = bs->cur_ps.persistant[PERS_SCORE];
 	for ( i = 0; i < maxclients && i < MAX_CLIENTS; i++ ) {
-		trap_GetConfigstring( CS_PLAYERS + i, buf, sizeof( buf ) );
+		SV_GetConfigstring( CS_PLAYERS + i, buf, sizeof( buf ) );
 		//if no config string or no name
 		if ( !strlen( buf ) || !strlen( Info_ValueForKey( buf, "n" ) ) ) {
 			continue;
@@ -180,7 +181,7 @@ char *BotFirstClientInRankings( void ) {
 	bestscore = -999999;
 	bestclient = 0;
 	for ( i = 0; i < maxclients && i < MAX_CLIENTS; i++ ) {
-		trap_GetConfigstring( CS_PLAYERS + i, buf, sizeof( buf ) );
+		SV_GetConfigstring( CS_PLAYERS + i, buf, sizeof( buf ) );
 		//if no config string or no name
 		if ( !strlen( buf ) || !strlen( Info_ValueForKey( buf, "n" ) ) ) {
 			continue;
@@ -219,7 +220,7 @@ char *BotLastClientInRankings( void ) {
 	worstscore = 999999;
 	bestclient = 0;
 	for ( i = 0; i < maxclients && i < MAX_CLIENTS; i++ ) {
-		trap_GetConfigstring( CS_PLAYERS + i, buf, sizeof( buf ) );
+		SV_GetConfigstring( CS_PLAYERS + i, buf, sizeof( buf ) );
 		//if no config string or no name
 		if ( !strlen( buf ) || !strlen( Info_ValueForKey( buf, "n" ) ) ) {
 			continue;
@@ -262,7 +263,7 @@ char *BotRandomOpponentName( bot_state_t *bs ) {
 			continue;
 		}
 		//
-		trap_GetConfigstring( CS_PLAYERS + i, buf, sizeof( buf ) );
+		SV_GetConfigstring( CS_PLAYERS + i, buf, sizeof( buf ) );
 		//if no config string or no name
 		if ( !strlen( buf ) || !strlen( Info_ValueForKey( buf, "n" ) ) ) {
 			continue;
@@ -301,7 +302,7 @@ char *BotMapTitle( void ) {
 	char info[1024];
 	static char mapname[128];
 
-	trap_GetServerinfo( info, sizeof( info ) );
+	SV_GetServerinfo( info, sizeof( info ) );
 
 	strncpy( mapname, Info_ValueForKey( info, "mapname" ), sizeof( mapname ) - 1 );
 	mapname[sizeof( mapname ) - 1] = '\0';
@@ -374,13 +375,13 @@ int BotValidChatPosition( bot_state_t *bs ) {
 	//do not chat if in lava or slime
 	VectorCopy( bs->origin, point );
 	point[2] -= 24;
-	if ( trap_PointContents( point,bs->entitynum ) & ( CONTENTS_LAVA | CONTENTS_SLIME ) ) {
+	if ( SV_PointContents( point,bs->entitynum ) & ( CONTENTS_LAVA | CONTENTS_SLIME ) ) {
 		return qfalse;
 	}
 	//do not chat if under water
 	VectorCopy( bs->origin, point );
 	point[2] += 32;
-	if ( trap_PointContents( point,bs->entitynum ) & MASK_WATER ) {
+	if ( SV_PointContents( point,bs->entitynum ) & MASK_WATER ) {
 		return qfalse;
 	}
 	//must be standing on the world entity

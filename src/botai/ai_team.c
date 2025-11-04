@@ -54,6 +54,7 @@ If you have questions concerning this license or the applicable additional terms
 #include "ai_dmnet.h"
 
 #include "../qcommon/qcommon.h"
+#include "../server/server.h"
 
 /*
 ==================
@@ -86,7 +87,7 @@ int BotNumTeamMates( bot_state_t *bs ) {
 
 	numplayers = 0;
 	for ( i = 0; i < maxclients && i < MAX_CLIENTS; i++ ) {
-		trap_GetConfigstring( CS_PLAYERS + i, buf, sizeof( buf ) );
+		SV_GetConfigstring( CS_PLAYERS + i, buf, sizeof( buf ) );
 		//if no config string or no name
 		if ( !strlen( buf ) || !strlen( Info_ValueForKey( buf, "n" ) ) ) {
 			continue;
@@ -139,7 +140,7 @@ int BotSortTeamMatesByBaseTravelTime( bot_state_t *bs, int *teammates, int maxte
 
 	numteammates = 0;
 	for ( i = 0; i < maxclients && i < MAX_CLIENTS; i++ ) {
-		trap_GetConfigstring( CS_PLAYERS + i, buf, sizeof( buf ) );
+		SV_GetConfigstring( CS_PLAYERS + i, buf, sizeof( buf ) );
 		//if no config string or no name
 		if ( !strlen( buf ) || !strlen( Info_ValueForKey( buf, "n" ) ) ) {
 			continue;

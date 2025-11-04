@@ -1870,7 +1870,7 @@ qboolean AICast_ScriptAction_MissionFailed( cast_state_t *cs, char *params ) {
 	// play mission fail music
 	SV_GameSendServerCommand( -1, "mu_play sound/music/l_failed_1.wav 0\n" );
 	// clear queue so it'll be quiet after failed stinger
-	trap_SetConfigstring( CS_MUSIC_QUEUE, "" );
+	SV_SetConfigstring( CS_MUSIC_QUEUE, "" );
 
 	// fade all sound out
 	SV_GameSendServerCommand( -1, va( "snd_fade 0 %d", time * 1000 ) );
@@ -1881,7 +1881,7 @@ qboolean AICast_ScriptAction_MissionFailed( cast_state_t *cs, char *params ) {
 	SV_GameSendServerCommand( -1, va( "cp missionfail%d", mof ) );
 
 	// reload the current savegame, after a delay
-	trap_SetConfigstring( CS_SCREENFADE, va( "1 %i %i", level.time + 250, time * 1000 ) );
+	SV_SetConfigstring( CS_SCREENFADE, va( "1 %i %i", level.time + 250, time * 1000 ) );
 //	reloading = RELOAD_FAILED;
 	Cvar_Set( "g_reloading", va( "%d", RELOAD_FAILED ) );
 
@@ -2303,9 +2303,9 @@ qboolean AICast_ScriptAction_ChangeLevel( cast_state_t *cs, char *params ) {
 	if ( !silent && !endgame ) {
 		SV_GameSendServerCommand( -1, "mu_play sound/music/l_complete_1.wav 0\n" );   // play mission success music
 	}
-	trap_SetConfigstring( CS_MUSIC_QUEUE, "" );  // don't try to start anything.  no level load music
+	SV_SetConfigstring( CS_MUSIC_QUEUE, "" );  // don't try to start anything.  no level load music
 
-	trap_SetConfigstring( CS_SCREENFADE, va( "1 %i %i", level.time + 250, 750 + exitTime ) ); // fade out screen
+	SV_SetConfigstring( CS_SCREENFADE, va( "1 %i %i", level.time + 250, 750 + exitTime ) ); // fade out screen
 
 	SV_GameSendServerCommand( -1, va( "snd_fade 0 %d", 1000 + exitTime ) ); //----(SA)	added
 
@@ -2917,7 +2917,7 @@ qboolean AICast_ScriptAction_MusicQueue( cast_state_t *cs, char *params ) {
 	}
 	Q_strncpyz( cvarName, token, sizeof( cvarName ) );
 
-	trap_SetConfigstring( CS_MUSIC_QUEUE, cvarName );
+	SV_SetConfigstring( CS_MUSIC_QUEUE, cvarName );
 
 	return qtrue;
 }

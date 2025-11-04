@@ -59,6 +59,7 @@ If you have questions concerning this license or the applicable additional terms
 #include "match.h"               //string matching types and vars
 
 #include "../qcommon/qcommon.h"
+#include "../server/server.h"
 
 /*
 ==================
@@ -217,7 +218,7 @@ int NumPlayersOnSameTeam( bot_state_t *bs ) {
 
 	num = 0;
 	for ( i = 0; i < maxclients && i < MAX_CLIENTS; i++ ) {
-		trap_GetConfigstring( CS_PLAYERS + i, buf, MAX_INFO_STRING );
+		SV_GetConfigstring( CS_PLAYERS + i, buf, MAX_INFO_STRING );
 		if ( strlen( buf ) ) {
 			if ( BotSameTeam( bs, i + 1 ) ) {
 				num++;

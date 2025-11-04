@@ -35,6 +35,7 @@ If you have questions concerning this license or the applicable additional terms
 
 
 #include "g_local.h"
+#include "../server/server.h"
 
 static float s_quadFactor;
 static vec3_t forward, right, up;
@@ -80,7 +81,7 @@ void Weapon_Knife( gentity_t *ent ) {
 	AngleVectors( ent->client->ps.viewangles, forward, right, up );
 	CalcMuzzlePoint( ent, ent->s.weapon, forward, right, up, muzzleTrace );
 	VectorMA( muzzleTrace, KNIFE_DIST, forward, end );
-	trap_Trace( &tr, muzzleTrace, NULL, NULL, end, ent->s.number, MASK_SHOT );
+	SV_Trace( &tr, muzzleTrace, NULL, NULL, end, ent->s.number, MASK_SHOT, qfalse );
 
 	if ( tr.surfaceFlags & SURF_NOIMPACT ) {
 		return;
@@ -180,7 +181,7 @@ trace_t *CheckMeleeAttack( gentity_t *ent, float dist, qboolean isTest ) {
 
 	VectorMA( muzzleTrace, dist, forward, end );
 
-	trap_Trace( &tr, muzzleTrace, NULL, NULL, end, ent->s.number, MASK_SHOT );
+	SV_Trace( &tr, muzzleTrace, NULL, NULL, end, ent->s.number, MASK_SHOT, qfalse );
 	if ( tr.surfaceFlags & SURF_NOIMPACT ) {
 		return NULL;
 	}
@@ -511,7 +512,7 @@ void RubbleFlagCheck( gentity_t *ent, trace_t tr ) {
 
 			sfx->s.frame = 3 + ( rand() % 3 ) ;
 
-			trap_LinkEntity( sfx );
+			SV_LinkEntity( sfx );
 
 		}
 	}
@@ -638,8 +639,8 @@ void Bullet_Fire_Extended( gentity_t *source, gentity_t *attacker, vec3_t start,
 
 	// (SA) changed so player could shoot his own dynamite.
 	// (SA) whoops, but that broke bullets going through explosives...
-	trap_Trace( &tr, start, NULL, NULL, end, source->s.number, MASK_SHOT );
-//	trap_Trace (&tr, start, NULL, NULL, end, ENTITYNUM_NONE, MASK_SHOT);
+	SV_Trace( &tr, start, NULL, NULL, end, source->s.number, MASK_SHOT, qfalse );
+//	SV_Trace (&tr, start, NULL, NULL, end, ENTITYNUM_NONE, MASK_SHOT);
 
 	// DHM - Nerve :: only in single player
 	if ( g_gametype.integer == GT_SINGLE_PLAYER ) {
@@ -895,7 +896,7 @@ gentity_t *weapon_grenadelauncher_fire( gentity_t *ent, int grenType ) {
 			VectorCopy( ent->s.pos.trBase, viewpos );
 			viewpos[2] += ent->client->ps.viewheight;
 
-			trap_Trace( &tr, viewpos, NULL, NULL, tosspos, ent->s.number, MASK_SHOT );
+			SV_Trace( &tr, viewpos, NULL, NULL, tosspos, ent->s.number, MASK_SHOT, qfalse);
 			if ( tr.fraction < 1 ) {   // oops, bad launch spot
 				VectorCopy( tr.endpos, tosspos );
 			}
@@ -980,7 +981,7 @@ qboolean VenomPellet( vec3_t start, vec3_t end, gentity_t *ent ) {
 	int damage;
 	gentity_t       *traceEnt;
 
-	trap_Trace( &tr, start, NULL, NULL, end, ent->s.number, MASK_SHOT );
+	SV_Trace( &tr, start, NULL, NULL, end, ent->s.number, MASK_SHOT, qfalse );
 	traceEnt = &g_entities[ tr.entityNum ];
 
 	// send bullet impact
@@ -1098,7 +1099,7 @@ void Weapon_RocketLauncher_Fire( gentity_t *ent, float aimSpreadScale ) {
 		// (doesn't ever happen)
 //		VectorCopy( ent->s.pos.trBase, viewpos );
 //		viewpos[2] += ent->client->ps.viewheight;
-//		trap_Trace (&tr, viewpos, NULL, NULL, muzzleEffect, ent->s.number, MASK_SHOT);
+//		SV_Trace (&tr, viewpos, NULL, NULL, muzzleEffect, ent->s.number, MASK_SHOT);
 //		if(tr.fraction < 1) {	// oops, bad launch spot
 ///			VectorCopy(tr.endpos, launchpos);
 //			VectorSubtract(tr.endpos, viewpos, wallDir);
@@ -1143,7 +1144,7 @@ void Weapon_LightningFire( gentity_t *ent ) {
 
 	VectorMA( muzzleTrace, LIGHTNING_RANGE, forward, end );
 
-	trap_Trace( &tr, muzzleTrace, NULL, NULL, end, ent->s.number, MASK_SHOT );
+	SV_Trace( &tr, muzzleTrace, NULL, NULL, end, ent->s.number, MASK_SHOT, qfalse );
 
 	if ( tr.entityNum == ENTITYNUM_NONE ) {
 		return;

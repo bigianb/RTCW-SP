@@ -63,7 +63,7 @@ void Use_Target_Give( gentity_t *ent, gentity_t *other, gentity_t *activator ) {
 
 		// make sure it isn't going to respawn or show any events
 		t->nextthink = 0;
-		trap_UnlinkEntity( t );
+		SV_UnlinkEntity( t );
 	}
 }
 
@@ -296,7 +296,7 @@ void SP_target_speaker( gentity_t *ent ) {
 
 	// must link the entity so we get areas and clusters so
 	// the server can determine who to send updates to
-	trap_LinkEntity( ent );
+	SV_LinkEntity( ent );
 }
 
 
@@ -322,7 +322,7 @@ void target_laser_think( gentity_t *self ) {
 	// fire forward and see what we hit
 	VectorMA( self->s.origin, 2048, self->movedir, end );
 
-	trap_Trace( &tr, self->s.origin, NULL, NULL, end, self->s.number, CONTENTS_SOLID | CONTENTS_BODY | CONTENTS_CORPSE );
+	SV_Trace( &tr, self->s.origin, NULL, NULL, end, self->s.number, CONTENTS_SOLID | CONTENTS_BODY | CONTENTS_CORPSE, qfalse );
 
 	if ( tr.entityNum ) {
 		// hurt it if we can
@@ -332,7 +332,7 @@ void target_laser_think( gentity_t *self ) {
 
 	VectorCopy( tr.endpos, self->s.origin2 );
 
-	trap_LinkEntity( self );
+	SV_LinkEntity( self );
 	self->nextthink = level.time + FRAMETIME;
 }
 
@@ -344,7 +344,7 @@ void target_laser_on( gentity_t *self ) {
 }
 
 void target_laser_off( gentity_t *self ) {
-	trap_UnlinkEntity( self );
+	SV_UnlinkEntity( self );
 	self->nextthink = 0;
 }
 
@@ -572,7 +572,7 @@ void target_kill_use( gentity_t *self, gentity_t *other, gentity_t *activator ) 
 				continue;
 			}
 
-			trap_UnlinkEntity( targ );
+			SV_UnlinkEntity( targ );
 			targ->use = 0;
 			targ->touch = 0;
 			targ->nextthink = level.time + FRAMETIME;
@@ -608,7 +608,7 @@ void target_location_linkup( gentity_t *ent ) {
 
 	level.locationHead = NULL;
 
-	trap_SetConfigstring( CS_LOCATIONS, "unknown" );
+	SV_SetConfigstring( CS_LOCATIONS, "unknown" );
 
 	for ( i = 0, ent = g_entities, n = 1;
 		  i < level.num_entities;
@@ -616,7 +616,7 @@ void target_location_linkup( gentity_t *ent ) {
 		if ( ent->classname && !Q_stricmp( ent->classname, "target_location" ) ) {
 			// lets overload some variables!
 			ent->health = n; // use for location marking
-			trap_SetConfigstring( CS_LOCATIONS + n, ent->message );
+			SV_SetConfigstring( CS_LOCATIONS + n, ent->message );
 			n++;
 			ent->nextTrain = level.locationHead;
 			level.locationHead = ent;
@@ -695,7 +695,7 @@ void Use_target_fog( gentity_t *ent, gentity_t *other, gentity_t *activator ) {
 //		density
 //		r,g,b
 //		time to complete
-	trap_SetConfigstring( CS_FOGVARS, va( "%f %f %f %f %f %f %i", ent->accuracy, ent->random, 1.0f, (float)ent->dl_color[0], (float)ent->dl_color[1], (float)ent->dl_color[2], ent->s.time ) );
+	SV_SetConfigstring( CS_FOGVARS, va( "%f %f %f %f %f %f %i", ent->accuracy, ent->random, 1.0f, (float)ent->dl_color[0], (float)ent->dl_color[1], (float)ent->dl_color[2], ent->s.time ) );
 }
 
 /*QUAKED target_fog (1 1 0) (-8 -8 -8) (8 8 8)
@@ -868,7 +868,7 @@ void smoke_init( gentity_t *ent ) {
 		VectorSet( ent->pos3, 0, 0, 1 );
 	}
 
-	trap_LinkEntity( ent );
+	SV_LinkEntity( ent );
 }
 
 void SP_target_smoke( gentity_t *ent ) {
@@ -930,7 +930,7 @@ void SP_target_smoke( gentity_t *ent ) {
 		ent->s.frame = 1;
 	}
 
-	trap_LinkEntity( ent );
+	SV_LinkEntity( ent );
 
 }
 
@@ -1121,5 +1121,5 @@ void SP_target_rumble( gentity_t *self ) {
 		self->duration *= 1000;
 	}
 
-	trap_LinkEntity( self );
+	SV_LinkEntity( self );
 }

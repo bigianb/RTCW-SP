@@ -157,7 +157,7 @@ G_setfog
 ==============
 */
 void G_setfog( char *fogstring ) {
-	trap_SetConfigstring( CS_FOGVARS, fogstring );
+	SV_SetConfigstring( CS_FOGVARS, fogstring );
 }
 
 /*
@@ -679,7 +679,7 @@ void Cmd_StopCamera_f( gentity_t *ent ) {
 		sp = NULL;
 		// gcc: suggests () around assignment used as truth value
 		while ( ( sp = G_Find( sp, FOFS( classname ), "info_player_deathmatch" ) ) ) { // info_player_start becomes info_player_deathmatch in it's spawn functon
-			if ( Distance( ent->s.pos.trBase, sp->s.origin ) < 256 && trap_InPVS( ent->s.pos.trBase, sp->s.origin ) ) {
+			if ( Distance( ent->s.pos.trBase, sp->s.origin ) < 256 && SV_inPVS( ent->s.pos.trBase, sp->s.origin ) ) {
 				G_SaveGame( NULL );
 				break;
 			}
@@ -747,7 +747,7 @@ qboolean G_ThrowChair( gentity_t *ent, vec3_t dir, qboolean force ) {
 	VectorCopy( start, end );
 	VectorMA( end, 32, dir, end );
 
-	trap_Trace( &trace, start, mins, maxs, end, ent->s.number, MASK_SOLID | MASK_MISSILESHOT );
+	SV_Trace( &trace, start, mins, maxs, end, ent->s.number, MASK_SOLID | MASK_MISSILESHOT, qfalse );
 
 	traceEnt = &g_entities[ trace.entityNum ];
 
@@ -802,7 +802,7 @@ void Cmd_Activate_f( gentity_t *ent ) {
 
 	VectorMA( offset, 96, forward, end );
 
-	trap_Trace( &tr, offset, NULL, NULL, end, ent->s.number, ( CONTENTS_SOLID | CONTENTS_BODY | CONTENTS_CORPSE | CONTENTS_TRIGGER ) );
+	SV_Trace( &tr, offset, NULL, NULL, end, ent->s.number, ( CONTENTS_SOLID | CONTENTS_BODY | CONTENTS_CORPSE | CONTENTS_TRIGGER ), qfalse );
 
 	//----(SA)	removed erroneous code
 
@@ -1014,7 +1014,7 @@ int Cmd_WolfKick_f( gentity_t *ent ) {
 	// note to self: we need to determine the usable distance for wolf
 	VectorMA( offset, WOLFKICKDISTANCE, forward, end );
 
-	trap_Trace( &tr, offset, NULL, NULL, end, ent->s.number, ( CONTENTS_SOLID | CONTENTS_BODY | CONTENTS_CORPSE | CONTENTS_TRIGGER ) );
+	SV_Trace( &tr, offset, NULL, NULL, end, ent->s.number, ( CONTENTS_SOLID | CONTENTS_BODY | CONTENTS_CORPSE | CONTENTS_TRIGGER ), qfalse );
 
 	if ( tr.surfaceFlags & SURF_NOIMPACT || tr.fraction == 1.0 ) {
 		tent = G_TempEntity( tr.endpos, EV_WOLFKICK_MISS );

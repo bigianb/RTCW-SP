@@ -622,6 +622,12 @@ void SV_ClipMoveToEntities( moveclip_t *clip ) {
 }
 
 
+
+void SV_TraceCapsule( trace_t *results, const vec3_t start, const vec3_t mins, const vec3_t maxs, const vec3_t end, int passEntityNum, int contentmask )
+{
+    SV_Trace(results, start, mins, maxs, end, passEntityNum, contentmask, qtrue);
+}
+
 /*
 ==================
 SV_Trace

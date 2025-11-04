@@ -49,49 +49,6 @@ If you have questions concerning this license or the applicable additional terms
 #include "../game/be_ai_move.h"
 #include "../game/be_ai_weap.h"
 
-
-void trap_SetConfigstring( int num, const char *string ) {
-	SV_SetConfigstring( num, string );
-}
-
-void trap_GetConfigstring( int num, char *buffer, int bufferSize ) {
-	SV_GetConfigstring(num, buffer, bufferSize );
-}
-
-void trap_GetUserinfo( int num, char *buffer, int bufferSize ) {
-	SV_GetUserinfo(num, buffer, bufferSize );
-}
-
-void trap_SetUserinfo( int num, const char *buffer ) {
-	SV_SetUserinfo( num, buffer );
-}
-
-extern void SV_GetServerinfo( char *buffer, int bufferSize );
-void trap_GetServerinfo( char *buffer, int bufferSize ) {
-	SV_GetServerinfo(buffer, bufferSize );
-}
-
-void trap_SetBrushModel( gentity_t *ent, const char *name ) {
-	SV_SetBrushModel( ent, name );
-}
-
-void trap_Trace( trace_t *results, const vec3_t start, const vec3_t mins, const vec3_t maxs, const vec3_t end, int passEntityNum, int contentmask ) {
-	SV_Trace( results, start, mins, maxs, end, passEntityNum, contentmask, qfalse );
-}
-
-void trap_TraceCapsule( trace_t *results, const vec3_t start, const vec3_t mins, const vec3_t maxs, const vec3_t end, int passEntityNum, int contentmask ) {
-	SV_Trace( results, start, mins, maxs, end, passEntityNum, contentmask, qtrue );
-}
-
-int trap_PointContents( const vec3_t point, int passEntityNum ) {
-	return SV_PointContents(point, passEntityNum );
-}
-
-
-qboolean trap_InPVS( const vec3_t p1, const vec3_t p2 ) {
-	return SV_inPVS(p1, p2 );
-}
-
 qboolean SV_inPVSIgnorePortals( const vec3_t p1, const vec3_t p2 );
 qboolean trap_InPVSIgnorePortals( const vec3_t p1, const vec3_t p2 ) {
 	return SV_inPVSIgnorePortals(p1, p2 );
@@ -102,33 +59,9 @@ void trap_AdjustAreaPortalState( gentity_t *ent, qboolean open ) {
 	SV_AdjustAreaPortalState(ent, open );
 }
 
-void trap_LinkEntity( gentity_t *ent ) {
-	SV_LinkEntity( ent );
-}
-
-void trap_UnlinkEntity( gentity_t *ent ) {
-	SV_UnlinkEntity( ent );
-}
-
-int trap_EntitiesInBox( const vec3_t mins, const vec3_t maxs, int *list, int maxcount ) {
-	return SV_AreaEntities(mins, maxs, list, maxcount );
-}
-
 extern qboolean    SV_EntityContact( const vec3_t mins, const vec3_t maxs, const sharedEntity_t *gEnt, const int capsule );
 qboolean trap_EntityContact( const vec3_t mins, const vec3_t maxs, const gentity_t *ent ) {
 	return SV_EntityContact(mins, maxs, ent, qfalse );
-}
-
-qboolean trap_EntityContactCapsule( const vec3_t mins, const vec3_t maxs, const gentity_t *ent ) {
-	return SV_EntityContact(mins, maxs, ent, qtrue );
-}
-
-int trap_BotAllocateClient( void ) {
-	return SV_BotAllocateClient();
-}
-
-void trap_BotFreeClient( int clientNum ) {
-	SV_BotFreeClient(clientNum );
 }
 
 extern void SV_GetUsercmd( int clientNum, usercmd_t *cmd );

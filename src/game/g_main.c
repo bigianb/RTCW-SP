@@ -380,7 +380,7 @@ void G_CheckForCursorHints( gentity_t *ent ) {
 
 	tr = &ps->serverCursorHintTrace;
 	trace_contents = ( CONTENTS_TRIGGER | CONTENTS_SOLID | CONTENTS_PLAYERCLIP | CONTENTS_BODY | CONTENTS_CORPSE );   // SP fine checking corpses
-	trap_Trace( tr, offset, NULL, NULL, end, ps->clientNum, trace_contents );
+	SV_Trace( tr, offset, NULL, NULL, end, ps->clientNum, trace_contents, qfalse );
 
 	oldHintType = ps->serverCursorHint; // store the old one so we know when there's a transition
 
@@ -815,7 +815,7 @@ void G_FindTeams( void ) {
 				e2->flags |= FL_TEAMSLAVE;
 
 				if ( !Q_stricmp( e2->classname, "func_tramcar" ) ) {
-					trap_UnlinkEntity( e2 );
+					SV_UnlinkEntity( e2 );
 				}
 
 				// make sure that targets only point at the master
@@ -1058,7 +1058,7 @@ int G_SendMissionStats() {
 
 //	Cvar_Set( "g_missionStats", cmd );
 	// changing to a configstring (should help w/ savegame, no?)
-	trap_SetConfigstring( CS_MISSIONSTATS, cmd );
+	SV_SetConfigstring( CS_MISSIONSTATS, cmd );
 
 	return canExit;
 }
@@ -1120,7 +1120,7 @@ void G_InitGame( int levelTime, int randomSeed, int restart ) {
 		} else {
 			char serverinfo[MAX_INFO_STRING];
 
-			trap_GetServerinfo( serverinfo, sizeof( serverinfo ) );
+			SV_GetServerinfo( serverinfo, sizeof( serverinfo ) );
 
 			G_LogPrintf( "------------------------------------------------------------\n" );
 			G_LogPrintf( "InitGame: %s\n", serverinfo );
@@ -1453,18 +1453,18 @@ void CalculateRanks( void ) {
 
 	// set the CS_SCORES1/2 configstrings, which will be visible to everyone
 	if ( g_gametype.integer >= GT_TEAM ) {
-		trap_SetConfigstring( CS_SCORES1, va( "%i", level.teamScores[TEAM_RED] ) );
-		trap_SetConfigstring( CS_SCORES2, va( "%i", level.teamScores[TEAM_BLUE] ) );
+		SV_SetConfigstring( CS_SCORES1, va( "%i", level.teamScores[TEAM_RED] ) );
+		SV_SetConfigstring( CS_SCORES2, va( "%i", level.teamScores[TEAM_BLUE] ) );
 	} else {
 		if ( level.numConnectedClients == 0 ) {
-			trap_SetConfigstring( CS_SCORES1, va( "%i", SCORE_NOT_PRESENT ) );
-			trap_SetConfigstring( CS_SCORES2, va( "%i", SCORE_NOT_PRESENT ) );
+			SV_SetConfigstring( CS_SCORES1, va( "%i", SCORE_NOT_PRESENT ) );
+			SV_SetConfigstring( CS_SCORES2, va( "%i", SCORE_NOT_PRESENT ) );
 		} else if ( level.numConnectedClients == 1 ) {
-			trap_SetConfigstring( CS_SCORES1, va( "%i", level.clients[ level.sortedClients[0] ].ps.persistant[PERS_SCORE] ) );
-			trap_SetConfigstring( CS_SCORES2, va( "%i", SCORE_NOT_PRESENT ) );
+			SV_SetConfigstring( CS_SCORES1, va( "%i", level.clients[ level.sortedClients[0] ].ps.persistant[PERS_SCORE] ) );
+			SV_SetConfigstring( CS_SCORES2, va( "%i", SCORE_NOT_PRESENT ) );
 		} else {
-			trap_SetConfigstring( CS_SCORES1, va( "%i", level.clients[ level.sortedClients[0] ].ps.persistant[PERS_SCORE] ) );
-			trap_SetConfigstring( CS_SCORES2, va( "%i", level.clients[ level.sortedClients[1] ].ps.persistant[PERS_SCORE] ) );
+			SV_SetConfigstring( CS_SCORES1, va( "%i", level.clients[ level.sortedClients[0] ].ps.persistant[PERS_SCORE] ) );
+			SV_SetConfigstring( CS_SCORES2, va( "%i", level.clients[ level.sortedClients[1] ].ps.persistant[PERS_SCORE] ) );
 		}
 	}
 
@@ -1650,7 +1650,7 @@ void LogExit( const char *string ) {
 
 	// this will keep the clients from playing any voice sounds
 	// that will get cut off when the queued intermission starts
-	trap_SetConfigstring( CS_INTERMISSION, "1" );
+	SV_SetConfigstring( CS_INTERMISSION, "1" );
 
 	// don't send more than 32 scores (FIXME?)
 	numSorted = level.numConnectedClients;
@@ -1817,7 +1817,7 @@ void G_RunFrame( int levelTime ) {
 			G_SetOrigin( ent, org );
 			VectorCopy( org, ent->s.origin );
 			if ( ent->r.linked ) {    // update position
-				trap_LinkEntity( ent );
+				SV_LinkEntity( ent );
 			}
 		}
 
@@ -1844,7 +1844,7 @@ void G_RunFrame( int levelTime ) {
 			} else if ( ent->unlinkAfterEvent ) {
 				// items that will respawn will hide themselves after their pickup event
 				ent->unlinkAfterEvent = qfalse;
-				trap_UnlinkEntity( ent );
+				SV_UnlinkEntity( ent );
 			}
 			ent->eventTime = 0;
 		}

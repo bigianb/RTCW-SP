@@ -45,6 +45,7 @@ If you have questions concerning this license or the applicable additional terms
 #include "../botai/botai.h"          //bot ai interface
 
 #include "ai_cast.h"
+#include "../server/server.h"
 
 //=================================================================================
 //
@@ -776,7 +777,7 @@ char *AIFunc_StimSoldierAttack1Start( cast_state_t *cs ) {
 	AngleVectors( cs->ideal_viewangles, dir, NULL, NULL );
 	VectorMA( cs->bs->origin, 300, dir, pos );
 	pos[2] += 128;
-	trap_Trace( &tr, cs->bs->origin, cs->bs->cur_ps.mins, cs->bs->cur_ps.maxs, pos, cs->entityNum, ent->clipmask );
+    SV_Trace( &tr, cs->bs->origin, cs->bs->cur_ps.mins, cs->bs->cur_ps.maxs, pos, cs->entityNum, ent->clipmask, qfalse );
 	if ( tr.startsolid || tr.allsolid ) {
 		return NULL;    // not a good place
 	}

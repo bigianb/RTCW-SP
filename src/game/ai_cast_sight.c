@@ -48,6 +48,7 @@ If you have questions concerning this license or the applicable additional terms
 #include "g_func_decs.h"
 
 #include "../qcommon/qcommon.h"
+#include "../server/server.h"
 
 /*
 Does sight checking for Cast AI's.
@@ -159,7 +160,7 @@ qboolean AICast_VisibleFromPos( vec3_t srcpos, int srcnum,
 		if ( cs && updateVisPos ) {   // if it's a grenade or something, PVS checks don't work very well
 			//if the point is not in potential visible sight
 			if ( i < 3 ) {    // don't do PVS check for left/right checks
-				if ( !trap_InPVS( eye, middle ) ) {
+				if ( !SV_inPVS( eye, middle ) ) {
 					continue;
 				} else {
 					inPVS = qtrue;
@@ -175,11 +176,11 @@ qboolean AICast_VisibleFromPos( vec3_t srcpos, int srcnum,
 		VectorCopy( eye, start );
 		VectorCopy( middle, end );
 		//if the entity is in water, lava or slime
-		if ( trap_PointContents( middle, destnum ) & ( CONTENTS_LAVA | CONTENTS_SLIME | CONTENTS_WATER ) ) {
+		if ( SV_PointContents( middle, destnum ) & ( CONTENTS_LAVA | CONTENTS_SLIME | CONTENTS_WATER ) ) {
 			contents_mask |= ( CONTENTS_LAVA | CONTENTS_SLIME | CONTENTS_WATER );
 		} //end if
 		  //if eye is in water, lava or slime
-		if ( trap_PointContents( eye, srcnum ) & ( CONTENTS_LAVA | CONTENTS_SLIME | CONTENTS_WATER ) ) {
+		if ( SV_PointContents( eye, srcnum ) & ( CONTENTS_LAVA | CONTENTS_SLIME | CONTENTS_WATER ) ) {
 			if ( !( contents_mask & ( CONTENTS_LAVA | CONTENTS_SLIME | CONTENTS_WATER ) ) ) {
 				passent = destnum;
 				hitent = srcnum;
@@ -189,14 +190,14 @@ qboolean AICast_VisibleFromPos( vec3_t srcpos, int srcnum,
 			contents_mask ^= ( CONTENTS_LAVA | CONTENTS_SLIME | CONTENTS_WATER );
 		} //end if
 		  //trace from start to end
-		trap_Trace( &trace, start, NULL, NULL, end, ENTITYNUM_NONE /*passent*/, contents_mask );
+		SV_Trace( &trace, start, NULL, NULL, end, ENTITYNUM_NONE /*passent*/, contents_mask, qfalse );
 		//if water was hit
 		if ( trace.contents & ( CONTENTS_LAVA | CONTENTS_SLIME | CONTENTS_WATER ) ) {
 
 			{
 				//trace through the water
 				contents_mask &= ~( CONTENTS_LAVA | CONTENTS_SLIME | CONTENTS_WATER );
-				trap_Trace( &trace, trace.endpos, NULL, NULL, end, passent, contents_mask );
+				SV_Trace( &trace, trace.endpos, NULL, NULL, end, passent, contents_mask, qfalse );
 			} //end if
 		} //end if
 		  //if a full trace or the hitent was hit

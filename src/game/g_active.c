@@ -29,6 +29,7 @@ If you have questions concerning this license or the applicable additional terms
 
 #include "g_local.h"
 #include "../qcommon/qcommon.h"
+#include "../server/server.h"
 #include "ai_cast_fight.h"   // need these for avoidance
 #include "g_func_decs.h"
 
@@ -308,7 +309,7 @@ void    G_TouchTriggers( gentity_t *ent ) {
 	VectorSubtract( ent->client->ps.origin, range, mins );
 	VectorAdd( ent->client->ps.origin, range, maxs );
 
-	num = trap_EntitiesInBox( mins, maxs, touch, MAX_GENTITIES );
+	num = SV_AreaEntities( mins, maxs, touch, MAX_GENTITIES );
 
 	// can't use ent->absmin, because that has a one unit pad
 	VectorAdd( ent->client->ps.origin, ent->r.mins, mins );
@@ -339,7 +340,7 @@ void    G_TouchTriggers( gentity_t *ent ) {
 			}
 		} else {
 			// MrE: always use capsule for player
-			if ( !trap_EntityContactCapsule( mins, maxs, hit ) ) {
+			if ( !SV_EntityContact( mins, maxs, hit, qtrue ) ) {
 				continue;
 			}
 		}
@@ -658,7 +659,7 @@ void ClientThink_real( gentity_t *ent ) {
 
 	if ( client->cameraPortal ) {
 		G_SetOrigin( client->cameraPortal, client->ps.origin );
-		trap_LinkEntity( client->cameraPortal );
+		SV_LinkEntity( client->cameraPortal );
 		VectorCopy( client->cameraOrigin, client->cameraPortal->s.origin2 );
 	}
 
@@ -831,8 +832,8 @@ void ClientThink_real( gentity_t *ent ) {
 		pm.tracemask = ent->clipmask;
 	}
 	// MrE: always use capsule for AI and player
-	pm.trace = trap_TraceCapsule; //trap_Trace;
-	pm.pointcontents = trap_PointContents;
+	pm.trace = SV_TraceCapsule; //SV_Trace;
+	pm.pointcontents = SV_PointContents;
 	pm.debugLevel = g_debugMove.integer;
 	pm.noFootsteps = ( g_dmflags.integer & DF_NO_FOOTSTEPS ) > 0;
 
@@ -906,7 +907,7 @@ void ClientThink_real( gentity_t *ent ) {
 						VectorCopy( start, end );
 						end[2] += 1.0;
 
-						trap_Trace( &tr, start, NULL, NULL, end, ent->s.number, ( CONTENTS_SOLID | CONTENTS_BODY | CONTENTS_CORPSE | CONTENTS_TRIGGER ) );
+						SV_Trace( &tr, start, NULL, NULL, end, ent->s.number, ( CONTENTS_SOLID | CONTENTS_BODY | CONTENTS_CORPSE | CONTENTS_TRIGGER ), qfalse );
 
 						if ( tr.contents & CONTENTS_SOLID ) {
 							//VectorClear (pm.ps->velocity);
@@ -935,7 +936,7 @@ void ClientThink_real( gentity_t *ent ) {
 		vec3_t src, vel;
 		trace_t tr;
 
-		if ( VectorLength( pm.ps->velocity ) < 100 && trap_InPVS( pm.ps->origin, g_entities[0].s.pos.trBase ) ) {
+		if ( VectorLength( pm.ps->velocity ) < 100 && SV_inPVS( pm.ps->origin, g_entities[0].s.pos.trBase ) ) {
 			// find the head position
 			if ( CG_GetTag( ent->s.number, "tag_head", &or ) ) {
 				// move up a tad
@@ -949,7 +950,7 @@ void ClientThink_real( gentity_t *ent ) {
 				if ( or.origin[2] < src[2] ) {
 					or.origin[2] = src[2];  // dont let the head sink into the ground (even if it is visually)
 				}
-				trap_Trace( &tr, src, vec3_origin, vec3_origin, or.origin, ent->s.number, MASK_SOLID );
+				SV_Trace( &tr, src, vec3_origin, vec3_origin, or.origin, ent->s.number, MASK_SOLID, qfalse );
 
 				// if we hit something, move away from it
 				if ( !tr.startsolid && !tr.allsolid && tr.fraction < 1.0 ) {
@@ -1089,7 +1090,7 @@ void ClientThink_real( gentity_t *ent ) {
 	ClientEvents( ent, oldEventSequence );
 
 	// link entity now, after any personal teleporters have been used
-	trap_LinkEntity( ent );
+	SV_LinkEntity( ent );
 	if ( !ent->client->noclip ) {
 		G_TouchTriggers( ent );
 	}

@@ -102,7 +102,7 @@ int G_FindConfigstringIndex( const char *name, int start, int max, qboolean crea
 	}
 
 	for ( i = 1 ; i < max ; i++ ) {
-		trap_GetConfigstring( start + i, s, sizeof( s ) );
+		SV_GetConfigstring( start + i, s, sizeof( s ) );
 		if ( !s[0] ) {
 			break;
 		}
@@ -119,7 +119,7 @@ int G_FindConfigstringIndex( const char *name, int start, int max, qboolean crea
 		Com_Error( ERR_DROP, "G_FindConfigstringIndex: overflow" );
 	}
 
-	trap_SetConfigstring( start + i, name );
+	SV_SetConfigstring( start + i, name );
 
 	return i;
 }
@@ -256,7 +256,7 @@ void G_UseTargets( gentity_t *ent, gentity_t *activator ) {
 	if ( ent->targetShaderName && ent->targetShaderNewName ) {
 		float f = level.time * 0.001;
 		AddRemap( ent->targetShaderName, ent->targetShaderNewName, f );
-		trap_SetConfigstring( CS_SHADERSTATE, BuildShaderStateConfig() );
+		SV_SetConfigstring( CS_SHADERSTATE, BuildShaderStateConfig() );
 	}
 
 	if ( !ent->target ) {
@@ -494,7 +494,7 @@ Marks the entity as free
 =================
 */
 void G_FreeEntity( gentity_t *ed ) {
-	trap_UnlinkEntity( ed );     // unlink from world
+	SV_UnlinkEntity( ed );     // unlink from world
 
 	if ( ed->neverFree ) {
 		return;
@@ -532,7 +532,7 @@ gentity_t *G_TempEntity( vec3_t origin, int event ) {
 	G_SetOrigin( e, snapped );
 
 	// find cluster for PVS
-	trap_LinkEntity( e );
+	SV_LinkEntity( e );
 
 	return e;
 }
@@ -563,7 +563,7 @@ void G_KillBox( gentity_t *ent ) {
 
 	VectorAdd( ent->client->ps.origin, ent->r.mins, mins );
 	VectorAdd( ent->client->ps.origin, ent->r.maxs, maxs );
-	num = trap_EntitiesInBox( mins, maxs, touch, MAX_GENTITIES );
+	num = SV_AreaEntities( mins, maxs, touch, MAX_GENTITIES );
 
 	for ( i = 0 ; i < num ; i++ ) {
 		hit = &g_entities[touch[i]];

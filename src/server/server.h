@@ -316,6 +316,9 @@ qboolean    SV_inPVS( const vec3_t p1, const vec3_t p2 );
 void SV_SetBrushModel( sharedEntity_t *ent, const char *name );
 
 void SV_GameSendServerCommand( int clientNum, const char *text );
+void SV_GetServerinfo( char *buffer, int bufferSize );
+
+qboolean    SV_EntityContact( const vec3_t mins, const vec3_t maxs, const sharedEntity_t *gEnt, const int capsule );
 
 //
 // sv_bot.c
@@ -373,6 +376,8 @@ int SV_PointContents( const vec3_t p, int passEntityNum );
 
 
 void SV_Trace( trace_t *results, const vec3_t start, const vec3_t mins, const vec3_t maxs, const vec3_t end, int passEntityNum, int contentmask, int capsule );
+void SV_TraceCapsule(trace_t *results, const vec3_t start, const vec3_t mins, const vec3_t maxs, const vec3_t end, int passEntityNum, int contentmask);
+
 // mins and maxs are relative
 
 // if the entire move stays in a solid volume, trace.allsolid will be set,
