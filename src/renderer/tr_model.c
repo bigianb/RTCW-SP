@@ -114,7 +114,7 @@ qhandle_t RE_RegisterModel( const char *name ) {
 
 	// Ridah, caching
 	if ( r_cacheGathering->integer ) {
-		ri.Cmd_ExecuteText( EXEC_NOW, va( "cache_usedfile model %s\n", name ) );
+		Cbuf_ExecuteText( EXEC_NOW, va( "cache_usedfile model %s\n", name ) );
 	}
 
 	//

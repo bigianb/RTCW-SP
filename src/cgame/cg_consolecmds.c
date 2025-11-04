@@ -62,7 +62,7 @@ Keybinding command
 =================
 */
 static void CG_SizeUp_f( void ) {
-	trap_Cvar_Set( "cg_viewsize", va( "%i",(int)( cg_viewsize.integer + 10 ) ) );
+	Cvar_Set( "cg_viewsize", va( "%i",(int)( cg_viewsize.integer + 10 ) ) );
 }
 
 
@@ -74,7 +74,7 @@ Keybinding command
 =================
 */
 static void CG_SizeDown_f( void ) {
-	trap_Cvar_Set( "cg_viewsize", va( "%i",(int)( cg_viewsize.integer - 10 ) ) );
+	Cvar_Set( "cg_viewsize", va( "%i",(int)( cg_viewsize.integer - 10 ) ) );
 }
 
 
@@ -198,7 +198,7 @@ void CG_StartCamera( const char *name, qboolean startBlack ) {
 		if ( startBlack ) {
 			CG_Fade( 0, 0, 0, 255, cg.time, 0 );  // go black
 		}
-		trap_Cvar_Set( "cg_letterbox", "1" ); // go letterbox
+		Cvar_Set( "cg_letterbox", "1" ); // go letterbox
 		CL_AddReliableCommand( "startCamera" );   // camera on in game
 		trap_startCamera( CAM_PRIMARY, cg.time ); // camera on in client
 	} else {
@@ -207,7 +207,7 @@ void CG_StartCamera( const char *name, qboolean startBlack ) {
 		CL_AddReliableCommand( "stopCamera" );    // camera off in game
 		trap_stopCamera( CAM_PRIMARY );           // camera off in client
 		CG_Fade( 0, 0, 0, 0, cg.time, 0 );        // ensure fadeup
-		trap_Cvar_Set( "cg_letterbox", "0" );
+		Cvar_Set( "cg_letterbox", "0" );
 		CG_Printf( "Unable to load camera %s\n",lname );
 	}
 }
@@ -221,7 +221,7 @@ void CG_StopCamera( void ) {
 	cg.cameraMode = qfalse;                 // camera off in cgame
 	CL_AddReliableCommand( "stopCamera" );    // camera off in game
 	trap_stopCamera( CAM_PRIMARY );           // camera off in client
-	trap_Cvar_Set( "cg_letterbox", "0" );
+	Cvar_Set( "cg_letterbox", "0" );
 
 	// fade back into world
 	CG_Fade( 0, 0, 0, 255, 0, 0 );

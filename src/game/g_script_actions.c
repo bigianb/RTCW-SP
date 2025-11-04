@@ -36,6 +36,7 @@ If you have questions concerning this license or the applicable additional terms
 
 #include "../game/g_local.h"
 #include "../game/q_shared.h"
+#include "../qcommon/qcommon.h"
 
 /*
 Contains the code to handle the various commands available with an event script.
@@ -775,7 +776,7 @@ qboolean G_ScriptAction_MissionFailed( gentity_t *ent, char *params ) {
 	// reload the current savegame, after a delay
 	trap_SetConfigstring( CS_SCREENFADE, va( "1 %i %i", level.time + 250, time * 1000 ) );
 //	reloading = RELOAD_FAILED;
-	trap_Cvar_Set( "g_reloading", va( "%d", RELOAD_FAILED ) );
+	Cvar_Set( "g_reloading", va( "%d", RELOAD_FAILED ) );
 
 	level.reloadDelayTime = level.time + 1000 + time * 1000;
 
@@ -818,9 +819,9 @@ qboolean G_ScriptAction_MissionSuccess( gentity_t *ent, char *params ) {
 	player->missionObjectives |= ( 1 << ( lvl - 1 ) );  // make this bitwise
 
 	//set g_objective<n> cvar
-	trap_Cvar_Register( &cvar, va( "g_objective%i", lvl ), "1", CVAR_ROM );
+	Cvar_Register( &cvar, va( "g_objective%i", lvl ), "1", CVAR_ROM );
 	// set it to make sure
-	trap_Cvar_Set( va( "g_objective%i", lvl ), "1" );
+	Cvar_Set( va( "g_objective%i", lvl ), "1" );
 
 	token = COM_ParseExt( &pString, qfalse );
 	if ( token[0] ) {
@@ -828,7 +829,7 @@ qboolean G_ScriptAction_MissionSuccess( gentity_t *ent, char *params ) {
 			G_Error( "AI Scripting: missionsuccess with unknown parameter: %s\n", token );
 		}
 	} else {    // show on-screen information
-		trap_Cvar_Set( "cg_youGotMail", "2" ); // set flag to draw icon
+		Cvar_Set( "cg_youGotMail", "2" ); // set flag to draw icon
 	}
 
 	return qtrue;
@@ -1097,7 +1098,7 @@ G_ScriptAction_EntityScriptName
 =================
 */
 qboolean G_ScriptAction_EntityScriptName( gentity_t *ent, char *params ) {
-	trap_Cvar_Set( "g_scriptName", params );
+	Cvar_Set( "g_scriptName", params );
 	return qtrue;
 }
 
@@ -1108,7 +1109,7 @@ G_ScriptAction_AIScriptName
 =================
 */
 qboolean G_ScriptAction_AIScriptName( gentity_t *ent, char *params ) {
-	trap_Cvar_Set( "ai_scriptName", params );
+	Cvar_Set( "ai_scriptName", params );
 	return qtrue;
 }
 
@@ -1149,7 +1150,7 @@ qboolean G_ScriptAction_AxisRespawntime( gentity_t *ent, char *params ) {
 		G_Error( "G_ScriptAction_AxisRespawntime: time parameter required\n" );
 	}
 
-	trap_Cvar_Set( "g_redlimbotime", va( "%s000", token ) );
+	Cvar_Set( "g_redlimbotime", va( "%s000", token ) );
 
 	return qtrue;
 }
@@ -1170,7 +1171,7 @@ qboolean G_ScriptAction_AlliedRespawntime( gentity_t *ent, char *params ) {
 		G_Error( "G_ScriptAction_AlliedRespawntime: time parameter required\n" );
 	}
 
-	trap_Cvar_Set( "g_bluelimbotime", va( "%s000", token ) );
+	Cvar_Set( "g_bluelimbotime", va( "%s000", token ) );
 
 	return qtrue;
 }
@@ -1426,7 +1427,7 @@ qboolean G_ScriptAction_SetRoundTimelimit( gentity_t *ent, char *params ) {
 		G_Error( "G_ScriptAction_SetRoundTimelimit: number parameter required\n" );
 	}
 
-	trap_Cvar_Set( "timelimit", token );
+	Cvar_Set( "timelimit", token );
 
 	return qtrue;
 }

@@ -32,101 +32,12 @@ If you have questions concerning this license or the applicable additional terms
 #include "renderer/tr_local.h"
 
 
-void trap_UI_Print( const char *string ) {
-	Com_Printf( "%s", string);
-}
-
-void trap_UI_Error( const char *string ) {
-	Com_Error( ERR_DROP, "%s", string );
-}
-
-void trap_Cvar_SetValue( const char *var_name, float value ) {
-	Cvar_SetValue(var_name, value );
-}
-
-void trap_Cvar_Reset( const char *name ) {
-	Cvar_Reset(name );
-}
-
-void trap_Cvar_Create( const char *var_name, const char *var_value, int flags ) {
-	Cvar_Get(var_name, var_value, flags );
-}
-
-void trap_Cvar_InfoStringBuffer( int bit, char *buffer, int bufsize ) {
-	Cvar_InfoStringBuffer(bit, buffer, bufsize );
-}
-
-void trap_Cmd_ExecuteText( int exec_when, const char *text ) {
-	Cbuf_ExecuteText( exec_when, text );
-}
-
-void trap_FS_Seek( fileHandle_t f, long offset, int origin  ) {
-	FS_Seek(f, offset, origin );
-}
-
-int trap_FS_Delete( const char *filename ) {
-	return FS_Delete(filename );
-}
-
-qhandle_t trap_UI_RegisterModel( const char *name ) {
-	return RE_RegisterModel(name );
-}
-
-qhandle_t trap_UI_RegisterSkin( const char *name ) {
-	return RE_RegisterSkin(name );
-}
-
-void trap_UI_RegisterFont( const char *fontName, int pointSize, fontInfo_t *font ) {
-	RE_RegisterFont(fontName, pointSize, font );
-}
-
-qhandle_t trap_UI_RegisterShaderNoMip( const char *name ) {
-	return RE_RegisterShaderNoMip( name );
-}
-
-void trap_UI_ClearScene( void ) {
-	RE_ClearScene();
-}
-
-void trap_UI_AddRefEntityToScene( const refEntity_t *re ) {
-	RE_AddRefEntityToScene(re );
-}
-
-void trap_UI_AddPolyToScene( qhandle_t hShader, int numVerts, const polyVert_t *verts ) {
-	RE_AddPolyToScene( hShader, numVerts, verts );
-}
-
-void trap_UI_AddCoronaToScene( const vec3_t org, float r, float g, float b, float scale, int id, int flags ) {
-	RE_AddCoronaToScene(org, r, g, b, scale, id, flags );
-}
-
-void trap_UI_RenderScene( const refdef_t *fd ) {
-	RE_RenderScene(fd);
-}
-
-void trap_UI_SetColor( const float *rgba ) {
-	RE_SetColor(rgba );
-}
-
-void trap_UI_DrawStretchPic( float x, float y, float w, float h, float s1, float t1, float s2, float t2, qhandle_t hShader ) {
-	RE_StretchPic(x, y, w, h, s1, t1, s2, t1, hShader );
-}
-
-void    trap_UI_ModelBounds( clipHandle_t model, vec3_t mins, vec3_t maxs ) {
-	R_ModelBounds(model, mins, maxs );
-}
-
 int trap_CM_LerpTag( orientation_t *tag, const refEntity_t *refent, const char *tagName, int startIndex ) {
 	return R_LerpTag(tag, refent, tagName, 0 );           // NEFVE - SMF - fixed
 }
 
 sfxHandle_t trap_UI_S_RegisterSound( const char *sample ) {
 	return S_RegisterSound( sample, qfalse );
-}
-
-extern void Key_KeynumToStringBuf( int keynum, char *buf, int buflen );
-void trap_Key_KeynumToStringBuf( int keynum, char *buf, int buflen ) {
-	Key_KeynumToStringBuf(keynum, buf, buflen );
 }
 
 void trap_Key_GetBindingBuf( int keynum, char *buf, int buflen ) {

@@ -2005,7 +2005,7 @@ void CG_DrawTimedMenus() {
 		int t = cg.time - cg.voiceTime;
 		if ( t > 2500 ) {
 			Menus_CloseByName( "voiceMenu" );
-			trap_Cvar_Set( "cl_conXOffset", "0" );
+			Cvar_Set( "cl_conXOffset", "0" );
 			cg.voiceTime = 0;
 		}
 	}
@@ -2289,7 +2289,7 @@ void CG_DrawActive( stereoFrame_t stereoView ) {
 
 	// if they are waiting at the mission stats screen, show the stats
     if ( strlen( cg_missionStats.string ) > 1 ) {
-        trap_Cvar_Set( "com_expectedhunkusage", "-2" );
+        Cvar_Set( "com_expectedhunkusage", "-2" );
         CG_DrawInformation();
         return;
     }

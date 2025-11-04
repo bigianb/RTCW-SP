@@ -899,7 +899,7 @@ void G_RegisterCvars( void ) {
 	qboolean remapped = qfalse;
 
 	for ( i = 0, cv = gameCvarTable ; i < gameCvarTableSize ; i++, cv++ ) {
-		trap_Cvar_Register( cv->vmCvar, cv->cvarName,
+		Cvar_Register( cv->vmCvar, cv->cvarName,
 							cv->defaultString, cv->cvarFlags );
 		if ( cv->vmCvar ) {
 			cv->modificationCount = cv->vmCvar->modificationCount;
@@ -917,13 +917,13 @@ void G_RegisterCvars( void ) {
 	// check some things
 	if ( g_gametype.integer < 0 || g_gametype.integer >= GT_MAX_GAME_TYPE ) {
 		G_Printf( "g_gametype %i is out of range, defaulting to 0\n", g_gametype.integer );
-		trap_Cvar_Set( "g_gametype", "0" );
+		Cvar_Set( "g_gametype", "0" );
 	}
 
 	// Rafael gameskill
 	if ( g_gameskill.integer < GSKILL_EASY || g_gameskill.integer > GSKILL_MAX ) {
 		G_Printf( "g_gameskill %i is out of range, default to medium\n", g_gameskill.integer );
-		trap_Cvar_Set( "g_gameskill", va( "%d", GSKILL_MEDIUM ) ); // default to medium
+		Cvar_Set( "g_gameskill", va( "%d", GSKILL_MEDIUM ) ); // default to medium
 	}
 
 	bg_pmove_gameskill_integer = g_gameskill.integer;
@@ -991,8 +991,8 @@ void G_UpdateCvars( void ) {
 							G_SaveGame( NULL );
 						}
 
-						trap_Cvar_Set( "cg_norender", "0" );  // camera has started, render 'on'
-						trap_Cvar_Set( "g_playerstart", "0" ); // reset calling of "playerstart" from script
+						Cvar_Set( "cg_norender", "0" );  // camera has started, render 'on'
+						Cvar_Set( "g_playerstart", "0" ); // reset calling of "playerstart" from script
 					}
 				}
 			}
@@ -1095,7 +1095,7 @@ int G_SendMissionStats() {
 	// attempts
 	Q_strcat( cmd, sizeof( cmd ), va( ",%i", attempts ) );
 
-//	trap_Cvar_Set( "g_missionStats", cmd );
+//	Cvar_Set( "g_missionStats", cmd );
 	// changing to a configstring (should help w/ savegame, no?)
 	trap_SetConfigstring( CS_MISSIONSTATS, cmd );
 
@@ -1108,7 +1108,6 @@ G_InitGame
 
 ============
 */
-extern void trap_Cvar_Reset( const char *var_name );
 
 void G_InitGame( int levelTime, int randomSeed, int restart ) {
 	int i;
@@ -1210,13 +1209,13 @@ void G_InitGame( int levelTime, int randomSeed, int restart ) {
 		trap_Cvar_VariableStringBuffer( "g_missionStats", s, sizeof( s ) );
 		if ( strlen( s ) < 1 ) {
 			// g_missionStats is used to get the player to press a key to begin
-			trap_Cvar_Set( "g_missionStats", "xx" );
+			Cvar_Set( "g_missionStats", "xx" );
 		}
 
 		for ( i = 0; i < 8; i++ )     {  // max objective cvars: 8 (FIXME: use #define somewhere)
-			trap_Cvar_Set( va( "g_objective%i", i + 1 ), "0" );   // clear the objective ROM cvars
+			Cvar_Set( va( "g_objective%i", i + 1 ), "0" );   // clear the objective ROM cvars
 		}
-		trap_Cvar_Set( "cg_yougotMail", "0" );
+		Cvar_Set( "cg_yougotMail", "0" );
 	}
 	G_Script_ScriptLoad();
 	// done.
@@ -1746,7 +1745,7 @@ void CheckReloadStatus( void ) {
 			if ( level.reloadDelayTime < level.time ) {
 
 				if ( g_reloading.integer == RELOAD_NEXTMAP_WAITING ) {
-					trap_Cvar_Set( "g_reloading", va( "%d", RELOAD_NEXTMAP ) ); // set so sv_map_f will know it's okay to start a map
+					Cvar_Set( "g_reloading", va( "%d", RELOAD_NEXTMAP ) ); // set so sv_map_f will know it's okay to start a map
 					if ( g_cheats.integer ) {
 						trap_game_SendConsoleCommand( EXEC_APPEND, va( "spdevmap %s\n", level.nextMap ) );
 					} else {
@@ -1758,7 +1757,7 @@ void CheckReloadStatus( void ) {
 
 				} else {
 					// set the loadgame flag, and restart the server
-					trap_Cvar_Set( "savegame_loading", "2" ); // 2 means it's a restart, so stop rendering until we are loaded
+					Cvar_Set( "savegame_loading", "2" ); // 2 means it's a restart, so stop rendering until we are loaded
 					trap_game_SendConsoleCommand( EXEC_INSERT, "map_restart\n" );
 				}
 
@@ -1766,7 +1765,7 @@ void CheckReloadStatus( void ) {
 			}
 		} else if ( level.reloadPauseTime ) {
 			if ( level.reloadPauseTime < level.time ) {
-				trap_Cvar_Set( "g_reloading", "0" );
+				Cvar_Set( "g_reloading", "0" );
 				level.reloadPauseTime = 0;
 			}
 		}
@@ -1967,7 +1966,7 @@ void G_RunFrame( int levelTime ) {
 		for ( i = 0; i < MAX_GENTITIES; i++ ) {
 			G_Printf( "%4i: %s\n", i, g_entities[i].classname );
 		}
-		trap_Cvar_Set( "g_listEntity", "0" );
+		Cvar_Set( "g_listEntity", "0" );
 	}
 
 	// Ridah, check if we are reloading, and times have expired

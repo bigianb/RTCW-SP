@@ -960,9 +960,9 @@ extern void trap_DropClient ( int clientNum , const char * reason ) ;
 extern void trap_LocateGameData ( gentity_t * gEnts , int numGEntities , int sizeofGEntity_t , playerState_t * clients , int sizeofGClient ) ;
 extern void trap_Cvar_VariableStringBuffer ( const char * var_name , char * buffer , int bufsize ) ;
 extern int trap_Cvar_VariableIntegerValue ( const char * var_name ) ;
-extern void trap_Cvar_Set ( const char * var_name , const char * value ) ;
+
 extern void Cvar_Update ( vmCvar_t * cvar ) ;
-extern void trap_Cvar_Register ( vmCvar_t * cvar , const char * var_name , const char * value , int flags ) ;
+
 extern void trap_game_SendConsoleCommand ( int exec_when , const char * text ) ;
 extern int trap_FS_GetFileList ( const char * path , const char * extension , char * listbuf , int bufsize ) ;
 extern void trap_FS_CopyFile ( char * from , char * to ) ;

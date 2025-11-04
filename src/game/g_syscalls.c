@@ -102,14 +102,6 @@ void    trap_game_SendConsoleCommand( int exec_when, const char *text ) {
 	Cbuf_ExecuteText(exec_when, text );
 }
 
-void trap_Cvar_Register( vmCvar_t *cvar, const char *var_name, const char *value, int flags ) {
-	Cvar_Register(cvar, var_name, value, flags );
-}
-
-void trap_Cvar_Set( const char *var_name, const char *value ) {
-	Cvar_Set( var_name, value );
-}
-
 int trap_Cvar_VariableIntegerValue( const char *var_name ) {
 	return Cvar_VariableIntegerValue( var_name );
 }

@@ -29,6 +29,7 @@ If you have questions concerning this license or the applicable additional terms
 
 #include "ui_local.h"
 #include "../qcommon/qcommon.h"
+#include "../renderer/tr_local.h"
 
 #define UI_TIMER_GESTURE        2300
 #define UI_TIMER_JUMP           1000
@@ -80,7 +81,7 @@ tryagain:
 	}
 
 	if ( item->classname ) {
-		pi->weaponModel = trap_UI_RegisterModel( item->world_model[0] );
+		pi->weaponModel = RE_RegisterModel( item->world_model[0] );
 	}
 
 	if ( pi->weaponModel == 0 ) {
@@ -97,7 +98,7 @@ tryagain:
 	strcpy( path, item->world_model[0] );
 	COM_StripExtension( path, path );
 	strcat( path, "_flash.md3" );
-	pi->flashModel = trap_UI_RegisterModel( path );
+	pi->flashModel = RE_RegisterModel( path );
 
 	switch ( weaponNum ) {
 	case WP_GAUNTLET:
@@ -663,14 +664,14 @@ static qboolean UI_RegisterClientSkin( playerInfo_t *pi, const char *modelName, 
 
 //	snprintf( filename, sizeof( filename ), "models/players/%s/lower_%s.skin", modelName, skinName );
 	snprintf( filename, sizeof( filename ), "models/players/%s/body_%s.skin", modelName, skinName );      // NERVE - SMF - make this work with wolf
-	pi->legsSkin = trap_UI_RegisterSkin( filename );
+	pi->legsSkin = RE_RegisterSkin( filename );
 
 //	snprintf( filename, sizeof( filename ), "models/players/%s/upper_%s.skin", modelName, skinName );
 	snprintf( filename, sizeof( filename ), "models/players/%s/body_%s.skin", modelName, skinName );  // NERVE - SMF - make this work with wolf
-	pi->torsoSkin = trap_UI_RegisterSkin( filename );
+	pi->torsoSkin = RE_RegisterSkin( filename );
 
 	snprintf( filename, sizeof( filename ), "models/players/%s/head_%s.skin", modelName, skinName );
-	pi->headSkin = trap_UI_RegisterSkin( filename );
+	pi->headSkin = RE_RegisterSkin( filename );
 
 	if ( !pi->legsSkin || !pi->torsoSkin || !pi->headSkin ) {
 		return qfalse;
@@ -1124,7 +1125,7 @@ qboolean UI_RegisterClientModelname( playerInfo_t *pi, const char *modelSkinName
 
 //	snprintf( filename, sizeof( filename ), "models/players/%s/lower.md3", modelName );
 	snprintf( filename, sizeof( filename ), "models/players/%s/body.mds", modelName ); // NERVE - SMF - make this work with wolf
-	pi->legsModel = trap_UI_RegisterModel( filename );
+	pi->legsModel = RE_RegisterModel( filename );
 	if ( !pi->legsModel ) {
 		Com_Printf( "Failed to load model file %s\n", filename );
 		return qfalse;
@@ -1132,14 +1133,14 @@ qboolean UI_RegisterClientModelname( playerInfo_t *pi, const char *modelSkinName
 
 //	snprintf( filename, sizeof( filename ), "models/players/%s/upper.md3", modelName );
 	snprintf( filename, sizeof( filename ), "models/players/%s/body.mds", modelName ); // NERVE - SMF - make this work with wolf
-	pi->torsoModel = trap_UI_RegisterModel( filename );
+	pi->torsoModel = RE_RegisterModel( filename );
 	if ( !pi->torsoModel ) {
 		Com_Printf( "Failed to load model file %s\n", filename );
 		return qfalse;
 	}
 
 	snprintf( filename, sizeof( filename ), "models/players/%s/head.md3", modelName );
-	pi->headModel = trap_UI_RegisterModel( filename );
+	pi->headModel = RE_RegisterModel( filename );
 	if ( !pi->headModel ) {
 		Com_Printf( "Failed to load model file %s\n", filename );
 		return qfalse;
@@ -1147,11 +1148,11 @@ qboolean UI_RegisterClientModelname( playerInfo_t *pi, const char *modelSkinName
 
 	// NERVE - SMF - load backpack and helmet
 	if ( backpack ) {
-		pi->backpackModel = trap_UI_RegisterModel( va( "models/players/%s/%s", modelName, backpack ) );
+		pi->backpackModel = RE_RegisterModel( va( "models/players/%s/%s", modelName, backpack ) );
 	}
 
 	if ( helmet ) {
-		pi->helmetModel = trap_UI_RegisterModel( va( "models/players/%s/%s", modelName, helmet ) );
+		pi->helmetModel = RE_RegisterModel( va( "models/players/%s/%s", modelName, helmet ) );
 	}
 
 	// if any skins failed to load, fall back to default

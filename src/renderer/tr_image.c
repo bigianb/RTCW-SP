@@ -1670,7 +1670,7 @@ image_t *R_FindImageFileExt( const char *name, qboolean mipmap, qboolean allowPi
 
 	// Ridah, caching
 	if ( r_cacheGathering->integer ) {
-		ri.Cmd_ExecuteText( EXEC_NOW, va( "cache_usedfile image %s %i %i %i %i\n", name, mipmap, allowPicmip, characterMIP, glWrapClampMode ) );
+		Cbuf_ExecuteText( EXEC_NOW, va( "cache_usedfile image %s %i %i %i %i\n", name, mipmap, allowPicmip, characterMIP, glWrapClampMode ) );
 	}
 
 	//

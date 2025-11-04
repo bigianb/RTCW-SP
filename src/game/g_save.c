@@ -660,8 +660,8 @@ void ReadClient( fileHandle_t f, gclient_t *client, int size ) {
 	if ( !( ent->r.svFlags & SVF_CASTAI ) ) {
 		vmCvar_t cvar;
 		// tell it which weapon to use after spawning in
-		trap_Cvar_Register( &cvar, "cg_loadWeaponSelect", "0", CVAR_ROM );
-		trap_Cvar_Set( "cg_loadWeaponSelect", va( "%i", client->ps.weapon ) );
+		Cvar_Register( &cvar, "cg_loadWeaponSelect", "0", CVAR_ROM );
+		Cvar_Set( "cg_loadWeaponSelect", va( "%i", client->ps.weapon ) );
 		//
 		trap_SendServerCommand( client->ps.clientNum, "map_restart\n" );
 	}
@@ -823,21 +823,21 @@ void ReadEntity( fileHandle_t f, gentity_t *ent, int size ) {
 	if ( ent->s.number == 0 ) {
 		int i;
 
-		trap_Cvar_Set( "cg_yougotMail", "0" );
+		Cvar_Set( "cg_yougotMail", "0" );
 
 		// set up met objectives
 		for ( i = 0; i < sizeof( ent->missionObjectives ) * 8; i++ ) {
 			if ( ent->missionObjectives & ( 1 << i ) ) {
-				trap_Cvar_Register( &cvar, va( "g_objective%i", i + 1 ), "1", CVAR_ROM ); //set g_objective<n> cvar
-				trap_Cvar_Set( va( "g_objective%i", i + 1 ), "1" );                           // set it to make sure
+				Cvar_Register( &cvar, va( "g_objective%i", i + 1 ), "1", CVAR_ROM ); //set g_objective<n> cvar
+				Cvar_Set( va( "g_objective%i", i + 1 ), "1" );                           // set it to make sure
 			} else {
-				trap_Cvar_Set( va( "g_objective%i", i + 1 ), "0" );                           // make sure it's clear
+				Cvar_Set( va( "g_objective%i", i + 1 ), "0" );                           // make sure it's clear
 			}
 		}
 
 		// set up current episode (for notebook de-briefing tabs)
-		trap_Cvar_Register( &cvar, "g_episode", "0", CVAR_ROM );
-		trap_Cvar_Set( "g_episode", va( "%s", ent->missionLevel ) );
+		Cvar_Register( &cvar, "g_episode", "0", CVAR_ROM );
+		Cvar_Set( "g_episode", va( "%s", ent->missionLevel ) );
 
 	}
 
@@ -1095,7 +1095,7 @@ qboolean G_SaveGame( char *username ) {
 	}
 
 	// write the mapname
-	trap_Cvar_Register( &mapname, "mapname", "", CVAR_SERVERINFO | CVAR_ROM );
+	Cvar_Register( &mapname, "mapname", "", CVAR_SERVERINFO | CVAR_ROM );
 	snprintf( mapstr, MAX_QPATH, mapname.string );
 	if ( !G_SaveWrite( mapstr, MAX_QPATH, f ) ) {
 		G_SaveWriteError();
@@ -1117,7 +1117,7 @@ qboolean G_SaveGame( char *username ) {
 
 	// write the 'episode'
 	if ( SAVE_VERSION >= 13 ) {
-		trap_Cvar_Register( &episode, "g_episode", "0", CVAR_ROM );
+		Cvar_Register( &episode, "g_episode", "0", CVAR_ROM );
 
 		i = episode.integer;
 		if ( !G_SaveWrite( &i, sizeof( i ), f ) ) {
@@ -1185,7 +1185,7 @@ qboolean G_SaveGame( char *username ) {
 //----(SA)	end
 
 	// write music
-	trap_Cvar_Register( &musicCvar, "s_currentMusic", "", CVAR_ROM );
+	Cvar_Register( &musicCvar, "s_currentMusic", "", CVAR_ROM );
 	if ( !G_SaveWrite( musicCvar.string, MAX_QPATH, f ) ) {
 		G_SaveWriteError();
 	}
@@ -1373,7 +1373,7 @@ void G_LoadGame( char *filename ) {
 	// read the totalPlayTime
 	trap_FS_Read( &i, sizeof( i ), f );
 	if ( i > g_totalPlayTime.integer ) {
-		trap_Cvar_Set( "g_totalPlayTime", va( "%i", i ) );
+		Cvar_Set( "g_totalPlayTime", va( "%i", i ) );
 	}
 
 //----(SA)	had to add 'episode' tracking.
@@ -1381,7 +1381,7 @@ void G_LoadGame( char *filename ) {
 	// read the 'episode'
 	if ( ver >= 13 ) {
 		trap_FS_Read( &i, sizeof( i ), f );
-		trap_Cvar_Set( "g_episode", va( "%i", i ) );
+		Cvar_Set( "g_episode", va( "%i", i ) );
 	}
 //----(SA)	end
 
@@ -1402,7 +1402,7 @@ void G_LoadGame( char *filename ) {
 			trap_FS_Read( musicString, MAX_QPATH, f );
 
 			if ( strlen( musicString ) ) {
-				trap_Cvar_Register( &musicCvar, "s_currentMusic", "", CVAR_ROM ); // get current music
+				Cvar_Register( &musicCvar, "s_currentMusic", "", CVAR_ROM ); // get current music
 				if ( Q_stricmp( musicString, musicCvar.string ) ) {      // it's different than what's playing, so fade out and queue up
 //					trap_SendServerCommand(-1, "mu_fade 0 1000\n");
 //					trap_SetConfigstring( CS_MUSIC_QUEUE, musicString);
@@ -1426,7 +1426,7 @@ void G_LoadGame( char *filename ) {
 			// set the configstring so the 'savegame current' has good fog
 
 			if ( !Q_stricmp( infoString, "0" ) ) { // no fog
-				trap_Cvar_Set( "r_savegameFogColor", "none" );
+				Cvar_Set( "r_savegameFogColor", "none" );
 			} else {
 
 				// send it off to get set on the client
@@ -1440,7 +1440,7 @@ void G_LoadGame( char *filename ) {
 						break;
 					}
 				}
-				trap_Cvar_Set( "r_savegameFogColor", infoString );
+				Cvar_Set( "r_savegameFogColor", infoString );
 			}
 
 			trap_SetConfigstring( CS_FOGVARS, infoString );
@@ -1451,7 +1451,7 @@ void G_LoadGame( char *filename ) {
 			// read the game skill
 			trap_FS_Read( &i, sizeof( i ), f );
 			// set the skill level
-			trap_Cvar_Set( "g_gameskill", va( "%i",i ) );
+			Cvar_Set( "g_gameskill", va( "%i",i ) );
 			// update this
 			aicast_skillscale = (float)i / (float)GSKILL_MAX;
 		}
@@ -1559,7 +1559,7 @@ void G_LoadGame( char *filename ) {
 			trap_FS_Read( musicString, MAX_QPATH, f );
 
 			if ( strlen( musicString ) ) {
-				trap_Cvar_Register( &musicCvar, "s_currentMusic", "", CVAR_ROM ); // get current music
+				Cvar_Register( &musicCvar, "s_currentMusic", "", CVAR_ROM ); // get current music
 				if ( Q_stricmp( musicString, musicCvar.string ) ) {      // it's different than what's playing, so fade out and queue up
 					trap_SendServerCommand( -1, "mu_fade 0 1000\n" );
 					trap_SetConfigstring( CS_MUSIC_QUEUE, musicString );
@@ -1572,7 +1572,7 @@ void G_LoadGame( char *filename ) {
 			// read the game skill
 			trap_FS_Read( &i, sizeof( i ), f );
 			// set the skill level
-			trap_Cvar_Set( "g_gameskill", va( "%i",i ) );
+			Cvar_Set( "g_gameskill", va( "%i",i ) );
 			// update this
 			aicast_skillscale = (float)i / (float)GSKILL_MAX;
 		}
@@ -1586,7 +1586,7 @@ void G_LoadGame( char *filename ) {
 
 	// now increment the attempts field and update totalplaytime according to cvar
 	Cvar_Update( &g_attempts );
-	trap_Cvar_Set( "g_attempts", va( "%i", g_attempts.integer + 1 ) );
+	Cvar_Set( "g_attempts", va( "%i", g_attempts.integer + 1 ) );
 	caststates[0].attempts = g_attempts.integer + 1;
 	caststates[0].lastLoadTime = level.time;
 	if ( caststates[0].totalPlayTime < g_totalPlayTime.integer ) {
@@ -1730,7 +1730,7 @@ qboolean G_SavePersistant( char *nextmap ) {
 	// save out the pers id
 	persid = trap_Milliseconds() + ( rand() & 0xffff );
 	G_SaveWrite( &persid, sizeof( persid ), f );
-	trap_Cvar_Set( "persid", va( "%i", persid ) );
+	Cvar_Set( "persid", va( "%i", persid ) );
 
 	// write out the entity structure
 	PersWriteEntity( f, &g_entities[0] );
@@ -1789,7 +1789,7 @@ void G_LoadPersistant( void ) {
 
 	// read the mapname, if it's not the same, then ignore the file
 	trap_FS_Read( mapstr, MAX_QPATH, f );
-	trap_Cvar_Register( &cvar_mapname, "mapname", "", CVAR_SERVERINFO | CVAR_ROM );
+	Cvar_Register( &cvar_mapname, "mapname", "", CVAR_SERVERINFO | CVAR_ROM );
 	if ( Q_strcasecmp( cvar_mapname.string, mapstr ) ) {
 		trap_FS_FCloseFile( f );
 		return;
@@ -1814,5 +1814,5 @@ void G_LoadPersistant( void ) {
 	trap_FS_FCloseFile( f );
 
 	// clear out the persid, since the persistent data has been read
-	trap_Cvar_Set( "persid", "0" );
+	Cvar_Set( "persid", "0" );
 }

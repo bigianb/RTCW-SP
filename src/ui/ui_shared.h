@@ -354,7 +354,7 @@ typedef struct {
 	void ( *drawText )( float x, float y, int font, float scale, vec4_t color, const char *text, float adjust, int limit, int style );
 	int ( *textWidth )( const char *text, int font, float scale, int limit );
 	int ( *textHeight )( const char *text, int font, float scale, int limit );
-	qhandle_t ( *registerModel )( const char *p );
+
 	void ( *modelBounds )( qhandle_t model, vec3_t min, vec3_t max );
 	void ( *fillRect )( float x, float y, float w, float h, const vec4_t color );
 	void ( *drawRect )( float x, float y, float w, float h, float size, const vec4_t color );
@@ -385,7 +385,6 @@ typedef struct {
 	void ( *feederSelection )( float feederID, int index );
 	void ( *feederAddItem )( float feederID, const char *name, int index );           // NERVE - SMF
 
-	void ( *keynumToStringBuf )( int keynum, char *buf, int buflen );
 	void ( *getBindingBuf )( int keynum, char *buf, int buflen );
 	void ( *setBinding )( int keynum, const char *binding );
 	void ( *executeText )( int exec_when, const char *text );

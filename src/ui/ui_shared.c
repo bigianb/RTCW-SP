@@ -29,6 +29,8 @@ If you have questions concerning this license or the applicable additional terms
 #include "ui_shared.h"
 #include "ui_local.h"
 #include "../qcommon/qcommon.h"
+#include "../renderer/tr_local.h"
+#include "../client/client.h"
 
 // IJB FIXME
 int PC_SourceFileAndLine( int handle, char *filename, int *line );
@@ -3615,12 +3617,12 @@ void BindingFromName( const char *cvar ) {
 			if ( b1 == -1 ) {
 				break;
 			}
-			DC->keynumToStringBuf( b1, g_nameBind1, 32 );
+            Key_KeynumToStringBuf( b1, g_nameBind1, 32 );
 			Q_strupr( g_nameBind1 );
 
 			b2 = g_bindings[i].bind2;
 			if ( b2 != -1 ) {
-				DC->keynumToStringBuf( b2, g_nameBind2, 32 );
+                Key_KeynumToStringBuf( b2, g_nameBind2, 32 );
 				Q_strupr( g_nameBind2 );
 				strcat( g_nameBind1, va( " %s ", DC->getTranslatedString( "or" ) ) );
 				strcat( g_nameBind1, g_nameBind2 );
@@ -4725,7 +4727,7 @@ qboolean ItemParse_asset_model( itemDef_t *item, int handle ) {
 		return qfalse;
 	}
 	if ( !( item->asset ) ) {
-		item->asset = DC->registerModel( temp );
+		item->asset = RE_RegisterModel( temp );
 //		modelPtr->angle = rand() % 360;
 	}
 	return qtrue;

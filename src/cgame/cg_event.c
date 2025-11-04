@@ -2259,7 +2259,7 @@ void CG_EntityEvent( centity_t *cent, vec3_t position ) {
 	case EV_POPUP:
 		s = CG_ConfigString( CS_CLIPBOARDS + es->eventParm );
 		// 's' is now the name of the menu script to run
-		trap_Cvar_Set( "cg_clipboardName", s );    // store new current page name for the ui to pick up
+		Cvar_Set( "cg_clipboardName", s );    // store new current page name for the ui to pick up
 		trap_UI_Popup( s );
 		break;
 
@@ -2271,8 +2271,8 @@ void CG_EntityEvent( centity_t *cent, vec3_t position ) {
 	{
 		int havepages = cg_notebookpages.integer;
 		havepages |= es->eventParm;
-		trap_Cvar_Set( "cg_notebookpages", va( "%d", havepages ) );  // store new current page name for the ui to pick up
-		trap_Cvar_Set( "cg_youGotMail", "1" );  //----(SA)	added
+		Cvar_Set( "cg_notebookpages", va( "%d", havepages ) );  // store new current page name for the ui to pick up
+		Cvar_Set( "cg_youGotMail", "1" );  //----(SA)	added
 	}
 	break;
 

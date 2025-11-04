@@ -44,7 +44,7 @@ float UI_ClampCvar( float min, float max, float value ) {
 
 
 void UI_StartDemoLoop( void ) {
-	trap_Cmd_ExecuteText( EXEC_APPEND, "d1\n" );
+	Cbuf_ExecuteText( EXEC_APPEND, "d1\n" );
 }
 
 char *UI_Argv( int arg ) {

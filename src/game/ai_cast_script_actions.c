@@ -43,7 +43,7 @@ If you have questions concerning this license or the applicable additional terms
 #include "../game/be_ai_goal.h"
 #include "../game/be_ai_move.h"
 #include "../botai/botai.h"          //bot ai interface
-
+#include "../qcommon/qcommon.h"
 #include "ai_cast.h"
 
 /*
@@ -1219,8 +1219,8 @@ qboolean AICast_ScriptAction_SelectWeapon( cast_state_t *cs, char *params ) {
 			//
 			g_entities[cs->entityNum].client->ps.weaponTime = 750;  // (SA) HACK: FIXME: TODO: delay to catch initial weapon reload
 			// tell it which weapon to use after spawning in
-			//trap_Cvar_Register( &cvar, "cg_loadWeaponSelect", "0", CVAR_ROM );
-			//trap_Cvar_Set( "cg_loadWeaponSelect", va("%i", g_entities[cs->entityNum].client->ps.weapon ) );
+			//Cvar_Register( &cvar, "cg_loadWeaponSelect", "0", CVAR_ROM );
+			//Cvar_Set( "cg_loadWeaponSelect", va("%i", g_entities[cs->entityNum].client->ps.weapon ) );
 		}
 
 	} else {
@@ -1882,7 +1882,7 @@ qboolean AICast_ScriptAction_MissionFailed( cast_state_t *cs, char *params ) {
 	// reload the current savegame, after a delay
 	trap_SetConfigstring( CS_SCREENFADE, va( "1 %i %i", level.time + 250, time * 1000 ) );
 //	reloading = RELOAD_FAILED;
-	trap_Cvar_Set( "g_reloading", va( "%d", RELOAD_FAILED ) );
+	Cvar_Set( "g_reloading", va( "%d", RELOAD_FAILED ) );
 
 	level.reloadDelayTime = level.time + 1000 + time * 1000;
 
@@ -1949,9 +1949,9 @@ qboolean AICast_ScriptAction_ObjectiveMet( cast_state_t *cs, char *params ) {
 	player->missionObjectives |= ( 1 << ( lvl - 1 ) );  // make this bitwise
 
 	//set g_objective<n> cvar
-	trap_Cvar_Register( &cvar, va( "g_objective%i", lvl ), "1", CVAR_ROM );
+	Cvar_Register( &cvar, va( "g_objective%i", lvl ), "1", CVAR_ROM );
 	// set it to make sure
-	trap_Cvar_Set( va( "g_objective%i", lvl ), "1" );
+	Cvar_Set( va( "g_objective%i", lvl ), "1" );
 
 	token = COM_ParseExt( &pString, qfalse );
 	if ( token[0] ) {
@@ -1959,7 +1959,7 @@ qboolean AICast_ScriptAction_ObjectiveMet( cast_state_t *cs, char *params ) {
 			G_Error( "AI Scripting: missionsuccess with unknown parameter: %s\n", token );
 		}
 	} else {    // show on-screen information
-		trap_Cvar_Set( "cg_youGotMail", "2" ); // set flag to draw icon
+		Cvar_Set( "cg_youGotMail", "2" ); // set flag to draw icon
 	}
 
 	return qtrue;
@@ -2310,10 +2310,10 @@ qboolean AICast_ScriptAction_ChangeLevel( cast_state_t *cs, char *params ) {
 
 	// load the next map, after a delay
 	level.reloadDelayTime = level.time + 1000 + exitTime;
-	trap_Cvar_Set( "g_reloading", va( "%d", RELOAD_NEXTMAP_WAITING ) );
+	Cvar_Set( "g_reloading", va( "%d", RELOAD_NEXTMAP_WAITING ) );
 
 	if ( endgame ) {
-		trap_Cvar_Set( "g_reloading", va( "%d", RELOAD_ENDGAME ) );
+		Cvar_Set( "g_reloading", va( "%d", RELOAD_ENDGAME ) );
 		return qtrue;
 	}
 
@@ -2707,7 +2707,7 @@ AICast_ScriptAction_EntityScriptName
 =================
 */
 qboolean AICast_ScriptAction_EntityScriptName( cast_state_t *cs, char *params ) {
-	trap_Cvar_Set( "g_scriptName", params );
+	Cvar_Set( "g_scriptName", params );
 	return qtrue;
 }
 
@@ -2718,7 +2718,7 @@ AICast_ScriptAction_AIScriptName
 =================
 */
 qboolean AICast_ScriptAction_AIScriptName( cast_state_t *cs, char *params ) {
-	trap_Cvar_Set( "ai_scriptName", params );
+	Cvar_Set( "ai_scriptName", params );
 	return qtrue;
 }
 
@@ -2788,9 +2788,9 @@ qboolean AICast_ScriptAction_Cvar( cast_state_t *cs, char *params ) {
 		return qtrue;
 	}
 
-	trap_Cvar_Register( &cvar, cvarName, token, CVAR_ROM );
+	Cvar_Register( &cvar, cvarName, token, CVAR_ROM );
 	// set it to make sure
-	trap_Cvar_Set( cvarName, token );
+	Cvar_Set( cvarName, token );
 	return qtrue;
 }
 

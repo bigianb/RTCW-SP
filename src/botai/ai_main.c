@@ -823,7 +823,7 @@ int BotAILoadMap( int restart ) {
 	vmCvar_t mapname;
 
 	if ( !restart ) {
-		trap_Cvar_Register( &mapname, "mapname", "", CVAR_SERVERINFO | CVAR_ROM );
+		Cvar_Register( &mapname, "mapname", "", CVAR_SERVERINFO | CVAR_ROM );
 		trap_BotLibLoadMap( mapname.string );
 	}
 
@@ -869,7 +869,7 @@ int BotAIStartFrame( int time ) {
 
 	if ( memorydump.integer ) {
 		trap_BotLibVarSet( "memorydump", "1" );
-		trap_Cvar_Set( "memorydump", "0" );
+		Cvar_Set( "memorydump", "0" );
 	}
 
 	//if the bot think time changed we should reschedule the bots
@@ -1161,8 +1161,8 @@ int BotAISetup( int restart ) {
 	srand( (unsigned)time( NULL ) );
 #endif //RANDOMIZE
 	
-	trap_Cvar_Register( &bot_thinktime, "bot_thinktime", "100", 0 );
-	trap_Cvar_Register( &memorydump, "memorydump", "0", 0 );
+	Cvar_Register( &bot_thinktime, "bot_thinktime", "100", 0 );
+	Cvar_Register( &memorydump, "memorydump", "0", 0 );
 
 	//if the game is restarted for a tournament
 	if ( restart ) {
@@ -1172,7 +1172,7 @@ int BotAISetup( int restart ) {
 	//initialize the bot states
 	memset( botstates, 0, sizeof( botstates ) );
 
-	trap_Cvar_Register( &bot_thinktime, "bot_thinktime", "100", 0 );
+	Cvar_Register( &bot_thinktime, "bot_thinktime", "100", 0 );
 
 	errnum = BotInitLibrary();
 	if ( errnum != BLERR_NOERROR ) {

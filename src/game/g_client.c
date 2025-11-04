@@ -430,7 +430,7 @@ void respawn( gentity_t *ent ) {
         // once everything is settled.
         trap_SetConfigstring( CS_SCREENFADE, va( "1 %i 4000", level.time + 2000 ) );
 
-        trap_Cvar_Set( "g_reloading", "1" );
+        Cvar_Set( "g_reloading", "1" );
 
         level.reloadDelayTime = level.time + 6000;
 

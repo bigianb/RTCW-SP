@@ -991,7 +991,7 @@ void SP_worldspawn( void ) {
 	trap_SetConfigstring( CS_MOTD, g_motd.string );     // message of the day
 
 	G_SpawnString( "gravity", "800", &s );
-	trap_Cvar_Set( "g_gravity", s );
+	Cvar_Set( "g_gravity", s );
 
 	// (SA) FIXME: todo: sun shader set for worldspawn
 
@@ -1001,7 +1001,7 @@ void SP_worldspawn( void ) {
 	// see if we want a warmup time
 	trap_SetConfigstring( CS_WARMUP, "" );
 	if ( g_restarted.integer ) {
-		trap_Cvar_Set( "g_restarted", "0" );
+		Cvar_Set( "g_restarted", "0" );
 		level.warmupTime = 0;
 	}
 

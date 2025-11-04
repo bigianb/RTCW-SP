@@ -43,6 +43,7 @@ If you have questions concerning this license or the applicable additional terms
 #include "../game/be_ai_goal.h"
 #include "../game/be_ai_move.h"
 #include "../botai/botai.h"          //bot ai interface
+#include "../qcommon/qcommon.h"
 
 #include "ai_cast.h"
 
@@ -360,9 +361,9 @@ void AICast_ScriptLoad( void ) {
 
 	trap_Cvar_VariableStringBuffer( "ai_scriptName", filename, sizeof( filename ) );
 	if ( strlen( filename ) > 0 ) {
-		trap_Cvar_Register( &mapname, "ai_scriptName", "", CVAR_ROM );
+		Cvar_Register( &mapname, "ai_scriptName", "", CVAR_ROM );
 	} else {
-		trap_Cvar_Register( &mapname, "mapname", "", CVAR_SERVERINFO | CVAR_ROM );
+		Cvar_Register( &mapname, "mapname", "", CVAR_SERVERINFO | CVAR_ROM );
 	}
 	Q_strncpyz( filename, "maps/", sizeof( filename ) );
 	Q_strcat( filename, sizeof( filename ), mapname.string );
@@ -371,7 +372,7 @@ void AICast_ScriptLoad( void ) {
 	len = trap_FS_FOpenFile( filename, &f, FS_READ );
 
 	// make sure we clear out the temporary scriptname
-	trap_Cvar_Set( "ai_scriptName", "" );
+	Cvar_Set( "ai_scriptName", "" );
 
 	if ( len < 0 ) {
 		return;

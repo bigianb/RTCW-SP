@@ -118,7 +118,7 @@ void CG_ParseServerinfo( void ) {
 
 	info = CG_ConfigString( CS_SERVERINFO );
 	cgs.gametype = atoi( Info_ValueForKey( info, "g_gametype" ) );
-	trap_Cvar_Set( "g_gametype", va( "%i", cgs.gametype ) );
+	Cvar_Set( "g_gametype", va( "%i", cgs.gametype ) );
 	cgs.dmflags = atoi( Info_ValueForKey( info, "dmflags" ) );
 	cgs.teamflags = atoi( Info_ValueForKey( info, "teamflags" ) );
 	cgs.fraglimit = atoi( Info_ValueForKey( info, "fraglimit" ) );
@@ -130,12 +130,12 @@ void CG_ParseServerinfo( void ) {
 
 // JPW NERVE
 // prolly should parse all CS_SERVERINFO keys automagically, but I don't want to break anything that might be improperly set for wolf SP, so I'm just parsing MP relevant stuff here
-	trap_Cvar_Set( "g_medicChargeTime",Info_ValueForKey( info,"g_medicChargeTime" ) );
-	trap_Cvar_Set( "g_engineerChargeTime",Info_ValueForKey( info,"g_engineerChargeTime" ) );
-	trap_Cvar_Set( "g_soldierChargeTime",Info_ValueForKey( info,"g_soldierChargeTime" ) );
-	trap_Cvar_Set( "g_LTChargeTime",Info_ValueForKey( info,"g_LTChargeTime" ) );
-	trap_Cvar_Set( "g_redlimbotime",Info_ValueForKey( info,"g_redlimbotime" ) );
-	trap_Cvar_Set( "g_bluelimbotime",Info_ValueForKey( info,"g_bluelimbotime" ) );
+	Cvar_Set( "g_medicChargeTime",Info_ValueForKey( info,"g_medicChargeTime" ) );
+	Cvar_Set( "g_engineerChargeTime",Info_ValueForKey( info,"g_engineerChargeTime" ) );
+	Cvar_Set( "g_soldierChargeTime",Info_ValueForKey( info,"g_soldierChargeTime" ) );
+	Cvar_Set( "g_LTChargeTime",Info_ValueForKey( info,"g_LTChargeTime" ) );
+	Cvar_Set( "g_redlimbotime",Info_ValueForKey( info,"g_redlimbotime" ) );
+	Cvar_Set( "g_bluelimbotime",Info_ValueForKey( info,"g_bluelimbotime" ) );
 // jpw
 
 
@@ -633,7 +633,7 @@ static void CG_MapRestart( void ) {
 		if ( cg_loadWeaponSelect.integer > 0 ) {
 			cg.weaponSelect = cg_loadWeaponSelect.integer;
 			cg.weaponSelectTime = cg.time;
-			trap_Cvar_Set( "cg_loadWeaponSelect", "0" );  // turn it off
+			Cvar_Set( "cg_loadWeaponSelect", "0" );  // turn it off
 		}
 	}
 	// clear out rumble effects
@@ -642,7 +642,7 @@ static void CG_MapRestart( void ) {
 	cg.rumbleScale = 0;
 
 
-	trap_Cvar_Set( "cg_thirdPerson", "0" );
+	Cvar_Set( "cg_thirdPerson", "0" );
 }
 
 /*
@@ -867,7 +867,7 @@ static void CG_ServerCommand( void ) {
 	if ( !strcmp( cmd, "rockandroll" ) ) {   // map loaded, game is ready to begin.
 		CG_Fade( 0, 0, 0, 255, cg.time, 0 );      // go black
 		trap_UI_Popup( "pregame" );                // start pregame menu
-		trap_Cvar_Set( "cg_norender", "1" );    // don't render the world until the player clicks in and the 'playerstart' func has been called (g_main in G_UpdateCvars() ~ilne 949)
+		Cvar_Set( "cg_norender", "1" );    // don't render the world until the player clicks in and the 'playerstart' func has been called (g_main in G_UpdateCvars() ~ilne 949)
 
 		trap_S_FadeAllSound( 1.0f, 1000 );    // fade sound up
 

@@ -43,7 +43,7 @@ If you have questions concerning this license or the applicable additional terms
 #include "../game/be_ai_goal.h"
 #include "../game/be_ai_move.h"
 #include "../botai/botai.h"          //bot ai interface
-
+#include "../qcommon/qcommon.h"
 #include "ai_cast.h"
 
 /*
@@ -470,9 +470,9 @@ void AICast_Init( void ) {
 	numSpawningCast = 0;
 	saveGamePending = qtrue;
 
-	trap_Cvar_Register( &aicast_debug, "aicast_debug", "1", 0 );
-	trap_Cvar_Register( &aicast_debugname, "aicast_debugname", "", 0 );
-	trap_Cvar_Register( &aicast_scripts, "aicast_scripts", "1", 0 );
+	Cvar_Register( &aicast_debug, "aicast_debug", "1", 0 );
+	Cvar_Register( &aicast_debugname, "aicast_debugname", "", 0 );
+	Cvar_Register( &aicast_scripts, "aicast_scripts", "1", 0 );
 
 	// (aicast_thinktime / sv_fps) * aicast_maxthink = number of cast's to think between each aicast frame
 	// so..
@@ -480,10 +480,10 @@ void AICast_Init( void ) {
 	//
 	// so if the level has more than 30 AI cast's, they could start to bunch up, resulting in slower thinks
 
-	trap_Cvar_Register( &cvar, "aicast_thinktime", "50", 0 );
+	Cvar_Register( &cvar, "aicast_thinktime", "50", 0 );
 	aicast_thinktime = trap_Cvar_VariableIntegerValue( "aicast_thinktime" );
 
-	trap_Cvar_Register( &cvar, "aicast_maxthink", "4", 0 );
+	Cvar_Register( &cvar, "aicast_maxthink", "4", 0 );
 	aicast_maxthink = trap_Cvar_VariableIntegerValue( "aicast_maxthink" );
 
 	aicast_maxclients = trap_Cvar_VariableIntegerValue( "sv_maxclients" );
@@ -694,7 +694,7 @@ AICast_EnableRenderingThink
 ==================
 */
 void AICast_EnableRenderingThink( gentity_t *ent ) {
-	trap_Cvar_Set( "cg_norender", "0" );
+	Cvar_Set( "cg_norender", "0" );
 	G_FreeEntity( ent );
 }
 
@@ -719,11 +719,11 @@ void AICast_CheckLoadGame( void ) {
 	}
 
 	// tell the cgame NOT to render the scene while we are waiting for things to settle
-	trap_Cvar_Set( "cg_norender", "1" );
+	Cvar_Set( "cg_norender", "1" );
 
 	trap_Cvar_VariableStringBuffer( "savegame_loading", loading, sizeof( loading ) );
 
-	trap_Cvar_Set( "g_reloading", "1" );
+	Cvar_Set( "g_reloading", "1" );
 
 	if ( strlen( loading ) > 0 && atoi( loading ) != 0 ) {
 		// screen should be black if we are at this stage
@@ -731,7 +731,7 @@ void AICast_CheckLoadGame( void ) {
 
 		if ( !( g_reloading.integer ) && atoi( loading ) == 2 ) {
 			// (SA) hmm, this seems redundant when it sets it above...
-			trap_Cvar_Set( "g_reloading", "1" );
+			Cvar_Set( "g_reloading", "1" );
 		}
 
 		ready = qtrue;
@@ -744,7 +744,7 @@ void AICast_CheckLoadGame( void ) {
 		}
 
 		if ( ready ) {
-			trap_Cvar_Set( "savegame_loading", "0" ); // in-case it aborts
+			Cvar_Set( "savegame_loading", "0" ); // in-case it aborts
 			saveGamePending = qfalse;
 			G_LoadGame( NULL );     // always load the "current" savegame
 
@@ -777,8 +777,8 @@ void AICast_CheckLoadGame( void ) {
 		if ( ready ) {
 			G_LoadPersistant();     // make sure we save the game after we have brought across the items
 
-			trap_Cvar_Set( "g_totalPlayTime", "0" );  // reset play time
-			trap_Cvar_Set( "g_attempts", "0" );
+			Cvar_Set( "g_totalPlayTime", "0" );  // reset play time
+			Cvar_Set( "g_attempts", "0" );
 			pcs = AICast_GetCastState( ent->s.number );
 			pcs->totalPlayTime = 0;
 			pcs->lastLoadTime = 0;
@@ -922,7 +922,7 @@ void AICast_AgePlayTime( int entnum ) {
 	if ( ( level.time - cs->lastLoadTime ) > 1000 ) {
 		if ( /*(level.time - cs->lastLoadTime) < 2000 &&*/ ( level.time - cs->lastLoadTime ) > 0 ) {
 			cs->totalPlayTime += level.time - cs->lastLoadTime;
-			trap_Cvar_Set( "g_totalPlayTime", va( "%i", cs->totalPlayTime ) );
+			Cvar_Set( "g_totalPlayTime", va( "%i", cs->totalPlayTime ) );
 		}
 		//
 		cs->lastLoadTime = level.time;

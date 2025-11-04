@@ -220,10 +220,10 @@ static void CG_CalcVrect( void ) {
 	} else {
 		// bound normal viewsize
 		if ( cg_viewsize.integer < 30 ) {
-			trap_Cvar_Set( "cg_viewsize","30" );
+			Cvar_Set( "cg_viewsize","30" );
 			xsize = ysize = 30;
 		} else if ( cg_viewsize.integer > 100 ) {
-			trap_Cvar_Set( "cg_viewsize","100" );
+			Cvar_Set( "cg_viewsize","100" );
 			xsize = ysize = 100;
 		} else {
 			xsize = ysize = cg_viewsize.integer;
@@ -433,7 +433,7 @@ void CG_KickAngles( void ) {
 	}
 	// encode the kick angles into a 24bit number, for sending to the client exe
 //----(SA)	commented out since it doesn't appear to be used, and it spams the console when in "developer 1"
-//	trap_Cvar_Set( "cg_recoilPitch", va("%f", cg.recoilPitchAngle) );
+//	Cvar_Set( "cg_recoilPitch", va("%f", cg.recoilPitchAngle) );
 }
 
 
@@ -1080,7 +1080,7 @@ static int CG_CalcViewValues( void ) {
 
 		} else {
 			cg.cameraMode = qfalse;                 // camera off in cgame
-			trap_Cvar_Set( "cg_letterbox", "0" );
+			Cvar_Set( "cg_letterbox", "0" );
 			CL_AddReliableCommand( "stopCamera" );    // camera off in game
 			trap_stopCamera( CAM_PRIMARY );           // camera off in client
 

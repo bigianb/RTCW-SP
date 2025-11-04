@@ -247,15 +247,15 @@ void G_Script_ScriptLoad( void ) {
 	fileHandle_t f;
 	int len;
 
-	trap_Cvar_Register( &g_scriptDebug, "g_scriptDebug", "0", 0 );
+	Cvar_Register( &g_scriptDebug, "g_scriptDebug", "0", 0 );
 
 	level.scriptEntity = NULL;
 
 	trap_Cvar_VariableStringBuffer( "g_scriptName", filename, sizeof( filename ) );
 	if ( strlen( filename ) > 0 ) {
-		trap_Cvar_Register( &mapname, "g_scriptName", "", CVAR_ROM );
+		Cvar_Register( &mapname, "g_scriptName", "", CVAR_ROM );
 	} else {
-		trap_Cvar_Register( &mapname, "mapname", "", CVAR_SERVERINFO | CVAR_ROM );
+		Cvar_Register( &mapname, "mapname", "", CVAR_SERVERINFO | CVAR_ROM );
 	}
 	Q_strncpyz( filename, "maps/", sizeof( filename ) );
 	Q_strcat( filename, sizeof( filename ), mapname.string );
@@ -264,7 +264,7 @@ void G_Script_ScriptLoad( void ) {
 	len = trap_FS_FOpenFile( filename, &f, FS_READ );
 
 	// make sure we clear out the temporary scriptname
-	trap_Cvar_Set( "g_scriptName", "" );
+	Cvar_Set( "g_scriptName", "" );
 
 	if ( len < 0 ) {
 		return;

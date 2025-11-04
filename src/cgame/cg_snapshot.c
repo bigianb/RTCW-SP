@@ -137,7 +137,7 @@ void CG_SetInitialSnapshot( snapshot_t *snap ) {
 	CL_AddReliableCommand( "fogswitch 0" );   // clear it out so the set below will take
 
 	trap_Cvar_VariableStringBuffer( "r_savegameFogColor", buf, sizeof( buf ) );
-	trap_Cvar_Set( "r_savegameFogColor", "0" );
+	Cvar_Set( "r_savegameFogColor", "0" );
 	if ( strlen( buf ) > 1 ) {
 		if ( !Q_stricmp( buf, "none" ) ) {
 			CL_AddReliableCommand( "fogswitch 0" );   // 'off'

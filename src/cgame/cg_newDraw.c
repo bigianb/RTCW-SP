@@ -54,11 +54,11 @@ static void CG_SetSelectedPlayerName() {
 	if ( cg_currentSelectedPlayer.integer >= 0 && cg_currentSelectedPlayer.integer < numSortedTeamPlayers ) {
 		clientInfo_t *ci = cgs.clientinfo + sortedTeamPlayers[cg_currentSelectedPlayer.integer];
 		if ( ci ) {
-			trap_Cvar_Set( "cg_selectedPlayerName", ci->name );
-			trap_Cvar_Set( "cg_selectedPlayer", va( "%d", sortedTeamPlayers[cg_currentSelectedPlayer.integer] ) );
+			Cvar_Set( "cg_selectedPlayerName", ci->name );
+			Cvar_Set( "cg_selectedPlayer", va( "%d", sortedTeamPlayers[cg_currentSelectedPlayer.integer] ) );
 		}
 	} else {
-		trap_Cvar_Set( "cg_selectedPlayerName", "Everyone" );
+		Cvar_Set( "cg_selectedPlayerName", "Everyone" );
 	}
 }
 int CG_GetSelectedPlayer() {
@@ -2003,7 +2003,7 @@ int CG_ClientNumFromName( const char *p ) {
 
 void CG_ShowResponseHead() {
 	Menus_OpenByName( "voiceMenu" );
-	trap_Cvar_Set( "cl_conXOffset", "72" );
+	Cvar_Set( "cl_conXOffset", "72" );
 	cg.voiceTime = cg.time;
 }
 

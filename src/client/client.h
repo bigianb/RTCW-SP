@@ -453,6 +453,7 @@ typedef enum {
 	NUM_BUTTONS
 } kbuttons_t;
 
+void Key_KeynumToStringBuf( int keynum, char *buf, int buflen );
 
 void CL_ClearKeys( void );
 

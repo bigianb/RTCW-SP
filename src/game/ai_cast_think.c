@@ -793,7 +793,7 @@ void AICast_StartFrame( int time ) {
 	}
 
 	if ( !aicast_disable.handle ) {
-		trap_Cvar_Register( &aicast_disable, "aicast_disable", "0", CVAR_CHEAT );
+		Cvar_Register( &aicast_disable, "aicast_disable", "0", CVAR_CHEAT );
 	} else
 	{
 		Cvar_Update( &aicast_disable );
@@ -950,7 +950,7 @@ void AICast_StartServerFrame( int time ) {
 	}
 
 	if ( !aicast_disable.handle ) {
-		trap_Cvar_Register( &aicast_disable, "aicast_disable", "0", CVAR_CHEAT );
+		Cvar_Register( &aicast_disable, "aicast_disable", "0", CVAR_CHEAT );
 	} else
 	{
 		Cvar_Update( &aicast_disable );

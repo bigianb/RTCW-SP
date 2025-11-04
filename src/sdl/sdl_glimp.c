@@ -658,12 +658,12 @@ void GLimp_EndFrame( void )
 			if( fullscreen )
 			{
 				Com_Printf( "Switching to windowed rendering\n" );
-				ri.Cmd_ExecuteText(EXEC_APPEND, "vid_restart\n");
+				Cbuf_ExecuteText(EXEC_APPEND, "vid_restart\n");
 			}
 			else
 			{
 				Com_Printf( "Switching to fullscreen rendering\n" );
-				ri.Cmd_ExecuteText(EXEC_APPEND, "vid_restart\n");
+				Cbuf_ExecuteText(EXEC_APPEND, "vid_restart\n");
 			}
 
 			IN_Restart( );

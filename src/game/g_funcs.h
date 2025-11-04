@@ -951,9 +951,8 @@ If you have questions concerning this license or the applicable additional terms
 {"trap_LocateGameData", (byte *)trap_LocateGameData},
 {"trap_Cvar_VariableStringBuffer", (byte *)trap_Cvar_VariableStringBuffer},
 {"trap_Cvar_VariableIntegerValue", (byte *)trap_Cvar_VariableIntegerValue},
-{"trap_Cvar_Set", (byte *)trap_Cvar_Set},
 
-{"trap_Cvar_Register", (byte *)trap_Cvar_Register},
+
 {"trap_game_SendConsoleCommand", (byte *)trap_game_SendConsoleCommand},
 {"trap_FS_GetFileList", (byte *)trap_FS_GetFileList},
 {"trap_FS_CopyFile", (byte *)trap_FS_CopyFile},

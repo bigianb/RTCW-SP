@@ -429,10 +429,10 @@ void CG_RegisterCvars( void ) {
 	cvarTable_t *cv;
 	char var[MAX_TOKEN_CHARS];
 
-	trap_Cvar_Set( "cg_letterbox", "0" ); // force this for people who might have it in their
+	Cvar_Set( "cg_letterbox", "0" ); // force this for people who might have it in their
 
 	for ( i = 0, cv = cvarTable ; i < cvarTableSize ; i++, cv++ ) {
-		trap_Cvar_Register( cv->vmCvar, cv->cvarName,
+		Cvar_Register( cv->vmCvar, cv->cvarName,
 							cv->defaultString, cv->cvarFlags );
 	}
 
@@ -442,8 +442,8 @@ void CG_RegisterCvars( void ) {
 
 	forceModelModificationCount = cg_forceModel.modificationCount;
 
-	trap_Cvar_Register( NULL, "model", DEFAULT_MODEL, CVAR_USERINFO | CVAR_ARCHIVE );
-	trap_Cvar_Register( NULL, "head", DEFAULT_HEAD, CVAR_USERINFO | CVAR_ARCHIVE );
+	Cvar_Register( NULL, "model", DEFAULT_MODEL, CVAR_USERINFO | CVAR_ARCHIVE );
+	Cvar_Register( NULL, "head", DEFAULT_HEAD, CVAR_USERINFO | CVAR_ARCHIVE );
 
 
 }
@@ -1608,50 +1608,6 @@ void CG_LoadHudMenu() {
 	char buff[1024];
 	const char *hudSet;
 
-/*
-	cgDC.setColor = &RE_SetColor;
-	cgDC.drawHandlePic = &CG_DrawPic;
-	cgDC.drawStretchPic = &trap_R_DrawStretchPic;
-	cgDC.drawText = &Text_Paint;
-	cgDC.textWidth = &Text_Width;
-
-	cgDC.registerModel = &trap_R_RegisterModel;
-	cgDC.modelBounds = &trap_R_ModelBounds;
-	cgDC.fillRect = &CG_FillRect;
-	cgDC.drawRect = &CG_DrawRect;
-	cgDC.drawSides = &CG_DrawSides;
-	cgDC.drawTopBottom = &CG_DrawTopBottom;
-	cgDC.clearScene = &trap_R_ClearScene;
-	cgDC.addRefEntityToScene = &trap_R_AddRefEntityToScene;
-	cgDC.renderScene = &trap_R_RenderScene;
-	cgDC.registerFont = &trap_R_RegisterFont;
-	cgDC.ownerDrawItem = &CG_OwnerDraw;
-	cgDC.getValue = &CG_GetValue;
-	cgDC.ownerDrawVisible = &CG_OwnerDrawVisible;
-	cgDC.runScript = &CG_RunMenuScript;
-	cgDC.getTeamColor = &CG_GetTeamColor;
-	cgDC.setCVar = trap_Cvar_Set;
-	cgDC.getCVarString = trap_Cvar_VariableStringBuffer;
-	cgDC.drawTextWithCursor = &CG_Text_PaintWithCursor;
-	cgDC.startLocalSound = &trap_S_StartLocalSound;
-	cgDC.feederCount = &CG_FeederCount;
-	cgDC.feederItemImage = &CG_FeederItemImage;
-	cgDC.feederItemText = &CG_FeederItemText;
-	cgDC.feederSelection = &CG_FeederSelection;
-
-	cgDC.getTranslatedString = &CG_translateString;     //----(SA)	added
-
-	cgDC.Error = &Com_Error;
-	cgDC.Print = &Com_Printf;
-	cgDC.ownerDrawWidth = &CG_OwnerDrawWidth;
-	cgDC.registerSound = &trap_S_RegisterSound;
-	cgDC.startBackgroundTrack = &trap_S_StartBackgroundTrack;
-	cgDC.stopBackgroundTrack = &trap_S_StopBackgroundTrack;
-	cgDC.playCinematic = &CG_PlayCinematic;
-	cgDC.stopCinematic = &CG_StopCinematic;
-	cgDC.drawCinematic = &CG_DrawCinematic;
-	cgDC.runCinematicFrame = &CG_RunCinematicFrame;
-*/
 	trap_Cvar_VariableStringBuffer( "cg_hudFiles", buff, sizeof( buff ) );
 	hudSet = buff;
 	if ( hudSet[0] == '\0' ) {
@@ -1773,7 +1729,7 @@ void CG_Init( int serverMessageNum, int serverCommandSequence ) {
 	trap_S_ClearLoopingSounds( 2 );
 
 	if ( cgs.gametype == GT_WOLF ) {
-		trap_Cvar_Set( "cg_drawTimer", "0" ); // jpw
+		Cvar_Set( "cg_drawTimer", "0" ); // jpw
 
 	}
 }
