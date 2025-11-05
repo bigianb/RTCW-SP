@@ -378,6 +378,7 @@ int             UI_AdjustTimeByGame( int time );
 extern void MainMenu_Cache( void );
 extern void UI_MainMenu( void );
 void UI_DrawSides( float x, float y, float w, float h, float size );
+void Text_PaintWithCursor( float x, float y, int font, float scale, vec4_t color, const char *text, int cursorPos, char cursor, int limit, int style );
 
 //
 // ui_credits.c

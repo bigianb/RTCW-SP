@@ -26,8 +26,6 @@ If you have questions concerning this license or the applicable additional terms
 ===========================================================================
 */
 
-#include <string.h>
-
 #include "ui_local.h"
 #include "../cgame/cg_local.h"
 #include "../client/client.h"
@@ -48,14 +46,7 @@ static int  UI_SavegamesQsortCompare( const void *arg1, const void *arg2 );
 
 void Text_PaintCenter( float x, float y, int font, float scale, vec4_t color, const char *text, float adjust );
 
-/*
-================
-vmMain
 
-This is the only way control passes into the module.
-This must be the very first function compiled into the .qvm file
-================
-*/
 vmCvar_t ui_new;
 vmCvar_t ui_debug;
 vmCvar_t ui_initialized;
@@ -218,100 +209,104 @@ void Text_PaintChar( float x, float y, float scale, glyphInfo_t *glyph )
 
 void Text_Paint( float x, float y, int font, float scale, vec4_t color, const char *text, float adjust, int limit, int style )
 {
+    if (!text){
+        return;
+    }
+    
     fontInfo_t *fnt = getTextFont(font, scale);
 
 	float useScale = scale * fnt->glyphScale;
-	if ( text ) {
-		const char *s = text;
-		RE_SetColor( color );
-        vec4_t newColor;
-		memcpy( &newColor[0], &color[0], sizeof( vec4_t ) );
-        size_t len = strnlen( text, 1024);
-		if ( limit > 0 && len > limit ) {
-			len = limit;
-		}
-		int count = 0;
-		while ( s && *s && count < len ) {
-            glyphInfo_t *glyph = &fnt->glyphs[*s];
-			if ( Q_IsColorString( s ) ) {
-				memcpy( newColor, g_color_table[ColorIndex( *( s + 1 ) )], sizeof( newColor ) );
-				newColor[3] = color[3];
-				RE_SetColor( newColor );
-				s += 2;
-				continue;
-			} else {
-				float yadj = useScale * glyph->top;
-				if ( style == ITEM_TEXTSTYLE_SHADOWED || style == ITEM_TEXTSTYLE_SHADOWEDMORE ) {
-					int ofs = style == ITEM_TEXTSTYLE_SHADOWED ? 1 : 2;
-					colorBlack[3] = newColor[3];
-					RE_SetColor( colorBlack );
-					Text_PaintChar( x + ofs, y - yadj + ofs, useScale, glyph );
-					RE_SetColor( newColor );
-					colorBlack[3] = 1.0;
-				}
-                Text_PaintChar( x, y - yadj, useScale, glyph );
 
-				x += ( glyph->xSkip * useScale ) + adjust;
-				s++;
-				count++;
-			}
-		}
-		RE_SetColor( NULL );
-	}
+    const char *s = text;
+    RE_SetColor( color );
+    vec4_t newColor;
+    memcpy( &newColor[0], &color[0], sizeof( vec4_t ) );
+    size_t len = strnlen( text, 1024);
+    if ( limit > 0 && len > limit ) {
+        len = limit;
+    }
+    int count = 0;
+    while ( s && *s && count < len ) {
+        
+        if ( Q_IsColorString( s ) ) {
+            memcpy( newColor, g_color_table[ColorIndex( *( s + 1 ) )], sizeof( newColor ) );
+            newColor[3] = color[3];
+            RE_SetColor( newColor );
+            s += 2;
+        } else {
+            glyphInfo_t *glyph = &fnt->glyphs[*s];
+            float yadj = useScale * glyph->top;
+            if ( style == ITEM_TEXTSTYLE_SHADOWED || style == ITEM_TEXTSTYLE_SHADOWEDMORE ) {
+                int ofs = style == ITEM_TEXTSTYLE_SHADOWED ? 1 : 2;
+                colorBlack[3] = newColor[3];
+                RE_SetColor( colorBlack );
+                Text_PaintChar( x + ofs, y - yadj + ofs, useScale, glyph );
+                RE_SetColor( newColor );
+                colorBlack[3] = 1.0;
+            }
+            Text_PaintChar( x, y - yadj, useScale, glyph );
+
+            x += ( glyph->xSkip * useScale ) + adjust;
+            s++;
+            count++;
+        }
+    }
 }
 
 void Text_PaintWithCursor( float x, float y, int font, float scale, vec4_t color, const char *text, int cursorPos, char cursor, int limit, int style )
 {
+    if (!text){
+        return;
+    }
     fontInfo_t *fnt = getTextFont(font, scale);
 	float useScale = scale * fnt->glyphScale;
-	if ( text ) {
-		const char *s = text;
-		RE_SetColor( color );
-        vec4_t newColor;
-		memcpy( &newColor[0], &color[0], sizeof( vec4_t ) );
-        size_t len = strnlen( text, 1024);
-		if ( limit > 0 && len > limit ) {
-			len = limit;
-		}
-		int count = 0;
-        glyphInfo_t *glyph2 = &fnt->glyphs[(unsigned char)cursor];
-		while ( s && *s && count < len ) {
-            glyphInfo_t *glyph = &fnt->glyphs[*s];
-			if ( Q_IsColorString( s ) ) {
-				memcpy( newColor, g_color_table[ColorIndex( *( s + 1 ) )], sizeof( newColor ) );
-				newColor[3] = color[3];
-				RE_SetColor( newColor );
-				s += 2;
-				continue;
-			} else {
-				float yadj = useScale * glyph->top;
-				if ( style == ITEM_TEXTSTYLE_SHADOWED || style == ITEM_TEXTSTYLE_SHADOWEDMORE ) {
-					int ofs = style == ITEM_TEXTSTYLE_SHADOWED ? 1 : 2;
-					colorBlack[3] = newColor[3];
-					RE_SetColor( colorBlack );
-                    Text_PaintChar( x + ofs, y - yadj + ofs, useScale, glyph );
-					colorBlack[3] = 1.0;
-					RE_SetColor( newColor );
-				}
-                Text_PaintChar( x, y - yadj, useScale, glyph );
-				yadj = useScale * glyph2->top;
-				if ( count == cursorPos && !( ( uiInfo.uiDC.realTime / BLINK_DIVISOR ) & 1 ) ) {
-                    Text_PaintChar( x, y - yadj, useScale, glyph2 );
-				}
 
-				x += ( glyph->xSkip * useScale );
-				s++;
-				count++;
-			}
-		}
-		// need to paint cursor at end of text
-		if ( cursorPos == len && !( ( uiInfo.uiDC.realTime / BLINK_DIVISOR ) & 1 ) ) {
-			float yadj = useScale * glyph2->top;
-            Text_PaintChar( x, y - yadj, useScale, glyph2 );
-		}
+    const char *s = text;
+    RE_SetColor( color );
+    vec4_t newColor;
+    memcpy( &newColor[0], &color[0], sizeof( vec4_t ) );
+    size_t len = strnlen( text, 1024);
+    if ( limit > 0 && len > limit ) {
+        len = limit;
+    }
+    int count = 0;
+    glyphInfo_t *cursorGlyph = &fnt->glyphs[(unsigned char)cursor];
+    while ( s && *s && count < len ) {
+        glyphInfo_t *glyph = &fnt->glyphs[*s];
+        if ( Q_IsColorString( s ) ) {
+            memcpy( newColor, g_color_table[ColorIndex( *( s + 1 ) )], sizeof( newColor ) );
+            newColor[3] = color[3];
+            RE_SetColor( newColor );
+            s += 2;
+        } else {
+            float yadj = useScale * glyph->top;
+            if ( style == ITEM_TEXTSTYLE_SHADOWED || style == ITEM_TEXTSTYLE_SHADOWEDMORE ) {
+                int ofs = style == ITEM_TEXTSTYLE_SHADOWED ? 1 : 2;
+                colorBlack[3] = newColor[3];
+                RE_SetColor( colorBlack );
+                Text_PaintChar( x + ofs, y - yadj + ofs, useScale, glyph );
+                colorBlack[3] = 1.0;
+                RE_SetColor( newColor );
+            }
+            Text_PaintChar( x, y - yadj, useScale, glyph );
+            
+            if ( count == cursorPos && !( ( uiInfo.uiDC.realTime / BLINK_DIVISOR ) & 1 ) ) {
+                yadj = useScale * cursorGlyph->top;
+                Text_PaintChar( x, y - yadj, useScale, cursorGlyph );
+            }
 
-		RE_SetColor( NULL );
-	}
+            x += ( glyph->xSkip * useScale );
+            s++;
+            count++;
+        }
+    }
+    
+    // need to paint cursor at end of text
+    if ( cursorPos == len && !( ( uiInfo.uiDC.realTime / BLINK_DIVISOR ) & 1 ) ) {
+        float yadj = useScale * cursorGlyph->top;
+        Text_PaintChar( x, y - yadj, useScale, cursorGlyph );
+    }
+	
 }
 
 
@@ -521,10 +516,8 @@ qboolean Asset_Parse( int handle ) {
 }
 
 
-void UI_ParseMenu( const char *menuFile, qboolean isHud  ) {
-
-	pc_token_t token;
-
+void UI_ParseMenu( const char *menuFile, qboolean isHud  )
+{
 	Com_Printf( "Parsing menu file:%s\n", menuFile );
 
 	int handle = trap_PC_LoadSource( menuFile );
@@ -533,6 +526,7 @@ void UI_ParseMenu( const char *menuFile, qboolean isHud  ) {
 	}
 
 	while ( 1 ) {
+        pc_token_t token;
 		memset( &token, 0, sizeof( pc_token_t ) );
 		if ( !PC_ReadTokenHandle( handle, &token ) ) {
 			break;
@@ -558,7 +552,8 @@ void UI_ParseMenu( const char *menuFile, qboolean isHud  ) {
 	trap_PC_FreeSource( handle );
 }
 
-qboolean Load_Menu( int handle, qboolean isHud ) {
+qboolean Load_Menu( int handle, qboolean isHud )
+{
 	pc_token_t token;
 
 	if ( !PC_ReadTokenHandle( handle, &token ) ) {
@@ -568,33 +563,19 @@ qboolean Load_Menu( int handle, qboolean isHud ) {
 		return qfalse;
 	}
 
-	while ( 1 ) {
-
-		if ( !PC_ReadTokenHandle( handle, &token ) ) {
-			return qfalse;
-		}
-
-		if ( token.string[0] == 0 ) {
-			return qfalse;
-		}
-
+	while ( PC_ReadTokenHandle( handle, &token ) && token.string[0] != 0) {
 		if ( token.string[0] == '}' ) {
 			return qtrue;
 		}
-
 		UI_ParseMenu( token.string, isHud );
 	}
 	return qfalse;
 }
 
-void LoadMenus( const char *menuFile, qboolean reset, qboolean isHud ) {
-	pc_token_t token;
-	int handle;
-	int start;
-
-	start = Sys_Milliseconds();
-
-	handle = trap_PC_LoadSource( menuFile );
+void LoadMenus( const char *menuFile, qboolean reset, qboolean isHud )
+{
+	int start = Sys_Milliseconds();
+	int handle = trap_PC_LoadSource( menuFile );
 	if ( !handle ) {
         Com_Error( ERR_DROP, S_COLOR_YELLOW "menu file not found: %s, using default\n", menuFile );
 		if ( !handle ) {
@@ -608,18 +589,15 @@ void LoadMenus( const char *menuFile, qboolean reset, qboolean isHud ) {
 		Menu_Reset(isHud);
 	}
 
-	while ( 1 ) {
-		if ( !PC_ReadTokenHandle( handle, &token ) ) {
-			break;
-		}
+    pc_token_t token;
+	while ( PC_ReadTokenHandle( handle, &token ) ) {
+        
 		if ( token.string[0] == 0 || token.string[0] == '}' ) {
 			break;
 		}
 
 		if ( Q_stricmp( token.string, "loadmenu" ) == 0 ) {
-			if ( Load_Menu( handle, isHud ) ) {
-				continue;
-			} else {
+			if ( !Load_Menu( handle, isHud ) ) {
 				break;
 			}
 		}
@@ -653,6 +631,7 @@ static void UI_LoadTranslationStrings( void )
 	}
 	if ( len >= MAX_BUFFER ) {
 		Com_Error( ERR_DROP, "%s is too big, make it smaller (max = %i bytes)\n", filename, MAX_BUFFER );
+        return;
 	}
 
 	// load the file into memory
@@ -1097,7 +1076,7 @@ static void UI_DrawGLInfo( rectDef_t *rect, int font, float scale, vec4_t color,
 
 	Text_Paint( rect->x + 2, rect->y, font, scale, color, va( "VENDOR: %s", uiInfo.uiDC.glconfig.vendor_string ), 0, 30, textStyle );
 	Text_Paint( rect->x + 2, rect->y + 15, font, scale, color, va( "VERSION: %s: %s", uiInfo.uiDC.glconfig.version_string,uiInfo.uiDC.glconfig.renderer_string ), 0, 30, textStyle );
-	Text_Paint( rect->x + 2, rect->y + 30, font, scale, color, va( "PIXELFORMAT: color(%d-bits) Z(%d-bits) stencil(%d-bits)", uiInfo.uiDC.glconfig.colorBits, uiInfo.uiDC.glconfig.depthBits, uiInfo.uiDC.glconfig.stencilBits ), 0, 30, textStyle );
+	Text_Paint( rect->x + 2, rect->y + 60, font, scale, color, va( "PIXELFORMAT: color(%d-bits) Z(%d-bits) stencil(%d-bits)", uiInfo.uiDC.glconfig.colorBits, uiInfo.uiDC.glconfig.depthBits, uiInfo.uiDC.glconfig.stencilBits ), 0, 30, textStyle );
 
 	// build null terminated extension strings
     char buff[4096];
@@ -1111,7 +1090,7 @@ static void UI_DrawGLInfo( rectDef_t *rect, int font, float scale, vec4_t color,
             *eptr++ = '\0';
         }
 		// track start of valid string
-		if ( *eptr && *eptr != ' ' ) {
+		if ( *eptr ) {
 			lines[numLines++] = eptr;
 		}
 
@@ -1135,7 +1114,8 @@ static void UI_DrawGLInfo( rectDef_t *rect, int font, float scale, vec4_t color,
 	}
 }
 
-void UI_OwnerDraw( float x, float y, float w, float h, float text_x, float text_y, int ownerDraw, int ownerDrawFlags, int align, float special, int font, float scale, vec4_t color, qhandle_t shader, int textStyle ) {
+void UI_OwnerDraw( float x, float y, float w, float h, float text_x, float text_y, int ownerDraw, int ownerDrawFlags, int align, float special, int font, float scale, vec4_t color, qhandle_t shader, int textStyle )
+{
 	rectDef_t rect;
 
 	rect.x = x + text_x;
@@ -1145,22 +1125,18 @@ void UI_OwnerDraw( float x, float y, float w, float h, float text_x, float text_
 
 	switch ( ownerDraw ) {
 
-	case UI_SAVEGAME_SHOT:  // (SA)
+	case UI_SAVEGAME_SHOT:
 		UI_DrawSaveGameShot( &rect, scale, color );
 		break;
-
-	
 	case UI_STARTMAPCINEMATIC:
 		UI_DrawPregameCinematic( &rect, scale, color );
 		break;
 	case UI_PREVIEWCINEMATIC:
 		UI_DrawPreviewCinematic( &rect, scale, color );
 		break;
-
 	case UI_MAPPREVIEW:
 		UI_DrawMapPreview( &rect, scale, color, qtrue );
 		break;
-
 	case UI_SAVEGAMENAME:
 		UI_DrawSavegameName( &rect, font, scale, color, textStyle );
 		break;
@@ -1172,22 +1148,18 @@ void UI_OwnerDraw( float x, float y, float w, float h, float text_x, float text_
 	case UI_LOADSTATUSBAR:
 		UI_DrawLoadStatus( &rect, color, align );
 		break;
-
 	case UI_MAPCINEMATIC:
 		UI_DrawMapCinematic( &rect, scale, color, qfalse );
 		break;
-	
 	case UI_CROSSHAIR:
 		UI_DrawCrosshair( &rect, scale, color );
 		break;
-	
 	case UI_GLINFO:
 		UI_DrawGLInfo( &rect, font, scale, color, textStyle );
 		break;
 	case UI_KEYBINDSTATUS:
 		UI_DrawKeyBindStatus( &rect, font, scale, color, textStyle );
 		break;
-
 	default:
         CG_OwnerDraw(x, y, w, h,  text_x,  text_y,  ownerDraw,  ownerDrawFlags,  align,  special,  font,  scale,  color,  shader,  textStyle);
 		break;
@@ -1196,114 +1168,7 @@ void UI_OwnerDraw( float x, float y, float w, float h, float text_x, float text_
 
 static qboolean UI_OwnerDrawVisible( int flags )
 {
-	qboolean vis = qtrue;
-
-	while ( flags ) {
-
-		if ( flags & UI_SHOW_FFA ) {
-			if ( Cvar_VariableValue( "g_gametype" ) != GT_FFA ) {
-				vis = qfalse;
-			}
-			flags &= ~UI_SHOW_FFA;
-		}
-
-		if ( flags & UI_SHOW_NOTFFA ) {
-			if ( Cvar_VariableValue( "g_gametype" ) == GT_FFA ) {
-				vis = qfalse;
-			}
-			flags &= ~UI_SHOW_NOTFFA;
-		}
-
-		if ( flags & UI_SHOW_LEADER ) {
-			// these need to show when this client can give orders to a player or a group
-			if ( !uiInfo.teamLeader ) {
-				vis = qfalse;
-			} else {
-				// if showing yourself
-				if ( ui_selectedPlayer.integer < uiInfo.myTeamCount && uiInfo.teamClientNums[ui_selectedPlayer.integer] == uiInfo.playerNumber ) {
-					vis = qfalse;
-				}
-			}
-			flags &= ~UI_SHOW_LEADER;
-		}
-		if ( flags & UI_SHOW_NOTLEADER ) {
-			// these need to show when this client is assigning their own status or they are NOT the leader
-			if ( uiInfo.teamLeader ) {
-				// if not showing yourself
-				if ( !( ui_selectedPlayer.integer < uiInfo.myTeamCount && uiInfo.teamClientNums[ui_selectedPlayer.integer] == uiInfo.playerNumber ) ) {
-					vis = qfalse;
-				}
-			}
-			flags &= ~UI_SHOW_NOTLEADER;
-		}
-		if ( flags & UI_SHOW_FAVORITESERVERS ) {
-			// this assumes you only put this type of display flag on something showing in the proper context
-			if ( ui_netSource.integer != AS_FAVORITES ) {
-				vis = qfalse;
-			}
-			flags &= ~UI_SHOW_FAVORITESERVERS;
-		}
-		if ( flags & UI_SHOW_NOTFAVORITESERVERS ) {
-			// this assumes you only put this type of display flag on something showing in the proper context
-			if ( ui_netSource.integer == AS_FAVORITES ) {
-				vis = qfalse;
-			}
-			flags &= ~UI_SHOW_NOTFAVORITESERVERS;
-		}
-		if ( flags & UI_SHOW_ANYTEAMGAME ) {
-			if ( uiInfo.gameTypes[ui_gameType.integer].gtEnum <= GT_TEAM ) {
-				vis = qfalse;
-			}
-			flags &= ~UI_SHOW_ANYTEAMGAME;
-		}
-		if ( flags & UI_SHOW_ANYNONTEAMGAME ) {
-			if ( uiInfo.gameTypes[ui_gameType.integer].gtEnum > GT_TEAM ) {
-				vis = qfalse;
-			}
-			flags &= ~UI_SHOW_ANYNONTEAMGAME;
-		}
-		if ( flags & UI_SHOW_NETANYTEAMGAME ) {
-			if ( uiInfo.gameTypes[ui_netGameType.integer].gtEnum <= GT_TEAM ) {
-				vis = qfalse;
-			}
-			flags &= ~UI_SHOW_NETANYTEAMGAME;
-		}
-		if ( flags & UI_SHOW_NETANYNONTEAMGAME ) {
-			if ( uiInfo.gameTypes[ui_netGameType.integer].gtEnum > GT_TEAM ) {
-				vis = qfalse;
-			}
-			flags &= ~UI_SHOW_NETANYNONTEAMGAME;
-		}
-		if ( flags & UI_SHOW_NEWHIGHSCORE ) {
-			if ( uiInfo.newHighScoreTime < uiInfo.uiDC.realTime ) {
-				vis = qfalse;
-			} else {
-				if ( uiInfo.soundHighScore ) {
-					if ( Cvar_VariableValue( "sv_killserver" ) == 0 ) {
-						// wait on server to go down before playing sound
-						S_StartLocalSound( uiInfo.newHighScoreSound, CHAN_ANNOUNCER );
-						uiInfo.soundHighScore = qfalse;
-					}
-				}
-			}
-			flags &= ~UI_SHOW_NEWHIGHSCORE;
-		}
-		if ( flags & UI_SHOW_NEWBESTTIME ) {
-			if ( uiInfo.newBestTime < uiInfo.uiDC.realTime ) {
-				vis = qfalse;
-			}
-			flags &= ~UI_SHOW_NEWBESTTIME;
-		}
-		if ( flags & UI_SHOW_DEMOAVAILABLE ) {
-			if ( !uiInfo.demoAvailable ) {
-				vis = qfalse;
-			}
-			flags &= ~UI_SHOW_DEMOAVAILABLE;
-		} else {
-			flags = 0;
-		}
-	}
-	return vis;
+	return qtrue;
 }
 
 static qboolean UI_SavegameName_HandleKey( int flags, float *special, int key )
@@ -1677,77 +1542,6 @@ static void UI_LoadSavegames( char *dir ) {
 	}
 }
 
-
-/*
-===============
-UI_LoadMovies
-===============
-*/
-static void UI_LoadMovies()
-{
-	char movielist[4096];
-
-	uiInfo.movieCount = FS_GetFileList( "video", "roq", movielist, 4096 );
-
-	if ( uiInfo.movieCount ) {
-		if ( uiInfo.movieCount > MAX_MOVIES ) {
-			uiInfo.movieCount = MAX_MOVIES;
-		}
-		char* moviename = movielist;
-        int remaining = 4096;
-		for (int i = 0; i < uiInfo.movieCount; i++ ) {
-            size_t len = strnlen( moviename, remaining );
-			if ( !Q_stricmp( moviename +  len - 4,".roq" ) ) {
-				moviename[len - 4] = '\0';
-			}
-			Q_strupr( moviename );
-			uiInfo.movieList[i] = String_Alloc( moviename );
-			moviename += len + 1;
-            remaining -= (len + 1);
-		}
-	}
-
-}
-
-
-
-/*
-===============
-UI_LoadDemos
-===============
-*/
-static void UI_LoadDemos()
-{
-	char demolist[4096];
-	char demoExt[32];
-
-
-	snprintf( demoExt, sizeof( demoExt ), "dm_%d", (int)Cvar_VariableValue( "protocol" ) );
-
-	uiInfo.demoCount = FS_GetFileList( "demos", demoExt, demolist, 4096 );
-
-	snprintf( demoExt, sizeof( demoExt ), ".dm_%d", (int)Cvar_VariableValue( "protocol" ) );
-
-	if ( uiInfo.demoCount ) {
-		if ( uiInfo.demoCount > MAX_DEMOS ) {
-			uiInfo.demoCount = MAX_DEMOS;
-		}
-		char* demoname = demolist;
-        int remaining = 4096;
-		for (int i = 0; i < uiInfo.demoCount; i++ ) {
-			size_t len = strnlen( demoname, remaining );
-			if ( !Q_stricmp( demoname +  len - strnlen( demoExt, 32 ), demoExt ) ) {
-				demoname[len - strnlen( demoExt, 32 )] = '\0';
-			}
-			Q_strupr( demoname );
-			uiInfo.demoList[i] = String_Alloc( demoname );
-			demoname += len + 1;
-            remaining -= (len + 1);
-		}
-	}
-
-}
-
 /*
 ==============
 UI_Update
@@ -1879,19 +1673,14 @@ static void UI_Update( const char *name ) {
 			Cvar_SetValue( "m_pitch", -0.022f );
 		}
 
-//----(SA)	added
 	} else if ( Q_stricmp( name, "ui_savegameListAutosave" ) == 0 ) {
 		if ( val == 0 ) {
 			UI_LoadSavegames( NULL );
 		} else {
-			// TODO: get this from a cvar, so more complicated
-			// directory structures can be set up later if desired
-//			cvar = getcvar("ui_savegameSubdir");
-//			UI_LoadSavegames(cvar.value);
+
 			UI_LoadSavegames( "autosave" );    // get from default directory 'main/save/autosave/*.svg'
 		}
 	}
-//----(SA)	end
 
 }
 
@@ -1909,13 +1698,13 @@ static void UI_RunMenuScript( char **args ) {
 	if ( String_Parse( args, &name ) ) {
 		if ( Q_stricmp( name, "resetDefaults" ) == 0 ) {
 
-			Cbuf_ExecuteText( EXEC_NOW, "cvar_restart\n" );            // NERVE - SMF - changed order
+			Cbuf_ExecuteText( EXEC_NOW, "cvar_restart\n" );
 			Cbuf_ExecuteText( EXEC_NOW, "exec default.cfg\n" );
-			Cbuf_ExecuteText( EXEC_NOW, "exec language.cfg\n" );       // NERVE - SMF
-			Cbuf_ExecuteText( EXEC_NOW, "setRecommended\n" );     // NERVE - SMF
+			Cbuf_ExecuteText( EXEC_NOW, "exec language.cfg\n" );
+			Cbuf_ExecuteText( EXEC_NOW, "setRecommended\n" );
 			Controls_SetDefaults();
 			Cvar_Set( "com_introPlayed", "1" );
-			Cvar_Set( "com_recommendedSet", "1" );                   // NERVE - SMF
+			Cvar_Set( "com_recommendedSet", "1" );
 			Cbuf_ExecuteText( EXEC_APPEND, "vid_restart\n" );
 
 		} else if ( Q_stricmp( name, "saveControls" ) == 0 ) {
@@ -1924,20 +1713,6 @@ static void UI_RunMenuScript( char **args ) {
 			Controls_GetConfig();
 		} else if ( Q_stricmp( name, "clearError" ) == 0 ) {
 			Cvar_Set( "com_errorMessage", "" );
-			//#ifdef MISSIONPACK			// NERVE - SMF - enabled for multiplayer
-		
-		
-		} else if ( Q_stricmp( name, "RunSPDemo" ) == 0 ) {
-			if ( uiInfo.demoAvailable ) {
-				Cbuf_ExecuteText( EXEC_APPEND, va( "demo %s_%i", uiInfo.mapList[ui_currentMap.integer].mapLoadName, uiInfo.gameTypes[ui_gameType.integer].gtEnum ) );
-			}
-			//#endif	// #ifdef MISSIONPACK`
-		} else if ( Q_stricmp( name, "LoadDemos" ) == 0 ) {
-			UI_LoadDemos();
-		} else if ( Q_stricmp( name, "LoadMovies" ) == 0 ) {
-			UI_LoadMovies();
-
-			//----(SA)	added
 		} else if ( Q_stricmp( name, "LoadSaveGames" ) == 0 ) {  // get the list
 			UI_LoadSavegames( NULL );
 		} else if ( Q_stricmp( name, "Loadgame" ) == 0 ) {
@@ -1945,7 +1720,7 @@ static void UI_RunMenuScript( char **args ) {
 			Cbuf_ExecuteText( EXEC_APPEND, va( "loadgame %s\n", uiInfo.savegameList[i].savegameFile ) );
 			// save.  throw dialog box if file exists
 		} else if ( Q_stricmp( name, "Savegame" ) == 0 ) {
-			int i;
+
 			char name[MAX_NAME_LENGTH];
 
 			name[0] = '\0';
@@ -1955,6 +1730,7 @@ static void UI_RunMenuScript( char **args ) {
 				Menus_OpenByName( "save_name_popmenu" );
 			} else {
 				// find out if there's an existing savegame with that name
+                int i=0;
 				for ( i = 0; i < uiInfo.savegameCount; i++ ) {
 					if ( Q_stricmp( name, uiInfo.savegameList[uiInfo.savegameStatus.displaySavegames[i]].savegameName ) == 0 ) {
 						Menus_OpenByName( "save_overwrite_popmenu" );
@@ -1988,23 +1764,10 @@ static void UI_RunMenuScript( char **args ) {
 				// make sure we sort again
 				UI_SavegameSort( sortColumn, qtrue );
 			}
-			//----(SA)	end
-
-			//----(SA)	added
 		} else if ( Q_stricmp( name, "playerstart" ) == 0 ) {
 			Cbuf_ExecuteText( EXEC_APPEND, "fade 0 0 0 0 3\n" );    // fade screen up
 			Cvar_Set( "g_playerstart", "1" );                 // set cvar which will trigger "playerstart" in script
 			Menus_CloseAll();
-			//----(SA)	end
-
-		} else if ( Q_stricmp( name, "playMovie" ) == 0 ) {
-			if ( uiInfo.previewMovie >= 0 ) {
-				trap_CIN_StopCinematic( uiInfo.previewMovie );
-			}
-			Cbuf_ExecuteText( EXEC_APPEND, va( "cinematic %s.roq 2\n", uiInfo.movieList[uiInfo.movieIndex] ) );
-		
-		} else if ( Q_stricmp( name, "RunDemo" ) == 0 ) {
-			Cbuf_ExecuteText( EXEC_APPEND, va( "demo %s\n", uiInfo.demoList[uiInfo.demoIndex] ) );
 		} else if ( Q_stricmp( name, "Quit" ) == 0 ) {
 			Cvar_Set( "ui_singlePlayerActive", "0" );
 			Cbuf_ExecuteText( EXEC_NOW, "quit" );
@@ -2164,9 +1927,6 @@ UI_FeederItemText
 */
 static const char *UI_FeederItemText( float feederID, int index, int column, qhandle_t *handle )
 {
-	static int lastSaveColumn = -1;
-	static int lastSaveTime = 0;
-    
 	*handle = -1;
 	if ( feederID == FEEDER_CINEMATICS ) {
 		if ( index >= 0 && index < uiInfo.movieCount ) {
@@ -2174,11 +1934,6 @@ static const char *UI_FeederItemText( float feederID, int index, int column, qha
 		}
 	} else if ( feederID == FEEDER_SAVEGAMES ) {
 		if ( index >= 0 && index < uiInfo.savegameCount ) {
-			if ( lastSaveColumn != column ) {
-				lastSaveColumn = column;
-				lastSaveTime = uiInfo.uiDC.realTime;
-			}
-
 			switch ( column ) {
 			case SORT_SAVENAME:
 				return uiInfo.savegameList[uiInfo.savegameStatus.displaySavegames[index]].savegameName;
@@ -2314,8 +2069,6 @@ uiMenuCommand_t UI_GetActiveMenu( void ) {
 
 void UI_SetActiveMenu( uiMenuCommand_t menu )
 {
-	char buf[256];
-
 	// this should be the ONLY way the menu system is brought up
 	// enusure minumum menu data is cached
 	if ( Menu_Count() > 0 ) {
@@ -2343,6 +2096,7 @@ void UI_SetActiveMenu( uiMenuCommand_t menu )
 			}
 			Menus_CloseAll();
 			Menus_ActivateByName( "main" );
+            char buf[256];
 			Cvar_VariableStringBuffer( "com_errorMessage", buf, sizeof( buf ) );
 			if ( strnlen( buf, 256 ) ) {
 				Menus_ActivateByName( "error_popmenu" );
@@ -2805,7 +2559,7 @@ void UI_Init()
     uiInfo.uiDC.setColor = &UI_SetColor;
     uiInfo.uiDC.drawHandlePic = &UI_DrawHandlePic;
     uiInfo.uiDC.drawStretchPic = &trap_R_DrawStretchPic;
-    uiInfo.uiDC.drawText = &Text_Paint;
+
     uiInfo.uiDC.textWidth = &Text_Width;
     uiInfo.uiDC.textHeight = &Text_Height;
 
@@ -2823,8 +2577,6 @@ void UI_Init()
     uiInfo.uiDC.runScript = &UI_RunMenuScript;
 
     uiInfo.uiDC.setCVar = Cvar_Set;
-    uiInfo.uiDC.drawTextWithCursor = &Text_PaintWithCursor;
-
 
     uiInfo.uiDC.startLocalSound = &S_StartLocalSound;
     uiInfo.uiDC.feederCount = &UI_FeederCount;
@@ -2861,8 +2613,6 @@ void UI_Init()
     uiInfo.uiDC.whiteShader = RE_RegisterShaderNoMip( "white" );
 
     AssetCache();
-
-    int start = Sys_Milliseconds();
 
     uiInfo.teamCount = 0;
     uiInfo.characterCount = 0;

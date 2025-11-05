@@ -1469,18 +1469,14 @@ void Com_Init( char *commandLine ) {
 		Cvar_Set( "com_recommendedSet", "1" );
 	}
 
-	if ( !com_dedicated->integer ) {
-		//Cbuf_AddText ("cinematic gmlogo.RoQ\n");
-		if ( !com_introPlayed->integer ) {
-		#ifdef __MACOS__
-			extern void PlayIntroMovies( void );
-			PlayIntroMovies();
-		#endif
-			//Cvar_Set( com_introPlayed->name, "1" );		//----(SA)	force this to get played every time (but leave cvar for override)
-			Cbuf_AddText( "cinematic wolfintro.RoQ 3\n" );
-			//Cvar_Set( "nextmap", "cinematic wolfintro.RoQ" );
-		}
-	}
+
+    if ( !com_introPlayed->integer ) {
+    #ifdef __MACOS__
+        extern void PlayIntroMovies( void );
+        PlayIntroMovies();
+    #endif
+        Cbuf_AddText( "cinematic wolfintro.RoQ 3\n" );
+    }
 
 	com_fullyInitialized = qtrue;
 	Com_Printf( "--- Common Initialization Complete ---\n" );

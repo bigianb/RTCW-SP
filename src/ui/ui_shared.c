@@ -3073,7 +3073,7 @@ void Item_Text_AutoWrapped_Paint( itemDef_t *item ) {
 				ToWindowCoords( &item->textRect.x, &item->textRect.y, &item->window );
 				//
 				buff[newLine] = '\0';
-				DC->drawText( item->textRect.x, item->textRect.y, item->font, item->textscale, color, buff, 0, 0, item->textStyle );
+                Text_Paint( item->textRect.x, item->textRect.y, item->font, item->textscale, color, buff, 0, 0, item->textStyle );
 			}
 			if ( *p == '\0' ) {
 				break;
@@ -3131,12 +3131,12 @@ void Item_Text_Wrapped_Paint( itemDef_t *item ) {
 	while ( p && *p ) {
 		strncpy( buff, start, p - start + 1 );
 		buff[p - start] = '\0';
-		DC->drawText( x, y, item->font, item->textscale, color, buff, 0, 0, item->textStyle );
+        Text_Paint( x, y, item->font, item->textscale, color, buff, 0, 0, item->textStyle );
 		y += height + 5;
 		start += p - start + 1;
 		p = strchr( p + 1, '\r' );
 	}
-	DC->drawText( x, y, item->font, item->textscale, color, start, 0, 0, item->textStyle );
+    Text_Paint( x, y, item->font, item->textscale, color, start, 0, 0, item->textStyle );
 }
 
 void Item_Text_Paint( itemDef_t *item ) {
@@ -3187,7 +3187,7 @@ void Item_Text_Paint( itemDef_t *item ) {
 
 	Item_TextColor( item, &color );
 
-	DC->drawText( item->textRect.x, item->textRect.y, item->font, item->textscale, color, textPtr, 0, 0, item->textStyle );
+    Text_Paint( item->textRect.x, item->textRect.y, item->font, item->textscale, color, textPtr, 0, 0, item->textStyle );
 }
 
 void Item_TextField_Paint( itemDef_t *item ) {
@@ -3220,9 +3220,9 @@ void Item_TextField_Paint( itemDef_t *item ) {
 	offset = ( item->text && *item->text ) ? 8 : 0;
 	if ( item->window.flags & WINDOW_HASFOCUS && g_editingField ) {
 		char cursor = Key_GetOverstrikeMode() ? '_' : '|';
-		DC->drawTextWithCursor( item->textRect.x + item->textRect.w + offset, item->textRect.y, item->font, item->textscale, newColor, buff + editPtr->paintOffset, item->cursorPos - editPtr->paintOffset, cursor, editPtr->maxPaintChars, item->textStyle );
+		Text_PaintWithCursor( item->textRect.x + item->textRect.w + offset, item->textRect.y, item->font, item->textscale, newColor, buff + editPtr->paintOffset, item->cursorPos - editPtr->paintOffset, cursor, editPtr->maxPaintChars, item->textStyle );
 	} else {
-		DC->drawText( item->textRect.x + item->textRect.w + offset, item->textRect.y, item->font, item->textscale, newColor, buff + editPtr->paintOffset, 0, editPtr->maxPaintChars, item->textStyle );
+        Text_Paint( item->textRect.x + item->textRect.w + offset, item->textRect.y, item->font, item->textscale, newColor, buff + editPtr->paintOffset, 0, editPtr->maxPaintChars, item->textStyle );
 	}
 
 }
@@ -3250,9 +3250,9 @@ void Item_YesNo_Paint( itemDef_t *item ) {
 
 	if ( item->text ) {
 		Item_Text_Paint( item );
-		DC->drawText( item->textRect.x + item->textRect.w + 8, item->textRect.y, item->font, item->textscale, newColor, ( value != 0 ) ? yes_str : no_str, 0, 0, item->textStyle );
+        Text_Paint( item->textRect.x + item->textRect.w + 8, item->textRect.y, item->font, item->textscale, newColor, ( value != 0 ) ? yes_str : no_str, 0, 0, item->textStyle );
 	} else {
-		DC->drawText( item->textRect.x, item->textRect.y, item->font, item->textscale, newColor, ( value != 0 ) ? yes_str : no_str, 0, 0, item->textStyle );
+        Text_Paint( item->textRect.x, item->textRect.y, item->font, item->textscale, newColor, ( value != 0 ) ? yes_str : no_str, 0, 0, item->textStyle );
 	}
 }
 
@@ -3275,9 +3275,9 @@ void Item_Multi_Paint( itemDef_t *item ) {
 
 	if ( item->text ) {
 		Item_Text_Paint( item );
-		DC->drawText( item->textRect.x + item->textRect.w + 8, item->textRect.y, item->font, item->textscale, newColor, text, 0, 0, item->textStyle );
+        Text_Paint( item->textRect.x + item->textRect.w + 8, item->textRect.y, item->font, item->textscale, newColor, text, 0, 0, item->textStyle );
 	} else {
-		DC->drawText( item->textRect.x, item->textRect.y, item->font, item->textscale, newColor, text, 0, 0, item->textStyle );
+        Text_Paint( item->textRect.x, item->textRect.y, item->font, item->textscale, newColor, text, 0, 0, item->textStyle );
 	}
 }
 
@@ -3623,9 +3623,9 @@ void Item_Bind_Paint( itemDef_t *item ) {
 	if ( item->text ) {
 		Item_Text_Paint( item );
 		BindingFromName( item->cvar );
-		DC->drawText( item->textRect.x + item->textRect.w + 8, item->textRect.y, item->font, item->textscale, newColor, g_nameBind1, 0, maxChars, item->textStyle );
+        Text_Paint( item->textRect.x + item->textRect.w + 8, item->textRect.y, item->font, item->textscale, newColor, g_nameBind1, 0, maxChars, item->textStyle );
 	} else {
-		DC->drawText( item->textRect.x, item->textRect.y, item->font, item->textscale, newColor, ( value != 0 ) ? "FIXME" : "FIXME", 0, maxChars, item->textStyle );
+        Text_Paint( item->textRect.x, item->textRect.y, item->font, item->textscale, newColor, ( value != 0 ) ? "FIXME" : "FIXME", 0, maxChars, item->textStyle );
 	}
 }
 
@@ -3985,7 +3985,7 @@ void Item_ListBox_Paint( itemDef_t *item ) {
 						if ( optionalImage >= 0 ) {
 							DC->drawHandlePic( x + 4 + listPtr->columnInfo[j].pos, y - 1 + listPtr->elementHeight / 2, listPtr->columnInfo[j].width, listPtr->columnInfo[j].width, optionalImage );
 						} else if ( text ) {
-							DC->drawText( x + 4 + listPtr->columnInfo[j].pos, y + listPtr->elementHeight, item->font, item->textscale, item->window.foreColor, text, 0, listPtr->columnInfo[j].maxChars, item->textStyle );
+                            Text_Paint( x + 4 + listPtr->columnInfo[j].pos, y + listPtr->elementHeight, item->font, item->textscale, item->window.foreColor, text, 0, listPtr->columnInfo[j].maxChars, item->textStyle );
 						}
 					}
 				} else {
@@ -3993,7 +3993,7 @@ void Item_ListBox_Paint( itemDef_t *item ) {
 					if ( optionalImage >= 0 ) {
 						//DC->drawHandlePic(x + 4 + listPtr->elementHeight, y, listPtr->columnInfo[j].width, listPtr->columnInfo[j].width, optionalImage);
 					} else if ( text ) {
-						DC->drawText( x + 4, y + listPtr->elementHeight, item->font, item->textscale, item->window.foreColor, text, 0, 0, item->textStyle );
+                        Text_Paint( x + 4, y + listPtr->elementHeight, item->font, item->textscale, item->window.foreColor, text, 0, 0, item->textStyle );
 					}
 				}
 
@@ -6006,7 +6006,7 @@ void Menu_PaintAll() {
 
 	if ( debugMode ) {
 		vec4_t v = {1, 1, 1, 1};
-		DC->drawText( 5, 25, 0, .5, v, va( "fps: %f", DC->FPS ), 0, 0, 0 );
+        Text_Paint( 5, 25, 0, .5, v, va( "fps: %f", DC->FPS ), 0, 0, 0 );
 	}
 }
 

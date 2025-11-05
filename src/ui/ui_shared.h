@@ -351,7 +351,7 @@ typedef struct {
 	void ( *setColor )( const vec4_t v );
 	void ( *drawHandlePic )( float x, float y, float w, float h, qhandle_t asset );
 	void ( *drawStretchPic )( float x, float y, float w, float h, float s1, float t1, float s2, float t2, qhandle_t hShader );
-	void ( *drawText )( float x, float y, int font, float scale, vec4_t color, const char *text, float adjust, int limit, int style );
+
 	int ( *textWidth )( const char *text, int font, float scale, int limit );
 	int ( *textHeight )( const char *text, int font, float scale, int limit );
 
@@ -371,7 +371,6 @@ typedef struct {
 
 
 	void ( *setCVar )( const char *cvar, const char *value );
-	void ( *drawTextWithCursor )( float x, float y, int font, float scale, vec4_t color, const char *text, int cursorPos, char cursor, int limit, int style );
 
 	void ( *startLocalSound )( sfxHandle_t sfx, int channelNum );
 	int ( *feederCount )( float feederID );
