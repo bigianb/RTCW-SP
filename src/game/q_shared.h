@@ -33,16 +33,9 @@ If you have questions concerning this license or the applicable additional terms
 // A user mod should never modify this file
 
 #define Q3_VERSION      "Wolf 1.41"
-// ver 1.0.0	- release
-// ver 1.0.1	- post-release work
-// ver 1.1.0	- patch 1 (12/12/01)
-// ver 1.1b		- TTimo SP linux release (+ MP update)
-// ver 1.2.b5	- Mac code merge in
-// ver 1.3		- patch 2 (02/13/02)
 
 #define NEW_ANIMS
 #define MAX_TEAMNAME    32
-
 
 #include <assert.h>
 #include <math.h>
@@ -1124,110 +1117,6 @@ typedef struct usercmd_s {
 // if entityState->solid == SOLID_BMODEL, modelindex is an inline model number
 #define SOLID_BMODEL    0xffffff
 
-typedef enum {
-	TR_STATIONARY,
-	TR_INTERPOLATE,             // non-parametric, but interpolate between snapshots
-	TR_LINEAR,
-	TR_LINEAR_STOP,
-	TR_LINEAR_STOP_BACK,        //----(SA)	added.  so reverse movement can be different than forward
-	TR_SINE,                    // value = base + sin( time / duration ) * delta
-	TR_GRAVITY,
-	// Ridah
-	TR_GRAVITY_LOW,
-	TR_GRAVITY_FLOAT,           // super low grav with no gravity acceleration (floating feathers/fabric/leaves/...)
-	TR_GRAVITY_PAUSED,          //----(SA)	has stopped, but will still do a short trace to see if it should be switched back to TR_GRAVITY
-	TR_ACCELERATE,
-	TR_DECCELERATE
-} trType_t;
-
-typedef struct {
-	trType_t trType;
-	int trTime;
-	int trDuration;             // if non 0, trTime + trDuration = stop time
-//----(SA)	removed
-	vec3_t trBase;
-	vec3_t trDelta;             // velocity, etc
-//----(SA)	removed
-} trajectory_t;
-
-// RF, put this here so we have a central means of defining a Zombie (kind of a hack, but this is to minimize bandwidth usage)
-#define SET_FLAMING_ZOMBIE( x,y ) ( x.frame = y )
-#define IS_FLAMING_ZOMBIE( x )    ( x.frame == 1 )
-
-// entityState_t is the information conveyed from the server
-// in an update message about entities that the client will
-// need to render in some way
-// Different eTypes may use the information in different ways
-// The messages are delta compressed, so it doesn't really matter if
-// the structure size is fairly large
-//
-// NOTE: all fields in here must be 32 bits (or those within sub-structures)
-
-typedef struct entityState_s {
-	int number;             // entity index
-	int eType;              // entityType_t
-	int eFlags;
-
-	trajectory_t pos;       // for calculating position
-	trajectory_t apos;      // for calculating angles
-
-	int time;
-	int time2;
-
-	vec3_t origin;
-	vec3_t origin2;
-
-	vec3_t angles;
-	vec3_t angles2;
-
-	int otherEntityNum;     // shotgun sources, etc
-	int otherEntityNum2;
-
-	int groundEntityNum;        // -1 = in air
-
-	int constantLight;      // r + (g<<8) + (b<<16) + (intensity<<24)
-	int dl_intensity;       // used for coronas
-	int loopSound;          // constantly loop this sound
-
-	int modelindex;
-	int modelindex2;
-	int clientNum;          // 0 to (MAX_CLIENTS - 1), for players and corpses
-	int frame;
-
-	int solid;              // for client side prediction, trap_linkentity sets this properly
-
-	// old style events, in for compatibility only
-	int event;
-	int eventParm;
-
-	int eventSequence;      // pmove generated events
-	int events[MAX_EVENTS];
-	int eventParms[MAX_EVENTS];
-
-	// for players
-	int powerups;           // bit flags
-	int weapon;             // determines weapon and flash model, etc
-	int legsAnim;           // mask off ANIM_TOGGLEBIT
-	int torsoAnim;          // mask off ANIM_TOGGLEBIT
-//	int		weapAnim;		// mask off ANIM_TOGGLEBIT	//----(SA)	removed (weap anims will be client-side only)
-
-	int density;            // for particle effects
-
-	int dmgFlags;           // to pass along additional information for damage effects for players/ Also used for cursorhints for non-player entities
-
-	// Ridah
-	int onFireStart, onFireEnd;
-
-	int aiChar, teamNum;
-
-	int effect1Time, effect2Time, effect3Time;
-
-	aistateEnum_t aiState;
-
-	int animMovetype;       // clients can't derive movetype of other clients for anim scripting system
-
-
-} entityState_t;
 
 typedef enum {
 	CA_UNINITIALIZED,
@@ -1337,5 +1226,7 @@ typedef enum {
 	LANGUAGE_SPANISH,
 	MAX_LANGUAGES
 } languages_t;
+
+#include "../qcommon/entity_state.h"
 
 #endif  // __Q_SHARED_H

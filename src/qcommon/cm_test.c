@@ -35,16 +35,14 @@ CM_PointLeafnum_r
 
 ==================
 */
-int CM_PointLeafnum_r( const vec3_t p, int num ) {
-	float d;
-	cNode_t     *node;
-	cplane_t    *plane;
-
+int CM_PointLeafnum_r( const vec3_t p, int num )
+{
 	while ( num >= 0 )
 	{
-		node = cm.nodes + num;
-		plane = node->plane;
+		cNode_t     *node = cm.nodes + num;
+		cplane_t    *plane = node->plane;
 
+		float d;
 		if ( plane->type < 3 ) {
 			d = p[plane->type] - plane->dist;
 		} else {
@@ -62,13 +60,13 @@ int CM_PointLeafnum_r( const vec3_t p, int num ) {
 	return -1 - num;
 }
 
-int CM_PointLeafnum( const vec3_t p ) {
+int CM_PointLeafnum( const vec3_t p )
+{
 	if ( !cm.numNodes ) {   // map not loaded
 		return 0;
 	}
 	return CM_PointLeafnum_r( p, 0 );
 }
-
 
 /*
 ======================================================================
@@ -77,12 +75,9 @@ LEAF LISTING
 
 ======================================================================
 */
-
-
-void CM_StoreLeafs( leafList_t *ll, int nodenum ) {
-	int leafNum;
-
-	leafNum = -1 - nodenum;
+void CM_StoreLeafs( leafList_t *ll, int nodenum )
+{
+	int leafNum = -1 - nodenum;
 
 	// store the lastLeaf even if the list is overflowed
 	if ( cm.leafs[ leafNum ].cluster != -1 ) {
@@ -96,27 +91,22 @@ void CM_StoreLeafs( leafList_t *ll, int nodenum ) {
 	ll->list[ ll->count++ ] = leafNum;
 }
 
-void CM_StoreBrushes( leafList_t *ll, int nodenum ) {
-	int i, k;
-	int leafnum;
-	int brushnum;
-	cLeaf_t     *leaf;
-	cbrush_t    *b;
+void CM_StoreBrushes( leafList_t *ll, int nodenum )
+{
+	int leafnum = -1 - nodenum;
+	cLeaf_t *leaf = &cm.leafs[leafnum];
 
-	leafnum = -1 - nodenum;
-
-	leaf = &cm.leafs[leafnum];
-
-	for ( k = 0 ; k < leaf->numLeafBrushes ; k++ ) {
-		brushnum = leaf->firstLeafBrush + k;
+	for (int k = 0 ; k < leaf->numLeafBrushes ; k++ ) {
+		int brushnum = leaf->firstLeafBrush + k;
 		if (leaf->fromSubmodel == 0){
 			brushnum = cm.leafbrushes[brushnum];
 		}
-		b = &cm.brushes[brushnum];
+		cbrush_t *b = &cm.brushes[brushnum];
 		if ( b->checkcount == cm.checkcount ) {
 			continue;   // already checked this brush in another leaf
 		}
 		b->checkcount = cm.checkcount;
+		int i;
 		for ( i = 0 ; i < 3 ; i++ ) {
 			if ( b->bounds[0][i] >= ll->bounds[1][i] || b->bounds[1][i] <= ll->bounds[0][i] ) {
 				break;
@@ -131,7 +121,6 @@ void CM_StoreBrushes( leafList_t *ll, int nodenum ) {
 		}
 		( (cbrush_t **)ll->list )[ ll->count++ ] = b;
 	}
-
 }
 
 /*
@@ -164,7 +153,6 @@ void CM_BoxLeafnums_r( leafList_t *ll, int nodenum ) {
 			CM_BoxLeafnums_r( ll, node->children[0] );
 			nodenum = node->children[1];
 		}
-
 	}
 }
 

@@ -2844,6 +2844,7 @@ void Menu_HandleKey( menuDef_t *menu, int key, qboolean down ) {
 	// default handling
 	switch ( key ) {
 
+	case K_F10:
 	case K_F11:
 		if ( Cvar_VariableValue( "developer" ) ) {
 			debugMode ^= 1;

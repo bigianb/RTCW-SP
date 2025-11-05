@@ -1247,7 +1247,6 @@ CG_ScanForCrosshairEntity
 */
 static void CG_ScanForCrosshairEntity( void ) {
 	trace_t trace;
-//	gentity_t	*traceEnt;
 	vec3_t start, end;
 	int content;
 

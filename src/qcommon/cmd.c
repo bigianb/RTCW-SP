@@ -37,7 +37,7 @@ If you have questions concerning this license or the applicable additional terms
 typedef struct {
 	byte    *data;
 	int maxsize;
-	int cmdsize;        //DAJ renamed from cursize
+	int cmdsize;
 } cmd_t;
 
 int cmd_wait;
@@ -92,9 +92,7 @@ Adds command text at the end of the buffer, does NOT add a final \n
 ============
 */
 void Cbuf_AddText( const char *text ) {
-	int l;
-
-	l = strlen( text );
+	size_t l = strnlen( text, 256 );
 
 	if ( cmd_text.cmdsize + l >= cmd_text.maxsize ) {
 		Com_Printf( "Cbuf_AddText: overflow\n" );
@@ -113,18 +111,16 @@ Adds command text immediately after the current command
 Adds a \n to the text
 ============
 */
-void Cbuf_InsertText( const char *text ) {
-	int len;
-	int i;
-
-	len = strlen( text ) + 1;
+void Cbuf_InsertText( const char *text )
+{
+	size_t len = strnlen( text, 256 ) + 1;
 	if ( len + cmd_text.cmdsize > cmd_text.maxsize ) {
 		Com_Printf( "Cbuf_InsertText overflowed\n" );
 		return;
 	}
 
 	// move the existing command text
-	for ( i = cmd_text.cmdsize - 1 ; i >= 0 ; i-- ) {
+	for (int i = cmd_text.cmdsize - 1 ; i >= 0 ; i-- ) {
 		cmd_text.data[ i + len ] = cmd_text.data[ i ];
 	}
 
@@ -169,11 +165,9 @@ void Cbuf_ExecuteText( int exec_when, const char *text ) {
 Cbuf_Execute
 ============
 */
-void Cbuf_Execute( void ) {
-	int i;
-	char    *text;
+void Cbuf_Execute()
+{
 	char line[MAX_CMD_LINE];
-	int quotes;
 
 	while ( cmd_text.cmdsize )
 	{
@@ -185,10 +179,11 @@ void Cbuf_Execute( void ) {
 		}
 
 		// find a \n or ; line break
-		text = (char *)cmd_text.data;
+		char* text = (char *)cmd_text.data;
 
-		quotes = 0;
-		for ( i = 0 ; i < cmd_text.cmdsize ; i++ )
+		int quotes = 0;
+		int i;
+		for (int i = 0 ; i < cmd_text.cmdsize ; i++ )
 		{
 			if ( text[i] == '"' ) {
 				quotes++;
@@ -214,14 +209,11 @@ void Cbuf_Execute( void ) {
 
 		if ( i == cmd_text.cmdsize ) {
 			cmd_text.cmdsize = 0;
-		} else
-		{
+		} else {
 			i++;
 			cmd_text.cmdsize -= i;
 			memmove( text, text + i, cmd_text.cmdsize );
 		}
-
-// execute the command line
 
 		Cmd_ExecuteString( line );
 	}
@@ -244,7 +236,6 @@ Cmd_Exec_f
 */
 void Cmd_Exec_f( void ) {
 	char    *f;
-	int len;
 	char filename[MAX_QPATH];
 
 	if ( Cmd_Argc() != 2 ) {
@@ -254,7 +245,7 @@ void Cmd_Exec_f( void ) {
 
 	Q_strncpyz( filename, Cmd_Argv( 1 ), sizeof( filename ) );
 	COM_DefaultExtension( filename, sizeof( filename ), ".cfg" );
-	len = FS_ReadFile( filename, (void **)&f );
+	size_t len = FS_ReadFile( filename, (void **)&f );
 	if ( !f ) {
 		Com_Printf( "couldn't exec %s\n",Cmd_Argv( 1 ) );
 		return;
@@ -274,15 +265,14 @@ Cmd_Vstr_f
 Inserts the current value of a variable as command text
 ===============
 */
-void Cmd_Vstr_f( void ) {
-	char    *v;
-
+void Cmd_Vstr_f()
+{
 	if ( Cmd_Argc() != 2 ) {
 		Com_Printf( "vstr <variablename> : execute a variable command\n" );
 		return;
 	}
 
-	v = Cvar_VariableString( Cmd_Argv( 1 ) );
+	char* v = Cvar_VariableString( Cmd_Argv( 1 ) );
 	Cbuf_InsertText( va( "%s\n", v ) );
 }
 
@@ -294,11 +284,11 @@ Cmd_Echo_f
 Just prints the rest of the line to the console
 ===============
 */
-void Cmd_Echo_f( void ) {
-	int i;
-
-	for ( i = 1 ; i < Cmd_Argc() ; i++ )
+void Cmd_Echo_f()
+{
+	for (int i = 1 ; i < Cmd_Argc() ; i++ ){
 		Com_Printf( "%s ",Cmd_Argv( i ) );
+	}
 	Com_Printf( "\n" );
 }
 
@@ -366,12 +356,12 @@ Cmd_Args
 Returns a single string containing argv(1) to argv(argc()-1)
 ============
 */
-char    *Cmd_Args( void ) {
+char    *Cmd_Args()
+{
 	static char cmd_args[MAX_STRING_CHARS];
-	int i;
 
 	cmd_args[0] = 0;
-	for ( i = 1 ; i < cmd_argc ; i++ ) {
+	for (int i = 1 ; i < cmd_argc ; i++ ) {
 		strcat( cmd_args, cmd_argv[i] );
 		if ( i != cmd_argc - 1 ) {
 			strcat( cmd_args, " " );
@@ -388,15 +378,15 @@ Cmd_Args
 Returns a single string containing argv(arg) to argv(argc()-1)
 ============
 */
-char *Cmd_ArgsFrom( int arg ) {
+char *Cmd_ArgsFrom( int arg )
+{
 	static char cmd_args[BIG_INFO_STRING];
-	int i;
 
 	cmd_args[0] = 0;
 	if ( arg < 0 ) {
 		arg = 0;
 	}
-	for ( i = arg ; i < cmd_argc ; i++ ) {
+	for (int i = arg ; i < cmd_argc ; i++ ) {
 		strcat( cmd_args, cmd_argv[i] );
 		if ( i != cmd_argc - 1 ) {
 			strcat( cmd_args, " " );
@@ -429,10 +419,8 @@ are inserted in the apropriate place, The argv array
 will point into this temporary buffer.
 ============
 */
-void Cmd_TokenizeString( const char *text_in ) {
-	const char  *text;
-	char    *textOut;
-
+void Cmd_TokenizeString( const char *text_in )
+{
 	// clear previous args
 	cmd_argc = 0;
 
@@ -440,8 +428,8 @@ void Cmd_TokenizeString( const char *text_in ) {
 		return;
 	}
 
-	text = text_in;
-	textOut = cmd_tokenized;
+	const char* text = text_in;
+	char* textOut = cmd_tokenized;
 
 	while ( 1 ) {
 		if ( cmd_argc == MAX_STRING_TOKENS ) {
@@ -660,19 +648,17 @@ void    Cmd_ExecuteString( const char *text ) {
 Cmd_List_f
 ============
 */
-void Cmd_List_f( void ) {
-	cmd_function_t  *cmd;
-	int i;
+void Cmd_List_f()
+{
 	char            *match;
-
 	if ( Cmd_Argc() > 1 ) {
 		match = Cmd_Argv( 1 );
 	} else {
 		match = NULL;
 	}
 
-	i = 0;
-	for ( cmd = cmd_functions ; cmd ; cmd = cmd->next ) {
+	int i = 0;
+	for (cmd_function_t  * cmd = cmd_functions ; cmd ; cmd = cmd->next ) {
 		if ( match && !Com_Filter( match, cmd->name, qfalse ) ) {
 			continue;
 		}

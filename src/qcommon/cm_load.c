@@ -173,17 +173,13 @@ CMod_LoadNodes
 
 =================
 */
-void CMod_LoadNodes( lump_t *l ) {
-	dnode_t     *in;
-	int child;
-	cNode_t     *out;
-	int i, j, count;
-
-	in = ( void * )( cmod_base + l->fileofs );
+void CMod_LoadNodes( lump_t *l )
+{
+	dnode_t *in = ( void * )( cmod_base + l->fileofs );
 	if ( l->filelen % sizeof( *in ) ) {
 		Com_Error( ERR_DROP, "MOD_LoadBmodel: funny lump size" );
 	}
-	count = l->filelen / sizeof( *in );
+	int count = l->filelen / sizeof( *in );
 
 	if ( count < 1 ) {
 		Com_Error( ERR_DROP, "Map has no nodes" );
@@ -191,18 +187,17 @@ void CMod_LoadNodes( lump_t *l ) {
 	cm.nodes = Hunk_Alloc( count * sizeof( *cm.nodes ), h_high );
 	cm.numNodes = count;
 
-	out = cm.nodes;
+	cNode_t *out = cm.nodes;
 
-	for ( i = 0 ; i < count ; i++, out++, in++ )
+	for (int i = 0 ; i < count ; i++, out++, in++ )
 	{
 		out->plane = cm.planes + LittleLong( in->planeNum );
-		for ( j = 0 ; j < 2 ; j++ )
+		for (int j = 0 ; j < 2 ; j++ )
 		{
-			child = LittleLong( in->children[j] );
+			int child = LittleLong( in->children[j] );
 			out->children[j] = child;
 		}
 	}
-
 }
 
 /*

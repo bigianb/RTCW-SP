@@ -291,8 +291,6 @@ SV_AddEntitiesVisibleFromPoint
 ===============
 */
 static void SV_AddEntitiesVisibleFromPoint( vec3_t origin, clientSnapshot_t *frame,
-//									snapshotEntityNumbers_t *eNums, qboolean portal, clientSnapshot_t *oldframe, qboolean localClient ) {
-//									snapshotEntityNumbers_t *eNums, qboolean portal ) {
 											snapshotEntityNumbers_t *eNums, qboolean portal, qboolean localClient  ) {
 	int e, i;
 	sharedEntity_t *ent, *playerEnt;
