@@ -731,7 +731,7 @@ void Window_Paint( Window *w, float fadeAmount, float fadeClamp, float fadeCycle
 	} else if ( w->border == WINDOW_BORDER_VERT ) {
 		// left right
 		DC->setColor( w->borderColor );
-		DC->drawSides( w->rect.x, w->rect.y, w->rect.w, w->rect.h, w->borderSize );
+        UI_DrawSides( w->rect.x, w->rect.y, w->rect.w, w->rect.h, w->borderSize );
 		DC->setColor( NULL );
 	} else if ( w->border == WINDOW_BORDER_KCGRADIENT ) {
 		// this is just two gradient bars along each horz edge

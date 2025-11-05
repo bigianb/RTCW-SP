@@ -26,6 +26,8 @@ If you have questions concerning this license or the applicable additional terms
 ===========================================================================
 */
 
+#include <string.h>
+
 #include "ui_local.h"
 #include "../cgame/cg_local.h"
 #include "../client/client.h"
@@ -153,7 +155,7 @@ int Text_Width( const char *text, int font, float scale, int limit )
 	float useScale = scale * fnt->glyphScale;
 	float out = 0;
 	if ( text ) {
-		size_t len = strlen( text );
+		size_t len = strnlen( text, 1024);
 		if ( limit > 0 && len > limit ) {
 			len = limit;
 		}
@@ -181,7 +183,7 @@ int Text_Height( const char *text, int font, float scale, int limit )
 	float useScale = scale * fnt->glyphScale;
 	float max = 0;
 	if ( text ) {
-		size_t len = strlen( text );
+        size_t len = strnlen( text, 1024);
 		if ( limit > 0 && len > limit ) {
 			len = limit;
 		}
@@ -224,7 +226,7 @@ void Text_Paint( float x, float y, int font, float scale, vec4_t color, const ch
 		RE_SetColor( color );
         vec4_t newColor;
 		memcpy( &newColor[0], &color[0], sizeof( vec4_t ) );
-		int len = strlen( text );
+        size_t len = strnlen( text, 1024);
 		if ( limit > 0 && len > limit ) {
 			len = limit;
 		}
@@ -267,7 +269,7 @@ void Text_PaintWithCursor( float x, float y, int font, float scale, vec4_t color
 		RE_SetColor( color );
         vec4_t newColor;
 		memcpy( &newColor[0], &color[0], sizeof( vec4_t ) );
-		size_t len = strlen( text );
+        size_t len = strnlen( text, 1024);
 		if ( limit > 0 && len > limit ) {
 			len = limit;
 		}
@@ -640,8 +642,6 @@ UI_LoadTranslationStrings
 #define MAX_BUFFER          20000
 static void UI_LoadTranslationStrings( void )
 {
-	
-
 	char filename[MAX_QPATH];
 	fileHandle_t f;
 
@@ -651,7 +651,7 @@ static void UI_LoadTranslationStrings( void )
 		Com_Printf( S_COLOR_RED "WARNING: string translation file (strings.txt not found in main/text)\n" );
 		return;
 	}
-	if ( len > MAX_BUFFER ) {
+	if ( len >= MAX_BUFFER ) {
 		Com_Error( ERR_DROP, "%s is too big, make it smaller (max = %i bytes)\n", filename, MAX_BUFFER );
 	}
 
@@ -670,7 +670,7 @@ static void UI_LoadTranslationStrings( void )
 		if ( !token[0] ) {
 			break;
 		}
-		translateStrings[i].localname = malloc( strlen( token ) + 1 );
+		translateStrings[i].localname = malloc( strnlen( token, 1024 ) + 1 );
 		strcpy( translateStrings[i].localname, token );
 	}
 }
@@ -715,11 +715,10 @@ UI_SavegameIndexFromName
 	sorted index in feeder
 ==============
 */
-static int UI_SavegameIndexFromName( const char *name ) {
-	int i;
+static int UI_SavegameIndexFromName( const char *name )
+{
 	if ( name && *name ) {
-		for ( i = 0; i < uiInfo.savegameCount; i++ ) {
-//			if (Q_stricmp(name, uiInfo.savegameList[i].savegameName) == 0) {
+		for (int i = 0; i < uiInfo.savegameCount; i++ ) {
 			if ( Q_stricmp( name, uiInfo.savegameList[uiInfo.savegameStatus.displaySavegames[i]].savegameName ) == 0 ) {
 				return i;
 			}
@@ -734,10 +733,9 @@ UI_SavegameIndexFromName2
 	return the index in t
 ==============
 */
-static int UI_SavegameIndexFromName2( const char *name ) {
-	int index;
-	index = UI_SavegameIndexFromName( name );
-
+static int UI_SavegameIndexFromName2( const char *name )
+{
+	int index = UI_SavegameIndexFromName( name );
 	return uiInfo.savegameStatus.displaySavegames[index];
 }
 
@@ -752,7 +750,7 @@ static void UI_DrawSaveGameShot( rectDef_t *rect, float scale, vec4_t color )
 
 	RE_SetColor( color );
 
-	if ( !strlen( ui_savegameName.string ) || ui_savegameName.string[0] == '0' ) {
+	if ( !strnlen( ui_savegameName.string, 256 ) || ui_savegameName.string[0] == '0' ) {
 		image = RE_RegisterShaderNoMip( "menu/art/unknownmap" );
 	} else {
 		int i = UI_SavegameIndexFromName2( ui_savegameName.string );
@@ -1109,9 +1107,9 @@ static void UI_DrawGLInfo( rectDef_t *rect, int font, float scale, vec4_t color,
 	int numLines = 0;
 	while ( y < rect->y + rect->h && *eptr )
 	{
-		while ( *eptr && *eptr == ' ' )
-			*eptr++ = '\0';
-
+        while (*eptr == ' ' ){
+            *eptr++ = '\0';
+        }
 		// track start of valid string
 		if ( *eptr && *eptr != ' ' ) {
 			lines[numLines++] = eptr;
@@ -1386,30 +1384,27 @@ static float UI_GetValue( int ownerDraw, int type ) {
 UI_SavegamesQsortCompare
 ==============
 */
-static int  UI_SavegamesQsortCompare( const void *arg1, const void *arg2 ) {
-	int *ea, *eb, ret;
-
-	savegameInfo *sg, *sg2;
-	int i, j;
-
-	ea = (int *)arg1;
-	eb = (int *)arg2;
+static int  UI_SavegamesQsortCompare( const void *arg1, const void *arg2 )
+{
+	int *ea = (int *)arg1;
+	int *eb = (int *)arg2;
 
 	if ( *ea == *eb ) {
 		return 0;
 	}
 
-	sg = &uiInfo.savegameList[*eb];
-	sg2 = &uiInfo.savegameList[*ea];
+    savegameInfo *sg = &uiInfo.savegameList[*eb];
+    savegameInfo *sg2 = &uiInfo.savegameList[*ea];
 
+    int ret = 0;
 	if ( uiInfo.savegameStatus.sortKey == SORT_SAVENAME ) {
 		ret = Q_stricmp( &sg->savegameName[0], &sg2->savegameName[0] );
 
 	} else if ( uiInfo.savegameStatus.sortKey == SORT_SAVETIME ) {
 
 // (SA) better way to do this?  (i was adding up seconds, but that seems slower than a bunch of comparisons)
-		i = sg->tm.tm_year;
-		j = sg2->tm.tm_year;
+		int i = sg->tm.tm_year;
+		int j = sg2->tm.tm_year;
 		if ( i < j ) {
 			ret = -1;
 		} else if ( i > j ) {
@@ -1459,9 +1454,8 @@ static int  UI_SavegamesQsortCompare( const void *arg1, const void *arg2 ) {
 }
 
 static void UI_FeederSelection( float feederID, int index );
-void UI_SavegameSort( int column, qboolean force ) {
-	int cursel;
-
+void UI_SavegameSort( int column, qboolean force )
+{
 	if ( !force ) {
 		if ( uiInfo.savegameStatus.sortKey == column ) {
 			return;
@@ -1473,7 +1467,7 @@ void UI_SavegameSort( int column, qboolean force ) {
 		qsort( &uiInfo.savegameStatus.displaySavegames[0], uiInfo.savegameCount, sizeof( int ), UI_SavegamesQsortCompare );
 
 		// re-select the one that was selected before sorting
-		cursel = UI_SavegameIndexFromName( ui_savegameName.string );
+		int cursel = UI_SavegameIndexFromName( ui_savegameName.string );
         UI_FeederSelection( FEEDER_SAVEGAMES, cursel );
 		Menu_SetFeederSelection( NULL, FEEDER_SAVEGAMES, cursel, NULL );
 
@@ -1486,27 +1480,23 @@ void UI_SavegameSort( int column, qboolean force ) {
 	}
 
 }
-//----(SA)	end
-
 
 /*
 ==============
 UI_DelSavegame
 ==============
 */
-static void UI_DelSavegame() {
-	int ret, i;
+static void UI_DelSavegame()
+{
+	int i = UI_SavegameIndexFromName2( ui_savegameName.string );
 
-	i = UI_SavegameIndexFromName2( ui_savegameName.string );
-
-	ret = FS_Delete( va( "save/%s.svg", uiInfo.savegameList[i].savegameFile ) );
+	int ret = FS_Delete( va( "save/%s.svg", uiInfo.savegameList[i].savegameFile ) );
 
 	if ( ret ) {
 		Com_Printf( "Deleted savegame: %s.svg\n", uiInfo.savegameList[i].savegameName );
 	} else {
 		Com_Printf( "Unable to delete savegame: %s.svg\n", uiInfo.savegameList[i].savegameName );
 	}
-
 
 	UI_SavegameSort( uiInfo.savegameStatus.sortKey, qtrue );  // re-sort
 }
@@ -1531,20 +1521,17 @@ static char *monthStr[12] =
 UI_ParseSavegame
 ==============
 */
-void UI_ParseSavegame( int index ) {
-	fileHandle_t f;
-	qtime_t         *tm;
-	int i, ver;
-	static char buf[SAVE_INFOSTRING_LENGTH];
-	char mapname[MAX_QPATH];
-
+void UI_ParseSavegame( int index )
+{
+    fileHandle_t f;
 	FS_FOpenFileByMode( va( "save/%s.svg", uiInfo.savegameList[index].savegameFile ), &f, FS_READ );
 	if ( !f ) {
 		return;
 	}
 
 	// read the version
-	FS_Read( &ver, sizeof( i ), f );
+    int ver;
+	FS_Read( &ver, sizeof( ver ), f );
 
 
 	// 'info' if > 11
@@ -1568,10 +1555,12 @@ void UI_ParseSavegame( int index ) {
 	}
 
 	// read the mapname
+    char mapname[MAX_QPATH];
 	FS_Read( mapname, MAX_QPATH, f );
 	uiInfo.savegameList[index].mapName = String_Alloc( &mapname[0] );
 
 	// read the level time
+    int i;
 	FS_Read( &i, sizeof( i ), f );
 
 	// read the totalPlayTime
@@ -1594,13 +1583,14 @@ void UI_ParseSavegame( int index ) {
 	FS_Read( &i, sizeof( i ), f );
 
 	// read the info string
+    char buf[SAVE_INFOSTRING_LENGTH];
 	FS_Read( buf, i, f );
 	buf[i] = '\0';        //DAJ made it a char
 	uiInfo.savegameList[index].savegameInfoText = String_Alloc( buf );
 
 	// time
 	if ( ver > 14 ) {
-		tm = &uiInfo.savegameList[index].tm;
+        qtime_t* tm = &uiInfo.savegameList[index].tm;
 		FS_Read( &tm->tm_sec, sizeof( tm->tm_sec ), f );          // secs after the min
 		FS_Read( &tm->tm_min, sizeof( tm->tm_min ), f );          // mins after the hour
 		FS_Read( &tm->tm_hour, sizeof( tm->tm_hour ), f );        // hrs since midnight
@@ -1638,10 +1628,12 @@ static void UI_LoadSavegames( char *dir ) {
 			uiInfo.savegameCount = MAX_SAVEGAMES;
 		}
 		char *sgname = sglist;
+        int remaining = 4096;
 		for (int i = 0; i < uiInfo.savegameCount; i++ ) {
 
-            size_t len = strlen( sgname );
-
+            size_t len = strnlen( sgname, remaining );
+            remaining -= (len + 1);
+            
 			if ( !Q_stricmp( sgname, "current.svg" ) ) {    // ignore some savegames that have special uses and shouldn't be loaded by the user directly
 				i--;
 				uiInfo.savegameCount -= 1;
@@ -1652,7 +1644,7 @@ static void UI_LoadSavegames( char *dir ) {
 			if ( !Q_stricmp( sgname +  len - 4,".svg" ) ) {
 				sgname[len - 4] = '\0';
 			}
-//			Q_strupr(sgname);
+
 			if ( dir ) {
 				uiInfo.savegameList[i].savegameFile = String_Alloc( va( "%s/%s", dir, sgname ) );
 			} else {
@@ -1663,7 +1655,6 @@ static void UI_LoadSavegames( char *dir ) {
 
 			// get string into list for sorting too
 			uiInfo.savegameStatus.displaySavegames[i] = i;
-//			qsort( &uiInfo.savegameStatus.displaySavegames[0], uiInfo.savegameCount, sizeof(int), UI_SavegamesQsortCompare);
 
 			// read savegame and get needed info
 			UI_ParseSavegame( i );
@@ -1673,8 +1664,6 @@ static void UI_LoadSavegames( char *dir ) {
 			} else {
 				uiInfo.savegameList[i].sshotImage = RE_RegisterShaderNoMip( "levelshots/episodeshots/e_unknown.tga" );
 			}
-
-
 
 			sgname += len + 1;
 		}
@@ -1694,7 +1683,8 @@ static void UI_LoadSavegames( char *dir ) {
 UI_LoadMovies
 ===============
 */
-static void UI_LoadMovies() {
+static void UI_LoadMovies()
+{
 	char movielist[4096];
 
 	uiInfo.movieCount = FS_GetFileList( "video", "roq", movielist, 4096 );
@@ -1704,14 +1694,16 @@ static void UI_LoadMovies() {
 			uiInfo.movieCount = MAX_MOVIES;
 		}
 		char* moviename = movielist;
+        int remaining = 4096;
 		for (int i = 0; i < uiInfo.movieCount; i++ ) {
-            size_t len = strlen( moviename );
+            size_t len = strnlen( moviename, remaining );
 			if ( !Q_stricmp( moviename +  len - 4,".roq" ) ) {
 				moviename[len - 4] = '\0';
 			}
 			Q_strupr( moviename );
 			uiInfo.movieList[i] = String_Alloc( moviename );
 			moviename += len + 1;
+            remaining -= (len + 1);
 		}
 	}
 
@@ -1724,10 +1716,11 @@ static void UI_LoadMovies() {
 UI_LoadDemos
 ===============
 */
-static void UI_LoadDemos() {
+static void UI_LoadDemos()
+{
 	char demolist[4096];
 	char demoExt[32];
-	char    *demoname;
+
 
 	snprintf( demoExt, sizeof( demoExt ), "dm_%d", (int)Cvar_VariableValue( "protocol" ) );
 
@@ -1739,15 +1732,17 @@ static void UI_LoadDemos() {
 		if ( uiInfo.demoCount > MAX_DEMOS ) {
 			uiInfo.demoCount = MAX_DEMOS;
 		}
-		demoname = demolist;
+		char* demoname = demolist;
+        int remaining = 4096;
 		for (int i = 0; i < uiInfo.demoCount; i++ ) {
-			size_t len = strlen( demoname );
-			if ( !Q_stricmp( demoname +  len - strlen( demoExt ), demoExt ) ) {
-				demoname[len - strlen( demoExt )] = '\0';
+			size_t len = strnlen( demoname, remaining );
+			if ( !Q_stricmp( demoname +  len - strnlen( demoExt, 32 ), demoExt ) ) {
+				demoname[len - strnlen( demoExt, 32 )] = '\0';
 			}
 			Q_strupr( demoname );
 			uiInfo.demoList[i] = String_Alloc( demoname );
 			demoname += len + 1;
+            remaining -= (len + 1);
 		}
 	}
 
@@ -1956,7 +1951,7 @@ static void UI_RunMenuScript( char **args ) {
 			name[0] = '\0';
 			Q_strncpyz( name, UI_Cvar_VariableString( "ui_savegame" ), MAX_NAME_LENGTH );
 
-			if ( !strlen( name ) ) {
+			if ( !strnlen( name, MAX_NAME_LENGTH) ) {
 				Menus_OpenByName( "save_name_popmenu" );
 			} else {
 				// find out if there's an existing savegame with that name
@@ -1974,7 +1969,7 @@ static void UI_RunMenuScript( char **args ) {
 			}
 			// save with no confirm for overwrite
 		} else if ( Q_stricmp( name, "Savegame2" ) == 0 ) {
-			if ( !strlen( name ) ) {
+			if ( !strnlen( name, 256 ) ) {
 				Menus_OpenByName( "save_name_popmenu" );
 			} else {
 				Cbuf_ExecuteText( EXEC_APPEND, va( "savegame %s\n", UI_Cvar_VariableString( "ui_savegame" ), MAX_NAME_LENGTH ) );
@@ -2041,38 +2036,6 @@ static void UI_RunMenuScript( char **args ) {
 
 /*
 ==================
-UI_MapCountByGameType
-==================
-*/
-static int UI_MapCountByGameType( qboolean singlePlayer ) {
-	int i, c, game;
-	c = 0;
-	game = singlePlayer ? uiInfo.gameTypes[ui_gameType.integer].gtEnum : uiInfo.gameTypes[ui_netGameType.integer].gtEnum;
-	if ( game == GT_SINGLE_PLAYER ) {
-		game++;
-	}
-	if ( game == GT_TEAM ) {
-		game = GT_FFA;
-	}
-
-	for ( i = 0; i < uiInfo.mapCount; i++ ) {
-		uiInfo.mapList[i].active = qfalse;
-		if ( uiInfo.mapList[i].typeBits & ( 1 << game ) ) {
-			if ( singlePlayer ) {
-				if ( !( uiInfo.mapList[i].typeBits & ( 1 << GT_SINGLE_PLAYER ) ) ) {
-					continue;
-				}
-			}
-			c++;
-			uiInfo.mapList[i].active = qtrue;
-		}
-	}
-	return c;
-}
-
-
-/*
-==================
 stristr
 ==================
 */
@@ -2094,45 +2057,6 @@ static char *stristr( char *str, char *charset ) {
 }
 
 
-static const char *UI_SelectedMap( int index, int *actual ) {
-	int i, c;
-	c = 0;
-	*actual = 0;
-	for ( i = 0; i < uiInfo.mapCount; i++ ) {
-		if ( uiInfo.mapList[i].active ) {
-			if ( c == index ) {
-				*actual = i;
-				return uiInfo.mapList[i].mapName;
-			} else {
-				c++;
-			}
-		}
-	}
-	return "";
-}
-
-static int UI_GetIndexFromSelection( int actual ) {
-	int i, c;
-	c = 0;
-	for ( i = 0; i < uiInfo.mapCount; i++ ) {
-		if ( uiInfo.mapList[i].active ) {
-			if ( i == actual ) {
-				return c;
-			}
-			c++;
-		}
-	}
-	return 0;
-}
-
-static void UI_UpdatePendingPings() {
-	//#ifdef MISSIONPACK			// NERVE - SMF - enabled for multiplayer
-	LAN_ResetPings( ui_netSource.integer );
-	uiInfo.serverStatus.refreshActive = qtrue;
-	uiInfo.serverStatus.refreshtime = uiInfo.uiDC.realTime + 1000;
-	//#endif	// #ifdef MISSIONPACK
-}
-
 // NERVE - SMF
 static void UI_FeederAddItem( float feederID, const char *name, int index ) {
 
@@ -2145,12 +2069,13 @@ static void UI_FeederAddItem( float feederID, const char *name, int index ) {
 UI_FileText
 ==============
 */
-static const char *UI_FileText( char *fileName ) {
-	int len;
+static const char *UI_FileText( char *fileName )
+{
+
 	fileHandle_t f;
 	static char buf[MAX_MENUDEFFILE];
 
-	len = FS_FOpenFileByMode( fileName, &f, FS_READ );
+	int len = FS_FOpenFileByMode( fileName, &f, FS_READ );
 	if ( !f ) {
 		return NULL;
 	}
@@ -2167,18 +2092,17 @@ static const char *UI_FileText( char *fileName ) {
 UI_translateString
 ==============
 */
-static const char *UI_translateString( const char *inString ) {
-	int i, numStrings;
+static const char *UI_translateString( const char *inString )
+{
+	int numStrings = sizeof( translateStrings ) / sizeof( translateStrings[0] ) - 1;
 
-	numStrings = sizeof( translateStrings ) / sizeof( translateStrings[0] ) - 1;
-
-	for ( i = 0; i < numStrings; i++ ) {
-		if ( !translateStrings[i].name || !strlen( translateStrings[i].name ) ) {
+	for (int i = 0; i < numStrings; i++ ) {
+		if ( !translateStrings[i].name || !strnlen( translateStrings[i].name, 1024 ) ) {
 			return inString;
 		}
 
 		if ( !strcmp( inString, translateStrings[i].name ) ) {
-			if ( translateStrings[i].localname && strlen( translateStrings[i].localname ) ) {
+			if ( translateStrings[i].localname && strnlen( translateStrings[i].localname, 1024 ) ) {
 				return translateStrings[i].localname;
 			}
 			break;
@@ -2238,28 +2162,18 @@ static int UI_FeederCount( float feederID ) {
 UI_FeederItemText
 ==============
 */
-static const char *UI_FeederItemText( float feederID, int index, int column, qhandle_t *handle ) {
-	static char info[MAX_STRING_CHARS];
-	static char hostname[1024];
-	static char clientBuff[32];
-	static int lastServerColumn = -1, lastSaveColumn = -1;
-	static int lastServerTime = 0, lastSaveTime = 0;
+static const char *UI_FeederItemText( float feederID, int index, int column, qhandle_t *handle )
+{
+	static int lastSaveColumn = -1;
+	static int lastSaveTime = 0;
+    
 	*handle = -1;
-	if ( feederID == FEEDER_MODS ) {
-		if ( index >= 0 && index < uiInfo.modCount ) {
-			if ( uiInfo.modList[index].modDescr && *uiInfo.modList[index].modDescr ) {
-				return uiInfo.modList[index].modDescr;
-			} else {
-				return uiInfo.modList[index].modName;
-			}
-		}
-	} else if ( feederID == FEEDER_CINEMATICS ) {
+	if ( feederID == FEEDER_CINEMATICS ) {
 		if ( index >= 0 && index < uiInfo.movieCount ) {
 			return uiInfo.movieList[index];
 		}
 	} else if ( feederID == FEEDER_SAVEGAMES ) {
 		if ( index >= 0 && index < uiInfo.savegameCount ) {
-//			int ping, game;
 			if ( lastSaveColumn != column ) {
 				lastSaveColumn = column;
 				lastSaveTime = uiInfo.uiDC.realTime;
@@ -2430,7 +2344,7 @@ void UI_SetActiveMenu( uiMenuCommand_t menu )
 			Menus_CloseAll();
 			Menus_ActivateByName( "main" );
 			Cvar_VariableStringBuffer( "com_errorMessage", buf, sizeof( buf ) );
-			if ( strlen( buf ) ) {
+			if ( strnlen( buf, 256 ) ) {
 				Menus_ActivateByName( "error_popmenu" );
 			}
 			// ensure sound is there for the menu
@@ -2527,11 +2441,11 @@ static char lastLoadingText[MAX_INFO_VALUE];
 static void UI_ReadableSize( char *buf, int bufsize, int value ) {
 	if ( value > 1024 * 1024 * 1024 ) { // gigs
 		snprintf( buf, bufsize, "%d", value / ( 1024 * 1024 * 1024 ) );
-		snprintf( buf + strlen( buf ), bufsize - strlen( buf ), ".%02d GB",
+		snprintf( buf + strnlen( buf, bufsize ), bufsize - strnlen( buf, bufsize ), ".%02d GB",
 					 ( value % ( 1024 * 1024 * 1024 ) ) * 100 / ( 1024 * 1024 * 1024 ) );
 	} else if ( value > 1024 * 1024 ) { // megs
 		snprintf( buf, bufsize, "%d", value / ( 1024 * 1024 ) );
-		snprintf( buf + strlen( buf ), bufsize - strlen( buf ), ".%02d MB",
+		snprintf( buf + strnlen( buf, bufsize ), bufsize - strnlen( buf, bufsize ), ".%02d MB",
 					 ( value % ( 1024 * 1024 ) ) * 100 / ( 1024 * 1024 ) );
 	} else if ( value > 1024 ) { // kilos
 		snprintf( buf, bufsize, "%d KB", value / 1024 );
@@ -2898,10 +2812,9 @@ void UI_Init()
     uiInfo.uiDC.modelBounds = &trap_R_ModelBounds;
     uiInfo.uiDC.fillRect = &UI_FillRect;
     uiInfo.uiDC.drawRect = &UI_DrawRect;
-    uiInfo.uiDC.drawSides = &UI_DrawSides;
+
     uiInfo.uiDC.drawTopBottom = &UI_DrawTopBottom;
     uiInfo.uiDC.clearScene = &trap_R_ClearScene;
-    uiInfo.uiDC.drawSides = &UI_DrawSides;
     uiInfo.uiDC.addRefEntityToScene = &trap_R_AddRefEntityToScene;
     uiInfo.uiDC.renderScene = &trap_R_RenderScene;
     uiInfo.uiDC.registerFont = &trap_R_RegisterFont;

@@ -377,7 +377,7 @@ int             UI_AdjustTimeByGame( int time );
 //
 extern void MainMenu_Cache( void );
 extern void UI_MainMenu( void );
-
+void UI_DrawSides( float x, float y, float w, float h, float size );
 
 //
 // ui_credits.c

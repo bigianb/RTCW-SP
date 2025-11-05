@@ -358,7 +358,7 @@ typedef struct {
 	void ( *modelBounds )( qhandle_t model, vec3_t min, vec3_t max );
 	void ( *fillRect )( float x, float y, float w, float h, const vec4_t color );
 	void ( *drawRect )( float x, float y, float w, float h, float size, const vec4_t color );
-	void ( *drawSides )( float x, float y, float w, float h, float size );
+
 	void ( *drawTopBottom )( float x, float y, float w, float h, float size );
 	void ( *clearScene )();
 	void ( *addRefEntityToScene )( const refEntity_t *re );
