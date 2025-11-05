@@ -271,21 +271,6 @@ const char *String_Alloc( const char *p ) {
 	return NULL;
 }
 
-void String_Report() {
-	float f;
-	Com_Printf( "Memory/String Pool Info\n" );
-	Com_Printf( "----------------\n" );
-	f = strPoolIndex;
-	f /= STRING_POOL_SIZE;
-	f *= 100;
-	Com_Printf( "String Pool is %.1f%% full, %i bytes out of %i used.\n", f, strPoolIndex, STRING_POOL_SIZE );
-	f = allocPoint;
-	f /= MEM_POOL_SIZE;
-	f *= 100;
-	Com_Printf( "Memory Pool is %.1f%% full, %i bytes out of %i used.\n", f, allocPoint, MEM_POOL_SIZE );
-}
-
-
 /*
 =================
 String_Init
@@ -6132,14 +6117,6 @@ static void Menu_CacheContents( menuDef_t *menu ) {
 	}
 
 }
-
-void Display_CacheAll() {
-	int i;
-	for ( i = 0; i < menuCount; i++ ) {
-		Menu_CacheContents( &Menus[i] );
-	}
-}
-
 
 static qboolean Menu_OverActiveItem( menuDef_t *menu, float x, float y ) {
 	if ( menu && menu->window.flags & ( WINDOW_VISIBLE | WINDOW_FORCED ) ) {

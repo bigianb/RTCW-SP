@@ -64,12 +64,6 @@ char *UI_Cvar_VariableString( const char *var_name ) {
 	return buffer;
 }
 
-static void UI_Cache_f() {
-	Display_CacheAll();
-}
-
-static void UI_CalcPostGameStats() {
-}
 
 qboolean UI_ConsoleCommand( int realTime ) {
 	char    *cmd;
@@ -79,17 +73,6 @@ qboolean UI_ConsoleCommand( int realTime ) {
 
 	cmd = UI_Argv( 0 );
 
-	// ensure minimum menu data is available
-	//Menu_Cache();
-
-	if ( Q_stricmp( cmd, "ui_test" ) == 0 ) {
-		UI_ShowPostGame( qtrue );
-	}
-
-	if ( Q_stricmp( cmd, "ui_report" ) == 0 ) {
-		UI_Report();
-		return qtrue;
-	}
 
 	if ( Q_stricmp( cmd, "ui_load" ) == 0 ) {
 		UI_Load();
@@ -105,27 +88,6 @@ qboolean UI_ConsoleCommand( int realTime ) {
 			trap_R_RemapShader( shader1, shader2, UI_Argv( 3 ) );
 			return qtrue;
 		}
-	}
-
-	if ( Q_stricmp( cmd, "postgame" ) == 0 ) {
-		UI_CalcPostGameStats();
-		return qtrue;
-	}
-
-	if ( Q_stricmp( cmd, "ui_cache" ) == 0 ) {
-		UI_Cache_f();
-		return qtrue;
-	}
-
-	if ( Q_stricmp( cmd, "ui_teamOrders" ) == 0 ) {
-		//UI_TeamOrdersMenu_f();
-		return qtrue;
-	}
-
-
-	if ( Q_stricmp( cmd, "ui_cdkey" ) == 0 ) {
-		//UI_CDKeyMenu_f();
-		return qtrue;
 	}
 
 	return qfalse;

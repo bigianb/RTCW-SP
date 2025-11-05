@@ -34,22 +34,6 @@ If you have questions concerning this license or the applicable additional terms
 
 uiInfo_t uiInfo;
 
-static const char *MonthAbbrev[] = {
-	"Jan","Feb","Mar",
-	"Apr","May","Jun",
-	"Jul","Aug","Sep",
-	"Oct","Nov","Dec"
-};
-
-static const char *sortKeys[] = {
-	"Server Name",
-	"Map Name",
-	"Open Player Spots",
-	"Game Type",
-	"Ping Time"
-};
-static const int numSortKeys = sizeof( sortKeys ) / sizeof( const char* );
-
 static int gamecodetoui[] = {4,2,3,0,5,1,6};
 static int uitogamecode[] = {4,6,2,3,1,5,7};
 
@@ -85,9 +69,8 @@ void UI_MouseEvent( int dx, int dy );
 qboolean UI_IsFullscreen( void );
 
 
-void AssetCache() {
-	int n;
-
+void AssetCache()
+{
 	uiInfo.uiDC.Assets.gradientBar = RE_RegisterShaderNoMip( ASSET_GRADIENTBAR );
 	uiInfo.uiDC.Assets.fxBasePic = RE_RegisterShaderNoMip( ART_FX_BASE );
 	uiInfo.uiDC.Assets.fxPic[0] = RE_RegisterShaderNoMip( ART_FX_RED );
@@ -106,20 +89,22 @@ void AssetCache() {
 	uiInfo.uiDC.Assets.sliderBar = RE_RegisterShaderNoMip( ASSET_SLIDER_BAR );
 	uiInfo.uiDC.Assets.sliderThumb = RE_RegisterShaderNoMip( ASSET_SLIDER_THUMB );
 
-	for ( n = 0; n < NUM_CROSSHAIRS; n++ ) {
+	for (int n = 0; n < NUM_CROSSHAIRS; n++ ) {
 		uiInfo.uiDC.Assets.crosshairShader[n] = RE_RegisterShaderNoMip( va( "gfx/2d/crosshair%c", 'a' + n ) );
 	}
 
 }
 
-void UI_DrawSides( float x, float y, float w, float h, float size ) {
+void UI_DrawSides( float x, float y, float w, float h, float size )
+{
 	UI_AdjustFrom640( &x, &y, &w, &h );
 	size *= uiInfo.uiDC.xscale;
 	trap_R_DrawStretchPic( x, y, size, h, 0, 0, 0, 0, uiInfo.uiDC.whiteShader );
 	trap_R_DrawStretchPic( x + w - size, y, size, h, 0, 0, 0, 0, uiInfo.uiDC.whiteShader );
 }
 
-void UI_DrawTopBottom( float x, float y, float w, float h, float size ) {
+void UI_DrawTopBottom( float x, float y, float w, float h, float size )
+{
 	UI_AdjustFrom640( &x, &y, &w, &h );
 	size *= uiInfo.uiDC.yscale;
 	trap_R_DrawStretchPic( x, y, w, size, 0, 0, 0, 0, uiInfo.uiDC.whiteShader );
@@ -132,7 +117,8 @@ UI_DrawRect
 Coordinates are 640*480 virtual values
 =================
 */
-void UI_DrawRect( float x, float y, float width, float height, float size, const float *color ) {
+void UI_DrawRect( float x, float y, float width, float height, float size, const float *color )
+{
 	RE_SetColor( color );
 
 	UI_DrawTopBottom( x, y, width, height, size );
@@ -142,44 +128,45 @@ void UI_DrawRect( float x, float y, float width, float height, float size, const
 }
 
 
+static
+fontInfo_t *getTextFont(int font, float scale)
+{
+    fontInfo_t *fnt = &uiInfo.uiDC.Assets.textFont;
+    if ( font == UI_FONT_DEFAULT ) {
+        if ( scale <= ui_smallFont.value ) {
+            fnt = &uiInfo.uiDC.Assets.smallFont;
+        } else if ( scale > ui_bigFont.value ) {
+            fnt = &uiInfo.uiDC.Assets.bigFont;
+        }
+    } else if ( font == UI_FONT_BIG ) {
+        fnt = &uiInfo.uiDC.Assets.bigFont;
+    } else if ( font == UI_FONT_SMALL ) {
+        fnt = &uiInfo.uiDC.Assets.smallFont;
+    } else if ( font == UI_FONT_HANDWRITING ) {
+        fnt = &uiInfo.uiDC.Assets.handwritingFont;
+    }
+    return fnt;
+}
 
+int Text_Width( const char *text, int font, float scale, int limit )
+{
+    fontInfo_t *fnt = getTextFont(font, scale);
 
-int Text_Width( const char *text, int font, float scale, int limit ) {
-
-	float out;
-	glyphInfo_t *glyph;
-	float useScale;
-	const char *s = text;
-
-	fontInfo_t *fnt = &uiInfo.uiDC.Assets.textFont;
-	if ( font == UI_FONT_DEFAULT ) {
-		if ( scale <= ui_smallFont.value ) {
-			fnt = &uiInfo.uiDC.Assets.smallFont;
-		} else if ( scale > ui_bigFont.value ) {
-			fnt = &uiInfo.uiDC.Assets.bigFont;
-		}
-	} else if ( font == UI_FONT_BIG ) {
-		fnt = &uiInfo.uiDC.Assets.bigFont;
-	} else if ( font == UI_FONT_SMALL ) {
-		fnt = &uiInfo.uiDC.Assets.smallFont;
-	} else if ( font == UI_FONT_HANDWRITING ) {
-		fnt = &uiInfo.uiDC.Assets.handwritingFont;
-	}
-
-	useScale = scale * fnt->glyphScale;
-	out = 0;
+	float useScale = scale * fnt->glyphScale;
+	float out = 0;
 	if ( text ) {
 		size_t len = strlen( text );
 		if ( limit > 0 && len > limit ) {
 			len = limit;
 		}
 		size_t count = 0;
+        const char *s = text;
 		while ( s && *s && count < len ) {
 			if ( Q_IsColorString( s ) ) {
 				s += 2;
 				continue;
 			} else {
-				glyph = &fnt->glyphs[(unsigned char)*s];
+                glyphInfo_t *glyph = &fnt->glyphs[(unsigned char)*s];
 				out += glyph->xSkip;
 				s++;
 				count++;
@@ -189,42 +176,25 @@ int Text_Width( const char *text, int font, float scale, int limit ) {
 	return out * useScale;
 }
 
-int Text_Height( const char *text, int font, float scale, int limit ) {
-	int count;
-	float max;
-	glyphInfo_t *glyph;
-	float useScale;
-	const char *s = text;
+int Text_Height( const char *text, int font, float scale, int limit )
+{
+    fontInfo_t *fnt = getTextFont(font, scale);
 
-	fontInfo_t *fnt = &uiInfo.uiDC.Assets.textFont;
-	if ( font == UI_FONT_DEFAULT ) {
-		if ( scale <= ui_smallFont.value ) {
-			fnt = &uiInfo.uiDC.Assets.smallFont;
-		} else if ( scale > ui_bigFont.value ) {
-			fnt = &uiInfo.uiDC.Assets.bigFont;
-		}
-	} else if ( font == UI_FONT_BIG ) {
-		fnt = &uiInfo.uiDC.Assets.bigFont;
-	} else if ( font == UI_FONT_SMALL ) {
-		fnt = &uiInfo.uiDC.Assets.smallFont;
-	} else if ( font == UI_FONT_HANDWRITING ) {
-		fnt = &uiInfo.uiDC.Assets.handwritingFont;
-	}
-
-	useScale = scale * fnt->glyphScale;
-	max = 0;
+	float useScale = scale * fnt->glyphScale;
+	float max = 0;
 	if ( text ) {
 		size_t len = strlen( text );
 		if ( limit > 0 && len > limit ) {
 			len = limit;
 		}
-		count = 0;
+		int count = 0;
+        const char *s = text;
 		while ( s && *s && count < len ) {
 			if ( Q_IsColorString( s ) ) {
 				s += 2;
 				continue;
 			} else {
-				glyph = &fnt->glyphs[*s];
+                glyphInfo_t *glyph = &fnt->glyphs[*s];
 				if ( max < glyph->height ) {
 					max = glyph->height;
 				}
@@ -236,49 +206,33 @@ int Text_Height( const char *text, int font, float scale, int limit ) {
 	return max * useScale;
 }
 
-void Text_PaintChar( float x, float y, float width, float height, int font, float scale, float s, float t, float s2, float t2, qhandle_t hShader ) {
-	float w, h;
-	w = width * scale;
-	h = height * scale;
-	UI_AdjustFrom640( &x, &y, &w, &h );
-	trap_R_DrawStretchPic( x, y, w, h, s, t, s2, t2, hShader );
+void Text_PaintChar( float x, float y, float scale, glyphInfo_t *glyph )
+{
+    float width = glyph->imageWidth;
+    float height = glyph->imageHeight;
+    float w = width * scale;
+    float h = height * scale;
+    UI_AdjustFrom640( &x, &y, &w, &h );
+    trap_R_DrawStretchPic( x, y, w, h, glyph->s, glyph->t, glyph->s2, glyph->t2, glyph->glyph);
 }
 
-void Text_Paint( float x, float y, int font, float scale, vec4_t color, const char *text, float adjust, int limit, int style ) {
-	int len, count;
-	vec4_t newColor;
-	glyphInfo_t *glyph;
-	float useScale;
+void Text_Paint( float x, float y, int font, float scale, vec4_t color, const char *text, float adjust, int limit, int style )
+{
+    fontInfo_t *fnt = getTextFont(font, scale);
 
-	fontInfo_t *fnt = &uiInfo.uiDC.Assets.textFont;
-	if ( font == UI_FONT_DEFAULT ) {
-		if ( scale <= ui_smallFont.value ) {
-			fnt = &uiInfo.uiDC.Assets.smallFont;
-		} else if ( scale > ui_bigFont.value ) {
-			fnt = &uiInfo.uiDC.Assets.bigFont;
-		}
-	} else if ( font == UI_FONT_BIG ) {
-		fnt = &uiInfo.uiDC.Assets.bigFont;
-	} else if ( font == UI_FONT_SMALL ) {
-		fnt = &uiInfo.uiDC.Assets.smallFont;
-	} else if ( font == UI_FONT_HANDWRITING ) {
-		fnt = &uiInfo.uiDC.Assets.handwritingFont;
-	}
-
-	useScale = scale * fnt->glyphScale;
+	float useScale = scale * fnt->glyphScale;
 	if ( text ) {
 		const char *s = text;
 		RE_SetColor( color );
+        vec4_t newColor;
 		memcpy( &newColor[0], &color[0], sizeof( vec4_t ) );
-		len = strlen( text );
+		int len = strlen( text );
 		if ( limit > 0 && len > limit ) {
 			len = limit;
 		}
-		count = 0;
+		int count = 0;
 		while ( s && *s && count < len ) {
-			glyph = &fnt->glyphs[*s];
-			//int yadj = Assets.textFont.glyphs[text[i]].bottom + Assets.textFont.glyphs[text[i]].top;
-			//float yadj = scale * (Assets.textFont.glyphs[text[i]].imageHeight - Assets.textFont.glyphs[text[i]].height);
+            glyphInfo_t *glyph = &fnt->glyphs[*s];
 			if ( Q_IsColorString( s ) ) {
 				memcpy( newColor, g_color_table[ColorIndex( *( s + 1 ) )], sizeof( newColor ) );
 				newColor[3] = color[3];
@@ -291,29 +245,11 @@ void Text_Paint( float x, float y, int font, float scale, vec4_t color, const ch
 					int ofs = style == ITEM_TEXTSTYLE_SHADOWED ? 1 : 2;
 					colorBlack[3] = newColor[3];
 					RE_SetColor( colorBlack );
-					Text_PaintChar( x + ofs, y - yadj + ofs,
-									glyph->imageWidth,
-									glyph->imageHeight,
-									font,
-									useScale,
-									glyph->s,
-									glyph->t,
-									glyph->s2,
-									glyph->t2,
-									glyph->glyph );
+					Text_PaintChar( x + ofs, y - yadj + ofs, useScale, glyph );
 					RE_SetColor( newColor );
 					colorBlack[3] = 1.0;
 				}
-				Text_PaintChar( x, y - yadj,
-								glyph->imageWidth,
-								glyph->imageHeight,
-								font,
-								useScale,
-								glyph->s,
-								glyph->t,
-								glyph->s2,
-								glyph->t2,
-								glyph->glyph );
+                Text_PaintChar( x, y - yadj, useScale, glyph );
 
 				x += ( glyph->xSkip * useScale ) + adjust;
 				s++;
@@ -324,43 +260,23 @@ void Text_Paint( float x, float y, int font, float scale, vec4_t color, const ch
 	}
 }
 
-void Text_PaintWithCursor( float x, float y, int font, float scale, vec4_t color, const char *text, int cursorPos, char cursor, int limit, int style ) {
-	int count;
-	vec4_t newColor;
-	glyphInfo_t *glyph, *glyph2;
-	float yadj;
-	float useScale;
-
-	fontInfo_t *fnt = &uiInfo.uiDC.Assets.textFont;
-	if ( font == UI_FONT_DEFAULT ) {
-		if ( scale <= ui_smallFont.value ) {
-			fnt = &uiInfo.uiDC.Assets.smallFont;
-		} else if ( scale > ui_bigFont.value ) {
-			fnt = &uiInfo.uiDC.Assets.bigFont;
-		}
-	} else if ( font == UI_FONT_BIG ) {
-		fnt = &uiInfo.uiDC.Assets.bigFont;
-	} else if ( font == UI_FONT_SMALL ) {
-		fnt = &uiInfo.uiDC.Assets.smallFont;
-	} else if ( font == UI_FONT_HANDWRITING ) {
-		fnt = &uiInfo.uiDC.Assets.handwritingFont;
-	}
-
-	useScale = scale * fnt->glyphScale;
+void Text_PaintWithCursor( float x, float y, int font, float scale, vec4_t color, const char *text, int cursorPos, char cursor, int limit, int style )
+{
+    fontInfo_t *fnt = getTextFont(font, scale);
+	float useScale = scale * fnt->glyphScale;
 	if ( text ) {
 		const char *s = text;
 		RE_SetColor( color );
+        vec4_t newColor;
 		memcpy( &newColor[0], &color[0], sizeof( vec4_t ) );
 		size_t len = strlen( text );
 		if ( limit > 0 && len > limit ) {
 			len = limit;
 		}
-		count = 0;
-		glyph2 = &fnt->glyphs[(unsigned char)cursor];
+		int count = 0;
+        glyphInfo_t *glyph2 = &fnt->glyphs[(unsigned char)cursor];
 		while ( s && *s && count < len ) {
-			glyph = &fnt->glyphs[*s];
-			//int yadj = Assets.textFont.glyphs[text[i]].bottom + Assets.textFont.glyphs[text[i]].top;
-			//float yadj = scale * (Assets.textFont.glyphs[text[i]].imageHeight - Assets.textFont.glyphs[text[i]].height);
+            glyphInfo_t *glyph = &fnt->glyphs[*s];
 			if ( Q_IsColorString( s ) ) {
 				memcpy( newColor, g_color_table[ColorIndex( *( s + 1 ) )], sizeof( newColor ) );
 				newColor[3] = color[3];
@@ -368,48 +284,19 @@ void Text_PaintWithCursor( float x, float y, int font, float scale, vec4_t color
 				s += 2;
 				continue;
 			} else {
-				yadj = useScale * glyph->top;
+				float yadj = useScale * glyph->top;
 				if ( style == ITEM_TEXTSTYLE_SHADOWED || style == ITEM_TEXTSTYLE_SHADOWEDMORE ) {
 					int ofs = style == ITEM_TEXTSTYLE_SHADOWED ? 1 : 2;
 					colorBlack[3] = newColor[3];
 					RE_SetColor( colorBlack );
-					Text_PaintChar( x + ofs, y - yadj + ofs,
-									glyph->imageWidth,
-									glyph->imageHeight,
-									font,
-									useScale,
-									glyph->s,
-									glyph->t,
-									glyph->s2,
-									glyph->t2,
-									glyph->glyph );
+                    Text_PaintChar( x + ofs, y - yadj + ofs, useScale, glyph );
 					colorBlack[3] = 1.0;
 					RE_SetColor( newColor );
 				}
-				Text_PaintChar( x, y - yadj,
-								glyph->imageWidth,
-								glyph->imageHeight,
-								font,
-								useScale,
-								glyph->s,
-								glyph->t,
-								glyph->s2,
-								glyph->t2,
-								glyph->glyph );
-
-				// CG_DrawPic(x, y - yadj, scale * uiDC.Assets.textFont.glyphs[text[i]].imageWidth, scale * uiDC.Assets.textFont.glyphs[text[i]].imageHeight, uiDC.Assets.textFont.glyphs[text[i]].glyph);
+                Text_PaintChar( x, y - yadj, useScale, glyph );
 				yadj = useScale * glyph2->top;
 				if ( count == cursorPos && !( ( uiInfo.uiDC.realTime / BLINK_DIVISOR ) & 1 ) ) {
-					Text_PaintChar( x, y - yadj,
-									glyph2->imageWidth,
-									glyph2->imageHeight,
-									font,
-									useScale,
-									glyph2->s,
-									glyph2->t,
-									glyph2->s2,
-									glyph2->t2,
-									glyph2->glyph );
+                    Text_PaintChar( x, y - yadj, useScale, glyph2 );
 				}
 
 				x += ( glyph->xSkip * useScale );
@@ -419,89 +306,20 @@ void Text_PaintWithCursor( float x, float y, int font, float scale, vec4_t color
 		}
 		// need to paint cursor at end of text
 		if ( cursorPos == len && !( ( uiInfo.uiDC.realTime / BLINK_DIVISOR ) & 1 ) ) {
-			yadj = useScale * glyph2->top;
-			Text_PaintChar( x, y - yadj,
-							glyph2->imageWidth,
-							glyph2->imageHeight,
-							font,
-							useScale,
-							glyph2->s,
-							glyph2->t,
-							glyph2->s2,
-							glyph2->t2,
-							glyph2->glyph );
-
+			float yadj = useScale * glyph2->top;
+            Text_PaintChar( x, y - yadj, useScale, glyph2 );
 		}
-
 
 		RE_SetColor( NULL );
 	}
 }
 
 
-void UI_ShowPostGame( qboolean newHigh ) {
-	Cvar_Set( "cg_cameraOrbit", "0" );
-	Cvar_Set( "cg_thirdPerson", "0" );
-	Cvar_Set( "sv_killserver", "1" );
-	uiInfo.soundHighScore = newHigh;
-	UI_SetActiveMenu( UIMENU_POSTGAME );
-}
-
-
-void UI_DrawCenteredPic( qhandle_t image, int w, int h ) {
-	int x, y;
-	x = ( SCREEN_WIDTH - w ) / 2;
-	y = ( SCREEN_HEIGHT - h ) / 2;
+void UI_DrawCenteredPic( qhandle_t image, int w, int h )
+{
+	int x = ( SCREEN_WIDTH - w ) / 2;
+	int y = ( SCREEN_HEIGHT - h ) / 2;
 	UI_DrawHandlePic( x, y, w, h, image );
-}
-
-int frameCount = 0;
-int startTime;
-
-#define UI_FPS_FRAMES   4
-void UI_Refresh( int realtime ) {
-	static int index;
-	static int previousTimes[UI_FPS_FRAMES];
-
-	//if ( !( trap_Key_GetCatcher() & KEYCATCH_UI ) ) {
-	//	return;
-	//}
-
-	uiInfo.uiDC.frameTime = realtime - uiInfo.uiDC.realTime;
-	uiInfo.uiDC.realTime = realtime;
-
-	previousTimes[index % UI_FPS_FRAMES] = uiInfo.uiDC.frameTime;
-	index++;
-	if ( index > UI_FPS_FRAMES ) {
-		int i, total;
-		// average multiple frames together to smooth changes out a bit
-		total = 0;
-		for ( i = 0 ; i < UI_FPS_FRAMES ; i++ ) {
-			total += previousTimes[i];
-		}
-		if ( !total ) {
-			total = 1;
-		}
-		uiInfo.uiDC.FPS = 1000 * UI_FPS_FRAMES / total;
-	}
-
-
-
-	UI_UpdateCvars();
-
-	if ( Menu_Count() > 0 ) {
-		// paint all the menus
-		Menu_PaintAll();
-	}
-
-	// draw cursor
-	UI_SetColor( NULL );
-	if ( Menu_Count() > 0 ) {
-		uiMenuCommand_t mymenu = UI_GetActiveMenu();
-		if ( mymenu != UIMENU_BRIEFING ) {
-			UI_DrawHandlePic( uiInfo.uiDC.cursorx - 16, uiInfo.uiDC.cursory - 16, 32, 32, uiInfo.uiDC.Assets.cursor );
-		}
-	}
 }
 
 /*
@@ -515,12 +333,13 @@ void UI_Shutdown( void ) {
 
 char *defaultMenu = NULL;
 
-char *GetMenuBuffer( const char *filename ) {
-	int len;
+static
+char *GetMenuBuffer( const char *filename )
+{
 	fileHandle_t f;
 	static char buf[MAX_MENUFILE];
 
-	len = FS_FOpenFileByMode( filename, &f, FS_READ );
+	int len = FS_FOpenFileByMode( filename, &f, FS_READ );
 	if ( !f ) {
         Com_Printf( S_COLOR_RED "menu file not found: %s, using default\n", filename  );
 		return defaultMenu;
@@ -536,7 +355,6 @@ char *GetMenuBuffer( const char *filename ) {
 	FS_FCloseFile( f );
 
 	return buf;
-
 }
 
 qboolean Asset_Parse( int handle ) {
@@ -702,20 +520,6 @@ qboolean Asset_Parse( int handle ) {
 	return qfalse;
 }
 
-void Font_Report() {
-	int i;
-	Com_Printf( "Font Info\n" );
-	Com_Printf( "=========\n" );
-	for ( i = 32; i < 96; i++ ) {
-		Com_Printf( "Glyph handle %i: %i\n", i, uiInfo.uiDC.Assets.textFont.glyphs[i].glyph );
-	}
-}
-
-void UI_Report() {
-	String_Report();
-	//Font_Report();
-
-}
 
 void UI_ParseMenu( const char *menuFile, qboolean isHud  ) {
 
@@ -809,10 +613,6 @@ void LoadMenus( const char *menuFile, qboolean reset, qboolean isHud ) {
 			break;
 		}
 		if ( token.string[0] == 0 || token.string[0] == '}' ) {
-			break;
-		}
-
-		if ( token.string[0] == '}' ) {
 			break;
 		}
 
@@ -2647,20 +2447,17 @@ static qboolean MapList_Parse( char **p ) {
 	return qfalse;
 }
 
-static void UI_ParseGameInfo( const char *teamFile ) {
-	char    *token;
-	char *p;
-	char *buff = NULL;
-
-	buff = GetMenuBuffer( teamFile );
+static void UI_ParseGameInfo( const char *teamFile )
+{
+	char* buff = GetMenuBuffer( teamFile );
 	if ( !buff ) {
 		return;
 	}
 
-	p = buff;
+	char *p = buff;
 
 	while ( 1 ) {
-		token = COM_ParseExt( &p, qtrue );
+		char* token = COM_ParseExt( &p, qtrue );
 		if ( !token || token[0] == 0 || token[0] == '}' ) {
 			break;
 		}
@@ -2695,7 +2492,8 @@ static void UI_ParseGameInfo( const char *teamFile ) {
 	}
 }
 
-static void UI_Pause( qboolean b ) {
+static void UI_Pause( qboolean b )
+{
 	if ( b ) {
 		// pause the game and set the ui keycatcher
 		Cvar_Set( "cl_paused", "1" );
@@ -2738,199 +2536,14 @@ static void UI_RunCinematicFrame( int handle ) {
 
 
 
-/*
-=================
-PlayerModel_BuildList
-=================
-*/
-static void UI_BuildQ3Model_List( void ) {
-	int numdirs;
-	int numfiles;
-	char dirlist[2048];
-	char filelist[2048];
-	char skinname[64];
-	char*   dirptr;
-	char*   fileptr;
-	int i;
-	int j;
-
-	uiInfo.q3HeadCount = 0;
-
-	// iterate directory of all player models
-	numdirs = FS_GetFileList( "models/players", "/", dirlist, 2048 );
-	dirptr  = dirlist;
-    size_t dirlen = 0;
-    size_t filelen = 0;
-	for ( i = 0; i < numdirs && uiInfo.q3HeadCount < MAX_PLAYERMODELS; i++,dirptr += dirlen + 1 )
-	{
-        dirlen = strlen( dirptr );
-
-		if ( dirlen && dirptr[dirlen - 1] == '/' ) {
-			dirptr[dirlen - 1] = '\0';
-		}
-
-		if ( !strcmp( dirptr,"." ) || !strcmp( dirptr,".." ) ) {
-			continue;
-		}
-
-		// iterate all skin files in directory
-		numfiles = FS_GetFileList( va( "models/players/%s",dirptr ), "tga", filelist, 2048 );
-		fileptr  = filelist;
-		for ( j = 0; j < numfiles && uiInfo.q3HeadCount < MAX_PLAYERMODELS; j++,fileptr += filelen + 1 )
-		{
-            filelen = strlen( fileptr );
-
-			COM_StripExtension( fileptr,skinname );
-
-			// look for icon_????
-			if ( Q_stricmpn( skinname, "icon_", 5 ) == 0 && !( Q_stricmp( skinname,"icon_blue" ) == 0 || Q_stricmp( skinname,"icon_red" ) == 0 ) ) {
-				if ( Q_stricmp( skinname, "icon_default" ) == 0 ) {
-					snprintf( uiInfo.q3HeadNames[uiInfo.q3HeadCount], sizeof( uiInfo.q3HeadNames[uiInfo.q3HeadCount] ), dirptr );
-				} else {
-					snprintf( uiInfo.q3HeadNames[uiInfo.q3HeadCount], sizeof( uiInfo.q3HeadNames[uiInfo.q3HeadCount] ), "%s/%s",dirptr, skinname + 5 );
-				}
-				uiInfo.q3HeadIcons[uiInfo.q3HeadCount++] = RE_RegisterShaderNoMip( va( "models/players/%s/%s",dirptr,skinname ) );
-			}
-
-		}
-	}
-
-}
-
-
-/*
-=================
-UI_Init
-=================
-*/
-void UI_Init(  ) {
-	const char *menuSet;
-	int start;
-
-	UI_RegisterCvars();
-	UI_InitMemory();
-
-	// cache redundant calulations
-	CL_GetGlconfig( &uiInfo.uiDC.glconfig );
-
-	// for 640x480 virtualized screen
-	uiInfo.uiDC.yscale = uiInfo.uiDC.glconfig.vidHeight * ( 1.0 / 480.0 );
-	uiInfo.uiDC.xscale = uiInfo.uiDC.glconfig.vidWidth * ( 1.0 / 640.0 );
-	if ( uiInfo.uiDC.glconfig.vidWidth * 480 > uiInfo.uiDC.glconfig.vidHeight * 640 ) {
-		// wide screen
-		uiInfo.uiDC.bias = 0.5 * ( uiInfo.uiDC.glconfig.vidWidth - ( uiInfo.uiDC.glconfig.vidHeight * ( 640.0 / 480.0 ) ) );
-	} else {
-		// no wide screen
-		uiInfo.uiDC.bias = 0;
-	}
-
-
-	uiInfo.uiDC.registerShaderNoMip = &RE_RegisterShaderNoMip;
-	uiInfo.uiDC.setColor = &UI_SetColor;
-	uiInfo.uiDC.drawHandlePic = &UI_DrawHandlePic;
-	uiInfo.uiDC.drawStretchPic = &trap_R_DrawStretchPic;
-	uiInfo.uiDC.drawText = &Text_Paint;
-	uiInfo.uiDC.textWidth = &Text_Width;
-	uiInfo.uiDC.textHeight = &Text_Height;
-
-	uiInfo.uiDC.modelBounds = &trap_R_ModelBounds;
-	uiInfo.uiDC.fillRect = &UI_FillRect;
-	uiInfo.uiDC.drawRect = &UI_DrawRect;
-	uiInfo.uiDC.drawSides = &UI_DrawSides;
-	uiInfo.uiDC.drawTopBottom = &UI_DrawTopBottom;
-	uiInfo.uiDC.clearScene = &trap_R_ClearScene;
-	uiInfo.uiDC.drawSides = &UI_DrawSides;
-	uiInfo.uiDC.addRefEntityToScene = &trap_R_AddRefEntityToScene;
-	uiInfo.uiDC.renderScene = &trap_R_RenderScene;
-	uiInfo.uiDC.registerFont = &trap_R_RegisterFont;
-	uiInfo.uiDC.getValue = &UI_GetValue;
-	uiInfo.uiDC.ownerDrawVisible = &UI_OwnerDrawVisible;
-	uiInfo.uiDC.runScript = &UI_RunMenuScript;
-	uiInfo.uiDC.getTeamColor = &UI_GetTeamColor;
-	uiInfo.uiDC.setCVar = Cvar_Set;
-	uiInfo.uiDC.drawTextWithCursor = &Text_PaintWithCursor;
-
-
-	uiInfo.uiDC.startLocalSound = &S_StartLocalSound;
-	uiInfo.uiDC.feederCount = &UI_FeederCount;
-	uiInfo.uiDC.feederItemImage = &UI_FeederItemImage;
-	uiInfo.uiDC.feederItemText = &UI_FeederItemText;
-	uiInfo.uiDC.fileText = &UI_FileText;    //----(SA)
-
-	uiInfo.uiDC.getTranslatedString = &UI_translateString;  //----(SA) added
-
-	uiInfo.uiDC.feederSelection = &UI_FeederSelection;
-	uiInfo.uiDC.feederAddItem = &UI_FeederAddItem;                  // NERVE - SMF
-
-
-	uiInfo.uiDC.executeText = &Cbuf_ExecuteText;
-	uiInfo.uiDC.Error = &Com_Error;
-	uiInfo.uiDC.Print = &Com_Printf;
-	uiInfo.uiDC.Pause = &UI_Pause;
-	uiInfo.uiDC.ownerDrawWidth = &UI_OwnerDrawWidth;
-	uiInfo.uiDC.registerSound = &S_RegisterSound;
-	uiInfo.uiDC.startBackgroundTrack = &trap_S_StartBackgroundTrack;
-	uiInfo.uiDC.stopBackgroundTrack = &trap_S_StopBackgroundTrack;
-	uiInfo.uiDC.playCinematic = &UI_PlayCinematic;
-	uiInfo.uiDC.stopCinematic = &UI_StopCinematic;
-	uiInfo.uiDC.drawCinematic = &UI_DrawCinematic;
-	uiInfo.uiDC.runCinematicFrame = &UI_RunCinematicFrame;
-
-	Init_Display( &uiInfo.uiDC );
-
-	String_Init();
-
-	// load translation text
-	UI_LoadTranslationStrings();
-
-	uiInfo.uiDC.whiteShader = RE_RegisterShaderNoMip( "white" );
-
-	AssetCache();
-
-	start = Sys_Milliseconds();
-
-	uiInfo.teamCount = 0;
-	uiInfo.characterCount = 0;
-	uiInfo.aliasCount = 0;
-
-	menuSet = UI_Cvar_VariableString( "ui_menuFiles" );
-	if ( menuSet == NULL || menuSet[0] == '\0' ) {
-		menuSet = "ui/menus.txt";
-	}
-
-	UI_LoadMenus( menuSet, qtrue );
-	UI_LoadMenus( "ui/ingame.txt", qfalse );
-
-	Menus_CloseAll();
-
-
-	UI_BuildQ3Model_List();
-
-	// sets defaults for ui temp cvars
-	uiInfo.effectsColor = gamecodetoui[(int)Cvar_VariableValue( "color" ) - 1];
-	uiInfo.currentCrosshair = (int)Cvar_VariableValue( "cg_drawCrosshair" );
-	Cvar_Set( "ui_mousePitch", ( Cvar_VariableValue( "m_pitch" ) >= 0 ) ? "0" : "1" );
-
-	uiInfo.serverStatus.currentServerCinematic = -1;
-	uiInfo.previewMovie = -1;
-
-	if ( Cvar_VariableValue( "ui_WolfFirstRun" ) == 0 ) {
-		Cvar_Set( "s_volume", "0.8" );
-		Cvar_Set( "s_musicvolume", "0.8" );
-		Cvar_Set( "ui_WolfFirstRun", "1" );
-	}
-
-	Cvar_Register( NULL, "debug_protocol", "", 0 );
-}
-
 
 /*
 =================
 UI_KeyEvent
 =================
 */
-void UI_KeyEvent( int key, qboolean down ) {
-
+void UI_KeyEvent( int key, qboolean down )
+{
 	if ( Menu_Count() > 0 ) {
 		menuDef_t *menu = Menu_GetFocused();
 		if ( menu ) {
@@ -2952,7 +2565,8 @@ void UI_KeyEvent( int key, qboolean down ) {
 UI_MouseEvent
 =================
 */
-void UI_MouseEvent( int dx, int dy ) {
+void UI_MouseEvent( int dx, int dy )
+{
 	// update mouse screen position
 	uiInfo.uiDC.cursorx += dx;
 	if ( uiInfo.uiDC.cursorx < 0 ) {
@@ -2974,7 +2588,8 @@ void UI_MouseEvent( int dx, int dy ) {
 
 }
 
-void UI_LoadNonIngame() {
+void UI_LoadNonIngame()
+{
 	const char *menuSet = UI_Cvar_VariableString( "ui_menuFiles" );
 	if ( menuSet == NULL || menuSet[0] == '\0' ) {
 		menuSet = "ui/menus.txt";
@@ -2992,7 +2607,8 @@ uiMenuCommand_t UI_GetActiveMenu( void ) {
 	return menutype;
 }
 
-void UI_SetActiveMenu( uiMenuCommand_t menu ) {
+void UI_SetActiveMenu( uiMenuCommand_t menu )
+{
 	char buf[256];
 
 	// this should be the ONLY way the menu system is brought up
@@ -3102,16 +2718,6 @@ void UI_SetActiveMenu( uiMenuCommand_t menu ) {
 			Menus_OpenByName( "wm_quickmessage" );
 			return;
 
-		case UIMENU_WM_LIMBO:
-			trap_Key_SetCatcher( KEYCATCH_UI );
-			Menus_CloseAll();
-			Menus_OpenByName( "wm_limboView" );
-			Menus_OpenByName( "wm_limboChat" );
-			Menus_OpenByName( "wm_limboModel" );
-			Menus_OpenByName( "wm_limboOptions" );
-			Menus_OpenByName( "wm_limboButtonBar" );
-			return;
-			// -NERVE - SMF
 		default:
 			break;
 		}
@@ -3160,7 +2766,6 @@ void Text_PaintCenter( float x, float y, int font, float scale, vec4_t color, co
 	int len = Text_Width( text, font, scale, 0 );
 	Text_Paint( x - len / 2, y, font, scale, color, text, 0, 0, ITEM_TEXTSTYLE_SHADOWEDMORE );
 }
-
 
 
 /*
@@ -3395,6 +3000,7 @@ static int cvarTableSize = sizeof( cvarTable ) / sizeof( cvarTable[0] );
 UI_RegisterCvars
 =================
 */
+static
 void UI_RegisterCvars( void ) {
 	int i;
 	cvarTable_t *cv;
@@ -3409,6 +3015,7 @@ void UI_RegisterCvars( void ) {
 UI_UpdateCvars
 =================
 */
+static
 void UI_UpdateCvars( void ) {
 	int i;
 	cvarTable_t *cv;
@@ -3416,4 +3023,170 @@ void UI_UpdateCvars( void ) {
 	for ( i = 0, cv = cvarTable ; i < cvarTableSize ; i++, cv++ ) {
 		Cvar_Update( cv->vmCvar );
 	}
+}
+
+int frameCount = 0;
+int startTime;
+
+#define UI_FPS_FRAMES   4
+void UI_Refresh( int realtime ) {
+    static int index;
+    static int previousTimes[UI_FPS_FRAMES];
+
+    //if ( !( trap_Key_GetCatcher() & KEYCATCH_UI ) ) {
+    //    return;
+    //}
+
+    uiInfo.uiDC.frameTime = realtime - uiInfo.uiDC.realTime;
+    uiInfo.uiDC.realTime = realtime;
+
+    previousTimes[index % UI_FPS_FRAMES] = uiInfo.uiDC.frameTime;
+    index++;
+    if ( index > UI_FPS_FRAMES ) {
+        int i, total;
+        // average multiple frames together to smooth changes out a bit
+        total = 0;
+        for ( i = 0 ; i < UI_FPS_FRAMES ; i++ ) {
+            total += previousTimes[i];
+        }
+        if ( !total ) {
+            total = 1;
+        }
+        uiInfo.uiDC.FPS = 1000 * UI_FPS_FRAMES / total;
+    }
+    
+    UI_UpdateCvars();
+
+    if ( Menu_Count() > 0 ) {
+        // paint all the menus
+        Menu_PaintAll();
+    }
+
+    // draw cursor
+    UI_SetColor( NULL );
+    if ( Menu_Count() > 0 ) {
+        uiMenuCommand_t mymenu = UI_GetActiveMenu();
+        if ( mymenu != UIMENU_BRIEFING ) {
+            UI_DrawHandlePic( uiInfo.uiDC.cursorx - 16, uiInfo.uiDC.cursory - 16, 32, 32, uiInfo.uiDC.Assets.cursor );
+        }
+    }
+}
+
+/*
+=================
+UI_Init
+=================
+*/
+void UI_Init()
+{
+    UI_RegisterCvars();
+    UI_InitMemory();
+
+    // cache redundant calulations
+    CL_GetGlconfig( &uiInfo.uiDC.glconfig );
+
+    // for 640x480 virtualized screen
+    uiInfo.uiDC.yscale = uiInfo.uiDC.glconfig.vidHeight * ( 1.0 / 480.0 );
+    uiInfo.uiDC.xscale = uiInfo.uiDC.glconfig.vidWidth * ( 1.0 / 640.0 );
+    if ( uiInfo.uiDC.glconfig.vidWidth * 480 > uiInfo.uiDC.glconfig.vidHeight * 640 ) {
+        // wide screen
+        uiInfo.uiDC.bias = 0.5 * ( uiInfo.uiDC.glconfig.vidWidth - ( uiInfo.uiDC.glconfig.vidHeight * ( 640.0 / 480.0 ) ) );
+    } else {
+        // no wide screen
+        uiInfo.uiDC.bias = 0;
+    }
+
+    uiInfo.uiDC.registerShaderNoMip = &RE_RegisterShaderNoMip;
+    uiInfo.uiDC.setColor = &UI_SetColor;
+    uiInfo.uiDC.drawHandlePic = &UI_DrawHandlePic;
+    uiInfo.uiDC.drawStretchPic = &trap_R_DrawStretchPic;
+    uiInfo.uiDC.drawText = &Text_Paint;
+    uiInfo.uiDC.textWidth = &Text_Width;
+    uiInfo.uiDC.textHeight = &Text_Height;
+
+    uiInfo.uiDC.modelBounds = &trap_R_ModelBounds;
+    uiInfo.uiDC.fillRect = &UI_FillRect;
+    uiInfo.uiDC.drawRect = &UI_DrawRect;
+    uiInfo.uiDC.drawSides = &UI_DrawSides;
+    uiInfo.uiDC.drawTopBottom = &UI_DrawTopBottom;
+    uiInfo.uiDC.clearScene = &trap_R_ClearScene;
+    uiInfo.uiDC.drawSides = &UI_DrawSides;
+    uiInfo.uiDC.addRefEntityToScene = &trap_R_AddRefEntityToScene;
+    uiInfo.uiDC.renderScene = &trap_R_RenderScene;
+    uiInfo.uiDC.registerFont = &trap_R_RegisterFont;
+    uiInfo.uiDC.getValue = &UI_GetValue;
+    uiInfo.uiDC.ownerDrawVisible = &UI_OwnerDrawVisible;
+    uiInfo.uiDC.runScript = &UI_RunMenuScript;
+    uiInfo.uiDC.getTeamColor = &UI_GetTeamColor;
+    uiInfo.uiDC.setCVar = Cvar_Set;
+    uiInfo.uiDC.drawTextWithCursor = &Text_PaintWithCursor;
+
+
+    uiInfo.uiDC.startLocalSound = &S_StartLocalSound;
+    uiInfo.uiDC.feederCount = &UI_FeederCount;
+    uiInfo.uiDC.feederItemImage = &UI_FeederItemImage;
+    uiInfo.uiDC.feederItemText = &UI_FeederItemText;
+    uiInfo.uiDC.fileText = &UI_FileText;    //----(SA)
+
+    uiInfo.uiDC.getTranslatedString = &UI_translateString;  //----(SA) added
+
+    uiInfo.uiDC.feederSelection = &UI_FeederSelection;
+    uiInfo.uiDC.feederAddItem = &UI_FeederAddItem;                  // NERVE - SMF
+
+
+    uiInfo.uiDC.executeText = &Cbuf_ExecuteText;
+    uiInfo.uiDC.Error = &Com_Error;
+    uiInfo.uiDC.Print = &Com_Printf;
+    uiInfo.uiDC.Pause = &UI_Pause;
+    uiInfo.uiDC.ownerDrawWidth = &UI_OwnerDrawWidth;
+    uiInfo.uiDC.registerSound = &S_RegisterSound;
+    uiInfo.uiDC.startBackgroundTrack = &trap_S_StartBackgroundTrack;
+    uiInfo.uiDC.stopBackgroundTrack = &trap_S_StopBackgroundTrack;
+    uiInfo.uiDC.playCinematic = &UI_PlayCinematic;
+    uiInfo.uiDC.stopCinematic = &UI_StopCinematic;
+    uiInfo.uiDC.drawCinematic = &UI_DrawCinematic;
+    uiInfo.uiDC.runCinematicFrame = &UI_RunCinematicFrame;
+
+    Init_Display( &uiInfo.uiDC );
+
+    String_Init();
+
+    // load translation text
+    UI_LoadTranslationStrings();
+
+    uiInfo.uiDC.whiteShader = RE_RegisterShaderNoMip( "white" );
+
+    AssetCache();
+
+    int start = Sys_Milliseconds();
+
+    uiInfo.teamCount = 0;
+    uiInfo.characterCount = 0;
+    uiInfo.aliasCount = 0;
+
+    const char *menuSet = UI_Cvar_VariableString( "ui_menuFiles" );
+    if ( menuSet == NULL || menuSet[0] == '\0' ) {
+        menuSet = "ui/menus.txt";
+    }
+
+    UI_LoadMenus( menuSet, qtrue );
+    UI_LoadMenus( "ui/ingame.txt", qfalse );
+
+    Menus_CloseAll();
+
+    // sets defaults for ui temp cvars
+    uiInfo.effectsColor = gamecodetoui[(int)Cvar_VariableValue( "color" ) - 1];
+    uiInfo.currentCrosshair = (int)Cvar_VariableValue( "cg_drawCrosshair" );
+    Cvar_Set( "ui_mousePitch", ( Cvar_VariableValue( "m_pitch" ) >= 0 ) ? "0" : "1" );
+
+    uiInfo.serverStatus.currentServerCinematic = -1;
+    uiInfo.previewMovie = -1;
+
+    if ( Cvar_VariableValue( "ui_WolfFirstRun" ) == 0 ) {
+        Cvar_Set( "s_volume", "0.8" );
+        Cvar_Set( "s_musicvolume", "0.8" );
+        Cvar_Set( "ui_WolfFirstRun", "1" );
+    }
+
+    Cvar_Register( NULL, "debug_protocol", "", 0 );
 }

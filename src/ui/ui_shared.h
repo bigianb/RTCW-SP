@@ -432,7 +432,7 @@ extern translateString_t translateStrings[MAX_TRANSLATESTRINGS];
 
 const char *String_Alloc( const char *p );
 void String_Init();
-void String_Report();
+
 void Init_Display( displayContextDef_t *dc );
 void Display_ExpandMacros( char * buff );
 void Menu_Init( menuDef_t *menu );
@@ -477,7 +477,6 @@ void        LerpColor( vec4_t a, vec4_t b, vec4_t c, float t );
 void        Menus_CloseAll();
 void        Menu_Paint( menuDef_t *menu, qboolean forcePaint );
 void        Menu_SetFeederSelection( menuDef_t *menu, int feeder, int index, const char *name );
-void        Display_CacheAll();
 
 void        *UI_Alloc( size_t size );
 void        UI_InitMemory( void );

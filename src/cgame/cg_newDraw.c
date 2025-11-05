@@ -1401,16 +1401,7 @@ static void CG_Text_Paint_Limit( float *maxX, float x, float y, int font, float 
 					*maxX = 0;
 					break;
 				}
-				Text_PaintChar( x, y - yadj,
-								   glyph->imageWidth,
-								   glyph->imageHeight,
-								   useScale,
-							   		font,
-								   glyph->s,
-								   glyph->t,
-								   glyph->s2,
-								   glyph->t2,
-								   glyph->glyph );
+				Text_PaintChar( x, y - yadj, useScale, glyph );
 				x += ( glyph->xSkip * useScale ) + adjust;
 				*maxX = x;
 				count++;

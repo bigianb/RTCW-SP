@@ -1901,7 +1901,7 @@ void CG_GetTeamColor( vec4_t *color );
 const char *CG_GetGameStatusText();
 const char *CG_GetKillerText();
 void CG_Draw3DModel( float x, float y, float w, float h, qhandle_t model, qhandle_t skin, vec3_t origin, vec3_t angles );
-void Text_PaintChar( float x, float y, float width, float height, int font, float scale, float s, float t, float s2, float t2, qhandle_t hShader );
+void Text_PaintChar( float x, float y, float scale, glyphInfo_t *glyph );   // FIXME - in ui code
 void CG_CheckOrderPending();
 const char *CG_GameTypeString();
 qboolean CG_YourTeamHasFlag();
