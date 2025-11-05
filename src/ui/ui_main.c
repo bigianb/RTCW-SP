@@ -1329,81 +1329,6 @@ static void UI_DrawMapCinematic( rectDef_t *rect, float scale, vec4_t color, qbo
 }
 
 
-
-static qboolean updateModel = qtrue;
-static qboolean q3Model = qfalse;
-
-static void UI_DrawPlayerModel( rectDef_t *rect ) {
-	static playerInfo_t info;
-	char model[MAX_QPATH];
-	char team[256];
-	char head[256];
-	vec3_t viewangles;
-	static vec3_t moveangles = { 0, 0, 0 };
-
-	if ( Cvar_VariableValue( "ui_Q3Model" ) ) {
-		//	  strcpy(model, UI_Cvar_VariableString("model"));
-		strcpy( model, "multi" );
-		strcpy( head, UI_Cvar_VariableString( "headmodel" ) );
-		if ( !q3Model ) {
-			q3Model = qtrue;
-			updateModel = qtrue;
-		}
-		team[0] = '\0';
-	} else {
-		strcpy( model, UI_Cvar_VariableString( "team_model" ) );
-		strcpy( head, UI_Cvar_VariableString( "team_headmodel" ) );
-		strcpy( team, UI_Cvar_VariableString( "ui_teamName" ) );
-		if ( q3Model ) {
-			q3Model = qfalse;
-			updateModel = qtrue;
-		}
-	}
-
-	moveangles[YAW] += 1;       // NERVE - SMF - TEMPORARY
-
-	// compare new cvars to old cvars and see if we need to update
-	{
-		int v1, v2;
-
-		v1 = Cvar_VariableValue( "mp_team" );
-		v2 = Cvar_VariableValue( "ui_prevTeam" );
-		if ( v1 != v2 ) {
-			Cvar_Set( "ui_prevTeam", va( "%i", v1 ) );
-			updateModel = qtrue;
-		}
-
-		v1 = Cvar_VariableValue( "mp_playerType" );
-		v2 = Cvar_VariableValue( "ui_prevClass" );
-		if ( v1 != v2 ) {
-			Cvar_Set( "ui_prevClass", va( "%i", v1 ) );
-			updateModel = qtrue;
-		}
-
-		v1 = Cvar_VariableValue( "mp_weapon" );
-		v2 = Cvar_VariableValue( "ui_prevWeapon" );
-		if ( v1 != v2 ) {
-			Cvar_Set( "ui_prevWeapon", va( "%i", v1 ) );
-			updateModel = qtrue;
-		}
-	}
-
-	if ( updateModel ) {      // NERVE - SMF - TEMPORARY
-		memset( &info, 0, sizeof( playerInfo_t ) );
-		viewangles[YAW]   = 180 - 10;
-		viewangles[PITCH] = 0;
-		viewangles[ROLL]  = 0;
-
-		UI_PlayerInfo_SetModel( &info, model );
-		UI_PlayerInfo_SetInfo( &info, LEGS_IDLE, TORSO_STAND, viewangles, moveangles, -1, qfalse );
-		updateModel = qfalse;
-	} else {
-		VectorCopy( moveangles, info.moveAngles );
-	}
-
-	UI_DrawPlayer( rect->x, rect->y, rect->w, rect->h, &info, uiInfo.uiDC.realTime / 2 );
-}
-
 static void UI_DrawTier( rectDef_t *rect, int font, float scale, vec4_t color, int textStyle ) {
 	int i;
 	i = Cvar_VariableValue( "ui_currentTier" );
@@ -1605,10 +1530,6 @@ void UI_OwnerDraw( float x, float y, float w, float h, float text_x, float text_
 	case UI_EFFECTS:
 		UI_DrawEffects( &rect, scale, color );
 		break;
-	case UI_PLAYERMODEL:
-		UI_DrawPlayerModel( &rect );
-		break;
-
 
 	case UI_SAVEGAME_SHOT:  // (SA)
 		UI_DrawSaveGameShot( &rect, scale, color );
@@ -2438,20 +2359,6 @@ int WM_getWeaponIndex() {
 	return 0;
 }
 
-void WM_getWeaponAnim( const char **torso_anim, const char **legs_anim ) {
-	int lookupIndex, i;
-
-	lookupIndex = Cvar_VariableValue( "mp_weapon" );
-
-	for ( i = 1; weaponTypes[i].name; i++ ) {
-		if ( weaponTypes[i].value == lookupIndex ) {
-			*torso_anim = weaponTypes[i].torso_anim;
-			*legs_anim = weaponTypes[i].legs_anim;
-			return;
-		}
-	}
-}
-
 void WM_GetSpawnPoints() {
 	char cs[MAX_STRING_CHARS];
 	const char *s;
@@ -2789,10 +2696,6 @@ static void UI_RunMenuScript( char **args ) {
 		
 		} else if ( Q_stricmp( name, "RunDemo" ) == 0 ) {
 			Cbuf_ExecuteText( EXEC_APPEND, va( "demo %s\n", uiInfo.demoList[uiInfo.demoIndex] ) );
-		} else if ( Q_stricmp( name, "Wolf" ) == 0 ) {
-			Cvar_Set( "fs_game", "" );
-			Cbuf_ExecuteText( EXEC_APPEND, "vid_restart;" );
-
 		} else if ( Q_stricmp( name, "Quit" ) == 0 ) {
 			Cvar_Set( "ui_singlePlayerActive", "0" );
 			Cbuf_ExecuteText( EXEC_NOW, "quit" );
@@ -2808,19 +2711,12 @@ static void UI_RunMenuScript( char **args ) {
 			Key_ClearStates();
 			Cvar_Set( "cl_paused", "0" );
 			Menus_CloseAll();
-		
-		} else if ( Q_stricmp( name, "addBot" ) == 0 ) {
-			if ( Cvar_VariableValue( "g_gametype" ) >= GT_TEAM ) {
-				Cbuf_ExecuteText( EXEC_APPEND, va( "addbot %s %i %s\n", uiInfo.characterList[uiInfo.botIndex].name, uiInfo.skillIndex + 1, ( uiInfo.redBlue == 0 ) ? "Red" : "Blue" ) );
-			}
-		
 		} else if ( Q_stricmp( name, "glCustom" ) == 0 ) {
 			Cvar_Set( "ui_glCustom", "4" );
 		} else if ( Q_stricmp( name, "update" ) == 0 ) {
 			if ( String_Parse( args, &name2 ) ) {
 				UI_Update( name2 );
 			}
-
 		} else if ( Q_stricmp( name, "setrecommended" ) == 0 ) {
 			Cbuf_ExecuteText( EXEC_APPEND, "setRecommended 1\n" );
 		} else {
