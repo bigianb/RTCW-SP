@@ -43,24 +43,23 @@ CG_CheckAmmo
 If the ammo has gone low enough to generate the warning, play a sound
 ==============
 */
-void CG_CheckAmmo( void ) {
-	int i;
-	int total;
+void CG_CheckAmmo()
+{
 	int weapons[MAX_WEAPONS / ( sizeof( int ) * 8 )];
 
 	// see about how many seconds of ammo we have remaining
 	memcpy( weapons, cg.snap->ps.weapons, sizeof( weapons ) );
 
-	if ( !weapons[0] && !weapons[1] ) { // (SA) we start out with no weapons, so don't make a click on startup
+	if ( !weapons[0] && !weapons[1] ) {
+		// we start out with no weapons, so don't make a click on startup
 		return;
 	}
 
-	total = 0;
+	int total = 0;
 
-	// first weap now WP_LUGER
-	for ( i = WP_FIRST ; i < WP_NUM_WEAPONS ; i++ )
+	for (int i = WP_FIRST ; i < WP_NUM_WEAPONS ; i++ )
 	{
-		if ( !( weapons[0] & ( 1 << i ) ) ) {
+		if (!COM_BitCheck(weapons, i)){
 			continue;
 		}
 		switch ( i )
@@ -83,10 +82,6 @@ void CG_CheckAmmo( void ) {
 		case WP_GARAND:
 		default:
 			total += cg.snap->ps.ammo[BG_FindAmmoForWeapon( i )] * 1000;
-//				break;
-//			default:
-//				total += cg.snap->ps.ammo[BG_FindAmmoForWeapon(i)] * 200;
-//				break;
 		}
 
 		if ( total >= 5000 ) {
