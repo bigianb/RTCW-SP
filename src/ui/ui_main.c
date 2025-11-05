@@ -41,66 +41,6 @@ static const char *MonthAbbrev[] = {
 	"Oct","Nov","Dec"
 };
 
-
-static const char *skillLevels[] = {
-	"I Can Win",
-	"Bring It On",
-	"Hurt Me Plenty",
-	"Hardcore",
-	"Nightmare"
-};
-
-static const int numSkillLevels = sizeof( skillLevels ) / sizeof( const char* );
-
-
-static const char *netSources[] = {
-	"Local",
-	"Mplayer",
-	"Internet",
-	"Favorites"
-};
-static const int numNetSources = sizeof( netSources ) / sizeof( const char* );
-
-static const serverFilter_t serverFilters[] = {
-	{"All", "" },
-	{"Quake 3 Arena", "" },
-	{"Team Arena", "missionpack" },
-	{"Rocket Arena", "arena" },
-	{"Alliance", "alliance" },
-};
-
-static const char *teamArenaGameTypes[] = {
-	"FFA",
-	"TOURNAMENT",
-	"SP",
-	"TEAM DM",
-	"CTF",
-	"1FCTF",
-	"OVERLOAD",
-	"HARVESTER",
-	"TEAMTOURNAMENT"
-};
-
-static int const numTeamArenaGameTypes = sizeof( teamArenaGameTypes ) / sizeof( const char* );
-
-
-static const char *teamArenaGameNames[] = {
-	"Free For All",
-	"Tournament",
-	"Single Player",
-	"Team Deathmatch",
-	"Capture the Flag",
-	"One Flag CTF",
-	"Overload",
-	"Harvester",
-	"Team Tournament",
-};
-
-static int const numTeamArenaGameNames = sizeof( teamArenaGameNames ) / sizeof( const char* );
-
-
-static const int numServerFilters = sizeof( serverFilters ) / sizeof( serverFilter_t );
-
 static const char *sortKeys[] = {
 	"Server Name",
 	"Map Name",
@@ -109,13 +49,6 @@ static const char *sortKeys[] = {
 	"Ping Time"
 };
 static const int numSortKeys = sizeof( sortKeys ) / sizeof( const char* );
-
-static char* netnames[] = {
-	"???",
-	"UDP",
-	"IPX",
-	NULL
-};
 
 static int gamecodetoui[] = {4,2,3,0,5,1,6};
 static int uitogamecode[] = {4,6,2,3,1,5,7};
@@ -1068,20 +1001,6 @@ static void UI_DrawPreviewCinematic( rectDef_t *rect, float scale, vec4_t color 
 }
 
 
-static void UI_DrawSkill( rectDef_t *rect, int font, float scale, vec4_t color, int textStyle ) {
-	int i;
-	i = Cvar_VariableValue( "g_spSkill" );
-	if ( i < 1 || i > numSkillLevels ) {
-		i = 1;
-	}
-	Text_Paint( rect->x, rect->y, font, scale, color, skillLevels[i - 1],0, 0, textStyle );
-}
-
-static void UI_DrawEffects( rectDef_t *rect, float scale, vec4_t color ) {
-	UI_DrawHandlePic( rect->x, rect->y - 14, 128, 8, uiInfo.uiDC.Assets.fxBasePic );
-	UI_DrawHandlePic( rect->x + uiInfo.effectsColor * 16 + 8, rect->y - 16, 16, 12, uiInfo.uiDC.Assets.fxPic[uiInfo.effectsColor] );
-}
-
 //----(SA)	added
 /*
 ==============
@@ -1280,24 +1199,6 @@ static void UI_DrawMapPreview( rectDef_t *rect, float scale, vec4_t color, qbool
 	}
 }
 
-
-static void UI_DrawMapTimeToBeat( rectDef_t *rect, int font, float scale, vec4_t color, int textStyle ) {
-	int minutes, seconds, time;
-	if ( ui_currentMap.integer < 0 || ui_currentMap.integer > uiInfo.mapCount ) {
-		ui_currentMap.integer = 0;
-		Cvar_Set( "ui_currentMap", "0" );
-	}
-
-	time = uiInfo.mapList[ui_currentMap.integer].timeToBeat[uiInfo.gameTypes[ui_gameType.integer].gtEnum];
-
-	minutes = time / 60;
-	seconds = time % 60;
-
-	Text_Paint( rect->x, rect->y, font, scale, color, va( "%02i:%02i", minutes, seconds ), 0, 0, textStyle );
-}
-
-
-
 static void UI_DrawMapCinematic( rectDef_t *rect, float scale, vec4_t color, qboolean net ) {
 
 	int map = ( net ) ? ui_currentNetMap.integer : ui_currentMap.integer;
@@ -1329,29 +1230,6 @@ static void UI_DrawMapCinematic( rectDef_t *rect, float scale, vec4_t color, qbo
 }
 
 
-static void UI_DrawTier( rectDef_t *rect, int font, float scale, vec4_t color, int textStyle ) {
-	int i;
-	i = Cvar_VariableValue( "ui_currentTier" );
-	if ( i < 0 || i >= uiInfo.tierCount ) {
-		i = 0;
-	}
-	Text_Paint( rect->x, rect->y, font, scale, color, va( "Tier: %s", uiInfo.tierList[i].tierName ),0, 0, textStyle );
-}
-
-static void UI_DrawTierMap( rectDef_t *rect, int index ) {
-	int i;
-	i = Cvar_VariableValue( "ui_currentTier" );
-	if ( i < 0 || i >= uiInfo.tierCount ) {
-		i = 0;
-	}
-
-	if ( uiInfo.tierList[i].mapHandles[index] == -1 ) {
-		uiInfo.tierList[i].mapHandles[index] = RE_RegisterShaderNoMip( va( "levelshots/%s", uiInfo.tierList[i].maps[index] ) );
-	}
-
-	UI_DrawHandlePic( rect->x, rect->y, rect->w, rect->h, uiInfo.tierList[i].mapHandles[index] );
-}
-
 static const char *UI_EnglishMapName( const char *map ) {
 	int i;
 	for ( i = 0; i < uiInfo.mapCount; i++ ) {
@@ -1361,36 +1239,6 @@ static const char *UI_EnglishMapName( const char *map ) {
 	}
 	return "";
 }
-
-static void UI_DrawTierMapName( rectDef_t *rect, int font, float scale, vec4_t color, int textStyle ) {
-	int i, j;
-	i = Cvar_VariableValue( "ui_currentTier" );
-	if ( i < 0 || i >= uiInfo.tierCount ) {
-		i = 0;
-	}
-	j = Cvar_VariableValue( "ui_currentMap" );
-	if ( j < 0 || j > MAPS_PER_TIER ) {
-		j = 0;
-	}
-
-	Text_Paint( rect->x, rect->y, font, scale, color, UI_EnglishMapName( uiInfo.tierList[i].maps[j] ), 0, 0, textStyle );
-}
-
-static void UI_DrawTierGameType( rectDef_t *rect, int font, float scale, vec4_t color, int textStyle ) {
-	int i, j;
-	i = Cvar_VariableValue( "ui_currentTier" );
-	if ( i < 0 || i >= uiInfo.tierCount ) {
-		i = 0;
-	}
-	j = Cvar_VariableValue( "ui_currentMap" );
-	if ( j < 0 || j > MAPS_PER_TIER ) {
-		j = 0;
-	}
-
-	Text_Paint( rect->x, rect->y, font, scale, color, uiInfo.gameTypes[uiInfo.tierList[i].gameTypes[j]].gameType, 0, 0, textStyle );
-}
-
-
 
 static int UI_OwnerDrawWidth( int ownerDraw, int font, float scale ) {
 	int i, h, value;
@@ -1407,18 +1255,6 @@ static int UI_OwnerDrawWidth( int ownerDraw, int font, float scale ) {
 		i = UI_SavegameIndexFromName2( ui_savegameName.string );
 		s = uiInfo.savegameList[i].savegameInfoText;
 		break;
-
-	case UI_GAMETYPE:
-		s = uiInfo.gameTypes[ui_gameType.integer].gameType;
-		break;
-	case UI_SKILL:
-		i = Cvar_VariableValue( "g_spSkill" );
-		if ( i < 1 || i > numSkillLevels ) {
-			i = 1;
-		}
-		s = skillLevels[i - 1];
-		break;
-
 
 	case UI_KEYBINDSTATUS:
 		if ( Display_KeyBindPending() ) {
@@ -1527,10 +1363,6 @@ void UI_OwnerDraw( float x, float y, float w, float h, float text_x, float text_
 
 	switch ( ownerDraw ) {
 
-	case UI_EFFECTS:
-		UI_DrawEffects( &rect, scale, color );
-		break;
-
 	case UI_SAVEGAME_SHOT:  // (SA)
 		UI_DrawSaveGameShot( &rect, scale, color );
 		break;
@@ -1561,9 +1393,6 @@ void UI_OwnerDraw( float x, float y, float w, float h, float text_x, float text_
 		break;
 //----(SA)	end
 
-	case UI_MAP_TIMETOBEAT:
-		UI_DrawMapTimeToBeat( &rect, font, scale, color, textStyle );
-		break;
 	case UI_MAPCINEMATIC:
 		UI_DrawMapCinematic( &rect, scale, color, qfalse );
 		break;
@@ -1702,47 +1531,6 @@ static qboolean UI_OwnerDrawVisible( int flags ) {
 	return vis;
 }
 
-static qboolean UI_Handicap_HandleKey( int flags, float *special, int key ) {
-	if ( key == K_MOUSE1 || key == K_MOUSE2 || key == K_ENTER || key == K_KP_ENTER ) {
-		int h;
-		h = Com_Clamp( 5, 100, Cvar_VariableValue( "handicap" ) );
-		if ( key == K_MOUSE2 ) {
-			h -= 5;
-		} else {
-			h += 5;
-		}
-		if ( h > 100 ) {
-			h = 5;
-		} else if ( h < 0 ) {
-			h = 100;
-		}
-		Cvar_Set( "handicap", va( "%i", h ) );
-		return qtrue;
-	}
-	return qfalse;
-}
-
-static qboolean UI_Effects_HandleKey( int flags, float *special, int key ) {
-	if ( key == K_MOUSE1 || key == K_MOUSE2 || key == K_ENTER || key == K_KP_ENTER ) {
-
-		if ( key == K_MOUSE2 ) {
-			uiInfo.effectsColor--;
-		} else {
-			uiInfo.effectsColor++;
-		}
-
-		if ( uiInfo.effectsColor > 6 ) {
-			uiInfo.effectsColor = 0;
-		} else if ( uiInfo.effectsColor < 0 ) {
-			uiInfo.effectsColor = 6;
-		}
-
-		Cvar_SetValue( "color", uitogamecode[uiInfo.effectsColor] );
-		return qtrue;
-	}
-	return qfalse;
-}
-
 
 //----(SA)	added
 static qboolean UI_SavegameName_HandleKey( int flags, float *special, int key ) {
@@ -1777,33 +1565,6 @@ static qboolean UI_SavegameName_HandleKey( int flags, float *special, int key ) 
 //----(SA)	end
 
 
-static qboolean UI_GameType_HandleKey( int flags, float *special, int key, qboolean resetMap ) {
-	return qfalse;
-}
-
-static qboolean UI_Skill_HandleKey( int flags, float *special, int key ) {
-	if ( key == K_MOUSE1 || key == K_MOUSE2 || key == K_ENTER || key == K_KP_ENTER ) {
-		int i = Cvar_VariableValue( "g_spSkill" );
-
-		if ( key == K_MOUSE2 ) {
-			i--;
-		} else {
-			i++;
-		}
-
-		if ( i < 1 ) {
-			i = numSkillLevels;
-		} else if ( i > numSkillLevels ) {
-			i = 1;
-		}
-
-		Cvar_Set( "g_spSkill", va( "%i", i ) );
-		return qtrue;
-	}
-	return qfalse;
-}
-
-
 static qboolean UI_Crosshair_HandleKey( int flags, float *special, int key ) {
 	if ( key == K_MOUSE1 || key == K_MOUSE2 || key == K_ENTER || key == K_KP_ENTER ) {
 		if ( key == K_MOUSE2 ) {
@@ -1826,22 +1587,10 @@ static qboolean UI_Crosshair_HandleKey( int flags, float *special, int key ) {
 
 qboolean UI_OwnerDrawHandleKey( int ownerDraw, int flags, float *special, int key ) {
 	switch ( ownerDraw ) {
-	case UI_HANDICAP:
-		return UI_Handicap_HandleKey( flags, special, key );
-		break;
-	case UI_EFFECTS:
-		return UI_Effects_HandleKey( flags, special, key );
-		break;
-//----(SA)	added
+
 	case UI_SAVEGAMENAME:
 	case UI_SAVEGAMEINFO:
 		return UI_SavegameName_HandleKey( flags, special, key );
-
-//----(SA)	end
-	
-	case UI_SKILL:
-		return UI_Skill_HandleKey( flags, special, key );
-		break;
 	
 	case UI_CROSSHAIR:
 		UI_Crosshair_HandleKey( flags, special, key );
@@ -2207,7 +1956,6 @@ static void UI_LoadDemos() {
 	char demolist[4096];
 	char demoExt[32];
 	char    *demoname;
-	int i, len;
 
 	snprintf( demoExt, sizeof( demoExt ), "dm_%d", (int)Cvar_VariableValue( "protocol" ) );
 
@@ -2220,8 +1968,8 @@ static void UI_LoadDemos() {
 			uiInfo.demoCount = MAX_DEMOS;
 		}
 		demoname = demolist;
-		for ( i = 0; i < uiInfo.demoCount; i++ ) {
-			len = strlen( demoname );
+		for (int i = 0; i < uiInfo.demoCount; i++ ) {
+			size_t len = strlen( demoname );
 			if ( !Q_stricmp( demoname +  len - strlen( demoExt ), demoExt ) ) {
 				demoname[len - strlen( demoExt )] = '\0';
 			}
@@ -2232,212 +1980,6 @@ static void UI_LoadDemos() {
 	}
 
 }
-
-/*
-==============
-UI_StartSkirmish
-==============
-*/
-static void UI_StartSkirmish( qboolean next ) {
-}
-
-// NERVE - SMF
-/*
-==============
-WM_ChangePlayerType
-==============
-*/
-itemDef_t *Menu_FindItemByName( menuDef_t *menu, const char *p );
-void Menu_ShowItemByName( menuDef_t *menu, const char *p, qboolean bShow );
-
-#define ITEM_GRENADES       1
-#define ITEM_MEDKIT         2
-
-#define ITEM_PISTOL         1
-
-#define DEFAULT_PISTOL
-
-#define PT_KNIFE            ( 1 )
-#define PT_PISTOL           ( 1 << 2 )
-#define PT_RIFLE            ( 1 << 3 )
-#define PT_LIGHTONLY        ( 1 << 4 )
-#define PT_GRENADES         ( 1 << 5 )
-#define PT_EXPLOSIVES       ( 1 << 6 )
-#define PT_MEDKIT           ( 1 << 7 )
-
-typedef struct {
-	const char  *name;
-	int items;
-} playerType_t;
-
-static playerType_t playerTypes[] = {
-	{ "player_window_soldier",       PT_KNIFE | PT_PISTOL | PT_RIFLE | PT_GRENADES },
-	{ "player_window_medic",     PT_KNIFE | PT_PISTOL | PT_MEDKIT },
-	{ "player_window_engineer",      PT_KNIFE | PT_PISTOL | PT_LIGHTONLY | PT_EXPLOSIVES | PT_GRENADES },
-	{ "player_window_lieutenant",    PT_KNIFE | PT_PISTOL | PT_RIFLE | PT_EXPLOSIVES }
-};
-
-typedef struct {
-	int weapindex;
-
-	const char  *desc;
-	int flags;
-	const char  *cvar;
-	int value;
-	const char  *name;
-
-	const char  *torso_anim;
-	const char  *legs_anim;
-} weaponType_t;
-
-// NERVE - SMF - this is the weapon info list [what can and can't be used by character classes]
-//   - This list is seperate from the actual text names in the listboxes for localization purposes.
-//   - The list boxes look up this list by the cvar value.
-static weaponType_t weaponTypes[] = {
-	{ 0, "NULL", 0, "none", 0, "none", "", "" },
-
-	{ WP_COLT,  "1911 pistol",   PT_PISTOL,  "mp_weapon", 0, "ui/assets/weapon_colt1911.tga",      "firing_pistolB_1",      "stand_pistolB" },
-	{ WP_LUGER, "Luger pistol",  PT_PISTOL,  "mp_weapon", 1, "ui/assets/weapon_luger.tga",     "firing_pistolB_1",      "stand_pistolB" },
-	//	{ 0,		"Medkit",		PT_MEDKIT,	"mp_item2",		2, "ui/assets/item_medkit.tga",			"firing_pistolB_1",		"stand_pistolB" },
-
-	{ WP_MP40,              "MP40 submachinegun",        PT_LIGHTONLY | PT_RIFLE,    "mp_weapon", 3, "ui/assets/weapon_mp40.tga",          "relaxed_idle_2h_1", "relaxed_idle_2h_1" },
-	{ WP_THOMPSON,          "Thompson submachinegun",    PT_LIGHTONLY | PT_RIFLE,    "mp_weapon", 4, "ui/assets/weapon_thompson.tga",      "relaxed_idle_2h_1", "relaxed_idle_2h_1" },
-	{ WP_STEN,              "Sten submachinegun",        PT_LIGHTONLY | PT_RIFLE,    "mp_weapon", 5, "ui/assets/weapon_sten.tga",          "relaxed_idle_2h_1", "relaxed_idle_2h_1" },
-
-	{ WP_MAUSER,            "Mauser sniper rifle",       PT_RIFLE,                   "mp_weapon", 6, "ui/assets/weapon_mauser.tga",        "stand_rifle",           "stand_rifle" },
-	{ WP_GARAND,            "Garand rifle",              PT_RIFLE,                   "mp_weapon", 7, "ui/assets/weapon_mauser.tga",        "stand_rifle",           "stand_rifle" },
-	{ WP_PANZERFAUST,       "Panzerfaust",               PT_RIFLE,                   "mp_weapon", 8, "ui/assets/weapon_panzerfaust.tga",   "stand_machinegun",      "stand_machinegun" },
-	{ WP_VENOM,             "Minigun",                   PT_RIFLE,                   "mp_weapon", 9, "ui/assets/weapon_venom.tga",     "stand_machinegun",      "stand_machinegun" },
-	{ WP_FLAMETHROWER,      "Flamethrower",              PT_RIFLE,                   "mp_weapon", 10, "ui/assets/weapon_flamethrower.tga","stand_machinegun",       "stand_machinegun" },
-
-	{ WP_GRENADE_PINEAPPLE, "Pineapple grenade",     PT_GRENADES,                "mp_item1",      11, "ui/assets/weapon_grenade.tga",      "firing_pistolB_1",      "stand_pistolB" },
-	{ WP_GRENADE_LAUNCHER,  "Stick grenade",         PT_GRENADES,                "mp_item1",      12, "ui/assets/weapon_grenade_ger.tga",  "firing_pistolB_1",      "stand_pistolB" },
-
-	{ WP_DYNAMITE,          "Explosives",                PT_EXPLOSIVES,              "mp_item2",      13, "ui/assets/weapon_dynamite.tga", "firing_pistolB_1",      "stand_pistolB" },
-
-	{ 0, NULL, 0, NULL, 0, NULL, NULL, NULL }
-};
-
-typedef struct {
-	char        *name;
-	int flags;
-	char        *shader;
-} uiitemType_t;
-
-#define UI_KNIFE_PIC    "window_knife_pic"
-#define UI_PISTOL_PIC   "window_pistol_pic"
-#define UI_WEAPON_PIC   "window_weapon_pic"
-#define UI_ITEM1_PIC    "window_item1_pic"
-#define UI_ITEM2_PIC    "window_item2_pic"
-
-static uiitemType_t itemTypes[] = {
-	{ UI_KNIFE_PIC,     PT_KNIFE,       "ui/assets/weapon_knife.tga" },
-	{ UI_PISTOL_PIC,    PT_PISTOL,      "ui/assets/weapon_colt1911.tga" },
-
-	{ UI_WEAPON_PIC,    PT_RIFLE,       "ui/assets/weapon_mauser.tga" },
-
-	{ UI_ITEM1_PIC,     PT_MEDKIT,      "ui/assets/item_medkit.tga" },
-
-	{ UI_ITEM1_PIC,     PT_GRENADES,    "ui/assets/weapon_grenade.tga" },
-	{ UI_ITEM2_PIC,     PT_EXPLOSIVES,  "ui/assets/weapon_dynamite.tga" },
-
-	{ NULL, 0, NULL }
-};
-
-
-int WM_getWeaponIndex() {
-	int lookupIndex, i;
-
-	lookupIndex = Cvar_VariableValue( "mp_weapon" );
-
-	for ( i = 1; weaponTypes[i].name; i++ ) {
-		if ( weaponTypes[i].value == lookupIndex ) {
-			return weaponTypes[i].weapindex;
-		}
-	}
-
-	return 0;
-}
-
-void WM_GetSpawnPoints() {
-	char cs[MAX_STRING_CHARS];
-	const char *s;
-	int i;
-
-	GetConfigString( CS_MULTI_INFO, cs, sizeof( cs ) );
-	s = Info_ValueForKey( cs, "numspawntargets" );
-
-	if ( !s ) {
-		return;
-	}
-
-	// first index is for autopicking
-	Q_strncpyz( uiInfo.spawnPoints[0], "Auto Pick", MAX_SPAWNDESC );
-
-	uiInfo.spawnCount = atoi( s ) + 1;
-
-	for ( i = 1; i < uiInfo.spawnCount; i++ ) {
-		GetConfigString( CS_MULTI_SPAWNTARGETS + i, cs, sizeof( cs ) );
-
-		s = Info_ValueForKey( cs, "spawn_targ" );
-		if ( !s ) {
-			return;
-		}
-
-		Q_strncpyz( uiInfo.spawnPoints[i], s, MAX_SPAWNDESC );
-	}
-}
-
-void WM_HideItems() {
-	menuDef_t *menu = Menu_GetFocused();
-
-	Menu_ShowItemByName( menu, "window_pickplayer", qfalse );
-	Menu_ShowItemByName( menu, "window_weap", qfalse );
-	Menu_ShowItemByName( menu, "weap_*", qfalse );
-	Menu_ShowItemByName( menu, "pistol_*", qfalse );
-	Menu_ShowItemByName( menu, "grenade_*", qfalse );
-	Menu_ShowItemByName( menu, "player_type", qfalse );
-}
-
-
-
-void WM_LimboChat() {
-	char buf[200];
-
-	Cvar_VariableStringBuffer( "ui_cmd", buf, 200 );
-
-	if ( strlen( buf ) ) {
-		Cbuf_ExecuteText( EXEC_APPEND, va( "say_limbo %s\n", buf ) );
-	}
-
-	Cvar_Set( "ui_cmd", "" );
-}
-
-extern qboolean g_waitingForKey;
-extern qboolean g_editingField;
-extern itemDef_t *g_editItem;
-
-void WM_ActivateLimboChat() {
-	menuDef_t *menu;
-	itemDef_t *itemdef;
-
-	menu = Menu_GetFocused();
-	menu = Menus_ActivateByName( "wm_limboChat" );
-
-	if ( !menu || g_editItem ) {
-		return;
-	}
-
-	itemdef = Menu_FindItemByName( menu, "window_limbo_chat" );
-
-	if ( itemdef ) {
-		itemdef->cursorPos = 0;
-		g_editingField = qtrue;
-		g_editItem = itemdef;
-        Key_SetOverstrikeMode( qtrue );
-	}
-}
-// -NERVE - SMF
 
 /*
 ==============
