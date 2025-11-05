@@ -1684,6 +1684,47 @@ static void UI_Update( const char *name ) {
 
 }
 
+static qboolean saveExists(const char* name)
+{
+    for (int i = 0; i < uiInfo.savegameCount; i++ ) {
+        if ( Q_stricmp( name, uiInfo.savegameList[uiInfo.savegameStatus.displaySavegames[i]].savegameName ) == 0 ) {
+            return qtrue;
+        }
+    }
+    return qfalse;
+}
+
+static void scriptSavegame(qboolean promptOverwrite)
+{
+    char name[MAX_NAME_LENGTH];
+
+    name[0] = '\0';
+    Q_strncpyz( name, UI_Cvar_VariableString( "ui_savegame" ), MAX_NAME_LENGTH );
+
+    if ( !strnlen( name, MAX_NAME_LENGTH) ) {
+        Menus_OpenByName( "save_name_popmenu" );
+    } else {
+        const qboolean exists = saveExists(name);
+        if (exists && promptOverwrite){
+            Menus_OpenByName( "save_overwrite_popmenu" );
+        } else {
+            Cbuf_ExecuteText( EXEC_APPEND, va( "savegame %s\n", UI_Cvar_VariableString( "ui_savegame" ), MAX_NAME_LENGTH ) );
+            Menus_CloseAll();
+        }
+    }
+}
+
+static void scriptResetDefaults()
+{
+    Cbuf_ExecuteText( EXEC_NOW, "cvar_restart\n" );
+    Cbuf_ExecuteText( EXEC_NOW, "exec default.cfg\n" );
+    Cbuf_ExecuteText( EXEC_NOW, "exec language.cfg\n" );
+    Cbuf_ExecuteText( EXEC_NOW, "setRecommended\n" );
+    Controls_SetDefaults();
+    Cvar_Set( "com_introPlayed", "1" );
+    Cvar_Set( "com_recommendedSet", "1" );
+    Cbuf_ExecuteText( EXEC_APPEND, "vid_restart\n" );
+}
 
 /*
 ==============
@@ -1697,16 +1738,7 @@ static void UI_RunMenuScript( char **args ) {
 
 	if ( String_Parse( args, &name ) ) {
 		if ( Q_stricmp( name, "resetDefaults" ) == 0 ) {
-
-			Cbuf_ExecuteText( EXEC_NOW, "cvar_restart\n" );
-			Cbuf_ExecuteText( EXEC_NOW, "exec default.cfg\n" );
-			Cbuf_ExecuteText( EXEC_NOW, "exec language.cfg\n" );
-			Cbuf_ExecuteText( EXEC_NOW, "setRecommended\n" );
-			Controls_SetDefaults();
-			Cvar_Set( "com_introPlayed", "1" );
-			Cvar_Set( "com_recommendedSet", "1" );
-			Cbuf_ExecuteText( EXEC_APPEND, "vid_restart\n" );
-
+            scriptResetDefaults();
 		} else if ( Q_stricmp( name, "saveControls" ) == 0 ) {
 			Controls_SetConfig( qtrue );
 		} else if ( Q_stricmp( name, "loadControls" ) == 0 ) {
@@ -1718,39 +1750,11 @@ static void UI_RunMenuScript( char **args ) {
 		} else if ( Q_stricmp( name, "Loadgame" ) == 0 ) {
 			int i = UI_SavegameIndexFromName2( ui_savegameName.string );
 			Cbuf_ExecuteText( EXEC_APPEND, va( "loadgame %s\n", uiInfo.savegameList[i].savegameFile ) );
-			// save.  throw dialog box if file exists
 		} else if ( Q_stricmp( name, "Savegame" ) == 0 ) {
-
-			char name[MAX_NAME_LENGTH];
-
-			name[0] = '\0';
-			Q_strncpyz( name, UI_Cvar_VariableString( "ui_savegame" ), MAX_NAME_LENGTH );
-
-			if ( !strnlen( name, MAX_NAME_LENGTH) ) {
-				Menus_OpenByName( "save_name_popmenu" );
-			} else {
-				// find out if there's an existing savegame with that name
-                int i=0;
-				for ( i = 0; i < uiInfo.savegameCount; i++ ) {
-					if ( Q_stricmp( name, uiInfo.savegameList[uiInfo.savegameStatus.displaySavegames[i]].savegameName ) == 0 ) {
-						Menus_OpenByName( "save_overwrite_popmenu" );
-						break;
-					}
-				}
-
-				if ( i == uiInfo.savegameCount ) {
-					Cbuf_ExecuteText( EXEC_APPEND, va( "savegame %s\n", UI_Cvar_VariableString( "ui_savegame" ), MAX_NAME_LENGTH ) );
-					Menus_CloseAll();
-				}
-			}
-			// save with no confirm for overwrite
+            // save.  throw dialog box if file exists
+            scriptSavegame(qtrue);
 		} else if ( Q_stricmp( name, "Savegame2" ) == 0 ) {
-			if ( !strnlen( name, 256 ) ) {
-				Menus_OpenByName( "save_name_popmenu" );
-			} else {
-				Cbuf_ExecuteText( EXEC_APPEND, va( "savegame %s\n", UI_Cvar_VariableString( "ui_savegame" ), MAX_NAME_LENGTH ) );
-				Menus_CloseAll();
-			}
+            scriptSavegame(qfalse); // save with no confirm for overwrite
 		} else if ( Q_stricmp( name, "DelSavegame" ) == 0 ) {
 			int i = UI_SavegameIndexFromName2( ui_savegameName.string );
 			UI_DelSavegame();
@@ -1796,29 +1800,6 @@ static void UI_RunMenuScript( char **args ) {
 		}
 	}
 }
-
-/*
-==================
-stristr
-==================
-*/
-static char *stristr( char *str, char *charset ) {
-	int i;
-
-	while ( *str ) {
-		for ( i = 0; charset[i] && str[i]; i++ ) {
-			if ( toupper( charset[i] ) != toupper( str[i] ) ) {
-				break;
-			}
-		}
-		if ( !charset[i] ) {
-			return str;
-		}
-		str++;
-	}
-	return NULL;
-}
-
 
 // NERVE - SMF
 static void UI_FeederAddItem( float feederID, const char *name, int index ) {
