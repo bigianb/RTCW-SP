@@ -368,7 +368,7 @@ typedef struct {
 	float ( *getValue )( int ownerDraw, int type );
 	qboolean ( *ownerDrawVisible )( int flags );
 	void ( *runScript )( char **p );
-	void ( *getTeamColor )( vec4_t *color );
+
 
 	void ( *setCVar )( const char *cvar, const char *value );
 	void ( *drawTextWithCursor )( float x, float y, int font, float scale, vec4_t color, const char *text, int cursorPos, char cursor, int limit, int style );

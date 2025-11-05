@@ -37,8 +37,6 @@ uiInfo_t uiInfo;
 static int gamecodetoui[] = {4,2,3,0,5,1,6};
 static int uitogamecode[] = {4,6,2,3,1,5,7};
 
-static void UI_ParseGameInfo( const char *teamFile );
-
 static uiMenuCommand_t menutype = UIMENU_NONE;
 
 // externs
@@ -640,35 +638,35 @@ UI_LoadTranslationStrings
 ==============
 */
 #define MAX_BUFFER          20000
-static void UI_LoadTranslationStrings( void ) {
-	char buffer[MAX_BUFFER];
-	char *text;
+static void UI_LoadTranslationStrings( void )
+{
+	
+
 	char filename[MAX_QPATH];
 	fileHandle_t f;
-	int len, i, numStrings;
-	char *token;
 
 	snprintf( filename, MAX_QPATH, "text/strings.txt" );
-	len = FS_FOpenFileByMode( filename, &f, FS_READ );
+	int len = FS_FOpenFileByMode( filename, &f, FS_READ );
 	if ( len <= 0 ) {
-//		Com_Printf( S_COLOR_RED "WARNING: string translation file (strings.txt not found in main/text)\n" );
+		Com_Printf( S_COLOR_RED "WARNING: string translation file (strings.txt not found in main/text)\n" );
 		return;
 	}
 	if ( len > MAX_BUFFER ) {
-//		Com_Error( ERR_DROP, "%s is too big, make it smaller (max = %i bytes)\n", filename, MAX_BUFFER );
+		Com_Error( ERR_DROP, "%s is too big, make it smaller (max = %i bytes)\n", filename, MAX_BUFFER );
 	}
 
 	// load the file into memory
+    char buffer[MAX_BUFFER];
 	FS_Read( buffer, len, f );
 	buffer[len] = 0;
 	FS_FCloseFile( f );
 	// parse the list
-	text = buffer;
+	char* text = buffer;
 
-	numStrings = sizeof( translateStrings ) / sizeof( translateStrings[0] ) - 1;
+	int numStrings = sizeof( translateStrings ) / sizeof( translateStrings[0] ) - 1;
 
-	for ( i = 0; i < numStrings; i++ ) {
-		token = COM_ParseExt( &text, qtrue );
+	for (int i = 0; i < numStrings; i++ ) {
+		char* token = COM_ParseExt( &text, qtrue );
 		if ( !token[0] ) {
 			break;
 		}
@@ -748,8 +746,8 @@ static int UI_SavegameIndexFromName2( const char *name ) {
 UI_DrawSaveGameShot
 ==============
 */
-static void UI_DrawSaveGameShot( rectDef_t *rect, float scale, vec4_t color ) {
-	int i;
+static void UI_DrawSaveGameShot( rectDef_t *rect, float scale, vec4_t color )
+{
 	qhandle_t image;
 
 	RE_SetColor( color );
@@ -757,8 +755,8 @@ static void UI_DrawSaveGameShot( rectDef_t *rect, float scale, vec4_t color ) {
 	if ( !strlen( ui_savegameName.string ) || ui_savegameName.string[0] == '0' ) {
 		image = RE_RegisterShaderNoMip( "menu/art/unknownmap" );
 	} else {
-		i = UI_SavegameIndexFromName2( ui_savegameName.string );
-//	mapName
+		int i = UI_SavegameIndexFromName2( ui_savegameName.string );
+
 		if ( uiInfo.savegameList[i].sshotImage == -1 ) {
 			uiInfo.savegameList[i].sshotImage = RE_RegisterShaderNoMip( uiInfo.savegameList[i].imageName );
 		}
@@ -943,39 +941,37 @@ void UI_FilledBar( float x, float y, float w, float h, float *startColor, float 
 UI_DrawLoadStatus
 ==============
 */
-static void UI_DrawLoadStatus( rectDef_t *rect, vec4_t color, int align ) {
-	int expectedHunk;
-	float percentDone = 0.0f;
-	char hunkBuf[MAX_QPATH];
-	int flags = 0;
-
-	if ( align != HUD_HORIZONTAL ) {
-		flags |= 4;   // BAR_VERT
-//		flags|=1;	// BAR_LEFT (left, when vertical means grow 'up')
-	}
-
-	flags |= 16;      // BAR_BG			- draw the filled contrast box
-
-	Cvar_VariableStringBuffer( "com_expectedhunkusage", hunkBuf, MAX_QPATH );
-	expectedHunk = atoi( hunkBuf );
-
-	if ( expectedHunk > 0 ) {
-		percentDone = (float)( ui_hunkUsed.integer ) / (float)( expectedHunk );
-		if ( percentDone > 0.97 ) { // never actually show 100%, since we are not in the game yet
-			percentDone = 0.97;
-		}
-
-		UI_FilledBar( rect->x, rect->y, rect->w, rect->h, color, NULL, NULL, percentDone, flags ); // flags (BAR_CENTER|BAR_VERT|BAR_LERP_COLOR)
-	} else {
-//		Text_Paint( rect->x, rect->y, UI_FONT_DEFAULT, 0.2f, color, "Please Wait...", 0, 0, 0);
-		Text_Paint( rect->x, rect->y, UI_FONT_DEFAULT, 0.2f, color, DC->getTranslatedString( "pleasewait" ), 0, 0, 0 );
-	}
-
+static void UI_DrawLoadStatus( rectDef_t *rect, vec4_t color, int align )
+{
+    
+    int flags = 0;
+    
+    if ( align != HUD_HORIZONTAL ) {
+        flags |= 4;   // BAR_VERT
+        //		flags|=1;	// BAR_LEFT (left, when vertical means grow 'up')
+    }
+    
+    flags |= 16;      // BAR_BG			- draw the filled contrast box
+    
+    char hunkBuf[MAX_QPATH];
+    Cvar_VariableStringBuffer( "com_expectedhunkusage", hunkBuf, MAX_QPATH );
+    int expectedHunk = atoi( hunkBuf );
+    
+    if ( expectedHunk > 0 ) {
+        float percentDone = (float)( ui_hunkUsed.integer ) / (float)( expectedHunk );
+        if ( percentDone > 0.97 ) { // never actually show 100%, since we are not in the game yet
+            percentDone = 0.97;
+        }
+        
+        UI_FilledBar( rect->x, rect->y, rect->w, rect->h, color, NULL, NULL, percentDone, flags );
+    } else {
+        Text_Paint( rect->x, rect->y, UI_FONT_DEFAULT, 0.2f, color, DC->getTranslatedString( "pleasewait" ), 0, 0, 0 );
+    }
 }
-//----(SA)	end
 
 
-static void UI_DrawMapPreview( rectDef_t *rect, float scale, vec4_t color, qboolean net ) {
+static void UI_DrawMapPreview( rectDef_t *rect, float scale, vec4_t color, qboolean net )
+{
 	int map = ( net ) ? ui_currentNetMap.integer : ui_currentMap.integer;
 	if ( map < 0 || map > uiInfo.mapCount ) {
 		if ( net ) {
@@ -999,8 +995,8 @@ static void UI_DrawMapPreview( rectDef_t *rect, float scale, vec4_t color, qbool
 	}
 }
 
-static void UI_DrawMapCinematic( rectDef_t *rect, float scale, vec4_t color, qboolean net ) {
-
+static void UI_DrawMapCinematic( rectDef_t *rect, float scale, vec4_t color, qboolean net )
+{
 	int map = ( net ) ? ui_currentNetMap.integer : ui_currentMap.integer;
 	if ( map < 0 || map > uiInfo.mapCount ) {
 		if ( net ) {
@@ -1030,9 +1026,9 @@ static void UI_DrawMapCinematic( rectDef_t *rect, float scale, vec4_t color, qbo
 }
 
 
-static const char *UI_EnglishMapName( const char *map ) {
-	int i;
-	for ( i = 0; i < uiInfo.mapCount; i++ ) {
+static const char *UI_EnglishMapName( const char *map )
+{
+	for (int i = 0; i < uiInfo.mapCount; i++ ) {
 		if ( Q_stricmp( map, uiInfo.mapList[i].mapLoadName ) == 0 ) {
 			return uiInfo.mapList[i].mapName;
 		}
@@ -1040,11 +1036,9 @@ static const char *UI_EnglishMapName( const char *map ) {
 	return "";
 }
 
-static int UI_OwnerDrawWidth( int ownerDraw, int font, float scale ) {
-	int i, h, value;
-	const char *text;
+static int UI_OwnerDrawWidth( int ownerDraw, int font, float scale )
+{
 	const char *s = NULL;
-
 	switch ( ownerDraw ) {
 
 	case UI_SAVEGAMENAME:
@@ -1052,16 +1046,16 @@ static int UI_OwnerDrawWidth( int ownerDraw, int font, float scale ) {
 		break;
 
 	case UI_SAVEGAMEINFO:
-		i = UI_SavegameIndexFromName2( ui_savegameName.string );
-		s = uiInfo.savegameList[i].savegameInfoText;
+        {
+            int i = UI_SavegameIndexFromName2( ui_savegameName.string );
+            s = uiInfo.savegameList[i].savegameInfoText;
+        }
 		break;
 
 	case UI_KEYBINDSTATUS:
 		if ( Display_KeyBindPending() ) {
-//			s = "Waiting for new key... Press ESCAPE to cancel";
 			s = DC->getTranslatedString( "keywait" );
 		} else {
-//			s = "Press ENTER or CLICK to change, Press BACKSPACE to clear";
 			s = DC->getTranslatedString( "keychange" );
 		}
 		break;
@@ -1076,9 +1070,9 @@ static int UI_OwnerDrawWidth( int ownerDraw, int font, float scale ) {
 }
 
 
-static void UI_DrawCrosshair( rectDef_t *rect, float scale, vec4_t color ) {
-	int ch;
-	ch = ( uiInfo.currentCrosshair % NUM_CROSSHAIRS );
+static void UI_DrawCrosshair( rectDef_t *rect, float scale, vec4_t color )
+{
+	int ch = ( uiInfo.currentCrosshair % NUM_CROSSHAIRS );
 
 	if ( !ch ) {
 		return;
@@ -1090,39 +1084,29 @@ static void UI_DrawCrosshair( rectDef_t *rect, float scale, vec4_t color ) {
 }
 
 
-static void UI_DrawServerRefreshDate( rectDef_t *rect, int font, float scale, vec4_t color, int textStyle ) {
-}
-
-static void UI_DrawServerMOTD( rectDef_t *rect, int font, float scale, vec4_t color ) {
-}
-
-static void UI_DrawKeyBindStatus( rectDef_t *rect, int font, float scale, vec4_t color, int textStyle ) {
-	//int ofs = 0; // TTimo: unused
+static void UI_DrawKeyBindStatus( rectDef_t *rect, int font, float scale, vec4_t color, int textStyle )
+{
 	if ( Display_KeyBindPending() ) {
-//		Text_Paint(rect->x, rect->y, font, scale, color, "Waiting for new key... Press ESCAPE to cancel", 0, 0, textStyle);
 		Text_Paint( rect->x, rect->y, font, scale, color, DC->getTranslatedString( "keywait" ), 0, 0, textStyle );
 	} else {
-//		Text_Paint(rect->x, rect->y, font, scale, color, "Press ENTER or CLICK to change, Press BACKSPACE to clear", 0, 0, textStyle);
 		Text_Paint( rect->x, rect->y, font, scale, color, DC->getTranslatedString( "keychange" ), 0, 0, textStyle );
-
 	}
 }
 
-static void UI_DrawGLInfo( rectDef_t *rect, int font, float scale, vec4_t color, int textStyle ) {
-	char * eptr;
-	char buff[4096];
+static void UI_DrawGLInfo( rectDef_t *rect, int font, float scale, vec4_t color, int textStyle )
+{
 	const char *lines[64];
-	int y, numLines, i;
 
 	Text_Paint( rect->x + 2, rect->y, font, scale, color, va( "VENDOR: %s", uiInfo.uiDC.glconfig.vendor_string ), 0, 30, textStyle );
 	Text_Paint( rect->x + 2, rect->y + 15, font, scale, color, va( "VERSION: %s: %s", uiInfo.uiDC.glconfig.version_string,uiInfo.uiDC.glconfig.renderer_string ), 0, 30, textStyle );
 	Text_Paint( rect->x + 2, rect->y + 30, font, scale, color, va( "PIXELFORMAT: color(%d-bits) Z(%d-bits) stencil(%d-bits)", uiInfo.uiDC.glconfig.colorBits, uiInfo.uiDC.glconfig.depthBits, uiInfo.uiDC.glconfig.stencilBits ), 0, 30, textStyle );
 
 	// build null terminated extension strings
+    char buff[4096];
 	Q_strncpyz( buff, uiInfo.uiDC.glconfig.extensions_string, 4096 );
-	eptr = buff;
-	y = rect->y + 45;
-	numLines = 0;
+	char* eptr = buff;
+	int y = rect->y + 45;
+	int numLines = 0;
 	while ( y < rect->y + rect->h && *eptr )
 	{
 		while ( *eptr && *eptr == ' ' )
@@ -1137,7 +1121,7 @@ static void UI_DrawGLInfo( rectDef_t *rect, int font, float scale, vec4_t color,
 			eptr++;
 	}
 
-	i = 0;
+	int i = 0;
 	while ( i < numLines ) {
 		Text_Paint( rect->x + 2, y, font, scale, color, lines[i++], 0, 36, textStyle );
 		if ( i < numLines ) {
@@ -1179,7 +1163,6 @@ void UI_OwnerDraw( float x, float y, float w, float h, float text_x, float text_
 		UI_DrawMapPreview( &rect, scale, color, qtrue );
 		break;
 
-//----(SA)	added
 	case UI_SAVEGAMENAME:
 		UI_DrawSavegameName( &rect, font, scale, color, textStyle );
 		break;
@@ -1191,7 +1174,6 @@ void UI_OwnerDraw( float x, float y, float w, float h, float text_x, float text_
 	case UI_LOADSTATUSBAR:
 		UI_DrawLoadStatus( &rect, color, align );
 		break;
-//----(SA)	end
 
 	case UI_MAPCINEMATIC:
 		UI_DrawMapCinematic( &rect, scale, color, qfalse );
@@ -1201,12 +1183,6 @@ void UI_OwnerDraw( float x, float y, float w, float h, float text_x, float text_
 		UI_DrawCrosshair( &rect, scale, color );
 		break;
 	
-	case UI_SERVERREFRESHDATE:
-		UI_DrawServerRefreshDate( &rect, font, scale, color, textStyle );
-		break;
-	case UI_SERVERMOTD:
-		UI_DrawServerMOTD( &rect, font, scale, color );
-		break;
 	case UI_GLINFO:
 		UI_DrawGLInfo( &rect, font, scale, color, textStyle );
 		break;
@@ -1215,12 +1191,13 @@ void UI_OwnerDraw( float x, float y, float w, float h, float text_x, float text_
 		break;
 
 	default:
-            CG_OwnerDraw(x, y, w, h,  text_x,  text_y,  ownerDraw,  ownerDrawFlags,  align,  special,  font,  scale,  color,  shader,  textStyle);
+        CG_OwnerDraw(x, y, w, h,  text_x,  text_y,  ownerDraw,  ownerDrawFlags,  align,  special,  font,  scale,  color,  shader,  textStyle);
 		break;
 	}
 }
 
-static qboolean UI_OwnerDrawVisible( int flags ) {
+static qboolean UI_OwnerDrawVisible( int flags )
+{
 	qboolean vis = qtrue;
 
 	while ( flags ) {
@@ -1331,16 +1308,10 @@ static qboolean UI_OwnerDrawVisible( int flags ) {
 	return vis;
 }
 
-
-//----(SA)	added
-static qboolean UI_SavegameName_HandleKey( int flags, float *special, int key ) {
-
-	// disable
-	return qfalse;
-
+static qboolean UI_SavegameName_HandleKey( int flags, float *special, int key )
+{
 	if ( key == K_MOUSE1 || key == K_MOUSE2 || key == K_ENTER || key == K_KP_ENTER ) {
-		int i;
-		i = UI_SavegameIndexFromName( ui_savegameName.string );
+		int i = UI_SavegameIndexFromName( ui_savegameName.string );
 
 		if ( key == K_MOUSE2 ) {
 			i--;
@@ -1362,10 +1333,10 @@ static qboolean UI_SavegameName_HandleKey( int flags, float *special, int key ) 
 	}
 	return qfalse;
 }
-//----(SA)	end
 
 
-static qboolean UI_Crosshair_HandleKey( int flags, float *special, int key ) {
+static qboolean UI_Crosshair_HandleKey( int flags, float *special, int key )
+{
 	if ( key == K_MOUSE1 || key == K_MOUSE2 || key == K_ENTER || key == K_KP_ENTER ) {
 		if ( key == K_MOUSE2 ) {
 			uiInfo.currentCrosshair--;
@@ -1385,7 +1356,8 @@ static qboolean UI_Crosshair_HandleKey( int flags, float *special, int key ) {
 }
 
 
-qboolean UI_OwnerDrawHandleKey( int ownerDraw, int flags, float *special, int key ) {
+qboolean UI_OwnerDrawHandleKey( int ownerDraw, int flags, float *special, int key )
+{
 	switch ( ownerDraw ) {
 
 	case UI_SAVEGAMENAME:
@@ -2067,9 +2039,6 @@ static void UI_RunMenuScript( char **args ) {
 	}
 }
 
-static void UI_GetTeamColor( vec4_t *color ) {
-}
-
 /*
 ==================
 UI_MapCountByGameType
@@ -2236,9 +2205,7 @@ static qhandle_t UI_FeederItemImage( float feederID, int index ) {
 static void UI_FeederSelection( float feederID, int index ) {
     static char info[MAX_STRING_CHARS];
    
-    if ( feederID == FEEDER_MODS ) {
-        uiInfo.modIndex = index;
-    } else if ( feederID == FEEDER_CINEMATICS ) {
+    if ( feederID == FEEDER_CINEMATICS ) {
         uiInfo.movieIndex = index;
         if ( uiInfo.previewMovie >= 0 ) {
             trap_CIN_StopCinematic( uiInfo.previewMovie );
@@ -2261,8 +2228,6 @@ static void UI_FeederSelection( float feederID, int index ) {
 static int UI_FeederCount( float feederID ) {
     if ( feederID == FEEDER_SAVEGAMES ) {
         return uiInfo.savegameCount;
-    } else if ( feederID == FEEDER_MODS ) {
-        return uiInfo.modCount;
     } else if ( feederID == FEEDER_DEMOS ) {
         return uiInfo.demoCount;
     }
@@ -2320,178 +2285,6 @@ static const char *UI_FeederItemText( float feederID, int index, int column, qha
 }
 
 
-
-
-/*
-==============
-GameType_Parse
-==============
-*/
-static qboolean GameType_Parse( char **p, qboolean join ) {
-	char *token;
-
-	token = COM_ParseExt( p, qtrue );
-
-	if ( token[0] != '{' ) {
-		return qfalse;
-	}
-
-	if ( join ) {
-		uiInfo.numJoinGameTypes = 0;
-	} else {
-		uiInfo.numGameTypes = 0;
-	}
-
-	while ( 1 ) {
-		token = COM_ParseExt( p, qtrue );
-
-		if ( Q_stricmp( token, "}" ) == 0 ) {
-			return qtrue;
-		}
-
-		if ( !token || token[0] == 0 ) {
-			return qfalse;
-		}
-
-		if ( token[0] == '{' ) {
-			// two tokens per line, character name and sex
-			if ( join ) {
-				if ( !String_Parse( p, &uiInfo.joinGameTypes[uiInfo.numJoinGameTypes].gameType ) || !Int_Parse( p, &uiInfo.joinGameTypes[uiInfo.numJoinGameTypes].gtEnum ) ) {
-					return qfalse;
-				}
-			} else {
-				if ( !String_Parse( p, &uiInfo.gameTypes[uiInfo.numGameTypes].gameType ) || !Int_Parse( p, &uiInfo.gameTypes[uiInfo.numGameTypes].gtEnum ) ) {
-					return qfalse;
-				}
-			}
-
-			if ( join ) {
-				if ( uiInfo.numJoinGameTypes < MAX_GAMETYPES ) {
-					uiInfo.numJoinGameTypes++;
-				} else {
-					Com_Printf( "Too many net game types, last one replace!\n" );
-				}
-			} else {
-				if ( uiInfo.numGameTypes < MAX_GAMETYPES ) {
-					uiInfo.numGameTypes++;
-				} else {
-					Com_Printf( "Too many game types, last one replace!\n" );
-				}
-			}
-
-			token = COM_ParseExt( p, qtrue );
-			if ( token[0] != '}' ) {
-				return qfalse;
-			}
-		}
-	}
-	return qfalse;
-}
-
-static qboolean MapList_Parse( char **p ) {
-	char *token;
-
-	token = COM_ParseExt( p, qtrue );
-
-	if ( token[0] != '{' ) {
-		return qfalse;
-	}
-
-	uiInfo.mapCount = 0;
-
-	while ( 1 ) {
-		token = COM_ParseExt( p, qtrue );
-
-		if ( Q_stricmp( token, "}" ) == 0 ) {
-			return qtrue;
-		}
-
-		if ( !token || token[0] == 0 ) {
-			return qfalse;
-		}
-
-		if ( token[0] == '{' ) {
-			if ( !String_Parse( p, &uiInfo.mapList[uiInfo.mapCount].mapName ) || !String_Parse( p, &uiInfo.mapList[uiInfo.mapCount].mapLoadName )
-				 || !Int_Parse( p, &uiInfo.mapList[uiInfo.mapCount].teamMembers ) ) {
-				return qfalse;
-			}
-
-			if ( !String_Parse( p, &uiInfo.mapList[uiInfo.mapCount].opponentName ) ) {
-				return qfalse;
-			}
-
-			uiInfo.mapList[uiInfo.mapCount].typeBits = 0;
-
-			while ( 1 ) {
-				token = COM_ParseExt( p, qtrue );
-				if ( Q_isnumeric( token[0] ) ) {
-					uiInfo.mapList[uiInfo.mapCount].typeBits |= ( 1 << ( token[0] - 0x030 ) );
-					if ( !Int_Parse( p, &uiInfo.mapList[uiInfo.mapCount].timeToBeat[token[0] - 0x30] ) ) {
-						return qfalse;
-					}
-				} else {
-					break;
-				}
-			}
-
-			uiInfo.mapList[uiInfo.mapCount].cinematic = -1;
-			uiInfo.mapList[uiInfo.mapCount].levelShot = RE_RegisterShaderNoMip( va( "levelshots/%s_small", uiInfo.mapList[uiInfo.mapCount].mapLoadName ) );
-
-			if ( uiInfo.mapCount < MAX_MAPS ) {
-				uiInfo.mapCount++;
-			} else {
-				Com_Printf( "Too many maps, last one replaced!\n" );
-			}
-		}
-	}
-	return qfalse;
-}
-
-static void UI_ParseGameInfo( const char *teamFile )
-{
-	char* buff = GetMenuBuffer( teamFile );
-	if ( !buff ) {
-		return;
-	}
-
-	char *p = buff;
-
-	while ( 1 ) {
-		char* token = COM_ParseExt( &p, qtrue );
-		if ( !token || token[0] == 0 || token[0] == '}' ) {
-			break;
-		}
-
-		if ( Q_stricmp( token, "}" ) == 0 ) {
-			break;
-		}
-
-		if ( Q_stricmp( token, "gametypes" ) == 0 ) {
-
-			if ( GameType_Parse( &p, qfalse ) ) {
-				continue;
-			} else {
-				break;
-			}
-		}
-
-		if ( Q_stricmp( token, "joingametypes" ) == 0 ) {
-
-			if ( GameType_Parse( &p, qtrue ) ) {
-				continue;
-			} else {
-				break;
-			}
-		}
-
-		if ( Q_stricmp( token, "maps" ) == 0 ) {
-			// start a new menu
-			MapList_Parse( &p );
-		}
-
-	}
-}
-
 static void UI_Pause( qboolean b )
 {
 	if ( b ) {
@@ -2533,8 +2326,6 @@ static void UI_DrawCinematic( int handle, float x, float y, float w, float h ) {
 static void UI_RunCinematicFrame( int handle ) {
 	trap_CIN_RunCinematic( handle );
 }
-
-
 
 
 /*
@@ -3117,7 +2908,7 @@ void UI_Init()
     uiInfo.uiDC.getValue = &UI_GetValue;
     uiInfo.uiDC.ownerDrawVisible = &UI_OwnerDrawVisible;
     uiInfo.uiDC.runScript = &UI_RunMenuScript;
-    uiInfo.uiDC.getTeamColor = &UI_GetTeamColor;
+
     uiInfo.uiDC.setCVar = Cvar_Set;
     uiInfo.uiDC.drawTextWithCursor = &Text_PaintWithCursor;
 
