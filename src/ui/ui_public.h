@@ -188,7 +188,7 @@ uiMenuCommand_t UI_GetActiveMenu( void );
 void	UI_SetActiveMenu( uiMenuCommand_t menu );
 qboolean UI_IsFullscreen( void );
 qboolean UI_ConsoleCommand( int realTime );
-void	UI_DrawConnectScreen( qboolean overlay );
+
 
 #define SORT_HOST           0
 #define SORT_MAP            1

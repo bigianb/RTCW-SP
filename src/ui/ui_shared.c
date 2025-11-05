@@ -222,7 +222,7 @@ static stringDef_t *strHandle[HASH_TABLE_SIZE];
 
 
 const char *String_Alloc( const char *p ) {
-	int len;
+
 	long hash;
 	stringDef_t *str, *last;
 	static const char *staticNULL = "";
@@ -245,7 +245,7 @@ const char *String_Alloc( const char *p ) {
 		str = str->next;
 	}
 
-	len = strlen( p );
+	size_t len = strlen( p );
 	if ( len + strPoolIndex + 1 < STRING_POOL_SIZE ) {
 		int ph = strPoolIndex;
 		strcpy( &strPool[strPoolIndex], p );
@@ -706,11 +706,7 @@ void Window_Paint( Window *w, float fadeAmount, float fadeClamp, float fadeCycle
 		}
 		DC->drawHandlePic( fillRect.x, fillRect.y, fillRect.w, fillRect.h, w->background );
 		DC->setColor( NULL );
-	} else if ( w->style == WINDOW_STYLE_TEAMCOLOR ) {
-		if ( DC->getTeamColor ) {
-			DC->getTeamColor( &color );
-			DC->fillRect( fillRect.x, fillRect.y, fillRect.w, fillRect.h, color );
-		}
+
 	} else if ( w->style == WINDOW_STYLE_CINEMATIC ) {
 		if ( w->cinematic == -1 ) {
 			w->cinematic = DC->playCinematic( w->cinematicName, fillRect.x, fillRect.y, fillRect.w, fillRect.h );
@@ -1000,17 +996,6 @@ itemDef_t *Menu_FindItemByName( menuDef_t *menu, const char *p ) {
 	}
 
 	return NULL;
-}
-
-void Script_SetTeamColor( itemDef_t *item, char **args ) {
-	if ( DC->getTeamColor ) {
-		int i;
-		vec4_t color;
-		DC->getTeamColor( &color );
-		for ( i = 0; i < 4; i++ ) {
-			item->window.backColor[i] = color[i];
-		}
-	}
 }
 
 void Script_SetItemColor( itemDef_t *item, char **args ) {
@@ -1389,19 +1374,6 @@ void Script_SetFocus( itemDef_t *item, char **args ) {
 	}
 }
 
-void Script_SetPlayerModel( itemDef_t *item, char **args ) {
-	const char *name;
-	if ( String_Parse( args, &name ) ) {
-		DC->setCVar( "team_model", name );
-	}
-}
-
-void Script_SetPlayerHead( itemDef_t *item, char **args ) {
-	const char *name;
-	if ( String_Parse( args, &name ) ) {
-		DC->setCVar( "team_headmodel", name );
-	}
-}
 
 void Script_SetCvar( itemDef_t *item, char **args ) {
 	const char *cvar, *val;
@@ -1460,10 +1432,9 @@ commandDef_t commandList[] =
 	{"setasset", &Script_SetAsset},              // works on this
 	{"setbackground", &Script_SetBackground},    // works on this
 	{"setitemcolor", &Script_SetItemColor},      // group/name
-	{"setteamcolor", &Script_SetTeamColor},      // sets this background color to team color
-	{"setfocus", &Script_SetFocus},              // sets this background color to team color
-	{"setplayermodel", &Script_SetPlayerModel},  // sets this background color to team color
-	{"setplayerhead", &Script_SetPlayerHead},    // sets this background color to team color
+
+	{"setfocus", &Script_SetFocus},
+
 	{"transition", &Script_Transition},          // group/name
 	{"setcvar", &Script_SetCvar},                // group/name
 	{"exec", &Script_Exec},                      // group/name
@@ -5869,11 +5840,21 @@ qboolean MenuParse_fadeCycle( itemDef_t *item, int handle ) {
 qboolean MenuParse_itemDef( itemDef_t *item, int handle ) {
 	menuDef_t *menu = (menuDef_t*)item;
 	if ( menu->itemCount < MAX_MENUITEMS ) {
+        
 		menu->items[menu->itemCount] = UI_Alloc( sizeof( itemDef_t ) );
 		Item_Init( menu->items[menu->itemCount] );
 		if ( !Item_Parse( handle, menu->items[menu->itemCount] ) ) {
 			return qfalse;
 		}
+        itemDef_t* childDef = menu->items[menu->itemCount];
+        if (strcmp(childDef->window.name, "modoptions") == 0){
+            // No modes in sp wolf
+            return qtrue;
+        }
+        if (strcmp(childDef->window.name, "playselection") == 0){
+            // No switching to multiplayer in wolf
+           return qtrue;
+       }
 		Item_InitControls( menu->items[menu->itemCount] );
 		menu->items[menu->itemCount++]->parent = menu;
 	}

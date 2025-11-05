@@ -373,8 +373,6 @@ void            UI_SetActiveMenu( uiMenuCommand_t menu );
 uiMenuCommand_t UI_GetActiveMenu( void );
 int             UI_AdjustTimeByGame( int time );
 void            UI_ShowPostGame( qboolean newHigh );
-void            UI_ClearScores();
-void            UI_LoadArenas( void );
 
 //
 // ui_menu.c
@@ -408,17 +406,6 @@ extern void UI_SetupMenu_Cache( void );
 extern void UI_SetupMenu( void );
 
 //
-// ui_team.c
-//
-extern void UI_TeamMainMenu( void );
-extern void TeamMain_Cache( void );
-
-//
-// ui_connect.c
-//
-extern void UI_DrawConnectScreen( qboolean overlay );
-
-//
 // ui_controls2.c
 //
 extern void UI_ControlsMenu( void );
@@ -438,13 +425,6 @@ extern void UI_CinematicsMenu_f( void );
 extern void UI_CinematicsMenu_Cache( void );
 
 //
-// ui_cdkey.c
-//
-extern void UI_CDKeyMenu( void );
-extern void UI_CDKeyMenu_Cache( void );
-extern void UI_CDKeyMenu_f( void );
-
-//
 // ui_playermodel.c
 //
 extern void UI_PlayerModelMenu( void );
@@ -461,35 +441,6 @@ extern void PlayerSettings_Cache( void );
 //
 extern void UI_PreferencesMenu( void );
 extern void Preferences_Cache( void );
-
-//
-// ui_specifyserver.c
-//
-extern void UI_SpecifyServerMenu( void );
-extern void SpecifyServer_Cache( void );
-
-//
-// ui_servers2.c
-//
-#define MAX_FAVORITESERVERS 16
-
-extern void UI_ArenaServersMenu( void );
-extern void ArenaServers_Cache( void );
-
-//
-// ui_startserver.c
-//
-extern void UI_StartServerMenu( qboolean multiplayer );
-extern void StartServer_Cache( void );
-extern void ServerOptions_Cache( void );
-extern void UI_BotSelectMenu( char *bot );
-extern void UI_BotSelectMenu_Cache( void );
-
-//
-// ui_serverinfo.c
-//
-extern void UI_ServerInfoMenu( void );
-extern void ServerInfo_Cache( void );
 
 //
 // ui_video.c
@@ -927,34 +878,9 @@ extern char         *UI_Cvar_VariableString( const char *var_name );
 extern void         UI_Refresh( int time );
 
 extern void         UI_StartDemoLoop( void );
-void                UI_LoadBestScores( const char *map, int game );           // NERVE - SMF
+
 extern qboolean m_entersound;
 extern uiStatic_t uis;
-
-//
-// ui_spLevel.c
-//
-void UI_SPLevelMenu_Cache( void );
-void UI_SPLevelMenu( void );
-void UI_SPLevelMenu_f( void );
-void UI_SPLevelMenu_ReInit( void );
-
-//
-// ui_spArena.c
-//
-void UI_SPArena_Start( const char *arenaInfo );
-
-//
-// ui_spPostgame.c
-//
-void UI_SPPostgameMenu_Cache( void );
-void UI_SPPostgameMenu_f( void );
-
-//
-// ui_spSkill.c
-//
-void UI_SPSkillMenu( const char *arenaInfo );
-void UI_SPSkillMenu_Cache( void );
 
 //
 // ui_syscalls.c
@@ -989,8 +915,6 @@ void            trap_Key_SetCatcher( int catcher );
 void            GetClientState( uiClientState_t *state );
 int             GetConfigString( int index, char* buff, int buffsize );
 
-void            trap_GetCDKey( char *buf, int buflen );
-void            trap_SetCDKey( char *buf );
 void            trap_R_RegisterFont( const char *pFontname, int pointSize, fontInfo_t *font );
 void            trap_S_StopBackgroundTrack( void );
 void            trap_S_StartBackgroundTrack( const char *intro, const char *loop, int fadeupTime );
@@ -1001,25 +925,6 @@ void            trap_CIN_DrawCinematic( int handle );
 
 int             trap_RealTime( qtime_t *qtime );
 void            trap_R_RemapShader( const char *oldShader, const char *newShader, const char *timeOffset );
-
-//
-// ui_addbots.c
-//
-void UI_AddBots_Cache( void );
-void UI_AddBotsMenu( void );
-
-//
-// ui_removebots.c
-//
-void UI_RemoveBots_Cache( void );
-void UI_RemoveBotsMenu( void );
-
-//
-// ui_teamorders.c
-//
-extern void UI_TeamOrdersMenu( void );
-extern void UI_TeamOrdersMenu_f( void );
-extern void UI_TeamOrdersMenu_Cache( void );
 
 //
 // ui_loadconfig.c
@@ -1045,49 +950,6 @@ void UI_DisplayOptionsMenu( void );
 void UI_SoundOptionsMenu_Cache( void );
 void UI_SoundOptionsMenu( void );
 
-//
-// ui_network.c
-//
-void UI_NetworkOptionsMenu_Cache( void );
-void UI_NetworkOptionsMenu( void );
-
-//
-// ui_gameinfo.c
-//
-typedef enum {
-	AWARD_ACCURACY,
-	AWARD_IMPRESSIVE,
-	AWARD_EXCELLENT,
-	AWARD_GAUNTLET,
-	AWARD_FRAGS,
-	AWARD_PERFECT
-} awardType_t;
-
-const char *UI_GetArenaInfoByNumber( int num );
-const char *UI_GetArenaInfoByMap( const char *map );
-const char *UI_GetSpecialArenaInfo( const char *tag );
-int UI_GetNumArenas( void );
-int UI_GetNumSPArenas( void );
-int UI_GetNumSPTiers( void );
-
-char *UI_GetBotInfoByNumber( int num );
-char *UI_GetBotInfoByName( const char *name );
-int UI_GetNumBots( void );
-
-void UI_GetBestScore( int level, int *score, int *skill );
-void UI_SetBestScore( int level, int score );
-int UI_TierCompleted( int levelWon );
-qboolean UI_ShowTierVideo( int tier );
-qboolean UI_CanShowTierVideo( int tier );
-int  UI_GetCurrentGame( void );
-void UI_NewGame( void );
-void UI_LogAwardData( int award, int data );
-int UI_GetAwardLevel( int award );
-
-void UI_SPUnlock_f( void );
-void UI_SPUnlockMedals_f( void );
-
-void UI_InitGameinfo( void );
 
 //
 // ui_main.c

@@ -471,7 +471,7 @@ void SCR_DrawScreenField( stereoFrame_t stereoFrame ) {
 			// connecting clients will only show the connection dialog
 			// refresh to update the time
 			UI_Refresh(cls.realtime );
-			UI_DrawConnectScreen(qfalse );
+
 			break;
 
 		case CA_LOADING:
@@ -480,7 +480,7 @@ void SCR_DrawScreenField( stereoFrame_t stereoFrame ) {
 			CL_CGameRendering( stereoFrame );
 
 			UI_Refresh(cls.realtime );
-			UI_DrawConnectScreen(qtrue );
+
 			break;
 		case CA_ACTIVE:
 			CL_CGameRendering( stereoFrame );

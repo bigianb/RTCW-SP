@@ -64,16 +64,6 @@ char *UI_Cvar_VariableString( const char *var_name ) {
 	return buffer;
 }
 
-
-
-
-void UI_LoadBestScores( const char *map, int game ) {
-}
-
-void UI_ClearScores() {
-
-}
-
 static void UI_Cache_f() {
 	Display_CacheAll();
 }
