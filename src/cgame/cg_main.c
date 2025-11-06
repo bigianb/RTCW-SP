@@ -1518,20 +1518,6 @@ void CG_Text_PaintWithCursor( float x, float y, int font, float scale, vec4_t co
 	Text_Paint( x, y, font, scale, color, text, 0, limit, style );
 }
 
-static int CG_OwnerDrawWidth( int ownerDraw, int font, float scale ) {
-	switch ( ownerDraw ) {
-	case CG_GAME_TYPE:
-		return Text_Width( CG_GameTypeString(), font, scale, 0 );
-	case CG_GAME_STATUS:
-		return Text_Width( CG_GetGameStatusText(), font, scale, 0 );
-		break;
-	case CG_KILLER:
-		return Text_Width( CG_GetKillerText(), font, scale, 0 );
-		break;
-	}
-	return 0;
-}
-
 static int CG_PlayCinematic( const char *name, float x, float y, float w, float h ) {
 	return trap_CIN_PlayCinematic( name, x, y, w, h, CIN_loop );
 }

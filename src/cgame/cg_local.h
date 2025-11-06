@@ -1583,7 +1583,7 @@ typedef struct {
 
 	int cursorX;
 	int cursorY;
-	qboolean eventHandling;
+
 	qboolean mouseCaptured;
 	qboolean sizingHud;
 	void *capturedItem;
@@ -1880,39 +1880,25 @@ extern char teamChat2[256];
 void CG_AddLagometerFrameInfo( void );
 void CG_AddLagometerSnapshotInfo( snapshot_t *snap );
 void CG_CenterPrint( const char *str, int y, int charWidth );
-void CG_ObjectivePrint( const char *str, int charWidth, int team );     // NERVE - SMF
-void CG_DrawHead( float x, float y, float w, float h, int clientNum, vec3_t headAngles );
 void CG_DrawActive( stereoFrame_t stereoView );
-void CG_DrawFlagModel( float x, float y, float w, float h, int team );
 
-void CG_DrawTeamBackground( int x, int y, int w, int h, float alpha, int team );
+
 void CG_OwnerDraw( float x, float y, float w, float h, float text_x, float text_y, int ownerDraw, int ownerDrawFlags, int align, float special, int font, float scale, vec4_t color, qhandle_t shader, int textStyle );
 void Text_Paint( float x, float y, int font, float scale, vec4_t color, const char *text, float adjust, int limit, int style );    //----(SA)	modified
 int Text_Width( const char *text, int font, float scale, int limit );
-void CG_SelectPrevPlayer();
-void CG_SelectNextPlayer();
+
 float CG_GetValue( int ownerDraw, int type ); // 'type' is relative or absolute (fractional-'0.5' or absolute- '50' health)
 qboolean CG_OwnerDrawVisible( int flags );
 void CG_RunMenuScript( char **args );
-void CG_ShowResponseHead();
 void CG_SetPrintString( int type, const char *p );
-void CG_InitTeamChat();
-void CG_GetTeamColor( vec4_t *color );
-const char *CG_GetGameStatusText();
-const char *CG_GetKillerText();
+
+
 void CG_Draw3DModel( float x, float y, float w, float h, qhandle_t model, qhandle_t skin, vec3_t origin, vec3_t angles );
 void Text_PaintChar( float x, float y, float scale, glyphInfo_t *glyph );   // FIXME - in ui code
-void CG_CheckOrderPending();
-const char *CG_GameTypeString();
-qboolean CG_YourTeamHasFlag();
-qboolean CG_OtherTeamHasFlag();
-qhandle_t CG_StatusHandle( int task );
-void CG_Fade( int r, int g, int b, int a, int time, int duration ); //----(SA)	modified
+void CG_Fade( int r, int g, int b, int a, int time, int duration );
 
 void CG_CalcShakeCamera();
 void CG_ApplyShakeCamera();
-
-
 
 //
 // cg_player.c

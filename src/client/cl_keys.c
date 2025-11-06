@@ -1381,7 +1381,7 @@ void CL_KeyEvent( int key, qboolean down, unsigned time ) {
 		// escape always gets out of CGAME stuff
 		if ( cls.keyCatchers & KEYCATCH_CGAME ) {
 			cls.keyCatchers &= ~KEYCATCH_CGAME;
-			CG_EventHandling(CGAME_EVENT_NONE);
+
 			return;
 		}
 

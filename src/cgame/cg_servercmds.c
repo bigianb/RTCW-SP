@@ -691,7 +691,6 @@ The string has been tokenized and can be retrieved with
 Cmd_Argc() / Cmd_Argv()
 =================
 */
-void CG_ObjectivePrint( const char *str, int charWidth, int team );     // NERVE - SMF
 
 static void CG_ServerCommand( void ) {
 	const char  *cmd;
@@ -799,16 +798,6 @@ static void CG_ServerCommand( void ) {
 		cg.levelShot = qtrue;
 		return;
 	}
-
-	// NERVE - SMF
-	if ( !Q_stricmp( cmd, "oid" ) ) {
-		int team = atoi( CG_Argv( 1 ) );
-
-		CG_ObjectivePrint( CG_Argv( 2 ), SMALLCHAR_WIDTH, team );
-		return;
-	}
-	// -NERVE - SMF
-
 
 	//
 	// music

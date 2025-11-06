@@ -92,7 +92,7 @@ Adds command text at the end of the buffer, does NOT add a final \n
 ============
 */
 void Cbuf_AddText( const char *text ) {
-	size_t l = strnlen( text, 256 );
+	size_t l = strlen( text );
 
 	if ( cmd_text.cmdsize + l >= cmd_text.maxsize ) {
 		Com_Printf( "Cbuf_AddText: overflow\n" );
@@ -113,7 +113,7 @@ Adds a \n to the text
 */
 void Cbuf_InsertText( const char *text )
 {
-	size_t len = strnlen( text, 256 ) + 1;
+	size_t len = strlen( text ) + 1;
 	if ( len + cmd_text.cmdsize > cmd_text.maxsize ) {
 		Com_Printf( "Cbuf_InsertText overflowed\n" );
 		return;
@@ -183,7 +183,7 @@ void Cbuf_Execute()
 
 		int quotes = 0;
 		int i;
-		for (int i = 0 ; i < cmd_text.cmdsize ; i++ )
+		for (i = 0 ; i < cmd_text.cmdsize ; i++ )
 		{
 			if ( text[i] == '"' ) {
 				quotes++;
