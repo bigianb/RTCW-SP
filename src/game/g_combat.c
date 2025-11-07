@@ -402,7 +402,7 @@ void player_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
 	self->client->ps.persistant[PERS_KILLED]++;
 
 	if ( attacker && attacker->client ) {
-		if ( attacker == self || OnSameTeam( self, attacker ) ) {
+		if ( attacker == self ) {
 			AddScore( attacker, -1 );
 		} else {
 			AddScore( attacker, 1 );
@@ -445,9 +445,6 @@ void player_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
 	} else {
 		AddScore( self, -1 );
 	}
-
-	// Add team bonuses
-	Team_FragBonuses( self, inflictor, attacker );
 
 	// if client is in a nodrop area, don't drop anything
 // JPW NERVE new drop behavior
@@ -993,19 +990,6 @@ void G_Damage( gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
 		}
 	}
 
-	// reduce damage by the attacker's handicap value
-	// unless they are rocket jumping
-
-	// Ridah, not in single player (skill levels?)
-// JPW NERVE pulled this from multiplayer too
-/*
-	if (g_gametype.integer != GT_SINGLE_PLAYER)
-	// done.
-	if ( attacker->client && attacker != targ ) {
-		damage = damage * attacker->client->ps.stats[STAT_MAX_HEALTH] / 100;
-	}
-*/
-// jpw
 
 	// Ridah, Cast AI's don't hurt other Cast AI's as much
 	if ( ( attacker->r.svFlags & SVF_CASTAI ) && ( targ->r.svFlags & SVF_CASTAI ) ) {
@@ -1088,14 +1072,6 @@ void G_Damage( gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
 	// check for completely getting out of the damage
 	if ( !( dflags & DAMAGE_NO_PROTECTION ) ) {
 
-		// if TF_NO_FRIENDLY_FIRE is set, don't do damage to the target
-		// if the attacker was on the same team
-		if ( targ != attacker && OnSameTeam( targ, attacker )  ) {
-			if ( !g_friendlyFire.integer ) {
-				return;
-			}
-		}
-
 		// check for godmode
 		if ( targ->flags & FL_GODMODE ) {
 			return;
@@ -1121,19 +1097,6 @@ void G_Damage( gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
 			return;
 		}
 		damage *= 0.5;
-	}
-
-	// Ridah, don't play these in single player
-	if ( g_gametype.integer != GT_SINGLE_PLAYER ) {
-		// done.
-		// add to the attacker's hit counter
-		if ( attacker->client && targ != attacker && targ->health > 0 ) {
-			if ( OnSameTeam( targ, attacker ) ) {
-				attacker->client->ps.persistant[PERS_HITS] -= damage;
-			} else {
-				attacker->client->ps.persistant[PERS_HITS] += damage;
-			}
-		}
 	}
 
 	// always give half damage if hurting self
@@ -1272,9 +1235,6 @@ void G_Damage( gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
 			client->damage_fromWorld = qtrue;
 		}
 	}
-
-	// See if it's the player hurting the emeny flag carrier
-	Team_CheckHurtCarrier( targ, attacker );
 
 	if ( targ->client ) {
 		// set the last client who damaged the target

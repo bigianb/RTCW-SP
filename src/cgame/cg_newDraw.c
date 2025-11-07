@@ -34,18 +34,6 @@ If you have questions concerning this license or the applicable additional terms
 #include "../client/snd_public.h"
 #include "../client/client.h"
 
-int drawTeamOverlayModificationCount = -1;
-
-
-void CG_SetPrintString( int type, const char *p ) {
-	if ( type == SYSTEM_PRINT ) {
-		strcpy( systemChat, p );
-	} else {
-		strcpy( teamChat2, teamChat1 );
-		strcpy( teamChat1, p );
-	}
-}
-
 
 static void CG_DrawPlayerArmorValue( rectDef_t *rect, int font, float scale, vec4_t color, qhandle_t shader, int textStyle ) {
 	char num[16];
@@ -866,7 +854,7 @@ void CG_OwnerDraw( float x, float y, float w, float h, float text_x, float text_
 void CG_MouseEvent( int x, int y ) {
 	int n;
 
-	if ( ( cg.predictedPlayerState.pm_type == PM_NORMAL || cg.predictedPlayerState.pm_type == PM_SPECTATOR ) && cg.showScores == qfalse ) {
+	if ( cg.predictedPlayerState.pm_type == PM_NORMAL ) {
 		Key_SetCatcher( 0 );
 		return;
 	}

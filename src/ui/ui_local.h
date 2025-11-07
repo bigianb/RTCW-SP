@@ -621,16 +621,6 @@ typedef struct {
 } aliasInfo;
 
 typedef struct {
-	const char *teamName;
-	const char *imageName;
-	const char *teamMembers[TEAM_MEMBERS];
-	qhandle_t teamIcon;
-	qhandle_t teamIcon_Metal;
-	qhandle_t teamIcon_Name;
-	int cinematic;
-} teamInfo;
-
-typedef struct {
 	const char *gameType;
 	int gtEnum;
 } gameTypeInfo;
@@ -747,9 +737,6 @@ typedef struct {
 
 	int aliasCount;
 	aliasInfo aliasList[MAX_ALIASES];
-
-	int teamCount;
-	teamInfo teamList[MAX_TEAMS];
 
 	int numGameTypes;
 	gameTypeInfo gameTypes[MAX_GAMETYPES];

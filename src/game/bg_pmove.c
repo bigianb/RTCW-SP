@@ -2523,10 +2523,6 @@ static void PM_Weapon( void ) {
 		gameReloading = qfalse;
 	}
 
-	// ignore if spectator
-	if ( pm->ps->persistant[PERS_TEAM] == TEAM_SPECTATOR ) {
-		return;
-	}
 
 	// check for dead player
 	if ( pm->ps->stats[STAT_HEALTH] <= 0 ) {

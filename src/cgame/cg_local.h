@@ -82,9 +82,6 @@ If you have questions concerning this license or the applicable additional terms
 #define CHAR_HEIGHT         48
 #define TEXT_ICON_SPACE     4
 
-#define TEAMCHAT_WIDTH      80
-#define TEAMCHAT_HEIGHT     8
-
 // very large characters
 #define GIANT_WIDTH         32
 #define GIANT_HEIGHT        48
@@ -488,25 +485,6 @@ typedef struct localEntity_s {
 //======================================================================
 
 
-typedef struct {
-	int client;
-	int score;
-	int ping;
-	int time;
-	int scoreFlags;
-	int powerUps;
-	int accuracy;
-	int impressiveCount;
-	int excellentCount;
-	int guantletCount;
-	int defendCount;
-	int assistCount;
-	int captures;
-	qboolean perfect;
-	int team;
-} score_t;
-
-
 typedef enum {
 	ACC_BELT_LEFT,  // belt left (lower)
 	ACC_BELT_RIGHT, // belt right (lower)
@@ -806,25 +784,6 @@ typedef struct {
 
 	// information screen text during loading
 	char infoScreenText[MAX_STRING_CHARS];
-
-	// scoreboard
-	int scoresRequestTime;
-	int numScores;
-	int selectedScore;
-	int teamScores[2];
-	score_t scores[MAX_CLIENTS];
-	qboolean showScores;
-	qboolean scoreBoardShowing;
-	int scoreFadeTime;
-	char killerName[MAX_NAME_LENGTH];
-	char spectatorList[MAX_STRING_CHARS];                   // list of names
-	int spectatorLen;                                                           // length of list
-	float spectatorWidth;                                                   // width in device units
-	int spectatorTime;                                                      // next time to offset
-	int spectatorPaintX;                                                    // current paint x
-	int spectatorPaintX2;                                                   // current paint x
-	int spectatorOffset;                                                    // current offset from start
-	int spectatorPaintLen;                                              // current offset from start
 
 	qboolean showItems;
 	int itemFadeTime;
@@ -1573,12 +1532,6 @@ typedef struct {
 
 	clientInfo_t clientinfo[MAX_CLIENTS];
 
-	// teamchat width is *3 because of embedded color codes
-	char teamChatMsgs[TEAMCHAT_HEIGHT][TEAMCHAT_WIDTH * 3 + 1];
-	int teamChatMsgTimes[TEAMCHAT_HEIGHT];
-	int teamChatPos;
-	int teamLastChatPos;
-
 	char itemPrintNames[MAX_ITEMS][32];             //----(SA)	added
 
 	int cursorX;
@@ -1637,7 +1590,7 @@ extern vmCvar_t cg_weaponCycleDelay;            //----(SA)	added
 extern vmCvar_t cg_cycleAllWeaps;
 extern vmCvar_t cg_drawAllWeaps;
 extern vmCvar_t cg_drawRewards;
-extern vmCvar_t cg_drawTeamOverlay;
+
 extern vmCvar_t cg_crosshairX;
 extern vmCvar_t cg_crosshairY;
 extern vmCvar_t cg_crosshairSize;
@@ -1890,8 +1843,6 @@ int Text_Width( const char *text, int font, float scale, int limit );
 float CG_GetValue( int ownerDraw, int type ); // 'type' is relative or absolute (fractional-'0.5' or absolute- '50' health)
 qboolean CG_OwnerDrawVisible( int flags );
 void CG_RunMenuScript( char **args );
-void CG_SetPrintString( int type, const char *p );
-
 
 void CG_Draw3DModel( float x, float y, float w, float h, qhandle_t model, qhandle_t skin, vec3_t origin, vec3_t angles );
 void Text_PaintChar( float x, float y, float scale, glyphInfo_t *glyph );   // FIXME - in ui code

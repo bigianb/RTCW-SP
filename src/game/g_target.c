@@ -83,12 +83,6 @@ void Use_target_remove_powerups( gentity_t *ent, gentity_t *other, gentity_t *ac
 		return;
 	}
 
-	if ( activator->client->ps.powerups[PW_REDFLAG] ) {
-		Team_ReturnFlag( TEAM_RED );
-	} else if ( activator->client->ps.powerups[PW_BLUEFLAG] ) {
-		Team_ReturnFlag( TEAM_BLUE );
-	}
-
 	memset( activator->client->ps.powerups, 0, sizeof( activator->client->ps.powerups ) );
 }
 
@@ -159,12 +153,7 @@ void Use_Target_Print( gentity_t *ent, gentity_t *other, gentity_t *activator ) 
 	}
 
 	if ( ent->spawnflags & 3 ) {
-		if ( ent->spawnflags & 1 ) {
-			G_TeamCommand( TEAM_RED, va( "cp \"%s\"", ent->message ) );
-		}
-		if ( ent->spawnflags & 2 ) {
-			G_TeamCommand( TEAM_BLUE, va( "cp \"%s\"", ent->message ) );
-		}
+		
 		return;
 	}
 

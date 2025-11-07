@@ -325,13 +325,6 @@ void    G_TouchTriggers( gentity_t *ent ) {
 			continue;
 		}
 
-		// ignore most entities if a spectator
-		if ( ent->client->sess.sessionTeam == TEAM_SPECTATOR ) {
-			if ( hit->s.eType != ET_TELEPORT_TRIGGER ) {
-				continue;
-			}
-		}
-
 		// use seperate code for determining if an item is picked up
 		// so you don't have to actually contact its bounding box
 		if ( hit->s.eType == ET_ITEM ) {

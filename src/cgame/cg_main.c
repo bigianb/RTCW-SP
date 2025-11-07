@@ -148,7 +148,7 @@ vmCvar_t cg_paused;
 vmCvar_t cg_blood;
 vmCvar_t cg_predictItems;
 vmCvar_t cg_deferPlayers;
-vmCvar_t cg_drawTeamOverlay;
+
 vmCvar_t cg_enableBreath;
 vmCvar_t cg_autoactivate;
 vmCvar_t cg_useSuggestedWeapons;    //----(SA)	added
@@ -341,7 +341,7 @@ static cvarTable_t cvarTable[] = {
 	{ &cg_coronas, "cg_coronas", "1", CVAR_ARCHIVE },
 	{ &cg_predictItems, "cg_predictItems", "1", CVAR_ARCHIVE },
 	{ &cg_deferPlayers, "cg_deferPlayers", "1", CVAR_ARCHIVE },
-	{ &cg_drawTeamOverlay, "cg_drawTeamOverlay", "0", CVAR_ARCHIVE },
+
 	{ &cg_stats, "cg_stats", "0", 0 },
 	{ &cg_blinktime, "cg_blinktime", "100", CVAR_ARCHIVE},         //----(SA)	added
 
@@ -1080,17 +1080,8 @@ static void CG_RegisterGraphics( void ) {
 	cgs.media.hintShaders[HINT_EXIT_FAR]            = cgs.media.hintShaders[HINT_EXIT];
 	cgs.media.hintShaders[HINT_NOEXIT_FAR]          = cgs.media.hintShaders[HINT_EXIT];
 
-//	cgs.media.hintShaders[HINT_PLYR_FRIEND]			= trap_R_RegisterShader( "gfx/2d/hintPlrFriend" );
-//	cgs.media.hintShaders[HINT_PLYR_NEUTRAL]		= trap_R_RegisterShader( "gfx/2d/hintPlrNeutral" );
-//	cgs.media.hintShaders[HINT_PLYR_ENEMY]			= trap_R_RegisterShader( "gfx/2d/hintPlrEnemy" );
-//	cgs.media.hintShaders[HINT_PLYR_UNKNOWN]		= trap_R_RegisterShader( "gfx/2d/hintPlrUnknown" );
-
-//	cgs.media.hintShaders[HINT_BUILD]				= trap_R_RegisterShader( "gfx/2d/buildHint" );		// DHM - Nerve
-
 	cgs.media.youGotMailShader      = trap_R_RegisterShader( "gfx/2d/yougotmail" );    //----(SA)	added
 	cgs.media.youGotObjectiveShader = trap_R_RegisterShader( "gfx/2d/yougotobjective" );   //----(SA)	added
-
-//----(SA)	end
 
 	for ( i = 0 ; i < NUM_CROSSHAIRS ; i++ ) {
 		cgs.media.crosshairShader[i] = RE_RegisterShaderNoMip( va( "gfx/2d/crosshair%c", 'a' + i ) );
@@ -1408,110 +1399,6 @@ void CG_QueueMusic( void ) {
 extern void LoadMenus(const char*, qboolean, qboolean);
 void CG_LoadMenus( const char *menuFile ) {
 	LoadMenus(menuFile, qtrue, qtrue);
-}
-
-static int CG_FeederCount( float feederID ) {
-	int i, count;
-	count = 0;
-	if ( feederID == FEEDER_REDTEAM_LIST ) {
-		for ( i = 0; i < cg.numScores; i++ ) {
-			if ( cg.scores[i].team == TEAM_RED ) {
-				count++;
-			}
-		}
-	} else if ( feederID == FEEDER_BLUETEAM_LIST ) {
-		for ( i = 0; i < cg.numScores; i++ ) {
-			if ( cg.scores[i].team == TEAM_BLUE ) {
-				count++;
-			}
-		}
-	} else if ( feederID == FEEDER_SCOREBOARD ) {
-		return cg.numScores;
-	}
-	return count;
-}
-
-
-static clientInfo_t * CG_InfoFromScoreIndex( int index, int team, int *scoreIndex ) {
-	int i, count;
-	if ( cgs.gametype >= GT_TEAM ) {
-		count = 0;
-		for ( i = 0; i < cg.numScores; i++ ) {
-			if ( cg.scores[i].team == team ) {
-				if ( count == index ) {
-					*scoreIndex = i;
-					return &cgs.clientinfo[cg.scores[i].client];
-				}
-				count++;
-			}
-		}
-	}
-	*scoreIndex = index;
-	return &cgs.clientinfo[ cg.scores[index].client ];
-}
-
-static const char *CG_FeederItemText( float feederID, int index, int column, qhandle_t *handle ) {
-	int scoreIndex = 0;
-	clientInfo_t *info = NULL;
-	int team = -1;
-	score_t *sp = NULL;
-
-	*handle = -1;
-
-	if ( feederID == FEEDER_REDTEAM_LIST ) {
-		team = TEAM_RED;
-	} else if ( feederID == FEEDER_BLUETEAM_LIST ) {
-		team = TEAM_BLUE;
-	}
-
-	info = CG_InfoFromScoreIndex( index, team, &scoreIndex );
-	sp = &cg.scores[scoreIndex];
-
-	if ( info && info->infoValid ) {
-		switch ( column ) {
-		case 0:
-			break;
-		case 3:
-			return info->name;
-			break;
-		case 4:
-			return va( "%i", info->score );
-			break;
-		case 5:
-			return va( "%4i", sp->time );
-			break;
-		case 6:
-			if ( sp->ping == -1 ) {
-				return "connecting";
-			}
-			return va( "%4i", sp->ping );
-			break;
-		}
-	}
-
-	return "";
-}
-
-static qhandle_t CG_FeederItemImage( float feederID, int index ) {
-	return 0;
-}
-
-static void CG_FeederSelection( float feederID, int index ) {
-	if ( cgs.gametype >= GT_TEAM ) {
-		int i, count;
-		int team = ( feederID == FEEDER_REDTEAM_LIST ) ? TEAM_RED : TEAM_BLUE;
-		count = 0;
-		for ( i = 0; i < cg.numScores; i++ ) {
-			if ( cg.scores[i].team == team ) {
-				if ( index == count ) {
-					cg.selectedScore = i;
-				}
-				count++;
-			}
-		}
-	} else {
-		cg.selectedScore = index;
-	}
 }
 
 void CG_Text_PaintWithCursor( float x, float y, int font, float scale, vec4_t color, const char *text, int cursorPos, char cursor, int limit, int style ) {

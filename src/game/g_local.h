@@ -505,7 +505,6 @@ typedef struct {
 	playerTeamState_t teamState;    // status in teamplay games
 	int voteCount;                  // to prevent people from constantly calling votes
 	int teamVoteCount;              // to prevent people from constantly calling votes
-	qboolean teamInfo;              // send team overlay updates?
 } clientPersistant_t;
 
 
@@ -793,7 +792,7 @@ int G_FindConfigstringIndex( const char *name, int start, int max, qboolean crea
 // done.
 int G_ModelIndex( char *name );
 int     G_SoundIndex( const char *name );
-void    G_TeamCommand( team_t team, char *cmd );
+
 void    G_KillBox( gentity_t *ent );
 gentity_t *G_Find( gentity_t *from, int fieldofs, const char *match );
 gentity_t *G_PickTarget( char *targetname );
@@ -992,12 +991,6 @@ void ClientCommand( int clientNum );
 void ClientThink( int clientNum );
 void ClientEndFrame( gentity_t *ent );
 void G_RunClient( gentity_t *ent );
-
-//
-// g_team.c
-//
-qboolean OnSameTeam( gentity_t *ent1, gentity_t *ent2 );
-
 
 //
 // g_mem.c

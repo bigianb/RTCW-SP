@@ -729,12 +729,6 @@ void ClientUserinfoChanged( int clientNum ) {
 	s = Info_ValueForKey( userinfo, "name" );
 	ClientCleanName( s, client->pers.netname, sizeof( client->pers.netname ) );
 
-	if ( client->sess.sessionTeam == TEAM_SPECTATOR ) {
-		if ( client->sess.spectatorState == SPECTATOR_SCOREBOARD ) {
-			Q_strncpyz( client->pers.netname, "scoreboard", sizeof( client->pers.netname ) );
-		}
-	}
-
 	if ( client->pers.connected == CON_CONNECTED ) {
 		if ( strcmp( oldname, client->pers.netname ) ) {
 			SV_GameSendServerCommand( -1, va( "print \"%s" S_COLOR_WHITE " renamed to %s\n\"", oldname,
@@ -956,7 +950,7 @@ void ClientBegin( int clientNum ) {
 		AICast_ScriptEvent( AICast_GetCastState( clientNum ), "spawn", "" );
 	}
 
-	if ( client->sess.sessionTeam != TEAM_SPECTATOR ) {
+	{
 		// send event
 		tent = G_TempEntity( ent->client->ps.origin, EV_PLAYER_TELEPORT_IN );
 		tent->s.clientNum = ent->s.clientNum;
@@ -1016,41 +1010,33 @@ void ClientSpawn( gentity_t *ent ) {
 		AICast_ScriptParse( AICast_GetCastState( ent->s.number ) );
 		// done.
 
-		if ( client->sess.sessionTeam == TEAM_SPECTATOR ) {
-			spawnPoint = SelectSpectatorSpawnPoint(
-				spawn_origin, spawn_angles );
-		} else if ( g_gametype.integer >= GT_TEAM ) {
-			spawnPoint = SelectCTFSpawnPoint(
-				client->sess.sessionTeam,
-				client->pers.teamState.state,
-				spawn_origin, spawn_angles );
-		} else {
-			do {
-				// the first spawn should be at a good looking spot
-				if ( !client->pers.initialSpawn && client->pers.localClient ) {
-					client->pers.initialSpawn = qtrue;
-					spawnPoint = SelectInitialSpawnPoint( spawn_origin, spawn_angles );
-				} else {
-					// don't spawn near existing origin if possible
-					spawnPoint = SelectSpawnPoint(
-						client->ps.origin,
-						spawn_origin, spawn_angles );
-				}
+		
+		do {
+			// the first spawn should be at a good looking spot
+			if ( !client->pers.initialSpawn && client->pers.localClient ) {
+				client->pers.initialSpawn = qtrue;
+				spawnPoint = SelectInitialSpawnPoint( spawn_origin, spawn_angles );
+			} else {
+				// don't spawn near existing origin if possible
+				spawnPoint = SelectSpawnPoint(
+					client->ps.origin,
+					spawn_origin, spawn_angles );
+			}
 
-				// Tim needs to prevent bots from spawning at the initial point
-				// on q3dm0...
-				if ( ( spawnPoint->flags & FL_NO_BOTS ) && ( ent->r.svFlags & SVF_BOT ) ) {
-					continue;   // try again
-				}
-				// just to be symetric, we have a nohumans option...
-				if ( ( spawnPoint->flags & FL_NO_HUMANS ) && !( ent->r.svFlags & SVF_BOT ) ) {
-					continue;   // try again
-				}
+			// Tim needs to prevent bots from spawning at the initial point
+			// on q3dm0...
+			if ( ( spawnPoint->flags & FL_NO_BOTS ) && ( ent->r.svFlags & SVF_BOT ) ) {
+				continue;   // try again
+			}
+			// just to be symetric, we have a nohumans option...
+			if ( ( spawnPoint->flags & FL_NO_HUMANS ) && !( ent->r.svFlags & SVF_BOT ) ) {
+				continue;   // try again
+			}
 
-				break;
+			break;
 
-			} while ( 1 );
-		}
+		} while ( 1 );
+		
 
 		// Ridah
 	}
@@ -1154,12 +1140,9 @@ void ClientSpawn( gentity_t *ent ) {
 	SV_GetUsercmd( client - level.clients, &ent->client->pers.cmd );
 	SetClientViewAngle( ent, spawn_angles );
 
-	if ( ent->client->sess.sessionTeam == TEAM_SPECTATOR ) {
 
-	} else {
-		G_KillBox( ent );
-		SV_LinkEntity( ent );
-	}
+	G_KillBox( ent );
+	SV_LinkEntity( ent );
 
 	// don't allow full run speed for a bit
 	client->ps.pm_flags |= PMF_TIME_KNOCKBACK;
@@ -1186,7 +1169,7 @@ void ClientSpawn( gentity_t *ent ) {
 	ClientThink( ent - g_entities );
 
 	// positively link the client, even if the command times are weird
-	if ( ent->client->sess.sessionTeam != TEAM_SPECTATOR ) {
+	{
 		BG_PlayerStateToEntityState( &client->ps, &ent->s, qtrue );
 		VectorCopy( ent->client->ps.origin, ent->r.currentOrigin );
 		SV_LinkEntity( ent );
@@ -1222,22 +1205,12 @@ void ClientDisconnect( int clientNum ) {
 		return;
 	}
 
-	// stop any following clients
-	for ( i = 0 ; i < level.maxclients ; i++ ) {
-		if ( level.clients[i].sess.sessionTeam == TEAM_SPECTATOR
-			 && level.clients[i].sess.spectatorState == SPECTATOR_FOLLOW
-			 && level.clients[i].sess.spectatorClient == clientNum ) {
-			StopFollowing( &g_entities[i] );
-		}
-	}
-
 	// Ridah
 	if ( !( ent->r.svFlags & SVF_CASTAI ) ) {
 		// done.
 
 		// send effect if they were completely connected
-		if ( ent->client->pers.connected == CON_CONNECTED
-			 && ent->client->sess.sessionTeam != TEAM_SPECTATOR ) {
+		if ( ent->client->pers.connected == CON_CONNECTED) {
 			tent = G_TempEntity( ent->client->ps.origin, EV_PLAYER_TELEPORT_OUT );
 			tent->s.clientNum = ent->s.clientNum;
 

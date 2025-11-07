@@ -38,74 +38,6 @@ If you have questions concerning this license or the applicable additional terms
 #include "../qcommon/qcommon.h"
 
 /*
-=================
-CG_ParseScores
-
-=================
-*/
-static void CG_ParseScores( void ) {
-	int i, powerups;
-
-	cg.numScores = atoi( CG_Argv( 1 ) );
-	if ( cg.numScores > MAX_CLIENTS ) {
-		cg.numScores = MAX_CLIENTS;
-	}
-
-	cg.teamScores[0] = atoi( CG_Argv( 2 ) );
-	cg.teamScores[1] = atoi( CG_Argv( 3 ) );
-
-	memset( cg.scores, 0, sizeof( cg.scores ) );
-	for ( i = 0 ; i < cg.numScores ; i++ ) {
-		//
-		cg.scores[i].client = atoi( CG_Argv( i * 6 + 4 ) );
-		cg.scores[i].score = atoi( CG_Argv( i * 6 + 5 ) );
-		cg.scores[i].ping = atoi( CG_Argv( i * 6 + 6 ) );
-		cg.scores[i].time = atoi( CG_Argv( i * 6 + 7 ) );
-		cg.scores[i].scoreFlags = atoi( CG_Argv( i * 6 + 8 ) );
-		powerups = atoi( CG_Argv( i * 6 + 9 ) );
-		
-
-		if ( cg.scores[i].client < 0 || cg.scores[i].client >= MAX_CLIENTS ) {
-			cg.scores[i].client = 0;
-		}
-		cgs.clientinfo[ cg.scores[i].client ].score = cg.scores[i].score;
-		cgs.clientinfo[ cg.scores[i].client ].powerups = powerups;
-
-		cg.scores[i].team = cgs.clientinfo[cg.scores[i].client].team;
-	}
-#ifdef MISSIONPACK
-	CG_SetScoreSelection( NULL );
-#endif
-
-}
-
-/*
-=================
-CG_ParseTeamInfo
-
-=================
-*/
-static void CG_ParseTeamInfo( void ) {
-	int i;
-	int client;
-
-	numSortedTeamPlayers = atoi( CG_Argv( 1 ) );
-
-	for ( i = 0 ; i < numSortedTeamPlayers ; i++ ) {
-		client = atoi( CG_Argv( i * 6 + 2 ) );
-
-		sortedTeamPlayers[i] = client;
-
-		cgs.clientinfo[ client ].location = atoi( CG_Argv( i * 6 + 3 ) );
-		cgs.clientinfo[ client ].health = atoi( CG_Argv( i * 6 + 4 ) );
-		cgs.clientinfo[ client ].armor = atoi( CG_Argv( i * 6 + 5 ) );
-		cgs.clientinfo[ client ].curWeapon = atoi( CG_Argv( i * 6 + 6 ) );
-		cgs.clientinfo[ client ].powerups = atoi( CG_Argv( i * 6 + 7 ) );
-	}
-}
-
-
-/*
 ================
 CG_ParseServerinfo
 
@@ -424,81 +356,6 @@ static void CG_ConfigStringModified( void ) {
 
 }
 
-
-/*
-=======================
-CG_AddToTeamChat
-
-=======================
-*/
-static void CG_AddToTeamChat( const char *str ) {
-	int len;
-	char *p, *ls;
-	int lastcolor;
-	int chatHeight;
-
-	if ( cg_teamChatHeight.integer < TEAMCHAT_HEIGHT ) {
-		chatHeight = cg_teamChatHeight.integer;
-	} else {
-		chatHeight = TEAMCHAT_HEIGHT;
-	}
-
-	if ( chatHeight <= 0 || cg_teamChatTime.integer <= 0 ) {
-		// team chat disabled, dump into normal chat
-		cgs.teamChatPos = cgs.teamLastChatPos = 0;
-		return;
-	}
-
-	len = 0;
-
-	p = cgs.teamChatMsgs[cgs.teamChatPos % chatHeight];
-	*p = 0;
-
-	lastcolor = '7';
-
-	ls = NULL;
-	while ( *str ) {
-		if ( len > TEAMCHAT_WIDTH - 1 ) {
-			if ( ls ) {
-				str -= ( p - ls );
-				str++;
-				p -= ( p - ls );
-			}
-			*p = 0;
-
-			cgs.teamChatMsgTimes[cgs.teamChatPos % chatHeight] = cg.time;
-
-			cgs.teamChatPos++;
-			p = cgs.teamChatMsgs[cgs.teamChatPos % chatHeight];
-			*p = 0;
-			*p++ = Q_COLOR_ESCAPE;
-			*p++ = lastcolor;
-			len = 0;
-			ls = NULL;
-		}
-
-		if ( Q_IsColorString( str ) ) {
-			*p++ = *str++;
-			lastcolor = *str;
-			*p++ = *str++;
-			continue;
-		}
-		if ( *str == ' ' ) {
-			ls = p;
-		}
-		*p++ = *str++;
-		len++;
-	}
-	*p = 0;
-
-	cgs.teamChatMsgTimes[cgs.teamChatPos % chatHeight] = cg.time;
-	cgs.teamChatPos++;
-
-	if ( cgs.teamChatPos - cgs.teamLastChatPos > chatHeight ) {
-		cgs.teamLastChatPos = cgs.teamChatPos - chatHeight;
-	}
-}
-
 /*
 ===============
 CG_SendMoveSpeed
@@ -749,26 +606,6 @@ static void CG_ServerCommand( void ) {
 			CG_RemoveChatEscapeChar( text );
 			Com_Printf( "%s\n", text );
 		}
-		return;
-	}
-
-	if ( !strcmp( cmd, "tchat" ) ) {
-		S_StartLocalSound( cgs.media.talkSound, CHAN_LOCAL_SOUND );
-		Q_strncpyz( text, CG_Argv( 1 ), MAX_SAY_TEXT );
-		CG_RemoveChatEscapeChar( text );
-		CG_AddToTeamChat( text );
-		Com_Printf( "%s\n", text );
-		return;
-	}
-
-
-	if ( !strcmp( cmd, "scores" ) ) {
-		CG_ParseScores();
-		return;
-	}
-
-	if ( !strcmp( cmd, "tinfo" ) ) {
-		CG_ParseTeamInfo();
 		return;
 	}
 

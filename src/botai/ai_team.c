@@ -92,10 +92,7 @@ int BotNumTeamMates( bot_state_t *bs ) {
 		if ( !strlen( buf ) || !strlen( Info_ValueForKey( buf, "n" ) ) ) {
 			continue;
 		}
-		//skip spectators
-		if ( atoi( Info_ValueForKey( buf, "t" ) ) == TEAM_SPECTATOR ) {
-			continue;
-		}
+
 		//
 		if ( BotSameTeam( bs, i ) ) {
 			numplayers++;
@@ -145,10 +142,7 @@ int BotSortTeamMatesByBaseTravelTime( bot_state_t *bs, int *teammates, int maxte
 		if ( !strlen( buf ) || !strlen( Info_ValueForKey( buf, "n" ) ) ) {
 			continue;
 		}
-		//skip spectators
-		if ( atoi( Info_ValueForKey( buf, "t" ) ) == TEAM_SPECTATOR ) {
-			continue;
-		}
+
 		//
 		if ( BotSameTeam( bs, i ) ) {
 			//

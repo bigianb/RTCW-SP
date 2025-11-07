@@ -91,35 +91,6 @@ static void CG_Viewpos_f( void ) {
 			   (int)cg.refdefViewAngles[YAW] );
 }
 
-
-static void CG_ScoresDown_f( void ) {
-	if ( cg.scoresRequestTime + 2000 < cg.time ) {
-		// the scores are more than two seconds out of data,
-		// so request new ones
-		cg.scoresRequestTime = cg.time;
-		CL_AddReliableCommand( "score" );
-
-		// leave the current scores up if they were already
-		// displayed, but if this is the first hit, clear them out
-		if ( !cg.showScores ) {
-			cg.showScores = qtrue;
-			cg.numScores = 0;
-		}
-	} else {
-		// show the cached contents even if they just pressed if it
-		// is within two seconds
-		cg.showScores = qtrue;
-	}
-}
-
-static void CG_ScoresUp_f( void ) {
-	if ( cg.showScores ) {
-		cg.showScores = qfalse;
-		cg.scoreFadeTime = cg.time;
-	}
-}
-
-//----(SA)	item (key/pickup) drawing
 static void CG_InventoryDown_f( void ) {
 	cg.showItems = qtrue;
 }
@@ -128,8 +99,6 @@ static void CG_InventoryUp_f( void ) {
 	cg.showItems = qfalse;
 	cg.itemFadeTime = cg.time;
 }
-
-//----(SA)	end
 
 static void CG_TellTarget_f( void ) {
 	int clientNum;
@@ -268,12 +237,9 @@ static consoleCommand_t commands[] = {
 	{ "nextskin", CG_TestModelNextSkin_f },
 	{ "prevskin", CG_TestModelPrevSkin_f },
 	{ "viewpos", CG_Viewpos_f },
-	{ "+scores", CG_ScoresDown_f },
-	{ "-scores", CG_ScoresUp_f },
+
 	{ "+inventory", CG_InventoryDown_f },
 	{ "-inventory", CG_InventoryUp_f },
-//	{ "+zoom", CG_ZoomDown_f },		// (SA) zoom moved to a wbutton so server can determine weapon firing based on zoom status
-//	{ "-zoom", CG_ZoomUp_f },
 	{ "zoomin", CG_ZoomIn_f },
 	{ "zoomout", CG_ZoomOut_f },
 	{ "sizeup", CG_SizeUp_f },

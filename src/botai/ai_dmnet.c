@@ -781,10 +781,7 @@ void AIEnter_Intermission( bot_state_t *bs ) {
 	BotRecordNodeSwitch( bs, "intermission", "" );
 	//reset the bot state
 	BotResetState( bs );
-	//check for end level chat
-	if ( BotChat_EndLevel( bs ) ) {
-		trap_BotEnterChat( bs->cs, bs->client, bs->chatto );
-	}
+
 	bs->ainode = AINode_Intermission;
 }
 
@@ -885,14 +882,10 @@ void AIEnter_Respawn( bot_state_t *bs ) {
 	trap_BotResetGoalState( bs->gs );
 	trap_BotResetAvoidGoals( bs->gs );
 	trap_BotResetAvoidReach( bs->ms );
-	//if the bot wants to chat
-	if ( BotChat_Death( bs ) ) {
-		bs->respawn_time = trap_AAS_Time() + BotChatTime( bs );
-		bs->respawnchat_time = trap_AAS_Time();
-	} else {
-		bs->respawn_time = trap_AAS_Time() + 1 + random();
-		bs->respawnchat_time = 0;
-	}
+
+	bs->respawn_time = trap_AAS_Time() + 1 + random();
+	bs->respawnchat_time = 0;
+	
 	//set respawn state
 	bs->respawn_wait = qfalse;
 	bs->ainode = AINode_Respawn;

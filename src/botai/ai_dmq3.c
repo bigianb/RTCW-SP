@@ -432,9 +432,7 @@ qboolean BotIsObserver( bot_state_t *bs ) {
 		return qtrue;
 	}
 	SV_GetConfigstring( CS_PLAYERS + bs->client, buf, sizeof( buf ) );
-	if ( atoi( Info_ValueForKey( buf, "t" ) ) == TEAM_SPECTATOR ) {
-		return qtrue;
-	}
+
 	return qfalse;
 }
 

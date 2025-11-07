@@ -34,16 +34,7 @@ If you have questions concerning this license or the applicable additional terms
 #include "../client/snd_public.h"
 #include "../client/client.h"
 
-
-menuDef_t *menuScoreboard = NULL;
-
-int sortedTeamPlayers[TEAM_MAXOVERLAY];
-int numSortedTeamPlayers;
-
 char systemChat[256];
-char teamChat1[256];
-char teamChat2[256];
-
 
 /*
 ================
@@ -193,180 +184,15 @@ static float CG_DrawTimer( float y ) {
 
 
 /*
-=================
-CG_DrawTeamOverlay
-=================
-*/
-
-// set in CG_ParseTeamInfo
-int sortedTeamPlayers[TEAM_MAXOVERLAY];
-int numSortedTeamPlayers;
-
-#define TEAM_OVERLAY_MAXNAME_WIDTH  16
-#define TEAM_OVERLAY_MAXLOCATION_WIDTH  20
-
-static float CG_DrawTeamOverlay( float y ) {
-	int x, w, h, xx;
-	int i, j, len;
-	const char *p;
-	vec4_t hcolor;
-	int pwidth, lwidth;
-	int plyrs;
-	char st[16];
-	clientInfo_t *ci;
-
-	if ( !cg_drawTeamOverlay.integer ) {
-		return y;
-	}
-
-	if ( cg.snap->ps.persistant[PERS_TEAM] != TEAM_RED &&
-		 cg.snap->ps.persistant[PERS_TEAM] != TEAM_BLUE ) {
-		return y; // Not on any team
-
-	}
-	plyrs = 0;
-
-	// max player name width
-	pwidth = 0;
-	for ( i = 0; i < numSortedTeamPlayers; i++ ) {
-		ci = cgs.clientinfo + sortedTeamPlayers[i];
-		if ( ci->infoValid && ci->team == cg.snap->ps.persistant[PERS_TEAM] ) {
-			plyrs++;
-			len = CG_DrawStrlen( cgs.clientinfo[i].name );
-			if ( len > pwidth ) {
-				pwidth = len;
-			}
-		}
-	}
-
-	if ( !plyrs ) {
-		return y;
-	}
-
-	if ( pwidth > TEAM_OVERLAY_MAXNAME_WIDTH ) {
-		pwidth = TEAM_OVERLAY_MAXNAME_WIDTH;
-	}
-
-	// max location name width
-	lwidth = 0;
-	for ( i = 1; i < MAX_LOCATIONS; i++ ) {
-		p = CG_ConfigString( CS_LOCATIONS + i );
-		if ( p && *p ) {
-			len = CG_DrawStrlen( p );
-			if ( len > lwidth ) {
-				lwidth = len;
-			}
-		}
-	}
-
-	if ( lwidth > TEAM_OVERLAY_MAXLOCATION_WIDTH ) {
-		lwidth = TEAM_OVERLAY_MAXLOCATION_WIDTH;
-	}
-
-	w = ( pwidth + lwidth + 4 + 7 ) * TINYCHAR_WIDTH;
-	x = 640 - w - 32;
-	h = plyrs * TINYCHAR_HEIGHT;
-
-	if ( cg.snap->ps.persistant[PERS_TEAM] == TEAM_RED ) {
-		hcolor[0] = 1;
-		hcolor[1] = 0;
-		hcolor[2] = 0;
-		hcolor[3] = 0.33;
-	} else { // if ( cg.snap->ps.persistant[PERS_TEAM] == TEAM_BLUE )
-		hcolor[0] = 0;
-		hcolor[1] = 0;
-		hcolor[2] = 1;
-		hcolor[3] = 0.33;
-	}
-	RE_SetColor( hcolor );
-	CG_DrawPic( x, y, w, h, cgs.media.teamStatusBar );
-	RE_SetColor( NULL );
-
-
-	for ( i = 0; i < numSortedTeamPlayers; i++ ) {
-		ci = cgs.clientinfo + sortedTeamPlayers[i];
-		if ( ci->infoValid && ci->team == cg.snap->ps.persistant[PERS_TEAM] ) {
-
-			hcolor[0] = hcolor[1] = hcolor[2] = hcolor[3] = 1.0;
-
-			xx = x + TINYCHAR_WIDTH;
-
-			CG_DrawStringExt( xx, y,
-							  ci->name, hcolor, qfalse, qfalse,
-							  TINYCHAR_WIDTH, TINYCHAR_HEIGHT, TEAM_OVERLAY_MAXNAME_WIDTH );
-
-			if ( lwidth ) {
-				p = CG_ConfigString( CS_LOCATIONS + ci->location );
-				if ( !p || !*p ) {
-					p = "unknown";
-				}
-				len = CG_DrawStrlen( p );
-				if ( len > lwidth ) {
-					len = lwidth;
-				}
-
-				xx = x + TINYCHAR_WIDTH * 2 + TINYCHAR_WIDTH * pwidth +
-					 ( ( lwidth / 2 - len / 2 ) * TINYCHAR_WIDTH );
-				CG_DrawStringExt( xx, y,
-								  p, hcolor, qfalse, qfalse, TINYCHAR_WIDTH, TINYCHAR_HEIGHT,
-								  TEAM_OVERLAY_MAXLOCATION_WIDTH );
-			}
-
-			CG_ColorForHealth( hcolor );
-
-			snprintf( st, sizeof( st ), "%3i %3i", ci->health,  ci->armor );
-
-			xx = x + TINYCHAR_WIDTH * 3 +
-				 TINYCHAR_WIDTH * pwidth + TINYCHAR_WIDTH * lwidth;
-
-			CG_DrawStringExt( xx, y,
-							  st, hcolor, qfalse, qfalse,
-							  TINYCHAR_WIDTH, TINYCHAR_HEIGHT, 0 );
-
-			// draw weapon icon
-			xx += TINYCHAR_WIDTH * 3;
-
-			CG_DrawPic( xx, y, TINYCHAR_WIDTH, TINYCHAR_HEIGHT,
-						cg_weapons[ci->curWeapon].weaponIcon[0] );
-
-			// Draw powerup icons
-			xx = x;
-			for ( j = 0; j < PW_NUM_POWERUPS; j++ ) {
-				if ( ci->powerups & ( 1 << j ) ) {
-					gitem_t *item;
-
-					item = BG_FindItemForPowerup( j );
-
-					if ( item != NULL ) { // JPW NERVE added for invulnerability powerup at beginning of map
-						CG_DrawPic( xx, y, TINYCHAR_WIDTH, TINYCHAR_HEIGHT,
-									trap_R_RegisterShader( item->icon ) );
-						xx -= TINYCHAR_WIDTH;
-					} // jpw
-				}
-			}
-
-			y += TINYCHAR_HEIGHT;
-		}
-	}
-
-	return y;
-}
-
-
-/*
 =====================
 CG_DrawUpperRight
 
 =====================
 */
-static void CG_DrawUpperRight( void ) {
-	float y;
+static void CG_DrawUpperRight( void )
+{
+	float y = 0;
 
-	y = 0;
-
-	if ( cgs.gametype >= GT_TEAM ) {
-		y = CG_DrawTeamOverlay( y );
-	}
 	if ( cg_drawSnapshot.integer ) {
 		y = CG_DrawSnapshot( y );
 	}

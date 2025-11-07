@@ -1453,19 +1453,12 @@ void LogExit( const char *string ) {
 		numSorted = 32;
 	}
 
-	if ( g_gametype.integer >= GT_TEAM ) {
-		G_LogPrintf( "red:%i  blue:%i\n",
-					 level.teamScores[TEAM_RED], level.teamScores[TEAM_BLUE] );
-	}
-
 	for ( i = 0 ; i < numSorted ; i++ ) {
 		int ping;
 
 		cl = &level.clients[level.sortedClients[i]];
 
-		if ( cl->sess.sessionTeam == TEAM_SPECTATOR ) {
-			continue;
-		}
+
 		if ( cl->pers.connected == CON_CONNECTING ) {
 			continue;
 		}

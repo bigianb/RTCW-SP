@@ -439,11 +439,7 @@ Cmd_Kill_f
 =================
 */
 void Cmd_Kill_f( gentity_t *ent ) {
-	if ( ent->client->sess.sessionTeam == TEAM_SPECTATOR ) {
-		return;
-	}
-
-//	if(reloading)	// waiting to start map, or exiting to next map
+	
 	if ( g_reloading.integer ) {
 		return;
 	}
@@ -517,11 +513,6 @@ void Cmd_Follow_f( gentity_t *ent ) {
 		return;
 	}
 
-	// can't follow another spectator
-	if ( level.clients[ i ].sess.sessionTeam == TEAM_SPECTATOR ) {
-		return;
-	}
-
 	// if they are playing a tournement game, count as a loss
 	if ( g_gametype.integer == GT_TOURNAMENT && ent->client->sess.sessionTeam == TEAM_FREE ) {
 		ent->client->sess.losses++;
@@ -565,10 +556,6 @@ void Cmd_FollowCycle_f( gentity_t *ent, int dir ) {
 			continue;
 		}
 
-		// can't follow another spectator
-		if ( level.clients[ clientnum ].sess.sessionTeam == TEAM_SPECTATOR ) {
-			continue;
-		}
 
 		// this is good, we can use it
 		ent->client->sess.spectatorClient = clientnum;
@@ -847,11 +834,6 @@ void Cmd_Activate_f( gentity_t *ent ) {
 			G_Script_ScriptEvent( traceEnt, "activate", ent->aiName );
 		} else if ( traceEnt->s.eType == ET_ALARMBOX )     {
 			trace_t trace;
-
-			if ( ent->client->sess.sessionTeam == TEAM_SPECTATOR ) {
-				return;
-			}
-
 			memset( &trace, 0, sizeof( trace ) );
 
 			if ( traceEnt->use ) {
@@ -859,10 +841,6 @@ void Cmd_Activate_f( gentity_t *ent ) {
 			}
 		} else if ( traceEnt->s.eType == ET_ITEM )     {
 			trace_t trace;
-
-			if ( ent->client->sess.sessionTeam == TEAM_SPECTATOR ) {
-				return;
-			}
 
 			memset( &trace, 0, sizeof( trace ) );
 

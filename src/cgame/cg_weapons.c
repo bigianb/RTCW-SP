@@ -2744,9 +2744,6 @@ void CG_AddViewWeapon( playerState_t *ps ) {
 	vec3_t gunoff;
 	weaponInfo_t    *weapon;
 
-	if ( ps->persistant[PERS_TEAM] == TEAM_SPECTATOR ) {
-		return;
-	}
 
 	if ( ps->pm_type == PM_INTERMISSION ) {
 		return;

@@ -693,10 +693,6 @@ int BotAISetupClient( int client, struct bot_settings_s *settings ) {
 	bs->walker = trap_Characteristic_BFloat( bs->character, CHARACTERISTIC_WALKER, 0, 1 );
 	numbots++;
 
-	if ( Cvar_VariableIntegerValue( "bot_testichat" ) ) {
-		trap_BotLibVarSet( "bot_testichat", "1" );
-		BotChatTest( bs );
-	}
 	//NOTE: reschedule the bot thinking
 	BotScheduleBotThink();
 	//
@@ -946,30 +942,7 @@ int BotAIStartFrame( int time ) {
 //			state.weapAnim = ent->s.weapAnim;	//----(SA)
 //----(SA)	didn't want to comment in as I wasn't sure of any implications of changing the aas_entityinfo_t and bot_entitystate_t structures.
 			state.weapon = ent->s.weapon;
-			/*
-			if (!BotAI_GetEntityState(i, &entitystate)) continue;
-			//
-			memset(&state, 0, sizeof(bot_entitystate_t));
-			//
-			VectorCopy(entitystate.pos.trBase, state.origin);
-			VectorCopy(entitystate.angles, state.angles);
-			VectorCopy(ent->s.origin2, state.old_origin);
-			//VectorCopy(ent->r.mins, state.mins);
-			//VectorCopy(ent->r.maxs, state.maxs);
-			state.type = entitystate.eType;
-			state.flags = entitystate.eFlags;
-			if (ent->r.bmodel) state.solid = SOLID_BSP;
-			else state.solid = SOLID_BBOX;
-			state.modelindex = entitystate.modelindex;
-			state.modelindex2 = entitystate.modelindex2;
-			state.frame = entitystate.frame;
-			state.event = entitystate.event;
-			state.eventParm = entitystate.eventParm;
-			state.powerups = entitystate.powerups;
-			state.legsAnim = entitystate.legsAnim;
-			state.torsoAnim = entitystate.torsoAnim;
-			state.weapon = entitystate.weapon;
-			*/
+
 			//
 			trap_BotLibUpdateEntity( i, &state );
 		}

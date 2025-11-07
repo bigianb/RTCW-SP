@@ -685,9 +685,7 @@ void Touch_Item( gentity_t *ent, gentity_t *other, trace_t *trace ) {
 	case IT_POWERUP:
 		respawn = Pickup_Powerup( ent, other );
 		break;
-	case IT_TEAM:
-		respawn = Pickup_Team( ent, other );
-		break;
+
 	case IT_HOLDABLE:
 		respawn = Pickup_Holdable( ent, other );
 		break;
@@ -860,13 +858,10 @@ gentity_t *LaunchItem( gitem_t *item, vec3_t origin, vec3_t velocity ) {
 //		dropped->s.eFlags |= EF_SPINNING;	// spin the weapon as it flies from the dead player.  it will stop when it hits the ground
 
 
-	if ( item->giType == IT_TEAM ) { // Special case for CTF flags
-		dropped->think = Team_DroppedFlagThink;
-		dropped->nextthink = level.time + 30000;
-	} else { // auto-remove after 30 seconds
+	 // auto-remove after 30 seconds
 		dropped->think = G_FreeEntity;
 		dropped->nextthink = level.time + 30000;
-	}
+	
 
 	dropped->flags = FL_DROPPED_ITEM;
 
@@ -1318,11 +1313,9 @@ void G_RunItem( gentity_t *ent ) {
 	// if it is in a nodrop volume, remove it
 	contents = SV_PointContents( ent->r.currentOrigin, -1 );
 	if ( contents & CONTENTS_NODROP ) {
-		if ( ent->item && ent->item->giType == IT_TEAM ) {
-			Team_FreeEntity( ent );
-		} else {
-			G_FreeEntity( ent );
-		}
+		
+		G_FreeEntity( ent );
+		
 		return;
 	}
 

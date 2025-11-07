@@ -137,26 +137,6 @@ int G_SoundIndex( const char *name ) {
 
 
 /*
-================
-G_TeamCommand
-
-Broadcasts a command to only a specific team
-================
-*/
-void G_TeamCommand( team_t team, char *cmd ) {
-	int i;
-
-	for ( i = 0 ; i < level.maxclients ; i++ ) {
-		if ( level.clients[i].pers.connected == CON_CONNECTED ) {
-			if ( level.clients[i].sess.sessionTeam == team ) {
-				SV_GameSendServerCommand( i, va( "%s", cmd ) );
-			}
-		}
-	}
-}
-
-
-/*
 =============
 G_Find
 

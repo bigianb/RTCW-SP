@@ -2595,7 +2595,6 @@ void UI_Init()
 
     AssetCache();
 
-    uiInfo.teamCount = 0;
     uiInfo.characterCount = 0;
     uiInfo.aliasCount = 0;
 

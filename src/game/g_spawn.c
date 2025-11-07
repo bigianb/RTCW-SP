@@ -289,18 +289,6 @@ void SP_misc_spotlight( gentity_t *ent ); //----(SA)	added
 void SP_shooter_rocket( gentity_t *ent );
 void SP_shooter_grenade( gentity_t *ent );
 
-void SP_team_CTF_redplayer( gentity_t *ent );
-void SP_team_CTF_blueplayer( gentity_t *ent );
-
-void SP_team_CTF_redspawn( gentity_t *ent );
-void SP_team_CTF_bluespawn( gentity_t *ent );
-
-// JPW NERVE for multiplayer spawnpoint selection
-void SP_team_WOLF_objective( gentity_t *ent );
-// jpw
-
-void SP_team_WOLF_checkpoint( gentity_t *ent );     // DHM - Nerve
-
 // JOSEPH 1-18-00
 void SP_props_box_32( gentity_t *self );
 void SP_props_box_48( gentity_t *self );
@@ -561,21 +549,7 @@ spawn_t spawns[] = {
 	// Rafael sniper
 	{"shooter_sniper", SP_shooter_sniper},
 	{"sniper_brush", SP_sniper_brush},
-	// done
 
-	{"team_CTF_redplayer", SP_team_CTF_redplayer},
-	{"team_CTF_blueplayer", SP_team_CTF_blueplayer},
-
-	{"team_CTF_redspawn", SP_team_CTF_redspawn},
-	{"team_CTF_bluespawn", SP_team_CTF_bluespawn},
-
-// JPW NERVE
-	{"team_WOLF_objective", SP_team_WOLF_objective},
-// jpw
-
-	{"team_WOLF_checkpoint", SP_team_WOLF_checkpoint},       // DHM - Nerve
-
-	// Ridah
 	{"ai_soldier", SP_ai_soldier},
 	{"ai_american", SP_ai_american},
 	{"ai_zombie", SP_ai_zombie},
