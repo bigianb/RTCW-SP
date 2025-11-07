@@ -35,9 +35,6 @@ file(GLOB BOTAI_SOURCES src/botai/*.c)
 file(GLOB BOTLIB_INCLUDES src/botlib/*.h)
 file(GLOB BOTLIB_SOURCES src/botlib/*.c)
 
-file(GLOB BSPC_INCLUDES src/bspc/*.h)
-file(GLOB BSPC_SOURCES src/bspc/*.c)
-
 file(GLOB CGAME_INCLUDES src/cgame/*.h)
 file(GLOB CGAME_SOURCES src/cgame/*.c)
 

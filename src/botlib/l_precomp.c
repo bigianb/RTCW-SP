@@ -39,25 +39,7 @@ If you have questions concerning this license or the applicable additional terms
 
 //Notes:			fix: PC_StringizeTokens
 
-//#define SCREWUP
 #define BOTLIB
-//#define QUAKE
-//#define QUAKEC
-//#define MEQCC
-
-#ifdef SCREWUP
-#include <stdio.h>
-#include <stdlib.h>
-#include <limits.h>
-#include <string.h>
-#include <stdarg.h>
-#include <time.h>
-#include "l_memory.h"
-#include "l_script.h"
-#include "l_precomp.h"
-
-typedef enum {qfalse, qtrue}    qboolean;
-#endif //SCREWUP
 
 #ifdef BOTLIB
 #include "../game/q_shared.h"
@@ -81,21 +63,6 @@ typedef enum {qfalse, qtrue}    qboolean;
 #define qtrue   true
 #define qfalse  false
 #endif //MEQCC
-
-#ifdef BSPC
-//include files for usage in the BSP Converter
-#include "../bspc/qbsp.h"
-#include "../bspc/l_log.h"
-#include "../bspc/l_mem.h"
-#include "l_precomp.h"
-
-#define qtrue   true
-#define qfalse  false
-#define Q_stricmp   strcasecmp
-
-#define MAX_TOKENLENGTH     1024
-
-#endif //BSPC
 
 #if defined( QUAKE ) && !defined( BSPC )
 #include "l_utils.h"
