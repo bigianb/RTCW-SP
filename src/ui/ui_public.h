@@ -172,11 +172,8 @@ typedef enum {
 	UIMENU_BOOK1,           //----(SA)	added
 	UIMENU_BOOK2,           //----(SA)	added
 	UIMENU_BOOK3,           //----(SA)	added
-	UIMENU_WM_PICKTEAM,     // NERVE - SMF - for multiplayer only
-	UIMENU_WM_PICKPLAYER,   // NERVE - SMF - for multiplayer only
-	UIMENU_WM_QUICKMESSAGE, // NERVE - SMF
-	UIMENU_WM_LIMBO,        // NERVE - SMF
-	UIMENU_BRIEFING         //----(SA)	added
+	UIMENU_BRIEFING,         //----(SA)	added
+	UIMENU_WM_QUICKMESSAGE
 } uiMenuCommand_t;
 
 void UI_Init( void );

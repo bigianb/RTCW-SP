@@ -203,20 +203,12 @@ void P_WorldEffects( gentity_t *ent ) {
 
 		if ( ent->health > 0 ) {
 			attacker = g_entities + ent->flameBurnEnt;
-			if ( g_gametype.integer == GT_SINGLE_PLAYER ) { // JPW NERVE
-				if ( ent->r.svFlags & SVF_CASTAI ) {
-					G_Damage( ent, attacker, attacker, NULL, NULL, 2, DAMAGE_NO_KNOCKBACK, MOD_FLAMETHROWER );
-				} else if ( ( ent->s.onFireEnd - level.time ) > FIRE_FLASH_TIME / 2 && rand() % 5000 < ( ent->s.onFireEnd - level.time ) ) { // as it fades out, also fade out damage rate
-					G_Damage( ent, attacker, attacker, NULL, NULL, 1, DAMAGE_NO_KNOCKBACK, MOD_FLAMETHROWER );
-				}
-			} // JPW NERVE
-			else { // JPW NERVE multiplayer flamethrower
-				if ( level.time < ent->s.onFireEnd ) { // flamethrower does total 80 pts damage in multiplayer
-					// (it's short range and hard to hit with)
-					G_Damage( ent, attacker, attacker, NULL, NULL, 2, DAMAGE_NO_KNOCKBACK, MOD_FLAMETHROWER );
-				}
+
+			if ( ent->r.svFlags & SVF_CASTAI ) {
+				G_Damage( ent, attacker, attacker, NULL, NULL, 2, DAMAGE_NO_KNOCKBACK, MOD_FLAMETHROWER );
+			} else if ( ( ent->s.onFireEnd - level.time ) > FIRE_FLASH_TIME / 2 && rand() % 5000 < ( ent->s.onFireEnd - level.time ) ) { // as it fades out, also fade out damage rate
+				G_Damage( ent, attacker, attacker, NULL, NULL, 1, DAMAGE_NO_KNOCKBACK, MOD_FLAMETHROWER );
 			}
-			// jpw
 		} else if ( ent->s.onFireEnd > level.time + 4000 ) {  // dead, so sto pthe flames soon
 			ent->s.onFireEnd = level.time + 4000;   // stop burning soon
 		}

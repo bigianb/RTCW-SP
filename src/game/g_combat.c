@@ -447,44 +447,16 @@ void player_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
 	}
 
 	// if client is in a nodrop area, don't drop anything
-// JPW NERVE new drop behavior
-	if ( g_gametype.integer == GT_SINGLE_PLAYER ) {   // only drop here in single player; in multiplayer, drop @ limbo
-		contents = SV_PointContents( self->r.currentOrigin, -1 );
-		if ( !( contents & CONTENTS_NODROP ) ) {
-			TossClientItems( self );
-		}
+	contents = SV_PointContents( self->r.currentOrigin, -1 );
+	if ( !( contents & CONTENTS_NODROP ) ) {
+		TossClientItems( self );
 	}
-
-	// drop flag regardless
-	if ( g_gametype.integer != GT_SINGLE_PLAYER ) {
-		if ( self->client->ps.powerups[PW_REDFLAG] ) {
-			item = BG_FindItem( "Red Flag" );
-		}
-		if ( self->client->ps.powerups[PW_BLUEFLAG] ) {
-			item = BG_FindItem( "Blue Flag" );
-		}
-		launchvel[0] = crandom() * 20;
-		launchvel[1] = crandom() * 20;
-		launchvel[2] = 10 + random() * 10;
-		if ( item ) {
-			flag = LaunchItem( item,self->r.currentOrigin,launchvel );
-			flag->s.modelindex2 = self->s.otherEntityNum2; // JPW NERVE FIXME set player->otherentitynum2 with old modelindex2 from flag and restore here
-		}
-	}
-// jpw
-
 
 	self->takedamage = qtrue;   // can still be gibbed
 
 	self->s.powerups = 0;
-// JPW NERVE -- only corpse in SP; in MP, need CONTENTS_BODY so medic can operate
-	if ( g_gametype.integer == GT_SINGLE_PLAYER ) {
-		self->r.contents = CONTENTS_CORPSE;
-		self->s.weapon = WP_NONE;
-	} else {
-		self->client->limboDropWeapon = self->s.weapon; // store this so it can be dropped in limbo
-	}
-// jpw
+	self->r.contents = CONTENTS_CORPSE;
+	self->s.weapon = WP_NONE;
 	self->s.angles[0] = 0;
 	self->s.angles[2] = 0;
 	LookAtKiller( self, inflictor, attacker );
@@ -1130,59 +1102,47 @@ void G_Damage( gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
 
 
 	if ( IsHeadShot( targ, attacker, dir, point, mod ) ) {
-		// JPW NERVE -- different headshot behavior in multiplayer
-		if ( g_gametype.integer != GT_SINGLE_PLAYER ) {
-			if ( take * 2 < 50 ) { // head shots, all weapons, do minimum 50 points damage
-				take = 50;
-			} else {
-				take *= 2; // sniper rifles can do full-kill (and knock into limbo)
+		 
+		// by default, a headshot means damage x2
+		take *= 2;
+
+		// RF, allow headshot damage multiplier (helmets, etc)
+		// yes, headshotDamageScale of 0 gives no damage, thats because
+		// the bullet hit the head which is fully protected.
+		take *= targ->headshotDamageScale;
+
+		// player only code
+		if ( !attacker->aiCharacter ) {
+			// (SA) id reqests one-shot kills for head shots on common humanoids
+
+			// (SA) except pistols.
+			// first pistol head shot does normal 2x damage and flings hat, second gets kill
+			//			if((mod != MOD_LUGER && mod != MOD_COLT ) || (targ->client->ps.eFlags & EF_HEADSHOT))	{	// (SA) DM requests removing double shot pistol head shots (3/19)
+
+			// (SA) removed BG for DM.
+
+			if ( !( dflags & DAMAGE_PASSTHRU ) ) {     // ignore headshot 2x damage and snooper-instant-death if the bullet passed through something.  just do reg damage.
+				switch ( targ->aiCharacter ) {
+				case AICHAR_BLACKGUARD:
+					if ( !( targ->client->ps.eFlags & EF_HEADSHOT ) ) { // only obliterate him after he's lost his helmet
+						break;
+					}
+				case AICHAR_SOLDIER:
+				case AICHAR_AMERICAN:
+				case AICHAR_ELITEGUARD:
+				case AICHAR_PARTISAN:
+				case AICHAR_CIVILIAN:
+					take = 200;
+					break;
+				default:
+					break;
+				}
 			}
+
 			if ( !( targ->client->ps.eFlags & EF_HEADSHOT ) ) {  // only toss hat on first headshot
 				G_AddEvent( targ, EV_LOSE_HAT, DirToByte( dir ) );
 			}
-		} // jpw
-		else {
-			// by default, a headshot means damage x2
-			take *= 2;
-
-			// RF, allow headshot damage multiplier (helmets, etc)
-			// yes, headshotDamageScale of 0 gives no damage, thats because
-			// the bullet hit the head which is fully protected.
-			take *= targ->headshotDamageScale;
-
-			// player only code
-			if ( !attacker->aiCharacter ) {
-				// (SA) id reqests one-shot kills for head shots on common humanoids
-
-				// (SA) except pistols.
-				// first pistol head shot does normal 2x damage and flings hat, second gets kill
-				//			if((mod != MOD_LUGER && mod != MOD_COLT ) || (targ->client->ps.eFlags & EF_HEADSHOT))	{	// (SA) DM requests removing double shot pistol head shots (3/19)
-
-				// (SA) removed BG for DM.
-
-				if ( !( dflags & DAMAGE_PASSTHRU ) ) {     // ignore headshot 2x damage and snooper-instant-death if the bullet passed through something.  just do reg damage.
-					switch ( targ->aiCharacter ) {
-					case AICHAR_BLACKGUARD:
-						if ( !( targ->client->ps.eFlags & EF_HEADSHOT ) ) { // only obliterate him after he's lost his helmet
-							break;
-						}
-					case AICHAR_SOLDIER:
-					case AICHAR_AMERICAN:
-					case AICHAR_ELITEGUARD:
-					case AICHAR_PARTISAN:
-					case AICHAR_CIVILIAN:
-						take = 200;
-						break;
-					default:
-						break;
-					}
-				}
-
-				if ( !( targ->client->ps.eFlags & EF_HEADSHOT ) ) {  // only toss hat on first headshot
-					G_AddEvent( targ, EV_LOSE_HAT, DirToByte( dir ) );
-				}
-			}
-		} // JPW
+		}
 
 		// shared by both player and ai
 		targ->client->ps.eFlags |= EF_HEADSHOT;

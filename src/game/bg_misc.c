@@ -1407,58 +1407,6 @@ weapon_grenadePineapple
 		{0,0,0,0}
 	},
 
-/* JPW NERVE
-weapon_grenadesmoke
-*/
-/*	// just commented out to remove the registration errors in SP (we register every weapon in every map in SP)
-	{
-		"weapon_grenadesmoke",
-		"sound/misc/w_pkup.wav",
-		{	"models/multiplayer/smokegrenade/smokegrenade.md3",
-			"models/multiplayer/smokegrenade/v_smokegrenade.md3",
-			"models/multiplayer/smokegrenade/pu_smokegrenade.md3",
-			0, 0},
-
-		"icons/iconw_smokegrenade_1",	// icon
-		"icons/ammo2",	// ammo icon
-		"smokeGrenade",				// pickup
-		50,
-		IT_WEAPON,
-		WP_GRENADE_SMOKE,
-		WP_GRENADE_SMOKE,
-		WP_GRENADE_SMOKE,
-		"",						// precache
-		"sound/weapons/grenade/hgrenb1a.wav sound/weapons/grenade/hgrenb2a.wav",				// sounds
-		{0,0,0,0}
-	},
-// jpw
-*/
-// DHM - Nerve
-/*
-weapon_medic_heal
-*/
-/*	{
-		"weapon_medic_heal",
-		"sound/misc/w_pkup.wav",
-		{	"models/multiplayer/medpack/medpack.md3",
-			"models/multiplayer/medpack/v_medpack.md3",
-			"models/multiplayer/medpack/pu_medpack.md3",
-			0, 0 },
-
-		"icons/iconw_medheal_1",	// icon
-		"icons/ammo2",			// ammo icon
-		"Medic Heal",			// pickup
-		50,
-		IT_WEAPON,
-		WP_MEDIC_HEAL,
-		WP_MEDIC_HEAL,
-		WP_MEDIC_HEAL,
-		"",						// precache
-		"",						// sounds
-		{0,0,0,0}
-	},
-// dhm
-*/
 /*
 weapon_dynamite
 */
@@ -1482,35 +1430,6 @@ weapon_dynamite
 		"",                      // sounds
 		{0,0,0,0}
 	},
-
-
-/*
-weapon_dynamite2
-*/
-/*
-	{
-		"weapon_dynamite2",
-		"sound/misc/w_pkup.wav",
-		{	"models/weapons2/dynamite/dynamite.md3",
-			"models/weapons2/dynamite/v_dynamite.md3",
-			"models/weapons2/dynamite/pu_dynamite.md3",
-			0, 0 },
-
-		"icons/iconw_dynamite_1",	// icon
-		"icons/ammo9",			// ammo icon
-		"Dynamite Weapon",		// pickup
-		7,
-		IT_WEAPON,
-		WP_DYNAMITE2,
-		WP_DYNAMITE,
-		WP_DYNAMITE,
-		"",						// precache
-		"",						// sounds
-		{0,0,0,0}
-	},
-*/
-
-
 
 /*QUAKED weapon_venom (.3 .3 1) (-16 -16 -16) (16 16 16) SUSPENDED SPIN - RESPAWN
 -------- MODEL FOR RADIANT ONLY - DO NOT SET THIS AS A KEY --------

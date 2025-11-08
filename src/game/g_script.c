@@ -26,13 +26,6 @@ If you have questions concerning this license or the applicable additional terms
 ===========================================================================
 */
 
-//===========================================================================
-//
-// Name:			g_script.c
-// Function:		Wolfenstein Entity Scripting
-// Programmer:		Ridah
-// Tab Size:		4 (real tabs)
-//===========================================================================
 
 #include "../game/g_local.h"
 #include "../game/q_shared.h"
@@ -68,19 +61,7 @@ qboolean G_ScriptAction_StopSound( gentity_t *ent, char *params );
 qboolean G_ScriptAction_StartCam( gentity_t *ent, char *params );
 qboolean G_ScriptAction_EntityScriptName( gentity_t *ent, char *params );
 qboolean G_ScriptAction_AIScriptName( gentity_t *ent, char *params );
-// DHM - Nerve :: Multiplayer scripting commands
-qboolean G_ScriptAction_MapDescription( gentity_t *ent, char *params );
-qboolean G_ScriptAction_AxisRespawntime( gentity_t *ent, char *params );
-qboolean G_ScriptAction_AlliedRespawntime( gentity_t *ent, char *params );
-qboolean G_ScriptAction_NumberofObjectives( gentity_t *ent, char *params );
-qboolean G_ScriptAction_ObjectiveAxisDesc( gentity_t *ent, char *params );
-qboolean G_ScriptAction_ObjectiveAlliedDesc( gentity_t *ent, char *params );
-qboolean G_ScriptAction_SetWinner( gentity_t *ent, char *params );
-qboolean G_ScriptAction_SetObjectiveStatus( gentity_t *ent, char *params );
-qboolean G_ScriptAction_Announce( gentity_t *ent, char *params );
-qboolean G_ScriptAction_EndRound( gentity_t *ent, char *params );
-qboolean G_ScriptAction_SetRoundTimelimit( gentity_t *ent, char *params );
-// dhm
+
 qboolean G_ScriptAction_BackupScript( gentity_t *ent, char *params );
 qboolean G_ScriptAction_RestoreScript( gentity_t *ent, char *params );
 qboolean G_ScriptAction_SetHealth( gentity_t *ent, char *params );
@@ -114,19 +95,7 @@ g_script_stack_action_t gScriptActions[] =
 	{"startcam",             G_ScriptAction_StartCam},
 	{"entityscriptname",     G_ScriptAction_EntityScriptName},
 	{"aiscriptname",         G_ScriptAction_AIScriptName},
-	// DHM - Nerve :: multiplayer scripting commands start with "wm_" (Wolf Multiplayer)
-	{"wm_mapdescription",        G_ScriptAction_MapDescription},
-	{"wm_axis_respawntime",      G_ScriptAction_AxisRespawntime},
-	{"wm_allied_respawntime",    G_ScriptAction_AlliedRespawntime},
-	{"wm_number_of_objectives",  G_ScriptAction_NumberofObjectives},
-	{"wm_objective_axis_desc",   G_ScriptAction_ObjectiveAxisDesc},
-	{"wm_objective_allied_desc",G_ScriptAction_ObjectiveAlliedDesc},
-	{"wm_setwinner",         G_ScriptAction_SetWinner},
-	{"wm_set_objective_status",  G_ScriptAction_SetObjectiveStatus},
-	{"wm_announce",              G_ScriptAction_Announce},
-	{"wm_endround",              G_ScriptAction_EndRound},
-	{"wm_set_round_timelimit",   G_ScriptAction_SetRoundTimelimit},
-	// dhm
+		
 	{"backupscript",         G_ScriptAction_BackupScript},
 	{"restorescript",            G_ScriptAction_RestoreScript},
 	{"sethealth",                G_ScriptAction_SetHealth},
@@ -294,10 +263,8 @@ void G_Script_ScriptParse( gentity_t *ent ) {
 	g_script_event_t events[MAX_SCRIPT_EVENTS];
 	int numEventItems;
 	g_script_event_t *curEvent;
-	// DHM - Nerve :: Some of our multiplayer script commands have longer parameters
-	//char		params[MAX_QPATH];
+
 	char params[MAX_INFO_STRING];
-	// dhm - end
 	g_script_stack_action_t *action;
 	int i;
 	int bracketLevel;
@@ -857,23 +824,3 @@ void SP_script_camera( gentity_t *ent ) {
 	ent->r.svFlags |= SVF_NOCLIENT;     // only broadcast when in use
 }
 
-
-//..DHM-Nerve..................................................................
-
-/*QUAKED script_multiplayer (1.0 0.25 1.0) (-8 -8 -8) (8 8 8)
-
-  This is used to script multiplayer maps.  Entity not displayed in game.
-
-"scriptname" name used for scripting purposes (REQUIRED)
-*/
-void SP_script_multiplayer( gentity_t *ent ) {
-	if ( !ent->scriptName ) {
-		Com_Error( ERR_DROP, "%s must have a \"scriptname\"\n", ent->classname );
-	}
-
-	ent->s.eType = ET_INVISIBLE;
-
-	ent->r.svFlags |= SVF_NOCLIENT;     // only broadcast when in use
-}
-
-// dhm

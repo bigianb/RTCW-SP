@@ -243,17 +243,7 @@ If you have questions concerning this license or the applicable additional terms
 {"G_ScriptAction_SetHealth", (byte *)G_ScriptAction_SetHealth},
 {"G_ScriptAction_RestoreScript", (byte *)G_ScriptAction_RestoreScript},
 {"G_ScriptAction_BackupScript", (byte *)G_ScriptAction_BackupScript},
-{"G_ScriptAction_SetRoundTimelimit", (byte *)G_ScriptAction_SetRoundTimelimit},
-{"G_ScriptAction_EndRound", (byte *)G_ScriptAction_EndRound},
-{"G_ScriptAction_Announce", (byte *)G_ScriptAction_Announce},
-{"G_ScriptAction_SetObjectiveStatus", (byte *)G_ScriptAction_SetObjectiveStatus},
-{"G_ScriptAction_SetWinner", (byte *)G_ScriptAction_SetWinner},
-{"G_ScriptAction_ObjectiveAlliedDesc", (byte *)G_ScriptAction_ObjectiveAlliedDesc},
-{"G_ScriptAction_ObjectiveAxisDesc", (byte *)G_ScriptAction_ObjectiveAxisDesc},
-{"G_ScriptAction_NumberofObjectives", (byte *)G_ScriptAction_NumberofObjectives},
-{"G_ScriptAction_AlliedRespawntime", (byte *)G_ScriptAction_AlliedRespawntime},
-{"G_ScriptAction_AxisRespawntime", (byte *)G_ScriptAction_AxisRespawntime},
-{"G_ScriptAction_MapDescription", (byte *)G_ScriptAction_MapDescription},
+
 {"G_ScriptAction_AIScriptName", (byte *)G_ScriptAction_AIScriptName},
 {"G_ScriptAction_EntityScriptName", (byte *)G_ScriptAction_EntityScriptName},
 {"G_ScriptAction_StartCam", (byte *)G_ScriptAction_StartCam},
@@ -461,8 +451,8 @@ If you have questions concerning this license or the applicable additional terms
 {"SP_ai_marker", (byte *)SP_ai_marker},
 {"SP_trigger_objective_info", (byte *)SP_trigger_objective_info},
 {"Touch_objective_info", (byte *)Touch_objective_info},
-{"SP_trigger_flagonly", (byte *)SP_trigger_flagonly},
-{"Touch_flagonly", (byte *)Touch_flagonly},
+
+
 {"SP_gas", (byte *)SP_gas},
 {"gas_think", (byte *)gas_think},
 {"gas_touch", (byte *)gas_touch},
@@ -603,7 +593,7 @@ If you have questions concerning this license or the applicable additional terms
 {"AICast_CheckVisibility", (byte *)AICast_CheckVisibility},
 {"AICast_VisibleFromPos", (byte *)AICast_VisibleFromPos},
 {"AICast_InFieldOfVision", (byte *)AICast_InFieldOfVision},
-{"SP_script_multiplayer", (byte *)SP_script_multiplayer},
+
 {"SP_script_camera", (byte *)SP_script_camera},
 {"SP_script_model_med", (byte *)SP_script_model_med},
 {"script_model_med_use", (byte *)script_model_med_use},

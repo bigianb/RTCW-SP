@@ -268,8 +268,8 @@ void SnapVectorTowards( vec3_t v, vec3_t to ) {
 // KLUDGE/FIXME: also modded #defines below to become macros that call this fn for minimal impact elsewhere
 //
 int G_GetWeaponDamage( int weapon ) {
-	if ( g_gametype.integer == GT_SINGLE_PLAYER ) {
-		switch ( weapon ) {
+
+	switch ( weapon ) {
 		case WP_LUGER:
 		case WP_SILENCER: return 6;
 		case WP_COLT: return 8;
@@ -296,38 +296,8 @@ int G_GetWeaponDamage( int weapon ) {
 		case WP_GAUNTLET:
 		case WP_SNIPER:
 		default:    return 1;
-		}
-	} else { // multiplayer damage
-		switch ( weapon ) {
-		case WP_LUGER:
-		case WP_SILENCER: return 14;
-		case WP_COLT: return 18;
-		case WP_AKIMBO: return 18;      //----(SA)	added
-		case WP_VENOM: return 20;
-		case WP_MP40: return 14;
-		case WP_THOMPSON: return 18;
-		case WP_STEN: return 14;
-		case WP_FG42SCOPE:
-		case WP_FG42: return 15;
-		case WP_MAUSER: return 25;
-		case WP_GARAND: return 25;
-		case WP_SNIPERRIFLE: return 80;
-		case WP_SNOOPERSCOPE: return 75;
-		case WP_NONE: return 0;
-		case WP_KNIFE: return 10;
-		case WP_GRENADE_SMOKE: return 100;
-		case WP_GRENADE_LAUNCHER: return 200;
-		case WP_GRENADE_PINEAPPLE: return 200;
-		case WP_DYNAMITE: return 600;
-		case WP_PANZERFAUST: return 400;
-		case WP_MORTAR: return 100;
-		case WP_FLAMETHROWER: return 1;
-		case WP_TESLA:
-		case WP_GAUNTLET:
-		case WP_SNIPER:
-		default:    return 1;
-		}
 	}
+	
 }
 // JPW - this chunk appears to not be used, right?
 /*
@@ -339,61 +309,43 @@ int G_GetWeaponDamage( int weapon ) {
 
 // RF, wrote this so we can dynamically switch between old and new values while testing g_userAim
 float G_GetWeaponSpread( int weapon ) {
-	if ( g_gametype.integer == GT_SINGLE_PLAYER ) {   // JPW NERVE -- don't affect SP game
-		if ( g_userAim.integer ) {
-			// these should be higher since they become erratic if aiming is out
-			switch ( weapon ) {
-			case WP_LUGER:      return 600;
-			case WP_SILENCER:   return 900;
-			case WP_COLT:       return 700;
-			case WP_AKIMBO:     return 700; //----(SA)	added
-			case WP_VENOM:      return 1000;
-			case WP_MP40:       return 1000;
-			case WP_FG42SCOPE:  return 300;
-			case WP_FG42:       return 800;
-			case WP_THOMPSON:   return 1200;
-			case WP_STEN:       return 1200;
-			case WP_MAUSER:     return 400;
-			case WP_GARAND:     return 500;
-			case WP_SNIPERRIFLE:    return 300;
-			case WP_SNOOPERSCOPE:   return 300;
-			}
-		} else {    // old values
-			switch ( weapon ) {
-			case WP_LUGER:      return 25;
-			case WP_SILENCER:   return 150;
-			case WP_COLT:       return 30;
-			case WP_AKIMBO:     return 30;      //----(SA)	added
-			case WP_VENOM:      return 200;
-			case WP_MP40:       return 200;
-			case WP_FG42SCOPE:  return 10;
-			case WP_FG42:       return 150;
-			case WP_THOMPSON:   return 250;
-			case WP_STEN:       return 300;
-			case WP_MAUSER:     return 15;
-			case WP_GARAND:     return 25;
-			case WP_SNIPERRIFLE:    return 10;
-			case WP_SNOOPERSCOPE:   return 10;
-			}
-		}
-	} else { // JPW NERVE but in multiplayer...  new spreads and don't look at g_userAim
+	if ( g_userAim.integer ) {
+		// these should be higher since they become erratic if aiming is out
 		switch ( weapon ) {
-		case WP_LUGER: return 600;
-		case WP_SILENCER: return 900;
-		case WP_COLT: return 800;
-		case WP_AKIMBO: return 800;         //----(SA)added
-		case WP_VENOM: return 600;
-		case WP_MP40: return 400;
-		case WP_FG42SCOPE:
-		case WP_FG42:   return 500;
-		case WP_THOMPSON: return 600;
-		case WP_STEN: return 200;
-		case WP_MAUSER: return 700;
-		case WP_GARAND: return 600;
-		case WP_SNIPERRIFLE: return 700;         // was 300
-		case WP_SNOOPERSCOPE: return 700;
+		case WP_LUGER:      return 600;
+		case WP_SILENCER:   return 900;
+		case WP_COLT:       return 700;
+		case WP_AKIMBO:     return 700; //----(SA)	added
+		case WP_VENOM:      return 1000;
+		case WP_MP40:       return 1000;
+		case WP_FG42SCOPE:  return 300;
+		case WP_FG42:       return 800;
+		case WP_THOMPSON:   return 1200;
+		case WP_STEN:       return 1200;
+		case WP_MAUSER:     return 400;
+		case WP_GARAND:     return 500;
+		case WP_SNIPERRIFLE:    return 300;
+		case WP_SNOOPERSCOPE:   return 300;
+		}
+	} else {    // old values
+		switch ( weapon ) {
+		case WP_LUGER:      return 25;
+		case WP_SILENCER:   return 150;
+		case WP_COLT:       return 30;
+		case WP_AKIMBO:     return 30;      //----(SA)	added
+		case WP_VENOM:      return 200;
+		case WP_MP40:       return 200;
+		case WP_FG42SCOPE:  return 10;
+		case WP_FG42:       return 150;
+		case WP_THOMPSON:   return 250;
+		case WP_STEN:       return 300;
+		case WP_MAUSER:     return 15;
+		case WP_GARAND:     return 25;
+		case WP_SNIPERRIFLE:    return 10;
+		case WP_SNOOPERSCOPE:   return 10;
 		}
 	}
+	
 	Com_Printf( "shouldn't ever get here (weapon %d)\n",weapon );
 	// jpw
 	return 0;   // shouldn't get here

@@ -213,18 +213,6 @@ vmCvar_t cg_waitForFire;
 
 vmCvar_t cg_loadWeaponSelect;
 
-// NERVE - SMF - Wolf multiplayer configuration cvars
-vmCvar_t mp_playerType;
-vmCvar_t mp_team;
-vmCvar_t mp_weapon;
-vmCvar_t mp_pistol;
-vmCvar_t mp_item1;
-vmCvar_t mp_item2;
-vmCvar_t mp_mapDesc;
-vmCvar_t mp_mapTitle;
-vmCvar_t mp_itemDesc;
-// -NERVE - SMF
-
 typedef struct {
 	vmCvar_t    *vmCvar;
 	char        *cvarName;
@@ -405,17 +393,6 @@ static cvarTable_t cvarTable[] = {
 
 	{ &cg_expectedhunkusage, "com_expectedhunkusage", "0", CVAR_ROM},
 
-	// NERVE - SMF
-	{ &mp_playerType, "mp_playerType", "0", 0 },
-	{ &mp_team, "mp_team", "0", 0 },
-	{ &mp_weapon, "mp_weapon", "0", 0 },
-	{ &mp_pistol, "mp_pistol", "0", 0 },
-	{ &mp_item1, "mp_item1", "0", 0 },
-	{ &mp_item2, "mp_item2", "0", 0 },
-	{ &mp_mapDesc, "mp_mapDesc", "", 0 },
-	{ &mp_mapTitle, "mp_mapTitle", "", 0 },
-	{ &mp_itemDesc, "mp_itemDesc", "", 0 },
-	// -NERVE - SMF
 
 	{ &cg_showAIState, "cg_showAIState", "0", CVAR_CHEAT},
 };

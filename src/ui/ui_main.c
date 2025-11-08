@@ -946,63 +946,6 @@ static void UI_DrawLoadStatus( rectDef_t *rect, vec4_t color, int align )
     }
 }
 
-
-static void UI_DrawMapPreview( rectDef_t *rect, float scale, vec4_t color, qboolean net )
-{
-	int map = ( net ) ? ui_currentNetMap.integer : ui_currentMap.integer;
-	if ( map < 0 || map > uiInfo.mapCount ) {
-		if ( net ) {
-			ui_currentNetMap.integer = 0;
-			Cvar_Set( "ui_currentNetMap", "0" );
-		} else {
-			ui_currentMap.integer = 0;
-			Cvar_Set( "ui_currentMap", "0" );
-		}
-		map = 0;
-	}
-
-	if ( uiInfo.mapList[map].levelShot == -1 ) {
-		uiInfo.mapList[map].levelShot = RE_RegisterShaderNoMip( uiInfo.mapList[map].imageName );
-	}
-
-	if ( uiInfo.mapList[map].levelShot > 0 ) {
-		UI_DrawHandlePic( rect->x, rect->y, rect->w, rect->h, uiInfo.mapList[map].levelShot );
-	} else {
-		UI_DrawHandlePic( rect->x, rect->y, rect->w, rect->h, RE_RegisterShaderNoMip( "menu/art/unknownmap" ) );
-	}
-}
-
-static void UI_DrawMapCinematic( rectDef_t *rect, float scale, vec4_t color, qboolean net )
-{
-	int map = ( net ) ? ui_currentNetMap.integer : ui_currentMap.integer;
-	if ( map < 0 || map > uiInfo.mapCount ) {
-		if ( net ) {
-			ui_currentNetMap.integer = 0;
-			Cvar_Set( "ui_currentNetMap", "0" );
-		} else {
-			ui_currentMap.integer = 0;
-			Cvar_Set( "ui_currentMap", "0" );
-		}
-		map = 0;
-	}
-
-	if ( uiInfo.mapList[map].cinematic >= -1 ) {
-		if ( uiInfo.mapList[map].cinematic == -1 ) {
-			uiInfo.mapList[map].cinematic = trap_CIN_PlayCinematic( va( "%s.roq", uiInfo.mapList[map].mapLoadName ), 0, 0, 0, 0, ( CIN_loop | CIN_silent ) );
-		}
-		if ( uiInfo.mapList[map].cinematic >= 0 ) {
-			trap_CIN_RunCinematic( uiInfo.mapList[map].cinematic );
-			CIN_SetExtents( uiInfo.mapList[map].cinematic, rect->x, rect->y, rect->w, rect->h );
-			trap_CIN_DrawCinematic( uiInfo.mapList[map].cinematic );
-		} else {
-			uiInfo.mapList[map].cinematic = -2;
-		}
-	} else {
-		UI_DrawMapPreview( rect, scale, color, net );
-	}
-}
-
-
 static const char *UI_EnglishMapName( const char *map )
 {
 	for (int i = 0; i < uiInfo.mapCount; i++ ) {
@@ -1131,12 +1074,8 @@ void UI_OwnerDraw( float x, float y, float w, float h, float text_x, float text_
 	case UI_STARTMAPCINEMATIC:
 		UI_DrawPregameCinematic( &rect, scale, color );
 		break;
-	case UI_PREVIEWCINEMATIC:
-		UI_DrawPreviewCinematic( &rect, scale, color );
-		break;
-	case UI_MAPPREVIEW:
-		UI_DrawMapPreview( &rect, scale, color, qtrue );
-		break;
+
+
 	case UI_SAVEGAMENAME:
 		UI_DrawSavegameName( &rect, font, scale, color, textStyle );
 		break;
@@ -1148,9 +1087,7 @@ void UI_OwnerDraw( float x, float y, float w, float h, float text_x, float text_
 	case UI_LOADSTATUSBAR:
 		UI_DrawLoadStatus( &rect, color, align );
 		break;
-	case UI_MAPCINEMATIC:
-		UI_DrawMapCinematic( &rect, scale, color, qfalse );
-		break;
+
 	case UI_CROSSHAIR:
 		UI_DrawCrosshair( &rect, scale, color );
 		break;
@@ -1957,14 +1894,6 @@ static int UI_PlayCinematic( const char *name, float x, float y, float w, float 
 static void UI_StopCinematic( int handle ) {
 	if ( handle >= 0 ) {
 		trap_CIN_StopCinematic( handle );
-	} else {
-		handle = abs( handle );
-        if ( handle == UI_MAPCINEMATIC ) {
-            if ( uiInfo.mapList[ui_currentMap.integer].cinematic >= 0 ) {
-                trap_CIN_StopCinematic( uiInfo.mapList[ui_currentMap.integer].cinematic );
-                uiInfo.mapList[ui_currentMap.integer].cinematic = -1;
-            }
-        }
 	}
 }
 
@@ -2299,35 +2228,6 @@ vmCvar_t ui_cameraMode;     //----(SA)	added
 vmCvar_t ui_savegameListAutosave;       //----(SA)	added
 vmCvar_t ui_savegameName;
 
-// NERVE - SMF - cvars for multiplayer
-vmCvar_t ui_serverFilterType;
-vmCvar_t ui_currentNetMap;
-vmCvar_t ui_currentMap;
-vmCvar_t ui_mapIndex;
-
-vmCvar_t ui_browserMaster;
-vmCvar_t ui_browserGameType;
-vmCvar_t ui_browserSortKey;
-vmCvar_t ui_browserShowFull;
-vmCvar_t ui_browserShowEmpty;
-
-vmCvar_t ui_serverStatusTimeOut;
-
-vmCvar_t ui_Q3Model;
-vmCvar_t ui_headModel;
-vmCvar_t ui_model;
-
-vmCvar_t ui_limboOptions;
-
-vmCvar_t ui_cmd;
-
-vmCvar_t ui_prevTeam;
-vmCvar_t ui_prevClass;
-vmCvar_t ui_prevWeapon;
-
-vmCvar_t ui_limboMode;
-// -NERVE - SMF
-
 static cvarTable_t cvarTable[] = {
 	{ &ui_ffa_fraglimit, "ui_ffa_fraglimit", "20", CVAR_ARCHIVE },
 	{ &ui_ffa_timelimit, "ui_ffa_timelimit", "0", CVAR_ARCHIVE },
@@ -2356,12 +2256,6 @@ static cvarTable_t cvarTable[] = {
 
 	{ &ui_spSelection, "ui_spSelection", "", CVAR_ROM },
 	{ &ui_master, "ui_master", "0", CVAR_ARCHIVE },
-
-	{ &ui_browserMaster, "ui_browserMaster", "0", CVAR_ARCHIVE },
-	{ &ui_browserGameType, "ui_browserGameType", "0", CVAR_ARCHIVE },
-	{ &ui_browserSortKey, "ui_browserSortKey", "4", CVAR_ARCHIVE },
-	{ &ui_browserShowFull, "ui_browserShowFull", "1", CVAR_ARCHIVE },
-	{ &ui_browserShowEmpty, "ui_browserShowEmpty", "1", CVAR_ARCHIVE },
 
 	{ &ui_brassTime, "cg_brassTime", "1250", CVAR_ARCHIVE },
 	{ &ui_drawCrosshair, "cg_drawCrosshair", "4", CVAR_ARCHIVE },
@@ -2401,27 +2295,6 @@ static cvarTable_t cvarTable[] = {
 	{ &ui_actualNetGameType, "ui_actualNetGametype", "0", CVAR_ARCHIVE },
 	{ &ui_notebookCurrentPage, "ui_notebookCurrentPage", "1", CVAR_ROM},
 	{ &ui_clipboardName, "cg_clipboardName", "", CVAR_ROM },
-
-	// NERVE - SMF - multiplayer cvars
-	{ &ui_mapIndex, "ui_mapIndex", "0", CVAR_ARCHIVE },
-	{ &ui_currentMap, "ui_currentMap", "0", CVAR_ARCHIVE },
-	{ &ui_currentNetMap, "ui_currentNetMap", "0", CVAR_ARCHIVE },
-
-	{ &ui_initialized, "ui_initialized", "0", CVAR_TEMP },
-	{ &ui_debug, "ui_debug", "0", CVAR_TEMP },
-	{ &ui_WolfFirstRun, "ui_WolfFirstRun", "0", CVAR_ARCHIVE},
-
-	{ &ui_serverStatusTimeOut, "ui_serverStatusTimeOut", "7000", CVAR_ARCHIVE},
-
-	{ &ui_limboOptions, "ui_limboOptions", "0", 0 },
-	{ &ui_cmd, "ui_cmd", "", 0 },
-
-	{ &ui_prevTeam, "ui_prevTeam", "-1", 0 },
-	{ &ui_prevClass, "ui_prevClass", "-1", 0 },
-	{ &ui_prevWeapon, "ui_prevWeapon", "-1", 0 },
-
-	{ &ui_limboMode, "ui_limboMode", "0", 0 },
-	// -NERVE - SMF
 
 	{ &ui_hudAlpha, "cg_hudAlpha", "0.8", CVAR_ARCHIVE },
 	{ &ui_hunkUsed, "com_hunkused", "0", 0 },     //----(SA)	added

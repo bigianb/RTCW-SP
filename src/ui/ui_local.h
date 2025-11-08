@@ -113,21 +113,6 @@ extern vmCvar_t ui_cameraMode;  //----(SA)	added
 extern vmCvar_t ui_savegameListAutosave;    //----(SA)	added
 extern vmCvar_t ui_savegameName;    //----(SA)	added
 
-// NERVE - SMF - multiplayer cvars
-extern vmCvar_t ui_serverFilterType;
-extern vmCvar_t ui_currentNetMap;
-extern vmCvar_t ui_currentMap;
-extern vmCvar_t ui_mapIndex;
-
-extern vmCvar_t ui_browserMaster;
-extern vmCvar_t ui_browserGameType;
-extern vmCvar_t ui_browserSortKey;
-extern vmCvar_t ui_browserShowFull;
-extern vmCvar_t ui_browserShowEmpty;
-
-extern vmCvar_t ui_serverStatusTimeOut;
-// -NERVE - SMF
-
 //
 // ui_qmenu.c
 //

@@ -400,17 +400,15 @@ SV_AreaEntities_r
 
 ====================
 */
-void SV_AreaEntities_r( worldSector_t *node, areaParms_t *ap ) {
-	svEntity_t  *check, *next;
-	sharedEntity_t *gcheck;
-	int count;
+void SV_AreaEntities_r( worldSector_t *node, areaParms_t *ap )
+{
+	int count = 0;
 
-	count = 0;
-
-	for ( check = node->entities  ; check ; check = next ) {
+	svEntity_t *next;
+	for (svEntity_t  * check = node->entities  ; check ; check = next ) {
 		next = check->nextEntityInWorldSector;
 
-		gcheck = SV_GEntityForSvEntity( check );
+		sharedEntity_t *gcheck = SV_GEntityForSvEntity( check );
 
 		if ( gcheck->r.absmin[0] > ap->maxs[0]
 			 || gcheck->r.absmin[1] > ap->maxs[1]
@@ -512,16 +510,9 @@ void SV_ClipToEntity( trace_t *trace, const vec3_t start, const vec3_t mins, con
 		angles = vec3_origin;   // boxes don't rotate
 	}
 
-#ifdef __MACOS__
-	// compiler bug with const
-	CM_TransformedBoxTrace( trace, (float *)start, (float *)end,
-							(float *)mins, (float *)maxs, clipHandle,  contentmask,
-							origin, angles, capsule );
-#else
 	CM_TransformedBoxTrace( trace, start, end,
 							mins, maxs, clipHandle, contentmask,
 							origin, angles, capsule );
-#endif
 	if ( trace->fraction < 1 ) {
 		trace->entityNum = touch->s.number;
 	}

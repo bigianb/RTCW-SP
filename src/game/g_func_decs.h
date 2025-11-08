@@ -250,17 +250,7 @@ extern void  BG_AnimParseError ( const char * msg , ... ) ;
 extern qboolean G_ScriptAction_SetHealth ( gentity_t * ent , char * params ) ;
 extern qboolean G_ScriptAction_RestoreScript ( gentity_t * ent , char * params ) ;
 extern qboolean G_ScriptAction_BackupScript ( gentity_t * ent , char * params ) ;
-extern qboolean G_ScriptAction_SetRoundTimelimit ( gentity_t * ent , char * params ) ;
-extern qboolean G_ScriptAction_EndRound ( gentity_t * ent , char * params ) ;
-extern qboolean G_ScriptAction_Announce ( gentity_t * ent , char * params ) ;
-extern qboolean G_ScriptAction_SetObjectiveStatus ( gentity_t * ent , char * params ) ;
-extern qboolean G_ScriptAction_SetWinner ( gentity_t * ent , char * params ) ;
-extern qboolean G_ScriptAction_ObjectiveAlliedDesc ( gentity_t * ent , char * params ) ;
-extern qboolean G_ScriptAction_ObjectiveAxisDesc ( gentity_t * ent , char * params ) ;
-extern qboolean G_ScriptAction_NumberofObjectives ( gentity_t * ent , char * params ) ;
-extern qboolean G_ScriptAction_AlliedRespawntime ( gentity_t * ent , char * params ) ;
-extern qboolean G_ScriptAction_AxisRespawntime ( gentity_t * ent , char * params ) ;
-extern qboolean G_ScriptAction_MapDescription ( gentity_t * ent , char * params ) ;
+
 extern qboolean G_ScriptAction_AIScriptName ( gentity_t * ent , char * params ) ;
 extern qboolean G_ScriptAction_EntityScriptName ( gentity_t * ent , char * params ) ;
 extern qboolean G_ScriptAction_StartCam ( gentity_t * ent , char * params ) ;
@@ -468,8 +458,8 @@ extern void ai_effect_think ( gentity_t * ent ) ;
 extern void SP_ai_marker ( gentity_t * ent ) ;
 extern void SP_trigger_objective_info ( gentity_t * ent ) ;
 extern void Touch_objective_info ( gentity_t * ent , gentity_t * other , trace_t * trace ) ;
-extern void SP_trigger_flagonly ( gentity_t * ent ) ;
-extern void Touch_flagonly ( gentity_t * ent , gentity_t * other , trace_t * trace ) ;
+
+
 extern void SP_gas ( gentity_t * self ) ;
 extern void gas_think ( gentity_t * ent ) ;
 extern void gas_touch ( gentity_t * ent , gentity_t * other , trace_t * trace ) ;
@@ -611,7 +601,7 @@ extern void AICast_UpdateVisibility ( gentity_t * srcent , gentity_t * destent ,
 extern qboolean AICast_CheckVisibility ( gentity_t * srcent , gentity_t * destent ) ;
 extern qboolean AICast_VisibleFromPos ( vec3_t srcpos , int srcnum , vec3_t destpos , int destnum , qboolean updateVisPos ) ;
 extern qboolean AICast_InFieldOfVision ( vec3_t viewangles , float fov , vec3_t angles ) ;
-extern void SP_script_multiplayer ( gentity_t * ent ) ;
+
 extern void SP_script_camera ( gentity_t * ent ) ;
 extern void SP_script_model_med ( gentity_t * ent ) ;
 extern void script_model_med_use ( gentity_t * ent , gentity_t * other , gentity_t * activator ) ;

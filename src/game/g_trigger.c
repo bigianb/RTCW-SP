@@ -851,56 +851,6 @@ void SP_gas( gentity_t *self ) {
 	}
 }
 
-
-// DHM - Nerve :: Multiplayer triggers
-
-#define RED_FLAG 1
-#define BLUE_FLAG 2
-
-/*QUAKED trigger_flagonly (.5 .5 .5) ? RED_FLAG BLUE_FLAG
-Player must be carrying the proper flag for it to trigger.
-It will call the "death" function in the object's script.
-
-"scriptName"	The object name in the script file
-
-RED_FLAG -- only trigger if player is carrying red flag
-BLUE_FLAG -- only trigger if player is carrying blue flag
-*/
-
-void Touch_flagonly( gentity_t *ent, gentity_t *other, trace_t *trace ) {
-
-	if ( !other->client ) {
-		return;
-	}
-
-	if ( ent->spawnflags & RED_FLAG && other->client->ps.powerups[ PW_REDFLAG ] ) {
-
-		G_Script_ScriptEvent( ent, "death", "" );
-
-		// Removes itself
-		ent->touch = NULL;
-		ent->nextthink = level.time + FRAMETIME;
-		ent->think = G_FreeEntity;
-	} else if ( ent->spawnflags & BLUE_FLAG && other->client->ps.powerups[ PW_BLUEFLAG ] )   {
-
-		G_Script_ScriptEvent( ent, "death", "" );
-
-		// Removes itself
-		ent->touch = NULL;
-		ent->nextthink = level.time + FRAMETIME;
-		ent->think = G_FreeEntity;
-	}
-}
-
-void SP_trigger_flagonly( gentity_t *ent ) {
-	ent->touch  = Touch_flagonly;
-
-	InitTrigger( ent );
-	SV_LinkEntity( ent );
-}
-
-
-
 /*QUAKED trigger_objective_info (.5 .5 .5) ? AXIS_OBJECTIVE ALLIED_OBJECTIVE
 Players in this field will see a message saying that they are near an objective.
 You specify which objective it is with a number in "count"

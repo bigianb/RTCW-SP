@@ -1940,14 +1940,6 @@ void CG_PlayerTeslaCoilFire( centity_t *cent, vec3_t flashorigin ) {
 		return;
 	}
 
-// JPW NERVE no tesla in multiplayer
-	if ( cg_gameType.integer != GT_SINGLE_PLAYER ) {
-		return;
-	}
-
-	//if (cent->currentState.number == cg.snap->ps.clientNum)
-	//	VectorCopy( cg.snap->ps.viewangles, viewAngles );
-	//else
 	VectorCopy( cent->lerpAngles, viewAngles );
 
 	AngleVectors( viewAngles, viewDir, NULL, NULL );
@@ -5292,61 +5284,31 @@ void CG_Shard(centity_t *cent, vec3_t origin, vec3_t dir)
 			shakeRad = 1000;
 		}
 
-// JPW NERVE
-		if ( cg_gameType.integer == GT_SINGLE_PLAYER ) {
+
+		if ( weapon == VERYBIGEXPLOSION ) {
+			CG_ParticleExplosion( "explode1", sprOrg, sprVel, 1200, 20, 300 );
+		} else {
+			CG_ParticleExplosion( "explode1", sprOrg, sprVel, 1400, 40, 70 );
+		}
+
+		// NOTE: these must all have the same duration, so that we are less likely to use a wider range of images per scene
+		r = 2 + rand() % 3;
+		for ( i = 0; i < 4; i++ ) {
 			if ( weapon == VERYBIGEXPLOSION ) {
-				CG_ParticleExplosion( "explode1", sprOrg, sprVel, 1200, 20, 300 );
-			} else {
-				CG_ParticleExplosion( "explode1", sprOrg, sprVel, 1400, 40, 70 );
+				for ( j = 0; j < 3; j++ ) sprOrg[j] = origin[j] + 32 * dir[j] + 32 * crandom();
+				CG_ParticleExplosion( "explode1", sprOrg, sprVel, 1200, 40, 160 + rand() % 120 );
+			} else if ( i < 2 ) {
+				for ( j = 0; j < 3; j++ ) sprOrg[j] = origin[j] + 24 * dir[j] + 16 * crandom();
+				CG_ParticleExplosion( "explode1", sprOrg, sprVel, 1400, 15, 40 + rand() % 30 );
 			}
-
-			// NOTE: these must all have the same duration, so that we are less likely to use a wider range of images per scene
-			r = 2 + rand() % 3;
-			for ( i = 0; i < 4; i++ ) {
-				if ( weapon == VERYBIGEXPLOSION ) {
-					for ( j = 0; j < 3; j++ ) sprOrg[j] = origin[j] + 32 * dir[j] + 32 * crandom();
-					CG_ParticleExplosion( "explode1", sprOrg, sprVel, 1200, 40, 160 + rand() % 120 );
-				} else if ( i < 2 ) {
-					for ( j = 0; j < 3; j++ ) sprOrg[j] = origin[j] + 24 * dir[j] + 16 * crandom();
-					CG_ParticleExplosion( "explode1", sprOrg, sprVel, 1400, 15, 40 + rand() % 30 );
-				}
-			}
-
-			// Ridah, throw some debris
-			CG_AddDebris( origin, dir,
-						  120,      // speed
-						  2000,  //350,	// duration
-						  // 15 + rand()%5 );	// count
-						  7 + rand() % 2 ); // count
 		}
-// JPW NERVE -- multiplayer explosions over the top due to large damage radiusesesizes
-		else {
-			CG_ParticleExplosion( "explode1", sprOrg, sprVel, 1600, 20, 200 + random() * 400 );
 
-			// NOTE: these must all have the same duration, so that we are less likely to use a wider range of images per scene
-			r = 2 + rand() % 3;
-			for ( i = 0; i < 4; i++ ) {
-				for ( j = 0; j < 3; j++ ) sprOrg[j] = origin[j] + 160 * crandom();
-				CG_ParticleExplosion( "explode1", sprOrg, sprVel, 1600, 40, 260 + rand() % 120 );
-			}
-
-			CG_AddDebris( origin, dir,
-						  400 + random() * 200, // speed
-						  rand() % 2000 + 1000, //350,	// duration
-						  // 15 + rand()%5 );	// count
-						  5 + rand() % 5 ); // count
-
-		}
-// jpw
-/*
-		// some sparks
-		CG_AddSparks( origin, dir,
-						200,	// speed
-						800,	// duration
-						5 + rand()%10,	// count
-						0.8 );	// rand scale
-*/
-		// done.
+		// Ridah, throw some debris
+		CG_AddDebris( origin, dir,
+					  120,      // speed
+					  2000,  //350,	// duration
+					  // 15 + rand()%5 );	// count
+					  7 + rand() % 2 ); // count
 
 		break;
 

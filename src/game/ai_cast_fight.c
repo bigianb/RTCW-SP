@@ -2210,11 +2210,7 @@ qboolean AICast_HasFiredWeapon( int entNum, int weapon ) {
 }
 
 qboolean AICast_AllowFlameDamage( int entNum ) {
-	// DHM - Nerve :: caststates are not initialized in multiplayer
-	if ( g_gametype.integer != GT_SINGLE_PLAYER ) {
-		return qtrue;
-	}
-	// dhm
+
 
 	if ( caststates[entNum].aiFlags & AIFL_NO_FLAME_DAMAGE ) {
 		return qfalse;
@@ -2305,12 +2301,6 @@ void AICast_AudibleEvent( int srcnum, vec3_t pos, float range ) {
 	cast_state_t *cs, *scs = 0;
 	gentity_t *ent, *sent;
 	float adjustedRange, localDist;
-
-	// DHM - Nerve :: caststates are not initialized in multiplayer
-	if ( g_gametype.integer != GT_SINGLE_PLAYER ) {
-		return;
-	}
-	// dhm
 
 	if ( g_debugAudibleEvents.integer ) {
 		Com_Printf( "AICast_AudibleEvent: (%0.1f %0.1f %0.1f) range: %0.0f\n",  pos[0], pos[1], pos[2], range );

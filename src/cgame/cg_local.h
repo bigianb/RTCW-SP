@@ -1725,14 +1725,6 @@ extern vmCvar_t cg_waitForFire;
 
 extern vmCvar_t cg_loadWeaponSelect;
 
-// NERVE - SMF - Wolf multiplayer configuration cvars
-extern vmCvar_t mp_playerType;
-extern vmCvar_t mp_weapon;
-extern vmCvar_t mp_item1;
-extern vmCvar_t mp_item2;
-extern vmCvar_t mp_mapDesc;
-extern vmCvar_t mp_mapTitle;
-// -NERVE - SMF
 
 //
 // cg_main.c

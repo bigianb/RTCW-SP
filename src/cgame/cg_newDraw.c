@@ -765,32 +765,7 @@ static void CG_DrawFatigue( rectDef_t *rect, vec4_t color, int align ) {
 	if ( cg.snap->ps.powerups[PW_NOFATIGUE] ) {
 		CG_FilledBar( rect->x, rect->y, rect->w / 2, rect->h, colorBonus, NULL, NULL, cg.snap->ps.powerups[PW_NOFATIGUE] / BONUSTIME, flags );
 	}
-// JPW NERVE -- added drawWeaponPercent in multiplayer, drawn to left
-	if ( cgs.gametype != GT_SINGLE_PLAYER ) {
 
-		if ( cg.snap->ps.stats[ STAT_PLAYER_CLASS ] == PC_ENGINEER ) {
-			chargeTime = cg_engineerChargeTime.value;
-		} else if ( cg.snap->ps.stats[ STAT_PLAYER_CLASS ] == PC_MEDIC ) {
-			chargeTime = cg_medicChargeTime.value;
-		} else if ( cg.snap->ps.stats[ STAT_PLAYER_CLASS ] == PC_LT ) {
-			chargeTime = cg_LTChargeTime.value;
-		} else {
-			chargeTime = cg_soldierChargeTime.value;
-		}
-
-		barFrac = (float)( cg.time - cg.snap->ps.classWeaponTime ) / chargeTime;
-
-		if ( barFrac > 1.0 ) {
-			barFrac = 1.0;
-		}
-
-		color[0] = 1.0f;
-		color[1] = color[2] = barFrac;
-		color[3] = 0.25 + barFrac * 0.5;
-
-		CG_FilledBar( rect->x - rect->w, rect->y, rect->w / 2, rect->h, color, NULL, NULL, barFrac, flags );
-	}
-// jpw
 }
 
 

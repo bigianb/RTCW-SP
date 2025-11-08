@@ -348,7 +348,7 @@ void SP_shooter_tesla( gentity_t *ent );
 void SP_alarm_box( gentity_t *ent );
 //----(SA)	end
 
-void SP_trigger_flagonly( gentity_t *ent );     // DHM - Nerve
+
 void SP_trigger_objective_info( gentity_t *ent );   // DHM - Nerve
 
 void SP_gas( gentity_t *ent );
@@ -409,7 +409,6 @@ void SP_skyportal( gentity_t *ent );
 // RF, scripting
 void SP_script_model_med( gentity_t *ent );
 void SP_script_mover( gentity_t *ent );
-void SP_script_multiplayer( gentity_t *ent );         // DHM - Nerve
 
 void SP_props_footlocker( gentity_t *self );
 void SP_misc_firetrails( gentity_t *ent );
@@ -649,13 +648,12 @@ spawn_t spawns[] = {
 	{"corona",       SP_corona},
 
 	{"test_gas", SP_gas},
-	{"trigger_flagonly", SP_trigger_flagonly},               // DHM - Nerve
+
 	{"trigger_objective_info", SP_trigger_objective_info},   // DHM - Nerve
 
 	// RF, scripting
 	{"script_model_med", SP_script_model_med},
 	{"script_mover", SP_script_mover},
-	{"script_multiplayer", SP_script_multiplayer},           // DHM - Nerve
 
 	{0, 0}
 };
