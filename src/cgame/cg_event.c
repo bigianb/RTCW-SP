@@ -311,7 +311,7 @@ void CG_PainEvent( centity_t *cent, int health, qboolean crouching ) {
 	float bestDist, dist;
 
 	// Rafael
-	if ( cent->currentState.aiChar && cgs.gametype == GT_SINGLE_PLAYER ) {
+	if ( cent->currentState.aiChar ) {
 
 		if ( cent->pe.painTime > cg.time - 1000 ) {
 			oldPainAnim = cent->pe.painAnimTorso;
@@ -1559,10 +1559,7 @@ void CG_EntityEvent( centity_t *cent, vec3_t position ) {
 //----(SA)	the actual problem, of course, is doing underwater stuff when the water is very turbulant and you can't simply
 //----(SA)	do things based on the players head being above/below the water brushes top surface. (since the waves can potentially be /way/ above/below that)
 
-		// DHM - Nerve :: causes problems in multiplayer...
-		if ( cgs.gametype == GT_SINGLE_PLAYER && clientNum == cg.predictedPlayerState.clientNum ) {
-//			trap_R_SetFog(FOG_WATER, 0, 400, .1, .1, .1, 111);
-//			trap_R_SetFog(FOG_CMD_SWITCHFOG, FOG_WATER, 200, 0, 0, 0, 0);
+		if ( clientNum == cg.predictedPlayerState.clientNum ) {
 			char buff[64];
 			Cvar_VariableStringBuffer( "r_waterFogColor", buff, sizeof( buff ) );
 			CL_AddReliableCommand( va( "fogswitch %s", buff ) );
@@ -1572,9 +1569,7 @@ void CG_EntityEvent( centity_t *cent, vec3_t position ) {
 		DEBUGNAME( "EV_WATER_CLEAR" );
 		S_StartSound( NULL, es->number, CHAN_AUTO, CG_CustomSound( es->number, "*gasp.wav" ) );
 
-		// DHM - Nerve :: causes problems in multiplayer...
-		if ( cgs.gametype == GT_SINGLE_PLAYER && clientNum == cg.predictedPlayerState.clientNum ) {
-//			trap_R_SetFog(FOG_CMD_SWITCHFOG, FOG_MAP, 400,0,0,0,0);
+		if ( clientNum == cg.predictedPlayerState.clientNum ) {
 			char buff[64];
 			Cvar_VariableStringBuffer( "r_mapFogColor", buff, sizeof( buff ) );
 			CL_AddReliableCommand( va( "fogswitch %s", buff ) );
@@ -1675,14 +1670,10 @@ void CG_EntityEvent( centity_t *cent, vec3_t position ) {
 		}
 		break;
 
-// JPW NERVE
 	case EV_SPINUP:
 		DEBUGNAME( "EV_SPINUP" );
-		if ( cg_gameType.integer != GT_SINGLE_PLAYER ) {
-			S_StartSound( NULL, es->number, CHAN_AUTO, cg_weapons[es->weapon].spinupSound );
-		}
 		break;
-// jpw
+
 
 	case EV_EMPTYCLIP:
 		DEBUGNAME( "EV_EMPTYCLIP" );
@@ -1734,7 +1725,7 @@ void CG_EntityEvent( centity_t *cent, vec3_t position ) {
 
 		// TTimo
 		// show_bug.cgi?id=417
-		if ( ( newweap ) && ( cgs.gametype != GT_WOLF ) ) {
+		if (  newweap ) {
 			CG_FinishWeaponChange( es->weapon, newweap );
 		}
 

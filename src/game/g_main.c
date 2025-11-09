@@ -54,8 +54,6 @@ gentity_t       *g_camEnt = NULL;   //----(SA)	script camera
 extern int bg_pmove_gameskill_integer;
 // done
 
-vmCvar_t g_gametype;
-
 // Rafael gameskill
 vmCvar_t g_gameskill;
 // done
@@ -144,7 +142,6 @@ cvarTable_t gameCvarTable[] = {
 	{ NULL, "sv_mapname", "", CVAR_SERVERINFO | CVAR_ROM, 0, qfalse  },
 
 	// latched vars
-	{ &g_gametype, "g_gametype", "0", CVAR_SERVERINFO | CVAR_LATCH, 0, qfalse  },
 
 	// Rafael gameskill
 	{ &g_gameskill, "g_gameskill", "2", CVAR_SERVERINFO | CVAR_LATCH, 0, qfalse  },   // (SA) new default '2' (was '1')
@@ -429,23 +426,6 @@ void G_CheckForCursorHints( gentity_t *ent ) {
 			hintType = HINT_PLYR_FRIEND;
 			hintDist = CH_FRIENDLY_DIST;    // far, since this will be used to determine whether to shoot bullet weaps or not
 		}
-
-
-		// DHM - Nerve
-		if ( g_gametype.integer == GT_WOLF ) {
-			if ( ps->stats[ STAT_PLAYER_CLASS ] == PC_MEDIC ) {
-				if ( traceEnt->client && traceEnt->client->ps.pm_type == PM_DEAD && !( traceEnt->client->ps.pm_flags & PMF_LIMBO ) ) {
-					hintDist    = CH_ACTIVATE_DIST;
-					hintType    = HINT_BUILD;
-					hintVal     = ( (float)traceEnt->client->medicHealAmt / 80.f ) * 255.f; // also send health to client for visualization
-					if ( hintVal > 255 ) {
-						hintVal = 255;
-					}
-				}
-			}
-		}
-		// dhm - Nerve
-
 	}
 	//
 	// OTHER ENTITIES
@@ -468,18 +448,13 @@ void G_CheckForCursorHints( gentity_t *ent ) {
 			if ( !Q_stricmp( traceEnt->classname, "func_invisible_user" ) ) {
 				indirectHit = qtrue;
 
-				// DHM - Nerve :: Put this back in only in multiplayer
-				if ( g_gametype.integer == GT_WOLF && traceEnt->s.dmgFlags ) { // hint icon specified in entity
-					hintType = traceEnt->s.dmgFlags;
-					hintDist = CH_ACTIVATE_DIST;
-					checkEnt = 0;
-				} else {                      // use target for hint icon
-					checkEnt = G_Find( NULL, FOFS( targetname ), traceEnt->target );
-					if ( !checkEnt ) {     // no target found
-						hintType = HINT_BAD_USER;
-						hintDist = CH_MAX_DIST_ZOOM;    // show this one from super far for debugging
-					}
+				// use target for hint icon
+				checkEnt = G_Find( NULL, FOFS( targetname ), traceEnt->target );
+				if ( !checkEnt ) {     // no target found
+					hintType = HINT_BAD_USER;
+					hintDist = CH_MAX_DIST_ZOOM;    // show this one from super far for debugging
 				}
+				
 			}
 		}
 
@@ -523,32 +498,16 @@ void G_CheckForCursorHints( gentity_t *ent ) {
 					}
 				}
 			} else if ( checkEnt->s.eType == ET_MG42 )      {
-				// DHM - Nerve :: Engineers can repair turrets
-				if ( g_gametype.integer == GT_WOLF ) {
-					hintDist = CH_ACTIVATE_DIST;
-					hintType = HINT_MG42;
-
-					if ( ps->stats[ STAT_PLAYER_CLASS ] == PC_ENGINEER ) {
-						if ( !traceEnt->takedamage ) {
-							hintType = HINT_BUILD;
-							hintVal = traceEnt->health;
-							if ( hintVal > 255 ) {
-								hintVal = 255;
-							}
-						}
+				
+				if ( ent->s.weapon != WP_SNIPERRIFLE &&
+					 ent->s.weapon != WP_SNOOPERSCOPE &&
+					 ent->s.weapon != WP_FG42SCOPE ) {
+					if ( traceEnt->takedamage ) {
+						hintDist = CH_ACTIVATE_DIST;
+						hintType = HINT_MG42;
 					}
 				}
-				// dhm - end
-				else {
-					if ( ent->s.weapon != WP_SNIPERRIFLE &&
-						 ent->s.weapon != WP_SNOOPERSCOPE &&
-						 ent->s.weapon != WP_FG42SCOPE ) {
-						if ( traceEnt->takedamage ) {
-							hintDist = CH_ACTIVATE_DIST;
-							hintType = HINT_MG42;
-						}
-					}
-				}
+				
 			} else if ( checkEnt->s.eType == ET_EXPLOSIVE )      {
 				if ( checkEnt->takedamage && checkEnt->health > 0 ) {              // 0 health explosives are not breakable
 					hintDist    = CH_BREAKABLE_DIST;
@@ -797,9 +756,6 @@ void G_FindTeams( void ) {
 		}
 	}
 
-	if ( Cvar_VariableIntegerValue( "g_gametype" ) != GT_SINGLE_PLAYER ) {
-		Com_Printf( "%i teams with %i entities\n", c, c2 );
-	}
 }
 
 
@@ -837,12 +793,6 @@ void G_RegisterCvars( void ) {
 
 	if ( remapped ) {
 		G_RemapTeamShaders();
-	}
-
-	// check some things
-	if ( g_gametype.integer < 0 || g_gametype.integer >= GT_MAX_GAME_TYPE ) {
-		Com_Printf( "g_gametype %i is out of range, defaulting to 0\n", g_gametype.integer );
-		Cvar_Set( "g_gametype", "0" );
 	}
 
 	// Rafael gameskill
@@ -1050,46 +1000,15 @@ void G_InitGame( int levelTime, int randomSeed, int restart ) {
 	level.time = levelTime;
 	level.startTime = levelTime;
 
-	level.numSecrets = 0;   //----(SA)	added
-
-	// don't need it.
-//	level.snd_fry = G_SoundIndex("sound/player/fry.wav");	// FIXME standing in lava / slime
+	level.numSecrets = 0;
 
 	level.bulletRicochetSound = G_SoundIndex( "bulletRicochet" );
-
 	level.snipersound = G_SoundIndex( "sound/weapons/mauser/mauserf1.wav" );
-
-	//----(SA)	added sound caching
 	level.knifeSound[0] = G_SoundIndex( "sound/weapons/knife/knife_hitwall1.wav" );
-	//----(SA)	end
 
 	// RF, init the anim scripting
 	level.animScriptData.soundIndex = G_SoundIndex;
 	level.animScriptData.playSound = G_AnimScriptSound;
-
-	if ( g_gametype.integer != GT_SINGLE_PLAYER && g_log.string[0] ) {
-		if ( g_logSync.integer ) {
-			FS_FOpenFileByMode( g_log.string, &level.logFile, FS_APPEND_SYNC );
-		} else {
-			FS_FOpenFileByMode( g_log.string, &level.logFile, FS_APPEND );
-		}
-		if ( !level.logFile ) {
-			Com_Printf( "WARNING: Couldn't open logfile: %s\n", g_log.string );
-		} else {
-			char serverinfo[MAX_INFO_STRING];
-
-			SV_GetServerinfo( serverinfo, sizeof( serverinfo ) );
-
-			G_LogPrintf( "------------------------------------------------------------\n" );
-			G_LogPrintf( "InitGame: %s\n", serverinfo );
-		}
-	} else {
-		if ( Cvar_VariableIntegerValue( "g_gametype" ) != GT_SINGLE_PLAYER ) {
-			Com_Printf( "Not logging to disk.\n" );
-		}
-	}
-
-	G_InitWorldSession();
 
 	// initialize all entities for this game
 	memset( g_entities, 0, MAX_GENTITIES * sizeof( g_entities[0] ) );
@@ -1114,28 +1033,27 @@ void G_InitGame( int levelTime, int randomSeed, int restart ) {
 	SV_LocateGameData( level.gentities, level.num_entities, sizeof( gentity_t ),
 						 &level.clients[0].ps, sizeof( level.clients[0] ) );
 
-	// Ridah
-	if ( g_gametype.integer == GT_SINGLE_PLAYER ) {
-		char s[10];
 
-		// Ridah, initialize cast AI system
-		// DHM - Nerve :: Moved this down so that it only happens in SinglePlayer games
-		AICast_Init();
-		// done.
+	char s[10];
 
-		AICast_ScriptLoad();
+	// Ridah, initialize cast AI system
+	// DHM - Nerve :: Moved this down so that it only happens in SinglePlayer games
+	AICast_Init();
+	// done.
 
-		Cvar_VariableStringBuffer( "g_missionStats", s, sizeof( s ) );
-		if ( strlen( s ) < 1 ) {
-			// g_missionStats is used to get the player to press a key to begin
-			Cvar_Set( "g_missionStats", "xx" );
-		}
+	AICast_ScriptLoad();
 
-		for ( i = 0; i < 8; i++ )     {  // max objective cvars: 8 (FIXME: use #define somewhere)
-			Cvar_Set( va( "g_objective%i", i + 1 ), "0" );   // clear the objective ROM cvars
-		}
-		Cvar_Set( "cg_yougotMail", "0" );
+	Cvar_VariableStringBuffer( "g_missionStats", s, sizeof( s ) );
+	if ( strlen( s ) < 1 ) {
+		// g_missionStats is used to get the player to press a key to begin
+		Cvar_Set( "g_missionStats", "xx" );
 	}
+
+	for ( i = 0; i < 8; i++ )     {  // max objective cvars: 8 (FIXME: use #define somewhere)
+		Cvar_Set( va( "g_objective%i", i + 1 ), "0" );   // clear the objective ROM cvars
+	}
+	Cvar_Set( "cg_yougotMail", "0" );
+	
 	G_Script_ScriptLoad();
 	// done.
 
@@ -1153,23 +1071,15 @@ void G_InitGame( int levelTime, int randomSeed, int restart ) {
 	// general initialization
 	G_FindTeams();
 
-	// make sure we have flags for CTF, etc
-	if ( g_gametype.integer >= GT_TEAM ) {
-		G_CheckTeamItems();
-	}
-
 	SaveRegisteredItems();
 
-	if ( g_gametype.integer == GT_SINGLE_PLAYER || Cvar_VariableIntegerValue( "com_buildScript" ) ) {
-		G_ModelIndex( SP_PODIUM_MODEL );
-		G_SoundIndex( "sound/player/gurp1.wav" );
-		G_SoundIndex( "sound/player/gurp2.wav" );
-	}
+	G_ModelIndex( SP_PODIUM_MODEL );
+	G_SoundIndex( "sound/player/gurp1.wav" );
+	G_SoundIndex( "sound/player/gurp2.wav" );
 
 	if ( Cvar_VariableIntegerValue( "bot_enable" ) ) {
 		BotAISetup( restart );
 		BotAILoadMap( restart );
-//		G_InitBots( restart );
 	}
 
 	G_RemapTeamShaders();
@@ -1191,10 +1101,7 @@ void G_ShutdownGame( int restart ) {
 		FS_FCloseFile( level.logFile );
 	}
 
-	// RF, update the playtime
-	if ( g_gametype.integer == GT_SINGLE_PLAYER ) {
-		AICast_AgePlayTime( 0 );
-	}
+	AICast_AgePlayTime( 0 );
 
 	// Ridah, shutdown the Botlib, so weapons and things get reset upon doing a "map xxx" command
 	if ( Cvar_VariableIntegerValue( "bot_enable" ) ) {
@@ -1534,11 +1441,8 @@ void G_RunFrame( int levelTime ) {
 	level.time = levelTime;
 	msec = level.time - level.previousTime;
 
-	// Ridah, check for loading a save game
-	if ( g_gametype.integer == GT_SINGLE_PLAYER ) {
-		extern void AICast_CheckLoadGame( void );
-		AICast_CheckLoadGame();
-	}
+	extern void AICast_CheckLoadGame( void );
+	AICast_CheckLoadGame();
 
 	// get any cvar changes
 	G_UpdateCvars();

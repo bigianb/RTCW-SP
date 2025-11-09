@@ -342,7 +342,7 @@ If you have questions concerning this license or the applicable additional terms
 {"G_QueueBotBegin", (byte *)G_QueueBotBegin},
 
 {"G_WriteSessionData", (byte *)G_WriteSessionData},
-{"G_InitWorldSession", (byte *)G_InitWorldSession},
+
 {"G_InitSessionData", (byte *)G_InitSessionData},
 {"G_ReadSessionData", (byte *)G_ReadSessionData},
 {"G_WriteClientSessionData", (byte *)G_WriteClientSessionData},

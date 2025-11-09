@@ -937,10 +937,6 @@ void AICast_StartServerFrame( int time ) {
 		return;
 	}
 
-	if ( g_gametype.integer != GT_SINGLE_PLAYER ) {
-		return;
-	}
-
 	if ( saveGamePending ) {
 		return;
 	}
@@ -998,11 +994,8 @@ void AICast_StartServerFrame( int time ) {
 	activeCount = 0;
 	//
 	//update the AI characters
-	for ( i = 0, ent = g_entities; i < level.maxclients /*&& clCount < level.numPlayingClients*/; i++, ent++ )
+	for ( i = 0, ent = g_entities; i < level.maxclients ; i++, ent++ )
 	{
-		//if (ent->inuse && ent->client)
-		//	clCount++;
-		//
 		cs = AICast_GetCastState( i );
 		// is this a cast AI?
 		if ( cs->bs ) {

@@ -863,14 +863,6 @@ static int CG_CalcFov( void ) {
 		}
 	}
 
-	// DHM - Nerve :: zoom in for Limbo or Spectator
-	if ( cgs.gametype == GT_WOLF ) {
-		if ( cg.snap->ps.pm_flags & PMF_FOLLOW && cg.snap->ps.weapon == WP_SNIPERRIFLE ) {
-			fov_x = cg_zoomDefaultSniper.value;
-		}
-	}
-	// dhm - end
-
 	if ( !dead && ( cg.weaponSelect == WP_SNOOPERSCOPE ) ) {
 		cg.refdef.rdflags |= RDF_SNOOPERVIEW;
 	} else {
@@ -1228,10 +1220,8 @@ void CG_DrawSkyBoxPortal( void ) {
 	}
 
 	// if they are waiting at the mission stats screen, show the stats
-	if ( cg_gameType.integer == GT_SINGLE_PLAYER ) {
-		if ( strlen( cg_missionStats.string ) > 1 ) {
-			return;
-		}
+	if ( strlen( cg_missionStats.string ) > 1 ) {
+		return;
 	}
 
 	backuprefdef = cg.refdef;

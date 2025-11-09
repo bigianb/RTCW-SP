@@ -79,8 +79,6 @@ If you have questions concerning this license or the applicable additional terms
 bot_waypoint_t botai_waypoints[MAX_WAYPOINTS];
 bot_waypoint_t  *botai_freewaypoints;
 
-//NOTE: not using a cvar which can be updated because the game should be reloaded anyway
-int gametype;       //game type
 
 // Rafael gameskill
 int gameskill;
@@ -620,7 +618,7 @@ TeamPlayIsOn
 ==================
 */
 int TeamPlayIsOn( void ) {
-	return ( gametype == GT_TEAM || gametype == GT_CTF );
+	return 0;
 }
 
 /*
@@ -1114,14 +1112,7 @@ int BotSameTeam( bot_state_t *bs, int entnum ) {
 		//BotAI_Print(PRT_ERROR, "BotSameTeam: client out of range\n");
 		return qfalse;
 	}
-	if ( gametype == GT_TEAM || gametype == GT_CTF ) {
-		SV_GetConfigstring( CS_PLAYERS + bs->client, info1, sizeof( info1 ) );
-		SV_GetConfigstring( CS_PLAYERS + entnum, info2, sizeof( info2 ) );
-		//
-		if ( atoi( Info_ValueForKey( info1, "t" ) ) == atoi( Info_ValueForKey( info2, "t" ) ) ) {
-			return qtrue;
-		}
-	}
+
 	return qfalse;
 }
 
@@ -2621,10 +2612,8 @@ void BotDeathmatchAI( bot_state_t *bs, float thinktime ) {
 		Info_SetValueForKey( userinfo, "sex", gender );
 		SV_SetUserinfo( bs->client, userinfo );
 		//set the team
-		if ( g_gametype.integer != GT_TOURNAMENT ) {
-			snprintf( buf, sizeof( buf ), "team %s", bs->settings.team );
-			trap_EA_Command( bs->client, buf );
-		}
+		snprintf( buf, sizeof( buf ), "team %s", bs->settings.team );
+		trap_EA_Command( bs->client, buf );
 		//set the chat gender
 		if ( gender[0] == 'm' ) {
 			trap_BotSetChatGender( bs->cs, CHAT_GENDERMALE );
@@ -2702,8 +2691,6 @@ BotSetupDeathmatchAI
 void BotSetupDeathmatchAI( void ) {
 	int ent, modelnum;
 	char model[128];
-
-	gametype = Cvar_VariableIntegerValue( "g_gametype" );
 
 	// Rafael gameskill
 	gameskill = Cvar_VariableIntegerValue( "g_gameskill" );

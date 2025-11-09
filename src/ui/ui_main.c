@@ -946,16 +946,6 @@ static void UI_DrawLoadStatus( rectDef_t *rect, vec4_t color, int align )
     }
 }
 
-static const char *UI_EnglishMapName( const char *map )
-{
-	for (int i = 0; i < uiInfo.mapCount; i++ ) {
-		if ( Q_stricmp( map, uiInfo.mapList[i].mapLoadName ) == 0 ) {
-			return uiInfo.mapList[i].mapName;
-		}
-	}
-	return "";
-}
-
 static int UI_OwnerDrawWidth( int ownerDraw, int font, float scale )
 {
 	const char *s = NULL;
@@ -2289,7 +2279,7 @@ static cvarTable_t cvarTable[] = {
 	{ &ui_selectedPlayerName, "cg_selectedPlayerName", "", CVAR_ARCHIVE},
 	{ &ui_netSource, "ui_netSource", "0", CVAR_ARCHIVE },
 	{ &ui_menuFiles, "ui_menuFiles", "ui/menus.txt", CVAR_ARCHIVE },
-	{ &ui_gameType, "ui_gametype", "3", CVAR_ARCHIVE },
+
 	{ &ui_joinGameType, "ui_joinGametype", "0", CVAR_ARCHIVE },
 	{ &ui_netGameType, "ui_netGametype", "3", CVAR_ARCHIVE },
 	{ &ui_actualNetGameType, "ui_actualNetGametype", "0", CVAR_ARCHIVE },

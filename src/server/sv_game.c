@@ -312,9 +312,8 @@ SV_InitGameVM
 Called for both a full init and a restart
 ==================
 */
-static void SV_InitGameVM( qboolean restart ) {
-	int i;
-
+static void SV_InitGameVM( qboolean restart )
+{
 	// start the entity parsing at the beginning
 	sv.entityParsePoint = CM_EntityString();
 
@@ -324,7 +323,7 @@ static void SV_InitGameVM( qboolean restart ) {
 
 	// clear all gentity pointers that might still be set from
 	// a previous level
-	for ( i = 0 ; i < sv_maxclients->integer ; i++ ) {
+	for (int i = 0 ; i < sv_maxclients->integer ; i++ ) {
 		svs.clients[i].gentity = NULL;
 	}
 }

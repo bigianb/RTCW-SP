@@ -50,92 +50,9 @@ sent to that ip.
 =================
 */
 void SV_GetChallenge( netadr_t from ) {
-	int i;
-	int oldest;
-	int oldestTime;
-	challenge_t *challenge;
-
-	// ignore if we are in single player
-	if ( Cvar_VariableValue( "g_gametype" ) == GT_SINGLE_PLAYER ) {
-		return;
-	}
-
-	oldest = 0;
-	oldestTime = 0x7fffffff;
-
-	// see if we already have a challenge for this ip
-	challenge = &svs.challenges[0];
-	for ( i = 0 ; i < MAX_CHALLENGES ; i++, challenge++ ) {
-		if ( NET_CompareAdr( from, challenge->adr ) ) {
-			break;
-		}
-		if ( challenge->time < oldestTime ) {
-			oldestTime = challenge->time;
-			oldest = i;
-		}
-	}
-
-	if ( i == MAX_CHALLENGES ) {
-		// this is the first time this client has asked for a challenge
-		challenge = &svs.challenges[oldest];
-
-		challenge->challenge = ( ( rand() << 16 ) ^ rand() ) ^ svs.time;
-		challenge->adr = from;
-		challenge->time = svs.time;
-		challenge->firstTime = svs.time;
-		i = oldest;
-	}
-
-	// if they are on a lan address, send the challengeResponse immediately
-	if ( Sys_IsLANAddress( from ) ) {
-		challenge->pingTime = svs.time;
-		NET_OutOfBandPrint( NS_SERVER, from, "challengeResponse %i", challenge->challenge );
-		return;
-	}
-
-	// look up the authorize server's IP
-	if ( !svs.authorizeAddress.ip[0] && svs.authorizeAddress.type != NA_BAD ) {
-		Com_Printf( "Resolving %s\n", AUTHORIZE_SERVER_NAME );
-		if ( !NET_StringToAdr( AUTHORIZE_SERVER_NAME, &svs.authorizeAddress ) ) {
-			Com_Printf( "Couldn't resolve address\n" );
-			return;
-		}
-		svs.authorizeAddress.port = BigShort( PORT_AUTHORIZE );
-		Com_Printf( "%s resolved to %i.%i.%i.%i:%i\n", AUTHORIZE_SERVER_NAME,
-					svs.authorizeAddress.ip[0], svs.authorizeAddress.ip[1],
-					svs.authorizeAddress.ip[2], svs.authorizeAddress.ip[3],
-					BigShort( svs.authorizeAddress.port ) );
-	}
-
-	// if they have been challenging for a long time and we
-	// haven't heard anything from the authoirze server, go ahead and
-	// let them in, assuming the id server is down
-	if ( svs.time - challenge->firstTime > AUTHORIZE_TIMEOUT ) {
-		Com_DPrintf( "authorize server timed out\n" );
-
-		challenge->pingTime = svs.time;
-		NET_OutOfBandPrint( NS_SERVER, challenge->adr,
-							"challengeResponse %i", challenge->challenge );
-		return;
-	}
-
-	// otherwise send their ip to the authorize server
-	if ( svs.authorizeAddress.type != NA_BAD ) {
-		cvar_t  *fs;
-		char game[1024];
-
-		game[0] = 0;
-		fs = Cvar_Get( "fs_game", "", CVAR_INIT | CVAR_SYSTEMINFO );
-		if ( fs && fs->string[0] != 0 ) {
-			strcpy( game, fs->string );
-		}
-		Com_DPrintf( "sending getIpAuthorize for %s\n", NET_AdrToString( from ) );
-		fs = Cvar_Get( "sv_allowAnonymous", "0", CVAR_SERVERINFO );
-
-		NET_OutOfBandPrint( NS_SERVER, svs.authorizeAddress,
-							"getIpAuthorize %i %i.%i.%i.%i %s %s",  svs.challenges[i].challenge,
-							from.ip[0], from.ip[1], from.ip[2], from.ip[3], game, fs->integer );
-	}
+	
+	return;
+	
 }
 
 /*
@@ -1071,18 +988,7 @@ static void SV_UserMove( client_t *cl, msg_t *msg, qboolean delta ) {
 		if ( cmds[i].serverTime > cmds[cmdCount - 1].serverTime ) {
 			continue;
 		}
-		// extremely lagged or cmd from before a map_restart
-		//if ( cmds[i].serverTime > svs.time + 3000 ) {
-		//	continue;
-		//}
-		if ( sv_gametype->integer != GT_SINGLE_PLAYER ) { // RF, we need to allow this in single player, where loadgame's can cause the player to freeze after reloading if we do this check
-			// don't execute if this is an old cmd which is already executed
-			// these old cmds are included when cl_packetdup > 0
-			if ( cmds[i].serverTime <= cl->lastUsercmd.serverTime ) {   // Q3_MISSIONPACK
-//			if ( cmds[i].serverTime > cmds[cmdCount-1].serverTime ) {
-				continue;   // from just before a map_restart
-			}
-		}
+		
 		SV_ClientThink( cl, &cmds[ i ] );
 	}
 }

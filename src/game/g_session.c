@@ -134,40 +134,15 @@ void G_InitSessionData( gclient_t *client, char *userinfo ) {
 	G_WriteClientSessionData( client );
 }
 
-
-/*
-==================
-G_InitWorldSession
-
-==================
-*/
-void G_InitWorldSession( void ) {
-	char s[MAX_STRING_CHARS];
-	int gt;
-
-	Cvar_VariableStringBuffer( "session", s, sizeof( s ) );
-	gt = atoi( s );
-
-	// if the gametype changed since the last session, don't use any
-	// client sessions
-	if ( g_gametype.integer != gt ) {
-		level.newSession = qtrue;
-		Com_Printf( "Gametype changed, clearing session data.\n" );
-	}
-}
-
 /*
 ==================
 G_WriteSessionData
 
 ==================
 */
-void G_WriteSessionData( void ) {
-	int i;
-
-	Cvar_Set( "session", va( "%i", g_gametype.integer ) );
-
-	for ( i = 0 ; i < level.maxclients ; i++ ) {
+void G_WriteSessionData(  )
+{
+	for (int i = 0 ; i < level.maxclients ; i++ ) {
 		if ( level.clients[i].pers.connected == CON_CONNECTED ) {
 			G_WriteClientSessionData( &level.clients[i] );
 		}

@@ -349,7 +349,7 @@ extern qboolean G_BotConnect ( int clientNum , qboolean restart ) ;
 extern void G_QueueBotBegin ( int clientNum ) ;
 
 extern void G_WriteSessionData ( void ) ;
-extern void G_InitWorldSession ( void ) ;
+
 extern void G_InitSessionData ( gclient_t * client , char * userinfo ) ;
 extern void G_ReadSessionData ( gclient_t * client ) ;
 extern void G_WriteClientSessionData ( gclient_t * client ) ;

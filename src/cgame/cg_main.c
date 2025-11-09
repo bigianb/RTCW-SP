@@ -364,7 +364,6 @@ static cvarTable_t cvarTable[] = {
 	// done
 
 	// Ridah
-	{ &cg_gameType, "g_gametype", "0", 0 }, // communicated by systeminfo
 	{ &cg_norender, "cg_norender", "0", 0 },  // only used during single player, to suppress rendering until the server is ready
 
 	{ &cg_gameSkill, "g_gameskill", "2", 0 }, // communicated by systeminfo	// (SA) new default '2' (was '1')
@@ -1558,8 +1557,4 @@ void CG_Init( int serverMessageNum, int serverCommandSequence ) {
 	// RF, clear all sounds, so we dont hear anything after level load
 	trap_S_ClearLoopingSounds( 2 );
 
-	if ( cgs.gametype == GT_WOLF ) {
-		Cvar_Set( "cg_drawTimer", "0" ); // jpw
-
-	}
 }

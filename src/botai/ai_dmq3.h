@@ -144,7 +144,6 @@ void BotMapScripts( bot_state_t *bs );
 #define CTF_TEAM_BLUE       2
 
 extern int dmflags;         //deathmatch flags
-extern int gametype;        //game type
 
 // Rafael gameskill
 extern int gameskill;

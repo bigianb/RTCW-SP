@@ -359,51 +359,26 @@ void ClientTimerActions( gentity_t *ent, int msec ) {
 		client->timeResidual -= 1000;
 
 		// regenerate
-// JPW NERVE, split these completely
-		if ( g_gametype.integer != GT_WOLF ) {
-			if ( client->ps.powerups[PW_REGEN] ) {
-				if ( ent->health < client->ps.stats[STAT_MAX_HEALTH] ) {
-					ent->health += 15;
-					if ( ent->health > client->ps.stats[STAT_MAX_HEALTH] * 1.1 ) {
-						ent->health = client->ps.stats[STAT_MAX_HEALTH] * 1.1;
-					}
-					G_AddEvent( ent, EV_POWERUP_REGEN, 0 );
-				} else if ( ent->health < client->ps.stats[STAT_MAX_HEALTH] * 2 ) {
-					ent->health += 2;
-					if ( ent->health > client->ps.stats[STAT_MAX_HEALTH] * 2 ) {
-						ent->health = client->ps.stats[STAT_MAX_HEALTH] * 2;
-					}
-					G_AddEvent( ent, EV_POWERUP_REGEN, 0 );
+		if ( client->ps.powerups[PW_REGEN] ) {
+			if ( ent->health < client->ps.stats[STAT_MAX_HEALTH] ) {
+				ent->health += 15;
+				if ( ent->health > client->ps.stats[STAT_MAX_HEALTH] * 1.1 ) {
+					ent->health = client->ps.stats[STAT_MAX_HEALTH] * 1.1;
 				}
-			} else {
-				// count down health when over max
-				if ( ent->health > client->ps.stats[STAT_MAX_HEALTH] ) {
-					ent->health--;
+				G_AddEvent( ent, EV_POWERUP_REGEN, 0 );
+			} else if ( ent->health < client->ps.stats[STAT_MAX_HEALTH] * 2 ) {
+				ent->health += 2;
+				if ( ent->health > client->ps.stats[STAT_MAX_HEALTH] * 2 ) {
+					ent->health = client->ps.stats[STAT_MAX_HEALTH] * 2;
 				}
+				G_AddEvent( ent, EV_POWERUP_REGEN, 0 );
+			}
+		} else {
+			// count down health when over max
+			if ( ent->health > client->ps.stats[STAT_MAX_HEALTH] ) {
+				ent->health--;
 			}
 		}
-// JPW NERVE
-		else { // GT_WOLF
-			if ( client->ps.powerups[PW_REGEN] ) {
-				if ( ent->health < client->ps.stats[STAT_MAX_HEALTH] ) {
-					ent->health += 3;
-					if ( ent->health > client->ps.stats[STAT_MAX_HEALTH] * 1.1 ) {
-						ent->health = client->ps.stats[STAT_MAX_HEALTH] * 1.1;
-					}
-				} else if ( ent->health < client->ps.stats[STAT_MAX_HEALTH] * 1.12 ) {
-					ent->health += 2;
-					if ( ent->health > client->ps.stats[STAT_MAX_HEALTH] * 1.12 ) {
-						ent->health = client->ps.stats[STAT_MAX_HEALTH] * 1.12;
-					}
-				}
-			} else {
-				// count down health when over max
-				if ( ent->health > client->ps.stats[STAT_MAX_HEALTH] ) {
-					ent->health--;
-				}
-			}
-		}
-// jpw
 		// count down armor when over max
 		if ( client->ps.stats[STAT_ARMOR] > client->ps.stats[STAT_MAX_HEALTH] ) {
 			client->ps.stats[STAT_ARMOR]--;
@@ -575,21 +550,20 @@ void ClientEvents( gentity_t *ent, int oldEventSequence ) {
 //----(SA)	end
 
 		default:
-			if ( g_gametype.integer == GT_SINGLE_PLAYER ) {
-				// RF, handle footstep sounds
-				if ( ent->client->ps.pm_flags & PMF_DUCKED ) { // no when crouching
-					break;
-				}
-
-				if ( ent->client->pers.cmd.buttons & BUTTON_WALKING ) {
-					break;
-				}
-
-				if ( event >= EV_FOOTSTEP && event <= EV_FOOTSTEP_CARPET ) {
-					AICast_AudibleEvent( ent->s.number, ent->s.pos.trBase, g_footstepAudibleRange.value );
-				}
+			
+			// RF, handle footstep sounds
+			if ( ent->client->ps.pm_flags & PMF_DUCKED ) { // no when crouching
+				break;
 			}
 
+			if ( ent->client->pers.cmd.buttons & BUTTON_WALKING ) {
+				break;
+			}
+
+			if ( event >= EV_FOOTSTEP && event <= EV_FOOTSTEP_CARPET ) {
+				AICast_AudibleEvent( ent->s.number, ent->s.pos.trBase, g_footstepAudibleRange.value );
+			}
+		
 			break;
 		}
 	}
@@ -735,7 +709,6 @@ void ClientThink_real( gentity_t *ent ) {
 
 
 	if (    !saveGamePending &&
-			( g_gametype.integer == GT_SINGLE_PLAYER ) &&
 			!( ent->r.svFlags & SVF_CASTAI ) ) {
 
 		Cvar_Update( &g_missionStats );
@@ -1038,11 +1011,10 @@ void ClientThink_real( gentity_t *ent ) {
 	// done
 
 	// Ridah, allow AI Cast's to evaluate results of their pmove's
-	// DHM - Nerve :: Don't do this in multiplayer
-	if ( g_gametype.integer == GT_SINGLE_PLAYER ) {
-		extern void AICast_EvaluatePmove( int clientnum, pmove_t *pm );
-		AICast_EvaluatePmove( ent->s.number, &pm );
-	}
+	
+	extern void AICast_EvaluatePmove( int clientnum, pmove_t *pm );
+	AICast_EvaluatePmove( ent->s.number, &pm );
+	
 	// done.
 
 	// save results of pmove
@@ -1156,7 +1128,7 @@ void ClientThink( int clientNum ) {
 	}
 
 	// Ridah, let the AI think now
-	if ( g_gametype.integer == GT_SINGLE_PLAYER && !( ent->r.svFlags & SVF_CASTAI ) ) {
+	if ( !( ent->r.svFlags & SVF_CASTAI ) ) {
 		AICast_StartFrame( level.time /*ent->client->pers.cmd.serverTime*/ );
 	}
 	// done.

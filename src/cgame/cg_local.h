@@ -1485,9 +1485,6 @@ typedef struct {
 
 	qboolean localServer;               // detected on startup by checking sv_running
 
-	// parsed from serverinfo
-	gametype_t gametype;
-
 	// Rafael gameskill
 	gameskill_t gameskill;
 	// done

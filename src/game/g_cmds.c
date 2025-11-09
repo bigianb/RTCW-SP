@@ -475,9 +475,8 @@ to free floating spectator mode
 */
 void StopFollowing( gentity_t *ent ) {
 	ent->client->ps.persistant[ PERS_TEAM ] = TEAM_SPECTATOR;
-	if ( g_gametype.integer != GT_WOLF ) {          // NERVE - SMF - don't forcibly set this for multiplayer
-		ent->client->sess.sessionTeam = TEAM_SPECTATOR;
-	}
+	ent->client->sess.sessionTeam = TEAM_SPECTATOR;
+	
 	ent->client->sess.spectatorState = SPECTATOR_FREE;
 	ent->r.svFlags &= ~SVF_BOT;
 	ent->client->ps.clientNum = ent - g_entities;
@@ -511,11 +510,6 @@ void Cmd_Follow_f( gentity_t *ent ) {
 		return;
 	}
 
-	// if they are playing a tournement game, count as a loss
-	if ( g_gametype.integer == GT_TOURNAMENT && ent->client->sess.sessionTeam == TEAM_FREE ) {
-		ent->client->sess.losses++;
-	}
-
 	ent->client->sess.spectatorState = SPECTATOR_FOLLOW;
 	ent->client->sess.spectatorClient = i;
 }
@@ -528,11 +522,6 @@ Cmd_FollowCycle_f
 void Cmd_FollowCycle_f( gentity_t *ent, int dir ) {
 	int clientnum;
 	int original;
-
-	// if they are playing a tournement game, count as a loss
-	if ( g_gametype.integer == GT_TOURNAMENT && ent->client->sess.sessionTeam == TEAM_FREE ) {
-		ent->client->sess.losses++;
-	}
 
 	if ( dir != 1 && dir != -1 ) {
 		Com_Error( ERR_DROP, "Cmd_FollowCycle_f: bad dir %i", dir );
@@ -857,13 +846,6 @@ void Cmd_Activate_f( gentity_t *ent ) {
 					gclient_t   *cl;
 					cl = &level.clients[ ent->s.clientNum ];
 
-					// DHM - Nerve :: only soldiers can use mg42
-					if ( g_gametype.integer == GT_WOLF ) {
-						if ( cl->ps.stats[ STAT_PLAYER_CLASS ] != PC_SOLDIER ) {
-							return;
-						}
-					}
-
 					// no mounting while using a scoped weap
 					switch ( cl->ps.weapon ) {
 					case WP_SNIPERRIFLE:
@@ -1126,47 +1108,6 @@ int Cmd_WolfKick_f( gentity_t *ent ) {
 }
 // done
 
-/*
-============================
-Cmd_ClientMonsterSlickAngle
-============================
-*/
-/*
-void Cmd_ClientMonsterSlickAngle (gentity_t *clent) {
-
-	char s[MAX_STRING_CHARS];
-	int	entnum;
-	int angle;
-	gentity_t *ent;
-	vec3_t	dir, kvel;
-	vec3_t	forward;
-
-	if (Cmd_Argc() != 3) {
-		Com_Printf( "ClientDamage command issued with incorrect number of args\n" );
-	}
-
-	Cmd_ArgvBuffer( 1, s, sizeof( s ) );
-	entnum = atoi(s);
-	ent = &g_entities[entnum];
-
-	Cmd_ArgvBuffer( 2, s, sizeof( s ) );
-	angle = atoi(s);
-
-	// sanity check (also protect from cheaters)
-	if (g_gametype.integer != GT_SINGLE_PLAYER && entnum != clent->s.number) {
-		SV_GameDropClient( clent->s.number, "Dropped due to illegal ClientMonsterSlick command\n" );
-		return;
-	}
-
-	VectorClear (dir);
-	dir[YAW] = angle;
-	AngleVectors (dir, forward, NULL, NULL);
-
-	VectorScale (forward, 32, kvel);
-	VectorAdd (ent->client->ps.velocity, kvel, ent->client->ps.velocity);
-}
-*/
-
 // NERVE - SMF
 /*
 ============
@@ -1181,32 +1122,23 @@ void ClientDamage( gentity_t *clent, int entnum, int enemynum, int id ) {
 
 	enemy = &g_entities[enemynum];
 
-	// if the attacker can't see the target, then don't allow damage
-	if ( g_gametype.integer != GT_SINGLE_PLAYER ) {
-		if ( !CanDamage( ent, enemy->client->ps.origin ) ) {
-			return; // don't allow damage
-		}
-	}
-
 	switch ( id ) {
 	case CLDMG_DEBRIS:
-		if ( g_gametype.integer == GT_SINGLE_PLAYER ) {
-			G_Damage( ent, enemy, enemy, vec3_origin, vec3_origin, 3 + rand() % 3, DAMAGE_NO_KNOCKBACK, MOD_EXPLOSIVE );
-		}
+		
+		G_Damage( ent, enemy, enemy, vec3_origin, vec3_origin, 3 + rand() % 3, DAMAGE_NO_KNOCKBACK, MOD_EXPLOSIVE );
+		
 		break;
 	case CLDMG_SPIRIT:
-		if ( g_gametype.integer == GT_SINGLE_PLAYER ) {
-			if ( enemy->aiCharacter == AICHAR_ZOMBIE ) {
-				G_Damage( ent, enemy, enemy, vec3_origin, vec3_origin, 6, DAMAGE_NO_KNOCKBACK, MOD_ZOMBIESPIRIT );
-			} else {
-				G_Damage( ent, enemy, enemy, vec3_origin, vec3_origin, 8 + rand() % 4, DAMAGE_NO_KNOCKBACK, MOD_ZOMBIESPIRIT );
-			}
+
+		if ( enemy->aiCharacter == AICHAR_ZOMBIE ) {
+			G_Damage( ent, enemy, enemy, vec3_origin, vec3_origin, 6, DAMAGE_NO_KNOCKBACK, MOD_ZOMBIESPIRIT );
+		} else {
+			G_Damage( ent, enemy, enemy, vec3_origin, vec3_origin, 8 + rand() % 4, DAMAGE_NO_KNOCKBACK, MOD_ZOMBIESPIRIT );
 		}
+		
 		break;
 	case CLDMG_BOSS1LIGHTNING:
-		if ( g_gametype.integer != GT_SINGLE_PLAYER ) {
-			break;
-		}
+		
 		if ( ent->takedamage ) {
 			VectorSubtract( ent->r.currentOrigin, enemy->r.currentOrigin, vec );
 			VectorNormalize( vec );
@@ -1214,20 +1146,7 @@ void ClientDamage( gentity_t *clent, int entnum, int enemynum, int id ) {
 		}
 		break;
 	case CLDMG_TESLA:
-		// do some cheat protection
-		if ( g_gametype.integer != GT_SINGLE_PLAYER ) {
-			if ( enemy->s.weapon != WP_TESLA ) {
-				break;
-			}
-			if ( !( enemy->client->buttons & BUTTON_ATTACK ) ) {
-				break;
-			}
-			//if ( AICast_GetCastState( enemy->s.number )->lastWeaponFiredWeaponNum != WP_TESLA )
-			//	break;
-			//if ( AICast_GetCastState( enemy->s.number )->lastWeaponFired < level.time - 400 )
-			//	break;
-		}
-
+		
 		if (    ( ent->aiCharacter == AICHAR_PROTOSOLDIER ) ||
 				( ent->aiCharacter == AICHAR_SUPERSOLDIER ) ||
 				( ent->aiCharacter == AICHAR_LOPER ) ||
@@ -1246,19 +1165,7 @@ void ClientDamage( gentity_t *clent, int entnum, int enemynum, int id ) {
 		}
 		break;
 	case CLDMG_FLAMETHROWER:
-		// do some cheat protection
-		if ( g_gametype.integer != GT_SINGLE_PLAYER ) {
-			if ( enemy->s.weapon != WP_FLAMETHROWER ) {
-				break;
-			}
-//			if ( !(enemy->client->buttons & BUTTON_ATTACK) ) // JPW NERVE flames should be able to damage while puffs are active
-//				break;
-		} else {
-			// this is required for Zombie flame attack
-			//if ((enemy->aiCharacter == AICHAR_ZOMBIE) && !AICast_VisibleFromPos( enemy->r.currentOrigin, enemy->s.number, ent->r.currentOrigin, ent->s.number, qfalse ))
-			//	break;
-		}
-
+		
 		if ( ent->takedamage && !AICast_NoFlameDamage( ent->s.number ) ) {
 			#define FLAME_THRESHOLD 50
 			int damage = 5;
@@ -1281,11 +1188,11 @@ void ClientDamage( gentity_t *clent, int entnum, int enemynum, int id ) {
 			ent->flameQuotaTime = level.time;
 
 			// Ridah, make em burn
-			if ( ent->client && ( /*g_gametype.integer != GT_SINGLE_PLAYER ||*/ !( ent->r.svFlags & SVF_CASTAI ) || ent->health <= 0 || ent->flameQuota > FLAME_THRESHOLD ) ) {
+			if ( ent->client && ( !( ent->r.svFlags & SVF_CASTAI ) || ent->health <= 0 || ent->flameQuota > FLAME_THRESHOLD ) ) {
 				if ( ent->s.onFireEnd < level.time ) {
 					ent->s.onFireStart = level.time;
 				}
-				if ( ent->health <= 0 || !( ent->r.svFlags & SVF_CASTAI ) || ( g_gametype.integer != GT_SINGLE_PLAYER ) ) {
+				if ( ent->health <= 0 || !( ent->r.svFlags & SVF_CASTAI ) ) {
 					if ( ent->r.svFlags & SVF_CASTAI ) {
 						ent->s.onFireEnd = level.time + 6000;
 					} else {

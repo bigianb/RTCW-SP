@@ -757,9 +757,6 @@ qboolean AICast_ScriptRun( cast_state_t *cs, qboolean force ) {
 
 	// only allow the PLAYER'S spawn function through if we're NOT still waiting on everything to finish loading in
 	if ( !cs->entityNum && saveGamePending && Q_stricmp( "spawn", scriptEvents[cs->castScriptEvents[cs->castScriptStatus.castScriptEventIndex].eventNum].eventStr ) ) {
-		//char loading[4];
-		//Cvar_VariableStringBuffer( "savegame_loading", loading, sizeof(loading) );
-		//if (strlen( loading ) > 0 && atoi(loading) != 0)	// we're loading a savegame
 		return qfalse;
 	}
 

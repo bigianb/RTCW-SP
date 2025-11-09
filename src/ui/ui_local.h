@@ -610,26 +610,6 @@ typedef struct {
 	int gtEnum;
 } gameTypeInfo;
 
-typedef struct {
-	const char *mapName;
-	const char *mapLoadName;
-	const char *imageName;
-	const char *opponentName;
-	int teamMembers;
-	int typeBits;
-	int cinematic;
-	int timeToBeat[MAX_GAMETYPES];
-	qhandle_t levelShot;
-	qboolean active;
-} mapInfo;
-
-typedef struct {
-	const char *tierName;
-	const char *maps[MAPS_PER_TIER];
-	int gameTypes[MAPS_PER_TIER];
-	qhandle_t mapHandles[MAPS_PER_TIER];
-} tierInfo;
-
 typedef struct serverFilter_s {
 	const char *description;
 	const char *basedir;
@@ -723,12 +703,6 @@ typedef struct {
 	int aliasCount;
 	aliasInfo aliasList[MAX_ALIASES];
 
-	int numGameTypes;
-	gameTypeInfo gameTypes[MAX_GAMETYPES];
-
-	int numJoinGameTypes;
-	gameTypeInfo joinGameTypes[MAX_GAMETYPES];
-
 	int redBlue;
 	int playerCount;
 	int myTeamCount;
@@ -740,13 +714,6 @@ typedef struct {
 	char playerNames[MAX_CLIENTS][MAX_NAME_LENGTH];
 	char teamNames[MAX_CLIENTS][MAX_NAME_LENGTH];
 	int teamClientNums[MAX_CLIENTS];
-
-	int mapCount;
-	mapInfo mapList[MAX_MAPS];
-
-
-	int tierCount;
-	tierInfo tierList[MAX_TIERS];
 
 	int skillIndex;
 

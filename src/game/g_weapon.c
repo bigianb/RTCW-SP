@@ -589,15 +589,9 @@ void Bullet_Fire_Extended( gentity_t *source, gentity_t *attacker, vec3_t start,
 		dflags = DAMAGE_PASSTHRU;
 	}
 
-	// (SA) changed so player could shoot his own dynamite.
-	// (SA) whoops, but that broke bullets going through explosives...
 	SV_Trace( &tr, start, NULL, NULL, end, source->s.number, MASK_SHOT, qfalse );
-//	SV_Trace (&tr, start, NULL, NULL, end, ENTITYNUM_NONE, MASK_SHOT);
 
-	// DHM - Nerve :: only in single player
-	if ( g_gametype.integer == GT_SINGLE_PLAYER ) {
-		AICast_ProcessBullet( attacker, start, tr.endpos );
-	}
+	AICast_ProcessBullet( attacker, start, tr.endpos );
 
 	// bullet debugging using Q3A's railtrail
 	if ( g_debugBullets.integer & 1 ) {
@@ -710,18 +704,15 @@ void Bullet_Fire_Extended( gentity_t *source, gentity_t *attacker, vec3_t start,
 			G_AddEvent( traceEnt, EV_GENERAL_SOUND, level.bulletRicochetSound );
 			CalcMuzzlePoints( traceEnt, traceEnt->s.weapon );
 
-//----(SA)	modified to use extended version so attacker would pass through
-//			Bullet_Fire( traceEnt, 1000, damage );
 			Bullet_Endpos( traceEnt, 2800, &reflect_end );    // make it inaccurate
 			Bullet_Fire_Extended( traceEnt, attacker, muzzleTrace, reflect_end, spread, damage, recursion + 1 );
-//----(SA)	end
+
 
 		} else {
 			int oldHealth;
 
 			// Ridah, don't hurt team-mates
-			// DHM - Nerve :: Only in single player
-			if ( attacker->client && traceEnt->client && g_gametype.integer == GT_SINGLE_PLAYER && ( traceEnt->r.svFlags & SVF_CASTAI ) && ( attacker->r.svFlags & SVF_CASTAI ) && AICast_SameTeam( AICast_GetCastState( attacker->s.number ), traceEnt->s.number ) ) {
+			if ( attacker->client && traceEnt->client && ( traceEnt->r.svFlags & SVF_CASTAI ) && ( attacker->r.svFlags & SVF_CASTAI ) && AICast_SameTeam( AICast_GetCastState( attacker->s.number ), traceEnt->s.number ) ) {
 				// AI's don't hurt members of their own team
 				return;
 			}
@@ -801,65 +792,39 @@ gentity_t *weapon_grenadelauncher_fire( gentity_t *ent, int grenType ) {
 	if ( grenType == WP_GRENADE_LAUNCHER ) {
 		upangle *= 800;     //									    0.0 / 800.0
 	} else if ( grenType == WP_GRENADE_PINEAPPLE )                                {
-// JPW NERVE
-		if ( g_gametype.integer != GT_SINGLE_PLAYER ) {
-			upangle *= 800;
-		} else {
-// jpw
-			upangle *= 600;     //									    0.0 / 600.0
-		}
+		upangle *= 600;     //									    0.0 / 600.0
 	}
-// JPW NERVE
 	else if ( grenType == WP_GRENADE_SMOKE ) { // smoke grenades *really* get chucked
 		upangle *= 800;
 	}
-// jpw
 	else {      // WP_DYNAMITE
 		upangle *= 400;     //										0.0 / 100.0
-
 	}
-	/*
-	if(ent->aiCharacter)
-	{
-		VectorScale(forward, 700, forward);				//----(SA)	700 is the default grenade throw they are already used to
-		m = fire_grenade (ent, muzzleTrace, forward);	//----(SA)	temp to make AI's throw grenades at their actual target
-	}
-	else
-	*/
-
-
-
-	{
-		VectorCopy( muzzleEffect, tosspos );
-		if ( underhand ) {
-			VectorMA( muzzleEffect, 15, forward, tosspos );   // move a little bit more away from the player (so underhand tosses don't get caught on nearby lips)
-			tosspos[2] -= 24;   // lower origin for the underhand throw
-			upangle *= 1.3;     // a little more force to counter the lower position / lack of additional lift
-		}
-
-		VectorScale( forward, upangle, forward );
-
-
-		{
-			// check for valid start spot (so you don't throw through or get stuck in a wall)
-			trace_t tr;
-			vec3_t viewpos;
-
-			VectorCopy( ent->s.pos.trBase, viewpos );
-			viewpos[2] += ent->client->ps.viewheight;
-
-			SV_Trace( &tr, viewpos, NULL, NULL, tosspos, ent->s.number, MASK_SHOT, qfalse);
-			if ( tr.fraction < 1 ) {   // oops, bad launch spot
-				VectorCopy( tr.endpos, tosspos );
-			}
-		}
-
-
-		m = fire_grenade( ent, tosspos, forward, grenType );
+	
+	
+	VectorCopy( muzzleEffect, tosspos );
+	if ( underhand ) {
+		VectorMA( muzzleEffect, 15, forward, tosspos );   // move a little bit more away from the player (so underhand tosses don't get caught on nearby lips)
+		tosspos[2] -= 24;   // lower origin for the underhand throw
+		upangle *= 1.3;     // a little more force to counter the lower position / lack of additional lift
 	}
 
+	VectorScale( forward, upangle, forward );
 
-	//m->damage *= s_quadFactor;
+	// check for valid start spot (so you don't throw through or get stuck in a wall)
+	trace_t tr;
+	vec3_t viewpos;
+
+	VectorCopy( ent->s.pos.trBase, viewpos );
+	viewpos[2] += ent->client->ps.viewheight;
+
+	SV_Trace( &tr, viewpos, NULL, NULL, tosspos, ent->s.number, MASK_SHOT, qfalse);
+	if ( tr.fraction < 1 ) {   // oops, bad launch spot
+		VectorCopy( tr.endpos, tosspos );
+	}
+	
+	m = fire_grenade( ent, tosspos, forward, grenType );
+
 	m->damage = 0;  // Ridah, grenade's don't explode on contact
 	m->splashDamage *= s_quadFactor;
 
@@ -1142,7 +1107,7 @@ void Weapon_LightningFire( gentity_t *ent ) {
 			if ( traceEnt->s.onFireEnd < level.time ) {
 				traceEnt->s.onFireStart = level.time;
 			}
-			if ( traceEnt->health <= 0 || !( traceEnt->r.svFlags & SVF_CASTAI ) || ( g_gametype.integer != GT_SINGLE_PLAYER ) ) {
+			if ( traceEnt->health <= 0 || !( traceEnt->r.svFlags & SVF_CASTAI ) ) {
 				if ( traceEnt->r.svFlags & SVF_CASTAI ) {
 					traceEnt->s.onFireEnd = level.time + 6000;
 				} else {
@@ -1394,30 +1359,23 @@ void FireWeapon( gentity_t *ent ) {
 		break;
 	case WP_SNIPERRIFLE:
 		Bullet_Fire( ent, SNIPER_SPREAD * aimSpreadScale, SNIPER_DAMAGE );
-// JPW NERVE -- added muzzle flip in multiplayer
 		if ( !ent->aiCharacter ) {
-//		if (g_gametype.integer != GT_SINGLE_PLAYER) {
 			VectorCopy( ent->client->ps.viewangles,viewang );
-//			viewang[PITCH] -= 6; // handled in clientthink instead
 			ent->client->sniperRifleMuzzleYaw = crandom() * 0.5; // used in clientthink
 			ent->client->sniperRifleMuzzlePitch = 0.8f;
 			ent->client->sniperRifleFiredTime = level.time;
 			SetClientViewAngle( ent,viewang );
 		}
-// jpw
 		break;
 	case WP_SNOOPERSCOPE:
 		Bullet_Fire( ent, SNOOPER_SPREAD * aimSpreadScale, SNOOPER_DAMAGE );
-// JPW NERVE -- added muzzle flip in multiplayer
 		if ( !ent->aiCharacter ) {
-//		if (g_gametype.integer != GT_SINGLE_PLAYER) {
 			VectorCopy( ent->client->ps.viewangles,viewang );
 			ent->client->sniperRifleMuzzleYaw = crandom() * 0.5; // used in clientthink
 			ent->client->sniperRifleMuzzlePitch = 0.9f;
 			ent->client->sniperRifleFiredTime = level.time;
 			SetClientViewAngle( ent,viewang );
 		}
-// jpw
 		break;
 	case WP_MAUSER:
 		Bullet_Fire( ent, MAUSER_SPREAD * aimSpreadScale, MAUSER_DAMAGE );
@@ -1425,12 +1383,9 @@ void FireWeapon( gentity_t *ent ) {
 	case WP_GARAND:
 		Bullet_Fire( ent, GARAND_SPREAD * aimSpreadScale, GARAND_DAMAGE );
 		break;
-//----(SA)	added
 	case WP_FG42SCOPE:
 		if ( !ent->aiCharacter ) {
-//		if (g_gametype.integer != GT_SINGLE_PLAYER) {
 			VectorCopy( ent->client->ps.viewangles,viewang );
-//			ent->client->sniperRifleMuzzleYaw = crandom()*0.04; // used in clientthink
 			ent->client->sniperRifleMuzzleYaw = 0;
 			ent->client->sniperRifleMuzzlePitch = 0.07f;
 			ent->client->sniperRifleFiredTime = level.time;
@@ -1439,7 +1394,6 @@ void FireWeapon( gentity_t *ent ) {
 	case WP_FG42:
 		Bullet_Fire( ent, FG42_SPREAD * aimSpreadScale, FG42_DAMAGE );
 		break;
-//----(SA)	end
 	case WP_STEN:
 		Bullet_Fire( ent, STEN_SPREAD * aimSpreadScale, STEN_DAMAGE );
 		break;
@@ -1471,9 +1425,7 @@ void FireWeapon( gentity_t *ent ) {
 		//Weapon_LightningFire( ent );
 		break;
 	case WP_TESLA:
-		if ( g_gametype.integer == GT_SINGLE_PLAYER ) { // JPW NERVE
-			Tesla_Fire( ent );
-		}
+		Tesla_Fire( ent );
 
 		// push the player back a bit
 		if ( !ent->aiCharacter ) {
@@ -1516,9 +1468,5 @@ void FireWeapon( gentity_t *ent ) {
 		break;
 	}
 
-	// Ridah
-	// DHM - Nerve :: Only in single player
-	if ( g_gametype.integer == GT_SINGLE_PLAYER ) {
-		AICast_RecordWeaponFire( ent );
-	}
+	AICast_RecordWeaponFire( ent );
 }

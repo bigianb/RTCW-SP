@@ -841,7 +841,7 @@ BotAIStartFrame
 ==================
 */
 int BotAIStartFrame( int time ) {
-	int i;
+
 	gentity_t   *ent;
 	bot_entitystate_t state;
 	//entityState_t entitystate;
@@ -850,8 +850,6 @@ int BotAIStartFrame( int time ) {
 	static int local_time;
 	static int botlib_residual;
 	static int lastbotthink_time;
-
-
 
 	Cvar_Update( &bot_rocketjump );
 	Cvar_Update( &bot_grapple );
@@ -897,10 +895,10 @@ int BotAIStartFrame( int time ) {
 		}
 
 		//update entities in the botlib
-		for ( i = 0; i < MAX_GENTITIES; i++ ) {
+		for (int i = 0; i < MAX_GENTITIES; i++ ) {
 
 			// Ridah, in single player, we only need client entity information
-			if ( g_gametype.integer == GT_SINGLE_PLAYER && i > level.maxclients ) {
+			if ( i > level.maxclients ) {
 				break;
 			}
 
@@ -934,13 +932,10 @@ int BotAIStartFrame( int time ) {
 			state.modelindex = ent->s.modelindex;
 			state.modelindex2 = ent->s.modelindex2;
 			state.frame = ent->s.frame;
-			//state.event = ent->s.event;
-			//state.eventParm = ent->s.eventParm;
 			state.powerups = ent->s.powerups;
 			state.legsAnim = ent->s.legsAnim;
 			state.torsoAnim = ent->s.torsoAnim;
-//			state.weapAnim = ent->s.weapAnim;	//----(SA)
-//----(SA)	didn't want to comment in as I wasn't sure of any implications of changing the aas_entityinfo_t and bot_entitystate_t structures.
+
 			state.weapon = ent->s.weapon;
 
 			//
@@ -949,56 +944,6 @@ int BotAIStartFrame( int time ) {
 
 		BotAIRegularUpdate();
 
-	}
-
-	// Ridah, in single player, don't need bot's thinking
-	if ( g_gametype.integer == GT_SINGLE_PLAYER ) {
-		return BLERR_NOERROR;
-	}
-
-	// execute scheduled bot AI
-	for ( i = 0; i < MAX_CLIENTS; i++ ) {
-		if ( !botstates[i] || !botstates[i]->inuse ) {
-			continue;
-		}
-		// Ridah
-		if ( g_entities[i].r.svFlags & SVF_CASTAI ) {
-			continue;
-		}
-		// done.
-		//
-		botstates[i]->botthink_residual += elapsed_time;
-		//
-		if ( botstates[i]->botthink_residual >= thinktime ) {
-			botstates[i]->botthink_residual -= thinktime;
-
-			if ( !trap_AAS_Initialized() ) {
-				return BLERR_NOERROR;
-			}
-
-			if ( g_entities[i].client->pers.connected == CON_CONNECTED ) {
-				BotAI( i, (float) thinktime / 1000 );
-			}
-		}
-	}
-
-
-	// execute bot user commands every frame
-	for ( i = 0; i < MAX_CLIENTS; i++ ) {
-		if ( !botstates[i] || !botstates[i]->inuse ) {
-			continue;
-		}
-		// Ridah
-		if ( g_entities[i].r.svFlags & SVF_CASTAI ) {
-			continue;
-		}
-		// done.
-		if ( g_entities[i].client->pers.connected != CON_CONNECTED ) {
-			continue;
-		}
-
-		BotUpdateInput( botstates[i], time );
-		trap_BotUserCommand( botstates[i]->client, &botstates[i]->lastucmd );
 	}
 
 	return BLERR_NOERROR;
@@ -1040,12 +985,7 @@ int BotInitLibrary( void ) {
 	if ( strlen( buf ) ) {
 		trap_BotLibVarSet( "autolaunchbspc", "1" );
 	}
-	//
-	Cvar_VariableStringBuffer( "g_gametype", buf, sizeof( buf ) );
-	if ( !strlen( buf ) ) {
-		strcpy( buf, "0" );
-	}
-	trap_BotLibVarSet( "g_gametype", buf );
+
 	//
 	// Rafael gameskill
 	Cvar_VariableStringBuffer( "g_gameskill", buf, sizeof( buf ) );

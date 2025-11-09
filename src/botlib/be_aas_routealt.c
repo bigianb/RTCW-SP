@@ -108,129 +108,7 @@ void AAS_AltRoutingFloodCluster_r( int areanum ) {
 int AAS_AlternativeRouteGoals( vec3_t start, vec3_t goal, int travelflags,
 							   aas_altroutegoal_t *altroutegoals, int maxaltroutegoals,
 							   int color ) {
-#ifndef ENABLE_ALTROUTING
 	return 0;
-#else
-	int i, j, startareanum, goalareanum, bestareanum;
-	int numaltroutegoals, nummidrangeareas;
-	int starttime, goaltime, goaltraveltime;
-	float dist, bestdist;
-	vec3_t mid, dir;
-#ifdef DEBUG
-	int startmillisecs;
-
-	startmillisecs = Sys_MilliSeconds();
-#endif
-
-	startareanum = AAS_PointAreaNum( start );
-	if ( !startareanum ) {
-		return 0;
-	}
-	goalareanum = AAS_PointAreaNum( goal );
-	if ( !goalareanum ) {
-		return 0;
-	}
-	//travel time towards the goal area
-	goaltraveltime = AAS_AreaTravelTimeToGoalArea( startareanum, start, goalareanum, travelflags );
-	//clear the midrange areas
-	memset( midrangeareas, 0, ( *aasworld ).numareas * sizeof( midrangearea_t ) );
-	numaltroutegoals = 0;
-	//
-	nummidrangeareas = 0;
-	//
-	for ( i = 1; i < ( *aasworld ).numareas; i++ )
-	{
-		//
-		if ( !( ( *aasworld ).areasettings[i].contents & AREACONTENTS_ROUTEPORTAL ) ) {
-			continue;
-		}
-		//if the area has no reachabilities
-		if ( !AAS_AreaReachability( i ) ) {
-			continue;
-		}
-		//tavel time from the area to the start area
-		starttime = AAS_AreaTravelTimeToGoalArea( startareanum, start, i, travelflags );
-		if ( !starttime ) {
-			continue;
-		}
-		//if the travel time from the start to the area is greater than the shortest goal travel time
-		if ( starttime > 1.5 * goaltraveltime ) {
-			continue;
-		}
-		//travel time from the area to the goal area
-		goaltime = AAS_AreaTravelTimeToGoalArea( i, NULL, goalareanum, travelflags );
-		if ( !goaltime ) {
-			continue;
-		}
-		//if the travel time from the area to the goal is greater than the shortest goal travel time
-		if ( goaltime > 1.5 * goaltraveltime ) {
-			continue;
-		}
-		//this is a mid range area
-		midrangeareas[i].valid = qtrue;
-		midrangeareas[i].starttime = starttime;
-		midrangeareas[i].goaltime = goaltime;
-		Log_Write( "%d midrange area %d", nummidrangeareas, i );
-		nummidrangeareas++;
-	} //end for
-	  //
-	for ( i = 1; i < ( *aasworld ).numareas; i++ )
-	{
-		if ( !midrangeareas[i].valid ) {
-			continue;
-		}
-		//get the areas in one cluster
-		numclusterareas = 0;
-		AAS_AltRoutingFloodCluster_r( i );
-		//now we've got a cluster with areas through which an alternative route could go
-		//get the 'center' of the cluster
-		VectorClear( mid );
-		for ( j = 0; j < numclusterareas; j++ )
-		{
-			VectorAdd( mid, ( *aasworld ).areas[clusterareas[j]].center, mid );
-		} //end for
-		VectorScale( mid, 1.0 / numclusterareas, mid );
-		//get the area closest to the center of the cluster
-		bestdist = 999999;
-		bestareanum = 0;
-		for ( j = 0; j < numclusterareas; j++ )
-		{
-			VectorSubtract( mid, ( *aasworld ).areas[clusterareas[j]].center, dir );
-			dist = VectorLength( dir );
-			if ( dist < bestdist ) {
-				bestdist = dist;
-				bestareanum = clusterareas[j];
-			} //end if
-		} //end for
-		  //now we've got an area for an alternative route
-		  //FIXME: add alternative goal origin
-		VectorCopy( ( *aasworld ).areas[bestareanum].center, altroutegoals[numaltroutegoals].origin );
-		altroutegoals[numaltroutegoals].areanum = bestareanum;
-		altroutegoals[numaltroutegoals].starttraveltime = midrangeareas[bestareanum].starttime;
-		altroutegoals[numaltroutegoals].goaltraveltime = midrangeareas[bestareanum].goaltime;
-		altroutegoals[numaltroutegoals].extratraveltime =
-			( midrangeareas[bestareanum].starttime + midrangeareas[bestareanum].goaltime ) -
-			goaltraveltime;
-		numaltroutegoals++;
-		//
-#ifdef DEBUG
-		BotImport_Print( PRT_MESSAGE, "alternative route goal area %d, numclusterareas = %d\n", bestareanum, numclusterareas );
-		if ( color ) {
-			AAS_DrawPermanentCross( ( *aasworld ).areas[bestareanum].center, 10, color );
-		} //end if
-		  //AAS_ShowArea(bestarea, qtrue);
-#endif
-		//don't return more than the maximum alternative route goals
-		if ( numaltroutegoals >= maxaltroutegoals ) {
-			break;
-		}
-	} //end for
-	BotImport_Print( PRT_MESSAGE, "%d alternative route goals\n", numaltroutegoals );
-#ifdef DEBUG
-	BotImport_Print( PRT_MESSAGE, "alternative route goals in %d msec\n", Sys_MilliSeconds() - startmillisecs );
-#endif
-	return numaltroutegoals;
-#endif
 } //end of the function AAS_AlternativeRouteGoals
 //===========================================================================
 //
@@ -239,16 +117,7 @@ int AAS_AlternativeRouteGoals( vec3_t start, vec3_t goal, int travelflags,
 // Changes Globals:		-
 //===========================================================================
 void AAS_InitAlternativeRouting( void ) {
-#ifdef ENABLE_ALTROUTING
-	if ( midrangeareas ) {
-		FreeMemory( midrangeareas );
-	}
-	midrangeareas = (midrangearea_t *) GetMemory( ( *aasworld ).numareas * sizeof( midrangearea_t ) );
-	if ( clusterareas ) {
-		FreeMemory( clusterareas );
-	}
-	clusterareas = (int *) GetMemory( aasworld.numareas * sizeof( int ) );
-#endif
+
 } //end of the function AAS_InitAlternativeRouting
 //===========================================================================
 //
@@ -257,15 +126,4 @@ void AAS_InitAlternativeRouting( void ) {
 // Changes Globals:		-
 //===========================================================================
 void AAS_ShutdownAlternativeRouting( void ) {
-#ifdef ENABLE_ALTROUTING
-	if ( midrangeareas ) {
-		FreeMemory( midrangeareas );
-	}
-	midrangeareas = NULL;
-	if ( clusterareas ) {
-		FreeMemory( clusterareas );
-	}
-	clusterareas = NULL;
-	numclusterareas = 0;
-#endif
 }

@@ -1501,21 +1501,6 @@ static void CG_Trap( centity_t *cent ) {
 	// initial setup.  set pointer to animation table and setup anim
 	if ( !cent->lerpFrame.oldFrameTime ) {
 
-		// DHM - Nerve :: teamNum specifies which set of animations to use (only 1 exists right now)
-		if ( cgs.gametype == GT_WOLF ) {
-			switch ( cent->currentState.teamNum ) {
-
-			case 1:
-				trapAnim = &multi_flagpoleAnims[0];
-//				lf->animation = &multi_flagpoleAnims[ cent->currentState.frame ];
-				break;
-			default:
-				// Keep what was set above
-				break;
-			}
-		}
-		// dhm - end
-
 		CG_NewAnim( cent, &cent->lerpFrame, trapAnim, cs->frame );
 	}
 

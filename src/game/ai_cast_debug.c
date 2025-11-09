@@ -114,7 +114,6 @@ AICast_DBG_RouteTable_f
 */
 void AICast_DBG_RouteTable_f( vec3_t org, char *param ) {
 	static int srcarea = 0, dstarea = 0;
-//	extern botlib_export_t botlib; // TTimo: unused
 
 	if ( !param || strlen( param ) < 1 ) {
         Com_Printf( "You must specify 'src', 'dest' or 'show'\n" );

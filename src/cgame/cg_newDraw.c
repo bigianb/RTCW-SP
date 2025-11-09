@@ -105,23 +105,7 @@ static void CG_DrawPlayerWeaponIcon( rectDef_t *rect, qboolean drawHighlighted, 
 		return;
 	}
 
-	// DHM - Nerve :: special case for WP_CLASS_SPECIAL
-
 	realweap = cg.predictedPlayerState.weapon;
-
-	if ( cgs.gametype == GT_WOLF && realweap == WP_CLASS_SPECIAL ) {
-		switch ( cg.predictedPlayerState.stats[ STAT_PLAYER_CLASS ] ) {
-		case PC_MEDIC:
-			realweap = WP_MEDIC_HEAL;
-			break;
-		case PC_LT:
-			realweap = WP_GRENADE_SMOKE;
-			break;
-		default:
-			break;
-		}
-	}
-	// dhm
 
 	size = weapIconDrawSize( realweap );
 

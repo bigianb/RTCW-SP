@@ -104,11 +104,7 @@ void BotRecordNodeSwitch( bot_state_t *bs, char *node, char *str ) {
 
 	ClientName( bs->client, netname, sizeof( netname ) );
 	snprintf( nodeswitch[numnodeswitches], 144, "%s at %2.1f entered %s: %s\n", netname, trap_AAS_Time(), node, str );
-#ifdef DEBUG
-	if ( 0 ) {
-		BotAI_Print( PRT_MESSAGE, nodeswitch[numnodeswitches] );
-	}
-#endif //DEBUG
+
 	numnodeswitches++;
 }
 
@@ -163,9 +159,7 @@ int BotGoForAir( bot_state_t *bs, int tfl, bot_goal_t *ltg, float range ) {
 	//if the bot needs air
 	if ( bs->lastair_time < trap_AAS_Time() - 6 ) {
 		//
-#ifdef DEBUG
-		//BotAI_Print(PRT_MESSAGE, "going for air\n");
-#endif //DEBUG
+
 	   //if we can find an air goal
 		if ( BotGetAirGoal( bs, &goal ) ) {
 			trap_BotPushGoal( bs->gs, &goal );
@@ -275,26 +269,12 @@ int BotGetItemLongTermGoal( bot_state_t *bs, int tfl, bot_goal_t *goal ) {
 	if ( bs->ltg_time < trap_AAS_Time() ) {
 		//pop the current goal from the stack
 		trap_BotPopGoal( bs->gs );
-		//BotAI_Print(PRT_MESSAGE, "%s: choosing new ltg\n", ClientName(bs->client, netname, sizeof(netname)));
-		//choose a new goal
-		//BotAI_Print(PRT_MESSAGE, "%6.1f client %d: BotChooseLTGItem\n", trap_AAS_Time(), bs->client);
+
 		if ( trap_BotChooseLTGItem( bs->gs, bs->origin, bs->inventory, tfl ) ) {
-			/*
-			char buf[128];
-			//get the goal at the top of the stack
-			trap_BotGetTopGoal(bs->gs, goal);
-			trap_BotGoalName(goal->number, buf, sizeof(buf));
-			BotAI_Print(PRT_MESSAGE, "%1.1f: new long term goal %s\n", trap_AAS_Time(), buf);
-			*/
+
 			bs->ltg_time = trap_AAS_Time() + 20;
 		} else { //the bot gets sorta stuck with all the avoid timings, shouldn't happen though
-				//
-#ifdef DEBUG
-			char netname[128];
 
-			BotAI_Print( PRT_MESSAGE, "%s: no valid ltg (probably stuck)\n", ClientName( bs->client, netname, sizeof( netname ) ) );
-#endif
-			//trap_BotDumpAvoidGoals(bs->gs);
 			//reset the avoid goals and the avoid reach
 			trap_BotResetAvoidGoals( bs->gs );
 			trap_BotResetAvoidReach( bs->ms );
@@ -980,9 +960,6 @@ int AINode_Seek_ActivateEntity( bot_state_t *bs ) {
 	//if the bot touches the current goal
 	else if ( trap_BotTouchingGoal( bs->origin, goal ) ) {
 		BotChooseWeapon( bs );
-#ifdef DEBUG
-		BotAI_Print( PRT_MESSAGE, "touched button or trigger\n" );
-#endif //DEBUG
 		bs->activate_time = 0;
 	}
 	//

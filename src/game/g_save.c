@@ -1329,10 +1329,6 @@ void G_LoadGame( char *filename ) {
 	qtime_t tm;
 	qboolean serverEntityUpdate = qfalse;
 
-	if ( g_gametype.integer != GT_SINGLE_PLAYER ) {    // don't allow loads in MP
-		return;
-	}
-
 	if ( saveGamePending ) {
 		return;
 	}

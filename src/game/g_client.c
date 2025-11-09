@@ -443,10 +443,7 @@ void respawn( gentity_t *ent ) {
 	
 	ent->client->ps.pm_flags &= ~PMF_LIMBO; // JPW NERVE turns off limbo
 
-	// DHM - Nerve :: Already handled in 'limbo()'
-	if ( g_gametype.integer != GT_WOLF ) {
-		CopyToBodyQue( ent );
-	}
+	CopyToBodyQue( ent );
 
 	ClientSpawn( ent );
 
@@ -650,7 +647,7 @@ qboolean G_ParseAnimationFiles( char *modelname, gclient_t *cl ) {
 	BG_AnimParseAnimScript( cl->modelInfo, &level.animScriptData, cl->ps.clientNum, filename, text );
 
 	// ask the client to send us the movespeeds if available
-	if ( g_gametype.integer == GT_SINGLE_PLAYER && g_entities[0].client && g_entities[0].client->pers.connected == CON_CONNECTED ) {
+	if ( g_entities[0].client && g_entities[0].client->pers.connected == CON_CONNECTED ) {
 		SV_GameSendServerCommand( 0, va( "mvspd %s", modelname ) );
 	}
 
@@ -770,23 +767,16 @@ void ClientUserinfoChanged( int clientNum ) {
 		}
 	}
 
-	// team`
-	// DHM - Nerve :: Already took care of models and skins above
-	if ( g_gametype.integer != GT_WOLF ) {
 
 //----(SA) added this for head separation
-		// set head
-		if ( g_forceModel.integer ) {
-			Q_strncpyz( head, DEFAULT_HEAD, sizeof( head ) );
-		} else {
-			Q_strncpyz( head, Info_ValueForKey( userinfo, "head" ), sizeof( head ) );
-		}
+	// set head
+	if ( g_forceModel.integer ) {
+		Q_strncpyz( head, DEFAULT_HEAD, sizeof( head ) );
+	} else {
+		Q_strncpyz( head, Info_ValueForKey( userinfo, "head" ), sizeof( head ) );
+	}
 
 //----(SA) end
-
-	}
-	//dhm - end
-
 
 	// colors
 	c1 = Info_ValueForKey( userinfo, "color" );
@@ -858,7 +848,7 @@ char *ClientConnect( int clientNum, qboolean firstTime, qboolean isBot ) {
 	client->pers.connected = CON_CONNECTING;
 
 	// read or initialize the session data
-	if ( firstTime || level.newSession ) {
+	if ( firstTime ) {
 		G_InitSessionData( client, userinfo );
 	}
 	G_ReadSessionData( client );
@@ -945,8 +935,7 @@ void ClientBegin( int clientNum ) {
 	ClientSpawn( ent );
 
 	// Ridah, trigger a spawn event
-	// DHM - Nerve :: Only in single player
-	if ( g_gametype.integer == GT_SINGLE_PLAYER && !( ent->r.svFlags & SVF_CASTAI ) ) {
+	if ( !( ent->r.svFlags & SVF_CASTAI ) ) {
 		AICast_ScriptEvent( AICast_GetCastState( clientNum ), "spawn", "" );
 	}
 
@@ -955,13 +944,12 @@ void ClientBegin( int clientNum ) {
 		tent = G_TempEntity( ent->client->ps.origin, EV_PLAYER_TELEPORT_IN );
 		tent->s.clientNum = ent->s.clientNum;
 
-		if ( g_gametype.integer != GT_TOURNAMENT ) {
-			// Ridah
-			if ( !(ent->r.svFlags & SVF_CASTAI) ) {
-				// done.
-				SV_GameSendServerCommand( -1, va( "print \"%s" S_COLOR_WHITE " entered the game\n\"", client->pers.netname ) );
-			}
+		// Ridah
+		if ( !(ent->r.svFlags & SVF_CASTAI) ) {
+			// done.
+			SV_GameSendServerCommand( -1, va( "print \"%s" S_COLOR_WHITE " entered the game\n\"", client->pers.netname ) );
 		}
+		
 	}
 	G_LogPrintf( "ClientBegin: %i\n", clientNum );
 
@@ -1224,13 +1212,6 @@ void ClientDisconnect( int clientNum ) {
 		// Ridah
 	}
 	// done.
-
-	// if we are playing in tourney mode and losing, give a win to the other player
-	if ( g_gametype.integer == GT_TOURNAMENT && !level.intermissiontime
-		 && !level.warmupTime && level.sortedClients[1] == clientNum ) {
-		level.clients[ level.sortedClients[0] ].sess.wins++;
-		ClientUserinfoChanged( level.sortedClients[0] );
-	}
 
 	SV_UnlinkEntity( ent );
 	ent->s.modelindex = 0;

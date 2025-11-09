@@ -50,8 +50,7 @@ void CG_ParseServerinfo( void ) {
 	char    *mapname;
 
 	info = CG_ConfigString( CS_SERVERINFO );
-	cgs.gametype = atoi( Info_ValueForKey( info, "g_gametype" ) );
-	Cvar_Set( "g_gametype", va( "%i", cgs.gametype ) );
+
 	cgs.dmflags = atoi( Info_ValueForKey( info, "dmflags" ) );
 	cgs.teamflags = atoi( Info_ValueForKey( info, "teamflags" ) );
 	cgs.fraglimit = atoi( Info_ValueForKey( info, "fraglimit" ) );

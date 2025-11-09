@@ -629,9 +629,6 @@ typedef struct {
 	int teamScores[TEAM_NUM_TEAMS];
 	int lastTeamLocationTime;               // last time of client team location update
 
-	qboolean newSession;                // don't use any old session data, because
-										// we changed gametype
-
 	qboolean restarted;                 // waiting for a map_restart to fire
 
 	int numConnectedClients;
@@ -1005,7 +1002,6 @@ void Svcmd_GameMem_f( void );
 void G_ReadSessionData( gclient_t *client );
 void G_InitSessionData( gclient_t *client, char *userinfo );
 
-void G_InitWorldSession( void );
 void G_WriteSessionData( void );
 
 //
@@ -1068,8 +1064,6 @@ extern gentity_t g_entities[MAX_GENTITIES];
 extern gentity_t       *g_camEnt;
 
 #define FOFS( x ) ( (intptr_t)&( ( (gentity_t *)0 )->x ) )
-
-extern vmCvar_t g_gametype;
 
 // Rafael gameskill
 extern vmCvar_t g_gameskill;

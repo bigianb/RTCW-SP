@@ -160,13 +160,8 @@ static float CG_DrawTimer( float y ) {
 	int mins, seconds, tens;
 	int msec;
 
-	// NERVE - SMF - draw time remaining in multiplayer
-	if ( cgs.gametype == GT_WOLF ) {
-		msec = ( cgs.timelimit * 60.f * 1000.f ) - ( cg.time - cgs.levelStartTime );
-	} else {
-		msec = cg.time - cgs.levelStartTime;
-	}
-	// -NERVE - SMF
+
+	msec = cg.time - cgs.levelStartTime;
 
 	seconds = msec / 1000;
 	mins = seconds / 60;
@@ -621,12 +616,6 @@ static void CG_DrawWeapReticle( void ) {
 
 	weap = cg.weaponSelect;
 
-	// DHM - Nerve :: So that we will draw reticle
-	if ( cgs.gametype == GT_WOLF && cg.snap->ps.pm_flags & PMF_FOLLOW ) {
-		weap = cg.snap->ps.weapon;
-	}
-
-
 	if ( weap == WP_SNIPERRIFLE ) {
 
 
@@ -829,20 +818,6 @@ static void CG_DrawCrosshair( void ) {
 	case WP_SNIPERRIFLE:
 	case WP_SNOOPERSCOPE:
 	case WP_FG42SCOPE:
-
-// JPW NERVE -- don't let players run with rifles -- speed 80 == crouch, 128 == walk, 256 == run
-		if ( cg_gameType.integer != GT_SINGLE_PLAYER ) {
-			if ( VectorLength( cg.snap->ps.velocity ) > 127.0f ) {
-				if ( cg.snap->ps.weapon == WP_SNIPERRIFLE ) {
-					CG_FinishWeaponChange( WP_SNIPERRIFLE, WP_MAUSER );
-				}
-				if ( cg.snap->ps.weapon == WP_SNOOPERSCOPE ) {
-					CG_FinishWeaponChange( WP_SNOOPERSCOPE, WP_GARAND );
-				}
-			}
-		}
-// jpw
-
 		CG_DrawWeapReticle();
 		return;
 
@@ -933,36 +908,7 @@ CG_ScanForCrosshairEntity
 =================
 */
 static void CG_ScanForCrosshairEntity( void ) {
-	trace_t trace;
-	vec3_t start, end;
-	int content;
-
-	// DHM - Nerve :: We want this in multiplayer
-	if ( cgs.gametype == GT_SINGLE_PLAYER ) {
-		return; //----(SA)	don't use any scanning at the moment.
-
-	}
-	VectorCopy( cg.refdef.vieworg, start );
-	VectorMA( start, 4096, cg.refdef.viewaxis[0], end );    //----(SA)	changed from 8192
-
-	CG_Trace( &trace, start, vec3_origin, vec3_origin, end,
-			  cg.snap->ps.clientNum, CONTENTS_SOLID | CONTENTS_BODY | CONTENTS_ITEM );
-
-
-	// if the player is in fog, don't show it
-	content = CM_PointContents( trace.endpos, 0 );
-	if ( content & CONTENTS_FOG ) {
-		return;
-	}
-
-	// if the player is invisible, don't show it
-	if ( cg_entities[ trace.entityNum ].currentState.powerups & ( 1 << PW_INVIS ) ) {
-		return;
-	}
-
-	// update the fade timer
-	cg.crosshairClientNum = trace.entityNum;
-	cg.crosshairClientTime = cg.time;
+	return;
 }
 
 
@@ -1043,70 +989,9 @@ CG_DrawCrosshairNames
 =====================
 */
 static void CG_DrawCrosshairNames( void ) {
-	float       *color;
-	vec4_t teamColor;           // NERVE - SMF
-	char        *name;
-	float w;
-
-	if ( !cg_drawCrosshair.integer ) {
-		return;
-	}
-	if ( !cg_drawCrosshairNames.integer ) {
-		return;
-	}
-	if ( cg.renderingThirdPerson ) {
-		return;
-	}
-
-	// Ridah
-	if ( cg_gameType.integer == GT_SINGLE_PLAYER ) {
-		return;
-	}
-	// done.
-
-	// scan the known entities to see if the crosshair is sighted on one
-	CG_ScanForCrosshairEntity();
-
-	// draw the name of the player being looked at
-	color = CG_FadeColor( cg.crosshairClientTime, 1000 );
-
-	if ( !color ) {
-		RE_SetColor( NULL );
-		return;
-	}
-
-	// NERVE - SMF - use fade alpha but color text according to teams
-	teamColor[3] = color[3];
-
-	// NERVE - SMF - no longer identify opposing side, so just use green now
-//	if ( cgs.clientinfo[ cg.crosshairClientNum ].team != cgs.clientinfo[ cg.clientNum ].team )
-//		VectorSet( teamColor, 0.7608, 0.1250, 0.0859 );			// LIGHT-RED
-//	else
-	VectorSet( teamColor, 0.1250, 0.7608, 0.0859 );             // LIGHT-GREEN
-
-	RE_SetColor( teamColor );
-	// -NERVE - SMF
-
-	name = cgs.clientinfo[ cg.crosshairClientNum ].name;
-	w = CG_DrawStrlen( va( "Axis: %s", name ) ) * BIGCHAR_WIDTH;
-//	CG_DrawBigString( 320 - w / 2, 170, name, color[3] * 0.5 );
-
-	// NERVE - SMF
-	if ( strlen( name ) ) {
-		if ( ( cgs.clientinfo[ cg.crosshairClientNum ].team == TEAM_RED ) &&
-			 ( cgs.clientinfo[cg.snap->ps.clientNum].team == TEAM_RED ) ) { // JPW NERVE -- only show same team info so people can't pan-search
-			CG_DrawBigStringColor( 320 - w / 2, 170, va( "Axis: %s", name ), teamColor );
-		} else if ( ( cgs.clientinfo[ cg.crosshairClientNum ].team == TEAM_BLUE ) &&
-					( cgs.clientinfo[cg.snap->ps.clientNum].team == TEAM_BLUE ) ) { // JPW NERVE -- so's we can't find snipers for free
-			CG_DrawBigStringColor( 320 - w / 2, 170, va( "Ally: %s", name ), teamColor );
-		}
-	}
-	// -NERVE - SMF
-
-	RE_SetColor( NULL );
+	return;
+	
 }
-
-
 
 //==============================================================================
 
@@ -1170,96 +1055,9 @@ CG_DrawWarmup
 =================
 */
 static void CG_DrawWarmup( void ) {
-	int w;
-	int sec;
-	int i;
-	clientInfo_t    *ci1, *ci2;
-	int cw;
-	const char  *s;
-
-	if ( cgs.gametype == GT_SINGLE_PLAYER ) {
-		return;     // (SA) don't bother with this stuff in sp
-	}
-
-	sec = cg.warmup;
-	if ( !sec ) {
-		return;
-	}
-
-	if ( sec < 0 ) {
-		s = "Waiting for players";
-		w = CG_DrawStrlen( s ) * BIGCHAR_WIDTH;
-		CG_DrawBigString( 320 - w / 2, 40, s, 1.0F );
-		cg.warmupCount = 0;
-		return;
-	}
-
-
-	// find the two active players
-	ci1 = NULL;
-	ci2 = NULL;
-	for ( i = 0 ; i < cgs.maxclients ; i++ ) {
-		if ( cgs.clientinfo[i].infoValid && cgs.clientinfo[i].team == TEAM_FREE ) {
-			if ( !ci1 ) {
-				ci1 = &cgs.clientinfo[i];
-			} else {
-				ci2 = &cgs.clientinfo[i];
-			}
-		}
-	}
-
-	if ( ci1 && ci2 ) {
-		s = va( "%s vs %s", ci1->name, ci2->name );
-		w = CG_DrawStrlen( s );
-		if ( w > 640 / GIANT_WIDTH ) {
-			cw = 640 / w;
-		} else {
-			cw = GIANT_WIDTH;
-		}
-		CG_DrawStringExt( 320 - w * cw / 2, 20,s, colorWhite,
-						  qfalse, qtrue, cw, (int)( cw * 1.5 ), 0 );
-	}
-
-
-	sec = ( sec - cg.time ) / 1000;
-	if ( sec < 0 ) {
-		sec = 0;
-	}
-	s = va( "Starts in: %i", sec + 1 );
-	if ( sec != cg.warmupCount ) {
-		cg.warmupCount = sec;
-		switch ( sec ) {
-		case 0:
-			S_StartLocalSound( cgs.media.count1Sound, CHAN_ANNOUNCER );
-			break;
-		case 1:
-			S_StartLocalSound( cgs.media.count2Sound, CHAN_ANNOUNCER );
-			break;
-		case 2:
-			S_StartLocalSound( cgs.media.count3Sound, CHAN_ANNOUNCER );
-			break;
-		default:
-			break;
-		}
-	}
-	switch ( cg.warmupCount ) {
-	case 0:
-		cw = 28;
-		break;
-	case 1:
-		cw = 24;
-		break;
-	case 2:
-		cw = 20;
-		break;
-	default:
-		cw = 16;
-		break;
-	}
-
-	w = CG_DrawStrlen( s );
-	CG_DrawStringExt( 320 - w * cw / 2, 70, s, colorWhite,
-					  qfalse, qtrue, cw, (int)( cw * 1.5 ), 0 );
+	
+	return;
+	
 }
 
 //==================================================================================
@@ -1328,17 +1126,12 @@ static void CG_DrawFlashZoomTransition( void ) {
 		return;
 	}
 
-	if ( cgs.gametype != GT_SINGLE_PLAYER ) { // JPW NERVE
-		fadeTime = 400;
+	if ( cg.zoomedScope ) {
+		fadeTime = cg.zoomedScope;
 	} else {
-		if ( cg.zoomedScope ) {
-			fadeTime = cg.zoomedScope;  //----(SA)
-		} else {
-			fadeTime = 300;
-		}
+		fadeTime = 300;
 	}
-	// jpw
-
+	
 	frac = cg.time - cg.zoomTime;
 
 	if ( frac < fadeTime ) {

@@ -1244,12 +1244,7 @@ void CG_LoadClientInfo( clientInfo_t *ci ) {
 		}
 
 		// fall back
-		if ( cgs.gametype >= GT_TEAM ) {
-			// keep skin name but set default model
-			if ( !CG_RegisterClientModelname( ci, DEFAULT_MODEL, ci->skinName ) ) {
-				Com_Error( ERR_DROP, "DEFAULT_MODEL / skin (%s/%s) failed to register", DEFAULT_MODEL, ci->skinName );
-			}
-		} else if ( cgs.gametype == GT_SINGLE_PLAYER && !headfail ) {
+		if ( !headfail ) {
 			// try to keep the model but default the skin (so you can tell bad guys from good)
 			if ( !CG_RegisterClientModelname( ci, ci->modelName, "default" ) ) {
 				Com_Error( ERR_DROP, "DEFAULT_MODEL (%s/default) failed to register", ci->modelName );
@@ -1392,29 +1387,6 @@ client's info to use until we have some spare time.
 static void CG_SetDeferredClientInfo( clientInfo_t *ci ) {
 	int i;
 	clientInfo_t    *match;
-
-	// if we are in teamplay, only grab a model if the skin is correct
-	if ( cgs.gametype >= GT_TEAM ) {
-		for ( i = 0 ; i < cgs.maxclients ; i++ ) {
-			match = &cgs.clientinfo[ i ];
-			if ( !match->infoValid ) {
-				continue;
-			}
-			if ( Q_stricmp( ci->skinName, match->skinName ) ) {
-				continue;
-			}
-			ci->deferred = qtrue;
-			CG_CopyClientInfoModel( match, ci );
-			return;
-		}
-
-		// load the full model, because we don't ever want to show
-		// an improper team skin.  This will cause a hitch for the first
-		// player, when the second enters.  Combat shouldn't be going on
-		// yet, so it shouldn't matter
-		CG_LoadClientInfo( ci );
-		return;
-	}
 
 	// find the first valid clientinfo and grab its stuff
 	for ( i = 0 ; i < cgs.maxclients ; i++ ) {
@@ -2173,7 +2145,7 @@ static void CG_AddPainTwitch( centity_t *cent, vec3_t torsoAngles ) {
 		return;
 	}
 
-	if ( cent->currentState.clientNum && cgs.gametype == GT_SINGLE_PLAYER ) {
+	if ( cent->currentState.clientNum ) {
 		#define FADEIN_RATIO    0.25
 		#define FADEOUT_RATIO   ( 1.0 - FADEIN_RATIO )
 		f = (float)t / duration;
@@ -2705,49 +2677,6 @@ static void CG_PlayerSprites( centity_t *cent ) {
 		return;
 	}
 
-	// DHM - Nerve :: If this client is a medic, draw a 'revive' icon over
-	//					dead players that are not in limbo yet.
-	team = cgs.clientinfo[ cent->currentState.clientNum ].team;
-	if ( cgs.gametype == GT_WOLF && ( cent->currentState.eFlags & EF_DEAD )
-		 && cent->currentState.number == cent->currentState.clientNum
-		 && cg.snap->ps.stats[ STAT_PLAYER_CLASS ] == PC_MEDIC
-		 && cg.snap->ps.persistant[PERS_TEAM] == team ) {
-
-//		CG_PlayerFloatSprite( cent, cgs.media.medicReviveShader, 8 );	//----(SA)	commented out from MP
-		return;
-	}
-
-	// DHM - Nerve :: not using, gives away position if chatting to coordinate attack
-//	if ( cent->currentState.eFlags & EF_TALK ) {
-//		CG_PlayerFloatSprite( cent, cgs.media.balloonShader, 48 );
-//		return;
-//	}
-
-//----(SA) commented out
-//	if ( cent->currentState.eFlags & EF_AWARD_IMPRESSIVE ) {
-//		CG_PlayerFloatSprite( cent, cgs.media.medalImpressive, 48 );
-//		return;
-//	}
-
-//----(SA) commented out
-//	if ( cent->currentState.eFlags & EF_AWARD_EXCELLENT ) {
-//		CG_PlayerFloatSprite( cent, cgs.media.medalExcellent, 48 );
-//		return;
-//	}
-
-//----(SA) commented out
-//	if ( cent->currentState.eFlags & EF_AWARD_GAUNTLET ) {
-//		CG_PlayerFloatSprite( cent, cgs.media.medalGauntlet, 48 );
-//		return;
-//	}
-// DHM - Nerve :: Not using friendly sprites in GT_WOLF
-	if ( cgs.gametype != GT_WOLF && cgs.gametype >= GT_TEAM &&
-		 !( cent->currentState.eFlags & EF_DEAD ) &&
-		 cg.snap->ps.persistant[PERS_TEAM] == team ) {
-
-		CG_PlayerFloatSprite( cent, cgs.media.friendShader, 48 );
-		return;
-	}
 }
 
 /*

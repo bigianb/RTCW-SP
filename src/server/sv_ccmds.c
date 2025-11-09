@@ -127,9 +127,6 @@ static void SV_Map_f( void ) {
 	Cvar_Set( "r_waterFogColor", "0" );
 	Cvar_Set( "r_savegameFogColor", "0" );
 
-	// force latched values to get set
-	Cvar_Get( "g_gametype", "0", CVAR_SERVERINFO | CVAR_USERINFO | CVAR_LATCH );
-
 	// Rafael gameskill
 	Cvar_Get( "g_gameskill", "1", CVAR_SERVERINFO | CVAR_LATCH );
 	// done
@@ -137,31 +134,17 @@ static void SV_Map_f( void ) {
 	Cvar_SetValue( "g_episode", 0 );
 
 	cmd = Cmd_Argv( 0 );
-	if ( Q_stricmpn( cmd, "sp", 2 ) == 0 ) {
-		Cvar_SetValue( "g_gametype", GT_SINGLE_PLAYER );
-		Cvar_SetValue( "g_doWarmup", 0 );
-		// may not set sv_maxclients directly, always set latched
-		Cvar_SetLatched( "sv_maxclients", "32" ); // Ridah, modified this
-		cmd += 2;
-		killBots = qtrue;
-		if ( !Q_stricmp( cmd, "devmap" ) ) {
-			cheat = qtrue;
-		} else {
-			cheat = qfalse;
-		}
+	//Cvar_SetValue( "g_gametype", GT_SINGLE_PLAYER );
+	Cvar_SetValue( "g_doWarmup", 0 );
+	// may not set sv_maxclients directly, always set latched
+	Cvar_SetLatched( "sv_maxclients", "32" ); // Ridah, modified this
+	cmd += 2;
+	killBots = qtrue;
+	if ( !Q_stricmp( cmd, "devmap" ) ) {
+		cheat = qtrue;
 	} else {
-		if ( !Q_stricmp( cmd, "devmap" ) ) {
-			cheat = qtrue;
-			killBots = qtrue;
-		} else {
-			cheat = qfalse;
-			killBots = qfalse;
-		}
-		if ( sv_gametype->integer == GT_SINGLE_PLAYER ) {
-			Cvar_SetValue( "g_gametype", GT_FFA );
-		}
+		cheat = qfalse;
 	}
-
 
 	// save the map name here cause on a map restart we reload the q3config.cfg
 	// and thus nuke the arguments of the map command
@@ -215,11 +198,7 @@ static void SV_MapRestart_f( void ) {
 	if ( Cmd_Argc() > 1 ) {
 		delay = atoi( Cmd_Argv( 1 ) );
 	} else {
-		if ( sv_gametype->integer == GT_SINGLE_PLAYER ) { // (SA) no pause by default in sp
-			delay = 0;
-		} else {
-			delay = 5;
-		}
+		delay = 0;
 	}
 	if ( delay && !Cvar_VariableValue( "g_doWarmup" ) ) {
 		sv.restartTime = svs.time + delay * 1000;
@@ -229,7 +208,7 @@ static void SV_MapRestart_f( void ) {
 
 	// check for changes in variables that can't just be restarted
 	// check for maxclients change
-	if ( sv_maxclients->modified || sv_gametype->modified ) {
+	if ( sv_maxclients->modified) {
 		char mapname[MAX_QPATH];
 
 		Com_Printf( "variable change -- restarting.\n" );

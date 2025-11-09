@@ -837,7 +837,7 @@ void CG_FlameDamage( int owner, vec3_t org, float radius ) {
 		}
 	}
 
-	if ( cgs.localServer && cgs.gametype == GT_SINGLE_PLAYER ) {
+	if ( cgs.localServer ) {
 
 		// flaming zombie's only hurt the player
 		//if (cg_entities[owner].currentState.aiChar == AICHAR_ZOMBIE)

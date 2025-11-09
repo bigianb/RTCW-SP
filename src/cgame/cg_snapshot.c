@@ -178,10 +178,7 @@ void CG_SetInitialSnapshot( snapshot_t *snap ) {
 
 		Cvar_VariableStringBuffer( "mapname", curmap, 64 );
 
-		if ( cgs.gametype == GT_WOLF && Q_stricmp( curmap, prevmap ) ) {
-			strcpy( prevmap, curmap );
-			Cbuf_AddText( "openLimboMenu\n" );
-		}
+		
 	}
 	// -NERVE - SMF
 }

@@ -54,7 +54,7 @@ cvar_t  *sv_serverid;
 cvar_t  *sv_maxRate;
 cvar_t  *sv_minPing;
 cvar_t  *sv_maxPing;
-cvar_t  *sv_gametype;
+
 cvar_t  *sv_pure;
 cvar_t  *sv_floodProtect;
 cvar_t  *sv_allowAnonymous;
@@ -190,54 +190,8 @@ the simple info query.
 ================
 */
 void SVC_Status( netadr_t from ) {
-	char player[1024];
-	char status[MAX_MSGLEN];
-	int i;
-	client_t    *cl;
-	playerState_t   *ps;
-	int statusLength;
-	int playerLength;
-	char infostring[MAX_INFO_STRING];
-
-	// ignore if we are in single player
-	if ( Cvar_VariableValue( "g_gametype" ) == GT_SINGLE_PLAYER ) {
-		return;
-	}
-
-	strcpy( infostring, Cvar_InfoString( CVAR_SERVERINFO ) );
-
-	// echo back the parameter to status. so master servers can use it as a challenge
-	// to prevent timed spoofed reply packets that add ghost servers
-	Info_SetValueForKey( infostring, "challenge", Cmd_Argv( 1 ) );
-
-	// add "demo" to the sv_keywords if restricted
-	if ( Cvar_VariableValue( "fs_restrict" ) ) {
-		char keywords[MAX_INFO_STRING];
-
-		snprintf( keywords, sizeof( keywords ), "demo %s",
-					 Info_ValueForKey( infostring, "sv_keywords" ) );
-		Info_SetValueForKey( infostring, "sv_keywords", keywords );
-	}
-
-	status[0] = 0;
-	statusLength = 0;
-
-	for ( i = 0 ; i < sv_maxclients->integer ; i++ ) {
-		cl = &svs.clients[i];
-		if ( cl->state >= CS_CONNECTED ) {
-			ps = SV_GameClientNum( i );
-			snprintf( player, sizeof( player ), "%i %i \"%s\"\n",
-						 ps->persistant[PERS_SCORE], cl->ping, cl->name );
-			playerLength = strlen( player );
-			if ( statusLength + playerLength >= sizeof( status ) ) {
-				break;      // can't hold any more
-			}
-			strcpy( status + statusLength, player );
-			statusLength += playerLength;
-		}
-	}
-
-	NET_OutOfBandPrint( NS_SERVER, from, "statusResponse\n%s\n%s", infostring, status );
+	
+	return;
 }
 
 /*
@@ -249,52 +203,8 @@ if a user is interested in a server to do a full status
 ================
 */
 void SVC_Info( netadr_t from ) {
-	int i, count;
-	char    *gamedir;
-	char infostring[MAX_INFO_STRING];
-
-	// ignore if we are in single player
-	if ( Cvar_VariableValue( "g_gametype" ) == GT_SINGLE_PLAYER ) {
-		return;
-	}
-
-	// don't count privateclients
-	count = 0;
-	for ( i = sv_privateClients->integer ; i < sv_maxclients->integer ; i++ ) {
-		if ( svs.clients[i].state >= CS_CONNECTED ) {
-			count++;
-		}
-	}
-
-	infostring[0] = 0;
-
-	// echo back the parameter to status. so servers can use it as a challenge
-	// to prevent timed spoofed reply packets that add ghost servers
-	Info_SetValueForKey( infostring, "challenge", Cmd_Argv( 1 ) );
-
-	Info_SetValueForKey( infostring, "protocol", va( "%i", PROTOCOL_VERSION ) );
-	Info_SetValueForKey( infostring, "hostname", sv_hostname->string );
-	Info_SetValueForKey( infostring, "mapname", sv_mapname->string );
-	Info_SetValueForKey( infostring, "clients", va( "%i", count ) );
-	Info_SetValueForKey( infostring, "sv_maxclients",
-						 va( "%i", sv_maxclients->integer - sv_privateClients->integer ) );
-	Info_SetValueForKey( infostring, "gametype", va( "%i", sv_gametype->integer ) );
-	Info_SetValueForKey( infostring, "pure", va( "%i", sv_pure->integer ) );
-
-	if ( sv_minPing->integer ) {
-		Info_SetValueForKey( infostring, "minPing", va( "%i", sv_minPing->integer ) );
-	}
-	if ( sv_maxPing->integer ) {
-		Info_SetValueForKey( infostring, "maxPing", va( "%i", sv_maxPing->integer ) );
-	}
-	gamedir = Cvar_VariableString( "fs_game" );
-	if ( *gamedir ) {
-		Info_SetValueForKey( infostring, "game", gamedir );
-	}
-	Info_SetValueForKey( infostring, "sv_allowAnonymous", va( "%i", sv_allowAnonymous->integer ) );
-	Info_SetValueForKey( infostring, "gameskill", va( "%i", sv_gameskill->integer ) );
-
-	NET_OutOfBandPrint( NS_SERVER, from, "infoResponse\n%s", infostring );
+	
+	return;
 }
 
 /*

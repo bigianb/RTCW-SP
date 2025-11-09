@@ -125,7 +125,7 @@ void CG_LoadingClient( int clientNum ) {
 	char model[MAX_QPATH];
 	char iconName[MAX_QPATH];
 
-	if ( cgs.gametype == GT_SINGLE_PLAYER  && clientNum > 0 ) { // for now only show the player's icon in SP games
+	if ( clientNum > 0 ) { // for now only show the player's icon in SP games
 		return;
 	}
 
@@ -141,19 +141,11 @@ void CG_LoadingClient( int clientNum ) {
 
 	snprintf( iconName, MAX_QPATH, "models/players/%s/icon_%s.tga", model, skin );
 
-// (SA) ignore player icons for the moment
-	if ( !( cg_entities[clientNum].currentState.aiChar ) ) {
-//		if ( loadingPlayerIconCount < MAX_LOADING_PLAYER_ICONS ) {
-//			loadingPlayerIcons[loadingPlayerIconCount++] = RE_RegisterShaderNoMip( iconName );
-//		}
-	}
-
 	Q_strncpyz( personality, Info_ValueForKey( info, "n" ), sizeof( personality ) );
 	Q_CleanStr( personality );
 
-	if ( cgs.gametype == GT_SINGLE_PLAYER ) {
-		S_RegisterSound( va( "sound/player/announce/%s.wav", personality ) );
-	}
+
+	S_RegisterSound( va( "sound/player/announce/%s.wav", personality ) );
 
 	CG_LoadingString( personality );
 }

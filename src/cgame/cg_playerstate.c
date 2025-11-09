@@ -438,22 +438,12 @@ void CG_CheckLocalSounds( playerState_t *ps, playerState_t *ops ) {
 		if ( !s[0] ) {
 			// never play lead changes during warmup
 			if ( ps->persistant[PERS_RANK] != ops->persistant[PERS_RANK] ) {
-				if ( cgs.gametype >= GT_TEAM ) {
-					if ( ps->persistant[PERS_RANK] == 2 ) {
-						S_StartLocalSound( cgs.media.teamsTiedSound, CHAN_ANNOUNCER );
-					} else if (  ps->persistant[PERS_RANK] == 0 ) {
-						S_StartLocalSound( cgs.media.redLeadsSound, CHAN_ANNOUNCER );
-					} else if ( ps->persistant[PERS_RANK] == 1 ) {
-						S_StartLocalSound( cgs.media.blueLeadsSound, CHAN_ANNOUNCER );
-					}
-				} else {
-					if (  ps->persistant[PERS_RANK] == 0 ) {
-						S_StartLocalSound( cgs.media.takenLeadSound, CHAN_ANNOUNCER );
-					} else if ( ps->persistant[PERS_RANK] == RANK_TIED_FLAG ) {
-						S_StartLocalSound( cgs.media.tiedLeadSound, CHAN_ANNOUNCER );
-					} else if ( ( ops->persistant[PERS_RANK] & ~RANK_TIED_FLAG ) == 0 ) {
-						S_StartLocalSound( cgs.media.lostLeadSound, CHAN_ANNOUNCER );
-					}
+				if (  ps->persistant[PERS_RANK] == 0 ) {
+					S_StartLocalSound( cgs.media.takenLeadSound, CHAN_ANNOUNCER );
+				} else if ( ps->persistant[PERS_RANK] == RANK_TIED_FLAG ) {
+					S_StartLocalSound( cgs.media.tiedLeadSound, CHAN_ANNOUNCER );
+				} else if ( ( ops->persistant[PERS_RANK] & ~RANK_TIED_FLAG ) == 0 ) {
+					S_StartLocalSound( cgs.media.lostLeadSound, CHAN_ANNOUNCER );
 				}
 			}
 		}
@@ -480,7 +470,7 @@ void CG_CheckLocalSounds( playerState_t *ps, playerState_t *ops ) {
 	}
 
 	// fraglimit warnings
-	if ( cgs.fraglimit > 0 && cgs.gametype != GT_CTF ) {
+	if ( cgs.fraglimit > 0) {
 		highScore = cgs.scores1;
 		if ( cgs.fraglimit > 3 && !( cg.fraglimitWarnings & 1 ) && highScore == ( cgs.fraglimit - 3 ) ) {
 			cg.fraglimitWarnings |= 1;

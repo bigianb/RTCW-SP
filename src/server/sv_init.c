@@ -495,15 +495,9 @@ void SV_ChangeMaxClients( void ) {
 
 	// RF, allocate reliable commands for newly created client slots
 	if ( oldMaxClients < sv_maxclients->integer ) {
-		if ( sv_gametype->integer == GT_SINGLE_PLAYER ) {
-			for ( i = oldMaxClients ; i < sv_maxclients->integer ; i++ ) {
-				// must be an AI slot
-				SV_InitReliableCommandsForClient( &svs.clients[i], 0 );
-			}
-		} else {
-			for ( i = oldMaxClients ; i < sv_maxclients->integer ; i++ ) {
-				SV_InitReliableCommandsForClient( &svs.clients[i], MAX_RELIABLE_COMMANDS );
-			}
+		for ( i = oldMaxClients ; i < sv_maxclients->integer ; i++ ) {
+			// must be an AI slot
+			SV_InitReliableCommandsForClient( &svs.clients[i], 0 );
 		}
 	}
 }
@@ -607,7 +601,7 @@ void SV_SpawnServer( char *server, qboolean killBots ) {
 
 	// Ridah, enforce maxclients in single player, so there is enough room for AI characters
 	{
-		static cvar_t   *g_gametype, *bot_enable;
+		static cvar_t   *bot_enable;
 
 		// Rafael gameskill
 		static cvar_t   *g_gameskill;
@@ -617,23 +611,19 @@ void SV_SpawnServer( char *server, qboolean killBots ) {
 		}
 		// done
 
-		if ( !g_gametype ) {
-			g_gametype = Cvar_Get( "g_gametype", "0", CVAR_SERVERINFO | CVAR_LATCH | CVAR_ARCHIVE );
-		}
 		if ( !bot_enable ) {
 			bot_enable = Cvar_Get( "bot_enable", "1", CVAR_LATCH );
 		}
-		if ( g_gametype->integer == 2 ) {
-			if ( sv_maxclients->latchedString ) {
-				// it's been modified, so grab the new value
-				Cvar_Get( "sv_maxclients", "8", 0 );
-			}
-			if ( sv_maxclients->integer < MAX_CLIENTS ) {
-				Cvar_SetValue( "sv_maxclients", MAX_SP_CLIENTS );
-			}
-			if ( !bot_enable->integer ) {
-				Cvar_Set( "bot_enable", "1" );
-			}
+		
+		if ( sv_maxclients->latchedString ) {
+			// it's been modified, so grab the new value
+			Cvar_Get( "sv_maxclients", "8", 0 );
+		}
+		if ( sv_maxclients->integer < MAX_CLIENTS ) {
+			Cvar_SetValue( "sv_maxclients", MAX_SP_CLIENTS );
+		}
+		if ( !bot_enable->integer ) {
+			Cvar_Set( "bot_enable", "1" );
 		}
 	}
 	// done.
@@ -690,13 +680,7 @@ void SV_SpawnServer( char *server, qboolean killBots ) {
 		sv.configstrings[i] = CopyString( "" );
 	}
 
-	// Ridah
-	if ( sv_gametype->integer == GT_SINGLE_PLAYER ) {
-		SV_SetExpectedHunkUsage( va( "maps/%s.bsp", server ) );
-	} else {
-		// just set it to a negative number,so the cgame knows not to draw the percent bar
-		Cvar_Set( "com_expectedhunkusage", "-1" );
-	}
+	SV_SetExpectedHunkUsage( va( "maps/%s.bsp", server ) );
 
 	// make sure we are not paused
 	Cvar_Set( "cl_paused", "0" );
@@ -729,9 +713,6 @@ void SV_SpawnServer( char *server, qboolean killBots ) {
 	// load and spawn all other entities
 	SV_InitGameProgs();
 
-	// don't allow a map_restart if game is modified
-	sv_gametype->modified = qfalse;
-
 	// run a few frames to allow everything to settle
 	for ( i = 0 ; i < 3 ; i++ ) {
 		G_RunFrame( svs.time );
@@ -747,11 +728,10 @@ void SV_SpawnServer( char *server, qboolean killBots ) {
 		if ( svs.clients[i].state >= CS_CONNECTED ) {
 
 			if ( svs.clients[i].netchan.remoteAddress.type == NA_BOT ) {
-				if ( killBots || Cvar_VariableValue( "g_gametype" ) == GT_SINGLE_PLAYER ) {
-					SV_DropClient( &svs.clients[i], " gametype is Single Player" );      //DAJ added message
-					continue;
-				}
-				isBot = qtrue;
+				 
+				SV_DropClient( &svs.clients[i], " gametype is Single Player" );      //DAJ added message
+				continue;
+	
 			} else {
 				isBot = qfalse;
 			}
@@ -847,7 +827,6 @@ void SV_Init( void ) {
 	Cvar_Get( "dmflags", "0", CVAR_SERVERINFO );
 	Cvar_Get( "fraglimit", "20", CVAR_SERVERINFO );
 	Cvar_Get( "timelimit", "0", CVAR_SERVERINFO );
-	sv_gametype = Cvar_Get( "g_gametype", "0", CVAR_SERVERINFO | CVAR_LATCH );
 
 	// Rafael gameskill
 	sv_gameskill = Cvar_Get( "g_gameskill", "1", CVAR_SERVERINFO | CVAR_LATCH );

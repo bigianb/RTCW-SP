@@ -277,7 +277,7 @@ void LAN_GetServerInfo( int source, int n, char *buf, int buflen ) {
 		Info_SetValueForKey( info, "minping", va( "%i",server->minPing ) );
 		Info_SetValueForKey( info, "maxping", va( "%i",server->maxPing ) );
 		Info_SetValueForKey( info, "game", server->game );
-		Info_SetValueForKey( info, "gametype", va( "%i",server->gameType ) );
+
 		Info_SetValueForKey( info, "nettype", va( "%i",server->netType ) );
 		Info_SetValueForKey( info, "addr", NET_AdrToString( server->adr ) );
 		Info_SetValueForKey( info, "sv_allowAnonymous", va( "%i", server->allowAnonymous ) );
@@ -383,15 +383,6 @@ int LAN_CompareServers( int source, int sortKey, int sortDir, int s1, int s2 ) {
 		if ( server1->clients < server2->clients ) {
 			res = -1;
 		} else if ( server1->clients > server2->clients )     {
-			res = 1;
-		} else {
-			res = 0;
-		}
-		break;
-	case SORT_GAME:
-		if ( server1->gameType < server2->gameType ) {
-			res = -1;
-		} else if ( server1->gameType > server2->gameType )     {
 			res = 1;
 		} else {
 			res = 0;

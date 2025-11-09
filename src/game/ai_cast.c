@@ -902,6 +902,9 @@ AICast_AgePlayTime
 void AICast_AgePlayTime( int entnum ) {
 	cast_state_t *cs = AICast_GetCastState( entnum );
 	//
+	if (cs == NULL){
+		return;
+	}
 	if ( saveGamePending ) {
 		return;
 	}

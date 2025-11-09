@@ -170,8 +170,6 @@ int numlevelitems = 0;
 maplocation_t *maplocations = NULL;
 //camp spots
 campspot_t *campspots = NULL;
-//the game type
-int g_gametype;
 
 // Rafael gameskill
 int g_gameskill;
@@ -745,21 +743,11 @@ int BotGetLevelItemGoal( int index, char *name, bot_goal_t *goal ) {
 		if ( li->number <= index ) {
 			continue;
 		}
-		//
-		if ( g_gametype == GT_SINGLE_PLAYER ) {
-			if ( li->notsingle ) {
-				continue;
-			}
-		} else if ( g_gametype >= GT_TEAM )     {
-			if ( li->notteam ) {
-				continue;
-			}
-		} else {
-			if ( li->notfree ) {
-				continue;
-			}
+
+		if ( li->notsingle ) {
+			continue;
 		}
-		//
+		
 		if ( !Q_stricmp( name, itemconfig->iteminfo[li->iteminfo].name ) ) {
 			goal->areanum = li->goalareanum;
 			VectorCopy( li->goalorigin, goal->origin );
@@ -1123,19 +1111,10 @@ int BotChooseLTGItem( int goalstate, vec3_t origin, int *inventory, int travelfl
 	//go through the items in the level
 	for ( li = levelitems; li; li = li->next )
 	{
-		if ( g_gametype == GT_SINGLE_PLAYER ) {
-			if ( li->notsingle ) {
-				continue;
-			}
-		} else if ( g_gametype >= GT_TEAM )     {
-			if ( li->notteam ) {
-				continue;
-			}
-		} else {
-			if ( li->notfree ) {
-				continue;
-			}
+		if ( li->notsingle ) {
+			continue;
 		}
+		
 		//if the item is not in a possible goal area
 		if ( !li->goalareanum ) {
 			continue;
@@ -1178,28 +1157,6 @@ int BotChooseLTGItem( int goalstate, vec3_t origin, int *inventory, int travelfl
 	} //end for
 	  //if no goal item found
 	if ( !bestitem ) {
-		/*
-		//if not in lava or slime
-		if (!AAS_AreaLava(areanum) && !AAS_AreaSlime(areanum))
-		{
-			if (AAS_RandomGoalArea(areanum, travelflags, &goal.areanum, goal.origin))
-			{
-				VectorSet(goal.mins, -15, -15, -15);
-				VectorSet(goal.maxs, 15, 15, 15);
-				goal.entitynum = 0;
-				goal.number = 0;
-				goal.flags = GFL_ROAM;
-				goal.iteminfo = 0;
-				//push the goal on the stack
-				BotPushGoal(goalstate, &goal);
-				//
-#ifdef DEBUG
-				BotImport_Print(PRT_MESSAGE, "chosen roam goal area %d\n", goal.areanum);
-#endif //DEBUG
-				return qtrue;
-			} //end if
-		} //end if
-		*/
 		return qfalse;
 	} //end if
 	  //create a bot goal for this item
@@ -1286,19 +1243,10 @@ int BotChooseNBGItem( int goalstate, vec3_t origin, int *inventory, int travelfl
 	//go through the items in the level
 	for ( li = levelitems; li; li = li->next )
 	{
-		if ( g_gametype == GT_SINGLE_PLAYER ) {
-			if ( li->notsingle ) {
-				continue;
-			}
-		} else if ( g_gametype >= GT_TEAM )     {
-			if ( li->notteam ) {
-				continue;
-			}
-		} else {
-			if ( li->notfree ) {
-				continue;
-			}
+		if ( li->notsingle ) {
+			continue;
 		}
+		
 		//if the item is in a possible goal area
 		if ( !li->goalareanum ) {
 			continue;
@@ -1562,12 +1510,9 @@ void BotFreeGoalState( int handle ) {
 // Changes Globals:		-
 //===========================================================================
 int BotSetupGoalAI( void ) {
-	char *filename;
-
-	//check if teamplay is on
-	g_gametype = LibVarValue( "g_gametype", "0" );
+	
 	//item configuration file
-	filename = LibVarString( "itemconfig", "items.c" );
+	char* filename = LibVarString( "itemconfig", "items.c" );
 	//load the item configuration
 	itemconfig = LoadItemConfig( filename );
 	if ( !itemconfig ) {
