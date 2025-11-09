@@ -1031,19 +1031,6 @@ void FinishSpawningItem( gentity_t *ent ) {
 		ent->s.density = i - 1;   // store number of stages in 'density' for client (most will have '1')
 	}
 
-	// powerups don't spawn in for a while
-	if ( ent->item->giType == IT_POWERUP && g_gametype.integer != GT_SINGLE_PLAYER ) {
-		float respawn;
-
-		respawn = 45 + crandom() * 15;
-		ent->flags |= FL_NODRAW;
-		//ent->s.eFlags |= EF_NODRAW;
-		ent->r.contents = 0;
-		ent->nextthink = level.time + respawn * 1000;
-		ent->think = RespawnItem;
-		return;
-	}
-
 	SV_LinkEntity( ent );
 }
 

@@ -2045,7 +2045,8 @@ void R_LoadLightGrid( lump_t *l ) {
 R_LoadEntities
 ================
 */
-void R_LoadEntities( lump_t *l ) {
+void R_LoadEntities( lump_t *l )
+{
 	char *p, *token, *s;
 	char keyname[MAX_TOKEN_CHARS];
 	char value[MAX_TOKEN_CHARS];
@@ -2205,12 +2206,11 @@ void RE_LoadWorldMap( const char *name ) {
 	fileBase = (byte *)header;
 
 	i = LittleLong( header->version );
-#ifndef _SKIP_BSP_CHECK
+
 	if ( i != BSP_VERSION ) {
 		ri.Error( ERR_DROP, "RE_LoadWorldMap: %s has wrong version number (%i should be %i)",
 				  name, i, BSP_VERSION );
 	}
-#endif
 
 	// swap all the lumps
 	for ( i = 0 ; i < sizeof( dheader_t ) / 4 ; i++ ) {
@@ -2246,9 +2246,6 @@ void RE_LoadWorldMap( const char *name ) {
 
 	// only set tr.world now that we know the entire level has loaded properly
 	tr.world = &s_worldData;
-
-	// reset fog to world fog (if present)
-//	R_SetFog(FOG_CMD_SWITCHFOG, FOG_MAP,20,0,0,0,0);
 
 //----(SA)	set the sun shader if there is one
 	if ( tr.sunShaderName ) {

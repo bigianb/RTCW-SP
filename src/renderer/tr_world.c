@@ -218,33 +218,6 @@ static int R_DlightTrisurf( srfTriangles_t *surf, int dlightBits ) {
 	// FIXME: more dlight culling to trisurfs...
 	surf->dlightBits[ tr.smpFrame ] = dlightBits;
 	return dlightBits;
-#if 0
-	int i;
-	dlight_t    *dl;
-
-	for ( i = 0 ; i < tr.refdef.num_dlights ; i++ ) {
-		if ( !( dlightBits & ( 1 << i ) ) ) {
-			continue;
-		}
-		dl = &tr.refdef.dlights[i];
-		if ( dl->origin[0] - dl->radius > grid->meshBounds[1][0]
-			 || dl->origin[0] + dl->radius < grid->meshBounds[0][0]
-											 || dl->origin[1] - dl->radius > grid->meshBounds[1][1]
-			 || dl->origin[1] + dl->radius < grid->meshBounds[0][1]
-											 || dl->origin[2] - dl->radius > grid->meshBounds[1][2]
-			 || dl->origin[2] + dl->radius < grid->meshBounds[0][2] ) {
-			// dlight doesn't reach the bounds
-			dlightBits &= ~( 1 << i );
-		}
-	}
-
-	if ( !dlightBits ) {
-		tr.pc.c_dlightSurfacesCulled++;
-	}
-
-	grid->dlightBits[ tr.smpFrame ] = dlightBits;
-	return dlightBits;
-#endif
 }
 
 /*
@@ -474,29 +447,7 @@ static void R_RecursiveWorldNode( mnode_t *node, int planeBits, int dlightBits )
 		// determine which dlights are needed
 		newDlights[0] = 0;
 		newDlights[1] = 0;
-/*
-//		if ( dlightBits )
-		{
-			int	i;
 
-			for ( i = 0 ; i < tr.refdef.num_dlights ; i++ ) {
-				dlight_t	*dl;
-				float		dist;
-
-//				if ( dlightBits & ( 1 << i ) ) {
-					dl = &tr.refdef.dlights[i];
-					dist = DotProduct( dl->origin, node->plane->normal ) - node->plane->dist;
-
-					if ( dist > -dl->radius ) {
-						newDlights[0] |= ( 1 << i );
-					}
-					if ( dist < dl->radius ) {
-						newDlights[1] |= ( 1 << i );
-					}
-//				}
-			}
-		}
-*/
 		// recurse down the children, front side first
 		R_RecursiveWorldNode( node->children[0], planeBits, newDlights[0] );
 

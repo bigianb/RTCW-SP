@@ -1385,7 +1385,6 @@ refexport_t *GetRefAPI( int apiVersion, refimport_t *rimp ) {
 	re.UploadCinematic  = RE_UploadCinematic;
 	re.RegisterFont     = RE_RegisterFont;
 	re.RemapShader      = R_RemapShader;
-	re.GetEntityToken   = R_GetEntityToken;
 
 	// RF
 	re.ZombieFXAddNewHit = RB_ZombieFXAddNewHit;

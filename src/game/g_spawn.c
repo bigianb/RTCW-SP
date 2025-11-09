@@ -668,7 +668,6 @@ returning qfalse if not found
 */
 qboolean G_CallSpawn( gentity_t *ent ) {
 	spawn_t *s;
-	gitem_t *item;
 
 	if ( !ent->classname ) {
 		Com_Printf( "G_CallSpawn: NULL classname\n" );
@@ -676,13 +675,8 @@ qboolean G_CallSpawn( gentity_t *ent ) {
 	}
 
 	// check item spawn functions
-	for ( item = bg_itemlist + 1 ; item->classname ; item++ ) {
+	for (gitem_t *item = bg_itemlist + 1 ; item->classname ; item++ ) {
 		if ( !strcmp( item->classname, ent->classname ) ) {
-			// found it
-			// DHM - Nerve :: allow flags in GTWOLF
-			if ( item->giType == IT_TEAM && ( g_gametype.integer != GT_CTF && g_gametype.integer != GT_WOLF ) ) {
-				return qfalse;
-			}
 			G_SpawnItem( ent, item );
 			return qtrue;
 		}
@@ -715,18 +709,16 @@ Builds a copy of the string, translating \n to real linefeeds
 so message texts can be multi-line
 =============
 */
-char *G_NewString( const char *string ) {
-	char    *newb, *new_p;
-	int i,l;
+char *G_NewString( const char *string )
+{
+	size_t l = strlen( string ) + 1;
 
-	l = strlen( string ) + 1;
+	char* newb = G_Alloc( l );
 
-	newb = G_Alloc( l );
-
-	new_p = newb;
+	char* new_p = newb;
 
 	// turn \n into a real linefeed
-	for ( i = 0 ; i < l ; i++ ) {
+	for (int i = 0 ; i < l ; i++ ) {
 		if ( string[i] == '\\' && i < l - 1 ) {
 			i++;
 			if ( string[i] == 'n' ) {
@@ -815,28 +807,6 @@ void G_SpawnGEntityFromSpawnVars( void ) {
 
 	for ( i = 0 ; i < level.numSpawnVars ; i++ ) {
 		G_ParseField( level.spawnVars[i][0], level.spawnVars[i][1], ent );
-	}
-
-	// check for "notteam" / "notfree" flags
-	if ( g_gametype.integer == GT_SINGLE_PLAYER ) {
-		G_SpawnInt( "notsingle", "0", &i );
-		if ( i ) {
-			G_FreeEntity( ent );
-			return;
-		}
-	}
-	if ( g_gametype.integer >= GT_TEAM ) {
-		G_SpawnInt( "notteam", "0", &i );
-		if ( i ) {
-			G_FreeEntity( ent );
-			return;
-		}
-	} else {
-		G_SpawnInt( "notfree", "0", &i );
-		if ( i ) {
-			G_FreeEntity( ent );
-			return;
-		}
 	}
 
 	// move editor origin to pos

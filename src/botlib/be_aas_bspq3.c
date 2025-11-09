@@ -45,6 +45,7 @@ If you have questions concerning this license or the applicable additional terms
 #include "../game/be_aas.h"
 #include "be_aas_funcs.h"
 #include "be_aas_def.h"
+#include "../qcommon/cm_public.h"
 
 //#define TRACE_DEBUG
 
@@ -485,9 +486,9 @@ void AAS_DumpBSPData( void ) {
 //===========================================================================
 int AAS_LoadBSPFile( void ) {
 	AAS_DumpBSPData();
-	bspworld.entdatasize = strlen( BotImport_BSPEntityData() ) + 1;
+	bspworld.entdatasize = strlen( CM_EntityString() ) + 1;
 	bspworld.dentdata = (char *) GetClearedHunkMemory( bspworld.entdatasize );
-	memcpy( bspworld.dentdata, BotImport_BSPEntityData(), bspworld.entdatasize );
+	memcpy( bspworld.dentdata, CM_EntityString(), bspworld.entdatasize );
 	AAS_ParseBSPEntities();
 	bspworld.loaded = qtrue;
 	return BLERR_NOERROR;

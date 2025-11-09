@@ -282,15 +282,6 @@ int BotImport_inPVS( vec3_t p1, vec3_t p2 ) {
 
 /*
 ==================
-BotImport_BSPEntityData
-==================
-*/
-char *BotImport_BSPEntityData( void ) {
-	return CM_EntityString();
-}
-
-/*
-==================
 BotImport_BSPModelMinsMaxsOrigin
 ==================
 */

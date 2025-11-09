@@ -197,9 +197,6 @@ int BotImport_PointContents( vec3_t point );
 //check if the point is in potential visible sight
 int BotImport_inPVS( vec3_t p1, vec3_t p2 );
 
-//retrieve the BSP entity data lump
-char* BotImport_BSPEntityData();
-
 void BotImport_BSPModelMinsMaxsOrigin( int modelnum, vec3_t angles, vec3_t mins, vec3_t maxs, vec3_t origin );
 
 //send a bot client command

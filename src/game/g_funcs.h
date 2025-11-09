@@ -881,7 +881,6 @@ If you have questions concerning this license or the applicable additional terms
 {"trap_RealTime", (byte *)trap_RealTime},
 {"trap_DebugPolygonDelete", (byte *)trap_DebugPolygonDelete},
 {"trap_DebugPolygonCreate", (byte *)trap_DebugPolygonCreate},
-{"trap_GetEntityToken", (byte *)trap_GetEntityToken},
 
 {"G_RunFrame", (byte *)G_RunFrame},
 {"G_RunThink", (byte *)G_RunThink},

@@ -48,11 +48,9 @@ int c_traces, c_brush_traces, c_patch_traces;
 
 byte        *cmod_base;
 
-#ifndef BSPC
 cvar_t      *cm_noAreas;
 cvar_t      *cm_noCurves;
 cvar_t      *cm_playerCurveClip;
-#endif
 
 cmodel_t box_model;
 cplane_t    *box_planes;
@@ -415,15 +413,11 @@ void CMod_LoadBrushSides( lump_t *l ) {
 }
 
 
-/*
-=================
-CMod_LoadEntityString
-=================
-*/
-void CMod_LoadEntityString( lump_t *l ) {
-	cm.entityString = Hunk_Alloc( l->filelen, h_high );
+void CMod_LoadEntityString( lump_t *l )
+{
+	cm.entityString = malloc( l->filelen);
 	cm.numEntityChars = l->filelen;
-	Com_Memcpy( cm.entityString, cmod_base + l->fileofs, l->filelen );
+	memcpy( cm.entityString, cmod_base + l->fileofs, l->filelen );
 }
 
 /*
@@ -530,22 +524,22 @@ CM_LoadMap
 Loads in the map and all submodels
 ==================
 */
-void CM_LoadMap( const char *name, qboolean clientload, int *checksum ) {
+void CM_LoadMap( const char *name, qboolean clientload, int *checksum )
+{
 	int             *buf;
 
 	dheader_t header;
-	int length;
-	static unsigned last_checksum;
+
+	static int last_checksum;
 
 	if ( !name || !name[0] ) {
 		Com_Error( ERR_DROP, "CM_LoadMap: NULL name" );
 	}
 
-#ifndef BSPC
 	cm_noAreas = Cvar_Get( "cm_noAreas", "0", CVAR_CHEAT );
 	cm_noCurves = Cvar_Get( "cm_noCurves", "0", CVAR_CHEAT );
 	cm_playerCurveClip = Cvar_Get( "cm_playerCurveClip", "1", CVAR_ARCHIVE | CVAR_CHEAT );
-#endif
+
 	Com_DPrintf( "CM_LoadMap( %s, %i )\n", name, clientload );
 
 	if ( !strcmp( cm.name, name ) && clientload ) {
@@ -569,11 +563,8 @@ void CM_LoadMap( const char *name, qboolean clientload, int *checksum ) {
 	//
 	// load the file
 	//
-#ifndef BSPC
-	length = FS_ReadFile( name, (void **)&buf );
-#else
-	length = LoadQuakeFile( (quakefile_t *) name, (void **)&buf );
-#endif
+
+	size_t length = FS_ReadFile( name, (void **)&buf );
 
 	if ( !buf ) {
 		Com_Error( ERR_DROP, "Couldn't load %s", name );
@@ -587,12 +578,10 @@ void CM_LoadMap( const char *name, qboolean clientload, int *checksum ) {
 		( (int *)&header )[i] = LittleLong( ( (int *)&header )[i] );
 	}
 
-#ifndef _SKIP_BSP_CHECK
 	if ( header.version != BSP_VERSION ) {
 		Com_Error( ERR_DROP, "CM_LoadMap: %s has wrong version number (%i should be %i)"
 				   , name, header.version, BSP_VERSION );
 	}
-#endif
 
 	cmod_base = (byte *)buf;
 
