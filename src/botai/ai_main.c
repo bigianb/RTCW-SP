@@ -553,7 +553,7 @@ int BotAI( int client, float thinktime ) {
 
 		//botai_import.Print(PRT_MESSAGE, "ConsoleMessage: \"%s\"\n", buf);
 		if ( !Q_stricmp( buf, "cp " ) ) { /*CenterPrintf*/
-		} else if ( !Q_stricmp( buf, "cs" ) )                                                      { /*ConfigStringModified*/
+		} else if ( !Q_stricmp( buf, "cs" ) ) { /*ConfigStringModified*/
 		} else if ( !Q_stricmp( buf, "print" ) )                                                                                                                       {
 			trap_BotQueueConsoleMessage( bs->cs, CMS_NORMAL, args );
 		} else if ( !Q_stricmp( buf, "chat" ) ) {

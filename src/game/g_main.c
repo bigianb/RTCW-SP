@@ -1426,11 +1426,8 @@ G_RunFrame
 Advances the non-player objects in the world
 ================
 */
-void G_RunFrame( int levelTime ) {
-	int i;
-	gentity_t   *ent;
-	int msec;
-
+void G_RunFrame( int levelTime )
+{
 	// if we are waiting for the level to restart, do nothing
 	if ( level.restarted ) {
 		return;
@@ -1439,7 +1436,7 @@ void G_RunFrame( int levelTime ) {
 	level.framenum++;
 	level.previousTime = level.time;
 	level.time = levelTime;
-	msec = level.time - level.previousTime;
+	int msec = level.time - level.previousTime;
 
 	extern void AICast_CheckLoadGame( void );
 	AICast_CheckLoadGame();
@@ -1451,8 +1448,8 @@ void G_RunFrame( int levelTime ) {
 	// go through all allocated objects
 	//
 	//start = Sys_Milliseconds();
-	ent = &g_entities[0];
-	for ( i = 0 ; i < level.num_entities ; i++, ent++ ) {
+    gentity_t* ent = &g_entities[0];
+	for (int i = 0 ; i < level.num_entities ; i++, ent++ ) {
 		if ( !ent->inuse ) {
 			continue;
 		}
@@ -1573,14 +1570,14 @@ void G_RunFrame( int levelTime ) {
 
 	// perform final fixups on the players
 	ent = &g_entities[0];
-	for ( i = 0 ; i < level.maxclients ; i++, ent++ ) {
+	for (int i = 0 ; i < level.maxclients ; i++, ent++ ) {
 		if ( ent->inuse ) {
 			ClientEndFrame( ent );
 		}
 	}
 
 	if ( g_listEntity.integer ) {
-		for ( i = 0; i < MAX_GENTITIES; i++ ) {
+		for (int i = 0; i < MAX_GENTITIES; i++ ) {
 			Com_Printf( "%4i: %s\n", i, g_entities[i].classname );
 		}
 		Cvar_Set( "g_listEntity", "0" );

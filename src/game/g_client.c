@@ -1103,19 +1103,12 @@ void ClientSpawn( gentity_t *ent ) {
 	client->ps.crouchMaxZ = client->ps.maxs[2] - ( client->ps.standViewHeight - client->ps.crouchViewHeight );
 
 	client->ps.runSpeedScale = 0.8;
-//	client->ps.sprintSpeedScale = 1.20;
-	client->ps.sprintSpeedScale = 1.1;  // (SA) trying new value
+	client->ps.sprintSpeedScale = 1.1;
 	client->ps.crouchSpeedScale = 0.25;
-
-	// Rafael
 	client->ps.sprintTime = 20000;
 	client->ps.sprintExertTime = 0;
-
 	client->ps.friction = 1.0;
-	// done.
-
 	client->ps.clientNum = index;
-
 
     ent->health = client->ps.stats[STAT_HEALTH] = client->ps.stats[STAT_MAX_HEALTH];
 
@@ -1128,7 +1121,6 @@ void ClientSpawn( gentity_t *ent ) {
 	SV_GetUsercmd( client - level.clients, &ent->client->pers.cmd );
 	SetClientViewAngle( ent, spawn_angles );
 
-
 	G_KillBox( ent );
 	SV_LinkEntity( ent );
 
@@ -1139,7 +1131,7 @@ void ClientSpawn( gentity_t *ent ) {
 	client->respawnTime = level.time;
 	client->inactivityTime = level.time + g_inactivity.integer * 1000;
 	client->latched_buttons = 0;
-	client->latched_wbuttons = 0;   //----(SA)	added
+	client->latched_wbuttons = 0;
 
 
 	if ( level.intermissiontime ) {

@@ -960,7 +960,8 @@ G_ScriptAction_ResetScript
 	causes any currently running scripts to abort, in favour of the current script
 ===================
 */
-qboolean G_ScriptAction_ResetScript( gentity_t *ent, char *params ) {
+qboolean G_ScriptAction_ResetScript( gentity_t *ent, char *params )
+{
 	if ( level.time == ent->scriptStatus.scriptStackChangeTime ) {
 		return qfalse;
 	}

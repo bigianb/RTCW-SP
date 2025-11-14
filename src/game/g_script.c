@@ -217,7 +217,7 @@ void G_Script_ScriptLoad( void ) {
 	fileHandle_t f;
 	int len;
 
-	Cvar_Register( &g_scriptDebug, "g_scriptDebug", "0", 0 );
+	Cvar_Register( &g_scriptDebug, "g_scriptDebug", "1", 0 );
 
 	level.scriptEntity = NULL;
 

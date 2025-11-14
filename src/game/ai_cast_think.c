@@ -1055,9 +1055,9 @@ void AICast_StartServerFrame( int time ) {
 	//
 	lasttime = time;
 	//
-	if ( aicast_debug.integer == 3 ) {
+	//if ( aicast_debug.integer == 3 ) {
 		Com_Printf( "AI Active Count: %i\n", activeCount );
-	}
+	//}
 }
 
 /*

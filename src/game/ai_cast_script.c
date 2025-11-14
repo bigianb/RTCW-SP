@@ -227,8 +227,41 @@ cast_script_stack_action_t scriptActions[] =
 	{NULL,              NULL}
 };
 
-qboolean AICast_EventMatch_StringEqual( cast_script_event_t *event, char *eventParm );
-qboolean AICast_EventMatch_IntInRange( cast_script_event_t *event, char *eventParm );
+/*
+===============
+AICast_EventMatch_StringEqual
+===============
+*/
+qboolean AICast_EventMatch_StringEqual( cast_script_event_t *event, char *eventParm ) {
+    if ( !event->params || !event->params[0] || ( eventParm && !Q_strcasecmp( event->params, eventParm ) ) ) {
+        return qtrue;
+    } else {
+        return qfalse;
+    }
+}
+
+/*
+===============
+AICast_EventMatch_IntInRange
+===============
+*/
+qboolean AICast_EventMatch_IntInRange( cast_script_event_t *event, char *eventParm )
+{
+    // get the cast name
+    char* pString = eventParm;
+    char* token = COM_ParseExt( &pString, qfalse );
+    int int1 = atoi( token );
+    token = COM_ParseExt( &pString, qfalse );
+    int int2 = atoi( token );
+
+    int eInt = atoi( event->params );
+
+    if ( eventParm && eInt > int1 && eInt <= int2 ) {
+        return qtrue;
+    } else {
+        return qfalse;
+    }
+}
 
 // the list of events that can start an action sequence
 // NOTE!!: only append to this list, DO NOT INSERT!!
@@ -266,51 +299,12 @@ cast_script_event_define_t scriptEvents[] =
 
 /*
 ===============
-AICast_EventMatch_StringEqual
-===============
-*/
-qboolean AICast_EventMatch_StringEqual( cast_script_event_t *event, char *eventParm ) {
-	if ( !event->params || !event->params[0] || ( eventParm && !Q_strcasecmp( event->params, eventParm ) ) ) {
-		return qtrue;
-	} else {
-		return qfalse;
-	}
-}
-
-/*
-===============
-AICast_EventMatch_IntInRange
-===============
-*/
-qboolean AICast_EventMatch_IntInRange( cast_script_event_t *event, char *eventParm ) {
-	char *pString, *token;
-	int int1, int2, eInt;
-
-	// get the cast name
-	pString = eventParm;
-	token = COM_ParseExt( &pString, qfalse );
-	int1 = atoi( token );
-	token = COM_ParseExt( &pString, qfalse );
-	int2 = atoi( token );
-
-	eInt = atoi( event->params );
-
-	if ( eventParm && eInt > int1 && eInt <= int2 ) {
-		return qtrue;
-	} else {
-		return qfalse;
-	}
-}
-
-/*
-===============
 AICast_EventForString
 ===============
 */
-int AICast_EventForString( char *string ) {
-	int i;
-
-	for ( i = 0; scriptEvents[i].eventStr; i++ )
+int AICast_EventForString( char *string )
+{
+	for (int i = 0; scriptEvents[i].eventStr; i++ )
 	{
 		if ( !Q_strcasecmp( string, scriptEvents[i].eventStr ) ) {
 			return i;
@@ -320,17 +314,14 @@ int AICast_EventForString( char *string ) {
 	return -1;
 }
 
-//----(SA)	added
-
 /*
 ===============
 AICast_ActionForString
 ===============
 */
-cast_script_stack_action_t *AICast_ActionForString( cast_state_t *cs, char *string ) {
-	int i;
-
-	for ( i = 0; scriptActions[i].actionString; i++ )
+cast_script_stack_action_t *AICast_ActionForString( cast_state_t *cs, char *string )
+{
+	for (int i = 0; scriptActions[i].actionString; i++ )
 	{
 		if ( !Q_strcasecmp( string, scriptActions[i].actionString ) ) {
 			if ( !Q_strcasecmp( string, "foundsecret" ) ) {
@@ -393,48 +384,41 @@ AICast_ScriptParse
   Parses the script for the given character
 ==============
 */
-
-void AICast_ScriptParse( cast_state_t *cs ) {
+void AICast_ScriptParse( cast_state_t *cs )
+{
 	#define MAX_SCRIPT_EVENTS   64
-	gentity_t   *ent;
-	char        *pScript;
-	char        *token;
-	qboolean wantName;
-	qboolean inScript;
+
 	int eventNum;
-	cast_script_event_t events[MAX_SCRIPT_EVENTS];
-	int numEventItems;
+
 	cast_script_event_t *curEvent;
 	char params[MAX_QPATH];
 	cast_script_stack_action_t  *action;
-	int i;
-	int bracketLevel;
-	qboolean buildScript;       //----(SA)	added
 
 	if ( !level.scriptAI ) {
 		return;
 	}
 
-	ent = &g_entities[cs->entityNum];
+    gentity_t *ent = &g_entities[cs->entityNum];
 	if ( !ent->aiName ) {
 		return;
 	}
 
-	buildScript = Cvar_VariableIntegerValue( "com_buildScript" );
+    qboolean buildScript = Cvar_VariableIntegerValue( "com_buildScript" );
 	buildScript = qtrue;
 
-	pScript = level.scriptAI;
-	wantName = qtrue;
-	inScript = qfalse;
+	char* pScript = level.scriptAI;
+    qboolean wantName = qtrue;
+    qboolean inScript = qfalse;
 	COM_BeginParseSession( "AICast_ScriptParse" );
-	bracketLevel = 0;
-	numEventItems = 0;
+	int bracketLevel = 0;
+	int numEventItems = 0;
 
+    cast_script_event_t events[MAX_SCRIPT_EVENTS];
 	memset( events, 0, sizeof( events ) );
 
 	while ( 1 )
 	{
-		token = COM_Parse( &pScript );
+		char* token = COM_Parse( &pScript );
 
 		if ( !token[0] ) {
 			if ( !wantName ) {
@@ -527,7 +511,7 @@ void AICast_ScriptParse( cast_state_t *cs ) {
 
 				memset( params, 0, sizeof( params ) );
 				token = COM_ParseExt( &pScript, qfalse );
-				for ( i = 0; token[0]; i++ )
+				for (int i = 0; token[0]; i++ )
 				{
 					if ( strlen( params ) ) { // add a space between each param
 						Q_strcat( params, sizeof( params ), " " );
@@ -539,7 +523,6 @@ void AICast_ScriptParse( cast_state_t *cs ) {
 							G_SoundIndex( token );
 						}
 
-//----(SA)	added a bit more
 						if (    buildScript && (
 									!Q_stricmp( action->actionString, "mu_start" ) ||
 									!Q_stricmp( action->actionString, "mu_play" ) ||
@@ -554,19 +537,20 @@ void AICast_ScriptParse( cast_state_t *cs ) {
 
 						if ( !Q_stricmp( action->actionString, "giveweapon" ) ) { // register weapon for client pre-loading
 							gitem_t *weap = BG_FindItem2( token );    // (SA) FIXME: rats, need to fix this for weapon names with spaces: 'mauser rifle'
-//							if(weap)
 							RegisterItem( weap );   // don't be nice, just do it.  if it can't find it, you'll bomb out to the error menu
 						}
-//----(SA)	end
+
 					}
 
-					if ( strrchr( token,' ' ) ) { // need to wrap this param in quotes since it has more than one word
+					if ( strrchr( token,' ' ) ) {
+                        // need to wrap this param in quotes since it has more than one word
 						Q_strcat( params, sizeof( params ), "\"" );
 					}
 
 					Q_strcat( params, sizeof( params ), token );
 
-					if ( strrchr( token,' ' ) ) { // need to wrap this param in quotes since it has more than one word
+					if ( strrchr( token,' ' ) ) {
+                        // need to wrap this param in quotes since it has more than one word
 						Q_strcat( params, sizeof( params ), "\"" );
 					}
 
@@ -588,7 +572,6 @@ void AICast_ScriptParse( cast_state_t *cs ) {
 			numEventItems++;
 		} else    // skip this character completely
 		{
-			// TTimo: gcc: suggest () around assignment used as truth value
 			while ( ( token = COM_Parse( &pScript ) ) )
 			{
 				if ( !token[0] ) {
@@ -619,13 +602,12 @@ void AICast_ScriptParse( cast_state_t *cs ) {
 AICast_ScriptChange
 ================
 */
-void AICast_ScriptChange( cast_state_t *cs, int newScriptNum ) {
-	cast_script_status_t scriptStatusBackup;
-
+void AICast_ScriptChange( cast_state_t *cs, int newScriptNum )
+{
 	cs->scriptCallIndex++;
 
 	// backup the current scripting
-	scriptStatusBackup = cs->castScriptStatus;
+    cast_script_status_t scriptStatusBackup = cs->castScriptStatus;
 
 	// set the new script to this cast, and reset script status
 	cs->castScriptStatus.castScriptStackHead = 0;
@@ -739,13 +721,14 @@ AICast_ScriptRun
   returns qtrue if the script completed
 =============
 */
-qboolean AICast_ScriptRun( cast_state_t *cs, qboolean force ) {
-	cast_script_stack_t *stack;
-
+qboolean AICast_ScriptRun( cast_state_t *cs, qboolean force )
+{
 	if ( !aicast_scripts.integer ) {
 		return qtrue;
 	}
 
+    Com_Printf( "AICast_ScriptRun for (%s)\n", g_entities[cs->entityNum].aiName);
+    
 	if ( cs->castScriptStatus.castScriptEventIndex < 0 ) {
 		return qtrue;
 	}
@@ -756,7 +739,10 @@ qboolean AICast_ScriptRun( cast_state_t *cs, qboolean force ) {
 	}
 
 	// only allow the PLAYER'S spawn function through if we're NOT still waiting on everything to finish loading in
-	if ( !cs->entityNum && saveGamePending && Q_stricmp( "spawn", scriptEvents[cs->castScriptEvents[cs->castScriptStatus.castScriptEventIndex].eventNum].eventStr ) ) {
+	if ( !cs->entityNum &&
+        saveGamePending &&
+        Q_stricmp( "spawn", scriptEvents[cs->castScriptEvents[cs->castScriptStatus.castScriptEventIndex].eventNum].eventStr ) )
+    {
 		return qfalse;
 	}
 
@@ -764,27 +750,30 @@ qboolean AICast_ScriptRun( cast_state_t *cs, qboolean force ) {
 		return qtrue;
 	}
 
-	stack = &cs->castScriptEvents[cs->castScriptStatus.castScriptEventIndex].stack;
+    cast_script_stack_t *stack = &cs->castScriptEvents[cs->castScriptStatus.castScriptEventIndex].stack;
 
 	if ( !stack->numItems ) {
 		cs->castScriptStatus.castScriptEventIndex = -1;
 		return qtrue;
 	}
 
+    // Run script until an action function returns false or we run out of actions.
 	while ( cs->castScriptStatus.castScriptStackHead < stack->numItems )
 	{
+        cast_script_stack_item_t* headItem = &stack->items[cs->castScriptStatus.castScriptStackHead];
 		//
 		// show debugging info
-		if (    ( cs->castScriptStatus.castScriptStackChangeTime == level.time ) &&
-				(   ( aicast_debug.integer == 1 ) ||
-					(   ( aicast_debug.integer == 2 ) &&
-						( ( strlen( aicast_debugname.string ) < 1 ) || ( g_entities[cs->entityNum].aiName && !strcmp( aicast_debugname.string, g_entities[cs->entityNum].aiName ) ) ) ) ) ) {
-			Com_Printf( "(%s) AIScript command: %s %s\n", g_entities[cs->entityNum].aiName, stack->items[cs->castScriptStatus.castScriptStackHead].action->actionString, ( stack->items[cs->castScriptStatus.castScriptStackHead].params ? stack->items[cs->castScriptStatus.castScriptStackHead].params : "" ) );
+		if (cs->castScriptStatus.castScriptStackChangeTime == level.time )  {
+			Com_Printf( "(%s) AIScript command: %s %s\n", g_entities[cs->entityNum].aiName,
+                       headItem->action->actionString,
+                       ( headItem->params ? headItem->params : "" ) );
 		}
-		//
-		if ( !stack->items[cs->castScriptStatus.castScriptStackHead].action->actionFunc( cs, stack->items[cs->castScriptStatus.castScriptStackHead].params ) ) {
+
+		if ( !headItem->action->actionFunc( cs, headItem->params ) ) {
 			// check that we are still running the same script that we were when we call the action
-			if ( cs->castScriptStatus.castScriptEventIndex >= 0 && stack == &cs->castScriptEvents[cs->castScriptStatus.castScriptEventIndex].stack ) {
+			if ( cs->castScriptStatus.castScriptEventIndex >= 0 &&
+                stack == &cs->castScriptEvents[cs->castScriptStatus.castScriptEventIndex].stack )
+            {
 				cs->castScriptStatus.scriptFlags &= ~SFL_FIRST_CALL;
 			}
 			return qfalse;

@@ -422,7 +422,7 @@ static void CG_SoundLoadSoundFiles( void ) {
 	for ( i = 0; i < numSounds; i++ )
 	{
 		snprintf( filename, sizeof( filename ), "sound/scripts/%s", soundFiles[i] );
-		Com_Printf( "...loading '%s'\n", filename );
+		//Com_Printf( "...loading '%s'\n", filename );
 		len = FS_FOpenFileByMode( filename, &f, FS_READ );
 		if ( len <= 0 ) {
 			Com_Error( ERR_DROP, "Couldn't load %s", filename );

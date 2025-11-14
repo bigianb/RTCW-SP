@@ -2039,10 +2039,9 @@ AICast_ScriptAction_ResetScript
 	causes any currently running scripts to abort, in favour of the current script
 ===================
 */
-qboolean AICast_ScriptAction_ResetScript( cast_state_t *cs, char *params ) {
-	gclient_t *client;
-
-	client = &level.clients[cs->entityNum];
+qboolean AICast_ScriptAction_ResetScript( cast_state_t *cs, char *params )
+{
+    gclient_t* client = &level.clients[cs->entityNum];
 
 	// stop any anim from playing
 	if ( client->ps.torsoTimer && ( client->ps.torsoTimer > ( level.time - cs->scriptAnimTime ) ) ) {
@@ -2064,12 +2063,13 @@ qboolean AICast_ScriptAction_ResetScript( cast_state_t *cs, char *params ) {
 	// stop following anything that we don't need to be following
 	cs->followEntity = -1;
 	if ( cs->castScriptStatus.scriptFlags & SFL_FIRST_CALL ) {
+        // Break if this is the first time.
 		return qfalse;
 	}
 
 	// make sure zoom is off
 	cs->aiFlags &= ~AIFL_ZOOMING;
-	g_entities[cs->entityNum].client->ps.eFlags &= ~EF_CIG; //----(SA)	added
+	g_entities[cs->entityNum].client->ps.eFlags &= ~EF_CIG;
 
 	return qtrue;
 }

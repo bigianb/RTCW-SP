@@ -499,7 +499,7 @@ sfxHandle_t S_RegisterSound( const char *name) {
 	if ( sfx->soundData ) {
 		if ( sfx->defaultSound ) {
 			if ( com_developer->integer ) {
-				Com_Printf( S_COLOR_YELLOW "WARNING: could not find %s - using default\n", sfx->soundName );
+				//Com_Printf( S_COLOR_YELLOW "WARNING: could not find %s - using default\n", sfx->soundName );
 			}
 			return 0;
 		}
@@ -513,7 +513,7 @@ sfxHandle_t S_RegisterSound( const char *name) {
 
 	if ( sfx->defaultSound ) {
 		if ( com_developer->integer ) {
-			Com_Printf( S_COLOR_YELLOW "WARNING: could not find %s - using default\n", sfx->soundName );
+			//Com_Printf( S_COLOR_YELLOW "WARNING: could not find %s - using default\n", sfx->soundName );
 		}
 		return 0;
 	}
