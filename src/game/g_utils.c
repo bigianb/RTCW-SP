@@ -369,7 +369,8 @@ void G_SetMovedir( vec3_t angles, vec3_t movedir ) {
 
 
 
-void G_InitGentity( gentity_t *e ) {
+void G_InitGentity( gentity_t *e )
+{
 	e->inuse = qtrue;
 	e->classname = "noclass";
 	e->s.number = e - g_entities;
@@ -398,17 +399,15 @@ instead of being removed and recreated, which can cause interpolated
 angles and bad trails.
 =================
 */
-gentity_t *G_Spawn( void ) {
-	int i, force;
-	gentity_t   *e;
-
-	e = NULL;   // shut up warning
-	i = 0;      // shut up warning
-	for ( force = 0 ; force < 2 ; force++ ) {
+gentity_t *G_Spawn()
+{
+	int i = 0;
+	for (int force = 0; force < 2 ; force++ ) {
 		// if we go through all entities and can't find one to free,
 		// override the normal minimum times before use
-		e = &g_entities[MAX_CLIENTS];
-		for ( i = MAX_CLIENTS ; i < level.num_entities ; i++, e++ ) {
+		
+		for ( i = MAX_CLIENTS ; i < level.num_entities ; i++) {
+			gentity_t* e = &g_entities[i];
 			if ( e->inuse ) {
 				continue;
 			}
@@ -435,8 +434,8 @@ gentity_t *G_Spawn( void ) {
 	}
 
 	// open up a new slot
-	level.num_entities++;
-
+	gentity_t* e = &g_entities[level.num_entities++];
+	
 	// let the server system know that there are more entities
 	SV_LocateGameData( level.gentities, level.num_entities, sizeof( gentity_t ),
 						 &level.clients[0].ps, sizeof( level.clients[0] ) );

@@ -984,9 +984,8 @@ G_InitGame
 ============
 */
 
-void G_InitGame( int levelTime, int randomSeed, int restart ) {
-	int i;
-
+void G_InitGame( int levelTime, int randomSeed, int restart )
+{
 	srand( randomSeed );
 
 	G_RegisterCvars();
@@ -1020,7 +1019,7 @@ void G_InitGame( int levelTime, int randomSeed, int restart ) {
 	level.clients = g_clients;
 
 	// set client fields on player ents
-	for ( i = 0 ; i < level.maxclients ; i++ ) {
+	for (int i = 0 ; i < level.maxclients ; i++ ) {
 		g_entities[i].client = level.clients + i;
 	}
 
@@ -1036,11 +1035,7 @@ void G_InitGame( int levelTime, int randomSeed, int restart ) {
 
 	char s[10];
 
-	// Ridah, initialize cast AI system
-	// DHM - Nerve :: Moved this down so that it only happens in SinglePlayer games
 	AICast_Init();
-	// done.
-
 	AICast_ScriptLoad();
 
 	Cvar_VariableStringBuffer( "g_missionStats", s, sizeof( s ) );
@@ -1049,13 +1044,12 @@ void G_InitGame( int levelTime, int randomSeed, int restart ) {
 		Cvar_Set( "g_missionStats", "xx" );
 	}
 
-	for ( i = 0; i < 8; i++ )     {  // max objective cvars: 8 (FIXME: use #define somewhere)
+	for (int i = 0; i < 8; i++ )     {  // max objective cvars: 8 (FIXME: use #define somewhere)
 		Cvar_Set( va( "g_objective%i", i + 1 ), "0" );   // clear the objective ROM cvars
 	}
 	Cvar_Set( "cg_yougotMail", "0" );
 	
 	G_Script_ScriptLoad();
-	// done.
 
 	// reserve some spots for dead player bodies
 	InitBodyQue();
@@ -1083,7 +1077,6 @@ void G_InitGame( int levelTime, int randomSeed, int restart ) {
 	}
 
 	G_RemapTeamShaders();
-
 }
 
 

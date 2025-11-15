@@ -2285,8 +2285,6 @@ void trap_CIN_SetExtents( int handle, int x, int y, int w, int h );
 
 void trap_SnapVector( float *v );
 
-qboolean    trap_GetEntityToken( char *buffer, int bufferSize );
-
 // Duffy, camera stuff
 #define CAM_PRIMARY 0   // the main camera for cutscenes, etc.
 qboolean    trap_loadCamera( int camNum, const char *name );

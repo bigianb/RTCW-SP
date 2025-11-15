@@ -1324,15 +1324,14 @@ void Cmd_SetSpawnPoint_f( gentity_t *clent ) {
 ClientCommand
 =================
 */
-void ClientCommand( int clientNum ) {
-	gentity_t *ent;
+void ClientCommand( int clientNum )
+{
 	char cmd[MAX_TOKEN_CHARS];
 
-	ent = g_entities + clientNum;
+	gentity_t* ent = g_entities + clientNum;
 	if ( !ent->client ) {
 		return;     // not fully in game yet
 	}
-
 
 	Cmd_ArgvBuffer( 0, cmd, sizeof( cmd ) );
 

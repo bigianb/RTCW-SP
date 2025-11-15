@@ -217,11 +217,10 @@ struct gentity_s {
 	int sound2to1;
 	int soundPos2;
 	int soundLoop;
-	// JOSEPH 1-26-00
+
 	int sound2to3;
 	int sound3to2;
 	int soundPos3;
-	// END JOSEPH
 
 	int soundKicked;
 	int soundKickedEnd;
@@ -234,9 +233,7 @@ struct gentity_s {
 	gentity_t   *parent;
 	gentity_t   *nextTrain;
 	gentity_t   *prevTrain;
-	// JOSEPH 1-26-00
 	vec3_t pos1, pos2, pos3;
-	// END JOSEPH
 
 	char        *message;
 
@@ -1147,9 +1144,6 @@ void    Cmd_ArgsBuffer( char *buffer, int bufferLength );
 void    Cvar_Set( const char *var_name, const char *value );
 
 qboolean SV_inPVS( const vec3_t p1, const vec3_t p2 );
-
-qboolean    trap_GetEntityToken( char *buffer, int bufferSize );
-
 
 int     trap_DebugPolygonCreate( int color, int numPoints, vec3_t *points );
 void    trap_DebugPolygonDelete( int id );

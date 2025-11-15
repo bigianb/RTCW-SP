@@ -1166,7 +1166,6 @@ If you have questions concerning this license or the applicable additional terms
 {"Q_rand", (byte *)Q_rand},
 {"G_SpawnEntitiesFromString", (byte *)G_SpawnEntitiesFromString},
 {"SP_worldspawn", (byte *)SP_worldspawn},
-{"G_ParseSpawnVars", (byte *)G_ParseSpawnVars},
 {"G_AddSpawnVarToken", (byte *)G_AddSpawnVarToken},
 {"G_SpawnGEntityFromSpawnVars", (byte *)G_SpawnGEntityFromSpawnVars},
 {"G_ParseField", (byte *)G_ParseField},

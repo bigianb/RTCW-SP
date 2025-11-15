@@ -49,17 +49,6 @@ If you have questions concerning this license or the applicable additional terms
 #include "../game/be_ai_move.h"
 #include "../game/be_ai_weap.h"
 
-qboolean trap_GetEntityToken( char *buffer, int bufferSize ) {
-	
-	const char  *s = COM_Parse( &sv.entityParsePoint );
-	Q_strncpyz( buffer, s, bufferSize );
-	if ( !sv.entityParsePoint && !s[0] ) {
-		return qfalse;
-	} else {
-		return qtrue;
-	}
-}
-
 int trap_DebugPolygonCreate( int color, int numPoints, vec3_t *points ) {
 	return BotImport_DebugPolygonCreate(color, numPoints, points );
 }

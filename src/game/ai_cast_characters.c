@@ -1662,23 +1662,16 @@ void SP_ai_partisan( gentity_t *ent ) {
 	AICast_DelayedSpawnCast( ent, AICHAR_PARTISAN );
 }
 
-//----------------------------------------------------------------------------------------------------------------------------
 /*QUAKED ai_civilian (1 0.25 0) (-16 -16 -24) (16 16 64) TriggerSpawn NoRevive
 "skin" the .skin file to use for this character (must exist in the player characters directory, otherwise 'civilian/default' is used)
 "head" the .skin file to use for his head (must exist in the pc's dir, otherwise 'default' is used)
 "ainame" name of AI
 */
 
-/*
-============
-SP_ai_civilian
-============
-*/
 void SP_ai_civilian( gentity_t *ent ) {
 	AICast_DelayedSpawnCast( ent, AICHAR_CIVILIAN );
 }
 
-//----------------------------------------------------------------------------------------------------------------------------
 /*QUAKED ai_eliteguard (1 0.25 0) (-16 -16 -24) (16 16 64) TriggerSpawn NoRevive
 elite guard entity
 "skin" the .skin file to use for this character (must exist in the player characters directory, otherwise 'eliteguard/default' is used)
@@ -1686,11 +1679,6 @@ elite guard entity
 "ainame" name of AI
 */
 
-/*
-============
-SP_ai_eliteguard
-============
-*/
 void SP_ai_eliteguard( gentity_t *ent ) {
 	AICast_DelayedSpawnCast( ent, AICHAR_ELITEGUARD );
 }

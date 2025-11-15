@@ -26,13 +26,6 @@ If you have questions concerning this license or the applicable additional terms
 ===========================================================================
 */
 
-/*
- * name:		g_spawn.c
- *
- * desc:
- *
-*/
-
 #include "g_local.h"
 #include "../server/server.h"
 
@@ -115,10 +108,10 @@ gentity_field_t fields[] = {
 	{"model2",       FOFS( model2 ),       F_LSTRING},
 	{"spawnflags",   FOFS( spawnflags ),   F_INT},
 	{"speed",        FOFS( speed ),        F_FLOAT},
-	{"closespeed",   FOFS( closespeed ),   F_FLOAT},   //----(SA)	added
+	{"closespeed",   FOFS( closespeed ),   F_FLOAT},
 	{"target",       FOFS( target ),       F_LSTRING},
 	{"targetname",   FOFS( targetname ),   F_LSTRING},
-	{"targetdeath",  FOFS( targetdeath ),      F_LSTRING}, //----(SA)	added
+	{"targetdeath",  FOFS( targetdeath ),  F_LSTRING},
 	{"message",      FOFS( message ),      F_LSTRING},
 	{"popup",        FOFS( message ),      F_LSTRING}, // (SA) mutually exclusive from 'message', but makes the ent more logical for the level designer
 	{"book",     FOFS( message ),      F_LSTRING}, // (SA) mutually exclusive from 'message', but makes the ent more logical for the level designer
@@ -131,41 +124,27 @@ gentity_field_t fields[] = {
 	{"dmg",          FOFS( damage ),       F_INT},
 	{"angles",       FOFS( s.angles ),     F_VECTOR},
 	{"angle",        FOFS( s.angles ),     F_ANGLEHACK},
-	// JOSEPH 9-27-99
 	{"duration", FOFS( duration ),     F_FLOAT},
 	{"rotate",       FOFS( rotate ),       F_VECTOR},
-	// END JOSEPH
 	{"degrees",      FOFS( angle ),        F_FLOAT},
 	{"time",     FOFS( speed ),        F_FLOAT},
 
-	// Ridah, AI fields
 	{"aiattributes", FOFS( aiAttributes ), F_LSTRING},
 	{"ainame",       FOFS( aiName ),       F_LSTRING},
 	{"aiteam",       FOFS( aiTeam ),       F_INT},
-	// done.
-
-	//----(SA) additional ai field
 	{"skin",     FOFS( aiSkin ),       F_LSTRING},
 	{"head",     FOFS( aihSkin ),      F_LSTRING},
-
-	//----(SA) done
 
 	// (SA) dlight lightstyles (made all these unique variables for testing)
 	{"_color",       FOFS( dl_color ),     F_VECTOR},      // color of the light	(the underscore is inserted by the color picker in QER)
 	{"color",        FOFS( dl_color ),     F_VECTOR},      // color of the light
 	{"stylestring",  FOFS( dl_stylestring ), F_LSTRING},   // user defined stylestring "fffndlsfaaaaaa" for example
-	// done
 
-	//----(SA)
 	{"shader",       FOFS( dl_shader ), F_LSTRING},    // shader to use for a target_effect or dlight
 
-	// (SA) for target_unlock
 	{"key",          FOFS( key ),      F_INT},
-	// done
 
-	// (SA) for item placement
 	{"stand",        FOFS( s.frame ),      F_INT},
-	// (SA)	end
 
 	// Rafael - mg42
 	{"harc",     FOFS( harc ),         F_FLOAT},
@@ -175,9 +154,6 @@ gentity_field_t fields[] = {
 	// Rafael - sniper
 	{"delay",    FOFS( delay ),        F_FLOAT},
 	{"radius",   FOFS( radius ),       F_INT},
-
-	// Ridah, for reloading savegames at correct mission spot
-//	{"missionlevel",	FOFS(missionObjectives),	F_INT},
 
 	// Rafel
 	{"start_size", FOFS( start_size ), F_INT},
@@ -425,26 +401,24 @@ spawn_t spawns[] = {
 	{"info_player_intermission", SP_info_player_intermission},
 	{"info_null", SP_info_null},
 	{"info_notnull", SP_info_notnull},
-	{"info_notnull_big", SP_info_notnull_big},   //----(SA)	added
+	{"info_notnull_big", SP_info_notnull_big},
 
 	{"info_camp", SP_info_camp},
 
-	{"func_plat", SP_func_plat},
-	{"func_button", SP_func_button},
+	{"func_plat",      SP_func_plat},
+	{"func_button",    SP_func_button},
 	{"func_explosive", SP_func_explosive},
-	{"func_door", SP_func_door},
-	{"func_static", SP_func_static},
-	{"func_leaky", SP_func_leaky},
-	{"func_rotating", SP_func_rotating},
-	{"func_bobbing", SP_func_bobbing},
-	{"func_pendulum", SP_func_pendulum},
-	{"func_train", SP_func_train},
-	{"func_group", SP_info_null},
-	// JOSEPH 1-26-00
+	{"func_door",      SP_func_door},
+	{"func_static",    SP_func_static},
+	{"func_leaky",     SP_func_leaky},
+	{"func_rotating",  SP_func_rotating},
+	{"func_bobbing",   SP_func_bobbing},
+	{"func_pendulum",  SP_func_pendulum},
+	{"func_train",     SP_func_train},
+	{"func_group",     SP_info_null},
 	{"func_train_rotating", SP_func_train_rotating},
 	{"func_secret", SP_func_secret},
-	// END JOSEPH
-	// Rafael
+
 	{"func_door_rotating", SP_func_door_rotating},
 
 	{"func_train_particles", SP_func_train_particles},
@@ -461,17 +435,14 @@ spawn_t spawns[] = {
 	// While almost everything could be done with
 	// a single trigger class and different targets, triggered effects
 	// could not be client side predicted (push and teleport).
-	{"trigger_always", SP_trigger_always},
+	{"trigger_always",   SP_trigger_always},
 	{"trigger_multiple", SP_trigger_multiple},
-	{"trigger_push", SP_trigger_push},
+	{"trigger_push",     SP_trigger_push},
 	{"trigger_teleport", SP_trigger_teleport},
-	{"trigger_hurt", SP_trigger_hurt},
+	{"trigger_hurt",     SP_trigger_hurt},
 
-	//---- (SA) Wolf triggers
 	{"trigger_once",     SP_trigger_once},
-	//---- done
 
-	// Rafael
 	{"trigger_aidoor", SP_trigger_aidoor},
 	{"trigger_deathCheck",SP_trigger_deathCheck},
 
@@ -485,24 +456,21 @@ spawn_t spawns[] = {
 	{"target_laser", SP_target_laser},
 	{"target_score", SP_target_score},
 	{"target_teleporter", SP_target_teleporter},
-	{"target_relay", SP_target_relay},
-	{"target_kill", SP_target_kill},
-	{"target_position", SP_target_position},
-	{"target_location", SP_target_location},
-	{"target_push", SP_target_push},
+	{"target_relay",      SP_target_relay},
+	{"target_kill",       SP_target_kill},
+	{"target_position",   SP_target_position},
+	{"target_location",   SP_target_location},
+	{"target_push",       SP_target_push},
 	{"target_script_trigger", SP_target_script_trigger},
 
-	//---- (SA) Wolf targets
 	{"target_alarm",     SP_target_alarm},
-	{"target_counter",       SP_target_counter},
-	{"target_lock",          SP_target_lock},
-	{"target_effect",        SP_target_effect},
-	{"target_fog",           SP_target_fog},
-	{"target_autosave",      SP_target_autosave},    //----(SA)	added
-	//---- done
+	{"target_counter",   SP_target_counter},
+	{"target_lock",      SP_target_lock},
+	{"target_effect",    SP_target_effect},
+	{"target_fog",       SP_target_fog},
+	{"target_autosave",  SP_target_autosave},
 
 	{"target_rumble", SP_target_rumble},
-
 
 	{"light", SP_light},
 
@@ -516,123 +484,105 @@ spawn_t spawns[] = {
 	{"misc_portal_surface", SP_misc_portal_surface},
 	{"misc_portal_camera", SP_misc_portal_camera},
 
-	//----(SA) Wolf misc
 	{"misc_vis_dummy",       SP_misc_vis_dummy},
 	{"misc_vis_dummy_multiple",      SP_misc_vis_dummy_multiple},
 	{"misc_light_surface",   SP_misc_light_surface},
 	{"misc_grabber_trap",    SP_misc_grabber_trap},
-	{"misc_spotlight",       SP_misc_spotlight}, //----(SA)	added
-	//----(SA) end
+	{"misc_spotlight",       SP_misc_spotlight},
 
-
-	// Rafael mg42
 	{"misc_mg42", SP_mg42},
-	// done.
 	{"misc_flak", SP_misc_flak},
 	{"misc_firetrails", SP_misc_firetrails},
 
-	{"misc_tagemitter", SP_misc_tagemitter}, //----(SA)	added
+	{"misc_tagemitter", SP_misc_tagemitter},
 
 	{"shooter_rocket", SP_shooter_rocket},
 	{"shooter_grenade", SP_shooter_grenade},
 
-//----(SA)
 	{"shooter_zombiespit", SP_shooter_zombiespit},
 	{"shooter_mortar", SP_shooter_mortar},
 	{"shooter_tesla", SP_shooter_tesla},
 
-	// alarm
 	{"alarm_box", SP_alarm_box},
-//----(SA)	end
 
-	// Rafael sniper
 	{"shooter_sniper", SP_shooter_sniper},
 	{"sniper_brush", SP_sniper_brush},
 
-	{"ai_soldier", SP_ai_soldier},
-	{"ai_american", SP_ai_american},
-	{"ai_zombie", SP_ai_zombie},
-	{"ai_warzombie", SP_ai_warzombie},
-	{"ai_venom", SP_ai_venom},
-	{"ai_loper", SP_ai_loper},
-	{"ai_boss_helga", SP_ai_boss_helga},
-	{"ai_boss_heinrich", SP_ai_boss_heinrich},   //----(SA)
-	{"ai_eliteguard", SP_ai_eliteguard},
-	{"ai_stimsoldier_dual", SP_ai_stimsoldier_dual},
+	{"ai_soldier",       SP_ai_soldier},
+	{"ai_american",      SP_ai_american},
+	{"ai_zombie",        SP_ai_zombie},
+	{"ai_warzombie",     SP_ai_warzombie},
+	{"ai_venom",         SP_ai_venom},
+	{"ai_loper",         SP_ai_loper},
+	{"ai_boss_helga",    SP_ai_boss_helga},
+	{"ai_boss_heinrich", SP_ai_boss_heinrich},
+	{"ai_eliteguard",    SP_ai_eliteguard},
+	{"ai_stimsoldier_dual",   SP_ai_stimsoldier_dual},
 	{"ai_stimsoldier_rocket", SP_ai_stimsoldier_rocket},
-	{"ai_stimsoldier_tesla", SP_ai_stimsoldier_tesla},
+	{"ai_stimsoldier_tesla",  SP_ai_stimsoldier_tesla},
 	{"ai_supersoldier", SP_ai_supersoldier},
 	{"ai_protosoldier", SP_ai_protosoldier},
-	{"ai_frogman", SP_ai_frogman},
+	{"ai_frogman",    SP_ai_frogman},
 	{"ai_blackguard", SP_ai_blackguard},
-	{"ai_partisan", SP_ai_partisan},
-	{"ai_civilian", SP_ai_civilian},
+	{"ai_partisan",   SP_ai_partisan},
+	{"ai_civilian",   SP_ai_civilian},
+	{"ai_marker",     SP_ai_marker},
+	{"ai_effect",     SP_ai_effect},
+	{"ai_trigger",    SP_ai_trigger},
 
-
-	{"ai_marker", SP_ai_marker},
-	{"ai_effect", SP_ai_effect},
-	{"ai_trigger", SP_ai_trigger},
-	// done.
-
-	// Rafael particles
 	{"misc_snow256", SP_Snow},
 	{"misc_snow128", SP_Snow},
-	{"misc_snow64", SP_Snow},
-	{"misc_snow32", SP_Snow},
+	{"misc_snow64",  SP_Snow},
+	{"misc_snow32",  SP_Snow},
 	{"target_smoke", SP_target_smoke},
 
-	{"misc_bubbles8", SP_Bubbles},
+	{"misc_bubbles8",  SP_Bubbles},
 	{"misc_bubbles16", SP_Bubbles},
 	{"misc_bubbles32", SP_Bubbles},
 	{"misc_bubbles64", SP_Bubbles},
-	// done.
 
 	{"misc_spawner", SP_misc_spawner},
 
-	// JOSEPH 1-18-00
 	{"props_box_32", SP_props_box_32},
 	{"props_box_48", SP_props_box_48},
 	{"props_box_64", SP_props_box_64},
-	// END JOSEPH
 
-	// Rafael
 	{"props_smokedust", SP_SmokeDust},
-	{"props_dust", SP_Dust},
-	{"props_sparks", SP_props_sparks},
+	{"props_dust",      SP_Dust},
+	{"props_sparks",    SP_props_sparks},
 	{"props_gunsparks", SP_props_gunsparks},
 
 	{"plane_waypoint", SP_plane_waypoint},
 
 	{"props_me109", SP_props_me109},
 
-	// Rafael - props
 	{"props_bench", SP_Props_Bench},
 	{"props_radio", SP_Props_Radio},
 	{"props_chair", SP_Props_Chair},
-	{"props_chair_hiback", SP_Props_ChairHiback},
-	{"props_chair_side", SP_Props_ChairSide},
-	{"props_chair_chat", SP_Props_ChairChat},
-	{"props_chair_chatarm", SP_Props_ChairChatArm},
+	{"props_chair_hiback",   SP_Props_ChairHiback},
+	{"props_chair_side",     SP_Props_ChairSide},
+	{"props_chair_chat",     SP_Props_ChairChat},
+	{"props_chair_chatarm",  SP_Props_ChairChatArm},
 	{"props_damageinflictor", SP_Props_DamageInflictor},
-	{"props_locker_tall",SP_Props_Locker_Tall},
-	{"props_desklamp", SP_Props_Desklamp},
-	{"props_flamebarrel", SP_Props_Flamebarrel},
-	{"props_crate_64", SP_crate_64},
-	{"props_flippy_table", SP_Props_Flipping_Table},
-	{"props_crate_32", SP_crate_32},
-	{"props_crate_32x64", SP_Props_Crate32x64},
-	{"props_58x112tablew", SP_Props_58x112tablew},
-	{"props_castlebed", SP_props_castlebed},
-	{"props_radioSEVEN", SP_Props_RadioSEVEN},
+	{"props_locker_tall",   SP_Props_Locker_Tall},
+	{"props_desklamp",      SP_Props_Desklamp},
+	{"props_flamebarrel",   SP_Props_Flamebarrel},
+	{"props_crate_64",      SP_crate_64},
+	{"props_flippy_table",  SP_Props_Flipping_Table},
+	{"props_crate_32",      SP_crate_32},
+	{"props_crate_32x64",   SP_Props_Crate32x64},
+	{"props_58x112tablew",  SP_Props_58x112tablew},
+	{"props_castlebed",     SP_props_castlebed},
+	{"props_radioSEVEN",    SP_Props_RadioSEVEN},
 	{"props_snowGenerator", SP_props_snowGenerator},
-	{"props_FireColumn", SP_propsFireColumn},
-	{"props_decoration", SP_props_decoration},
-	{"props_decorBRUSH", SP_props_decorBRUSH},
-	{"props_statue", SP_props_statue},
-	{"props_statueBRUSH", SP_props_statueBRUSH},
-	{"props_skyportal", SP_skyportal},
-	{"props_footlocker", SP_props_footlocker},
-	{"props_flamethrower", SP_props_flamethrower},
+	{"props_FireColumn",    SP_propsFireColumn},
+	{"props_decoration",    SP_props_decoration},
+	{"props_decorBRUSH",    SP_props_decorBRUSH},
+	{"props_statue",        SP_props_statue},
+	{"props_statueBRUSH",   SP_props_statueBRUSH},
+	{"props_skyportal",     SP_skyportal},
+	{"props_footlocker",    SP_props_footlocker},
+	{"props_flamethrower",  SP_props_flamethrower},
 	{"props_decoration_scale",SP_props_decor_Scale},
 
 	{"truck_cam", SP_truck_cam},
@@ -640,20 +590,16 @@ spawn_t spawns[] = {
 	{"screen_fade", SP_screen_fade},
 	{"camera_reset_player", SP_camera_reset_player},
 	{"camera_cam",SP_camera_cam},
-
-	// (SA) dlight and dlightstyles
-	{"dlight",       SP_dlight},
-
-	//----(SA)	light coronas
-	{"corona",       SP_corona},
+	
+	{"dlight",   SP_dlight},
+	{"corona",   SP_corona},
 
 	{"test_gas", SP_gas},
 
-	{"trigger_objective_info", SP_trigger_objective_info},   // DHM - Nerve
+	{"trigger_objective_info", SP_trigger_objective_info},
 
-	// RF, scripting
 	{"script_model_med", SP_script_model_med},
-	{"script_mover", SP_script_mover},
+	{"script_mover",     SP_script_mover},
 
 	{0, 0}
 };
@@ -666,9 +612,8 @@ Finds the spawn function for the entity and calls it,
 returning qfalse if not found
 ===============
 */
-qboolean G_CallSpawn( gentity_t *ent ) {
-	spawn_t *s;
-
+qboolean G_CallSpawn( gentity_t *ent )
+{
 	if ( !ent->classname ) {
 		Com_Printf( "G_CallSpawn: NULL classname\n" );
 		return qfalse;
@@ -683,7 +628,7 @@ qboolean G_CallSpawn( gentity_t *ent ) {
 	}
 
 	// check normal spawn functions
-	for ( s = spawns ; s->name ; s++ ) {
+	for (spawn_t* s = spawns ; s->name ; s++ ) {
 		if ( !strcmp( s->name, ent->classname ) ) {
 			// found it
 			s->spawn( ent );
@@ -734,9 +679,6 @@ char *G_NewString( const char *string )
 	return newb;
 }
 
-
-
-
 /*
 ===============
 G_ParseField
@@ -745,26 +687,25 @@ Takes a key/value pair and sets the binary values
 in a gentity
 ===============
 */
-void G_ParseField( const char *key, const char *value, gentity_t *ent ) {
-	gentity_field_t *f;
-	byte    *b;
-	float v;
-	vec3_t vec;
-
-	for ( f = fields ; f->name ; f++ ) {
+void G_ParseField( const char *key, const char *value, gentity_t *ent )
+{
+	for (gentity_field_t *f = fields; f->name; f++ ) {
 		if ( !Q_stricmp( f->name, key ) ) {
 			// found it
-			b = (byte *)ent;
+			byte* b = (byte *)ent;
 
 			switch ( f->type ) {
 			case F_LSTRING:
 				*( char ** )( b + f->ofs ) = G_NewString( value );
 				break;
 			case F_VECTOR:
-				sscanf( value, "%f %f %f", &vec[0], &vec[1], &vec[2] );
-				( ( float * )( b + f->ofs ) )[0] = vec[0];
-				( ( float * )( b + f->ofs ) )[1] = vec[1];
-				( ( float * )( b + f->ofs ) )[2] = vec[2];
+				{
+					vec3_t vec;
+					sscanf( value, "%f %f %f", &vec[0], &vec[1], &vec[2] );
+					( ( float * )( b + f->ofs ) )[0] = vec[0];
+					( ( float * )( b + f->ofs ) )[1] = vec[1];
+					( ( float * )( b + f->ofs ) )[2] = vec[2];
+				}
 				break;
 			case F_INT:
 				*( int * )( b + f->ofs ) = atoi( value );
@@ -773,22 +714,22 @@ void G_ParseField( const char *key, const char *value, gentity_t *ent ) {
 				*( float * )( b + f->ofs ) = atof( value );
 				break;
 			case F_ANGLEHACK:
-				v = atof( value );
-				( ( float * )( b + f->ofs ) )[0] = 0;
-				( ( float * )( b + f->ofs ) )[1] = v;
-				( ( float * )( b + f->ofs ) )[2] = 0;
+				{
+					float v = atof( value );
+					( ( float * )( b + f->ofs ) )[0] = 0;
+					( ( float * )( b + f->ofs ) )[1] = v;
+					( ( float * )( b + f->ofs ) )[2] = 0;
+				}
 				break;
-			default:
 			case F_IGNORE:
 				break;
+			default:
+				Com_Printf( "Unknown type %d\n", f->type );
 			}
 			return;
 		}
 	}
 }
-
-
-
 
 /*
 ===================
@@ -798,14 +739,12 @@ Spawn an entity and fill in all of the level fields from
 level.spawnVars[], then call the class specfic spawn function
 ===================
 */
-void G_SpawnGEntityFromSpawnVars( void ) {
-	int i;
-	gentity_t   *ent;
-
+void G_SpawnGEntityFromSpawnVars()
+{
 	// get the next free entity
-	ent = G_Spawn();
+	gentity_t* ent = G_Spawn();
 
-	for ( i = 0 ; i < level.numSpawnVars ; i++ ) {
+	for (int i = 0 ; i < level.numSpawnVars ; i++ ) {
 		G_ParseField( level.spawnVars[i][0], level.spawnVars[i][1], ent );
 	}
 
@@ -820,27 +759,35 @@ void G_SpawnGEntityFromSpawnVars( void ) {
 }
 
 
-
 /*
 ====================
 G_AddSpawnVarToken
 ====================
 */
-char *G_AddSpawnVarToken( const char *string ) {
-	int l;
-	char    *dest;
-
-	l = strlen( string );
+char *G_AddSpawnVarToken( const char *string )
+{
+	size_t l = strlen( string );
 	if ( level.numSpawnVarChars + l + 1 > MAX_SPAWN_VARS_CHARS ) {
 		Com_Error( ERR_DROP, "G_AddSpawnVarToken: MAX_SPAWN_VARS" );
 	}
 
-	dest = level.spawnVarChars + level.numSpawnVarChars;
+	char* dest = level.spawnVarChars + level.numSpawnVarChars;
 	memcpy( dest, string, l + 1 );
 
 	level.numSpawnVarChars += l + 1;
 
 	return dest;
+}
+
+qboolean GetEntityToken( char *buffer, int bufferSize )
+{
+	const char  *s = COM_Parse( &sv.entityParsePoint );
+	Q_strncpyz( buffer, s, bufferSize );
+	if ( !sv.entityParsePoint && !s[0] ) {
+		return qfalse;
+	} else {
+		return qtrue;
+	}
 }
 
 /*
@@ -853,7 +800,8 @@ level's entity strings into level.spawnVars[]
 This does not actually spawn an entity.
 ====================
 */
-qboolean G_ParseSpawnVars( void ) {
+qboolean G_ParseSpawnVars()
+{
 	char keyname[MAX_TOKEN_CHARS];
 	char com_token[MAX_TOKEN_CHARS];
 
@@ -861,7 +809,7 @@ qboolean G_ParseSpawnVars( void ) {
 	level.numSpawnVarChars = 0;
 
 	// parse the opening brace
-	if ( !trap_GetEntityToken( com_token, sizeof( com_token ) ) ) {
+	if ( !GetEntityToken( com_token, sizeof( com_token ) ) ) {
 		// end of spawn string
 		return qfalse;
 	}
@@ -872,7 +820,7 @@ qboolean G_ParseSpawnVars( void ) {
 	// go through all the key / value pairs
 	while ( 1 ) {
 		// parse key
-		if ( !trap_GetEntityToken( keyname, sizeof( keyname ) ) ) {
+		if ( !GetEntityToken( keyname, sizeof( keyname ) ) ) {
 			Com_Error( ERR_DROP, "G_ParseSpawnVars: EOF without closing brace" );
 		}
 
@@ -881,7 +829,7 @@ qboolean G_ParseSpawnVars( void ) {
 		}
 
 		// parse value
-		if ( !trap_GetEntityToken( com_token, sizeof( com_token ) ) ) {
+		if ( !GetEntityToken( com_token, sizeof( com_token ) ) ) {
 			Com_Error( ERR_DROP, "G_ParseSpawnVars: EOF without closing brace" );
 		}
 
@@ -911,9 +859,9 @@ Every map should have exactly one worldspawn.
 "_color"    Ambient light color (must be used with 'ambient')
 "sun"        Shader to use for 'sun' image
 */
-void SP_worldspawn( void ) {
+void SP_worldspawn()
+{
 	char    *s;
-	gitem_t *item; // JPW NERVE
 
 	G_SpawnString( "classname", "", &s );
 	if ( Q_stricmp( s, "worldspawn" ) ) {
@@ -958,7 +906,8 @@ G_SpawnEntitiesFromString
 Parses textual entity definitions out of an entstring and spawns gentities.
 ==============
 */
-void G_SpawnEntitiesFromString( void ) {
+void G_SpawnEntitiesFromString()
+{
 	// allow calls to G_Spawn*()
 	level.spawning = qtrue;
 	level.numSpawnVars = 0;

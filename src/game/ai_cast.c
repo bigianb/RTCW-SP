@@ -623,9 +623,8 @@ void AIChar_AIScript_AlertEntity( gentity_t *ent ) {
 AICast_DelayedSpawnCast
 ================
 */
-void AICast_DelayedSpawnCast( gentity_t *ent, int castType ) {
-	int i;
-
+void AICast_DelayedSpawnCast( gentity_t *ent, int castType )
+{
 	// ............................
 	// head separation
 	if ( !ent->aiSkin ) {
@@ -638,15 +637,16 @@ void AICast_DelayedSpawnCast( gentity_t *ent, int castType ) {
 	// ............................
 
 
-//----(SA)	make sure client registers the default weapons for this char
-	for ( i = 0; aiDefaults[ent->aiCharacter].weapons[i]; i++ ) {
+	// make sure client registers the default weapons for this char
+	for (int i = 0; aiDefaults[ent->aiCharacter].weapons[i]; i++ ) {
 		RegisterItem( BG_FindItemForWeapon( aiDefaults[ent->aiCharacter].weapons[i] ) );
 	}
-//----(SA)	end
 
-	// we have to wait a bit before spawning it, otherwise the server will just delete it, since it's treated like a client
+	// we have to wait a bit before spawning it,
+	// otherwise the server will just delete it, since it's treated like a client
+	// have to wait more than 3 frames, since the server runs 3 frames before it clears all clients
 	ent->think = AIChar_spawn;
-	ent->nextthink = level.time + FRAMETIME * 4;  // have to wait more than 3 frames, since the server runs 3 frames before it clears all clients
+	ent->nextthink = level.time + FRAMETIME * 4;
 
 	// we don't really want to start this character right away, but if we don't spawn the client
 	// now, if the game gets saved after the character spawns in, when it gets re-loaded, the client
@@ -659,7 +659,7 @@ void AICast_DelayedSpawnCast( gentity_t *ent, int castType ) {
 	// RF, had to move this down since some dev maps don't properly spawn the guys in, so we
 	// get a crash when transitioning between levels after they all spawn at once (overloading
 	// the client/server command buffers)
-	ent->nextthink += FRAMETIME * ( ( numSpawningCast + 1 ) / 3 );    // space them out a bit so we don't overflow the client
+	ent->nextthink += FRAMETIME * ( ( numSpawningCast + 1 ) / 3 );
 
 	ent->aiCharacter = castType;
 	numSpawningCast++;
@@ -670,12 +670,12 @@ void AICast_DelayedSpawnCast( gentity_t *ent, int castType ) {
 AICast_CastScriptThink
 ==================
 */
-void AICast_CastScriptThink( void ) {
-	int i;
-	gentity_t *ent;
-	cast_state_t *cs;
+void AICast_CastScriptThink( void )
+{
+	gentity_t *ent = g_entities;
+	cast_state_t *cs = caststates;
 
-	for ( i = 0, ent = g_entities, cs = caststates; i < level.maxclients; i++, ent++, cs++ ) {
+	for (int i = 0; i < level.maxclients; i++, ent++, cs++ ) {
 		if ( !ent->inuse ) {
 			continue;
 		}
@@ -710,7 +710,7 @@ AICast_CheckLoadGame
 */
 void AICast_CheckLoadGame( void ) {
 	char loading[4];
-	gentity_t *ent = NULL; // TTimo: VC6 'may be used without having been init'
+	gentity_t *ent = NULL;
 	qboolean ready;
 	cast_state_t *pcs;
 

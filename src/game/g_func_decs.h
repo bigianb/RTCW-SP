@@ -890,7 +890,6 @@ extern void trap_SnapVector ( float * v ) ;
 extern time_t trap_RealTime ( qtime_t * qtime ) ;
 extern void trap_DebugPolygonDelete ( int id ) ;
 extern int trap_DebugPolygonCreate ( int color , int numPoints , vec3_t * points ) ;
-extern qboolean trap_GetEntityToken ( char * buffer , int bufferSize ) ;
 
 extern void Cvar_Update ( vmCvar_t * cvar ) ;
 
@@ -1181,7 +1180,7 @@ extern float Q_random ( int * seed ) ;
 extern int Q_rand ( int * seed ) ;
 extern void G_SpawnEntitiesFromString ( void ) ;
 extern void SP_worldspawn ( void ) ;
-extern qboolean G_ParseSpawnVars ( void ) ;
+
 extern char * G_AddSpawnVarToken ( const char * string ) ;
 extern void G_SpawnGEntityFromSpawnVars ( void ) ;
 extern void G_ParseField ( const char * key , const char * value , gentity_t * ent ) ;
