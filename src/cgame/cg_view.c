@@ -1410,13 +1410,12 @@ CG_DrawActiveFrame
 Generates and draws a game scene and status information at the given time.
 =================
 */
-void CG_DrawActiveFrame( int serverTime, stereoFrame_t stereoView, qboolean demoPlayback ) {
+void CG_DrawActiveFrame( int serverTime, stereoFrame_t stereoView) {
 	int inwater;
 
 	cg.cld = 0;         // NERVE - SMF - reset clientDamage
 
 	cg.time = serverTime;
-	cg.demoPlayback = demoPlayback;
 
 	// update cvars
 	CG_UpdateCvars();
@@ -1530,14 +1529,13 @@ void CG_DrawActiveFrame( int serverTime, stereoFrame_t stereoView, qboolean demo
 	// warning sounds when powerup is wearing off
 	CG_PowerupTimerSounds();
 
-	// make sure the lagometerSample and frame timing isn't done twice when in stereo
+	// make sure the frame timing isn't done twice when in stereo
 	if ( stereoView != STEREO_RIGHT ) {
 		cg.frametime = cg.time - cg.oldTime;
 		if ( cg.frametime < 0 ) {
 			cg.frametime = 0;
 		}
 		cg.oldTime = cg.time;
-		CG_AddLagometerFrameInfo();
 	}
 
 	// let the client system know what our weapon, holdable item and zoom settings are

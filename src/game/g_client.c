@@ -1038,7 +1038,7 @@ void ClientSpawn( gentity_t *ent ) {
 
 	saved = client->pers;
 	savedSess = client->sess;
-	savedPing = client->ps.ping;
+
 	savedTeam = client->ps.teamNum;
 	for ( i = 0 ; i < MAX_PERSISTANT ; i++ ) {
 		persistant[i] = client->ps.persistant[i];
@@ -1047,7 +1047,7 @@ void ClientSpawn( gentity_t *ent ) {
 
 	client->pers = saved;
 	client->sess = savedSess;
-	client->ps.ping = savedPing;
+
 	client->ps.teamNum = savedTeam;
 	for ( i = 0 ; i < MAX_PERSISTANT ; i++ ) {
 		client->ps.persistant[i] = persistant[i];

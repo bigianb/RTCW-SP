@@ -54,7 +54,8 @@ int bot_enable;
 SV_BotAllocateClient
 ==================
 */
-int SV_BotAllocateClient( void ) {
+int SV_BotAllocateClient()
+{
 	int i;
 	client_t    *cl;
 
@@ -89,82 +90,17 @@ int SV_BotAllocateClient( void ) {
 SV_BotFreeClient
 ==================
 */
-void SV_BotFreeClient( int clientNum ) {
-	client_t    *cl;
-
+void SV_BotFreeClient( int clientNum )
+{
 	if ( clientNum < 0 || clientNum >= sv_maxclients->integer ) {
 		Com_Error( ERR_DROP, "SV_BotFreeClient: bad clientNum: %i", clientNum );
+		return;
 	}
-	cl = &svs.clients[clientNum];
+	client_t* cl = &svs.clients[clientNum];
 	cl->state = CS_FREE;
 	cl->name[0] = 0;
 	if ( cl->gentity ) {
 		cl->gentity->r.svFlags &= ~SVF_BOT;
-	}
-}
-
-/*
-==================
-BotDrawDebugPolygons
-==================
-*/
-void BotDrawDebugPolygons( void ( *drawPoly )( int color, int numPoints, float *points ), int value ) {
-	static cvar_t *bot_debug, *bot_groundonly, *bot_reachability, *bot_highlightarea;
-	static cvar_t *bot_testhidepos, *bot_testroutevispos;
-	bot_debugpoly_t *poly;
-	int i, parm0;
-
-	if ( !bot_enable ) {
-		return;
-	}
-	//bot debugging
-	if ( !bot_debug ) {
-		bot_debug = Cvar_Get( "bot_debug", "0", 0 );
-	}
-	//show reachabilities
-	if ( !bot_reachability ) {
-		bot_reachability = Cvar_Get( "bot_reachability", "0", 0 );
-	}
-	//show ground faces only
-	if ( !bot_groundonly ) {
-		bot_groundonly = Cvar_Get( "bot_groundonly", "1", 0 );
-	}
-	//get the hightlight area
-	if ( !bot_highlightarea ) {
-		bot_highlightarea = Cvar_Get( "bot_highlightarea", "0", 0 );
-	}
-	//
-	if ( !bot_testhidepos ) {
-		bot_testhidepos = Cvar_Get( "bot_testhidepos", "0", 0 );
-	}
-	//
-	if ( !bot_testroutevispos ) {
-		bot_testroutevispos = Cvar_Get( "bot_testroutevispos", "0", 0 );
-	}
-	//
-	if ( bot_debug->integer ) {
-		parm0 = 0;
-		if ( svs.clients[0].lastUsercmd.buttons & BUTTON_ATTACK ) {
-			parm0 |= 1;
-		}
-		if ( bot_reachability->integer ) {
-			parm0 |= 2;
-		}
-		if ( bot_groundonly->integer ) {
-			parm0 |= 4;
-		}
-		botlib_export->BotLibVarSet( "bot_highlightarea", bot_highlightarea->string );
-		botlib_export->BotLibVarSet( "bot_testhidepos", bot_testhidepos->string );
-		botlib_export->BotLibVarSet( "bot_testroutevispos", bot_testroutevispos->string );
-		botlib_export->Test( parm0, NULL, svs.clients[0].gentity->r.currentOrigin,
-							 svs.clients[0].gentity->r.currentAngles );
-	} //end if
-	for ( i = 0; i < MAX_DEBUGPOLYS; i++ ) {
-		poly = &debugpolygons[i];
-		if ( !poly->inuse ) {
-			continue;
-		}
-		drawPoly( poly->color, poly->numPoints, (float *) poly->points );
 	}
 }
 
@@ -300,8 +236,8 @@ void BotImport_BSPModelMinsMaxsOrigin( int modelnum, vec3_t angles, vec3_t outmi
 BotImport_DebugPolygonCreate
 ==================
 */
-int BotImport_DebugPolygonCreate( int color, int numPoints, vec3_t *points ) {
-	bot_debugpoly_t *poly;
+int BotImport_DebugPolygonCreate( int color, int numPoints, vec3_t *points )
+{
 	int i;
 
 	for ( i = 1; i < MAX_DEBUGPOLYS; i++ )    {
@@ -312,7 +248,7 @@ int BotImport_DebugPolygonCreate( int color, int numPoints, vec3_t *points ) {
 	if ( i >= MAX_DEBUGPOLYS ) {
 		return 0;
 	}
-	poly = &debugpolygons[i];
+	bot_debugpoly_t* poly = &debugpolygons[i];
 	poly->inuse = qtrue;
 	poly->color = color;
 	poly->numPoints = numPoints;
@@ -326,10 +262,9 @@ int BotImport_DebugPolygonCreate( int color, int numPoints, vec3_t *points ) {
 BotImport_DebugPolygonShow
 ==================
 */
-void BotImport_DebugPolygonShow( int id, int color, int numPoints, vec3_t *points ) {
-	bot_debugpoly_t *poly;
-
-	poly = &debugpolygons[id];
+void BotImport_DebugPolygonShow( int id, int color, int numPoints, vec3_t *points )
+{
+	bot_debugpoly_t* poly = &debugpolygons[id];
 	poly->inuse = qtrue;
 	poly->color = color;
 	poly->numPoints = numPoints;
@@ -499,12 +434,11 @@ qboolean BotImport_AICast_CheckAttackAtPos( int entnum, int enemy, vec3_t pos, q
 SV_BotGetConsoleMessage
 ==================
 */
-int SV_BotGetConsoleMessage( int client, char *buf, int size ) {
-	client_t    *cl;
-	int index;
+int SV_BotGetConsoleMessage( int client, char *buf, int size )
+{
 	const char        *msg;
 
-	cl = &svs.clients[client];
+	client_t* cl = &svs.clients[client];
 	cl->lastPacketTime = svs.time;
 
 	if ( cl->reliableAcknowledge == cl->reliableSequence ) {
@@ -512,7 +446,7 @@ int SV_BotGetConsoleMessage( int client, char *buf, int size ) {
 	}
 
 	cl->reliableAcknowledge++;
-	index = cl->reliableAcknowledge & ( MAX_RELIABLE_COMMANDS - 1 );
+	int index = cl->reliableAcknowledge & ( MAX_RELIABLE_COMMANDS - 1 );
 
 	//if ( !cl->reliableCommands[index][0] ) {
 	if ( !( msg = SV_GetReliableCommand( cl, index ) ) || !msg[0] ) {
@@ -530,15 +464,12 @@ int SV_BotGetConsoleMessage( int client, char *buf, int size ) {
 SV_BotGetSnapshotEntity
 ==================
 */
-int SV_BotGetSnapshotEntity( int client, int sequence ) {
-	client_t            *cl;
-	clientSnapshot_t    *frame;
-
-	cl = &svs.clients[client];
-	frame = &cl->frames[cl->netchan.outgoingSequence & PACKET_MASK];
+int SV_BotGetSnapshotEntity( int client, int sequence )
+{
+	client_t* cl = &svs.clients[client];
+	clientSnapshot_t* frame = &cl->frames[cl->netchan.outgoingSequence & PACKET_MASK];
 	if ( sequence < 0 || sequence >= frame->num_entities ) {
 		return -1;
 	}
 	return svs.snapshotEntities[( frame->first_entity + sequence ) % svs.numSnapshotEntities].number;
 }
-

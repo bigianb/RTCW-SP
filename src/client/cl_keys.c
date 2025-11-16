@@ -1351,20 +1351,15 @@ void CL_KeyEvent( int key, qboolean down, unsigned time ) {
 			return;
 		}
 	}
-//----(SA)	end
-
-
-	// most keys during demo playback will bring up the menu, but non-ascii
 
 	// keys can still be used for bound actions
 	if ( down && ( key < 128 || key == K_MOUSE1 )
-		 && ( clc.demoplaying || cls.state == CA_CINEMATIC ) && !cls.keyCatchers ) {
+		 && ( cls.state == CA_CINEMATIC ) && !cls.keyCatchers ) {
 
 		Cvar_Set( "nextdemo","" );
 		key = K_ESCAPE;
 	}
 
-//----(SA)	get the active menu if in ui mode
 	if ( cls.keyCatchers & KEYCATCH_UI ) {
 		activeMenu = UI_GetActiveMenu( );
 	}
@@ -1386,7 +1381,7 @@ void CL_KeyEvent( int key, qboolean down, unsigned time ) {
 		}
 
 		if ( !( cls.keyCatchers & KEYCATCH_UI ) ) {
-			if ( cls.state == CA_ACTIVE && !clc.demoplaying ) {
+			if ( cls.state == CA_ACTIVE  ) {
 				UI_SetActiveMenu(UIMENU_INGAME );
 			} else {
 				CL_Disconnect_f();

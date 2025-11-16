@@ -1028,17 +1028,14 @@ typedef struct {
 	qhandle_t viewBloodShader;
 	qhandle_t tracerShader;
 	qhandle_t crosshairShader[NUM_CROSSHAIRS];
-	qhandle_t crosshairFriendly;    //----(SA)	added
-	qhandle_t lagometerShader;
+	qhandle_t crosshairFriendly;
+
 	qhandle_t backTileShader;
 	qhandle_t noammoShader;
 
 	qhandle_t reticleShader;
-//	qhandle_t	reticleShaderSimple;
 	qhandle_t reticleShaderSimpleQ;
-//	qhandle_t	snooperShader;
 	qhandle_t snooperShaderSimple;
-//	qhandle_t	binocShaderSimple;
 	qhandle_t binocShaderSimpleQ;   // same as above, but quartered.  (trying to save texture space)
 
 	qhandle_t smokePuffShader;
@@ -1643,7 +1640,7 @@ extern vmCvar_t cg_thirdPersonRange;
 extern vmCvar_t cg_thirdPersonAngle;
 extern vmCvar_t cg_thirdPerson;
 extern vmCvar_t cg_stereoSeparation;
-extern vmCvar_t cg_lagometer;
+
 extern vmCvar_t cg_drawAttacker;
 extern vmCvar_t cg_synchronousClients;
 extern vmCvar_t cg_teamChatTime;
@@ -1760,7 +1757,7 @@ void CG_ZoomIn_f( void );
 void CG_ZoomOut_f( void );
 void CG_ZoomUp_f( void );
 
-void CG_DrawActiveFrame( int serverTime, stereoFrame_t stereoView, qboolean demoPlayback );
+void CG_DrawActiveFrame( int serverTime, stereoFrame_t stereoView );
 
 void CG_Concussive( centity_t *cent );
 //
@@ -1819,8 +1816,6 @@ extern char systemChat[256];
 extern char teamChat1[256];
 extern char teamChat2[256];
 
-void CG_AddLagometerFrameInfo( void );
-void CG_AddLagometerSnapshotInfo( snapshot_t *snap );
 void CG_CenterPrint( const char *str, int y, int charWidth );
 void CG_DrawActive( stereoFrame_t stereoView );
 

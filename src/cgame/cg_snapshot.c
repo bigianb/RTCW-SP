@@ -245,7 +245,7 @@ static void CG_TransitionSnapshot( void ) {
 
 		// if we are not doing client side movement prediction for any
 		// reason, then the client events and view changes will be issued now
-		if ( cg.demoPlayback || ( cg.snap->ps.pm_flags & PMF_FOLLOW )
+		if ( ( cg.snap->ps.pm_flags & PMF_FOLLOW )
 			 || cg_nopredict.integer || cg_synchronousClients.integer ) {
 			CG_TransitionPlayerState( ps, ops );
 		}
@@ -349,7 +349,6 @@ static snapshot_t *CG_ReadNextSnapshot( void ) {
 
 		// if it succeeded, return
 		if ( r ) {
-			CG_AddLagometerSnapshotInfo( dest );
 
 			// RF, if we have no weapon selected, and this snapshots says we have a weapon, then switch to that
 			if ( cg.snap && !cg.weaponSelect && cg.snap->ps.weapon ) {
@@ -400,8 +399,6 @@ static snapshot_t *CG_ReadNextSnapshot( void ) {
 		// have been shoved off the end of the circular
 		// buffer in the client system.
 
-		// record as a dropped packet
-		CG_AddLagometerSnapshotInfo( NULL );
 
 		// If there are additional snapshots, continue trying to
 		// read them.

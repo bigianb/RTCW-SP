@@ -42,11 +42,6 @@ float UI_ClampCvar( float min, float max, float value ) {
 	return value;
 }
 
-
-void UI_StartDemoLoop( void ) {
-	Cbuf_ExecuteText( EXEC_APPEND, "d1\n" );
-}
-
 char *UI_Argv( int arg ) {
 	static char buffer[MAX_STRING_CHARS];
 

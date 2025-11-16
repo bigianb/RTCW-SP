@@ -145,7 +145,7 @@ qboolean    CL_GetSnapshot( int snapshotNumber, snapshot_t *snapshot ) {
 	// write the snapshot
 	snapshot->snapFlags = clSnap->snapFlags;
 	snapshot->serverCommandSequence = clSnap->serverCommandNum;
-	snapshot->ping = clSnap->ping;
+
 	snapshot->serverTime = clSnap->serverTime;
 	memcpy( snapshot->areamask, clSnap->areamask, sizeof( snapshot->areamask ) );
 	snapshot->ps = clSnap->ps;
@@ -249,11 +249,6 @@ qboolean CL_GetServerCommand( int serverCommandNumber ) {
 
 	// if we have irretrievably lost a reliable command, drop the connection
 	if ( serverCommandNumber <= clc.serverCommandSequence - MAX_RELIABLE_COMMANDS ) {
-		// when a demo record was started after the client got a whole bunch of
-		// reliable commands then the client never got those first reliable commands
-		if ( clc.demoplaying ) {
-			return qfalse;
-		}
 		Com_Error( ERR_DROP, "CL_GetServerCommand: a reliable command was cycled out" );
 		return qfalse;
 	}
@@ -364,7 +359,7 @@ void IngamePopup(const char *popupName)
 		return;
 	}
 
-	if ( cls.state == CA_ACTIVE && !clc.demoplaying ) {
+	if ( cls.state == CA_ACTIVE) {
         if ( popupName && !Q_stricmp( popupName, "hbook1" ) ) {   //----(SA)
 			UI_SetActiveMenu(UIMENU_BOOK1 );
 		} else if ( popupName && !Q_stricmp( popupName, "hbook2" ) )    { //----(SA)
@@ -447,7 +442,7 @@ CL_CGameRendering
 =====================
 */
 void CL_CGameRendering( stereoFrame_t stereo ) {
-	CG_DrawActiveFrame(cl.serverTime, stereo, clc.demoplaying );
+	CG_DrawActiveFrame(cl.serverTime, stereo );
 }
 
 
@@ -479,11 +474,6 @@ void CL_AdjustTimeDelta( void ) {
 	int deltaDelta;
 
 	cl.newSnapshots = qfalse;
-
-	// the delta never drifts when replaying a demo
-	if ( clc.demoplaying ) {
-		return;
-	}
 
 	// if the current time is WAY off, just correct to the current value
 	if ( com_sv_running->integer ) {
@@ -547,8 +537,6 @@ void CL_FirstSnapshot( void ) {
 	cl.serverTimeDelta = cl.snap.serverTime - cls.realtime;
 	cl.oldServerTime = cl.snap.serverTime;
 
-	clc.timeDemoBaseTime = cl.snap.serverTime;
-
 	// if this is the first frame of active play,
 	// execute the contents of activeAction now
 	// this is to allow scripting a timedemo to start right
@@ -571,15 +559,6 @@ void CL_SetCGameTime( void ) {
 	if ( cls.state != CA_ACTIVE ) {
 		if ( cls.state != CA_PRIMED ) {
 			return;
-		}
-		if ( clc.demoplaying ) {
-			// we shouldn't get the first snapshot on the same frame
-			// as the gamestate, because it causes a bad time skip
-			if ( !clc.firstDemoFrameSkipped ) {
-				clc.firstDemoFrameSkipped = qtrue;
-				return;
-			}
-			CL_ReadDemoMessage();
 		}
 		if ( cl.newSnapshots ) {
 			cl.newSnapshots = qfalse;
@@ -609,74 +588,40 @@ void CL_SetCGameTime( void ) {
 
 
 	// get our current view of time
+ 
+	// cl_timeNudge is a user adjustable cvar that allows more
+	// or less latency to be added in the interest of better
+	// smoothness or better responsiveness.
+	int tn;
 
-	if ( clc.demoplaying && cl_freezeDemo->integer ) {
-		// cl_freezeDemo is used to lock a demo in place for single frame advances
-
-	} else {
-		// cl_timeNudge is a user adjustable cvar that allows more
-		// or less latency to be added in the interest of better
-		// smoothness or better responsiveness.
-		int tn;
-
-		tn = cl_timeNudge->integer;
-		if ( tn < -30 ) {
-			tn = -30;
-		} else if ( tn > 30 ) {
-			tn = 30;
-		}
-
-		cl.serverTime = cls.realtime + cl.serverTimeDelta - tn;
-
-		// guarantee that time will never flow backwards, even if
-		// serverTimeDelta made an adjustment or cl_timeNudge was changed
-		if ( cl.serverTime < cl.oldServerTime ) {
-			cl.serverTime = cl.oldServerTime;
-		}
-		cl.oldServerTime = cl.serverTime;
-
-		// note if we are almost past the latest frame (without timeNudge),
-		// so we will try and adjust back a bit when the next snapshot arrives
-		if ( cls.realtime + cl.serverTimeDelta >= cl.snap.serverTime - 5 ) {
-			cl.extrapolatedSnapshot = qtrue;
-		}
+	tn = cl_timeNudge->integer;
+	if ( tn < -30 ) {
+		tn = -30;
+	} else if ( tn > 30 ) {
+		tn = 30;
 	}
 
+	cl.serverTime = cls.realtime + cl.serverTimeDelta - tn;
+
+	// guarantee that time will never flow backwards, even if
+	// serverTimeDelta made an adjustment or cl_timeNudge was changed
+	if ( cl.serverTime < cl.oldServerTime ) {
+		cl.serverTime = cl.oldServerTime;
+	}
+	cl.oldServerTime = cl.serverTime;
+
+	// note if we are almost past the latest frame (without timeNudge),
+	// so we will try and adjust back a bit when the next snapshot arrives
+	if ( cls.realtime + cl.serverTimeDelta >= cl.snap.serverTime - 5 ) {
+		cl.extrapolatedSnapshot = qtrue;
+	}
+	
 	// if we have gotten new snapshots, drift serverTimeDelta
 	// don't do this every frame, or a period of packet loss would
 	// make a huge adjustment
 	if ( cl.newSnapshots ) {
 		CL_AdjustTimeDelta();
 	}
-
-	if ( !clc.demoplaying ) {
-		return;
-	}
-
-	// if we are playing a demo back, we can just keep reading
-	// messages from the demo file until the cgame definately
-	// has valid snapshots to interpolate between
-
-	// a timedemo will always use a deterministic set of time samples
-	// no matter what speed machine it is run on,
-	// while a normal demo may have different time samples
-	// each time it is played back
-	if ( cl_timedemo->integer ) {
-		if ( !clc.timeDemoStart ) {
-			clc.timeDemoStart = Sys_Milliseconds();
-		}
-		clc.timeDemoFrames++;
-		cl.serverTime = clc.timeDemoBaseTime + clc.timeDemoFrames * 50;
-	}
-
-	while ( cl.serverTime >= cl.snap.serverTime ) {
-		// feed another messag, which should change
-		// the contents of cl.snap
-		CL_ReadDemoMessage();
-		if ( cls.state != CA_ACTIVE ) {
-			return;     // end of demo
-		}
-	}
-
+	return;
 }
 

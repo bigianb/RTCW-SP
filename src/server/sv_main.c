@@ -370,61 +370,6 @@ void SV_PacketEvent( netadr_t from, msg_t *msg ) {
 	NET_OutOfBandPrint( NS_SERVER, from, "disconnect" );
 }
 
-
-/*
-===================
-SV_CalcPings
-
-Updates the cl->ping variables
-===================
-*/
-void SV_CalcPings( void ) {
-	int i, j;
-	client_t    *cl;
-	int total, count;
-	int delta;
-	playerState_t   *ps;
-
-	for ( i = 0 ; i < sv_maxclients->integer ; i++ ) {
-		cl = &svs.clients[i];
-		if ( cl->state != CS_ACTIVE ) {
-			cl->ping = 999;
-			continue;
-		}
-		if ( !cl->gentity ) {
-			cl->ping = 999;
-			continue;
-		}
-		if ( cl->gentity->r.svFlags & SVF_BOT ) {
-			cl->ping = 0;
-			continue;
-		}
-
-		total = 0;
-		count = 0;
-		for ( j = 0 ; j < PACKET_BACKUP ; j++ ) {
-			if ( cl->frames[j].messageAcked <= 0 ) {
-				continue;
-			}
-			delta = cl->frames[j].messageAcked - cl->frames[j].messageSent;
-			count++;
-			total += delta;
-		}
-		if ( !count ) {
-			cl->ping = 999;
-		} else {
-			cl->ping = total / count;
-			if ( cl->ping > 999 ) {
-				cl->ping = 999;
-			}
-		}
-
-		// let the game dll know about the ping
-		ps = SV_GameClientNum( i );
-		ps->ping = cl->ping;
-	}
-}
-
 /*
 ==================
 SV_CheckTimeouts
@@ -590,9 +535,6 @@ void SV_Frame( int msec )
 	if ( com_speeds->integer ) {
 		startTime = Sys_Milliseconds();
 	}
-
-	// update ping based on the all received frames
-	SV_CalcPings();
 
 	if ( com_dedicated->integer ) {
 		SV_BotFrame( svs.time );

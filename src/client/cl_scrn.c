@@ -325,27 +325,6 @@ int SCR_GetBigStringWidth( const char *str ) {
 }
 
 
-//===============================================================================
-
-/*
-=================
-SCR_DrawDemoRecording
-=================
-*/
-void SCR_DrawDemoRecording( void ) {
-	char string[1024];
-
-	if ( !clc.demorecording ) {
-		return;
-	}
-
-	size_t pos = FS_FTell( clc.demofile );
-	snprintf( string, 1024, "RECORDING %s: %ik", clc.demoName, (int)(pos / 1024) );
-
-	SCR_DrawStringExt( 320 - (int)strlen( string ) * 4, 20, 8, string, g_color_table[7], qtrue );
-}
-
-
 /*
 ===============================================================================
 
@@ -484,7 +463,6 @@ void SCR_DrawScreenField( stereoFrame_t stereoFrame ) {
 			break;
 		case CA_ACTIVE:
 			CL_CGameRendering( stereoFrame );
-			SCR_DrawDemoRecording();
 			break;
 		}
 	}

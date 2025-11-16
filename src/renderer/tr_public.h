@@ -136,9 +136,6 @@ typedef struct {
 	int ( *Cmd_Argc )( void );
 	char    *( *Cmd_Argv )( int i );
 
-	// visualization for debugging collision detection
-	void ( *CM_DrawDebugSurface )( void( *drawPoly ) ( int color, int numPoints, float *points ) );
-
 	// a -1 return means the file does not exist
 	// NULL can be passed for buf to just determine existance
 	int ( *FS_FileIsInPAK )( const char *name, int *pChecksum );

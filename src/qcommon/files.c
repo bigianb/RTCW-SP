@@ -90,14 +90,6 @@ trying to restrict demo / oem versions of the game with code changes.  Demo / oe
 should be exactly the same executables as release versions, but with different data that
 automatically restricts where game media can come from to prevent add-ons from working.
 
-After the paths are initialized, quake will look for the product.txt file.  If not
-found and verified, the game will run in restricted mode.  In restricted mode, only
-files contained in demoq3/pak0.pk3 will be available for loading, and only if the zip header is
-verified to not have been modified.  A single exception is made for q3config.cfg.  Files
-can still be written out in restricted mode, so screenshots and demos are allowed.
-Restricted mode can be tested by setting "+set fs_restrict 1" on the command line, even
-if there is a valid product.txt under the basepath or cdpath.
-
 If not running in restricted mode, and a file is not found in any local filesystem,
 an attempt will be made to download it and save it under the base path.
 
@@ -242,7 +234,7 @@ static cvar_t      *fs_basegame;
 static cvar_t      *fs_cdpath;
 static cvar_t      *fs_copyfiles;
 static cvar_t      *fs_gamedirvar;
-static cvar_t      *fs_restrict;
+
 static searchpath_t    *fs_searchpaths;
 static int fs_readCount;                    // total bytes read
 static int fs_loadCount;                    // total files read
@@ -1008,7 +1000,6 @@ size_t FS_FOpenFileRead( const char *filename, fileHandle_t *file, qboolean uniq
 	unz_s           *zfi;
 	FILE            *temp;
 	size_t l;
-	char demoExt[16];
 
 	hash = 0;
 
@@ -1055,7 +1046,6 @@ size_t FS_FOpenFileRead( const char *filename, fileHandle_t *file, qboolean uniq
 		Com_Error( ERR_FATAL, "FS_FOpenFileRead: NULL 'filename' parameter passed\n" );
 	}
 
-	snprintf( demoExt, sizeof( demoExt ), ".dm_%d",PROTOCOL_VERSION );
 	// qpaths are not supposed to have a leading slash
 	if ( filename[0] == '/' || filename[0] == '\\' ) {
 		filename++;
@@ -1172,17 +1162,6 @@ size_t FS_FOpenFileRead( const char *filename, fileHandle_t *file, qboolean uniq
 			// will allow to come from the directory are .cfg files
 			l = strlen( filename );
 
-			if ( fs_restrict->integer ) {
-
-				if ( Q_stricmp( filename + l - 4, ".cfg" )       // for config files
-					 && Q_stricmp( filename + l - 4, ".svg" ) // savegames
-					 && Q_stricmp( filename + l - 5, ".game" )  // menu files
-					 && Q_stricmp( filename + l - strlen( demoExt ), demoExt ) // menu files
-					 && Q_stricmp( filename + l - 4, ".dat" ) ) { // for journal files
-					continue;
-				}
-			}
-
 			dir = search->dir;
 
 			netpath = FS_BuildOSPath( dir->path, dir->gamedir, filename );
@@ -1194,7 +1173,6 @@ size_t FS_FOpenFileRead( const char *filename, fileHandle_t *file, qboolean uniq
 			if ( Q_stricmp( filename + l - 4, ".cfg" )       // for config files
 				 && Q_stricmp( filename + l - 5, ".menu" )  // menu files
 				 && Q_stricmp( filename + l - 5, ".game" )  // menu files
-				 && Q_stricmp( filename + l - strlen( demoExt ), demoExt ) // menu files
 				 && Q_stricmp( filename + l - 4, ".dat" ) ) { // for journal files
 				fs_fakeChkSum = random();
 			}
@@ -1909,25 +1887,17 @@ char **FS_ListFilteredFiles( const char *path, const char *extension, char *filt
 				}
 			}
 		} else if ( search->dir ) { // scan for files in the filesystem
-			char    *netpath;
 			int numSysFiles;
-			char    **sysFiles;
-			char    *name;
 
-			// don't scan directories for files if we are pure or restricted
-			// allow listing of savegames for the demo menus
-			if ( ( fs_restrict->integer ) && Q_stricmp( extension, "svg" ) ) {
-				continue;
-			} else {
-				netpath = FS_BuildOSPath( search->dir->path, search->dir->gamedir, path );
-				sysFiles = Sys_ListFiles( netpath, extension, filter, &numSysFiles, qfalse );
-				for (int i = 0 ; i < numSysFiles ; i++ ) {
-					// unique the match
-					name = sysFiles[i];
-					nfiles = FS_AddFileToList( name, list, nfiles );
-				}
-				Sys_FreeFileList( sysFiles );
+			char* netpath = FS_BuildOSPath( search->dir->path, search->dir->gamedir, path );
+			char **sysFiles = Sys_ListFiles( netpath, extension, filter, &numSysFiles, qfalse );
+			for (int i = 0 ; i < numSysFiles ; i++ ) {
+				// unique the match
+				char* name = sysFiles[i];
+				nfiles = FS_AddFileToList( name, list, nfiles );
 			}
+			Sys_FreeFileList( sysFiles );
+			
 		}
 	}
 
@@ -2605,7 +2575,6 @@ static void FS_Startup( const char *gameName ) {
 	}
 	fs_homepath = Cvar_Get( "fs_homepath", homePath, CVAR_INIT );
 	fs_gamedirvar = Cvar_Get( "fs_game", "", CVAR_INIT | CVAR_SYSTEMINFO );
-	fs_restrict = Cvar_Get( "fs_restrict", "", CVAR_INIT );
 
 	// add search path elements in reverse priority order
 	if ( fs_cdpath->string[0] ) {
@@ -2758,7 +2727,6 @@ void FS_InitFilesystem( void ) {
 	Com_StartupVariable( "fs_homepath" );
 	Com_StartupVariable( "fs_game" );
 	Com_StartupVariable( "fs_copyfiles" );
-	Com_StartupVariable( "fs_restrict" );
 
 	// try to start up normally
 	FS_Startup( BASEGAME );
@@ -2806,7 +2774,6 @@ void FS_Restart( int checksumFeed ) {
 			Cvar_Set( "fs_gamedirvar", lastValidGame );
 			lastValidBase[0] = '\0';
 			lastValidGame[0] = '\0';
-			Cvar_Set( "fs_restrict", "0" );
 			FS_Restart( checksumFeed );
 			Com_Error( ERR_DROP, "Invalid game folder\n" );
 			return;

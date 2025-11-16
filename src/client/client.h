@@ -51,7 +51,7 @@ typedef struct {
 
 	int messageNum;                 // copied from netchan->incoming_sequence
 	int deltaNum;                   // messageNum the delta is from
-	int ping;                       // time from when cmdNum-1 was sent to time packet was reeceived
+	
 	byte areamask[MAX_MAP_AREA_BYTES];                  // portalarea visibility bits
 
 	int cmdNum;                     // the next cmdNum the server is expecting
@@ -194,19 +194,6 @@ typedef struct {
 	int lastExecutedServerCommand;              // last server command grabbed or executed with CL_GetServerCommand
 	char serverCommands[MAX_RELIABLE_COMMANDS][MAX_TOKEN_CHARS];
 
-
-	// demo information
-	char demoName[MAX_QPATH];
-	qboolean demorecording;
-	qboolean demoplaying;
-	qboolean demowaiting;       // don't record until a non-delta message is received
-	qboolean firstDemoFrameSkipped;
-	fileHandle_t demofile;
-
-	int timeDemoFrames;             // counter of rendered frames
-	int timeDemoStart;              // cls.realtime before first frame
-	int timeDemoBaseTime;           // each frame will be at this time + frameNum * 50
-
 	// big stuff at end of structure so most offsets are 15 bits or less
 	netchan_t netchan;
 } clientConnection_t;
@@ -238,9 +225,7 @@ typedef struct {
 
 	int clients;
 	int maxClients;
-	int minPing;
-	int maxPing;
-	int ping;
+
 	qboolean visible;
 	int allowAnonymous;
 } serverInfo_t;
@@ -323,7 +308,7 @@ extern cvar_t  *cl_noprint;
 extern cvar_t  *cl_timegraph;
 extern cvar_t  *cl_maxpackets;
 extern cvar_t  *cl_packetdup;
-extern cvar_t  *cl_shownet;
+
 extern cvar_t  *cl_showSend;
 extern cvar_t  *cl_timeNudge;
 extern cvar_t  *cl_showTimeDelta;
@@ -397,15 +382,8 @@ void CL_StartDemoLoop( void );
 void CL_NextDemo( void );
 void CL_ReadDemoMessage( void );
 
-void CL_GetPing( int n, char *buf, int buflen, int *pingtime );
-void CL_GetPingInfo( int n, char *buf, int buflen );
-void CL_ClearPing( int n );
-int CL_GetPingQueueCount( void );
-
 void CL_ShutdownRef( void );
 void CL_InitRef( void );
-
-int CL_ServerStatus( const char *serverAddress, char *serverStatusString, int maxLen );
 
 //
 // cl_input
@@ -485,11 +463,7 @@ void CL_ParseServerMessage( msg_t *msg );
 
 //====================================================================
 
-void    CL_ServerInfoPacket( netadr_t from, msg_t *msg );
-void    CL_LocalServers_f( void );
-void    CL_GlobalServers_f( void );
 void    CL_FavoriteServers_f( void );
-void    CL_Ping_f( void );
 qboolean CL_UpdateVisiblePings_f( int source );
 
 

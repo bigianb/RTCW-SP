@@ -50,41 +50,6 @@ void GetClientState( uiClientState_t *state ) {
 
 /*
 ====================
-LAN_ResetPings
-====================
-*/
-void LAN_ResetPings( int source ) {
-	int count,i;
-	serverInfo_t *servers = NULL;
-	count = 0;
-
-	switch ( source ) {
-	case AS_LOCAL:
-		servers = &cls.localServers[0];
-		count = MAX_OTHER_SERVERS;
-		break;
-	case AS_MPLAYER:
-		servers = &cls.mplayerServers[0];
-		count = MAX_OTHER_SERVERS;
-		break;
-	case AS_GLOBAL:
-		servers = &cls.globalServers[0];
-		count = MAX_GLOBAL_SERVERS;
-		break;
-	case AS_FAVORITES:
-		servers = &cls.favoriteServers[0];
-		count = MAX_OTHER_SERVERS;
-		break;
-	}
-	if ( servers ) {
-		for ( i = 0; i < count; i++ ) {
-			servers[i].ping = -1;
-		}
-	}
-}
-
-/*
-====================
 LAN_AddServer
 ====================
 */
@@ -273,9 +238,7 @@ void LAN_GetServerInfo( int source, int n, char *buf, int buflen ) {
 		Info_SetValueForKey( info, "mapname", server->mapName );
 		Info_SetValueForKey( info, "clients", va( "%i",server->clients ) );
 		Info_SetValueForKey( info, "sv_maxclients", va( "%i",server->maxClients ) );
-		Info_SetValueForKey( info, "ping", va( "%i",server->ping ) );
-		Info_SetValueForKey( info, "minping", va( "%i",server->minPing ) );
-		Info_SetValueForKey( info, "maxping", va( "%i",server->maxPing ) );
+
 		Info_SetValueForKey( info, "game", server->game );
 
 		Info_SetValueForKey( info, "nettype", va( "%i",server->netType ) );
@@ -289,40 +252,6 @@ void LAN_GetServerInfo( int source, int n, char *buf, int buflen ) {
 	}
 }
 
-/*
-====================
-LAN_GetServerPing
-====================
-*/
-int LAN_GetServerPing( int source, int n ) {
-	serverInfo_t *server = NULL;
-	switch ( source ) {
-	case AS_LOCAL:
-		if ( n >= 0 && n < MAX_OTHER_SERVERS ) {
-			server = &cls.localServers[n];
-		}
-		break;
-	case AS_MPLAYER:
-		if ( n >= 0 && n < MAX_OTHER_SERVERS ) {
-			server = &cls.mplayerServers[n];
-		}
-		break;
-	case AS_GLOBAL:
-		if ( n >= 0 && n < MAX_GLOBAL_SERVERS ) {
-			server = &cls.globalServers[n];
-		}
-		break;
-	case AS_FAVORITES:
-		if ( n >= 0 && n < MAX_OTHER_SERVERS ) {
-			server = &cls.favoriteServers[n];
-		}
-		break;
-	}
-	if ( server ) {
-		return server->ping;
-	}
-	return -1;
-}
 
 /*
 ====================
@@ -388,15 +317,6 @@ int LAN_CompareServers( int source, int sortKey, int sortDir, int s1, int s2 ) {
 			res = 0;
 		}
 		break;
-	case SORT_PING:
-		if ( server1->ping < server2->ping ) {
-			res = -1;
-		} else if ( server1->ping > server2->ping )     {
-			res = 1;
-		} else {
-			res = 0;
-		}
-		break;
 	}
 
 	if ( sortDir ) {
@@ -409,42 +329,6 @@ int LAN_CompareServers( int source, int sortKey, int sortDir, int s1, int s2 ) {
 		return 0;
 	}
 	return res;
-}
-
-/*
-====================
-LAN_GetPingQueueCount
-====================
-*/
-static int LAN_GetPingQueueCount( void ) {
-	return ( CL_GetPingQueueCount() );
-}
-
-/*
-====================
-LAN_ClearPing
-====================
-*/
-static void LAN_ClearPing( int n ) {
-	CL_ClearPing( n );
-}
-
-/*
-====================
-LAN_GetPing
-====================
-*/
-static void LAN_GetPing( int n, char *buf, int buflen, int *pingtime ) {
-	CL_GetPing( n, buf, buflen, pingtime );
-}
-
-/*
-====================
-LAN_GetPingInfo
-====================
-*/
-static void LAN_GetPingInfo( int n, char *buf, int buflen ) {
-	CL_GetPingInfo( n, buf, buflen );
 }
 
 /*

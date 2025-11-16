@@ -134,7 +134,7 @@ vmCvar_t cg_thirdPerson;
 vmCvar_t cg_thirdPersonRange;
 vmCvar_t cg_thirdPersonAngle;
 vmCvar_t cg_stereoSeparation;
-vmCvar_t cg_lagometer;
+
 vmCvar_t cg_drawAttacker;
 vmCvar_t cg_synchronousClients;
 vmCvar_t cg_teamChatTime;
@@ -274,7 +274,6 @@ static cvarTable_t cvarTable[] = {
 	{ &cg_reticles, "cg_reticles", "1", CVAR_CHEAT },
 	{ &cg_reticleBrightness, "cg_reticleBrightness", "0.7", CVAR_ARCHIVE },
 	{ &cg_markTime, "cg_marktime", "20000", CVAR_ARCHIVE },
-	{ &cg_lagometer, "cg_lagometer", "1", CVAR_ARCHIVE },
 	{ &cg_railTrailTime, "cg_railTrailTime", "400", CVAR_ARCHIVE  },
 	{ &cg_gun_x, "cg_gunX", "0", CVAR_CHEAT },
 	{ &cg_gun_y, "cg_gunY", "0", CVAR_CHEAT },
@@ -995,7 +994,6 @@ static void CG_RegisterGraphics( void ) {
 	cgs.media.shotgunSmokePuffShader = trap_R_RegisterShader( "shotgunSmokePuff" );
 
 	cgs.media.bloodTrailShader = trap_R_RegisterShader( "bloodTrail" );
-	cgs.media.lagometerShader = trap_R_RegisterShader( "lagometer" );
 	cgs.media.connectionShader = trap_R_RegisterShader( "disconnected" );
 
 	cgs.media.nailPuffShader = trap_R_RegisterShader( "nailtrail" );

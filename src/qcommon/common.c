@@ -63,7 +63,7 @@ cvar_t  *com_fixedtime;
 cvar_t  *com_dropsim;       // 0.0 to 1.0, simulated packet drops
 cvar_t  *com_journal;
 cvar_t  *com_maxfps;
-cvar_t  *com_timedemo;
+
 cvar_t  *com_sv_running;
 cvar_t  *com_cl_running;
 cvar_t  *com_logfile;       // 1 = buffer log, 2 = flush after each print
@@ -1396,7 +1396,7 @@ void Com_Init( char *commandLine ) {
 	com_dropsim = Cvar_Get( "com_dropsim", "0", CVAR_CHEAT );
 	com_viewlog = Cvar_Get( "viewlog", "0", CVAR_CHEAT );
 	com_speeds = Cvar_Get( "com_speeds", "0", 0 );
-	com_timedemo = Cvar_Get( "timedemo", "0", CVAR_CHEAT );
+
 	com_cameraMode = Cvar_Get( "com_cameraMode", "0", CVAR_CHEAT );
 
 	cl_paused = Cvar_Get( "cl_paused", "0", CVAR_ROM );
@@ -1630,7 +1630,7 @@ void Com_Frame( void ) {
 	}
 
 	// we may want to spin here if things are going too fast
-	if ( com_maxfps->integer > 0 && !com_timedemo->integer ) {
+	if ( com_maxfps->integer > 0) {
 		minMsec = 1000 / com_maxfps->integer;
 	} else {
 		minMsec = 1;

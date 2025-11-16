@@ -1010,7 +1010,6 @@ typedef struct playerState_s {
 
 	// (SA) yeah.  this is causing me a little bit of trouble too.  can we go ahead with the above suggestion or find an alternative?
 
-	int ping;                   // server to game info for scoreboard
 	int pmove_framecount;           // FIXME: don't transmit over the network
 	int entityEventSequence;
 

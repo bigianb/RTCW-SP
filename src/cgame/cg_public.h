@@ -44,7 +44,6 @@ If you have questions concerning this license or the applicable additional terms
 // they may be dropped by the network.
 typedef struct {
 	int snapFlags;                      // SNAPFLAG_RATE_DELAYED, etc
-	int ping;
 
 	int serverTime;                 // server time the message is valid for (in msec)
 

@@ -1815,16 +1815,12 @@ static void UI_FeederSelection( float feederID, int index ) {
             Cvar_Set( "ui_savegameName", uiInfo.savegameList[uiInfo.savegameStatus.displaySavegames[index]].savegameName );
             Cvar_Set( "ui_savegameInfo", uiInfo.savegameList[uiInfo.savegameStatus.displaySavegames[index]].savegameInfoText );
         }
-    } else if ( feederID == FEEDER_DEMOS ) {
-        uiInfo.demoIndex = index;
     }
 }
 
 static int UI_FeederCount( float feederID ) {
     if ( feederID == FEEDER_SAVEGAMES ) {
         return uiInfo.savegameCount;
-    } else if ( feederID == FEEDER_DEMOS ) {
-        return uiInfo.demoCount;
     }
     return 0;
 }
@@ -1851,10 +1847,6 @@ static const char *UI_FeederItemText( float feederID, int index, int column, qha
 				break;
 
 			}
-		}
-	} else if ( feederID == FEEDER_DEMOS ) {
-		if ( index >= 0 && index < uiInfo.demoCount ) {
-			return uiInfo.demoList[index];
 		}
 	}
 	

@@ -1655,29 +1655,6 @@ void R_DebugPolygon( int color, int numPoints, float *points ) {
 }
 
 /*
-====================
-R_DebugGraphics
-
-Visualization aid for movement clipping debugging
-====================
-*/
-void R_DebugGraphics( void ) {
-	if ( !r_debugSurface->integer ) {
-		return;
-	}
-
-	R_FogOff(); // moved this in here to keep from /always/ doing the fog state change
-
-	// the render thread can't make callbacks to the main thread
-	R_SyncRenderThread();
-
-	GL_Bind( tr.whiteImage );
-	GL_Cull( CT_FRONT_SIDED );
-	ri.CM_DrawDebugSurface( R_DebugPolygon );
-}
-
-
-/*
 ================
 R_RenderView
 
@@ -1725,10 +1702,4 @@ void R_RenderView( viewParms_t *parms ) {
 	R_GenerateDrawSurfs();
 
 	R_SortDrawSurfs( tr.refdef.drawSurfs + firstDrawSurf, tr.refdef.numDrawSurfs - firstDrawSurf );
-
-	// draw main system development information (surface outlines, etc)
-	R_FogOff();
-	R_DebugGraphics();
-	R_FogOn();
-
 }

@@ -513,9 +513,6 @@ delta functions
 =============================================================================
 */
 
-extern cvar_t *cl_shownet;
-
-#define LOG( x ) if ( cl_shownet && cl_shownet->integer == 4 ) { Com_Printf( "%s ", x ); };
 
 void MSG_WriteDelta( msg_t *msg, int oldV, int newV, int bits ) {
 	if ( oldV == newV ) {
@@ -978,7 +975,7 @@ void MSG_WriteDeltaEntity( msg_t *msg, struct entityState_s *from, struct entity
 	byte changeVector[CHANGE_VECTOR_BYTES];
 	int compressedVector;
 	qboolean changed;
-	int print, endBit, startBit;
+	int endBit, startBit;
 
 	if ( msg->bit == 0 ) {
 		startBit = msg->cursize * 8 - GENTITYNUM_BITS;
@@ -1001,9 +998,7 @@ void MSG_WriteDeltaEntity( msg_t *msg, struct entityState_s *from, struct entity
 		if ( from == NULL ) {
 			return;
 		}
-		if ( cl_shownet && ( cl_shownet->integer >= 2 || cl_shownet->integer == -1 ) ) {
-			Com_Printf( "W|%3i: #%-3i remove\n", msg->cursize, from->number );
-		}
+
 		MSG_WriteBits( msg, from->number, GENTITYNUM_BITS );
 		MSG_WriteBits( msg, 1, 1 );
 		return;
@@ -1044,15 +1039,6 @@ void MSG_WriteDeltaEntity( msg_t *msg, struct entityState_s *from, struct entity
 		return;
 	}
 
-	// shownet 2/3 will interleave with other printed info, -1 will
-	// just print the delta records`
-	if ( cl_shownet && ( cl_shownet->integer >= 2 || cl_shownet->integer == -1 ) ) {
-		print = 1;
-		Com_Printf( "W|%3i: #%-3i ", msg->cursize, to->number );
-	} else {
-		print = 0;
-	}
-
 	// check for a compressed change vector
 	compressedVector = LookupChangeVector( changeVector );
 
@@ -1071,15 +1057,10 @@ void MSG_WriteDeltaEntity( msg_t *msg, struct entityState_s *from, struct entity
 		if ( numFields & 7 ) {
 			MSG_WriteBits( msg, changeVector[i >> 3], numFields & 7 );
 		}
-		if ( print ) {
-			Com_Printf( "<uc> " );
-		}
+
 	} else {
 		MSG_WriteBits( msg, 0, 1 );          // compressed vector
 		MSG_WriteBits( msg, compressedVector, SMALL_VECTOR_BITS );
-		if ( print ) {
-			Com_Printf( "<%2i> ", compressedVector );
-		}
 	}
 
 	for ( i = 0, field = entityStateFields ; i < numFields ; i++, field++ ) {
@@ -1105,16 +1086,10 @@ void MSG_WriteDeltaEntity( msg_t *msg, struct entityState_s *from, struct entity
 					// send as small integer
 					MSG_WriteBits( msg, 0, 1 );
 					MSG_WriteBits( msg, trunc + FLOAT_INT_BIAS, FLOAT_INT_BITS );
-					if ( print ) {
-						Com_Printf( "%s:%i ", field->name, trunc );
-					}
 				} else {
 					// send as full floating point value
 					MSG_WriteBits( msg, 1, 1 );
 					MSG_WriteBits( msg, *toF, 32 );
-					if ( print ) {
-						Com_Printf( "%s:%f ", field->name, *(float *)toF );
-					}
 				}
 			}
 		} else {
@@ -1124,22 +1099,11 @@ void MSG_WriteDeltaEntity( msg_t *msg, struct entityState_s *from, struct entity
 				MSG_WriteBits( msg, 1, 1 );
 				// integer
 				MSG_WriteBits( msg, *toF, field->bits );
-				if ( print ) {
-					Com_Printf( "%s:%i ", field->name, *toF );
-				}
 			}
 		}
 	}
 	c = msg->cursize - c;
 
-	if ( print ) {
-		if ( msg->bit == 0 ) {
-			endBit = msg->cursize * 8 - GENTITYNUM_BITS;
-		} else {
-			endBit = ( msg->cursize - 1 ) * 8 + msg->bit - GENTITYNUM_BITS;
-		}
-		Com_Printf( " (%i bits)\n", endBit - startBit  );
-	}
 }
 
 /*
@@ -1154,7 +1118,6 @@ If the delta removes the entity, entityState_t->number will be set to MAX_GENTIT
 Can go from either a baseline or a previous packet_entity
 ==================
 */
-extern cvar_t  *cl_shownet;
 
 void MSG_ReadDeltaEntity( msg_t *msg, entityState_t *from, entityState_t *to,
 						  int number ) {
@@ -1162,7 +1125,7 @@ void MSG_ReadDeltaEntity( msg_t *msg, entityState_t *from, entityState_t *to,
 	int numFields;
 	netField_t  *field;
 	int         *fromF, *toF;
-	int print;
+
 	int trunc;
 	int startBit, endBit;
 	int compressedVector;
@@ -1183,9 +1146,7 @@ void MSG_ReadDeltaEntity( msg_t *msg, entityState_t *from, entityState_t *to,
 	if ( MSG_ReadBits( msg, 1 ) == 1 ) {
 		memset( to, 0, sizeof( *to ) );
 		to->number = MAX_GENTITIES - 1;
-		if ( cl_shownet && ( cl_shownet->integer >= 2 || cl_shownet->integer == -1 ) ) {
-			Com_Printf( "%3i: #%-3i remove\n", msg->readcount, number );
-		}
+
 		return;
 	}
 
@@ -1197,15 +1158,6 @@ void MSG_ReadDeltaEntity( msg_t *msg, entityState_t *from, entityState_t *to,
 	}
 
 	numFields = sizeof( entityStateFields ) / sizeof( entityStateFields[0] );
-
-	// shownet 2/3 will interleave with other printed info, -1 will
-	// just print the delta records`
-	if ( cl_shownet && ( cl_shownet->integer >= 2 || cl_shownet->integer == -1 ) ) {
-		print = 1;
-		Com_Printf( "%3i: #%-3i ", msg->readcount, to->number );
-	} else {
-		print = 0;
-	}
 
 	// get the entire change vector, either compressed or uncompressed
 
@@ -1220,16 +1172,10 @@ void MSG_ReadDeltaEntity( msg_t *msg, entityState_t *from, entityState_t *to,
 			expandedVector[i >> 3] = MSG_ReadBits( msg, numFields & 7 );
 		}
 		changeVector = expandedVector;
-		if ( print ) {
-			Com_Printf( "<uc> " );
-		}
 	} else {
 		compressedVector = MSG_ReadBits( msg, SMALL_VECTOR_BITS );
 		c_compressedVectors++;
 		changeVector = changeVectorLog[ compressedVector ].vector;
-		if ( print ) {
-			Com_Printf( "<%2i> ", compressedVector );
-		}
 	}
 
 
@@ -1254,15 +1200,9 @@ void MSG_ReadDeltaEntity( msg_t *msg, entityState_t *from, entityState_t *to,
 						// bias to allow equal parts positive and negative
 						trunc -= FLOAT_INT_BIAS;
 						*(float *)toF = trunc;
-						if ( print ) {
-							Com_Printf( "%s:%i ", field->name, trunc );
-						}
 					} else {
 						// full floating point value
 						*toF = MSG_ReadBits( msg, 32 );
-						if ( print ) {
-							Com_Printf( "%s:%f ", field->name, *(float *)toF );
-						}
 					}
 				}
 			} else {
@@ -1271,22 +1211,11 @@ void MSG_ReadDeltaEntity( msg_t *msg, entityState_t *from, entityState_t *to,
 				} else {
 					// integer
 					*toF = MSG_ReadBits( msg, field->bits );
-					if ( print ) {
-						Com_Printf( "%s:%i ", field->name, *toF );
-					}
 				}
 			}
 		}
 	}
 
-	if ( print ) {
-		if ( msg->bit == 0 ) {
-			endBit = msg->readcount * 8 - GENTITYNUM_BITS;
-		} else {
-			endBit = ( msg->readcount - 1 ) * 8 + msg->bit - GENTITYNUM_BITS;
-		}
-		Com_Printf( " (%i bits)\n", endBit - startBit  );
-	}
 }
 
 
@@ -1405,7 +1334,7 @@ void MSG_WriteDeltaPlayerstate( msg_t *msg, struct playerState_s *from, struct p
 	float fullFloat;
 	int trunc;
 	int startBit, endBit;
-	int print;
+
 
 	if ( !from ) {
 		from = &dummy;
@@ -1416,15 +1345,6 @@ void MSG_WriteDeltaPlayerstate( msg_t *msg, struct playerState_s *from, struct p
 		startBit = msg->cursize * 8 - GENTITYNUM_BITS;
 	} else {
 		startBit = ( msg->cursize - 1 ) * 8 + msg->bit - GENTITYNUM_BITS;
-	}
-
-	// shownet 2/3 will interleave with other printed info, -2 will
-	// just print the delta records
-	if ( cl_shownet && ( cl_shownet->integer >= 2 || cl_shownet->integer == -2 ) ) {
-		print = 1;
-		Com_Printf( "W|%3i: playerstate ", msg->cursize );
-	} else {
-		print = 0;
 	}
 
 	c = msg->cursize;
@@ -1451,23 +1371,14 @@ void MSG_WriteDeltaPlayerstate( msg_t *msg, struct playerState_s *from, struct p
 				// send as small integer
 				MSG_WriteBits( msg, 0, 1 );
 				MSG_WriteBits( msg, trunc + FLOAT_INT_BIAS, FLOAT_INT_BITS );
-				if ( print ) {
-					Com_Printf( "%s:%i ", field->name, trunc );
-				}
 			} else {
 				// send as full floating point value
 				MSG_WriteBits( msg, 1, 1 );
 				MSG_WriteBits( msg, *toF, 32 );
-				if ( print ) {
-					Com_Printf( "%s:%f ", field->name, *(float *)toF );
-				}
 			}
 		} else {
 			// integer
 			MSG_WriteBits( msg, *toF, field->bits );
-			if ( print ) {
-				Com_Printf( "%s:%i ", field->name, *toF );
-			}
 		}
 	}
 	c = msg->cursize - c;
@@ -1559,82 +1470,6 @@ void MSG_WriteDeltaPlayerstate( msg_t *msg, struct playerState_s *from, struct p
 	}
 
 
-#if 0
-// RF, optimization
-//		Send a single bit to signify whether or not the ammo/clip info changed.
-//		If it did, send individual segments specifying offset values for each item.
-	{
-		int ammo_ofs;
-		int clip_ofs;
-
-		ammobits = 0;
-
-		// ammo
-		for ( i = 0 ; i < 32 ; i++ ) {
-			if ( to->ammo[i] != from->ammo[i] ) {
-				ammobits |= 1 << i;
-			}
-		}
-		// ammoclip (just add these changes to the ammo changes. if either changes, we should send both, since they are likely to both change at once anyway)
-		for ( i = 0 ; i < 32 ; i++ ) {
-			if ( to->ammoclip[i] != from->ammoclip[i] ) {
-				ammobits |= 1 << i;
-			}
-		}
-
-		if ( ammobits ) {
-			MSG_WriteBits( msg, 1, 1 ); // changed
-
-			// send each changed item
-			for ( i = 0 ; i < 32 ; i++ ) {
-				if ( ammobits & ( 1 << i ) ) {
-					ammo_ofs = to->ammo[i] - from->ammo[i];
-					clip_ofs = to->ammoclip[i] - from->ammoclip[i];
-
-					while ( ammo_ofs || clip_ofs ) {
-						MSG_WriteBits( msg, 1, 1 );  // signify that another index is present
-						MSG_WriteBits( msg, i, 5 );  // index number
-
-						// ammo
-						if ( abs( ammo_ofs ) > 127 ) {
-							if ( ammo_ofs > 0 ) {
-								MSG_WriteChar( msg, 127 );
-								ammo_ofs -= 127;
-							} else {
-								MSG_WriteChar( msg, -127 );
-								ammo_ofs += 127;
-							}
-						} else {
-							MSG_WriteChar( msg, ammo_ofs );
-							ammo_ofs = 0;
-						}
-
-						// clip
-						if ( abs( clip_ofs ) > 127 ) {
-							if ( clip_ofs > 0 ) {
-								MSG_WriteChar( msg, 127 );
-								clip_ofs -= 127;
-							} else {
-								MSG_WriteChar( msg, -127 );
-								clip_ofs += 127;
-							}
-						} else {
-							MSG_WriteChar( msg, clip_ofs );
-							clip_ofs = 0;
-						}
-					}
-				}
-			}
-
-			// signify the end of changes
-			MSG_WriteBits( msg, 0, 1 );
-
-		} else {
-			MSG_WriteBits( msg, 0, 1 ); // no change
-		}
-	}
-
-#else
 //----(SA)	I split this into two groups using shorts so it wouldn't have
 //			to use a long every time ammo changed for any weap.
 //			this seemed like a much friendlier option than making it
@@ -1694,17 +1529,6 @@ void MSG_WriteDeltaPlayerstate( msg_t *msg, struct playerState_s *from, struct p
 			MSG_WriteBits( msg, 0, 1 ); // no change
 		}
 	}
-#endif
-
-
-	if ( print ) {
-		if ( msg->bit == 0 ) {
-			endBit = msg->cursize * 8 - GENTITYNUM_BITS;
-		} else {
-			endBit = ( msg->cursize - 1 ) * 8 + msg->bit - GENTITYNUM_BITS;
-		}
-		Com_Printf( " (%i bits)\n", endBit - startBit  );
-	}
 
 }
 
@@ -1720,7 +1544,7 @@ void MSG_ReadDeltaPlayerstate( msg_t *msg, playerState_t *from, playerState_t *t
 	netField_t  *field;
 	int numFields;
 	int startBit, endBit;
-	int print;
+
 	int         *fromF, *toF;
 	int trunc;
 	playerState_t dummy;
@@ -1735,15 +1559,6 @@ void MSG_ReadDeltaPlayerstate( msg_t *msg, playerState_t *from, playerState_t *t
 		startBit = msg->readcount * 8 - GENTITYNUM_BITS;
 	} else {
 		startBit = ( msg->readcount - 1 ) * 8 + msg->bit - GENTITYNUM_BITS;
-	}
-
-	// shownet 2/3 will interleave with other printed info, -2 will
-	// just print the delta records
-	if ( cl_shownet && ( cl_shownet->integer >= 2 || cl_shownet->integer == -2 ) ) {
-		print = 1;
-		Com_Printf( "%3i: playerstate ", msg->readcount );
-	} else {
-		print = 0;
 	}
 
 	numFields = sizeof( playerStateFields ) / sizeof( playerStateFields[0] );
@@ -1763,22 +1578,13 @@ void MSG_ReadDeltaPlayerstate( msg_t *msg, playerState_t *from, playerState_t *t
 					// bias to allow equal parts positive and negative
 					trunc -= FLOAT_INT_BIAS;
 					*(float *)toF = trunc;
-					if ( print ) {
-						Com_Printf( "%s:%i ", field->name, trunc );
-					}
 				} else {
 					// full floating point value
 					*toF = MSG_ReadBits( msg, 32 );
-					if ( print ) {
-						Com_Printf( "%s:%f ", field->name, *(float *)toF );
-					}
 				}
 			} else {
 				// integer
 				*toF = MSG_ReadBits( msg, field->bits );
-				if ( print ) {
-					Com_Printf( "%s:%i ", field->name, *toF );
-				}
 			}
 		}
 	}
@@ -1787,7 +1593,6 @@ void MSG_ReadDeltaPlayerstate( msg_t *msg, playerState_t *from, playerState_t *t
 	if ( MSG_ReadBits( msg, 1 ) ) {  // one general bit tells if any of this infrequently changing stuff has changed
 		// parse stats
 		if ( MSG_ReadBits( msg, 1 ) ) {
-			LOG( "PS_STATS" );
 			bits = MSG_ReadShort( msg );
 			for ( i = 0 ; i < 16 ; i++ ) {
 				if ( bits & ( 1 << i ) ) {
@@ -1801,7 +1606,6 @@ void MSG_ReadDeltaPlayerstate( msg_t *msg, playerState_t *from, playerState_t *t
 
 		// parse persistant stats
 		if ( MSG_ReadBits( msg, 1 ) ) {
-			LOG( "PS_PERSISTANT" );
 			bits = MSG_ReadShort( msg );
 			for ( i = 0 ; i < 16 ; i++ ) {
 				if ( bits & ( 1 << i ) ) {
@@ -1812,7 +1616,6 @@ void MSG_ReadDeltaPlayerstate( msg_t *msg, playerState_t *from, playerState_t *t
 
 		// parse holdable stats
 		if ( MSG_ReadBits( msg, 1 ) ) {
-			LOG( "PS_HOLDABLE" );
 			bits = MSG_ReadShort( msg );
 			for ( i = 0 ; i < 16 ; i++ ) {
 				if ( bits & ( 1 << i ) ) {
@@ -1823,7 +1626,6 @@ void MSG_ReadDeltaPlayerstate( msg_t *msg, playerState_t *from, playerState_t *t
 
 		// parse powerups
 		if ( MSG_ReadBits( msg, 1 ) ) {
-			LOG( "PS_POWERUPS" );
 			bits = MSG_ReadShort( msg );
 			for ( i = 0 ; i < 16 ; i++ ) {
 				if ( bits & ( 1 << i ) ) {
@@ -1850,7 +1652,6 @@ void MSG_ReadDeltaPlayerstate( msg_t *msg, playerState_t *from, playerState_t *t
 	if ( MSG_ReadBits( msg, 1 ) ) {     // check for any ammo change (0-63)
 		for ( j = 0; j < 4; j++ ) {
 			if ( MSG_ReadBits( msg, 1 ) ) {
-				LOG( "PS_AMMO" );
 				bits = MSG_ReadShort( msg );
 				for ( i = 0 ; i < 16 ; i++ ) {
 					if ( bits & ( 1 << i ) ) {
@@ -1864,7 +1665,6 @@ void MSG_ReadDeltaPlayerstate( msg_t *msg, playerState_t *from, playerState_t *t
 	// ammo in clip
 	for ( j = 0; j < 4; j++ ) {
 		if ( MSG_ReadBits( msg, 1 ) ) {
-			LOG( "PS_AMMOCLIP" );
 			bits = MSG_ReadShort( msg );
 			for ( i = 0 ; i < 16 ; i++ ) {
 				if ( bits & ( 1 << i ) ) {
@@ -1874,15 +1674,6 @@ void MSG_ReadDeltaPlayerstate( msg_t *msg, playerState_t *from, playerState_t *t
 		}
 	}
 
-
-	if ( print ) {
-		if ( msg->bit == 0 ) {
-			endBit = msg->readcount * 8 - GENTITYNUM_BITS;
-		} else {
-			endBit = ( msg->readcount - 1 ) * 8 + msg->bit - GENTITYNUM_BITS;
-		}
-		Com_Printf( " (%i bits)\n", endBit - startBit  );
-	}
 }
 
 int msg_hData[256] = {

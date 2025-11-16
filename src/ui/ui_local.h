@@ -395,12 +395,6 @@ extern void UI_ControlsMenu( void );
 extern void Controls_Cache( void );
 
 //
-// ui_demo2.c
-//
-extern void UI_DemosMenu( void );
-extern void Demos_Cache( void );
-
-//
 // ui_cinematics.c
 //
 extern void UI_CinematicsMenu( void );
@@ -531,7 +525,6 @@ typedef struct {
 	// END JOSEPH
 	float scale;
 	float bias;
-	qboolean demoversion;
 	qboolean firstdraw;
 } uiStatic_t;
 
@@ -566,7 +559,6 @@ typedef struct {
 #define MAPS_PER_TIER 3
 #define MAX_TIERS 16
 #define MAX_MODS 64
-#define MAX_DEMOS 256
 #define MAX_MOVIES 256
 #define MAX_PLAYERMODELS 256
 #define MAX_SAVEGAMES 256
@@ -693,7 +685,6 @@ typedef struct {
 	int newBestTime;
 	int showPostGameTime;
 	qboolean newHighScore;
-	qboolean demoAvailable;
 	qboolean soundHighScore;
 
 	int characterCount;
@@ -720,10 +711,6 @@ typedef struct {
 	modInfo_t modList[MAX_MODS];
 	int modCount;
 	int modIndex;
-
-	const char *demoList[MAX_DEMOS];
-	int demoCount;
-	int demoIndex;
 
 	const char *movieList[MAX_MOVIES];
 	int movieCount;
@@ -808,8 +795,6 @@ extern void         UI_ForceMenuOff( void );
 extern char         *UI_Argv( int arg );
 extern char         *UI_Cvar_VariableString( const char *var_name );
 extern void         UI_Refresh( int time );
-
-extern void         UI_StartDemoLoop( void );
 
 extern qboolean m_entersound;
 extern uiStatic_t uis;

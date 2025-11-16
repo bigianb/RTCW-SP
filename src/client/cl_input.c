@@ -273,14 +273,14 @@ void IN_CenterView( void ) {
 }
 
 void IN_Notebook( void ) {
-	if ( cls.state == CA_ACTIVE && !clc.demoplaying ) {
+	if ( cls.state == CA_ACTIVE  ) {
 		Cvar_Set( "cg_youGotMail", "0" ); // clear icon	//----(SA)	added
 		UI_SetActiveMenu(UIMENU_NOTEBOOK );    // startup notebook
 	}
 }
 
 void IN_Help( void ) {
-	if ( cls.state == CA_ACTIVE && !clc.demoplaying ) {
+	if ( cls.state == CA_ACTIVE) {
 		UI_SetActiveMenu(UIMENU_HELP );        // startup help system
 	}
 }
@@ -738,7 +738,7 @@ qboolean CL_ReadyToSendPacket( void ) {
 	int delta;
 
 	// don't send anything if playing back a demo
-	if ( clc.demoplaying || cls.state == CA_CINEMATIC ) {
+	if ( cls.state == CA_CINEMATIC ) {
 		return qfalse;
 	}
 
@@ -786,7 +786,7 @@ void CL_WritePacket( void ) {
 	int count, key;
 
 	// don't send anything if playing back a demo
-	if ( clc.demoplaying || cls.state == CA_CINEMATIC ) {
+	if (cls.state == CA_CINEMATIC ) {
 		return;
 	}
 
@@ -835,7 +835,7 @@ void CL_WritePacket( void ) {
 		}
 
 		// begin a client move command
-		if ( cl_nodelta->integer || !cl.snap.valid || clc.demowaiting
+		if ( cl_nodelta->integer || !cl.snap.valid
 			 || clc.serverMessageSequence != cl.snap.messageNum ) {
 			MSG_WriteByte( &buf, clc_moveNoDelta );
 		} else {
@@ -902,7 +902,6 @@ void CL_SendCmd( void ) {
 		return;
 	}
 
-	// we create commands even if a demo is playing,
 	CL_CreateNewCommands();
 
 	// don't send a packet if the last packet was sent too recently

@@ -1318,7 +1318,7 @@ void LogExit( const char *string ) {
 	}
 
 	for ( i = 0 ; i < numSorted ; i++ ) {
-		int ping;
+		
 
 		cl = &level.clients[level.sortedClients[i]];
 
@@ -1327,10 +1327,8 @@ void LogExit( const char *string ) {
 			continue;
 		}
 
-		ping = cl->ps.ping < 999 ? cl->ps.ping : 999;
-
-		G_LogPrintf( "score: %i  ping: %i  client: %i %s\n",
-					 cl->ps.persistant[PERS_SCORE], ping, level.sortedClients[i],
+		G_LogPrintf( "score: %i  client: %i %s\n",
+					 cl->ps.persistant[PERS_SCORE], level.sortedClients[i],
 					 cl->pers.netname );
 	}
 }
