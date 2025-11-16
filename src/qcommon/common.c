@@ -245,9 +245,6 @@ void  Com_Error( int code, const char *fmt, ... ) {
 		}
 	}
 
-	// make sure we can get at our local stuff
-	FS_PureServerSetLoadedPaks( "", "" );
-
 	// if we are getting a solid stream of ERR_DROP, do an ERR_FATAL
 	currentTime = Sys_Milliseconds();
 	if ( currentTime - lastErrorTime < 100 ) {
@@ -277,7 +274,7 @@ void  Com_Error( int code, const char *fmt, ... ) {
 		CL_FlushMemory();
 		com_errorEntered = qfalse;
 		longjmp( abortframe, -1 );
-	} else if ( code == ERR_ENDGAME ) {  //----(SA)	added
+	} else if ( code == ERR_ENDGAME ) {
 		SV_Shutdown( "endgame" );
 		if ( com_cl_running && com_cl_running->integer ) {
 			CL_Disconnect( qtrue );

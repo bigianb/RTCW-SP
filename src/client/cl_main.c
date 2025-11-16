@@ -731,8 +731,6 @@ void CL_Disconnect( qboolean showMainMenu ) {
 	// except for demo
 	Cvar_Set( "sv_cheats", "1" );
 
-	// not connected to a pure server anymore
-	cl_connectedToPureServer = qfalse;
 }
 
 
@@ -1019,38 +1017,6 @@ void CL_Rcon_f( void ) {
 
 /*
 =================
-CL_SendPureChecksums
-=================
-*/
-void CL_SendPureChecksums( void ) {
-	const char *pChecksums;
-	char cMsg[MAX_INFO_VALUE];
-	int i;
-
-	// if we are pure we need to send back a command with our referenced pk3 checksums
-	pChecksums = FS_ReferencedPakPureChecksums();
-
-	// "cp"
-	// "Yf"
-	snprintf( cMsg, sizeof( cMsg ), "Yf " );
-	Q_strcat( cMsg, sizeof( cMsg ), pChecksums );
-	for ( i = 0; i < 2; i++ ) {
-		cMsg[i] += 10;
-	}
-	CL_AddReliableCommand( cMsg );
-}
-
-/*
-=================
-CL_ResetPureClientAtServer
-=================
-*/
-void CL_ResetPureClientAtServer( void ) {
-	CL_AddReliableCommand( va( "vdr" ) );
-}
-
-/*
-=================
 CL_Vid_Restart_f
 
 Restart the video subsystem
@@ -1074,8 +1040,7 @@ void CL_Vid_Restart_f( void ) {
 	CL_ShutdownCGame();
 	// shutdown the renderer and clear the renderer interface
 	CL_ShutdownRef();
-	// client is no longer pure untill new checksums are sent
-	CL_ResetPureClientAtServer();
+
 	// clear pak references
 	FS_ClearPakReferences( FS_UI_REF | FS_CGAME_REF );
 	// reinitialize the filesystem if the game directory or checksum has changed
@@ -1101,8 +1066,6 @@ void CL_Vid_Restart_f( void ) {
 	if ( cls.state > CA_CONNECTED && cls.state != CA_CINEMATIC ) {
 		cls.cgameStarted = qtrue;
 		CL_InitCGame();
-		// send pure checksums
-		CL_SendPureChecksums();
 	}
 
 	// start music if there was any
@@ -1130,25 +1093,6 @@ void CL_Snd_Restart_f( void ) {
 	S_Init();
 
 	CL_Vid_Restart_f();
-}
-
-
-/*
-==================
-CL_PK3List_f
-==================
-*/
-void CL_OpenedPK3List_f( void ) {
-	Com_Printf( "Opened PK3 Names: %s\n", FS_LoadedPakNames() );
-}
-
-/*
-==================
-CL_PureList_f
-==================
-*/
-void CL_ReferencedPK3List_f( void ) {
-	Com_Printf( "Referenced PK3 Names: %s\n", FS_ReferencedPakNames() );
 }
 
 /*
@@ -2251,8 +2195,6 @@ void CL_Init( void ) {
 	Cmd_AddCommand( "ping", CL_Ping_f );
 	Cmd_AddCommand( "serverstatus", CL_ServerStatus_f );
 	Cmd_AddCommand( "showip", CL_ShowIP_f );
-	Cmd_AddCommand( "fs_openedList", CL_OpenedPK3List_f );
-	Cmd_AddCommand( "fs_referencedList", CL_ReferencedPK3List_f );
 
 	// Ridah, startup-caching system
 	Cmd_AddCommand( "cache_startgather", CL_Cache_StartGather_f );

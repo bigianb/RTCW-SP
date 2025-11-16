@@ -153,7 +153,8 @@ bsp_trace_t AAS_Trace( vec3_t start, vec3_t mins, vec3_t maxs, vec3_t end, int p
 	bsp_trace_t bsptrace;
 	BotImport_Trace( &bsptrace, start, mins, maxs, end, passent, contentmask );
 	return bsptrace;
-} //end of the function AAS_Trace
+}
+
 //===========================================================================
 // returns the contents at the given point
 //
@@ -162,8 +163,9 @@ bsp_trace_t AAS_Trace( vec3_t start, vec3_t mins, vec3_t maxs, vec3_t end, int p
 // Changes Globals:		-
 //===========================================================================
 int AAS_PointContents( vec3_t point ) {
-	return BotImport_PointContents( point );
-} //end of the function AAS_PointContents
+	return SV_PointContents( point, -1 );
+}
+
 //===========================================================================
 //
 // Parameter:				-
@@ -190,7 +192,7 @@ qboolean AAS_EntityCollision( int entnum,
 // Changes Globals:		-
 //===========================================================================
 qboolean AAS_inPVS( vec3_t p1, vec3_t p2 ) {
-	return BotImport_inPVS( p1, p2 );
+	return SV_inPVS( p1, p2 );
 } //end of the function AAS_InPVS
 //===========================================================================
 // returns true if in Potentially Visible Set

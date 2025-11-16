@@ -36,13 +36,13 @@ SV_SetConfigstring
 
 ===============
 */
-void SV_SetConfigstring( int index, const char *val ) {
-
+void SV_SetConfigstring( int index, const char *val )
+{
 	int maxChunkSize = MAX_STRING_CHARS - 24;
 	
-
 	if ( index < 0 || index >= MAX_CONFIGSTRINGS ) {
 		Com_Error( ERR_DROP, "SV_SetConfigstring: bad index %i\n", index );
+		return;
 	}
 
 	if ( !val ) {
@@ -81,7 +81,7 @@ void SV_SetConfigstring( int index, const char *val ) {
 			size_t len = strlen( val );
 			if ( len >= maxChunkSize ) {
 				int sent = 0;
-				int remaining = len;
+				size_t remaining = len;
 				char    *cmd;
 				char buf[MAX_STRING_CHARS];
 
@@ -116,12 +116,15 @@ SV_GetConfigstring
 
 ===============
 */
-void SV_GetConfigstring( int index, char *buffer, int bufferSize ) {
+void SV_GetConfigstring( int index, char *buffer, int bufferSize )
+{
 	if ( bufferSize < 1 ) {
 		Com_Error( ERR_DROP, "SV_GetConfigstring: bufferSize == %i", bufferSize );
+		return;
 	}
 	if ( index < 0 || index >= MAX_CONFIGSTRINGS ) {
 		Com_Error( ERR_DROP, "SV_GetConfigstring: bad index %i\n", index );
+		return;
 	}
 	if ( !sv.configstrings[index] ) {
 		buffer[0] = 0;
@@ -138,9 +141,11 @@ SV_SetUserinfo
 
 ===============
 */
-void SV_SetUserinfo( int index, const char *val ) {
+void SV_SetUserinfo( int index, const char *val )
+{
 	if ( index < 0 || index >= sv_maxclients->integer ) {
 		Com_Error( ERR_DROP, "SV_SetUserinfo: bad index %i\n", index );
+		return;
 	}
 
 	if ( !val ) {
@@ -159,12 +164,15 @@ SV_GetUserinfo
 
 ===============
 */
-void SV_GetUserinfo( int index, char *buffer, int bufferSize ) {
+void SV_GetUserinfo( int index, char *buffer, int bufferSize )
+{
 	if ( bufferSize < 1 ) {
 		Com_Error( ERR_DROP, "SV_GetUserinfo: bufferSize == %i", bufferSize );
+		return;
 	}
 	if ( index < 0 || index >= sv_maxclients->integer ) {
 		Com_Error( ERR_DROP, "SV_GetUserinfo: bad index %i\n", index );
+		return;
 	}
 	Q_strncpyz( buffer, svs.clients[ index ].userinfo, bufferSize );
 }
@@ -179,12 +187,10 @@ to the clients -- only the fields that differ from the
 baseline will be transmitted
 ================
 */
-void SV_CreateBaseline( void ) {
-	sharedEntity_t *svent;
-	int entnum;
-
-	for ( entnum = 1; entnum < sv.num_entities ; entnum++ ) {
-		svent = SV_GentityNum( entnum );
+void SV_CreateBaseline()
+{
+	for (int entnum = 1; entnum < sv.num_entities ; entnum++ ) {
+		sharedEntity_t* svent = SV_GentityNum( entnum );
 		if ( !svent->r.linked ) {
 			continue;
 		}
@@ -204,7 +210,8 @@ SV_BoundMaxClients
 
 ===============
 */
-void SV_BoundMaxClients( int minimum ) {
+void SV_BoundMaxClients( int minimum )
+{
 	// get the current maxclients value
 	Cvar_Get( "sv_maxclients", "8", 0 );
 
@@ -222,7 +229,8 @@ void SV_BoundMaxClients( int minimum ) {
 SV_InitReliableCommandsForClient
 ===============
 */
-void SV_InitReliableCommandsForClient( client_t *cl, int commands ) {
+void SV_InitReliableCommandsForClient( client_t *cl, int commands )
+{
 	if ( !commands ) {
 		Com_Memset( &cl->reliableCommands, 0, sizeof( cl->reliableCommands ) );
 	}
@@ -240,7 +248,8 @@ void SV_InitReliableCommandsForClient( client_t *cl, int commands ) {
 SV_InitReliableCommands
 ===============
 */
-void SV_InitReliableCommands( client_t *clients ) {
+void SV_InitReliableCommands( client_t *clients )
+{
     for (int i = 0; i < sv_maxclients->integer; i++ ) {
         SV_InitReliableCommandsForClient( &clients[i], MAX_RELIABLE_COMMANDS );
     }
@@ -251,7 +260,8 @@ void SV_InitReliableCommands( client_t *clients ) {
 SV_FreeReliableCommandsForClient
 ===============
 */
-void SV_FreeReliableCommandsForClient( client_t *cl ) {
+void SV_FreeReliableCommandsForClient( client_t *cl )
+{
 	if ( !cl->reliableCommands.bufSize ) {
 		return;
 	}
@@ -267,7 +277,8 @@ void SV_FreeReliableCommandsForClient( client_t *cl ) {
 SV_GetReliableCommand
 ===============
 */
-const char *SV_GetReliableCommand( client_t *cl, int index ) {
+const char *SV_GetReliableCommand( client_t *cl, int index )
+{
 	if ( !cl->reliableCommands.bufSize ) {
 		return "";
 	}
@@ -284,7 +295,8 @@ const char *SV_GetReliableCommand( client_t *cl, int index ) {
 SV_AddReliableCommand
 ===============
 */
-qboolean SV_AddReliableCommand( client_t *cl, int index, const char *cmd ) {
+qboolean SV_AddReliableCommand( client_t *cl, int index, const char *cmd )
+{
 	size_t i, j;
 	char    *ch, *ch2;
 	//
@@ -346,17 +358,16 @@ qboolean SV_AddReliableCommand( client_t *cl, int index, const char *cmd ) {
 SV_FreeAcknowledgedReliableCommands
 ===============
 */
-void SV_FreeAcknowledgedReliableCommands( client_t *cl ) {
-	int ack, realAck;
-	//
+void SV_FreeAcknowledgedReliableCommands( client_t *cl )
+{
 	if ( !cl->reliableCommands.bufSize ) {
 		return;
 	}
 	//
-	realAck = ( cl->reliableAcknowledge ) & ( MAX_RELIABLE_COMMANDS - 1 );
+	int realAck = ( cl->reliableAcknowledge ) & ( MAX_RELIABLE_COMMANDS - 1 );
 	// move backwards one command, since we need the most recently acknowledged
 	// command for netchan decoding
-	ack = ( cl->reliableAcknowledge - 1 ) & ( MAX_RELIABLE_COMMANDS - 1 );
+	int ack = ( cl->reliableAcknowledge - 1 ) & ( MAX_RELIABLE_COMMANDS - 1 );
 	//
 	if ( !cl->reliableCommands.commands[ack] ) {
 		return; // no new commands acknowledged
@@ -390,7 +401,8 @@ NOT cause this to be called, unless the game is exited to
 the menu system first.
 ===============
 */
-void SV_Startup( void ) {
+void SV_Startup()
+{
 	if ( svs.initialized ) {
 		Com_Error( ERR_FATAL, "SV_Startup: svs.initialized" );
 	}
@@ -417,15 +429,11 @@ void SV_Startup( void ) {
 SV_ChangeMaxClients
 ==================
 */
-void SV_ChangeMaxClients( void ) {
-	int oldMaxClients;
-	int i;
-	client_t    *oldClients;
-	int count;
-
+void SV_ChangeMaxClients()
+{
 	// get the highest client number in use
-	count = 0;
-	for ( i = 0 ; i < sv_maxclients->integer ; i++ ) {
+	int count = 0;
+	for (int i = 0 ; i < sv_maxclients->integer ; i++ ) {
 		if ( svs.clients[i].state >= CS_CONNECTED ) {
 			if ( i > count ) {
 				count = i;
@@ -434,7 +442,7 @@ void SV_ChangeMaxClients( void ) {
 	}
 	count++;
 
-	oldMaxClients = sv_maxclients->integer;
+	int oldMaxClients = sv_maxclients->integer;
 	// never go below the highest client number in use
 	SV_BoundMaxClients( count );
 	// if still the same
@@ -444,14 +452,14 @@ void SV_ChangeMaxClients( void ) {
 
 	// RF, free reliable commands for clients outside the NEW maxclients limit
 	if ( oldMaxClients > sv_maxclients->integer ) {
-		for ( i = sv_maxclients->integer ; i < oldMaxClients ; i++ ) {
+		for (int i = sv_maxclients->integer ; i < oldMaxClients ; i++ ) {
 			SV_FreeReliableCommandsForClient( &svs.clients[i] );
 		}
 	}
 
-	oldClients = Hunk_AllocateTempMemory( count * sizeof( client_t ) );
+	client_t* oldClients = Hunk_AllocateTempMemory( count * sizeof( client_t ) );
 	// copy the clients to hunk memory
-	for ( i = 0 ; i < count ; i++ ) {
+	for (int i = 0 ; i < count ; i++ ) {
 		if ( svs.clients[i].state >= CS_CONNECTED ) {
 			oldClients[i] = svs.clients[i];
 		} else {
@@ -476,7 +484,7 @@ void SV_ChangeMaxClients( void ) {
 	Com_Memset( svs.clients, 0, sv_maxclients->integer * sizeof( client_t ) );
 
 	// copy the clients over
-	for ( i = 0 ; i < count ; i++ ) {
+	for (int i = 0 ; i < count ; i++ ) {
 		if ( oldClients[i].state >= CS_CONNECTED ) {
 			svs.clients[i] = oldClients[i];
 		}
@@ -495,7 +503,7 @@ void SV_ChangeMaxClients( void ) {
 
 	// RF, allocate reliable commands for newly created client slots
 	if ( oldMaxClients < sv_maxclients->integer ) {
-		for ( i = oldMaxClients ; i < sv_maxclients->integer ; i++ ) {
+		for (int i = oldMaxClients ; i < sv_maxclients->integer ; i++ ) {
 			// must be an AI slot
 			SV_InitReliableCommandsForClient( &svs.clients[i], 0 );
 		}
@@ -510,25 +518,23 @@ SV_SetExpectedHunkUsage
   Sets com_expectedhunkusage, so the client knows how to draw the percentage bar
 ====================
 */
-void SV_SetExpectedHunkUsage( char *mapname ) {
+void SV_SetExpectedHunkUsage( char *mapname )
+{
 	int handle;
-	char *memlistfile = "hunkusage.dat";
-	char *buf;
-	char *buftrav;
-	char *token;
-	int len;
+	int len = FS_FOpenFileByMode( "hunkusage.dat", &handle, FS_READ );
+	if ( len >= 0 ) {
+		// the file exists, so read it in, strip out the current entry for this map
+		// and save it out, so we can append the new value
 
-	len = FS_FOpenFileByMode( memlistfile, &handle, FS_READ );
-	if ( len >= 0 ) { // the file exists, so read it in, strip out the current entry for this map, and save it out, so we can append the new value
-
-		buf = (char *)calloc(1, len + 1 );
+		char* buf = (char *)calloc(1, len + 1 );
 		memset( buf, 0, len + 1 );
 
 		FS_Read( (void *)buf, len, handle );
 		FS_FCloseFile( handle );
 
 		// now parse the file, filtering out the current map
-		buftrav = buf;
+		char* buftrav = buf;
+		char* token;
 		while ( ( token = COM_Parse( &buftrav ) ) && token[0] ) {
 			if ( !Q_strcasecmp( token, mapname ) ) {
 				// found a match
@@ -553,33 +559,14 @@ void SV_SetExpectedHunkUsage( char *mapname ) {
 SV_ClearServer
 ================
 */
-void SV_ClearServer( void ) {
-	int i;
-
-	for ( i = 0 ; i < MAX_CONFIGSTRINGS ; i++ ) {
+void SV_ClearServer()
+{
+	for (int i = 0 ; i < MAX_CONFIGSTRINGS ; i++ ) {
 		if ( sv.configstrings[i] ) {
 			free( sv.configstrings[i] );
 		}
 	}
 	Com_Memset( &sv, 0, sizeof( sv ) );
-}
-
-/*
-================
-SV_TouchCGame
-
-  touch the cgame.vm so that a pure client can load it if it's in a seperate pk3
-================
-*/
-void SV_TouchCGame( void ) {
-	fileHandle_t f;
-	char filename[MAX_QPATH];
-
-	snprintf( filename, sizeof( filename ), "vm/%s.qvm", "cgame" );
-	FS_FOpenFileRead( filename, &f, qfalse );
-	if ( f ) {
-		FS_FCloseFile( f );
-	}
 }
 
 extern int Export_BotLibShutdown( void );
@@ -592,40 +579,33 @@ clients along with it.
 This is NOT called for map_restart
 ================
 */
-void SV_SpawnServer( char *server, qboolean killBots ) {
-	int i;
-	int checksum;
-	qboolean isBot;
-	char systemInfo[MAX_INFO_STRING];
-	const char  *p;
+void SV_SpawnServer( char *server, qboolean killBots )
+{
+	static cvar_t   *bot_enable;
 
-	// Ridah, enforce maxclients in single player, so there is enough room for AI characters
-	{
-		static cvar_t   *bot_enable;
+	// Rafael gameskill
+	static cvar_t   *g_gameskill;
 
-		// Rafael gameskill
-		static cvar_t   *g_gameskill;
-
-		if ( !g_gameskill ) {
-			g_gameskill = Cvar_Get( "g_gameskill", "2", CVAR_SERVERINFO | CVAR_LATCH | CVAR_ARCHIVE );     // (SA) new default '2' (was '1')
-		}
-		// done
-
-		if ( !bot_enable ) {
-			bot_enable = Cvar_Get( "bot_enable", "1", CVAR_LATCH );
-		}
-		
-		if ( sv_maxclients->latchedString ) {
-			// it's been modified, so grab the new value
-			Cvar_Get( "sv_maxclients", "8", 0 );
-		}
-		if ( sv_maxclients->integer < MAX_CLIENTS ) {
-			Cvar_SetValue( "sv_maxclients", MAX_SP_CLIENTS );
-		}
-		if ( !bot_enable->integer ) {
-			Cvar_Set( "bot_enable", "1" );
-		}
+	if ( !g_gameskill ) {
+		g_gameskill = Cvar_Get( "g_gameskill", "2", CVAR_SERVERINFO | CVAR_LATCH | CVAR_ARCHIVE );     // (SA) new default '2' (was '1')
 	}
+	// done
+
+	if ( !bot_enable ) {
+		bot_enable = Cvar_Get( "bot_enable", "1", CVAR_LATCH );
+	}
+	
+	if ( sv_maxclients->latchedString ) {
+		// it's been modified, so grab the new value
+		Cvar_Get( "sv_maxclients", "8", 0 );
+	}
+	if ( sv_maxclients->integer < MAX_CLIENTS ) {
+		Cvar_SetValue( "sv_maxclients", MAX_SP_CLIENTS );
+	}
+	if ( !bot_enable->integer ) {
+		Cvar_Set( "bot_enable", "1" );
+	}
+	
 	// done.
 
 	// shut down the existing game if it is running
@@ -676,7 +656,7 @@ void SV_SpawnServer( char *server, qboolean killBots ) {
 	SV_ClearServer();
 
 	// allocate empty config strings
-	for ( i = 0 ; i < MAX_CONFIGSTRINGS ; i++ ) {
+	for (int i = 0 ; i < MAX_CONFIGSTRINGS ; i++ ) {
 		sv.configstrings[i] = CopyString( "" );
 	}
 
@@ -690,6 +670,7 @@ void SV_SpawnServer( char *server, qboolean killBots ) {
 	sv.checksumFeed = ( ( (int) rand() << 16 ) ^ rand() ) ^ Sys_Milliseconds();
 	FS_Restart( sv.checksumFeed );
 
+	int checksum;
 	CM_LoadMap( va( "maps/%s.bsp", server ), qfalse, &checksum );
 
 	// set serverinfo visible name
@@ -714,7 +695,7 @@ void SV_SpawnServer( char *server, qboolean killBots ) {
 	SV_InitGameProgs();
 
 	// run a few frames to allow everything to settle
-	for ( i = 0 ; i < 3 ; i++ ) {
+	for (int i = 0 ; i < 3 ; i++ ) {
 		G_RunFrame( svs.time );
 		SV_BotFrame( svs.time );
 		svs.time += 100;
@@ -723,7 +704,8 @@ void SV_SpawnServer( char *server, qboolean killBots ) {
 	// create a baseline for more efficient communications
 	SV_CreateBaseline();
 
-	for ( i = 0 ; i < sv_maxclients->integer ; i++ ) {
+	qboolean isBot = qfalse;	// IJB: what should the default be?
+	for (int i = 0 ; i < sv_maxclients->integer ; i++ ) {
 		// send the new gamestate to all connected clients
 		if ( svs.clients[i].state >= CS_CONNECTED ) {
 
@@ -771,28 +753,16 @@ void SV_SpawnServer( char *server, qboolean killBots ) {
 	SV_BotFrame( svs.time );
 	svs.time += 100;
 
-	if ( sv_pure->integer ) {
-		// the server sends these to the clients so they will only
-		// load pk3s also loaded at the server
-		p = FS_LoadedPakChecksums();
-		Cvar_Set( "sv_paks", p );
-		if ( strlen( p ) == 0 ) {
-			Com_Printf( "WARNING: sv_pure set but no PK3 files loaded\n" );
-		}
-		p = FS_LoadedPakNames();
-		Cvar_Set( "sv_pakNames", p );
-	} else {
-		Cvar_Set( "sv_paks", "" );
-		Cvar_Set( "sv_pakNames", "" );
-	}
+	Cvar_Set( "sv_paks", "" );
+	Cvar_Set( "sv_pakNames", "" );
+	
 	// the server sends these to the clients so they can figure
 	// out which pk3s should be auto-downloaded
-	p = FS_ReferencedPakChecksums();
-	Cvar_Set( "sv_referencedPaks", p );
-	p = FS_ReferencedPakNames();
-	Cvar_Set( "sv_referencedPakNames", p );
+	Cvar_Set( "sv_referencedPaks", FS_ReferencedPakChecksums());
+	Cvar_Set( "sv_referencedPakNames", FS_ReferencedPakNames());
 
 	// save systeminfo and serverinfo strings
+	char systemInfo[MAX_INFO_STRING];
 	Q_strncpyz( systemInfo, Cvar_InfoString_Big( CVAR_SYSTEMINFO ), sizeof( systemInfo ) );
 	cvar_modifiedFlags &= ~CVAR_SYSTEMINFO;
 	SV_SetConfigstring( CS_SYSTEMINFO, systemInfo );
@@ -820,7 +790,8 @@ Only called at main exe startup, not for each game
 ===============
 */
 
-void SV_Init( void ) {
+void SV_Init()
+{
 	SV_AddOperatorCommands();
 
 	// serverinfo vars
@@ -847,7 +818,6 @@ void SV_Init( void ) {
 	// systeminfo
 	Cvar_Get( "sv_cheats", "0", CVAR_SYSTEMINFO | CVAR_ROM );
 	sv_serverid = Cvar_Get( "sv_serverid", "0", CVAR_SYSTEMINFO | CVAR_ROM );
-	sv_pure = Cvar_Get( "sv_pure", "0", CVAR_SYSTEMINFO );
 
 	Cvar_Get( "sv_paks", "", CVAR_SYSTEMINFO | CVAR_ROM );
 	Cvar_Get( "sv_pakNames", "", CVAR_SYSTEMINFO | CVAR_ROM );
@@ -890,13 +860,12 @@ not just stuck on the outgoing message list, because the server is going
 to totally exit after returning from this function.
 ==================
 */
-void SV_FinalMessage( char *message ) {
-	int i, j;
-	client_t    *cl;
-
+void SV_FinalMessage( char *message )
+{
 	// send it twice, ignoring rate
-	for ( j = 0 ; j < 2 ; j++ ) {
-		for ( i = 0, cl = svs.clients ; i < sv_maxclients->integer ; i++, cl++ ) {
+	for (int j = 0 ; j < 2 ; j++ ) {
+		for (int i = 0; i < sv_maxclients->integer ; i++ ) {
+			client_t    *cl = &svs.clients[i];
 			if ( cl->state >= CS_CONNECTED ) {
 				// don't send a disconnect to a local client
 				if ( cl->netchan.remoteAddress.type != NA_LOOPBACK ) {
@@ -920,7 +889,8 @@ Called when each game quits,
 before Sys_Quit or Sys_Error
 ================
 */
-void SV_Shutdown( char *finalmsg ) {
+void SV_Shutdown( char *finalmsg )
+{
 	if ( !com_sv_running || !com_sv_running->integer ) {
 		return;
 	}

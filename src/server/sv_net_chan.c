@@ -47,7 +47,7 @@ SV_Netchan_Transmit
 ================
 */
 
-void SV_Netchan_Transmit( client_t *client, msg_t *msg ) {   //int length, const byte *data ) {
+void SV_Netchan_Transmit( client_t *client, msg_t *msg ) {
 
 	MSG_WriteByte( msg, svc_EOF );
 	Netchan_Transmit( &client->netchan, msg->cursize, msg->data );

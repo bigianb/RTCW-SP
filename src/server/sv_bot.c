@@ -261,25 +261,6 @@ void BotImport_EntityTrace( bsp_trace_t *bsptrace, vec3_t start, vec3_t mins, ve
 	bsptrace->contents = 0;
 }
 
-
-/*
-==================
-BotImport_PointContents
-==================
-*/
-int BotImport_PointContents( vec3_t point ) {
-	return SV_PointContents( point, -1 );
-}
-
-/*
-==================
-BotImport_inPVS
-==================
-*/
-int BotImport_inPVS( vec3_t p1, vec3_t p2 ) {
-	return SV_inPVS( p1, p2 );
-}
-
 /*
 ==================
 BotImport_BSPModelMinsMaxsOrigin

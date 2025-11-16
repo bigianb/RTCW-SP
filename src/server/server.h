@@ -153,7 +153,6 @@ typedef struct client_s {
 	int ping;
 	int rate;                           // bytes / second
 	int snapshotMsec;                   // requests a snapshot every snapshotMsec unless rate choked
-	int pureAuthentic;
 	netchan_t netchan;
 } client_t;
 
@@ -226,7 +225,6 @@ extern cvar_t  *sv_maxRate;
 extern cvar_t  *sv_minPing;
 extern cvar_t  *sv_maxPing;
 
-extern cvar_t  *sv_pure;
 extern cvar_t  *sv_floodProtect;
 extern cvar_t  *sv_allowAnonymous;
 
@@ -270,11 +268,9 @@ void SV_FreeReliableCommandsForClient( client_t *cl );
 //
 // sv_client.c
 //
-void SV_GetChallenge( netadr_t from );
-
 void SV_DirectConnect( netadr_t from );
 
-void SV_AuthorizeIpPacket( netadr_t from );
+
 
 void SV_ExecuteClientMessage( client_t *cl, msg_t *msg );
 void SV_UserinfoChanged( client_t *cl );
@@ -303,8 +299,8 @@ void SV_SendClientSnapshot( client_t *client );
 //
 // sv_game.c
 //
-int SV_NumForGentity( sharedEntity_t *ent );
-sharedEntity_t *SV_GentityNum( int num );
+
+sharedEntity_t *SV_GentityNum( size_t num );
 playerState_t *SV_GameClientNum( int num );
 svEntity_t  *SV_SvEntityForGentity( sharedEntity_t *gEnt );
 sharedEntity_t *SV_GEntityForSvEntity( svEntity_t *svEnt );

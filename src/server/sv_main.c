@@ -55,7 +55,6 @@ cvar_t  *sv_maxRate;
 cvar_t  *sv_minPing;
 cvar_t  *sv_maxPing;
 
-cvar_t  *sv_pure;
 cvar_t  *sv_floodProtect;
 cvar_t  *sv_allowAnonymous;
 
@@ -292,12 +291,8 @@ void SV_ConnectionlessPacket( netadr_t from, msg_t *msg ) {
 		SVC_Status( from  );
 	} else if ( !Q_stricmp( c,"getinfo" ) ) {
 		SVC_Info( from );
-	} else if ( !Q_stricmp( c,"getchallenge" ) ) {
-		SV_GetChallenge( from );
 	} else if ( !Q_stricmp( c,"connect" ) ) {
 		SV_DirectConnect( from );
-	} else if ( !Q_stricmp( c,"ipAuthorize" ) ) {
-		SV_AuthorizeIpPacket( from );
 	} else if ( !Q_stricmp( c, "rcon" ) ) {
 		SVC_RemoteCommand( from, msg );
 	} else if ( !Q_stricmp( c,"disconnect" ) ) {
@@ -521,10 +516,8 @@ Player movement occurs as a result of packet events, which
 happen before SV_Frame is called
 ==================
 */
-void SV_Frame( int msec ) {
-	int frameMsec;
-	int startTime;
-
+void SV_Frame( int msec )
+{
 	// the menu kills the server with this cvar
 	if ( sv_killserver->integer ) {
 		SV_Shutdown( "Server was killed.\n" );
@@ -545,7 +538,7 @@ void SV_Frame( int msec ) {
 	if ( sv_fps->integer < 1 ) {
 		Cvar_Set( "sv_fps", "10" );
 	}
-	frameMsec = 1000 / sv_fps->integer ;
+	int frameMsec = 1000 / sv_fps->integer ;
 
 	sv.timeResidual += msec;
 
@@ -569,6 +562,7 @@ void SV_Frame( int msec ) {
 		Cbuf_AddText( "vstr nextmap\n" );
 		return;
 	}
+	
 	// this can happen considerably earlier when lots of clients play and the map doesn't change
 	if ( svs.nextSnapshotEntities >= 0x7FFFFFFE - svs.numSnapshotEntities ) {
 		SV_Shutdown( "Restarting server due to numSnapshotEntities wrapping" );
@@ -591,11 +585,10 @@ void SV_Frame( int msec ) {
 		SV_SetConfigstring( CS_SYSTEMINFO, Cvar_InfoString_Big( CVAR_SYSTEMINFO ) );
 		cvar_modifiedFlags &= ~CVAR_SYSTEMINFO;
 	}
-
+	
+	int startTime = 0;
 	if ( com_speeds->integer ) {
 		startTime = Sys_Milliseconds();
-	} else {
-		startTime = 0;  // quite a compiler warning
 	}
 
 	// update ping based on the all received frames

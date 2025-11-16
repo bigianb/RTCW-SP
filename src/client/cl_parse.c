@@ -316,11 +316,6 @@ void CL_ParseSnapshot( msg_t *msg ) {
 	cl.newSnapshots = qtrue;
 }
 
-
-//=====================================================================
-
-int cl_connectedToPureServer;
-
 /*
 ==================
 CL_SystemInfoChanged
@@ -349,16 +344,6 @@ void CL_SystemInfoChanged( void ) {
 		Cvar_SetCheatState();
 	}
 
-	// check pure server string
-	s = Info_ValueForKey( systemInfo, "sv_paks" );
-	t = Info_ValueForKey( systemInfo, "sv_pakNames" );
-	FS_PureServerSetLoadedPaks( s, t );
-
-	s = Info_ValueForKey( systemInfo, "sv_referencedPaks" );
-	t = Info_ValueForKey( systemInfo, "sv_referencedPakNames" );
-	FS_PureServerSetReferencedPaks( s, t );
-
-
 	// scan through all the variables in the systeminfo and locally set cvars to match
 	s = systemInfo;
 	while ( s ) {
@@ -369,7 +354,6 @@ void CL_SystemInfoChanged( void ) {
 
 		Cvar_Set( key, value );
 	}
-	cl_connectedToPureServer = Cvar_VariableValue( "sv_pure" );
 }
 
 /*
@@ -405,14 +389,12 @@ void CL_ParseGamestate( msg_t *msg ) {
 		}
 
 		if ( cmd == svc_configstring ) {
-			int len;
-
 			i = MSG_ReadShort( msg );
 			if ( i < 0 || i >= MAX_CONFIGSTRINGS ) {
 				Com_Error( ERR_DROP, "configstring > MAX_CONFIGSTRINGS" );
 			}
 			s = MSG_ReadBigString( msg );
-			len = strlen( s );
+			size_t len = strlen( s );
 
 			if ( len + 1 + cl.gameState.dataCount > MAX_GAMESTATE_CHARS ) {
 				Com_Error( ERR_DROP, "MAX_GAMESTATE_CHARS exceeded" );

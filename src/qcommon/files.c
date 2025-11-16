@@ -215,7 +215,6 @@ typedef struct {
 	char pakGamename[MAX_OSPATH];               // baseq3
 	unzFile handle;                             // handle to zip file
 	int checksum;                               // regular checksum
-	int pure_checksum;                          // checksum for pure
 	int numfiles;                               // number of files in pk3
 	int referenced;                             // referenced file flags
 	int hashSize;                               // hash table size (power of 2)
@@ -276,11 +275,6 @@ typedef struct {
 
 static fileHandleData_t fsh[MAX_FILE_HANDLES];
 
-// never load anything from pk3 files that are not present at the server when pure
-static int fs_numServerPaks;
-static int fs_serverPaks[MAX_SEARCH_PATHS];                     // checksums
-static char     *fs_serverPakNames[MAX_SEARCH_PATHS];           // pk3 names
-
 // only used for autodownload, to make sure the client has at least
 // all the pk3 files that are referenced at the server side
 static int fs_numServerReferencedPaks;
@@ -301,30 +295,6 @@ FS_Initialized
 qboolean FS_Initialized() {
 	return ( fs_searchpaths != NULL );
 }
-
-/*
-=================
-FS_PakIsPure
-=================
-*/
-qboolean FS_PakIsPure( pack_t *pack ) {
-	
-	if ( fs_numServerPaks ) {
-		// NOTE TTimo we are matching checksums without checking the pak names
-		//   this means you can have the same pk3 as the server under a different name, you will still get through sv_pure validation
-		//   (what happens when two pk3's have the same checkums? is it a likely situation?)
-		//   also, if there's a wrong checksumed pk3 and autodownload is enabled, the checksum will be appended to the downloaded pk3 name
-		for (int i = 0 ; i < fs_numServerPaks ; i++ ) {
-			// FIXME: also use hashed file names
-			if ( pack->checksum == fs_serverPaks[i] ) {
-				return qtrue;       // on the aproved list
-			}
-		}
-		return qfalse;  // not on the pure server pak list
-	}
-	return qtrue;
-}
-
 
 /*
 =================
@@ -1120,10 +1090,6 @@ size_t FS_FOpenFileRead( const char *filename, fileHandle_t *file, qboolean uniq
 		}
 		// is the element a pak file?
 		if ( search->pack && search->pack->hashTable[hash] ) {
-			// disregard if it doesn't match one of the allowed pure pak files
-			if ( !FS_PakIsPure( search->pack ) ) {
-				continue;
-			}
 
 			// look through all the pak file elements
 			pak = search->pack;
@@ -1205,12 +1171,8 @@ size_t FS_FOpenFileRead( const char *filename, fileHandle_t *file, qboolean uniq
 			// if we are running restricted, the only files we
 			// will allow to come from the directory are .cfg files
 			l = strlen( filename );
-			// FIXME TTimo I'm not sure about the fs_numServerPaks test
-			// if you are using FS_ReadFile to find out if a file exists,
-			//   this test can make the search fail although the file is in the directory
-			// I had the problem on show_bug.cgi?id=8
-			// turned out I used FS_FileExists instead
-			if ( fs_restrict->integer || fs_numServerPaks ) {
+
+			if ( fs_restrict->integer ) {
 
 				if ( Q_stricmp( filename + l - 4, ".cfg" )       // for config files
 					 && Q_stricmp( filename + l - 4, ".svg" ) // savegames
@@ -1507,20 +1469,13 @@ int FS_FileIsInPAK( const char *filename, int *pChecksum ) {
 		}
 		// is the element a pak file?
 		if ( search->pack && search->pack->hashTable[hash] ) {
-			// disregard if it doesn't match one of the allowed pure pak files
-			if ( !FS_PakIsPure( search->pack ) ) {
-				continue;
-			}
-
+			
 			// look through all the pak file elements
 			pak = search->pack;
 			pakFile = pak->hashTable[hash];
 			do {
 				// case and separator insensitive comparisons
 				if ( !FS_FilenameCompare( pakFile->name, filename ) ) {
-					if ( pChecksum ) {
-						*pChecksum = pak->pure_checksum;
-					}
 					return 1;
 				}
 				pakFile = pakFile->next;
@@ -1804,9 +1759,7 @@ static pack_t *FS_LoadZipFile( char *zipfile, const char *basename ) {
 	}
 
 	pack->checksum = Com_BlockChecksum( &fs_headerLongs[ 1 ], sizeof(*fs_headerLongs) * ( fs_numHeaderLongs - 1 ) );
-	pack->pure_checksum = Com_BlockChecksum( fs_headerLongs, sizeof(*fs_headerLongs) * fs_numHeaderLongs );
 	pack->checksum = LittleLong( pack->checksum );
-	pack->pure_checksum = LittleLong( pack->pure_checksum );
 
 	free( fs_headerLongs );
 
@@ -1912,12 +1865,6 @@ char **FS_ListFilteredFiles( const char *path, const char *extension, char *filt
 		// is the element a pak file?
 		if ( search->pack ) {
 
-			//ZOID:  If we are pure, don't search for files on paks that
-			// aren't on the pure list
-			if ( !FS_PakIsPure( search->pack ) ) {
-				continue;
-			}
-
 			// look through all the pak file elements
 			pack_t* pak = search->pack;
 			fileInPack_t* buildBuffer = pak->buildBuffer;
@@ -1969,7 +1916,7 @@ char **FS_ListFilteredFiles( const char *path, const char *extension, char *filt
 
 			// don't scan directories for files if we are pure or restricted
 			// allow listing of savegames for the demo menus
-			if ( ( fs_restrict->integer || fs_numServerPaks ) && Q_stricmp( extension, "svg" ) ) {
+			if ( ( fs_restrict->integer ) && Q_stricmp( extension, "svg" ) ) {
 				continue;
 			} else {
 				netpath = FS_BuildOSPath( search->dir->path, search->dir->gamedir, path );
@@ -2425,13 +2372,6 @@ void FS_Path_f( void ) {
 	for ( s = fs_searchpaths; s; s = s->next ) {
 		if ( s->pack ) {
 			Com_Printf( "%s (%i files)\n", s->pack->pakFilename, s->pack->numfiles );
-			if ( fs_numServerPaks ) {
-				if ( !FS_PakIsPure( s->pack ) ) {
-					Com_Printf( "    not on the pure list\n" );
-				} else {
-					Com_Printf( "    on the pure list\n" );
-				}
-			}
 		} else {
 			Com_Printf( "%s/%s\n", s->dir->path, s->dir->gamedir );
 		}
@@ -2595,103 +2535,6 @@ qboolean FS_idPak( char *pak, char *base ) {
 	return qfalse;
 }
 
-/*
-================
-FS_ComparePaks
-
-----------------
-dlstring == qtrue
-
-Returns a list of pak files that we should download from the server. They all get stored
-in the current gamedir and an FS_Restart will be fired up after we download them all.
-
-The string is the format:
-
-@remotename@localname [repeat]
-
-static int		fs_numServerReferencedPaks;
-static int		fs_serverReferencedPaks[MAX_SEARCH_PATHS];
-static char		*fs_serverReferencedPakNames[MAX_SEARCH_PATHS];
-
-----------------
-dlstring == qfalse
-
-we are not interested in a download string format, we want something human-readable
-(this is used for diagnostics while connecting to a pure server)
-
-================
-*/
-qboolean FS_ComparePaks( char *neededpaks, int len, qboolean dlstring ) {
-	searchpath_t    *sp;
-	qboolean havepak, badchecksum;
-	int i;
-
-	if ( !fs_numServerReferencedPaks ) {
-		return qfalse; // Server didn't send any pack information along
-	}
-
-	*neededpaks = 0;
-
-	for ( i = 0 ; i < fs_numServerReferencedPaks ; i++ ) {
-		// Ok, see if we have this pak file
-		badchecksum = qfalse;
-		havepak = qfalse;
-
-		// never autodownload any of the id paks
-		if ( FS_idPak( fs_serverReferencedPakNames[i], "baseq3" ) || FS_idPak( fs_serverReferencedPakNames[i], "missionpack" ) ) {
-			continue;
-		}
-
-		for ( sp = fs_searchpaths ; sp ; sp = sp->next ) {
-			if ( sp->pack && sp->pack->checksum == fs_serverReferencedPaks[i] ) {
-				havepak = qtrue; // This is it!
-				break;
-			}
-		}
-
-		if ( !havepak && fs_serverReferencedPakNames[i] && *fs_serverReferencedPakNames[i] ) {
-			// Don't got it
-
-			if ( dlstring ) {
-				// Remote name
-				Q_strcat( neededpaks, len, "@" );
-				Q_strcat( neededpaks, len, fs_serverReferencedPakNames[i] );
-				Q_strcat( neededpaks, len, ".pk3" );
-
-				// Local name
-				Q_strcat( neededpaks, len, "@" );
-				// Do we have one with the same name?
-				if ( FS_SV_FileExists( va( "%s.pk3", fs_serverReferencedPakNames[i] ) ) ) {
-					char st[MAX_ZPATH];
-					// We already have one called this, we need to download it to another name
-					// Make something up with the checksum in it
-					snprintf( st, sizeof( st ), "%s.%08x.pk3", fs_serverReferencedPakNames[i], fs_serverReferencedPaks[i] );
-					Q_strcat( neededpaks, len, st );
-				} else
-				{
-					Q_strcat( neededpaks, len, fs_serverReferencedPakNames[i] );
-					Q_strcat( neededpaks, len, ".pk3" );
-				}
-			} else
-			{
-				Q_strcat( neededpaks, len, fs_serverReferencedPakNames[i] );
-				Q_strcat( neededpaks, len, ".pk3" );
-				// Do we have one with the same name?
-				if ( FS_SV_FileExists( va( "%s.pk3", fs_serverReferencedPakNames[i] ) ) ) {
-					Q_strcat( neededpaks, len, " (local file exists with wrong checksum)" );
-				}
-				Q_strcat( neededpaks, len, "\n" );
-			}
-		}
-	}
-
-	if ( *neededpaks ) {
-		Com_Printf( "Need paks: %s\n", neededpaks );
-		return qtrue;
-	}
-
-	return qfalse; // We have them all
-}
 
 /*
 ================
@@ -2821,113 +2664,6 @@ static void FS_Startup( const char *gameName ) {
 
 /*
 =====================
-FS_GamePureChecksum
-
-Returns the checksum of the pk3 from which the server loaded the qagame.qvm
-=====================
-*/
-const char *FS_GamePureChecksum( void ) {
-	static char info[MAX_STRING_TOKENS];
-	searchpath_t *search;
-
-	info[0] = 0;
-
-	for ( search = fs_searchpaths ; search ; search = search->next ) {
-		// is the element a pak file?
-		if ( search->pack ) {
-			if ( search->pack->referenced & FS_QAGAME_REF ) {
-				snprintf( info, sizeof( info ), "%d", search->pack->checksum );
-			}
-		}
-	}
-
-	return info;
-}
-
-/*
-=====================
-FS_LoadedPakChecksums
-
-Returns a space separated string containing the checksums of all loaded pk3 files.
-Servers with sv_pure set will get this string and pass it to clients.
-=====================
-*/
-const char *FS_LoadedPakChecksums( void ) {
-	static char info[BIG_INFO_STRING];
-	searchpath_t    *search;
-
-	info[0] = 0;
-
-	for ( search = fs_searchpaths ; search ; search = search->next ) {
-		// is the element a pak file?
-		if ( !search->pack ) {
-			continue;
-		}
-
-		Q_strcat( info, sizeof( info ), va( "%i ", search->pack->checksum ) );
-	}
-
-	return info;
-}
-
-/*
-=====================
-FS_LoadedPakNames
-
-Returns a space separated string containing the names of all loaded pk3 files.
-Servers with sv_pure set will get this string and pass it to clients.
-=====================
-*/
-const char *FS_LoadedPakNames( void ) {
-	static char info[BIG_INFO_STRING];
-	searchpath_t    *search;
-
-	info[0] = 0;
-
-	for ( search = fs_searchpaths ; search ; search = search->next ) {
-		// is the element a pak file?
-		if ( !search->pack ) {
-			continue;
-		}
-
-		if ( *info ) {
-			Q_strcat( info, sizeof( info ), " " );
-		}
-		Q_strcat( info, sizeof( info ), search->pack->pakBasename );
-	}
-
-	return info;
-}
-
-/*
-=====================
-FS_LoadedPakPureChecksums
-
-Returns a space separated string containing the pure checksums of all loaded pk3 files.
-Servers with sv_pure use these checksums to compare with the checksums the clients send
-back to the server.
-=====================
-*/
-const char *FS_LoadedPakPureChecksums( void ) {
-	static char info[BIG_INFO_STRING];
-	searchpath_t    *search;
-
-	info[0] = 0;
-
-	for ( search = fs_searchpaths ; search ; search = search->next ) {
-		// is the element a pak file?
-		if ( !search->pack ) {
-			continue;
-		}
-
-		Q_strcat( info, sizeof( info ), va( "%i ", search->pack->pure_checksum ) );
-	}
-
-	return info;
-}
-
-/*
-=====================
 FS_ReferencedPakChecksums
 
 Returns a space separated string containing the checksums of all referenced pk3 files.
@@ -2948,49 +2684,6 @@ const char *FS_ReferencedPakChecksums( void ) {
 			}
 		}
 	}
-
-	return info;
-}
-
-/*
-=====================
-FS_ReferencedPakPureChecksums
-
-Returns a space separated string containing the pure checksums of all referenced pk3 files.
-Servers with sv_pure set will get this string back from clients for pure validation
-
-The string has a specific order, "cgame ui @ ref1 ref2 ref3 ..."
-
-NOTE TTimo: this code is taken from Wolf MP source
-pure checksums code is not relevant to SP binary anyway
-=====================
-*/
-const char *FS_ReferencedPakPureChecksums( void ) {
-	static char info[BIG_INFO_STRING];
-	searchpath_t    *search;
-	int nFlags, numPaks, checksum;
-
-	info[0] = 0;
-	checksum = fs_checksumFeed;
-
-	numPaks = 0;
-	for ( nFlags = FS_GENERAL_REF; nFlags; nFlags = nFlags >> 1 ) {
-		for ( search = fs_searchpaths ; search ; search = search->next ) {
-			// is the element a pak file and has it been referenced based on flag?
-			if ( search->pack && ( search->pack->referenced & nFlags ) ) {
-				Q_strcat( info, sizeof( info ), va( "%i ", search->pack->pure_checksum ) );
-				checksum ^= search->pack->pure_checksum;
-				numPaks++;
-			}
-		}
-		if ( fs_fakeChkSum != 0 ) {
-			// only added if a non-pure file is referenced
-			Q_strcat( info, sizeof( info ), va( "%i ", fs_fakeChkSum ) );
-		}
-	}
-	// last checksum is the encoded number of referenced pk3s
-	checksum ^= numPaks;
-	Q_strcat( info, sizeof( info ), va( "%i ", checksum ) );
 
 	return info;
 }
@@ -3043,102 +2736,6 @@ void FS_ClearPakReferences( int flags ) {
 		// is the element a pak file and has it been referenced?
 		if ( search->pack ) {
 			search->pack->referenced &= ~flags;
-		}
-	}
-}
-
-
-/*
-=====================
-FS_PureServerSetLoadedPaks
-
-If the string is empty, all data sources will be allowed.
-If not empty, only pk3 files that match one of the space
-separated checksums will be checked for files, with the
-exception of .cfg and .dat files.
-=====================
-*/
-void FS_PureServerSetLoadedPaks( const char *pakSums, const char *pakNames ) {
-	int i, c, d;
-
-	Cmd_TokenizeString( pakSums );
-
-	c = Cmd_Argc();
-	if ( c > MAX_SEARCH_PATHS ) {
-		c = MAX_SEARCH_PATHS;
-	}
-
-	fs_numServerPaks = c;
-
-	for ( i = 0 ; i < c ; i++ ) {
-		fs_serverPaks[i] = atoi( Cmd_Argv( i ) );
-	}
-
-	if ( fs_numServerPaks ) {
-		Com_DPrintf( "Connected to a pure server.\n" );
-	}
-
-	for ( i = 0 ; i < c ; i++ ) {
-		if ( fs_serverPakNames[i] ) {
-			free( fs_serverPakNames[i] );
-		}
-		fs_serverPakNames[i] = NULL;
-	}
-	if ( pakNames && *pakNames ) {
-		Cmd_TokenizeString( pakNames );
-
-		d = Cmd_Argc();
-		if ( d > MAX_SEARCH_PATHS ) {
-			d = MAX_SEARCH_PATHS;
-		}
-
-		for ( i = 0 ; i < d ; i++ ) {
-			fs_serverPakNames[i] = CopyString( Cmd_Argv( i ) );
-		}
-	}
-}
-
-/*
-=====================
-FS_PureServerSetReferencedPaks
-
-The checksums and names of the pk3 files referenced at the server
-are sent to the client and stored here. The client will use these
-checksums to see if any pk3 files need to be auto-downloaded.
-=====================
-*/
-void FS_PureServerSetReferencedPaks( const char *pakSums, const char *pakNames ) {
-	int i, c, d;
-
-	Cmd_TokenizeString( pakSums );
-
-	c = Cmd_Argc();
-	if ( c > MAX_SEARCH_PATHS ) {
-		c = MAX_SEARCH_PATHS;
-	}
-
-	fs_numServerReferencedPaks = c;
-
-	for ( i = 0 ; i < c ; i++ ) {
-		fs_serverReferencedPaks[i] = atoi( Cmd_Argv( i ) );
-	}
-
-	for ( i = 0 ; i < c ; i++ ) {
-		if ( fs_serverReferencedPakNames[i] ) {
-			free( fs_serverReferencedPakNames[i] );
-		}
-		fs_serverReferencedPakNames[i] = NULL;
-	}
-	if ( pakNames && *pakNames ) {
-		Cmd_TokenizeString( pakNames );
-
-		d = Cmd_Argc();
-		if ( d > MAX_SEARCH_PATHS ) {
-			d = MAX_SEARCH_PATHS;
-		}
-
-		for ( i = 0 ; i < d ; i++ ) {
-			fs_serverReferencedPakNames[i] = CopyString( Cmd_Argv( i ) );
 		}
 	}
 }
@@ -3204,7 +2801,7 @@ void FS_Restart( int checksumFeed ) {
 		// this might happen when connecting to a pure server not using BASEGAME/pak0.pk3
 		// (for instance a TA demo server)
 		if ( lastValidBase[0] ) {
-			FS_PureServerSetLoadedPaks( "", "" );
+
 			Cvar_Set( "fs_basepath", lastValidBase );
 			Cvar_Set( "fs_gamedirvar", lastValidGame );
 			lastValidBase[0] = '\0';

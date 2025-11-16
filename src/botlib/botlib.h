@@ -192,10 +192,10 @@ void BotImport_Trace( bsp_trace_t *trace, vec3_t start, vec3_t mins, vec3_t maxs
 void BotImport_EntityTrace( bsp_trace_t *trace, vec3_t start, vec3_t mins, vec3_t maxs, vec3_t end, int entnum, int contentmask );
 
 //retrieve the contents at the given point
-int BotImport_PointContents( vec3_t point );
+int SV_PointContents( const vec3_t p, int passEntityNum );
 
 //check if the point is in potential visible sight
-int BotImport_inPVS( vec3_t p1, vec3_t p2 );
+qboolean SV_inPVS(const vec3_t p1, const vec3_t p2 );
 
 void BotImport_BSPModelMinsMaxsOrigin( int modelnum, vec3_t angles, vec3_t mins, vec3_t maxs, vec3_t origin );
 
