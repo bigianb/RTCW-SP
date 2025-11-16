@@ -867,11 +867,6 @@ void SV_FinalMessage( char *message )
 		for (int i = 0; i < sv_maxclients->integer ; i++ ) {
 			client_t    *cl = &svs.clients[i];
 			if ( cl->state >= CS_CONNECTED ) {
-				// don't send a disconnect to a local client
-				if ( cl->netchan.remoteAddress.type != NA_LOOPBACK ) {
-					SV_SendServerCommand( cl, "print \"%s\"", message );
-					SV_SendServerCommand( cl, "disconnect" );
-				}
 				// force a snapshot to be sent
 				cl->nextSnapshotTime = -1;
 				SV_SendClientSnapshot( cl );

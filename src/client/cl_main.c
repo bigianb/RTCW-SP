@@ -640,7 +640,7 @@ void CL_MapLoading( void ) {
 	Key_SetCatcher( 0 );
 
 	// if we are already connected to the local host, stay connected
-	if ( cls.state >= CA_CONNECTED && !Q_stricmp( cls.servername, "localhost" ) ) {
+	if ( cls.state >= CA_CONNECTED  ) {
 		cls.state = CA_CONNECTED;       // so the connect screen is drawn
 		memset( cls.updateInfoString, 0, sizeof( cls.updateInfoString ) );
 		memset( clc.serverMessage, 0, sizeof( clc.serverMessage ) );
@@ -881,11 +881,8 @@ CL_Reconnect_f
 ================
 */
 void CL_Reconnect_f( void ) {
-	if ( !strlen( cls.servername ) || !strcmp( cls.servername, "localhost" ) ) {
-		Com_Printf( "Can't reconnect to localhost.\n" );
-		return;
-	}
-	Cbuf_AddText( va( "connect %s\n", cls.servername ) );
+
+	Com_Printf( "Can't reconnect to localhost.\n" );
 }
 
 /*
@@ -913,7 +910,7 @@ void CL_Connect_f( void ) {
 
 	server = Cmd_Argv( 1 );
 
-	if ( com_sv_running->integer && !strcmp( server, "localhost" ) ) {
+	if ( com_sv_running->integer) {
 		// if running a local server, kill it
 		SV_Shutdown( "Server quit\n" );
 	}

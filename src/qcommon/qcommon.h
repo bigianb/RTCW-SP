@@ -894,7 +894,6 @@ void    Sys_SendPacket( int length, const void *data, netadr_t to );
 qboolean    Sys_StringToAdr( const char *s, netadr_t *a );
 //Does NOT parse port numbers, only base addresses.
 
-qboolean    Sys_IsLANAddress( netadr_t adr );
 void        Sys_ShowIP( void );
 
 qboolean    Sys_CheckCD( void );

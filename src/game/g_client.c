@@ -693,9 +693,6 @@ void ClientUserinfoChanged( int clientNum ) {
 
 	// check for local client
 	s = Info_ValueForKey( userinfo, "ip" );
-	if ( !strcmp( s, "localhost" ) ) {
-		client->pers.localClient = qtrue;
-	}
 
 	// check the item prediction
 	s = Info_ValueForKey( userinfo, "cg_predictItems" );
@@ -1001,7 +998,7 @@ void ClientSpawn( gentity_t *ent ) {
 		
 		do {
 			// the first spawn should be at a good looking spot
-			if ( !client->pers.initialSpawn && client->pers.localClient ) {
+			if ( !client->pers.initialSpawn ) {
 				client->pers.initialSpawn = qtrue;
 				spawnPoint = SelectInitialSpawnPoint( spawn_origin, spawn_angles );
 			} else {

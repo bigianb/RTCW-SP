@@ -85,50 +85,7 @@ void SV_DirectConnect( netadr_t from ) {
 		}
 	}
 
-	// see if the challenge is valid (LAN clients don't need to challenge)
-	if ( !NET_IsLocalAddress( from ) ) {
-		int ping;
-
-		for ( i = 0 ; i < MAX_CHALLENGES ; i++ ) {
-			if ( NET_CompareAdr( from, svs.challenges[i].adr ) ) {
-				if ( challenge == svs.challenges[i].challenge ) {
-					break;      // good
-				}
-				NET_OutOfBandPrint( NS_SERVER, from, "print\nBad challenge.\n" );
-				return;
-			}
-		}
-		if ( i == MAX_CHALLENGES ) {
-			NET_OutOfBandPrint( NS_SERVER, from, "print\nNo challenge for address.\n" );
-			return;
-		}
-		// force the IP key/value pair so the game can filter based on ip
-		Info_SetValueForKey( userinfo, "ip", NET_AdrToString( from ) );
-
-		ping = svs.time - svs.challenges[i].pingTime;
-		Com_Printf( "Client %i connecting with %i challenge ping\n", i, ping );
-
-		// never reject a LAN client based on ping
-		if ( !Sys_IsLANAddress( from ) ) {
-			if ( sv_minPing->value && ping < sv_minPing->value ) {
-				// don't let them keep trying until they get a big delay
-				NET_OutOfBandPrint( NS_SERVER, from, "print\nServer is for high pings only\n" );
-				Com_DPrintf( "Client %i rejected on a too low ping\n", i );
-				// reset the address otherwise their ping will keep increasing
-				// with each connect message and they'd eventually be able to connect
-				svs.challenges[i].adr.port = 0;
-				return;
-			}
-			if ( sv_maxPing->value && ping > sv_maxPing->value ) {
-				NET_OutOfBandPrint( NS_SERVER, from, "print\nServer is for low pings only\n" );
-				Com_DPrintf( "Client %i rejected on a too high ping\n", i );
-				return;
-			}
-		}
-	} else {
-		// force the "ip" info key to "localhost"
-		Info_SetValueForKey( userinfo, "ip", "localhost" );
-	}
+	Info_SetValueForKey( userinfo, "ip", "localhost" );
 
 	newcl = &temp;
 	memset( newcl, 0, sizeof( client_t ) );
@@ -470,22 +427,9 @@ void SV_UserinfoChanged( client_t *cl ) {
 
 	// if the client is on the same subnet as the server and we aren't running an
 	// internet public server, assume they don't need a rate choke
-	if ( Sys_IsLANAddress( cl->netchan.remoteAddress ) && com_dedicated->integer != 2 ) {
-		cl->rate = 99999;   // lans should not rate limit
-	} else {
-		val = Info_ValueForKey( cl->userinfo, "rate" );
-		if ( strlen( val ) ) {
-			i = atoi( val );
-			cl->rate = i;
-			if ( cl->rate < 1000 ) {
-				cl->rate = 1000;
-			} else if ( cl->rate > 90000 ) {
-				cl->rate = 90000;
-			}
-		} else {
-			cl->rate = 3000;
-		}
-	}
+	cl->rate = 99999;   // lans should not rate limit
+	
+	
 	val = Info_ValueForKey( cl->userinfo, "handicap" );
 	if ( strlen( val ) ) {
 		i = atoi( val );

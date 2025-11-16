@@ -284,7 +284,7 @@ SV_AddEntitiesVisibleFromPoint
 ===============
 */
 static void SV_AddEntitiesVisibleFromPoint( vec3_t origin, clientSnapshot_t *frame,
-											snapshotEntityNumbers_t *eNums, qboolean portal, qboolean localClient  )
+											snapshotEntityNumbers_t *eNums, qboolean portal  )
 {
 	// during an error shutdown message we may need to transmit
 	// the shutdown message after the server has shutdown, so
@@ -348,7 +348,7 @@ static void SV_AddEntitiesVisibleFromPoint( vec3_t origin, clientSnapshot_t *fra
 		if ( ( playerEnt->s.eFlags & EF_VIEWING_CAMERA ) && !portal ) {
 			if ( ent->r.svFlags & SVF_PORTAL ) {
 				SV_AddEntToSnapshot( svEnt, ent, eNums );
-				SV_AddEntitiesVisibleFromPoint( ent->s.origin2, frame, eNums, qtrue, localClient );
+				SV_AddEntitiesVisibleFromPoint( ent->s.origin2, frame, eNums, qtrue );
 			}
 			continue;
 		}
@@ -463,7 +463,7 @@ static void SV_AddEntitiesVisibleFromPoint( vec3_t origin, clientSnapshot_t *fra
 
 		// if its a portal entity, add everything visible from its camera position
 		if ( ent->r.svFlags & SVF_PORTAL ) {
-			SV_AddEntitiesVisibleFromPoint( ent->s.origin2, frame, eNums, qtrue, localClient );
+			SV_AddEntitiesVisibleFromPoint( ent->s.origin2, frame, eNums, qtrue );
 		}
 
 		continue;
@@ -471,19 +471,16 @@ static void SV_AddEntitiesVisibleFromPoint( vec3_t origin, clientSnapshot_t *fra
 notVisible:
 
 		// Ridah, if this entity has changed events, then send it regardless of whether we can see it or not
-		if ( localClient ) {
-			if ( ent->r.eventTime == svs.time ) {
-				ent->s.eFlags |= EF_NODRAW;     // don't draw, just process event
+		if ( ent->r.eventTime == svs.time ) {
+			ent->s.eFlags |= EF_NODRAW;     // don't draw, just process event
+			SV_AddEntToSnapshot( svEnt, ent, eNums );
+		} else if ( ent->s.eType == ET_PLAYER ) {
+			// keep players around if they are alive and active (so sounds dont get messed up)
+			if ( !( ent->s.eFlags & EF_DEAD ) ) {
+				ent->s.eFlags |= EF_NODRAW;     // don't draw, just process events and sounds
 				SV_AddEntToSnapshot( svEnt, ent, eNums );
-			} else if ( ent->s.eType == ET_PLAYER ) {
-				// keep players around if they are alive and active (so sounds dont get messed up)
-				if ( !( ent->s.eFlags & EF_DEAD ) ) {
-					ent->s.eFlags |= EF_NODRAW;     // don't draw, just process events and sounds
-					SV_AddEntToSnapshot( svEnt, ent, eNums );
-				}
 			}
 		}
-
 	}
 }
 
@@ -548,7 +545,7 @@ static void SV_BuildClientSnapshot( client_t *client )
 
 	// add all the entities directly visible to the eye, which
 	// may include portal entities that merge other viewpoints
-	SV_AddEntitiesVisibleFromPoint( org, frame, &entityNumbers, qfalse, client->netchan.remoteAddress.type == NA_LOOPBACK );
+	SV_AddEntitiesVisibleFromPoint( org, frame, &entityNumbers, qfalse );
 
 	// if there were portals visible, there may be out of order entities
 	// in the list which will need to be resorted for the delta compression
@@ -629,32 +626,8 @@ void SV_SendMessageToClient( msg_t *msg, client_t *client )
 	// set nextSnapshotTime based on rate and requested number of updates
 
 	// local clients get snapshots every frame
-	if ( client->netchan.remoteAddress.type == NA_LOOPBACK || Sys_IsLANAddress( client->netchan.remoteAddress ) ) {
-		client->nextSnapshotTime = svs.time - 1;
-		return;
-	}
-
-	// normal rate / snapshotMsec calculation
-	int rateMsec = SV_RateMsec( client, msg->cursize );
-
-	if ( rateMsec < client->snapshotMsec ) {
-		// never send more packets than this, no matter what the rate is at
-		rateMsec = client->snapshotMsec;
-		client->rateDelayed = qfalse;
-	} else {
-		client->rateDelayed = qtrue;
-	}
-
-	client->nextSnapshotTime = svs.time + rateMsec;
-
-	// don't pile up empty snapshots while connecting
-	if ( client->state != CS_ACTIVE ) {
-		// a gigantic connection message may have already put the nextSnapshotTime
-		// more than a second away, so don't shorten it
-		if ( client->nextSnapshotTime < svs.time + 1000 ) {
-			client->nextSnapshotTime = svs.time + 1000;
-		}
-	}
+	client->nextSnapshotTime = svs.time - 1;
+	return;
 }
 
 

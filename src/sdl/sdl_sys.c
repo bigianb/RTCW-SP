@@ -226,19 +226,6 @@ qboolean Sys_LowPhysicalMemory() {
 void Sys_ShowConsole( int visLevel, qboolean quitOnClose ) {
 }
 
-qboolean Sys_IsLANAddress( netadr_t adr ) {
-	int i;
-
-	if ( adr.type == NA_LOOPBACK ) {
-		return qtrue;
-	}
-
-	if ( adr.type == NA_IPX ) {
-		return qtrue;
-	}
-	return qfalse;
-}
-
 time_t sys_timeBase = 0;
 int Sys_Milliseconds( void ) {
 	struct timeval tp;

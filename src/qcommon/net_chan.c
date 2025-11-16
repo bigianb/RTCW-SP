@@ -384,44 +384,13 @@ qboolean    NET_CompareBaseAdr( netadr_t a, netadr_t b ) {
 		return qfalse;
 	}
 
-	if ( a.type == NA_LOOPBACK ) {
-		return qtrue;
-	}
-
-	if ( a.type == NA_IP ) {
-		if ( a.ip[0] == b.ip[0] && a.ip[1] == b.ip[1] && a.ip[2] == b.ip[2] && a.ip[3] == b.ip[3] ) {
-			return qtrue;
-		}
-		return qfalse;
-	}
-
-	if ( a.type == NA_IPX ) {
-		if ( ( memcmp( a.ipx, b.ipx, 10 ) == 0 ) ) {
-			return qtrue;
-		}
-		return qfalse;
-	}
-
-
-	Com_Printf( "NET_CompareBaseAdr: bad address type\n" );
-	return qfalse;
+	return qtrue;
 }
 
 const char  *NET_AdrToString( netadr_t a ) {
 	static char s[64];
 
-	if ( a.type == NA_LOOPBACK ) {
-		snprintf( s, sizeof( s ), "loopback" );
-	} else if ( a.type == NA_BOT ) {
-		snprintf( s, sizeof( s ), "bot" );
-	} else if ( a.type == NA_IP ) {
-		snprintf( s, sizeof( s ), "%i.%i.%i.%i:%i",
-					 a.ip[0], a.ip[1], a.ip[2], a.ip[3], BigShort( a.port ) );
-	} else {
-		snprintf( s, sizeof( s ), "%02x%02x%02x%02x.%02x%02x%02x%02x%02x%02x:%i",
-					 a.ipx[0], a.ipx[1], a.ipx[2], a.ipx[3], a.ipx[4], a.ipx[5], a.ipx[6], a.ipx[7], a.ipx[8], a.ipx[9],
-					 BigShort( a.port ) );
-	}
+	snprintf( s, sizeof( s ), "loopback" );
 
 	return s;
 }
@@ -432,31 +401,12 @@ qboolean    NET_CompareAdr( netadr_t a, netadr_t b ) {
 		return qfalse;
 	}
 
-	if ( a.type == NA_LOOPBACK ) {
-		return qtrue;
-	}
-
-	if ( a.type == NA_IP ) {
-		if ( a.ip[0] == b.ip[0] && a.ip[1] == b.ip[1] && a.ip[2] == b.ip[2] && a.ip[3] == b.ip[3] && a.port == b.port ) {
-			return qtrue;
-		}
-		return qfalse;
-	}
-
-	if ( a.type == NA_IPX ) {
-		if ( ( memcmp( a.ipx, b.ipx, 10 ) == 0 ) && a.port == b.port ) {
-			return qtrue;
-		}
-		return qfalse;
-	}
-
-	Com_Printf( "NET_CompareAdr: bad address type\n" );
-	return qfalse;
+	return qtrue;
 }
 
 
 qboolean    NET_IsLocalAddress( netadr_t adr ) {
-	return adr.type == NA_LOOPBACK;
+	return qtrue;
 }
 
 
@@ -530,23 +480,7 @@ void NET_SendLoopPacket( netsrc_t sock, int length, const void *data, netadr_t t
 
 void NET_SendPacket( netsrc_t sock, int length, const void *data, netadr_t to ) {
 
-	// sequenced packets are shown in netchan, so just show oob
-	if ( showpackets->integer && *(int *)data == -1 ) {
-		Com_Printf( "send packet %4i\n", length );
-	}
-
-	if ( to.type == NA_LOOPBACK ) {
-		NET_SendLoopPacket( sock, length, data, to );
-		return;
-	}
-	if ( to.type == NA_BOT ) {
-		return;
-	}
-	if ( to.type == NA_BAD ) {
-		return;
-	}
-
-	Sys_SendPacket( length, data, to );
+	NET_SendLoopPacket( sock, length, data, to );
 }
 
 /*
@@ -583,44 +517,10 @@ NET_StringToAdr
 Traps "localhost" for loopback, passes everything else to system
 =============
 */
-qboolean    NET_StringToAdr( const char *s, netadr_t *a ) {
-	qboolean r;
-	char base[MAX_STRING_CHARS];
-	char    *port;
-
-	if ( !strcmp( s, "localhost" ) ) {
+qboolean    NET_StringToAdr( const char *s, netadr_t *a )
+{
 		memset( a, 0, sizeof( *a ) );
 		a->type = NA_LOOPBACK;
 		return qtrue;
-	}
-
-	// look for a port number
-	Q_strncpyz( base, s, sizeof( base ) );
-	port = strstr( base, ":" );
-	if ( port ) {
-		*port = 0;
-		port++;
-	}
-
-	r = Sys_StringToAdr( base, a );
-
-	if ( !r ) {
-		a->type = NA_BAD;
-		return qfalse;
-	}
-
-	// inet_addr returns this if out of range
-	if ( a->ip[0] == 255 && a->ip[1] == 255 && a->ip[2] == 255 && a->ip[3] == 255 ) {
-		a->type = NA_BAD;
-		return qfalse;
-	}
-
-	if ( port ) {
-		a->port = BigShort( (short)atoi( port ) );
-	} else {
-		a->port = BigShort( PORT_SERVER );
-	}
-
-	return qtrue;
 }
 

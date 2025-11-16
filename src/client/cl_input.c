@@ -751,28 +751,6 @@ qboolean CL_ReadyToSendPacket( void ) {
 	}
 
 	// send every frame for loopbacks
-	if ( clc.netchan.remoteAddress.type == NA_LOOPBACK ) {
-		return qtrue;
-	}
-
-	// send every frame for LAN
-	if ( Sys_IsLANAddress( clc.netchan.remoteAddress ) ) {
-		return qtrue;
-	}
-
-	// check for exceeding cl_maxpackets
-	if ( cl_maxpackets->integer < 15 ) {
-		Cvar_Set( "cl_maxpackets", "15" );
-	} else if ( cl_maxpackets->integer > 100 ) {
-		Cvar_Set( "cl_maxpackets", "100" );
-	}
-	oldPacketNum = ( clc.netchan.outgoingSequence - 1 ) & PACKET_MASK;
-	delta = cls.realtime -  cl.outPackets[ oldPacketNum ].p_realtime;
-	if ( delta < 1000 / cl_maxpackets->integer ) {
-		// the accumulated commands will go out in the next packet
-		return qfalse;
-	}
-
 	return qtrue;
 }
 
