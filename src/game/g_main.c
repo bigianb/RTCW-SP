@@ -30,6 +30,7 @@ If you have questions concerning this license or the applicable additional terms
 
 
 #include "g_local.h"
+#include "g_func_decs.h"
 #include "../qcommon/qcommon.h"
 #include "../server/server.h"
 
@@ -68,7 +69,7 @@ vmCvar_t g_friendlyFire;
 
 vmCvar_t g_maxclients;
 vmCvar_t g_maxGameClients;
-vmCvar_t g_dedicated;
+
 vmCvar_t g_speed;
 vmCvar_t g_gravity;
 vmCvar_t g_cheats;
@@ -171,8 +172,6 @@ cvarTable_t gameCvarTable[] = {
 
 	{ &g_banIPs, "g_banIPs", "", CVAR_ARCHIVE, 0, qfalse  },
 
-	{ &g_dedicated, "dedicated", "0", 0, 0, qfalse  },
-
 	{ &g_speed, "g_speed", "320", 0, 0, qtrue  },
 	{ &g_gravity, "g_gravity", "800", 0, 0, qtrue  },
 	{ &g_knockback, "g_knockback", "1000", 0, 0, qtrue  },
@@ -184,10 +183,10 @@ cvarTable_t gameCvarTable[] = {
 	{ &g_debugMove, "g_debugMove", "0", 0, 0, qfalse },
 	{ &g_debugDamage, "g_debugDamage", "0", 0, 0, qfalse },
 	{ &g_debugAlloc, "g_debugAlloc", "0", 0, 0, qfalse },
-	{ &g_debugBullets, "g_debugBullets", "0", CVAR_CHEAT, 0, qfalse}, //----(SA)	added
-	{ &g_debugAudibleEvents, "g_debugAudibleEvents", "0", CVAR_CHEAT, 0, qfalse}, //----(SA)	added
+	{ &g_debugBullets, "g_debugBullets", "0", CVAR_CHEAT, 0, qfalse},
+	{ &g_debugAudibleEvents, "g_debugAudibleEvents", "0", CVAR_CHEAT, 0, qfalse},
 
-	{ &g_headshotMaxDist, "g_headshotMaxDist", "1024", CVAR_CHEAT, 0, qfalse},    //----(SA)	added
+	{ &g_headshotMaxDist, "g_headshotMaxDist", "1024", CVAR_CHEAT, 0, qfalse},
 
 
 	{ &g_motd, "g_motd", "", 0, 0, qfalse },
@@ -990,8 +989,6 @@ void G_InitGame( int levelTime, int randomSeed, int restart )
 
 	G_RegisterCvars();
 
-	G_ProcessIPBans();
-
 	G_InitMemory();
 
 	// set some level globals
@@ -1123,16 +1120,6 @@ void G_ShutdownGame( int restart ) {
 /*
 ========================================================================
 
-PLAYER COUNTING / SCORE SORTING
-
-========================================================================
-*/
-
-
-
-/*
-========================================================================
-
 MAP CHANGING
 
 ========================================================================
@@ -1212,12 +1199,8 @@ or moved to a new level based on the "nextmap" cvar
 
 =============
 */
-void ExitLevel( void ) {
-	int i;
-	gclient_t *cl;
-
-
-
+void ExitLevel()
+{
 	Cbuf_ExecuteText( EXEC_APPEND, "vstr nextmap\n" );
 	level.changemap = NULL;
 	level.intermissiontime = 0;
@@ -1225,8 +1208,8 @@ void ExitLevel( void ) {
 	// reset all the scores so we don't enter the intermission again
 	level.teamScores[TEAM_RED] = 0;
 	level.teamScores[TEAM_BLUE] = 0;
-	for ( i = 0 ; i < g_maxclients.integer ; i++ ) {
-		cl = level.clients + i;
+	for (int i = 0 ; i < g_maxclients.integer ; i++ ) {
+		gclient_t* cl = level.clients + i;
 		if ( cl->pers.connected != CON_CONNECTED ) {
 			continue;
 		}
@@ -1238,7 +1221,7 @@ void ExitLevel( void ) {
 
 	// change all client states to connecting, so the early players into the
 	// next level will know the others aren't done reconnecting
-	for ( i = 0 ; i < g_maxclients.integer ; i++ ) {
+	for (int i = 0 ; i < g_maxclients.integer ; i++ ) {
 
 		// Ridah, kill AI cast's
 		if ( g_entities[i].r.svFlags & SVF_CASTAI ) {
@@ -1278,10 +1261,6 @@ void  G_LogPrintf( const char *fmt, ... ) {
 	va_start( argptr, fmt );
 	vsnprintf( string + 7, 1024-7, fmt,argptr );
 	va_end( argptr );
-
-	if ( g_dedicated.integer ) {
-		Com_Printf( "%s", string + 7 );
-	}
 
 	if ( !level.logFile ) {
 		return;
@@ -1429,7 +1408,6 @@ void G_RunFrame( int levelTime )
 	level.time = levelTime;
 	int msec = level.time - level.previousTime;
 
-	extern void AICast_CheckLoadGame( void );
 	AICast_CheckLoadGame();
 
 	// get any cvar changes
@@ -1439,8 +1417,9 @@ void G_RunFrame( int levelTime )
 	// go through all allocated objects
 	//
 	//start = Sys_Milliseconds();
-    gentity_t* ent = &g_entities[0];
-	for (int i = 0 ; i < level.num_entities ; i++, ent++ ) {
+
+	for (int i = 0 ; i < level.num_entities; i++) {
+		gentity_t* ent = &g_entities[i];
 		if ( !ent->inuse ) {
 			continue;
 		}
@@ -1454,7 +1433,8 @@ void G_RunFrame( int levelTime )
 			}
 		}
 
-		// RF, if this entity is attached to a parent, move it around with it, so the server thinks it's at least close to where the client will view it
+		// If this entity is attached to a parent, move it around with it,
+		// so the server thinks it's at least close to where the client will view it
 		if ( ent->tagParent ) {
 			vec3_t org;
 			BG_EvaluateTrajectory( &ent->tagParent->s.pos, level.time, org );
@@ -1470,7 +1450,7 @@ void G_RunFrame( int levelTime )
 			if ( ent->s.event ) {
 				ent->s.event = 0;   // &= EV_EVENT_BITS;
 			}
-			// RF, clear all listed events (fixes hearing lots of sounds and events after vid_restart)
+			// Clear all listed events (fixes hearing lots of sounds and events after vid_restart)
 			memset( ent->s.events, 0, sizeof( ent->s.events ) );
 			memset( ent->s.eventParms, 0, sizeof( ent->s.eventParms ) );
 			ent->s.eventSequence = 0;
@@ -1560,8 +1540,8 @@ void G_RunFrame( int levelTime )
 	AICast_StartServerFrame( level.time );
 
 	// perform final fixups on the players
-	ent = &g_entities[0];
-	for (int i = 0 ; i < level.maxclients ; i++, ent++ ) {
+	for (int i = 0; i < level.maxclients; i++ ) {
+		gentity_t* ent = &g_entities[i];
 		if ( ent->inuse ) {
 			ClientEndFrame( ent );
 		}

@@ -595,10 +595,8 @@ once for each server frame, which makes for smooth demo recording.
 */
 void ClientThink_real( gentity_t *ent ) {
 	gclient_t   *client;
-	pmove_t pm;
+	
 
-	int oldEventSequence;
-	int msec;
 	usercmd_t   *ucmd;
 	//int i;
 	int monsterslick = 0;
@@ -647,7 +645,7 @@ void ClientThink_real( gentity_t *ent ) {
 //		Com_Printf("serverTime >>>>>\n" );
 	}
 
-	msec = ucmd->serverTime - client->ps.commandTime;
+	int msec = ucmd->serverTime - client->ps.commandTime;
 	// following others may result in bad times, but we still want
 	// to check for follow toggles
 	if ( msec < 1 && client->sess.spectatorState != SPECTATOR_FOLLOW ) {
@@ -672,7 +670,6 @@ void ClientThink_real( gentity_t *ent ) {
 
 	if ( pmove_fixed.integer || client->pers.pmoveFixed ) {
 		ucmd->serverTime = ( ( ucmd->serverTime + pmove_msec.integer - 1 ) / pmove_msec.integer ) * pmove_msec.integer;
-
 	}
 
 	//
@@ -708,8 +705,7 @@ void ClientThink_real( gentity_t *ent ) {
 	}
 
 
-	if (    !saveGamePending &&
-			!( ent->r.svFlags & SVF_CASTAI ) ) {
+	if (!saveGamePending && !( ent->r.svFlags & SVF_CASTAI ) ) {
 
 		Cvar_Update( &g_missionStats );
 
@@ -724,9 +720,7 @@ void ClientThink_real( gentity_t *ent ) {
 			ucmd->wolfkick = 0;
 
 		} else {    // age their play time
-
 			//AICast_AgePlayTime( ent->s.number );
-
 		}
 	}
 
@@ -771,10 +765,11 @@ void ClientThink_real( gentity_t *ent ) {
 	}
 
 	// set up for pmove
-	oldEventSequence = client->ps.eventSequence;
+	int oldEventSequence = client->ps.eventSequence;
 
 	client->currentAimSpreadScale = (float)client->ps.aimSpreadScale / 255.0;
 
+	pmove_t pm;
 	memset( &pm, 0, sizeof( pm ) );
 
 	pm.ps = &client->ps;
@@ -964,7 +959,7 @@ void ClientThink_real( gentity_t *ent ) {
 	}
 
 	// server cursor hints
-	G_CheckForCursorHints( ent ); //----(SA)	added
+	G_CheckForCursorHints( ent );
 
 	// get this for the clients
 	ent->s.animMovetype = BG_GetConditionValue( ent->s.number, ANIM_COND_MOVETYPE, qtrue );
@@ -1067,13 +1062,10 @@ void ClientThink_real( gentity_t *ent ) {
 	client->oldbuttons = client->buttons;
 	client->buttons = ucmd->buttons;
 	client->latched_buttons = client->buttons & ~client->oldbuttons;
-//	client->latched_buttons |= client->buttons & ~client->oldbuttons;	// FIXME:? (SA) MP method (causes problems for us.  activate 'sticks')
 
-	//----(SA)	added
 	client->oldwbuttons = client->wbuttons;
 	client->wbuttons = ucmd->wbuttons;
 	client->latched_wbuttons = client->wbuttons & ~client->oldwbuttons;
-//	client->latched_wbuttons |= client->wbuttons & ~client->oldwbuttons;	// FIXME:? (SA) MP method
 
 	// Rafael - Activate
 	// Ridah, made it a latched event (occurs on keydown only)

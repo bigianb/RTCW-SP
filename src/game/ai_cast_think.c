@@ -772,7 +772,8 @@ AICast_StartFrame
 */
 void CopyToBodyQue( gentity_t *ent );
 
-void AICast_StartFrame( int time ) {
+void AICast_StartFrame( int time )
+{
 	int i, elapsed, count, clCount;
 	cast_state_t    *cs;
 	int castcount;

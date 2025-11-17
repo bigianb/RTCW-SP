@@ -1231,10 +1231,7 @@ extern qboolean ConsoleCommand ( void ) ;
 
 extern gclient_t * ClientForString ( const char * s ) ;
 extern void Svcmd_EntityList_f ( void ) ;
-extern void Svcmd_RemoveIP_f ( void ) ;
-extern void Svcmd_AddIP_f ( void ) ;
-extern void G_ProcessIPBans ( void ) ;
-extern qboolean G_FilterPacket ( char * from ) ;
+
 extern void G_Activate ( gentity_t * ent , gentity_t * activator ) ;
 extern void func_invisible_user ( gentity_t * ent ) ;
 extern void use_invisible_user ( gentity_t * ent , gentity_t * other , gentity_t * activator ) ;

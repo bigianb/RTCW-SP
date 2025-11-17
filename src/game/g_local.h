@@ -931,8 +931,7 @@ qboolean G_GetModelInfo( int clientNum, char *modelName, animModelInfo_t **model
 // g_svcmds.c
 //
 qboolean    ConsoleCommand( void );
-void G_ProcessIPBans( void );
-qboolean G_FilterPacket( char *from );
+
 
 //
 // g_weapon.c
@@ -1068,7 +1067,6 @@ extern vmCvar_t g_gameskill;
 
 extern vmCvar_t g_reloading;        //----(SA)	added
 
-extern vmCvar_t g_dedicated;
 extern vmCvar_t g_cheats;
 extern vmCvar_t g_maxclients;               // allow this many total, including spectators
 extern vmCvar_t g_maxGameClients;           // allow this many active

@@ -1216,10 +1216,7 @@ If you have questions concerning this license or the applicable additional terms
 
 {"ClientForString", (byte *)ClientForString},
 {"Svcmd_EntityList_f", (byte *)Svcmd_EntityList_f},
-{"Svcmd_RemoveIP_f", (byte *)Svcmd_RemoveIP_f},
-{"Svcmd_AddIP_f", (byte *)Svcmd_AddIP_f},
-{"G_ProcessIPBans", (byte *)G_ProcessIPBans},
-{"G_FilterPacket", (byte *)G_FilterPacket},
+
 {"G_Activate", (byte *)G_Activate},
 {"func_invisible_user", (byte *)func_invisible_user},
 {"use_invisible_user", (byte *)use_invisible_user},

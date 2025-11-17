@@ -802,6 +802,25 @@ void ClientUserinfoChanged( int clientNum ) {
 	G_LogPrintf( "ClientUserinfoChanged: %i %s\n", clientNum, s );
 }
 
+void calcLevelClients()
+{
+	level.follow1 = -1;
+	level.follow2 = -1;
+	level.numConnectedClients = 0;
+	level.numNonSpectatorClients = 0;
+	level.numPlayingClients = 0;
+
+	for (int i = 0 ; i < level.maxclients ; i++ ) {
+		if ( level.clients[i].pers.connected != CON_DISCONNECTED ) {
+			level.sortedClients[level.numConnectedClients] = i;
+			level.numConnectedClients++;
+			level.numNonSpectatorClients++;
+			if ( level.clients[i].pers.connected == CON_CONNECTED ) {
+				level.numPlayingClients++;
+			}
+		}
+	}
+}
 
 /*
 ===========
@@ -871,6 +890,8 @@ char *ClientConnect( int clientNum, qboolean firstTime, qboolean isBot ) {
 		}
 	}
 
+	calcLevelClients();
+	
 	return NULL;
 }
 
