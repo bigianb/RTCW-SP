@@ -337,12 +337,14 @@ void CL_ParseGamestate( msg_t *msg )
 			int i = MSG_ReadShort( msg );
 			if ( i < 0 || i >= MAX_CONFIGSTRINGS ) {
 				Com_Error( ERR_DROP, "configstring > MAX_CONFIGSTRINGS" );
+				return;
 			}
 			char* s = MSG_ReadBigString( msg );
 			size_t len = strlen( s );
 
 			if ( len + 1 + cl.gameState.dataCount > MAX_GAMESTATE_CHARS ) {
 				Com_Error( ERR_DROP, "MAX_GAMESTATE_CHARS exceeded" );
+				return;
 			}
 
 			// append it to the gameState string buffer

@@ -26,17 +26,6 @@ If you have questions concerning this license or the applicable additional terms
 ===========================================================================
 */
 
-
-/*****************************************************************************
- * name:		cl_cin.c
- *
- * desc:		video and cinematic playback
- *
- *
- * cl_glconfig.hwtype trtypes 3dfx/ragepro need 256x256
- *
- *****************************************************************************/
-
 #include "client.h"
 #include "snd_local.h"
 #include <stdint.h>
@@ -70,14 +59,6 @@ extern int s_soundtime;
 #define CIN_STREAM 0
 static void RoQ_init( void );
 
-/******************************************************************************
-*
-* Class:		trFMV
-*
-* Description:	RoQ/RnR manipulation routines
-*				not entirely complete for first run
-*
-******************************************************************************/
 
 static int ROQ_YY_tab[256];
 static int ROQ_UB_tab[256];
@@ -159,10 +140,9 @@ void CIN_CloseAllVideos(  ) {
 }
 
 
-static int CIN_HandleForVideo(  ) {
-	int i;
-
-	for ( i = 0 ; i < MAX_VIDEO_HANDLES ; i++ ) {
+static int CIN_HandleForVideo()
+{
+	for (int i = 0 ; i < MAX_VIDEO_HANDLES ; i++ ) {
 		if ( cinTable[i].fileName[0] == 0 ) {
 			return i;
 		}
@@ -183,10 +163,9 @@ extern int CL_ScaledMilliseconds(  );
 //
 // Returns:		Nothing
 //-----------------------------------------------------------------------------
-static void RllSetupTable() {
-	int z;
-
-	for ( z = 0; z < 128; z++ ) {
+static void RllSetupTable()
+{
+	for (int z = 0; z < 128; z++ ) {
 		cin.sqrTable[z] = (short)( z * z );
 		cin.sqrTable[z + 128] = (short)( -cin.sqrTable[z] );
 	}
@@ -374,16 +353,13 @@ static void blit2_32( byte *src, byte *dst, int spl  ) {
 }
 
 
-static void blitVQQuad32fs( byte **status, unsigned char *data ) {
-	unsigned short newd, celdata, code;
-	unsigned int index, i;
-	int spl;
+static void blitVQQuad32fs( byte **status, unsigned char *data )
+{
+	unsigned short newd    = 0;
+	unsigned short celdata = 0;
+	unsigned int index   = 0;
 
-	newd    = 0;
-	celdata = 0;
-	index   = 0;
-
-	spl = cinTable[currentHandle].samplesPerLine;
+	int spl = cinTable[currentHandle].samplesPerLine;
 
 	do {
 		if ( !newd ) {
@@ -394,7 +370,7 @@ static void blitVQQuad32fs( byte **status, unsigned char *data ) {
 			newd--;
 		}
 
-		code = ( unsigned short )( celdata & 0xc000 );
+		unsigned short code = ( unsigned short )( celdata & 0xc000 );
 		celdata <<= 2;
 
 		switch ( code ) {
@@ -405,7 +381,7 @@ static void blitVQQuad32fs( byte **status, unsigned char *data ) {
 			break;
 		case    0xc000:                                                     // drop
 			index++;                                                        // skip 8x8
-			for ( i = 0; i < 4; i++ ) {
+			for (int i = 0; i < 4; i++ ) {
 				if ( !newd ) {
 					newd = 7;
 					celdata = data[0] + data[1] * 256;
@@ -452,15 +428,13 @@ static void blitVQQuad32fs( byte **status, unsigned char *data ) {
 	} while ( status[index] != NULL );
 }
 
-static void ROQ_GenYUVTables( void ) {
-	float t_ub,t_vr,t_ug,t_vg;
-	int i;
-
-	t_ub = ( 1.77200f / 2.0f ) * (float)( 1 << 6 ) + 0.5f;
-	t_vr = ( 1.40200f / 2.0f ) * (float)( 1 << 6 ) + 0.5f;
-	t_ug = ( 0.34414f / 2.0f ) * (float)( 1 << 6 ) + 0.5f;
-	t_vg = ( 0.71414f / 2.0f ) * (float)( 1 << 6 ) + 0.5f;
-	for ( i = 0; i < 256; i++ ) {
+static void ROQ_GenYUVTables()
+{
+	float t_ub = ( 1.77200f / 2.0f ) * (float)( 1 << 6 ) + 0.5f;
+	float t_vr = ( 1.40200f / 2.0f ) * (float)( 1 << 6 ) + 0.5f;
+	float t_ug = ( 0.34414f / 2.0f ) * (float)( 1 << 6 ) + 0.5f;
+	float t_vg = ( 0.71414f / 2.0f ) * (float)( 1 << 6 ) + 0.5f;
+	for (int i = 0; i < 256; i++ ) {
 		float x = (float)( 2 * i - 255 );
 
 		ROQ_UB_tab[i] = (int)( ( t_ub * x ) + ( 1 << 5 ) );
@@ -507,12 +481,13 @@ static void ROQ_GenYUVTables( void ) {
 		*d++ = *b;	\
 		a++; b++; }
 
-static unsigned short yuv_to_rgb( long y, long u, long v ) {
-	int r,g,b,YY =  ROQ_YY_tab[( y )];
+static unsigned short yuv_to_rgb( long y, long u, long v )
+{
+	int YY =  ROQ_YY_tab[( y )];
 
-	r = ( YY + ROQ_VR_tab[v] ) >> 9;
-	g = ( YY + ROQ_UG_tab[u] + ROQ_VG_tab[v] ) >> 8;
-	b = ( YY + ROQ_UB_tab[u] ) >> 9;
+	int r = ( YY + ROQ_VR_tab[v] ) >> 9;
+	int g = ( YY + ROQ_UG_tab[u] + ROQ_VG_tab[v] ) >> 8;
+	int b = ( YY + ROQ_UB_tab[u] ) >> 9;
 
 	if ( r < 0 ) {
 		r = 0;

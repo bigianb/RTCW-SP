@@ -339,10 +339,7 @@ void idStr::CapLength
 	m_data->len = newlen;
 }
 
-void idStr::EnsureDataWritable
-(
-	void
-) {
+void idStr::EnsureDataWritable() {
 	assert( m_data );
 
 	if ( !m_data->refcount ) {
@@ -401,10 +398,8 @@ void idStr::EnsureAlloced( size_t amount, bool keepold ) {
 	m_data->data = newbuffer;
 }
 
-void idStr::BackSlashesToSlashes
-(
-	void
-) {
+void idStr::BackSlashesToSlashes()
+{
 	EnsureDataWritable();
 
 	for (int i = 0; i < m_data->len; i++ )

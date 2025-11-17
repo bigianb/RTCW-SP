@@ -133,14 +133,13 @@ idList<type>::SetGranularity
 */
 template< class type >
 inline void idList<type>::SetGranularity( int granularity ) {
-	int newsize;
-
+	
 	assert( granularity > 0 );
 	m_granularity = granularity;
 
 	if ( m_list ) {
 		// resize it to the closest level of granularity
-		newsize = ( ( m_num + m_granularity - 1 ) / m_granularity ) * m_granularity;
+		int newsize = ( ( m_num + m_granularity - 1 ) / m_granularity ) * m_granularity;
 		if ( newsize != m_size ) {
 			Resize( newsize );
 		}

@@ -1164,10 +1164,6 @@ void CL_Frame( int msec )
 
 	cls.realtime += cls.frametime;
 
-	if ( cl_timegraph->integer ) {
-		SCR_DebugGraph( cls.realFrametime * 0.25, 0 );
-	}
-
 	// see if we need to update any userinfo
 	CL_CheckUserinfo();
 

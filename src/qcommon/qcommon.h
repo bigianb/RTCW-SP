@@ -123,10 +123,6 @@ NET
 ==============================================================
 */
 
-// TTimo: set to 1 to perform net encoding, 0 to drop
-// single player game with no networking doesn't need encoding
-// show_bug.cgi?id=404
-#define DO_NET_ENCODE 0
 
 #define PACKET_BACKUP   32  // number of old messages that must be kept on client and
 							// server for delta comrpession and ping estimation
@@ -294,12 +290,6 @@ VIRTUAL MACHINE
 */
 
 typedef struct vm_s vm_t;
-
-typedef enum {
-	VMI_NATIVE,
-	VMI_BYTECODE,
-	VMI_COMPILED
-} vmInterpret_t;
 
 typedef enum {
 	TRAP_MEMSET = 100,
@@ -800,8 +790,6 @@ void Key_WriteBindings( fileHandle_t f );
 
 void S_ClearSoundBuffer( qboolean killStreaming );  //----(SA)	modified
 // call before filesystem access
-
-void SCR_DebugGraph( float value, int color );   // FIXME: move logging to common?
 
 
 //

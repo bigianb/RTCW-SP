@@ -57,7 +57,8 @@ void CL_GetGlconfig( glconfig_t *glconfig ) {
 CL_GetUserCmd
 ====================
 */
-qboolean CL_GetUserCmd( int cmdNumber, usercmd_t *ucmd ) {
+qboolean CL_GetUserCmd( int cmdNumber, usercmd_t *ucmd )
+{
 	// cmds[cmdNumber] is the last properly generated command
 
 	// can't return anything that we haven't created yet
@@ -76,7 +77,7 @@ qboolean CL_GetUserCmd( int cmdNumber, usercmd_t *ucmd ) {
 	return qtrue;
 }
 
-int CL_GetCurrentCmdNumber( void ) {
+int CL_GetCurrentCmdNumber() {
 	return cl.cmdNumber;
 }
 
@@ -86,11 +87,12 @@ int CL_GetCurrentCmdNumber( void ) {
 CL_GetParseEntityState
 ====================
 */
-qboolean    CL_GetParseEntityState( int parseEntityNumber, entityState_t *state ) {
+qboolean    CL_GetParseEntityState( int parseEntityNumber, entityState_t *state )
+{
 	// can't return anything that hasn't been parsed yet
 	if ( parseEntityNumber >= cl.parseEntitiesNum ) {
-		Com_Error( ERR_DROP, "CL_GetParseEntityState: %i >= %i",
-				   parseEntityNumber, cl.parseEntitiesNum );
+		Com_Error( ERR_DROP, "CL_GetParseEntityState: %i >= %i", parseEntityNumber, cl.parseEntitiesNum );
+		return qfalse;
 	}
 
 	// can't return anything that has been overwritten in the circular buffer
@@ -107,7 +109,8 @@ qboolean    CL_GetParseEntityState( int parseEntityNumber, entityState_t *state 
 CL_GetCurrentSnapshotNumber
 ====================
 */
-void    CL_GetCurrentSnapshotNumber( int *snapshotNumber, int *serverTime ) {
+void    CL_GetCurrentSnapshotNumber( int *snapshotNumber, int *serverTime )
+{
 	*snapshotNumber = cl.snap.messageNum;
 	*serverTime = cl.snap.serverTime;
 }
@@ -117,12 +120,11 @@ void    CL_GetCurrentSnapshotNumber( int *snapshotNumber, int *serverTime ) {
 CL_GetSnapshot
 ====================
 */
-qboolean    CL_GetSnapshot( int snapshotNumber, snapshot_t *snapshot ) {
-	clSnapshot_t    *clSnap;
-	int i, count;
-
+qboolean    CL_GetSnapshot( int snapshotNumber, snapshot_t *snapshot )
+{
 	if ( snapshotNumber > cl.snap.messageNum ) {
 		Com_Error( ERR_DROP, "CL_GetSnapshot: snapshotNumber > cl.snapshot.messageNum" );
+		return qfalse;
 	}
 
 	// if the frame has fallen out of the circular buffer, we can't return it
@@ -131,7 +133,7 @@ qboolean    CL_GetSnapshot( int snapshotNumber, snapshot_t *snapshot ) {
 	}
 
 	// if the frame is not valid, we can't return it
-	clSnap = &cl.snapshots[snapshotNumber & PACKET_MASK];
+	clSnapshot_t* clSnap = &cl.snapshots[snapshotNumber & PACKET_MASK];
 	if ( !clSnap->valid ) {
 		return qfalse;
 	}
@@ -149,13 +151,13 @@ qboolean    CL_GetSnapshot( int snapshotNumber, snapshot_t *snapshot ) {
 	snapshot->serverTime = clSnap->serverTime;
 	memcpy( snapshot->areamask, clSnap->areamask, sizeof( snapshot->areamask ) );
 	snapshot->ps = clSnap->ps;
-	count = clSnap->numEntities;
+	int count = clSnap->numEntities;
 	if ( count > MAX_ENTITIES_IN_SNAPSHOT ) {
 		Com_DPrintf( "CL_GetSnapshot: truncated %i entities to %i\n", count, MAX_ENTITIES_IN_SNAPSHOT );
 		count = MAX_ENTITIES_IN_SNAPSHOT;
 	}
 	snapshot->numEntities = count;
-	for ( i = 0 ; i < count ; i++ ) {
+	for (int i = 0 ; i < count ; i++ ) {
 		snapshot->entities[i] =
 			cl.parseEntities[ ( clSnap->parseEntitiesNum + i ) & ( MAX_PARSE_ENTITIES - 1 ) ];
 	}
@@ -170,7 +172,8 @@ qboolean    CL_GetSnapshot( int snapshotNumber, snapshot_t *snapshot ) {
 CL_SetUserCmdValue
 ==============
 */
-void CL_SetUserCmdValue( int userCmdValue, int holdableValue, float sensitivityScale, int cld ) {
+void CL_SetUserCmdValue( int userCmdValue, int holdableValue, float sensitivityScale, int cld )
+{
 	cl.cgameUserCmdValue        = userCmdValue;
 	cl.cgameUserHoldableValue   = holdableValue;
 	cl.cgameSensitivity         = sensitivityScale;
@@ -182,9 +185,8 @@ void CL_SetUserCmdValue( int userCmdValue, int holdableValue, float sensitivityS
 CL_ConfigstringModified
 =====================
 */
-void CL_ConfigstringModified( void ) {
-
-	char        *dup;
+void CL_ConfigstringModified()
+{
 	int index = atoi( Cmd_Argv( 1 ) );
 	if ( index < 0 || index >= MAX_CONFIGSTRINGS ) {
 		Com_Error( ERR_DROP, "configstring > MAX_CONFIGSTRINGS" );
@@ -206,6 +208,7 @@ void CL_ConfigstringModified( void ) {
 	cl.gameState.dataCount = 1;
 
 	for (int i = 0 ; i < MAX_CONFIGSTRINGS ; i++ ) {
+		char* dup;
 		if ( i == index ) {
 			dup = s;
 		} else {
@@ -242,9 +245,8 @@ CL_GetServerCommand
 Set up argc/argv for the given command
 ===================
 */
-qboolean CL_GetServerCommand( int serverCommandNumber ) {
-	char    *s;
-	char    *cmd;
+qboolean CL_GetServerCommand( int serverCommandNumber )
+{
 	static char bigConfigString[BIG_INFO_STRING];
 
 	// if we have irretrievably lost a reliable command, drop the connection
@@ -258,14 +260,14 @@ qboolean CL_GetServerCommand( int serverCommandNumber ) {
 		return qfalse;
 	}
 
-	s = clc.serverCommands[ serverCommandNumber & ( MAX_RELIABLE_COMMANDS - 1 ) ];
+	char* s = clc.serverCommands[ serverCommandNumber & ( MAX_RELIABLE_COMMANDS - 1 ) ];
 	clc.lastExecutedServerCommand = serverCommandNumber;
 
 	Com_DPrintf( "serverCommand: %i : %s\n", serverCommandNumber, s );
 
 rescan:
 	Cmd_TokenizeString( s );
-	cmd = Cmd_Argv( 0 );
+	char* cmd = Cmd_Argv( 0 );
 
 	if ( !strcmp( cmd, "disconnect" ) ) {
 		Com_Error( ERR_SERVERDISCONNECT,"Server disconnected\n" );
@@ -347,26 +349,27 @@ CL_ShutdonwCGame
 
 ====================
 */
-void CL_ShutdownCGame( void ) {
+void CL_ShutdownCGame()
+{
 	cls.keyCatchers &= ~KEYCATCH_CGAME;
 	cls.cgameStarted = qfalse;
 }
 
 void IngamePopup(const char *popupName)
 {
-	if ( popupName && !Q_stricmp( popupName, "briefing" ) ) {  //----(SA) added
+	if ( popupName && !Q_stricmp( popupName, "briefing" ) ) {
 		UI_SetActiveMenu(UIMENU_BRIEFING );
 		return;
 	}
 
 	if ( cls.state == CA_ACTIVE) {
-        if ( popupName && !Q_stricmp( popupName, "hbook1" ) ) {   //----(SA)
+        if ( popupName && !Q_stricmp( popupName, "hbook1" ) ) {
 			UI_SetActiveMenu(UIMENU_BOOK1 );
-		} else if ( popupName && !Q_stricmp( popupName, "hbook2" ) )    { //----(SA)
+		} else if ( popupName && !Q_stricmp( popupName, "hbook2" ) )    {
 			UI_SetActiveMenu(UIMENU_BOOK2 );
-		} else if ( popupName && !Q_stricmp( popupName, "hbook3" ) )    { //----(SA)
+		} else if ( popupName && !Q_stricmp( popupName, "hbook3" ) )    {
 			UI_SetActiveMenu(UIMENU_BOOK3 );
-		} else if ( popupName && !Q_stricmp( popupName, "pregame" ) )    { //----(SA) added
+		} else if ( popupName && !Q_stricmp( popupName, "pregame" ) )    {
 			UI_SetActiveMenu(UIMENU_PREGAME );
 		} else {
 			UI_SetActiveMenu(UIMENU_CLIPBOARD );
@@ -382,20 +385,16 @@ CL_InitCGame
 Should only by called by CL_StartHunkUsers
 ====================
 */
-void CL_InitCGame( void ) {
-	const char          *info;
-	const char          *mapname;
-	int t1, t2;
-	vmInterpret_t interpret;
-
-	t1 = Sys_Milliseconds();
+void CL_InitCGame()
+{
+	int t1 = Sys_Milliseconds();
 
 	// put away the console
 	Con_Close();
 
 	// find the current mapname
-	info = cl.gameState.stringData + cl.gameState.stringOffsets[ CS_SERVERINFO ];
-	mapname = Info_ValueForKey( info, "mapname" );
+	const char* info = cl.gameState.stringData + cl.gameState.stringOffsets[ CS_SERVERINFO ];
+	const char* mapname = Info_ValueForKey( info, "mapname" );
 	snprintf( cl.mapname, sizeof( cl.mapname ), "maps/%s.bsp", mapname );
 
 
@@ -410,7 +409,7 @@ void CL_InitCGame( void ) {
 	// will cause the server to send us the first snapshot
 	cls.state = CA_PRIMED;
 
-	t2 = Sys_Milliseconds();
+	int t2 = Sys_Milliseconds();
 
 	Com_Printf( "CL_InitCGame: %5.2f seconds\n", ( t2 - t1 ) / 1000.0 );
 
@@ -468,11 +467,10 @@ or bursted delayed packets.
 
 #define RESET_TIME  500
 
-void CL_AdjustTimeDelta( void ) {
+void CL_AdjustTimeDelta()
+{
 	int resetTime;
-	int newDelta;
-	int deltaDelta;
-
+	
 	cl.newSnapshots = qfalse;
 
 	// if the current time is WAY off, just correct to the current value
@@ -482,8 +480,8 @@ void CL_AdjustTimeDelta( void ) {
 		resetTime = RESET_TIME;
 	}
 
-	newDelta = cl.snap.serverTime - cls.realtime;
-	deltaDelta = abs( newDelta - cl.serverTimeDelta );
+	int newDelta = cl.snap.serverTime - cls.realtime;
+	int deltaDelta = abs( newDelta - cl.serverTimeDelta );
 
 	if ( deltaDelta > RESET_TIME ) {
 		cl.serverTimeDelta = newDelta;
@@ -526,7 +524,8 @@ void CL_AdjustTimeDelta( void ) {
 CL_FirstSnapshot
 ==================
 */
-void CL_FirstSnapshot( void ) {
+void CL_FirstSnapshot()
+{
 	// ignore snapshots that don't have entities
 	if ( cl.snap.snapFlags & SNAPFLAG_NOT_ACTIVE ) {
 		return;
@@ -545,8 +544,6 @@ void CL_FirstSnapshot( void ) {
 		Cbuf_AddText( cl_activeAction->string );
 		Cvar_Set( "activeAction", "" );
 	}
-
-	//Sys_BeginProfiling();
 }
 
 /*
@@ -554,7 +551,8 @@ void CL_FirstSnapshot( void ) {
 CL_SetCGameTime
 ==================
 */
-void CL_SetCGameTime( void ) {
+void CL_SetCGameTime()
+{
 	// getting a valid frame message ends the connection process
 	if ( cls.state != CA_ACTIVE ) {
 		if ( cls.state != CA_PRIMED ) {
@@ -592,9 +590,8 @@ void CL_SetCGameTime( void ) {
 	// cl_timeNudge is a user adjustable cvar that allows more
 	// or less latency to be added in the interest of better
 	// smoothness or better responsiveness.
-	int tn;
 
-	tn = cl_timeNudge->integer;
+	int tn = cl_timeNudge->integer;
 	if ( tn < -30 ) {
 		tn = -30;
 	} else if ( tn > 30 ) {

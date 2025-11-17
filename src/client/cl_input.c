@@ -671,16 +671,6 @@ usercmd_t CL_CreateCmd( void ) {
 	// store out the final values
 	CL_FinishMove( &cmd );
 
-	// draw debug graphs of turning for mouse testing
-	if ( cl_debugMove->integer ) {
-		if ( cl_debugMove->integer == 1 ) {
-			SCR_DebugGraph( fabsf( cl.viewangles[YAW] - oldAngles[YAW] ), 0 );
-		}
-		if ( cl_debugMove->integer == 2 ) {
-			SCR_DebugGraph( fabsf( cl.viewangles[PITCH] - oldAngles[PITCH] ), 0 );
-		}
-	}
-
 	cmd.cld = cl.cgameCld;          // NERVE - SMF
 
 	return cmd;
