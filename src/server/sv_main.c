@@ -73,32 +73,6 @@ EVENT MESSAGES
 */
 
 /*
-===============
-SV_ExpandNewlines
-
-Converts newlines to "\n" so a line prints nicer
-===============
-*/
-char    *SV_ExpandNewlines( char *in ) {
-	static char string[1024];
-	int l;
-
-	l = 0;
-	while ( *in && l < sizeof( string ) - 3 ) {
-		if ( *in == '\n' ) {
-			string[l++] = '\\';
-			string[l++] = 'n';
-		} else {
-			string[l++] = *in;
-		}
-		in++;
-	}
-	string[l] = 0;
-
-	return string;
-}
-
-/*
 ======================
 SV_AddServerCommand
 
@@ -106,9 +80,8 @@ The given command will be transmitted to the client, and is guaranteed to
 not have future snapshot_t executed before it is executed
 ======================
 */
-void SV_AddServerCommand( client_t *client, const char *cmd ) {
-	int index, i;
-
+void SV_AddServerCommand( client_t *client, const char *cmd )
+{
 	client->reliableSequence++;
 	// if we would be losing an old command that hasn't been acknowledged,
 	// we must drop the connection
@@ -116,14 +89,13 @@ void SV_AddServerCommand( client_t *client, const char *cmd ) {
 	// doesn't cause a recursive drop client
 	if ( client->reliableSequence - client->reliableAcknowledge == MAX_RELIABLE_COMMANDS + 1 ) {
 		Com_Printf( "===== pending server commands =====\n" );
-		for ( i = client->reliableAcknowledge + 1 ; i <= client->reliableSequence ; i++ ) {
+		for (int i = client->reliableAcknowledge + 1 ; i <= client->reliableSequence ; i++ ) {
 			Com_Printf( "cmd %5d: %s\n", i, SV_GetReliableCommand( client, i & ( MAX_RELIABLE_COMMANDS - 1 ) ) );
 		}
-		Com_Printf( "cmd %5d: %s\n", i, cmd );
 		SV_DropClient( client, "Server command overflow" );
 		return;
 	}
-	index = client->reliableSequence & ( MAX_RELIABLE_COMMANDS - 1 );
+	int index = client->reliableSequence & ( MAX_RELIABLE_COMMANDS - 1 );
 	SV_AddReliableCommand( client, index, cmd );
 }
 
@@ -137,12 +109,11 @@ the client game module: "cp", "print", "chat", etc
 A NULL client will broadcast to all clients
 =================
 */
-void  SV_SendServerCommand( client_t *cl, const char *fmt, ... ) {
+void  SV_SendServerCommand( client_t *cl, const char *fmt, ... )
+{
 	va_list argptr;
 	byte message[MAX_MSGLEN];
-	client_t    *client;
-	int j;
-
+	
 	va_start( argptr,fmt );
 	vsnprintf( (char *)message, MAX_MSGLEN, fmt,argptr );
 	va_end( argptr );
@@ -152,13 +123,9 @@ void  SV_SendServerCommand( client_t *cl, const char *fmt, ... ) {
 		return;
 	}
 
-	// hack to echo broadcast prints to console
-	if ( com_dedicated->integer && !strncmp( (char *)message, "print", 5 ) ) {
-		Com_Printf( "broadcast: %s\n", SV_ExpandNewlines( (char *)message ) );
-	}
-
 	// send the data to all relevent clients
-	for ( j = 0, client = svs.clients; j < sv_maxclients->integer ; j++, client++ ) {
+	for (int j = 0; j < sv_maxclients->integer; j++ ) {
+		client_t *client = &svs.clients[j];
 		if ( client->state < CS_PRIMED ) {
 			continue;
 		}
@@ -225,15 +192,15 @@ Shift down the remaining args
 Redirect all printfs
 ===============
 */
-void SVC_RemoteCommand( netadr_t from, msg_t *msg ) {
+void SVC_RemoteCommand( netadr_t from, msg_t *msg )
+{
 	qboolean valid;
-	int i;
+
 	char remaining[1024];
 #define SV_OUTPUTBUF_LENGTH ( MAX_MSGLEN - 16 )
 	char sv_outputbuf[SV_OUTPUTBUF_LENGTH];
 
-	if ( !strlen( sv_rconPassword->string ) ||
-		 strcmp( Cmd_Argv( 1 ), sv_rconPassword->string ) ) {
+	if ( !strlen( sv_rconPassword->string ) || strcmp( Cmd_Argv( 1 ), sv_rconPassword->string ) ) {
 		valid = qfalse;
 		Com_DPrintf( "Bad rcon from %s:\n%s\n", NET_AdrToString( from ), Cmd_Argv( 2 ) );
 	} else {
@@ -252,7 +219,7 @@ void SVC_RemoteCommand( netadr_t from, msg_t *msg ) {
 	} else {
 		remaining[0] = 0;
 
-		for ( i = 2 ; i < Cmd_Argc() ; i++ ) {
+		for (int i = 2 ; i < Cmd_Argc() ; i++ ) {
 			strcat( remaining, Cmd_Argv( i ) );
 			strcat( remaining, " " );
 		}
@@ -273,18 +240,16 @@ Clients that are in the game can still send
 connectionless packets.
 =================
 */
-void SV_ConnectionlessPacket( netadr_t from, msg_t *msg ) {
-	char    *s;
-	char    *c;
-
+void SV_ConnectionlessPacket( netadr_t from, msg_t *msg )
+{
 	MSG_BeginReadingOOB( msg );
 	MSG_ReadLong( msg );        // skip the -1 marker
 
-	s = MSG_ReadStringLine( msg );
+	char* s = MSG_ReadStringLine( msg );
 
 	Cmd_TokenizeString( s );
 
-	c = Cmd_Argv( 0 );
+	char* c = Cmd_Argv( 0 );
 	Com_DPrintf( "SV packet %s : %s\n", NET_AdrToString( from ), c );
 
 	if ( !Q_stricmp( c,"getstatus" ) ) {
@@ -313,11 +278,8 @@ void SV_ConnectionlessPacket( netadr_t from, msg_t *msg ) {
 SV_ReadPackets
 =================
 */
-void SV_PacketEvent( netadr_t from, msg_t *msg ) {
-	int i;
-	client_t    *cl;
-	int qport;
-
+void SV_PacketEvent( netadr_t from, msg_t *msg )
+{
 	// check for connectionless packet (0xffffffff) first
 	if ( msg->cursize >= 4 && *(int *)msg->data == -1 ) {
 		SV_ConnectionlessPacket( from, msg );
@@ -328,10 +290,11 @@ void SV_PacketEvent( netadr_t from, msg_t *msg ) {
 	// stupid address translating routers
 	MSG_BeginReadingOOB( msg );
 	MSG_ReadLong( msg );                // sequence number
-	qport = MSG_ReadShort( msg ) & 0xffff;
+	int qport = MSG_ReadShort( msg ) & 0xffff;
 
 	// find which client the message is from
-	for ( i = 0, cl = svs.clients ; i < sv_maxclients->integer ; i++,cl++ ) {
+	for (int i = 0, cl = svs.clients ; i < sv_maxclients->integer ; i++,cl++ ) {
+		client_t *cl = &svs.clients[i];
 		if ( cl->state == CS_FREE ) {
 			continue;
 		}
@@ -383,23 +346,19 @@ for a few seconds to make sure any final reliable message gets resent
 if necessary
 ==================
 */
-void SV_CheckTimeouts( void ) {
-	int i;
-	client_t    *cl;
-	int droppoint;
-	int zombiepoint;
+void SV_CheckTimeouts()
+{
+	int droppoint = svs.time - 1000 * sv_timeout->integer;
+	int zombiepoint = svs.time - 1000 * sv_zombietime->integer;
 
-	droppoint = svs.time - 1000 * sv_timeout->integer;
-	zombiepoint = svs.time - 1000 * sv_zombietime->integer;
-
-	for ( i = 0,cl = svs.clients ; i < sv_maxclients->integer ; i++,cl++ ) {
+	for (int i = 0; i < sv_maxclients->integer; i++ ) {
+		client_t *cl = &svs.clients[i];
 		// message times may be wrong across a changelevel
 		if ( cl->lastPacketTime > svs.time ) {
 			cl->lastPacketTime = svs.time;
 		}
 
-		if ( cl->state == CS_ZOMBIE
-			 && cl->lastPacketTime < zombiepoint ) {
+		if ( cl->state == CS_ZOMBIE && cl->lastPacketTime < zombiepoint ) {
 			Com_DPrintf( "Going from CS_ZOMBIE to CS_FREE for %s\n", cl->name );
 			cl->state = CS_FREE;    // can now be reused
 			continue;
@@ -426,18 +385,16 @@ void SV_CheckTimeouts( void ) {
 SV_CheckPaused
 ==================
 */
-qboolean SV_CheckPaused( void ) {
-	int count;
-	client_t    *cl;
-	int i;
-
+qboolean SV_CheckPaused()
+{
 	if ( !cl_paused->integer ) {
 		return qfalse;
 	}
 
 	// only pause if there is just a single client connected
-	count = 0;
-	for ( i = 0,cl = svs.clients ; i < sv_maxclients->integer ; i++,cl++ ) {
+	int count = 0;
+	for (int i = 0; i < sv_maxclients->integer; i++ ) {
+		client_t *cl = &svs.clients[i];
 		if ( cl->state >= CS_CONNECTED && cl->netchan.remoteAddress.type != NA_BOT ) {
 			count++;
 		}
@@ -487,16 +444,8 @@ void SV_Frame( int msec )
 
 	sv.timeResidual += msec;
 
-	if ( !com_dedicated->integer ) {
-		SV_BotFrame( svs.time + sv.timeResidual );
-	}
 
-	if ( com_dedicated->integer && sv.timeResidual < frameMsec ) {
-		// NET_Sleep will give the OS time slices until either get a packet
-		// or time enough for a server frame has gone by
-		//NET_Sleep( frameMsec - sv.timeResidual );
-		return;
-	}
+	SV_BotFrame( svs.time + sv.timeResidual );
 
 	// if time is about to hit the 32nd bit, kick all clients
 	// and clear sv.time, rather
@@ -536,10 +485,6 @@ void SV_Frame( int msec )
 		startTime = Sys_Milliseconds();
 	}
 
-	if ( com_dedicated->integer ) {
-		SV_BotFrame( svs.time );
-	}
-
 	// run the game simulation in chunks
 	while ( sv.timeResidual >= frameMsec ) {
 		sv.timeResidual -= frameMsec;
@@ -560,5 +505,3 @@ void SV_Frame( int msec )
 	SV_SendClientMessages();
 
 }
-
-//============================================================================

@@ -1099,14 +1099,12 @@ int BotAISetup( int restart ) {
 BotAIShutdown
 ==============
 */
-int BotAIShutdown( int restart ) {
-
-	int i;
-
+int BotAIShutdown( int restart )
+{
 	//if the game is restarted for a tournament
 	if ( restart ) {
 		//shutdown all the bots in the botlib
-		for ( i = 0; i < MAX_CLIENTS; i++ ) {
+		for (int i = 0; i < MAX_CLIENTS; i++ ) {
 			if ( botstates[i] && botstates[i]->inuse ) {
 				BotAIShutdownClient( botstates[i]->client );
 			}

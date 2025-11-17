@@ -413,11 +413,9 @@ void SV_Startup()
 		Com_Error( ERR_FATAL, "SV_Startup: unable to allocate svs.clients" );
 	}
 
-	if ( com_dedicated->integer ) {
-		svs.numSnapshotEntities = sv_maxclients->integer * PACKET_BACKUP * 64;
-	} else {
-		svs.numSnapshotEntities = sv_maxclients->integer * 4 * 64;
-	}
+
+	svs.numSnapshotEntities = sv_maxclients->integer * 4 * 64;
+	
 	svs.initialized = qtrue;
 
 	Cvar_Set( "sv_running", "1" );
@@ -494,12 +492,7 @@ void SV_ChangeMaxClients()
 	Hunk_FreeTempMemory( oldClients );
 
 	// allocate new snapshot entities
-	if ( com_dedicated->integer ) {
-		svs.numSnapshotEntities = sv_maxclients->integer * PACKET_BACKUP * 64;
-	} else {
-		// we don't need nearly as many when playing locally
-		svs.numSnapshotEntities = sv_maxclients->integer * 4 * 64;
-	}
+	svs.numSnapshotEntities = sv_maxclients->integer * 4 * 64;
 
 	// RF, allocate reliable commands for newly created client slots
 	if ( oldMaxClients < sv_maxclients->integer ) {

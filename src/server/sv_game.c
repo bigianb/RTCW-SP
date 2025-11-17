@@ -33,14 +33,6 @@ If you have questions concerning this license or the applicable additional terms
 
 botlib_export_t *botlib_export;
 
-void SV_GameError( const char *string ) {
-	Com_Error( ERR_DROP, "%s", string );
-}
-
-void SV_GamePrint( const char *string ) {
-	Com_Printf( "%s", string );
-}
-
 sharedEntity_t *SV_GentityNum( size_t num )
 {
 	sharedEntity_t* ent = ( sharedEntity_t * )( (byte *)sv.gentities + sv.gentitySize * ( num ) );

@@ -436,11 +436,9 @@ typedef struct {
 loopback_t loopbacks[2];
 
 
-qboolean    NET_GetLoopPacket( netsrc_t sock, netadr_t *net_from, msg_t *net_message ) {
-	int i;
-	loopback_t  *loop;
-
-	loop = &loopbacks[sock];
+qboolean    NET_GetLoopPacket( netsrc_t sock, netadr_t *net_from, msg_t *net_message )
+{
+	loopback_t* loop = &loopbacks[sock];
 
 	if ( loop->send - loop->get > MAX_LOOPBACK ) {
 		loop->get = loop->send - MAX_LOOPBACK;
@@ -450,7 +448,7 @@ qboolean    NET_GetLoopPacket( netsrc_t sock, netadr_t *net_from, msg_t *net_mes
 		return qfalse;
 	}
 
-	i = loop->get & ( MAX_LOOPBACK - 1 );
+	int i = loop->get & ( MAX_LOOPBACK - 1 );
 	loop->get++;
 
 	memcpy( net_message->data, loop->msgs[i].data, loop->msgs[i].datalen );
@@ -461,14 +459,11 @@ qboolean    NET_GetLoopPacket( netsrc_t sock, netadr_t *net_from, msg_t *net_mes
 
 }
 
+void NET_SendLoopPacket( netsrc_t sock, size_t length, const void *data, netadr_t to )
+{
+	loopback_t* loop = &loopbacks[sock ^ 1];
 
-void NET_SendLoopPacket( netsrc_t sock, int length, const void *data, netadr_t to ) {
-	int i;
-	loopback_t  *loop;
-
-	loop = &loopbacks[sock ^ 1];
-
-	i = loop->send & ( MAX_LOOPBACK - 1 );
+	int i = loop->send & ( MAX_LOOPBACK - 1 );
 	loop->send++;
 
 	memcpy( loop->msgs[i].data, data, length );
@@ -478,8 +473,8 @@ void NET_SendLoopPacket( netsrc_t sock, int length, const void *data, netadr_t t
 //=============================================================================
 
 
-void NET_SendPacket( netsrc_t sock, int length, const void *data, netadr_t to ) {
-
+void NET_SendPacket( netsrc_t sock, size_t length, const void *data, netadr_t to )
+{
 	NET_SendLoopPacket( sock, length, data, to );
 }
 
@@ -490,7 +485,8 @@ NET_OutOfBandPrint
 Sends a text message in an out-of-band datagram
 ================
 */
-void  NET_OutOfBandPrint( netsrc_t sock, netadr_t adr, const char *format, ... ) {
+void  NET_OutOfBandPrint( netsrc_t sock, netadr_t adr, const char *format, ... )
+{
 	va_list argptr;
 	char string[MAX_MSGLEN];
 
@@ -517,7 +513,7 @@ NET_StringToAdr
 Traps "localhost" for loopback, passes everything else to system
 =============
 */
-qboolean    NET_StringToAdr( const char *s, netadr_t *a )
+qboolean NET_StringToAdr( const char *s, netadr_t *a )
 {
 		memset( a, 0, sizeof( *a ) );
 		a->type = NA_LOOPBACK;

@@ -57,7 +57,7 @@ fileHandle_t com_journalDataFile;           // config files are written here
 cvar_t  *com_viewlog;
 cvar_t  *com_speeds;
 cvar_t  *com_developer;
-cvar_t  *com_dedicated;
+
 cvar_t  *com_timescale;
 cvar_t  *com_fixedtime;
 cvar_t  *com_dropsim;       // 0.0 to 1.0, simulated packet drops
@@ -161,10 +161,7 @@ void  Com_Printf( const char *fmt, ... ) {
 		return;
 	}
 
-	// echo to console if we're not a dedicated server
-	if ( com_dedicated && !com_dedicated->integer ) {
-		CL_ConsolePrint( msg );
-	}
+	CL_ConsolePrint( msg );
 
 	// echo to dedicated console and early console
 	Sys_Print( msg );
@@ -1370,10 +1367,6 @@ void Com_Init( char *commandLine ) {
 	// override anything from the config files with command line args
 	Com_StartupVariable( NULL );
 
-	// get dedicated here for proper hunk megs initialization
-
-	com_dedicated = Cvar_Get( "dedicated", "0", CVAR_LATCH );
-
 	// allocate the stack based hunk allocator
 	Com_InitHunkMemory();
 
@@ -1412,12 +1405,6 @@ void Com_Init( char *commandLine ) {
 
 	com_hunkused = Cvar_Get( "com_hunkused", "0", 0 );
 
-	if ( com_dedicated->integer ) {
-		if ( !com_viewlog->integer ) {
-			Cvar_Set( "viewlog", "1" );
-		}
-	}
-
 	if ( com_developer && com_developer->integer ) {
 		Cmd_AddCommand( "error", Com_Error_f );
 		Cmd_AddCommand( "crash", Com_Crash_f );
@@ -1435,11 +1422,9 @@ void Com_Init( char *commandLine ) {
 
 	SV_Init();
 
-	com_dedicated->modified = qfalse;
-	if ( !com_dedicated->integer ) {
-		CL_Init();
-		Sys_ShowConsole( com_viewlog->integer, qfalse );
-	}
+
+	CL_Init();
+	Sys_ShowConsole( com_viewlog->integer, qfalse );
 
 	// set com_frameTime so that if a map is started on the
 	// command line it will still be able to count on com_frameTime
@@ -1456,10 +1441,7 @@ void Com_Init( char *commandLine ) {
 
 	CL_StartHunkUsers();
 
-	// delay this so potential wicked3d dll can find a wolf window
-	if ( !com_dedicated->integer ) {
-		Sys_ShowConsole( com_viewlog->integer, qfalse );
-	}
+	Sys_ShowConsole( com_viewlog->integer, qfalse );
 
 	if ( !com_recommendedSet->integer ) {
 		Com_SetRecommended( qtrue );
@@ -1563,25 +1545,10 @@ int Com_ModifyMsec( int msec ) {
 		msec = 1;
 	}
 
-	if ( com_dedicated->integer ) {
-		// dedicated servers don't want to clamp for a much longer
-		// period, because it would mess up all the client's views
-		// of time.
-		if ( msec > 500 ) {
-			Com_Printf( "Hitch warning: %i msec frame time\n", msec );
-		}
-		clampTime = 5000;
-	} else
-	if ( !com_sv_running->integer ) {
-		// clients of remote servers do not want to clamp time, because
-		// it would skew their view of the server's time temporarily
-		clampTime = 5000;
-	} else {
-		// for local single player gaming
-		// we may want to clamp the time to prevent players from
-		// flying off edges when something hitches.
-		clampTime = 200;
-	}
+	// for local single player gaming
+	// we may want to clamp the time to prevent players from
+	// flying off edges when something hitches.
+	clampTime = 200;
 
 	if ( msec > clampTime ) {
 		msec = clampTime;

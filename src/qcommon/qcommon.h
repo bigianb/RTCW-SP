@@ -168,7 +168,7 @@ void        NET_Shutdown( void );
 void        NET_Restart( void );
 void        NET_Config( qboolean enableNetworking );
 
-void        NET_SendPacket( netsrc_t sock, int length, const void *data, netadr_t to );
+void        NET_SendPacket( netsrc_t sock, size_t length, const void *data, netadr_t to );
 void  NET_OutOfBandPrint( netsrc_t net_socket, netadr_t adr, const char *format, ... );
 
 qboolean    NET_CompareAdr( netadr_t a, netadr_t b );
@@ -683,7 +683,7 @@ void        Com_SetRecommended( qboolean vid_restart );
 
 
 extern cvar_t  *com_developer;
-extern cvar_t  *com_dedicated;
+
 extern cvar_t  *com_speeds;
 extern cvar_t  *com_timescale;
 extern cvar_t  *com_sv_running;
