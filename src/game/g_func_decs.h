@@ -751,7 +751,7 @@ extern void touch_props_box_32 ( gentity_t * self , gentity_t * other , trace_t 
 extern void moveit ( gentity_t * ent , float yaw , float dist ) ;
 extern void DropToFloor ( gentity_t * ent ) ;
 extern void DropToFloorG ( gentity_t * ent ) ;
-extern int trap_GeneticParentsAndChildSelection ( int numranks , float * ranks , int * parent1 , int * parent2 , int * child ) ;
+
 extern void trap_BotResetWeaponState ( int weaponstate ) ;
 extern void trap_BotFreeWeaponState ( int weaponstate ) ;
 extern int trap_BotAllocWeaponState ( void ) ;
@@ -774,7 +774,7 @@ extern void trap_BotFreeGoalState ( int handle ) ;
 extern int trap_BotAllocGoalState ( int state ) ;
 extern void trap_BotMutateGoalFuzzyLogic ( int goalstate , float range ) ;
 extern void trap_BotSaveGoalFuzzyLogic ( int goalstate , char * filename ) ;
-extern void trap_BotInterbreedGoalFuzzyLogic ( int parent1 , int parent2 , int child ) ;
+
 extern void trap_BotFreeItemWeights ( int goalstate ) ;
 extern int trap_BotLoadItemWeights ( int goalstate , char * filename ) ;
 extern void trap_BotUpdateEntityItems ( void ) ;

@@ -369,7 +369,7 @@ typedef struct ai_export_s
 	void ( *BotUpdateEntityItems )( void );
 	int ( *BotLoadItemWeights )( int goalstate, char *filename );
 	void ( *BotFreeItemWeights )( int goalstate );
-	void ( *BotInterbreedGoalFuzzyLogic )( int parent1, int parent2, int child );
+
 	void ( *BotSaveGoalFuzzyLogic )( int goalstate, char *filename );
 	void ( *BotMutateGoalFuzzyLogic )( int goalstate, float range );
 	int ( *BotAllocGoalState )( int client );
@@ -400,10 +400,7 @@ typedef struct ai_export_s
 	int ( *BotAllocWeaponState )( void );
 	void ( *BotFreeWeaponState )( int weaponstate );
 	void ( *BotResetWeaponState )( int weaponstate );
-	//-----------------------------------
-	// be_ai_gen.h
-	//-----------------------------------
-	int ( *GeneticParentsAndChildSelection )( int numranks, float *ranks, int *parent1, int *parent2, int *child );
+
 } ai_export_t;
 
 //bot AI library imported functions

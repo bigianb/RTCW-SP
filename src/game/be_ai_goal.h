@@ -91,8 +91,7 @@ float BotAvoidGoalTime( int goalstate, int number );
 void BotInitLevelItems( void );
 //regularly update dynamic entity items (dropped weapons, flags etc.)
 void BotUpdateEntityItems( void );
-//interbreed the goal fuzzy logic
-void BotInterbreedGoalFuzzyLogic( int parent1, int parent2, int child );
+
 //save the goal fuzzy logic to disk
 void BotSaveGoalFuzzyLogic( int goalstate, char *filename );
 //mutate the goal fuzzy logic

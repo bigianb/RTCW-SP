@@ -1273,7 +1273,7 @@ void    trap_BotInitLevelItems( void );
 void    trap_BotUpdateEntityItems( void );
 int     trap_BotLoadItemWeights( int goalstate, char *filename );
 void    trap_BotFreeItemWeights( int goalstate );
-void    trap_BotInterbreedGoalFuzzyLogic( int parent1, int parent2, int child );
+
 void    trap_BotSaveGoalFuzzyLogic( int goalstate, char *filename );
 void    trap_BotMutateGoalFuzzyLogic( int goalstate, float range );
 int     trap_BotAllocGoalState( int state );
@@ -1300,8 +1300,6 @@ int     trap_BotLoadWeaponWeights( int weaponstate, char *filename );
 int     trap_BotAllocWeaponState( void );
 void    trap_BotFreeWeaponState( int weaponstate );
 void    trap_BotResetWeaponState( int weaponstate );
-
-int     trap_GeneticParentsAndChildSelection( int numranks, float *ranks, int *parent1, int *parent2, int *child );
 
 void    trap_SnapVector( float *v );
 

@@ -518,10 +518,6 @@ void trap_BotFreeItemWeights( int goalstate ) {
 	BotFreeItemWeights(goalstate );
 }
 
-void trap_BotInterbreedGoalFuzzyLogic( int parent1, int parent2, int child ) {
-	BotInterbreedGoalFuzzyLogic(parent1, parent2, child );
-}
-
 void trap_BotSaveGoalFuzzyLogic( int goalstate, char *filename ) {
 	BotSaveGoalFuzzyLogic(goalstate, filename );
 }
@@ -612,6 +608,3 @@ void trap_BotResetWeaponState( int weaponstate ) {
 	BotResetWeaponState(weaponstate );
 }
 
-int trap_GeneticParentsAndChildSelection( int numranks, float *ranks, int *parent1, int *parent2, int *child ) {
-	return GeneticParentsAndChildSelection(numranks, ranks, parent1, parent2, child );
-}

@@ -743,7 +743,7 @@ If you have questions concerning this license or the applicable additional terms
 {"moveit", (byte *)moveit},
 {"DropToFloor", (byte *)DropToFloor},
 {"DropToFloorG", (byte *)DropToFloorG},
-{"trap_GeneticParentsAndChildSelection", (byte *)trap_GeneticParentsAndChildSelection},
+
 {"trap_BotResetWeaponState", (byte *)trap_BotResetWeaponState},
 {"trap_BotFreeWeaponState", (byte *)trap_BotFreeWeaponState},
 {"trap_BotAllocWeaponState", (byte *)trap_BotAllocWeaponState},
@@ -766,7 +766,7 @@ If you have questions concerning this license or the applicable additional terms
 {"trap_BotAllocGoalState", (byte *)trap_BotAllocGoalState},
 {"trap_BotMutateGoalFuzzyLogic", (byte *)trap_BotMutateGoalFuzzyLogic},
 {"trap_BotSaveGoalFuzzyLogic", (byte *)trap_BotSaveGoalFuzzyLogic},
-{"trap_BotInterbreedGoalFuzzyLogic", (byte *)trap_BotInterbreedGoalFuzzyLogic},
+
 {"trap_BotFreeItemWeights", (byte *)trap_BotFreeItemWeights},
 {"trap_BotLoadItemWeights", (byte *)trap_BotLoadItemWeights},
 {"trap_BotUpdateEntityItems", (byte *)trap_BotUpdateEntityItems},
