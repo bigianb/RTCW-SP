@@ -727,7 +727,7 @@ qboolean AICast_ScriptRun( cast_state_t *cs, qboolean force )
 		return qtrue;
 	}
 
-    Com_Printf( "AICast_ScriptRun for (%s)\n", g_entities[cs->entityNum].aiName);
+    //Com_Printf( "AICast_ScriptRun for (%s)\n", g_entities[cs->entityNum].aiName);
     
 	if ( cs->castScriptStatus.castScriptEventIndex < 0 ) {
 		return qtrue;

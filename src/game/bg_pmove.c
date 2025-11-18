@@ -3783,10 +3783,7 @@ void PmoveSingle( pmove_t *pmove ) {
 	// Ridah
 	if ( !isDummy ) {
 		// done.
-		if ( !( pm->ps->pm_flags & PMF_LIMBO ) ) { // JPW NERVE
-			PM_UpdateViewAngles( pm->ps, &pm->cmd, pm->trace ); //----(SA)	modified
-
-		}
+        PM_UpdateViewAngles( pm->ps, &pm->cmd, pm->trace ); //----(SA)	modified
 	}
 	AngleVectors( pm->ps->viewangles, pml.forward, pml.right, pml.up );
 
@@ -3802,17 +3799,10 @@ void PmoveSingle( pmove_t *pmove ) {
 		pm->ps->pm_flags &= ~PMF_BACKWARDS_RUN;
 	}
 
-	if ( pm->ps->pm_type >= PM_DEAD || pm->ps->pm_flags & PMF_LIMBO ) {         // DHM - Nerve
+	if ( pm->ps->pm_type >= PM_DEAD ) { 
 		pm->cmd.forwardmove = 0;
 		pm->cmd.rightmove = 0;
 		pm->cmd.upmove = 0;
-	}
-
-	if ( ( pm->ps->pm_type == PM_SPECTATOR ) || ( pm->ps->pm_flags & PMF_LIMBO ) ) { // JPW NERVE for limbo mode chase
-		PM_CheckDuck();
-		PM_FlyMove();
-		PM_DropTimers();
-		return;
 	}
 
 	if ( pm->ps->pm_type == PM_NOCLIP ) {

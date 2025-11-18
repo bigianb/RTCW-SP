@@ -2997,27 +2997,20 @@ qboolean    BG_CanItemBeGrabbed( const entityState_t *ent, const playerState_t *
 	switch ( item->giType ) {
 
 	case IT_WEAPON:
-		// JPW NERVE -- medics & engineers can only pick up same weapon type
-		if ( multiplayer ) {
-			if ( ( ps->stats[STAT_PLAYER_CLASS] == PC_MEDIC ) || ( ps->stats[STAT_PLAYER_CLASS] == PC_ENGINEER ) ) {
-				if ( !COM_BitCheck( ps->weapons, item->giTag ) ) {
-					return qfalse;
-				}
-			}
-		} else {
-			if ( COM_BitCheck( ps->weapons, item->giTag ) ) {               // you have the weap
-				if ( isClipOnly( item->giTag ) ) {
-					if ( ps->ammoclip[item->giAmmoIndex] >= ammoTable[item->giAmmoIndex].maxclip ) {
-						return qfalse;
-					}
-				} else {
-					if ( ps->ammo[item->giAmmoIndex] >= ammoTable[item->giAmmoIndex].maxammo ) { // you are loaded with the ammo
-						return qfalse;
-					}
-				}
-			}
-		}
-		// JPW
+ 
+        if ( COM_BitCheck( ps->weapons, item->giTag ) ) {               // you have the weap
+            if ( isClipOnly( item->giTag ) ) {
+                if ( ps->ammoclip[item->giAmmoIndex] >= ammoTable[item->giAmmoIndex].maxclip ) {
+                    return qfalse;
+                }
+            } else {
+                if ( ps->ammo[item->giAmmoIndex] >= ammoTable[item->giAmmoIndex].maxammo ) { // you are loaded with the ammo
+                    return qfalse;
+                }
+            }
+        }
+		
+
 		return qtrue;
 
 	case IT_AMMO:
@@ -3481,9 +3474,7 @@ and after local prediction on the client
 void BG_PlayerStateToEntityState( playerState_t *ps, entityState_t *s, qboolean snap ) {
 	int i;
 
-	if ( ps->pm_type == PM_INTERMISSION || ps->pm_type == PM_SPECTATOR || ps->pm_flags & PMF_LIMBO ) { // JPW NERVE limbo
-		s->eType = ET_INVISIBLE;
-	} else if ( ps->stats[STAT_HEALTH] <= GIB_HEALTH ) {
+    if ( ps->stats[STAT_HEALTH] <= GIB_HEALTH ) {
 		s->eType = ET_INVISIBLE;
 	} else {
 		s->eType = ET_PLAYER;
@@ -3588,9 +3579,7 @@ and after local prediction on the client
 void BG_PlayerStateToEntityStateExtraPolate( playerState_t *ps, entityState_t *s, int time, qboolean snap ) {
 	int i;
 
-	if ( ps->pm_type == PM_INTERMISSION || ps->pm_type == PM_SPECTATOR || ps->pm_flags & PMF_LIMBO ) { // JPW NERVE limbo
-		s->eType = ET_INVISIBLE;
-	} else if ( ps->stats[STAT_HEALTH] <= GIB_HEALTH ) {
+	if ( ps->stats[STAT_HEALTH] <= GIB_HEALTH ) {
 		s->eType = ET_INVISIBLE;
 	} else {
 		s->eType = ET_PLAYER;

@@ -413,9 +413,8 @@ static void CG_TouchTriggerPrediction( void ) {
 		return;
 	}
 
-	spectator = ( ( cg.predictedPlayerState.pm_type == PM_SPECTATOR ) || ( cg.predictedPlayerState.pm_flags & PMF_LIMBO ) ); // JPW NERVE
-
-	if ( cg.predictedPlayerState.pm_type != PM_NORMAL && !spectator ) {
+	
+	if ( cg.predictedPlayerState.pm_type != PM_NORMAL ) {
 		return;
 	}
 
@@ -423,7 +422,7 @@ static void CG_TouchTriggerPrediction( void ) {
 		cent = cg_triggerEntities[ i ];
 		ent = &cent->currentState;
 
-		if ( ent->eType == ET_ITEM && !spectator ) {
+		if ( ent->eType == ET_ITEM ) {
 			CG_TouchItem( cent );
 			continue;
 		}

@@ -121,7 +121,6 @@ gentity_t   *G_TestEntityPosition( gentity_t *ent ) {
 	if ( ent->clipmask ) {
 		if ( ent->r.contents == CONTENTS_CORPSE ) {
 			// corpse aren't important
-			//G_Damage( ent, NULL, NULL, NULL, NULL, 99999, 0, MOD_CRUSH );
 			return NULL;
 		} else {
 			mask = ent->clipmask;
@@ -223,10 +222,10 @@ G_TransposeMatrix
 */
 // TTimo: const vec_t ** would require explicit casts for ANSI C conformance
 // see unix/const-arg.c in Wolf MP source
-void G_TransposeMatrix( /*const*/ vec3_t matrix[3], vec3_t transpose[3] ) {
-	int i, j;
-	for ( i = 0; i < 3; i++ ) {
-		for ( j = 0; j < 3; j++ ) {
+void G_TransposeMatrix( /*const*/ vec3_t matrix[3], vec3_t transpose[3] )
+{
+	for (int i = 0; i < 3; i++ ) {
+		for (int j = 0; j < 3; j++ ) {
 			transpose[i][j] = matrix[j][i];
 		}
 	}
@@ -3209,7 +3208,6 @@ void FuncEndSpiritsThink( gentity_t *self ) {
 	}
 	//
 	// if heinrich isn't active yet, dont spawn
-	// TTimo: gcc: suggest parentheses around assignment used as truth value
 	if ( ( heinrich = AICast_FindEntityForName( "heinrich" ) ) ) {
 		if ( heinrich->aiInactive ) {
 			return;
@@ -3226,6 +3224,7 @@ void FuncEndSpiritsThink( gentity_t *self ) {
 	} else {    // no heinrich?
 		return;
 	}
+    
 	//
 	// if the player is close enough, and outside arena, spawn a spirit
 	VectorCopy( g_entities[0].s.pos.trBase, enemyPos );

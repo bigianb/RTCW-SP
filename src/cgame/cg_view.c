@@ -197,24 +197,6 @@ static void CG_CalcVrect( void ) {
 	int xsize, ysize;
 	float lbheight, lbdiff;
 
-	// NERVE - SMF
-	if ( cg.limboMenu ) {
-		float x, y, w, h;
-		x = LIMBO_3D_X;
-		y = LIMBO_3D_Y;
-		w = LIMBO_3D_W;
-		h = LIMBO_3D_H;
-
-		cg.refdef.width = 0;
-		CG_AdjustFrom640( &x, &y, &w, &h );
-
-		cg.refdef.x = x;
-		cg.refdef.y = y;
-		cg.refdef.width = w;
-		cg.refdef.height = h;
-		return;
-	}
-	// -NERVE - SMF
 
 	// the intermission should allways be full screen
 	if ( cg.snap->ps.pm_type == PM_INTERMISSION ) {

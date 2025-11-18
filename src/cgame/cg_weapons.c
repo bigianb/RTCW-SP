@@ -45,7 +45,6 @@ int propellerModel;
 
 vec3_t ejectBrassCasingOrigin;
 
-//----(SA)
 // forward decs
 static int getAltWeapon( int weapnum );
 int getEquivWeapon( int weapnum );
@@ -69,20 +68,6 @@ int weapBanks[MAX_WEAP_BANKS][MAX_WEAPS_IN_BANK] = {
 	{WP_FLAMETHROWER,       0,                      0           },  //	9
 	{WP_TESLA,              0,                      0           }   //	10
 };
-
-// JPW NERVE -- in mutiplayer, characters get knife/special on button 1, pistols on 2, 2-handed on 3
-int weapBanksMultiPlayer[MAX_WEAP_BANKS_MP][MAX_WEAPS_IN_BANK_MP] = {
-	{0,                     0,                      0,          0,          0,          0,              0,          0           },  // empty bank '0'
-	{WP_KNIFE,              0,                      0,          0,          0,          0,              0,          0           },
-	{WP_LUGER,              WP_COLT,                0,          0,          0,          0,              0,          0           },
-	{WP_MP40,               WP_THOMPSON,            WP_STEN,    WP_MAUSER,  WP_GARAND,  WP_PANZERFAUST, WP_VENOM,   WP_FLAMETHROWER     },
-	{WP_GRENADE_LAUNCHER,   WP_GRENADE_PINEAPPLE,   0,          0,          0,          0,              0,          0,          },
-	{WP_CLASS_SPECIAL,      0,                      0,          0,          0,          0,              0,          0,          },
-	{WP_DYNAMITE,           0,                      0,          0,          0,          0,              0,          0           }
-};
-// jpw
-
-//----(SA)	end
 
 
 /*

@@ -698,11 +698,6 @@ void ClientThink_real( gentity_t *ent ) {
 			SetClientViewAngle( ent,muzzlebounce );
 		}
 	}
-	if ( client->ps.stats[STAT_PLAYER_CLASS] == PC_MEDIC ) {
-		if ( level.time > client->ps.powerups[PW_REGEN] + 5000 ) {
-			client->ps.powerups[PW_REGEN] = level.time;
-		}
-	}
 
 
 	if (!saveGamePending && !( ent->r.svFlags & SVF_CASTAI ) ) {

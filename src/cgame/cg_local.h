@@ -100,12 +100,6 @@ If you have questions concerning this license or the applicable additional terms
 #define TJFL_NOPOLYMERGE    ( 1 << 5 )
 // done.
 
-// NERVE - SMF - limbo mode 3d view position
-#define LIMBO_3D_X  10
-#define LIMBO_3D_Y  120
-#define LIMBO_3D_W  420
-#define LIMBO_3D_H  330
-// -NERVE - SMF
 
 //=================================================
 
@@ -1694,15 +1688,6 @@ extern vmCvar_t cg_gameSkill;
 // done
 
 extern vmCvar_t cg_reloading;           //----(SA)	added
-
-// JPW NERVE
-extern vmCvar_t cg_medicChargeTime;
-extern vmCvar_t cg_engineerChargeTime;
-extern vmCvar_t cg_LTChargeTime;
-extern vmCvar_t cg_soldierChargeTime;
-extern vmCvar_t cg_redlimbotime;
-extern vmCvar_t cg_bluelimbotime;
-// jpw
 
 extern vmCvar_t cg_hunkUsed;
 extern vmCvar_t cg_soundAdjust;

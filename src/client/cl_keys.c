@@ -44,7 +44,6 @@ int historyLine;            // the line being displayed from history buffer
 field_t g_consoleField;
 field_t chatField;
 qboolean chat_team;
-qboolean chat_limbo;            // NERVE - SMF
 
 int chat_playerNum;
 
@@ -929,14 +928,7 @@ void Message_Key( int key ) {
 			} else if ( chat_team ) {
 
 				snprintf( buffer, sizeof( buffer ), "say_team \"%s\"\n", chatField.buffer );
-			}
-			// NERVE - SMF
-			else if ( chat_limbo ) {
-
-				snprintf( buffer, sizeof( buffer ), "say_limbo \"%s\"\n", chatField.buffer );
-			}
-			// -NERVE - SMF
-			else {
+			} else {
 				snprintf( buffer, sizeof( buffer ), "say \"%s\"\n", chatField.buffer );
 			}
 

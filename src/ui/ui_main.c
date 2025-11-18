@@ -1325,14 +1325,8 @@ void UI_ParseSavegame( int index )
     int ver;
 	FS_Read( &ver, sizeof( ver ), f );
 
-
-	// 'info' if > 11
-	// 'mission' if > 12
-	// 'skill' if >13
-	// 'time' if > 14
-
 	// if the version is wrong, just set some defaults and get out
-	if ( ver < 9 ) {  // don't try anything for really old savegames
+	if ( ver != 18 ) {
 		FS_FCloseFile( f );
 		uiInfo.savegameList[index].mapName          = "unknownmap";
 		uiInfo.savegameList[index].episode          = -1;
@@ -1362,41 +1356,27 @@ void UI_ParseSavegame( int index )
 	FS_Read( &i, sizeof( i ), f );
 	uiInfo.savegameList[index].episode = i;
 
-	if ( ver < 12 ) {
-		FS_FCloseFile( f );
-		uiInfo.savegameList[index].savegameInfoText = "Gametime: (unknown)\nHealth: (unknown)\n(old savegame)";
-		uiInfo.savegameList[index].date = "temp_date";
-		memset( &uiInfo.savegameList[index].tm, 0, sizeof( qtime_t ) );
-		uiInfo.savegameList[index].time = String_Alloc( va( "(old savegame ver: %d)", ver ) );
-		return;
-	}
-
 	// read the info string length
 	FS_Read( &i, sizeof( i ), f );
 
 	// read the info string
     char buf[SAVE_INFOSTRING_LENGTH];
 	FS_Read( buf, i, f );
-	buf[i] = '\0';        //DAJ made it a char
+	buf[i] = '\0';
 	uiInfo.savegameList[index].savegameInfoText = String_Alloc( buf );
 
 	// time
-	if ( ver > 14 ) {
-        qtime_t* tm = &uiInfo.savegameList[index].tm;
-		FS_Read( &tm->tm_sec, sizeof( tm->tm_sec ), f );          // secs after the min
-		FS_Read( &tm->tm_min, sizeof( tm->tm_min ), f );          // mins after the hour
-		FS_Read( &tm->tm_hour, sizeof( tm->tm_hour ), f );        // hrs since midnight
-		FS_Read( &tm->tm_mday, sizeof( tm->tm_mday ), f );
-		FS_Read( &tm->tm_mon, sizeof( tm->tm_mon ), f );
-		FS_Read( &tm->tm_year, sizeof( tm->tm_year ), f );        // yrs from 1900
-		FS_Read( &tm->tm_wday, sizeof( tm->tm_wday ), f );
-		FS_Read( &tm->tm_yday, sizeof( tm->tm_yday ), f );        // days since jan1 (0-365)
-		FS_Read( &tm->tm_isdst, sizeof( tm->tm_isdst ), f );
-		uiInfo.savegameList[index].time = String_Alloc( va( "%s %i, %i   %02i:%02i", monthStr[tm->tm_mon], tm->tm_mday, 1900 + tm->tm_year, tm->tm_hour, tm->tm_min ) );
-	} else {
-		memset( &uiInfo.savegameList[index].tm, 0, sizeof( qtime_t ) );
-		uiInfo.savegameList[index].time = String_Alloc( va( "(old save ver: %d)", ver ) );
-	}
+    qtime_t* tm = &uiInfo.savegameList[index].tm;
+    FS_Read( &tm->tm_sec, sizeof( tm->tm_sec ), f );          // secs after the min
+    FS_Read( &tm->tm_min, sizeof( tm->tm_min ), f );          // mins after the hour
+    FS_Read( &tm->tm_hour, sizeof( tm->tm_hour ), f );        // hrs since midnight
+    FS_Read( &tm->tm_mday, sizeof( tm->tm_mday ), f );
+    FS_Read( &tm->tm_mon, sizeof( tm->tm_mon ), f );
+    FS_Read( &tm->tm_year, sizeof( tm->tm_year ), f );        // yrs from 1900
+    FS_Read( &tm->tm_wday, sizeof( tm->tm_wday ), f );
+    FS_Read( &tm->tm_yday, sizeof( tm->tm_yday ), f );        // days since jan1 (0-365)
+    FS_Read( &tm->tm_isdst, sizeof( tm->tm_isdst ), f );
+    uiInfo.savegameList[index].time = String_Alloc( va( "%s %i, %i   %02i:%02i", monthStr[tm->tm_mon], tm->tm_mday, 1900 + tm->tm_year, tm->tm_hour, tm->tm_min ) );
 
 	FS_FCloseFile( f );
 }
@@ -1406,7 +1386,8 @@ void UI_ParseSavegame( int index )
 UI_LoadSavegames
 ==============
 */
-static void UI_LoadSavegames( char *dir ) {
+static void UI_LoadSavegames( char *dir )
+{
 	char sglist[4096];
 
 	if ( dir ) {

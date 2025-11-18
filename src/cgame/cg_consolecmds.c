@@ -312,7 +312,7 @@ void CG_InitConsoleCommands( void ) {
 	Cmd_AddCommand( "kill", NULL );
 	Cmd_AddCommand( "say", NULL );
 	Cmd_AddCommand( "say_team", NULL );
-	Cmd_AddCommand( "say_limbo", NULL );           // NERVE - SMF
+
 	Cmd_AddCommand( "tell", NULL );
 	Cmd_AddCommand( "give", NULL );
 	Cmd_AddCommand( "god", NULL );

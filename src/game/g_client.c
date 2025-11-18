@@ -440,8 +440,6 @@ void respawn( gentity_t *ent ) {
 
         return;
     }
-	
-	ent->client->ps.pm_flags &= ~PMF_LIMBO; // JPW NERVE turns off limbo
 
 	CopyToBodyQue( ent );
 

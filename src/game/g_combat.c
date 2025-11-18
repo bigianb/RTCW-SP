@@ -301,12 +301,7 @@ char    *modNames[] = {
 	"MOD_LOPER_LEAP",
 	"MOD_LOPER_GROUND",
 	"MOD_LOPER_HIT",
-// JPW NERVE
-	"MOD_LT_ARTILLERY",
-	"MOD_LT_AIRSTRIKE",
-	"MOD_ENGINEER",  // not sure if we'll use
-	"MOD_MEDIC",     // these like this or not
-// jpw
+
 	"MOD_BAT"
 };
 

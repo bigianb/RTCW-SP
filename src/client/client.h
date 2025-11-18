@@ -39,8 +39,6 @@ If you have questions concerning this license or the applicable additional terms
 
 #define RETRANSMIT_TIMEOUT  3000    // time between connection packet retransmits
 
-#define LIMBOCHAT_WIDTH     140     // NERVE - SMF
-#define LIMBOCHAT_HEIGHT    7       // NERVE - SMF
 
 // snapshots are a view of the server at a given time
 typedef struct {

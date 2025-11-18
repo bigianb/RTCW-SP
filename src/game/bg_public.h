@@ -273,7 +273,7 @@ typedef enum {
 #define PMF_IGNORE_INPUT    2048    // no movement/firing commands allowed
 #define PMF_FOLLOW          4096    // spectate following another player
 #define PMF_SCOREBOARD      8192    // spectate as a scoreboard
-#define PMF_LIMBO           16384   // JPW NERVE limbo state, pm_time is time until reinforce
+
 #define PMF_TIME_LOAD       32768   // hold for this time after a load game, and prevent large thinks
 
 #define PMF_ALL_TIMES   ( PMF_TIME_WATERJUMP | PMF_TIME_LAND | PMF_TIME_KNOCKBACK | PMF_TIME_LOAD )
@@ -317,14 +317,6 @@ void PM_UpdateViewAngles( playerState_t * ps, usercmd_t * cmd, void( trace ) ( t
 int Pmove( pmove_t *pmove );
 
 //===================================================================================
-
-// JPW NERVE
-#define PC_SOLDIER              0   //	shoot stuff
-#define PC_MEDIC                1   //	heal stuff
-#define PC_ENGINEER             2   //	build stuff
-#define PC_LT                   3   //	bomb stuff
-#define PC_MEDIC_CHARGETIME     30000   // FIXME just for testing, this will change to server cvars for each class
-// jpw
 
 // player_state->stats[] indexes
 typedef enum {
@@ -1188,12 +1180,7 @@ typedef enum {
 	MOD_LOPER_GROUND,
 	MOD_LOPER_HIT,
 
-// JPW NERVE multiplayer class-specific MODs
-	MOD_LT_ARTILLERY,
-	MOD_LT_AIRSTRIKE,
-	MOD_ENGINEER,   // not sure if we'll use
-	MOD_MEDIC,      // these like this or not
-//
+
 	MOD_BAT
 
 } meansOfDeath_t;

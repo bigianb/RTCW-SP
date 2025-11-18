@@ -51,7 +51,7 @@ extern field_t g_consoleField;
 extern field_t chatField;
 extern qboolean anykeydown;
 extern qboolean chat_team;
-extern qboolean chat_limbo;             // NERVE - SMF
+
 extern int chat_playerNum;
 
 void Key_WriteBindings( fileHandle_t f );

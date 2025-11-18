@@ -570,27 +570,8 @@ void  Com_Error( int level, const char *error, ... );
 void  Com_Printf( const char *msg, ... );
 
 
-/*
-==============================================================
-
-SAVE
-
-	12 -
-	13 - (SA) added 'episode' tracking to savegame
-	14 - RF added 'skill'
-	15 - (SA) moved time info above the main game reading
-	16 - (SA) added fog
-	17 - (SA) rats, changed fog.
-  18 - TTimo targetdeath fix
-	   show_bug.cgi?id=434
-
-==============================================================
-*/
-
 #define SAVE_VERSION    18
 #define SAVE_INFOSTRING_LENGTH  256
-
-
 
 /*
 ==========================================================
@@ -857,10 +838,7 @@ typedef enum
 // weapon grouping
 #define MAX_WEAP_BANKS      12
 #define MAX_WEAPS_IN_BANK   3
-// JPW NERVE
-#define MAX_WEAPS_IN_BANK_MP    8
-#define MAX_WEAP_BANKS_MP   7
-// jpw
+
 #define MAX_WEAP_ALTS       WP_DYNAMITE
 
 
