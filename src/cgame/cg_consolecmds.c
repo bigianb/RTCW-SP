@@ -273,13 +273,11 @@ The string has been tokenized and can be retrieved with
 Cmd_Argc() / Cmd_Argv()
 =================
 */
-qboolean CG_ConsoleCommand( void ) {
-	const char  *cmd;
-	int i;
+qboolean CG_ConsoleCommand()
+{
+	const char* cmd = CG_Argv( 0 );
 
-	cmd = CG_Argv( 0 );
-
-	for ( i = 0 ; i < sizeof( commands ) / sizeof( commands[0] ) ; i++ ) {
+	for (int i = 0 ; i < sizeof( commands ) / sizeof( commands[0] ) ; i++ ) {
 		if ( !Q_stricmp( cmd, commands[i].cmd ) ) {
 			commands[i].function();
 			return qtrue;
@@ -298,10 +296,9 @@ Let the client system know about all of our commands
 so it can perform tab completion
 =================
 */
-void CG_InitConsoleCommands( void ) {
-	int i;
-
-	for ( i = 0 ; i < sizeof( commands ) / sizeof( commands[0] ) ; i++ ) {
+void CG_InitConsoleCommands()
+{
+	for (int i = 0 ; i < sizeof( commands ) / sizeof( commands[0] ) ; i++ ) {
 		Cmd_AddCommand( commands[i].cmd, NULL );
 	}
 

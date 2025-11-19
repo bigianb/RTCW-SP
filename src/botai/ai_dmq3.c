@@ -53,10 +53,8 @@ If you have questions concerning this license or the applicable additional terms
 
 #include "ai_main.h"
 #include "ai_dmq3.h"
-#include "ai_chat.h"
-#include "ai_cmd.h"
 #include "ai_dmnet.h"
-#include "ai_team.h"
+
 //
 #include "chars.h"               //characteristics
 #include "inv.h"             //indexes into the inventory
@@ -610,15 +608,6 @@ void BotInitWaypoints( void ) {
 		botai_waypoints[i].next = botai_freewaypoints;
 		botai_freewaypoints = &botai_waypoints[i];
 	}
-}
-
-/*
-==================
-TeamPlayIsOn
-==================
-*/
-int TeamPlayIsOn( void ) {
-	return 0;
 }
 
 /*
@@ -2551,21 +2540,14 @@ void BotDeathmatchAI( bot_state_t *bs, float thinktime ) {
 	BotCheckSnapshot( bs );
 	//check for air
 	BotCheckAir( bs );
-	//if not in the intermission and not in observer mode
-	if ( !BotIntermission( bs ) && !BotIsObserver( bs ) ) {
-		//do team AI
-		BotTeamAI( bs );
-	}
+
 	//if the bot has no ai node
 	if ( !bs->ainode ) {
 		AIEnter_Seek_LTG( bs );
 	}
 	//if the bot entered the game less than 8 seconds ago
 	if ( !bs->entergamechat && bs->entergame_time > trap_AAS_Time() - 8 ) {
-		if ( BotChat_EnterGame( bs ) ) {
-			bs->stand_time = trap_AAS_Time() + BotChatTime( bs );
-			AIEnter_Stand( bs );
-		}
+		
 		bs->entergamechat = qtrue;
 	}
 	//reset the node switches from the previous frame

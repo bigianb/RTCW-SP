@@ -49,8 +49,7 @@ If you have questions concerning this license or the applicable additional terms
 //
 #include "ai_main.h"
 #include "ai_dmq3.h"
-#include "ai_chat.h"
-#include "ai_cmd.h"
+
 #include "ai_dmnet.h"
 //data file headers
 #include "chars.h"           //characteristics
@@ -734,11 +733,7 @@ AINode_Intermission
 int AINode_Intermission( bot_state_t *bs ) {
 	//if the intermission ended
 	if ( !BotIntermission( bs ) ) {
-		if ( BotChat_StartLevel( bs ) ) {
-			bs->stand_time = trap_AAS_Time() + BotChatTime( bs );
-		} else {
-			bs->stand_time = trap_AAS_Time() + 2;
-		}
+		bs->stand_time = trap_AAS_Time() + 2;
 		AIEnter_Stand( bs );
 	}
 	return qtrue;
@@ -787,13 +782,7 @@ AINode_Stand
 */
 int AINode_Stand( bot_state_t *bs ) {
 
-	//if the bot's health decreased
-	if ( bs->lastframe_health > bs->inventory[INVENTORY_HEALTH] ) {
-		if ( BotChat_HitTalking( bs ) ) {
-			bs->standfindenemy_time = trap_AAS_Time() + BotChatTime( bs ) + 0.1;
-			bs->stand_time = trap_AAS_Time() + BotChatTime( bs ) + 0.1;
-		}
-	}
+
 	if ( bs->standfindenemy_time < trap_AAS_Time() ) {
 		if ( BotFindEnemy( bs, -1 ) ) {
 			AIEnter_Battle_Fight( bs );
@@ -1164,12 +1153,7 @@ int AINode_Seek_LTG( bot_state_t *bs ) {
 		AIEnter_Respawn( bs );
 		return qfalse;
 	}
-	//
-	if ( BotChat_Random( bs ) ) {
-		bs->stand_time = trap_AAS_Time() + BotChatTime( bs );
-		AIEnter_Stand( bs );
-		return qfalse;
-	}
+
 	//
 	bs->tfl = TFL_DEFAULT;
 	if ( bot_grapple.integer ) {
@@ -1334,16 +1318,9 @@ int AINode_Battle_Fight( bot_state_t *bs ) {
 	if ( bs->enemydeath_time ) {
 		if ( bs->enemydeath_time < trap_AAS_Time() - 1.5 ) {
 			bs->enemydeath_time = 0;
-			if ( bs->enemysuicide ) {
-				BotChat_EnemySuicide( bs );
-			}
-			if ( bs->lastkilledplayer == bs->enemy && BotChat_Kill( bs ) ) {
-				bs->stand_time = trap_AAS_Time() + BotChatTime( bs );
-				AIEnter_Stand( bs );
-			} else {
-				bs->ltg_time = 0;
-				AIEnter_Seek_LTG( bs );
-			}
+			bs->ltg_time = 0;
+			AIEnter_Seek_LTG( bs );
+			
 			return qfalse;
 		}
 	} else {
@@ -1366,22 +1343,7 @@ int AINode_Battle_Fight( bot_state_t *bs ) {
 	}
 	//update the attack inventory values
 	BotUpdateBattleInventory( bs, bs->enemy );
-	//if the bot's health decreased
-	if ( bs->lastframe_health > bs->inventory[INVENTORY_HEALTH] ) {
-		if ( BotChat_HitNoDeath( bs ) ) {
-			bs->stand_time = trap_AAS_Time() + BotChatTime( bs );
-			AIEnter_Stand( bs );
-			return qfalse;
-		}
-	}
-	//if the bot hit someone
-	if ( bs->cur_ps.persistant[PERS_HITS] > bs->lasthitcount ) {
-		if ( BotChat_HitNoKill( bs ) ) {
-			bs->stand_time = trap_AAS_Time() + BotChatTime( bs );
-			AIEnter_Stand( bs );
-			return qfalse;
-		}
-	}
+
 	//if the enemy is not visible
 	if ( !BotEntityVisible( bs->entitynum, bs->eye, bs->viewangles, 360, bs->enemy ) ) {
 		if ( BotWantsToChase( bs ) ) {

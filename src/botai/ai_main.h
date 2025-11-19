@@ -28,14 +28,6 @@ If you have questions concerning this license or the applicable additional terms
 
 #pragma once
 
-/*****************************************************************************
- * name:		ai_main.h
- *
- * desc:		Quake3 bot AI
- *
- *
- *****************************************************************************/
-
 #include "../botlib/be_aas_def.h"
 #include "../botai/botai.h"
 #include "../game/be_ai_goal.h"
@@ -61,19 +53,7 @@ If you have questions concerning this license or the applicable additional terms
 #define LTG_PATROL                  9   //patrol
 #define LTG_GETITEM                 10  //get an item
 #define LTG_KILL                    11  //kill someone
-//some goal dedication times
-#define TEAM_HELP_TIME              60  //1 minute teamplay help time
-#define TEAM_ACCOMPANY_TIME         600 //10 minutes teamplay accompany time
-#define TEAM_DEFENDKEYAREA_TIME     240 //4 minutes ctf defend base time
-#define TEAM_CAMP_TIME              600 //10 minutes camping time
-#define TEAM_PATROL_TIME            600 //10 minutes patrolling time
-#define TEAM_LEAD_TIME              600 //10 minutes taking the lead
-#define TEAM_GETITEM_TIME           60  //1 minute
-#define TEAM_KILL_SOMEONE           180 //3 minute to kill someone
-#define CTF_GETFLAG_TIME            240 //4 minutes ctf get flag time
-#define CTF_RUSHBASE_TIME           120 //2 minutes ctf rush base time
-#define CTF_RETURNFLAG_TIME         180 //3 minutes to return the flag
-#define CTF_ROAM_TIME               60  //1 minute ctf roam time
+
 //patrol flags
 #define PATROL_LOOP                 1
 #define PATROL_REVERSE              2

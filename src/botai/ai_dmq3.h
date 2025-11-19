@@ -97,8 +97,7 @@ int BotWantsToCamp( bot_state_t *bs );
 bot_moveresult_t BotAttackMove( bot_state_t *bs, int tfl );
 //returns true if the bot and the entity are in the same team
 int BotSameTeam( bot_state_t *bs, int entnum );
-//returns true if teamplay is on
-int TeamPlayIsOn( void );
+
 //returns true and sets the .enemy field when an enemy is found
 int BotFindEnemy( bot_state_t *bs, int curenemy );
 //returns a roam goal
@@ -131,17 +130,6 @@ int BotPointAreaNum( vec3_t origin );
 //
 void BotMapScripts( bot_state_t *bs );
 
-//ctf flags
-#define CTF_FLAG_NONE       0
-#define CTF_FLAG_RED        1
-#define CTF_FLAG_BLUE       2
-//CTF skins
-#define CTF_SKIN_REDTEAM    "red"
-#define CTF_SKIN_BLUETEAM   "blue"
-//CTF teams
-#define CTF_TEAM_NONE       0
-#define CTF_TEAM_RED        1
-#define CTF_TEAM_BLUE       2
 
 extern int dmflags;         //deathmatch flags
 
