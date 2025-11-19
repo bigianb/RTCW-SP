@@ -205,7 +205,7 @@ int Export_BotLibShutdown( void ) {
 	}
 	recursive = 1;
 	// shutdown all AI subsystems
-	BotShutdownChatAI();        //be_ai_chat.c
+
 	BotShutdownMoveAI();        //be_ai_move.c
 	BotShutdownGoalAI();        //be_ai_goal.c
 	BotShutdownWeaponAI();      //be_ai_weap.c
@@ -228,11 +228,7 @@ int Export_BotLibShutdown( void ) {
 	// print any files still open
 	PC_CheckOpenSourceHandles();
 	//
-#ifdef _DEBUG
-	Log_AlwaysOpen( "memory.log" );
-	PrintMemoryLabels();
-	Log_Shutdown();
-#endif
+
 	return BLERR_NOERROR;
 } //end of the function Export_BotLibShutdown
 //===========================================================================
@@ -381,29 +377,8 @@ static void Init_AI_Export( ai_export_t *ai ) {
 	ai->Characteristic_Integer = Characteristic_Integer;
 	ai->Characteristic_BInteger = Characteristic_BInteger;
 	ai->Characteristic_String = Characteristic_String;
-	//-----------------------------------
-	// be_ai_chat.h
-	//-----------------------------------
-	ai->BotAllocChatState = BotAllocChatState;
-	ai->BotFreeChatState = BotFreeChatState;
-	ai->BotQueueConsoleMessage = BotQueueConsoleMessage;
-	ai->BotRemoveConsoleMessage = BotRemoveConsoleMessage;
-	ai->BotNextConsoleMessage = BotNextConsoleMessage;
-	ai->BotNumConsoleMessages = BotNumConsoleMessages;
-	ai->BotInitialChat = BotInitialChat;
-	ai->BotNumInitialChats = BotNumInitialChats;
-	ai->BotReplyChat = BotReplyChat;
-	ai->BotChatLength = BotChatLength;
-	ai->BotEnterChat = BotEnterChat;
-	ai->BotGetChatMessage = BotGetChatMessage;
-	ai->StringContains = StringContains;
-	ai->BotFindMatch = BotFindMatch;
-	ai->BotMatchVariable = BotMatchVariable;
-	ai->UnifyWhiteSpaces = UnifyWhiteSpaces;
-	ai->BotReplaceSynonyms = BotReplaceSynonyms;
-	ai->BotLoadChatFile = BotLoadChatFile;
-	ai->BotSetChatGender = BotSetChatGender;
-	ai->BotSetChatName = BotSetChatName;
+	
+
 	//-----------------------------------
 	// be_ai_goal.h
 	//-----------------------------------

@@ -158,10 +158,10 @@ typedef struct token_s
 	char string[MAX_TOKEN];         //available token
 	int type;                       //last read token type
 	int subtype;                    //last read token sub type
-#ifdef NUMBERVALUE
-	unsigned long int intvalue; //integer value
-	long double floatvalue;         //floating point value
-#endif //NUMBERVALUE
+
+	unsigned long int intvalue;     //integer value
+    double floatvalue;              //floating point value
+
 	char *whitespace_p;             //start of white space before token
 	char *endwhitespace_p;          //start of white space before token
 	int line;                       //line the token was on
@@ -217,7 +217,7 @@ void StripSingleQuotes( char *string );
 //read a possible signed integer
 signed long int ReadSignedInt( script_t *script );
 //read a possible signed floating point number
-long double ReadSignedFloat( script_t *script );
+double ReadSignedFloat( script_t *script );
 //set an array with punctuations, NULL restores default C/C++ set
 void SetScriptPunctuations( script_t *script, punctuation_t *p );
 //set script flags
@@ -233,7 +233,7 @@ char *PunctuationFromNum( script_t *script, int num );
 //load a script from the given file at the given offset with the given length
 script_t *LoadScriptFile( const char *filename );
 //load a script from the given memory with the given length
-script_t *LoadScriptMemory( char *ptr, int length, char *name );
+script_t *LoadScriptMemory( char *ptr, size_t length, char *name );
 //free a script
 void FreeScript( script_t *script );
 //set the base folder to load files from

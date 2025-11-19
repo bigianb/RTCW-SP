@@ -239,7 +239,7 @@ bot_character_t *BotLoadCharacterFromFile( char *charfile, int skill ) {
 			  //if it's the correct skill
 			if ( skill < 0 || token.intvalue == skill ) {
 				foundcharacter = qtrue;
-				ch->skill = token.intvalue;
+				ch->skill = (int)token.intvalue;
 				while ( PC_ExpectAnyToken( source, &token ) )
 				{
 					if ( !strcmp( token.string, "}" ) ) {
@@ -252,7 +252,7 @@ bot_character_t *BotLoadCharacterFromFile( char *charfile, int skill ) {
 						FreeMemory( ch );
 						return NULL;
 					} //end if
-					index = token.intvalue;
+					index = (int)token.intvalue;
 					if ( index < 0 || index > MAX_CHARACTERISTICS ) {
 						SourceError( source, "characteristic index out of range [0, %d]\n", MAX_CHARACTERISTICS );
 						FreeSource( source );
@@ -280,7 +280,7 @@ bot_character_t *BotLoadCharacterFromFile( char *charfile, int skill ) {
 						} //end if
 						else
 						{
-							ch->c[index].value.integer = token.intvalue;
+							ch->c[index].value.integer = (int)token.intvalue;
 							ch->c[index].type = CT_INTEGER;
 						} //end else
 					} //end if

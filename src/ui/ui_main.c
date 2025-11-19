@@ -326,32 +326,6 @@ void UI_Shutdown( void ) {
 
 }
 
-char *defaultMenu = NULL;
-
-static
-char *GetMenuBuffer( const char *filename )
-{
-	fileHandle_t f;
-	static char buf[MAX_MENUFILE];
-
-	int len = FS_FOpenFileByMode( filename, &f, FS_READ );
-	if ( !f ) {
-        Com_Printf( S_COLOR_RED "menu file not found: %s, using default\n", filename  );
-		return defaultMenu;
-	}
-	if ( len >= MAX_MENUFILE ) {
-        Com_Printf( S_COLOR_RED "menu file too large: %s is %i, max allowed is %i", filename, len, MAX_MENUFILE  );
-		FS_FCloseFile( f );
-		return defaultMenu;
-	}
-
-	FS_Read( buf, len, f );
-	buf[len] = 0;
-	FS_FCloseFile( f );
-
-	return buf;
-}
-
 qboolean Asset_Parse( int handle ) {
 	pc_token_t token;
 	const char *tempStr;

@@ -228,7 +228,7 @@ void BotAI_BotInitialChat( bot_state_t *bs, char *type, ... ) {
 
 	mcontext = CONTEXT_NORMAL | CONTEXT_NEARBYITEM | CONTEXT_NAMES;
 
-	trap_BotInitialChat( bs->cs, type, mcontext, vars[0], vars[1], vars[2], vars[3], vars[4], vars[5], vars[6], vars[7] );
+
 }
 
 
@@ -520,15 +520,14 @@ int BotAI( int client, float thinktime ) {
 		//remove color espace sequences from the arguments
 		Q_CleanStr( args );
 
-		//botai_import.Print(PRT_MESSAGE, "ConsoleMessage: \"%s\"\n", buf);
 		if ( !Q_stricmp( buf, "cp " ) ) { /*CenterPrintf*/
 		} else if ( !Q_stricmp( buf, "cs" ) ) { /*ConfigStringModified*/
 		} else if ( !Q_stricmp( buf, "print" ) )                                                                                                                       {
-			trap_BotQueueConsoleMessage( bs->cs, CMS_NORMAL, args );
+			
 		} else if ( !Q_stricmp( buf, "chat" ) ) {
-			trap_BotQueueConsoleMessage( bs->cs, CMS_CHAT, args );
+			
 		} else if ( !Q_stricmp( buf, "tchat" ) ) {
-			trap_BotQueueConsoleMessage( bs->cs, CMS_CHAT, args );
+			
 		} else if ( !Q_stricmp( buf, "scores" ) ) { /*FIXME: parse scores?*/
 		} else if ( !Q_stricmp( buf, "clientLevelShot" ) )                                                                    { /*ignore*/
 		}
@@ -633,25 +632,14 @@ int BotAISetupClient( int client, struct bot_settings_s *settings ) {
 		return qfalse;
 	}
 	//allocate a chat state
-	bs->cs = trap_BotAllocChatState();
+
 	//load the chat file
 	trap_Characteristic_String( bs->character, CHARACTERISTIC_CHAT_FILE, filename, MAX_AIPATH );
 	trap_Characteristic_String( bs->character, CHARACTERISTIC_CHAT_NAME, name, MAX_AIPATH );
-	errnum = trap_BotLoadChatFile( bs->cs, filename, name );
-	if ( errnum != BLERR_NOERROR ) {
-		trap_BotFreeChatState( bs->cs );
-		trap_BotFreeGoalState( bs->gs );
-		trap_BotFreeWeaponState( bs->ws );
-		return qfalse;
-	}
+	
 	//get the gender characteristic
 	trap_Characteristic_String( bs->character, CHARACTERISTIC_GENDER, gender, MAX_AIPATH );
-	//set the chat gender
-	if ( *gender == 'f' || *gender == 'F' ) {
-		trap_BotSetChatGender( bs->cs, CHAT_GENDERFEMALE );
-	} else if ( *gender == 'm' || *gender == 'M' )  {
-		trap_BotSetChatGender( bs->cs, CHAT_GENDERMALE );
-	} else { trap_BotSetChatGender( bs->cs, CHAT_GENDERLESS );}
+
 
 	bs->inuse = qtrue;
 	bs->client = client;
@@ -689,15 +677,11 @@ int BotAIShutdownClient( int client ) {
 		return BLERR_AICLIENTALREADYSHUTDOWN;
 	}
 
-	if ( BotChat_ExitGame( bs ) ) {
-		trap_BotEnterChat( bs->cs, bs->client, CHAT_ALL );
-	}
 
 	trap_BotFreeMoveState( bs->ms );
 	//free the goal state
 	trap_BotFreeGoalState( bs->gs );
-	//free the chat file
-	trap_BotFreeChatState( bs->cs );
+
 	//free the weapon weights
 	trap_BotFreeWeaponState( bs->ws );
 	//free the bot character

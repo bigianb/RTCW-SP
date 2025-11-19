@@ -532,8 +532,7 @@ int PS_ReadName( script_t *script, token_t *token ) {
 // Returns:					-
 // Changes Globals:		-
 //============================================================================
-void NumberValue( char *string, int subtype, unsigned long int *intvalue,
-				  long double *floatvalue ) {
+void NumberValue( char *string, int subtype, unsigned long int *intvalue, double *floatvalue ) {
 	unsigned long int dotfound = 0;
 
 	*intvalue = 0;
@@ -550,13 +549,13 @@ void NumberValue( char *string, int subtype, unsigned long int *intvalue,
 				string++;
 			} //end if
 			if ( dotfound ) {
-				*floatvalue = *floatvalue + ( long double )( *string - '0' ) /
-							  (long double) dotfound;
+				*floatvalue = *floatvalue + ( double )( *string - '0' ) /
+							  (double) dotfound;
 				dotfound *= 10;
 			} //end if
 			else
 			{
-				*floatvalue = *floatvalue * 10.0 + ( long double )( *string - '0' );
+				*floatvalue = *floatvalue * 10.0 + ( double )( *string - '0' );
 			} //end else
 			string++;
 		} //end while
@@ -604,8 +603,7 @@ int PS_ReadNumber( script_t *script, token_t *token ) {
 	int len = 0, i;
 	int octal, dot;
 	char c;
-//	unsigned long int intvalue = 0;
-//	long double floatvalue = 0;
+
 
 	token->type = TT_NUMBER;
 	//check for a hexadecimal number
@@ -1140,9 +1138,9 @@ void StripSingleQuotes( char *string ) {
 // Returns:					-
 // Changes Globals:		-
 //============================================================================
-long double ReadSignedFloat( script_t *script ) {
+double ReadSignedFloat( script_t *script ) {
 	token_t token;
-	long double sign = 1;
+    double sign = 1;
 
 	PS_ExpectAnyToken( script, &token );
 	if ( !strcmp( token.string, "-" ) ) {
@@ -1311,13 +1309,9 @@ script_t *LoadScriptFile( const char *filename ) {
 
 	return script;
 } //end of the function LoadScriptFile
-//============================================================================
-//
-// Parameter:			-
-// Returns:				-
-// Changes Globals:		-
-//============================================================================
-script_t *LoadScriptMemory( char *ptr, int length, char *name ) {
+
+    
+script_t *LoadScriptMemory( char *ptr, size_t length, char *name ) {
 	void *buffer;
 	script_t *script;
 
@@ -1345,7 +1339,8 @@ script_t *LoadScriptMemory( char *ptr, int length, char *name ) {
 	memcpy( script->buffer, ptr, length );
 	//
 	return script;
-} //end of the function LoadScriptMemory
+}
+    
 //============================================================================
 //
 // Parameter:				-

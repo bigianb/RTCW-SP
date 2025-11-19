@@ -891,10 +891,11 @@ typedef struct routecacheheader_s
 #define RCVERSION                   15
 
 void AAS_DecompressVis( byte *in, int numareas, byte *decompressed );
-int AAS_CompressVis( byte *vis, int numareas, byte *dest );
+size_t AAS_CompressVis( byte *vis, int numareas, byte *dest );
 
-void AAS_WriteRouteCache( void ) {
-	int i, j, numportalcache, numareacache, size;
+void AAS_WriteRouteCache()
+{
+	int i, j, numportalcache, numareacache;
 	aas_routingcache_t *cache;
 	aas_cluster_t *cluster;
 	fileHandle_t fp;
@@ -966,13 +967,15 @@ void AAS_WriteRouteCache( void ) {
 	for ( i = 0; i < ( *aasworld ).numareas; i++ )
 	{
 		if ( !( *aasworld ).areavisibility[i] ) {
-			size = 0;
+			int size = 0;
 			FS_Write( &size, sizeof( int ), fp );
 			continue;
 		}
 		AAS_DecompressVis( ( *aasworld ).areavisibility[i], ( *aasworld ).numareas, ( *aasworld ).decompressedvis );
-		size = AAS_CompressVis( ( *aasworld ).decompressedvis, ( *aasworld ).numareas, buf );
-		FS_Write( &size, sizeof( int ), fp );
+		size_t size = AAS_CompressVis( ( *aasworld ).decompressedvis, ( *aasworld ).numareas, buf );
+        
+        int iSize = (int)size;      // IJB: Hack
+		FS_Write( &iSize, sizeof( int ), fp );
 		FS_Write( buf, size, fp );
 	}
 	// write the waypoints
@@ -980,7 +983,8 @@ void AAS_WriteRouteCache( void ) {
 	//
 	FS_FCloseFile( fp );
 	BotImport_Print( PRT_MESSAGE, "\nroute cache written to %s\n", filename );
-} //end of the function AAS_WriteRouteCache
+}
+
 //===========================================================================
 //
 // Parameter:			-
@@ -1991,7 +1995,7 @@ int AAS_RandomGoalArea( int areanum, int travelflags, int *goalareanum, vec3_t g
 // Returns:				-
 // Changes Globals:		-
 //===========================================================================
-int AAS_CompressVis( byte *vis, int numareas, byte *dest ) {
+size_t AAS_CompressVis( byte *vis, int numareas, byte *dest ) {
 	int j;
 	int rep;
 	//int		visrow;
@@ -2085,6 +2089,7 @@ int AAS_AreaVisible( int srcarea, int destarea ) {
 	}
 	return ( *aasworld ).decompressedvis[destarea];
 } //end of the function AAS_AreaVisible
+
 //===========================================================================
 // just center to center visibility checking...
 // FIXME: implement a correct full vis
@@ -2094,7 +2099,7 @@ int AAS_AreaVisible( int srcarea, int destarea ) {
 // Changes Globals:		-
 //===========================================================================
 void AAS_CreateVisibility( void ) {
-	int i, j, size, totalsize;
+	int i, j;
 	vec3_t endpos, mins, maxs;
 	bsp_trace_t trace;
 	byte *buf;
@@ -2113,7 +2118,7 @@ void AAS_CreateVisibility( void ) {
 	( *aasworld ).areavisibility = (byte **) GetClearedMemory( numAreas * sizeof( byte * ) );
 	( *aasworld ).decompressedvis = (byte *) GetClearedMemory( numAreas * sizeof( byte ) );
 	( *aasworld ).areawaypoints = (vec3_t *) GetClearedMemory( numAreas * sizeof( vec3_t ) );
-	totalsize = numAreas * sizeof( byte * );
+	size_t totalsize = numAreas * sizeof( byte * );
 	for ( i = 1; i < numAreas; i++ )
 	{
 		if ( !AAS_AreaReachability( i ) ) {
@@ -2173,7 +2178,7 @@ void AAS_CreateVisibility( void ) {
 				( *aasworld ).decompressedvis[j] = 1;
 			} //end if
 		} //end for
-		size = AAS_CompressVis( ( *aasworld ).decompressedvis, numAreas, buf );
+		size_t size = AAS_CompressVis( ( *aasworld ).decompressedvis, numAreas, buf );
 		( *aasworld ).areavisibility[i] = (byte *) GetMemory( size );
 		memcpy( ( *aasworld ).areavisibility[i], buf, size );
 		totalsize += size;

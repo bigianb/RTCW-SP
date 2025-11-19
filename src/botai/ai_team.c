@@ -178,20 +178,7 @@ BotSayTeamOrders
 ==================
 */
 void BotSayTeamOrder( bot_state_t *bs, int toclient ) {
-	char teamchat[MAX_MESSAGE_SIZE];
-	char buf[MAX_MESSAGE_SIZE];
-	char name[MAX_NETNAME];
 
-	//if the bot is talking to itself
-	if ( bs->client == toclient ) {
-		//don't show the message just put it in the console message queue
-		trap_BotGetChatMessage( bs->cs, buf, sizeof( buf ) );
-		ClientName( bs->client, name, sizeof( name ) );
-		snprintf( teamchat, sizeof( teamchat ), "(%s): %s", name, buf );
-		trap_BotQueueConsoleMessage( bs->cs, CMS_CHAT, teamchat );
-	} else {
-		trap_BotEnterChat( bs->cs, bs->client, CHAT_TEAM );
-	}
 }
 
 /*

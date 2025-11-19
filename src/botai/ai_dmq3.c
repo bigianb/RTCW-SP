@@ -2357,93 +2357,7 @@ BotCheckConsoleMessages
 ==================
 */
 void BotCheckConsoleMessages( bot_state_t *bs ) {
-	char botname[MAX_NETNAME], message[MAX_MESSAGE_SIZE], netname[MAX_NETNAME];
-	float chat_reply;
-	int context, handle;
-	bot_consolemessage_t m;
-	bot_match_t match;
 
-	//the name of this bot
-	ClientName( bs->client, botname, sizeof( botname ) );
-	//
-	while ( ( handle = trap_BotNextConsoleMessage( bs->cs, &m ) ) != 0 ) {
-		//if the chat state is flooded with messages the bot will read them quickly
-		if ( trap_BotNumConsoleMessages( bs->cs ) < 10 ) {
-			//if it is a chat message the bot needs some time to read it
-			if ( m.type == CMS_CHAT && m.time > trap_AAS_Time() - ( 1 + random() ) ) {
-				break;
-			}
-		}
-		//unify the white spaces in the message
-		trap_UnifyWhiteSpaces( m.message );
-		//replace synonyms in the right context
-		context = CONTEXT_NORMAL | CONTEXT_NEARBYITEM | CONTEXT_NAMES;
-
-		trap_BotReplaceSynonyms( m.message, context );
-		//if there's no match
-		if ( !BotMatchMessage( bs, m.message ) ) {
-			//if it is a chat message
-			if ( m.type == CMS_CHAT && !bot_nochat.integer ) {
-				//
-				if ( !trap_BotFindMatch( m.message, &match, MTCONTEXT_REPLYCHAT ) ) {
-					trap_BotRemoveConsoleMessage( bs->cs, handle );
-					continue;
-				}
-				//don't use eliza chats with team messages
-				if ( match.subtype & ST_TEAM ) {
-					trap_BotRemoveConsoleMessage( bs->cs, handle );
-					continue;
-				}
-				//
-				trap_BotMatchVariable( &match, NETNAME, netname, sizeof( netname ) );
-				trap_BotMatchVariable( &match, MESSAGE, message, sizeof( message ) );
-				//if this is a message from the bot self
-				if ( !Q_stricmp( netname, botname ) ) {
-					trap_BotRemoveConsoleMessage( bs->cs, handle );
-					continue;
-				}
-				//unify the message
-				trap_UnifyWhiteSpaces( message );
-				//
-				Cvar_Update( &bot_testrchat );
-				if ( bot_testrchat.integer ) {
-					//
-					trap_BotLibVarSet( "bot_testrchat", "1" );
-					//if bot replies with a chat message
-					if ( trap_BotReplyChat( bs->cs, message, context, CONTEXT_REPLY,
-											NULL, NULL,
-											NULL, NULL,
-											NULL, NULL,
-											botname, netname ) ) {
-						BotAI_Print( PRT_MESSAGE, "------------------------\n" );
-					} else {
-						BotAI_Print( PRT_MESSAGE, "**** no valid reply ****\n" );
-					}
-				}
-				//if at a valid chat position and not chatting already
-				else if ( bs->ainode != AINode_Stand && BotValidChatPosition( bs ) ) {
-					chat_reply = trap_Characteristic_BFloat( bs->character, CHARACTERISTIC_CHAT_REPLY, 0, 1 );
-					if ( random() < 1.5 / ( NumBots() + 1 ) && random() < chat_reply ) {
-						//if bot replies with a chat message
-						if ( trap_BotReplyChat( bs->cs, message, context, CONTEXT_REPLY,
-												NULL, NULL,
-												NULL, NULL,
-												NULL, NULL,
-												botname, netname ) ) {
-							//remove the console message
-							trap_BotRemoveConsoleMessage( bs->cs, handle );
-							bs->stand_time = trap_AAS_Time() + BotChatTime( bs );
-							AIEnter_Stand( bs );
-							//EA_Say(bs->client, bs->cs.chatmessage);
-							break;
-						}
-					}
-				}
-			}
-		}
-		//remove the console message
-		trap_BotRemoveConsoleMessage( bs->cs, handle );
-	}
 }
 
 /*
@@ -2615,14 +2529,10 @@ void BotDeathmatchAI( bot_state_t *bs, float thinktime ) {
 		snprintf( buf, sizeof( buf ), "team %s", bs->settings.team );
 		trap_EA_Command( bs->client, buf );
 		//set the chat gender
-		if ( gender[0] == 'm' ) {
-			trap_BotSetChatGender( bs->cs, CHAT_GENDERMALE );
-		} else if ( gender[0] == 'f' ) {
-			trap_BotSetChatGender( bs->cs, CHAT_GENDERFEMALE );
-		} else { trap_BotSetChatGender( bs->cs, CHAT_GENDERLESS );}
+
 		//set the chat name
 		ClientName( bs->client, name, sizeof( name ) );
-		trap_BotSetChatName( bs->cs, name );
+
 		//
 		bs->lastframe_health = bs->inventory[INVENTORY_HEALTH];
 		bs->lasthitcount = bs->cur_ps.persistant[PERS_HITS];
