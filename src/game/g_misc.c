@@ -51,7 +51,7 @@ Used to group brushes together just for editor convenience.  They are turned int
 Used as a positional target for calculations in the utilities (spotlights, etc), but removed during gameplay.
 */
 void SP_info_camp( gentity_t *self ) {
-	G_SetOrigin( self, self->s.origin );
+	G_SetOrigin( self, self->shared.s.origin );
 }
 
 
@@ -68,7 +68,7 @@ Used as a positional target for in-game calculation, like jumppad targets.
 target_position does the same thing
 */
 void SP_info_notnull( gentity_t *self ) {
-	G_SetOrigin( self, self->s.origin );
+	G_SetOrigin( self, self->shared.s.origin );
 }
 
 
@@ -76,7 +76,7 @@ void SP_info_notnull( gentity_t *self ) {
 info_notnull with a bigger box for ease of positioning
 */
 void SP_info_notnull_big( gentity_t *self ) {
-	G_SetOrigin( self, self->s.origin );
+	G_SetOrigin( self, self->shared.s.origin );
 }
 
 
@@ -123,10 +123,10 @@ void TeleportPlayer( gentity_t *player, vec3_t origin, vec3_t angles ) {
 	// use temp events at source and destination to prevent the effect
 	// from getting dropped by a second player event
 	tent = G_TempEntity( player->client->ps.origin, EV_PLAYER_TELEPORT_OUT );
-	tent->s.clientNum = player->s.clientNum;
+	tent->shared.s.clientNum = player->shared.s.clientNum;
 
 	tent = G_TempEntity( origin, EV_PLAYER_TELEPORT_IN );
-	tent->s.clientNum = player->s.clientNum;
+	tent->shared.s.clientNum = player->shared.s.clientNum;
 
 	// unlink to make sure it can't possibly interfere with G_KillBox
 	SV_UnlinkEntity( player );
@@ -150,10 +150,10 @@ void TeleportPlayer( gentity_t *player, vec3_t origin, vec3_t angles ) {
 	G_KillBox( player );
 
 	// save results of pmove
-	BG_PlayerStateToEntityState( &player->client->ps, &player->s, qtrue );
+	BG_PlayerStateToEntityState( &player->client->ps, &player->shared.s, qtrue );
 
 	// use the precise origin for linking
-	VectorCopy( player->client->ps.origin, player->r.currentOrigin );
+	VectorCopy( player->client->ps.origin, player->shared.r.currentOrigin );
 
 
 	SV_LinkEntity( player );
@@ -192,8 +192,8 @@ grabber_think_idle
 ==============
 */
 void grabber_think_idle( gentity_t *ent ) {
-	if ( ent->s.frame > 1 ) {  // non-idle status
-		ent->s.frame = rand() % 2;
+	if ( ent->shared.s.frame > 1 ) {  // non-idle status
+		ent->shared.s.frame = rand() % 2;
 	}
 }
 
@@ -204,10 +204,10 @@ grabber_think_hit
 ==============
 */
 void grabber_think_hit( gentity_t *ent ) {
-	G_RadiusDamage( ent->s.pos.trBase, ent, ent->damage, ent->duration, ent, MOD_GRABBER );
+	G_RadiusDamage( ent->shared.s.pos.trBase, ent, ent->damage, ent->duration, ent, MOD_GRABBER );
 	G_AddEvent( ent, EV_GENERAL_SOUND, ent->sound2to1 ); // sound2to1 is the 'pain' sound
 
-	ent->nextthink  = level.time + ( attackDurations[( ent->s.frame ) - 2] - attackHittimes[( ent->s.frame ) - 2] );
+	ent->nextthink  = level.time + ( attackDurations[( ent->shared.s.frame ) - 2] - attackHittimes[( ent->shared.s.frame ) - 2] );
 	ent->think      = grabber_think_idle;
 }
 
@@ -250,9 +250,9 @@ grabber_attack
 ==============
 */
 void grabber_attack( gentity_t *ent ) {
-	ent->s.frame    = ( rand() % 3 ) + 2;   // randomly choose an attack sequence
+	ent->shared.s.frame    = ( rand() % 3 ) + 2;   // randomly choose an attack sequence
 
-	ent->nextthink  = level.time + attackHittimes[( ent->s.frame ) - 2];
+	ent->nextthink  = level.time + attackHittimes[( ent->shared.s.frame ) - 2];
 	ent->think      = grabber_think_hit;
 }
 
@@ -296,12 +296,12 @@ void grabber_wake( gentity_t *ent ) {
 	parent = ent->parent;
 
 	// change the 'a' trigger to the 'b' trigger for grabber attacking
-	VectorCopy( parent->s.origin, ent->r.mins );
-	VectorCopy( parent->s.origin, ent->r.maxs );
+	VectorCopy( parent->shared.s.origin, ent->shared.r.mins );
+	VectorCopy( parent->shared.s.origin, ent->shared.r.maxs );
 
 	if ( 1 ) {     // temp fast trigger
-		VectorAdd( ent->r.mins, tv( -( ent->random ), -( ent->random ), -( ent->random ) ), ent->r.mins );
-		VectorAdd( ent->r.maxs, tv( ent->random, ent->random, ent->random ), ent->r.maxs );
+		VectorAdd( ent->shared.r.mins, tv( -( ent->random ), -( ent->random ), -( ent->random ) ), ent->shared.r.mins );
+		VectorAdd( ent->shared.r.maxs, tv( ent->random, ent->random, ent->random ), ent->shared.r.maxs );
 	}
 
 	ent->touch = grabber_close;
@@ -309,14 +309,14 @@ void grabber_wake( gentity_t *ent ) {
 	// parent entity: show model/play anim/take damage
 	{
 		parent->clipmask    = CONTENTS_SOLID;
-		parent->r.contents  = CONTENTS_SOLID;
+		parent->shared.r.contents  = CONTENTS_SOLID;
 		parent->takedamage  = qtrue;
 		parent->active      = qtrue;
 		parent->die         = grabber_die;
 		parent->pain        = grabber_pain;
 		SV_LinkEntity( parent );
 
-		ent->s.frame        = 5;    // starting position
+		ent->shared.s.frame        = 5;    // starting position
 
 		// go back to an idle if not attacking immediately
 		parent->nextthink   = level.time + FRAMETIME;
@@ -393,17 +393,17 @@ void SP_misc_grabber_trap( gentity_t *ent ) {
 	gentity_t   *trig;
 
 	// TODO: change from 'trap' to something else.  'trap' is a misnomer.  it's actually used for other stuff too
-	ent->s.eType        = ET_TRAP;
+	ent->shared.s.eType        = ET_TRAP;
 
 	// TODO: make these user assignable?
-	ent->s.modelindex   = G_ModelIndex( "models/misc/grabber/grabber.md3" );
+	ent->shared.s.modelindex   = G_ModelIndex( "models/misc/grabber/grabber.md3" );
 	ent->soundPos1      = G_SoundIndex( "models/misc/grabber/grabber_wake.wav" );
 	ent->sound1to2      = G_SoundIndex( "models/misc/grabber/grabber_attack.wav" );
 	ent->sound2to1      = G_SoundIndex( "models/misc/grabber/grabber_pain.wav" );
 
-	G_SetOrigin( ent, ent->s.origin );
-	VectorCopy( ent->s.angles, ent->s.apos.trBase );
-	ent->s.apos.trBase[YAW] -= 90;  // adjust for model rotation
+	G_SetOrigin( ent, ent->shared.s.origin );
+	VectorCopy( ent->shared.s.angles, ent->shared.s.apos.trBase );
+	ent->shared.s.apos.trBase[YAW] -= 90;  // adjust for model rotation
 
 
 	if ( !ent->health ) {
@@ -414,18 +414,18 @@ void SP_misc_grabber_trap( gentity_t *ent ) {
 		ent->damage = 10;   // default to 10
 
 	}
-	ent->s.frame    = 5;
+	ent->shared.s.frame    = 5;
 
 	ent->use        = grabber_use;  // allow 'waking' from trigger
 
-	VectorSet( ent->r.mins, -12, -12, 0 );   // target area for shooting it after it wakes
-	VectorSet( ent->r.maxs, 12, 12, 48 );
+	VectorSet( ent->shared.r.mins, -12, -12, 0 );   // target area for shooting it after it wakes
+	VectorSet( ent->shared.r.maxs, 12, 12, 48 );
 
 	// create the 'a' trigger for waking up the grabber
 	trig = ent->enemy = G_Spawn();
 
-	VectorCopy( ent->s.origin, trig->r.mins );
-	VectorCopy( ent->s.origin, trig->r.maxs );
+	VectorCopy( ent->shared.s.origin, trig->shared.r.mins );
+	VectorCopy( ent->shared.s.origin, trig->shared.r.maxs );
 
 	// store attack range in 'duration'
 	G_SpawnInt( "range", "64", &range );
@@ -439,13 +439,13 @@ void SP_misc_grabber_trap( gentity_t *ent ) {
 
 	// just make an even trigger box around the ent (do properly sized/oriented trigger after it's working)
 	if ( 1 ) {     // temp fast trigger
-		VectorAdd( trig->r.mins, tv( -( trig->count ), -( trig->count ), -( trig->count ) ), trig->r.mins );
-		VectorAdd( trig->r.maxs, tv( trig->count, trig->count, trig->count ), trig->r.maxs );
+		VectorAdd( trig->shared.r.mins, tv( -( trig->count ), -( trig->count ), -( trig->count ) ), trig->shared.r.mins );
+		VectorAdd( trig->shared.r.maxs, tv( trig->count, trig->count, trig->count ), trig->shared.r.maxs );
 	}
 
 	trig->parent        = ent;
-	trig->r.contents    = CONTENTS_TRIGGER;
-	trig->r.svFlags     = SVF_NOCLIENT;
+	trig->shared.r.contents    = CONTENTS_TRIGGER;
+	trig->shared.r.svFlags     = SVF_NOCLIENT;
 	trig->touch         = grabber_wake_touch;
 	SV_LinkEntity( trig );
 
@@ -454,25 +454,25 @@ void SP_misc_grabber_trap( gentity_t *ent ) {
 void use_spotlight( gentity_t *ent, gentity_t *other, gentity_t *activator ) {
 	gentity_t   *tent;
 
-	if ( ent->r.linked ) {
-		SV_UnlinkEntity( ent );
+	if ( ent->shared.r.linked ) {
+		SV_UnlinkEntity( &ent->shared );
 	} else
 	{
 		tent = G_PickTarget( ent->target );
-		VectorCopy( tent->s.origin, ent->s.origin2 );
+		VectorCopy( tent->shared.s.origin, ent->shared.s.origin2 );
 
 		ent->active = 0;
-		SV_LinkEntity( ent );
+		SV_LinkEntity( &ent->shared );
 	}
 }
 
 
 void spotlight_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int damage, int mod ) {
 
-	AICast_AudibleEvent( attacker->s.number, self->r.currentOrigin, 1024 ); // loud audible event
+	AICast_AudibleEvent( attacker->shared.s.number, self->shared.r.currentOrigin, 1024 ); // loud audible event
 
-	self->s.time2 = level.time;
-	self->s.frame   = 1;    // 1 == dead
+	self->shared.s.time2 = level.time;
+	self->shared.s.frame   = 1;    // 1 == dead
 	self->takedamage = 0;
 
 //	G_AddEvent( self, EV_ENTDEATH, 0 );
@@ -481,7 +481,7 @@ void spotlight_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, 
 void spotlight_finish_spawning( gentity_t *ent ) {
 	if ( ent->spawnflags & 1 ) {   // START_ON
 //		ent->active = 0;
-		SV_LinkEntity( ent );
+		SV_LinkEntity( &ent->shared );
 	}
 
 	ent->use        = use_spotlight;
@@ -492,13 +492,13 @@ void spotlight_finish_spawning( gentity_t *ent ) {
 	ent->takedamage = 1;
 	ent->think      = 0;
 	ent->nextthink  = 0;
-	ent->s.frame    = 0;
+	ent->shared.s.frame    = 0;
 
 	ent->clipmask       = CONTENTS_SOLID;
-	ent->r.contents     = CONTENTS_SOLID;
+	ent->shared.r.contents     = CONTENTS_SOLID;
 
-	VectorSet( ent->r.mins, -10, -10, -10 );
-	VectorSet( ent->r.maxs, 10, 10, 10 );
+	VectorSet( ent->shared.r.mins, -10, -10, -10 );
+	VectorSet( ent->shared.r.maxs, 10, 10, 10 );
 }
 
 
@@ -512,7 +512,7 @@ BACK_AND_FORTH - when end of target spline is hit, reverse direction rather than
 //"model" - 'base' model that moves with the light.  Default: "models/mapobjects/light/searchlight_pivot.md3"
 void SP_misc_spotlight( gentity_t *ent ) {
 
-	ent->s.eType        = ET_SPOTLIGHT_EF;
+	ent->shared.s.eType        = ET_SPOTLIGHT_EF;
 
 	ent->think = spotlight_finish_spawning;
 	ent->nextthink = level.time + 100;
@@ -520,12 +520,12 @@ void SP_misc_spotlight( gentity_t *ent ) {
 //----(SA)	model now tracked by client
 
 //	if ( ent->model )
-//		ent->s.modelindex	= G_ModelIndex( ent->model );
+//		ent->shared.s.modelindex	= G_ModelIndex( ent->model );
 //	else
-//		ent->s.modelindex	= G_ModelIndex("models/mapobjects/light/searchlight_pivot.md3");
+//		ent->shared.s.modelindex	= G_ModelIndex("models/mapobjects/light/searchlight_pivot.md3");
 
 	if ( ent->target ) {
-		ent->s.density = G_FindConfigstringIndex( ent->target, CS_SPLINES, MAX_SPLINE_CONFIGSTRINGS, qtrue );
+		ent->shared.s.density = G_FindConfigstringIndex( ent->target, CS_SPLINES, MAX_SPLINE_CONFIGSTRINGS, qtrue );
 	}
 
 }
@@ -565,8 +565,8 @@ void SP_misc_gamemodel( gentity_t *ent ) {
 	vec3_t scalevec;
 	int trunksize, trunkheight;
 
-	ent->s.eType        = ET_GAMEMODEL;
-	ent->s.modelindex   = G_ModelIndex( ent->model );
+	ent->shared.s.eType        = ET_GAMEMODEL;
+	ent->shared.s.modelindex   = G_ModelIndex( ent->model );
 
 	// look for general scaling
 	if ( G_SpawnFloat( "modelscale", "1", &scale[0] ) ) {
@@ -587,27 +587,27 @@ void SP_misc_gamemodel( gentity_t *ent ) {
 		float rad;
 
 		ent->clipmask       = CONTENTS_SOLID;
-		ent->r.contents     = CONTENTS_SOLID;
+		ent->shared.r.contents     = CONTENTS_SOLID;
 
-		ent->r.svFlags |= SVF_CAPSULE;
+		ent->shared.r.svFlags |= SVF_CAPSULE;
 
 		rad = (float)trunksize / 2.0f;
-		VectorSet( ent->r.mins, -rad, -rad, 0 );
-		VectorSet( ent->r.maxs, rad, rad, trunkheight );
+		VectorSet( ent->shared.r.mins, -rad, -rad, 0 );
+		VectorSet( ent->shared.r.maxs, rad, rad, trunkheight );
 	}
 
 	// scale is stored in 'angles2'
-	VectorCopy( scale, ent->s.angles2 );
+	VectorCopy( scale, ent->shared.s.angles2 );
 
-	G_SetOrigin( ent, ent->s.origin );
-	VectorCopy( ent->s.angles, ent->s.apos.trBase );
+	G_SetOrigin( ent, ent->shared.s.origin );
+	VectorCopy( ent->shared.s.angles, ent->shared.s.apos.trBase );
 
 	if ( ent->spawnflags & 1 ) {
-		ent->s.apos.trType = 1; // misc_gamemodels (since they have no movement) will use type = 0 for static models, type = 1 for auto-aligning models
+		ent->shared.s.apos.trType = 1; // misc_gamemodels (since they have no movement) will use type = 0 for static models, type = 1 for auto-aligning models
 
 
 	}
-	SV_LinkEntity( ent );
+	SV_LinkEntity( &ent->shared );
 
 }
 
@@ -619,7 +619,7 @@ void SP_misc_gamemodel( gentity_t *ent ) {
 void locateMaster( gentity_t *ent ) {
 	ent->target_ent = G_Find( NULL, FOFS( targetname ), ent->target );
 	if ( ent->target_ent ) {
-		ent->s.otherEntityNum = ent->target_ent->s.number;
+		ent->shared.s.otherEntityNum = ent->target_ent->shared.s.number;
 	}
 }
 
@@ -631,14 +631,14 @@ For safety, you should have each dummy only point at one entity (however, it's o
 void SP_misc_vis_dummy( gentity_t *ent ) {
 
 	if ( !ent->target ) { //----(SA)	added safety check
-		Com_Printf( "Couldn't find target for misc_vis_dummy at %s\n", vtos( ent->r.currentOrigin ) );
+		Com_Printf( "Couldn't find target for misc_vis_dummy at %s\n", vtos( ent->shared.r.currentOrigin ) );
 		G_FreeEntity( ent );
 		return;
 	}
 
-	ent->r.svFlags |= SVF_VISDUMMY;
-	G_SetOrigin( ent, ent->s.origin );
-	SV_LinkEntity( ent );
+	ent->shared.r.svFlags |= SVF_VISDUMMY;
+	G_SetOrigin( ent, ent->shared.s.origin );
+	SV_LinkEntity( &ent->shared );
 
 	ent->think = locateMaster;
 	ent->nextthink = level.time + 1000;
@@ -654,14 +654,14 @@ This entity was created to have multiple speakers targeting it
 */
 void SP_misc_vis_dummy_multiple( gentity_t *ent ) {
 	if ( !ent->targetname ) {
-		Com_Printf( "misc_vis_dummy_multiple needs a targetname at %s\n", vtos( ent->r.currentOrigin ) );
+		Com_Printf( "misc_vis_dummy_multiple needs a targetname at %s\n", vtos( ent->shared.r.currentOrigin ) );
 		G_FreeEntity( ent );
 		return;
 	}
 
-	ent->r.svFlags |= SVF_VISDUMMY_MULTIPLE;
-	G_SetOrigin( ent, ent->s.origin );
-	SV_LinkEntity( ent );
+	ent->shared.r.svFlags |= SVF_VISDUMMY_MULTIPLE;
+	G_SetOrigin( ent, ent->shared.s.origin );
+	SV_LinkEntity( &ent->shared );
 
 }
 
@@ -692,30 +692,30 @@ void locateCamera( gentity_t *ent ) {
 		G_FreeEntity( ent );
 		return;
 	}
-	ent->r.ownerNum = owner->s.number;
+	ent->shared.r.ownerNum = owner->shared.s.number;
 
 	// frame holds the rotate speed
 	if ( owner->spawnflags & 1 ) {
-		ent->s.frame = 25;
+		ent->shared.s.frame = 25;
 	} else if ( owner->spawnflags & 2 ) {
-		ent->s.frame = 75;
+		ent->shared.s.frame = 75;
 	}
 
 	// clientNum holds the rotate offset
-	ent->s.clientNum = owner->s.clientNum;
+	ent->shared.s.clientNum = owner->shared.s.clientNum;
 
-	VectorCopy( owner->s.origin, ent->s.origin2 );
+	VectorCopy( owner->shared.s.origin, ent->shared.s.origin2 );
 
 	// see if the portal_camera has a target
 	target = G_PickTarget( owner->target );
 	if ( target ) {
-		VectorSubtract( target->s.origin, owner->s.origin, dir );
+		VectorSubtract( target->shared.s.origin, owner->shared.s.origin, dir );
 		VectorNormalize( dir );
 	} else {
-		G_SetMovedir( owner->s.angles, dir );
+		G_SetMovedir( owner->shared.s.angles, dir );
 	}
 
-	ent->s.eventParm = DirToByte( dir );
+	ent->shared.s.eventParm = DirToByte( dir );
 }
 
 /*QUAKED misc_portal_surface (0 0 1) (-8 -8 -8) (8 8 8)
@@ -723,15 +723,15 @@ The portal surface nearest this entity will show a view from the targeted misc_p
 This must be within 64 world units of the surface!
 */
 void SP_misc_portal_surface( gentity_t *ent ) {
-	VectorClear( ent->r.mins );
-	VectorClear( ent->r.maxs );
-	SV_LinkEntity( ent );
+	VectorClear( ent->shared.r.mins );
+	VectorClear( ent->shared.r.maxs );
+	SV_LinkEntity( &ent->shared );
 
-	ent->r.svFlags = SVF_PORTAL;
-	ent->s.eType = ET_PORTAL;
+	ent->shared.r.svFlags = SVF_PORTAL;
+	ent->shared.s.eType = ET_PORTAL;
 
 	if ( !ent->target ) {
-		VectorCopy( ent->s.origin, ent->s.origin2 );
+		VectorCopy( ent->shared.s.origin, ent->shared.s.origin2 );
 	} else {
 		ent->think = locateCamera;
 		ent->nextthink = level.time + 100;
@@ -745,13 +745,13 @@ The target for a misc_portal_director.  You can set either angles or target anot
 void SP_misc_portal_camera( gentity_t *ent ) {
 	float roll;
 
-	VectorClear( ent->r.mins );
-	VectorClear( ent->r.maxs );
-	SV_LinkEntity( ent );
+	VectorClear( ent->shared.r.mins );
+	VectorClear( ent->shared.r.maxs );
+	SV_LinkEntity( &ent->shared );
 
 	G_SpawnFloat( "roll", "0", &roll );
 
-	ent->s.clientNum = roll / 360.0 * 256;
+	ent->shared.s.clientNum = roll / 360.0 * 256;
 }
 
 /*
@@ -769,20 +769,20 @@ void Use_Shooter( gentity_t *ent, gentity_t *other, gentity_t *activator ) {
 
 	// see if we have a target
 	if ( ent->enemy ) {
-		VectorSubtract( ent->enemy->r.currentOrigin, ent->s.origin, dir );
-		if ( ent->s.weapon != WP_SNIPER ) {
+		VectorSubtract( ent->enemy->shared.r.currentOrigin, ent->shared.s.origin, dir );
+		if ( ent->shared.s.weapon != WP_SNIPER ) {
 			VectorNormalize( dir );
 		}
 	} else {
 		VectorCopy( ent->movedir, dir );
 	}
 
-	if ( ent->s.weapon == WP_MORTAR ) {
-		AimAtTarget( ent );   // store in ent->s.origin2 the direction/force needed to pass through the target
-		VectorCopy( ent->s.origin2, dir );
+	if ( ent->shared.s.weapon == WP_MORTAR ) {
+		AimAtTarget( ent );   // store in ent->shared.s.origin2 the direction/force needed to pass through the target
+		VectorCopy( ent->shared.s.origin2, dir );
 	}
 
-	if ( ent->s.weapon != WP_SNIPER ) {
+	if ( ent->shared.s.weapon != WP_SNIPER ) {
 		// randomize a bit
 		PerpendicularVector( up, dir );
 		CrossProduct( up, dir, right );
@@ -796,29 +796,29 @@ void Use_Shooter( gentity_t *ent, gentity_t *other, gentity_t *activator ) {
 		VectorNormalize( dir );
 	}
 
-	switch ( ent->s.weapon ) {
+	switch ( ent->shared.s.weapon ) {
 	case WP_GRENADE_LAUNCHER:
 		VectorScale( dir, 700, dir );                 //----(SA)	had to add this as fire_grenade now expects a non-normalized direction vector
-		fire_grenade( ent, ent->s.origin, dir, WP_GRENADE_LAUNCHER );
+		fire_grenade( ent, ent->shared.s.origin, dir, WP_GRENADE_LAUNCHER );
 		break;
 	case WP_PANZERFAUST:
-		fire_rocket( ent, ent->s.origin, dir );
+		fire_rocket( ent, ent->shared.s.origin, dir );
 		break;
 
 	case WP_MONSTER_ATTACK1:
-		fire_zombiespit( ent, ent->s.origin, dir );
+		fire_zombiespit( ent, ent->shared.s.origin, dir );
 		break;
 
 		// Rafael sniper
 	case WP_SNIPER:
-		fire_lead( ent, ent->s.origin, dir, ent->damage );
+		fire_lead( ent, ent->shared.s.origin, dir, ent->damage );
 		break;
 		// done
 
 	case WP_MORTAR:
-		AimAtTarget( ent );   // store in ent->s.origin2 the direction/force needed to pass through the target
-		VectorScale( dir, VectorLength( ent->s.origin2 ), dir );
-		fire_mortar( ent, ent->s.origin, dir );
+		AimAtTarget( ent );   // store in ent->shared.s.origin2 the direction/force needed to pass through the target
+		VectorScale( dir, VectorLength( ent->shared.s.origin2 ), dir );
+		fire_mortar( ent, ent->shared.s.origin, dir );
 		break;
 
 	}
@@ -834,7 +834,7 @@ static void InitShooter_Finish( gentity_t *ent ) {
 
 void InitShooter( gentity_t *ent, int weapon ) {
 	ent->use = Use_Shooter;
-	ent->s.weapon = weapon;
+	ent->shared.s.weapon = weapon;
 
 	// Rafael sniper
 	if ( weapon != WP_SNIPER ) {
@@ -842,13 +842,13 @@ void InitShooter( gentity_t *ent, int weapon ) {
 	}
 	// done
 
-	G_SetMovedir( ent->s.angles, ent->movedir );
+	G_SetMovedir( ent->shared.s.angles, ent->movedir );
 
 	if ( !ent->random ) {
 		ent->random = 1.0;
 	}
 
-	if ( ent->s.weapon != WP_SNIPER ) {
+	if ( ent->shared.s.weapon != WP_SNIPER ) {
 		ent->random = sin( M_PI * ent->random / 180 );
 	}
 
@@ -857,7 +857,7 @@ void InitShooter( gentity_t *ent, int weapon ) {
 		ent->think = InitShooter_Finish;
 		ent->nextthink = level.time + 500;
 	}
-	SV_LinkEntity( ent );
+	SV_LinkEntity( &ent->shared );
 }
 
 /*QUAKED shooter_mortar (1 0 0) (-16 -16 -16) (16 16 16) SMOKE_FX FLASH_FX
@@ -901,15 +901,15 @@ use_shooter_tesla
 void use_shooter_tesla( gentity_t *ent, gentity_t *other, gentity_t *activator ) {
 	gentity_t   *tent;
 
-	if ( ent->r.linked ) {
-		SV_UnlinkEntity( ent );
+	if ( ent->shared.r.linked ) {
+		SV_UnlinkEntity( &ent->shared );
 	} else
 	{
 		tent = G_PickTarget( ent->target );
-		VectorCopy( tent->s.origin, ent->s.origin2 );
+		VectorCopy( tent->shared.s.origin, ent->shared.s.origin2 );
 
 		ent->active = 0;
-		SV_LinkEntity( ent );
+		SV_LinkEntity( &ent->shared );
 	}
 }
 
@@ -934,15 +934,15 @@ void shooter_tesla_finish_spawning( gentity_t *ent ) {
 	// locate the target and set the location
 	tent = G_PickTarget( ent->target );
 	if ( !tent ) { // if there's a problem with tent
-		Com_Printf( "shooter_tesla (%s) at %s has no target.\n", ent->target, vtos( ent->s.origin ) );
+		Com_Printf( "shooter_tesla (%s) at %s has no target.\n", ent->target, vtos( ent->shared.s.origin ) );
 		return;
 	}
 
-	VectorCopy( tent->s.origin, ent->s.origin2 );
+	VectorCopy( tent->shared.s.origin, ent->shared.s.origin2 );
 
 	if ( ent->spawnflags & 1 ) {   // START_ON
 		ent->active = 0;
-		SV_LinkEntity( ent );
+		SV_LinkEntity( &ent->shared );
 	}
 }
 
@@ -956,49 +956,49 @@ void SP_shooter_tesla( gentity_t *ent ) {
 	//	and, if necessary, passes back damage info like the weapon.  this will
 	//	keep the server->client messages to a minimum (start firing/stop firing)
 	//	rather than sending an event for each bolt.
-	ent->s.eType        = ET_TESLA_EF;
+	ent->shared.s.eType        = ET_TESLA_EF;
 	ent->use            = use_shooter_tesla;
 
 	// set number of bolts
 	if ( ent->count ) {
-		ent->s.density = ent->count;
+		ent->shared.s.density = ent->count;
 	} else {
-		ent->s.density = 2;
+		ent->shared.s.density = 2;
 	}
 
 
 	// width
 	if ( G_SpawnFloat( "width", "", &tempf ) ) {
-		ent->s.frame = (int)tempf;
+		ent->shared.s.frame = (int)tempf;
 	} else {
-		ent->s.frame = 20;
+		ent->shared.s.frame = 20;
 	}
 
 
 	// 'sticky' time (stored in .weapon)
 	if ( G_SpawnFloat( "sticktime", "", &tempf ) ) {
-		ent->s.time2 = (int)( tempf * 1000.0f );
+		ent->shared.s.time2 = (int)( tempf * 1000.0f );
 	} else {
-		ent->s.time2 = 500; // default to 1/2 sec
+		ent->shared.s.time2 = 500; // default to 1/2 sec
 
 	}
 	// randomness
-	ent->s.angles2[0] = ent->random;
+	ent->shared.s.angles2[0] = ent->random;
 
 
 	// DLIGHT
 	if ( ent->spawnflags & 2 ) {
 		int dlightsize;
 		if ( G_SpawnInt( "dlightsize", "", &dlightsize ) ) {
-			ent->s.time = dlightsize;
+			ent->shared.s.time = dlightsize;
 		} else {
-			ent->s.time = 500;
+			ent->shared.s.time = 500;
 		}
 
 		if ( ent->random ) {
-			ent->s.time2 = ent->random;
+			ent->shared.s.time2 = ent->random;
 		} else {
-			ent->s.time2 = 4; // dlight randomness
+			ent->shared.s.time2 = 4; // dlight randomness
 
 		}
 		if ( ent->dl_color[0] <= 0 &&    // if it's black or has no color assigned
@@ -1014,10 +1014,10 @@ void SP_shooter_tesla( gentity_t *ent ) {
 		ent->dl_color[1] = ent->dl_color[1] * 255;
 		ent->dl_color[2] = ent->dl_color[2] * 255;
 
-		ent->s.dl_intensity = (int)ent->dl_color[0] | ( (int)ent->dl_color[1] << 8 ) | ( (int)ent->dl_color[2] << 16 );
+		ent->shared.s.dl_intensity = (int)ent->dl_color[0] | ( (int)ent->dl_color[1] << 8 ) | ( (int)ent->dl_color[2] << 16 );
 
 	} else {
-		ent->s.dl_intensity = 0;
+		ent->shared.s.dl_intensity = 0;
 	}
 
 
@@ -1098,9 +1098,9 @@ void brush_activate_sniper( gentity_t *ent, gentity_t *other, trace_t *trace ) {
 					sniper->count = 1;
 					sniper->wait = level.time + sniper->delay;
 					// record enemypos pos
-					VectorCopy( ent->enemy->r.currentOrigin, ent->pos1 );
+					VectorCopy( ent->enemy->shared.r.currentOrigin, ent->pos1 );
 				} else if ( sniper->count == 1 )     {
-					VectorSubtract( ent->enemy->r.currentOrigin, ent->pos1, vec );
+					VectorSubtract( ent->enemy->shared.r.currentOrigin, ent->pos1, vec );
 					dist = VectorLength( vec );
 					if ( dist < sniper->radius ) {
 						// ok the enemy is still inside the radius take a shot
@@ -1132,7 +1132,7 @@ void sniper_brush_init( gentity_t *ent ) {
 	vec3_t center;
 
 	if ( !ent->target ) {
-		VectorSubtract( ent->r.maxs, ent->r.mins, center );
+		VectorSubtract( ent->shared.r.maxs, ent->shared.r.mins, center );
 		VectorScale( center, 0.5, center );
 
 		Com_Printf( "sniper_brush at %s without a target\n", vtos( center ) );
@@ -1153,7 +1153,7 @@ void SP_sniper_brush( gentity_t *ent ) {
 	sniper_sound = G_SoundIndex( "sound/weapons/machinegun/machgf1b.wav" );
 
 	InitTrigger( ent );
-	SV_LinkEntity( ent );
+	SV_LinkEntity( &ent->shared );
 }
 
 
@@ -1170,12 +1170,12 @@ use_corona
 ==============
 */
 void use_corona( gentity_t *ent, gentity_t *other, gentity_t *activator ) {
-	if ( ent->r.linked ) {
-		SV_UnlinkEntity( ent );
+	if ( ent->shared.r.linked ) {
+		SV_UnlinkEntity( &ent->shared );
 	} else
 	{
 		ent->active = 0;
-		SV_LinkEntity( ent );
+		SV_LinkEntity( &ent->shared );
 	}
 }
 
@@ -1188,7 +1188,7 @@ SP_corona
 void SP_corona( gentity_t *ent ) {
 	float scale;
 
-	ent->s.eType        = ET_CORONA;
+	ent->shared.s.eType        = ET_CORONA;
 
 	if ( ent->dl_color[0] <= 0 &&                // if it's black or has no color assigned
 		 ent->dl_color[1] <= 0 &&
@@ -1200,15 +1200,15 @@ void SP_corona( gentity_t *ent ) {
 	ent->dl_color[1] = ent->dl_color[1] * 255;
 	ent->dl_color[2] = ent->dl_color[2] * 255;
 
-	ent->s.dl_intensity = (int)ent->dl_color[0] | ( (int)ent->dl_color[1] << 8 ) | ( (int)ent->dl_color[2] << 16 );
+	ent->shared.s.dl_intensity = (int)ent->dl_color[0] | ( (int)ent->dl_color[1] << 8 ) | ( (int)ent->dl_color[2] << 16 );
 
 	G_SpawnFloat( "scale", "1", &scale );
-	ent->s.density = (int)( scale * 255 );
+	ent->shared.s.density = (int)( scale * 255 );
 
 	ent->use = use_corona;
 
 	if ( !( ent->spawnflags & 1 ) ) {
-		SV_LinkEntity( ent );
+		SV_LinkEntity( &ent->shared );
 	}
 }
 
@@ -1246,7 +1246,7 @@ dlight_finish_spawning
 ==============
 */
 void dlight_finish_spawning( gentity_t *ent ) {
-	G_FindConfigstringIndex( va( "%i %s %i %i %i", ent->s.number, ent->dl_stylestring, ent->health, ent->soundLoop, ent->dl_atten ), CS_DLIGHTS, MAX_DLIGHT_CONFIGSTRINGS, qtrue );
+	G_FindConfigstringIndex( va( "%i %s %i %i %i", ent->shared.s.number, ent->dl_stylestring, ent->health, ent->soundLoop, ent->dl_atten ), CS_DLIGHTS, MAX_DLIGHT_CONFIGSTRINGS, qtrue );
 }
 
 static int dlightstarttime = 0;
@@ -1295,11 +1295,11 @@ shutoff_dlight
 ==============
 */
 void shutoff_dlight( gentity_t *ent ) {
-	if ( !( ent->r.linked ) ) {
+	if ( !( ent->shared.r.linked ) ) {
 		return;
 	}
 
-	SV_UnlinkEntity( ent );
+	SV_UnlinkEntity( &ent->shared );
 	ent->think = 0;
 	ent->nextthink = 0;
 }
@@ -1311,12 +1311,12 @@ use_dlight
 ==============
 */
 void use_dlight( gentity_t *ent, gentity_t *other, gentity_t *activator ) {
-	if ( ent->r.linked ) {
+	if ( ent->shared.r.linked ) {
 		SV_UnlinkEntity( ent );
 	} else
 	{
 		ent->active = 0;
-		SV_LinkEntity( ent );
+		SV_LinkEntity( &ent->shared );
 
 		if ( ent->spawnflags & 4 ) {   // ONETIME
 			ent->think = shutoff_dlight;
@@ -1387,12 +1387,12 @@ void SP_dlight( gentity_t *ent ) {
 	i = (int)( ent->dl_stylestring[offset] ) - (int)'a';
 	i = i * ( 1000.0f / 24.0f );
 
-	ent->s.constantLight =  (int)ent->dl_color[0] | ( (int)ent->dl_color[1] << 8 ) | ( (int)ent->dl_color[2] << 16 ) | ( i / 4 << 24 );
+	ent->shared.s.constantLight =  (int)ent->dl_color[0] | ( (int)ent->dl_color[1] << 8 ) | ( (int)ent->dl_color[2] << 16 ) | ( i / 4 << 24 );
 
 	ent->use = use_dlight;
 
 	if ( !( ent->spawnflags & 2 ) ) {
-		SV_LinkEntity( ent );
+		SV_LinkEntity( &ent->shared );
 	}
 
 }
@@ -1441,7 +1441,7 @@ void snowInPVS( gentity_t *ent ) {
 	player = AICast_FindEntityForName( "player" );
 
 	if ( player ) {
-		inPVS = SV_inPVS( player->r.currentOrigin, ent->r.currentOrigin );
+		inPVS = SV_inPVS( player->shared.r.currentOrigin, ent->shared.r.currentOrigin );
 
 		if ( inPVS ) {
 			ent->active = qtrue;
@@ -1458,16 +1458,16 @@ void snowInPVS( gentity_t *ent ) {
 	}
 
 	if ( ent->active ) {
-		tent = G_TempEntity( player->r.currentOrigin, EV_SNOW_ON );
+		tent = G_TempEntity( player->shared.r.currentOrigin, EV_SNOW_ON );
 // Com_Printf( "on\n");
 	} else
 	{
-		tent = G_TempEntity( player->r.currentOrigin, EV_SNOW_OFF );
+		tent = G_TempEntity( player->shared.r.currentOrigin, EV_SNOW_OFF );
 // Com_Printf( "off\n");
 	}
 
-	tent->s.frame = ent->s.number;
-	SV_LinkEntity( ent );
+	tent->shared.s.frame = ent->shared.s.number;
+	SV_LinkEntity( &ent->shared );
 }
 
 void snow_think( gentity_t *ent ) {
@@ -1475,7 +1475,7 @@ void snow_think( gentity_t *ent ) {
 	vec3_t dest;
 	int turb;
 
-	VectorCopy( ent->s.origin, dest );
+	VectorCopy( ent->shared.s.origin, dest );
 
 	if ( ent->spawnflags & 2 ) { // bubble
 		dest[2] += 8192;
@@ -1483,7 +1483,7 @@ void snow_think( gentity_t *ent ) {
 		dest[2] -= 8192;
 	}
 
-	SV_Trace( &tr, ent->s.origin, NULL, NULL, dest, ent->s.number, MASK_SHOT, qfalse );
+	SV_Trace( &tr, ent->shared.s.origin, NULL, NULL, dest, ent->shared.s.number, MASK_SHOT, qfalse );
 
 	if ( ent->spawnflags & 1 ) {
 		turb = 1;
@@ -1492,21 +1492,21 @@ void snow_think( gentity_t *ent ) {
 	}
 
 	if ( !Q_stricmp( ent->classname, "misc_snow256" ) ) {
-		G_FindConfigstringIndex( va( "%i %.2f %.2f %.2f %.2f %.2f %.2f %i %i %i", PARTICLE_SNOW256, ent->s.origin[0], ent->s.origin[1], ent->s.origin[2], tr.endpos[0], tr.endpos[1], tr.endpos[2], ent->health, turb, ent->s.number ), CS_PARTICLES, MAX_PARTICLES_AREAS, qtrue );
+		G_FindConfigstringIndex( va( "%i %.2f %.2f %.2f %.2f %.2f %.2f %i %i %i", PARTICLE_SNOW256, ent->shared.s.origin[0], ent->shared.s.origin[1], ent->shared.s.origin[2], tr.endpos[0], tr.endpos[1], tr.endpos[2], ent->health, turb, ent->shared.s.number ), CS_PARTICLES, MAX_PARTICLES_AREAS, qtrue );
 	} else if ( !Q_stricmp( ent->classname, "misc_snow128" ) )       {
-		G_FindConfigstringIndex( va( "%i %.2f %.2f %.2f %.2f %.2f %.2f %i %i %i", PARTICLE_SNOW128, ent->s.origin[0], ent->s.origin[1], ent->s.origin[2], tr.endpos[0], tr.endpos[1], tr.endpos[2], ent->health, turb, ent->s.number ), CS_PARTICLES, MAX_PARTICLES_AREAS, qtrue );
+		G_FindConfigstringIndex( va( "%i %.2f %.2f %.2f %.2f %.2f %.2f %i %i %i", PARTICLE_SNOW128, ent->shared.s.origin[0], ent->shared.s.origin[1], ent->shared.s.origin[2], tr.endpos[0], tr.endpos[1], tr.endpos[2], ent->health, turb, ent->shared.s.number ), CS_PARTICLES, MAX_PARTICLES_AREAS, qtrue );
 	} else if ( !Q_stricmp( ent->classname, "misc_snow64" ) )       {
-		G_FindConfigstringIndex( va( "%i %.2f %.2f %.2f %.2f %.2f %.2f %i %i %i", PARTICLE_SNOW64, ent->s.origin[0], ent->s.origin[1], ent->s.origin[2], tr.endpos[0], tr.endpos[1], tr.endpos[2], ent->health, turb, ent->s.number ), CS_PARTICLES, MAX_PARTICLES_AREAS, qtrue );
+		G_FindConfigstringIndex( va( "%i %.2f %.2f %.2f %.2f %.2f %.2f %i %i %i", PARTICLE_SNOW64, ent->shared.s.origin[0], ent->shared.s.origin[1], ent->shared.s.origin[2], tr.endpos[0], tr.endpos[1], tr.endpos[2], ent->health, turb, ent->shared.s.number ), CS_PARTICLES, MAX_PARTICLES_AREAS, qtrue );
 	} else if ( !Q_stricmp( ent->classname, "misc_snow32" ) )       {
-		G_FindConfigstringIndex( va( "%i %.2f %.2f %.2f %.2f %.2f %.2f %i %i %i", PARTICLE_SNOW32, ent->s.origin[0], ent->s.origin[1], ent->s.origin[2], tr.endpos[0], tr.endpos[1], tr.endpos[2], ent->health, turb, ent->s.number ), CS_PARTICLES, MAX_PARTICLES_AREAS, qtrue );
+		G_FindConfigstringIndex( va( "%i %.2f %.2f %.2f %.2f %.2f %.2f %i %i %i", PARTICLE_SNOW32, ent->shared.s.origin[0], ent->shared.s.origin[1], ent->shared.s.origin[2], tr.endpos[0], tr.endpos[1], tr.endpos[2], ent->health, turb, ent->shared.s.number ), CS_PARTICLES, MAX_PARTICLES_AREAS, qtrue );
 	} else if ( !Q_stricmp( ent->classname, "misc_bubbles8" ) )       {
-		G_FindConfigstringIndex( va( "%i %.2f %.2f %.2f %.2f %.2f %.2f %i %i %i", PARTICLE_BUBBLE8, ent->s.origin[0], ent->s.origin[1], ent->s.origin[2], tr.endpos[0], tr.endpos[1], tr.endpos[2], ent->health, turb, ent->s.number ), CS_PARTICLES, MAX_PARTICLES_AREAS, qtrue );
+		G_FindConfigstringIndex( va( "%i %.2f %.2f %.2f %.2f %.2f %.2f %i %i %i", PARTICLE_BUBBLE8, ent->shared.s.origin[0], ent->shared.s.origin[1], ent->shared.s.origin[2], tr.endpos[0], tr.endpos[1], tr.endpos[2], ent->health, turb, ent->shared.s.number ), CS_PARTICLES, MAX_PARTICLES_AREAS, qtrue );
 	} else if ( !Q_stricmp( ent->classname, "misc_bubbles16" ) )       {
-		G_FindConfigstringIndex( va( "%i %.2f %.2f %.2f %.2f %.2f %.2f %i %i %i", PARTICLE_BUBBLE16, ent->s.origin[0], ent->s.origin[1], ent->s.origin[2], tr.endpos[0], tr.endpos[1], tr.endpos[2], ent->health, turb, ent->s.number ), CS_PARTICLES, MAX_PARTICLES_AREAS, qtrue );
+		G_FindConfigstringIndex( va( "%i %.2f %.2f %.2f %.2f %.2f %.2f %i %i %i", PARTICLE_BUBBLE16, ent->shared.s.origin[0], ent->shared.s.origin[1], ent->shared.s.origin[2], tr.endpos[0], tr.endpos[1], tr.endpos[2], ent->health, turb, ent->shared.s.number ), CS_PARTICLES, MAX_PARTICLES_AREAS, qtrue );
 	} else if ( !Q_stricmp( ent->classname, "misc_bubbles32" ) )       {
-		G_FindConfigstringIndex( va( "%i %.2f %.2f %.2f %.2f %.2f %.2f %i %i %i", PARTICLE_BUBBLE32, ent->s.origin[0], ent->s.origin[1], ent->s.origin[2], tr.endpos[0], tr.endpos[1], tr.endpos[2], ent->health, turb, ent->s.number ), CS_PARTICLES, MAX_PARTICLES_AREAS, qtrue );
+		G_FindConfigstringIndex( va( "%i %.2f %.2f %.2f %.2f %.2f %.2f %i %i %i", PARTICLE_BUBBLE32, ent->shared.s.origin[0], ent->shared.s.origin[1], ent->shared.s.origin[2], tr.endpos[0], tr.endpos[1], tr.endpos[2], ent->health, turb, ent->shared.s.number ), CS_PARTICLES, MAX_PARTICLES_AREAS, qtrue );
 	} else if ( !Q_stricmp( ent->classname, "misc_bubbles64" ) )       {
-		G_FindConfigstringIndex( va( "%i %.2f %.2f %.2f %.2f %.2f %.2f %i %i %i", PARTICLE_BUBBLE64, ent->s.origin[0], ent->s.origin[1], ent->s.origin[2], tr.endpos[0], tr.endpos[1], tr.endpos[2], ent->health, turb, ent->s.number ), CS_PARTICLES, MAX_PARTICLES_AREAS, qtrue );
+		G_FindConfigstringIndex( va( "%i %.2f %.2f %.2f %.2f %.2f %.2f %i %i %i", PARTICLE_BUBBLE64, ent->shared.s.origin[0], ent->shared.s.origin[1], ent->shared.s.origin[2], tr.endpos[0], tr.endpos[1], tr.endpos[2], ent->health, turb, ent->shared.s.number ), CS_PARTICLES, MAX_PARTICLES_AREAS, qtrue );
 	}
 
 	ent->think = snowInPVS;
@@ -1518,12 +1518,12 @@ void SP_Snow( gentity_t *ent ) {
 	ent->think = snow_think;
 	ent->nextthink = level.time + FRAMETIME;
 
-	G_SetOrigin( ent, ent->s.origin );
+	G_SetOrigin( ent, ent->shared.s.origin );
 
-	ent->r.svFlags = SVF_USE_CURRENT_ORIGIN;
-	ent->s.eType = ET_GENERAL;
+	ent->shared.r.svFlags = SVF_USE_CURRENT_ORIGIN;
+	ent->shared.s.eType = ET_GENERAL;
 
-	SV_LinkEntity( ent );
+	SV_LinkEntity( &ent->shared );
 
 	if ( !ent->health ) {
 		ent->health = 32;
@@ -1538,12 +1538,12 @@ void SP_Bubbles( gentity_t *ent ) {
 	ent->think = snow_think;
 	ent->nextthink = level.time + FRAMETIME;
 
-	G_SetOrigin( ent, ent->s.origin );
+	G_SetOrigin( ent, ent->shared.s.origin );
 
-	ent->r.svFlags = SVF_USE_CURRENT_ORIGIN;
-	ent->s.eType = ET_GENERAL;
+	ent->shared.r.svFlags = SVF_USE_CURRENT_ORIGIN;
+	ent->shared.s.eType = ET_GENERAL;
 
-	SV_LinkEntity( ent );
+	SV_LinkEntity( &ent->shared );
 
 	if ( !ent->health ) {
 		ent->health = 32;
@@ -1568,13 +1568,13 @@ void flakPuff( vec3_t origin, qboolean sky ) {
 
 	point[2] += 16; // raise puff off the ground some
 	tent = G_TempEntity( point, EV_SMOKE );
-	VectorCopy( point, tent->s.origin );
-	tent->s.time = 2000;
-	tent->s.time2 = 1000;
-	tent->s.density = 0;
-	tent->s.angles2[0] = 16 + 8;
-	tent->s.angles2[1] = 48 + 24;
-	tent->s.angles2[2] = 10;
+	VectorCopy( point, tent->shared.s.origin );
+	tent->shared.s.time = 2000;
+	tent->shared.s.time2 = 1000;
+	tent->shared.s.density = 0;
+	tent->shared.s.angles2[0] = 16 + 8;
+	tent->shared.s.angles2[1] = 48 + 24;
+	tent->shared.s.angles2[2] = 10;
 }
 
 int muzzleflashmodel;
@@ -1588,13 +1588,13 @@ void mg42_muzzleflash( gentity_t *ent, vec3_t muzzlepos ) {  // cheezy, but lets
 	flash = G_Spawn();
 
 	if ( flash ) {
-		VectorCopy( ent->s.pos.trBase, flash->s.origin );
-		VectorCopy( ent->s.apos.trBase, flash->s.angles );
-		G_SetAngle( flash, ent->s.apos.trBase );
-		G_SetOrigin( flash, ent->s.pos.trBase );
+		VectorCopy( ent->shared.s.pos.trBase, flash->shared.s.origin );
+		VectorCopy( ent->shared.s.apos.trBase, flash->shared.s.angles );
+		G_SetAngle( flash, ent->shared.s.apos.trBase );
+		G_SetOrigin( flash, ent->shared.s.pos.trBase );
 
-		VectorCopy( flash->s.origin, point );
-		AngleVectors( flash->s.angles, forward, NULL, NULL );
+		VectorCopy( flash->shared.s.origin, point );
+		AngleVectors( flash->shared.s.angles, forward, NULL, NULL );
 		VectorMA( point, 40, forward, point );
 
 		if ( muzzlepos ) {
@@ -1603,11 +1603,11 @@ void mg42_muzzleflash( gentity_t *ent, vec3_t muzzlepos ) {  // cheezy, but lets
 
 		G_SetOrigin( flash, point );
 
-		flash->s.modelindex = muzzleflashmodel;
+		flash->shared.s.modelindex = muzzleflashmodel;
 
-		flash->r.contents = CONTENTS_TRIGGER;
-		flash->r.svFlags = SVF_USE_CURRENT_ORIGIN;
-		flash->s.eType = ET_GENERAL;
+		flash->shared.r.contents = CONTENTS_TRIGGER;
+		flash->shared.r.svFlags = SVF_USE_CURRENT_ORIGIN;
+		flash->shared.s.eType = ET_GENERAL;
 
 		flash->think = G_FreeEntity;
 		flash->nextthink = level.time + 50;
@@ -1647,7 +1647,7 @@ void Fire_Lead( gentity_t *ent, gentity_t *activator, float spread, int damage )
 	VectorMA( end, r, right, end );
 	VectorMA( end, u, up, end );
 
-	SV_Trace( &tr, lead_muzzle, NULL, NULL, end, ent->s.number, MASK_SHOT, qfalse );
+	SV_Trace( &tr, lead_muzzle, NULL, NULL, end, ent->shared.s.number, MASK_SHOT, qfalse );
 
 	AICast_ProcessBullet( activator, lead_muzzle, tr.endpos );
 
@@ -1679,8 +1679,8 @@ void Fire_Lead( gentity_t *ent, gentity_t *activator, float spread, int damage )
 	// send bullet impact
 	if ( traceEnt->takedamage && traceEnt->client ) {
 		tent = G_TempEntity( tr.endpos, EV_BULLET_HIT_FLESH );
-		tent->s.eventParm = traceEnt->s.number;
-		tent->s.otherEntityNum = ent->s.number;
+		tent->shared.s.eventParm = traceEnt->shared.s.number;
+		tent->shared.s.otherEntityNum = ent->shared.s.number;
 
 		if ( LogAccuracyHit( traceEnt, ent ) ) {
 			ent->client->ps.persistant[PERS_ACCURACY_HITS]++;
@@ -1698,9 +1698,9 @@ void Fire_Lead( gentity_t *ent, gentity_t *activator, float spread, int damage )
 			VectorMA( forward, -2 * dot, tr.plane.normal, reflect );
 			VectorNormalize( reflect );
 
-			tent->s.eventParm = DirToByte( reflect );
-			tent->s.otherEntityNum = ent->s.number;
-			tent->s.otherEntityNum2 = activator->s.number;  // (SA) store the user id, so the client can position the tracer
+			tent->shared.s.eventParm = DirToByte( reflect );
+			tent->shared.s.otherEntityNum = ent->shared.s.number;
+			tent->shared.s.otherEntityNum2 = activator->shared.s.number;  // (SA) store the user id, so the client can position the tracer
 		}
 		// done.
 	}
@@ -1746,7 +1746,7 @@ void clamp_hweapontofirearc( gentity_t *self, gentity_t *other, vec3_t dang ) {
 		VectorCopy( self->TargetAngles, dang );
 		yawspeed = MG42_YAWSPEED;
 	} else {    // go back to start position
-		VectorCopy( self->s.angles, dang );
+		VectorCopy( self->shared.s.angles, dang );
 		yawspeed = MG42_IDLEYAWSPEED;
 	}
 
@@ -1756,7 +1756,7 @@ void clamp_hweapontofirearc( gentity_t *self, gentity_t *other, vec3_t dang ) {
 	}
 
 // NOTE to self this change has damaged visualy all mg42 behind sandbags
-	if ( other && other->r.svFlags & SVF_CASTAI ) {
+	if ( other && other->shared.r.svFlags & SVF_CASTAI ) {
 		if ( self->spawnflags & 1 ) {
 			if ( dang[0] > 0 && dang[0] > 20.0 ) {
 				clamped = qtrue;
@@ -1782,49 +1782,49 @@ void clamp_hweapontofirearc( gentity_t *self, gentity_t *other, vec3_t dang ) {
 //	Com_Printf ("dang[0] = %5.2f\n", dang[0]);
 
 	if ( !Q_stricmp( self->classname, "misc_mg42" ) || !( self->active ) ) {
-		diff = AngleDifference( dang[YAW], self->s.angles[YAW] );
+		diff = AngleDifference( dang[YAW], self->shared.s.angles[YAW] );
 		if ( fabs( diff ) > self->harc ) {
 			clamped = qtrue;
 			if ( diff > 0 ) {
-				dang[YAW] = AngleMod( self->s.angles[YAW] + self->harc );
+				dang[YAW] = AngleMod( self->shared.s.angles[YAW] + self->harc );
 			} else {
-				dang[YAW] = AngleMod( self->s.angles[YAW] - self->harc );
+				dang[YAW] = AngleMod( self->shared.s.angles[YAW] - self->harc );
 			}
 		}
 
 		// dang is now the ideal angles
 		for ( i = 0; i < 3; i++ ) {
-			BG_EvaluateTrajectory( &self->s.apos, level.time, self->r.currentAngles );
-			diff = AngleDifference( dang[i], self->r.currentAngles[i] );
+			BG_EvaluateTrajectory( &self->shared.s.apos, level.time, self->shared.r.currentAngles );
+			diff = AngleDifference( dang[i], self->shared.r.currentAngles[i] );
 			if ( fabs( diff ) > ( yawspeed * ( (float)FRAMETIME / 1000.0 ) ) ) {
 				clamped = qtrue;
 				if ( diff > 0 ) {
-					dang[i] = AngleMod( self->r.currentAngles[i] + ( yawspeed * ( (float)FRAMETIME / 1000.0 ) ) );
+					dang[i] = AngleMod( self->shared.r.currentAngles[i] + ( yawspeed * ( (float)FRAMETIME / 1000.0 ) ) );
 				} else {
-					dang[i] = AngleMod( self->r.currentAngles[i] - ( yawspeed * ( (float)FRAMETIME / 1000.0 ) ) );
+					dang[i] = AngleMod( self->shared.r.currentAngles[i] - ( yawspeed * ( (float)FRAMETIME / 1000.0 ) ) );
 				}
 			}
 		}
 	}
 
-	if ( other && other->r.svFlags & SVF_CASTAI ) {
+	if ( other && other->shared.r.svFlags & SVF_CASTAI ) {
 		clamped = qfalse;
 	}
 
 	// sanity check the angles again to make sure we don't go passed the harc whilst trying to get to the other side
-	// diff = AngleDifference( dang[YAW], self->s.angles[YAW] );
-	diff = AngleDifference( self->s.angles[YAW], dang[YAW] );
+	// diff = AngleDifference( dang[YAW], self->shared.s.angles[YAW] );
+	diff = AngleDifference( self->shared.s.angles[YAW], dang[YAW] );
 	// if (fabs(diff) > self->harc) {
-	if ( fabs( diff ) > self->harc && other && other->r.svFlags & SVF_CASTAI ) {
+	if ( fabs( diff ) > self->harc && other && other->shared.r.svFlags & SVF_CASTAI ) {
 		clamped = qtrue;
 
 		if ( diff > 0 ) {
-			dang[YAW] = AngleMod( self->s.angles[YAW] + self->harc );
+			dang[YAW] = AngleMod( self->shared.s.angles[YAW] + self->harc );
 		} else {
-			dang[YAW] = AngleMod( self->s.angles[YAW] - self->harc );
+			dang[YAW] = AngleMod( self->shared.s.angles[YAW] - self->harc );
 		}
 
-//		Com_Printf ("dang %5.2f ang %5.2f diff %5.2f\n", dang[YAW], self->s.angles[YAW], diff);
+//		Com_Printf ("dang %5.2f ang %5.2f diff %5.2f\n", dang[YAW], self->shared.s.angles[YAW], diff);
 
 	}
 //	else
@@ -1837,7 +1837,7 @@ void clamp_hweapontofirearc( gentity_t *self, gentity_t *other, vec3_t dang ) {
 		SetClientViewAngle( other, dang );
 
 		//if they are an AI, they should dismount now
-		if ( other->r.svFlags & SVF_CASTAI ) {
+		if ( other->shared.r.svFlags & SVF_CASTAI ) {
 			if ( !other->mg42ClampTime ) {
 				other->mg42ClampTime = level.time;
 			} else if ( other->mg42ClampTime < level.time - 750 ) {
@@ -1862,18 +1862,18 @@ void clamp_playerbehindgun( gentity_t *self, gentity_t *other, vec3_t dang ) {
 	vec3_t point;
 
 
-	AngleVectors( self->s.apos.trBase, forward, right, up );
-	VectorMA( self->r.currentOrigin, -36, forward, point );
+	AngleVectors( self->shared.s.apos.trBase, forward, right, up );
+	VectorMA( self->shared.r.currentOrigin, -36, forward, point );
 
-	point[2] = other->r.currentOrigin[2];
+	point[2] = other->shared.r.currentOrigin[2];
 	SV_UnlinkEntity( other );
 	VectorCopy( point, other->client->ps.origin );
 
 	// save results of pmove
-	BG_PlayerStateToEntityState( &other->client->ps, &other->s, qtrue );
+	BG_PlayerStateToEntityState( &other->client->ps, &other->shared.s, qtrue );
 
 	// use the precise origin for linking
-	VectorCopy( other->client->ps.origin, other->r.currentOrigin );
+	VectorCopy( other->client->ps.origin, other->shared.r.currentOrigin );
 
 	SV_LinkEntity( other );
 }
@@ -1903,12 +1903,12 @@ void mg42_touch( gentity_t *self, gentity_t *other, trace_t *trace ) {
 		//VectorCopy( other->client->ps.viewangles, self->TargetAngles );
 
 		// now tell the client to lock the view in the direction of the gun
-		//if (other->r.svFlags & SVF_CASTAI) {
+		//if (other->shared.r.svFlags & SVF_CASTAI) {
 		other->client->ps.viewlocked = 1;
-		other->client->ps.viewlocked_entNum = self->s.number;
+		other->client->ps.viewlocked_entNum = self->shared.s.number;
 		//}
 
-		if ( self->s.frame ) {
+		if ( self->shared.s.frame ) {
 			other->client->ps.gunfx = 1;
 		} else {
 			other->client->ps.gunfx = 0;
@@ -1942,14 +1942,14 @@ void mg42_track( gentity_t *self, gentity_t *other ) {
 
 	if ( other->active ) {
 		if ( ( !( level.time % 100 ) ) && ( other->client ) && ( other->client->buttons & BUTTON_ATTACK ) ) {
-			if ( self->s.frame && !is_flak ) {
-				// Com_Printf ("gun: destroyed = %d\n", self->s.frame);
+			if ( self->shared.s.frame && !is_flak ) {
+				// Com_Printf ("gun: destroyed = %d\n", self->shared.s.frame);
 				G_AddEvent( self, EV_GENERAL_SOUND, snd_noammo );
 				other->client->ps.gunfx = 1;
 			} else
 			{
-				AngleVectors( self->s.apos.trBase, forward, right, up );
-				VectorCopy( self->s.pos.trBase, muzzle );
+				AngleVectors( self->shared.s.apos.trBase, forward, right, up );
+				VectorCopy( self->shared.s.pos.trBase, muzzle );
 
 				if ( !Q_stricmp( self->classname, "misc_mg42" ) ) {
 					VectorMA( muzzle, 16, forward, muzzle );
@@ -1985,14 +1985,14 @@ void mg42_track( gentity_t *self, gentity_t *other ) {
 						}
 
 						validshot = qtrue;
-						self->s.frame++;
+						self->shared.s.frame++;
 					}
 				}
 				// snap to integer coordinates for more efficient network bandwidth usage
 				SnapVector( muzzle );
 
 				if ( validshot ) {
-					if ( !( other->r.svFlags & SVF_CASTAI ) ) {
+					if ( !( other->shared.r.svFlags & SVF_CASTAI ) ) {
 						if ( is_flak ) {
 							Fire_Lead( self, other, FLAK_SPREAD, FLAK_DAMAGE );
 						} else
@@ -2021,13 +2021,13 @@ void mg42_track( gentity_t *self, gentity_t *other ) {
 
 		// move to the position over the next frame
 		VectorCopy( self->TargetAngles, dang );
-		VectorSubtract( dang, self->s.apos.trBase, self->s.apos.trDelta );
+		VectorSubtract( dang, self->shared.s.apos.trBase, self->shared.s.apos.trDelta );
 		for ( i = 0; i < 3; i++ ) {
-			self->s.apos.trDelta[i] = AngleNormalize180( self->s.apos.trDelta[i] );
+			self->shared.s.apos.trDelta[i] = AngleNormalize180( self->shared.s.apos.trDelta[i] );
 		}
-		VectorScale( self->s.apos.trDelta, 1000 / 50, self->s.apos.trDelta );
-		self->s.apos.trTime = level.time;
-		self->s.apos.trDuration = 50;
+		VectorScale( self->shared.s.apos.trDelta, 1000 / 50, self->shared.s.apos.trDelta );
+		self->shared.s.apos.trTime = level.time;
+		self->shared.s.apos.trDuration = 50;
 	}
 }
 
@@ -2042,38 +2042,38 @@ void mg42_track( gentity_t *self, gentity_t *other ) {
 #define GUN4_LASTFIRE   15
 
 void Flak_Animate( gentity_t *ent ) {
-	//Com_Printf ("frame %i\n", ent->s.frame);
+	//Com_Printf ("frame %i\n", ent->shared.s.frame);
 
-	if ( ent->s.frame == GUN1_IDLE
-		 || ent->s.frame == GUN2_IDLE
-		 || ent->s.frame == GUN3_IDLE
-		 || ent->s.frame == GUN4_IDLE ) {
+	if ( ent->shared.s.frame == GUN1_IDLE
+		 || ent->shared.s.frame == GUN2_IDLE
+		 || ent->shared.s.frame == GUN3_IDLE
+		 || ent->shared.s.frame == GUN4_IDLE ) {
 		return;
 	}
 
 	if ( ent->count == 1 ) {
-		if ( ent->s.frame == GUN1_LASTFIRE ) {
-			ent->s.frame = GUN2_IDLE;
-		} else if ( ent->s.frame > GUN1_IDLE ) {
-			ent->s.frame++;
+		if ( ent->shared.s.frame == GUN1_LASTFIRE ) {
+			ent->shared.s.frame = GUN2_IDLE;
+		} else if ( ent->shared.s.frame > GUN1_IDLE ) {
+			ent->shared.s.frame++;
 		}
 	} else if ( ent->count == 2 )     {
-		if ( ent->s.frame == GUN2_LASTFIRE ) {
-			ent->s.frame = GUN3_IDLE;
-		} else if ( ent->s.frame > GUN2_IDLE ) {
-			ent->s.frame++;
+		if ( ent->shared.s.frame == GUN2_LASTFIRE ) {
+			ent->shared.s.frame = GUN3_IDLE;
+		} else if ( ent->shared.s.frame > GUN2_IDLE ) {
+			ent->shared.s.frame++;
 		}
 	} else if ( ent->count == 3 )     {
-		if ( ent->s.frame == GUN3_LASTFIRE ) {
-			ent->s.frame = GUN4_IDLE;
-		} else if ( ent->s.frame > GUN3_IDLE ) {
-			ent->s.frame++;
+		if ( ent->shared.s.frame == GUN3_LASTFIRE ) {
+			ent->shared.s.frame = GUN4_IDLE;
+		} else if ( ent->shared.s.frame > GUN3_IDLE ) {
+			ent->shared.s.frame++;
 		}
 	} else if ( ent->count == 4 )     {
-		if ( ent->s.frame == GUN4_LASTFIRE ) {
-			ent->s.frame = GUN1_IDLE;
-		} else if ( ent->s.frame > GUN4_IDLE ) {
-			ent->s.frame++;
+		if ( ent->shared.s.frame == GUN4_LASTFIRE ) {
+			ent->shared.s.frame = GUN1_IDLE;
+		} else if ( ent->shared.s.frame > GUN4_IDLE ) {
+			ent->shared.s.frame++;
 		}
 	}
 }
@@ -2094,16 +2094,16 @@ void mg42_think( gentity_t *self ) {
 
 	VectorClear( vec );
 
-	owner = &g_entities[self->r.ownerNum];
+	owner = &g_entities[self->shared.r.ownerNum];
 
 	// move to the current angles
-	BG_EvaluateTrajectory( &self->s.apos, level.time, self->s.apos.trBase );
+	BG_EvaluateTrajectory( &self->shared.s.apos, level.time, self->shared.s.apos.trBase );
 
 	if ( owner->client ) {
-		VectorSubtract( self->r.currentOrigin, owner->r.currentOrigin, vec );
+		VectorSubtract( self->shared.r.currentOrigin, owner->shared.r.currentOrigin, vec );
 		len = VectorLength( vec );
 
-		if ( owner->r.svFlags & SVF_CASTAI ) {
+		if ( owner->shared.r.svFlags & SVF_CASTAI ) {
 			usedist = USEMG42_DISTANCE;
 		} else {
 			// kinda dumb since the player had to be close enough to activate it to get this
@@ -2122,13 +2122,13 @@ void mg42_think( gentity_t *self ) {
 			mg42_track( self, owner );
 			self->nextthink = level.time + 50;
 
-			if ( !( owner->r.svFlags & SVF_CASTAI ) ) {
+			if ( !( owner->shared.r.svFlags & SVF_CASTAI ) ) {
 				clamp_playerbehindgun( self, owner, vec3_origin );
 			}
 
 //Com_Printf ("len %5.2f\n", len);
 /*
-			if (owner->r.svFlags & SVF_CASTAI)
+			if (owner->shared.r.svFlags & SVF_CASTAI)
 			{
 				gentity_t *player;
 				vec3_t	temp;
@@ -2137,8 +2137,8 @@ void mg42_think( gentity_t *self ) {
 
 				if (player)
 				{
-					VectorCopy (self->s.angles, temp);
-					VectorCopy (self->s.angles2, self->s.angles);
+					VectorCopy (self->shared.s.angles, temp);
+					VectorCopy (self->shared.s.angles2, self->shared.s.angles);
 					if (!(infront (self, player)))
 					{
 
@@ -2150,7 +2150,7 @@ void mg42_think( gentity_t *self ) {
 
 					}
 
-					VectorCopy (temp, self->s.angles);
+					VectorCopy (temp, self->shared.s.angles);
 
 				}
 
@@ -2167,20 +2167,20 @@ void mg42_think( gentity_t *self ) {
 	// slowly rotate back to position
 	//clamp_hweapontofirearc( self, NULL, vec );
 	// move to the position over the next frame
-	VectorSubtract( self->s.angles, self->s.apos.trBase, self->s.apos.trDelta );
+	VectorSubtract( self->shared.s.angles, self->shared.s.apos.trBase, self->shared.s.apos.trDelta );
 	for ( i = 0; i < 3; i++ ) {
-		self->s.apos.trDelta[i] = AngleNormalize180( self->s.apos.trDelta[i] );
+		self->shared.s.apos.trDelta[i] = AngleNormalize180( self->shared.s.apos.trDelta[i] );
 	}
-	VectorScale( self->s.apos.trDelta, 400 / 50, self->s.apos.trDelta );
-	self->s.apos.trTime = level.time;
-	self->s.apos.trDuration = 50;
+	VectorScale( self->shared.s.apos.trDelta, 400 / 50, self->shared.s.apos.trDelta );
+	self->shared.s.apos.trTime = level.time;
+	self->shared.s.apos.trDuration = 50;
 
 	self->nextthink = level.time + 50;
 
 	// only let them go when it's pointing forward
 	if ( owner->client ) {
-		if ( fabs( AngleNormalize180( self->s.angles[YAW] - self->s.apos.trBase[YAW] ) ) > 10 ) {
-			BG_EvaluateTrajectory( &self->s.apos, self->nextthink, owner->client->ps.viewangles );
+		if ( fabs( AngleNormalize180( self->shared.s.angles[YAW] - self->shared.s.apos.trBase[YAW] ) ) > 10 ) {
+			BG_EvaluateTrajectory( &self->shared.s.apos, self->nextthink, owner->client->ps.viewangles );
 			return; // still waiting
 		}
 	}
@@ -2195,7 +2195,7 @@ void mg42_think( gentity_t *self ) {
 		owner->client->ps.gunfx = 0;
 	}
 
-	self->r.ownerNum = self->s.number;
+	self->shared.r.ownerNum = self->shared.s.number;
 
 
 }
@@ -2204,7 +2204,7 @@ void mg42_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int d
 	gentity_t   *gun;
 	gentity_t   *owner;
 
-	// owner = &g_entities[self->r.ownerNum];
+	// owner = &g_entities[self->shared.r.ownerNum];
 
 	G_Sound( self, self->soundPos3 ); // death sound
 
@@ -2216,10 +2216,10 @@ void mg42_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int d
 	}
 	// dhm - end
 
-	owner = &g_entities[gun->r.ownerNum];
+	owner = &g_entities[gun->shared.r.ownerNum];
 
 	if ( gun && self->health <= 0 ) {
-		gun->s.frame = 2;
+		gun->shared.s.frame = 2;
 		gun->takedamage = qfalse;
 
 	}
@@ -2228,7 +2228,7 @@ void mg42_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int d
 
 	if ( owner && owner->client ) {
 		owner->client->ps.persistant[PERS_HWEAPON_USE] = 0;
-		self->r.ownerNum = self->s.number;
+		self->shared.r.ownerNum = self->shared.s.number;
 		owner->client->ps.viewlocked = 0;   // let them look around
 		owner->active = qfalse;
 		owner->client->ps.gunfx = 0;
@@ -2238,17 +2238,17 @@ void mg42_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int d
 	}
 
 
-	SV_LinkEntity( self );
+	SV_LinkEntity( &self->shared );
 }
 
 void mg42_use( gentity_t *ent, gentity_t *other, gentity_t *activator ) {
 	gentity_t *owner;
 
-	owner = &g_entities[ent->r.ownerNum];
+	owner = &g_entities[ent->shared.r.ownerNum];
 
 	if ( owner && owner->client ) {
 		owner->client->ps.persistant[PERS_HWEAPON_USE] = 0;
-		ent->r.ownerNum = ent->s.number;
+		ent->shared.r.ownerNum = ent->shared.s.number;
 		owner->client->ps.viewlocked = 0;   // let them look around
 		owner->active = qfalse;
 		owner->client->ps.gunfx = 0;
@@ -2256,7 +2256,7 @@ void mg42_use( gentity_t *ent, gentity_t *other, gentity_t *activator ) {
 
 	// Com_Printf ("mg42 called use function\n");
 
-	SV_LinkEntity( ent );
+	SV_LinkEntity( &ent->shared );
 }
 
 /*
@@ -2276,26 +2276,26 @@ void mg42_spawn( gentity_t *ent ) {
 
 		if ( !( ent->spawnflags & 2 ) ) { // no tripod
 			base->clipmask = CONTENTS_SOLID;
-			base->r.contents = CONTENTS_SOLID;
-			base->r.svFlags = SVF_USE_CURRENT_ORIGIN;
-			base->s.eType = ET_GENERAL;
+			base->shared.r.contents = CONTENTS_SOLID;
+			base->shared.r.svFlags = SVF_USE_CURRENT_ORIGIN;
+			base->shared.s.eType = ET_GENERAL;
 
 
-			base->s.modelindex = G_ModelIndex( "models/mapobjects/weapons/mg42b.md3" );
+			base->shared.s.modelindex = G_ModelIndex( "models/mapobjects/weapons/mg42b.md3" );
 		}
 
-		VectorSet( base->r.mins, -8, -8, -8 );
-		VectorSet( base->r.maxs, 8, 8, 48 );
-		VectorCopy( ent->s.origin, offset );
+		VectorSet( base->shared.r.mins, -8, -8, -8 );
+		VectorSet( base->shared.r.maxs, 8, 8, 48 );
+		VectorCopy( ent->shared.s.origin, offset );
 		offset[2] -= 24;
 		G_SetOrigin( base, offset );
-		base->s.apos.trType = TR_STATIONARY;
-		base->s.apos.trTime = 0;
-		base->s.apos.trDuration = 0;
-		base->s.dmgFlags = HINT_MG42;   // identify this for cursorhints
-		VectorCopy( ent->s.angles, base->s.angles );
-		VectorCopy( base->s.angles, base->s.apos.trBase );
-		VectorCopy( base->s.angles, base->s.apos.trDelta );
+		base->shared.s.apos.trType = TR_STATIONARY;
+		base->shared.s.apos.trTime = 0;
+		base->shared.s.apos.trDuration = 0;
+		base->shared.s.dmgFlags = HINT_MG42;   // identify this for cursorhints
+		VectorCopy( ent->shared.s.angles, base->shared.s.angles );
+		VectorCopy( base->shared.s.angles, base->shared.s.apos.trBase );
+		VectorCopy( base->shared.s.angles, base->shared.s.apos.trDelta );
 		base->health = ent->health;
 		base->target = ent->target; //----(SA)	added so mounting mg42 can trigger targets
 		base->takedamage = qtrue;
@@ -2308,34 +2308,34 @@ void mg42_spawn( gentity_t *ent ) {
 	gun = G_Spawn();
 	gun->classname = "misc_mg42";
 	gun->clipmask = CONTENTS_SOLID;
-	gun->r.contents = CONTENTS_TRIGGER;
-	gun->r.svFlags = SVF_USE_CURRENT_ORIGIN;
-	gun->s.eType = ET_MG42;
+	gun->shared.r.contents = CONTENTS_TRIGGER;
+	gun->shared.r.svFlags = SVF_USE_CURRENT_ORIGIN;
+	gun->shared.s.eType = ET_MG42;
 
 	// DHM - Don't need to specify here, handled in G_CheckForCursorHints
-	//gun->s.dmgFlags = HINT_MG42;	// identify this for cursorhints
+	//gun->shared.s.dmgFlags = HINT_MG42;	// identify this for cursorhints
 
 	gun->touch = mg42_touch;
-	gun->s.modelindex = G_ModelIndex( "models/mapobjects/weapons/mg42a.md3" );
-	VectorCopy( ent->s.origin, offset );
+	gun->shared.s.modelindex = G_ModelIndex( "models/mapobjects/weapons/mg42a.md3" );
+	VectorCopy( ent->shared.s.origin, offset );
 	offset[2] += 24;
 	G_SetOrigin( gun, offset );
-	VectorSet( gun->r.mins, -24, -24, -8 );
-	VectorSet( gun->r.maxs, 24, 24, 48 );
-	gun->s.apos.trTime = 0;
-	gun->s.apos.trDuration = 0;
-	VectorCopy( ent->s.angles, gun->s.angles );
-	VectorCopy( gun->s.angles, gun->s.apos.trBase );
-	VectorCopy( gun->s.angles, gun->s.apos.trDelta );
+	VectorSet( gun->shared.r.mins, -24, -24, -8 );
+	VectorSet( gun->shared.r.maxs, 24, 24, 48 );
+	gun->shared.s.apos.trTime = 0;
+	gun->shared.s.apos.trDuration = 0;
+	VectorCopy( ent->shared.s.angles, gun->shared.s.angles );
+	VectorCopy( gun->shared.s.angles, gun->shared.s.apos.trBase );
+	VectorCopy( gun->shared.s.angles, gun->shared.s.apos.trDelta );
 
-	VectorCopy( ent->s.angles, gun->s.angles2 );
+	VectorCopy( ent->shared.s.angles, gun->shared.s.angles2 );
 
 	gun->think = mg42_think;
 	gun->nextthink = level.time + FRAMETIME;
-	gun->s.number = gun - g_entities;
+	gun->shared.s.number = gun - g_entities;
 	gun->harc = ent->harc;
 	gun->varc = ent->varc;
-	gun->s.apos.trType = TR_LINEAR_STOP;    // interpolate the angles
+	gun->shared.s.apos.trType = TR_LINEAR_STOP;    // interpolate the angles
 	gun->takedamage = qtrue;
 	gun->targetname = ent->targetname;      // need this for scripting
 	gun->damage = ent->damage;
@@ -2348,14 +2348,14 @@ void mg42_spawn( gentity_t *ent ) {
 	gun->activateArc = ent->activateArc;            //----(SA)	added
 
 	if ( !( ent->spawnflags & 2 ) ) { // no tripod
-		gun->mg42BaseEnt = base->s.number;
+		gun->mg42BaseEnt = base->shared.s.number;
 	} else {
 		gun->mg42BaseEnt = -1;
 	}
 
 	gun->spawnflags = ent->spawnflags;
 
-	SV_LinkEntity( gun );
+	SV_LinkEntity( &gun->shared );
 
 	if ( !( ent->spawnflags & 2 ) ) { // no tripod
 		base->chain = gun;
@@ -2428,31 +2428,31 @@ void flak_spawn( gentity_t *ent ) {
 	gun = G_Spawn();
 	gun->classname = "misc_flak";
 	gun->clipmask = CONTENTS_SOLID;
-	gun->r.contents = CONTENTS_TRIGGER;
-	gun->r.svFlags = SVF_USE_CURRENT_ORIGIN;
-	gun->s.eType = ET_GENERAL;
+	gun->shared.r.contents = CONTENTS_TRIGGER;
+	gun->shared.r.svFlags = SVF_USE_CURRENT_ORIGIN;
+	gun->shared.s.eType = ET_GENERAL;
 	gun->touch = mg42_touch;
-	gun->s.modelindex = G_ModelIndex( "models/mapobjects/weapons/flak_a.md3" );
-	VectorCopy( ent->s.origin, offset );
+	gun->shared.s.modelindex = G_ModelIndex( "models/mapobjects/weapons/flak_a.md3" );
+	VectorCopy( ent->shared.s.origin, offset );
 	G_SetOrigin( gun, offset );
-	VectorSet( gun->r.mins, -24, -24, -8 );
-	VectorSet( gun->r.maxs, 24, 24, 48 );
-	gun->s.apos.trTime = 0;
-	gun->s.apos.trDuration = 0;
-	VectorCopy( ent->s.angles, gun->s.angles );
-	VectorCopy( gun->s.angles, gun->s.apos.trBase );
-	VectorCopy( gun->s.angles, gun->s.apos.trDelta );
+	VectorSet( gun->shared.r.mins, -24, -24, -8 );
+	VectorSet( gun->shared.r.maxs, 24, 24, 48 );
+	gun->shared.s.apos.trTime = 0;
+	gun->shared.s.apos.trDuration = 0;
+	VectorCopy( ent->shared.s.angles, gun->shared.s.angles );
+	VectorCopy( gun->shared.s.angles, gun->shared.s.apos.trBase );
+	VectorCopy( gun->shared.s.angles, gun->shared.s.apos.trDelta );
 	gun->think = mg42_think;
 	gun->nextthink = level.time + FRAMETIME;
-	gun->s.number = gun - g_entities;
+	gun->shared.s.number = gun - g_entities;
 	gun->harc = ent->harc;
 	gun->varc = ent->varc;
-	gun->s.apos.trType = TR_LINEAR_STOP;    // interpolate the angles
+	gun->shared.s.apos.trType = TR_LINEAR_STOP;    // interpolate the angles
 	gun->takedamage = qtrue;
 	gun->targetname = ent->targetname;      // need this for scripting
-	gun->mg42BaseEnt = ent->s.number;
+	gun->mg42BaseEnt = ent->shared.s.number;
 
-	SV_LinkEntity( gun );
+	SV_LinkEntity( &gun->shared );
 
 }
 
@@ -2503,7 +2503,7 @@ void misc_spawner_think( gentity_t *ent ) {
 
 	if ( !drop ) {
 		Com_Printf( "-----> WARNING <-------\n" );
-		Com_Printf( "misc_spawner used at %s failed to drop!\n", vtos( ent->r.currentOrigin ) );
+		Com_Printf( "misc_spawner used at %s failed to drop!\n", vtos( ent->shared.r.currentOrigin ) );
 	}
 
 }
@@ -2513,24 +2513,24 @@ void misc_spawner_use( gentity_t *ent, gentity_t *other, gentity_t *activator ) 
 	ent->think = misc_spawner_think;
 	ent->nextthink = level.time + FRAMETIME;
 
-//	VectorCopy (other->r.currentOrigin, ent->r.currentOrigin);
-//	VectorCopy (ent->r.currentOrigin, ent->s.pos.trBase);
+//	VectorCopy (other->shared.r.currentOrigin, ent->shared.r.currentOrigin);
+//	VectorCopy (ent->shared.r.currentOrigin, ent->shared.s.pos.trBase);
 
-//	VectorCopy (other->r.currentAngles, ent->r.currentAngles);
+//	VectorCopy (other->shared.r.currentAngles, ent->shared.r.currentAngles);
 
-	SV_LinkEntity( ent );
+	SV_LinkEntity( &ent->shared );
 }
 
 void SP_misc_spawner( gentity_t *ent ) {
 	if ( !ent->spawnitem ) {
 		Com_Printf( "-----> WARNING <-------\n" );
-		Com_Printf( "misc_spawner at loc %s has no spawnitem!\n", vtos( ent->s.origin ) );
+		Com_Printf( "misc_spawner at loc %s has no spawnitem!\n", vtos( ent->shared.s.origin ) );
 		return;
 	}
 
 	ent->use = misc_spawner_use;
 
-	SV_LinkEntity( ent );
+	SV_LinkEntity( &ent->shared );
 
 }
 
@@ -2541,13 +2541,13 @@ void firetrail_die( gentity_t *ent ) {
 }
 
 void firetrail_use( gentity_t *ent, gentity_t *other, gentity_t *activator ) {
-	if ( ent->s.eType == ET_RAMJET ) {
-		ent->s.eType = ET_GENERAL;
+	if ( ent->shared.s.eType == ET_RAMJET ) {
+		ent->shared.s.eType = ET_GENERAL;
 	} else {
-		ent->s.eType = ET_RAMJET;
+		ent->shared.s.eType = ET_RAMJET;
 	}
 
-	SV_LinkEntity( ent );
+	SV_LinkEntity( &ent->shared );
 
 }
 
@@ -2562,13 +2562,13 @@ void tagemitter_die( gentity_t *ent ) {
 }
 
 void tagemitter_use( gentity_t *ent, gentity_t *other, gentity_t *activator ) {
-	if ( ent->s.eType == ET_EFFECT3 ) {
-		ent->s.eType = ET_GENERAL;
+	if ( ent->shared.s.eType == ET_EFFECT3 ) {
+		ent->shared.s.eType = ET_GENERAL;
 	} else {
-		ent->s.eType = ET_EFFECT3;
+		ent->shared.s.eType = ET_EFFECT3;
 	}
 
-	SV_LinkEntity( ent );
+	SV_LinkEntity( &ent->shared );
 
 }
 
@@ -2583,8 +2583,8 @@ void misc_tagemitter_finishspawning( gentity_t *ent ) {
 	emitter = ent->target_ent;
 
 	emitter->classname = "misc_tagemitter";
-	emitter->r.contents = 0;
-	emitter->s.eType = ET_GENERAL;
+	emitter->shared.r.contents = 0;
+	emitter->shared.s.eType = ET_GENERAL;
 	emitter->tagParent = parent;
 
 	emitter->use = tagemitter_use;
@@ -2636,30 +2636,30 @@ void misc_firetrails_finishspawning( gentity_t *ent ) {
 	// left fire trail
 	left = G_Spawn();
 	left->classname = "left_firetrail";
-	left->r.contents = 0;
-	left->s.eType = ET_RAMJET;
-	left->s.modelindex = G_ModelIndex( "models/ammo/rocket/rocket.md3" );
+	left->shared.r.contents = 0;
+	left->shared.s.eType = ET_RAMJET;
+	left->shared.s.modelindex = G_ModelIndex( "models/ammo/rocket/rocket.md3" );
 	left->tagParent = airplane;
 	left->tagName = "tag_engine1";   // tag to connect to
 	left->use = firetrail_use;
 	left->AIScript_AlertEntity = firetrail_die;
 	left->targetname = ent->targetname;
 	G_ProcessTagConnect( left, qtrue );
-	SV_LinkEntity( left );
+	SV_LinkEntity( &left->shared );
 
 	// right fire trail
 	right = G_Spawn();
 	right->classname = "right_firetrail";
-	right->r.contents = 0;
-	right->s.eType = ET_RAMJET;
-	right->s.modelindex = G_ModelIndex( "models/ammo/rocket/rocket.md3" );
+	right->shared.r.contents = 0;
+	right->shared.s.eType = ET_RAMJET;
+	right->shared.s.modelindex = G_ModelIndex( "models/ammo/rocket/rocket.md3" );
 	right->tagParent = airplane;
 	right->tagName = "tag_engine2";  // tag to connect to
 	right->use = firetrail_use;
 	right->AIScript_AlertEntity = firetrail_die;
 	right->targetname = ent->targetname;
 	G_ProcessTagConnect( right, qtrue );
-	SV_LinkEntity( right );
+	SV_LinkEntity( &right->shared );
 
 }
 

@@ -74,26 +74,26 @@ qboolean G_ScriptAction_GotoMarker( gentity_t *ent, char *params ) {
 	}
 
 	if ( !params || ent->scriptStatus.scriptStackChangeTime < level.time ) {          // we are waiting for it to reach destination
-		if ( ent->s.pos.trTime + ent->s.pos.trDuration <= level.time ) {  // we made it
+		if ( ent->shared.s.pos.trTime + ent->shared.s.pos.trDuration <= level.time ) {  // we made it
 			ent->scriptStatus.scriptFlags &= ~SCFL_GOING_TO_MARKER;
 
 			// set the angles at the destination
-			BG_EvaluateTrajectory( &ent->s.apos, ent->s.apos.trTime + ent->s.apos.trDuration, ent->s.angles );
-			VectorCopy( ent->s.angles, ent->s.apos.trBase );
-			VectorCopy( ent->s.angles, ent->r.currentAngles );
-			ent->s.apos.trTime = level.time;
-			ent->s.apos.trDuration = 0;
-			ent->s.apos.trType = TR_STATIONARY;
-			VectorClear( ent->s.apos.trDelta );
+			BG_EvaluateTrajectory( &ent->shared.s.apos, ent->shared.s.apos.trTime + ent->shared.s.apos.trDuration, ent->shared.s.angles );
+			VectorCopy( ent->shared.s.angles, ent->shared.s.apos.trBase );
+			VectorCopy( ent->shared.s.angles, ent->shared.r.currentAngles );
+			ent->shared.s.apos.trTime = level.time;
+			ent->shared.s.apos.trDuration = 0;
+			ent->shared.s.apos.trType = TR_STATIONARY;
+			VectorClear( ent->shared.s.apos.trDelta );
 
 			// stop moving
-			BG_EvaluateTrajectory( &ent->s.pos, level.time, ent->s.origin );
-			VectorCopy( ent->s.origin, ent->s.pos.trBase );
-			VectorCopy( ent->s.origin, ent->r.currentOrigin );
-			ent->s.pos.trTime = level.time;
-			ent->s.pos.trDuration = 0;
-			ent->s.pos.trType = TR_STATIONARY;
-			VectorClear( ent->s.pos.trDelta );
+			BG_EvaluateTrajectory( &ent->shared.s.pos, level.time, ent->shared.s.origin );
+			VectorCopy( ent->shared.s.origin, ent->shared.s.pos.trBase );
+			VectorCopy( ent->shared.s.origin, ent->shared.r.currentOrigin );
+			ent->shared.s.pos.trTime = level.time;
+			ent->shared.s.pos.trDuration = 0;
+			ent->shared.s.pos.trType = TR_STATIONARY;
+			VectorClear( ent->shared.s.pos.trDelta );
 
 			script_linkentity( ent );
 
@@ -114,7 +114,7 @@ qboolean G_ScriptAction_GotoMarker( gentity_t *ent, char *params ) {
 			Com_Error( ERR_DROP, "G_Scripting: can't find entity with \"targetname\" = \"%s\"\n", token );
 		}
 
-		VectorSubtract( target->r.currentOrigin, ent->r.currentOrigin, vec );
+		VectorSubtract( target->shared.r.currentOrigin, ent->shared.r.currentOrigin, vec );
 
 		token = COM_ParseExt( &pString, qfalse );
 		if ( !token[0] ) {
@@ -140,11 +140,11 @@ qboolean G_ScriptAction_GotoMarker( gentity_t *ent, char *params ) {
 		}
 
 		// start the movement
-		if ( ent->s.eType == ET_MOVER ) {
+		if ( ent->shared.s.eType == ET_MOVER ) {
 
 			VectorCopy( vec, ent->movedir );
-			VectorCopy( ent->r.currentOrigin, ent->pos1 );
-			VectorCopy( target->r.currentOrigin, ent->pos2 );
+			VectorCopy( ent->shared.r.currentOrigin, ent->pos1 );
+			VectorCopy( target->shared.r.currentOrigin, ent->pos2 );
 			ent->speed = speed;
 			dist = VectorDistance( ent->pos1, ent->pos2 );
 			// setup the movement with the new parameters
@@ -154,79 +154,79 @@ qboolean G_ScriptAction_GotoMarker( gentity_t *ent, char *params ) {
 
 			SetMoverState( ent, MOVER_1TO2, level.time );
 			if ( trType != TR_LINEAR_STOP ) { // allow for acceleration/decceleration
-				ent->s.pos.trDuration = 1000.0 * dist / ( speed / 2.0 );
-				ent->s.pos.trType = trType;
+				ent->shared.s.pos.trDuration = 1000.0 * dist / ( speed / 2.0 );
+				ent->shared.s.pos.trType = trType;
 			}
 			ent->reached = NULL;
 
 			if ( turntotarget ) {
-				duration = ent->s.pos.trDuration;
-				VectorCopy( target->s.angles, angles );
+				duration = ent->shared.s.pos.trDuration;
+				VectorCopy( target->shared.s.angles, angles );
 
 				for ( i = 0; i < 3; i++ ) {
-					diff[i] = AngleDifference( angles[i], ent->s.angles[i] );
+					diff[i] = AngleDifference( angles[i], ent->shared.s.angles[i] );
 					while ( diff[i] > 180 )
 						diff[i] -= 360;
 					while ( diff[i] < -180 )
 						diff[i] += 360;
 				}
-				VectorCopy( ent->s.angles, ent->s.apos.trBase );
+				VectorCopy( ent->shared.s.angles, ent->shared.s.apos.trBase );
 				if ( duration ) {
-					VectorScale( diff, 1000.0 / (float)duration, ent->s.apos.trDelta );
+					VectorScale( diff, 1000.0 / (float)duration, ent->shared.s.apos.trDelta );
 				} else {
-					VectorClear( ent->s.apos.trDelta );
+					VectorClear( ent->shared.s.apos.trDelta );
 				}
-				ent->s.apos.trDuration = duration;
-				ent->s.apos.trTime = level.time;
-				ent->s.apos.trType = TR_LINEAR_STOP;
+				ent->shared.s.apos.trDuration = duration;
+				ent->shared.s.apos.trTime = level.time;
+				ent->shared.s.apos.trType = TR_LINEAR_STOP;
 				if ( trType != TR_LINEAR_STOP ) { // allow for acceleration/decceleration
-					ent->s.pos.trDuration = 1000.0 * dist / ( speed / 2.0 );
-					ent->s.pos.trType = trType;
+					ent->shared.s.pos.trDuration = 1000.0 * dist / ( speed / 2.0 );
+					ent->shared.s.pos.trType = trType;
 				}
 			}
 
 		} else {
 			// calculate the trajectory
-			ent->s.pos.trType = TR_LINEAR_STOP;
-			ent->s.pos.trTime = level.time;
-			VectorCopy( ent->r.currentOrigin, ent->s.pos.trBase );
+			ent->shared.s.pos.trType = TR_LINEAR_STOP;
+			ent->shared.s.pos.trTime = level.time;
+			VectorCopy( ent->shared.r.currentOrigin, ent->shared.s.pos.trBase );
 			dist = VectorNormalize( vec );
-			VectorScale( vec, speed, ent->s.pos.trDelta );
-			ent->s.pos.trDuration = 1000 * ( dist / speed );
+			VectorScale( vec, speed, ent->shared.s.pos.trDelta );
+			ent->shared.s.pos.trDuration = 1000 * ( dist / speed );
 
 			if ( turntotarget ) {
-				duration = ent->s.pos.trDuration;
-				VectorCopy( target->s.angles, angles );
+				duration = ent->shared.s.pos.trDuration;
+				VectorCopy( target->shared.s.angles, angles );
 
 				for ( i = 0; i < 3; i++ ) {
-					diff[i] = AngleDifference( angles[i], ent->s.angles[i] );
+					diff[i] = AngleDifference( angles[i], ent->shared.s.angles[i] );
 					while ( diff[i] > 180 )
 						diff[i] -= 360;
 					while ( diff[i] < -180 )
 						diff[i] += 360;
 				}
-				VectorCopy( ent->s.angles, ent->s.apos.trBase );
+				VectorCopy( ent->shared.s.angles, ent->shared.s.apos.trBase );
 				if ( duration ) {
-					VectorScale( diff, 1000.0 / (float)duration, ent->s.apos.trDelta );
+					VectorScale( diff, 1000.0 / (float)duration, ent->shared.s.apos.trDelta );
 				} else {
-					VectorClear( ent->s.apos.trDelta );
+					VectorClear( ent->shared.s.apos.trDelta );
 				}
-				ent->s.apos.trDuration = duration;
-				ent->s.apos.trTime = level.time;
-				ent->s.apos.trType = TR_LINEAR_STOP;
+				ent->shared.s.apos.trDuration = duration;
+				ent->shared.s.apos.trTime = level.time;
+				ent->shared.s.apos.trType = TR_LINEAR_STOP;
 			}
 
 		}
 
 		if ( !wait ) {
 			// round the duration to the next 50ms
-			if ( ent->s.pos.trDuration % 50 ) {
+			if ( ent->shared.s.pos.trDuration % 50 ) {
 				float frac;
 
-				frac = (float)( ( ( ent->s.pos.trDuration / 50 ) * 50 + 50 ) - ent->s.pos.trDuration ) / (float)( ent->s.pos.trDuration );
+				frac = (float)( ( ( ent->shared.s.pos.trDuration / 50 ) * 50 + 50 ) - ent->shared.s.pos.trDuration ) / (float)( ent->shared.s.pos.trDuration );
 				if ( frac < 1 ) {
-					VectorScale( ent->s.pos.trDelta, 1.0 / ( 1.0 + frac ), ent->s.pos.trDelta );
-					ent->s.pos.trDuration = ( ent->s.pos.trDuration / 50 ) * 50 + 50;
+					VectorScale( ent->shared.s.pos.trDelta, 1.0 / ( 1.0 + frac ), ent->shared.s.pos.trDelta );
+					ent->shared.s.pos.trDuration = ( ent->shared.s.pos.trDuration / 50 ) * 50 + 50;
 				}
 			}
 
@@ -237,8 +237,8 @@ qboolean G_ScriptAction_GotoMarker( gentity_t *ent, char *params ) {
 
 	}
 
-	BG_EvaluateTrajectory( &ent->s.pos, level.time, ent->r.currentOrigin );
-	BG_EvaluateTrajectory( &ent->s.apos, level.time, ent->r.currentAngles );
+	BG_EvaluateTrajectory( &ent->shared.s.pos, level.time, ent->shared.r.currentOrigin );
+	BG_EvaluateTrajectory( &ent->shared.s.apos, level.time, ent->shared.r.currentAngles );
 	script_linkentity( ent );
 
 	return qfalse;
@@ -297,7 +297,7 @@ qboolean G_ScriptAction_Trigger( gentity_t *ent, char *params ) {
 	trent = AICast_FindEntityForName( name );
 	if ( trent ) { // we are triggering an AI
 				  //oldId = trent->scriptStatus.scriptId;
-		AICast_ScriptEvent( AICast_GetCastState( trent->s.number ), "trigger", trigger );
+		AICast_ScriptEvent( AICast_GetCastState( trent->shared.s.number ), "trigger", trigger );
 		return qtrue;
 	}
 
@@ -341,7 +341,7 @@ qboolean G_ScriptAction_PlaySound( gentity_t *ent, char *params ) {
 	if ( !token[0] || Q_strcasecmp( token, "looping" ) ) {
 		G_AddEvent( ent, EV_GENERAL_SOUND, G_SoundIndex( sound ) );
 	} else {    // looping channel
-		ent->s.loopSound = G_SoundIndex( sound );
+		ent->shared.s.loopSound = G_SoundIndex( sound );
 	}
 
 	return qtrue;
@@ -521,7 +521,7 @@ qboolean G_ScriptAction_PlayAnim( gentity_t *ent, char *params ) {
 				return qtrue;
 			}
 			if ( !Q_strcasecmp( token, "untilreachmarker" ) ) {
-				if ( level.time < ent->s.pos.trTime + ent->s.pos.trDuration ) {
+				if ( level.time < ent->shared.s.pos.trTime + ent->shared.s.pos.trDuration ) {
 					endtime = level.time + 100;
 				} else {
 					endtime = 0;
@@ -553,25 +553,25 @@ qboolean G_ScriptAction_PlayAnim( gentity_t *ent, char *params ) {
 
 	idealframe = startframe + (int)floor( (float)( level.time - ent->scriptStatus.scriptStackChangeTime ) / ( 1000.0 / (float)rate ) );
 	if ( looping ) {
-		ent->s.frame = startframe + ( idealframe - startframe ) % ( endframe - startframe );
-		ent->s.eFlags |= EF_MOVER_ANIMATE;
+		ent->shared.s.frame = startframe + ( idealframe - startframe ) % ( endframe - startframe );
+		ent->shared.s.eFlags |= EF_MOVER_ANIMATE;
 	} else {
 		if ( idealframe > endframe ) {
-			ent->s.frame = endframe;
-			ent->s.eFlags &= ~EF_MOVER_ANIMATE; // stop interpolation, since we have gone passed the endframe
+			ent->shared.s.frame = endframe;
+			ent->shared.s.eFlags &= ~EF_MOVER_ANIMATE; // stop interpolation, since we have gone passed the endframe
 		} else {
-			ent->s.frame = idealframe;
-			ent->s.eFlags |= EF_MOVER_ANIMATE;
+			ent->shared.s.frame = idealframe;
+			ent->shared.s.eFlags |= EF_MOVER_ANIMATE;
 		}
 	}
 
 	if ( forever ) {
-		ent->s.eFlags |= EF_MOVER_ANIMATE;
+		ent->shared.s.eFlags |= EF_MOVER_ANIMATE;
 		return qtrue;   // continue to the next command
 	}
 
 	if ( endtime <= level.time ) {
-		ent->s.eFlags &= ~EF_MOVER_ANIMATE; // stop animating
+		ent->shared.s.eFlags &= ~EF_MOVER_ANIMATE; // stop animating
 		return qtrue;
 	} else {
 		return qfalse;
@@ -891,7 +891,7 @@ qboolean G_ScriptAction_FaceAngles( gentity_t *ent, char *params ) {
 			Com_Error( ERR_DROP, "G_Scripting: faceangles requires a <pitch> <yaw> <roll> <duration/GOTOTIME>\n" );
 		}
 		if ( !Q_strcasecmp( token, "gototime" ) ) {
-			duration = ent->s.pos.trDuration;
+			duration = ent->shared.s.pos.trDuration;
 		} else {
 			duration = atoi( token );
 		}
@@ -907,47 +907,47 @@ qboolean G_ScriptAction_FaceAngles( gentity_t *ent, char *params ) {
 		}
 
 		for ( i = 0; i < 3; i++ ) {
-			diff[i] = AngleDifference( angles[i], ent->s.angles[i] );
+			diff[i] = AngleDifference( angles[i], ent->shared.s.angles[i] );
 			while ( diff[i] > 180 )
 				diff[i] -= 360;
 			while ( diff[i] < -180 )
 				diff[i] += 360;
 		}
 
-		VectorCopy( ent->s.angles, ent->s.apos.trBase );
+		VectorCopy( ent->shared.s.angles, ent->shared.s.apos.trBase );
 		if ( duration ) {
-			VectorScale( diff, 1000.0 / (float)duration, ent->s.apos.trDelta );
+			VectorScale( diff, 1000.0 / (float)duration, ent->shared.s.apos.trDelta );
 		} else {
-			VectorClear( ent->s.apos.trDelta );
+			VectorClear( ent->shared.s.apos.trDelta );
 		}
-		ent->s.apos.trDuration = duration;
-		ent->s.apos.trTime = level.time;
-		ent->s.apos.trType = TR_LINEAR_STOP;
+		ent->shared.s.apos.trDuration = duration;
+		ent->shared.s.apos.trTime = level.time;
+		ent->shared.s.apos.trType = TR_LINEAR_STOP;
 
 		if ( trType != TR_LINEAR_STOP ) { // accel / deccel logic
 			// calc the speed from duration and start/end delta
 			for ( i = 0; i < 3; i++ ) {
-				ent->s.apos.trDelta[i] = 2.0 * 1000.0 * diff[i] / (float)duration;
+				ent->shared.s.apos.trDelta[i] = 2.0 * 1000.0 * diff[i] / (float)duration;
 			}
-			ent->s.apos.trType = trType;
+			ent->shared.s.apos.trType = trType;
 		}
 
-	} else if ( ent->s.apos.trTime + ent->s.apos.trDuration <= level.time ) {
+	} else if ( ent->shared.s.apos.trTime + ent->shared.s.apos.trDuration <= level.time ) {
 		// finished turning
-		BG_EvaluateTrajectory( &ent->s.apos, ent->s.apos.trTime + ent->s.apos.trDuration, ent->s.angles );
-		VectorCopy( ent->s.angles, ent->s.apos.trBase );
-		VectorCopy( ent->s.angles, ent->r.currentAngles );
-		ent->s.apos.trTime = level.time;
-		ent->s.apos.trDuration = 0;
-		ent->s.apos.trType = TR_STATIONARY;
-		VectorClear( ent->s.apos.trDelta );
+		BG_EvaluateTrajectory( &ent->shared.s.apos, ent->shared.s.apos.trTime + ent->shared.s.apos.trDuration, ent->shared.s.angles );
+		VectorCopy( ent->shared.s.angles, ent->shared.s.apos.trBase );
+		VectorCopy( ent->shared.s.angles, ent->shared.r.currentAngles );
+		ent->shared.s.apos.trTime = level.time;
+		ent->shared.s.apos.trDuration = 0;
+		ent->shared.s.apos.trType = TR_STATIONARY;
+		VectorClear( ent->shared.s.apos.trDelta );
 
 		script_linkentity( ent );
 
 		return qtrue;
 	}
 
-	BG_EvaluateTrajectory( &ent->s.apos, level.time, ent->r.currentAngles );
+	BG_EvaluateTrajectory( &ent->shared.s.apos, level.time, ent->shared.r.currentAngles );
 	script_linkentity( ent );
 
 	return qfalse;
@@ -1024,22 +1024,22 @@ qboolean G_ScriptAction_Halt( gentity_t *ent, char *params ) {
 		ent->scriptStatus.scriptFlags &= ~SCFL_GOING_TO_MARKER;
 
 		// stop the angles
-		BG_EvaluateTrajectory( &ent->s.apos, level.time, ent->s.angles );
-		VectorCopy( ent->s.angles, ent->s.apos.trBase );
-		VectorCopy( ent->s.angles, ent->r.currentAngles );
-		ent->s.apos.trTime = level.time;
-		ent->s.apos.trDuration = 0;
-		ent->s.apos.trType = TR_STATIONARY;
-		VectorClear( ent->s.apos.trDelta );
+		BG_EvaluateTrajectory( &ent->shared.s.apos, level.time, ent->shared.s.angles );
+		VectorCopy( ent->shared.s.angles, ent->shared.s.apos.trBase );
+		VectorCopy( ent->shared.s.angles, ent->shared.r.currentAngles );
+		ent->shared.s.apos.trTime = level.time;
+		ent->shared.s.apos.trDuration = 0;
+		ent->shared.s.apos.trType = TR_STATIONARY;
+		VectorClear( ent->shared.s.apos.trDelta );
 
 		// stop moving
-		BG_EvaluateTrajectory( &ent->s.pos, level.time, ent->s.origin );
-		VectorCopy( ent->s.origin, ent->s.pos.trBase );
-		VectorCopy( ent->s.origin, ent->r.currentOrigin );
-		ent->s.pos.trTime = level.time;
-		ent->s.pos.trDuration = 0;
-		ent->s.pos.trType = TR_STATIONARY;
-		VectorClear( ent->s.pos.trDelta );
+		BG_EvaluateTrajectory( &ent->shared.s.pos, level.time, ent->shared.s.origin );
+		VectorCopy( ent->shared.s.origin, ent->shared.s.pos.trBase );
+		VectorCopy( ent->shared.s.origin, ent->shared.r.currentOrigin );
+		ent->shared.s.pos.trTime = level.time;
+		ent->shared.s.pos.trDuration = 0;
+		ent->shared.s.pos.trType = TR_STATIONARY;
+		VectorClear( ent->shared.s.pos.trDelta );
 
 		script_linkentity( ent );
 
@@ -1059,7 +1059,7 @@ G_ScriptAction_StopSound
 ===================
 */
 qboolean G_ScriptAction_StopSound( gentity_t *ent, char *params ) {
-	ent->s.loopSound = 0;
+	ent->shared.s.loopSound = 0;
 	return qtrue;
 }
 
@@ -1081,14 +1081,14 @@ qboolean G_ScriptAction_StartCam( gentity_t *ent, char *params ) {
 	}
 
 	// turn off noclient flag
-	ent->r.svFlags &= ~SVF_NOCLIENT;
+	ent->shared.r.svFlags &= ~SVF_NOCLIENT;
 
 	// issue a start camera command to the client
 	player = AICast_FindEntityForName( "player" );
 	if ( !player ) {
 		Com_Error( ERR_DROP, "player not found, perhaps you should give them more time to spawn in" );
 	}
-	SV_GameSendServerCommand( player->s.number, va( "startCam %s", token ) );
+	SV_GameSendServerCommand( player->shared.s.number, va( "startCam %s", token ) );
 
 	return qtrue;
 }
@@ -1136,22 +1136,22 @@ qboolean G_ScriptAction_BackupScript( gentity_t *ent, char *params ) {
 			ent->scriptStatus.scriptFlags &= ~SCFL_GOING_TO_MARKER;
 
 			// set the angles at the destination
-			BG_EvaluateTrajectory( &ent->s.apos, level.time, ent->s.angles );
-			VectorCopy( ent->s.angles, ent->s.apos.trBase );
-			VectorCopy( ent->s.angles, ent->r.currentAngles );
-			ent->s.apos.trTime = level.time;
-			ent->s.apos.trDuration = 0;
-			ent->s.apos.trType = TR_STATIONARY;
-			VectorClear( ent->s.apos.trDelta );
+			BG_EvaluateTrajectory( &ent->shared.s.apos, level.time, ent->shared.s.angles );
+			VectorCopy( ent->shared.s.angles, ent->shared.s.apos.trBase );
+			VectorCopy( ent->shared.s.angles, ent->shared.r.currentAngles );
+			ent->shared.s.apos.trTime = level.time;
+			ent->shared.s.apos.trDuration = 0;
+			ent->shared.s.apos.trType = TR_STATIONARY;
+			VectorClear( ent->shared.s.apos.trDelta );
 
 			// stop moving
-			BG_EvaluateTrajectory( &ent->s.pos, level.time, ent->s.origin );
-			VectorCopy( ent->s.origin, ent->s.pos.trBase );
-			VectorCopy( ent->s.origin, ent->r.currentOrigin );
-			ent->s.pos.trTime = level.time;
-			ent->s.pos.trDuration = 0;
-			ent->s.pos.trType = TR_STATIONARY;
-			VectorClear( ent->s.pos.trDelta );
+			BG_EvaluateTrajectory( &ent->shared.s.pos, level.time, ent->shared.s.origin );
+			VectorCopy( ent->shared.s.origin, ent->shared.s.pos.trBase );
+			VectorCopy( ent->shared.s.origin, ent->shared.r.currentOrigin );
+			ent->shared.s.pos.trTime = level.time;
+			ent->shared.s.pos.trDuration = 0;
+			ent->shared.s.pos.trType = TR_STATIONARY;
+			VectorClear( ent->shared.s.pos.trDelta );
 
 			script_linkentity( ent );
 		}

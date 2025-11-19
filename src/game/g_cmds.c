@@ -310,7 +310,7 @@ void Cmd_Give_f( gentity_t *ent ) {
 		}
 
 		it_ent = G_Spawn();
-		VectorCopy( ent->r.currentOrigin, it_ent->s.origin );
+		VectorCopy( ent->shared.r.currentOrigin, it_ent->shared.s.origin );
 		it_ent->classname = it->classname;
 		G_SpawnItem( it_ent, it );
 		FinishSpawningItem( it_ent );
@@ -478,7 +478,7 @@ void StopFollowing( gentity_t *ent ) {
 	ent->client->sess.sessionTeam = TEAM_SPECTATOR;
 	
 	ent->client->sess.spectatorState = SPECTATOR_FREE;
-	ent->r.svFlags &= ~SVF_BOT;
+	ent->shared.r.svFlags &= ~SVF_BOT;
 	ent->client->ps.clientNum = ent - g_entities;
 }
 
@@ -560,7 +560,7 @@ Cmd_Where_f
 ==================
 */
 void Cmd_Where_f( gentity_t *ent ) {
-	SV_GameSendServerCommand( ent - g_entities, va( "print \"%s\n\"", vtos( ent->s.origin ) ) );
+	SV_GameSendServerCommand( ent - g_entities, va( "print \"%s\n\"", vtos( ent->shared.s.origin ) ) );
 }
 
 
@@ -571,7 +571,7 @@ qboolean G_canPickupMelee( gentity_t *ent ) {
 		return qfalse;  // hmm, shouldn't be too likely...
 
 	}
-	if ( !( ent->s.weapon ) ) {  // no weap, go ahead
+	if ( !( ent->shared.s.weapon ) ) {  // no weap, go ahead
 		return qtrue;
 	}
 
@@ -624,11 +624,11 @@ Cmd_StartCamera_f
 =================
 */
 void Cmd_StartCamera_f( gentity_t *ent ) {
-	g_camEnt->r.svFlags |= SVF_PORTAL;
-	g_camEnt->r.svFlags &= ~SVF_NOCLIENT;
+	g_camEnt->shared.r.svFlags |= SVF_PORTAL;
+	g_camEnt->shared.r.svFlags &= ~SVF_NOCLIENT;
 	ent->client->cameraPortal = g_camEnt;
 	ent->client->ps.eFlags |= EF_VIEWING_CAMERA;
-	ent->s.eFlags |= EF_VIEWING_CAMERA;
+	ent->shared.s.eFlags |= EF_VIEWING_CAMERA;
 
 }
 
@@ -644,16 +644,16 @@ void Cmd_StopCamera_f( gentity_t *ent ) {
 		// send a script event
 		G_Script_ScriptEvent( ent->client->cameraPortal, "stopcam", "" );
 		// go back into noclient mode
-		ent->client->cameraPortal->r.svFlags |= SVF_NOCLIENT;
+		ent->client->cameraPortal->shared.r.svFlags |= SVF_NOCLIENT;
 		ent->client->cameraPortal = NULL;
-		ent->s.eFlags &= ~EF_VIEWING_CAMERA;
+		ent->shared.s.eFlags &= ~EF_VIEWING_CAMERA;
 		ent->client->ps.eFlags &= ~EF_VIEWING_CAMERA;
 
 		// RF, if we are near the spawn point, save the "current" game, for reloading after death
 		sp = NULL;
 		// gcc: suggests () around assignment used as truth value
 		while ( ( sp = G_Find( sp, FOFS( classname ), "info_player_deathmatch" ) ) ) { // info_player_start becomes info_player_deathmatch in it's spawn functon
-			if ( Distance( ent->s.pos.trBase, sp->s.origin ) < 256 && SV_inPVS( ent->s.pos.trBase, sp->s.origin ) ) {
+			if ( Distance( ent->shared.s.pos.trBase, sp->shared.s.origin ) < 256 && SV_inPVS( ent->shared.s.pos.trBase, sp->shared.s.origin ) ) {
 				G_SaveGame( NULL );
 				break;
 			}
@@ -688,7 +688,7 @@ Cmd_InterruptCamera_f
 ==============
 */
 void Cmd_InterruptCamera_f( gentity_t *ent ) {
-	AICast_ScriptEvent( AICast_GetCastState( ent->s.number ), "trigger", "cameraInterrupt" );
+	AICast_ScriptEvent( AICast_GetCastState( ent->shared.s.number ), "trigger", "cameraInterrupt" );
 }
 
 /*
@@ -708,11 +708,11 @@ qboolean G_ThrowChair( gentity_t *ent, vec3_t dir, qboolean force ) {
 		return qfalse;
 	}
 
-	VectorCopy( ent->r.mins, mins );
-	VectorCopy( ent->r.maxs, maxs );
+	VectorCopy( ent->shared.r.mins, mins );
+	VectorCopy( ent->shared.r.maxs, maxs );
 
-//	AngleVectors (ent->r.currentAngles, forward, NULL, NULL);
-	VectorCopy( ent->r.currentOrigin, start );
+//	AngleVectors (ent->shared.r.currentAngles, forward, NULL, NULL);
+	VectorCopy( ent->shared.r.currentOrigin, start );
 
 	start[2] += 24;
 	VectorMA( start, 17, dir, start );
@@ -721,7 +721,7 @@ qboolean G_ThrowChair( gentity_t *ent, vec3_t dir, qboolean force ) {
 	VectorCopy( start, end );
 	VectorMA( end, 32, dir, end );
 
-	SV_Trace( &trace, start, mins, maxs, end, ent->s.number, MASK_SOLID | MASK_MISSILESHOT, qfalse );
+	SV_Trace( &trace, start, mins, maxs, end, ent->shared.s.number, MASK_SOLID | MASK_MISSILESHOT, qfalse );
 
 	traceEnt = &g_entities[ trace.entityNum ];
 
@@ -740,7 +740,7 @@ qboolean G_ThrowChair( gentity_t *ent, vec3_t dir, qboolean force ) {
 		ent->melee = NULL;
 		ent->active = qfalse;
 		ent->client->ps.eFlags &= ~EF_MELEE_ACTIVE;
-//		ent->s.eFlags &= ~EF_MELEE_ACTIVE;
+//		ent->shared.s.eFlags &= ~EF_MELEE_ACTIVE;
 	}
 
 	if ( !isthrown && force ) {    // was not successfully thrown, but you /need/ to drop it.  break it.
@@ -776,7 +776,7 @@ void Cmd_Activate_f( gentity_t *ent ) {
 
 	VectorMA( offset, 96, forward, end );
 
-	SV_Trace( &tr, offset, NULL, NULL, end, ent->s.number, ( CONTENTS_SOLID | CONTENTS_BODY | CONTENTS_CORPSE | CONTENTS_TRIGGER ), qfalse );
+	SV_Trace( &tr, offset, NULL, NULL, end, ent->shared.s.number, ( CONTENTS_SOLID | CONTENTS_BODY | CONTENTS_CORPSE | CONTENTS_TRIGGER ), qfalse );
 
 	//----(SA)	removed erroneous code
 
@@ -790,7 +790,7 @@ void Cmd_Activate_f( gentity_t *ent ) {
 
 	// Ridah, check for using a friendly AI
 	if ( traceEnt->aiCharacter ) {
-		AICast_Activate( ent->s.number, traceEnt->s.number );
+		AICast_Activate( ent->shared.s.number, traceEnt->shared.s.number );
 		return;
 	}
 
@@ -805,7 +805,7 @@ void Cmd_Activate_f( gentity_t *ent ) {
 			G_TryDoor( traceEnt, ent, ent );      // (door,other,activator)
 //----(SA)	end
 		} else if ( ( Q_stricmp( traceEnt->classname, "func_button" ) == 0 )
-					&& ( traceEnt->s.apos.trType == TR_STATIONARY && traceEnt->s.pos.trType == TR_STATIONARY )
+					&& ( traceEnt->shared.s.apos.trType == TR_STATIONARY && traceEnt->shared.s.pos.trType == TR_STATIONARY )
 					&& traceEnt->active == qfalse ) {
 			G_TryDoor( traceEnt, ent, ent );      // (door,other,activator)
 //			Use_BinaryMover (traceEnt, ent, ent);
@@ -819,14 +819,14 @@ void Cmd_Activate_f( gentity_t *ent ) {
 			traceEnt->use( traceEnt, ent, ent );
 		} else if ( !Q_stricmp( traceEnt->classname, "script_mover" ) )     {
 			G_Script_ScriptEvent( traceEnt, "activate", ent->aiName );
-		} else if ( traceEnt->s.eType == ET_ALARMBOX )     {
+		} else if ( traceEnt->shared.s.eType == ET_ALARMBOX )     {
 			trace_t trace;
 			memset( &trace, 0, sizeof( trace ) );
 
 			if ( traceEnt->use ) {
 				traceEnt->use( traceEnt, ent, 0 );
 			}
-		} else if ( traceEnt->s.eType == ET_ITEM )     {
+		} else if ( traceEnt->shared.s.eType == ET_ITEM )     {
 			trace_t trace;
 
 			memset( &trace, 0, sizeof( trace ) );
@@ -844,7 +844,7 @@ void Cmd_Activate_f( gentity_t *ent ) {
 				// RF, dont allow activating MG42 if crouching
 				if ( !( ent->client->ps.pm_flags & PMF_DUCKED ) && !infront( traceEnt, ent ) ) {
 					gclient_t   *cl;
-					cl = &level.clients[ ent->s.clientNum ];
+					cl = &level.clients[ ent->shared.s.clientNum ];
 
 					// no mounting while using a scoped weap
 					switch ( cl->ps.weapon ) {
@@ -860,10 +860,10 @@ void Cmd_Activate_f( gentity_t *ent ) {
 					if ( !( cl->ps.grenadeTimeLeft ) ) { // make sure the client isn't holding a hot potato
 						traceEnt->active = qtrue;
 						ent->active = qtrue;
-						traceEnt->r.ownerNum = ent->s.number;
-						VectorCopy( traceEnt->s.angles, traceEnt->TargetAngles );
+						traceEnt->shared.r.ownerNum = ent->shared.s.number;
+						VectorCopy( traceEnt->shared.s.angles, traceEnt->TargetAngles );
 
-						if ( !( ent->r.svFlags & SVF_CASTAI ) ) {
+						if ( !( ent->shared.r.svFlags & SVF_CASTAI ) ) {
 							G_UseTargets( traceEnt, ent );   //----(SA)	added for Mike so mounting an MG42 can be a trigger event (let me know if there's any issues with this)
 
 						}
@@ -874,18 +874,18 @@ void Cmd_Activate_f( gentity_t *ent ) {
 		} else if ( ( Q_stricmp( traceEnt->classname, "misc_flak" ) == 0 ) /*&& activatetime > oldactivatetime + 1000*/ && traceEnt->active == qfalse )         {
 			if ( !infront( traceEnt, ent ) ) {     // make sure the client isn't holding a hot potato
 				gclient_t   *cl;
-				cl = &level.clients[ ent->s.clientNum ];
+				cl = &level.clients[ ent->shared.s.clientNum ];
 				if ( !( cl->ps.grenadeTimeLeft ) ) {
 					traceEnt->active = qtrue;
 					ent->active = qtrue;
-					traceEnt->r.ownerNum = ent->s.number;
+					traceEnt->shared.r.ownerNum = ent->shared.s.number;
 					// Rafael fix for wierd mg42 movement
-					VectorCopy( traceEnt->s.angles, traceEnt->TargetAngles );
+					VectorCopy( traceEnt->shared.s.angles, traceEnt->TargetAngles );
 				}
 			}
 		}
 		// chairs
-		else if ( traceEnt->isProp && traceEnt->takedamage && traceEnt->s.pos.trType == TR_STATIONARY && !traceEnt->nopickup ) {
+		else if ( traceEnt->isProp && traceEnt->takedamage && traceEnt->shared.s.pos.trType == TR_STATIONARY && !traceEnt->nopickup ) {
 			if ( !ent->active ) {
 				if ( traceEnt->active ) {
 					// ?
@@ -897,11 +897,11 @@ void Cmd_Activate_f( gentity_t *ent ) {
 					// only allow if using a 'one-handed' weapon
 					if ( G_canPickupMelee( ent ) ) {
 						traceEnt->active = qtrue;
-						traceEnt->r.ownerNum = ent->s.number;
+						traceEnt->shared.r.ownerNum = ent->shared.s.number;
 						ent->active = qtrue;
 						ent->melee = traceEnt;
 						ent->client->ps.eFlags |= EF_MELEE_ACTIVE;
-//						ent->s.eFlags |= EF_MELEE_ACTIVE;
+//						ent->shared.s.eFlags |= EF_MELEE_ACTIVE;
 					}
 				}
 			}
@@ -917,7 +917,7 @@ void Cmd_Activate_f( gentity_t *ent ) {
 
 		} else if ( ent->melee ) {
 			// throw chair
-			if ( ( tr.fraction == 1 ) || ( !( traceEnt->r.contents & CONTENTS_SOLID ) ) ) {
+			if ( ( tr.fraction == 1 ) || ( !( traceEnt->shared.r.contents & CONTENTS_SOLID ) ) ) {
 				G_ThrowChair( ent, forward, qfalse );
 			}
 
@@ -972,11 +972,11 @@ int Cmd_WolfKick_f( gentity_t *ent ) {
 	// note to self: we need to determine the usable distance for wolf
 	VectorMA( offset, WOLFKICKDISTANCE, forward, end );
 
-	SV_Trace( &tr, offset, NULL, NULL, end, ent->s.number, ( CONTENTS_SOLID | CONTENTS_BODY | CONTENTS_CORPSE | CONTENTS_TRIGGER ), qfalse );
+	SV_Trace( &tr, offset, NULL, NULL, end, ent->shared.s.number, ( CONTENTS_SOLID | CONTENTS_BODY | CONTENTS_CORPSE | CONTENTS_TRIGGER ), qfalse );
 
 	if ( tr.surfaceFlags & SURF_NOIMPACT || tr.fraction == 1.0 ) {
 		tent = G_TempEntity( tr.endpos, EV_WOLFKICK_MISS );
-		tent->s.eventParm = ent->s.number;
+		tent->shared.s.eventParm = ent->shared.s.number;
 		return ( 1 );
 	}
 
@@ -984,17 +984,17 @@ int Cmd_WolfKick_f( gentity_t *ent ) {
 
 	if ( !ent->melee ) { // because we dont want you to open a door with a prop
 		if ( ( Q_stricmp( traceEnt->classname, "func_door_rotating" ) == 0 )
-			 && ( traceEnt->s.apos.trType == TR_STATIONARY && traceEnt->s.pos.trType == TR_STATIONARY )
+			 && ( traceEnt->shared.s.apos.trType == TR_STATIONARY && traceEnt->shared.s.pos.trType == TR_STATIONARY )
 			 && traceEnt->active == qfalse ) {
 //			if(traceEnt->key < 0) {	// door force locked
 			if ( traceEnt->key >= KEY_LOCKED_TARGET ) {    // door force locked
 
 				//----(SA)	play kick "hit" sound
 				tent = G_TempEntity( tr.endpos, EV_WOLFKICK_HIT_WALL );
-				tent->s.otherEntityNum = ent->s.number;	\
+				tent->shared.s.otherEntityNum = ent->shared.s.number;	\
 				//----(SA)	end
 
-				AICast_AudibleEvent( ent->s.clientNum, tr.endpos, HEAR_RANGE_DOOR_KICKLOCKED ); // "someone kicked a locked door near me!"
+				AICast_AudibleEvent( ent->shared.s.clientNum, tr.endpos, HEAR_RANGE_DOOR_KICKLOCKED ); // "someone kicked a locked door near me!"
 
 				G_AddEvent( traceEnt, EV_GENERAL_SOUND, traceEnt->soundPos3 );
 
@@ -1007,10 +1007,10 @@ int Cmd_WolfKick_f( gentity_t *ent ) {
 				if ( !( ent->client->ps.stats[STAT_KEYS] & ( 1 << item->giTag ) ) ) {
 					//----(SA)	play kick "hit" sound
 					tent = G_TempEntity( tr.endpos, EV_WOLFKICK_HIT_WALL );
-					tent->s.otherEntityNum = ent->s.number;	\
+					tent->shared.s.otherEntityNum = ent->shared.s.number;	\
 					//----(SA)	end
 
-					AICast_AudibleEvent( ent->s.clientNum, tr.endpos, HEAR_RANGE_DOOR_KICKLOCKED ); // "someone kicked a locked door near me!"
+					AICast_AudibleEvent( ent->shared.s.clientNum, tr.endpos, HEAR_RANGE_DOOR_KICKLOCKED ); // "someone kicked a locked door near me!"
 
 					// player does not have key
 					G_AddEvent( traceEnt, EV_GENERAL_SOUND, traceEnt->soundPos3 );
@@ -1032,7 +1032,7 @@ int Cmd_WolfKick_f( gentity_t *ent ) {
 				G_UseTargets( traceEnt, ent );
 			}
 		} else if ( ( Q_stricmp( traceEnt->classname, "func_button" ) == 0 )
-					&& ( traceEnt->s.apos.trType == TR_STATIONARY && traceEnt->s.pos.trType == TR_STATIONARY )
+					&& ( traceEnt->shared.s.apos.trType == TR_STATIONARY && traceEnt->shared.s.pos.trType == TR_STATIONARY )
 					&& traceEnt->active == qfalse ) {
 			Use_BinaryMover( traceEnt, ent, ent );
 			traceEnt->active = qtrue;
@@ -1058,7 +1058,7 @@ int Cmd_WolfKick_f( gentity_t *ent ) {
 	// send bullet impact
 	if ( traceEnt->takedamage && traceEnt->client ) {
 		tent = G_TempEntity( tr.endpos, EV_WOLFKICK_HIT_FLESH );
-		tent->s.eventParm = traceEnt->s.number;
+		tent->shared.s.eventParm = traceEnt->shared.s.number;
 		if ( LogAccuracyHit( traceEnt, ent ) ) {
 			ent->client->ps.persistant[PERS_ACCURACY_HITS]++;
 		}
@@ -1067,7 +1067,7 @@ int Cmd_WolfKick_f( gentity_t *ent ) {
 		vec3_t reflect;
 		float dot;
 
-		if ( traceEnt->r.contents >= 0 && ( traceEnt->r.contents & CONTENTS_TRIGGER ) && !solidKick ) {
+		if ( traceEnt->shared.r.contents >= 0 && ( traceEnt->shared.r.contents & CONTENTS_TRIGGER ) && !solidKick ) {
 			tent = G_TempEntity( tr.endpos, EV_WOLFKICK_MISS ); // (SA) don't play the "hit" sound if you kick most triggers
 		} else {
 			tent = G_TempEntity( tr.endpos, EV_WOLFKICK_HIT_WALL );
@@ -1078,7 +1078,7 @@ int Cmd_WolfKick_f( gentity_t *ent ) {
 		VectorMA( forward, -2 * dot, tr.plane.normal, reflect );
 		VectorNormalize( reflect );
 
-		tent->s.eventParm = DirToByte( reflect );
+		tent->shared.s.eventParm = DirToByte( reflect );
 		// done.
 
 		// (SA) should break...
@@ -1089,7 +1089,7 @@ int Cmd_WolfKick_f( gentity_t *ent ) {
 		}
 	}
 
-	tent->s.otherEntityNum = ent->s.number;
+	tent->shared.s.otherEntityNum = ent->shared.s.number;
 
 	// try to swing chair
 	if ( traceEnt->takedamage ) {
@@ -1140,9 +1140,9 @@ void ClientDamage( gentity_t *clent, int entnum, int enemynum, int id ) {
 	case CLDMG_BOSS1LIGHTNING:
 		
 		if ( ent->takedamage ) {
-			VectorSubtract( ent->r.currentOrigin, enemy->r.currentOrigin, vec );
+			VectorSubtract( ent->shared.r.currentOrigin, enemy->shared.r.currentOrigin, vec );
 			VectorNormalize( vec );
-			G_Damage( ent, enemy, enemy, vec, ent->r.currentOrigin, 6 + rand() % 3, 0, MOD_LIGHTNING );
+			G_Damage( ent, enemy, enemy, vec, ent->shared.r.currentOrigin, 6 + rand() % 3, 0, MOD_LIGHTNING );
 		}
 		break;
 	case CLDMG_TESLA:
@@ -1154,19 +1154,19 @@ void ClientDamage( gentity_t *clent, int entnum, int enemynum, int id ) {
 			break;
 		}
 
-		if ( ent->takedamage /*&& !AICast_NoFlameDamage(ent->s.number)*/ ) {
-			VectorSubtract( ent->r.currentOrigin, enemy->r.currentOrigin, vec );
+		if ( ent->takedamage /*&& !AICast_NoFlameDamage(ent->shared.s.number)*/ ) {
+			VectorSubtract( ent->shared.r.currentOrigin, enemy->shared.r.currentOrigin, vec );
 			VectorNormalize( vec );
-			if ( !( enemy->r.svFlags & SVF_CASTAI ) ) {
-				G_Damage( ent, enemy, enemy, vec, ent->r.currentOrigin, 8, 0, MOD_LIGHTNING );
+			if ( !( enemy->shared.r.svFlags & SVF_CASTAI ) ) {
+				G_Damage( ent, enemy, enemy, vec, ent->shared.r.currentOrigin, 8, 0, MOD_LIGHTNING );
 			} else {
-				G_Damage( ent, enemy, enemy, vec, ent->r.currentOrigin, 4, 0, MOD_LIGHTNING );
+				G_Damage( ent, enemy, enemy, vec, ent->shared.r.currentOrigin, 4, 0, MOD_LIGHTNING );
 			}
 		}
 		break;
 	case CLDMG_FLAMETHROWER:
 		
-		if ( ent->takedamage && !AICast_NoFlameDamage( ent->s.number ) ) {
+		if ( ent->takedamage && !AICast_NoFlameDamage( ent->shared.s.number ) ) {
 			#define FLAME_THRESHOLD 50
 			int damage = 5;
 
@@ -1188,20 +1188,20 @@ void ClientDamage( gentity_t *clent, int entnum, int enemynum, int id ) {
 			ent->flameQuotaTime = level.time;
 
 			// Ridah, make em burn
-			if ( ent->client && ( !( ent->r.svFlags & SVF_CASTAI ) || ent->health <= 0 || ent->flameQuota > FLAME_THRESHOLD ) ) {
-				if ( ent->s.onFireEnd < level.time ) {
-					ent->s.onFireStart = level.time;
+			if ( ent->client && ( !( ent->shared.r.svFlags & SVF_CASTAI ) || ent->health <= 0 || ent->flameQuota > FLAME_THRESHOLD ) ) {
+				if ( ent->shared.s.onFireEnd < level.time ) {
+					ent->shared.s.onFireStart = level.time;
 				}
-				if ( ent->health <= 0 || !( ent->r.svFlags & SVF_CASTAI ) ) {
-					if ( ent->r.svFlags & SVF_CASTAI ) {
-						ent->s.onFireEnd = level.time + 6000;
+				if ( ent->health <= 0 || !( ent->shared.r.svFlags & SVF_CASTAI ) ) {
+					if ( ent->shared.r.svFlags & SVF_CASTAI ) {
+						ent->shared.s.onFireEnd = level.time + 6000;
 					} else {
-						ent->s.onFireEnd = level.time + FIRE_FLASH_TIME;
+						ent->shared.s.onFireEnd = level.time + FIRE_FLASH_TIME;
 					}
 				} else {
-					ent->s.onFireEnd = level.time + 99999;  // make sure it goes for longer than they need to die
+					ent->shared.s.onFireEnd = level.time + 99999;  // make sure it goes for longer than they need to die
 				}
-				ent->flameBurnEnt = enemy->s.number;
+				ent->flameBurnEnt = enemy->shared.s.number;
 				// add to playerState for client-side effect
 				ent->client->ps.onFireStart = level.time;
 			}
@@ -1269,7 +1269,7 @@ void Cmd_EntityCount_f( gentity_t *ent ) {
 				continue;
 			}
 
-			if ( !( ent->r.svFlags & SVF_CASTAI ) ) {
+			if ( !( ent->shared.r.svFlags & SVF_CASTAI ) ) {
 				continue;
 			}
 

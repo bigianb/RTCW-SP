@@ -135,8 +135,8 @@ qboolean AICast_VisibleFromPos( vec3_t srcpos, int srcnum,
 		srcviewheight = 0;
 	}
 	//
-	VectorCopy( g_entities[destnum].r.mins, destmins );
-	VectorCopy( g_entities[destnum].r.maxs, destmaxs );
+	VectorCopy( g_entities[destnum].shared.r.mins, destmins );
+	VectorCopy( g_entities[destnum].shared.r.maxs, destmaxs );
 	//
 	//calculate middle of bounding box
 	VectorAdd( destmins, destmaxs, middle );
@@ -237,8 +237,8 @@ qboolean AICast_CheckVisibility( gentity_t *srcent, gentity_t *destent ) {
 		return qfalse;
 	}
 	//
-	viewer = srcent->s.number;
-	ent = destent->s.number;
+	viewer = srcent->shared.s.number;
+	ent = destent->shared.s.number;
 	//
 	cs = AICast_GetCastState( viewer );
 	ocs = AICast_GetCastState( ent );
@@ -270,33 +270,33 @@ qboolean AICast_CheckVisibility( gentity_t *srcent, gentity_t *destent ) {
 		fov = 360;
 	}
 	//calculate middle of bounding box
-	VectorAdd( destent->r.mins, destent->r.maxs, middle );
+	VectorAdd( destent->shared.r.mins, destent->shared.r.maxs, middle );
 	VectorScale( middle, 0.5, middle );
 	VectorAdd( destent->client->ps.origin, middle, middle );
 	// calculate eye position
-	if ( ( level.lastLoadTime < level.time - 4000 ) && ( srcent->r.svFlags & SVF_CASTAI ) ) {
-		if ( clientHeadTagTimes[srcent->s.number] == level.time ) {
+	if ( ( level.lastLoadTime < level.time - 4000 ) && ( srcent->shared.r.svFlags & SVF_CASTAI ) ) {
+		if ( clientHeadTagTimes[srcent->shared.s.number] == level.time ) {
 			// use the actual direction the head is facing
-			vectoangles( clientHeadTags[srcent->s.number].axis[0], viewangles );
+			vectoangles( clientHeadTags[srcent->shared.s.number].axis[0], viewangles );
 			// and the actual position of the head
-			VectorCopy( clientHeadTags[srcent->s.number].origin, eye );
-		} else if ( CG_GetTag( srcent->s.number, "tag_head", &or ) ) {
+			VectorCopy( clientHeadTags[srcent->shared.s.number].origin, eye );
+		} else if ( CG_GetTag( srcent->shared.s.number, "tag_head", &or ) ) {
 			// use the actual direction the head is facing
 			vectoangles( or.axis[0], viewangles );
 			// and the actual position of the head
 			VectorCopy( or.origin, eye );
 			VectorMA( eye, 12, or.axis[2], eye );
 			// save orientation data
-			memcpy( &clientHeadTags[srcent->s.number], &or, sizeof( orientation_t ) );
-			clientHeadTagTimes[srcent->s.number] = level.time;
+			memcpy( &clientHeadTags[srcent->shared.s.number], &or, sizeof( orientation_t ) );
+			clientHeadTagTimes[srcent->shared.s.number] = level.time;
 		} else {
 			VectorCopy( srcent->client->ps.origin, eye );
 			eye[2] += srcent->client->ps.viewheight;
 			VectorCopy( srcent->client->ps.viewangles, viewangles );
 			// save orientation data (so we dont keep checking for a tag when it doesn't exist)
-			VectorCopy( eye, clientHeadTags[srcent->s.number].origin );
-			AnglesToAxis( viewangles, clientHeadTags[srcent->s.number].axis );
-			clientHeadTagTimes[srcent->s.number] = level.time;
+			VectorCopy( eye, clientHeadTags[srcent->shared.s.number].origin );
+			AnglesToAxis( viewangles, clientHeadTags[srcent->shared.s.number].axis );
+			clientHeadTagTimes[srcent->shared.s.number] = level.time;
 		}
 	} else {
 		VectorCopy( srcent->client->ps.origin, eye );
@@ -318,7 +318,7 @@ qboolean AICast_CheckVisibility( gentity_t *srcent, gentity_t *destent ) {
 		return qfalse;
 	}
 	//
-	if ( !AICast_VisibleFromPos( srcent->client->ps.origin, srcent->s.number, destent->client->ps.origin, destent->s.number, qtrue ) ) {
+	if ( !AICast_VisibleFromPos( srcent->client->ps.origin, srcent->shared.s.number, destent->client->ps.origin, destent->shared.s.number, qtrue ) ) {
 		return qfalse;
 	}
 	//
@@ -340,8 +340,8 @@ void AICast_UpdateVisibility( gentity_t *srcent, gentity_t *destent, qboolean sh
 		return;
 	}
 
-	cs = AICast_GetCastState( srcent->s.number );
-	ocs = AICast_GetCastState( destent->s.number );
+	cs = AICast_GetCastState( srcent->shared.s.number );
+	ocs = AICast_GetCastState( destent->shared.s.number );
 
 	if ( cs->castScriptStatus.scriptNoSightTime >= level.time ) {
 		return;     // absolutely no sight (or hear) information allowed
@@ -349,7 +349,7 @@ void AICast_UpdateVisibility( gentity_t *srcent, gentity_t *destent, qboolean sh
 	}
 	shareRange = ( VectorDistance( srcent->client->ps.origin, destent->client->ps.origin ) < AIVIS_SHARE_RANGE );
 
-	vis = &cs->vislist[destent->s.number];
+	vis = &cs->vislist[destent->shared.s.number];
 
 	vis->chase_marker_count = 0;
 
@@ -383,9 +383,9 @@ void AICast_UpdateVisibility( gentity_t *srcent, gentity_t *destent, qboolean sh
 	}
 
 	// if we are on fire, then run away from anything we see
-	if ( cs->attributes[AGGRESSION] < 1.0 && srcent->s.onFireEnd > level.time && ( !destent->s.number || cs->dangerEntityValidTime < level.time + 2000 ) && !( cs->aiFlags & AIFL_NO_FLAME_DAMAGE ) ) {
-		cs->dangerEntity = destent->s.number;
-		VectorCopy( destent->r.currentOrigin, cs->dangerEntityPos );
+	if ( cs->attributes[AGGRESSION] < 1.0 && srcent->shared.s.onFireEnd > level.time && ( !destent->shared.s.number || cs->dangerEntityValidTime < level.time + 2000 ) && !( cs->aiFlags & AIFL_NO_FLAME_DAMAGE ) ) {
+		cs->dangerEntity = destent->shared.s.number;
+		VectorCopy( destent->shared.r.currentOrigin, cs->dangerEntityPos );
 		cs->dangerEntityValidTime = level.time + 5000;
 		cs->dangerDist = 99999;
 		cs->dangerEntityTimestamp = level.time;
@@ -394,14 +394,14 @@ void AICast_UpdateVisibility( gentity_t *srcent, gentity_t *destent, qboolean sh
 	// Look for reasons to make this character an enemy of ours
 
 	// if they are an enemy and inside the detection radius, go hostile
-	if ( !( vis->flags & AIVIS_ENEMY ) && !AICast_SameTeam( cs, destent->s.number ) ) {
+	if ( !( vis->flags & AIVIS_ENEMY ) && !AICast_SameTeam( cs, destent->shared.s.number ) ) {
 		float idr;
 
 		idr = cs->attributes[INNER_DETECTION_RADIUS];
 		if ( cs->aiFlags & AIFL_ZOOMING ) {
 			idr *= 10;
 		}
-		if ( !( vis->flags & AIVIS_ENEMY ) && VectorDistance( vis->visible_pos, g_entities[cs->entityNum].r.currentOrigin ) < idr ) {
+		if ( !( vis->flags & AIVIS_ENEMY ) && VectorDistance( vis->visible_pos, g_entities[cs->entityNum].shared.r.currentOrigin ) < idr ) {
 			// RF, moved them over to AICast_ScanForEnemies()
 			//AICast_ScriptEvent( cs, "enemysight", destent->aiName );
 			vis->flags |= AIVIS_ENEMY;
@@ -415,7 +415,7 @@ void AICast_UpdateVisibility( gentity_t *srcent, gentity_t *destent, qboolean sh
 	}
 
 	// if they are friendly, then we should help them out if they are in trouble
-	if ( AICast_SameTeam( cs, destent->s.number ) && ( srcent->aiTeam == AITEAM_ALLIES || srcent->aiTeam == AITEAM_NAZI ) ) {
+	if ( AICast_SameTeam( cs, destent->shared.s.number ) && ( srcent->aiTeam == AITEAM_ALLIES || srcent->aiTeam == AITEAM_NAZI ) ) {
 		// if they are dead, we should check them out
 		if ( destent->health <= 0 ) {
 			// if we haven't already checked them out
@@ -439,7 +439,7 @@ void AICast_UpdateVisibility( gentity_t *srcent, gentity_t *destent, qboolean sh
 	if ( ( destent->health > 0 ) &&
 		 ( srcent->aiTeam == destent->aiTeam ) && // only share with exact same team, and non-neutrals
 		 ( srcent->aiTeam != AITEAM_NEUTRAL ) ) {
-		ocs = AICast_GetCastState( destent->s.number );
+		ocs = AICast_GetCastState( destent->shared.s.number );
 		cnt = 0;
 		//
 		for ( i = 0; i < aicast_maxclients && cnt < level.numPlayingClients; i++ ) {
@@ -449,10 +449,10 @@ void AICast_UpdateVisibility( gentity_t *srcent, gentity_t *destent, qboolean sh
 			//
 			cnt++;
 			//
-			if ( i == srcent->s.number ) {
+			if ( i == srcent->shared.s.number ) {
 				continue;
 			}
-			if ( i == destent->s.number ) {
+			if ( i == destent->shared.s.number ) {
 				continue;
 			}
 			//
@@ -531,9 +531,9 @@ void AICast_UpdateNonVisibility( gentity_t *srcent, gentity_t *destent, qboolean
 	cast_visibility_t   *vis;
 	cast_state_t        *cs;
 
-	cs = AICast_GetCastState( srcent->s.number );
+	cs = AICast_GetCastState( srcent->shared.s.number );
 
-	vis = &cs->vislist[destent->s.number];
+	vis = &cs->vislist[destent->shared.s.number];
 
 	// update the values
 	vis->lastcheck_timestamp = level.time;
@@ -601,7 +601,7 @@ void AICast_SightUpdate( int numchecks ) {
 		if ( srcent->health <= 0 ) {
 			continue;
 		}
-		if ( !( srcent->r.svFlags & SVF_CASTAI ) ) { // only source check AI Cast
+		if ( !( srcent->shared.r.svFlags & SVF_CASTAI ) ) { // only source check AI Cast
 			continue;
 		}
 
@@ -628,7 +628,7 @@ void AICast_SightUpdate( int numchecks ) {
 			if ( destent->health <= 0 ) {
 				continue;
 			}
-			if ( destent->r.svFlags & SVF_CASTAI ) {      // only dest check REAL clients
+			if ( destent->shared.r.svFlags & SVF_CASTAI ) {      // only dest check REAL clients
 				continue;
 			}
 
@@ -636,10 +636,10 @@ void AICast_SightUpdate( int numchecks ) {
 				continue;
 			}
 
-			vis = &cs->vislist[destent->s.number];
+			vis = &cs->vislist[destent->shared.s.number];
 
 			// OPTIMIZATION: if we have seen the player, abort checking each frame
-			//if (vis->real_visible_timestamp && cs->aiState > AISTATE_QUERY && AICast_HostileEnemy(cs, destent->s.number))
+			//if (vis->real_visible_timestamp && cs->aiState > AISTATE_QUERY && AICast_HostileEnemy(cs, destent->shared.s.number))
 			//	continue;
 
 			// if we saw them last frame, skip this test, so we only check initial sightings each frame
@@ -712,9 +712,9 @@ void AICast_SightUpdate( int numchecks ) {
 				continue;
 			}
 
-			dcs = AICast_GetCastState( destent->s.number );
+			dcs = AICast_GetCastState( destent->shared.s.number );
 
-			vis = &cs->vislist[destent->s.number];
+			vis = &cs->vislist[destent->shared.s.number];
 
 			// don't check too often
 			if ( vis->lastcheck_timestamp > ( level.time - SIGHT_MIN_DELAY ) ) {
@@ -733,7 +733,7 @@ void AICast_SightUpdate( int numchecks ) {
 
 			}
 			// if they are friends, only check very infrequently
-			if ( AICast_SameTeam( cs, destent->s.number ) && ( vis->lastcheck_timestamp == vis->visible_timestamp )
+			if ( AICast_SameTeam( cs, destent->shared.s.number ) && ( vis->lastcheck_timestamp == vis->visible_timestamp )
 				 &&  ( destent->health == vis->lastcheck_health + 1 ) ) {
 				if ( dcs->aiState < AISTATE_COMBAT ) {
 					if ( vis->lastcheck_timestamp > ( level.time - ( 2000 + rand() % 1000 ) ) ) {

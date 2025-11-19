@@ -84,7 +84,7 @@ void P_DamageFeedback( gentity_t *player ) {
 	}
 
 	// play an apropriate pain sound
-	if ( ( level.time > player->pain_debounce_time ) && !( player->flags & FL_GODMODE ) && !( player->r.svFlags & SVF_CASTAI ) ) {
+	if ( ( level.time > player->pain_debounce_time ) && !( player->flags & FL_GODMODE ) && !( player->shared.r.svFlags & SVF_CASTAI ) ) {
 		player->pain_debounce_time = level.time + 700;
 		G_AddEvent( player, EV_PAIN, player->health );
 	}
@@ -198,19 +198,19 @@ void P_WorldEffects( gentity_t *ent ) {
 	//
 	// check for burning from flamethrower
 	//
-	if ( ent->s.onFireEnd > level.time && ( AICast_AllowFlameDamage( ent->s.number ) ) ) {
+	if ( ent->shared.s.onFireEnd > level.time && ( AICast_AllowFlameDamage( ent->shared.s.number ) ) ) {
 		gentity_t *attacker;
 
 		if ( ent->health > 0 ) {
 			attacker = g_entities + ent->flameBurnEnt;
 
-			if ( ent->r.svFlags & SVF_CASTAI ) {
+			if ( ent->shared.r.svFlags & SVF_CASTAI ) {
 				G_Damage( ent, attacker, attacker, NULL, NULL, 2, DAMAGE_NO_KNOCKBACK, MOD_FLAMETHROWER );
-			} else if ( ( ent->s.onFireEnd - level.time ) > FIRE_FLASH_TIME / 2 && rand() % 5000 < ( ent->s.onFireEnd - level.time ) ) { // as it fades out, also fade out damage rate
+			} else if ( ( ent->shared.s.onFireEnd - level.time ) > FIRE_FLASH_TIME / 2 && rand() % 5000 < ( ent->shared.s.onFireEnd - level.time ) ) { // as it fades out, also fade out damage rate
 				G_Damage( ent, attacker, attacker, NULL, NULL, 1, DAMAGE_NO_KNOCKBACK, MOD_FLAMETHROWER );
 			}
-		} else if ( ent->s.onFireEnd > level.time + 4000 ) {  // dead, so sto pthe flames soon
-			ent->s.onFireEnd = level.time + 4000;   // stop burning soon
+		} else if ( ent->shared.s.onFireEnd > level.time + 4000 ) {  // dead, so sto pthe flames soon
+			ent->shared.s.onFireEnd = level.time + 4000;   // stop burning soon
 		}
 	}
 }
@@ -228,9 +228,9 @@ void G_SetClientSound( gentity_t *ent ) {
 	}
 
 	if ( ent->waterlevel && ( ent->watertype & CONTENTS_LAVA ) ) {
-		ent->s.loopSound = level.snd_fry;
+		ent->shared.s.loopSound = level.snd_fry;
 	} else {
-		ent->s.loopSound = 0;
+		ent->shared.s.loopSound = 0;
 	}
 }
 
@@ -260,7 +260,7 @@ void ClientImpacts( gentity_t *ent, pmove_t *pm ) {
 		}
 		other = &g_entities[ pm->touchents[i] ];
 
-		if ( ( ent->r.svFlags & SVF_BOT ) && ( ent->touch ) ) {
+		if ( ( ent->shared.r.svFlags & SVF_BOT ) && ( ent->touch ) ) {
 			ent->touch( ent, other, &trace );
 		}
 
@@ -304,8 +304,8 @@ void    G_TouchTriggers( gentity_t *ent ) {
 	num = SV_AreaEntities( mins, maxs, touch, MAX_GENTITIES );
 
 	// can't use ent->absmin, because that has a one unit pad
-	VectorAdd( ent->client->ps.origin, ent->r.mins, mins );
-	VectorAdd( ent->client->ps.origin, ent->r.maxs, maxs );
+	VectorAdd( ent->client->ps.origin, ent->shared.r.mins, mins );
+	VectorAdd( ent->client->ps.origin, ent->shared.r.maxs, maxs );
 
 	for ( i = 0 ; i < num ; i++ ) {
 		hit = &g_entities[touch[i]];
@@ -313,19 +313,19 @@ void    G_TouchTriggers( gentity_t *ent ) {
 		if ( !hit->touch && !ent->touch ) {
 			continue;
 		}
-		if ( !( hit->r.contents & CONTENTS_TRIGGER ) ) {
+		if ( !( hit->shared.r.contents & CONTENTS_TRIGGER ) ) {
 			continue;
 		}
 
 		// use seperate code for determining if an item is picked up
 		// so you don't have to actually contact its bounding box
-		if ( hit->s.eType == ET_ITEM ) {
-			if ( !BG_PlayerTouchesItem( &ent->client->ps, &hit->s, level.time ) ) {
+		if ( hit->shared.s.eType == ET_ITEM ) {
+			if ( !BG_PlayerTouchesItem( &ent->client->ps, &hit->shared.s, level.time ) ) {
 				continue;
 			}
 		} else {
 			// MrE: always use capsule for player
-			if ( !SV_EntityContact( mins, maxs, hit, qtrue ) ) {
+			if ( !SV_EntityContact( mins, maxs, &hit->shared, qtrue ) ) {
 				continue;
 			}
 		}
@@ -336,7 +336,7 @@ void    G_TouchTriggers( gentity_t *ent ) {
 			hit->touch( hit, ent, &trace );
 		}
 
-		if ( ( ent->r.svFlags & SVF_BOT ) && ( ent->touch ) ) {
+		if ( ( ent->shared.r.svFlags & SVF_BOT ) && ( ent->touch ) ) {
 			ent->touch( ent, hit, &trace );
 		}
 	}
@@ -447,7 +447,7 @@ void ClientEvents( gentity_t *ent, int oldEventSequence ) {
 		case EV_FALL_DMG_25:
 		case EV_FALL_DMG_50:
 
-			if ( ent->s.eType != ET_PLAYER ) {
+			if ( ent->shared.s.eType != ET_PLAYER ) {
 				break;      // not in the player model
 			}
 
@@ -497,7 +497,7 @@ void ClientEvents( gentity_t *ent, int oldEventSequence ) {
 //----(SA)	added the audible events for jumping/falling
 
 // (SA) right now just do a short range event on all surfaces until surface-specific stuff is working
-			AICast_AudibleEvent( ent->s.number, ent->s.pos.trBase, g_footstepAudibleRange.value );
+			AICast_AudibleEvent( ent->shared.s.number, ent->shared.s.pos.trBase, g_footstepAudibleRange.value );
 
 		case EV_FALL_SHORT:
 
@@ -561,7 +561,7 @@ void ClientEvents( gentity_t *ent, int oldEventSequence ) {
 			}
 
 			if ( event >= EV_FOOTSTEP && event <= EV_FOOTSTEP_CARPET ) {
-				AICast_AudibleEvent( ent->s.number, ent->s.pos.trBase, g_footstepAudibleRange.value );
+				AICast_AudibleEvent( ent->shared.s.number, ent->shared.s.pos.trBase, g_footstepAudibleRange.value );
 			}
 		
 			break;
@@ -616,8 +616,8 @@ void ClientThink_real( gentity_t *ent ) {
 
 	if ( client->cameraPortal ) {
 		G_SetOrigin( client->cameraPortal, client->ps.origin );
-		SV_LinkEntity( client->cameraPortal );
-		VectorCopy( client->cameraOrigin, client->cameraPortal->s.origin2 );
+		SV_LinkEntity( &client->cameraPortal->shared );
+		VectorCopy( client->cameraOrigin, client->cameraPortal->shared.s.origin2 );
 	}
 
 	// mark the time, so the connection sprite can be removed
@@ -700,7 +700,7 @@ void ClientThink_real( gentity_t *ent ) {
 	}
 
 
-	if (!saveGamePending && !( ent->r.svFlags & SVF_CASTAI ) ) {
+	if (!saveGamePending && !( ent->shared.r.svFlags & SVF_CASTAI ) ) {
 
 		Cvar_Update( &g_missionStats );
 
@@ -715,7 +715,7 @@ void ClientThink_real( gentity_t *ent ) {
 			ucmd->wolfkick = 0;
 
 		} else {    // age their play time
-			//AICast_AgePlayTime( ent->s.number );
+			//AICast_AgePlayTime( ent->shared.s.number );
 		}
 	}
 
@@ -743,7 +743,7 @@ void ClientThink_real( gentity_t *ent ) {
 	}
 
 	// set parachute anim condition flag
-	BG_UpdateConditionValue( ent->s.number, ANIM_COND_PARACHUTE, ( ent->flags & FL_PARACHUTE ) != 0, qfalse );
+	BG_UpdateConditionValue( ent->shared.s.number, ANIM_COND_PARACHUTE, ( ent->flags & FL_PARACHUTE ) != 0, qfalse );
 
 	// all playing clients are assumed to be in combat mode
 	if ( !client->ps.aiChar ) {
@@ -789,7 +789,7 @@ void ClientThink_real( gentity_t *ent ) {
 	pm.pmove_msec = pmove_msec.integer;
 
 	pm.noWeapClips = ( g_dmflags.integer & DF_NO_WEAPRELOAD ) > 0;
-	if ( ent->aiCharacter && AICast_NoReload( ent->s.number ) ) {
+	if ( ent->aiCharacter && AICast_NoReload( ent->shared.s.number ) ) {
 		pm.noWeapClips = qtrue; // ensure AI characters don't use clips if they're not supposed to.
 
 	}
@@ -850,12 +850,12 @@ void ClientThink_real( gentity_t *ent ) {
 					vec3_t start, end;
 					qboolean slide = qtrue;
 
-					if ( CG_GetTag( ent->s.number, "tag_head", &or ) ) {
+					if ( CG_GetTag( ent->shared.s.number, "tag_head", &or ) ) {
 						VectorCopy( or.origin, start );
 						VectorCopy( start, end );
 						end[2] += 1.0;
 
-						SV_Trace( &tr, start, NULL, NULL, end, ent->s.number, ( CONTENTS_SOLID | CONTENTS_BODY | CONTENTS_CORPSE | CONTENTS_TRIGGER ), qfalse );
+						SV_Trace( &tr, start, NULL, NULL, end, ent->shared.s.number, ( CONTENTS_SOLID | CONTENTS_BODY | CONTENTS_CORPSE | CONTENTS_TRIGGER ), qfalse );
 
 						if ( tr.contents & CONTENTS_SOLID ) {
 							//VectorClear (pm.ps->velocity);
@@ -884,9 +884,9 @@ void ClientThink_real( gentity_t *ent ) {
 		vec3_t src, vel;
 		trace_t tr;
 
-		if ( VectorLength( pm.ps->velocity ) < 100 && SV_inPVS( pm.ps->origin, g_entities[0].s.pos.trBase ) ) {
+		if ( VectorLength( pm.ps->velocity ) < 100 && SV_inPVS( pm.ps->origin, g_entities[0].shared.s.pos.trBase ) ) {
 			// find the head position
-			if ( CG_GetTag( ent->s.number, "tag_head", &or ) ) {
+			if ( CG_GetTag( ent->shared.s.number, "tag_head", &or ) ) {
 				// move up a tad
 				or.origin[2] += 3;
 				// move to tip of head
@@ -898,7 +898,7 @@ void ClientThink_real( gentity_t *ent ) {
 				if ( or.origin[2] < src[2] ) {
 					or.origin[2] = src[2];  // dont let the head sink into the ground (even if it is visually)
 				}
-				SV_Trace( &tr, src, vec3_origin, vec3_origin, or.origin, ent->s.number, MASK_SOLID, qfalse );
+				SV_Trace( &tr, src, vec3_origin, vec3_origin, or.origin, ent->shared.s.number, MASK_SOLID, qfalse );
 
 				// if we hit something, move away from it
 				if ( !tr.startsolid && !tr.allsolid && tr.fraction < 1.0 ) {
@@ -937,8 +937,8 @@ void ClientThink_real( gentity_t *ent ) {
 		gentity_t *groundEnt = &g_entities[ent->client->ps.groundEntityNum];
 		if ( groundEnt->isProp && groundEnt->takedamage && !groundEnt->nopickup ) {
 			// it's a chair, is it on a mover?
-			if ( groundEnt->s.groundEntityNum >= MAX_CLIENTS && groundEnt->s.groundEntityNum < ENTITYNUM_WORLD ) {
-				if ( !Q_stricmp( g_entities[groundEnt->s.groundEntityNum].classname, "script_mover" ) ) {
+			if ( groundEnt->shared.s.groundEntityNum >= MAX_CLIENTS && groundEnt->shared.s.groundEntityNum < ENTITYNUM_WORLD ) {
+				if ( !Q_stricmp( g_entities[groundEnt->shared.s.groundEntityNum].classname, "script_mover" ) ) {
 					// break it
 					G_Damage( groundEnt, ent, ent, NULL, NULL, 9999, 0, MOD_CRUSH );
 				}
@@ -957,7 +957,7 @@ void ClientThink_real( gentity_t *ent ) {
 	G_CheckForCursorHints( ent );
 
 	// get this for the clients
-	ent->s.animMovetype = BG_GetConditionValue( ent->s.number, ANIM_COND_MOVETYPE, qtrue );
+	ent->shared.s.animMovetype = BG_GetConditionValue( ent->shared.s.number, ANIM_COND_MOVETYPE, qtrue );
 
 	// Rafael Kick
 	if ( ucmd->wolfkick && ent->health > 0 ) {
@@ -987,14 +987,14 @@ void ClientThink_real( gentity_t *ent ) {
 				ent->client->ps.eFlags &= ~EF_MELEE_ACTIVE;
 			} else {
 
-				ent->melee->s.density = (int) ( 22 - ( ( wolfkicktimer - level.time ) / 50 ) );
+				ent->melee->shared.s.density = (int) ( 22 - ( ( wolfkicktimer - level.time ) / 50 ) );
 
-				if ( ent->melee->s.density > 12 ) {
-					ent->melee->s.density = 1;
+				if ( ent->melee->shared.s.density > 12 ) {
+					ent->melee->shared.s.density = 1;
 				}
 			}
 		} else {
-			ent->melee->s.density = 1;
+			ent->melee->shared.s.density = 1;
 		}
 	}
 
@@ -1003,21 +1003,21 @@ void ClientThink_real( gentity_t *ent ) {
 	// Ridah, allow AI Cast's to evaluate results of their pmove's
 	
 	extern void AICast_EvaluatePmove( int clientnum, pmove_t *pm );
-	AICast_EvaluatePmove( ent->s.number, &pm );
+	AICast_EvaluatePmove( ent->shared.s.number, &pm );
 	
 	// done.
 
 	// save results of pmove
 	if ( ent->client->ps.eventSequence != oldEventSequence ) {
 		ent->eventTime = level.time;
-		ent->r.eventTime = level.time;
+		ent->shared.r.eventTime = level.time;
 	}
 
 	// RF, AI needs to be interpolated, so use the old method (which sets TR_INTERPOLATE)
-	if ( g_smoothClients.integer && !( ent->r.svFlags & SVF_CASTAI ) ) {
-		BG_PlayerStateToEntityStateExtraPolate( &ent->client->ps, &ent->s, ent->client->ps.commandTime, ( ( ent->r.svFlags & SVF_CASTAI ) == 0 ) );
+	if ( g_smoothClients.integer && !( ent->shared.r.svFlags & SVF_CASTAI ) ) {
+		BG_PlayerStateToEntityStateExtraPolate( &ent->client->ps, &ent->shared.s, ent->client->ps.commandTime, ( ( ent->shared.r.svFlags & SVF_CASTAI ) == 0 ) );
 	} else {
-		BG_PlayerStateToEntityState( &ent->client->ps, &ent->s, ( ( ent->r.svFlags & SVF_CASTAI ) == 0 ) );
+		BG_PlayerStateToEntityState( &ent->client->ps, &ent->shared.s, ( ( ent->shared.r.svFlags & SVF_CASTAI ) == 0 ) );
 	}
 
 	if ( !( ent->client->ps.eFlags & EF_FIRING ) ) {
@@ -1025,10 +1025,10 @@ void ClientThink_real( gentity_t *ent ) {
 	}
 
 //	// use the snapped origin for linking so it matches client predicted versions
-	VectorCopy( ent->s.pos.trBase, ent->r.currentOrigin );
+	VectorCopy( ent->shared.s.pos.trBase, ent->shared.r.currentOrigin );
 
-	VectorCopy( pm.mins, ent->r.mins );
-	VectorCopy( pm.maxs, ent->r.maxs );
+	VectorCopy( pm.mins, ent->shared.r.mins );
+	VectorCopy( pm.maxs, ent->shared.r.maxs );
 
 	ent->waterlevel = pm.waterlevel;
 	ent->watertype = pm.watertype;
@@ -1037,13 +1037,13 @@ void ClientThink_real( gentity_t *ent ) {
 	ClientEvents( ent, oldEventSequence );
 
 	// link entity now, after any personal teleporters have been used
-	SV_LinkEntity( ent );
+	SV_LinkEntity( &ent->shared );
 	if ( !ent->client->noclip ) {
 		G_TouchTriggers( ent );
 	}
 
 	// NOTE: now copy the exact origin over otherwise clients can be snapped into solid
-	VectorCopy( ent->client->ps.origin, ent->r.currentOrigin );
+	VectorCopy( ent->client->ps.origin, ent->shared.r.currentOrigin );
 
 	// touch other objects
 	ClientImpacts( ent, &pm );
@@ -1074,7 +1074,7 @@ void ClientThink_real( gentity_t *ent ) {
 
 
 	// Ridah, AI's don't respawn
-	if ( !( ent->r.svFlags & SVF_CASTAI ) ) {
+	if ( !( ent->shared.r.svFlags & SVF_CASTAI ) ) {
 
 		// check for respawning
 		if ( client->ps.stats[STAT_HEALTH] <= 0 ) {
@@ -1115,7 +1115,7 @@ void ClientThink( int clientNum ) {
 	}
 
 	// Ridah, let the AI think now
-	if ( !( ent->r.svFlags & SVF_CASTAI ) ) {
+	if ( !( ent->shared.r.svFlags & SVF_CASTAI ) ) {
 		AICast_StartFrame( level.time /*ent->client->pers.cmd.serverTime*/ );
 	}
 	// done.
@@ -1177,9 +1177,9 @@ void ClientEndFrame( gentity_t *ent ) {
 
 	// add the EF_CONNECTION flag if we haven't gotten commands recently
 	if ( level.time - ent->client->lastCmdTime > 1000 ) {
-		ent->s.eFlags |= EF_CONNECTION;
+		ent->shared.s.eFlags |= EF_CONNECTION;
 	} else {
-		ent->s.eFlags &= ~EF_CONNECTION;
+		ent->shared.s.eFlags &= ~EF_CONNECTION;
 	}
 
 	ent->client->ps.stats[STAT_HEALTH] = ent->health;   // FIXME: get rid of ent->health...
@@ -1190,9 +1190,9 @@ void ClientEndFrame( gentity_t *ent ) {
 
 	// Ridah, fixes jittery zombie movement
 	if ( g_smoothClients.integer ) {
-		BG_PlayerStateToEntityStateExtraPolate( &ent->client->ps, &ent->s, ent->client->ps.commandTime, ( ( ent->r.svFlags & SVF_CASTAI ) == 0 ) );
+		BG_PlayerStateToEntityStateExtraPolate( &ent->client->ps, &ent->shared.s, ent->client->ps.commandTime, ( ( ent->shared.r.svFlags & SVF_CASTAI ) == 0 ) );
 	} else {
-		BG_PlayerStateToEntityState( &ent->client->ps, &ent->s, ( ( ent->r.svFlags & SVF_CASTAI ) == 0 ) );
+		BG_PlayerStateToEntityState( &ent->client->ps, &ent->shared.s, ( ( ent->shared.r.svFlags & SVF_CASTAI ) == 0 ) );
 	}
 
 	SendPendingPredictableEvents( &ent->client->ps );

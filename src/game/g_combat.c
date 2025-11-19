@@ -69,7 +69,7 @@ void TossClientItems( gentity_t *self ) {
 	gentity_t   *drop = 0;
 
 	// drop the weapon if not a gauntlet or machinegun
-	weapon = self->s.weapon;
+	weapon = self->shared.s.weapon;
 
 	switch ( self->aiCharacter ) {
 	case AICHAR_ZOMBIE:
@@ -80,7 +80,7 @@ void TossClientItems( gentity_t *self ) {
 		break;
 	}
 
-	AngleVectors( self->r.currentAngles, forward, NULL, NULL );
+	AngleVectors( self->shared.r.currentAngles, forward, NULL, NULL );
 
 	G_ThrowChair( self, forward, qtrue ); // drop chair if you're holding one  //----(SA)	added
 
@@ -159,11 +159,11 @@ void LookAtKiller( gentity_t *self, gentity_t *inflictor, gentity_t *attacker ) 
 	vec3_t angles;
 
 	if ( attacker && attacker != self ) {
-		VectorSubtract( attacker->s.pos.trBase, self->s.pos.trBase, dir );
+		VectorSubtract( attacker->shared.s.pos.trBase, self->shared.s.pos.trBase, dir );
 	} else if ( inflictor && inflictor != self ) {
-		VectorSubtract( inflictor->s.pos.trBase, self->s.pos.trBase, dir );
+		VectorSubtract( inflictor->shared.s.pos.trBase, self->shared.s.pos.trBase, dir );
 	} else {
-		self->client->ps.stats[STAT_DEAD_YAW] = self->s.angles[YAW];
+		self->client->ps.stats[STAT_DEAD_YAW] = self->shared.s.angles[YAW];
 		return;
 	}
 
@@ -196,17 +196,17 @@ void GibEntity( gentity_t *self, int killer ) {
 	VectorClear( dir );
 	if ( other->inuse ) {
 		if ( other->client ) {
-			VectorSubtract( self->r.currentOrigin, other->r.currentOrigin, dir );
+			VectorSubtract( self->shared.r.currentOrigin, other->shared.r.currentOrigin, dir );
 			VectorNormalize( dir );
-		} else if ( !VectorCompare( other->s.pos.trDelta, vec3_origin ) ) {
-			VectorNormalize2( other->s.pos.trDelta, dir );
+		} else if ( !VectorCompare( other->shared.s.pos.trDelta, vec3_origin ) ) {
+			VectorNormalize2( other->shared.s.pos.trDelta, dir );
 		}
 	}
 
 	G_AddEvent( self, EV_GIB_PLAYER, DirToByte( dir ) );
 	self->takedamage = qfalse;
-	self->s.eType = ET_INVISIBLE;
-	self->r.contents = 0;
+	self->shared.s.eType = ET_INVISIBLE;
+	self->shared.r.contents = 0;
 }
 
 /*
@@ -337,7 +337,7 @@ void player_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
 	self->client->ps.pm_type = PM_DEAD;
 
 	if ( attacker ) {
-		killer = attacker->s.number;
+		killer = attacker->shared.s.number;
 		if ( attacker->client ) {
 			killerName = attacker->client->pers.netname;
 		} else {
@@ -360,15 +360,15 @@ void player_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
 	}
 
 	G_LogPrintf( "Kill: %i %i %i: %s killed %s by %s\n",
-				 killer, self->s.number, meansOfDeath, killerName,
+				 killer, self->shared.s.number, meansOfDeath, killerName,
 				 self->client->pers.netname, obit );
 
 	// broadcast the death event to everyone
-	ent = G_TempEntity( self->r.currentOrigin, EV_OBITUARY );
-	ent->s.eventParm = meansOfDeath;
-	ent->s.otherEntityNum = self->s.number;
-	ent->s.otherEntityNum2 = killer;
-	ent->r.svFlags = SVF_BROADCAST; // send to everyone
+	ent = G_TempEntity( self->shared.r.currentOrigin, EV_OBITUARY );
+	ent->shared.s.eventParm = meansOfDeath;
+	ent->shared.s.otherEntityNum = self->shared.s.number;
+	ent->shared.s.otherEntityNum2 = killer;
+	ent->shared.r.svFlags = SVF_BROADCAST; // send to everyone
 
 	self->enemy = attacker;
 
@@ -386,25 +386,25 @@ void player_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
 	}
 
 	// if client is in a nodrop area, don't drop anything
-	contents = SV_PointContents( self->r.currentOrigin, -1 );
+	contents = SV_PointContents( self->shared.r.currentOrigin, -1 );
 	if ( !( contents & CONTENTS_NODROP ) ) {
 		TossClientItems( self );
 	}
 
 	self->takedamage = qtrue;   // can still be gibbed
 
-	self->s.powerups = 0;
-	self->r.contents = CONTENTS_CORPSE;
-	self->s.weapon = WP_NONE;
-	self->s.angles[0] = 0;
-	self->s.angles[2] = 0;
+	self->shared.s.powerups = 0;
+	self->shared.r.contents = CONTENTS_CORPSE;
+	self->shared.s.weapon = WP_NONE;
+	self->shared.s.angles[0] = 0;
+	self->shared.s.angles[2] = 0;
 	LookAtKiller( self, inflictor, attacker );
 
-	VectorCopy( self->s.angles, self->client->ps.viewangles );
+	VectorCopy( self->shared.s.angles, self->client->ps.viewangles );
 
-	self->s.loopSound = 0;
+	self->shared.s.loopSound = 0;
 
-	self->r.maxs[2] = -8;
+	self->shared.r.maxs[2] = -8;
 
 	// don't allow respawn until the death anim is done
 	// g_forcerespawn may force spawning at some later time
@@ -467,9 +467,9 @@ void player_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
 		i = ( i + 1 ) % 3;
 	}
 
-	SV_LinkEntity( self );
+	SV_LinkEntity( &self->shared );
 
-	AICast_ScriptEvent( AICast_GetCastState( self->s.number ), "death", "" );
+	AICast_ScriptEvent( AICast_GetCastState( self->shared.s.number ), "death", "" );
 }
 
 
@@ -521,7 +521,7 @@ IsHeadShotWeapon
 */
 qboolean IsHeadShotWeapon( int mod, gentity_t *targ, gentity_t *attacker ) {
 	// distance rejection
-	if ( DistanceSquared( targ->r.currentOrigin, attacker->r.currentOrigin )  >  ( g_headshotMaxDist.integer * g_headshotMaxDist.integer ) ) {
+	if ( DistanceSquared( targ->shared.r.currentOrigin, attacker->shared.r.currentOrigin )  >  ( g_headshotMaxDist.integer * g_headshotMaxDist.integer ) ) {
 		return qfalse;
 	}
 
@@ -601,49 +601,49 @@ qboolean IsHeadShot( gentity_t *targ, gentity_t *attacker, vec3_t dir, vec3_t po
 	if ( head_shot_weapon ) {
 		head = G_Spawn();
 
-		G_SetOrigin( head, targ->r.currentOrigin );
+		G_SetOrigin( head, targ->shared.r.currentOrigin );
 
 		// RF, if there is a valid tag_head for this entity, then use that
-		if ( ( targ->r.svFlags & SVF_CASTAI ) && CG_GetTag( targ->s.number, "tag_head", &or ) ) {
-			VectorCopy( or.origin, head->r.currentOrigin );
-			VectorMA( head->r.currentOrigin, 6, or.axis[2], head->r.currentOrigin );    // tag is at base of neck
+		if ( ( targ->shared.r.svFlags & SVF_CASTAI ) && CG_GetTag( targ->shared.s.number, "tag_head", &or ) ) {
+			VectorCopy( or.origin, head->shared.r.currentOrigin );
+			VectorMA( head->shared.r.currentOrigin, 6, or.axis[2], head->shared.r.currentOrigin );    // tag is at base of neck
 		} else if ( targ->client->ps.pm_flags & PMF_DUCKED ) { // closer fake offset for 'head' box when crouching
-			head->r.currentOrigin[2] += targ->client->ps.crouchViewHeight + 8; // JPW NERVE 16 is kludge to get head height to match up
+			head->shared.r.currentOrigin[2] += targ->client->ps.crouchViewHeight + 8; // JPW NERVE 16 is kludge to get head height to match up
 		}
 		//else if(targ->client->ps.legsAnim == LEGS_IDLE && targ->aiCharacter == AICHAR_SOLDIER)	// standing with legs bent (about a head shorter than other leg poses)
-		//	head->r.currentOrigin[2] += targ->client->ps.viewheight;
+		//	head->shared.r.currentOrigin[2] += targ->client->ps.viewheight;
 		else {
-			head->r.currentOrigin[2] += targ->client->ps.viewheight; // JPW NERVE pulled this	// 6 is fudged "head height" value
+			head->shared.r.currentOrigin[2] += targ->client->ps.viewheight; // JPW NERVE pulled this	// 6 is fudged "head height" value
 
 		}
-		VectorCopy( head->r.currentOrigin, head->s.origin );
-		VectorCopy( targ->r.currentAngles, head->s.angles );
-		VectorCopy( head->s.angles, head->s.apos.trBase );
-		VectorCopy( head->s.angles, head->s.apos.trDelta );
-		VectorSet( head->r.mins, -6, -6, -6 ); // JPW NERVE changed this z from -12 to -6 for crouching, also removed standing offset
-		VectorSet( head->r.maxs, 6, 6, 6 ); // changed this z from 0 to 6
+		VectorCopy( head->shared.r.currentOrigin, head->shared.s.origin );
+		VectorCopy( targ->shared.r.currentAngles, head->shared.s.angles );
+		VectorCopy( head->shared.s.angles, head->shared.s.apos.trBase );
+		VectorCopy( head->shared.s.angles, head->shared.s.apos.trDelta );
+		VectorSet( head->shared.r.mins, -6, -6, -6 ); // JPW NERVE changed this z from -12 to -6 for crouching, also removed standing offset
+		VectorSet( head->shared.r.maxs, 6, 6, 6 ); // changed this z from 0 to 6
 		head->clipmask = CONTENTS_SOLID;
-		head->r.contents = CONTENTS_SOLID;
+		head->shared.r.contents = CONTENTS_SOLID;
 
-		SV_LinkEntity( head );
+		SV_LinkEntity( &head->shared );
 
 		// trace another shot see if we hit the head
 		VectorCopy( point, start );
 		VectorMA( start, 64, dir, end );
-		SV_Trace( &tr, start, NULL, NULL, end, targ->s.number, MASK_SHOT, qfalse );
+		SV_Trace( &tr, start, NULL, NULL, end, targ->shared.s.number, MASK_SHOT, qfalse );
 
 		traceEnt = &g_entities[ tr.entityNum ];
 
 		if ( g_debugBullets.integer >= 3 ) {   // show hit player head bb
 			gentity_t *tent;
 			vec3_t b1, b2;
-			VectorCopy( head->r.currentOrigin, b1 );
-			VectorCopy( head->r.currentOrigin, b2 );
-			VectorAdd( b1, head->r.mins, b1 );
-			VectorAdd( b2, head->r.maxs, b2 );
+			VectorCopy( head->shared.r.currentOrigin, b1 );
+			VectorCopy( head->shared.r.currentOrigin, b2 );
+			VectorAdd( b1, head->shared.r.mins, b1 );
+			VectorAdd( b2, head->shared.r.maxs, b2 );
 			tent = G_TempEntity( b1, EV_RAILTRAIL );
-			VectorCopy( b2, tent->s.origin2 );
-			tent->s.dmgFlags = 1;
+			VectorCopy( b2, tent->shared.s.origin2 );
+			tent->shared.s.dmgFlags = 1;
 
 			// show headshot trace
 			// end the headshot trace at the head box if it hits
@@ -651,8 +651,8 @@ qboolean IsHeadShot( gentity_t *targ, gentity_t *attacker, vec3_t dir, vec3_t po
 				VectorMA( start, ( tr.fraction * 64 ), dir, end );
 			}
 			tent = G_TempEntity( start, EV_RAILTRAIL );
-			VectorCopy( end, tent->s.origin2 );
-			tent->s.dmgFlags = 0;
+			VectorCopy( end, tent->shared.s.origin2 );
+			tent->shared.s.dmgFlags = 0;
 		}
 
 		G_FreeEntity( head );
@@ -687,11 +687,11 @@ void G_ArmorDamage( gentity_t *targ ) {
 		return;
 	}
 
-	if ( targ->s.aiChar == AICHAR_PROTOSOLDIER ) {
+	if ( targ->shared.s.aiChar == AICHAR_PROTOSOLDIER ) {
 		numParts = 9;
-	} else if ( targ->s.aiChar == AICHAR_SUPERSOLDIER ) {
+	} else if ( targ->shared.s.aiChar == AICHAR_SUPERSOLDIER ) {
 		numParts = 14;
-	} else if ( targ->s.aiChar == AICHAR_HEINRICH ) {
+	} else if ( targ->shared.s.aiChar == AICHAR_HEINRICH ) {
 		numParts = 20;
 	} else {
 		return;
@@ -715,16 +715,16 @@ void G_ArmorDamage( gentity_t *targ ) {
 	brokeparts = (int)( ( 1 - ( (float)( targ->health ) / (float)( targ->client->ps.stats[STAT_MAX_HEALTH] ) ) ) * numParts );
 
 	// RF, remove flame protection after enough parts gone
-	if ( AICast_NoFlameDamage( targ->s.number ) && ( (float)brokeparts / (float)numParts >= 5.0 / 6.0 ) ) { // figure from DM
-		AICast_SetFlameDamage( targ->s.number, qfalse );
+	if ( AICast_NoFlameDamage( targ->shared.s.number ) && ( (float)brokeparts / (float)numParts >= 5.0 / 6.0 ) ) { // figure from DM
+		AICast_SetFlameDamage( targ->shared.s.number, qfalse );
 	}
 
-	if ( brokeparts && ( ( targ->s.dmgFlags & ( ( 1 << numParts ) - 1 ) ) != ( 1 << numParts ) - 1 ) ) {   // there are still parts left to clear
+	if ( brokeparts && ( ( targ->shared.s.dmgFlags & ( ( 1 << numParts ) - 1 ) ) != ( 1 << numParts ) - 1 ) ) {   // there are still parts left to clear
 
 		// how many are removed already?
 		curbroke = 0;
 		for ( i = 0; i < numParts; i++ ) {
-			if ( targ->s.dmgFlags & ( 1 << i ) ) {
+			if ( targ->shared.s.dmgFlags & ( 1 << i ) ) {
 				curbroke++;
 			}
 		}
@@ -734,18 +734,18 @@ void G_ArmorDamage( gentity_t *targ ) {
 			for ( i = 0; i < ( brokeparts - curbroke ); i++ ) {
 				int remove = rand() % ( numParts );
 
-				if ( !( ( targ->s.dmgFlags & ( ( 1 << numParts ) - 1 ) ) != ( 1 << numParts ) - 1 ) ) { // no parts are available any more
+				if ( !( ( targ->shared.s.dmgFlags & ( ( 1 << numParts ) - 1 ) ) != ( 1 << numParts ) - 1 ) ) { // no parts are available any more
 					break;
 				}
 
 				// FIXME: lose the 'while' loop.  Still should be safe though, since the check above verifies that it will eventually find a valid part
-				while ( targ->s.dmgFlags & ( 1 << remove ) ) {
+				while ( targ->shared.s.dmgFlags & ( 1 << remove ) ) {
 					remove = rand() % ( numParts );
 				}
 
-				targ->s.dmgFlags |= ( 1 << remove );    // turn off 'undamaged' part
+				targ->shared.s.dmgFlags |= ( 1 << remove );    // turn off 'undamaged' part
 				if ( (int)( random() + 0.5 ) ) {                       // choose one of two possible replacements
-					targ->s.dmgFlags |= ( 1 << ( numParts + remove ) );
+					targ->shared.s.dmgFlags |= ( 1 << ( numParts + remove ) );
 				}
 			}
 		}
@@ -809,12 +809,12 @@ void G_Damage( gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
 	// This is used by AI to determine how long it has been since their enemy was injured
 
 	if ( attacker ) { // (SA) whoops, for falling damage there's no attacker
-		if ( targ->client && attacker->client && !( targ->r.svFlags & SVF_CASTAI ) && ( attacker->r.svFlags & SVF_CASTAI ) ) {
-			AICast_RegisterPain( targ->s.number );
+		if ( targ->client && attacker->client && !( targ->shared.r.svFlags & SVF_CASTAI ) && ( attacker->shared.r.svFlags & SVF_CASTAI ) ) {
+			AICast_RegisterPain( targ->shared.s.number );
 		}
 	}
 
-	if ( !( targ->r.svFlags & SVF_CASTAI ) ) { // the player
+	if ( !( targ->shared.r.svFlags & SVF_CASTAI ) ) { // the player
 		switch ( mod )
 		{
 		case MOD_GRENADE:
@@ -845,14 +845,14 @@ void G_Damage( gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
 	}
 
 	// shootable doors / buttons don't actually have any health
-	if ( targ->s.eType == ET_MOVER && !( targ->aiName ) && !( targ->isProp ) && !targ->scriptName ) {
+	if ( targ->shared.s.eType == ET_MOVER && !( targ->aiName ) && !( targ->isProp ) && !targ->scriptName ) {
 		if ( targ->use && targ->moverState == MOVER_POS1 ) {
 			targ->use( targ, inflictor, attacker );
 		}
 		return;
 	}
 
-	if ( targ->s.eType == ET_MOVER && targ->aiName && !( targ->isProp ) && !targ->scriptName ) {
+	if ( targ->shared.s.eType == ET_MOVER && targ->aiName && !( targ->isProp ) && !targ->scriptName ) {
 		switch ( mod ) {
 		case MOD_GRENADE:
 		case MOD_GRENADE_SPLASH:
@@ -862,7 +862,7 @@ void G_Damage( gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
 		default:
 			return; // no damage from other weapons
 		}
-	} else if ( targ->s.eType == ET_EXPLOSIVE )   {
+	} else if ( targ->shared.s.eType == ET_EXPLOSIVE )   {
 		// 32 Explosive
 		// 64 Dynamite only
 		if ( ( targ->spawnflags & 32 ) || ( targ->spawnflags & 64 ) ) {
@@ -894,8 +894,8 @@ void G_Damage( gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
 
 
 	// Ridah, Cast AI's don't hurt other Cast AI's as much
-	if ( ( attacker->r.svFlags & SVF_CASTAI ) && ( targ->r.svFlags & SVF_CASTAI ) ) {
-		if ( !AICast_AIDamageOK( AICast_GetCastState( targ->s.number ), AICast_GetCastState( attacker->s.number ) ) ) {
+	if ( ( attacker->shared.r.svFlags & SVF_CASTAI ) && ( targ->shared.r.svFlags & SVF_CASTAI ) ) {
+		if ( !AICast_AIDamageOK( AICast_GetCastState( targ->shared.s.number ), AICast_GetCastState( attacker->shared.s.number ) ) ) {
 			return;
 		}
 		damage = (int)( ceil( (float)damage * 0.5 ) );
@@ -938,7 +938,7 @@ void G_Damage( gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
 
 		mass = 200;
 
-		if ( mod == MOD_LIGHTNING && !( ( level.time + targ->s.number * 50 ) % 400 ) ) {
+		if ( mod == MOD_LIGHTNING && !( ( level.time + targ->shared.s.number * 50 ) % 400 ) ) {
 			knockback = 60;
 			dir[2] = 0.3;
 		}
@@ -1097,7 +1097,7 @@ void G_Damage( gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
 
 
 	if ( g_debugDamage.integer ) {
-		Com_Printf( "client:%i health:%i damage:%i armor:%i\n", targ->s.number,
+		Com_Printf( "client:%i health:%i damage:%i armor:%i\n", targ->shared.s.number,
 				  targ->health, take, asave );
 	}
 
@@ -1106,7 +1106,7 @@ void G_Damage( gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
 	// at the end of the frame
 	if ( client ) {
 		if ( attacker ) {
-			client->ps.persistant[PERS_ATTACKER] = attacker->s.number;
+			client->ps.persistant[PERS_ATTACKER] = attacker->shared.s.number;
 		} else {
 			client->ps.persistant[PERS_ATTACKER] = ENTITYNUM_WORLD;
 		}
@@ -1118,14 +1118,14 @@ void G_Damage( gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
 			VectorCopy( dir, client->damage_from );
 			client->damage_fromWorld = qfalse;
 		} else {
-			VectorCopy( targ->r.currentOrigin, client->damage_from );
+			VectorCopy( targ->shared.r.currentOrigin, client->damage_from );
 			client->damage_fromWorld = qtrue;
 		}
 	}
 
 	if ( targ->client ) {
 		// set the last client who damaged the target
-		targ->client->lasthurt_client = attacker->s.number;
+		targ->client->lasthurt_client = attacker->shared.s.number;
 		targ->client->lasthurt_mod = mod;
 	}
 
@@ -1163,7 +1163,7 @@ void G_Damage( gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
 			}
 
 			// RF, entity scripting
-			if ( targ->s.number >= MAX_CLIENTS && targ->health <= 0 ) { // might have revived itself in death function
+			if ( targ->shared.s.number >= MAX_CLIENTS && targ->health <= 0 ) { // might have revived itself in death function
 				G_Script_ScriptEvent( targ, "death", "" );
 			}
 
@@ -1205,7 +1205,7 @@ qboolean CanDamage( gentity_t *targ, vec3_t origin ) {
 
 	// use the midpoint of the bounds instead of the origin, because
 	// bmodels may have their origin is 0,0,0
-	VectorAdd( targ->r.absmin, targ->r.absmax, midpoint );
+	VectorAdd( targ->shared.r.absmin, targ->shared.r.absmax, midpoint );
 	VectorScale( midpoint, 0.5, midpoint );
 
 	VectorCopy( midpoint, dest );
@@ -1306,14 +1306,14 @@ qboolean G_RadiusDamage( vec3_t origin, gentity_t *attacker, float damage, float
 			continue;
 		}
 
-		if ( !ent->r.bmodel ) {
-			VectorSubtract( ent->r.currentOrigin,origin,v ); // JPW NERVE simpler centroid check that doesn't have box alignment weirdness
+		if ( !ent->shared.r.bmodel ) {
+			VectorSubtract( ent->shared.r.currentOrigin,origin,v ); // JPW NERVE simpler centroid check that doesn't have box alignment weirdness
 		} else {
 			for ( i = 0 ; i < 3 ; i++ ) {
-				if ( origin[i] < ent->r.absmin[i] ) {
-					v[i] = ent->r.absmin[i] - origin[i];
-				} else if ( origin[i] > ent->r.absmax[i] ) {
-					v[i] = origin[i] - ent->r.absmax[i];
+				if ( origin[i] < ent->shared.r.absmin[i] ) {
+					v[i] = ent->shared.r.absmin[i] - origin[i];
+				} else if ( origin[i] > ent->shared.r.absmax[i] ) {
+					v[i] = origin[i] - ent->shared.r.absmax[i];
 				} else {
 					v[i] = 0;
 				}
@@ -1332,7 +1332,7 @@ qboolean G_RadiusDamage( vec3_t origin, gentity_t *attacker, float damage, float
 			if ( LogAccuracyHit( ent, attacker ) ) {
 				hitClient = qtrue;
 			}
-			VectorSubtract( ent->r.currentOrigin, origin, dir );
+			VectorSubtract( ent->shared.r.currentOrigin, origin, dir );
 			// push the center of mass higher than the origin so players
 			// get knocked into the air more
 			dir[2] += 24;

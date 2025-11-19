@@ -174,13 +174,13 @@ int BotAI_GetEntityState( int entityNum, entityState_t *state ) {
 	if ( !ent->inuse ) {
 		return qfalse;
 	}
-	if ( !ent->r.linked ) {
+	if ( !ent->shared.r.linked ) {
 		return qfalse;
 	}
-	if ( ent->r.svFlags & SVF_NOCLIENT ) {
+	if ( ent->shared.r.svFlags & SVF_NOCLIENT ) {
 		return qfalse;
 	}
-	memcpy( state, &ent->s, sizeof( entityState_t ) );
+	memcpy( state, &(ent->shared.s), sizeof( entityState_t ) );
 	return qtrue;
 }
 
@@ -677,7 +677,7 @@ int BotAIShutdownClient( int client ) {
 	bot_state_t *bs;
 
 	// Wolfenstein
-	if ( g_entities[client].r.svFlags & SVF_CASTAI ) {
+	if ( g_entities[client].shared.r.svFlags & SVF_CASTAI ) {
 		AICast_ShutdownClient( client );
 		return BLERR_NOERROR;
 	}
@@ -875,10 +875,10 @@ int BotAIStartFrame( int time ) {
 			if ( !ent->inuse ) {
 				continue;
 			}
-			if ( !ent->r.linked ) {
+			if ( !ent->shared.r.linked ) {
 				continue;
 			}
-			if ( ent->r.svFlags & SVF_NOCLIENT ) {
+			if ( ent->shared.r.svFlags & SVF_NOCLIENT ) {
 				continue;
 			}
 			if ( ent->aiInactive ) {
@@ -887,25 +887,25 @@ int BotAIStartFrame( int time ) {
 			//
 			memset( &state, 0, sizeof( bot_entitystate_t ) );
 			//
-			VectorCopy( ent->r.currentOrigin, state.origin );
-			VectorCopy( ent->r.currentAngles, state.angles );
-			VectorCopy( ent->s.origin2, state.old_origin );
-			VectorCopy( ent->r.mins, state.mins );
-			VectorCopy( ent->r.maxs, state.maxs );
-			state.type = ent->s.eType;
-			state.flags = ent->s.eFlags;
-			if ( ent->r.bmodel ) {
+			VectorCopy( ent->shared.r.currentOrigin, state.origin );
+			VectorCopy( ent->shared.r.currentAngles, state.angles );
+			VectorCopy( ent->shared.s.origin2, state.old_origin );
+			VectorCopy( ent->shared.r.mins, state.mins );
+			VectorCopy( ent->shared.r.maxs, state.maxs );
+			state.type = ent->shared.s.eType;
+			state.flags = ent->shared.s.eFlags;
+			if ( ent->shared.r.bmodel ) {
 				state.solid = SOLID_BSP;
 			} else { state.solid = SOLID_BBOX;}
-			state.groundent = ent->s.groundEntityNum;
-			state.modelindex = ent->s.modelindex;
-			state.modelindex2 = ent->s.modelindex2;
-			state.frame = ent->s.frame;
-			state.powerups = ent->s.powerups;
-			state.legsAnim = ent->s.legsAnim;
-			state.torsoAnim = ent->s.torsoAnim;
+			state.groundent = ent->shared.s.groundEntityNum;
+			state.modelindex = ent->shared.s.modelindex;
+			state.modelindex2 = ent->shared.s.modelindex2;
+			state.frame = ent->shared.s.frame;
+			state.powerups = ent->shared.s.powerups;
+			state.legsAnim = ent->shared.s.legsAnim;
+			state.torsoAnim = ent->shared.s.torsoAnim;
 
-			state.weapon = ent->s.weapon;
+			state.weapon = ent->shared.s.weapon;
 
 			//
 			trap_BotLibUpdateEntity( i, &state );

@@ -183,10 +183,10 @@ NO_PVS - this sound will not turn off when not in the player's PVS
 */
 void Use_Target_Speaker( gentity_t *ent, gentity_t *other, gentity_t *activator ) {
 	if ( ent->spawnflags & 3 ) {  // looping sound toggles
-		if ( ent->s.loopSound ) {
-			ent->s.loopSound = 0;   // turn it off
+		if ( ent->shared.s.loopSound ) {
+			ent->shared.s.loopSound = 0;   // turn it off
 		} else {
-			ent->s.loopSound = ent->noise_index;    // start it
+			ent->shared.s.loopSound = ent->noise_index;    // start it
 		}
 	} else { // normal sound
 		if ( ent->spawnflags & 8 ) {
@@ -203,15 +203,16 @@ void target_speaker_multiple( gentity_t *ent ) {
 	gentity_t *vis_dummy = NULL;
 
 	if ( !( ent->target ) ) {
-		Com_Error( ERR_DROP, "target_speaker missing target at pos %s", vtos( ent->s.origin ) );
+		Com_Error( ERR_DROP, "target_speaker missing target at pos %s", vtos( ent->shared.s.origin ) );
+		return;
 	}
 
 	vis_dummy = G_Find( NULL, FOFS( targetname ), ent->target );
 
 	if ( vis_dummy ) {
-		ent->s.otherEntityNum = vis_dummy->s.number;
+		ent->shared.s.otherEntityNum = vis_dummy->shared.s.number;
 	} else {
-		Com_Error( ERR_DROP, "target_speaker cant find vis_dummy_multiple %s", vtos( ent->s.origin ) );
+		Com_Error( ERR_DROP, "target_speaker cant find vis_dummy_multiple %s", vtos( ent->shared.s.origin ) );
 	}
 
 }
@@ -224,7 +225,7 @@ void SP_target_speaker( gentity_t *ent ) {
 	G_SpawnFloat( "random", "0", &ent->random );
 
 	if ( !G_SpawnString( "noise", "NOSOUND", &s ) ) {
-		Com_Error( ERR_DROP, "target_speaker without a noise key at %s", vtos( ent->s.origin ) );
+		Com_Error( ERR_DROP, "target_speaker without a noise key at %s", vtos( ent->shared.s.origin ) );
 	}
 
 	// force all client reletive sounds to be "activator" speakers that
@@ -244,25 +245,25 @@ void SP_target_speaker( gentity_t *ent ) {
 	ent->noise_index = G_SoundIndex( buffer );
 
 	// a repeating speaker can be done completely client side
-	ent->s.eType = ET_SPEAKER;
-	ent->s.eventParm = ent->noise_index;
-	ent->s.frame = ent->wait * 10;
-	ent->s.clientNum = ent->random * 10;
+	ent->shared.s.eType = ET_SPEAKER;
+	ent->shared.s.eventParm = ent->noise_index;
+	ent->shared.s.frame = ent->wait * 10;
+	ent->shared.s.clientNum = ent->random * 10;
 
 
 	// check for prestarted looping sound
 	if ( ent->spawnflags & 1 ) {
-		ent->s.loopSound = ent->noise_index;
+		ent->shared.s.loopSound = ent->noise_index;
 	}
 
 	ent->use = Use_Target_Speaker;
 
 	// GLOBAL
 	if ( ent->spawnflags & ( 4 | 32 ) ) {
-		ent->r.svFlags |= SVF_BROADCAST;
+		ent->shared.r.svFlags |= SVF_BROADCAST;
 	}
 
-	VectorCopy( ent->s.origin, ent->s.pos.trBase );
+	VectorCopy( ent->shared.s.origin, ent->shared.s.pos.trBase );
 
 	if ( ent->spawnflags & 16 ) {
 		ent->think = target_speaker_multiple;
@@ -271,21 +272,21 @@ void SP_target_speaker( gentity_t *ent ) {
 
 	// NO_PVS
 	if ( ent->spawnflags & 32 ) {
-		ent->s.density = 1;
+		ent->shared.s.density = 1;
 	} else {
-		ent->s.density = 0;
+		ent->shared.s.density = 0;
 	}
 
 	if ( ent->radius ) {
-		ent->s.dmgFlags = ent->radius;  // store radius in dmgflags
+		ent->shared.s.dmgFlags = ent->radius;  // store radius in dmgflags
 	} else {
-		ent->s.dmgFlags = 0;
+		ent->shared.s.dmgFlags = 0;
 	}
 
 
 	// must link the entity so we get areas and clusters so
 	// the server can determine who to send updates to
-	SV_LinkEntity( ent );
+	SV_LinkEntity( &ent->shared );
 }
 
 
@@ -302,16 +303,16 @@ void target_laser_think( gentity_t *self ) {
 
 	// if pointed at another entity, set movedir to point at it
 	if ( self->enemy ) {
-		VectorMA( self->enemy->s.origin, 0.5, self->enemy->r.mins, point );
-		VectorMA( point, 0.5, self->enemy->r.maxs, point );
-		VectorSubtract( point, self->s.origin, self->movedir );
+		VectorMA( self->enemy->shared.s.origin, 0.5, self->enemy->shared.r.mins, point );
+		VectorMA( point, 0.5, self->enemy->shared.r.maxs, point );
+		VectorSubtract( point, self->shared.s.origin, self->movedir );
 		VectorNormalize( self->movedir );
 	}
 
 	// fire forward and see what we hit
-	VectorMA( self->s.origin, 2048, self->movedir, end );
+	VectorMA( self->shared.s.origin, 2048, self->movedir, end );
 
-	SV_Trace( &tr, self->s.origin, NULL, NULL, end, self->s.number, CONTENTS_SOLID | CONTENTS_BODY | CONTENTS_CORPSE, qfalse );
+	SV_Trace( &tr, self->shared.s.origin, NULL, NULL, end, self->shared.s.number, CONTENTS_SOLID | CONTENTS_BODY | CONTENTS_CORPSE, qfalse );
 
 	if ( tr.entityNum ) {
 		// hurt it if we can
@@ -319,7 +320,7 @@ void target_laser_think( gentity_t *self ) {
 				  tr.endpos, self->damage, DAMAGE_NO_KNOCKBACK, MOD_TARGET_LASER );
 	}
 
-	VectorCopy( tr.endpos, self->s.origin2 );
+	VectorCopy( tr.endpos, self->shared.s.origin2 );
 
 	SV_LinkEntity( self );
 	self->nextthink = level.time + FRAMETIME;
@@ -349,16 +350,16 @@ void target_laser_use( gentity_t *self, gentity_t *other, gentity_t *activator )
 void target_laser_start( gentity_t *self ) {
 	gentity_t *ent;
 
-	self->s.eType = ET_BEAM;
+	self->shared.s.eType = ET_BEAM;
 
 	if ( self->target ) {
 		ent = G_Find( NULL, FOFS( targetname ), self->target );
 		if ( !ent ) {
-			Com_Printf( "%s at %s: %s is a bad target\n", self->classname, vtos( self->s.origin ), self->target );
+			Com_Printf( "%s at %s: %s is a bad target\n", self->classname, vtos( self->shared.s.origin ), self->target );
 		}
 		self->enemy = ent;
 	} else {
-		G_SetMovedir( self->s.angles, self->movedir );
+		G_SetMovedir( self->shared.s.angles, self->movedir );
 	}
 
 	self->use = target_laser_use;
@@ -396,7 +397,7 @@ void target_teleporter_use( gentity_t *self, gentity_t *other, gentity_t *activa
 		return;
 	}
 
-	TeleportPlayer( activator, dest->s.origin, dest->s.angles );
+	TeleportPlayer( activator, dest->shared.s.origin, dest->shared.s.angles );
 }
 
 /*QUAKED target_teleporter (1 0 0) (-8 -8 -8) (8 8 8)
@@ -404,7 +405,7 @@ The activator will be teleported away.
 */
 void SP_target_teleporter( gentity_t *self ) {
 	if ( !self->targetname ) {
-		Com_Printf( "untargeted %s at %s\n", self->classname, vtos( self->s.origin ) );
+		Com_Printf( "untargeted %s at %s\n", self->classname, vtos( self->shared.s.origin ) );
 	}
 
 	self->use = target_teleporter_use;
@@ -578,7 +579,7 @@ void SP_target_kill( gentity_t *self ) {
 Used as a positional target for in-game calculation, like jumppad targets.
 */
 void SP_target_position( gentity_t *self ) {
-	G_SetOrigin( self, self->s.origin );
+	G_SetOrigin( self, self->shared.s.origin );
 }
 
 // Ridah, note to everyone: static functions can cause problems with the savegame code, so avoid
@@ -627,7 +628,7 @@ void SP_target_location( gentity_t *self ) {
 	self->think = target_location_linkup;
 	self->nextthink = level.time + 200;  // Let them all spawn first
 
-	G_SetOrigin( self, self->s.origin );
+	G_SetOrigin( self, self->shared.s.origin );
 }
 
 
@@ -684,7 +685,7 @@ void Use_target_fog( gentity_t *ent, gentity_t *other, gentity_t *activator ) {
 //		density
 //		r,g,b
 //		time to complete
-	SV_SetConfigstring( CS_FOGVARS, va( "%f %f %f %f %f %f %i", ent->accuracy, ent->random, 1.0f, (float)ent->dl_color[0], (float)ent->dl_color[1], (float)ent->dl_color[2], ent->s.time ) );
+	SV_SetConfigstring( CS_FOGVARS, va( "%f %f %f %f %f %f %i", ent->accuracy, ent->random, 1.0f, (float)ent->dl_color[0], (float)ent->dl_color[1], (float)ent->dl_color[2], ent->shared.s.time ) );
 }
 
 /*QUAKED target_fog (1 1 0) (-8 -8 -8) (8 8 8)
@@ -714,7 +715,7 @@ void SP_target_fog( gentity_t *ent ) {
 	// ent->s.time will carry the 'time' value
 	G_SpawnFloat( "time", "0.5", &ftime );
 	if ( ftime >= 0 ) {
-		ent->s.time = ftime * 1000; // sec to ms
+		ent->shared.s.time = ftime * 1000; // sec to ms
 	}
 }
 
@@ -809,21 +810,21 @@ void smoke_think( gentity_t *ent ) {
 		}
 	}
 
-	tent = G_TempEntity( ent->r.currentOrigin, EV_SMOKE );
-	VectorCopy( ent->r.currentOrigin, tent->s.origin );
-	tent->s.time = ent->speed;
-	tent->s.time2 = ent->duration;
-	tent->s.density = ent->s.density;
+	tent = G_TempEntity( ent->shared.r.currentOrigin, EV_SMOKE );
+	VectorCopy( ent->shared.r.currentOrigin, tent->shared.s.origin );
+	tent->shared.s.time = ent->speed;
+	tent->shared.s.time2 = ent->duration;
+	tent->shared.s.density = ent->shared.s.density;
 
 	// this is used to set the size of the smoke particle
-	tent->s.angles2[0] = ent->start_size;
-	tent->s.angles2[1] = ent->end_size;
-	tent->s.angles2[2] = ent->wait;
+	tent->shared.s.angles2[0] = ent->start_size;
+	tent->shared.s.angles2[1] = ent->end_size;
+	tent->shared.s.angles2[2] = ent->wait;
 
-	VectorCopy( ent->pos3, tent->s.origin2 );
+	VectorCopy( ent->pos3, tent->shared.s.origin2 );
 
-	if ( ent->s.frame ) { // denotes reverse gravity effect
-		tent->s.frame = 1;
+	if ( ent->shared.s.frame ) { // denotes reverse gravity effect
+		tent->shared.s.frame = 1;
 	}
 
 }
@@ -847,7 +848,7 @@ void smoke_init( gentity_t *ent ) {
 	if ( ent->target ) {
 		target = G_Find( NULL, FOFS( targetname ), ent->target );
 		if ( target ) {
-			VectorSubtract( target->s.origin, ent->s.origin, vec );
+			VectorSubtract( target->shared.s.origin, ent->shared.s.origin, vec );
 			VectorCopy( vec, ent->pos3 );
 		} else {
 			VectorSet( ent->pos3, 0, 0, 1 );
@@ -857,7 +858,7 @@ void smoke_init( gentity_t *ent ) {
 		VectorSet( ent->pos3, 0, 0, 1 );
 	}
 
-	SV_LinkEntity( ent );
+	SV_LinkEntity( &ent->shared );
 }
 
 void SP_target_smoke( gentity_t *ent ) {
@@ -872,16 +873,16 @@ void SP_target_smoke( gentity_t *ent ) {
 	ent->think = smoke_init;
 	ent->nextthink = level.time + FRAMETIME;
 
-	G_SetOrigin( ent, ent->s.origin );
-	ent->r.svFlags = SVF_USE_CURRENT_ORIGIN;
-	ent->s.eType = ET_GENERAL;
+	G_SetOrigin( ent, ent->shared.s.origin );
+	ent->shared.r.svFlags = SVF_USE_CURRENT_ORIGIN;
+	ent->shared.s.eType = ET_GENERAL;
 
 	if ( ent->spawnflags & 2 ) {
-		ent->s.density = 4;
+		ent->shared.s.density = 4;
 	} else if ( ent->spawnflags & 16 ) {
-		ent->s.density = 7; // steam
+		ent->shared.s.density = 7; // steam
 	} else {
-		ent->s.density = 0;
+		ent->shared.s.density = 0;
 	}
 
 	// using "time"
@@ -911,10 +912,10 @@ void SP_target_smoke( gentity_t *ent ) {
 	}
 
 	if ( ent->spawnflags & 8 ) {
-		ent->s.frame = 1;
+		ent->shared.s.frame = 1;
 	}
 
-	SV_LinkEntity( ent );
+	SV_LinkEntity( &ent->shared );
 
 }
 
@@ -931,7 +932,7 @@ void target_script_trigger_use( gentity_t *ent, gentity_t *other, gentity_t *act
 	if ( ent->aiName ) {
 		player = AICast_FindEntityForName( "player" );
 		if ( player ) {
-			AICast_ScriptEvent( AICast_GetCastState( player->s.number ), "trigger", ent->target );
+			AICast_ScriptEvent( AICast_GetCastState( player->shared.s.number ), "trigger", ent->target );
 		}
 	}
 
@@ -940,9 +941,9 @@ void target_script_trigger_use( gentity_t *ent, gentity_t *other, gentity_t *act
 }
 
 void SP_target_script_trigger( gentity_t *ent ) {
-	G_SetOrigin( ent, ent->s.origin );
-	ent->r.svFlags = SVF_USE_CURRENT_ORIGIN;
-	ent->s.eType = ET_GENERAL;
+	G_SetOrigin( ent, ent->shared.s.origin );
+	ent->shared.r.svFlags = SVF_USE_CURRENT_ORIGIN;
+	ent->shared.s.eType = ET_GENERAL;
 	ent->use = target_script_trigger_use;
 }
 
@@ -980,7 +981,7 @@ void target_rumble_think( gentity_t * ent ) {
 	} else
 	{
 		// looping sound
-		ent->s.loopSound = ent->soundLoop;
+		ent->shared.s.loopSound = ent->soundLoop;
 	}
 
 	dapitch = ent->delay;
@@ -1001,19 +1002,19 @@ void target_rumble_think( gentity_t * ent ) {
 		}
 	}
 
-	VectorClear( ent->s.angles );
+	VectorClear( ent->shared.s.angles );
 
 	if ( validrumble ) {
 		//ent->s.angles[0] = dapitch * ratio;
 		//ent->s.angles[1] = dayaw * ratio;
-		ent->s.angles[2] = ratio * dapitch / 24.0f; // CGAME uses this for shake effects, this is the scale
+		ent->shared.s.angles[2] = ratio * dapitch / 24.0f; // CGAME uses this for shake effects, this is the scale
 	}
 
 	// end sound
 	if ( level.time > ent->duration + ent->timestamp ) {
 		if ( ent->soundPos2 ) {
 			G_AddEvent( ent, EV_GENERAL_SOUND, ent->soundPos2 );
-			ent->s.loopSound = 0;
+			ent->shared.s.loopSound = 0;
 		}
 
 		ent->nextthink = 0;
@@ -1026,7 +1027,7 @@ void target_rumble_think( gentity_t * ent ) {
 void target_rumble_use( gentity_t *ent, gentity_t *other, gentity_t *activator ) {
 	if ( ent->spawnflags & 1 ) {
 		// RF, broadcast this entity
-		ent->r.svFlags |= SVF_BROADCAST;
+		ent->shared.r.svFlags |= SVF_BROADCAST;
 		ent->spawnflags &= ~1;
 		ent->think = target_rumble_think;
 		ent->count = 0;
@@ -1034,7 +1035,7 @@ void target_rumble_use( gentity_t *ent, gentity_t *other, gentity_t *activator )
 	} else
 	{
 		// RF, don't broadcast this entity
-		ent->r.svFlags &= ~SVF_BROADCAST;
+		ent->shared.r.svFlags &= ~SVF_BROADCAST;
 		ent->spawnflags |= 1;
 		ent->think = NULL;
 		ent->count = 0;
@@ -1064,7 +1065,7 @@ void SP_target_rumble( gentity_t *self ) {
 		self->soundPos2 = G_SoundIndex( endsound );
 	}
 
-	self->s.eType = ET_RUMBLE;
+	self->shared.s.eType = ET_RUMBLE;
 
 	self->use = target_rumble_use;
 

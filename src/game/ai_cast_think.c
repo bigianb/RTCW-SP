@@ -470,9 +470,9 @@ void AICast_Think( int client, float thinktime ) {
 	if ( ent->aiCharacter == AICHAR_ZOMBIE ) {
 		if ( COM_BitCheck( ent->client->ps.weapons, WP_MONSTER_ATTACK1 ) ) {
 			cs->aiFlags |= AIFL_NO_FLAME_DAMAGE;
-			SET_FLAMING_ZOMBIE( ent->s, 1 );
+			SET_FLAMING_ZOMBIE( ent->shared.s, 1 );
 		} else {
-			SET_FLAMING_ZOMBIE( ent->s, 0 );
+			SET_FLAMING_ZOMBIE( ent->shared.s, 0 );
 		}
 	}
 	//
@@ -480,7 +480,7 @@ void AICast_Think( int client, float thinktime ) {
 	AIChar_SetBBox( ent, cs, qtrue );
 	//
 	// set/disable these each frame as required
-	//ent->r.svFlags |= SVF_BROADCAST;
+	//ent->shared.r.svFlags |= SVF_BROADCAST;
 	ent->client->ps.eFlags &= ~EF_FORCE_END_FRAME;
 	//origin of the cast
 	VectorCopy( ent->client->ps.origin, cs->bs->origin );
@@ -507,21 +507,21 @@ void AICast_Think( int client, float thinktime ) {
 			int touch[10], numTouch;
 			float oldmaxZ;
 
-			oldmaxZ = ent->r.maxs[2];
+			oldmaxZ = ent->shared.r.maxs[2];
 
 			// make sure the area is clear
 			AIChar_SetBBox( ent, cs, qfalse );
 
-			VectorAdd( ent->r.currentOrigin, ent->r.mins, mins );
-			VectorAdd( ent->r.currentOrigin, ent->r.maxs, maxs );
-			SV_UnlinkEntity( ent );
+			VectorAdd( ent->shared.r.currentOrigin, ent->shared.r.mins, mins );
+			VectorAdd( ent->shared.r.currentOrigin, ent->shared.r.maxs, maxs );
+			SV_UnlinkEntity( &ent->shared );
 
 			numTouch = SV_AreaEntities( mins, maxs, touch, 10 );
 
 			if ( numTouch ) {
 				for ( i = 0; i < numTouch; i++ ) {
 					//if (!g_entities[touch[i]].client || g_entities[touch[i]].r.contents == CONTENTS_BODY)
-					if ( g_entities[touch[i]].r.contents & MASK_PLAYERSOLID ) {
+					if ( g_entities[touch[i]].shared.r.contents & MASK_PLAYERSOLID ) {
 						break;
 					}
 				}
@@ -539,7 +539,7 @@ void AICast_Think( int client, float thinktime ) {
 						ent->client->ps.stats[STAT_MAX_HEALTH] =
 							( ( cs->attributes[STARTING_HEALTH] - 50 ) > 30 ? ( cs->attributes[STARTING_HEALTH] - 50 ) : 30 );
 
-				ent->r.contents = CONTENTS_BODY;
+				ent->shared.r.contents = CONTENTS_BODY;
 				ent->clipmask = MASK_PLAYERSOLID | CONTENTS_MONSTERCLIP;
 				ent->takedamage = qtrue;
 				ent->waterlevel = 0;
@@ -547,7 +547,7 @@ void AICast_Think( int client, float thinktime ) {
 				ent->flags = 0;
 				ent->die = AICast_Die;
 				ent->client->ps.eFlags &= ~EF_DEAD;
-				ent->s.eFlags &= ~EF_DEAD;
+				ent->shared.s.eFlags &= ~EF_DEAD;
 
 				cs->rebirthTime = 0;
 				cs->deathTime = 0;
@@ -560,24 +560,24 @@ void AICast_Think( int client, float thinktime ) {
 				cs->revivingTime = level.time + BG_AnimScriptEvent( &ent->client->ps, ANIM_ET_REVIVE, qfalse, qtrue );;
 			} else {
 				// can't spawn yet, so set bbox back, and wait
-				ent->r.maxs[2] = oldmaxZ;
-				ent->client->ps.maxs[2] = ent->r.maxs[2];
+				ent->shared.r.maxs[2] = oldmaxZ;
+				ent->client->ps.maxs[2] = ent->shared.r.maxs[2];
 			}
-			SV_LinkEntity( ent );
+			SV_LinkEntity( &ent->shared );
 		}
 		// ZOMBIE should set effect flag if really dead
-		if ( cs->aiCharacter == AICHAR_ZOMBIE && !ent->r.contents ) {
+		if ( cs->aiCharacter == AICHAR_ZOMBIE && !ent->shared.r.contents ) {
 			ent->client->ps.eFlags |= EF_MONSTER_EFFECT2;
 		}
 		//
 		if ( ent->health > GIB_HEALTH && cs->deathTime && cs->deathTime < ( level.time - 1000 ) ) {
-			//ent->r.svFlags &= ~SVF_BROADCAST;
+			//ent->shared.r.svFlags &= ~SVF_BROADCAST;
 			if ( !ent->client->ps.torsoTimer && !ent->client->ps.legsTimer ) {
 				ent->client->ps.eFlags |= EF_FORCE_END_FRAME;
 			}
 			// sink?
 			if ( cs->deadSinkStartTime ) {
-				ent->s.effect3Time = cs->deadSinkStartTime;
+				ent->shared.s.effect3Time = cs->deadSinkStartTime;
 				// if they are gone
 				if ( cs->deadSinkStartTime + DEAD_SINK_DURATION < level.time ) {
 					SV_GameDropClient( cs->entityNum, "" );
@@ -614,18 +614,18 @@ void AICast_Think( int client, float thinktime ) {
 	// set enemy position
 	if ( cs->enemyNum >= 0 ) {
 		if ( infront( ent, &g_entities[cs->enemyNum] ) ) {
-			BG_UpdateConditionValue( ent->s.number, ANIM_COND_ENEMY_POSITION, POSITION_INFRONT, qtrue );
+			BG_UpdateConditionValue( ent->shared.s.number, ANIM_COND_ENEMY_POSITION, POSITION_INFRONT, qtrue );
 		} else {
-			BG_UpdateConditionValue( ent->s.number, ANIM_COND_ENEMY_POSITION, POSITION_BEHIND, qtrue );
+			BG_UpdateConditionValue( ent->shared.s.number, ANIM_COND_ENEMY_POSITION, POSITION_BEHIND, qtrue );
 		}
 	} else {
-		BG_UpdateConditionValue( ent->s.number, ANIM_COND_ENEMY_POSITION, POSITION_UNUSED, qtrue );
+		BG_UpdateConditionValue( ent->shared.s.number, ANIM_COND_ENEMY_POSITION, POSITION_UNUSED, qtrue );
 	}
 	// set defense pose
 	if ( ent->flags & FL_DEFENSE_CROUCH ) {
-		BG_UpdateConditionValue( ent->s.number, ANIM_COND_DEFENSE, qtrue, qfalse );
+		BG_UpdateConditionValue( ent->shared.s.number, ANIM_COND_DEFENSE, qtrue, qfalse );
 	} else {
-		BG_UpdateConditionValue( ent->s.number, ANIM_COND_DEFENSE, qfalse, qfalse );
+		BG_UpdateConditionValue( ent->shared.s.number, ANIM_COND_DEFENSE, qfalse, qfalse );
 	}
 	//
 	cs->speedScale = 1.0;           // reset each frame, set if required
@@ -837,7 +837,7 @@ void AICast_StartFrame( int time )
 	// update the player's area, only update if it's valid
 	for ( i = 0; i < 2; i++ ) {
 		AAS_SetCurrentWorld( i );
-		castcount = BotPointAreaNum( g_entities[0].s.pos.trBase );
+		castcount = BotPointAreaNum( g_entities[0].shared.s.pos.trBase );
 		if ( castcount ) {
 			caststates[0].lastValidAreaNum[i] = castcount;
 			caststates[0].lastValidAreaTime[i] = level.time;
@@ -1023,7 +1023,7 @@ void AICast_StartServerFrame( int time ) {
 							||  ( VectorLength( ent->client->ps.velocity ) > 0 )
 							||  ( highPriority && ( cs->lastucmd.forwardmove || cs->lastucmd.rightmove || cs->lastucmd.upmove > 0 || cs->lastucmd.buttons || cs->lastucmd.wbuttons ) )
 							// !!NOTE: always allow thinking if in PVS, otherwise bosses won't gib, and dead guys might not push away from clipped walls
-							||  ( SV_inPVS( cs->bs->origin, g_entities[0].s.pos.trBase ) ) ) { // do pvs check last, since it's the most expensive to call
+							||  ( SV_inPVS( cs->bs->origin, g_entities[0].shared.s.pos.trBase ) ) ) { // do pvs check last, since it's the most expensive to call
 						oldLegsTimer = ent->client->ps.legsTimer;
 						//
 						// send it's movement commands
@@ -1044,7 +1044,7 @@ void AICast_StartServerFrame( int time ) {
 					}
 				}
 			} else {
-				SV_UnlinkEntity( ent );
+				SV_UnlinkEntity( &ent->shared );
 			}
 			//
 			// see if we've checked all cast AI's
@@ -1094,7 +1094,7 @@ void AICast_PredictMovement( cast_state_t *cs, int numframes, float frametime, a
 
 	if ( checkHitEnt >= 0 && !Q_stricmp( g_entities[checkHitEnt].classname, "ai_marker" ) ) {
 		checkReachMarker = qtrue;
-		VectorSubtract( g_entities[checkHitEnt].r.currentOrigin, ps.origin, startHitVec );
+		VectorSubtract( g_entities[checkHitEnt].shared.r.currentOrigin, ps.origin, startHitVec );
 		VectorCopy( ps.origin, lastOrg );
 	} else {
 		checkReachMarker = qfalse;
@@ -1123,11 +1123,11 @@ void AICast_PredictMovement( cast_state_t *cs, int numframes, float frametime, a
 		if ( checkHitEnt >= 0 ) {
 			// if we've hit the checkent, abort
 			if ( checkReachMarker ) {
-				VectorSubtract( g_entities[checkHitEnt].r.currentOrigin, pm.ps->origin, thisHitVec );
+				VectorSubtract( g_entities[checkHitEnt].shared.r.currentOrigin, pm.ps->origin, thisHitVec );
 				if ( DotProduct( startHitVec, thisHitVec ) < 0 ) {
 					// project the marker onto the movement vec, and check distance
-					ProjectPointOntoVector( g_entities[checkHitEnt].r.currentOrigin, lastOrg, pm.ps->origin, projPoint );
-					if ( VectorDistance( g_entities[checkHitEnt].r.currentOrigin, projPoint ) < 8 ) {
+					ProjectPointOntoVector( g_entities[checkHitEnt].shared.r.currentOrigin, lastOrg, pm.ps->origin, projPoint );
+					if ( VectorDistance( g_entities[checkHitEnt].shared.r.currentOrigin, projPoint ) < 8 ) {
 						move->stopevent = PREDICTSTOP_HITENT;
 						goto done;
 					}
@@ -1145,7 +1145,7 @@ void AICast_PredictMovement( cast_state_t *cs, int numframes, float frametime, a
 					move->stopevent = PREDICTSTOP_HITENT;
 					goto done;
 				} else if ( pm.touchents[i] < MAX_CLIENTS ||
-							( pm.touchents[i] != ENTITYNUM_WORLD && ( g_entities[pm.touchents[i]].s.eType != ET_MOVER || g_entities[pm.touchents[i]].moverState != MOVER_POS1 ) ) ) {
+							( pm.touchents[i] != ENTITYNUM_WORLD && ( g_entities[pm.touchents[i]].shared.s.eType != ET_MOVER || g_entities[pm.touchents[i]].moverState != MOVER_POS1 ) ) ) {
 					// we have hit another entity, so abort
 					move->stopevent = PREDICTSTOP_HITCLIENT;
 					goto done;
@@ -1158,7 +1158,7 @@ void AICast_PredictMovement( cast_state_t *cs, int numframes, float frametime, a
 			// if we are trying to get to something, we should keep adjusting our input to head towards them
 			if ( cs->bs && checkHitEnt >= 0 ) {
 				// keep walking straight to them
-				VectorSubtract( g_entities[checkHitEnt].r.currentOrigin, pm.ps->origin, bi.dir );
+				VectorSubtract( g_entities[checkHitEnt].shared.r.currentOrigin, pm.ps->origin, bi.dir );
 				if ( !ent->waterlevel ) {
 					bi.dir[2] = 0;
 				}
@@ -1416,7 +1416,7 @@ void AICast_Blocked( cast_state_t *cs, bot_moveresult_t *moveresult, int activat
 					// they should avoid us
 					if ( ocs->leaderNum >= 0 ) {
 						ogoal.entitynum = ocs->leaderNum;
-						VectorCopy( g_entities[ocs->leaderNum].r.currentOrigin, ogoal.origin );
+						VectorCopy( g_entities[ocs->leaderNum].shared.r.currentOrigin, ogoal.origin );
 						if ( AICast_GetAvoid( ocs, &ogoal, ocs->obstructingPos, qfalse, cs->entityNum ) ) {
 							// give them time to move somewhere else
 							ocs->obstructingTime = level.time + 1000;
@@ -1450,7 +1450,7 @@ void AICast_Blocked( cast_state_t *cs, bot_moveresult_t *moveresult, int activat
 
 		// something is blocking our path
 		if ( g_entities[blockEnt].aiName && g_entities[blockEnt].client && cs->bs
-			 && VectorDistance( cs->bs->origin, g_entities[blockEnt].r.currentOrigin ) < 128 ) {
+			 && VectorDistance( cs->bs->origin, g_entities[blockEnt].shared.r.currentOrigin ) < 128 ) {
 			int oldId = cs->castScriptStatus.scriptId;
 			AICast_ScriptEvent( cs, "blocked", g_entities[blockEnt].aiName );
 			if ( ( oldId != cs->castScriptStatus.scriptId ) || ( cs->aiFlags & AIFL_DENYACTION ) ) {
@@ -1554,7 +1554,7 @@ void AICast_EvaluatePmove( int clientnum, pmove_t *pm ) {
 					}
 				}
 				if ( ocs->leaderNum >= 0 ) {
-					VectorCopy( g_entities[ocs->leaderNum].r.currentOrigin, ogoal.origin );
+					VectorCopy( g_entities[ocs->leaderNum].shared.r.currentOrigin, ogoal.origin );
 					ogoal.areanum = BotPointAreaNum( ogoal.origin );
 					ogoal.entitynum = ocs->leaderNum;
 					if ( ocs->bs && AICast_GetAvoid( ocs, &ogoal, ocs->obstructingPos, qfalse, cs->entityNum ) ) { // give them time to move somewhere else
@@ -1569,7 +1569,7 @@ void AICast_EvaluatePmove( int clientnum, pmove_t *pm ) {
 		} else if ( cs->bs ) {
 			// if we are blocked by a brush entity, see if we can activate it
 			ent = pm->touchents[i];
-			if ( g_entities[ent].s.modelindex > 0 && g_entities[ent].s.eType == ET_MOVER ) {
+			if ( g_entities[ent].shared.s.modelindex > 0 && g_entities[ent].shared.s.eType == ET_MOVER ) {
 				//find the bsp entity which should be activated in order to remove
 				//the blocking entity
 
@@ -1624,7 +1624,7 @@ void AICast_QueryThink( cast_state_t *cs ) {
 	vectoangles( vec, cs->ideal_viewangles );
 
 	// are they visible now?
-	visible = AICast_VisibleFromPos( cs->bs->origin, cs->entityNum, g_entities[cs->enemyNum].r.currentOrigin, cs->enemyNum, qfalse );
+	visible = AICast_VisibleFromPos( cs->bs->origin, cs->entityNum, g_entities[cs->enemyNum].shared.r.currentOrigin, cs->enemyNum, qfalse );
 
 	// make sure we dont process the sighting of this enemy by going into query mode again, without them being visible again after we leave here
 	cs->vislist[cs->enemyNum].flags &= ~AIVIS_PROCESS_SIGHTING;

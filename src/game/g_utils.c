@@ -373,8 +373,8 @@ void G_InitGentity( gentity_t *e )
 {
 	e->inuse = qtrue;
 	e->classname = "noclass";
-	e->s.number = e - g_entities;
-	e->r.ownerNum = ENTITYNUM_NONE;
+	e->shared.s.number = e - g_entities;
+	e->shared.r.ownerNum = ENTITYNUM_NONE;
 	e->headshotDamageScale = 1.0;   // RF, default value
 	e->eventTime = 0;
 	e->freeAfterEvent = qfalse;
@@ -499,11 +499,11 @@ gentity_t *G_TempEntity( vec3_t origin, int event ) {
 	vec3_t snapped;
 
 	e = G_Spawn();
-	e->s.eType = ET_EVENTS + event;
+	e->shared.s.eType = ET_EVENTS + event;
 
 	e->classname = "tempEntity";
 	e->eventTime = level.time;
-	e->r.eventTime = level.time;
+	e->shared.r.eventTime = level.time;
 	e->freeAfterEvent = qtrue;
 
 	VectorCopy( origin, snapped );
@@ -540,8 +540,8 @@ void G_KillBox( gentity_t *ent ) {
 	gentity_t   *hit;
 	vec3_t mins, maxs;
 
-	VectorAdd( ent->client->ps.origin, ent->r.mins, mins );
-	VectorAdd( ent->client->ps.origin, ent->r.maxs, maxs );
+	VectorAdd( ent->client->ps.origin, ent->shared.r.mins, mins );
+	VectorAdd( ent->client->ps.origin, ent->shared.r.maxs, maxs );
 	num = SV_AreaEntities( mins, maxs, touch, MAX_GENTITIES );
 
 	for ( i = 0 ; i < num ; i++ ) {
@@ -549,7 +549,7 @@ void G_KillBox( gentity_t *ent ) {
 		if ( !hit->client ) {
 			continue;
 		}
-		if ( !hit->r.linked ) { // RF, inactive AI shouldn't be gibbed
+		if ( !hit->shared.r.linked ) { // RF, inactive AI shouldn't be gibbed
 			continue;
 		}
 
@@ -590,41 +590,22 @@ void G_AddEvent( gentity_t *ent, int event, int eventParm ) {
 //	int		bits;
 
 	if ( !event ) {
-		Com_Printf( "G_AddEvent: zero event added for entity %i\n", ent->s.number );
+		Com_Printf( "G_AddEvent: zero event added for entity %i\n", ent->shared.s.number );
 		return;
 	}
 
 	// Ridah, use the sequential event list
 	if ( ent->client ) {
-		// NERVE - SMF - commented in - externalEvents not being handled properly in Wolf right now
 		ent->client->ps.events[ent->client->ps.eventSequence & ( MAX_EVENTS - 1 )] = event;
 		ent->client->ps.eventParms[ent->client->ps.eventSequence & ( MAX_EVENTS - 1 )] = eventParm;
 		ent->client->ps.eventSequence++;
-		// -NERVE - SMF
-
-		// NERVE - SMF - commented out
-//		bits = ent->client->ps.externalEvent & EV_EVENT_BITS;
-//		bits = ( bits + EV_EVENT_BIT1 ) & EV_EVENT_BITS;
-//		ent->client->ps.externalEvent = event | bits;
-//		ent->client->ps.externalEventParm = eventParm;
-//		ent->client->ps.externalEventTime = level.time;
-		// -NERVE - SMF
 	} else {
-		// NERVE - SMF - commented in - externalEvents not being handled properly in Wolf right now
-		ent->s.events[ent->s.eventSequence & ( MAX_EVENTS - 1 )] = event;
-		ent->s.eventParms[ent->s.eventSequence & ( MAX_EVENTS - 1 )] = eventParm;
-		ent->s.eventSequence++;
-		// -NERVE - SMF
-
-		// NERVE - SMF - commented out
-//		bits = ent->s.event & EV_EVENT_BITS;
-//		bits = ( bits + EV_EVENT_BIT1 ) & EV_EVENT_BITS;
-//		ent->s.event = event | bits;
-//		ent->s.eventParm = eventParm;
-		// -NERVE - SMF
+		ent->shared.s.events[ent->shared.s.eventSequence & ( MAX_EVENTS - 1 )] = event;
+		ent->shared.s.eventParms[ent->shared.s.eventSequence & ( MAX_EVENTS - 1 )] = eventParm;
+		ent->shared.s.eventSequence++;
 	}
 	ent->eventTime = level.time;
-	ent->r.eventTime = level.time;
+	ent->shared.r.eventTime = level.time;
 }
 
 
@@ -638,8 +619,8 @@ G_Sound
 void G_Sound( gentity_t *ent, int soundIndex ) {
 	gentity_t   *te;
 
-	te = G_TempEntity( ent->r.currentOrigin, EV_GENERAL_SOUND );
-	te->s.eventParm = soundIndex;
+	te = G_TempEntity( ent->shared.r.currentOrigin, EV_GENERAL_SOUND );
+	te->shared.s.eventParm = soundIndex;
 }
 
 /*
@@ -665,13 +646,13 @@ Sets the pos trajectory for a fixed position
 ================
 */
 void G_SetOrigin( gentity_t *ent, vec3_t origin ) {
-	VectorCopy( origin, ent->s.pos.trBase );
-	ent->s.pos.trType = TR_STATIONARY;
-	ent->s.pos.trTime = 0;
-	ent->s.pos.trDuration = 0;
-	VectorClear( ent->s.pos.trDelta );
+	VectorCopy( origin, ent->shared.s.pos.trBase );
+	ent->shared.s.pos.trType = TR_STATIONARY;
+	ent->shared.s.pos.trTime = 0;
+	ent->shared.s.pos.trDuration = 0;
+	VectorClear( ent->shared.s.pos.trDelta );
 
-	VectorCopy( origin, ent->r.currentOrigin );
+	VectorCopy( origin, ent->shared.r.currentOrigin );
 }
 
 
@@ -682,16 +663,13 @@ G_SetOrigin
 */
 void G_SetAngle( gentity_t *ent, vec3_t angle ) {
 
-	VectorCopy( angle, ent->s.apos.trBase );
-	ent->s.apos.trType = TR_STATIONARY;
-	ent->s.apos.trTime = 0;
-	ent->s.apos.trDuration = 0;
-	VectorClear( ent->s.apos.trDelta );
+	VectorCopy( angle, ent->shared.s.apos.trBase );
+	ent->shared.s.apos.trType = TR_STATIONARY;
+	ent->shared.s.apos.trTime = 0;
+	ent->shared.s.apos.trDuration = 0;
+	VectorClear( ent->shared.s.apos.trDelta );
 
-	VectorCopy( angle, ent->r.currentAngles );
-
-//	VectorCopy (ent->s.angles, ent->s.apos.trDelta );
-
+	VectorCopy( angle, ent->shared.r.currentAngles );
 }
 
 /*
@@ -708,17 +686,17 @@ qboolean infront( gentity_t *self, gentity_t *other ) {
 	if ( self->client ) {
 		AngleVectors( self->client->ps.viewangles, forward, NULL, NULL );
 	} else {
-		AngleVectors( self->s.angles, forward, NULL, NULL );
+		AngleVectors( self->shared.s.angles, forward, NULL, NULL );
 	}
 
 
 	if ( self->activateArc ) {
 		// move the origin of the 'other' up/down so that it matches the 'self' so the check is along a horizontal plane
-		VectorCopy( other->r.currentOrigin, otherOrigin );
-		otherOrigin[2] = self->r.currentOrigin[2];
-		VectorSubtract( otherOrigin, self->r.currentOrigin, vec );
+		VectorCopy( other->shared.r.currentOrigin, otherOrigin );
+		otherOrigin[2] = self->shared.r.currentOrigin[2];
+		VectorSubtract( otherOrigin, self->shared.r.currentOrigin, vec );
 	} else {
-		VectorSubtract( other->r.currentOrigin, self->r.currentOrigin, vec );
+		VectorSubtract( other->shared.r.currentOrigin, self->shared.r.currentOrigin, vec );
 	}
 
 	VectorNormalize( vec );
@@ -754,18 +732,18 @@ void G_ProcessTagConnect( gentity_t *ent, qboolean clearAngles ) {
 	if ( !ent->tagParent ) {
 		Com_Error( ERR_DROP, "G_ProcessTagConnect: NULL ent->tagParent\n" );
 	}
-	G_FindConfigstringIndex( va( "%i %i %s", ent->s.number, ent->tagParent->s.number, ent->tagName ), CS_TAGCONNECTS, MAX_TAGCONNECTS, qtrue );
-	ent->s.eFlags |= EF_TAGCONNECT;
+	G_FindConfigstringIndex( va( "%i %i %s", ent->shared.s.number, ent->tagParent->shared.s.number, ent->tagName ), CS_TAGCONNECTS, MAX_TAGCONNECTS, qtrue );
+	ent->shared.s.eFlags |= EF_TAGCONNECT;
 
 	if ( clearAngles ) {
 		// clear out the angles so it always starts out facing the tag direction
-		VectorClear( ent->s.angles );
-		VectorCopy( ent->s.angles, ent->s.apos.trBase );
-		ent->s.apos.trTime = level.time;
-		ent->s.apos.trDuration = 0;
-		ent->s.apos.trType = TR_STATIONARY;
-		VectorClear( ent->s.apos.trDelta );
-		VectorClear( ent->r.currentAngles );
+		VectorClear( ent->shared.s.angles );
+		VectorCopy( ent->shared.s.angles, ent->shared.s.apos.trBase );
+		ent->shared.s.apos.trTime = level.time;
+		ent->shared.s.apos.trDuration = 0;
+		ent->shared.s.apos.trType = TR_STATIONARY;
+		VectorClear( ent->shared.s.apos.trDelta );
+		VectorClear( ent->shared.r.currentAngles );
 	}
 }
 

@@ -79,9 +79,9 @@ void Weapon_Knife( gentity_t *ent ) {
 	mod = MOD_KNIFE;
 
 	AngleVectors( ent->client->ps.viewangles, forward, right, up );
-	CalcMuzzlePoint( ent, ent->s.weapon, forward, right, up, muzzleTrace );
+	CalcMuzzlePoint( ent, ent->shared.s.weapon, forward, right, up, muzzleTrace );
 	VectorMA( muzzleTrace, KNIFE_DIST, forward, end );
-	SV_Trace( &tr, muzzleTrace, NULL, NULL, end, ent->s.number, MASK_SHOT, qfalse );
+	SV_Trace( &tr, muzzleTrace, NULL, NULL, end, ent->shared.s.number, MASK_SHOT, qfalse );
 
 	if ( tr.surfaceFlags & SURF_NOIMPACT ) {
 		return;
@@ -98,9 +98,9 @@ void Weapon_Knife( gentity_t *ent ) {
 		tent = G_TempEntity( tr.endpos, EV_MISSILE_HIT );
 	}
 
-	tent->s.otherEntityNum = tr.entityNum;
-	tent->s.eventParm = DirToByte( tr.plane.normal );
-	tent->s.weapon = ent->s.weapon;
+	tent->shared.s.otherEntityNum = tr.entityNum;
+	tent->shared.s.eventParm = DirToByte( tr.plane.normal );
+	tent->shared.s.weapon = ent->shared.s.weapon;
 
 	if ( tr.entityNum == ENTITYNUM_WORLD ) { // don't worry about doing any damage
 		return;
@@ -120,7 +120,7 @@ void Weapon_Knife( gentity_t *ent ) {
 		return;
 	}
 
-	damage = G_GetWeaponDamage( ent->s.weapon ); // JPW		// default knife damage for frontal attacks
+	damage = G_GetWeaponDamage( ent->shared.s.weapon ); // JPW		// default knife damage for frontal attacks
 
 	if ( traceEnt->client ) {
 		if ( ent->client->ps.serverCursorHint == HINT_KNIFE ) {
@@ -181,7 +181,7 @@ trace_t *CheckMeleeAttack( gentity_t *ent, float dist, qboolean isTest ) {
 
 	VectorMA( muzzleTrace, dist, forward, end );
 
-	SV_Trace( &tr, muzzleTrace, NULL, NULL, end, ent->s.number, MASK_SHOT, qfalse );
+	SV_Trace( &tr, muzzleTrace, NULL, NULL, end, ent->shared.s.number, MASK_SHOT, qfalse );
 	if ( tr.surfaceFlags & SURF_NOIMPACT ) {
 		return NULL;
 	}
@@ -196,9 +196,9 @@ trace_t *CheckMeleeAttack( gentity_t *ent, float dist, qboolean isTest ) {
 	// send blood impact
 	if ( traceEnt->takedamage && traceEnt->client ) {
 		tent = G_TempEntity( tr.endpos, EV_MISSILE_HIT );
-		tent->s.otherEntityNum = traceEnt->s.number;
-		tent->s.eventParm = DirToByte( tr.plane.normal );
-		tent->s.weapon = ent->s.weapon;
+		tent->shared.s.otherEntityNum = traceEnt->shared.s.number;
+		tent->shared.s.eventParm = DirToByte( tr.plane.normal );
+		tent->shared.s.weapon = ent->shared.s.weapon;
 	}
 
 //----(SA)	added
@@ -438,7 +438,7 @@ void RubbleFlagCheck( gentity_t *ent, trace_t tr ) {
 		type = 1;
 	}
 
-	if ( is_valid && ent->client && ( ent->s.weapon == WP_VENOM
+	if ( is_valid && ent->client && ( ent->shared.s.weapon == WP_VENOM
 									  || ent->client->ps.persistant[PERS_HWEAPON_USE] ) ) {
 		if ( rand() % 100 > 75 ) {
 			gentity_t   *sfx;
@@ -447,7 +447,7 @@ void RubbleFlagCheck( gentity_t *ent, trace_t tr ) {
 
 			sfx = G_Spawn();
 
-			sfx->s.density = type;
+			sfx->shared.s.density = type;
 
 			VectorCopy( tr.endpos, start );
 
@@ -462,7 +462,7 @@ void RubbleFlagCheck( gentity_t *ent, trace_t tr ) {
 			sfx->think = G_FreeEntity;
 			sfx->nextthink = level.time + 1000;
 
-			sfx->s.frame = 3 + ( rand() % 3 ) ;
+			sfx->shared.s.frame = 3 + ( rand() % 3 ) ;
 
 			SV_LinkEntity( sfx );
 
@@ -486,19 +486,19 @@ void EmitterCheck( gentity_t *ent, gentity_t *attacker, trace_t *tr ) {
 	}
 
 	VectorCopy( tr->endpos, origin );
-	SnapVectorTowards( tr->endpos, attacker->s.origin ); // make sure it's out of the wall
+	SnapVectorTowards( tr->endpos, attacker->shared.s.origin ); // make sure it's out of the wall
 
 
 	// why were these stricmp's?...
-	if ( ent->s.eType == ET_EXPLOSIVE ) {
-	} else if ( ent->s.eType == ET_LEAKY ) {
+	if ( ent->shared.s.eType == ET_EXPLOSIVE ) {
+	} else if ( ent->shared.s.eType == ET_LEAKY ) {
 
 		tent = G_TempEntity( origin, EV_EMITTER );
-		VectorCopy( origin, tent->s.origin );
-		tent->s.time = ent->emitTime;
-		tent->s.density = ent->emitPressure;    // 'pressure'
-		tent->s.teamNum = ent->emitID;          // 'type'
-		VectorCopy( tr->plane.normal, tent->s.origin2 );
+		VectorCopy( origin, tent->shared.s.origin );
+		tent->shared.s.time = ent->emitTime;
+		tent->shared.s.density = ent->emitPressure;    // 'pressure'
+		tent->shared.s.teamNum = ent->emitID;          // 'type'
+		VectorCopy( tr->plane.normal, tent->shared.s.origin2 );
 	}
 
 	ent->emitNum--;
@@ -526,15 +526,13 @@ void Bullet_Endpos( gentity_t *ent, float spread, vec3_t *end ) {
 	u = crandom() * spread;
 
 	// Ridah, if this is an AI shooting, apply their accuracy
-	if ( ent->r.svFlags & SVF_CASTAI ) {
+	if ( ent->shared.r.svFlags & SVF_CASTAI ) {
 		float accuracy;
-		accuracy = ( 1.0 - AICast_GetAccuracy( ent->s.number ) ) * AICAST_AIM_SPREAD;
+		accuracy = ( 1.0 - AICast_GetAccuracy( ent->shared.s.number ) ) * AICAST_AIM_SPREAD;
 		r += crandom() * accuracy;
 		u += crandom() * ( accuracy * 1.25 );
 	} else {
-		if ( ent->s.weapon == WP_SNOOPERSCOPE || ent->s.weapon == WP_SNIPERRIFLE || ent->s.weapon == WP_FG42SCOPE ) {
-//		if(ent->s.weapon == WP_SNOOPERSCOPE || ent->s.weapon == WP_SNIPERRIFLE) {
-			// aim dir already accounted for sway of scoped weapons in CalcMuzzlePoints()
+		if ( ent->shared.s.weapon == WP_SNOOPERSCOPE || ent->shared.s.weapon == WP_SNIPERRIFLE || ent->shared.s.weapon == WP_FG42SCOPE ) {
 			dist *= 2;
 			randSpread = qfalse;
 		}
@@ -589,15 +587,15 @@ void Bullet_Fire_Extended( gentity_t *source, gentity_t *attacker, vec3_t start,
 		dflags = DAMAGE_PASSTHRU;
 	}
 
-	SV_Trace( &tr, start, NULL, NULL, end, source->s.number, MASK_SHOT, qfalse );
+	SV_Trace( &tr, start, NULL, NULL, end, source->shared.s.number, MASK_SHOT, qfalse );
 
 	AICast_ProcessBullet( attacker, start, tr.endpos );
 
 	// bullet debugging using Q3A's railtrail
 	if ( g_debugBullets.integer & 1 ) {
 		tent = G_TempEntity( start, EV_RAILTRAIL );
-		VectorCopy( tr.endpos, tent->s.origin2 );
-		tent->s.otherEntityNum2 = attacker->s.number;
+		VectorCopy( tr.endpos, tent->shared.s.origin2 );
+		tent->shared.s.otherEntityNum2 = attacker->shared.s.number;
 	}
 
 
@@ -622,7 +620,7 @@ void Bullet_Fire_Extended( gentity_t *source, gentity_t *attacker, vec3_t start,
 	// send bullet impact
 	if ( traceEnt->takedamage && traceEnt->client && !reflectBullet ) {
 		tent = G_TempEntity( tr.endpos, EV_BULLET_HIT_FLESH );
-		tent->s.eventParm = traceEnt->s.number;
+		tent->shared.s.eventParm = traceEnt->shared.s.number;
 		if ( LogAccuracyHit( traceEnt, attacker ) ) {
 			attacker->client->ps.persistant[PERS_ACCURACY_HITS]++;
 		}
@@ -631,19 +629,19 @@ void Bullet_Fire_Extended( gentity_t *source, gentity_t *attacker, vec3_t start,
 		if ( g_debugBullets.integer >= 2 ) {   // show hit player bb
 			gentity_t *bboxEnt;
 			vec3_t b1, b2;
-			VectorCopy( traceEnt->r.currentOrigin, b1 );
-			VectorCopy( traceEnt->r.currentOrigin, b2 );
-			VectorAdd( b1, traceEnt->r.mins, b1 );
-			VectorAdd( b2, traceEnt->r.maxs, b2 );
+			VectorCopy( traceEnt->shared.r.currentOrigin, b1 );
+			VectorCopy( traceEnt->shared.r.currentOrigin, b2 );
+			VectorAdd( b1, traceEnt->shared.r.mins, b1 );
+			VectorAdd( b2, traceEnt->shared.r.maxs, b2 );
 			bboxEnt = G_TempEntity( b1, EV_RAILTRAIL );
-			VectorCopy( b2, bboxEnt->s.origin2 );
-			bboxEnt->s.dmgFlags = 1;    // ("type")
+			VectorCopy( b2, bboxEnt->shared.s.origin2 );
+			bboxEnt->shared.s.dmgFlags = 1;    // ("type")
 		}
 //----(SA)	end
 
-	} else if ( traceEnt->takedamage && traceEnt->s.eType == ET_BAT ) {
+	} else if ( traceEnt->takedamage && traceEnt->shared.s.eType == ET_BAT ) {
 		tent = G_TempEntity( tr.endpos, EV_BULLET_HIT_FLESH );
-		tent->s.eventParm = traceEnt->s.number;
+		tent->shared.s.eventParm = traceEnt->shared.s.number;
 	} else {
 		// Ridah, bullet impact should reflect off surface
 		vec3_t reflect;
@@ -652,20 +650,20 @@ void Bullet_Fire_Extended( gentity_t *source, gentity_t *attacker, vec3_t start,
 		if ( g_debugBullets.integer <= -2 ) {  // show hit thing bb
 			gentity_t *bboxEnt;
 			vec3_t b1, b2;
-			VectorCopy( traceEnt->r.currentOrigin, b1 );
-			VectorCopy( traceEnt->r.currentOrigin, b2 );
-			VectorAdd( b1, traceEnt->r.mins, b1 );
-			VectorAdd( b2, traceEnt->r.maxs, b2 );
+			VectorCopy( traceEnt->shared.r.currentOrigin, b1 );
+			VectorCopy( traceEnt->shared.r.currentOrigin, b2 );
+			VectorAdd( b1, traceEnt->shared.r.mins, b1 );
+			VectorAdd( b2, traceEnt->shared.r.maxs, b2 );
 			bboxEnt = G_TempEntity( b1, EV_RAILTRAIL );
-			VectorCopy( b2, bboxEnt->s.origin2 );
-			bboxEnt->s.dmgFlags = 1;    // ("type")
+			VectorCopy( b2, bboxEnt->shared.s.origin2 );
+			bboxEnt->shared.s.dmgFlags = 1;    // ("type")
 		}
 
 		if ( reflectBullet ) {
 			// reflect off sheild
-			VectorSubtract( tr.endpos, traceEnt->r.currentOrigin, reflect );
+			VectorSubtract( tr.endpos, traceEnt->shared.r.currentOrigin, reflect );
 			VectorNormalize( reflect );
-			VectorMA( traceEnt->r.currentOrigin, 15, reflect, reflect );
+			VectorMA( traceEnt->shared.r.currentOrigin, 15, reflect, reflect );
 			tent = G_TempEntity( reflect, EV_BULLET_HIT_WALL );
 		} else {
 			tent = G_TempEntity( tr.endpos, EV_BULLET_HIT_WALL );
@@ -675,16 +673,16 @@ void Bullet_Fire_Extended( gentity_t *source, gentity_t *attacker, vec3_t start,
 		VectorMA( forward, -2 * dot, tr.plane.normal, reflect );
 		VectorNormalize( reflect );
 
-		tent->s.eventParm = DirToByte( reflect );
+		tent->shared.s.eventParm = DirToByte( reflect );
 
 		if ( reflectBullet ) {
-			tent->s.otherEntityNum2 = traceEnt->s.number;   // force sparks
+			tent->shared.s.otherEntityNum2 = traceEnt->shared.s.number;   // force sparks
 		} else {
-			tent->s.otherEntityNum2 = ENTITYNUM_NONE;
+			tent->shared.s.otherEntityNum2 = ENTITYNUM_NONE;
 		}
 		// done.
 	}
-	tent->s.otherEntityNum = attacker->s.number;
+	tent->shared.s.otherEntityNum = attacker->shared.s.number;
 
 	if ( traceEnt->takedamage ) {
 		qboolean reflectBool = qfalse;
@@ -692,7 +690,7 @@ void Bullet_Fire_Extended( gentity_t *source, gentity_t *attacker, vec3_t start,
 
 		if ( reflectBullet ) {
 			// if we are facing the direction the bullet came from, then reflect it
-			AngleVectors( traceEnt->s.apos.trBase, trDir, NULL, NULL );
+			AngleVectors( traceEnt->shared.s.apos.trBase, trDir, NULL, NULL );
 			if ( DotProduct( forward, trDir ) < 0.6 ) {
 				reflectBool = qtrue;
 			}
@@ -702,7 +700,7 @@ void Bullet_Fire_Extended( gentity_t *source, gentity_t *attacker, vec3_t start,
 			vec3_t reflect_end;
 			// reflect this bullet
 			G_AddEvent( traceEnt, EV_GENERAL_SOUND, level.bulletRicochetSound );
-			CalcMuzzlePoints( traceEnt, traceEnt->s.weapon );
+			CalcMuzzlePoints( traceEnt, traceEnt->shared.s.weapon );
 
 			Bullet_Endpos( traceEnt, 2800, &reflect_end );    // make it inaccurate
 			Bullet_Fire_Extended( traceEnt, attacker, muzzleTrace, reflect_end, spread, damage, recursion + 1 );
@@ -712,14 +710,14 @@ void Bullet_Fire_Extended( gentity_t *source, gentity_t *attacker, vec3_t start,
 			int oldHealth;
 
 			// Ridah, don't hurt team-mates
-			if ( attacker->client && traceEnt->client && ( traceEnt->r.svFlags & SVF_CASTAI ) && ( attacker->r.svFlags & SVF_CASTAI ) && AICast_SameTeam( AICast_GetCastState( attacker->s.number ), traceEnt->s.number ) ) {
+			if ( attacker->client && traceEnt->client && ( traceEnt->shared.r.svFlags & SVF_CASTAI ) && ( attacker->shared.r.svFlags & SVF_CASTAI ) && AICast_SameTeam( AICast_GetCastState( attacker->shared.s.number ), traceEnt->shared.s.number ) ) {
 				// AI's don't hurt members of their own team
 				return;
 			}
 			// done.
 
 			oldHealth = traceEnt->health;
-			G_Damage( traceEnt, attacker, attacker, forward, tr.endpos, damage, dflags, ammoTable[attacker->s.weapon].mod );
+			G_Damage( traceEnt, attacker, attacker, forward, tr.endpos, damage, dflags, ammoTable[attacker->shared.s.weapon].mod );
 
 			// allow bullets to "pass through" func_explosives if they break by taking another simultanious shot
 			// start new bullet at position this hit and continue to the end position (ignoring shot-through ent in next trace)
@@ -766,7 +764,7 @@ gentity_t *weapon_grenadelauncher_fire( gentity_t *ent, int grenType ) {
 	vec3_t tosspos;
 	qboolean underhand = 0;
 
-	if ( ( ent->s.apos.trBase[0] > 0 ) && ( grenType != WP_GRENADE_SMOKE ) ) { // JPW NERVE -- smoke grenades always overhand
+	if ( ( ent->shared.s.apos.trBase[0] > 0 ) && ( grenType != WP_GRENADE_SMOKE ) ) { // JPW NERVE -- smoke grenades always overhand
 		underhand = qtrue;
 	}
 
@@ -778,7 +776,7 @@ gentity_t *weapon_grenadelauncher_fire( gentity_t *ent, int grenType ) {
 	}
 	VectorNormalize( forward );         //	make sure forward is normalized
 
-	upangle = -( ent->s.apos.trBase[0] ); //	this will give between	-90 / 90
+	upangle = -( ent->shared.s.apos.trBase[0] ); //	this will give between	-90 / 90
 	upangle = min( upangle, 50 );
 	upangle = max( upangle, -50 );        //	now clamped to			-50 / 50	(don't allow firing straight up/down)
 	upangle = upangle / 100.0f;           //						   -0.5 / 0.5
@@ -815,10 +813,10 @@ gentity_t *weapon_grenadelauncher_fire( gentity_t *ent, int grenType ) {
 	trace_t tr;
 	vec3_t viewpos;
 
-	VectorCopy( ent->s.pos.trBase, viewpos );
+	VectorCopy( ent->shared.s.pos.trBase, viewpos );
 	viewpos[2] += ent->client->ps.viewheight;
 
-	SV_Trace( &tr, viewpos, NULL, NULL, tosspos, ent->s.number, MASK_SHOT, qfalse);
+	SV_Trace( &tr, viewpos, NULL, NULL, tosspos, ent->shared.s.number, MASK_SHOT, qfalse);
 	if ( tr.fraction < 1 ) {   // oops, bad launch spot
 		VectorCopy( tr.endpos, tosspos );
 	}
@@ -830,12 +828,12 @@ gentity_t *weapon_grenadelauncher_fire( gentity_t *ent, int grenType ) {
 
 	if ( ent->aiCharacter == AICHAR_VENOM ) { // poison gas grenade
 		m->think = G_ExplodeMissilePoisonGas;
-		m->s.density = 1;
+		m->shared.s.density = 1;
 	}
 
 
 	// let the AI know which grenade it has fired
-	ent->grenadeFired = m->s.number;
+	ent->grenadeFired = m->shared.s.number;
 
 	// Ridah, return the grenade so we can do some prediction before deciding if we really want to throw it or not
 	return m;
@@ -898,7 +896,7 @@ qboolean VenomPellet( vec3_t start, vec3_t end, gentity_t *ent ) {
 	int damage;
 	gentity_t       *traceEnt;
 
-	SV_Trace( &tr, start, NULL, NULL, end, ent->s.number, MASK_SHOT, qfalse );
+	SV_Trace( &tr, start, NULL, NULL, end, ent->shared.s.number, MASK_SHOT, qfalse );
 	traceEnt = &g_entities[ tr.entityNum ];
 
 	// send bullet impact
@@ -964,13 +962,13 @@ void weapon_venom_fire( gentity_t *ent, qboolean fullmode, float aimSpreadScale 
 		tent = G_TempEntity( muzzleTrace, EV_VENOM );
 	}
 
-	VectorScale( forward, 4096, tent->s.origin2 );
-	SnapVector( tent->s.origin2 );
-	tent->s.eventParm = rand() & 255;       // seed for spread pattern
-	tent->s.otherEntityNum = ent->s.number;
+	VectorScale( forward, 4096, tent->shared.s.origin2 );
+	SnapVector( tent->shared.s.origin2 );
+	tent->shared.s.eventParm = rand() & 255;       // seed for spread pattern
+	tent->shared.s.otherEntityNum = ent->shared.s.number;
 
 	if ( fullmode ) {
-		VenomPattern( tent->s.pos.trBase, tent->s.origin2, tent->s.eventParm, ent );
+		VenomPattern( tent->shared.s.pos.trBase, tent->shared.s.origin2, tent->shared.s.eventParm, ent );
 	} else
 	{
 		int dam;
@@ -1011,19 +1009,7 @@ void Weapon_RocketLauncher_Fire( gentity_t *ent, float aimSpreadScale ) {
 		VectorNormalize( dir );
 
 		VectorCopy( muzzleEffect, launchpos );
-
-		// check for valid start spot (so you don't lose it in a wall)
-		// (doesn't ever happen)
-//		VectorCopy( ent->s.pos.trBase, viewpos );
-//		viewpos[2] += ent->client->ps.viewheight;
-//		SV_Trace (&tr, viewpos, NULL, NULL, muzzleEffect, ent->s.number, MASK_SHOT);
-//		if(tr.fraction < 1) {	// oops, bad launch spot
-///			VectorCopy(tr.endpos, launchpos);
-//			VectorSubtract(tr.endpos, viewpos, wallDir);
-//			VectorNormalize(wallDir);
-//			VectorMA(tr.endpos, -5, wallDir, launchpos);
-//		}
-
+		
 		m = fire_rocket( ent, launchpos, dir );
 
 		// add kick-back
@@ -1036,7 +1022,6 @@ void Weapon_RocketLauncher_Fire( gentity_t *ent, float aimSpreadScale ) {
 	m->damage *= s_quadFactor;
 	m->splashDamage *= s_quadFactor;
 
-//	VectorAdd( m->s.pos.trDelta, ent->client->ps.velocity, m->s.pos.trDelta );	// "real" physics
 }
 
 
@@ -1061,33 +1046,16 @@ void Weapon_LightningFire( gentity_t *ent ) {
 
 	VectorMA( muzzleTrace, LIGHTNING_RANGE, forward, end );
 
-	SV_Trace( &tr, muzzleTrace, NULL, NULL, end, ent->s.number, MASK_SHOT, qfalse );
+	SV_Trace( &tr, muzzleTrace, NULL, NULL, end, ent->shared.s.number, MASK_SHOT, qfalse );
 
 	if ( tr.entityNum == ENTITYNUM_NONE ) {
 		return;
 	}
 
 	traceEnt = &g_entities[ tr.entityNum ];
-/*
-	if ( traceEnt->takedamage && traceEnt->client ) {
-		tent = G_TempEntity( tr.endpos, EV_MISSILE_HIT );
-		tent->s.otherEntityNum = traceEnt->s.number;
-		tent->s.eventParm = DirToByte( tr.plane.normal );
-		tent->s.weapon = ent->s.weapon;
-		if( LogAccuracyHit( traceEnt, ent ) ) {
-			ent->client->ps.persistant[PERS_ACCURACY_HITS]++;
-		}
-	} else if ( !( tr.surfaceFlags & SURF_NOIMPACT ) ) {
-		tent = G_TempEntity( tr.endpos, EV_MISSILE_MISS );
-		tent->s.eventParm = DirToByte( tr.plane.normal );
-	}
-*/
-	if ( traceEnt->takedamage && !AICast_NoFlameDamage( traceEnt->s.number ) ) {
-		#define FLAME_THRESHOLD 50
 
-		// RF, only do damage once they start burning
-		//if (traceEnt->health > 0)	// don't explode from flamethrower
-		//	G_Damage( traceEnt, ent, ent, forward, tr.endpos, 1, 0, MOD_LIGHTNING);
+	if ( traceEnt->takedamage && !AICast_NoFlameDamage( traceEnt->shared.s.number ) ) {
+		#define FLAME_THRESHOLD 50
 
 		// now check the damageQuota to see if we should play a pain animation
 		// first reduce the current damageQuota with time
@@ -1104,19 +1072,19 @@ void Weapon_LightningFire( gentity_t *ent ) {
 
 		// Ridah, make em burn
 		if ( traceEnt->client && ( traceEnt->health <= 0 || traceEnt->flameQuota > FLAME_THRESHOLD ) ) {
-			if ( traceEnt->s.onFireEnd < level.time ) {
-				traceEnt->s.onFireStart = level.time;
+			if ( traceEnt->shared.s.onFireEnd < level.time ) {
+				traceEnt->shared.s.onFireStart = level.time;
 			}
-			if ( traceEnt->health <= 0 || !( traceEnt->r.svFlags & SVF_CASTAI ) ) {
-				if ( traceEnt->r.svFlags & SVF_CASTAI ) {
-					traceEnt->s.onFireEnd = level.time + 6000;
+			if ( traceEnt->health <= 0 || !( traceEnt->shared.r.svFlags & SVF_CASTAI ) ) {
+				if ( traceEnt->shared.r.svFlags & SVF_CASTAI ) {
+					traceEnt->shared.s.onFireEnd = level.time + 6000;
 				} else {
-					traceEnt->s.onFireEnd = level.time + FIRE_FLASH_TIME;
+					traceEnt->shared.s.onFireEnd = level.time + FIRE_FLASH_TIME;
 				}
 			} else {
-				traceEnt->s.onFireEnd = level.time + 99999; // make sure it goes for longer than they need to die
+				traceEnt->shared.s.onFireEnd = level.time + 99999; // make sure it goes for longer than they need to die
 			}
-			traceEnt->flameBurnEnt = ent->s.number;
+			traceEnt->flameBurnEnt = ent->shared.s.number;
 			// add to playerState for client-side effect
 			traceEnt->client->ps.onFireStart = level.time;
 		}
@@ -1180,7 +1148,7 @@ set muzzle location relative to pivoting eye
 ===============
 */
 void CalcMuzzlePoint( gentity_t *ent, int weapon, vec3_t forward, vec3_t right, vec3_t up, vec3_t muzzlePoint ) {
-	VectorCopy( ent->r.currentOrigin, muzzlePoint );
+	VectorCopy( ent->shared.r.currentOrigin, muzzlePoint );
 	muzzlePoint[2] += ent->client->ps.viewheight;
 	// Ridah, this puts the start point outside the bounding box, isn't necessary
 //	VectorMA( muzzlePoint, 14, forward, muzzlePoint );
@@ -1226,7 +1194,7 @@ void CalcMuzzlePoint( gentity_t *ent, int weapon, vec3_t forward, vec3_t right, 
 // Rafael - for activate
 void CalcMuzzlePointForActivate( gentity_t *ent, vec3_t forward, vec3_t right, vec3_t up, vec3_t muzzlePoint ) {
 
-	VectorCopy( ent->s.pos.trBase, muzzlePoint );
+	VectorCopy( ent->shared.s.pos.trBase, muzzlePoint );
 	muzzlePoint[2] += ent->client->ps.viewheight;
 
 	AddLean( ent, muzzlePoint );
@@ -1244,7 +1212,7 @@ void CalcMuzzlePoints( gentity_t *ent, int weapon ) {
 
 	VectorCopy( ent->client->ps.viewangles, viewang );
 
-	if ( !( ent->r.svFlags & SVF_CASTAI ) ) {   // non ai's take into account scoped weapon 'sway' (just another way aimspread is visualized/utilized)
+	if ( !( ent->shared.r.svFlags & SVF_CASTAI ) ) {   // non ai's take into account scoped weapon 'sway' (just another way aimspread is visualized/utilized)
 		float spreadfrac, phase;
 
 		if ( weapon == WP_SNIPERRIFLE || weapon == WP_SNOOPERSCOPE || weapon == WP_FG42SCOPE ) {
@@ -1300,21 +1268,21 @@ void FireWeapon( gentity_t *ent ) {
 //	}
 
 	// Ridah, need to call this for AI prediction also
-	CalcMuzzlePoints( ent, ent->s.weapon );
+	CalcMuzzlePoints( ent, ent->shared.s.weapon );
 
 	if ( g_userAim.integer ) {
 		aimSpreadScale = ent->client->currentAimSpreadScale;
 		// Ridah, add accuracy factor for AI
 		if ( ent->aiCharacter ) {
 			float aim_accuracy;
-			aim_accuracy = AICast_GetAccuracy( ent->s.number );
+			aim_accuracy = AICast_GetAccuracy( ent->shared.s.number );
 			if ( aim_accuracy <= 0 ) {
 				aim_accuracy = 0.0001;
 			}
 			aimSpreadScale = ( 1.0 - aim_accuracy ) * 2.0;
 		} else {
 			//	/maximum/ accuracy for player for a given weapon
-			switch ( ent->s.weapon ) {
+			switch ( ent->shared.s.weapon ) {
 			case WP_LUGER:
 			case WP_SILENCER:
 			case WP_COLT:
@@ -1340,7 +1308,7 @@ void FireWeapon( gentity_t *ent ) {
 	}
 
 	// fire the specific weapon
-	switch ( ent->s.weapon ) {
+	switch ( ent->shared.s.weapon ) {
 	case WP_KNIFE:
 		Weapon_Knife( ent );
 		break;
@@ -1415,10 +1383,10 @@ void FireWeapon( gentity_t *ent ) {
 		//if (ent->aiName && !Q_strncmp(ent->aiName, "mechanic", 8) && !AICast_HasFiredWeapon(ent->s.number, ent->s.weapon))
 		//	weapon_crowbar_throw (ent);
 		//else
-		if ( ent->s.weapon == WP_DYNAMITE ) {
+		if ( ent->shared.s.weapon == WP_DYNAMITE ) {
 			ent->client->ps.classWeaponTime = level.time; // JPW NERVE
 		}
-		weapon_grenadelauncher_fire( ent, ent->s.weapon );
+		weapon_grenadelauncher_fire( ent, ent->shared.s.weapon );
 		break;
 	case WP_FLAMETHROWER:
 		// RF, this is done client-side only now
@@ -1434,7 +1402,7 @@ void FireWeapon( gentity_t *ent ) {
 			vangle[PITCH] = 0;  // nullify pitch so you can't lightning jump
 			AngleVectors( vangle, forward, NULL, NULL );
 			// make it less if in the air
-			if ( ent->s.groundEntityNum == ENTITYNUM_NONE ) {
+			if ( ent->shared.s.groundEntityNum == ENTITYNUM_NONE ) {
 				VectorMA( ent->client->ps.velocity, -32, forward, ent->client->ps.velocity );
 			} else {
 				VectorMA( ent->client->ps.velocity, -100, forward, ent->client->ps.velocity );

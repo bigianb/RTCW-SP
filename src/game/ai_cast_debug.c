@@ -156,7 +156,7 @@ void AICast_DBG_Spawn_f( gclient_t *client, char *cmd ) {
 	ent->classname = G_Alloc( strlen( cmd ) + 1 );
 	strcpy( ent->classname, cmd );
 	AngleVectors( client->ps.viewangles, dir, NULL, NULL );
-	VectorMA( client->ps.origin, 96, dir, ent->s.origin );
+	VectorMA( client->ps.origin, 96, dir, ent->shared.s.origin );
 
 	if ( !G_CallSpawn( ent ) ) {
 		Com_Printf( "Error: unable to spawn \"%s\" entity\n", cmd );

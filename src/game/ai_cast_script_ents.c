@@ -78,12 +78,12 @@ void SP_ai_marker( gentity_t *ent ) {
 
 	if ( !( ent->spawnflags & 1 ) ) {
 		// drop to floor
-		ent->r.currentOrigin[2] += 1.0; // fixes QErad -> engine bug?
-		VectorSet( dest, ent->r.currentOrigin[0], ent->r.currentOrigin[1], ent->r.currentOrigin[2] - 4096 );
-		SV_Trace( &tr, ent->r.currentOrigin, checkMins, checkMaxs, dest, ent->s.number, MASK_PLAYERSOLID | CONTENTS_MONSTERCLIP, qfalse );
+		ent->shared.r.currentOrigin[2] += 1.0; // fixes QErad -> engine bug?
+		VectorSet( dest, ent->shared.r.currentOrigin[0], ent->shared.r.currentOrigin[1], ent->shared.r.currentOrigin[2] - 4096 );
+		SV_Trace( &tr, ent->shared.r.currentOrigin, checkMins, checkMaxs, dest, ent->shared.s.number, MASK_PLAYERSOLID | CONTENTS_MONSTERCLIP, qfalse );
 
 		if ( tr.startsolid ) {
-			Com_Printf( "WARNING: ai_marker (%s) in solid at %s\n", ent->targetname, vtos( ent->r.currentOrigin ) );
+			Com_Printf( "WARNING: ai_marker (%s) in solid at %s\n", ent->targetname, vtos( ent->shared.r.currentOrigin ) );
 			return;
 		}
 
@@ -112,16 +112,16 @@ void ai_effect_think( gentity_t *ent ) {
 		ent->think = ai_effect_think;
 		ent->nextthink = level.time + 200;
 		return;
-		//Com_Error( ERR_DROP, "ai_effect with invalid aiName at %s\n", vtos(ent->s.origin) );
+		//Com_Error( ERR_DROP, "ai_effect with invalid aiName at %s\n", vtos(ent->shared.s.origin) );
 	}
 
 	// make sure the clients can use this association
-	ent->s.otherEntityNum = targ->s.number;
+	ent->shared.s.otherEntityNum = targ->shared.s.number;
 
-	ent->s.eType = ET_AI_EFFECT;
-	G_SetOrigin( ent, ent->s.origin );
-	SV_LinkEntity( ent );
-	ent->r.svFlags |= SVF_BROADCAST;    // make sure all clients are aware of this entity
+	ent->shared.s.eType = ET_AI_EFFECT;
+	G_SetOrigin( ent, ent->shared.s.origin );
+	SV_LinkEntity( &ent->shared );
+	ent->shared.r.svFlags |= SVF_BROADCAST;    // make sure all clients are aware of this entity
 }
 
 void SP_ai_effect( gentity_t *ent ) {
@@ -149,7 +149,7 @@ void AICast_trigger_trigger( gentity_t *ent, gentity_t *activator ) {
 	ent->activator = AICast_FindEntityForName( ent->aiName );
 	if ( ent->activator ) { // they might be dead
 		// trigger the script event
-		AICast_ScriptEvent( AICast_GetCastState( ent->activator->s.number ), "trigger", ent->target );
+		AICast_ScriptEvent( AICast_GetCastState( ent->activator->shared.s.number ), "trigger", ent->target );
 	}
 
 	if ( ent->wait > 0 ) {
@@ -165,7 +165,7 @@ void AICast_trigger_trigger( gentity_t *ent, gentity_t *activator ) {
 }
 
 void AICast_Touch_Trigger( gentity_t *self, gentity_t *other, trace_t *trace ) {
-	if ( !other->client || ( other->r.svFlags & SVF_CASTAI ) ) {
+	if ( !other->client || ( other->shared.r.svFlags & SVF_CASTAI ) ) {
 		return;
 	}
 	AICast_trigger_trigger( self, other );
@@ -180,7 +180,7 @@ Triggered only by the player touching it
 extern void InitTrigger( gentity_t *self );
 
 void ai_trigger_activate( gentity_t *self ) {
-	if ( self->r.linked ) {
+	if ( self->shared.r.linked ) {
 		return;
 	}
 
@@ -190,7 +190,7 @@ void ai_trigger_activate( gentity_t *self ) {
 	self->touch = AICast_Touch_Trigger;
 
 	InitTrigger( self );
-	SV_LinkEntity( self );
+	SV_LinkEntity( &self->shared );
 }
 
 void ai_trigger_use( gentity_t *self, gentity_t *other, gentity_t *activator ) {
@@ -212,7 +212,7 @@ void SP_ai_trigger( gentity_t *ent ) {
 	if ( ent->spawnflags & 1 ) { // TriggerSpawn
 		ent->AIScript_AlertEntity = ai_trigger_activate;
 		ent->use = ai_trigger_use;
-		SV_UnlinkEntity( ent );
+		SV_UnlinkEntity( &ent->shared );
 	} else {
 		ai_trigger_activate( ent );
 	}

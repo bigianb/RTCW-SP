@@ -634,7 +634,7 @@ void ReadClient( fileHandle_t f, gclient_t *client, int size )
 	}
 
 	// tell the client to reset it's cgame stuff
-	if ( !( ent->r.svFlags & SVF_CASTAI ) ) {
+	if ( !( ent->shared.r.svFlags & SVF_CASTAI ) ) {
 		vmCvar_t cvar;
 		// tell it which weapon to use after spawning in
 		Cvar_Register( &cvar, "cg_loadWeaponSelect", "0", CVAR_ROM );
@@ -659,9 +659,9 @@ void WriteEntity( fileHandle_t f, gentity_t *ent )
     gentity_t temp = *ent;
 
 	// first, kill all events (assume they have been processed)
-	memset( temp.s.events, 0, sizeof( temp.s.events ) );
-	memset( temp.s.eventParms, 0, sizeof( temp.s.eventParms ) );
-	temp.s.eventSequence = 0;
+	memset( temp.shared.s.events, 0, sizeof( temp.shared.s.events ) );
+	memset( temp.shared.s.eventParms, 0, sizeof( temp.shared.s.eventParms ) );
+	temp.shared.s.eventSequence = 0;
 
 	// change the pointers to lengths or indexes
 	for (saveField_t *field = gentityFields_17 ; field->type ; field++ )
@@ -724,10 +724,10 @@ void ReadEntity( fileHandle_t f, gentity_t *ent, int size )
 
 	// kill all events (assume they have been processed)
 	if ( !temp.freeAfterEvent ) {
-		temp.s.event = 0;
-		memset( temp.s.events, 0, sizeof( temp.s.events ) );
-		memset( temp.s.eventParms, 0, sizeof( temp.s.eventParms ) );
-		temp.s.eventSequence = 0;
+		temp.shared.s.event = 0;
+		memset( temp.shared.s.events, 0, sizeof( temp.shared.s.events ) );
+		memset( temp.shared.s.eventParms, 0, sizeof( temp.shared.s.eventParms ) );
+		temp.shared.s.eventSequence = 0;
 		temp.eventTime = 0;
 	}
 
@@ -735,30 +735,30 @@ void ReadEntity( fileHandle_t f, gentity_t *ent, int size )
 	memcpy( ent, &temp, size );
 
 	// notify server of changes in position/orientation
-	if ( ent->r.linked && ( !( ent->r.svFlags & SVF_CASTAI ) || !ent->aiInactive ) ) {
-		SV_LinkEntity( ent );
+	if ( ent->shared.r.linked && ( !( ent->shared.r.svFlags & SVF_CASTAI ) || !ent->aiInactive ) ) {
+		SV_LinkEntity( &ent->shared );
 	} else {
-		SV_UnlinkEntity( ent );
+		SV_UnlinkEntity( &ent->shared );
 	}
 
 	// if this is a mover, check areaportals
-	if ( ent->s.eType == ET_MOVER && ent->moverState != backup.moverState ) {
+	if ( ent->shared.s.eType == ET_MOVER && ent->moverState != backup.moverState ) {
 		if ( ent->teammaster == ent || !ent->teammaster ) {
 			if ( ent->moverState == MOVER_POS1ROTATE || ent->moverState == MOVER_POS1 ) {
 				// closed areaportal
-				SV_AdjustAreaPortalState( ent, qfalse );
+				SV_AdjustAreaPortalState( &ent->shared, qfalse );
 			} else {    // must be open
 				// portals are always opened before the mover starts to open, so we must move
 				// it back to the start position, link, set portals, then move it back
                 gentity_t backup2 = *ent;
 				*ent = backup;
 				// link it at original position
-				SV_LinkEntity( ent );
+				SV_LinkEntity( &ent->shared );
 				// set portals
-				SV_AdjustAreaPortalState( ent, qtrue );
+				SV_AdjustAreaPortalState( &ent->shared, qtrue );
 				// put it back
 				*ent = backup2;
-				SV_LinkEntity( ent );
+				SV_LinkEntity( &ent->shared );
 			}
 		}
 	}
@@ -774,12 +774,12 @@ void ReadEntity( fileHandle_t f, gentity_t *ent, int size )
 	}
 
 	// if this is a camera, then make it the current global camera (silly global variables..)
-	if ( ent->s.eType == ET_CAMERA ) {
+	if ( ent->shared.s.eType == ET_CAMERA ) {
 		g_camEnt = ent;
 	}
 
 	// if this is the player
-	if ( ent->s.number == 0 ) {
+	if ( ent->shared.s.number == 0 ) {
 		Cvar_Set( "cg_yougotMail", "0" );
 
 		// set up met objectives
@@ -1135,7 +1135,7 @@ qboolean G_SaveGame( char *username )
     
 	for ( i = 0 ; i < level.num_entities ; i++ ) {
         gentity_t *ent = &g_entities[i];
-		if ( !ent->inuse || ent->s.number == ENTITYNUM_WORLD ) {
+		if ( !ent->inuse || ent->shared.s.number == ENTITYNUM_WORLD ) {
 			continue;
 		}
 		if ( !G_SaveWrite( &i, sizeof( i ), f ) ) {

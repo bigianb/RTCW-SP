@@ -176,8 +176,9 @@ void G_Script_ScriptEvent( gentity_t *ent, char *eventStr, char *params );
 #define CFOFS( x ) ( (intptr_t)&( ( (gclient_t *)0 )->x ) )
 
 struct gentity_s {
-	entityState_t s;                // communicated by server to clients
-	entityShared_t r;               // shared by both the server system and game
+	sharedEntity_t shared;
+	//entityState_t s;                // communicated by server to clients
+	//entityShared_t r;               // shared by both the server system and game
 
 	// DO NOT MODIFY ANYTHING ABOVE THIS, THE SERVER
 	// EXPECTS THE FIELDS IN THAT ORDER!

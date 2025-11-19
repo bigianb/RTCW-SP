@@ -955,11 +955,11 @@ void AIChar_SetBBox( gentity_t *ent, cast_state_t *cs, qboolean useHeadTag ) {
 		VectorCopy( bbmins[cs->aasWorldIndex], ent->client->ps.mins );
 		VectorCopy( bbmaxs[cs->aasWorldIndex], ent->client->ps.maxs );
 		ent->client->ps.maxs[2] = aiDefaults[cs->aiCharacter].crouchstandZ[1];
-		VectorCopy( ent->client->ps.mins, ent->r.mins );
-		VectorCopy( ent->client->ps.maxs, ent->r.maxs );
+		VectorCopy( ent->client->ps.mins, ent->shared.r.mins );
+		VectorCopy( ent->client->ps.maxs, ent->shared.r.maxs );
 		ent->client->ps.crouchMaxZ = aiDefaults[cs->aiCharacter].crouchstandZ[0];
-		ent->s.density = cs->aasWorldIndex;
-	} else if ( CG_GetTag( ent->s.number, "tag_head", &or ) ) {  // if not found, then just leave it
+		ent->shared.s.density = cs->aasWorldIndex;
+	} else if ( CG_GetTag( ent->shared.s.number, "tag_head", &or ) ) {  // if not found, then just leave it
 		or.origin[2] -= ent->client->ps.origin[2];  // convert to local coordinates
 		or.origin[2] += 11;
 		if ( or.origin[2] < 0 ) {
@@ -979,22 +979,22 @@ void AIChar_SetBBox( gentity_t *ent, cast_state_t *cs, qboolean useHeadTag ) {
 
 		if ( bbox[1][2] > ent->client->ps.maxs[2] ) {
 			// check this area is clear
-			SV_TraceCapsule( &tr, ent->client->ps.origin, bbox[0], bbox[1], ent->client->ps.origin, ent->s.number, ent->clipmask );
+			SV_TraceCapsule( &tr, ent->client->ps.origin, bbox[0], bbox[1], ent->client->ps.origin, ent->shared.s.number, ent->clipmask );
 		}
 
 		if ( !tr.startsolid && !tr.allsolid ) {
 			VectorCopy( bbox[0], ent->client->ps.mins );
 			VectorCopy( bbox[1], ent->client->ps.maxs );
-			VectorCopy( ent->client->ps.mins, ent->r.mins );
-			VectorCopy( ent->client->ps.maxs, ent->r.maxs );
+			VectorCopy( ent->client->ps.mins, ent->shared.r.mins );
+			VectorCopy( ent->client->ps.maxs, ent->shared.r.maxs );
 			ent->client->ps.crouchMaxZ = aiDefaults[cs->aiCharacter].crouchstandZ[0];
-			ent->s.density = cs->aasWorldIndex;
+			ent->shared.s.density = cs->aasWorldIndex;
 		}
 	}
 
 	// if they are linked, then relink to update bbox
-	if ( ent->r.linked ) {
-		SV_LinkEntity( ent );
+	if ( ent->shared.r.linked ) {
+		SV_LinkEntity( &ent->shared );
 	}
 }
 
@@ -1049,14 +1049,14 @@ int AIChar_GetPainLocation( gentity_t *ent, vec3_t point ) {
 	orientation_t or;
 
 	// first make sure the client is able to retrieve tag information
-	if ( !CG_GetTag( ent->s.number, painTagNames[0], &or ) ) {
+	if ( !CG_GetTag( ent->shared.s.number, painTagNames[0], &or ) ) {
 		return 0;
 	}
 
 	// find a correct animation to play, based on the body orientation at previous frame
 	for ( tagIndex = 0, bestDist = 0, bestTag = -1; painTagNames[tagIndex]; tagIndex++ ) {
 		// grab the tag with this name
-		if ( CG_GetTag( ent->s.number, painTagNames[tagIndex], &or ) ) {
+		if ( CG_GetTag( ent->shared.s.number, painTagNames[tagIndex], &or ) ) {
 			dist = VectorDistance( or.origin, point );
 			if ( !bestDist || dist < bestDist ) {
 				bestTag = tagIndex;
@@ -1085,7 +1085,7 @@ void AIChar_Pain( gentity_t *ent, gentity_t *attacker, int damage, vec3_t point 
 	qboolean forceStun = qfalse;
 	float painThreshold, stunnedThreshold;
 
-	cs = AICast_GetCastState( ent->s.number );
+	cs = AICast_GetCastState( ent->shared.s.number );
 
 	if ( g_testPain.integer == 1 ) {
 		ent->health = ent->client->pers.maxHealth;  // debugging
@@ -1110,14 +1110,14 @@ void AIChar_Pain( gentity_t *ent, gentity_t *attacker, int damage, vec3_t point 
 		return;
 	}
 
-	if ( attacker->s.weapon == WP_FLAMETHROWER && !( cs->aiFlags & AIFL_NO_FLAME_DAMAGE ) ) {   // flames should be recognized more often, since they stay onfire until they're dead anyway
+	if ( attacker->shared.s.weapon == WP_FLAMETHROWER && !( cs->aiFlags & AIFL_NO_FLAME_DAMAGE ) ) {   // flames should be recognized more often, since they stay onfire until they're dead anyway
 		painThreshold = 1;
 		stunnedThreshold = 99999;   // dont be stunned
 	}
 
 	// HACK: if the attacker is using the flamethrower, don't do any special pain anim or sound
 	// FIXME: we should pass in the MOD here, since they could have fired a grenade, then switched weapons
-	//if (attacker->s.weapon == WP_FLAMETHROWER) {
+	//if (attacker->shared.s.weapon == WP_FLAMETHROWER) {
 	//	return;
 	//}
 
@@ -1126,7 +1126,7 @@ void AIChar_Pain( gentity_t *ent, gentity_t *attacker, int damage, vec3_t point 
 		forceStun = qtrue;
 	}
 
-	if ( attacker->s.weapon == WP_TESLA ) {
+	if ( attacker->shared.s.weapon == WP_TESLA ) {
 		damage *= 2;
 		if ( cs->attributes[PAIN_THRESHOLD_SCALE] <= 1.0 ) {
 			damage = 99999;
@@ -1154,7 +1154,7 @@ void AIChar_Pain( gentity_t *ent, gentity_t *attacker, int damage, vec3_t point 
 
 	// adjust the new damage with distance, if they are really close, scale it down, to make it
 	// harder to get through the game by continually rushing the enemies
-	if ( ( attacker->s.weapon != WP_TESLA ) && ( ( dist = VectorDistance( ent->r.currentOrigin, attacker->r.currentAngles ) ) < 384 ) ) {
+	if ( ( attacker->shared.s.weapon != WP_TESLA ) && ( ( dist = VectorDistance( ent->shared.r.currentOrigin, attacker->shared.r.currentAngles ) ) < 384 ) ) {
 		damage -= (int)( (float)damage * ( 1.0 - ( dist / 384.0 ) ) * ( 0.5 + 0.5 * g_gameskill.value / GSKILL_MAX ) );
 	}
 
@@ -1176,26 +1176,26 @@ void AIChar_Pain( gentity_t *ent, gentity_t *attacker, int damage, vec3_t point 
 
 		// stunned?
 		if ( damage > stunnedThreshold && ( forceStun || ( rand() % 2 ) ) ) {   // stunned
-			BG_UpdateConditionValue( ent->s.number, ANIM_COND_STUNNED, qtrue, qfalse );
+			BG_UpdateConditionValue( ent->shared.s.number, ANIM_COND_STUNNED, qtrue, qfalse );
 		}
 		// enemy weapon
 		if ( attacker->client ) {
-			BG_UpdateConditionValue( ent->s.number, ANIM_COND_ENEMY_WEAPON, attacker->s.weapon, qtrue );
+			BG_UpdateConditionValue( ent->shared.s.number, ANIM_COND_ENEMY_WEAPON, attacker->shared.s.weapon, qtrue );
 		}
 		if ( point ) {
 			// location
-			BG_UpdateConditionValue( ent->s.number, ANIM_COND_IMPACT_POINT, AIChar_GetPainLocation( ent, point ), qtrue );
+			BG_UpdateConditionValue( ent->shared.s.number, ANIM_COND_IMPACT_POINT, AIChar_GetPainLocation( ent, point ), qtrue );
 		} else {
-			BG_UpdateConditionValue( ent->s.number, ANIM_COND_IMPACT_POINT, 0, qfalse );
+			BG_UpdateConditionValue( ent->shared.s.number, ANIM_COND_IMPACT_POINT, 0, qfalse );
 		}
 
 		// pause while we play a pain
 		delay = BG_AnimScriptEvent( &ent->client->ps, ANIM_ET_PAIN, qfalse, qtrue );
 
 		// turn off temporary conditions
-		BG_UpdateConditionValue( ent->s.number, ANIM_COND_STUNNED, 0, qfalse );
-		BG_UpdateConditionValue( ent->s.number, ANIM_COND_ENEMY_WEAPON, 0, qfalse );
-		BG_UpdateConditionValue( ent->s.number, ANIM_COND_IMPACT_POINT, 0, qfalse );
+		BG_UpdateConditionValue( ent->shared.s.number, ANIM_COND_STUNNED, 0, qfalse );
+		BG_UpdateConditionValue( ent->shared.s.number, ANIM_COND_ENEMY_WEAPON, 0, qfalse );
+		BG_UpdateConditionValue( ent->shared.s.number, ANIM_COND_IMPACT_POINT, 0, qfalse );
 
 		if ( delay >= 0 ) {
 			// setup game stuff to handle the character movements, etc
@@ -1233,7 +1233,7 @@ AIChar_Sight
 void AIChar_Sight( gentity_t *ent, gentity_t *other, int lastSight ) {
 	cast_state_t    *cs;
 
-	cs = AICast_GetCastState( ent->s.number );
+	cs = AICast_GetCastState( ent->shared.s.number );
 
 	// if we are in noattack mode, don't make sounds
 	if ( cs->castScriptStatus.scriptNoAttackTime >= level.time ) {
@@ -1248,7 +1248,7 @@ void AIChar_Sight( gentity_t *ent, gentity_t *other, int lastSight ) {
 		return;
 	}
 
-	if ( !AICast_SameTeam( cs, other->s.number ) ) {
+	if ( !AICast_SameTeam( cs, other->shared.s.number ) ) {
 		if ( !cs->firstSightTime || cs->firstSightTime < ( level.time - 15000 ) ) {
 			//G_AddEvent( ent, EV_GENERAL_SOUND, G_SoundIndex( aiDefaults[ent->aiCharacter].sightSoundScript ) );
 		}
@@ -1387,7 +1387,7 @@ void AIChar_spawn( gentity_t *ent ) {
 	newent->target = ent->target;
 	//
 	newent->classname = ent->classname;
-	newent->r.svFlags |= ( ent->r.svFlags & SVF_NOFOOTSTEPS );
+	newent->shared.r.svFlags |= ( ent->shared.r.svFlags & SVF_NOFOOTSTEPS );
 	newent->aiCharacter = ent->aiCharacter;
 	newent->client->ps.aiChar = ent->aiCharacter;
 	newent->spawnflags = ent->spawnflags;
@@ -1407,7 +1407,7 @@ void AIChar_spawn( gentity_t *ent ) {
 	// ...
 	//
 	// get the cast state
-	cs = AICast_GetCastState( ent->s.number );
+	cs = AICast_GetCastState( ent->shared.s.number );
 	//
 	// setup any character specific cast_state variables
 	cs->deathfunc = AIChar_Death;
@@ -1437,7 +1437,7 @@ void AIChar_spawn( gentity_t *ent ) {
 	//
 	// looping sound?
 	if ( aiCharDefaults->loopingSound ) {
-		ent->s.loopSound = G_SoundIndex( aiCharDefaults->loopingSound );
+		ent->shared.s.loopSound = G_SoundIndex( aiCharDefaults->loopingSound );
 	}
 	//
 	// precache sounds for this character
@@ -1494,7 +1494,7 @@ void AIChar_spawn( gentity_t *ent ) {
 		// trigger a spawn script event
 		AICast_ScriptEvent( cs, "spawn", "" );
 	} else {
-		SV_UnlinkEntity( ent );
+		SV_UnlinkEntity( &ent->shared );
 	}
 
 }
@@ -1550,7 +1550,7 @@ SP_ai_zombie
 ============
 */
 void SP_ai_zombie( gentity_t *ent ) {
-	ent->r.svFlags |= SVF_NOFOOTSTEPS;
+	ent->shared.r.svFlags |= SVF_NOFOOTSTEPS;
 	AICast_DelayedSpawnCast( ent, AICHAR_ZOMBIE );
 }
 
@@ -1587,7 +1587,7 @@ SP_ai_venom
 ============
 */
 void SP_ai_venom( gentity_t *ent ) {
-	ent->r.svFlags |= SVF_NOFOOTSTEPS;
+	ent->shared.r.svFlags |= SVF_NOFOOTSTEPS;
 	AICast_DelayedSpawnCast( ent, AICHAR_VENOM );
 }
 
@@ -1606,7 +1606,7 @@ SP_ai_loper
 ============
 */
 void SP_ai_loper( gentity_t *ent ) {
-	ent->r.svFlags |= SVF_NOFOOTSTEPS;
+	ent->shared.r.svFlags |= SVF_NOFOOTSTEPS;
 	AICast_DelayedSpawnCast( ent, AICHAR_LOPER );
 	//
 	level.loperZapSound = G_SoundIndex( "loperZap" );
@@ -1698,7 +1698,7 @@ SP_ai_frogman
 ============
 */
 void SP_ai_frogman( gentity_t *ent ) {
-	ent->r.svFlags |= SVF_NOFOOTSTEPS;
+	ent->shared.r.svFlags |= SVF_NOFOOTSTEPS;
 	AICast_DelayedSpawnCast( ent, AICHAR_FROGMAN );
 }
 

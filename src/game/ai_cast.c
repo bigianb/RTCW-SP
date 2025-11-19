@@ -253,26 +253,26 @@ gentity_t *AICast_AddCastToGame( gentity_t *ent, char *castname, char *model, ch
 		return NULL;
 	}
 	bot = &g_entities[ clientNum ];
-	bot->r.svFlags |= SVF_BOT;
-	bot->r.svFlags |= SVF_CASTAI;       // flag it for special Cast AI behaviour
+	bot->shared.r.svFlags |= SVF_BOT;
+	bot->shared.r.svFlags |= SVF_CASTAI;       // flag it for special Cast AI behaviour
 
 	// register the userinfo
-	SV_SetUserinfo( bot->s.number, userinfo );
+	SV_SetUserinfo( bot->shared.s.number, userinfo );
 
 	// have it connect to the game as a normal client
 //----(SA) ClientConnect requires a third 'isbot' parameter.  setting to qfalse and noting
-	ClientConnect( bot->s.number, qtrue, qfalse );
+	ClientConnect( bot->shared.s.number, qtrue, qfalse );
 //----(SA) end
 
 	// copy the origin/angles across
-	VectorCopy( ent->s.origin, bot->s.origin );
-	VectorCopy( ent->s.angles, bot->s.angles );
+	VectorCopy( ent->shared.s.origin, bot->shared.s.origin );
+	VectorCopy( ent->shared.s.angles, bot->shared.s.angles );
 
 	memset( &cmd, 0, sizeof( cmd ) );
-	ClientBegin( bot->s.number );
+	ClientBegin( bot->shared.s.number );
 
 	// set up the ai
-	AICast_SetupClient( bot->s.number );
+	AICast_SetupClient( bot->shared.s.number );
 
 	return bot;
 }
@@ -371,7 +371,7 @@ gentity_t *AICast_CreateCharacter( gentity_t *ent, float *attributes, cast_weapo
 	//
 	// setup the character..
 	//
-	cs = AICast_GetCastState( newent->s.number );
+	cs = AICast_GetCastState( newent->shared.s.number );
 	//
 	cs->aiCharacter = ent->aiCharacter;
 	client->ps.aiChar = ent->aiCharacter;
@@ -382,13 +382,13 @@ gentity_t *AICast_CreateCharacter( gentity_t *ent, float *attributes, cast_weapo
 	//
 	AICast_SetAASIndex( cs );
 	// make sure they face the right direction
-	VectorCopy( ent->s.angles, cs->ideal_viewangles );
+	VectorCopy( ent->shared.s.angles, cs->ideal_viewangles );
 	// factor in the delta_angles
 	for ( j = 0; j < 3; j++ ) {
-		cs->viewangles[j] = AngleMod( newent->s.angles[j] - SHORT2ANGLE( newent->client->ps.delta_angles[j] ) );
+		cs->viewangles[j] = AngleMod( newent->shared.s.angles[j] - SHORT2ANGLE( newent->client->ps.delta_angles[j] ) );
 	}
-	VectorCopy( ent->s.angles, newent->s.angles );
-	VectorCopy( ent->s.origin, cs->startOrigin );
+	VectorCopy( ent->shared.s.angles, newent->shared.s.angles );
+	VectorCopy( ent->shared.s.origin, cs->startOrigin );
 	//
 	cs->lastEnemy = -1;
 	cs->enemyNum = -1;
@@ -574,12 +574,12 @@ void AIChar_AIScript_AlertEntity( gentity_t *ent ) {
 		return;
 	}
 
-	cs = AICast_GetCastState( ent->s.number );
+	cs = AICast_GetCastState( ent->shared.s.number );
 
 	// if the current bounding box is invalid, then wait
-	VectorAdd( ent->r.currentOrigin, ent->r.mins, mins );
-	VectorAdd( ent->r.currentOrigin, ent->r.maxs, maxs );
-	SV_UnlinkEntity( ent );
+	VectorAdd( ent->shared.r.currentOrigin, ent->shared.r.mins, mins );
+	VectorAdd( ent->shared.r.currentOrigin, ent->shared.r.maxs, maxs );
+	SV_UnlinkEntity( &ent->shared );
 
 	numTouch = SV_AreaEntities( mins, maxs, touch, 10 );
 
@@ -587,7 +587,7 @@ void AIChar_AIScript_AlertEntity( gentity_t *ent ) {
 	if ( numTouch ) {
 		for ( i = 0; i < numTouch; i++ ) {
 			// RF, note we should only check against clients since zombies need to spawn inside func_explosive (so they dont clip into view after it explodes)
-			if ( g_entities[touch[i]].client && g_entities[touch[i]].r.contents == CONTENTS_BODY ) {
+			if ( g_entities[touch[i]].client && g_entities[touch[i]].shared.r.contents == CONTENTS_BODY ) {
 				break;
 			}
 		}
@@ -606,12 +606,12 @@ void AIChar_AIScript_AlertEntity( gentity_t *ent ) {
 	//ent->AIScript_AlertEntity = NULL;
 	cs->aiFlags &= ~AIFL_WAITINGTOSPAWN;
 	ent->aiInactive = qfalse;
-	SV_LinkEntity( ent );
+	SV_LinkEntity( &ent->shared );
 
 	// trigger a spawn script event
-	AICast_ScriptEvent( AICast_GetCastState( ent->s.number ), "spawn", "" );
+	AICast_ScriptEvent( AICast_GetCastState( ent->shared.s.number ), "spawn", "" );
 	// make it think so we update animations/angles
-	AICast_Think( ent->s.number, (float)FRAMETIME / 1000 );
+	AICast_Think( ent->shared.s.number, (float)FRAMETIME / 1000 );
 	cs->lastThink = level.time;
 	AICast_UpdateInput( cs, FRAMETIME );
 	trap_BotUserCommand( cs->bs->client, &( cs->lastucmd ) );
@@ -780,7 +780,7 @@ void AICast_CheckLoadGame( void ) {
 
 			Cvar_Set( "g_totalPlayTime", "0" );  // reset play time
 			Cvar_Set( "g_attempts", "0" );
-			pcs = AICast_GetCastState( ent->s.number );
+			pcs = AICast_GetCastState( ent->shared.s.number );
 			pcs->totalPlayTime = 0;
 			pcs->lastLoadTime = 0;
 			pcs->attempts = 0;
@@ -880,7 +880,7 @@ G_SetAASBlockingEntity
 */
 void G_SetAASBlockingEntity( gentity_t *ent, qboolean blocking ) {
 	ent->AASblocking = blocking;
-	trap_AAS_SetAASBlockingEntity( ent->r.absmin, ent->r.absmax, blocking );
+	trap_AAS_SetAASBlockingEntity( ent->shared.r.absmin, ent->shared.r.absmax, blocking );
 }
 
 /*

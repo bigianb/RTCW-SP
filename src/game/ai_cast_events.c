@@ -61,15 +61,15 @@ AICast_Sight
 void AICast_Sight( gentity_t *ent, gentity_t *other, int lastSight ) {
 	cast_state_t    *cs, *ocs;
 
-	cs = AICast_GetCastState( ent->s.number );
-	ocs = AICast_GetCastState( other->s.number );
+	cs = AICast_GetCastState( ent->shared.s.number );
+	ocs = AICast_GetCastState( other->shared.s.number );
 
 	//
 	// call the sightfunc for this cast, so we can play associated sounds, or do any character-specific things
 	//
 	if ( cs->sightfunc ) {
 		// factor in the reaction time
-		if ( AICast_EntityVisible( cs, other->s.number, qfalse ) ) {
+		if ( AICast_EntityVisible( cs, other->shared.s.number, qfalse ) ) {
 			cs->sightfunc( ent, other, lastSight );
 		}
 	}
@@ -78,7 +78,7 @@ void AICast_Sight( gentity_t *ent, gentity_t *other, int lastSight ) {
 
 		// they died since we last saw them
 		if ( ocs->deathTime > lastSight ) {
-			if ( !AICast_SameTeam( cs, other->s.number ) ) {
+			if ( !AICast_SameTeam( cs, other->shared.s.number ) ) {
 				AICast_ScriptEvent( cs, "enemysightcorpse", other->aiName );
 			} else if ( !( cs->castScriptStatus.scriptFlags & SFL_FRIENDLYSIGHTCORPSE_TRIGGERED ) ) {
 				cs->castScriptStatus.scriptFlags |= SFL_FRIENDLYSIGHTCORPSE_TRIGGERED;
@@ -88,7 +88,7 @@ void AICast_Sight( gentity_t *ent, gentity_t *other, int lastSight ) {
 
 		// if this is the first time, call the sight script event
 	} else if ( !lastSight && other->aiName ) {
-		if ( !AICast_SameTeam( cs, other->s.number ) ) {
+		if ( !AICast_SameTeam( cs, other->shared.s.number ) ) {
 			// disabled.. triggered when entering combat mode
 			//AICast_ScriptEvent( cs, "enemysight", other->aiName );
 		} else {
@@ -105,10 +105,10 @@ AICast_Pain
 void AICast_Pain( gentity_t *targ, gentity_t *attacker, int damage, vec3_t point ) {
 	cast_state_t    *cs;
 
-	cs = AICast_GetCastState( targ->s.number );
+	cs = AICast_GetCastState( targ->shared.s.number );
 
 	// print debugging message
-	if ( aicast_debug.integer == 2 && attacker->s.number == 0 ) {
+	if ( aicast_debug.integer == 2 && attacker->shared.s.number == 0 ) {
 		Com_Printf( "hit %s %i\n", targ->aiName, targ->health );
 	}
 
@@ -132,7 +132,7 @@ void AICast_Pain( gentity_t *targ, gentity_t *attacker, int damage, vec3_t point
 
 	// if either of us are neutral, then we are now enemies
 	if ( targ->aiTeam == AITEAM_NEUTRAL || attacker->aiTeam == AITEAM_NEUTRAL ) {
-		cs->vislist[attacker->s.number].flags |= AIVIS_ENEMY;
+		cs->vislist[attacker->shared.s.number].flags |= AIVIS_ENEMY;
 	}
 
 	AICast_ScriptEvent( cs, "painenemy", attacker->aiName );
@@ -165,14 +165,14 @@ void AICast_Die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
 	char mapname[MAX_QPATH];
 
 	// print debugging message
-	if ( aicast_debug.integer == 2 && attacker->s.number == 0 ) {
+	if ( aicast_debug.integer == 2 && attacker->shared.s.number == 0 ) {
 		Com_Printf( "killed %s\n", self->aiName );
 	}
 
-	cs = AICast_GetCastState( self->s.number );
+	cs = AICast_GetCastState( self->shared.s.number );
 
 	if ( attacker ) {
-		killer = attacker->s.number;
+		killer = attacker->shared.s.number;
 	} else {
 		killer = ENTITYNUM_WORLD;
 	}
@@ -217,7 +217,7 @@ void AICast_Die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
 				nogib = qfalse;
 
 				self->takedamage = qfalse;
-				self->r.contents = 0;
+				self->shared.r.contents = 0;
 				cs->secondDeadTime = 2;
 				cs->rebirthTime = 0;
 				cs->revivingTime = 0;
@@ -239,36 +239,36 @@ void AICast_Die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
 
 		// drop a weapon?
 		// if client is in a nodrop area, don't drop anything
-		contents = SV_PointContents( self->r.currentOrigin, -1 );
+		contents = SV_PointContents( self->shared.r.currentOrigin, -1 );
 		if ( !( contents & CONTENTS_NODROP ) ) {
 			TossClientItems( self );
 		}
 
 		// make sure the client doesn't forget about this entity until it's set to "dead" frame
 		// otherwise it might replay it's death animation if it goes out and into client view
-		self->r.svFlags |= SVF_BROADCAST;
+		self->shared.r.svFlags |= SVF_BROADCAST;
 
 		self->takedamage = qtrue;   // can still be gibbed
 
-		self->s.weapon = WP_NONE;
+		self->shared.s.weapon = WP_NONE;
 		if ( cs->bs ) {
 			cs->weaponNum = WP_NONE;
 		}
 		self->client->ps.weapon = WP_NONE;
 
-		self->s.powerups = 0;
-		self->r.contents = CONTENTS_CORPSE;
+		self->shared.s.powerups = 0;
+		self->shared.r.contents = CONTENTS_CORPSE;
 
-		self->s.angles[0] = 0;
-		self->s.angles[1] = self->client->ps.viewangles[1];
-		self->s.angles[2] = 0;
+		self->shared.s.angles[0] = 0;
+		self->shared.s.angles[1] = self->client->ps.viewangles[1];
+		self->shared.s.angles[2] = 0;
 
-		VectorCopy( self->s.angles, self->client->ps.viewangles );
+		VectorCopy( self->shared.s.angles, self->client->ps.viewangles );
 
-		self->s.loopSound = 0;
+		self->shared.s.loopSound = 0;
 
-		self->r.maxs[2] = -8;
-		self->client->ps.maxs[2] = self->r.maxs[2];
+		self->shared.r.maxs[2] = -8;
+		self->client->ps.maxs[2] = self->shared.r.maxs[2];
 
 		// remove powerups
 		memset( self->client->ps.powerups, 0, sizeof( self->client->ps.powerups ) );
@@ -292,19 +292,19 @@ void AICast_Die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
 		if ( !( self->aiCharacter == AICHAR_ZOMBIE && cs->secondDeadTime && cs->rebirthTime ) ) {
 
 			// set enemy weapon
-			BG_UpdateConditionValue( self->s.number, ANIM_COND_ENEMY_WEAPON, 0, qfalse );
+			BG_UpdateConditionValue( self->shared.s.number, ANIM_COND_ENEMY_WEAPON, 0, qfalse );
 			if ( attacker->client ) {
-				BG_UpdateConditionValue( self->s.number, ANIM_COND_ENEMY_WEAPON, inflictor->s.weapon, qtrue );
+				BG_UpdateConditionValue( self->shared.s.number, ANIM_COND_ENEMY_WEAPON, inflictor->shared.s.weapon, qtrue );
 			} else {
-				BG_UpdateConditionValue( self->s.number, ANIM_COND_ENEMY_WEAPON, 0, qfalse );
+				BG_UpdateConditionValue( self->shared.s.number, ANIM_COND_ENEMY_WEAPON, 0, qfalse );
 			}
 
 			// set enemy location
-			BG_UpdateConditionValue( self->s.number, ANIM_COND_ENEMY_POSITION, 0, qfalse );
+			BG_UpdateConditionValue( self->shared.s.number, ANIM_COND_ENEMY_POSITION, 0, qfalse );
 			if ( infront( self, inflictor ) ) {
-				BG_UpdateConditionValue( self->s.number, ANIM_COND_ENEMY_POSITION, POSITION_INFRONT, qtrue );
+				BG_UpdateConditionValue( self->shared.s.number, ANIM_COND_ENEMY_POSITION, POSITION_INFRONT, qtrue );
 			} else {
-				BG_UpdateConditionValue( self->s.number, ANIM_COND_ENEMY_POSITION, POSITION_BEHIND, qtrue );
+				BG_UpdateConditionValue( self->shared.s.number, ANIM_COND_ENEMY_POSITION, POSITION_BEHIND, qtrue );
 			}
 
 			if ( self->takedamage ) { // only play the anim if we haven't gibbed
@@ -319,7 +319,7 @@ void AICast_Die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
 
 			// set this flag so no other anims override us
 			self->client->ps.eFlags |= EF_DEAD;
-			self->s.eFlags |= EF_DEAD;
+			self->shared.s.eFlags |= EF_DEAD;
 
 			// make sure we dont move around while on the ground
 			//self->flags |= FL_NO_HEADCHECK;
@@ -357,10 +357,10 @@ void AICast_Die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
 		}
 	}
 
-	SV_LinkEntity( self );
+	SV_LinkEntity( &self->shared );
 
 	// kill, instanly, any streaming sound the character had going
-	G_AddEvent( &g_entities[self->s.number], EV_STOPSTREAMINGSOUND, 0 );
+	G_AddEvent( &g_entities[self->shared.s.number], EV_STOPSTREAMINGSOUND, 0 );
 
 	// mark the time of death
 	cs->deathTime = level.time;
@@ -405,7 +405,7 @@ void AICast_AIDoor_Touch( gentity_t *ent, gentity_t *aidoor_trigger, gentity_t *
 	trace_t tr;
 	vec3_t mins, pos, dir;
 
-	cs = AICast_GetCastState( ent->s.number );
+	cs = AICast_GetCastState( ent->shared.s.number );
 
 	if ( !cs->bs ) {
 		return;
@@ -413,7 +413,7 @@ void AICast_AIDoor_Touch( gentity_t *ent, gentity_t *aidoor_trigger, gentity_t *
 
 	// does the aidoor have ai_marker's?
 	if ( !aidoor_trigger->targetname ) {
-		Com_Printf( "trigger_aidoor has no ai_marker's at %s\n", vtos( ent->r.currentOrigin ) );
+		Com_Printf( "trigger_aidoor has no ai_marker's at %s\n", vtos( ent->shared.r.currentOrigin ) );
 		return;
 	}
 
@@ -424,7 +424,7 @@ void AICast_AIDoor_Touch( gentity_t *ent, gentity_t *aidoor_trigger, gentity_t *
 
 	// if they are moving away from the door, ignore them
 	if ( VectorLength( cs->bs->velocity ) > 1 ) {
-		VectorAdd( door->r.absmin, door->r.absmax, pos );
+		VectorAdd( door->shared.r.absmin, door->shared.r.absmax, pos );
 		VectorScale( pos, 0.5, pos );
 		VectorSubtract( pos, cs->bs->origin, dir );
 		if ( DotProduct( cs->bs->velocity, dir ) < 0 ) {
@@ -435,7 +435,7 @@ void AICast_AIDoor_Touch( gentity_t *ent, gentity_t *aidoor_trigger, gentity_t *
 	// TTimo: gcc: suggest () around assignment used as truth value
 	for ( trav = NULL; ( trav = G_Find( trav, FOFS( target ), aidoor_trigger->targetname ) ); ) {
 		// make sure the marker is vacant
-        SV_Trace( &tr, trav->r.currentOrigin, ent->r.mins, ent->r.maxs, trav->r.currentOrigin, ent->s.number, ent->clipmask, qfalse );
+        SV_Trace( &tr, trav->shared.r.currentOrigin, ent->shared.r.mins, ent->shared.r.maxs, trav->shared.r.currentOrigin, ent->shared.s.number, ent->clipmask, qfalse );
 		if ( tr.startsolid ) {
 			continue;
 		}
@@ -447,7 +447,7 @@ void AICast_AIDoor_Touch( gentity_t *ent, gentity_t *aidoor_trigger, gentity_t *
 			if ( ocs->aifunc != AIFunc_DoorMarker ) {
 				continue;
 			}
-			if ( ocs->doorMarker != trav->s.number ) {
+			if ( ocs->doorMarker != trav->shared.s.number ) {
 				continue;
 			}
 			// found a match
@@ -457,16 +457,16 @@ void AICast_AIDoor_Touch( gentity_t *ent, gentity_t *aidoor_trigger, gentity_t *
 			continue;
 		}
 		// make sure there is a clear path
-		VectorCopy( ent->r.mins, mins );
+		VectorCopy( ent->shared.r.mins, mins );
 		mins[2] += 16;  // step height
-        SV_Trace( &tr, ent->r.currentOrigin, mins, ent->r.maxs, trav->r.currentOrigin, ent->s.number, ent->clipmask, qfalse );
+        SV_Trace( &tr, ent->shared.r.currentOrigin, mins, ent->shared.r.maxs, trav->shared.r.currentOrigin, ent->shared.s.number, ent->clipmask, qfalse );
 		if ( tr.fraction < 1.0 ) {
 			continue;
 		}
 		// the marker is vacant and available
 		cs->doorMarkerTime = level.time;
-		cs->doorMarkerNum = trav->s.number;
-		cs->doorMarkerDoor = door->s.number;
+		cs->doorMarkerNum = trav->shared.s.number;
+		cs->doorMarkerDoor = door->shared.s.number;
 		break;
 	}
 }
@@ -526,9 +526,9 @@ void AICast_ProcessActivate( int entNum, int activatorNum ) {
 		// create a goal at this position
 		newent = G_Spawn();
 		newent->classname = "AI_wait_goal";
-		newent->r.ownerNum = entNum;
+		newent->shared.r.ownerNum = entNum;
 		G_SetOrigin( newent, cs->bs->origin );
-		AIFunc_ChaseGoalStart( cs, newent->s.number, 128, qtrue );
+		AIFunc_ChaseGoalStart( cs, newent->shared.s.number, 128, qtrue );
 
 		//AIFunc_IdleStart( cs );
 	} else {    // start following

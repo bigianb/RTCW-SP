@@ -399,7 +399,7 @@ void G_CheckForCursorHints( gentity_t *ent ) {
 	//
 	else if ( tr->entityNum < MAX_CLIENTS ) {
 
-		if ( ent->s.weapon == WP_KNIFE ) {
+		if ( ent->shared.s.weapon == WP_KNIFE ) {
 			vec3_t pforward, eforward;
 			qboolean canKnife = qfalse;
 
@@ -435,7 +435,7 @@ void G_CheckForCursorHints( gentity_t *ent ) {
 		// check invisible_users first since you don't want to draw a hint based
 		// on that ent, but rather on what they are targeting.
 		// so find the target and set checkEnt to that to show the proper hint.
-		if ( traceEnt->s.eType == ET_GENERAL ) {
+		if ( traceEnt->shared.s.eType == ET_GENERAL ) {
 
 			// ignore trigger_aidoor.  can't just not trace for triggers, since I need invisible_users...
 			// damn, I would like to ignore some of these triggers though.
@@ -459,7 +459,7 @@ void G_CheckForCursorHints( gentity_t *ent ) {
 
 
 		if ( checkEnt ) {
-			if ( checkEnt->s.eType == ET_GENERAL ) {
+			if ( checkEnt->shared.s.eType == ET_GENERAL ) {
 
 				// this is effectively an 'exit' brush.  they should be created with:
 				//
@@ -496,29 +496,29 @@ void G_CheckForCursorHints( gentity_t *ent ) {
 						}
 					}
 				}
-			} else if ( checkEnt->s.eType == ET_MG42 )      {
+			} else if ( checkEnt->shared.s.eType == ET_MG42 )      {
 				
-				if ( ent->s.weapon != WP_SNIPERRIFLE &&
-					 ent->s.weapon != WP_SNOOPERSCOPE &&
-					 ent->s.weapon != WP_FG42SCOPE ) {
+				if ( ent->shared.s.weapon != WP_SNIPERRIFLE &&
+					 ent->shared.s.weapon != WP_SNOOPERSCOPE &&
+					 ent->shared.s.weapon != WP_FG42SCOPE ) {
 					if ( traceEnt->takedamage ) {
 						hintDist = CH_ACTIVATE_DIST;
 						hintType = HINT_MG42;
 					}
 				}
 				
-			} else if ( checkEnt->s.eType == ET_EXPLOSIVE )      {
+			} else if ( checkEnt->shared.s.eType == ET_EXPLOSIVE )      {
 				if ( checkEnt->takedamage && checkEnt->health > 0 ) {              // 0 health explosives are not breakable
 					hintDist    = CH_BREAKABLE_DIST;
 					hintType    = HINT_BREAKABLE;
 					hintVal     = checkEnt->health;     // also send health to client for visualization
 				}
-			} else if ( checkEnt->s.eType == ET_ALARMBOX )      {
+			} else if ( checkEnt->shared.s.eType == ET_ALARMBOX )      {
 				if ( checkEnt->health > 0 ) {
 //					hintDist	= CH_BREAKABLE_DIST;
 					hintType    = HINT_ACTIVATE;
 				}
-			} else if ( checkEnt->s.eType == ET_ITEM )      {
+			} else if ( checkEnt->shared.s.eType == ET_ITEM )      {
 				gitem_t *it;
 				it = &bg_itemlist[checkEnt->item - bg_itemlist];
 
@@ -526,7 +526,7 @@ void G_CheckForCursorHints( gentity_t *ent ) {
 
 				switch ( it->giType ) {
 				case IT_HEALTH:
-					if ( !( checkEnt->s.density == ( 1 << 9 ) ) ) { // (10 bits of data transmission for density)
+					if ( !( checkEnt->shared.s.density == ( 1 << 9 ) ) ) { // (10 bits of data transmission for density)
 						hintType = HINT_HEALTH;
 					}
 					break;
@@ -546,7 +546,7 @@ void G_CheckForCursorHints( gentity_t *ent ) {
 					hintType = HINT_ARMOR;
 					break;
 				case IT_POWERUP:
-					if ( !( checkEnt->s.density == ( 1 << 9 ) ) ) { // (10 bits of data transmission for density)
+					if ( !( checkEnt->shared.s.density == ( 1 << 9 ) ) ) { // (10 bits of data transmission for density)
 						hintType = HINT_POWERUP;
 					}
 					break;
@@ -561,7 +561,7 @@ void G_CheckForCursorHints( gentity_t *ent ) {
 				default:
 					break;
 				}
-			} else if ( checkEnt->s.eType == ET_MOVER )     {
+			} else if ( checkEnt->shared.s.eType == ET_MOVER )     {
 				if ( !Q_stricmp( checkEnt->classname, "func_door_rotating" ) ) {
 					if ( checkEnt->moverState == MOVER_POS1ROTATE    ||      // stationary/closed
 						 ( checkEnt->moverState == MOVER_POS2ROTATE && checkEnt->flags & FL_TOGGLE ) ) { // toggle door that's open
@@ -601,20 +601,20 @@ void G_CheckForCursorHints( gentity_t *ent ) {
 
 			// hint icon specified in check entity (possibly an entity targeted by an invis_user) and appropriate contact was made, so hintType was set
 			// first try the checkent...
-			if ( checkEnt->s.dmgFlags && hintType ) {
-				hintType = checkEnt->s.dmgFlags;
+			if ( checkEnt->shared.s.dmgFlags && hintType ) {
+				hintType = checkEnt->shared.s.dmgFlags;
 			}
 		}
 
 		// then the traceent
-		if ( traceEnt->s.dmgFlags && ( hintType || indirectHit ) ) {
+		if ( traceEnt->shared.s.dmgFlags && ( hintType || indirectHit ) ) {
 
-			hintType = traceEnt->s.dmgFlags;
+			hintType = traceEnt->shared.s.dmgFlags;
 
 			// set up any forced max distances for specified hints
 			switch ( hintType ) {
 			case HINT_KNIFE:
-				if ( ent->s.weapon == WP_KNIFE ) {
+				if ( ent->shared.s.weapon == WP_KNIFE ) {
 					hintDist = CH_KNIFE_DIST;
 				} else {
 					hintType = 0;       // no knife, clear it
@@ -848,7 +848,7 @@ void G_UpdateCvars( void ) {
 						// script should run, and the camera start.
 
 						saveGamePending = qtrue;    // set this temporarily so we dont actually run the script just yet
-						AICast_ScriptEvent( AICast_GetCastState( player->s.number ), "playerstart", "" );
+						AICast_ScriptEvent( AICast_GetCastState( player->shared.s.number ), "playerstart", "" );
 						saveGamePending = qfalse;   // set it back
 
 						// save the "autosave\\<mapname>" savegame, which is taken before any cameras have been played
@@ -895,18 +895,18 @@ void G_SpawnScriptCamera( void ) {
 
 	g_camEnt->scriptName = "scriptcamera";
 
-	g_camEnt->s.eType = ET_CAMERA;
-	g_camEnt->s.apos.trType = TR_STATIONARY;
-	g_camEnt->s.apos.trTime = 0;
-	g_camEnt->s.apos.trDuration = 0;
-	VectorCopy( g_camEnt->s.angles, g_camEnt->s.apos.trBase );
-	VectorClear( g_camEnt->s.apos.trDelta );
+	g_camEnt->shared.s.eType = ET_CAMERA;
+	g_camEnt->shared.s.apos.trType = TR_STATIONARY;
+	g_camEnt->shared.s.apos.trTime = 0;
+	g_camEnt->shared.s.apos.trDuration = 0;
+	VectorCopy( g_camEnt->shared.s.angles, g_camEnt->shared.s.apos.trBase );
+	VectorClear( g_camEnt->shared.s.apos.trDelta );
 
-	g_camEnt->s.frame = 0;
+	g_camEnt->shared.s.frame = 0;
 
-	g_camEnt->r.svFlags |= SVF_NOCLIENT;        // only broadcast when in use
+	g_camEnt->shared.r.svFlags |= SVF_NOCLIENT;        // only broadcast when in use
 
-	if ( g_camEnt->s.number >= MAX_CLIENTS && g_camEnt->scriptName ) {
+	if ( g_camEnt->shared.s.number >= MAX_CLIENTS && g_camEnt->scriptName ) {
 		G_Script_ScriptParse( g_camEnt );
 		G_Script_ScriptEvent( g_camEnt, "spawn", "" );
 	}
@@ -928,9 +928,9 @@ int G_SendMissionStats() {
 
 	player = AICast_FindEntityForName( "player" );
 	if ( player ) {
-		attempts = AICast_NumAttempts( player->s.number ) + 1;    // attempts tracks '0' as attempt 1
-		AICast_AgePlayTime( player->s.number );
-		playtime = AICast_PlayTime( player->s.number );
+		attempts = AICast_NumAttempts( player->shared.s.number ) + 1;    // attempts tracks '0' as attempt 1
+		AICast_AgePlayTime( player->shared.s.number );
+		playtime = AICast_PlayTime( player->shared.s.number );
 
 		for ( i = 0; i < 8; i++ ) {  // max objectives is '8'.  FIXME: use #define somewhere
 			if ( player->missionObjectives & ( 1 << i ) ) {
@@ -1099,7 +1099,7 @@ void G_ShutdownGame( int restart ) {
 
 		// Ridah, kill AI cast's
 		for ( i = 0 ; i < g_maxclients.integer ; i++ ) {
-			if ( g_entities[i].r.svFlags & SVF_CASTAI ) {
+			if ( g_entities[i].shared.r.svFlags & SVF_CASTAI ) {
 				SV_GameDropClient( i, "Drop Cast AI" );
 			}
 		}
@@ -1142,7 +1142,7 @@ void MoveClientToIntermission( gentity_t *ent ) {
 
 
 	// move to the spot
-	VectorCopy( level.intermission_origin, ent->s.origin );
+	VectorCopy( level.intermission_origin, ent->shared.s.origin );
 	VectorCopy( level.intermission_origin, ent->client->ps.origin );
 	VectorCopy( level.intermission_angle, ent->client->ps.viewangles );
 	ent->client->ps.pm_type = PM_INTERMISSION;
@@ -1151,12 +1151,12 @@ void MoveClientToIntermission( gentity_t *ent ) {
 	memset( ent->client->ps.powerups, 0, sizeof( ent->client->ps.powerups ) );
 
 	ent->client->ps.eFlags = 0;
-	ent->s.eFlags = 0;
-	ent->s.eType = ET_GENERAL;
-	ent->s.modelindex = 0;
-	ent->s.loopSound = 0;
-	ent->s.event = 0;
-	ent->r.contents = 0;
+	ent->shared.s.eFlags = 0;
+	ent->shared.s.eType = ET_GENERAL;
+	ent->shared.s.modelindex = 0;
+	ent->shared.s.loopSound = 0;
+	ent->shared.s.event = 0;
+	ent->shared.r.contents = 0;
 }
 
 /*
@@ -1175,13 +1175,13 @@ void FindIntermissionPoint( void ) {
 	if ( !ent ) {   // the map creator forgot to put in an intermission point...
 		SelectSpawnPoint( vec3_origin, level.intermission_origin, level.intermission_angle );
 	} else {
-		VectorCopy( ent->s.origin, level.intermission_origin );
-		VectorCopy( ent->s.angles, level.intermission_angle );
+		VectorCopy( ent->shared.s.origin, level.intermission_origin );
+		VectorCopy( ent->shared.s.angles, level.intermission_angle );
 		// if it has a target, look towards it
 		if ( ent->target ) {
 			target = G_PickTarget( ent->target );
 			if ( target ) {
-				VectorSubtract( target->s.origin, level.intermission_origin, dir );
+				VectorSubtract( target->shared.s.origin, level.intermission_origin, dir );
 				vectoangles( dir, level.intermission_angle );
 			}
 		}
@@ -1224,7 +1224,7 @@ void ExitLevel()
 	for (int i = 0 ; i < g_maxclients.integer ; i++ ) {
 
 		// Ridah, kill AI cast's
-		if ( g_entities[i].r.svFlags & SVF_CASTAI ) {
+		if ( g_entities[i].shared.r.svFlags & SVF_CASTAI ) {
 			SV_GameDropClient( i, "Drop Cast AI" );
 			continue;
 		}
@@ -1372,7 +1372,7 @@ Runs thinking code for this frame if necessary
 void G_RunThink( gentity_t *ent ) {
 
 	// RF, run scripting
-	if ( ent->s.number >= MAX_CLIENTS ) {
+	if ( ent->shared.s.number >= MAX_CLIENTS ) {
 		ent->scriptStatusCurrent = ent->scriptStatus;
 		G_Script_ScriptRun( ent );
 	}
@@ -1427,9 +1427,9 @@ void G_RunFrame( int levelTime )
 		// check EF_NODRAW status for non-clients
 		if ( i > level.maxclients ) {
 			if ( ent->flags & FL_NODRAW ) {
-				ent->s.eFlags |= EF_NODRAW;
+				ent->shared.s.eFlags |= EF_NODRAW;
 			} else {
-				ent->s.eFlags &= ~EF_NODRAW;
+				ent->shared.s.eFlags &= ~EF_NODRAW;
 			}
 		}
 
@@ -1437,23 +1437,23 @@ void G_RunFrame( int levelTime )
 		// so the server thinks it's at least close to where the client will view it
 		if ( ent->tagParent ) {
 			vec3_t org;
-			BG_EvaluateTrajectory( &ent->tagParent->s.pos, level.time, org );
+			BG_EvaluateTrajectory( &ent->tagParent->shared.s.pos, level.time, org );
 			G_SetOrigin( ent, org );
-			VectorCopy( org, ent->s.origin );
-			if ( ent->r.linked ) {    // update position
-				SV_LinkEntity( ent );
+			VectorCopy( org, ent->shared.s.origin );
+			if ( ent->shared.r.linked ) {    // update position
+				SV_LinkEntity( &ent->shared );
 			}
 		}
 
 		// clear events that are too old
 		if ( ent->eventTime && level.time - ent->eventTime > EVENT_VALID_MSEC ) {
-			if ( ent->s.event ) {
-				ent->s.event = 0;   // &= EV_EVENT_BITS;
+			if ( ent->shared.s.event ) {
+				ent->shared.s.event = 0;   // &= EV_EVENT_BITS;
 			}
 			// Clear all listed events (fixes hearing lots of sounds and events after vid_restart)
-			memset( ent->s.events, 0, sizeof( ent->s.events ) );
-			memset( ent->s.eventParms, 0, sizeof( ent->s.eventParms ) );
-			ent->s.eventSequence = 0;
+			memset( ent->shared.s.events, 0, sizeof( ent->shared.s.events ) );
+			memset( ent->shared.s.eventParms, 0, sizeof( ent->shared.s.eventParms ) );
+			ent->shared.s.eventSequence = 0;
 			if ( ent->client ) {
 				memset( ent->client->ps.events, 0, sizeof( ent->client->ps.events ) );
 				memset( ent->client->ps.eventParms, 0, sizeof( ent->client->ps.eventParms ) );
@@ -1468,16 +1468,16 @@ void G_RunFrame( int levelTime )
 			} else if ( ent->unlinkAfterEvent ) {
 				// items that will respawn will hide themselves after their pickup event
 				ent->unlinkAfterEvent = qfalse;
-				SV_UnlinkEntity( ent );
+				SV_UnlinkEntity( &ent->shared );
 			}
 			ent->eventTime = 0;
 		}
 
 		// MrE: let the server know about bbox or capsule collision
-		if ( ent->s.eFlags & EF_CAPSULE ) {
-			ent->r.svFlags |= SVF_CAPSULE;
+		if ( ent->shared.s.eFlags & EF_CAPSULE ) {
+			ent->shared.r.svFlags |= SVF_CAPSULE;
 		} else {
-			ent->r.svFlags &= ~SVF_CAPSULE;
+			ent->shared.r.svFlags &= ~SVF_CAPSULE;
 		}
 
 		// temporary entities don't think
@@ -1485,37 +1485,37 @@ void G_RunFrame( int levelTime )
 			continue;
 		}
 
-		if ( !ent->r.linked && ent->neverFree ) {
+		if ( !ent->shared.r.linked && ent->neverFree ) {
 			continue;
 		}
 
-		if ( ent->s.eType == ET_MISSILE
-			 || ent->s.eType == ET_FLAMEBARREL
-			 || ent->s.eType == ET_FP_PARTS
-			 || ent->s.eType == ET_FIRE_COLUMN
-			 || ent->s.eType == ET_FIRE_COLUMN_SMOKE
-			 || ent->s.eType == ET_EXPLO_PART
-			 || ent->s.eType == ET_RAMJET ) {
+		if ( ent->shared.s.eType == ET_MISSILE
+			 || ent->shared.s.eType == ET_FLAMEBARREL
+			 || ent->shared.s.eType == ET_FP_PARTS
+			 || ent->shared.s.eType == ET_FIRE_COLUMN
+			 || ent->shared.s.eType == ET_FIRE_COLUMN_SMOKE
+			 || ent->shared.s.eType == ET_EXPLO_PART
+			 || ent->shared.s.eType == ET_RAMJET ) {
 			G_RunMissile( ent );
 			continue;
 		}
 
-		if ( ent->s.eType == ET_ZOMBIESPIT ) {
+		if ( ent->shared.s.eType == ET_ZOMBIESPIT ) {
 			G_RunSpit( ent );
 			continue;
 		}
 
-		if ( ent->s.eType == ET_CROWBAR ) {
+		if ( ent->shared.s.eType == ET_CROWBAR ) {
 			G_RunCrowbar( ent );
 			continue;
 		}
 
-		if ( ent->s.eType == ET_ITEM || ent->physicsObject ) {
+		if ( ent->shared.s.eType == ET_ITEM || ent->physicsObject ) {
 			G_RunItem( ent );
 			continue;
 		}
 
-		if ( ent->s.eType == ET_ALARMBOX ) {
+		if ( ent->shared.s.eType == ET_ALARMBOX ) {
 			if ( ent->flags & FL_TEAMSLAVE ) {
 				continue;
 			}
@@ -1523,7 +1523,7 @@ void G_RunFrame( int levelTime )
 			continue;
 		}
 
-		if ( ent->s.eType == ET_MOVER || ent->s.eType == ET_PROP ) {
+		if ( ent->shared.s.eType == ET_MOVER || ent->shared.s.eType == ET_PROP ) {
 			G_RunMover( ent );
 			continue;
 		}

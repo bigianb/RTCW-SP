@@ -100,9 +100,9 @@ int Pickup_Powerup( gentity_t *ent, gentity_t *other ) {
 		}
 	}
 
-	if ( ent->s.density == 2 ) {   // multi-stage health first stage
+	if ( ent->shared.s.density == 2 ) {   // multi-stage health first stage
 		return RESPAWN_PARTIAL;
-	} else if ( ent->s.density == 1 ) {    // last stage, leave the plate
+	} else if ( ent->shared.s.density == 1 ) {    // last stage, leave the plate
 		return RESPAWN_PARTIAL_DONE;
 	}
 
@@ -420,10 +420,10 @@ int Pickup_Health( gentity_t *ent, gentity_t *other ) {
 	if ( ent->count ) {
 		quantity = ent->count;
 	} else {
-		if ( ent->s.density ) {    // multi-stage health
-			if ( ent->s.density == 2 ) {       // first stage (it counts down)
+		if ( ent->shared.s.density ) {    // multi-stage health
+			if ( ent->shared.s.density == 2 ) {       // first stage (it counts down)
 				quantity = ent->item->gameskillnumber[g_gameskill.integer];
-			} else if ( ent->s.density == 1 )      { // second stage
+			} else if ( ent->shared.s.density == 1 )      { // second stage
 				quantity = ent->item->quantity;
 			}
 		} else {
@@ -438,9 +438,9 @@ int Pickup_Health( gentity_t *ent, gentity_t *other ) {
 	}
 	other->client->ps.stats[STAT_HEALTH] = other->health;
 
-	if ( ent->s.density == 2 ) {   // multi-stage health first stage
+	if ( ent->shared.s.density == 2 ) {   // multi-stage health first stage
 		return RESPAWN_PARTIAL;
-	} else if ( ent->s.density == 1 ) {    // last stage, leave the plate
+	} else if ( ent->shared.s.density == 1 ) {    // last stage, leave the plate
 		return RESPAWN_PARTIAL_DONE;
 	}
 
@@ -486,11 +486,11 @@ void RespawnItem( gentity_t *ent ) {
 			;
 	}
 
-	ent->r.contents = CONTENTS_TRIGGER;
-	//ent->s.eFlags &= ~EF_NODRAW;
+	ent->shared.r.contents = CONTENTS_TRIGGER;
+	//ent->shared.s.eFlags &= ~EF_NODRAW;
 	ent->flags &= ~FL_NODRAW;
-	ent->r.svFlags &= ~SVF_NOCLIENT;
-	SV_LinkEntity( ent );
+	ent->shared.r.svFlags &= ~SVF_NOCLIENT;
+	SV_LinkEntity( &ent->shared );
 
 	// play the normal respawn sound only to nearby clients
 	G_AddEvent( ent, EV_ITEM_RESPAWN, 0 );
@@ -546,11 +546,11 @@ void Touch_Item( gentity_t *ent, gentity_t *other, trace_t *trace ) {
 
 	}
 	// the same pickup rules are used for client side and server side
-	if ( !BG_CanItemBeGrabbed( &ent->s, &other->client->ps ) ) {
+	if ( !BG_CanItemBeGrabbed( &ent->shared.s, &other->client->ps ) ) {
 		return;
 	}
 
-	G_LogPrintf( "Item: %i %s\n", other->s.number, ent->item->classname );
+	G_LogPrintf( "Item: %i %s\n", other->shared.s.number, ent->item->classname );
 
 	// call the item-specific pickup function
 	switch ( ent->item->giType ) {
@@ -582,8 +582,8 @@ void Touch_Item( gentity_t *ent, gentity_t *other, trace_t *trace ) {
 	case IT_CLIPBOARD:
 		respawn = Pickup_Clipboard( ent, other );
 		// send the event to the client to request that the UI draw a popup
-		// (specified by the configstring in ent->s.density).
-		G_AddEvent( other, EV_POPUP, ent->s.density );
+		// (specified by the configstring in ent->shared.s.density).
+		G_AddEvent( other, EV_POPUP, ent->shared.s.density );
 		if ( ent->key ) {
 			G_AddEvent( other, EV_GIVEPAGE, ent->key );
 		}
@@ -608,9 +608,9 @@ void Touch_Item( gentity_t *ent, gentity_t *other, trace_t *trace ) {
 
 	// send the pickup event
 	if ( other->client->pers.predictItemPickup ) {
-		G_AddPredictableEvent( other, makenoise, ent->s.modelindex );
+		G_AddPredictableEvent( other, makenoise, ent->shared.s.modelindex );
 	} else {
-		G_AddEvent( other, makenoise, ent->s.modelindex );
+		G_AddEvent( other, makenoise, ent->shared.s.modelindex );
 	}
 
 	// powerup pickups are global broadcasts
@@ -618,13 +618,13 @@ void Touch_Item( gentity_t *ent, gentity_t *other, trace_t *trace ) {
 		// (SA) probably need to check for IT_KEY here too... (coop?)
 		gentity_t   *te;
 
-		te = G_TempEntity( ent->s.pos.trBase, EV_GLOBAL_ITEM_PICKUP );
-		te->s.eventParm = ent->s.modelindex;
-		te->r.svFlags |= SVF_BROADCAST;
+		te = G_TempEntity( ent->shared.s.pos.trBase, EV_GLOBAL_ITEM_PICKUP );
+		te->shared.s.eventParm = ent->shared.s.modelindex;
+		te->shared.r.svFlags |= SVF_BROADCAST;
 
 		// (SA) set if we want this to only go to the pickup client
-//		te->r.svFlags |= SVF_SINGLECLIENT;
-//		te->r.singleClient = other->s.number;
+//		te->shared.r.svFlags |= SVF_SINGLECLIENT;
+//		te->shared.r.singleClient = other->shared.s.number;
 
 	}
 
@@ -634,9 +634,9 @@ void Touch_Item( gentity_t *ent, gentity_t *other, trace_t *trace ) {
 	// wait of -1 will not respawn
 	if ( ent->wait == -1 ) {
 		ent->flags |= FL_NODRAW;
-		ent->r.svFlags |= SVF_NOCLIENT; // (SA) commented back in.
-		ent->s.eFlags |= EF_NODRAW;
-		ent->r.contents = 0;
+		ent->shared.r.svFlags |= SVF_NOCLIENT; // (SA) commented back in.
+		ent->shared.s.eFlags |= EF_NODRAW;
+		ent->shared.r.contents = 0;
 		ent->unlinkAfterEvent = qtrue;
 		return;
 	}
@@ -644,17 +644,17 @@ void Touch_Item( gentity_t *ent, gentity_t *other, trace_t *trace ) {
 	// wait of -2 will respawn but not be available for pickup anymore
 	// (partial use things that leave a spent modle (ex. plate for turkey)
 	if ( respawn == RESPAWN_PARTIAL_DONE ) {
-		ent->s.density = ( 1 << 9 );    // (10 bits of data transmission for density)
+		ent->shared.s.density = ( 1 << 9 );    // (10 bits of data transmission for density)
 		ent->active = qtrue;        // re-activate
-		SV_LinkEntity( ent );
+		SV_LinkEntity( &ent->shared );
 		return;
 	}
 
 	if ( respawn == RESPAWN_PARTIAL ) {    // multi-stage health
-		ent->s.density--;
-		if ( ent->s.density ) {        // still not completely used up ( (SA) this will change to == 0 and stage 1 will be a destroyable item (plate/etc.) )
+		ent->shared.s.density--;
+		if ( ent->shared.s.density ) {        // still not completely used up ( (SA) this will change to == 0 and stage 1 will be a destroyable item (plate/etc.) )
 			ent->active = qtrue;        // re-activate
-			SV_LinkEntity( ent );
+			SV_LinkEntity( &ent->shared );
 			return;
 		}
 	}
@@ -681,10 +681,10 @@ void Touch_Item( gentity_t *ent, gentity_t *other, trace_t *trace ) {
 	// picked up items still stay around, they just don't
 	// draw anything.  This allows respawnable items
 	// to be placed on movers.
-	ent->r.svFlags |= SVF_NOCLIENT;
+	ent->shared.r.svFlags |= SVF_NOCLIENT;
 	ent->flags |= FL_NODRAW;
-	//ent->s.eFlags |= EF_NODRAW;
-	ent->r.contents = 0;
+	//ent->shared.s.eFlags |= EF_NODRAW;
+	ent->shared.r.contents = 0;
 
 	// ZOID
 	// A negative respawn times means to never respawn this item (but don't
@@ -697,7 +697,7 @@ void Touch_Item( gentity_t *ent, gentity_t *other, trace_t *trace ) {
 		ent->nextthink = level.time + respawn * 1000;
 		ent->think = RespawnItem;
 	}
-	SV_LinkEntity( ent );
+	SV_LinkEntity( &ent->shared );
 }
 
 
@@ -715,31 +715,31 @@ gentity_t *LaunchItem( gitem_t *item, vec3_t origin, vec3_t velocity ) {
 
 	dropped = G_Spawn();
 
-	dropped->s.eType = ET_ITEM;
-	dropped->s.modelindex = item - bg_itemlist; // store item number in modelindex
-//	dropped->s.modelindex2 = 1; // This is non-zero is it's a dropped item	//----(SA)	commented out since I'm using modelindex2 for model indexing now
-	dropped->s.otherEntityNum2 = 1;     // DHM - Nerve :: this is taking modelindex2's place for signaling a dropped item
+	dropped->shared.s.eType = ET_ITEM;
+	dropped->shared.s.modelindex = item - bg_itemlist; // store item number in modelindex
+//	dropped->shared.s.modelindex2 = 1; // This is non-zero is it's a dropped item	//----(SA)	commented out since I'm using modelindex2 for model indexing now
+	dropped->shared.s.otherEntityNum2 = 1;     // DHM - Nerve :: this is taking modelindex2's place for signaling a dropped item
 
 	dropped->classname = item->classname;
 	dropped->item = item;
-//	VectorSet (dropped->r.mins, -ITEM_RADIUS, -ITEM_RADIUS, -ITEM_RADIUS);
-//	VectorSet (dropped->r.maxs, ITEM_RADIUS, ITEM_RADIUS, ITEM_RADIUS);
-	VectorSet( dropped->r.mins, -ITEM_RADIUS, -ITEM_RADIUS, 0 );            //----(SA)	so items sit on the ground
-	VectorSet( dropped->r.maxs, ITEM_RADIUS, ITEM_RADIUS, 2 * ITEM_RADIUS );  //----(SA)	so items sit on the ground
-	dropped->r.contents = CONTENTS_TRIGGER | CONTENTS_ITEM;
+//	VectorSet (dropped->shared.r.mins, -ITEM_RADIUS, -ITEM_RADIUS, -ITEM_RADIUS);
+//	VectorSet (dropped->shared.r.maxs, ITEM_RADIUS, ITEM_RADIUS, ITEM_RADIUS);
+	VectorSet( dropped->shared.r.mins, -ITEM_RADIUS, -ITEM_RADIUS, 0 );            //----(SA)	so items sit on the ground
+	VectorSet( dropped->shared.r.maxs, ITEM_RADIUS, ITEM_RADIUS, 2 * ITEM_RADIUS );  //----(SA)	so items sit on the ground
+	dropped->shared.r.contents = CONTENTS_TRIGGER | CONTENTS_ITEM;
 
 	dropped->touch = Touch_Item_Auto;
 
 	G_SetOrigin( dropped, origin );
-	dropped->s.pos.trType = TR_GRAVITY;
-	dropped->s.pos.trTime = level.time;
-	VectorCopy( velocity, dropped->s.pos.trDelta );
+	dropped->shared.s.pos.trType = TR_GRAVITY;
+	dropped->shared.s.pos.trTime = level.time;
+	VectorCopy( velocity, dropped->shared.s.pos.trDelta );
 
-	dropped->s.eFlags |= EF_BOUNCE_HALF;
+	dropped->shared.s.eFlags |= EF_BOUNCE_HALF;
 
 	// (SA) TODO: FIXME: don't do this right now.  bug needs to be found.
 //	if(item->giType == IT_WEAPON)
-//		dropped->s.eFlags |= EF_SPINNING;	// spin the weapon as it flies from the dead player.  it will stop when it hits the ground
+//		dropped->shared.s.eFlags |= EF_SPINNING;	// spin the weapon as it flies from the dead player.  it will stop when it hits the ground
 
 
 	 // auto-remove after 30 seconds
@@ -749,7 +749,7 @@ gentity_t *LaunchItem( gitem_t *item, vec3_t origin, vec3_t velocity ) {
 
 	dropped->flags = FL_DROPPED_ITEM;
 
-	SV_LinkEntity( dropped );
+	SV_LinkEntity( &dropped->shared );
 
 	return dropped;
 }
@@ -765,7 +765,7 @@ gentity_t *Drop_Item( gentity_t *ent, gitem_t *item, float angle, qboolean novel
 	vec3_t velocity;
 	vec3_t angles;
 
-	VectorCopy( ent->s.apos.trBase, angles );
+	VectorCopy( ent->shared.s.apos.trBase, angles );
 	angles[YAW] += angle;
 	angles[PITCH] = 0;  // always forward
 
@@ -778,7 +778,7 @@ gentity_t *Drop_Item( gentity_t *ent, gitem_t *item, float angle, qboolean novel
 		velocity[2] += 200 + crandom() * 50;
 	}
 
-	return LaunchItem( item, ent->s.pos.trBase, velocity );
+	return LaunchItem( item, ent->shared.s.pos.trBase, velocity );
 }
 
 
@@ -809,38 +809,38 @@ void FinishSpawningItem( gentity_t *ent ) {
 	vec3_t maxs;
 
 	if ( ent->spawnflags & 1 ) { // suspended
-		VectorSet( ent->r.mins, -ITEM_RADIUS, -ITEM_RADIUS, -ITEM_RADIUS );
-		VectorSet( ent->r.maxs, ITEM_RADIUS, ITEM_RADIUS, ITEM_RADIUS );
-		VectorCopy( ent->r.maxs, maxs );
+		VectorSet( ent->shared.r.mins, -ITEM_RADIUS, -ITEM_RADIUS, -ITEM_RADIUS );
+		VectorSet( ent->shared.r.maxs, ITEM_RADIUS, ITEM_RADIUS, ITEM_RADIUS );
+		VectorCopy( ent->shared.r.maxs, maxs );
 	} else
 	{
 		// Rafael
 		// had to modify this so that items would spawn in shelves
-		VectorSet( ent->r.mins, -ITEM_RADIUS, -ITEM_RADIUS, 0 );
-		VectorSet( ent->r.maxs, ITEM_RADIUS, ITEM_RADIUS, ITEM_RADIUS );
-		VectorCopy( ent->r.maxs, maxs );
+		VectorSet( ent->shared.r.mins, -ITEM_RADIUS, -ITEM_RADIUS, 0 );
+		VectorSet( ent->shared.r.maxs, ITEM_RADIUS, ITEM_RADIUS, ITEM_RADIUS );
+		VectorCopy( ent->shared.r.maxs, maxs );
 		maxs[2] /= 2;
 	}
 
-	ent->r.contents = CONTENTS_TRIGGER | CONTENTS_ITEM;
+	ent->shared.r.contents = CONTENTS_TRIGGER | CONTENTS_ITEM;
 	ent->touch = Touch_Item_Auto;
-	ent->s.eType = ET_ITEM;
-	ent->s.modelindex = ent->item - bg_itemlist;        // store item number in modelindex
+	ent->shared.s.eType = ET_ITEM;
+	ent->shared.s.modelindex = ent->item - bg_itemlist;        // store item number in modelindex
 
-	ent->s.otherEntityNum2 = 0;     // DHM - Nerve :: takes modelindex2's place in signaling a dropped item
+	ent->shared.s.otherEntityNum2 = 0;     // DHM - Nerve :: takes modelindex2's place in signaling a dropped item
 //----(SA)	we don't use this (yet, anyway) so I'm taking it so you can specify a model for treasure items and clipboards
-//	ent->s.modelindex2 = 0; // zero indicates this isn't a dropped item
+//	ent->shared.s.modelindex2 = 0; // zero indicates this isn't a dropped item
 	if ( ent->model ) {
-		ent->s.modelindex2 = G_ModelIndex( ent->model );
+		ent->shared.s.modelindex2 = G_ModelIndex( ent->model );
 	}
 
 
 	// if clipboard, add the menu name string to the client's configstrings
 	if ( ent->item->giType == IT_CLIPBOARD ) {
 		if ( !ent->message ) {
-			ent->s.density = G_FindConfigstringIndex( "clip_test", CS_CLIPBOARDS, MAX_CLIPBOARD_CONFIGSTRINGS, qtrue );
+			ent->shared.s.density = G_FindConfigstringIndex( "clip_test", CS_CLIPBOARDS, MAX_CLIPBOARD_CONFIGSTRINGS, qtrue );
 		} else {
-			ent->s.density = G_FindConfigstringIndex( ent->message, CS_CLIPBOARDS, MAX_CLIPBOARD_CONFIGSTRINGS, qtrue );
+			ent->shared.s.density = G_FindConfigstringIndex( ent->message, CS_CLIPBOARDS, MAX_CLIPBOARD_CONFIGSTRINGS, qtrue );
 		}
 
 		ent->touch = Touch_Item;    // no auto-pickup, only activate
@@ -856,47 +856,47 @@ void FinishSpawningItem( gentity_t *ent ) {
 	ent->use = Use_Item;
 
 //----(SA) moved this up so it happens for suspended items too (and made it a function)
-	G_SetAngle( ent, ent->s.angles );
+	G_SetAngle( ent, ent->shared.s.angles );
 
 	if ( ent->spawnflags & 1 ) {    // suspended
-		G_SetOrigin( ent, ent->s.origin );
+		G_SetOrigin( ent, ent->shared.s.origin );
 	} else {
 
-		VectorSet( dest, ent->s.origin[0], ent->s.origin[1], ent->s.origin[2] - 4096 );
-		SV_Trace( &tr, ent->s.origin, ent->r.mins, maxs, dest, ent->s.number, MASK_SOLID, qfalse );
+		VectorSet( dest, ent->shared.s.origin[0], ent->shared.s.origin[1], ent->shared.s.origin[2] - 4096 );
+		SV_Trace( &tr, ent->shared.s.origin, ent->shared.r.mins, maxs, dest, ent->shared.s.number, MASK_SOLID, qfalse );
 
 		if ( tr.startsolid ) {
 			vec3_t temp;
 
-			VectorCopy( ent->s.origin, temp );
+			VectorCopy( ent->shared.s.origin, temp );
 			temp[2] -= ITEM_RADIUS;
 
-			VectorSet( dest, ent->s.origin[0], ent->s.origin[1], ent->s.origin[2] - 4096 );
-			SV_Trace( &tr, temp, ent->r.mins, maxs, dest, ent->s.number, MASK_SOLID, qfalse);
+			VectorSet( dest, ent->shared.s.origin[0], ent->shared.s.origin[1], ent->shared.s.origin[2] - 4096 );
+			SV_Trace( &tr, temp, ent->shared.r.mins, maxs, dest, ent->shared.s.number, MASK_SOLID, qfalse);
 		}
 
 		if ( tr.startsolid ) {
-			Com_Printf( "FinishSpawningItem: %s startsolid at %s\n", ent->classname, vtos( ent->s.origin ) );
+			Com_Printf( "FinishSpawningItem: %s startsolid at %s\n", ent->classname, vtos( ent->shared.s.origin ) );
 			G_FreeEntity( ent );
 			return;
 		}
 
 		// allow to ride movers
-		ent->s.groundEntityNum = tr.entityNum;
+		ent->shared.s.groundEntityNum = tr.entityNum;
 
 		G_SetOrigin( ent, tr.endpos );
 	}
 
 	if ( ent->spawnflags & 2 ) {      // spin
-		ent->s.eFlags |= EF_SPINNING;
+		ent->shared.s.eFlags |= EF_SPINNING;
 	}
 
 
 	// team slaves and targeted items aren't present at start
 	if ( ( ent->flags & FL_TEAMSLAVE ) || ent->targetname ) {
 		ent->flags |= FL_NODRAW;
-		//ent->s.eFlags |= EF_NODRAW;
-		ent->r.contents = 0;
+		//ent->shared.s.eFlags |= EF_NODRAW;
+		ent->shared.r.contents = 0;
 		return;
 	}
 
@@ -912,7 +912,7 @@ void FinishSpawningItem( gentity_t *ent ) {
 		while ( i < 4 && ent->item->world_model[i] )
 			i++;
 
-		ent->s.density = i - 1;   // store number of stages in 'density' for client (most will have '1')
+		ent->shared.s.density = i - 1;   // store number of stages in 'density' for client (most will have '1')
 	}
 
 	SV_LinkEntity( ent );
@@ -1021,7 +1021,7 @@ void G_SpawnItem( gentity_t *ent, gitem_t *item ) {
 	ent->physicsBounce = 0.50;      // items are bouncy
 
 	if ( ent->model ) {
-		ent->s.modelindex2 = G_ModelIndex( ent->model );
+		ent->shared.s.modelindex2 = G_ModelIndex( ent->model );
 	}
 
 	if ( item->giType == IT_CLIPBOARD ) {
@@ -1054,25 +1054,25 @@ void G_BounceItem( gentity_t *ent, trace_t *trace ) {
 
 	// reflect the velocity on the trace plane
 	hitTime = level.previousTime + ( level.time - level.previousTime ) * trace->fraction;
-	BG_EvaluateTrajectoryDelta( &ent->s.pos, hitTime, velocity );
+	BG_EvaluateTrajectoryDelta( &ent->shared.s.pos, hitTime, velocity );
 	dot = DotProduct( velocity, trace->plane.normal );
-	VectorMA( velocity, -2 * dot, trace->plane.normal, ent->s.pos.trDelta );
+	VectorMA( velocity, -2 * dot, trace->plane.normal, ent->shared.s.pos.trDelta );
 
 	// cut the velocity to keep from bouncing forever
-	VectorScale( ent->s.pos.trDelta, ent->physicsBounce, ent->s.pos.trDelta );
+	VectorScale( ent->shared.s.pos.trDelta, ent->physicsBounce, ent->shared.s.pos.trDelta );
 
 	// check for stop
-	if ( trace->plane.normal[2] > 0 && ent->s.pos.trDelta[2] < 40 ) {
+	if ( trace->plane.normal[2] > 0 && ent->shared.s.pos.trDelta[2] < 40 ) {
 		trace->endpos[2] += 1.0;    // make sure it is off ground
 		SnapVector( trace->endpos );
 		G_SetOrigin( ent, trace->endpos );
-		ent->s.groundEntityNum = trace->entityNum;
+		ent->shared.s.groundEntityNum = trace->entityNum;
 		return;
 	}
 
-	VectorAdd( ent->r.currentOrigin, trace->plane.normal, ent->r.currentOrigin );
-	VectorCopy( ent->r.currentOrigin, ent->s.pos.trBase );
-	ent->s.pos.trTime = level.time;
+	VectorAdd( ent->shared.r.currentOrigin, trace->plane.normal, ent->shared.r.currentOrigin );
+	VectorCopy( ent->shared.r.currentOrigin, ent->shared.s.pos.trBase );
+	ent->shared.s.pos.trTime = level.time;
 }
 
 /*
@@ -1088,16 +1088,16 @@ void G_RunItemProp( gentity_t *ent, vec3_t origin ) {
 	vec3_t start;
 	vec3_t end;
 
-	owner = &g_entities[ent->r.ownerNum];
+	owner = &g_entities[ent->shared.r.ownerNum];
 
-	VectorCopy( ent->r.currentOrigin, start );
+	VectorCopy( ent->shared.r.currentOrigin, start );
 	start[2] += 1;
 
 	VectorCopy( origin, end );
 	end[2] += 1;
 
-	SV_Trace( &trace, ent->r.currentOrigin, ent->r.mins, ent->r.maxs, end,
-				ent->r.ownerNum, MASK_SHOT, qfalse );
+	SV_Trace( &trace, ent->shared.r.currentOrigin, ent->shared.r.mins, ent->shared.r.maxs, end,
+				ent->shared.r.ownerNum, MASK_SHOT, qfalse );
 
 	traceEnt = &g_entities[ trace.entityNum ];
 
@@ -1134,21 +1134,21 @@ void G_RunItem( gentity_t *ent ) {
 	int mask;
 
 	// if groundentity has been set to -1, it may have been pushed off an edge
-	if ( ent->s.groundEntityNum == -1 ) {
-		if ( ent->s.pos.trType != TR_GRAVITY ) {
-			ent->s.pos.trType = TR_GRAVITY;
-			ent->s.pos.trTime = level.time;
+	if ( ent->shared.s.groundEntityNum == -1 ) {
+		if ( ent->shared.s.pos.trType != TR_GRAVITY ) {
+			ent->shared.s.pos.trType = TR_GRAVITY;
+			ent->shared.s.pos.trTime = level.time;
 		}
 	}
 
-	if ( ent->s.pos.trType == TR_STATIONARY || ent->s.pos.trType == TR_GRAVITY_PAUSED ) { //----(SA)
+	if ( ent->shared.s.pos.trType == TR_STATIONARY || ent->shared.s.pos.trType == TR_GRAVITY_PAUSED ) { //----(SA)
 		// check think function
 		G_RunThink( ent );
 		return;
 	}
 
 	// get current position
-	BG_EvaluateTrajectory( &ent->s.pos, level.time, origin );
+	BG_EvaluateTrajectory( &ent->shared.s.pos, level.time, origin );
 
 	// trace a line from the previous position to the current position
 	if ( ent->clipmask ) {
@@ -1156,20 +1156,20 @@ void G_RunItem( gentity_t *ent ) {
 	} else {
 		mask = MASK_SOLID | CONTENTS_MISSILECLIP;
 	}
-	SV_Trace( &tr, ent->r.currentOrigin, ent->r.mins, ent->r.maxs, origin,
-				ent->r.ownerNum, mask, qfalse );
+	SV_Trace( &tr, ent->shared.r.currentOrigin, ent->shared.r.mins, ent->shared.r.maxs, origin,
+				ent->shared.r.ownerNum, mask, qfalse );
 
 	if ( ent->isProp && ent->takedamage ) {
 		G_RunItemProp( ent, origin );
 	}
 
-	VectorCopy( tr.endpos, ent->r.currentOrigin );
+	VectorCopy( tr.endpos, ent->shared.r.currentOrigin );
 
 	if ( tr.startsolid ) {
 		tr.fraction = 0;
 	}
 
-	SV_LinkEntity( ent ); // FIXME: avoid this for stationary?
+	SV_LinkEntity( &ent->shared ); // FIXME: avoid this for stationary?
 
 	// check think function
 	G_RunThink( ent );
@@ -1179,7 +1179,7 @@ void G_RunItem( gentity_t *ent ) {
 	}
 
 	// if it is in a nodrop volume, remove it
-	contents = SV_PointContents( ent->r.currentOrigin, -1 );
+	contents = SV_PointContents( ent->shared.r.currentOrigin, -1 );
 	if ( contents & CONTENTS_NODROP ) {
 		
 		G_FreeEntity( ent );

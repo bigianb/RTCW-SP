@@ -2044,9 +2044,9 @@ void BotModelMinsMaxs( int modelindex, vec3_t mins, vec3_t maxs ) {
 		if ( !ent->inuse ) {
 			continue;
 		}
-		if ( ent->s.modelindex == modelindex ) {
-			VectorCopy( ent->r.mins, mins );
-			VectorCopy( ent->r.maxs, maxs );
+		if ( ent->shared.s.modelindex == modelindex ) {
+			VectorCopy( ent->shared.r.mins, mins );
+			VectorCopy( ent->shared.r.maxs, maxs );
 			return;
 		}
 	}

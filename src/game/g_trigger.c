@@ -30,14 +30,14 @@ If you have questions concerning this license or the applicable additional terms
 #include "../server/server.h"
 
 void InitTrigger( gentity_t *self ) {
-	if ( !VectorCompare( self->s.angles, vec3_origin ) ) {
-		G_SetMovedir( self->s.angles, self->movedir );
+	if ( !VectorCompare( self->shared.s.angles, vec3_origin ) ) {
+		G_SetMovedir( self->shared.s.angles, self->movedir );
 	}
 
 	SV_SetBrushModel( self, self->model );
 
-	self->r.contents = CONTENTS_TRIGGER;        // replaces the -1 from SV_SetBrushModel
-	self->r.svFlags = SVF_NOCLIENT;
+	self->shared.r.contents = CONTENTS_TRIGGER;        // replaces the -1 from SV_SetBrushModel
+	self->shared.r.svFlags = SVF_NOCLIENT;
 }
 
 
@@ -116,24 +116,24 @@ void Enable_Trigger_Touch( gentity_t *ent ) {
 		// need to make the ent solid since it is a trigger
 
 		entTemp1 = ent->clipmask;
-		entTemp2 = ent->r.contents;
+		entTemp2 = ent->shared.r.contents;
 
 		ent->clipmask   = CONTENTS_SOLID;
-		ent->r.contents = CONTENTS_SOLID;
+		ent->shared.r.contents = CONTENTS_SOLID;
 
 		SV_LinkEntity( ent );
 
 		// same with targ cause targ is dead
 
 		targTemp1 = targ->clipmask;
-		targTemp2 = targ->r.contents;
+		targTemp2 = targ->shared.r.contents;
 
 		targ->clipmask   = CONTENTS_SOLID;
-		targ->r.contents = CONTENTS_SOLID;
+		targ->shared.r.contents = CONTENTS_SOLID;
 
 		SV_LinkEntity( targ );
 
-		SV_Trace( &tr, targ->client->ps.origin, targ->r.mins, targ->r.maxs, targ->client->ps.origin, targ->s.number, mask, qfalse );
+		SV_Trace( &tr, targ->client->ps.origin, targ->shared.r.mins, targ->shared.r.maxs, targ->client->ps.origin, targ->shared.s.number, mask, qfalse );
 
 		if ( tr.startsolid ) {
 			daent = &g_entities[ tr.entityNum ];
@@ -147,17 +147,17 @@ void Enable_Trigger_Touch( gentity_t *ent ) {
 		// ok were done set it contents back
 
 		ent->clipmask = entTemp1;
-		ent->r.contents = entTemp2;
+		ent->shared.r.contents = entTemp2;
 
 		SV_LinkEntity( ent );
 
 		targ->clipmask = targTemp1;
-		targ->r.contents = targTemp2;
+		targ->shared.r.contents = targTemp2;
 
 		SV_LinkEntity( targ );
 
-		if ( ent->s.angles2[YAW] && thisone ) {
-			angle = ent->s.angles2[YAW];
+		if ( ent->shared.s.angles2[YAW] && thisone ) {
+			angle = ent->shared.s.angles2[YAW];
 
 			VectorClear( dir );
 			VectorClear( targ->client->ps.velocity );
@@ -192,7 +192,7 @@ void SP_trigger_multiple( gentity_t *ent ) {
 	ent->use = Use_Multi;
 
 	InitTrigger( ent );
-	SV_LinkEntity( ent );
+	SV_LinkEntity( &ent->shared );
 }
 
 
@@ -230,7 +230,7 @@ trigger_push
 
 void trigger_push_touch( gentity_t *self, gentity_t *other, trace_t *trace ) {
 
-	if ( ( self->spawnflags & 4 ) && other->r.svFlags & SVF_CASTAI ) {
+	if ( ( self->spawnflags & 4 ) && other->shared.r.svFlags & SVF_CASTAI ) {
 		return;
 	}
 
@@ -253,7 +253,7 @@ void trigger_push_touch( gentity_t *self, gentity_t *other, trace_t *trace ) {
 		// don't play the event sound again if we are in a fat trigger
 		G_AddPredictableEvent( other, EV_JUMP_PAD, 0 );
 	}
-	VectorCopy( self->s.origin2, other->client->ps.velocity );
+	VectorCopy( self->shared.s.origin2, other->client->ps.velocity );
 
 	if ( self->spawnflags & 2 ) {
 		G_FreeEntity( self );
@@ -274,7 +274,7 @@ void AimAtTarget( gentity_t *self ) {
 	float height, gravity, time, forward;
 	float dist;
 
-	VectorAdd( self->r.absmin, self->r.absmax, origin );
+	VectorAdd( self->shared.r.absmin, self->shared.r.absmax, origin );
 	VectorScale( origin, 0.5, origin );
 
 	ent = G_PickTarget( self->target );
@@ -283,7 +283,7 @@ void AimAtTarget( gentity_t *self ) {
 		return;
 	}
 
-	height = ent->s.origin[2] - origin[2];
+	height = ent->shared.s.origin[2] - origin[2];
 	gravity = g_gravity.value;
 	time = sqrt( fabs( height / ( 0.5f * gravity ) ) );
 	if ( !time ) {
@@ -292,14 +292,14 @@ void AimAtTarget( gentity_t *self ) {
 	}
 
 	// set s.origin2 to the push velocity
-	VectorSubtract( ent->s.origin, origin, self->s.origin2 );
-	self->s.origin2[2] = 0;
-	dist = VectorNormalize( self->s.origin2 );
+	VectorSubtract( ent->shared.s.origin, origin, self->shared.s.origin2 );
+	self->shared.s.origin2[2] = 0;
+	dist = VectorNormalize( self->shared.s.origin2 );
 
 	forward = dist / time;
-	VectorScale( self->s.origin2, forward, self->s.origin2 );
+	VectorScale( self->shared.s.origin2, forward, self->shared.s.origin2 );
 
-	self->s.origin2[2] = time * gravity;
+	self->shared.s.origin2[2] = time * gravity;
 }
 
 void trigger_push_use( gentity_t *self, gentity_t *other, gentity_t *activator ) {
@@ -315,14 +315,14 @@ void SP_trigger_push( gentity_t *self ) {
 //	InitTrigger (self);
 
 // init trigger
-	if ( !VectorCompare( self->s.angles, vec3_origin ) ) {
-		G_SetMovedir( self->s.angles, self->movedir );
+	if ( !VectorCompare( self->shared.s.angles, vec3_origin ) ) {
+		G_SetMovedir( self->shared.s.angles, self->movedir );
 	}
 
 	SV_SetBrushModel( self, self->model );
 
-	self->r.contents = CONTENTS_TRIGGER;        // replaces the -1 from SV_SetBrushModel
-	self->r.svFlags = SVF_NOCLIENT;
+	self->shared.r.contents = CONTENTS_TRIGGER;        // replaces the -1 from SV_SetBrushModel
+	self->shared.r.svFlags = SVF_NOCLIENT;
 //----(SA)	end
 
 	// unlike other triggers, we need to send this one to the client
@@ -332,7 +332,7 @@ void SP_trigger_push( gentity_t *self ) {
 	//G_SoundIndex("sound/world/jumppad.wav");
 
 	if ( !( self->spawnflags & 1 ) ) { // toggle
-		self->s.eType = ET_PUSH_TRIGGER;
+		self->shared.s.eType = ET_PUSH_TRIGGER;
 	}
 
 	self->touch = trigger_push_touch;
@@ -363,7 +363,7 @@ void Use_target_push( gentity_t *self, gentity_t *other, gentity_t *activator ) 
 		return;
 	}
 
-	VectorCopy( self->s.origin2, activator->client->ps.velocity );
+	VectorCopy( self->shared.s.origin2, activator->client->ps.velocity );
 
 	// play fly sound every 1.5 seconds
 	if ( activator->fly_sound_debounce_time < level.time ) {
@@ -381,8 +381,8 @@ void SP_target_push( gentity_t *self ) {
 	if ( !self->speed ) {
 		self->speed = 1000;
 	}
-	G_SetMovedir( self->s.angles, self->s.origin2 );
-	VectorScale( self->s.origin2, self->speed, self->s.origin2 );
+	G_SetMovedir( self->shared.s.angles, self->shared.s.origin2 );
+	VectorScale( self->shared.s.origin2, self->speed, self->shared.s.origin2 );
 
 	if ( self->spawnflags & 1 ) {
 		//self->noise_index = G_SoundIndex("sound/world/jumppad.wav");
@@ -390,8 +390,8 @@ void SP_target_push( gentity_t *self ) {
 		self->noise_index = G_SoundIndex( "sound/misc/windfly.wav" );
 	}
 	if ( self->target ) {
-		VectorCopy( self->s.origin, self->r.absmin );
-		VectorCopy( self->s.origin, self->r.absmax );
+		VectorCopy( self->shared.s.origin, self->shared.r.absmin );
+		VectorCopy( self->shared.s.origin, self->shared.r.absmax );
 		self->think = AimAtTarget;
 		self->nextthink = level.time + FRAMETIME;
 	}
@@ -422,7 +422,7 @@ void trigger_teleporter_touch( gentity_t *self, gentity_t *other, trace_t *trace
 		return;
 	}
 
-	TeleportPlayer( other, dest->s.origin, dest->s.angles );
+	TeleportPlayer( other, dest->shared.s.origin, dest->shared.s.angles );
 }
 
 
@@ -434,12 +434,12 @@ void SP_trigger_teleport( gentity_t *self ) {
 	InitTrigger( self );
 
 	// unlike other triggers, we need to send this one to the client
-	self->r.svFlags &= ~SVF_NOCLIENT;
+	self->shared.r.svFlags &= ~SVF_NOCLIENT;
 
 	// make sure the client precaches this sound
 	//G_SoundIndex("sound/world/jumppad.wav");
 
-	self->s.eType = ET_TELEPORT_TRIGGER;
+	self->shared.s.eType = ET_TELEPORT_TRIGGER;
 	self->touch = trigger_teleporter_touch;
 
 	SV_LinkEntity( self );
@@ -555,7 +555,7 @@ void SP_trigger_hurt( gentity_t *self ) {
 		self->damage = 5;
 	}
 
-	self->r.contents = CONTENTS_TRIGGER;
+	self->shared.r.contents = CONTENTS_TRIGGER;
 
 	self->use = hurt_use;
 
@@ -621,7 +621,7 @@ void SP_func_timer( gentity_t *self ) {
 
 	if ( self->random >= self->wait ) {
 		self->random = self->wait - FRAMETIME;
-		Com_Printf( "func_timer at %s has random >= wait\n", vtos( self->s.origin ) );
+		Com_Printf( "func_timer at %s has random >= wait\n", vtos( self->shared.s.origin ) );
 	}
 
 	if ( self->spawnflags & 1 ) {
@@ -629,7 +629,7 @@ void SP_func_timer( gentity_t *self ) {
 		self->activator = self;
 	}
 
-	self->r.svFlags = SVF_NOCLIENT;
+	self->shared.r.svFlags = SVF_NOCLIENT;
 }
 
 
@@ -649,7 +649,7 @@ void SP_trigger_once( gentity_t *ent ) {
 	ent->use    = Use_Multi;
 
 	InitTrigger( ent );
-	SV_LinkEntity( ent );
+	SV_LinkEntity( &ent->shared );
 }
 
 //---- end
@@ -664,7 +664,7 @@ Must be targeted at one or more entities.
 Once triggered, this entity is destroyed
 */
 void SP_trigger_deathCheck( gentity_t *ent ) {
-	VectorCopy( ent->s.angles, ent->s.angles2 );
+	VectorCopy( ent->shared.s.angles, ent->shared.s.angles2 );
 
 	if ( !( ent->aiName ) ) {
 		Com_Error( ERR_DROP, "trigger_once_enabledeath does not have an aiName \n" );
@@ -676,7 +676,7 @@ void SP_trigger_deathCheck( gentity_t *ent ) {
 
 	InitTrigger( ent );
 
-	SV_LinkEntity( ent );
+	SV_LinkEntity( &ent->shared );
 }
 
 
@@ -692,14 +692,14 @@ void trigger_aidoor_stayopen( gentity_t * ent, gentity_t * other, trace_t * trac
 	if ( other->client && other->health > 0 ) {
 		if ( !ent->target || !( strlen( ent->target ) ) ) {
 			// ent->target of "" will crash game in Q_stricmp()
-			Com_Printf( "trigger_aidoor at loc %s does not have a target\n", vtos( ent->s.origin ) );
+			Com_Printf( "trigger_aidoor at loc %s does not have a target\n", vtos( ent->shared.s.origin ) );
 			return;
 		}
 
 		door = G_Find( NULL, FOFS( targetname ), ent->target );
 
 		if ( !door ) {
-			Com_Printf( "trigger_aidoor at loc %s cannot find target '%s'\n", vtos( ent->s.origin ), ent->target );
+			Com_Printf( "trigger_aidoor at loc %s cannot find target '%s'\n", vtos( ent->shared.s.origin ), ent->target );
 			return;
 		}
 
@@ -714,7 +714,7 @@ void trigger_aidoor_stayopen( gentity_t * ent, gentity_t * other, trace_t * trac
 //----(SA)	end
 
 		// Ridah, door isn't ready, find a free ai_marker, and wait there until it's open
-		if ( other->r.svFlags & SVF_CASTAI ) {
+		if ( other->shared.r.svFlags & SVF_CASTAI ) {
 
 			// we dont have keys, so assume we are not trying to get through this door
 			if ( door->key > KEY_NONE /*&& door->key < KEY_NUM_KEYS*/ ) {  // door requires key
@@ -749,12 +749,12 @@ void trigger_aidoor_stayopen( gentity_t * ent, gentity_t * other, trace_t * trac
 
 void SP_trigger_aidoor( gentity_t *ent ) {
 	if ( !ent->targetname ) {
-		Com_Printf( "trigger_aidoor at loc %s does not have a targetname for ai_marker assignments\n", vtos( ent->s.origin ) );
+		Com_Printf( "trigger_aidoor at loc %s does not have a targetname for ai_marker assignments\n", vtos( ent->shared.s.origin ) );
 	}
 
 	ent->touch = trigger_aidoor_stayopen;
 	InitTrigger( ent );
-	SV_LinkEntity( ent );
+	SV_LinkEntity( &ent->shared );
 }
 
 
@@ -768,12 +768,12 @@ void gas_touch( gentity_t *ent, gentity_t *other, trace_t *trace ) {
 		return;
 	}
 
-	if ( ent->s.density == 5 ) {
+	if ( ent->shared.s.density == 5 ) {
 		ent->touch = NULL;
 		damage = 5;
 	}
 
-	SV_Trace( &tr, ent->r.currentOrigin, NULL, NULL, other->r.currentOrigin, ent->s.number, MASK_SHOT, qfalse );
+	SV_Trace( &tr, ent->shared.r.currentOrigin, NULL, NULL, other->shared.r.currentOrigin, ent->shared.s.number, MASK_SHOT, qfalse );
 
 	if ( tr.surfaceFlags & SURF_NOIMPACT ) {
 		return;
@@ -801,7 +801,7 @@ void gas_think( gentity_t *ent ) {
 
 	if ( ent->health < ent->count ) {
 		ent->think = G_FreeEntity;
-		if ( ent->s.density == 5 ) {
+		if ( ent->shared.s.density == 5 ) {
 			ent->nextthink = level.time + FRAMETIME;
 		} else {
 			ent->nextthink = level.time + 3000;
@@ -809,29 +809,29 @@ void gas_think( gentity_t *ent ) {
 		return;
 	}
 
-	ent->r.maxs[0] = ent->r.maxs[1] = ent->r.maxs[2]++;
-	ent->r.mins[0] = ent->r.mins[1] = ent->r.mins[2]--;
+	ent->shared.r.maxs[0] = ent->shared.r.maxs[1] = ent->shared.r.maxs[2]++;
+	ent->shared.r.mins[0] = ent->shared.r.mins[1] = ent->shared.r.mins[2]--;
 
 	ent->nextthink = level.time + FRAMETIME;
 
-	tent = G_TempEntity( ent->r.currentOrigin, EV_SMOKE );
-	VectorCopy( ent->r.currentOrigin, tent->s.origin );
+	tent = G_TempEntity( ent->shared.r.currentOrigin, EV_SMOKE );
+	VectorCopy( ent->shared.r.currentOrigin, tent->shared.s.origin );
 
-	if ( ent->s.density == 5 ) {
-		tent->s.time = 500;
-		tent->s.time2 = 100;
-		tent->s.density = 5;
+	if ( ent->shared.s.density == 5 ) {
+		tent->shared.s.time = 500;
+		tent->shared.s.time2 = 100;
+		tent->shared.s.density = 5;
 
-		tent->s.angles2[0] = 8;
-		tent->s.angles2[1] = 32;
+		tent->shared.s.angles2[0] = 8;
+		tent->shared.s.angles2[1] = 32;
 	} else
 	{
-		tent->s.time = 5000;
-		tent->s.time2 = 3000;
-		tent->s.density = 5;
+		tent->shared.s.time = 5000;
+		tent->shared.s.time2 = 3000;
+		tent->shared.s.density = 5;
 
-		tent->s.angles2[0] = 24;
-		tent->s.angles2[1] = 96;
+		tent->shared.s.angles2[0] = 24;
+		tent->shared.s.angles2[1] = 96;
 	}
 
 	SV_LinkEntity( ent );
@@ -842,7 +842,7 @@ void gas_think( gentity_t *ent ) {
 void SP_gas( gentity_t *self ) {
 	self->think = gas_think;
 	self->nextthink = level.time + FRAMETIME;
-	self->r.contents = CONTENTS_TRIGGER;
+	self->shared.r.contents = CONTENTS_TRIGGER;
 	self->touch = gas_touch;
 	SV_LinkEntity( self );
 
@@ -893,7 +893,7 @@ void SP_trigger_objective_info( gentity_t *ent ) {
 	ent->touch  = Touch_objective_info;
 
 	InitTrigger( ent );
-	SV_LinkEntity( ent );
+	SV_LinkEntity( &ent->shared );
 }
 
 

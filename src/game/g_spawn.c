@@ -103,7 +103,7 @@ typedef struct
 
 gentity_field_t fields[] = {
 	{"classname",    FOFS( classname ),    F_LSTRING},
-	{"origin",       FOFS( s.origin ),     F_VECTOR},
+	{"origin",       FOFS( shared.s.origin ),     F_VECTOR},
 	{"model",        FOFS( model ),        F_LSTRING},
 	{"model2",       FOFS( model2 ),       F_LSTRING},
 	{"spawnflags",   FOFS( spawnflags ),   F_INT},
@@ -122,8 +122,8 @@ gentity_field_t fields[] = {
 	{"health",       FOFS( health ),       F_INT},
 	{"light",        0,                  F_IGNORE},
 	{"dmg",          FOFS( damage ),       F_INT},
-	{"angles",       FOFS( s.angles ),     F_VECTOR},
-	{"angle",        FOFS( s.angles ),     F_ANGLEHACK},
+	{"angles",       FOFS( shared.s.angles ),     F_VECTOR},
+	{"angle",        FOFS( shared.s.angles ),     F_ANGLEHACK},
 	{"duration", FOFS( duration ),     F_FLOAT},
 	{"rotate",       FOFS( rotate ),       F_VECTOR},
 	{"degrees",      FOFS( angle ),        F_FLOAT},
@@ -144,7 +144,7 @@ gentity_field_t fields[] = {
 
 	{"key",          FOFS( key ),      F_INT},
 
-	{"stand",        FOFS( s.frame ),      F_INT},
+	{"stand",        FOFS( shared.s.frame ),      F_INT},
 
 	// Rafael - mg42
 	{"harc",     FOFS( harc ),         F_FLOAT},
@@ -634,7 +634,7 @@ qboolean G_CallSpawn( gentity_t *ent )
 			s->spawn( ent );
 
 			// RF, entity scripting
-			if ( ent->s.number >= MAX_CLIENTS && ent->scriptName ) {
+			if ( ent->shared.s.number >= MAX_CLIENTS && ent->scriptName ) {
 				G_Script_ScriptParse( ent );
 				G_Script_ScriptEvent( ent, "spawn", "" );
 			}
@@ -749,8 +749,8 @@ void G_SpawnGEntityFromSpawnVars()
 	}
 
 	// move editor origin to pos
-	VectorCopy( ent->s.origin, ent->s.pos.trBase );
-	VectorCopy( ent->s.origin, ent->r.currentOrigin );
+	VectorCopy( ent->shared.s.origin, ent->shared.s.pos.trBase );
+	VectorCopy( ent->shared.s.origin, ent->shared.r.currentOrigin );
 
 	// if we didn't get a classname, don't bother spawning anything
 	if ( !G_CallSpawn( ent ) ) {
@@ -886,7 +886,7 @@ void SP_worldspawn()
 
 	// (SA) FIXME: todo: sun shader set for worldspawn
 
-	g_entities[ENTITYNUM_WORLD].s.number = ENTITYNUM_WORLD;
+	g_entities[ENTITYNUM_WORLD].shared.s.number = ENTITYNUM_WORLD;
 	g_entities[ENTITYNUM_WORLD].classname = "worldspawn";
 
 	// see if we want a warmup time

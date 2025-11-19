@@ -623,9 +623,9 @@ qboolean AICast_CheckAttack_real( cast_state_t *cs, int enemy, qboolean allowHit
 	//end point aiming at
 	if ( !ent->active ) {
 		//get the start point shooting from
-		VectorCopy( enemyEnt->r.currentOrigin, start );
+		VectorCopy( enemyEnt->shared.r.currentOrigin, start );
 		start[2] += enemyEnt->client->ps.viewheight;
-		VectorCopy( ent->r.currentOrigin, end );
+		VectorCopy( ent->shared.r.currentOrigin, end );
 		end[2] += ent->client->ps.viewheight;
 		VectorSubtract( start, end, dir );
 		vectoangles( dir, angles );
@@ -658,12 +658,12 @@ qboolean AICast_CheckAttack_real( cast_state_t *cs, int enemy, qboolean allowHit
 		passEnt = cs->entityNum;
 
 		// don't try too far
-		dist = Distance( start, enemyEnt->r.currentOrigin );
+		dist = Distance( start, enemyEnt->shared.r.currentOrigin );
 		fuzzyCount = 6;
 		if ( traceDist > dist ) {
 			traceDist = dist;
 		} else {
-			dist -= enemyEnt->r.maxs[0];    // subtract distance to edge of bounding box edge
+			dist -= enemyEnt->shared.r.maxs[0];    // subtract distance to edge of bounding box edge
 			if ( traceDist < dist ) {
 				return qfalse;
 			}
@@ -672,14 +672,14 @@ qboolean AICast_CheckAttack_real( cast_state_t *cs, int enemy, qboolean allowHit
 		gentity_t *mg42;
 		// we are mounted on a weapon
 		mg42 = &g_entities[cs->mountedEntity];
-		VectorCopy( enemyEnt->r.currentOrigin, start );
+		VectorCopy( enemyEnt->shared.r.currentOrigin, start );
 		start[2] += enemyEnt->client->ps.viewheight;
-		VectorCopy( mg42->r.currentOrigin, end );
+		VectorCopy( mg42->shared.r.currentOrigin, end );
 		VectorSubtract( start, end, dir );
 		vectoangles( dir, angles );
 		AngleVectors( angles, forward, right, up );
 
-		VectorCopy( mg42->r.currentOrigin, start );
+		VectorCopy( mg42->shared.r.currentOrigin, start );
 		VectorMA( start, 16, forward, start );
 		VectorMA( start, 16, up, start );
 		// snap to integer coordinates for more efficient network bandwidth usage
@@ -695,7 +695,7 @@ qboolean AICast_CheckAttack_real( cast_state_t *cs, int enemy, qboolean allowHit
 		}
 
 		// don't try too far
-		dist = Distance( start, enemyEnt->r.currentOrigin );
+		dist = Distance( start, enemyEnt->shared.r.currentOrigin );
 		if ( traceDist > dist ) {
 			traceDist = dist;
 			fuzzyCount = 6;
@@ -712,9 +712,9 @@ qboolean AICast_CheckAttack_real( cast_state_t *cs, int enemy, qboolean allowHit
 
 		// fuzzy end point
 		if ( i > 0 ) {
-			VectorMA( end, enemyEnt->r.maxs[0] * 0.9 * (float)( ( i % 2 ) * 2 - 1 ), right, end );
-			halfHeight = ( enemyEnt->r.maxs[2] - enemyEnt->r.mins[2] ) / 2.0;
-			end[2] = ( enemyEnt->r.currentOrigin[2] + enemyEnt->r.mins[2] ) + halfHeight;
+			VectorMA( end, enemyEnt->shared.r.maxs[0] * 0.9 * (float)( ( i % 2 ) * 2 - 1 ), right, end );
+			halfHeight = ( enemyEnt->shared.r.maxs[2] - enemyEnt->shared.r.mins[2] ) / 2.0;
+			end[2] = ( enemyEnt->shared.r.currentOrigin[2] + enemyEnt->shared.r.mins[2] ) + halfHeight;
 			VectorMA( end, halfHeight * 0.9 * ( ( (float)( ( i - 1 ) - ( ( i - 1 ) % 2 ) ) / 2 - 1.0 ) ), up, end );
 		}
 
@@ -758,7 +758,7 @@ qboolean AICast_CheckAttack_real( cast_state_t *cs, int enemy, qboolean allowHit
 			}
 			//if the projectile does a radial damage
 			if ( cs->weaponNum == WP_PANZERFAUST ) {
-				if ( Distance( trace.endpos, g_entities[enemy].s.pos.trBase ) > 120 ) {
+				if ( Distance( trace.endpos, g_entities[enemy].shared.s.pos.trBase ) > 120 ) {
 					continue;
 				}
 				//FIXME: check if a teammate gets radial damage
@@ -786,8 +786,8 @@ qboolean AICast_CheckAttackAtPos( int entnum, int enemy, vec3_t pos, qboolean du
 	cs = AICast_GetCastState( entnum );
 	ent = &g_entities[cs->bs->entitynum];
 
-	VectorCopy( ent->r.currentOrigin, savepos );
-	VectorCopy( pos, ent->r.currentOrigin );
+	VectorCopy( ent->shared.r.currentOrigin, savepos );
+	VectorCopy( pos, ent->shared.r.currentOrigin );
 
 	saveview = ent->client->ps.viewheight;
 	if ( ducking ) {
@@ -802,7 +802,7 @@ qboolean AICast_CheckAttackAtPos( int entnum, int enemy, vec3_t pos, qboolean du
 
 	rval = AICast_CheckAttack_real( cs, enemy, allowHitWorld );
 
-	VectorCopy( savepos, ent->r.currentOrigin );
+	VectorCopy( savepos, ent->shared.r.currentOrigin );
 	ent->client->ps.viewheight = saveview;
 
 	return rval;
@@ -917,7 +917,7 @@ qboolean AICast_WeaponUsable( cast_state_t *cs, int weaponNum ) {
 	gentity_t *ent, *grenade;
 
 	if ( cs->enemyNum >= 0 ) {
-		dist = Distance( cs->bs->origin, g_entities[cs->enemyNum].s.pos.trBase );
+		dist = Distance( cs->bs->origin, g_entities[cs->enemyNum].shared.s.pos.trBase );
 	}
 
 	oldweap = cs->weaponNum;
@@ -942,7 +942,7 @@ qboolean AICast_WeaponUsable( cast_state_t *cs, int weaponNum ) {
 			// make sure it's safe
 			CalcMuzzlePoints( ent, weaponNum );
 			grenade = weapon_grenadelauncher_fire( ent, weaponNum );
-			hitclient = AICast_SafeMissileFire( grenade, grenade->nextthink - level.time, cs->enemyNum, g_entities[cs->enemyNum].s.pos.trBase, cs->entityNum, NULL );
+			hitclient = AICast_SafeMissileFire( grenade, grenade->nextthink - level.time, cs->enemyNum, g_entities[cs->enemyNum].shared.s.pos.trBase, cs->entityNum, NULL );
 			G_FreeEntity( grenade );
 			if ( hitclient > -1 ) {
 				return qtrue;
@@ -1118,9 +1118,9 @@ void AICast_ChooseWeapon( cast_state_t *cs, qboolean battleFunc ) {
 	bestWantScale = 0.0;
 
 	if ( cs->enemyNum >= 0 ) {
-		enemyDist = VectorDistance( g_entities[cs->enemyNum].s.pos.trBase, cs->bs->origin );
+		enemyDist = VectorDistance( g_entities[cs->enemyNum].shared.s.pos.trBase, cs->bs->origin );
 		// subtract distance to edge of bounding box
-		enemyDist -= g_entities[cs->enemyNum].r.maxs[0];
+		enemyDist -= g_entities[cs->enemyNum].shared.r.maxs[0];
 	}
 
 	if ( cs->bs->cur_ps.weaponstate == WEAPON_RAISING ||
@@ -1254,7 +1254,7 @@ float AICast_Aggression( cast_state_t *cs ) {
 
 	// gain in confidence the further we are away
 	if ( cs->enemyNum >= 0 ) {
-		dist = Distance( cs->bs->origin, g_entities[cs->enemyNum].s.pos.trBase );
+		dist = Distance( cs->bs->origin, g_entities[cs->enemyNum].shared.s.pos.trBase );
 		//if (dist > 512) {
 		scale += ( dist - 800.0 ) / ( 8000.0 );
 		//}
@@ -1339,7 +1339,7 @@ int AICast_WantsToTakeCover( cast_state_t *cs, qboolean attacking ) {
 		vec3_t aim, enemyVec;
 		// are they aiming at us?
 		AngleVectors( g_entities[cs->enemyNum].client->ps.viewangles, aim, NULL, NULL );
-		VectorSubtract( cs->bs->origin, g_entities[cs->enemyNum].r.currentOrigin, enemyVec );
+		VectorSubtract( cs->bs->origin, g_entities[cs->enemyNum].shared.r.currentOrigin, enemyVec );
 		VectorNormalize( enemyVec );
 		// if they are looking at us, we should avoid them
 		if ( DotProduct( aim, enemyVec ) > 0.97 ) {
@@ -1548,7 +1548,7 @@ qboolean AICast_AimAtEnemy( cast_state_t *cs ) {
 	// grenade hack: aim grenades at their feet if they are close
 	if ( cs->weaponNum == WP_GRENADE_LAUNCHER || cs->weaponNum == WP_GRENADE_PINEAPPLE ) {
 		if ( Distance( start, bestorigin ) < 180 ) {
-			bestorigin[2] = enemyOrg[2] + g_entities[cs->enemyNum].r.mins[2] + crandom() * 20;
+			bestorigin[2] = enemyOrg[2] + g_entities[cs->enemyNum].shared.r.mins[2] + crandom() * 20;
 		} else if ( Distance( start, bestorigin ) > 400 ) { // aim up a bit for distance
 			bestorigin[2] += 12 + Distance( start, bestorigin ) / 50 + crandom() * 20;
 		}
@@ -1752,12 +1752,12 @@ qboolean AICast_GetTakeCoverPos( cast_state_t *cs, int enemyNum, vec3_t enemyPos
 		qboolean visible;
 
 		ent = &g_entities[cs->entityNum];
-		VectorCopy( ent->r.maxs, omaxs );
-		ent->r.maxs[2] = ent->client->ps.crouchMaxZ + 4;    // + 4 to be safe
+		VectorCopy( ent->shared.r.maxs, omaxs );
+		ent->shared.r.maxs[2] = ent->client->ps.crouchMaxZ + 4;    // + 4 to be safe
 
-		visible = AICast_VisibleFromPos( g_entities[enemyNum].r.currentOrigin, enemyNum, cs->bs->origin, cs->entityNum, qfalse );
+		visible = AICast_VisibleFromPos( g_entities[enemyNum].shared.r.currentOrigin, enemyNum, cs->bs->origin, cs->entityNum, qfalse );
 
-		ent->r.maxs[2] = omaxs[2];
+		ent->shared.r.maxs[2] = omaxs[2];
 
 		if ( !visible ) {
 			VectorCopy( enemyPos, cs->takeCoverEnemyPos );
@@ -1813,10 +1813,10 @@ void AICast_RecordWeaponFire( gentity_t *ent ) {
 	cast_state_t *cs;
 	float range;
 
-	cs = AICast_GetCastState( ent->s.number );
+	cs = AICast_GetCastState( ent->shared.s.number );
 	cs->lastWeaponFired = level.time;
 	cs->lastWeaponFiredWeaponNum = ent->client->ps.weapon;
-	VectorCopy( ent->r.currentOrigin, cs->lastWeaponFiredPos );
+	VectorCopy( ent->shared.r.currentOrigin, cs->lastWeaponFiredPos );
 
 	cs->weaponFireTimes[cs->lastWeaponFiredWeaponNum] = level.time;
 
@@ -1903,7 +1903,7 @@ qboolean AICast_StopAndAttack( cast_state_t *cs ) {
 	cast_state_t *ecs;
 
 	if ( cs->enemyNum >= 0 ) {
-		dist = Distance( cs->bs->origin, g_entities[cs->enemyNum].r.currentOrigin );
+		dist = Distance( cs->bs->origin, g_entities[cs->enemyNum].shared.r.currentOrigin );
 	}
 
 	switch ( cs->weaponNum ) {
@@ -2056,10 +2056,10 @@ int AICast_SafeMissileFire( gentity_t *ent, int duration, int enemyNum, vec3_t e
 	}
 
 	// at end of life, so do radius damage
-	rval = ( Distance( org, enemyPos ) < ent->splashRadius ) && AICast_VisibleFromPos( org, ent->s.number, enemyPos, enemyNum, qfalse );
+	rval = ( Distance( org, enemyPos ) < ent->splashRadius ) && AICast_VisibleFromPos( org, ent->shared.s.number, enemyPos, enemyNum, qfalse );
 	if ( rval ) {
 		// don't hurt ourselves
-		if ( Distance( org, g_entities[selfNum].r.currentOrigin ) < ent->splashRadius * 1.5 ) {
+		if ( Distance( org, g_entities[selfNum].shared.r.currentOrigin ) < ent->splashRadius * 1.5 ) {
 			return -1;
 		}
 		// make sure we don't injure a friendly
@@ -2073,18 +2073,18 @@ int AICast_SafeMissileFire( gentity_t *ent, int duration, int enemyNum, vec3_t e
 			if ( trav->health <= 0 ) {
 				continue;
 			}
-			if ( trav->s.number == selfNum ) {
+			if ( trav->shared.s.number == selfNum ) {
 				continue;
 			}
-			if ( AICast_SameTeam( AICast_GetCastState( selfNum ), trav->s.number ) ) {
-				if ( Distance( org, trav->r.currentOrigin ) < ent->splashRadius ) {
+			if ( AICast_SameTeam( AICast_GetCastState( selfNum ), trav->shared.s.number ) ) {
+				if ( Distance( org, trav->shared.r.currentOrigin ) < ent->splashRadius ) {
 					return -1;
 				}
 			}
 		}
 	}
 	// if it overshot the mark
-	if ( !rval && Distance( g_entities[ent->r.ownerNum].r.currentOrigin, org ) > Distance( g_entities[ent->r.ownerNum].r.currentOrigin, enemyPos ) ) {
+	if ( !rval && Distance( g_entities[ent->shared.r.ownerNum].shared.r.currentOrigin, org ) > Distance( g_entities[ent->shared.r.ownerNum].shared.r.currentOrigin, enemyPos ) ) {
 		return -2;  // so the AI can try aiming down a bit next time
 	}
 	//
@@ -2115,14 +2115,14 @@ void AICast_CheckDangerousEntity( gentity_t *ent, int dangerFlags, float dangerD
 	} else {
 		// just avoid it for a bit, then forget it
 		endTime = level.time + 1000;
-		VectorCopy( ent->r.currentOrigin, org );
+		VectorCopy( ent->shared.r.currentOrigin, org );
 	}
 	if ( dangerFlags & DANGER_CLIENTAIM ) {
 		AngleVectors( ent->client->ps.viewangles, fwd, NULL, NULL );
 	}
 	//
 	if ( ent->client ) {
-		dcs = AICast_GetCastState( ent->s.number );
+		dcs = AICast_GetCastState( ent->shared.s.number );
 	} else {
 		dcs = NULL;
 	}
@@ -2145,7 +2145,7 @@ void AICast_CheckDangerousEntity( gentity_t *ent, int dangerFlags, float dangerD
 		if ( cs->castScriptStatus.scriptNoSightTime >= level.time ) {
 			continue;       // absolutely no sight (or hear) information allowed
 		}
-		if ( !hurtFriendly && ent->s.number < MAX_CLIENTS && AICast_SameTeam( cs, ent->s.number ) ) {
+		if ( !hurtFriendly && ent->shared.s.number < MAX_CLIENTS && AICast_SameTeam( cs, ent->shared.s.number ) ) {
 			continue;   // trust that friends will not hurt us
 		}
 		if ( ( dangerFlags & DANGER_FLAMES ) && ( cs->aiFlags & AIFL_NO_FLAME_DAMAGE ) ) {
@@ -2160,7 +2160,7 @@ void AICast_CheckDangerousEntity( gentity_t *ent, int dangerFlags, float dangerD
 		// if they are below alert mode, and the danger is not in FOV, then ignore it
 		if ( cs->aiState < AISTATE_ALERT ) {
 			vec3_t ang, dir;
-			VectorSubtract( ent->r.currentOrigin, cs->bs->origin, dir );
+			VectorSubtract( ent->shared.r.currentOrigin, cs->bs->origin, dir );
 			VectorNormalize( dir );
 			vectoangles( dir, ang );
 			if ( !AICast_InFieldOfVision( cs->viewangles, cs->attributes[FOV], ang ) ) {
@@ -2169,8 +2169,8 @@ void AICast_CheckDangerousEntity( gentity_t *ent, int dangerFlags, float dangerD
 			}
 		}
 		if (    ent->client &&
-				( !cs->vislist[ent->s.number].visible_timestamp || ( cs->vislist[ent->s.number].visible_timestamp < level.time - 3000 ) ) ) {
-			//	(!dcs->vislist[trav->s.number].visible_timestamp || (dcs->vislist[trav->s.number].visible_timestamp < level.time - 3000))))
+				( !cs->vislist[ent->shared.s.number].visible_timestamp || ( cs->vislist[ent->shared.s.number].visible_timestamp < level.time - 3000 ) ) ) {
+			//	(!dcs->vislist[trav->shared.s.number].visible_timestamp || (dcs->vislist[trav->shared.s.number].visible_timestamp < level.time - 3000))))
 			continue;   // not aware of them, and they're not aware of us
 		}
 		// are they in danger?
@@ -2190,7 +2190,7 @@ void AICast_CheckDangerousEntity( gentity_t *ent, int dangerFlags, float dangerD
 				if ( cs->aiFlags & AIFL_DENYACTION ) {
 					continue;
 				}
-				cs->dangerEntity = ent->s.number;
+				cs->dangerEntity = ent->shared.s.number;
 				VectorCopy( org, cs->dangerEntityPos );
 				cs->dangerEntityValidTime = endTime + 50;
 				cs->dangerDist = dangerDist * 1.5;    // when we hide from it, get a good distance away
@@ -2249,7 +2249,7 @@ void AICast_ProcessBullet( gentity_t *attacker, vec3_t start, vec3_t end ) {
 		if ( cs->castScriptStatus.scriptNoSightTime > level.time ) {
 			continue;
 		}
-		if ( !( tent->r.svFlags & SVF_CASTAI ) ) {
+		if ( !( tent->shared.r.svFlags & SVF_CASTAI ) ) {
 			continue;
 		}
 		if ( cs->aiState >= AISTATE_COMBAT ) { // RF add	// already fighting, not interested in bullet impacts
@@ -2287,7 +2287,7 @@ heard:
 		cs->bulletImpactTime = level.time + 100 + rand() % 200;   // random reaction delay;
 		VectorCopy( start, cs->bulletImpactStart );
 		VectorCopy( end, cs->bulletImpactEnd );
-		cs->bulletImpactEntity = attacker->s.number;
+		cs->bulletImpactEntity = attacker->shared.s.number;
 	}
 }
 
@@ -2338,11 +2338,11 @@ void AICast_AudibleEvent( int srcnum, vec3_t pos, float range ) {
 		}
 		// calculate the adjusted range according to this AI's hearing abilities
 		adjustedRange = range * cs->attributes[HEARING_SCALE];
-		localDist = DistanceSquared( pos, ent->s.pos.trBase );
+		localDist = DistanceSquared( pos, ent->shared.s.pos.trBase );
 		if ( localDist > adjustedRange * adjustedRange ) {  // fast out if already outside range
 			continue;
 		}
-		if ( !SV_inPVS( pos, ent->s.pos.trBase ) ) {
+		if ( !SV_inPVS( pos, ent->shared.s.pos.trBase ) ) {
 			adjustedRange *= cs->attributes[HEARING_SCALE_NOT_PVS];
 		}
 		if ( localDist > adjustedRange * adjustedRange ) {
@@ -2356,6 +2356,6 @@ void AICast_AudibleEvent( int srcnum, vec3_t pos, float range ) {
 
 		cs->audibleEventTime = level.time + 200 + rand() % 300;   // random reaction delay
 		VectorCopy( pos, cs->audibleEventOrg );
-		cs->audibleEventEnt = ent->s.number;
+		cs->audibleEventEnt = ent->shared.s.number;
 	}
 }

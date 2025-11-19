@@ -140,7 +140,7 @@ void    Svcmd_EntityList_f( void ) {
 			continue;
 		}
 		Com_Printf( "%3i:", e );
-		switch ( check->s.eType ) {
+		switch ( check->shared.s.eType ) {
 		case ET_GENERAL:
 			Com_Printf( "ET_GENERAL          " );
 			break;
@@ -193,7 +193,7 @@ void    Svcmd_EntityList_f( void ) {
 			Com_Printf( "ET_ALARMBOX          " );
 			break;
 		default:
-			Com_Printf( "%3i                 ", check->s.eType );
+			Com_Printf( "%3i                 ", check->shared.s.eType );
 			break;
 		}
 

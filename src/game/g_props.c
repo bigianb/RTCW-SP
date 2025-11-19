@@ -45,14 +45,14 @@ void DropToFloorG( gentity_t *ent ) {
 	vec3_t dest;
 	trace_t tr;
 
-	VectorSet( dest, ent->r.currentOrigin[0], ent->r.currentOrigin[1], ent->r.currentOrigin[2] - 4096 );
-	SV_Trace( &tr, ent->r.currentOrigin, ent->r.mins, ent->r.maxs, dest, ent->s.number, MASK_SOLID, qfalse );
+	VectorSet( dest, ent->shared.r.currentOrigin[0], ent->shared.r.currentOrigin[1], ent->shared.r.currentOrigin[2] - 4096 );
+	SV_Trace( &tr, ent->shared.r.currentOrigin, ent->shared.r.mins, ent->shared.r.maxs, dest, ent->shared.s.number, MASK_SOLID, qfalse );
 
 	if ( tr.startsolid ) {
 		return;
 	}
 
-	ent->s.groundEntityNum = tr.entityNum;
+	ent->shared.s.groundEntityNum = tr.entityNum;
 
 	G_SetOrigin( ent, tr.endpos );
 
@@ -63,18 +63,18 @@ void DropToFloor( gentity_t *ent ) {
 	vec3_t dest;
 	trace_t tr;
 
-	VectorSet( dest, ent->r.currentOrigin[0], ent->r.currentOrigin[1], ent->r.currentOrigin[2] - 4096 );
-	SV_Trace( &tr, ent->r.currentOrigin, ent->r.mins, ent->r.maxs, dest, ent->s.number, MASK_SOLID, qfalse );
+	VectorSet( dest, ent->shared.r.currentOrigin[0], ent->shared.r.currentOrigin[1], ent->shared.r.currentOrigin[2] - 4096 );
+	SV_Trace( &tr, ent->shared.r.currentOrigin, ent->shared.r.mins, ent->shared.r.maxs, dest, ent->shared.s.number, MASK_SOLID, qfalse );
 
 	if ( tr.startsolid ) {
 		return;
 	}
 
-	if ( fabs( ent->r.currentOrigin[2] - tr.endpos[2] ) > 1.0 ) {
-		tr.endpos[2] = ( ent->r.currentOrigin[2] - 1.0 );
+	if ( fabs( ent->shared.r.currentOrigin[2] - tr.endpos[2] ) > 1.0 ) {
+		tr.endpos[2] = ( ent->shared.r.currentOrigin[2] - 1.0 );
 	}
 
-	ent->s.groundEntityNum = tr.entityNum;
+	ent->shared.s.groundEntityNum = tr.entityNum;
 
 	G_SetOrigin( ent, tr.endpos );
 
@@ -94,46 +94,44 @@ void moveit( gentity_t *ent, float yaw, float dist ) {
 	move[1] = sin( yaw ) * dist;
 	move[2] = 0;
 
-	VectorAdd( ent->r.currentOrigin, move, origin );
+	VectorAdd( ent->shared.r.currentOrigin, move, origin );
 
-	mins[0] = ent->r.mins[0];
-	mins[1] = ent->r.mins[1];
-	mins[2] = ent->r.mins[2] + .01;
+	mins[0] = ent->shared.r.mins[0];
+	mins[1] = ent->shared.r.mins[1];
+	mins[2] = ent->shared.r.mins[2] + .01;
 
-	maxs[0] = ent->r.maxs[0];
-	maxs[1] = ent->r.maxs[1];
-	maxs[2] = ent->r.maxs[2] - .01;
+	maxs[0] = ent->shared.r.maxs[0];
+	maxs[1] = ent->shared.r.maxs[1];
+	maxs[2] = ent->shared.r.maxs[2] - .01;
 
-	SV_Trace( &tr, ent->r.currentOrigin, mins, maxs, origin, ent->s.number, MASK_SHOT, qfalse );
+	SV_Trace( &tr, ent->shared.r.currentOrigin, mins, maxs, origin, ent->shared.s.number, MASK_SHOT, qfalse );
 
 	if ( ( tr.endpos[0] != origin[0] ) || ( tr.endpos[1] != origin[1] ) ) {
-		mins[0] = ent->r.mins[0] - 2.0;
-		mins[1] = ent->r.mins[1] - 2.0;
-		maxs[0] = ent->r.maxs[0] + 2.0;
-		maxs[1] = ent->r.maxs[1] + 2.0;
+		mins[0] = ent->shared.r.mins[0] - 2.0;
+		mins[1] = ent->shared.r.mins[1] - 2.0;
+		maxs[0] = ent->shared.r.maxs[0] + 2.0;
+		maxs[1] = ent->shared.r.maxs[1] + 2.0;
 
-		SV_Trace( &tr, ent->r.currentOrigin, mins, maxs, origin, ent->s.number, MASK_SHOT, qfalse );
+		SV_Trace( &tr, ent->shared.r.currentOrigin, mins, maxs, origin, ent->shared.s.number, MASK_SHOT, qfalse );
 	}
 
-	VectorCopy( tr.endpos, ent->r.currentOrigin );
+	VectorCopy( tr.endpos, ent->shared.r.currentOrigin );
 
-	VectorCopy( ent->r.currentOrigin, ent->s.pos.trBase );
+	VectorCopy( ent->shared.r.currentOrigin, ent->shared.s.pos.trBase );
 
-	SV_LinkEntity( ent );
-
-	//DropToFloor( ent );
+	SV_LinkEntity( &ent->shared );
 }
 
 void touch_props_box_32( gentity_t *self, gentity_t *other, trace_t *trace ) {
 	float ratio;
 	vec3_t v;
 
-	if ( other->r.currentOrigin[2] > ( self->r.currentOrigin[2] + 10 + 15 ) ) {
+	if ( other->shared.r.currentOrigin[2] > ( self->shared.r.currentOrigin[2] + 10 + 15 ) ) {
 		return;
 	}
 
 	ratio = 2.5;
-	VectorSubtract( self->r.currentOrigin, other->r.currentOrigin, v );
+	VectorSubtract( self->shared.r.currentOrigin, other->shared.r.currentOrigin, v );
 	moveit( self, vectoyaw( v ), ( 20 * ratio * FRAMETIME ) * .001 );
 }
 
@@ -141,13 +139,13 @@ void touch_props_box_32( gentity_t *self, gentity_t *other, trace_t *trace ) {
 
 */
 void SP_props_box_32( gentity_t *self ) {
-	self->s.modelindex = G_ModelIndex( "models/mapobjects/boxes/box32.md3" );
+	self->shared.s.modelindex = G_ModelIndex( "models/mapobjects/boxes/box32.md3" );
 
 	self->clipmask   = CONTENTS_SOLID;
-	self->r.contents = CONTENTS_SOLID;
+	self->shared.r.contents = CONTENTS_SOLID;
 
-	VectorSet( self->r.mins, -16, -16, -16 );
-	VectorSet( self->r.maxs, 16, 16, 16 );
+	VectorSet( self->shared.r.mins, -16, -16, -16 );
+	VectorSet( self->shared.r.maxs, 16, 16, 16 );
 
 	self->touch = touch_props_box_32;
 
@@ -161,12 +159,12 @@ void touch_props_box_48( gentity_t *self, gentity_t *other, trace_t *trace ) {
 	float ratio;
 	vec3_t v;
 
-	if ( other->r.currentOrigin[2] > ( self->r.currentOrigin[2] + 10 + 23 ) ) {
+	if ( other->shared.r.currentOrigin[2] > ( self->shared.r.currentOrigin[2] + 10 + 23 ) ) {
 		return;
 	}
 
 	ratio = 2.0;
-	VectorSubtract( self->r.currentOrigin, other->r.currentOrigin, v );
+	VectorSubtract( self->shared.r.currentOrigin, other->shared.r.currentOrigin, v );
 	moveit( self, vectoyaw( v ), ( 20 * ratio * FRAMETIME ) * .001 );
 }
 
@@ -174,17 +172,17 @@ void touch_props_box_48( gentity_t *self, gentity_t *other, trace_t *trace ) {
 
 */
 void SP_props_box_48( gentity_t *self ) {
-	self->s.modelindex = G_ModelIndex( "models/mapobjects/boxes/box48.md3" );
+	self->shared.s.modelindex = G_ModelIndex( "models/mapobjects/boxes/box48.md3" );
 
 	self->clipmask   = CONTENTS_SOLID;
-	self->r.contents = CONTENTS_SOLID;
+	self->shared.r.contents = CONTENTS_SOLID;
 
-	VectorSet( self->r.mins, -24, -24, -24 );
-	VectorSet( self->r.maxs, 24, 24, 24 );
+	VectorSet( self->shared.r.mins, -24, -24, -24 );
+	VectorSet( self->shared.r.maxs, 24, 24, 24 );
 
 	self->touch = touch_props_box_48;
 
-	SV_LinkEntity( self );
+	SV_LinkEntity( &self->shared );
 
 	self->think = DropToFloor;
 	self->nextthink = level.time + FRAMETIME;
@@ -194,12 +192,12 @@ void touch_props_box_64( gentity_t *self, gentity_t *other, trace_t *trace ) {
 	float ratio;
 	vec3_t v;
 
-	if ( other->r.currentOrigin[2] > ( self->r.currentOrigin[2] + 10 + 31 ) ) {
+	if ( other->shared.r.currentOrigin[2] > ( self->shared.r.currentOrigin[2] + 10 + 31 ) ) {
 		return;
 	}
 
 	ratio = 1.5;
-	VectorSubtract( self->r.currentOrigin, other->r.currentOrigin, v );
+	VectorSubtract( self->shared.r.currentOrigin, other->shared.r.currentOrigin, v );
 	moveit( self, vectoyaw( v ), ( 20 * ratio * FRAMETIME ) * .001 );
 }
 
@@ -207,13 +205,13 @@ void touch_props_box_64( gentity_t *self, gentity_t *other, trace_t *trace ) {
 
 */
 void SP_props_box_64( gentity_t *self ) {
-	self->s.modelindex = G_ModelIndex( "models/mapobjects/boxes/box64.md3" );
+	self->shared.s.modelindex = G_ModelIndex( "models/mapobjects/boxes/box64.md3" );
 
 	self->clipmask   = CONTENTS_SOLID;
-	self->r.contents = CONTENTS_SOLID;
+	self->shared.r.contents = CONTENTS_SOLID;
 
-	VectorSet( self->r.mins, -32, -32, -32 );
-	VectorSet( self->r.maxs, 32, 32, 32 );
+	VectorSet( self->shared.r.mins, -32, -32, -32 );
+	VectorSet( self->shared.r.maxs, 32, 32, 32 );
 
 	self->touch = touch_props_box_64;
 
@@ -235,14 +233,14 @@ void Psmoke_think( gentity_t *ent ) {
 		ent->think = G_FreeEntity;
 	}
 
-	tent = G_TempEntity( ent->s.origin, EV_SMOKE );
-	VectorCopy( ent->s.origin, tent->s.origin );
-	tent->s.time = 3000;
-	tent->s.time2 = 100;
-	tent->s.density = 0;
-	tent->s.angles2[0] = 4;
-	tent->s.angles2[1] = 32;
-	tent->s.angles2[2] = 50;
+	tent = G_TempEntity( ent->shared.s.origin, EV_SMOKE );
+	VectorCopy( ent->shared.s.origin, tent->shared.s.origin );
+	tent->shared.s.time = 3000;
+	tent->shared.s.time2 = 100;
+	tent->shared.s.density = 0;
+	tent->shared.s.angles2[0] = 4;
+	tent->shared.s.angles2[1] = 32;
+	tent->shared.s.angles2[2] = 50;
 
 	ent->nextthink = level.time + FRAMETIME;
 }
@@ -251,7 +249,7 @@ void prop_smoke( gentity_t *ent ) {
 	gentity_t *Psmoke;
 
 	Psmoke = G_Spawn();
-	VectorCopy( ent->r.currentOrigin, Psmoke->s.origin );
+	VectorCopy( ent->shared.r.currentOrigin, Psmoke->shared.s.origin );
 	Psmoke->think = Psmoke_think;
 	Psmoke->nextthink = level.time + FRAMETIME;
 }
@@ -275,11 +273,11 @@ speed controls how quickly the sparks will travel default is 2
 void PGUNsparks_use( gentity_t *ent, gentity_t *self, gentity_t *activator ) {
 	gentity_t *tent;
 
-	tent = G_TempEntity( ent->r.currentOrigin, EV_GUNSPARKS );
-	VectorCopy( ent->r.currentOrigin, tent->s.origin );
-	VectorCopy( ent->r.currentAngles, tent->s.angles );
-	tent->s.density = ent->health;
-	tent->s.angles2[2] = ent->speed;
+	tent = G_TempEntity( ent->shared.r.currentOrigin, EV_GUNSPARKS );
+	VectorCopy( ent->shared.r.currentOrigin, tent->shared.s.origin );
+	VectorCopy( ent->shared.r.currentAngles, tent->shared.s.angles );
+	tent->shared.s.density = ent->health;
+	tent->shared.s.angles2[2] = ent->speed;
 
 }
 
@@ -291,17 +289,17 @@ void Psparks_think( gentity_t *ent ) {
 
 
 	if ( ent->spawnflags & 1 ) {
-		tent = G_TempEntity( ent->r.currentOrigin, EV_SPARKS_ELECTRIC );
+		tent = G_TempEntity( ent->shared.r.currentOrigin, EV_SPARKS_ELECTRIC );
 	} else {
-		tent = G_TempEntity( ent->r.currentOrigin, EV_SPARKS );
+		tent = G_TempEntity( ent->shared.r.currentOrigin, EV_SPARKS );
 	}
-	VectorCopy( ent->r.currentOrigin, tent->s.origin );
-	VectorCopy( ent->r.currentAngles, tent->s.angles );
-	tent->s.density = ent->health;
-	tent->s.frame = ent->wait;
-	tent->s.angles2[0] = ent->start_size;
-	tent->s.angles2[1] = ent->end_size;
-	tent->s.angles2[2] = ent->speed;
+	VectorCopy( ent->shared.r.currentOrigin, tent->shared.s.origin );
+	VectorCopy( ent->shared.r.currentAngles, tent->shared.s.angles );
+	tent->shared.s.density = ent->health;
+	tent->shared.s.frame = ent->wait;
+	tent->shared.s.angles2[0] = ent->start_size;
+	tent->shared.s.angles2[1] = ent->end_size;
+	tent->shared.s.angles2[2] = ent->speed;
 
 	ent->nextthink = level.time + FRAMETIME + ent->delay + ( rand() % 600 );
 }
@@ -316,15 +314,15 @@ void sparks_angles_think( gentity_t *ent ) {
 	}
 
 	if ( !target ) {
-		VectorSet( ent->r.currentAngles, 0, 0, 1 );
+		VectorSet( ent->shared.r.currentAngles, 0, 0, 1 );
 	} else
 	{
-		VectorSubtract( ent->s.origin, target->s.origin, vec );
+		VectorSubtract( ent->shared.s.origin, target->shared.s.origin, vec );
 		VectorNormalize( vec );
-		VectorCopy( vec, ent->r.currentAngles );
+		VectorCopy( vec, ent->shared.r.currentAngles );
 	}
 
-	SV_LinkEntity( ent );
+	SV_LinkEntity( &ent->shared );
 
 	ent->nextthink = level.time + FRAMETIME;
 	if ( !Q_stricmp( ent->classname, "props_sparks" ) ) {
@@ -337,8 +335,8 @@ void sparks_angles_think( gentity_t *ent ) {
 
 void SP_props_sparks( gentity_t *ent ) {
 
-	G_SetOrigin( ent, ent->s.origin );
-	ent->s.eType = ET_GENERAL;
+	G_SetOrigin( ent, ent->shared.s.origin );
+	ent->shared.s.eType = ET_GENERAL;
 
 	ent->think = sparks_angles_think;
 	ent->nextthink = level.time + FRAMETIME;
@@ -365,7 +363,7 @@ void SP_props_sparks( gentity_t *ent ) {
 		ent->speed = 2;
 	}
 
-	SV_LinkEntity( ent );
+	SV_LinkEntity( &ent->shared );
 
 }
 
@@ -379,8 +377,8 @@ this entity must be used to see the effect
 */
 
 void SP_props_gunsparks( gentity_t *ent ) {
-	G_SetOrigin( ent, ent->s.origin );
-	ent->s.eType = ET_GENERAL;
+	G_SetOrigin( ent, ent->shared.s.origin );
+	ent->shared.s.eType = ET_GENERAL;
 
 	ent->think = sparks_angles_think;
 	ent->nextthink = level.time + FRAMETIME;
@@ -393,7 +391,7 @@ void SP_props_gunsparks( gentity_t *ent ) {
 		ent->health = 4;
 	}
 
-	SV_LinkEntity( ent );
+	SV_LinkEntity( &ent->shared );
 
 }
 
@@ -406,16 +404,16 @@ void smokedust_use( gentity_t *ent, gentity_t *self, gentity_t *activator ) {
 	gentity_t   *tent;
 	vec3_t forward;
 
-	AngleVectors( ent->r.currentAngles, forward, NULL, NULL );
+	AngleVectors( ent->shared.r.currentAngles, forward, NULL, NULL );
 
 	for ( i = 0; i < ent->health; i++ )
 	{
-		tent = G_TempEntity( ent->r.currentOrigin, EV_SMOKE );
-		VectorCopy( ent->r.currentOrigin, tent->s.origin );
-		VectorCopy( forward, tent->s.origin2 );
-		tent->s.time = 1000;
-		tent->s.time2 = 750;
-		tent->s.density = 3;
+		tent = G_TempEntity( ent->shared.r.currentOrigin, EV_SMOKE );
+		VectorCopy( ent->shared.r.currentOrigin, tent->shared.s.origin );
+		VectorCopy( forward, tent->shared.s.origin2 );
+		tent->shared.s.time = 1000;
+		tent->shared.s.time2 = 750;
+		tent->shared.s.density = 3;
 	}
 }
 
@@ -423,13 +421,13 @@ void SP_SmokeDust( gentity_t *ent ) {
 
 	ent->use = smokedust_use;
 
-	G_SetOrigin( ent, ent->s.origin );
-	ent->s.eType = ET_GENERAL;
+	G_SetOrigin( ent, ent->shared.s.origin );
+	ent->shared.s.eType = ET_GENERAL;
 
 	if ( !ent->health ) {
 		ent->health = 16;
 	}
-	SV_LinkEntity( ent );
+	SV_LinkEntity( &ent->shared );
 }
 
 
@@ -443,22 +441,22 @@ void dust_use( gentity_t *ent, gentity_t *self, gentity_t *activator ) {
 	vec3_t forward;
 
 	if ( ent->target ) {
-		tent = G_TempEntity( ent->r.currentOrigin, EV_DUST );
-		VectorCopy( ent->r.currentOrigin, tent->s.origin );
-		VectorCopy( ent->r.currentAngles, tent->s.angles );
+		tent = G_TempEntity( ent->shared.r.currentOrigin, EV_DUST );
+		VectorCopy( ent->shared.r.currentOrigin, tent->shared.s.origin );
+		VectorCopy( ent->shared.r.currentAngles, tent->shared.s.angles );
 		if ( ent->spawnflags & 1 ) {
-			tent->s.density = 1;
+			tent->shared.s.density = 1;
 		}
 	} else
 	{
 
-		AngleVectors( ent->r.currentAngles, forward, NULL, NULL );
+		AngleVectors( ent->shared.r.currentAngles, forward, NULL, NULL );
 
-		tent = G_TempEntity( ent->r.currentOrigin, EV_DUST );
-		VectorCopy( ent->r.currentOrigin, tent->s.origin );
-		VectorCopy( forward, tent->s.angles );
+		tent = G_TempEntity( ent->shared.r.currentOrigin, EV_DUST );
+		VectorCopy( ent->shared.r.currentOrigin, tent->shared.s.origin );
+		VectorCopy( forward, tent->shared.s.angles );
 		if ( ent->spawnflags & 1 ) {
-			tent->s.density = 1;
+			tent->shared.s.density = 1;
 		}
 	}
 }
@@ -473,23 +471,23 @@ void dust_angles_think( gentity_t *ent ) {
 		return;
 	}
 
-	VectorSubtract( ent->s.origin, target->s.origin, vec );
-	VectorCopy( vec, ent->r.currentAngles );
-	SV_LinkEntity( ent );
+	VectorSubtract( ent->shared.s.origin, target->shared.s.origin, vec );
+	VectorCopy( vec, ent->shared.r.currentAngles );
+	SV_LinkEntity( &ent->shared );
 
 }
 
 void SP_Dust( gentity_t *ent ) {
 	ent->use = dust_use;
-	G_SetOrigin( ent, ent->s.origin );
-	ent->s.eType = ET_GENERAL;
+	G_SetOrigin( ent, ent->shared.s.origin );
+	ent->shared.s.eType = ET_GENERAL;
 
 	if ( ent->target ) {
 		ent->think = dust_angles_think;
 		ent->nextthink = level.time + FRAMETIME;
 	}
 
-	SV_LinkEntity( ent );
+	SV_LinkEntity( &ent->shared );
 }
 
 //////////////////////////////////////////////////////////
@@ -504,12 +502,12 @@ void propExplosionLarge( gentity_t *ent ) {
 	bolt->classname = "props_explosion_large";
 	bolt->nextthink = level.time + FRAMETIME;
 	bolt->think = G_ExplodeMissile;
-	bolt->s.eType = ET_MISSILE;
+	bolt->shared.s.eType = ET_MISSILE;
 
-	bolt->s.weapon = WP_NONE;
+	bolt->shared.s.weapon = WP_NONE;
 
-	bolt->s.eFlags = EF_BOUNCE_HALF;
-	bolt->r.ownerNum = ent->s.number;
+	bolt->shared.s.eFlags = EF_BOUNCE_HALF;
+	bolt->shared.r.ownerNum = ent->shared.s.number;
 	bolt->parent = ent;
 	bolt->damage = ent->health;
 	bolt->splashDamage = ent->health;
@@ -518,8 +516,8 @@ void propExplosionLarge( gentity_t *ent ) {
 	bolt->splashMethodOfDeath = MOD_GRENADE_SPLASH;
 	bolt->clipmask = MASK_SHOT;
 
-	VectorCopy( ent->r.currentOrigin, bolt->s.pos.trBase );
-	VectorCopy( ent->r.currentOrigin, bolt->r.currentOrigin );
+	VectorCopy( ent->shared.r.currentOrigin, bolt->shared.s.pos.trBase );
+	VectorCopy( ent->shared.r.currentOrigin, bolt->shared.r.currentOrigin );
 }
 
 void propExplosion( gentity_t *ent ) {
@@ -530,12 +528,12 @@ void propExplosion( gentity_t *ent ) {
 	bolt->classname = "props_explosion";
 	bolt->nextthink = level.time + FRAMETIME;
 	bolt->think = G_ExplodeMissile;
-	bolt->s.eType = ET_MISSILE;
+	bolt->shared.s.eType = ET_MISSILE;
 
-	bolt->s.weapon = WP_NONE;
+	bolt->shared.s.weapon = WP_NONE;
 
-	bolt->s.eFlags = EF_BOUNCE_HALF;
-	bolt->r.ownerNum = ent->s.number;
+	bolt->shared.s.eFlags = EF_BOUNCE_HALF;
+	bolt->shared.r.ownerNum = ent->shared.s.number;
 	bolt->parent = ent;
 	bolt->damage = ent->health;
 	bolt->splashDamage = ent->health;
@@ -544,8 +542,8 @@ void propExplosion( gentity_t *ent ) {
 	bolt->splashMethodOfDeath = MOD_GRENADE_SPLASH;
 	bolt->clipmask = MASK_SHOT;
 
-	VectorCopy( ent->r.currentOrigin, bolt->s.pos.trBase );
-	VectorCopy( ent->r.currentOrigin, bolt->r.currentOrigin );
+	VectorCopy( ent->shared.r.currentOrigin, bolt->shared.s.pos.trBase );
+	VectorCopy( ent->shared.r.currentOrigin, bolt->shared.r.currentOrigin );
 }
 
 void InitProp( gentity_t *ent ) {
@@ -555,26 +553,26 @@ void InitProp( gentity_t *ent ) {
 	char        *sound;
 
 	if ( !Q_stricmp( ent->classname, "props_bench" ) ) {
-		ent->s.modelindex2 = G_ModelIndex( "models/furniture/bench/bench_sm.md3" );
+		ent->shared.s.modelindex2 = G_ModelIndex( "models/furniture/bench/bench_sm.md3" );
 	} else if ( !Q_stricmp( ent->classname, "props_radio" ) )  {
-		ent->s.modelindex2 = G_ModelIndex( "models/mapobjects/electronics/radio1.md3" );
+		ent->shared.s.modelindex2 = G_ModelIndex( "models/mapobjects/electronics/radio1.md3" );
 	} else if ( !Q_stricmp( ent->classname, "props_locker_tall" ) )  {
-		ent->s.modelindex2 = G_ModelIndex( "models/furniture/storage/lockertall.md3" );
+		ent->shared.s.modelindex2 = G_ModelIndex( "models/furniture/storage/lockertall.md3" );
 	} else if ( !Q_stricmp( ent->classname, "props_flippy_table" ) )  {
-		ent->s.modelindex2 = G_ModelIndex( "models/furniture/table/woodflip.md3" );
+		ent->shared.s.modelindex2 = G_ModelIndex( "models/furniture/table/woodflip.md3" );
 	} else if ( !Q_stricmp( ent->classname, "props_crate_32x64" ) )  {
-		ent->s.modelindex2 = G_ModelIndex( "models/furniture/crate/crate32x64.md3" );
+		ent->shared.s.modelindex2 = G_ModelIndex( "models/furniture/crate/crate32x64.md3" );
 	} else if ( !Q_stricmp( ent->classname, "props_58x112tablew" ) )  {
-		ent->s.modelindex2 = G_ModelIndex( "models/furniture/table/56x112tablew.md3" );
+		ent->shared.s.modelindex2 = G_ModelIndex( "models/furniture/table/56x112tablew.md3" );
 	} else if ( !Q_stricmp( ent->classname, "props_castlebed" ) )  {
-		ent->s.modelindex2 = G_ModelIndex( "models/furniture/bed/castlebed.md3" );
+		ent->shared.s.modelindex2 = G_ModelIndex( "models/furniture/bed/castlebed.md3" );
 	} else if ( !Q_stricmp( ent->classname, "props_radioSEVEN" ) )  {
-		ent->s.modelindex2 = G_ModelIndex( "models/mapobjects/electronics/radios.md3" );
+		ent->shared.s.modelindex2 = G_ModelIndex( "models/mapobjects/electronics/radios.md3" );
 	}
 
 	// if the "loopsound" key is set, use a constant looping sound when moving
 	if ( G_SpawnString( "noise", "100", &sound ) ) {
-		ent->s.loopSound = G_SoundIndex( sound );
+		ent->shared.s.loopSound = G_SoundIndex( sound );
 	}
 
 	// if the "color" or "light" keys are set, setup constantLight
@@ -599,27 +597,27 @@ void InitProp( gentity_t *ent ) {
 		if ( i > 255 ) {
 			i = 255;
 		}
-		ent->s.constantLight = r | ( g << 8 ) | ( b << 16 ) | ( i << 24 );
+		ent->shared.s.constantLight = r | ( g << 8 ) | ( b << 16 ) | ( i << 24 );
 	}
 
 	ent->isProp = qtrue;
 
 	ent->moverState = MOVER_POS1;
-	ent->s.eType = ET_MOVER;
+	ent->shared.s.eType = ET_MOVER;
 
-	G_SetOrigin( ent, ent->s.origin );
-	G_SetAngle( ent, ent->s.angles );
+	G_SetOrigin( ent, ent->shared.s.origin );
+	G_SetAngle( ent, ent->shared.s.angles );
 }
 
 void props_bench_think( gentity_t *ent ) {
-	ent->s.frame++;
+	ent->shared.s.frame++;
 
-	if ( ent->s.frame < 28 ) {
+	if ( ent->shared.s.frame < 28 ) {
 		ent->nextthink = level.time + ( FRAMETIME / 2 );
 	} else
 	{
 		ent->clipmask = 0;
-		ent->r.contents = 0;
+		ent->shared.r.contents = 0;
 		ent->takedamage = qfalse;
 
 		G_UseTargets( ent, NULL );
@@ -638,7 +636,7 @@ health = 10 by default
 */
 void SP_Props_Bench( gentity_t *ent ) {
 
-	SV_SetBrushModel( ent, ent->model );
+	SV_SetBrushModel( &ent->shared, ent->model );
 
 	InitProp( ent );
 
@@ -652,7 +650,7 @@ void SP_Props_Bench( gentity_t *ent ) {
 
 	ent->die = props_bench_die;
 
-	SV_LinkEntity( ent );
+	SV_LinkEntity( &ent->shared );
 }
 
 void props_radio_die( gentity_t *ent, gentity_t *inflictor, gentity_t *attacker, int damage, int mod ) {
@@ -678,7 +676,7 @@ void SP_Props_Radio( gentity_t *ent ) {
 		return;
 	}
 
-	SV_SetBrushModel( ent, ent->model );
+	SV_SetBrushModel( &ent->shared, ent->model );
 
 	InitProp( ent );
 
@@ -690,7 +688,7 @@ void SP_Props_Radio( gentity_t *ent ) {
 
 	ent->die = props_radio_die;
 
-	SV_LinkEntity( ent );
+	SV_LinkEntity( &ent->shared );
 
 }
 
@@ -709,7 +707,7 @@ void props_radio_dieSEVEN( gentity_t *ent, gentity_t *inflictor, gentity_t *atta
 	ent->takedamage = qfalse;
 	ent->die = NULL;
 
-	SV_LinkEntity( ent );
+	SV_LinkEntity( &ent->shared );
 
 	G_UseTargets( ent, NULL );
 
@@ -737,7 +735,7 @@ void SP_Props_RadioSEVEN( gentity_t *ent ) {
 		return;
 	}
 
-	SV_SetBrushModel( ent, ent->model );
+	SV_SetBrushModel( &ent->shared, ent->model );
 
 	InitProp( ent );
 
@@ -751,18 +749,18 @@ void SP_Props_RadioSEVEN( gentity_t *ent ) {
 
 	ent->count = 2; // metal shard and sound
 
-	SV_LinkEntity( ent );
+	SV_LinkEntity( &ent->shared );
 
 }
 
 
 void locker_tall_think( gentity_t *ent ) {
-	if ( ent->s.frame == 30 ) {
+	if ( ent->shared.s.frame == 30 ) {
 		G_UseTargets( ent, NULL );
 
 	} else
 	{
-		ent->s.frame++;
+		ent->shared.s.frame++;
 		ent->nextthink = level.time + ( FRAMETIME / 2 );
 	}
 
@@ -788,7 +786,7 @@ void SP_Props_Locker_Tall( gentity_t *ent ) {
 		return;
 	}
 
-	SV_SetBrushModel( ent, ent->model );
+	SV_SetBrushModel( &ent->shared, ent->model );
 
 	InitProp( ent );
 
@@ -800,7 +798,7 @@ void SP_Props_Locker_Tall( gentity_t *ent ) {
 
 	ent->die = props_locker_tall_die;
 
-	SV_LinkEntity( ent );
+	SV_LinkEntity( &ent->shared );
 
 }
 
@@ -885,7 +883,7 @@ void Just_Got_Thrown( gentity_t *self ) {
 
 	len = 0;
 
-	if ( self->s.groundEntityNum == -1 ) {
+	if ( self->shared.s.groundEntityNum == -1 ) {
 		self->nextthink = level.time + FRAMETIME;
 
 		if ( self->enemy ) {
@@ -907,10 +905,10 @@ void Just_Got_Thrown( gentity_t *self ) {
 	} else
 	{
 		// RF, alert AI of sound event
-//		AICast_AudibleEvent( self->s.number, self->r.currentOrigin, 384 );
+//		AICast_AudibleEvent( self->shared.s.number, self->shared.r.currentOrigin, 384 );
 
 		G_AddEvent( self, EV_GENERAL_SOUND, snd_chairhitground );
-		VectorSubtract( self->r.currentOrigin, self->s.origin2, vec );
+		VectorSubtract( self->shared.r.currentOrigin, self->shared.s.origin2, vec );
 		len = VectorLength( vec );
 
 		{
@@ -920,10 +918,10 @@ void Just_Got_Thrown( gentity_t *self ) {
 			gentity_t   *player;
 			qboolean reGrab = qtrue;
 
-			VectorCopy( self->r.currentOrigin, end );
+			VectorCopy( self->shared.r.currentOrigin, end );
 			end[2] += 1;
 
-			SV_Trace( &trace, self->r.currentOrigin, self->r.mins, self->r.maxs, end, self->s.number, MASK_SHOT, qfalse );
+			SV_Trace( &trace, self->shared.r.currentOrigin, self->shared.r.mins, self->shared.r.maxs, end, self->shared.s.number, MASK_SHOT, qfalse );
 
 			traceEnt = &g_entities[ trace.entityNum ];
 
@@ -942,14 +940,14 @@ void Just_Got_Thrown( gentity_t *self ) {
 
 				// player can throw, then switch to a two handed weapon before catching.
 				// need to catch this (no pun intended)
-				if ( player->s.weapon && !( WEAPS_ONE_HANDED & ( 1 << ( player->s.weapon ) ) ) ) {
+				if ( player->shared.s.weapon && !( WEAPS_ONE_HANDED & ( 1 << ( player->shared.s.weapon ) ) ) ) {
 					reGrab = qfalse;
 				}
 
 				if ( reGrab ) {
 					// pick the chair back up
 					self->active = qtrue;
-					self->r.ownerNum = player->s.number;
+					self->shared.r.ownerNum = player->shared.s.number;
 					player->active = qtrue;
 					player->melee = self;
 					self->nextthink = level.time + 50;
@@ -957,11 +955,11 @@ void Just_Got_Thrown( gentity_t *self ) {
 					self->think = Props_Chair_Think;
 					self->touch = NULL;
 					self->die = Props_Chair_Die;
-					self->s.eType = ET_MOVER;
+					self->shared.s.eType = ET_MOVER;
 
 					player->client->ps.eFlags |= EF_MELEE_ACTIVE;
 
-					SV_LinkEntity( self );
+					SV_LinkEntity( &self->shared );
 					return;
 				} else {
 					len = 9999;
@@ -974,11 +972,11 @@ void Just_Got_Thrown( gentity_t *self ) {
 	self->think = Props_Chair_Think;
 	self->touch = Props_Chair_Touch;
 	self->die = Props_Chair_Die;
-	self->s.eType = ET_MOVER;
+	self->shared.s.eType = ET_MOVER;
 
 	self->nextthink = level.time + FRAMETIME;
 
-	self->r.ownerNum = self->s.number;
+	self->shared.r.ownerNum = self->shared.s.number;
 
 	if ( len > 256 ) {
 		self->die( self, self, NULL, 10, 0 );
@@ -1006,7 +1004,7 @@ void Props_Activated( gentity_t *self ) {
 
 	gentity_t   *owner;
 
-	owner = &g_entities[self->r.ownerNum];
+	owner = &g_entities[self->shared.r.ownerNum];
 
 	self->nextthink = level.time + 50;
 
@@ -1023,10 +1021,10 @@ void Props_Activated( gentity_t *self ) {
 		self->physicsObject = qtrue;
 		self->physicsBounce = 0.2;
 
-		self->s.groundEntityNum = -1;
+		self->shared.s.groundEntityNum = -1;
 
-		self->s.pos.trType = TR_GRAVITY;
-		self->s.pos.trTime = level.time;
+		self->shared.s.pos.trType = TR_GRAVITY;
+		self->shared.s.pos.trTime = level.time;
 
 		self->active = qfalse;
 
@@ -1035,14 +1033,14 @@ void Props_Activated( gentity_t *self ) {
 		AngleVectors( owner->client->ps.viewangles, velocity, NULL, NULL );
 		VectorScale( velocity, 250, velocity );
 		velocity[2] += 100 + crandom() * 25;
-		VectorCopy( velocity, self->s.pos.trDelta );
+		VectorCopy( velocity, self->shared.s.pos.trDelta );
 
 		self->think = NULL;
 		self->nextthink = 0;
 
 		prop = G_Spawn();
-		prop->s.modelindex = self->s.modelindex;
-		G_SetOrigin( prop, self->r.currentOrigin );
+		prop->shared.s.modelindex = self->shared.s.modelindex;
+		G_SetOrigin( prop, self->shared.r.currentOrigin );
 
 		VectorCopy( owner->client->ps.viewangles, prop_ang );
 		prop_ang[0] = 0;
@@ -1050,21 +1048,21 @@ void Props_Activated( gentity_t *self ) {
 		G_SetAngle( prop, prop_ang );
 
 		prop->clipmask   = CONTENTS_SOLID | CONTENTS_MISSILECLIP;
-		prop->r.contents = CONTENTS_SOLID;
+		prop->shared.r.contents = CONTENTS_SOLID;
 		prop->isProp = qtrue;
 
-		VectorSet( prop->r.mins, -12, -12, 0 );
-		VectorSet( prop->r.maxs, 12, 12, 48 );
+		VectorSet( prop->shared.r.mins, -12, -12, 0 );
+		VectorSet( prop->shared.r.maxs, 12, 12, 48 );
 
 		prop->physicsObject = qtrue;
 		prop->physicsBounce = 0.2;
 
-		VectorCopy( owner->client->ps.origin, prop->s.pos.trBase );
+		VectorCopy( owner->client->ps.origin, prop->shared.s.pos.trBase );
 
-		VectorCopy( self->s.pos.trDelta, prop->s.pos.trDelta );
+		VectorCopy( self->shared.s.pos.trDelta, prop->shared.s.pos.trDelta );
 
-		prop->s.pos.trType = TR_GRAVITY;
-		prop->s.pos.trTime = level.time;
+		prop->shared.s.pos.trType = TR_GRAVITY;
+		prop->shared.s.pos.trTime = level.time;
 
 		prop->active = qfalse;
 
@@ -1083,14 +1081,14 @@ void Props_Activated( gentity_t *self ) {
 
 		prop->classname = self->classname;
 
-		prop->s.groundEntityNum = -1;
+		prop->shared.s.groundEntityNum = -1;
 
-		VectorCopy( self->r.currentOrigin, prop->s.origin2 );
+		VectorCopy( self->shared.r.currentOrigin, prop->shared.s.origin2 );
 
 		prop->die = Props_Chair_Die;
 
-		prop->r.ownerNum = owner->s.number;
-		prop->s.otherEntityNum = ENTITYNUM_WORLD;
+		prop->shared.r.ownerNum = owner->shared.s.number;
+		prop->shared.s.otherEntityNum = ENTITYNUM_WORLD;
 
 		SV_LinkEntity( prop );
 
@@ -1104,33 +1102,33 @@ void Props_Activated( gentity_t *self ) {
 				!Q_stricmp( self->classname, "props_chair_chatarm" ) ||
 				!Q_stricmp( self->classname, "props_chair_side" )
 				) {
-			self->s.frame = 23;
-			self->s.density = 1;
+			self->shared.s.frame = 23;
+			self->shared.s.density = 1;
 		} else if ( !Q_stricmp( self->classname, "props_chair" ) ) {
-			self->s.frame = 28;
-			self->s.density = 1;
+			self->shared.s.frame = 28;
+			self->shared.s.density = 1;
 		}
 	}
 
-	SV_UnlinkEntity( self );
+	SV_UnlinkEntity( &self->shared );
 
 	// move the entity in step with the activators movement
 	VectorCopy( owner->client->ps.viewangles, angles );
 	angles[0] = 0;
 
-	self->s.apos.trBase[YAW] = owner->client->ps.viewangles[YAW];
+	self->shared.s.apos.trBase[YAW] = owner->client->ps.viewangles[YAW];
 
 	AngleVectors( angles, forward, right, NULL );
-	VectorCopy( owner->r.currentOrigin, dest );
+	VectorCopy( owner->shared.r.currentOrigin, dest );
 
-	VectorCopy( dest, self->r.currentOrigin );
-	VectorCopy( dest, self->s.pos.trBase );
+	VectorCopy( dest, self->shared.r.currentOrigin );
+	VectorCopy( dest, self->shared.s.pos.trBase );
 
-	self->s.eType = ET_PROP;
+	self->shared.s.eType = ET_PROP;
 
-	self->s.otherEntityNum = owner->s.number + 1;
+	self->shared.s.otherEntityNum = owner->shared.s.number + 1;
 
-	SV_LinkEntity( self );
+	SV_LinkEntity( &self->shared );
 
 }
 
@@ -1144,54 +1142,54 @@ void Props_Chair_Think( gentity_t *self ) {
 		return;
 	}
 
-	SV_UnlinkEntity( self );
+	SV_UnlinkEntity( &self->shared );
 
-	BG_EvaluateTrajectory( &self->s.pos, level.time, self->s.pos.trBase );
+	BG_EvaluateTrajectory( &self->shared.s.pos, level.time, self->shared.s.pos.trBase );
 
-	if ( level.time > self->s.pos.trDuration ) {
-		VectorClear( self->s.pos.trDelta );
-		self->s.pos.trDuration = 0;
-		self->s.pos.trType = TR_STATIONARY;
+	if ( level.time > self->shared.s.pos.trDuration ) {
+		VectorClear( self->shared.s.pos.trDelta );
+		self->shared.s.pos.trDuration = 0;
+		self->shared.s.pos.trType = TR_STATIONARY;
 	} else
 	{
 		vec3_t mins, maxs;
 
-		VectorCopy( self->r.mins, mins );
-		VectorCopy( self->r.maxs, maxs );
+		VectorCopy( self->shared.r.mins, mins );
+		VectorCopy( self->shared.r.maxs, maxs );
 
 		mins[2] += 1;
 
-		SV_Trace( &tr, self->r.currentOrigin, mins, maxs, self->s.pos.trBase, self->s.number, MASK_SHOT, qfalse );
+		SV_Trace( &tr, self->shared.r.currentOrigin, mins, maxs, self->shared.s.pos.trBase, self->shared.s.number, MASK_SHOT, qfalse );
 
 		if ( tr.fraction == 1 ) {
-			VectorCopy( self->s.pos.trBase, self->r.currentOrigin );
+			VectorCopy( self->shared.s.pos.trBase, self->shared.r.currentOrigin );
 		} else
 		{
-			VectorCopy( self->r.currentOrigin, self->s.pos.trBase );
-			VectorClear( self->s.pos.trDelta );
-			self->s.pos.trDuration = 0;
-			self->s.pos.trType = TR_STATIONARY;
+			VectorCopy( self->shared.r.currentOrigin, self->shared.s.pos.trBase );
+			VectorClear( self->shared.s.pos.trDelta );
+			self->shared.s.pos.trDuration = 0;
+			self->shared.s.pos.trType = TR_STATIONARY;
 		}
 
 	}
 
-	if ( self->s.groundEntityNum == -1 ) {
+	if ( self->shared.s.groundEntityNum == -1 ) {
 
 		self->physicsObject = qtrue;
 		self->physicsBounce = 0.2;
 
-		self->s.pos.trDelta[2] -= 200;
+		self->shared.s.pos.trDelta[2] -= 200;
 
-		self->s.pos.trType = TR_GRAVITY;
-		self->s.pos.trTime = level.time;
+		self->shared.s.pos.trType = TR_GRAVITY;
+		self->shared.s.pos.trTime = level.time;
 
 		self->active = qfalse;
 
 		self->think = Just_Got_Thrown;
 
-		if ( self->s.pos.trType != TR_GRAVITY ) {
-			self->s.pos.trType = TR_GRAVITY;
-			self->s.pos.trTime = level.time;
+		if ( self->shared.s.pos.trType != TR_GRAVITY ) {
+			self->shared.s.pos.trType = TR_GRAVITY;
+			self->shared.s.pos.trTime = level.time;
 		}
 	}
 
@@ -1200,7 +1198,7 @@ void Props_Chair_Think( gentity_t *self ) {
 
 
 	self->nextthink = level.time + 50;
-	SV_LinkEntity( self );
+	SV_LinkEntity( &self->shared );
 }
 
 qboolean Prop_Touch( gentity_t *self, gentity_t *other, vec3_t v ) {
@@ -1221,29 +1219,29 @@ qboolean Prop_Touch( gentity_t *self, gentity_t *other, vec3_t v ) {
 	AngleVectors( angle, forward, NULL, NULL );
 	VectorClear( dest );
 	VectorMA( dest, 128, forward, dest );
-	VectorMA( self->r.currentOrigin, 32, forward, end );
+	VectorMA( self->shared.r.currentOrigin, 32, forward, end );
 
-	VectorCopy( self->r.currentOrigin, start );
+	VectorCopy( self->shared.r.currentOrigin, start );
 	end[2] += 8;
 	start[2] += 8;
 
-	VectorCopy( self->r.mins, mins );
-	VectorCopy( self->r.maxs, maxs );
+	VectorCopy( self->shared.r.mins, mins );
+	VectorCopy( self->shared.r.maxs, maxs );
 
 	mins[2] += 1;
 
-	SV_Trace( &tr, start, mins, maxs, end, self->s.number, MASK_SHOT, qfalse );
+	SV_Trace( &tr, start, mins, maxs, end, self->shared.s.number, MASK_SHOT, qfalse );
 
 	if ( tr.fraction != 1 ) {
 		return qfalse;
 	}
 
-	VectorCopy( dest, self->s.pos.trDelta );
-	VectorCopy( self->r.currentOrigin, self->s.pos.trBase );
+	VectorCopy( dest, self->shared.s.pos.trDelta );
+	VectorCopy( self->shared.r.currentOrigin, self->shared.s.pos.trBase );
 
-	self->s.pos.trDuration = level.time + 100;
-	self->s.pos.trTime = level.time;
-	self->s.pos.trType = TR_LINEAR;
+	self->shared.s.pos.trDuration = level.time + 100;
+	self->shared.s.pos.trTime = level.time;
+	self->shared.s.pos.trType = TR_LINEAR;
 
 	self->physicsObject = qtrue;
 
@@ -1255,21 +1253,21 @@ void Prop_Check_Ground( gentity_t *self ) {
 	vec3_t start, end;
 	trace_t tr;
 
-	VectorCopy( self->r.currentOrigin, start );
-	VectorCopy( self->r.currentOrigin, end );
+	VectorCopy( self->shared.r.currentOrigin, start );
+	VectorCopy( self->shared.r.currentOrigin, end );
 
 	end[2] -= 4;
 
-	VectorCopy( self->r.mins, mins );
-	VectorCopy( self->r.maxs, maxs );
+	VectorCopy( self->shared.r.mins, mins );
+	VectorCopy( self->shared.r.maxs, maxs );
 
-//	SV_Trace( &tr, start, mins, maxs, end, self->s.number, MASK_SHOT );
-	SV_Trace( &tr, start, mins, maxs, end, self->s.number, MASK_MISSILESHOT, qfalse );
+//	SV_Trace( &tr, start, mins, maxs, end, self->shared.s.number, MASK_SHOT );
+	SV_Trace( &tr, start, mins, maxs, end, self->shared.s.number, MASK_MISSILESHOT, qfalse );
 
 	if ( tr.fraction == 1 ) {
-		self->s.groundEntityNum = -1;
+		self->shared.s.groundEntityNum = -1;
 	} else {
-		self->s.groundEntityNum = tr.entityNum;
+		self->shared.s.groundEntityNum = tr.entityNum;
 	}
 
 }
@@ -1282,7 +1280,7 @@ void Props_Chair_Touch( gentity_t *self, gentity_t *other, trace_t *trace ) {
 		return;
 	}
 
-	if ( other->r.currentOrigin[2] > ( self->r.currentOrigin[2] + 10 + 15 ) ) {
+	if ( other->shared.r.currentOrigin[2] > ( self->shared.r.currentOrigin[2] + 10 + 15 ) ) {
 		return;
 	}
 
@@ -1290,13 +1288,13 @@ void Props_Chair_Touch( gentity_t *self, gentity_t *other, trace_t *trace ) {
 		return;
 	}
 
-	VectorSubtract( self->r.currentOrigin, other->r.currentOrigin, v );
+	VectorSubtract( self->shared.r.currentOrigin, other->shared.r.currentOrigin, v );
 
 	has_moved = Prop_Touch( self, other, v );
 
-	if ( /*!has_moved &&*/ ( other->r.svFlags & SVF_CASTAI ) ) {
+	if ( /*!has_moved &&*/ ( other->shared.r.svFlags & SVF_CASTAI ) ) {
 		// RF, alert AI of sound event
-//		AICast_AudibleEvent( self->s.number, self->r.currentOrigin, 384 );
+//		AICast_AudibleEvent( self->shared.s.number, self->shared.r.currentOrigin, 384 );
 
 		// other could play kick animation here
 		Props_Chair_Die( self, other, other, 100, 0 );
@@ -1307,7 +1305,7 @@ void Props_Chair_Touch( gentity_t *self, gentity_t *other, trace_t *trace ) {
 
 	if ( level.time > self->random && has_moved ) {
 		// RF, alert AI of sound event
-//		AICast_AudibleEvent( self->s.number, self->r.currentOrigin, 384 );
+//		AICast_AudibleEvent( self->shared.s.number, self->shared.r.currentOrigin, 384 );
 
 		G_AddEvent( self, EV_GENERAL_SOUND, snd_chaircreak );
 		self->random = level.time + 1000 + ( rand() % 200 );
@@ -1328,13 +1326,13 @@ void Props_Chair_Animate( gentity_t *ent ) {
 	ent->touch = NULL;
 
 	if ( !Q_stricmp( ent->classname, "props_chair" ) ) {
-		if ( ent->s.frame >= 27 ) {
-			ent->s.frame = 27;
+		if ( ent->shared.s.frame >= 27 ) {
+			ent->shared.s.frame = 27;
 			G_UseTargets( ent, NULL );
 			ent->think = G_FreeEntity;
 			ent->nextthink = level.time + 2000;
-			ent->s.time = level.time;
-			ent->s.time2 = level.time + 2000;
+			ent->shared.s.time = level.time;
+			ent->shared.s.time2 = level.time + 2000;
 			return;
 		} else
 		{
@@ -1346,20 +1344,20 @@ void Props_Chair_Animate( gentity_t *ent ) {
 		( !Q_stricmp( ent->classname, "props_chair_chatarm" ) ) ||
 		( !Q_stricmp( ent->classname, "props_chair_hiback" ) )
 		) {
-		if ( ent->s.frame >= 20 ) {
-			ent->s.frame = 20;
+		if ( ent->shared.s.frame >= 20 ) {
+			ent->shared.s.frame = 20;
 			G_UseTargets( ent, NULL );
 			ent->think = G_FreeEntity;
 			ent->nextthink = level.time + 2000;
-			ent->s.time = level.time;
-			ent->s.time2 = level.time + 2000;
+			ent->shared.s.time = level.time;
+			ent->shared.s.time2 = level.time + 2000;
 			return;
 		} else
 		{
 			ent->nextthink = level.time + ( FRAMETIME / 2 );
 		}
 	} else if ( !Q_stricmp( ent->classname, "props_desklamp" ) )       {
-		if ( ent->s.frame >= 11 ) {
+		if ( ent->shared.s.frame >= 11 ) {
 			// player may have picked it up before
 			if ( ent->target ) {
 				G_UseTargets( ent, NULL );
@@ -1367,8 +1365,8 @@ void Props_Chair_Animate( gentity_t *ent ) {
 
 			ent->think = G_FreeEntity;
 			ent->nextthink = level.time + 2000;
-			ent->s.time = level.time;
-			ent->s.time2 = level.time + 2000;
+			ent->shared.s.time = level.time;
+			ent->shared.s.time2 = level.time + 2000;
 			return;
 		} else
 		{
@@ -1377,14 +1375,14 @@ void Props_Chair_Animate( gentity_t *ent ) {
 	}
 
 
-	ent->s.frame++;
+	ent->shared.s.frame++;
 
 	if ( ent->enemy ) {
 		float ratio;
 		vec3_t v;
 
 		ratio = 2.5;
-		VectorSubtract( ent->r.currentOrigin, ent->enemy->r.currentOrigin, v );
+		VectorSubtract( ent->shared.r.currentOrigin, ent->enemy->shared.r.currentOrigin, v );
 		moveit( ent, vectoyaw( v ), ( ent->delay * ratio * FRAMETIME ) * .001 );
 	}
 
@@ -1394,15 +1392,15 @@ void Spawn_Shard( gentity_t *ent, gentity_t *inflictor, int quantity, int type )
 	gentity_t *sfx;
 	vec3_t dir, start;
 
-	VectorCopy( ent->r.currentOrigin, start );
+	VectorCopy( ent->shared.r.currentOrigin, start );
 
 	if ( !Q_stricmp( ent->classname, "props_radioSEVEN" ) ) {
 		start[0] += crandom() * 32;
 		start[1] += crandom() * 32;
-		VectorSubtract( inflictor->r.currentOrigin, ent->r.currentOrigin, dir );
+		VectorSubtract( inflictor->shared.r.currentOrigin, ent->shared.r.currentOrigin, dir );
 		VectorNormalize( dir );
 	} else if ( inflictor )     {
-		VectorSubtract( inflictor->r.currentOrigin, ent->r.currentOrigin, dir );
+		VectorSubtract( inflictor->shared.r.currentOrigin, ent->shared.r.currentOrigin, dir );
 		VectorNormalize( dir );
 		VectorNegate( dir, dir );
 	} else {
@@ -1411,14 +1409,14 @@ void Spawn_Shard( gentity_t *ent, gentity_t *inflictor, int quantity, int type )
 
 	sfx = G_Spawn();
 
-	sfx->s.density = type;
+	sfx->shared.s.density = type;
 
 	if ( type < 4 ) {
 		start[2] += 32;
 	}
 
 	G_SetOrigin( sfx, start );
-	G_SetAngle( sfx, ent->r.currentAngles );
+	G_SetAngle( sfx, ent->shared.r.currentAngles );
 
 	G_AddEvent( sfx, EV_SHARD, DirToByte( dir ) );
 
@@ -1426,9 +1424,9 @@ void Spawn_Shard( gentity_t *ent, gentity_t *inflictor, int quantity, int type )
 
 	sfx->nextthink = level.time + 1000;
 
-	sfx->s.frame = quantity;
+	sfx->shared.s.frame = quantity;
 
-	SV_LinkEntity( sfx );
+	SV_LinkEntity( &sfx->shared );
 }
 
 void Prop_Break_Sound( gentity_t *ent ) {
@@ -1466,7 +1464,7 @@ void Props_Chair_Die( gentity_t *ent, gentity_t *inflictor, gentity_t *attacker,
 			player->active = qfalse;
 			player->client->ps.eFlags &= ~EF_MELEE_ACTIVE;
 
-		} else if ( player && player->s.number == ent->r.ownerNum )     {
+		} else if ( player && player->shared.s.number == ent->shared.r.ownerNum )     {
 			player->active = qfalse;
 			player->melee = NULL;
 			player->client->ps.eFlags &= ~EF_MELEE_ACTIVE;
@@ -1503,13 +1501,13 @@ void Props_Chair_Die( gentity_t *ent, gentity_t *inflictor, gentity_t *attacker,
 	}
 
 
-	SV_UnlinkEntity( ent );
+	SV_UnlinkEntity( &ent->shared );
 
 	ent->clipmask   = 0;
-	ent->r.contents = 0;
-	ent->s.eType = ET_GENERAL;
+	ent->shared.r.contents = 0;
+	ent->shared.s.eType = ET_GENERAL;
 
-	SV_LinkEntity( ent );
+	SV_LinkEntity( &ent->shared );
 
 }
 
@@ -1523,7 +1521,7 @@ void Props_Chair_Skyboxtouch( gentity_t *ent ) {
 		player->melee = NULL;
 		player->active = qfalse;
 		player->client->ps.eFlags &= ~EF_MELEE_ACTIVE;
-	} else if ( player && player->s.number == ent->r.ownerNum )     {
+	} else if ( player && player->shared.s.number == ent->shared.r.ownerNum )     {
 		player->active = qfalse;
 		player->melee = NULL;
 		player->client->ps.eFlags &= ~EF_MELEE_ACTIVE;
@@ -1536,7 +1534,7 @@ void Props_Chair_Skyboxtouch( gentity_t *ent ) {
 void SP_Props_Chair( gentity_t *ent ) {
 	int mass;
 
-	ent->s.modelindex = G_ModelIndex( "models/furniture/chair/chair_office3.md3" );
+	ent->shared.s.modelindex = G_ModelIndex( "models/furniture/chair/chair_office3.md3" );
 
 	ent->delay = 0; // inherits damage value
 
@@ -1547,16 +1545,16 @@ void SP_Props_Chair( gentity_t *ent ) {
 	}
 
 	ent->clipmask   = CONTENTS_SOLID;
-	ent->r.contents = CONTENTS_SOLID;
-	ent->s.eType = ET_MOVER;
+	ent->shared.r.contents = CONTENTS_SOLID;
+	ent->shared.s.eType = ET_MOVER;
 
 	ent->isProp = qtrue;
 
-	VectorSet( ent->r.mins, -12, -12, 0 );
-	VectorSet( ent->r.maxs, 12, 12, 48 );
+	VectorSet( ent->shared.r.mins, -12, -12, 0 );
+	VectorSet( ent->shared.r.maxs, 12, 12, 48 );
 
-	G_SetOrigin( ent, ent->s.origin );
-	G_SetAngle( ent, ent->s.angles );
+	G_SetOrigin( ent, ent->shared.s.origin );
+	G_SetAngle( ent, ent->shared.s.angles );
 
 	if ( !ent->health ) {
 		ent->health = 10;
@@ -1575,7 +1573,7 @@ void SP_Props_Chair( gentity_t *ent ) {
 	ent->touch = Props_Chair_Touch;
 	ent->die = Props_Chair_Die;
 	ent->takedamage = qtrue;
-	SV_LinkEntity( ent );
+	SV_LinkEntity( &ent->shared );
 
 	snd_boardbreak = G_SoundIndex( "sound/world/boardbreak.wav" );
 	snd_chaircreak = G_SoundIndex( "sound/world/chaircreak.wav" );
@@ -1599,7 +1597,7 @@ void SP_Props_GenericChair( gentity_t *ent ) {
 	ent->delay = 0; // inherits damage value
 
 	if ( ent->model ) {
-		ent->s.modelindex = G_ModelIndex( ent->model );
+		ent->shared.s.modelindex = G_ModelIndex( ent->model );
 	}
 
 	if ( G_SpawnInt( "mass", "5", &mass ) ) {
@@ -1609,16 +1607,16 @@ void SP_Props_GenericChair( gentity_t *ent ) {
 	}
 
 	ent->clipmask   = CONTENTS_SOLID;
-	ent->r.contents = CONTENTS_SOLID;
-	ent->s.eType    = ET_MOVER;
+	ent->shared.r.contents = CONTENTS_SOLID;
+	ent->shared.s.eType    = ET_MOVER;
 
 	ent->isProp     = qtrue;
 
-	VectorSet( ent->r.mins, -12, -12, 0 );
-	VectorSet( ent->r.maxs, 12, 12, 48 );
+	VectorSet( ent->shared.r.mins, -12, -12, 0 );
+	VectorSet( ent->shared.r.maxs, 12, 12, 48 );
 
-	G_SetOrigin( ent, ent->s.origin );
-	G_SetAngle( ent, ent->s.angles );
+	G_SetOrigin( ent, ent->shared.s.origin );
+	G_SetAngle( ent, ent->shared.s.angles );
 
 	if ( !ent->health ) {
 		ent->health = 10;
@@ -1636,7 +1634,7 @@ void SP_Props_GenericChair( gentity_t *ent ) {
 	ent->touch = Props_Chair_Touch;
 	ent->die = Props_Chair_Die;
 	ent->takedamage = qtrue;
-	SV_LinkEntity( ent );
+	SV_LinkEntity( &ent->shared );
 
 	snd_boardbreak = G_SoundIndex( "sound/world/boardbreak.wav" );
 	snd_glassbreak = G_SoundIndex( "sound/world/glassbreak.wav" );
@@ -1731,11 +1729,11 @@ this entity when used will cause 9999 damage to all entities it is targeting
 then it will be removed
 */
 void SP_Props_DamageInflictor( gentity_t *ent ) {
-	G_SetOrigin( ent, ent->s.origin );
-	ent->s.eType = ET_GENERAL;
+	G_SetOrigin( ent, ent->shared.s.origin );
+	ent->shared.s.eType = ET_GENERAL;
 
 	ent->use = Use_DamageInflictor;
-	SV_LinkEntity( ent );
+	SV_LinkEntity( &ent->shared );
 }
 
 /*QUAKED props_shard_generator (.8 .5 .1) (-4 -4 -4) (4 4 4)
@@ -1768,8 +1766,8 @@ void Use_Props_Shard_Generator( gentity_t *ent, gentity_t *other, gentity_t *act
 }
 
 void SP_props_shard_generator( gentity_t *ent ) {
-	G_SetOrigin( ent, ent->s.origin );
-	ent->s.eType = ET_GENERAL;
+	G_SetOrigin( ent, ent->shared.s.origin );
+	ent->shared.s.eType = ET_GENERAL;
 	ent->use = Use_Props_Shard_Generator;
 
 	if ( !ent->count ) {
@@ -1780,7 +1778,7 @@ void SP_props_shard_generator( gentity_t *ent ) {
 		ent->wait = 5;
 	}
 
-	SV_LinkEntity( ent );
+	SV_LinkEntity( &ent->shared );
 }
 
 
@@ -1799,7 +1797,7 @@ shard =
 void SP_Props_Desklamp( gentity_t *ent ) {
 	int mass;
 
-	ent->s.modelindex = G_ModelIndex( "models/furniture/lights/desklamp.md3" );
+	ent->shared.s.modelindex = G_ModelIndex( "models/furniture/lights/desklamp.md3" );
 
 	ent->delay = 0; // inherits damage value
 
@@ -1810,17 +1808,17 @@ void SP_Props_Desklamp( gentity_t *ent ) {
 	}
 
 	ent->clipmask   = CONTENTS_SOLID;
-	ent->r.contents = CONTENTS_SOLID;
-	ent->s.eType = ET_MOVER;
+	ent->shared.r.contents = CONTENTS_SOLID;
+	ent->shared.s.eType = ET_MOVER;
 
 	ent->isProp = qtrue;
 	ent->nopickup = qtrue;
 
-	VectorSet( ent->r.mins, -6, -6, 0 );
-	VectorSet( ent->r.maxs, 6, 6, 14 );
+	VectorSet( ent->shared.r.mins, -6, -6, 0 );
+	VectorSet( ent->shared.r.maxs, 6, 6, 14 );
 
-	G_SetOrigin( ent, ent->s.origin );
-	G_SetAngle( ent, ent->s.angles );
+	G_SetOrigin( ent, ent->shared.s.origin );
+	G_SetAngle( ent, ent->shared.s.angles );
 
 	if ( !ent->health ) {
 		ent->health = 10;
@@ -1838,7 +1836,7 @@ void SP_Props_Desklamp( gentity_t *ent ) {
 	ent->touch = Props_Chair_Touch;
 	ent->die = Props_Chair_Die;
 	ent->takedamage = qtrue;
-	SV_LinkEntity( ent );
+	SV_LinkEntity( &ent->shared );
 
 	snd_boardbreak = G_SoundIndex( "sound/world/boardbreak.wav" );
 	snd_glassbreak = G_SoundIndex( "sound/world/glassbreak.wav" );
@@ -1867,7 +1865,7 @@ void Props_Barrel_Animate( gentity_t *ent ) {
 	float ratio;
 	vec3_t v;
 
-	if ( ent->s.frame == 14 ) {
+	if ( ent->shared.s.frame == 14 ) {
 		if ( ent->spawnflags & 1 ) {
 			//	G_UseTargets (ent, NULL);
 			ent->think = G_FreeEntity;
@@ -1878,8 +1876,8 @@ void Props_Barrel_Animate( gentity_t *ent ) {
 			//	G_UseTargets (ent, NULL);
 			ent->think = G_FreeEntity;
 			ent->nextthink = level.time + 25000;
-			//ent->s.time = level.time;
-			//ent->s.time2 = level.time + 2000;
+			//ent->shared.s.time = level.time;
+			//ent->shared.s.time2 = level.time + 2000;
 			return;
 		}
 	} else
@@ -1887,11 +1885,11 @@ void Props_Barrel_Animate( gentity_t *ent ) {
 		ent->nextthink = level.time + ( FRAMETIME / 2 );
 	}
 
-	ent->s.frame++;
+	ent->shared.s.frame++;
 
 	if ( !( ent->spawnflags & 1 ) ) {
 		ratio = 2.5;
-		VectorSubtract( ent->r.currentOrigin, ent->enemy->r.currentOrigin, v );
+		VectorSubtract( ent->shared.r.currentOrigin, ent->enemy->shared.r.currentOrigin, v );
 		moveit( ent, vectoyaw( v ), ( ent->delay * ratio * FRAMETIME ) * .001 );
 	}
 
@@ -1901,16 +1899,16 @@ void barrel_smoke( gentity_t *ent ) {
 	gentity_t   *tent;
 	vec3_t point;
 
-	VectorCopy( ent->r.currentOrigin, point );
+	VectorCopy( ent->shared.r.currentOrigin, point );
 
 	tent = G_TempEntity( point, EV_SMOKE );
-	VectorCopy( point, tent->s.origin );
-	tent->s.time = 4000;
-	tent->s.time2 = 1000;
-	tent->s.density = 0;
-	tent->s.angles2[0] = 8;
-	tent->s.angles2[1] = 64;
-	tent->s.angles2[2] = 50;
+	VectorCopy( point, tent->shared.s.origin );
+	tent->shared.s.time = 4000;
+	tent->shared.s.time2 = 1000;
+	tent->shared.s.density = 0;
+	tent->shared.s.angles2[0] = 8;
+	tent->shared.s.angles2[1] = 64;
+	tent->shared.s.angles2[2] = 50;
 
 }
 
@@ -1937,18 +1935,18 @@ void SP_OilSlick( gentity_t *ent ) {
 	}
 
 	if ( target ) {
-		VectorCopy( target->s.origin, point );
-		point[2] = ent->r.currentOrigin[2]; // just in case
+		VectorCopy( target->shared.s.origin, point );
+		point[2] = ent->shared.r.currentOrigin[2]; // just in case
 	} else {
-		VectorCopy( ent->r.currentOrigin, point );
+		VectorCopy( ent->shared.r.currentOrigin, point );
 	}
 
-	tent = G_TempEntity( ent->r.currentOrigin, EV_OILSLICK );
-	VectorCopy( ent->r.currentOrigin, tent->s.origin );
-	tent->s.angles2[0] = 16;
-	tent->s.angles2[1] = 48;
-	tent->s.angles2[2] = 10000;
-	tent->s.density = ent->s.number;
+	tent = G_TempEntity( ent->shared.r.currentOrigin, EV_OILSLICK );
+	VectorCopy( ent->shared.r.currentOrigin, tent->shared.s.origin );
+	tent->shared.s.angles2[0] = 16;
+	tent->shared.s.angles2[1] = 48;
+	tent->shared.s.angles2[2] = 10000;
+	tent->shared.s.density = ent->shared.s.number;
 
 }
 
@@ -1956,16 +1954,16 @@ void OilParticles_think( gentity_t *ent ) {
 	gentity_t *tent;
 	gentity_t   *owner;
 
-	owner = &g_entities[ent->s.density];
+	owner = &g_entities[ent->shared.s.density];
 
 	if ( owner && owner->takedamage && ent->count2 > level.time - 5000 ) {
 		ent->nextthink = ( level.time + FRAMETIME / 2 );
 
-		tent = G_TempEntity( ent->r.currentOrigin, EV_OILPARTICLES );
-		VectorCopy( ent->r.currentOrigin, tent->s.origin );
-		tent->s.time = ent->count2;
-		tent->s.density = ent->s.density;
-		VectorCopy( ent->rotate, tent->s.origin2 );
+		tent = G_TempEntity( ent->shared.r.currentOrigin, EV_OILPARTICLES );
+		VectorCopy( ent->shared.r.currentOrigin, tent->shared.s.origin );
+		tent->shared.s.time = ent->count2;
+		tent->shared.s.density = ent->shared.s.density;
+		VectorCopy( ent->rotate, tent->shared.s.origin2 );
 	} else {
 		G_FreeEntity( ent );
 	}
@@ -1975,15 +1973,15 @@ void Delayed_Leak_Think( gentity_t *ent ) {
 	vec3_t point;
 	gentity_t *tent;
 
-	VectorCopy( ent->r.currentOrigin, point );
+	VectorCopy( ent->shared.r.currentOrigin, point );
 
 	tent = G_TempEntity( point, EV_OILSLICK );
-	VectorCopy( point, tent->s.origin );
+	VectorCopy( point, tent->shared.s.origin );
 
-	tent->s.angles2[0] = 0;
-	tent->s.angles2[1] = 0;
-	tent->s.angles2[2] = 2000;
-	tent->s.density = ent->count;
+	tent->shared.s.angles2[0] = 0;
+	tent->shared.s.angles2[1] = 0;
+	tent->shared.s.angles2[2] = 2000;
+	tent->shared.s.density = ent->count;
 }
 
 qboolean validOilSlickSpawnPoint( vec3_t point, gentity_t *ent ) {
@@ -1994,7 +1992,7 @@ qboolean validOilSlickSpawnPoint( vec3_t point, gentity_t *ent ) {
 	VectorCopy( point, end );
 	end[2] -= 9999;
 
-	SV_Trace( &tr, point, NULL, NULL, end, ent->s.number, MASK_SHOT, qfalse );
+	SV_Trace( &tr, point, NULL, NULL, end, ent->shared.s.number, MASK_SHOT, qfalse );
 
 	traceEnt = &g_entities[ tr.entityNum ];
 
@@ -2022,7 +2020,7 @@ void SP_OilParticles( gentity_t *ent ) {
 
 	OilLeak = G_Spawn();
 
-	VectorCopy( ent->r.currentOrigin, point );
+	VectorCopy( ent->shared.r.currentOrigin, point );
 
 	point[2] = ent->pos3[2];
 
@@ -2033,14 +2031,14 @@ void SP_OilParticles( gentity_t *ent ) {
 
 	G_SetOrigin( OilLeak, point );
 
-	G_SetAngle( OilLeak, ent->r.currentAngles );
+	G_SetAngle( OilLeak, ent->shared.r.currentAngles );
 
 	VectorCopy( forward, OilLeak->rotate );
 
 	OilLeak->think = OilParticles_think;
 	OilLeak->nextthink = level.time + FRAMETIME;
 
-	OilLeak->s.density = ent->s.number;
+	OilLeak->shared.s.density = ent->shared.s.number;
 	OilLeak->count2 = level.time;
 
 	SV_LinkEntity( OilLeak );
@@ -2070,18 +2068,18 @@ void Props_Barrel_Pain( gentity_t *ent, gentity_t *attacker, int damage, vec3_t 
 void OilSlick_remove_think( gentity_t *ent ) {
 	gentity_t *tent;
 
-	tent = G_TempEntity( ent->r.currentOrigin, EV_OILSLICKREMOVE );
-	tent->s.density = ent->s.density;
+	tent = G_TempEntity( ent->shared.r.currentOrigin, EV_OILSLICKREMOVE );
+	tent->shared.s.density = ent->shared.s.density;
 }
 
 void OilSlick_remove( gentity_t *ent ) {
 	gentity_t *remove;
 
 	remove = G_Spawn();
-	remove->s.density = ent->s.number;
+	remove->shared.s.density = ent->shared.s.number;
 	remove->think = OilSlick_remove_think;
 	remove->nextthink = level.time + 1000;
-	VectorCopy( ent->r.currentOrigin, remove->r.currentOrigin );
+	VectorCopy( ent->shared.r.currentOrigin, remove->shared.r.currentOrigin );
 	SV_LinkEntity( remove );
 }
 
@@ -2096,7 +2094,7 @@ void Props_Barrel_Die( gentity_t *ent, gentity_t *inflictor, gentity_t *attacker
 		smoker->nextthink = level.time + FRAMETIME;
 		smoker->think = smoker_think;
 		smoker->count = 150 + rand() % 100;
-		G_SetOrigin( smoker, ent->r.currentOrigin );
+		G_SetOrigin( smoker, ent->shared.r.currentOrigin );
 		SV_LinkEntity( smoker );
 	}
 
@@ -2112,11 +2110,11 @@ void Props_Barrel_Die( gentity_t *ent, gentity_t *inflictor, gentity_t *attacker
 
 	ent->takedamage = qfalse;
 
-	AngleVectors( ent->r.currentAngles, dir, NULL, NULL );
+	AngleVectors( ent->shared.r.currentAngles, dir, NULL, NULL );
 	dir[2] = 1;
 
 	if ( !( ent->spawnflags & 2 ) ) {
-		fire_flamebarrel( ent, ent->r.currentOrigin, dir );
+		fire_flamebarrel( ent, ent->shared.r.currentOrigin, dir );
 	}
 
 	ent->touch = NULL;
@@ -2137,13 +2135,13 @@ void Props_Barrel_Die( gentity_t *ent, gentity_t *inflictor, gentity_t *attacker
 
 	Prop_Break_Sound( ent );
 
-	SV_UnlinkEntity( ent );
+	SV_UnlinkEntity( &ent->shared );
 
 	ent->clipmask   = 0;
-	ent->r.contents = 0;
-	ent->s.eType = ET_GENERAL;
+	ent->shared.r.contents = 0;
+	ent->shared.s.eType = ET_GENERAL;
 
-	SV_LinkEntity( ent );
+	SV_LinkEntity( &ent->shared );
 }
 
 void Props_OilSlickSlippery( gentity_t *ent ) {
@@ -2154,10 +2152,10 @@ void Props_OilSlickSlippery( gentity_t *ent ) {
 	player = AICast_FindEntityForName( "player" );
 
 	if ( player ) {
-		VectorSubtract( player->r.currentOrigin, ent->r.currentOrigin, vec );
+		VectorSubtract( player->shared.r.currentOrigin, ent->shared.r.currentOrigin, vec );
 		len = VectorLength( vec );
 
-		if ( len < 64 && player->s.groundEntityNum != -1 ) {
+		if ( len < 64 && player->shared.s.groundEntityNum != -1 ) {
 			len = VectorLength( player->client->ps.velocity );
 
 			if ( len && !( player->client->ps.pm_time ) ) {
@@ -2198,11 +2196,11 @@ void SP_Props_Flamebarrel( gentity_t *ent ) {
 	int mass;
 
 	if ( ent->spawnflags & 4 ) {
-		ent->s.modelindex = G_ModelIndex( "models/furniture/barrel/barrel_c.md3" );
+		ent->shared.s.modelindex = G_ModelIndex( "models/furniture/barrel/barrel_c.md3" );
 	} else if ( ent->spawnflags & 1 ) {
-		ent->s.modelindex = G_ModelIndex( "models/furniture/barrel/barrel_d.md3" );
+		ent->shared.s.modelindex = G_ModelIndex( "models/furniture/barrel/barrel_d.md3" );
 	} else {
-		ent->s.modelindex = G_ModelIndex( "models/furniture/barrel/barrel_b.md3" );
+		ent->shared.s.modelindex = G_ModelIndex( "models/furniture/barrel/barrel_b.md3" );
 	}
 
 	ent->delay = 0; // inherits damage value
@@ -2214,17 +2212,17 @@ void SP_Props_Flamebarrel( gentity_t *ent ) {
 	}
 
 	ent->clipmask   = CONTENTS_SOLID;
-	ent->r.contents = CONTENTS_SOLID;
-	ent->s.eType = ET_MOVER;
+	ent->shared.r.contents = CONTENTS_SOLID;
+	ent->shared.s.eType = ET_MOVER;
 
 	ent->isProp = qtrue;
 	ent->nopickup = qtrue;
 
-	VectorSet( ent->r.mins, -13, -13, 0 );
-	VectorSet( ent->r.maxs, 13, 13, 36 );
+	VectorSet( ent->shared.r.mins, -13, -13, 0 );
+	VectorSet( ent->shared.r.maxs, 13, 13, 36 );
 
-	G_SetOrigin( ent, ent->s.origin );
-	G_SetAngle( ent, ent->s.angles );
+	G_SetOrigin( ent, ent->shared.s.origin );
+	G_SetAngle( ent, ent->shared.s.angles );
 
 	if ( !ent->health ) {
 		ent->health = 20;
@@ -2246,7 +2244,7 @@ void SP_Props_Flamebarrel( gentity_t *ent ) {
 	}
 
 	ent->takedamage = qtrue;
-	SV_LinkEntity( ent );
+	SV_LinkEntity( &ent->shared );
 }
 
 /*QUAKED props_crate_64 (.8 .6 .2) (-32 -32 0) (32 32 64)
@@ -2299,26 +2297,26 @@ void touch_crate_64( gentity_t *self, gentity_t *other, trace_t *trace ) {
 	float ratio;
 	vec3_t v;
 
-	if ( other->r.currentOrigin[2] > ( self->r.currentOrigin[2] + 10 + 31 ) ) {
+	if ( other->shared.r.currentOrigin[2] > ( self->shared.r.currentOrigin[2] + 10 + 31 ) ) {
 		return;
 	}
 
 	ratio = 1.5;
-	VectorSubtract( self->r.currentOrigin, other->r.currentOrigin, v );
+	VectorSubtract( self->shared.r.currentOrigin, other->shared.r.currentOrigin, v );
 	moveit( self, vectoyaw( v ), ( 20 * ratio * FRAMETIME ) * .001 );
 }
 
 void crate_animate( gentity_t *ent ) {
-	if ( ent->s.frame == 17 ) {
+	if ( ent->shared.s.frame == 17 ) {
 		G_UseTargets( ent, NULL );
 		ent->think = G_FreeEntity;
 		ent->nextthink = level.time + 2000;
-		ent->s.time = level.time;
-		ent->s.time2 = level.time + 2000;
+		ent->shared.s.time = level.time;
+		ent->shared.s.time2 = level.time + 2000;
 		return;
 	}
 
-	ent->s.frame++;
+	ent->shared.s.frame++;
 	ent->nextthink = level.time + ( FRAMETIME / 2 );
 }
 
@@ -2336,31 +2334,31 @@ void crate_die( gentity_t *ent, gentity_t *inflictor, gentity_t *attacker, int d
 	ent->nextthink = level.time + FRAMETIME;
 	ent->touch = NULL;
 
-	SV_UnlinkEntity( ent );
+	SV_UnlinkEntity( &ent->shared );
 
 	ent->clipmask   = 0;
-	ent->r.contents = 0;
-	ent->s.eType = ET_GENERAL;
+	ent->shared.r.contents = 0;
+	ent->shared.s.eType = ET_GENERAL;
 
-	SV_LinkEntity( ent );
+	SV_LinkEntity( &ent->shared );
 
 }
 
 void SP_crate_64( gentity_t *self ) {
-	self->s.modelindex = G_ModelIndex( "models/furniture/crate/crate64.md3" );
+	self->shared.s.modelindex = G_ModelIndex( "models/furniture/crate/crate64.md3" );
 
 	self->clipmask   = CONTENTS_SOLID;
-	self->r.contents = CONTENTS_SOLID;
+	self->shared.r.contents = CONTENTS_SOLID;
 
-	VectorSet( self->r.mins, -32, -32, 0 );
-	VectorSet( self->r.maxs, 32, 32, 64 );
+	VectorSet( self->shared.r.mins, -32, -32, 0 );
+	VectorSet( self->shared.r.maxs, 32, 32, 64 );
 
-	self->s.eType = ET_MOVER;
+	self->shared.s.eType = ET_MOVER;
 
 	self->isProp = qtrue;
 	self->nopickup = qtrue;
-	G_SetOrigin( self, self->s.origin );
-	G_SetAngle( self, self->s.angles );
+	G_SetOrigin( self, self->shared.s.origin );
+	G_SetAngle( self, self->shared.s.angles );
 
 	self->touch = touch_crate_64;
 	self->die = crate_die;
@@ -2389,20 +2387,20 @@ void SP_crate_64( gentity_t *self ) {
 }
 
 void SP_crate_32( gentity_t *self ) {
-	self->s.modelindex = G_ModelIndex( "models/furniture/crate/crate32.md3" );
+	self->shared.s.modelindex = G_ModelIndex( "models/furniture/crate/crate32.md3" );
 
 	self->clipmask   = CONTENTS_SOLID;
-	self->r.contents = CONTENTS_SOLID;
+	self->shared.r.contents = CONTENTS_SOLID;
 
-	VectorSet( self->r.mins, -16, -16, 0 );
-	VectorSet( self->r.maxs, 16, 16, 32 );
+	VectorSet( self->shared.r.mins, -16, -16, 0 );
+	VectorSet( self->shared.r.maxs, 16, 16, 32 );
 
-	self->s.eType = ET_MOVER;
+	self->shared.s.eType = ET_MOVER;
 
 	self->isProp = qtrue;
 	self->nopickup = qtrue;
-	G_SetOrigin( self, self->s.origin );
-	G_SetAngle( self, self->s.angles );
+	G_SetOrigin( self, self->shared.s.origin );
+	G_SetAngle( self, self->shared.s.angles );
 
 	self->touch = touch_crate_64;
 	self->die = crate_die;
@@ -2433,14 +2431,14 @@ void SP_crate_32( gentity_t *self ) {
 //////////////////////////////////////////////
 
 void props_crate32x64_think( gentity_t *ent ) {
-	ent->s.frame++;
+	ent->shared.s.frame++;
 
-	if ( ent->s.frame < 17 ) {
+	if ( ent->shared.s.frame < 17 ) {
 		ent->nextthink = level.time + ( FRAMETIME / 2 );
 	} else
 	{
 		ent->clipmask = 0;
-		ent->r.contents = 0;
+		ent->shared.r.contents = 0;
 		ent->takedamage = qfalse;
 
 		G_UseTargets( ent, NULL );
@@ -2455,7 +2453,7 @@ void props_crate32x64_die( gentity_t *ent, gentity_t *inflictor, gentity_t *atta
 
 void SP_Props_Crate32x64( gentity_t *ent ) {
 
-	SV_SetBrushModel( ent, ent->model );
+	SV_SetBrushModel( &ent->shared, ent->model );
 
 	InitProp( ent );
 
@@ -2469,7 +2467,7 @@ void SP_Props_Crate32x64( gentity_t *ent ) {
 
 	ent->die = props_crate32x64_die;
 
-	SV_LinkEntity( ent );
+	SV_LinkEntity( &ent->shared );
 }
 
 /*QUAKED props_flippy_table (.8 .6 .2) ? - - X_AXIS Y_AXIS LEADER
@@ -2484,7 +2482,7 @@ void flippy_table_use( gentity_t *ent, gentity_t *other, gentity_t *activator ) 
 	gentity_t   *slave;
 
 	// it would be odd to flip a table if your standing on it
-	if ( other && other->s.groundEntityNum == ent->s.number ) {
+	if ( other && other->shared.s.groundEntityNum == ent->shared.s.number ) {
 		// Com_Printf ("can't push table over while standing on it\n");
 		return;
 	}
@@ -2501,17 +2499,17 @@ void flippy_table_use( gentity_t *ent, gentity_t *other, gentity_t *activator ) 
 				continue;
 			}
 
-			slave->s.pos.trType = ent->s.pos.trType;
-			slave->s.pos.trTime = ent->s.pos.trTime;
-			slave->s.pos.trDuration = ent->s.pos.trDuration;
-			VectorCopy( ent->s.pos.trBase, slave->s.pos.trBase );
-			VectorCopy( ent->s.pos.trDelta, slave->s.pos.trDelta );
+			slave->shared.s.pos.trType = ent->shared.s.pos.trType;
+			slave->shared.s.pos.trTime = ent->shared.s.pos.trTime;
+			slave->shared.s.pos.trDuration = ent->shared.s.pos.trDuration;
+			VectorCopy( ent->shared.s.pos.trBase, slave->shared.s.pos.trBase );
+			VectorCopy( ent->shared.s.pos.trDelta, slave->shared.s.pos.trDelta );
 
-			slave->s.apos.trType = ent->s.apos.trType;
-			slave->s.apos.trTime = ent->s.apos.trTime;
-			slave->s.apos.trDuration = ent->s.apos.trDuration;
-			VectorCopy( ent->s.apos.trBase, slave->s.apos.trBase );
-			VectorCopy( ent->s.apos.trDelta, slave->s.apos.trDelta );
+			slave->shared.s.apos.trType = ent->shared.s.apos.trType;
+			slave->shared.s.apos.trTime = ent->shared.s.apos.trTime;
+			slave->shared.s.apos.trDuration = ent->shared.s.apos.trDuration;
+			VectorCopy( ent->shared.s.apos.trBase, slave->shared.s.apos.trBase );
+			VectorCopy( ent->shared.s.apos.trDelta, slave->shared.s.apos.trDelta );
 
 			slave->think = ent->think;
 			slave->nextthink = ent->nextthink;
@@ -2528,7 +2526,7 @@ void flippy_table_use( gentity_t *ent, gentity_t *other, gentity_t *activator ) 
 			Use_BinaryMover( slave, other, other );
 		}
 
-		SV_UnlinkEntity( ent );
+		SV_UnlinkEntity( &ent->shared );
 	} else {
 		Use_BinaryMover( ent, other, other );
 	}
@@ -2538,13 +2536,13 @@ void flippy_table_use( gentity_t *ent, gentity_t *other, gentity_t *activator ) 
 void flippy_table_animate( gentity_t *ent ) {
 	return;
 
-	if ( ent->s.frame == 9 ) {
+	if ( ent->shared.s.frame == 9 ) {
 		G_UseTargets( ent, NULL );
 		ent->think = G_FreeEntity;
 		ent->nextthink = level.time + 2000;
 	} else
 	{
-		ent->s.frame++;
+		ent->shared.s.frame++;
 		ent->nextthink = level.time + ( FRAMETIME / 2 );
 	}
 }
@@ -2564,11 +2562,11 @@ void props_flippy_blocked( gentity_t *ent, gentity_t *other ) {
 	vec3_t kvel;
 
 	// just for now
-	float angle = ent->r.currentAngles[YAW];
+	float angle = ent->shared.r.currentAngles[YAW];
 
 	if ( other->client ) {
 		// shoot the player off of it
-		VectorCopy( ent->s.apos.trBase, angles );
+		VectorCopy( ent->shared.s.apos.trBase, angles );
 		angles[YAW] += angle;
 		angles[PITCH] = 0;  // always forward
 
@@ -2578,8 +2576,8 @@ void props_flippy_blocked( gentity_t *ent, gentity_t *other ) {
 
 		VectorScale( velocity, 32, kvel );
 		VectorAdd( other->client->ps.velocity, kvel, other->client->ps.velocity );
-	} else if ( other->s.eType == ET_ITEM )     {
-		VectorCopy( ent->s.apos.trBase, angles );
+	} else if ( other->shared.s.eType == ET_ITEM )     {
+		VectorCopy( ent->shared.s.apos.trBase, angles );
 		angles[YAW] += angle;
 		angles[PITCH] = 0;  // always forward
 
@@ -2588,15 +2586,15 @@ void props_flippy_blocked( gentity_t *ent, gentity_t *other ) {
 		velocity[2] += 300 + crandom() * 50;
 
 		VectorScale( velocity, 8, kvel );
-		other->s.pos.trType = TR_GRAVITY;
-		other->s.pos.trTime = level.time;
-		VectorCopy( kvel, other->s.pos.trDelta );
+		other->shared.s.pos.trType = TR_GRAVITY;
+		other->shared.s.pos.trTime = level.time;
+		VectorCopy( kvel, other->shared.s.pos.trDelta );
 
-		other->s.eFlags |= EF_BOUNCE;
+		other->shared.s.eFlags |= EF_BOUNCE;
 	} else
 	{
 		// just delete it or destroy it
-		G_TempEntity( other->s.origin, EV_ITEM_POP );
+		G_TempEntity( other->shared.s.origin, EV_ITEM_POP );
 		G_FreeEntity( other );
 		return;
 	}
@@ -2609,7 +2607,7 @@ void SP_Props_Flipping_Table( gentity_t *ent ) {
 		return;
 	}
 
-	SV_SetBrushModel( ent, ent->model );
+	SV_SetBrushModel( &ent->shared, ent->model );
 
 	ent->speed = 500;
 	ent->angle = 90;
@@ -2631,9 +2629,9 @@ void SP_Props_Flipping_Table( gentity_t *ent ) {
 
 	InitMoverRotate( ent );
 
-	VectorCopy( ent->s.origin, ent->s.pos.trBase );
-	VectorCopy( ent->s.pos.trBase, ent->r.currentOrigin );
-	VectorCopy( ent->s.apos.trBase, ent->r.currentAngles );
+	VectorCopy( ent->shared.s.origin, ent->shared.s.pos.trBase );
+	VectorCopy( ent->shared.s.pos.trBase, ent->shared.r.currentOrigin );
+	VectorCopy( ent->shared.s.apos.trBase, ent->shared.r.currentAngles );
 
 	ent->blocked = props_flippy_blocked;
 
@@ -2649,7 +2647,7 @@ void SP_Props_Flipping_Table( gentity_t *ent ) {
 
 	ent->use = flippy_table_use;
 
-	SV_LinkEntity( ent );
+	SV_LinkEntity( &ent->shared );
 
 }
 
@@ -2675,15 +2673,15 @@ shard =
 */
 
 void props_58x112tablew_think( gentity_t *ent ) {
-	ent->s.frame++;
+	ent->shared.s.frame++;
 
-	if ( ent->s.frame < 16 ) {
+	if ( ent->shared.s.frame < 16 ) {
 		ent->nextthink = level.time + ( FRAMETIME / 2 );
 	} else
 	{
 
 		ent->clipmask = 0;
-		ent->r.contents = 0;
+		ent->shared.r.contents = 0;
 
 		G_UseTargets( ent, NULL );
 	}
@@ -2698,7 +2696,7 @@ void props_58x112tablew_die( gentity_t *ent, gentity_t *inflictor, gentity_t *at
 
 void SP_Props_58x112tablew( gentity_t *ent ) {
 
-	SV_SetBrushModel( ent, ent->model );
+	SV_SetBrushModel( &ent->shared, ent->model );
 
 	InitProp( ent );
 
@@ -2712,7 +2710,7 @@ void SP_Props_58x112tablew( gentity_t *ent ) {
 
 	ent->die = props_58x112tablew_die;
 
-	SV_LinkEntity( ent );
+	SV_LinkEntity( &ent->shared );
 }
 
 /*QUAKED props_castlebed (.8 .6 .2) ?
@@ -2741,7 +2739,7 @@ void props_castlebed_touch( gentity_t *ent, gentity_t *other, trace_t *trace ) {
 	}
 
 	if ( other->client->ps.pm_flags & PMF_JUMP_HELD
-		 && other->s.groundEntityNum == ent->s.number
+		 && other->shared.s.groundEntityNum == ent->shared.s.number
 		 && !other->client->ps.pm_time ) {
 		G_Damage( ent, other, other, NULL, NULL, 1, 0, MOD_CRUSH );
 
@@ -2757,14 +2755,14 @@ void props_castlebed_touch( gentity_t *ent, gentity_t *other, trace_t *trace ) {
 }
 
 void props_castlebed_animate( gentity_t *ent ) {
-	ent->s.frame++;
+	ent->shared.s.frame++;
 
-	if ( ent->s.frame < 8 ) {
+	if ( ent->shared.s.frame < 8 ) {
 		ent->nextthink = level.time + ( FRAMETIME / 2 );
 	} else
 	{
 		ent->clipmask = 0;
-		ent->r.contents = 0;
+		ent->shared.r.contents = 0;
 		G_UseTargets( ent, NULL );
 	}
 }
@@ -2780,7 +2778,7 @@ void props_castlebed_die( gentity_t *ent, gentity_t *inflictor, gentity_t *attac
 }
 
 void SP_props_castlebed( gentity_t *ent ) {
-	SV_SetBrushModel( ent, ent->model );
+	SV_SetBrushModel( &ent->shared, ent->model );
 
 	InitProp( ent );
 
@@ -2795,7 +2793,7 @@ void SP_props_castlebed( gentity_t *ent ) {
 	ent->die = props_castlebed_die;
 	ent->touch = props_castlebed_touch;
 
-	SV_LinkEntity( ent );
+	SV_LinkEntity( &ent->shared );
 }
 
 /*QUAKED props_snowGenerator (3 2 7) ? TOGGLE_ON ALWAYS_ON
@@ -2821,9 +2819,9 @@ void props_snowGenerator_think( gentity_t *ent ) {
 		return;
 	}
 
-	high = ent->r.maxs[2] - ent->r.mins[2];
-	wide = ent->r.maxs[1] - ent->r.mins[1];
-	deep = ent->r.maxs[0] - ent->r.mins[0];
+	high = ent->shared.r.maxs[2] - ent->shared.r.mins[2];
+	wide = ent->shared.r.maxs[1] - ent->shared.r.mins[1];
+	deep = ent->shared.r.maxs[0] - ent->shared.r.mins[0];
 
 	for ( i = 0; i < ent->count; i++ )
 	{
@@ -2835,10 +2833,10 @@ void props_snowGenerator_think( gentity_t *ent ) {
 		point[2] += crandom() * ( high * 0.5 );
 
 		tent = G_TempEntity( point, EV_SNOWFLURRY );
-		VectorCopy( point, tent->s.origin );
-		VectorCopy( ent->movedir, tent->s.angles );
-		tent->s.time = 2000; // life time
-		tent->s.time2 = 1000; // alpha fade start
+		VectorCopy( point, tent->shared.s.origin );
+		VectorCopy( ent->movedir, tent->shared.s.angles );
+		tent->shared.s.time = 2000; // life time
+		tent->shared.s.time2 = 1000; // alpha fade start
 	}
 
 	if ( ent->spawnflags & 2 ) {
@@ -2863,9 +2861,9 @@ void SP_props_snowGenerator( gentity_t *ent ) {
 	vec3_t center;
 	gentity_t   *target = NULL;
 
-	SV_SetBrushModel( ent, ent->model );
+	SV_SetBrushModel( &ent->shared, ent->model );
 
-	VectorAdd( ent->r.absmin, ent->r.absmax, center );
+	VectorAdd( ent->shared.r.absmin, ent->shared.r.absmax, center );
 	VectorScale( center, 0.5, center );
 
 	VectorCopy( center, ent->pos1 );
@@ -2881,12 +2879,12 @@ void SP_props_snowGenerator( gentity_t *ent ) {
 			return;
 		}
 
-		VectorSubtract( target->s.origin, ent->s.origin, ent->movedir );
+		VectorSubtract( target->shared.s.origin, ent->shared.s.origin, ent->movedir );
 		VectorNormalize( ent->movedir );
 	}
 
-	ent->r.contents = CONTENTS_TRIGGER;
-	ent->r.svFlags = SVF_NOCLIENT;
+	ent->shared.r.contents = CONTENTS_TRIGGER;
+	ent->shared.r.svFlags = SVF_NOCLIENT;
 
 	if ( ent->spawnflags & 1 || ent->spawnflags & 2 ) {
 		ent->think = props_snowGenerator_think;
@@ -2915,7 +2913,7 @@ void SP_props_snowGenerator( gentity_t *ent ) {
 
 	ent->duration *= 1000;
 
-	SV_LinkEntity( ent );
+	SV_LinkEntity( &ent->shared );
 }
 
 /////////////////////////////
@@ -2946,9 +2944,9 @@ void propsFireColumnUse( gentity_t *ent, gentity_t *other, gentity_t *activator 
 	gentity_t   *tent;
 	vec3_t start, dir;
 
-	VectorCopy( ent->s.origin, start );
+	VectorCopy( ent->shared.s.origin, start );
 
-	AngleVectors( ent->r.currentAngles, dir, NULL, NULL );
+	AngleVectors( ent->shared.r.currentAngles, dir, NULL, NULL );
 
 	tent = fire_flamebarrel( ent, start, dir );
 
@@ -2957,25 +2955,25 @@ void propsFireColumnUse( gentity_t *ent, gentity_t *other, gentity_t *activator 
 	}
 
 	if ( ent->spawnflags & 2 ) {
-		tent->s.eType = ET_FIRE_COLUMN_SMOKE;
+		tent->shared.s.eType = ET_FIRE_COLUMN_SMOKE;
 	} else {
-		tent->s.eType = ET_FIRE_COLUMN;
+		tent->shared.s.eType = ET_FIRE_COLUMN;
 	}
 
 	if ( ent->spawnflags & 4 ) {
-		tent->s.pos.trType = TR_GRAVITY;
+		tent->shared.s.pos.trType = TR_GRAVITY;
 	} else if ( ent->spawnflags & 8 ) {
-		tent->s.pos.trType = TR_GRAVITY_LOW;
+		tent->shared.s.pos.trType = TR_GRAVITY_LOW;
 	} else {
-		tent->s.pos.trType = TR_LINEAR;
+		tent->shared.s.pos.trType = TR_LINEAR;
 	}
 
 	if ( ent->spawnflags & 1 ) {
-		tent->s.density = ent->radius; // corkscrew effect
+		tent->shared.s.density = ent->radius; // corkscrew effect
 	}
 
 	tent->flags |= FL_NODRAW;
-	//tent->s.eFlags |= EF_NODRAW;
+	//tent->shared.s.eFlags |= EF_NODRAW;
 
 	// TBD
 	// lifetime
@@ -2985,25 +2983,25 @@ void propsFireColumnUse( gentity_t *ent, gentity_t *other, gentity_t *activator 
 
 	// speed
 	if ( ent->speed ) {
-		VectorClear( tent->s.pos.trDelta );
-		VectorScale( dir, ent->speed + ( crandom() * 100 ), tent->s.pos.trDelta );
-		SnapVector( tent->s.pos.trDelta );
-		VectorCopy( start, tent->r.currentOrigin );
+		VectorClear( tent->shared.s.pos.trDelta );
+		VectorScale( dir, ent->speed + ( crandom() * 100 ), tent->shared.s.pos.trDelta );
+		SnapVector( tent->shared.s.pos.trDelta );
+		VectorCopy( start, tent->shared.r.currentOrigin );
 	}
 
 	if ( ent->start_size ) {
-		tent->s.angles[1] = ent->start_size;
+		tent->shared.s.angles[1] = ent->start_size;
 	}
 
 	if ( ent->end_size ) {
-		tent->s.angles[2] = ent->end_size;
+		tent->shared.s.angles[2] = ent->end_size;
 	}
 
 	if ( ent->count ) {
-		tent->s.angles[0] = ent->count;
+		tent->shared.s.angles[0] = ent->count;
 	}
 
-	G_SetAngle( tent, ent->r.currentAngles );
+	G_SetAngle( tent, ent->shared.r.currentAngles );
 }
 
 void propsFireColumnInit( gentity_t *ent ) {
@@ -3013,7 +3011,7 @@ void propsFireColumnInit( gentity_t *ent ) {
 
 	if ( ent->target ) {
 		target = G_Find( NULL, FOFS( targetname ), ent->target );
-		VectorSubtract( target->s.origin, ent->s.origin, vec );
+		VectorSubtract( target->shared.s.origin, ent->shared.s.origin, vec );
 		vectoangles( vec, angles );
 		G_SetAngle( ent, angles );
 	} else
@@ -3032,11 +3030,11 @@ void propsFireColumnInit( gentity_t *ent ) {
 }
 
 void SP_propsFireColumn( gentity_t *ent ) {
-	G_SetOrigin( ent, ent->s.origin );
+	G_SetOrigin( ent, ent->shared.s.origin );
 	ent->think = propsFireColumnInit;
 	ent->nextthink = level.time + FRAMETIME;
 	ent->use = propsFireColumnUse;
-	SV_LinkEntity( ent );
+	SV_LinkEntity( &ent->shared );
 }
 
 /*QUAKED props_ExploPart (.3 .5 .7) (-8 -8 -16) (8 8 16)
@@ -3059,12 +3057,12 @@ void props_ExploPartUse( gentity_t *ent, gentity_t *other, gentity_t *activator 
 	gentity_t *part;
 	vec3_t start, dir;
 
-	VectorCopy( ent->s.origin, start );
-	AngleVectors( ent->r.currentAngles, dir, NULL, NULL );
+	VectorCopy( ent->shared.s.origin, start );
+	AngleVectors( ent->shared.r.currentAngles, dir, NULL, NULL );
 
-	if ( ent->s.modelindex ) {
+	if ( ent->shared.s.modelindex ) {
 		part = fire_flamebarrel( ent, start, dir );
-		part->s.modelindex = ent->s.modelindex;
+		part->shared.s.modelindex = ent->shared.s.modelindex;
 	} else
 	{
 		Com_Printf( "props_ExploPartUse has not been assigned a model\n" );
@@ -3072,16 +3070,16 @@ void props_ExploPartUse( gentity_t *ent, gentity_t *other, gentity_t *activator 
 	}
 
 	if ( part ) {
-		part->s.pos.trType = TR_GRAVITY;
-		part->s.eType = ET_EXPLO_PART;
+		part->shared.s.pos.trType = TR_GRAVITY;
+		part->shared.s.eType = ET_EXPLO_PART;
 
-		G_SetAngle( part, ent->r.currentAngles );
+		G_SetAngle( part, ent->shared.r.currentAngles );
 
 		if ( ent->speed ) {
-			VectorClear( part->s.pos.trDelta );
-			VectorScale( dir, ent->speed + ( crandom() * 100 ), part->s.pos.trDelta );
-			SnapVector( part->s.pos.trDelta );
-			VectorCopy( start, part->r.currentOrigin );
+			VectorClear( part->shared.s.pos.trDelta );
+			VectorScale( dir, ent->speed + ( crandom() * 100 ), part->shared.s.pos.trDelta );
+			SnapVector( part->shared.s.pos.trDelta );
+			VectorCopy( start, part->shared.r.currentOrigin );
 		}
 	}
 
@@ -3094,7 +3092,7 @@ void props_ExploPartInit( gentity_t *ent ) {
 
 	if ( ent->target ) {
 		target = G_Find( NULL, FOFS( targetname ), ent->target );
-		VectorSubtract( target->s.origin, ent->s.origin, vec );
+		VectorSubtract( target->shared.s.origin, ent->shared.s.origin, vec );
 		vectoangles( vec, angles );
 		G_SetAngle( ent, angles );
 	} else
@@ -3112,31 +3110,31 @@ void SP_props_ExploPart( gentity_t *ent ) {
 //	float	bbox;
 
 	if ( ent->model ) {
-		ent->s.modelindex = G_ModelIndex( ent->model );
+		ent->shared.s.modelindex = G_ModelIndex( ent->model );
 	}
 
 	G_SpawnString( "type", "wood", &type );
 
 	if ( !Q_stricmp( type,"wood" ) ) {
 		if ( ent->count == 64 ) {
-			ent->s.modelindex = G_ModelIndex( "models/shards/2x4a.md3" );
+			ent->shared.s.modelindex = G_ModelIndex( "models/shards/2x4a.md3" );
 		} else if ( ent->count == 48 ) {
-			ent->s.modelindex = G_ModelIndex( "models/shards/2x4b.md3" );
+			ent->shared.s.modelindex = G_ModelIndex( "models/shards/2x4b.md3" );
 		} else if ( ent->count == 32 ) {
-			ent->s.modelindex = G_ModelIndex( "models/shards/2x4c.md3" );
+			ent->shared.s.modelindex = G_ModelIndex( "models/shards/2x4c.md3" );
 		} else if ( ent->count == 24 ) {
-			ent->s.modelindex = G_ModelIndex( "models/shards/2x4d.md3" );
+			ent->shared.s.modelindex = G_ModelIndex( "models/shards/2x4d.md3" );
 		} else if ( ent->count == 16 ) {
-			ent->s.modelindex = G_ModelIndex( "models/shards/2x4e.md3" );
+			ent->shared.s.modelindex = G_ModelIndex( "models/shards/2x4e.md3" );
 		} else if ( ent->count == 8 ) {
-			ent->s.modelindex = G_ModelIndex( "models/shards/2x4f.md3" );
+			ent->shared.s.modelindex = G_ModelIndex( "models/shards/2x4f.md3" );
 		}
 	} else if ( !Q_stricmp( type,"concrete" ) )        {
 	} else if ( !Q_stricmp( type,"stone" ) )        {
 	}
 
 	if ( G_SpawnString( "noise", "100", &sound ) ) {
-		ent->s.loopSound = G_SoundIndex( sound );
+		ent->shared.s.loopSound = G_SoundIndex( sound );
 	}
 
 	ent->think = props_ExploPartInit;
@@ -3164,19 +3162,19 @@ you will need to specify the bounding box for the entity
 
 void props_decoration_animate( gentity_t *ent ) {
 
-	ent->s.frame++;
-	ent->s.eType = ET_GENERAL;
+	ent->shared.s.frame++;
+	ent->shared.s.eType = ET_GENERAL;
 
-	if ( ent->s.frame > ent->count2 ) {
+	if ( ent->shared.s.frame > ent->count2 ) {
 		if ( ent->spawnflags & 32 || ent->spawnflags & 64 ) {
-			ent->s.frame = ent->props_frame_state;
+			ent->shared.s.frame = ent->props_frame_state;
 
 			if ( !( ent->spawnflags & 64 ) ) {
 				ent->takedamage = qfalse;
 			}
 		} else
 		{
-			ent->s.frame = ent->count2;
+			ent->shared.s.frame = ent->count2;
 			ent->takedamage = qfalse;
 
 			return;
@@ -3189,9 +3187,9 @@ void props_decoration_animate( gentity_t *ent ) {
 void props_decoration_death( gentity_t *ent, gentity_t *inflictor, gentity_t *attacker, int damage, int mod ) {
 	if ( !( ent->spawnflags & 8 ) ) {
 		ent->clipmask   = 0;
-		ent->r.contents = 0;
-		ent->s.eType = ET_GENERAL;
-		SV_LinkEntity( ent );
+		ent->shared.r.contents = 0;
+		ent->shared.s.eType = ET_GENERAL;
+		SV_LinkEntity( &ent->shared );
 	}
 
 	ent->takedamage = qfalse;
@@ -3214,14 +3212,14 @@ void props_decoration_death( gentity_t *ent, gentity_t *inflictor, gentity_t *at
 
 void Use_props_decoration( gentity_t *ent, gentity_t *self, gentity_t *activator ) {
 	if ( ent->spawnflags & 1 ) {
-		SV_LinkEntity( ent );
+		SV_LinkEntity( &ent->shared );
 		ent->spawnflags &= ~1;
 	} else if ( ent->spawnflags & 4 )     {
 		ent->nextthink = level.time + 50;
 		ent->think = props_decoration_animate;
 	} else
 	{
-		SV_UnlinkEntity( ent );
+		SV_UnlinkEntity( &ent->shared );
 		ent->spawnflags |= 1;
 	}
 
@@ -3251,15 +3249,15 @@ void SP_props_decoration( gentity_t *ent ) {
 	char        *startonframe;
 
 	if ( G_SpawnString( "startonframe", "0", &startonframe ) ) {
-		ent->s.frame = atoi( startonframe );
+		ent->shared.s.frame = atoi( startonframe );
 	}
 
 	if ( ent->model2 ) {
-		ent->s.modelindex = G_ModelIndex( ent->model2 );
+		ent->shared.s.modelindex = G_ModelIndex( ent->model2 );
 	}
 
 	if ( G_SpawnString( "noise", "100", &sound ) ) {
-		ent->s.loopSound = G_SoundIndex( sound );
+		ent->shared.s.loopSound = G_SoundIndex( sound );
 	}
 
 	if ( ( ent->spawnflags & 32 ) && G_SpawnString( "loop", "100", &loop ) ) {
@@ -3288,7 +3286,7 @@ void SP_props_decoration( gentity_t *ent ) {
 		if ( i > 255 ) {
 			i = 255;
 		}
-		ent->s.constantLight = r | ( g << 8 ) | ( b << 16 ) | ( i << 24 );
+		ent->shared.s.constantLight = r | ( g << 8 ) | ( b << 16 ) | ( i << 24 );
 	}
 
 	if ( ent->health ) {
@@ -3301,11 +3299,11 @@ void SP_props_decoration( gentity_t *ent ) {
 			ent->key = 1;
 		} else if ( !Q_stricmp( type,"glass" ) ) {
 			ent->key = 0;
-		} else if ( !Q_stricmp( type,"metal" ) )                                                       {
+		} else if ( !Q_stricmp( type,"metal" ) )  {
 			ent->key = 2;
-		} else if ( !Q_stricmp( type,"ceramic" ) )                                                                                                               {
+		} else if ( !Q_stricmp( type,"ceramic" ) ) {
 			ent->key = 3;
-		} else if ( !Q_stricmp( type, "rubble" ) )                                                                                                                                                                         {
+		} else if ( !Q_stricmp( type, "rubble" ) ) {
 			ent->key = 4;
 		}
 
@@ -3326,13 +3324,13 @@ void SP_props_decoration( gentity_t *ent ) {
 		width /= 2;
 
 		if ( Q_stricmp( ent->classname, "props_decorBRUSH" ) ) {
-			VectorSet( ent->r.mins, -width, -width, 0 );
-			VectorSet( ent->r.maxs, width, width, height );
+			VectorSet( ent->shared.r.mins, -width, -width, 0 );
+			VectorSet( ent->shared.r.maxs, width, width, height );
 		}
 
 		ent->clipmask   = CONTENTS_SOLID;
-		ent->r.contents = CONTENTS_SOLID;
-		ent->s.eType = ET_MOVER;
+		ent->shared.r.contents = CONTENTS_SOLID;
+		ent->shared.s.eType = ET_MOVER;
 
 		G_SpawnString( "frames", "0", &frames );
 		num_frames = atof( frames );
@@ -3359,11 +3357,11 @@ void SP_props_decoration( gentity_t *ent ) {
 	}
 
 
-	G_SetOrigin( ent, ent->s.origin );
-	G_SetAngle( ent, ent->s.angles );
+	G_SetOrigin( ent, ent->shared.s.origin );
+	G_SetAngle( ent, ent->shared.s.angles );
 
 	if ( !( ent->spawnflags & 1 ) ) {
-		SV_LinkEntity( ent );
+		SV_LinkEntity( &ent->shared );
 	} else {
 		ent->use = Use_props_decoration;
 	}
@@ -3394,7 +3392,7 @@ void SP_props_decorBRUSH( gentity_t *self ) {
 	SP_props_decoration( self );
 
 	if ( self->model2 ) {
-		self->s.modelindex2 = G_ModelIndex( self->model2 );
+		self->shared.s.modelindex2 = G_ModelIndex( self->model2 );
 	}
 
 }
@@ -3429,7 +3427,7 @@ void SP_props_decor_Scale( gentity_t *ent ) {
 
 	SP_props_decoration( ent );
 
-	ent->s.eType        = ET_GAMEMODEL;
+	ent->shared.s.eType        = ET_GAMEMODEL;
 
 	// look for general scaling
 	if ( G_SpawnFloat( "modelscale", "1", &scale[0] ) ) {
@@ -3442,9 +3440,9 @@ void SP_props_decor_Scale( gentity_t *ent ) {
 	}
 
 	// scale is stored in 'angles2'
-	VectorCopy( scale, ent->s.angles2 );
+	VectorCopy( scale, ent->shared.s.angles2 );
 
-	SV_LinkEntity( ent );
+	SV_LinkEntity( &ent->shared );
 
 }
 
@@ -3473,7 +3471,7 @@ void SP_skyportal( gentity_t *ent ) {
 	isfog += G_SpawnInt( "fognear", "0", &fogn );
 	isfog += G_SpawnInt( "fogfar", "300", &fogf );
 
-	SV_SetConfigstring( CS_SKYBOXORG, va( "%.2f %.2f %.2f %.1f %i %.2f %.2f %.2f %i %i", ent->s.origin[0], ent->s.origin[1], ent->s.origin[2], fov_x, (int)isfog, fogv[0], fogv[1], fogv[2], fogn, fogf ) );
+	SV_SetConfigstring( CS_SKYBOXORG, va( "%.2f %.2f %.2f %.1f %i %.2f %.2f %.2f %i %i", ent->shared.s.origin[0], ent->shared.s.origin[1], ent->shared.s.origin[2], fov_x, (int)isfog, fogv[0], fogv[1], fogv[2], fogn, fogf ) );
 //----(SA)	end
 }
 
@@ -3508,21 +3506,21 @@ void props_statue_blocked( gentity_t *ent ) {
 		return;
 	}
 
-	VectorCopy( ent->s.origin, start );
+	VectorCopy( ent->shared.s.origin, start );
 	start[2] += 24;
 
-	VectorSet( mins, ent->r.mins[0], ent->r.mins[1], -23 );
-	VectorSet( maxs, ent->r.maxs[0], ent->r.maxs[1], 23 );
+	VectorSet( mins, ent->shared.r.mins[0], ent->shared.r.mins[1], -23 );
+	VectorSet( maxs, ent->shared.r.maxs[0], ent->shared.r.maxs[1], 23 );
 
-	AngleVectors( ent->r.currentAngles, forward, NULL, NULL );
+	AngleVectors( ent->shared.r.currentAngles, forward, NULL, NULL );
 
 	VectorCopy( start, end );
 
-	dist = ( ( ent->r.maxs[2] + 16 ) / ent->count2 ) * ent->s.frame;
+	dist = ( ( ent->shared.r.maxs[2] + 16 ) / ent->count2 ) * ent->shared.s.frame;
 
 	VectorMA( end, dist, forward, end );
 
-	SV_Trace( &trace, start, mins, maxs, end, ent->s.number, MASK_SHOT, qfalse );
+	SV_Trace( &trace, start, mins, maxs, end, ent->shared.s.number, MASK_SHOT, qfalse );
 
 	if ( trace.surfaceFlags & SURF_NOIMPACT ) { // bogus test but just in case
 		return;
@@ -3561,11 +3559,11 @@ void props_statue_animate( gentity_t *ent ) {
 
 	qboolean takeashot = qfalse;
 
-	ent->s.frame++;
-	ent->s.eType = ET_GENERAL;
+	ent->shared.s.frame++;
+	ent->shared.s.eType = ET_GENERAL;
 
-	if ( ent->s.frame > ent->count2 ) {
-		ent->s.frame = ent->count2;
+	if ( ent->shared.s.frame > ent->count2 ) {
+		ent->shared.s.frame = ent->count2;
 		ent->takedamage = qfalse;
 	}
 
@@ -3582,7 +3580,7 @@ void props_statue_animate( gentity_t *ent ) {
 		props_statue_blocked( ent );
 	}
 
-	if ( ent->s.frame < ent->count2 ) {
+	if ( ent->shared.s.frame < ent->count2 ) {
 		ent->nextthink = level.time + 50;
 	}
 }
@@ -3596,9 +3594,9 @@ void props_statue_death( gentity_t *ent, gentity_t *inflictor, gentity_t *attack
 
 	if ( !( ent->spawnflags & 8 ) ) {
 		ent->clipmask   = 0;
-		ent->r.contents = 0;
-		ent->s.eType = ET_GENERAL;
-		SV_LinkEntity( ent );
+		ent->shared.r.contents = 0;
+		ent->shared.s.eType = ET_GENERAL;
+		SV_LinkEntity( &ent->shared );
 	}
 
 	ent->takedamage = qfalse;
@@ -3637,7 +3635,7 @@ void SP_props_statue( gentity_t *ent ) {
 	float num_frames;
 
 	if ( ent->model2 ) {
-		ent->s.modelindex = G_ModelIndex( ent->model2 );
+		ent->shared.s.modelindex = G_ModelIndex( ent->model2 );
 	}
 
 	if ( G_SpawnString( "noise", "100", &sound ) ) {
@@ -3666,7 +3664,7 @@ void SP_props_statue( gentity_t *ent ) {
 		if ( i > 255 ) {
 			i = 255;
 		}
-		ent->s.constantLight = r | ( g << 8 ) | ( b << 16 ) | ( i << 24 );
+		ent->shared.s.constantLight = r | ( g << 8 ) | ( b << 16 ) | ( i << 24 );
 	}
 
 	ent->isProp = qtrue;
@@ -3702,13 +3700,13 @@ void SP_props_statue( gentity_t *ent ) {
 	width /= 2;
 
 	if ( Q_stricmp( ent->classname, "props_statueBRUSH" ) ) {
-		VectorSet( ent->r.mins, -width, -width, 0 );
-		VectorSet( ent->r.maxs, width, width, height );
+		VectorSet( ent->shared.r.mins, -width, -width, 0 );
+		VectorSet( ent->shared.r.maxs, width, width, height );
 	}
 
 	ent->clipmask   = CONTENTS_SOLID;
-	ent->r.contents = CONTENTS_SOLID;
-	ent->s.eType = ET_MOVER;
+	ent->shared.r.contents = CONTENTS_SOLID;
+	ent->shared.s.eType = ET_MOVER;
 
 	G_SpawnString( "frames", "0", &frames );
 	num_frames = atof( frames );
@@ -3718,14 +3716,14 @@ void SP_props_statue( gentity_t *ent ) {
 	ent->touch = props_statue_touch;
 
 
-	G_SetOrigin( ent, ent->s.origin );
-	G_SetAngle( ent, ent->s.angles );
+	G_SetOrigin( ent, ent->shared.s.origin );
+	G_SetAngle( ent, ent->shared.s.angles );
 
 	if ( !ent->damage ) {
 		ent->damage = 1;
 	}
 
-	SV_LinkEntity( ent );
+	SV_LinkEntity( &ent->shared );
 }
 
 
@@ -3754,7 +3752,7 @@ void SP_props_statueBRUSH( gentity_t *self ) {
 	SP_props_statue( self );
 
 	if ( self->model2 ) {
-		self->s.modelindex2 = G_ModelIndex( self->model2 );
+		self->shared.s.modelindex2 = G_ModelIndex( self->model2 );
 	}
 
 	if ( !( self->health ) ) {
@@ -3784,19 +3782,19 @@ void Spawn_Junk( gentity_t *ent ) {
 	gentity_t *sfx;
 	vec3_t dir, start;
 
-	VectorCopy( ent->r.currentOrigin, start );
+	VectorCopy( ent->shared.r.currentOrigin, start );
 
 	start[0] += crandom() * 32;
 	start[1] += crandom() * 32;
 	start[2] += 16;
 
-	VectorSubtract( start, ent->r.currentOrigin, dir );
+	VectorSubtract( start, ent->shared.r.currentOrigin, dir );
 	VectorNormalize( dir );
 
 	sfx = G_Spawn();
 
 	G_SetOrigin( sfx, start );
-	G_SetAngle( sfx, ent->r.currentAngles );
+	G_SetAngle( sfx, ent->shared.r.currentAngles );
 
 	G_AddEvent( sfx, EV_JUNK, DirToByte( dir ) );
 
@@ -3813,7 +3811,7 @@ props_locker_endrattle
 ==============
 */
 void props_locker_endrattle( gentity_t *ent ) {
-	ent->s.frame = 0;   // idle
+	ent->shared.s.frame = 0;   // idle
 	ent->think = 0;
 	ent->nextthink = 0;
 	ent->delay = 0;
@@ -3822,7 +3820,7 @@ void props_locker_endrattle( gentity_t *ent ) {
 
 void props_locker_use( gentity_t *ent, gentity_t *other, gentity_t *activator ) {
 	if ( !ent->delay ) {
-		ent->s.frame = 1;   // rattle when pain starts
+		ent->shared.s.frame = 1;   // rattle when pain starts
 	}
 	ent->delay = 1;
 	ent->think = props_locker_endrattle;
@@ -3840,11 +3838,11 @@ void init_locker( gentity_t *ent ) {
 	ent->delay = 0;
 
 	ent->clipmask   = CONTENTS_SOLID;
-	ent->r.contents = CONTENTS_SOLID;
+	ent->shared.r.contents = CONTENTS_SOLID;
 	// TODO: change from 'trap' to something else.  'trap' is a misnomer.  it's actually used for other stuff too
-	ent->s.eType = ET_TRAP;
+	ent->shared.s.eType = ET_TRAP;
 
-	ent->s.frame = 0;   // closed animation
+	ent->shared.s.frame = 0;   // closed animation
 
 	ent->count2 = LOCKER_ANIM_DEATHEND;
 
@@ -3854,16 +3852,16 @@ void init_locker( gentity_t *ent ) {
 
 	// drop origin down 8 so the designer can put the box entity on the floor rather than /in/ the floor
 	// remove if you get a new model from jason w/ the origin moved up 8
-	ent->s.origin[2] -= 8;
+	ent->shared.s.origin[2] -= 8;
 
-	G_SetOrigin( ent, ent->s.origin );
-	G_SetAngle( ent, ent->s.angles );
+	G_SetOrigin( ent, ent->shared.s.origin );
+	G_SetAngle( ent, ent->shared.s.angles );
 
 	if ( !( ent->health ) ) {
 		ent->health = 1;
 	}
 
-	SV_LinkEntity( ent );
+	SV_LinkEntity( &ent->shared );
 
 }
 
@@ -3878,12 +3876,12 @@ void props_locker_spawn_item( gentity_t *ent ) {
 	}
 
 //	drop = Drop_Item (ent, item, 0, qtrue);
-	drop = LaunchItem( item, ent->r.currentOrigin, tv( 0, 0, 20 ) );
+	drop = LaunchItem( item, ent->shared.r.currentOrigin, tv( 0, 0, 20 ) );
 
 
 	if ( !drop ) {
 		Com_Printf( "-----> WARNING <-------\n" );
-		Com_Printf( "props_locker_spawn_item at %s failed!\n", vtos( ent->r.currentOrigin ) );
+		Com_Printf( "props_locker_spawn_item at %s failed!\n", vtos( ent->shared.r.currentOrigin ) );
 	}
 }
 
@@ -3894,27 +3892,27 @@ void props_locker_mass( gentity_t *ent ) {
 	vec3_t start;
 	vec3_t dir;
 
-	VectorCopy( ent->r.currentOrigin, start );
+	VectorCopy( ent->shared.r.currentOrigin, start );
 
 	start[0] += crandom() * 32;
 	start[1] += crandom() * 32;
 	start[2] += 16;
 
-	VectorSubtract( start, ent->r.currentOrigin, dir );
+	VectorSubtract( start, ent->shared.r.currentOrigin, dir );
 	VectorNormalize( dir );
 
-	tent = G_TempEntity( ent->r.currentOrigin, EV_EFFECT );
-	VectorCopy( ent->r.currentOrigin, tent->s.origin );
-	VectorCopy( dir, tent->s.angles2 );
+	tent = G_TempEntity( ent->shared.r.currentOrigin, EV_EFFECT );
+	VectorCopy( ent->shared.r.currentOrigin, tent->shared.s.origin );
+	VectorCopy( dir, tent->shared.s.angles2 );
 
-	tent->s.dl_intensity = 0;
+	tent->shared.s.dl_intensity = 0;
 
 	SV_SetConfigstring( CS_TARGETEFFECT, ent->dl_shader );    //----(SA)	allow shader to be set from entity
 
-	tent->s.frame = ent->key;
+	tent->shared.s.frame = ent->key;
 
-	tent->s.eventParm = 8;
-	tent->s.density = 100;
+	tent->shared.s.eventParm = 8;
+	tent->shared.s.density = 100;
 }
 
 /*QUAKED props_footlocker (.6 .7 .3) (-12 -21 -12) (12 21 12) ? NO_JUNK
@@ -3952,14 +3950,14 @@ props_locker_death
 */
 void props_locker_death( gentity_t *ent, gentity_t *inflictor, gentity_t *attacker, int damage, int mod ) {
 	ent->takedamage = qfalse;
-	ent->s.frame = 2;   // opening animation
+	ent->shared.s.frame = 2;   // opening animation
 	ent->think = 0;
 	ent->nextthink = 0;
 
-	SV_UnlinkEntity( ent );
-	ent->r.maxs[2] = 11;    // (SA) make the dead bb half height so the item can look like it's sitting inside
+	SV_UnlinkEntity( &ent->shared );
+	ent->shared.r.maxs[2] = 11;    // (SA) make the dead bb half height so the item can look like it's sitting inside
 	props_locker_spawn_item( ent );
-	SV_LinkEntity( ent );
+	SV_LinkEntity( &ent->shared );
 
 }
 
@@ -3975,15 +3973,15 @@ void SP_props_footlocker( gentity_t *self ) {
 	// (SA) if angle is xx or yy, rotate the bounding box 90 deg to match
 	// NOTE:	Non axis-aligned orientation not allowed.  It will work, but
 	//			the bounding box will not exactly match the model.
-	if ( self->s.angles[1] == 90 || self->s.angles[1] == 270 ) {
-		VectorSet( self->r.mins, -21, -12, 0 );
-		VectorSet( self->r.maxs, 21, 12, 24 );
+	if ( self->shared.s.angles[1] == 90 || self->shared.s.angles[1] == 270 ) {
+		VectorSet( self->shared.r.mins, -21, -12, 0 );
+		VectorSet( self->shared.r.maxs, 21, 12, 24 );
 	} else {
-		VectorSet( self->r.mins, -12, -21, 0 );
-		VectorSet( self->r.maxs, 12, 21, 24 );
+		VectorSet( self->shared.r.mins, -12, -21, 0 );
+		VectorSet( self->shared.r.maxs, 12, 21, 24 );
 	}
 
-	self->s.modelindex = G_ModelIndex( "models/mapobjects/furniture/footlocker.md3" );
+	self->shared.s.modelindex = G_ModelIndex( "models/mapobjects/furniture/footlocker.md3" );
 
 	if ( G_SpawnString( "noise", "NOSOUND", &sound ) ) {
 		self->noise_index = G_SoundIndex( sound );
@@ -4010,13 +4008,13 @@ void SP_props_footlocker( gentity_t *self ) {
 			self->key = 0;
 		} else if ( !Q_stricmp( type,"glass" ) ) {
 			self->key = 1;
-		} else if ( !Q_stricmp( type,"metal" ) )                                                       {
+		} else if ( !Q_stricmp( type,"metal" ) )  {
 			self->key = 2;
-		} else if ( !Q_stricmp( type,"gibs" ) )                                                                                                                {
+		} else if ( !Q_stricmp( type,"gibs" ) )   {
 			self->key = 3;
-		} else if ( !Q_stricmp( type,"brick" ) )                                                                                                                                                                        {
+		} else if ( !Q_stricmp( type,"brick" ) ) {
 			self->key = 4;
-		} else if ( !Q_stricmp( type,"rock" ) )                                                                                                                                                                                                                                 {
+		} else if ( !Q_stricmp( type,"rock" ) )  {
 			self->key = 5;
 		} else if ( !Q_stricmp( type,"fabric" ) )                                                                                                                                                                                                                                                                                         {
 			self->key = 6;
@@ -4050,21 +4048,21 @@ void props_flamethrower_think( gentity_t *ent ) {
 		}
 
 		if ( !target ) {
-//			VectorSet (ent->r.currentAngles, 0, 0, 1);	// (SA) wasn't working
-			VectorSet( ent->s.apos.trBase, 0, 0, 1 );
+//			VectorSet (ent->shared.r.currentAngles, 0, 0, 1);	// (SA) wasn't working
+			VectorSet( ent->shared.s.apos.trBase, 0, 0, 1 );
 		} else
 		{
-			VectorSubtract( target->s.origin, ent->s.origin, vec );
+			VectorSubtract( target->shared.s.origin, ent->shared.s.origin, vec );
 			VectorNormalize( vec );
 			vectoangles( vec, angles );
-//			VectorCopy (angles, ent->r.currentAngles);	// (SA) wasn't working
-			VectorCopy( angles, ent->s.apos.trBase );
+//			VectorCopy (angles, ent->shared.r.currentAngles);	// (SA) wasn't working
+			VectorCopy( angles, ent->shared.s.apos.trBase );
 		}
 	}
 
 	if ( ( ent->timestamp + ent->duration ) > level.time ) {
 		//G_AddEvent (ent, EV_FLAMETHROWER_EFFECT, 0);
-		ent->s.eFlags |= EF_FIRING;
+		ent->shared.s.eFlags |= EF_FIRING;
 
 		ent->nextthink = level.time + 50;
 
@@ -4083,7 +4081,7 @@ void props_flamethrower_think( gentity_t *ent ) {
 			ent->nextthink = ent->timestamp + 50;
 		}
 	} else {
-		ent->s.eFlags &= ~EF_FIRING;
+		ent->shared.s.eFlags &= ~EF_FIRING;
 	}
 
 }
@@ -4093,7 +4091,7 @@ void props_flamethrower_use( gentity_t *ent, gentity_t *other, gentity_t *activa
 	int rnd;
 
 	if ( ent->spawnflags & 2 ) {
-		ent->s.eFlags &= ~EF_FIRING;
+		ent->shared.s.eFlags &= ~EF_FIRING;
 		ent->spawnflags &= ~2;
 		ent->think = NULL;      // (SA) wasn't working
 		ent->nextthink = 0;
@@ -4127,19 +4125,19 @@ void props_flamethrower_init( gentity_t *ent ) {
 	}
 
 	if ( !target ) {
-//		VectorSet (ent->r.currentAngles, 0, 0, 1);	//----(SA)
-		VectorSet( ent->s.apos.trBase, 0, 0, 1 );
+//		VectorSet (ent->shared.r.currentAngles, 0, 0, 1);	//----(SA)
+		VectorSet( ent->shared.s.apos.trBase, 0, 0, 1 );
 	} else
 	{
-		VectorSubtract( target->s.origin, ent->s.origin, vec );
+		VectorSubtract( target->shared.s.origin, ent->shared.s.origin, vec );
 		VectorNormalize( vec );
 		vectoangles( vec, angles );
-//		VectorCopy (angles, ent->r.currentAngles);	//----(SA)
-		VectorCopy( angles, ent->s.apos.trBase );
-		VectorCopy( angles, ent->s.angles ); // RF, added to fix wierd release build issues
+//		VectorCopy (angles, ent->shared.r.currentAngles);	//----(SA)
+		VectorCopy( angles, ent->shared.s.apos.trBase );
+		VectorCopy( angles, ent->shared.s.angles ); // RF, added to fix wierd release build issues
 	}
 
-	SV_LinkEntity( ent );
+	SV_LinkEntity( &ent->shared );
 
 }
 
@@ -4151,7 +4149,7 @@ void SP_props_flamethrower( gentity_t *ent ) {
 	ent->nextthink = level.time + 50;
 	ent->use = props_flamethrower_use;
 
-	G_SetOrigin( ent, ent->s.origin );
+	G_SetOrigin( ent, ent->shared.s.origin );
 
 	if ( !( ent->duration ) ) {
 		ent->duration = 1000;
@@ -4168,9 +4166,9 @@ void SP_props_flamethrower( gentity_t *ent ) {
 	ent->accuracy = dsize;
 
 	if ( ent->spawnflags & 2 ) { // SILENT
-		ent->s.density = 1;
+		ent->shared.s.density = 1;
 	}
 
-	ent->s.eType = ET_FLAMETHROWER_PROP;
-	ent->r.svFlags |= SVF_BROADCAST;
+	ent->shared.s.eType = ET_FLAMETHROWER_PROP;
+	ent->shared.r.svFlags |= SVF_BROADCAST;
 }

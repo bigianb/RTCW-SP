@@ -137,20 +137,20 @@ void InitTramcar( gentity_t *ent ) {
 	// if the "model2" key is set, use a seperate model
 	// for drawing, but clip against the brushes
 	if ( ent->model2 ) {
-		ent->s.modelindex2 = G_ModelIndex( ent->model2 );
+		ent->shared.s.modelindex2 = G_ModelIndex( ent->model2 );
 	}
 
 	if ( !Q_stricmp( ent->classname, "props_me109" ) ) {
-		ent->s.modelindex2 = G_ModelIndex( "models/mapobjects/vehicles/m109s.md3" );
+		ent->shared.s.modelindex2 = G_ModelIndex( "models/mapobjects/vehicles/m109s.md3" );
 	}
 
 	if ( !Q_stricmp( ent->classname, "truck_cam" ) ) {
-		ent->s.modelindex2 = G_ModelIndex( "models/mapobjects/vehicles/truck_base.md3" );
+		ent->shared.s.modelindex2 = G_ModelIndex( "models/mapobjects/vehicles/truck_base.md3" );
 	}
 
 	// if the "loopsound" key is set, use a constant looping sound when moving
 	if ( G_SpawnString( "noise", "100", &sound ) ) {
-		ent->s.loopSound = G_SoundIndex( sound );
+		ent->shared.s.loopSound = G_SoundIndex( sound );
 	}
 
 	// if the "color" or "light" keys are set, setup constantLight
@@ -175,22 +175,22 @@ void InitTramcar( gentity_t *ent ) {
 		if ( i > 255 ) {
 			i = 255;
 		}
-		ent->s.constantLight = r | ( g << 8 ) | ( b << 16 ) | ( i << 24 );
+		ent->shared.s.constantLight = r | ( g << 8 ) | ( b << 16 ) | ( i << 24 );
 	}
 
 	ent->use = Use_BinaryMover;
 //	ent->reached = Reached_BinaryMover;
 
 	ent->moverState = MOVER_POS1;
-	ent->r.svFlags = SVF_USE_CURRENT_ORIGIN;
-	ent->s.eType = ET_MOVER;
+	ent->shared.r.svFlags = SVF_USE_CURRENT_ORIGIN;
+	ent->shared.s.eType = ET_MOVER;
 
-	VectorCopy( ent->pos1, ent->r.currentOrigin );
+	VectorCopy( ent->pos1, ent->shared.r.currentOrigin );
 
 	SV_LinkEntity( ent );
 
-	ent->s.pos.trType = TR_STATIONARY;
-	VectorCopy( ent->pos1, ent->s.pos.trBase );
+	ent->shared.s.pos.trType = TR_STATIONARY;
+	VectorCopy( ent->pos1, ent->shared.s.pos.trBase );
 
 	// calculate time to reach second position from speed
 	VectorSubtract( ent->pos2, ent->pos1, move );
@@ -198,10 +198,10 @@ void InitTramcar( gentity_t *ent ) {
 	if ( !ent->speed ) {
 		ent->speed = 100;
 	}
-	VectorScale( move, ent->speed, ent->s.pos.trDelta );
-	ent->s.pos.trDuration = distance * 1000 / ent->speed;
-	if ( ent->s.pos.trDuration <= 0 ) {
-		ent->s.pos.trDuration = 1;
+	VectorScale( move, ent->speed, ent->shared.s.pos.trDelta );
+	ent->shared.s.pos.trDuration = distance * 1000 / ent->speed;
+	if ( ent->shared.s.pos.trDuration <= 0 ) {
+		ent->shared.s.pos.trDuration = 1;
 	}
 }
 
@@ -216,11 +216,11 @@ void Calc_Roll( gentity_t *ent ) {
 
 	target = ent->nextTrain;
 
-	VectorCopy( ent->r.currentAngles, tang );
+	VectorCopy( ent->shared.r.currentAngles, tang );
 	tang[ROLL] = 0;
 
 	AngleVectors( tang, forward, right, NULL );
-	VectorSubtract( target->nextTrain->nextTrain->s.origin, ent->r.currentOrigin, vec );
+	VectorSubtract( target->nextTrain->nextTrain->shared.s.origin, ent->shared.r.currentOrigin, vec );
 	VectorNormalize( vec );
 
 	dot = DotProduct( vec, forward );
@@ -229,34 +229,28 @@ void Calc_Roll( gentity_t *ent ) {
 	ent->angle = (int) ent->angle;
 
 	if ( dot2 > 0 ) {
-		if ( ent->s.apos.trBase[ROLL] < -( ent->angle * 2 ) ) {
-			ent->s.apos.trBase[ROLL] += 2;
-		} else if ( ent->s.apos.trBase[ROLL] > -( ent->angle * 2 ) ) {
-			ent->s.apos.trBase[ROLL] -= 2;
+		if ( ent->shared.s.apos.trBase[ROLL] < -( ent->angle * 2 ) ) {
+			ent->shared.s.apos.trBase[ROLL] += 2;
+		} else if ( ent->shared.s.apos.trBase[ROLL] > -( ent->angle * 2 ) ) {
+			ent->shared.s.apos.trBase[ROLL] -= 2;
 		}
 
-		if ( ent->s.apos.trBase[ROLL] > 90 ) {
-			ent->s.apos.trBase[ROLL] = 90;
+		if ( ent->shared.s.apos.trBase[ROLL] > 90 ) {
+			ent->shared.s.apos.trBase[ROLL] = 90;
 		}
 	} else if ( dot2 < 0 )     {
-		if ( ent->s.apos.trBase[ROLL] > -( ent->angle * 2 ) ) {
-			ent->s.apos.trBase[ROLL] -= 2;
-		} else if ( ent->s.apos.trBase[ROLL] < -( ent->angle * 2 ) ) {
-			ent->s.apos.trBase[ROLL] += 2;
+		if ( ent->shared.s.apos.trBase[ROLL] > -( ent->angle * 2 ) ) {
+			ent->shared.s.apos.trBase[ROLL] -= 2;
+		} else if ( ent->shared.s.apos.trBase[ROLL] < -( ent->angle * 2 ) ) {
+			ent->shared.s.apos.trBase[ROLL] += 2;
 		}
 
-		if ( ent->s.apos.trBase[ROLL] < -90 ) {
-			ent->s.apos.trBase[ROLL] = -90;
+		if ( ent->shared.s.apos.trBase[ROLL] < -90 ) {
+			ent->shared.s.apos.trBase[ROLL] = -90;
 		}
 	} else {
-		ent->s.apos.trBase[ROLL] = 0;
+		ent->shared.s.apos.trBase[ROLL] = 0;
 	}
-
-
-// Com_Printf ("dot: %5.2f dot2: %5.2f\n", dot, dot2);
-
-
-//	VectorCopy (ent->r.currentAngles, ent->TargetAngles);
 
 	SV_LinkEntity( ent );
 
@@ -355,7 +349,7 @@ void Reached_Tramcar( gentity_t *ent ) {
 		} else if ( ( next->spawnflags & 4 ) )       { // explode the plane
 			ExplodePlaneSndFx( ent );
 
-			ent->s.modelindex = crash_part;
+			ent->shared.s.modelindex = crash_part;
 			// spawn the wing at the player effect
 
 			ent->nextTrain = NULL;
@@ -364,24 +358,18 @@ void Reached_Tramcar( gentity_t *ent ) {
 			return;
 		}
 
-		VectorSubtract( ent->nextTrain->nextTrain->s.origin, ent->r.currentOrigin, vec );
+		VectorSubtract( ent->nextTrain->nextTrain->shared.s.origin, ent->shared.r.currentOrigin, vec );
 		vectoangles( vec, angles );
 
 
-		diff = AngleSubtract( ent->r.currentAngles [YAW], angles[YAW] );
-		// diff = AngleSubtract (ent->TargetAngles [YAW], angles[YAW]);
+		diff = AngleSubtract( ent->shared.r.currentAngles [YAW], angles[YAW] );
 
 		ent->rotate[1] = 1;
 		ent->angle = -diff;
 
-		//if (angles[YAW] == 0)
-		//	ent->s.apos.trDuration = ent->s.pos.trDuration;
-		//else
-		//	ent->s.apos.trDuration = 1000;
-
 		{
-			VectorCopy( next->s.origin, ent->pos1 );
-			VectorCopy( next->nextTrain->s.origin, ent->pos2 );
+			VectorCopy( next->shared.s.origin, ent->pos1 );
+			VectorCopy( next->nextTrain->shared.s.origin, ent->pos2 );
 
 			// if the path_corner has a speed, use that
 			if ( next->speed ) {
@@ -398,21 +386,21 @@ void Reached_Tramcar( gentity_t *ent ) {
 			VectorSubtract( ent->pos2, ent->pos1, move );
 			length = VectorLength( move );
 
-			ent->s.apos.trDuration = length * 1000 / speed;
+			ent->shared.s.apos.trDuration = length * 1000 / speed;
 
 //testing
 // ent->gDuration = ent->s.apos.trDuration;
-			ent->gDurationBack = ent->gDuration = ent->s.apos.trDuration;
+			ent->gDurationBack = ent->gDuration = ent->shared.s.apos.trDuration;
 // ent->gDeltaBack = ent->gDelta =
 
 		}
 
-		VectorClear( ent->s.apos.trDelta );
+		VectorClear( ent->shared.s.apos.trDelta );
 
 		SetMoverState( ent, MOVER_1TO2ROTATE, level.time );
-		VectorCopy( ent->r.currentAngles, ent->s.apos.trBase );
+		VectorCopy( ent->shared.r.currentAngles, ent->shared.s.apos.trBase );
 
-		SV_LinkEntity( ent );
+		SV_LinkEntity( &ent->shared );
 
 		ent->think = props_me109_think;
 		ent->nextthink = level.time + 50;
@@ -420,7 +408,7 @@ void Reached_Tramcar( gentity_t *ent ) {
 		Com_Printf( "target: %s\n", next->targetname );
 
 		if ( next->spawnflags & 2 ) { // END
-			ent->s.loopSound = 0; // stop sound
+			ent->shared.s.loopSound = 0; // stop sound
 			ent->nextTrain = NULL;
 			return;
 		} else
@@ -430,35 +418,35 @@ void Reached_Tramcar( gentity_t *ent ) {
 
 			if ( next->spawnflags & 4 ) { // reverse
 				ent->props_frame_state = truck_reverse;
-				VectorSubtract( ent->r.currentOrigin, ent->nextTrain->nextTrain->s.origin, vec );
+				VectorSubtract( ent->shared.r.currentOrigin, ent->nextTrain->nextTrain->shared.s.origin, vec );
 			} else
 			{
 				ent->props_frame_state = truck_moving;
-				VectorSubtract( ent->nextTrain->nextTrain->s.origin, ent->r.currentOrigin, vec );
+				VectorSubtract( ent->nextTrain->nextTrain->shared.s.origin, ent->shared.r.currentOrigin, vec );
 			}
 
 			vectoangles( vec, angles );
 
-			diff = AngleSubtract( ent->r.currentAngles [YAW], angles[YAW] );
+			diff = AngleSubtract( ent->shared.r.currentAngles [YAW], angles[YAW] );
 
 			ent->rotate[1] = 1;
 			ent->angle = -diff;
 
 			if ( angles[YAW] == 0 ) {
-				ent->s.apos.trDuration = ent->s.pos.trDuration;
+				ent->shared.s.apos.trDuration = ent->shared.s.pos.trDuration;
 			} else {
-				ent->s.apos.trDuration = 1000;
+				ent->shared.s.apos.trDuration = 1000;
 			}
 
 //testing
-			ent->gDuration = ent->s.pos.trDuration;
+			ent->gDuration = ent->shared.s.pos.trDuration;
 
-			VectorClear( ent->s.apos.trDelta );
+			VectorClear( ent->shared.s.apos.trDelta );
 
 			SetMoverState( ent, MOVER_1TO2ROTATE, level.time );
-			VectorCopy( ent->r.currentAngles, ent->s.apos.trBase );
+			VectorCopy( ent->shared.r.currentAngles, ent->shared.s.apos.trBase );
 
-			SV_LinkEntity( ent );
+			SV_LinkEntity( &ent->shared );
 		}
 
 		if ( next->wait == -1 ) {
@@ -475,20 +463,20 @@ void Reached_Tramcar( gentity_t *ent ) {
 
 		switch ( ent->props_frame_state )
 		{
-		case truck_idle: ent->s.loopSound = truck_idle_snd; break;
-		case truck_gear1: ent->s.loopSound = truck_gear1_snd; break;
-		case truck_gear2: ent->s.loopSound = truck_gear2_snd; break;
-		case truck_gear3: ent->s.loopSound = truck_gear3_snd; break;
-		case truck_reverse: ent->s.loopSound = truck_reverse_snd; break;
-		case truck_moving: ent->s.loopSound = truck_moving_snd; break;
-		case truck_breaking: ent->s.loopSound = truck_breaking_snd; break;
-		case truck_bouncy1: ent->s.loopSound = truck_bouncy1_snd; break;
-		case truck_bouncy2: ent->s.loopSound = truck_bouncy2_snd; break;
-		case truck_bouncy3: ent->s.loopSound = truck_bouncy3_snd; break;
+		case truck_idle: ent->shared.s.loopSound = truck_idle_snd; break;
+		case truck_gear1: ent->shared.s.loopSound = truck_gear1_snd; break;
+		case truck_gear2: ent->shared.s.loopSound = truck_gear2_snd; break;
+		case truck_gear3: ent->shared.s.loopSound = truck_gear3_snd; break;
+		case truck_reverse: ent->shared.s.loopSound = truck_reverse_snd; break;
+		case truck_moving: ent->shared.s.loopSound = truck_moving_snd; break;
+		case truck_breaking: ent->shared.s.loopSound = truck_breaking_snd; break;
+		case truck_bouncy1: ent->shared.s.loopSound = truck_bouncy1_snd; break;
+		case truck_bouncy2: ent->shared.s.loopSound = truck_bouncy2_snd; break;
+		case truck_bouncy3: ent->shared.s.loopSound = truck_bouncy3_snd; break;
 		}
 
 //testing
-		ent->s.loopSound = truck_sound;
+		ent->shared.s.loopSound = truck_sound;
 		ent->think = truck_cam_think;
 		ent->nextthink = level.time + ( FRAMETIME / 2 );
 
@@ -506,8 +494,8 @@ void Reached_Tramcar( gentity_t *ent ) {
 		next->count = 1;
 	}
 
-	VectorCopy( next->s.origin, ent->pos1 );
-	VectorCopy( next->nextTrain->s.origin, ent->pos2 );
+	VectorCopy( next->shared.s.origin, ent->pos1 );
+	VectorCopy( next->nextTrain->shared.s.origin, ent->pos2 );
 
 	// if the path_corner has a speed, use that
 	if ( next->speed ) {
@@ -524,16 +512,16 @@ void Reached_Tramcar( gentity_t *ent ) {
 	VectorSubtract( ent->pos2, ent->pos1, move );
 	length = VectorLength( move );
 
-	ent->s.pos.trDuration = length * 1000 / speed;
+	ent->shared.s.pos.trDuration = length * 1000 / speed;
 
 //testing
 // ent->gDuration = ent->s.pos.trDuration;
-	ent->gDurationBack = ent->gDuration = ent->s.pos.trDuration;
+	ent->gDurationBack = ent->gDuration = ent->shared.s.pos.trDuration;
 // ent->gDeltaBack = ent->gDelta = ;
 
 	// looping sound
 	if ( next->soundLoop ) {
-		ent->s.loopSound = next->soundLoop;
+		ent->shared.s.loopSound = next->soundLoop;
 	}
 
 	// start it going
@@ -544,7 +532,7 @@ void Reached_Tramcar( gentity_t *ent ) {
 	if ( next->wait && next->wait != -1 ) {
 		ent->nextthink = level.time + next->wait * 1000;
 		ent->think = Think_BeginMoving;
-		ent->s.pos.trType = TR_STATIONARY;
+		ent->shared.s.pos.trType = TR_STATIONARY;
 	}
 }
 
@@ -566,17 +554,17 @@ void Tramcar_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, in
 		// slaves need to inherit position
 		slave->nextTrain = self->nextTrain;
 
-		slave->s.pos.trType = self->s.pos.trType;
-		slave->s.pos.trTime = self->s.pos.trTime;
-		slave->s.pos.trDuration = self->s.pos.trDuration;
-		VectorCopy( self->s.pos.trBase, slave->s.pos.trBase );
-		VectorCopy( self->s.pos.trDelta, slave->s.pos.trDelta );
+		slave->shared.s.pos.trType = self->shared.s.pos.trType;
+		slave->shared.s.pos.trTime = self->shared.s.pos.trTime;
+		slave->shared.s.pos.trDuration = self->shared.s.pos.trDuration;
+		VectorCopy( self->shared.s.pos.trBase, slave->shared.s.pos.trBase );
+		VectorCopy( self->shared.s.pos.trDelta, slave->shared.s.pos.trDelta );
 
-		slave->s.apos.trType = self->s.apos.trType;
-		slave->s.apos.trTime = self->s.apos.trTime;
-		slave->s.apos.trDuration = self->s.apos.trDuration;
-		VectorCopy( self->s.apos.trBase, slave->s.apos.trBase );
-		VectorCopy( self->s.apos.trDelta, slave->s.apos.trDelta );
+		slave->shared.s.apos.trType = self->shared.s.apos.trType;
+		slave->shared.s.apos.trTime = self->shared.s.apos.trTime;
+		slave->shared.s.apos.trDuration = self->shared.s.apos.trDuration;
+		VectorCopy( self->shared.s.apos.trBase, slave->shared.s.apos.trBase );
+		VectorCopy( self->shared.s.apos.trDelta, slave->shared.s.apos.trDelta );
 
 		slave->think = self->think;
 		slave->nextthink = self->nextthink;
@@ -606,10 +594,10 @@ void Tramcar_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, in
 		self->nextTrain = 0;
 	}
 
-	self->s.loopSound = 0;
+	self->shared.s.loopSound = 0;
 
-	VectorCopy( self->r.currentOrigin, self->s.pos.trBase );
-	VectorCopy( self->r.currentAngles, self->s.apos.trBase );
+	VectorCopy( self->shared.r.currentOrigin, self->shared.s.pos.trBase );
+	VectorCopy( self->shared.r.currentAngles, self->shared.s.apos.trBase );
 
 	self->flags |= FL_TEAMSLAVE;
 	SV_UnlinkEntity( self );
@@ -619,7 +607,7 @@ void Tramcar_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, in
 void TramCarUse( gentity_t *ent, gentity_t *other, gentity_t *activator ) {
 	gentity_t       *next;
 
-	if ( level.time >= ent->s.pos.trTime + ent->s.pos.trDuration ) {
+	if ( level.time >= ent->shared.s.pos.trTime + ent->shared.s.pos.trDuration ) {
 
 		next = ent->nextTrain;
 
@@ -641,7 +629,7 @@ void Blocked_Tramcar( gentity_t *ent, gentity_t *other ) {
 	// remove anything other than a client
 	if ( !other->client ) {
 		
-		G_TempEntity( other->s.origin, EV_ITEM_POP );
+		G_TempEntity( other->shared.s.origin, EV_ITEM_POP );
 		G_FreeEntity( other );
 		return;
 	}
@@ -688,7 +676,7 @@ void SP_func_tramcar( gentity_t *self ) {
 	char    *s;
 	char buffer[MAX_QPATH];
 
-	VectorClear( self->s.angles );
+	VectorClear( self->shared.s.angles );
 
 	//if (self->spawnflags & TRAMCAR_BLOCK_STOPS) {
 	//	self->damage = 0;
@@ -705,7 +693,7 @@ void SP_func_tramcar( gentity_t *self ) {
 	}
 
 	if ( !self->target ) {
-		Com_Printf( "func_tramcar without a target at %s\n", vtos( self->r.absmin ) );
+		Com_Printf( "func_tramcar without a target at %s\n", vtos( self->shared.r.absmin ) );
 		G_FreeEntity( self );
 		return;
 	}
@@ -745,27 +733,27 @@ void SP_func_tramcar( gentity_t *self ) {
 	if ( G_SpawnString( "noise", "NOSOUND", &s ) ) {
 		if ( Q_stricmp( s, "nosound" ) ) {
 			Q_strncpyz( buffer, s, sizeof( buffer ) );
-			self->s.dl_intensity = G_SoundIndex( buffer );
+			self->shared.s.dl_intensity = G_SoundIndex( buffer );
 		}
 	} else {
 		switch ( self->key )
 		{
 		case 0:     // "wood"
-			self->s.dl_intensity = G_SoundIndex( "sound/world/boardbreak.wav" );
+			self->shared.s.dl_intensity = G_SoundIndex( "sound/world/boardbreak.wav" );
 			break;
 		case 1:     // "glass"
-			self->s.dl_intensity = G_SoundIndex( "sound/world/glassbreak.wav" );
+			self->shared.s.dl_intensity = G_SoundIndex( "sound/world/glassbreak.wav" );
 			break;
 		case 2:     // "metal"
-			self->s.dl_intensity = G_SoundIndex( "sound/world/metalbreak.wav" );
+			self->shared.s.dl_intensity = G_SoundIndex( "sound/world/metalbreak.wav" );
 			break;
 		case 3:     // "gibs"
-			self->s.dl_intensity = G_SoundIndex( "sound/player/gibsplit1.wav" );
+			self->shared.s.dl_intensity = G_SoundIndex( "sound/player/gibsplit1.wav" );
 			break;
 		}
 	}
 
-	self->s.density = self->count;  // pass the "mass" to the client
+	self->shared.s.density = self->count;  // pass the "mass" to the client
 
 	InitTramcar( self );
 
@@ -808,7 +796,7 @@ the entity will fire its target when reached
 void SP_plane_waypoint( gentity_t *self ) {
 
 	if ( !self->targetname ) {
-		Com_Printf( "plane_waypoint with no targetname at %s\n", vtos( self->s.origin ) );
+		Com_Printf( "plane_waypoint with no targetname at %s\n", vtos( self->shared.s.origin ) );
 		G_FreeEntity( self );
 		return;
 	}
@@ -844,7 +832,7 @@ void ExplodePlaneSndFx( gentity_t *self ) {
 		return;
 	}
 
-	G_SetOrigin( temp, self->melee->s.pos.trBase );
+	G_SetOrigin( temp, self->melee->shared.s.pos.trBase );
 	G_AddEvent( temp, EV_GLOBAL_SOUND, fpexpdebris_snd );
 	temp->think = G_FreeEntity;
 	temp->nextthink = level.time + 10000;
@@ -863,13 +851,13 @@ void ExplodePlaneSndFx( gentity_t *self ) {
 			return;
 		}
 
-		VectorSubtract( player->s.origin, self->r.currentOrigin, vec );
+		VectorSubtract( player->shared.s.origin, self->shared.r.currentOrigin, vec );
 		vectoangles( vec, ang );
 		AngleVectors( ang, dir, NULL, NULL );
 
 		dir[2] = 1;
 
-		VectorCopy( self->r.currentOrigin, start );
+		VectorCopy( self->shared.r.currentOrigin, start );
 
 		part = fire_flamebarrel( temp, start, dir );
 
@@ -878,18 +866,18 @@ void ExplodePlaneSndFx( gentity_t *self ) {
 			return;
 		}
 
-		part->s.eType = ET_FP_PARTS;
+		part->shared.s.eType = ET_FP_PARTS;
 
-		part->s.modelindex = wing_part;
+		part->shared.s.modelindex = wing_part;
 
 		return;
 	}
 
-	AngleVectors( self->r.currentAngles, dir, NULL, NULL );
+	AngleVectors( self->shared.r.currentAngles, dir, NULL, NULL );
 
 	for ( i = 0; i < 4; i++ )
 	{
-		VectorCopy( self->r.currentOrigin, start );
+		VectorCopy( self->shared.r.currentOrigin, start );
 
 		start[0] += crandom() * 64;
 		start[1] += crandom() * 64;
@@ -901,16 +889,16 @@ void ExplodePlaneSndFx( gentity_t *self ) {
 			continue;
 		}
 
-		part->s.eType = ET_FP_PARTS;
+		part->shared.s.eType = ET_FP_PARTS;
 
 		if ( i == 0 ) {
-			part->s.modelindex = fuse_part;
+			part->shared.s.modelindex = fuse_part;
 		} else if ( i == 1 ) {
-			part->s.modelindex = wing_part;
+			part->shared.s.modelindex = wing_part;
 		} else if ( i == 2 ) {
-			part->s.modelindex = tail_part;
+			part->shared.s.modelindex = tail_part;
 		} else {
-			part->s.modelindex = nose_part;
+			part->shared.s.modelindex = nose_part;
 		}
 	}
 }
@@ -926,7 +914,7 @@ void props_me109_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker
 	}
 
 	propExplosionLarge( self );
-	self->melee->s.loopSound = self->melee->noise_index = 0;
+	self->melee->shared.s.loopSound = self->melee->noise_index = 0;
 	ExplodePlaneSndFx( self );
 	G_FreeEntity( self );
 }
@@ -936,10 +924,10 @@ void props_me109_pain( gentity_t *self, gentity_t *attacker, int damage, vec3_t 
 
 	Com_Printf( "pain: health = %i\n", self->health );
 
-	VectorCopy( self->r.currentOrigin, temp );
-	VectorCopy( self->pos3, self->r.currentOrigin );
+	VectorCopy( self->shared.r.currentOrigin, temp );
+	VectorCopy( self->pos3, self->shared.r.currentOrigin );
 	Spawn_Shard( self, NULL, 6, 999 );
-	VectorCopy( temp, self->r.currentOrigin );
+	VectorCopy( temp, self->shared.r.currentOrigin );
 
 	VectorClear( self->rotate );
 	VectorSet( self->rotate, 0, 1, 0 ); //sigh
@@ -950,8 +938,8 @@ void Plane_Fire_Lead( gentity_t *self ) {
 	vec3_t pos1, pos2;
 	vec3_t position;
 
-	AngleVectors( self->r.currentAngles, dir, right, NULL );
-	VectorCopy( self->r.currentOrigin, position );
+	AngleVectors( self->shared.r.currentAngles, dir, right, NULL );
+	VectorCopy( self->shared.r.currentOrigin, position );
 	VectorMA( position, 64, right, pos1 );
 	VectorMA( position, -64, right, pos2 );
 
@@ -964,7 +952,7 @@ void Plane_Attack( gentity_t *self, qboolean in_PVS ) {
 		self->count++;
 
 		if ( self->count == 3 ) {
-			self->s.density = 8, self->count = 0;
+			self->shared.s.density = 8, self->count = 0;
 
 			if ( in_PVS ) {
 				G_AddEvent( self, EV_GLOBAL_SOUND, fpattack_snd );
@@ -974,12 +962,12 @@ void Plane_Attack( gentity_t *self, qboolean in_PVS ) {
 
 			Plane_Fire_Lead( self );
 		} else {
-			self->s.density = 7;
+			self->shared.s.density = 7;
 		}
 	} else if ( self->spawnflags & 4 )     { // spinning prop
-		self->s.density = 7;
+		self->shared.s.density = 7;
 	} else {
-		self->s.density = 0;
+		self->shared.s.density = 0;
 	}
 }
 
@@ -993,10 +981,10 @@ void props_me109_think( gentity_t *self ) {
 		player = AICast_FindEntityForName( "player" );
 
 		if ( player ) {
-			in_PVS = SV_inPVS( player->r.currentOrigin, self->s.pos.trBase );
+			in_PVS = SV_inPVS( player->shared.r.currentOrigin, self->shared.s.pos.trBase );
 
 			if ( in_PVS ) {
-				self->melee->s.eType = ET_GENERAL;
+				self->melee->shared.s.eType = ET_GENERAL;
 
 				{
 					float len;
@@ -1005,8 +993,8 @@ void props_me109_think( gentity_t *self ) {
 					vec3_t dir;
 					vec3_t point;
 
-					VectorCopy( player->r.currentOrigin, point );
-					VectorSubtract( player->r.currentOrigin, self->r.currentOrigin, vec );
+					VectorCopy( player->shared.r.currentOrigin, point );
+					VectorSubtract( player->shared.r.currentOrigin, self->shared.r.currentOrigin, vec );
 					len = VectorLength( vec );
 					vectoangles( vec, dir );
 					AngleVectors( dir, forward, NULL, NULL );
@@ -1016,7 +1004,7 @@ void props_me109_think( gentity_t *self ) {
 				}
 			} else
 			{
-				self->melee->s.eType = ET_GENERAL;
+				self->melee->shared.s.eType = ET_GENERAL;
 			}
 
 			SV_LinkEntity( self->melee );
@@ -1031,15 +1019,15 @@ void props_me109_think( gentity_t *self ) {
 		gentity_t *tent;
 		vec3_t point;
 
-		VectorCopy( self->r.currentOrigin, point );
+		VectorCopy( self->shared.r.currentOrigin, point );
 		tent = G_TempEntity( point, EV_SMOKE );
-		VectorCopy( point, tent->s.origin );
-		tent->s.time = 2000;
-		tent->s.time2 = 1000;
-		tent->s.density = 4;
-		tent->s.angles2[0] = 16;
-		tent->s.angles2[1] = 48;
-		tent->s.angles2[2] = 10;
+		VectorCopy( point, tent->shared.s.origin );
+		tent->shared.s.time = 2000;
+		tent->shared.s.time2 = 1000;
+		tent->shared.s.density = 4;
+		tent->shared.s.angles2[0] = 16;
+		tent->shared.s.angles2[1] = 48;
+		tent->shared.s.angles2[2] = 10;
 
 		self->props_frame_state = plane_choke;
 		self->health--;
@@ -1049,20 +1037,20 @@ void props_me109_think( gentity_t *self ) {
 		self->nextthink = level.time + 50;
 
 		if ( self->props_frame_state == plane_choke ) {
-			self->melee->s.loopSound = self->melee->noise_index = fpchoke_snd;
+			self->melee->shared.s.loopSound = self->melee->noise_index = fpchoke_snd;
 		} else if ( self->props_frame_state == plane_startup )     {
-			self->melee->s.loopSound = self->melee->noise_index = fpstartup_snd;
+			self->melee->shared.s.loopSound = self->melee->noise_index = fpstartup_snd;
 		} else if ( self->props_frame_state == plane_idle )     {
-			self->melee->s.loopSound = self->melee->noise_index = fpidle_snd;
+			self->melee->shared.s.loopSound = self->melee->noise_index = fpidle_snd;
 		} else if ( self->props_frame_state == plane_flyby1 )     {
-			self->melee->s.loopSound = self->melee->noise_index = fpflyby1_snd;
+			self->melee->shared.s.loopSound = self->melee->noise_index = fpflyby1_snd;
 		} else if ( self->props_frame_state == plane_flyby2 )     {
-			self->melee->s.loopSound = self->melee->noise_index = fpflyby2_snd;
+			self->melee->shared.s.loopSound = self->melee->noise_index = fpflyby2_snd;
 		}
 	} else
 	{
 		propExplosionLarge( self );
-		self->melee->s.loopSound = self->melee->noise_index = 0;
+		self->melee->shared.s.loopSound = self->melee->noise_index = 0;
 
 		ExplodePlaneSndFx( self );
 		G_FreeEntity( self->melee );
@@ -1079,7 +1067,7 @@ void Think_SetupAirplaneWaypoints( gentity_t *ent ) {
 	ent->nextTrain = G_Find( NULL, FOFS( targetname ), ent->target );
 	if ( !ent->nextTrain ) {
 		Com_Printf( "plane at %s with an unfound target\n",
-				  vtos( ent->r.absmin ) );
+				  vtos( ent->shared.r.absmin ) );
 		return;
 	}
 
@@ -1091,7 +1079,7 @@ void Think_SetupAirplaneWaypoints( gentity_t *ent ) {
 
 		if ( !path->target ) {
 			Com_Printf( "plane at %s without a target\n",
-					  vtos( path->s.origin ) );
+					  vtos( path->shared.s.origin ) );
 			return;
 		}
 
@@ -1103,7 +1091,7 @@ void Think_SetupAirplaneWaypoints( gentity_t *ent ) {
 			next = G_Find( next, FOFS( targetname ), path->target );
 			if ( !next ) {
 				Com_Printf( "plane at %s without a target path_corner\n",
-						  vtos( path->s.origin ) );
+						  vtos( path->shared.s.origin ) );
 				return;
 			}
 		} while ( strcmp( next->classname, "plane_waypoint" ) );
@@ -1112,9 +1100,9 @@ void Think_SetupAirplaneWaypoints( gentity_t *ent ) {
 	}
 
 	if ( ent->spawnflags & 2 ) { // Toggle
-		VectorCopy( ent->nextTrain->s.origin, ent->s.pos.trBase );
-		VectorCopy( ent->nextTrain->s.origin, ent->r.currentOrigin );
-		SV_LinkEntity( ent );
+		VectorCopy( ent->nextTrain->shared.s.origin, ent->shared.s.pos.trBase );
+		VectorCopy( ent->nextTrain->shared.s.origin, ent->shared.r.currentOrigin );
+		SV_LinkEntity( &ent->shared );
 	} else {
 		Reached_Tramcar( ent );
 	}
@@ -1124,7 +1112,7 @@ void Think_SetupAirplaneWaypoints( gentity_t *ent ) {
 void PlaneUse( gentity_t *ent, gentity_t *other, gentity_t *activator ) {
 	gentity_t       *next;
 
-	if ( level.time >= ent->s.pos.trTime + ent->s.pos.trDuration ) {
+	if ( level.time >= ent->shared.s.pos.trTime + ent->shared.s.pos.trDuration ) {
 
 		next = ent->nextTrain;
 
@@ -1149,16 +1137,16 @@ void InitPlaneSpeaker( gentity_t *ent ) {
 
 	snd->noise_index = fploop_snd;
 
-	snd->s.eType = ET_SPEAKER;
-	snd->s.eventParm = snd->noise_index;
-	snd->s.frame = 0;
-	snd->s.clientNum = 0;
+	snd->shared.s.eType = ET_SPEAKER;
+	snd->shared.s.eventParm = snd->noise_index;
+	snd->shared.s.frame = 0;
+	snd->shared.s.clientNum = 0;
 
-	snd->s.loopSound = snd->noise_index;
+	snd->shared.s.loopSound = snd->noise_index;
 
-	snd->r.svFlags |= SVF_BROADCAST;
+	snd->shared.r.svFlags |= SVF_BROADCAST;
 
-	VectorCopy( ent->s.origin, snd->s.pos.trBase );
+	VectorCopy( ent->shared.s.origin, snd->shared.s.pos.trBase );
 
 	ent->melee = snd;
 
@@ -1168,17 +1156,17 @@ void InitPlaneSpeaker( gentity_t *ent ) {
 
 void SP_props_me109( gentity_t *ent ) {
 
-	VectorSet( ent->r.mins, -128, -128, -128 );
-	VectorSet( ent->r.maxs, 128, 128, 128 );
+	VectorSet( ent->shared.r.mins, -128, -128, -128 );
+	VectorSet( ent->shared.r.maxs, 128, 128, 128 );
 
 	ent->clipmask   = CONTENTS_SOLID;
-	ent->r.contents = CONTENTS_SOLID;
-	ent->r.svFlags  = SVF_USE_CURRENT_ORIGIN;
-	ent->s.eType = ET_MOVER;
+	ent->shared.r.contents = CONTENTS_SOLID;
+	ent->shared.r.svFlags  = SVF_USE_CURRENT_ORIGIN;
+	ent->shared.s.eType = ET_MOVER;
 
 	ent->isProp = qtrue;
 
-	ent->s.modelindex = G_ModelIndex( "models/mapobjects/vehicles/m109.md3" );
+	ent->shared.s.modelindex = G_ModelIndex( "models/mapobjects/vehicles/m109.md3" );
 
 	if ( !ent->health ) {
 		ent->health = 500;
@@ -1201,14 +1189,14 @@ void SP_props_me109( gentity_t *ent ) {
 		ent->speed = 1000;
 	}
 
-	G_SetOrigin( ent, ent->s.origin );
-	G_SetAngle( ent, ent->s.angles );
+	G_SetOrigin( ent, ent->shared.s.origin );
+	G_SetAngle( ent, ent->shared.s.angles );
 
 	if ( ent->spawnflags & 4 ) {
-		ent->s.density = 7;
+		ent->shared.s.density = 7;
 	}
 
-	SV_LinkEntity( ent );
+	SV_LinkEntity( &ent->shared );
 
 	fploop_snd = G_SoundIndex( "sound/fighterplane/fploop.wav" );
 	fpchoke_snd = G_SoundIndex( "sound/fighterplane/fpchoke.wav" );
@@ -1261,15 +1249,15 @@ void truck_cam_touch( gentity_t *self, gentity_t *other, trace_t *trace ) {
 		SV_UnlinkEntity( other );
 
 		// VectorCopy ( self->r.currentOrigin, other->client->ps.origin );
-		VectorCopy( self->r.currentOrigin, point );
+		VectorCopy( self->shared.r.currentOrigin, point );
 		point[2] = other->client->ps.origin[2];
 		VectorCopy( point, other->client->ps.origin );
 
 		// save results of pmove
-		BG_PlayerStateToEntityState( &other->client->ps, &other->s, qtrue );
+		BG_PlayerStateToEntityState( &other->client->ps, &other->shared.s, qtrue );
 
 		// use the precise origin for linking
-		VectorCopy( other->client->ps.origin, other->r.currentOrigin );
+		VectorCopy( other->client->ps.origin, other->shared.r.currentOrigin );
 
 		other->client->ps.persistant[PERS_HWEAPON_USE] = 1;
 
@@ -1285,14 +1273,14 @@ void truck_cam_think( gentity_t *ent ) {
 void SP_truck_cam( gentity_t *self ) {
 	int mass;
 
-	VectorClear( self->s.angles );
+	VectorClear( self->shared.s.angles );
 
 	if ( !self->speed ) {
 		self->speed = 100;
 	}
 
 	if ( !self->target ) {
-		Com_Printf( "truck_cam without a target at %s\n", vtos( self->r.absmin ) );
+		Com_Printf( "truck_cam without a target at %s\n", vtos( self->shared.r.absmin ) );
 		G_FreeEntity( self );
 		return;
 	}
@@ -1313,7 +1301,7 @@ void SP_truck_cam( gentity_t *self ) {
 
 	self->touch = truck_cam_touch;
 
-	self->s.loopSound = 0;
+	self->shared.s.loopSound = 0;
 	self->props_frame_state = 0;
 
 	self->clipmask = CONTENTS_SOLID;
@@ -1323,7 +1311,7 @@ void SP_truck_cam( gentity_t *self ) {
 
 	self->reached = Reached_Tramcar;
 
-	self->s.density = 6;
+	self->shared.s.density = 6;
 
 	//start_drive_grind_gears
 	truck_sound = G_SoundIndex( "sound/vehicles/start_drive_grind_gears_01_11k.wav" );
@@ -1360,15 +1348,15 @@ void Init_Camera( gentity_t *ent ) {
 	float distance;
 
 	ent->moverState = MOVER_POS1;
-	ent->r.svFlags = SVF_USE_CURRENT_ORIGIN;
-	ent->s.eType = ET_MOVER;
+	ent->shared.r.svFlags = SVF_USE_CURRENT_ORIGIN;
+	ent->shared.s.eType = ET_MOVER;
 
-	VectorCopy( ent->pos1, ent->r.currentOrigin );
+	VectorCopy( ent->pos1, ent->shared.r.currentOrigin );
 
-	SV_LinkEntity( ent );
+	SV_LinkEntity( &ent->shared );
 
-	ent->s.pos.trType = TR_STATIONARY;
-	VectorCopy( ent->pos1, ent->s.pos.trBase );
+	ent->shared.s.pos.trType = TR_STATIONARY;
+	VectorCopy( ent->pos1, ent->shared.s.pos.trBase );
 
 	// calculate time to reach second position from speed
 	VectorSubtract( ent->pos2, ent->pos1, move );
@@ -1376,10 +1364,10 @@ void Init_Camera( gentity_t *ent ) {
 	if ( !ent->speed ) {
 		ent->speed = 100;
 	}
-	VectorScale( move, ent->speed, ent->s.pos.trDelta );
-	ent->s.pos.trDuration = distance * 1000 / ent->speed;
-	if ( ent->s.pos.trDuration <= 0 ) {
-		ent->s.pos.trDuration = 1;
+	VectorScale( move, ent->speed, ent->shared.s.pos.trDelta );
+	ent->shared.s.pos.trDuration = distance * 1000 / ent->speed;
+	if ( ent->shared.s.pos.trDuration <= 0 ) {
+		ent->shared.s.pos.trDuration = 1;
 	}
 }
 
@@ -1398,15 +1386,15 @@ void camera_cam_think( gentity_t *ent ) {
 		SV_UnlinkEntity( player );
 
 		// VectorCopy ( self->r.currentOrigin, other->client->ps.origin );
-		VectorCopy( ent->r.currentOrigin, point );
+		VectorCopy( ent->shared.r.currentOrigin, point );
 		point[2] = player->client->ps.origin[2];
 		VectorCopy( point, player->client->ps.origin );
 
 		// save results of pmove
-		BG_PlayerStateToEntityState( &player->client->ps, &player->s, qtrue );
+		BG_PlayerStateToEntityState( &player->client->ps, &player->shared.s, qtrue );
 
 		// use the precise origin for linking
-		VectorCopy( player->client->ps.origin, player->r.currentOrigin );
+		VectorCopy( player->client->ps.origin, player->shared.r.currentOrigin );
 
 		// tracking
 		{
@@ -1419,14 +1407,14 @@ void camera_cam_think( gentity_t *ent ) {
 			}
 
 			if ( target ) {
-				VectorSubtract( target->r.currentOrigin, ent->r.currentOrigin, vec );
+				VectorSubtract( target->shared.r.currentOrigin, ent->shared.r.currentOrigin, vec );
 				vectoangles( vec, dang );
 				SetClientViewAngle( player, dang );
 
-				VectorCopy( ent->r.currentOrigin, ent->s.pos.trBase );
-				VectorCopy( dang, ent->s.apos.trBase );
+				VectorCopy( ent->shared.r.currentOrigin, ent->shared.s.pos.trBase );
+				VectorCopy( dang, ent->shared.s.apos.trBase );
 
-				SV_LinkEntity( ent );
+				SV_LinkEntity( &ent->shared );
 			}
 		}
 
@@ -1452,7 +1440,7 @@ void camera_cam_use( gentity_t *ent, gentity_t *other, gentity_t *activator ) {
 		{
 			player->client->ps.persistant[PERS_HWEAPON_USE] = 1;
 			player->client->ps.viewlocked = 4;
-			player->client->ps.viewlocked_entNum = ent->s.number;
+			player->client->ps.viewlocked_entNum = ent->shared.s.number;
 		}
 	} else
 	{
@@ -1477,7 +1465,7 @@ void camera_cam_firstthink( gentity_t *ent ) {
 	}
 
 	if ( target ) {
-		VectorSubtract( target->s.origin, ent->r.currentOrigin, vec );
+		VectorSubtract( target->shared.s.origin, ent->shared.r.currentOrigin, vec );
 		vectoangles( vec, dang );
 		G_SetAngle( ent, dang );
 	}
@@ -1491,11 +1479,11 @@ void camera_cam_firstthink( gentity_t *ent ) {
 void SP_camera_cam( gentity_t *ent ) {
 	Init_Camera( ent );
 
-	ent->r.svFlags  = SVF_USE_CURRENT_ORIGIN;
-	ent->s.eType = ET_MOVER;
+	ent->shared.r.svFlags  = SVF_USE_CURRENT_ORIGIN;
+	ent->shared.s.eType = ET_MOVER;
 
-	G_SetOrigin( ent, ent->s.origin );
-	G_SetAngle( ent, ent->s.angles );
+	G_SetOrigin( ent, ent->shared.s.origin );
+	G_SetAngle( ent, ent->shared.s.angles );
 
 	ent->reached = Reached_Tramcar;
 
@@ -1565,8 +1553,8 @@ void mark_players_pos( gentity_t *ent, gentity_t *other, trace_t *trace ) {
 	player = AICast_FindEntityForName( "player" );
 
 	if ( player == other ) {
-		VectorCopy( player->r.currentOrigin, ent->s.origin2 );
-		VectorCopy( player->r.currentAngles, ent->s.angles2 );
+		VectorCopy( player->shared.r.currentOrigin, ent->shared.s.origin2 );
+		VectorCopy( player->shared.r.currentAngles, ent->shared.s.angles2 );
 
 		G_UseTargets( ent, NULL );
 	}
@@ -1585,15 +1573,15 @@ void reset_players_pos( gentity_t *ent, gentity_t *other, gentity_t *activator )
 
 	SV_UnlinkEntity( player );
 
-	VectorCopy( ent->s.origin2, player->client->ps.origin );
+	VectorCopy( ent->shared.s.origin2, player->client->ps.origin );
 
 	// save results of pmove
-	BG_PlayerStateToEntityState( &player->client->ps, &player->s, qtrue );
+	BG_PlayerStateToEntityState( &player->client->ps, &player->shared.s, qtrue );
 
 	// use the precise origin for linking
-	VectorCopy( player->client->ps.origin, player->r.currentOrigin );
+	VectorCopy( player->client->ps.origin, player->shared.r.currentOrigin );
 
-	SetClientViewAngle( player, ent->s.angles2 );
+	SetClientViewAngle( player, ent->shared.s.angles2 );
 
 	player->client->ps.persistant[PERS_HWEAPON_USE] = 0;
 	player->client->ps.viewlocked = 0;
@@ -1608,10 +1596,10 @@ extern void InitTrigger( gentity_t *self );
 void SP_camera_reset_player( gentity_t *ent ) {
 	InitTrigger( ent );
 
-	ent->r.contents = CONTENTS_TRIGGER;
+	ent->shared.r.contents = CONTENTS_TRIGGER;
 
 	ent->touch = mark_players_pos;
 	ent->use = reset_players_pos;
 
-	SV_LinkEntity( ent );
+	SV_LinkEntity( &ent->shared );
 }

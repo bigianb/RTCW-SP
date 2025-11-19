@@ -108,8 +108,8 @@ char *AIFunc_Helga_SpiritAttack( cast_state_t *cs ) {
 		ent->client->ps.eFlags |= EF_MONSTER_EFFECT;
 
 		// inform the client of our enemies position
-		VectorCopy( g_entities[cs->enemyNum].client->ps.origin, ent->s.origin2 );
-		ent->s.origin2[2] += g_entities[cs->enemyNum].client->ps.viewheight;
+		VectorCopy( g_entities[cs->enemyNum].client->ps.origin, ent->shared.s.origin2 );
+		ent->shared.s.origin2[2] += g_entities[cs->enemyNum].client->ps.viewheight;
 	}
 	//
 	//
@@ -120,8 +120,8 @@ char *AIFunc_Helga_SpiritAttack_Start( cast_state_t *cs ) {
 	gentity_t *ent;
 	//
 	ent = &g_entities[cs->entityNum];
-	ent->s.otherEntityNum2 = cs->enemyNum;
-	ent->s.effect1Time = level.time;
+	ent->shared.s.otherEntityNum2 = cs->enemyNum;
+	ent->shared.s.effect1Time = level.time;
 	cs->aiFlags |= AIFL_SPECIAL_FUNC;
 	//
 	// dont turn
@@ -212,11 +212,11 @@ char *AIFunc_Helga_Melee( cast_state_t *cs ) {
 		// check for inflicting damage
 		if ( level.time - cs->weaponFireTimes[cs->weaponNum] > hitDelay ) {
 			// do melee damage
-			enemyDist = VectorDistance( enemy->r.currentOrigin, ent->r.currentOrigin );
-			enemyDist -= g_entities[cs->enemyNum].r.maxs[0];
-			enemyDist -= ent->r.maxs[0];
+			enemyDist = VectorDistance( enemy->shared.r.currentOrigin, ent->shared.r.currentOrigin );
+			enemyDist -= g_entities[cs->enemyNum].shared.r.maxs[0];
+			enemyDist -= ent->shared.r.maxs[0];
 			if ( enemyDist < 10 + AICast_WeaponRange( cs, cs->weaponNum ) ) {
-                SV_Trace( &tr, ent->r.currentOrigin, NULL, NULL, enemy->r.currentOrigin, ent->s.number, MASK_SHOT, qfalse );
+                SV_Trace( &tr, ent->shared.r.currentOrigin, NULL, NULL, enemy->shared.r.currentOrigin, ent->shared.s.number, MASK_SHOT, qfalse );
 				if ( tr.entityNum == cs->enemyNum ) {
 					G_Damage( &g_entities[tr.entityNum], ent, ent, vec3_origin, tr.endpos,
 							  helgaHitDamage[anim], 0, MOD_GAUNTLET );
@@ -233,8 +233,8 @@ char *AIFunc_Helga_Melee( cast_state_t *cs ) {
 	VectorSubtract( move.endpos, cs->bs->origin, vec );
 	vec[2] = 0;
 	enemyDist = VectorLength( vec );
-	enemyDist -= g_entities[cs->enemyNum].r.maxs[0];
-	enemyDist -= ent->r.maxs[0];
+	enemyDist -= g_entities[cs->enemyNum].shared.r.maxs[0];
+	enemyDist -= ent->shared.r.maxs[0];
 	if ( enemyDist > 8 ) {    // we can get closer
 		//if (!ent->client->ps.legsTimer) {
 		//	cs->castScriptStatus.scriptNoMoveTime = 0;
@@ -255,7 +255,7 @@ char *AIFunc_Helga_MeleeStart( cast_state_t *cs ) {
 	gentity_t *ent;
 
 	ent = &g_entities[cs->entityNum];
-	ent->s.effect1Time = level.time;
+	ent->shared.s.effect1Time = level.time;
 	cs->ideal_viewangles[YAW] = cs->viewangles[YAW];
 	cs->weaponFireTimes[cs->weaponNum] = level.time;
 	cs->animHitCount = 0;
@@ -290,7 +290,7 @@ char *AIFunc_FlameZombie_Portal( cast_state_t *cs ) {
 	if ( cs->thinkFuncChangeTime < level.time - PORTAL_ZOMBIE_SPAWNTIME ) {
 		// HACK, make them aware of the player
 		AICast_UpdateVisibility( &g_entities[cs->entityNum], AICast_FindEntityForName( "player" ), qfalse, qtrue );
-		ent->s.time2 = 0;   // turn spawning effect off
+		ent->shared.s.time2 = 0;   // turn spawning effect off
 		return AIFunc_DefaultStart( cs );
 	}
 	//
@@ -305,7 +305,7 @@ AIFunc_FlameZombie_PortalStart
 char *AIFunc_FlameZombie_PortalStart( cast_state_t *cs ) {
 	gentity_t *ent = &g_entities[cs->entityNum];
 	//
-	ent->s.time2 = level.time + 200;    // hijacking this for portal spawning effect
+	ent->shared.s.time2 = level.time + 200;    // hijacking this for portal spawning effect
 	//
 	// play a special animation
 	ent->client->ps.torsoAnim =
@@ -446,8 +446,8 @@ char *AIFunc_Heinrich_SwordLunge( cast_state_t *cs ) {
 	VectorSubtract( move.endpos, cs->bs->origin, vec );
 	vec[2] = 0;
 	enemyDist = VectorLength( vec );
-	enemyDist -= g_entities[cs->enemyNum].r.maxs[0];
-	enemyDist -= ent->r.maxs[0];
+	enemyDist -= g_entities[cs->enemyNum].shared.r.maxs[0];
+	enemyDist -= ent->shared.r.maxs[0];
 	if ( enemyDist > 30 ) {   // we can get closer
 		if ( ent->client->ps.legsTimer ) {
 			cs->castScriptStatus.scriptNoMoveTime = level.time + 100;
@@ -632,8 +632,8 @@ char *AIFunc_Heinrich_SwordSideSlash( cast_state_t *cs ) {
 	VectorSubtract( move.endpos, cs->bs->origin, vec );
 	vec[2] = 0;
 	enemyDist = VectorLength( vec );
-	enemyDist -= g_entities[cs->enemyNum].r.maxs[0];
-	enemyDist -= ent->r.maxs[0];
+	enemyDist -= g_entities[cs->enemyNum].shared.r.maxs[0];
+	enemyDist -= ent->shared.r.maxs[0];
 	if ( enemyDist > 30 ) {   // we can get closer
 		if ( ent->client->ps.legsTimer ) {
 			cs->castScriptStatus.scriptNoMoveTime = level.time + 100;
@@ -691,8 +691,8 @@ char *AIFunc_Heinrich_Earthquake( cast_state_t *cs ) {
 	enemy = &g_entities[cs->enemyNum];
 	ecs = AICast_GetCastState( cs->enemyNum );
 
-	VectorMA( enemy->r.currentOrigin, HEINRICH_STOMP_DELAY, enemy->client->ps.velocity, enemyVec );
-	enemyDist = VectorDistance( ent->r.currentOrigin, enemyVec );
+	VectorMA( enemy->shared.r.currentOrigin, HEINRICH_STOMP_DELAY, enemy->client->ps.velocity, enemyVec );
+	enemyDist = VectorDistance( ent->shared.r.currentOrigin, enemyVec );
 
 	if ( ent->client->ps.torsoTimer < 500 ) {
 		int rnd;
@@ -703,8 +703,8 @@ char *AIFunc_Heinrich_Earthquake( cast_state_t *cs ) {
 		VectorSubtract( move.endpos, cs->bs->origin, vec );
 		vec[2] = 0;
 		enemyDist = VectorLength( vec );
-		enemyDist -= g_entities[cs->enemyNum].r.maxs[0];
-		enemyDist -= ent->r.maxs[0];
+		enemyDist -= g_entities[cs->enemyNum].shared.r.maxs[0];
+		enemyDist -= ent->shared.r.maxs[0];
 		//
 		if ( enemyDist < 140 ) {
 			// combo attack
@@ -746,17 +746,17 @@ char *AIFunc_Heinrich_Earthquake( cast_state_t *cs ) {
 		}
 	}
 
-	enemyDist = Distance( enemy->s.pos.trBase, ent->s.pos.trBase );
+	enemyDist = Distance( enemy->shared.s.pos.trBase, ent->shared.s.pos.trBase );
 
 	// do the earthquake effects
 	if ( cs->thinkFuncChangeTime < level.time - HEINRICH_STOMP_DELAY ) {
 		// throw the player into the air, if they are on the ground
-		if ( ( enemy->s.groundEntityNum != ENTITYNUM_NONE ) && enemyDist < HEINRICH_STOMP_RANGE ) {
+		if ( ( enemy->shared.s.groundEntityNum != ENTITYNUM_NONE ) && enemyDist < HEINRICH_STOMP_RANGE ) {
 			scale = 0.5 + 0.5 * ( (float)ent->client->ps.torsoTimer / 1000.0 );
 			if ( scale > 1.0 ) {
 				scale = 1.0;
 			}
-			VectorSubtract( ent->s.pos.trBase, enemy->s.pos.trBase, enemyVec );
+			VectorSubtract( ent->shared.s.pos.trBase, enemy->shared.s.pos.trBase, enemyVec );
 			VectorScale( enemyVec, 2.0 * ( 0.6 + 0.5 * random() ) * scale * ( 0.6 + 0.6 * ( 1.0 - ( enemyDist / HEINRICH_STOMP_RANGE ) ) ), enemyVec );
 			enemyVec[2] = scale * HEINRICH_STOMP_VELOCITY_Z * ( 1.0 - 0.5 * ( enemyDist / HEINRICH_STOMP_RANGE ) );
 			// bounce the player using this velocity
@@ -784,9 +784,9 @@ char *AIFunc_Heinrich_MeleeStart( cast_state_t *cs ) {
 	// clear flags
 	cs->aiFlags &= ~( AIFL_MISCFLAG1 | AIFL_MISCFLAG2 );
 	// decide which attack to use
-	if ( VectorDistance( ent->r.currentOrigin, enemy->r.currentOrigin ) < 60 ) {
+	if ( VectorDistance( ent->shared.r.currentOrigin, enemy->shared.r.currentOrigin ) < 60 ) {
 		rnd = 0;    // sword slash up close
-	} else if ( VectorDistance( ent->r.currentOrigin, enemy->r.currentOrigin ) >= HEINRICH_SLASH_RANGE ) {
+	} else if ( VectorDistance( ent->shared.r.currentOrigin, enemy->shared.r.currentOrigin ) >= HEINRICH_SLASH_RANGE ) {
 		rnd = 1;    // too far away, stomp
 	} else {
 		// pick at random
@@ -865,7 +865,7 @@ char *AIFunc_Heinrich_RaiseDead( cast_state_t *cs ) {
 			if ( trav->aiCharacter != AICHAR_WARZOMBIE ) {
 				continue;
 			}
-			dist = VectorDistance( trav->s.pos.trBase, enemy->r.currentOrigin );
+			dist = VectorDistance( trav->shared.s.pos.trBase, enemy->shared.r.currentOrigin );
 			if ( !closest || dist < closestDist ) {
 				closest = trav;
 				closestDist = dist;
@@ -941,7 +941,7 @@ char *AIFunc_Heinrich_RaiseDeadStart( cast_state_t *cs ) {
 			circleDist = trav->radius;
 			trav = G_Find( NULL, FOFS( targetname ), trav->target );
 			if ( trav ) {
-				if ( VectorDistance( g_entities[0].s.pos.trBase, trav->s.origin ) > circleDist ) {
+				if ( VectorDistance( g_entities[0].shared.s.pos.trBase, trav->shared.s.origin ) > circleDist ) {
 					cs->aiFlags &= ~AIFL_MISCFLAG1;
 					ent->count2 = 0;
 					cs->aiFlags |= AIFL_SPECIAL_FUNC;
@@ -983,7 +983,7 @@ char *AIFunc_Heinrich_SpawnSpiritsStart( cast_state_t *cs ) {
 			circleDist = trav->radius;
 			trav = G_Find( NULL, FOFS( targetname ), trav->target );
 			if ( trav ) {
-				if ( VectorDistance( g_entities[0].s.pos.trBase, trav->s.origin ) > circleDist ) {
+				if ( VectorDistance( g_entities[0].shared.s.pos.trBase, trav->shared.s.origin ) > circleDist ) {
 					cs->aiFlags &= ~AIFL_MISCFLAG1;
 					ent->count2 = 0;
 					cs->aiFlags |= AIFL_SPECIAL_FUNC;

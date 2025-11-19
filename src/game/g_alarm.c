@@ -40,9 +40,9 @@ void alarmExplosion( gentity_t *ent ) {
 	// death sound
 	G_AddEvent( ent, EV_GENERAL_SOUND, ent->sound1to2 );
 
-	G_AddEvent( ent, EV_ENTDEATH, ent->s.eType );
+	G_AddEvent( ent, EV_ENTDEATH, ent->shared.s.eType );
 
-	G_RadiusDamage( ent->s.origin, ent, ent->damage, ent->damage, ent, MOD_EXPLOSIVE );
+	G_RadiusDamage( ent->shared.s.origin, ent, ent->damage, ent->damage, ent, MOD_EXPLOSIVE );
 }
 
 
@@ -53,7 +53,7 @@ alarmbox_updateparts
 */
 void alarmbox_updateparts( gentity_t *ent, qboolean matestoo ) {
 	gentity_t   *t, *mate;
-	qboolean alarming = ( ent->s.frame == 1 );
+	qboolean alarming = ( ent->shared.s.frame == 1 );
 
 	// update teammates
 	if ( matestoo ) {
@@ -68,9 +68,9 @@ void alarmbox_updateparts( gentity_t *ent, qboolean matestoo ) {
 			}
 
 			if ( !( ent->active ) ) { // destroyed, so just turn teammates off
-				mate->s.frame = 0;
+				mate->shared.s.frame = 0;
 			} else {
-				mate->s.frame = ent->s.frame;
+				mate->shared.s.frame = ent->shared.s.frame;
 			}
 
 			alarmbox_updateparts( mate, qfalse );
@@ -92,15 +92,15 @@ void alarmbox_updateparts( gentity_t *ent, qboolean matestoo ) {
 			// give the dlight the sound
 			if ( !Q_stricmp( t->classname, "dlight" ) ) {
 				t->soundLoop = ent->soundLoop;
-				t->r.svFlags |= SVF_BROADCAST;  // no pvs
+				t->shared.r.svFlags |= SVF_BROADCAST;  // no pvs
 
 				if ( alarming ) {
-					if ( !( t->r.linked ) ) {
+					if ( !( t->shared.r.linked ) ) {
 						t->use( t, ent, 0 );
 					}
 				} else
 				{
-					if ( t->r.linked ) {
+					if ( t->shared.r.linked ) {
 						t->use( t, ent, 0 );
 					}
 				}
@@ -126,10 +126,10 @@ void alarmbox_use( gentity_t *ent, gentity_t *other, gentity_t *foo ) {
 		return;
 	}
 
-	if ( ent->s.frame ) {
-		ent->s.frame = 0;
+	if ( ent->shared.s.frame ) {
+		ent->shared.s.frame = 0;
 	} else {
-		ent->s.frame = 1;
+		ent->shared.s.frame = 1;
 	}
 
 	alarmbox_updateparts( ent, qtrue );
@@ -149,7 +149,7 @@ void alarmbox_die( gentity_t *ent, gentity_t *inflictor, gentity_t *attacker, in
 	gentity_t *t;
 
 	alarmExplosion( ent );
-	ent->s.frame    = 2;
+	ent->shared.s.frame    = 2;
 	ent->active     = qfalse;
 	ent->takedamage = qfalse;
 	alarmbox_updateparts( ent, qtrue );
@@ -216,7 +216,7 @@ void SP_alarm_box( gentity_t *ent ) {
 
 	// model
 	SV_SetBrushModel( ent, ent->model );
-	ent->s.modelindex2 = G_ModelIndex( "models/mapobjects/electronics/alarmbox.md3" );
+	ent->shared.s.modelindex2 = G_ModelIndex( "models/mapobjects/electronics/alarmbox.md3" );
 
 	// sound
 	if ( G_SpawnString( "noise", "0", &s ) ) {
@@ -230,28 +230,28 @@ void SP_alarm_box( gentity_t *ent ) {
 	ent->sound1to2 = G_SoundIndex( "sound/world/alarmdeath.wav" );
 
 
-	G_SetOrigin( ent, ent->s.origin );
-	G_SetAngle( ent, ent->s.angles );
+	G_SetOrigin( ent, ent->shared.s.origin );
+	G_SetAngle( ent, ent->shared.s.angles );
 
 	if ( !ent->health ) {
 		ent->health = 10;
 	}
 
 	if ( ent->spawnflags & 1 ) {
-		ent->s.frame = 1;
+		ent->shared.s.frame = 1;
 	} else {
-		ent->s.frame = 0;
+		ent->shared.s.frame = 0;
 	}
 
 	ent->active     = qtrue;
-	ent->s.eType    = ET_ALARMBOX;
+	ent->shared.s.eType    = ET_ALARMBOX;
 	ent->takedamage = qtrue;
 	ent->die        = alarmbox_die;
 	ent->use        = alarmbox_use;
 	ent->think      = alarmbox_finishspawning;
 	ent->nextthink  = level.time + FRAMETIME;
 
-	SV_LinkEntity( ent );
+	SV_LinkEntity( &ent->shared );
 }
 
 

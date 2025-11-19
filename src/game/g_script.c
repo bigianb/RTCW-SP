@@ -392,7 +392,7 @@ void G_Script_ScriptParse( gentity_t *ent ) {
 									!Q_stricmp( action->actionString, "startcamblack" ) )
 								) {
 							if ( strlen( token ) ) { // we know there's a [0], but don't know if it's '0'
-								SV_GameSendServerCommand( ent->s.number, va( "addToBuild %s\n", token ) );
+								SV_GameSendServerCommand( ent->shared.s.number, va( "addToBuild %s\n", token ) );
 							}
 						}
 					}
@@ -601,10 +601,10 @@ qboolean G_Script_ScriptRun( gentity_t *ent ) {
 void script_linkentity( gentity_t *ent ) {
 
 	// this is required since non-solid brushes need to be linked but not solid
-	SV_LinkEntity( ent );
+	SV_LinkEntity( &ent->shared );
 
-//	if ((ent->s.eType == ET_MOVER) && !(ent->spawnflags & 2)) {
-//		ent->s.solid = 0;
+//	if ((ent->shared.s.eType == ET_MOVER) && !(ent->spawnflags & 2)) {
+//		ent->shared.s.solid = 0;
 //	}
 }
 
@@ -637,19 +637,19 @@ void script_mover_pain( gentity_t *self, gentity_t *attacker, int damage, vec3_t
 void script_mover_spawn( gentity_t *ent ) {
 	if ( ent->spawnflags & 2 ) {
 		ent->clipmask = CONTENTS_SOLID;
-		ent->r.contents = CONTENTS_SOLID;
+		ent->shared.r.contents = CONTENTS_SOLID;
 	} else {
-		ent->s.eFlags |= EF_NONSOLID_BMODEL;
+		ent->shared.s.eFlags |= EF_NONSOLID_BMODEL;
 		ent->clipmask = 0;
-		ent->r.contents = 0;
+		ent->shared.r.contents = 0;
 	}
-	//ent->s.eType = ET_GENERAL;
+	//ent->shared.s.eType = ET_GENERAL;
 
-	//ent->s.modelindex = G_ModelIndex (ent->model);
-	//ent->s.frame = 0;
+	//ent->shared.s.modelindex = G_ModelIndex (ent->model);
+	//ent->shared.s.frame = 0;
 
-	//VectorCopy( ent->s.origin, ent->s.pos.trBase );
-	//ent->s.pos.trType = TR_STATIONARY;
+	//VectorCopy( ent->shared.s.origin, ent->shared.s.pos.trBase );
+	//ent->shared.s.pos.trType = TR_STATIONARY;
 
 	script_linkentity( ent );
 }
@@ -661,7 +661,7 @@ void script_mover_use( gentity_t *ent, gentity_t *other, gentity_t *activator ) 
 void script_mover_blocked( gentity_t *ent, gentity_t *other ) {
 	// remove it, we must not stop for anything or it will screw up script timing
 	if ( !other->client ) {
-		G_TempEntity( other->s.origin, EV_ITEM_POP );
+		G_TempEntity( other->shared.s.origin, EV_ITEM_POP );
 		G_FreeEntity( other );
 		return;
 	}
@@ -699,23 +699,23 @@ void SP_script_mover( gentity_t *ent ) {
 	ent->blocked = script_mover_blocked;
 
 	// first position at start
-	VectorCopy( ent->s.origin, ent->pos1 );
+	VectorCopy( ent->shared.s.origin, ent->pos1 );
 
-//	VectorCopy( ent->r.currentOrigin, ent->pos1 );
+//	VectorCopy( ent->shared.r.currentOrigin, ent->pos1 );
 	VectorCopy( ent->pos1, ent->pos2 ); // don't go anywhere just yet
 
-	SV_SetBrushModel( ent, ent->model );
+	SV_SetBrushModel( &ent->shared, ent->model );
 
 	InitMover( ent );
 	ent->reached = NULL;
 
 	if ( ent->spawnflags & 1 ) {
 		ent->use = script_mover_use;
-		SV_UnlinkEntity( ent ); // make sure it's not visible
+		SV_UnlinkEntity( &ent->shared ); // make sure it's not visible
 		return;
 	}
 
-	G_SetAngle( ent, ent->s.angles );
+	G_SetAngle( ent, ent->shared.s.angles );
 
 	G_SpawnInt( "health", "0", &ent->health );
 	if ( ent->health ) {
@@ -736,10 +736,10 @@ void SP_script_mover( gentity_t *ent ) {
 	}
 
 	if ( scale[0] != 1 || scale[1] != 1 || scale[2] != 1 ) {
-//		ent->s.eType		= ET_MOVERSCALED;
-		ent->s.density      = ET_MOVERSCALED;
+//		ent->shared.s.eType		= ET_MOVERSCALED;
+		ent->shared.s.density      = ET_MOVERSCALED;
 		// scale is stored in 'angles2'
-		VectorCopy( scale, ent->s.angles2 );
+		VectorCopy( scale, ent->shared.s.angles2 );
 	}
 
 	script_mover_spawn( ent );
@@ -750,21 +750,21 @@ void SP_script_mover( gentity_t *ent ) {
 void script_model_med_spawn( gentity_t *ent ) {
 	if ( ent->spawnflags & 2 ) {
 		ent->clipmask = CONTENTS_SOLID;
-		ent->r.contents = CONTENTS_SOLID;
+		ent->shared.r.contents = CONTENTS_SOLID;
 	}
-	ent->s.eType = ET_GENERAL;
+	ent->shared.s.eType = ET_GENERAL;
 
-	ent->s.modelindex = G_ModelIndex( ent->model );
-	ent->s.frame = 0;
+	ent->shared.s.modelindex = G_ModelIndex( ent->model );
+	ent->shared.s.frame = 0;
 
-	VectorCopy( ent->s.origin, ent->s.pos.trBase );
-	ent->s.pos.trType = TR_STATIONARY;
+	VectorCopy( ent->shared.s.origin, ent->shared.s.pos.trBase );
+	ent->shared.s.pos.trType = TR_STATIONARY;
 
-	SV_LinkEntity( ent );
+	SV_LinkEntity( &ent->shared );
 }
 
 void script_model_med_use( gentity_t *ent, gentity_t *other, gentity_t *activator ) {
-	script_model_med_spawn( ent );
+	script_model_med_spawn( &ent->shared );
 }
 
 /*QUAKED script_model_med (0.5 0.25 1.0) (-16 -16 -24) (16 16 64) TriggerSpawn Solid
@@ -782,16 +782,16 @@ void SP_script_model_med( gentity_t *ent ) {
 		Com_Error( ERR_DROP, "script_model_med must have a \"scriptname\"\n" );
 	}
 
-	ent->s.eType = ET_GENERAL;
-	ent->s.apos.trType = TR_STATIONARY;
-	ent->s.apos.trTime = 0;
-	ent->s.apos.trDuration = 0;
-	VectorCopy( ent->s.angles, ent->s.apos.trBase );
-	VectorClear( ent->s.apos.trDelta );
+	ent->shared.s.eType = ET_GENERAL;
+	ent->shared.s.apos.trType = TR_STATIONARY;
+	ent->shared.s.apos.trTime = 0;
+	ent->shared.s.apos.trDuration = 0;
+	VectorCopy( ent->shared.s.angles, ent->shared.s.apos.trBase );
+	VectorClear( ent->shared.s.apos.trDelta );
 
 	if ( ent->spawnflags & 1 ) {
 		ent->use = script_model_med_use;
-		SV_UnlinkEntity( ent ); // make sure it's not visible
+		SV_UnlinkEntity( &ent->shared ); // make sure it's not visible
 		return;
 	}
 
@@ -812,15 +812,15 @@ void SP_script_camera( gentity_t *ent ) {
 		Com_Error( ERR_DROP, "%s must have a \"scriptname\"\n", ent->classname );
 	}
 
-	ent->s.eType = ET_CAMERA;
-	ent->s.apos.trType = TR_STATIONARY;
-	ent->s.apos.trTime = 0;
-	ent->s.apos.trDuration = 0;
-	VectorCopy( ent->s.angles, ent->s.apos.trBase );
-	VectorClear( ent->s.apos.trDelta );
+	ent->shared.s.eType = ET_CAMERA;
+	ent->shared.s.apos.trType = TR_STATIONARY;
+	ent->shared.s.apos.trTime = 0;
+	ent->shared.s.apos.trDuration = 0;
+	VectorCopy( ent->shared.s.angles, ent->shared.s.apos.trBase );
+	VectorClear( ent->shared.s.apos.trDelta );
 
-	ent->s.frame = 0;
+	ent->shared.s.frame = 0;
 
-	ent->r.svFlags |= SVF_NOCLIENT;     // only broadcast when in use
+	ent->shared.r.svFlags |= SVF_NOCLIENT;     // only broadcast when in use
 }
 

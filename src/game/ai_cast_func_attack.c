@@ -72,15 +72,15 @@ char *AIFunc_ZombieFlameAttack( cast_state_t *cs ) {
 	ent = &g_entities[cs->entityNum];
 	bs = cs->bs;
 	//
-	ent->s.onFireEnd = level.time + 2000;
+	ent->shared.s.onFireEnd = level.time + 2000;
 	//
 	if ( ent->health < 0 ) {
-		ent->s.onFireEnd = 0;
+		ent->shared.s.onFireEnd = 0;
 		return AIFunc_DefaultStart( cs );
 	}
 	//
 	if ( cs->enemyNum < 0 ) {
-		ent->s.onFireEnd = level.time + 1500;
+		ent->shared.s.onFireEnd = level.time + 1500;
 		ent->client->ps.torsoTimer = 0;
 		ent->client->ps.legsTimer = 0;
 		return AIFunc_DefaultStart( cs );
@@ -88,7 +88,7 @@ char *AIFunc_ZombieFlameAttack( cast_state_t *cs ) {
 
 	// if outside range, move closer
 	if ( VectorDistance( cs->bs->origin, cs->vislist[cs->enemyNum].visible_pos ) > ZOMBIE_FLAME_RADIUS ) {
-		ent->s.onFireEnd = level.time + 1500;
+		ent->shared.s.onFireEnd = level.time + 1500;
 		ent->client->ps.torsoTimer = 0;
 		ent->client->ps.legsTimer = 0;
 		return AIFunc_DefaultStart( cs );
@@ -123,15 +123,15 @@ char *AIFunc_ZombieFlameAttackStart( cast_state_t *cs ) {
 	gentity_t *ent;
 	//
 	ent = &g_entities[cs->entityNum];
-	ent->s.otherEntityNum2 = cs->enemyNum;
-	ent->s.effect3Time = level.time;
+	ent->shared.s.otherEntityNum2 = cs->enemyNum;
+	ent->shared.s.effect3Time = level.time;
 	//
 	// dont turn
 	cs->ideal_viewangles[YAW] = cs->viewangles[YAW];
 	//cs->ideal_viewangles[PITCH] = -45;	// look upwards
 	// start the flame
-	ent->s.onFireStart = level.time;
-	ent->s.onFireEnd = level.time + ZOMBIE_FLAME_DURATION;
+	ent->shared.s.onFireStart = level.time;
+	ent->shared.s.onFireEnd = level.time + ZOMBIE_FLAME_DURATION;
 	//
 	// set the correct animation
 	BG_PlayAnimName( &ent->client->ps, "both_attack1", ANIM_BP_BOTH, qtrue, qfalse, qtrue );
@@ -206,8 +206,8 @@ char *AIFunc_ZombieAttack2( cast_state_t *cs ) {
 		ent->client->ps.eFlags |= EF_MONSTER_EFFECT;
 
 		// inform the client of our enemies position
-		VectorCopy( g_entities[cs->enemyNum].client->ps.origin, ent->s.origin2 );
-		ent->s.origin2[2] += g_entities[cs->enemyNum].client->ps.viewheight;
+		VectorCopy( g_entities[cs->enemyNum].client->ps.origin, ent->shared.s.origin2 );
+		ent->shared.s.origin2[2] += g_entities[cs->enemyNum].client->ps.viewheight;
 	}
 	//
 	//
@@ -224,8 +224,8 @@ char *AIFunc_ZombieAttack2Start( cast_state_t *cs ) {
 	lastZombieSpiritAttack = level.time;
 	//
 	ent = &g_entities[cs->entityNum];
-	ent->s.otherEntityNum2 = cs->enemyNum;
-	ent->s.effect1Time = level.time;
+	ent->shared.s.otherEntityNum2 = cs->enemyNum;
+	ent->shared.s.effect1Time = level.time;
 	//
 	// dont turn
 	cs->ideal_viewangles[YAW] = cs->viewangles[YAW];
@@ -309,8 +309,8 @@ char *AIFunc_ZombieMelee( cast_state_t *cs ) {
 			// if they are outside range, move forward
 			AICast_PredictMovement( ecs, 2, 0.5, &move, &g_entities[cs->enemyNum].client->pers.cmd, -1 );
 			enemyDist = Distance( move.endpos, cs->bs->origin );
-			enemyDist -= g_entities[cs->enemyNum].r.maxs[0];
-			enemyDist -= ent->r.maxs[0];
+			enemyDist -= g_entities[cs->enemyNum].shared.r.maxs[0];
+			enemyDist -= ent->shared.r.maxs[0];
 			if ( /*anim != 4 &&*/ ( enemyDist > 16 ) ) {    // we can get closer
 				if ( ent->client->ps.legsTimer ) {
 					ent->client->ps.legsTimer = 0;      // allow legs us to move
@@ -519,8 +519,8 @@ char *AIFunc_LoperAttack2( cast_state_t *cs ) {
 			changeTime = 1.0;
 		}
 		VectorScale( vec, LOPER_LEAP_VELOCITY_START + changeTime * ( LOPER_LEAP_VELOCITY_END - LOPER_LEAP_VELOCITY_START ), vec );
-		g_entities[cs->entityNum].s.pos.trDelta[0] = vec[0];
-		g_entities[cs->entityNum].s.pos.trDelta[1] = vec[1];
+		g_entities[cs->entityNum].shared.s.pos.trDelta[0] = vec[0];
+		g_entities[cs->entityNum].shared.s.pos.trDelta[1] = vec[1];
 	}
 	//
 	if ( onGround || ( cs->aiFlags & AIFL_LAND_ANIM_PLAYED ) ) {
@@ -622,7 +622,7 @@ char *AIFunc_LoperAttack3( cast_state_t *cs ) {
 		//
 		// draw the client-side lightning effect
 		ent->client->ps.eFlags |= EF_MONSTER_EFFECT3;
-		//ent->s.effect3Time = level.time + 500;//cs->thinkFuncChangeTime + LOPER_GROUND_DELAY - 200;
+		//ent->shared.s.effect3Time = level.time + 500;//cs->thinkFuncChangeTime + LOPER_GROUND_DELAY - 200;
 		//
 		// are we waiting to inflict damage?
 		if ( cs->weaponFireTimes[WP_MONSTER_ATTACK3] < level.time - 100 ) {
@@ -699,7 +699,7 @@ char *AIFunc_StimSoldierAttack1( cast_state_t *cs ) {
 	// are we done with this attack?
 	if ( cs->thinkFuncChangeTime < level.time - STIMSOLDIER_FLYJUMP_DELAY ) {
 		// have we hit the ground yet?
-		if ( ent->s.groundEntityNum != ENTITYNUM_NONE ) {
+		if ( ent->shared.s.groundEntityNum != ENTITYNUM_NONE ) {
 			// we are on something, have we started the landing animation?
 			if ( !( cs->aiFlags & AIFL_LAND_ANIM_PLAYED ) ) {
 				ent->client->ps.legsAnim =
@@ -725,10 +725,10 @@ char *AIFunc_StimSoldierAttack1( cast_state_t *cs ) {
 			// play a special ignition sound?
 		}
 		ent->client->ps.powerups[PW_FLIGHT] = 1;    // let them fly
-		ent->s.loopSound = level.stimSoldierFlySound;
+		ent->shared.s.loopSound = level.stimSoldierFlySound;
 		ent->client->ps.eFlags |= EF_MONSTER_EFFECT;    // client-side stim engine effect
-		if ( ent->s.effect1Time != ( cs->thinkFuncChangeTime + STIMSOLDIER_STARTJUMP_DELAY ) ) {
-			ent->s.effect1Time = ( cs->thinkFuncChangeTime + STIMSOLDIER_STARTJUMP_DELAY );
+		if ( ent->shared.s.effect1Time != ( cs->thinkFuncChangeTime + STIMSOLDIER_STARTJUMP_DELAY ) ) {
+			ent->shared.s.effect1Time = ( cs->thinkFuncChangeTime + STIMSOLDIER_STARTJUMP_DELAY );
 			// start the hovering animation
 			ent->client->ps.legsAnim =
 				( ( ent->client->ps.legsAnim & ANIM_TOGGLEBIT ) ^ ANIM_TOGGLEBIT ) | STIMSOLDIER_FLYHOVER_ANIM;
@@ -923,7 +923,7 @@ char *AIFunc_RejectAttack1Start( cast_state_t *cs ) {
 	gentity_t *ent;
 
 	ent = &g_entities[cs->entityNum];
-	ent->s.effect1Time = level.time;
+	ent->shared.s.effect1Time = level.time;
 	cs->ideal_viewangles[YAW] = cs->viewangles[YAW];
 	cs->aifunc = AIFunc_RejectAttack1;
 	return "AIFunc_RejectAttack1";
@@ -1010,8 +1010,8 @@ char *AIFunc_WarriorZombieMelee( cast_state_t *cs ) {
 			// if they are outside range, move forward
 			AICast_PredictMovement( ecs, 2, 0.5, &move, &g_entities[cs->enemyNum].client->pers.cmd, -1 );
 			enemyDist = Distance( move.endpos, cs->bs->origin );
-			enemyDist -= g_entities[cs->enemyNum].r.maxs[0];
-			enemyDist -= ent->r.maxs[0];
+			enemyDist -= g_entities[cs->enemyNum].shared.r.maxs[0];
+			enemyDist -= ent->shared.r.maxs[0];
 			if ( enemyDist > 16 ) {   // we can get closer
 				if ( ent->client->ps.legsTimer ) {
 					ent->client->ps.legsTimer = 0;      // allow legs us to move
@@ -1038,7 +1038,7 @@ char *AIFunc_WarriorZombieMeleeStart( cast_state_t *cs ) {
 	gentity_t *ent;
 
 	ent = &g_entities[cs->entityNum];
-	ent->s.effect1Time = level.time;
+	ent->shared.s.effect1Time = level.time;
 	cs->ideal_viewangles[YAW] = cs->viewangles[YAW];
 	cs->weaponFireTimes[cs->weaponNum] = level.time;
 	cs->animHitCount = 0;

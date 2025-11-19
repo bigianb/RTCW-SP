@@ -62,8 +62,8 @@ void SP_info_player_deathmatch( gentity_t *ent ) {
 
 	ent->enemy = G_PickTarget( ent->target );
 	if ( ent->enemy ) {
-		VectorSubtract( ent->enemy->s.origin, ent->s.origin, dir );
-		vectoangles( dir, ent->s.angles );
+		VectorSubtract( ent->enemy->shared.s.origin, ent->shared.s.origin, dir );
+		vectoangles( dir, ent->shared.s.angles );
 	}
 
 }
@@ -107,8 +107,8 @@ qboolean SpotWouldTelefrag( gentity_t *spot ) {
 	gentity_t   *hit;
 	vec3_t mins, maxs;
 
-	VectorAdd( spot->s.origin, playerMins, mins );
-	VectorAdd( spot->s.origin, playerMaxs, maxs );
+	VectorAdd( spot->shared.s.origin, playerMins, mins );
+	VectorAdd( spot->shared.s.origin, playerMaxs, maxs );
 	num = SV_AreaEntities( mins, maxs, touch, MAX_GENTITIES );
 
 	for ( i = 0 ; i < num ; i++ ) {
@@ -142,7 +142,7 @@ gentity_t *SelectNearestDeathmatchSpawnPoint( vec3_t from ) {
 
 	while ( ( spot = G_Find( spot, FOFS( classname ), "info_player_deathmatch" ) ) != NULL ) {
 
-		VectorSubtract( spot->s.origin, from, delta );
+		VectorSubtract( spot->shared.s.origin, from, delta );
 		dist = VectorLength( delta );
 		if ( dist < nearestDist ) {
 			nearestDist = dist;
@@ -216,9 +216,9 @@ gentity_t *SelectSpawnPoint( vec3_t avoidPoint, vec3_t origin, vec3_t angles ) {
 		Com_Error( ERR_DROP, "Couldn't find a spawn point" );
 	}
 
-	VectorCopy( spot->s.origin, origin );
+	VectorCopy( spot->shared.s.origin, origin );
 	origin[2] += 9;
-	VectorCopy( spot->s.angles, angles );
+	VectorCopy( spot->shared.s.angles, angles );
 
 	return spot;
 }
@@ -245,9 +245,9 @@ gentity_t *SelectInitialSpawnPoint( vec3_t origin, vec3_t angles ) {
 		return SelectSpawnPoint( vec3_origin, origin, angles );
 	}
 
-	VectorCopy( spot->s.origin, origin );
+	VectorCopy( spot->shared.s.origin, origin );
 	origin[2] += 9;
-	VectorCopy( spot->s.angles, angles );
+	VectorCopy( spot->shared.s.angles, angles );
 
 	return spot;
 }
@@ -303,12 +303,12 @@ After sitting around for five seconds, fall into the ground and dissapear
 void BodySink( gentity_t *ent ) {
 	if ( level.time - ent->timestamp > 6500 ) {
 		// the body ques are never actually freed, they are just unlinked
-		SV_UnlinkEntity( ent );
+		SV_UnlinkEntity( &ent->shared );
 		ent->physicsObject = qfalse;
 		return;
 	}
 	ent->nextthink = level.time + 100;
-	ent->s.pos.trBase[2] -= 1;
+	ent->shared.s.pos.trBase[2] -= 1;
 }
 
 /*
@@ -323,10 +323,10 @@ void CopyToBodyQue( gentity_t *ent ) {
 	gentity_t       *body;
 	int contents, i;
 
-	SV_UnlinkEntity( ent );
+	SV_UnlinkEntity( &ent->shared );
 
 	// if client is in a nodrop area, don't leave the body
-	contents = SV_PointContents( ent->s.origin, -1 );
+	contents = SV_PointContents( ent->shared.s.origin, -1 );
 	if ( contents & CONTENTS_NODROP ) {
 		return;
 	}
@@ -337,43 +337,43 @@ void CopyToBodyQue( gentity_t *ent ) {
 
 	SV_UnlinkEntity( body );
 
-	body->s = ent->s;
-	body->s.eFlags = EF_DEAD;       // clear EF_TALK, etc
+	body->shared.s = ent->shared.s;
+	body->shared.s.eFlags = EF_DEAD;       // clear EF_TALK, etc
 
 	if ( ent->client->ps.eFlags & EF_HEADSHOT ) {
-		body->s.eFlags |= EF_HEADSHOT;          // make sure the dead body draws no head (if killed that way)
+		body->shared.s.eFlags |= EF_HEADSHOT;          // make sure the dead body draws no head (if killed that way)
 
 	}
-	body->s.powerups = 0;   // clear powerups
-	body->s.loopSound = 0;  // clear lava burning
-	body->s.number = body - g_entities;
+	body->shared.s.powerups = 0;   // clear powerups
+	body->shared.s.loopSound = 0;  // clear lava burning
+	body->shared.s.number = body - g_entities;
 	body->timestamp = level.time;
 	body->physicsObject = qtrue;
 	body->physicsBounce = 0;        // don't bounce
-	if ( body->s.groundEntityNum == ENTITYNUM_NONE ) {
-		body->s.pos.trType = TR_GRAVITY;
-		body->s.pos.trTime = level.time;
-		VectorCopy( ent->client->ps.velocity, body->s.pos.trDelta );
+	if ( body->shared.s.groundEntityNum == ENTITYNUM_NONE ) {
+		body->shared.s.pos.trType = TR_GRAVITY;
+		body->shared.s.pos.trTime = level.time;
+		VectorCopy( ent->client->ps.velocity, body->shared.s.pos.trDelta );
 	} else {
-		body->s.pos.trType = TR_STATIONARY;
+		body->shared.s.pos.trType = TR_STATIONARY;
 	}
-	body->s.event = 0;
+	body->shared.s.event = 0;
 
 	// DHM - Clear out event system
 	for ( i = 0; i < MAX_EVENTS; i++ )
-		body->s.events[i] = 0;
-	body->s.eventSequence = 0;
+		body->shared.s.events[i] = 0;
+	body->shared.s.eventSequence = 0;
 
 
-	body->r.svFlags = ent->r.svFlags;
-	VectorCopy( ent->r.mins, body->r.mins );
-	VectorCopy( ent->r.maxs, body->r.maxs );
-	VectorCopy( ent->r.absmin, body->r.absmin );
-	VectorCopy( ent->r.absmax, body->r.absmax );
+	body->shared.r.svFlags = ent->shared.r.svFlags;
+	VectorCopy( ent->shared.r.mins, body->shared.r.mins );
+	VectorCopy( ent->shared.r.maxs, body->shared.r.maxs );
+	VectorCopy( ent->shared.r.absmin, body->shared.r.absmin );
+	VectorCopy( ent->shared.r.absmax, body->shared.r.absmax );
 
 	body->clipmask = CONTENTS_SOLID | CONTENTS_PLAYERCLIP;
-	body->r.contents = CONTENTS_CORPSE;
-	body->r.ownerNum = ent->r.ownerNum;
+	body->shared.r.contents = CONTENTS_CORPSE;
+	body->shared.r.ownerNum = ent->shared.r.ownerNum;
 
 	body->nextthink = level.time + 5000;
 	body->think = BodySink;
@@ -388,7 +388,7 @@ void CopyToBodyQue( gentity_t *ent ) {
 	}
 
 
-	VectorCopy( body->s.pos.trBase, body->r.currentOrigin );
+	VectorCopy( body->shared.s.pos.trBase, body->shared.r.currentOrigin );
 	SV_LinkEntity( body );
 }
 
@@ -411,8 +411,8 @@ void SetClientViewAngle( gentity_t *ent, vec3_t angle ) {
 		cmdAngle = ANGLE2SHORT( angle[i] );
 		ent->client->ps.delta_angles[i] = cmdAngle - ent->client->pers.cmd.angles[i];
 	}
-	VectorCopy( angle, ent->s.angles );
-	VectorCopy( ent->s.angles, ent->client->ps.viewangles );
+	VectorCopy( angle, ent->shared.s.angles );
+	VectorCopy( ent->shared.s.angles, ent->client->ps.viewangles );
 }
 
 /*
@@ -427,7 +427,7 @@ void respawn( gentity_t *ent ) {
         return;
     }
 
-    if ( !( ent->r.svFlags & SVF_CASTAI ) ) {
+    if ( !( ent->shared.r.svFlags & SVF_CASTAI ) ) {
         // Fast method, just do a map_restart, and then load in the savegame
         // once everything is settled.
         SV_SetConfigstring( CS_SCREENFADE, va( "1 %i 4000", level.time + 2000 ) );
@@ -447,7 +447,7 @@ void respawn( gentity_t *ent ) {
 
 	// add a teleportation effect
 	tent = G_TempEntity( ent->client->ps.origin, EV_PLAYER_TELEPORT_IN );
-	tent->s.clientNum = ent->s.clientNum;
+	tent->shared.s.clientNum = ent->shared.s.clientNum;
 }
 
 
@@ -781,7 +781,7 @@ void ClientUserinfoChanged( int clientNum ) {
 
 //----(SA) modified these for head separation
 
-	if ( ent->r.svFlags & SVF_BOT ) {
+	if ( ent->shared.r.svFlags & SVF_BOT ) {
 
 		s = va( "n\\%s\\t\\%i\\model\\%s\\head\\%s\\c1\\%s\\hc\\%i\\w\\%i\\l\\%i\\skill\\%s",
 				client->pers.netname, client->sess.sessionTeam, model, head, c1,
@@ -868,7 +868,7 @@ char *ClientConnect( int clientNum, qboolean firstTime, qboolean isBot ) {
 	G_ReadSessionData( client );
 
 	if ( isBot ) {
-		ent->r.svFlags |= SVF_BOT;
+		ent->shared.r.svFlags |= SVF_BOT;
 		ent->inuse = qtrue;
 		if ( !G_BotConnect( clientNum, !firstTime ) ) {
 			return "BotConnectfailed";
@@ -882,7 +882,7 @@ char *ClientConnect( int clientNum, qboolean firstTime, qboolean isBot ) {
 	// don't do the "xxx connected" messages if they were caried over from previous level
 	if ( firstTime ) {
 		// Ridah
-		if ( !(ent->r.svFlags & SVF_CASTAI) ) {
+		if ( !(ent->shared.r.svFlags & SVF_CASTAI) ) {
 			// done.
 			SV_GameSendServerCommand( -1, va( "print \"%s" S_COLOR_WHITE " connected\n\"", client->pers.netname ) );
 		}
@@ -919,8 +919,8 @@ void ClientBegin( int clientNum ) {
 
 	client = level.clients + clientNum;
 
-	if ( ent->r.linked ) {
-		SV_UnlinkEntity( ent );
+	if ( ent->shared.r.linked ) {
+		SV_UnlinkEntity( &ent->shared );
 	}
 	G_InitGentity( ent );
 	ent->touch = 0;
@@ -945,23 +945,23 @@ void ClientBegin( int clientNum ) {
 
 	// MrE: use capsule for collision
 	client->ps.eFlags |= EF_CAPSULE;
-	ent->r.svFlags |= SVF_CAPSULE;
+	ent->shared.r.svFlags |= SVF_CAPSULE;
 
 	// locate ent at a spawn point
 	ClientSpawn( ent );
 
 	// Ridah, trigger a spawn event
-	if ( !( ent->r.svFlags & SVF_CASTAI ) ) {
+	if ( !( ent->shared.r.svFlags & SVF_CASTAI ) ) {
 		AICast_ScriptEvent( AICast_GetCastState( clientNum ), "spawn", "" );
 	}
 
 	{
 		// send event
 		tent = G_TempEntity( ent->client->ps.origin, EV_PLAYER_TELEPORT_IN );
-		tent->s.clientNum = ent->s.clientNum;
+		tent->shared.s.clientNum = ent->shared.s.clientNum;
 
 		// Ridah
-		if ( !(ent->r.svFlags & SVF_CASTAI) ) {
+		if ( !(ent->shared.r.svFlags & SVF_CASTAI) ) {
 			// done.
 			SV_GameSendServerCommand( -1, va( "print \"%s" S_COLOR_WHITE " entered the game\n\"", client->pers.netname ) );
 		}
@@ -1001,17 +1001,17 @@ void ClientSpawn( gentity_t *ent ) {
 	// ranging doesn't count this client
 
 	// Ridah
-	if ( ent->r.svFlags & SVF_CASTAI ) {
+	if ( ent->shared.r.svFlags & SVF_CASTAI ) {
 		spawnPoint = ent;
-		VectorCopy( ent->s.origin, spawn_origin );
+		VectorCopy( ent->shared.s.origin, spawn_origin );
 		spawn_origin[2] += 9;   // spawns seem to be sunk into ground?
-		VectorCopy( ent->s.angles, spawn_angles );
+		VectorCopy( ent->shared.s.angles, spawn_angles );
 	} else
 	{
 		ent->aiName = "player";  // needed for script AI
 		ent->aiTeam = 1;        // member of allies
 		ent->client->ps.teamNum = ent->aiTeam;
-		AICast_ScriptParse( AICast_GetCastState( ent->s.number ) );
+		AICast_ScriptParse( AICast_GetCastState( ent->shared.s.number ) );
 		// done.
 
 		
@@ -1029,11 +1029,11 @@ void ClientSpawn( gentity_t *ent ) {
 
 			// Tim needs to prevent bots from spawning at the initial point
 			// on q3dm0...
-			if ( ( spawnPoint->flags & FL_NO_BOTS ) && ( ent->r.svFlags & SVF_BOT ) ) {
+			if ( ( spawnPoint->flags & FL_NO_BOTS ) && ( ent->shared.r.svFlags & SVF_BOT ) ) {
 				continue;   // try again
 			}
 			// just to be symetric, we have a nohumans option...
-			if ( ( spawnPoint->flags & FL_NO_HUMANS ) && !( ent->r.svFlags & SVF_BOT ) ) {
+			if ( ( spawnPoint->flags & FL_NO_HUMANS ) && !( ent->shared.r.svFlags & SVF_BOT ) ) {
 				continue;   // try again
 			}
 
@@ -1084,17 +1084,17 @@ void ClientSpawn( gentity_t *ent ) {
 	// MrE: use capsules for AI and player
 	client->ps.eFlags |= EF_CAPSULE;
 
-	ent->s.groundEntityNum = ENTITYNUM_NONE;
+	ent->shared.s.groundEntityNum = ENTITYNUM_NONE;
 	ent->client = &level.clients[index];
 	ent->takedamage = qtrue;
 	ent->inuse = qtrue;
-	if ( !( ent->r.svFlags & SVF_CASTAI ) ) {
+	if ( !( ent->shared.r.svFlags & SVF_CASTAI ) ) {
 		ent->classname = "player";
 	}
-	ent->r.contents = CONTENTS_BODY;
+	ent->shared.r.contents = CONTENTS_BODY;
 
 	// RF, AI should be clipped by monsterclip brushes
-	if ( ent->r.svFlags & SVF_CASTAI ) {
+	if ( ent->shared.r.svFlags & SVF_CASTAI ) {
 		ent->clipmask = MASK_PLAYERSOLID | CONTENTS_MONSTERCLIP;
 	} else {
 		ent->clipmask = MASK_PLAYERSOLID;
@@ -1105,12 +1105,12 @@ void ClientSpawn( gentity_t *ent ) {
 	ent->watertype = 0;
 	ent->flags = 0;
 
-	VectorCopy( playerMins, ent->r.mins );
-	VectorCopy( playerMaxs, ent->r.maxs );
+	VectorCopy( playerMins, ent->shared.r.mins );
+	VectorCopy( playerMaxs, ent->shared.r.maxs );
 
 	// Ridah, setup the bounding boxes and viewheights for prediction
-	VectorCopy( ent->r.mins, client->ps.mins );
-	VectorCopy( ent->r.maxs, client->ps.maxs );
+	VectorCopy( ent->shared.r.mins, client->ps.mins );
+	VectorCopy( ent->shared.r.maxs, client->ps.maxs );
 
 	client->ps.crouchViewHeight = CROUCH_VIEWHEIGHT;
 	client->ps.standViewHeight = DEFAULT_VIEWHEIGHT;
@@ -1138,7 +1138,7 @@ void ClientSpawn( gentity_t *ent ) {
 	SetClientViewAngle( ent, spawn_angles );
 
 	G_KillBox( ent );
-	SV_LinkEntity( ent );
+	SV_LinkEntity( &ent->shared );
 
 	// don't allow full run speed for a bit
 	client->ps.pm_flags |= PMF_TIME_KNOCKBACK;
@@ -1166,16 +1166,16 @@ void ClientSpawn( gentity_t *ent ) {
 
 	// positively link the client, even if the command times are weird
 	{
-		BG_PlayerStateToEntityState( &client->ps, &ent->s, qtrue );
-		VectorCopy( ent->client->ps.origin, ent->r.currentOrigin );
-		SV_LinkEntity( ent );
+		BG_PlayerStateToEntityState( &client->ps, &ent->shared.s, qtrue );
+		VectorCopy( ent->client->ps.origin, ent->shared.r.currentOrigin );
+		SV_LinkEntity( &ent->shared );
 	}
 
 	// run the presend to set anything else
 	ClientEndFrame( ent );
 
 	// clear entity state values
-	BG_PlayerStateToEntityState( &client->ps, &ent->s, qtrue );
+	BG_PlayerStateToEntityState( &client->ps, &ent->shared.s, qtrue );
 }
 
 
@@ -1202,13 +1202,13 @@ void ClientDisconnect( int clientNum ) {
 	}
 
 	// Ridah
-	if ( !( ent->r.svFlags & SVF_CASTAI ) ) {
+	if ( !( ent->shared.r.svFlags & SVF_CASTAI ) ) {
 		// done.
 
 		// send effect if they were completely connected
 		if ( ent->client->pers.connected == CON_CONNECTED) {
 			tent = G_TempEntity( ent->client->ps.origin, EV_PLAYER_TELEPORT_OUT );
-			tent->s.clientNum = ent->s.clientNum;
+			tent->shared.s.clientNum = ent->shared.s.clientNum;
 
 			// They don't get to take powerups with them!
 			// Especially important for stuff like CTF flags
@@ -1221,8 +1221,8 @@ void ClientDisconnect( int clientNum ) {
 	}
 	// done.
 
-	SV_UnlinkEntity( ent );
-	ent->s.modelindex = 0;
+	SV_UnlinkEntity( &ent->shared );
+	ent->shared.s.modelindex = 0;
 	ent->inuse = qfalse;
 	ent->classname = "disconnected";
 	ent->client->pers.connected = CON_DISCONNECTED;
@@ -1231,7 +1231,7 @@ void ClientDisconnect( int clientNum ) {
 
 	SV_SetConfigstring( CS_PLAYERS + clientNum, "" );
 
-	if ( ent->r.svFlags & SVF_BOT ) {
+	if ( ent->shared.r.svFlags & SVF_BOT ) {
 		BotAIShutdownClient( clientNum );
 	}
 }

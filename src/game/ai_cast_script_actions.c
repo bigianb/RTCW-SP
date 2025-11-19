@@ -75,7 +75,7 @@ void AICast_NoAttackIfNotHurtSinceLastScriptAction( cast_state_t *cs ) {
 	if ( cs->enemyNum >= 0 && cs->castScriptStatus.scriptGotoEnt >= 0 ) {
 		vec3_t v;
 
-		VectorSubtract( g_entities[cs->enemyNum].r.currentOrigin, cs->bs->origin, v );
+		VectorSubtract( g_entities[cs->enemyNum].shared.r.currentOrigin, cs->bs->origin, v );
 		if ( DotProduct( cs->bs->velocity, v ) > 0 ) {
 			return;
 		}
@@ -123,7 +123,7 @@ qboolean AICast_ScriptAction_GotoMarker( cast_state_t *cs, char *params ) {
 		ent = &g_entities[cs->castScriptStatus.scriptGotoEnt];
 		if ( ent->targetname && !Q_strcasecmp( ent->targetname, token ) ) {
 			// if we're not slowing down, then check for passing the marker, otherwise check distance only
-			VectorSubtract( ent->r.currentOrigin, cs->bs->origin, vec );
+			VectorSubtract( ent->shared.r.currentOrigin, cs->bs->origin, vec );
 			//
 			if ( cs->followSlowApproach && VectorLength( vec ) < cs->followDist ) {
 				cs->followTime = 0;
@@ -149,7 +149,7 @@ qboolean AICast_ScriptAction_GotoMarker( cast_state_t *cs, char *params ) {
 						}
 					}
 					// set the view angle manually
-					BG_EvaluateTrajectory( &ent->s.pos, level.time, org );
+					BG_EvaluateTrajectory( &ent->shared.s.pos, level.time, org );
 					VectorSubtract( org, cs->bs->origin, vec );
 					VectorNormalize( vec );
 					vectoangles( vec, cs->ideal_viewangles );
@@ -158,8 +158,8 @@ qboolean AICast_ScriptAction_GotoMarker( cast_state_t *cs, char *params ) {
 					if ( !token[0] || Q_stricmp( token,"noattack" ) ) {
 						qboolean fire = qtrue;
 						// if it's an AI, and they aren't visible, dont shoot
-						if ( ent->r.svFlags & SVF_CASTAI ) {
-							if ( cs->vislist[ent->s.number].real_visible_timestamp != cs->vislist[ent->s.number].lastcheck_timestamp ) {
+						if ( ent->shared.r.svFlags & SVF_CASTAI ) {
+							if ( cs->vislist[ent->shared.s.number].real_visible_timestamp != cs->vislist[ent->shared.s.number].lastcheck_timestamp ) {
 								fire = qfalse;
 							}
 						}
@@ -202,12 +202,12 @@ qboolean AICast_ScriptAction_GotoMarker( cast_state_t *cs, char *params ) {
 		Com_Error( ERR_DROP, "AI Scripting: can't find ai_marker with \"targetname\" = \"%s\"\n", token );
 	}
 
-	if ( Distance( cs->bs->origin, ent->r.currentOrigin ) < SCRIPT_REACHGOAL_DIST ) { // we made it
+	if ( Distance( cs->bs->origin, ent->shared.r.currentOrigin ) < SCRIPT_REACHGOAL_DIST ) { // we made it
 		return qtrue;
 	}
 
 	cs->castScriptStatus.scriptNoMoveTime = 0;
-	cs->castScriptStatus.scriptGotoEnt = ent->s.number;
+	cs->castScriptStatus.scriptGotoEnt = ent->shared.s.number;
 	//
 	// slow approach to the goal?
 	if ( !params || !strstr( params," nostop" ) ) {
@@ -216,7 +216,7 @@ qboolean AICast_ScriptAction_GotoMarker( cast_state_t *cs, char *params ) {
 		slowApproach = qfalse;
 	}
 	//
-	AIFunc_ChaseGoalStart( cs, ent->s.number, ( slowApproach ? SCRIPT_REACHGOAL_DIST : 32 ), slowApproach );
+	AIFunc_ChaseGoalStart( cs, ent->shared.s.number, ( slowApproach ? SCRIPT_REACHGOAL_DIST : 32 ), slowApproach );
 	cs->followIsGoto = qtrue;
 	cs->followTime = 0x7fffffff;    // make sure it gets through for the first frame
 	cs->castScriptStatus.scriptGotoId = cs->thinkFuncChangeTime;
@@ -313,7 +313,7 @@ qboolean AICast_ScriptAction_GotoCast( cast_state_t *cs, char *params ) {
 	if ( cs->castScriptStatus.scriptGotoEnt >= 0 && cs->castScriptStatus.scriptGotoId == cs->thinkFuncChangeTime ) {
 		ent = &g_entities[cs->castScriptStatus.scriptGotoEnt];
 		if ( ent->targetname && !Q_strcasecmp( ent->targetname, token ) ) {
-			if ( Distance( cs->bs->origin, ent->r.currentOrigin ) < cs->followDist ) {
+			if ( Distance( cs->bs->origin, ent->shared.r.currentOrigin ) < cs->followDist ) {
 				cs->followTime = 0;
 				AIFunc_IdleStart( cs );   // resume normal AI
 				return qtrue;
@@ -334,7 +334,7 @@ qboolean AICast_ScriptAction_GotoCast( cast_state_t *cs, char *params ) {
 					}
 
 					// set the view angle manually
-					BG_EvaluateTrajectory( &ent->s.pos, level.time, org );
+					BG_EvaluateTrajectory( &ent->shared.s.pos, level.time, org );
 					VectorSubtract( org, cs->bs->origin, vec );
 					VectorNormalize( vec );
 					vectoangles( vec, cs->ideal_viewangles );
@@ -343,8 +343,8 @@ qboolean AICast_ScriptAction_GotoCast( cast_state_t *cs, char *params ) {
 					if ( !token[0] || Q_stricmp( token,"noattack" ) ) {
 						qboolean fire = qtrue;
 						// if it's an AI, and they aren't visible, dont shoot
-						if ( ent->r.svFlags & SVF_CASTAI ) {
-							if ( cs->vislist[ent->s.number].real_visible_timestamp != cs->vislist[ent->s.number].lastcheck_timestamp ) {
+						if ( ent->shared.r.svFlags & SVF_CASTAI ) {
+							if ( cs->vislist[ent->shared.s.number].real_visible_timestamp != cs->vislist[ent->shared.s.number].lastcheck_timestamp ) {
 								fire = qfalse;
 							}
 						}
@@ -380,7 +380,7 @@ qboolean AICast_ScriptAction_GotoCast( cast_state_t *cs, char *params ) {
 		Com_Error( ERR_DROP, "AI Scripting: can't find AI cast with \"ainame\" = \"%s\"\n", token );
 	}
 
-	if ( Distance( cs->bs->origin, ent->r.currentOrigin ) < SCRIPT_REACHCAST_DIST ) { // we made it
+	if ( Distance( cs->bs->origin, ent->shared.r.currentOrigin ) < SCRIPT_REACHCAST_DIST ) { // we made it
 		return qtrue;
 	}
 
@@ -389,9 +389,9 @@ qboolean AICast_ScriptAction_GotoCast( cast_state_t *cs, char *params ) {
 	}
 
 	cs->castScriptStatus.scriptNoMoveTime = 0;
-	cs->castScriptStatus.scriptGotoEnt = ent->s.number;
+	cs->castScriptStatus.scriptGotoEnt = ent->shared.s.number;
 	//
-	AIFunc_ChaseGoalStart( cs, ent->s.number, SCRIPT_REACHCAST_DIST, qtrue );
+	AIFunc_ChaseGoalStart( cs, ent->shared.s.number, SCRIPT_REACHCAST_DIST, qtrue );
 	cs->followTime = 0x7fffffff;
 	AICast_NoAttackIfNotHurtSinceLastScriptAction( cs );
 	cs->castScriptStatus.scriptGotoId = cs->thinkFuncChangeTime;
@@ -590,7 +590,7 @@ qboolean AICast_ScriptAction_Wait( cast_state_t *cs, char *params ) {
 			}
 		}
 		// set the view angle manually
-		BG_EvaluateTrajectory( &ent->s.pos, level.time, org );
+		BG_EvaluateTrajectory( &ent->shared.s.pos, level.time, org );
 		VectorSubtract( org, cs->bs->origin, vec );
 		VectorNormalize( vec );
 		vectoangles( vec, cs->ideal_viewangles );
@@ -638,7 +638,7 @@ qboolean AICast_ScriptAction_Trigger( cast_state_t *cs, char *params ) {
 
 	oldId = cs->castScriptStatus.scriptId;
 	if ( ent->client ) {
-		AICast_ScriptEvent( AICast_GetCastState( ent->s.number ), "trigger", token );
+		AICast_ScriptEvent( AICast_GetCastState( ent->shared.s.number ), "trigger", token );
 	} else {
 		G_Script_ScriptEvent( ent, "trigger", token );
 	}
@@ -663,7 +663,7 @@ qboolean AICast_ScriptAction_FollowCast( cast_state_t *cs, char *params ) {
 		Com_Error( ERR_DROP, "AI Scripting: can't find AI cast with \"ainame\" = \"%s\"\n", params );
 	}
 
-	AIFunc_ChaseGoalStart( cs, ent->s.number, 64, qtrue );
+	AIFunc_ChaseGoalStart( cs, ent->shared.s.number, 64, qtrue );
 
 	return qtrue;
 };
@@ -738,8 +738,8 @@ qboolean AICast_ScriptAction_Attack( cast_state_t *cs, char *params ) {
 		if ( !ent ) {
 			Com_Error( ERR_DROP, "AI Scripting: \"attack\" command unable to find aiName \"%s\"", params );
 		}
-		cs->castScriptStatus.scriptAttackEnt = ent->s.number;
-		cs->enemyNum = ent->s.number;
+		cs->castScriptStatus.scriptAttackEnt = ent->shared.s.number;
+		cs->enemyNum = ent->shared.s.number;
 	} else {
 		cs->castScriptStatus.scriptAttackEnt = -1;
 	}
@@ -821,7 +821,7 @@ qboolean AICast_ScriptAction_PlayAnim( cast_state_t *cs, char *params ) {
 					}
 				}
 				// set the view angle manually
-				BG_EvaluateTrajectory( &ent->s.pos, level.time, org );
+				BG_EvaluateTrajectory( &ent->shared.s.pos, level.time, org );
 				VectorSubtract( org, cs->bs->origin, vec );
 				VectorNormalize( vec );
 				vectoangles( vec, cs->ideal_viewangles );
@@ -1357,7 +1357,7 @@ qboolean AICast_ScriptAction_GiveWeapon( cast_state_t *cs, char *params ) {
 		if ( ent->aiCharacter == AICHAR_ZOMBIE ) {
 			if ( COM_BitCheck( ent->client->ps.weapons, WP_MONSTER_ATTACK1 ) ) {
 				cs->aiFlags |= AIFL_NO_FLAME_DAMAGE;
-				SET_FLAMING_ZOMBIE( ent->s, 1 );
+				SET_FLAMING_ZOMBIE( ent->shared.s, 1 );
 			}
 		}
 	} else {
@@ -1649,7 +1649,7 @@ qboolean AICast_ScriptAction_FireAtTarget( cast_state_t *cs, char *params ) {
 	// let us move our view, whether it looks bad or not
 	cs->castScriptStatus.playAnimViewlockTime = 0;
 	// set the view angle manually
-	BG_EvaluateTrajectory( &ent->s.pos, level.time, org );
+	BG_EvaluateTrajectory( &ent->shared.s.pos, level.time, org );
 	VectorCopy( cs->bs->origin, src );
 	src[2] += cs->bs->cur_ps.viewheight;
 	VectorSubtract( org, src, vec );
@@ -1657,7 +1657,7 @@ qboolean AICast_ScriptAction_FireAtTarget( cast_state_t *cs, char *params ) {
 	vectoangles( vec, cs->ideal_viewangles );
 	for ( i = 0; i < 2; i++ ) {
 		diff = fabsf( AngleDifference( cs->bs->cur_ps.viewangles[i], cs->ideal_viewangles[i] ) );
-		if ( VectorCompare( vec3_origin, ent->s.pos.trDelta ) ) {
+		if ( VectorCompare( vec3_origin, ent->shared.s.pos.trDelta ) ) {
 			if ( diff ) {
 				return qfalse;  // not facing yet
 			}
@@ -2027,7 +2027,7 @@ qboolean AICast_ScriptAction_FaceTargetAngles( cast_state_t *cs, char *params ) 
 		Com_Error( ERR_DROP, "AI Scripting: cannot find targetname \"%s\"\n", params );
 	}
 
-	VectorCopy( targetEnt->s.angles, cs->ideal_viewangles );
+	VectorCopy( targetEnt->shared.s.angles, cs->ideal_viewangles );
 
 	return qtrue;
 }
@@ -2097,7 +2097,7 @@ qboolean AICast_ScriptAction_Mount( cast_state_t *cs, char *params ) {
 		Com_Error( ERR_DROP, "AI Scripting: cannot find targetname \"%s\"\n", params );
 	}
 
-	VectorSubtract( targetEnt->r.currentOrigin, cs->bs->origin, vec );
+	VectorSubtract( targetEnt->shared.r.currentOrigin, cs->bs->origin, vec );
 	dist = VectorNormalize( vec );
 	vectoangles( vec, cs->ideal_viewangles );
 
@@ -2117,8 +2117,8 @@ qboolean AICast_ScriptAction_Mount( cast_state_t *cs, char *params ) {
 		ent = &g_entities[cs->entityNum];
 		Cmd_Activate_f( ent );
 		// did we mount it?
-		if ( ent->active && targetEnt->r.ownerNum == ent->s.number ) {
-			cs->mountedEntity = targetEnt->s.number;
+		if ( ent->active && targetEnt->shared.r.ownerNum == ent->shared.s.number ) {
+			cs->mountedEntity = targetEnt->shared.s.number;
 			AIFunc_BattleMG42Start( cs );
 			return qtrue;
 		}
@@ -2146,7 +2146,7 @@ qboolean AICast_ScriptAction_Unmount( cast_state_t *cs, char *params ) {
 		return qtrue;   // nothing mounted, just skip this command
 	}
 	// face straight forward
-	VectorCopy( mg42->s.angles, cs->ideal_viewangles );
+	VectorCopy( mg42->shared.s.angles, cs->ideal_viewangles );
 	// try and unmount
 	Cmd_Activate_f( ent );
 	if ( !ent->active ) {
@@ -2190,7 +2190,7 @@ qboolean AICast_ScriptAction_Teleport( cast_state_t *cs, char *params ) {
 		Com_Error( ERR_DROP, "AI Scripting: couldn't find teleporter destination: '%s'\n", params );
 	}
 
-	TeleportPlayer( &g_entities[cs->entityNum], dest->s.origin, dest->s.angles );
+	TeleportPlayer( &g_entities[cs->entityNum], dest->shared.s.origin, dest->shared.s.angles );
 
 	return qtrue;
 }
@@ -2613,7 +2613,7 @@ qboolean ScriptStartCam( cast_state_t *cs, char *params, qboolean black ) {
 	}
 
 	// turn off noclient flag
-	ent->r.svFlags &= ~SVF_NOCLIENT;
+	ent->shared.r.svFlags &= ~SVF_NOCLIENT;
 
 	// issue a start camera command to the client
 	SV_GameSendServerCommand( cs->entityNum, va( "startCam %s %d", token, (int)black ) );
@@ -3022,7 +3022,7 @@ qboolean AICast_ScriptAction_PushAway( cast_state_t *cs, char *params ) {
 		Com_Error( ERR_DROP, "AI_Scripting: pushaway: cannot find \"%s\"", params );
 	}
 	// calc the vecs
-	VectorSubtract( pushed->s.pos.trBase, cs->bs->origin, v );
+	VectorSubtract( pushed->shared.s.pos.trBase, cs->bs->origin, v );
 	VectorNormalize( v );
 	vectoangles( v, ang );
 	AngleVectors( ang, f, r, NULL );
@@ -3042,7 +3042,7 @@ AICast_ScriptAction_CatchFire
 qboolean AICast_ScriptAction_CatchFire( cast_state_t *cs, char *params ) {
 	gentity_t *ent = &g_entities[cs->entityNum];
 	//
-	ent->s.onFireEnd = level.time + 99999;  // make sure it goes for longer than they need to die
+	ent->shared.s.onFireEnd = level.time + 99999;  // make sure it goes for longer than they need to die
 	ent->flameBurnEnt = ENTITYNUM_WORLD;
 	// add to playerState for client-side effect
 	ent->client->ps.onFireStart = level.time;
