@@ -316,14 +316,11 @@ static void MakeSkyVec( float s, float t, int axis, float outSt[2], vec3_t outXY
 	int j, k;
 	float boxSize;
 
-//	if(glfogNum > FOG_NONE && glfogsettings[FOG_CURRENT].mode == GL_EXP) {
-	if ( glfogsettings[FOG_SKY].registered ) {     // (SA) trying this...
-///		boxSize = backEnd.viewParms.zFar / 1.75;		// div sqrt(3)
-//		boxSize = glfogsettings[FOG_CURRENT].end / 1.75;
-		boxSize = glfogsettings[FOG_SKY].end;       // (SA) trying this...
+
+	if ( glfogsettings[FOG_SKY].registered ) {
+		boxSize = glfogsettings[FOG_SKY].end;
 	} else {
 		boxSize = backEnd.viewParms.zFar / 1.75;        // div sqrt(3)
-
 	}
 	// make sure the sky is not near clipped
 	if ( boxSize < r_znear->value * 2.0 ) {
@@ -339,8 +336,8 @@ static void MakeSkyVec( float s, float t, int axis, float outSt[2], vec3_t outXY
 		k = st_to_vec[axis][j];
 		if ( k < 0 ) {
 			outXYZ[j] = -b[-k - 1];
-		} else
-		{
+		} else if (k > 0) {
+            // k will never be 0 but keep the linter happy
 			outXYZ[j] = b[k - 1];
 		}
 	}

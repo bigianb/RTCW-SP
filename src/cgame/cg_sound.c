@@ -403,8 +403,8 @@ static void CG_SoundLoadSoundFiles( void ) {
 		Com_Printf( S_COLOR_RED "WARNING: no sound files found (filelist.txt not found in sound/scripts)\n" );
 		return;
 	}
-	if ( len > MAX_BUFFER ) {
-		Com_Error( ERR_DROP, "%s is too big, make it smaller (max = %i bytes)\n", filename, MAX_BUFFER );
+	if ( len >= MAX_BUFFER ) {
+		Com_Error( ERR_DROP, "%s is too big, make it smaller (max = %i bytes)\n", filename, MAX_BUFFER-1 );
         return;  // Keep linter happy. ERR_DROP does not return
 	}
 	// load the file into memory

@@ -620,8 +620,8 @@ static void CG_LoadTranslationStrings( void ) {
 		Com_Printf( S_COLOR_RED "WARNING: string translation file (strings.txt not found in main/text)\n" );
 		return;
 	}
-	if ( len > MAX_BUFFER ) {
-		Com_Error( ERR_DROP, "%s is too big, make it smaller (max = %i bytes)\n", filename, MAX_BUFFER );
+	if ( len >= MAX_BUFFER ) {
+		Com_Error( ERR_DROP, "%s is too big, make it smaller (max = %i bytes)\n", filename, MAX_BUFFER-1 );
         return;  // Keep linter happy. ERR_DROP does not return
 	}
 

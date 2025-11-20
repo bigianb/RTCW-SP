@@ -2716,7 +2716,7 @@ gitem_t *BG_FindItemForWeapon( weapon_t weapon ) {
 		lookupTableInit = qfalse;
 	}
 
-	if ( weapon < 0 || weapon > NUM_TABLE_ELEMENTS ) {
+	if ( weapon < 0 || weapon >= NUM_TABLE_ELEMENTS ) {
 		Com_Error( ERR_DROP, "BG_FindItemForWeapon: weapon out of range %i", weapon );
         return NULL;  // Keep linter happy. ERR_DROP does not return
 	}
