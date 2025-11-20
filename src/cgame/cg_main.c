@@ -576,7 +576,7 @@ static void CG_LoadPickupNames( void ) {
 		Com_Printf( S_COLOR_RED "WARNING: pickup name file (pickupnames.txt not found in main/text)\n" );
 		return;
 	}
-	if ( len > MAX_BUFFER ) {
+	if ( len >= MAX_BUFFER ) {
 		Com_Error( ERR_DROP, "%s is too big, make it smaller (max = %i bytes)\n", filename, MAX_BUFFER );
         return;  // Keep linter happy. ERR_DROP does not return
 	}

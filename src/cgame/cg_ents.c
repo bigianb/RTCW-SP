@@ -1061,6 +1061,7 @@ static void CG_Item( centity_t *cent ) {
 			ent.hModel = cg_items[es->modelindex].models[2];
 		} else if ( item->giType == IT_HEALTH || item->giType == IT_AMMO || item->giType == IT_POWERUP ) {
 			if ( es->density < ( 1 << 9 ) ) {  // (10 bits of data transmission for density)
+                // FIXME.
 				ent.hModel = cg_items[es->modelindex].models[es->density];  // multi-state powerups store their state in 'density'
 
 				// add steam to 'hot' meals

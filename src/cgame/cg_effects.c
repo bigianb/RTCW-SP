@@ -723,7 +723,13 @@ void CG_GibPlayer( centity_t *cent, vec3_t playerOrigin, vec3_t gdir ) {
 		"tag_armright",
 		"tag_armleft",
 		"tag_head",
-		NULL
+		NULL,
+        NULL,
+        NULL,
+        NULL,
+        NULL,
+        NULL,
+        NULL
 	};
 
 #define TORSOTAGSSTART 5    // where the 'split' happens in the above table

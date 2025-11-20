@@ -246,7 +246,7 @@ extern animation_t * BG_AnimationForString ( char * string , animModelInfo_t * m
 extern int BG_AnimationIndexForString ( char * string , int client ) ;
 extern animModelInfo_t * BG_ModelInfoForModelname ( char * modelname ) ;
 extern animModelInfo_t * BG_ModelInfoForClient ( int client ) ;
-extern void  BG_AnimParseError ( const char * msg , ... ) ;
+
 extern qboolean G_ScriptAction_SetHealth ( gentity_t * ent , char * params ) ;
 extern qboolean G_ScriptAction_RestoreScript ( gentity_t * ent , char * params ) ;
 extern qboolean G_ScriptAction_BackupScript ( gentity_t * ent , char * params ) ;

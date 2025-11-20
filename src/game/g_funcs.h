@@ -239,7 +239,7 @@ If you have questions concerning this license or the applicable additional terms
 {"BG_AnimationIndexForString", (byte *)BG_AnimationIndexForString},
 {"BG_ModelInfoForModelname", (byte *)BG_ModelInfoForModelname},
 {"BG_ModelInfoForClient", (byte *)BG_ModelInfoForClient},
-{"BG_AnimParseError", (byte *)BG_AnimParseError},
+
 {"G_ScriptAction_SetHealth", (byte *)G_ScriptAction_SetHealth},
 {"G_ScriptAction_RestoreScript", (byte *)G_ScriptAction_RestoreScript},
 {"G_ScriptAction_BackupScript", (byte *)G_ScriptAction_BackupScript},

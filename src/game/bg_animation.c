@@ -332,10 +332,12 @@ BG_ModelInfoForClient
 animModelInfo_t *BG_ModelInfoForClient( int client ) {
 	if ( !globalScriptData ) {
 		BG_AnimParseError( "BG_ModelInfoForClient: NULL globalScriptData" );
+        return NULL; // linter - BG_AnimParseError does not return
 	}
 	//
 	if ( !globalScriptData->clientModels[client] ) {
 		BG_AnimParseError( "BG_ModelInfoForClient: client %i has no modelinfo", client );
+        return NULL; // linter - BG_AnimParseError does not return
 	}
 	//
 	return globalScriptData->modelInfo[globalScriptData->clientModels[client] - 1];
@@ -352,6 +354,7 @@ animModelInfo_t *BG_ModelInfoForModelname( char *modelname ) {
 	//
 	if ( !globalScriptData ) {
 		BG_AnimParseError( "BG_ModelInfoForModelname: NULL globalScriptData" );
+        return NULL; // linter - BG_AnimParseError does not return
 	}
 	//
 	for ( i = 0; i < MAX_ANIMSCRIPT_MODELS; i++ ) {
@@ -459,6 +462,7 @@ char *BG_CopyStringIntoBuffer( char *string, char *buffer, int bufSize, int *off
 	// check for overloaded buffer
 	if ( *offset + strlen( string ) + 1 >= bufSize ) {
 		BG_AnimParseError( "BG_CopyStringIntoBuffer: out of buffer space" );
+        return NULL; // linter - BG_AnimParseError does not return
 	}
 
 	pch = &buffer[*offset];
@@ -561,6 +565,7 @@ qboolean BG_AnimParseAnimConfig( animModelInfo_t *animModelInfo, const char *fil
 				animModelInfo->footsteps = FOOTSTEP_ENERGY;
 			} else {
 				BG_AnimParseError( "Bad footsteps parm '%s'\n", token );
+                return qfalse; // linter - BG_AnimParseError does not return
 			}
 			continue;
 		} else if ( !Q_stricmp( token, "headoffset" ) ) {
@@ -610,6 +615,7 @@ qboolean BG_AnimParseAnimConfig( animModelInfo_t *animModelInfo, const char *fil
 			break;
 		}
 		BG_AnimParseError( "unknown token '%s'", token );
+        return qfalse; // linter - BG_AnimParseError does not return
 	}
 
 	// read information for each frame
@@ -633,6 +639,7 @@ qboolean BG_AnimParseAnimConfig( animModelInfo_t *animModelInfo, const char *fil
 			token = COM_ParseExt( &text_p, qfalse );
 			if ( !token || !token[0] ) {
 				BG_AnimParseError( "end of file without ENDANIMS" );
+                return qfalse; // linter - BG_AnimParseError does not return
 			}
 		} else {
 			// just set it to the equivalent animStrings[]
@@ -658,18 +665,21 @@ qboolean BG_AnimParseAnimConfig( animModelInfo_t *animModelInfo, const char *fil
 		token = COM_ParseExt( &text_p, qfalse );
 		if ( !token || !token[0] ) {
 			BG_AnimParseError( "end of file without ENDANIMS" );
+            return qfalse; // linter - BG_AnimParseError does not return
 		}
 		animations[i].numFrames = atoi( token );
 
 		token = COM_ParseExt( &text_p, qfalse );
 		if ( !token || !token[0] ) {
 			BG_AnimParseError( "end of file without ENDANIMS: line %i" );
+            return qfalse; // linter - BG_AnimParseError does not return
 		}
 		animations[i].loopFrames = atoi( token );
 
 		token = COM_ParseExt( &text_p, qfalse );
 		if ( !token || !token[0] ) {
 			BG_AnimParseError( "end of file without ENDANIMS: line %i" );
+            return qfalse; // linter - BG_AnimParseError does not return
 		}
 		fps = atof( token );
 		if ( fps == 0 ) {
@@ -682,6 +692,7 @@ qboolean BG_AnimParseAnimConfig( animModelInfo_t *animModelInfo, const char *fil
 		token = COM_ParseExt( &text_p, qfalse );
 		if ( !token || !token[0] ) {
 			BG_AnimParseError( "end of file without ENDANIMS" );
+            return qfalse; // linter - BG_AnimParseError does not return
 		}
 		animations[i].moveSpeed = atoi( token );
 
@@ -855,6 +866,7 @@ void BG_ParseConditionBits( char **text_pp, animStringItem_t *stringTable, int c
 			if ( !strlen( currentString ) ) {
 				if ( endFlag ) {
 					BG_AnimParseError( "BG_AnimParseAnimScript: unexpected end of condition" );
+                    return; // linter - BG_AnimParseError does not return
 				} else {
 					// check for minus indexes to follow
 					if ( !Q_stricmp( token, "MINUS" ) ) {
@@ -862,6 +874,7 @@ void BG_ParseConditionBits( char **text_pp, animStringItem_t *stringTable, int c
 						continue;
 					}
 					BG_AnimParseError( "BG_AnimParseAnimScript: unexpected '%s'", token );
+                    return; // linter - BG_AnimParseError does not return
 				}
 			}
 			if ( !Q_stricmp( currentString, "all" ) ) {
@@ -937,6 +950,7 @@ qboolean BG_ParseConditions( char **text_pp, animScriptItem_t *scriptItem ) {
 				token = COM_ParseExt( text_pp, qfalse );
 				if ( !token || !token[0] ) {
 					BG_AnimParseError( "BG_AnimParseAnimScript: expected condition value, found end of line" );  // RF modification
+                    return qfalse; // linter - BG_AnimParseError does not return
 				}
 				// check for a comma (condition divider)
 				if ( token[strlen( token ) - 1] == ',' ) {
@@ -960,6 +974,7 @@ qboolean BG_ParseConditions( char **text_pp, animScriptItem_t *scriptItem ) {
 
 	if ( scriptItem->numConditions == 0 ) {
 		BG_AnimParseError( "BG_ParseConditions: no conditions found" );  // RF mod
+        return qfalse; // linter - BG_AnimParseError does not return
 	}
 
 	return qtrue;
@@ -994,6 +1009,7 @@ void BG_ParseCommands( char **input, animScriptItem_t *scriptItem, animModelInfo
 			// have we exceeded the maximum number of commands?
 			if ( scriptItem->numCommands >= MAX_ANIMSCRIPT_ANIMCOMMANDS ) {
 				BG_AnimParseError( "BG_ParseCommands: exceeded maximum number of animations (%i)", MAX_ANIMSCRIPT_ANIMCOMMANDS );
+                return; // linter - BG_AnimParseError does not return
 			}
 			command = &scriptItem->commands[scriptItem->numCommands++];
 			memset( command, 0, sizeof( *command ) );
@@ -1005,6 +1021,7 @@ void BG_ParseCommands( char **input, animScriptItem_t *scriptItem, animModelInfo
 			token = COM_ParseExt( input, qfalse );
 			if ( !token || !token[0] ) {
 				BG_AnimParseError( "BG_ParseCommands: expected animation" );
+                return; // linter - BG_AnimParseError does not return
 			}
 			command->animIndex[partIndex] = BG_AnimationIndexForString( token, parseClient );
 			command->animDuration[partIndex] = modelInfo->animations[command->animIndex[partIndex]].duration;
@@ -1025,6 +1042,7 @@ void BG_ParseCommands( char **input, animScriptItem_t *scriptItem, animModelInfo
 					token = COM_ParseExt( input, qfalse );
 					if ( !token || !token[0] ) {
 						BG_AnimParseError( "BG_ParseCommands: expected duration value" );
+                        return; // linter - BG_AnimParseError does not return
 					}
 					command->animDuration[partIndex] = atoi( token );
 				} else {    // unget the token
@@ -1054,10 +1072,12 @@ void BG_ParseCommands( char **input, animScriptItem_t *scriptItem, animModelInfo
 				token = COM_ParseExt( input, qfalse );
 				if ( !token || !token[0] ) {
 					BG_AnimParseError( "BG_ParseCommands: expected sound" );
+                    return; // linter - BG_AnimParseError does not return
 				}
 				// NOTE: only sound script are supported at this stage
 				if ( strstr( token, ".wav" ) ) {
 					BG_AnimParseError( "BG_ParseCommands: wav files not supported, only sound scripts" );    // RF mod
+                    return; // linter - BG_AnimParseError does not return
 				}
 				command->soundIndex = globalScriptData->soundIndex( token );
 
@@ -1066,9 +1086,11 @@ void BG_ParseCommands( char **input, animScriptItem_t *scriptItem, animModelInfo
 				token = COM_ParseExt( input, qfalse );
 				if ( !token || !token[0] ) {
 					BG_AnimParseError( "BG_ParseCommands: expected showpart number" );
+                    return; // linter - BG_AnimParseError does not return
 				}
 				if ( atoi( token ) > 7 ) {
 					BG_AnimParseError( va( "BG_ParseCommands: showpart number '%d' is too big! (max 8)", atoi( token ) ) );
+                    return; // linter - BG_AnimParseError does not return
 				}
 
 				command->accShowBits &= atoi( token );
@@ -1076,9 +1098,11 @@ void BG_ParseCommands( char **input, animScriptItem_t *scriptItem, animModelInfo
 				token = COM_ParseExt( input, qfalse );
 				if ( !token || !token[0] ) {
 					BG_AnimParseError( "BG_ParseCommands: expected hidepart number" );
+                    return; // linter - BG_AnimParseError does not return
 				}
 				if ( atoi( token ) > 7 ) {
 					BG_AnimParseError( va( "BG_ParseCommands: hidepart number '%d' is too big! (max 8)", atoi( token ) ) );
+                    return; // linter - BG_AnimParseError does not return
 				}
 
 				command->accHideBits &= atoi( token );
@@ -1086,6 +1110,7 @@ void BG_ParseCommands( char **input, animScriptItem_t *scriptItem, animModelInfo
 			} else {
 				// unknown??
 				BG_AnimParseError( "BG_ParseCommands: unknown parameter '%s'", token );
+                return; // linter - BG_AnimParseError does not return
 			}
 		}
 
@@ -1162,6 +1187,7 @@ void BG_AnimParseAnimScript( animModelInfo_t *modelInfo, animScriptData_t *scrip
 		if ( !token || !token[0] ) {
 			if ( indentLevel ) {
 				BG_AnimParseError( "BG_AnimParseAnimScript: unexpected end of file: %s" );
+                return; // linter - BG_AnimParseError does not return
 			}
 			break;
 		}
@@ -1171,6 +1197,7 @@ void BG_AnimParseAnimScript( animModelInfo_t *modelInfo, animScriptData_t *scrip
 		if ( newParseMode >= 0 ) {
 			if ( indentLevel ) {
 				BG_AnimParseError( "BG_AnimParseAnimScript: unexpected '%s'", token );   // RF mod
+                return; // linter - BG_AnimParseError does not return
 			}
 
 			parseMode = newParseMode;
@@ -1189,6 +1216,7 @@ void BG_AnimParseAnimScript( animModelInfo_t *modelInfo, animScriptData_t *scrip
 				token = COM_ParseExt( &text_p, qfalse );
 				if ( !token || !token[0] ) {
 					BG_AnimParseError( "BG_AnimParseAnimScript: expected condition type string" );   // RF mod
+                    return; // linter - BG_AnimParseError does not return
 				}
 				defineType = BG_IndexForString( token, animConditionsStr, qfalse );
 
@@ -1196,6 +1224,7 @@ void BG_AnimParseAnimScript( animModelInfo_t *modelInfo, animScriptData_t *scrip
 				token = COM_ParseExt( &text_p, qfalse );
 				if ( !token || !token[0] ) {
 					BG_AnimParseError( "BG_AnimParseAnimScript: expected condition define string" ); // RF mod
+                    return; // linter - BG_AnimParseError does not return
 				}
 
 				// copy the define to the strings list
@@ -1205,9 +1234,11 @@ void BG_AnimParseAnimScript( animModelInfo_t *modelInfo, animScriptData_t *scrip
 				token = COM_ParseExt( &text_p, qfalse );
 				if ( !token ) {
 					BG_AnimParseError( "BG_AnimParseAnimScript: expected '=', found end of line" );  // RF mod
+                    return; // linter - BG_AnimParseError does not return
 				}
 				if ( Q_stricmp( token, "=" ) ) {
 					BG_AnimParseError( "BG_AnimParseAnimScript: expected '=', found '%s'", token );  // RF mod
+                    return; // linter - BG_AnimParseError does not return
 				}
 
 				// parse the bits
@@ -1231,9 +1262,11 @@ void BG_AnimParseAnimScript( animModelInfo_t *modelInfo, animScriptData_t *scrip
 				// about to increment indent level, check that we have enough information to do this
 				if ( indentLevel >= MAX_INDENT_LEVELS ) { // too many indentations
 					BG_AnimParseError( "BG_AnimParseAnimScript: unexpected '%s'", token );   // RF mod
+                    return; // linter - BG_AnimParseError does not return
 				}
 				if ( indexes[indentLevel] < 0 ) {     // we havent found out what this new group is yet
 					BG_AnimParseError( "BG_AnimParseAnimScript: unexpected '%s'", token );   // RF mod
+                    return; // linter - BG_AnimParseError does not return
 				}
 				//
 				indentLevel++;
@@ -1244,6 +1277,7 @@ void BG_AnimParseAnimScript( animModelInfo_t *modelInfo, animScriptData_t *scrip
 				indentLevel--;
 				if ( indentLevel < 0 ) {
 					BG_AnimParseError( "BG_AnimParseAnimScript: unexpected '%s'", token );   // RF mod
+                    return; // linter - BG_AnimParseError does not return
 				}
 				if ( indentLevel == 1 ) {
 					currentScript = NULL;
@@ -1255,12 +1289,14 @@ void BG_AnimParseAnimScript( animModelInfo_t *modelInfo, animScriptData_t *scrip
 
 				if ( Q_stricmp( token, "state" ) ) {
 					BG_AnimParseError( "BG_AnimParseAnimScript: expected 'state'" ); // RF mod
+                    return; // linter - BG_AnimParseError does not return
 				}
 
 				// read in the state type
 				token = COM_ParseExt( &text_p, qfalse );
 				if ( !token ) {
 					BG_AnimParseError( "BG_AnimParseAnimScript: expected state type" );  // RF mod
+                    return; // linter - BG_AnimParseError does not return
 				}
 				indexes[indentLevel] = BG_IndexForString( token, animStateStr, qfalse );
 
@@ -1269,6 +1305,7 @@ void BG_AnimParseAnimScript( animModelInfo_t *modelInfo, animScriptData_t *scrip
 				token = COM_ParseExt( &text_p, qtrue );
 				if ( !token || Q_stricmp( token, "{" ) ) {
 					BG_AnimParseError( "BG_AnimParseAnimScript: expected '{'" );
+                    return; // linter - BG_AnimParseError does not return
 				}
 				indentLevel++;
 //----(SA) // RF mod
@@ -1293,6 +1330,7 @@ void BG_AnimParseAnimScript( animModelInfo_t *modelInfo, animScriptData_t *scrip
 				if ( Q_strncmp( text_p, token, strlen( token ) ) ) {
 					// this should never happen, just here to check that this operation is correct before code goes live
 					BG_AnimParseError( "BG_AnimParseAnimScript: internal error" );
+                    return; // linter - BG_AnimParseError does not return
 				}
 				//
 				memset( &tempScriptItem, 0, sizeof( tempScriptItem ) );
@@ -1300,10 +1338,12 @@ void BG_AnimParseAnimScript( animModelInfo_t *modelInfo, animScriptData_t *scrip
 				// do we have enough room in this script for another item?
 				if ( currentScript->numItems >= MAX_ANIMSCRIPT_ITEMS ) {
 					BG_AnimParseError( "BG_AnimParseAnimScript: exceeded maximum items per script (%i)", MAX_ANIMSCRIPT_ITEMS ); // RF mod
+                    return; // linter - BG_AnimParseError does not return
 				}
 				// are there enough items left in the global list?
 				if ( modelInfo->numScriptItems >= MAX_ANIMSCRIPT_ITEMS_PER_MODEL ) {
 					BG_AnimParseError( "BG_AnimParseAnimScript: exceeded maximum global items (%i)", MAX_ANIMSCRIPT_ITEMS_PER_MODEL );   // RF mod
+                    return; // linter - BG_AnimParseError does not return
 				}
 				// it was parsed ok, so grab an item from the global list to use
 				currentScript->items[currentScript->numItems] = &modelInfo->scriptItems[ modelInfo->numScriptItems++ ];
@@ -1321,6 +1361,7 @@ void BG_AnimParseAnimScript( animModelInfo_t *modelInfo, animScriptData_t *scrip
 				if ( Q_strncmp( text_p, token, strlen( token ) ) ) {
 					// this should never happen, just here to check that this operation is correct before code goes live
 					BG_AnimParseError( "BG_AnimParseAnimScript: internal error" );
+                    return; // linter - BG_AnimParseError does not return
 				}
 				//
 				BG_ParseCommands( &text_p, currentScriptItem, modelInfo, scriptData );
@@ -1329,6 +1370,7 @@ void BG_AnimParseAnimScript( animModelInfo_t *modelInfo, animScriptData_t *scrip
 
 				// huh ??
 				BG_AnimParseError( "BG_AnimParseAnimScript: unexpected '%s'", token );   // RF mod
+                return; // linter - BG_AnimParseError does not return
 
 			}
 
@@ -1342,9 +1384,11 @@ void BG_AnimParseAnimScript( animModelInfo_t *modelInfo, animScriptData_t *scrip
 				// about to increment indent level, check that we have enough information to do this
 				if ( indentLevel >= MAX_INDENT_LEVELS ) { // too many indentations
 					BG_AnimParseError( "BG_AnimParseAnimScript: unexpected '%s'", token );   // RF mod
+                    return; // linter - BG_AnimParseError does not return
 				}
 				if ( indexes[indentLevel] < 0 ) {     // we havent found out what this new group is yet
 					BG_AnimParseError( "BG_AnimParseAnimScript: unexpected '%s'", token );   // RF mod
+                    return; // linter - BG_AnimParseError does not return
 				}
 				//
 				indentLevel++;
@@ -1355,6 +1399,7 @@ void BG_AnimParseAnimScript( animModelInfo_t *modelInfo, animScriptData_t *scrip
 				indentLevel--;
 				if ( indentLevel < 0 ) {
 					BG_AnimParseError( "BG_AnimParseAnimScript: unexpected '%s'", token );   // RF mod
+                    return; // linter - BG_AnimParseError does not return
 				}
 				if ( indentLevel == 0 ) {
 					currentScript = NULL;
@@ -1368,12 +1413,14 @@ void BG_AnimParseAnimScript( animModelInfo_t *modelInfo, animScriptData_t *scrip
 
 					if ( Q_stricmp( token, "statechange" ) ) {
 						BG_AnimParseError( "BG_AnimParseAnimScript: expected 'statechange', got '%s'", token );  // RF mod
+                        return; // linter - BG_AnimParseError does not return
 					}
 
 					// read in the old state type
 					token = COM_ParseExt( &text_p, qfalse );
 					if ( !token ) {
 						BG_AnimParseError( "BG_AnimParseAnimScript: expected <state type>" );    // RF mod
+                        return; // linter - BG_AnimParseError does not return
 					}
 					oldState = BG_IndexForString( token, animStateStr, qfalse );
 
@@ -1381,6 +1428,7 @@ void BG_AnimParseAnimScript( animModelInfo_t *modelInfo, animScriptData_t *scrip
 					token = COM_ParseExt( &text_p, qfalse );
 					if ( !token ) {
 						BG_AnimParseError( "BG_AnimParseAnimScript: expected <state type>" );    // RF mod
+                        return; // linter - BG_AnimParseError does not return
 					}
 					indexes[indentLevel] = BG_IndexForString( token, animStateStr, qfalse );
 
@@ -1391,6 +1439,7 @@ void BG_AnimParseAnimScript( animModelInfo_t *modelInfo, animScriptData_t *scrip
 					token = COM_ParseExt( &text_p, qtrue );
 					if ( !token || Q_stricmp( token, "{" ) ) {
 						BG_AnimParseError( "BG_AnimParseAnimScript: expected '{'" );
+                        return; // linter - BG_AnimParseError does not return
 					}
 					indentLevel++;
 //----(SA)		// RF mod
@@ -1415,6 +1464,7 @@ void BG_AnimParseAnimScript( animModelInfo_t *modelInfo, animScriptData_t *scrip
 				if ( Q_strncmp( text_p, token, strlen( token ) ) ) {
 					// this should never happen, just here to check that this operation is correct before code goes live
 					BG_AnimParseError( "BG_AnimParseAnimScript: internal error" );
+                    return; // linter - BG_AnimParseError does not return
 				}
 				//
 				memset( &tempScriptItem, 0, sizeof( tempScriptItem ) );
@@ -1422,10 +1472,12 @@ void BG_AnimParseAnimScript( animModelInfo_t *modelInfo, animScriptData_t *scrip
 				// do we have enough room in this script for another item?
 				if ( currentScript->numItems >= MAX_ANIMSCRIPT_ITEMS ) {
 					BG_AnimParseError( "BG_AnimParseAnimScript: exceeded maximum items per script (%i)", MAX_ANIMSCRIPT_ITEMS ); // RF mod
+                    return; // linter - BG_AnimParseError does not return
 				}
 				// are there enough items left in the global list?
 				if ( modelInfo->numScriptItems >= MAX_ANIMSCRIPT_ITEMS_PER_MODEL ) {
 					BG_AnimParseError( "BG_AnimParseAnimScript: exceeded maximum global items (%i)", MAX_ANIMSCRIPT_ITEMS_PER_MODEL );   // RF mod
+                    return; // linter - BG_AnimParseError does not return
 				}
 				// it was parsed ok, so grab an item from the global list to use
 				currentScript->items[currentScript->numItems] = &modelInfo->scriptItems[ modelInfo->numScriptItems++ ];
@@ -1443,6 +1495,7 @@ void BG_AnimParseAnimScript( animModelInfo_t *modelInfo, animScriptData_t *scrip
 				if ( Q_strncmp( text_p, token, strlen( token ) ) ) {
 					// this should never happen, just here to check that this operation is correct before code goes live
 					BG_AnimParseError( "BG_AnimParseAnimScript: internal error" );
+                    return; // linter - BG_AnimParseError does not return
 				}
 				//
 				BG_ParseCommands( &text_p, currentScriptItem, modelInfo, scriptData );
@@ -1451,6 +1504,7 @@ void BG_AnimParseAnimScript( animModelInfo_t *modelInfo, animScriptData_t *scrip
 
 				// huh ??
 				BG_AnimParseError( "BG_AnimParseAnimScript: unexpected '%s'", token );   // RF mod
+                return; // linter - BG_AnimParseError does not return
 
 			}
 
@@ -1893,6 +1947,7 @@ char *BG_GetAnimString( int client, int anim ) {
 	//
 	if ( anim >= modelinfo->numAnimations ) {
 		BG_AnimParseError( "BG_GetAnimString: anim index is out of range" );
+        return NULL; // linter - BG_AnimParseError does not return
 	}
 	//
 	return modelinfo->animations[anim].name;
@@ -1958,7 +2013,6 @@ int BG_GetConditionValue( int client, int condition, qboolean checkConversion ) 
 			}
 			// nothing found
 			return 0;
-			//BG_AnimParseError( "BG_GetConditionValue: internal error" );
 		}
 	}
 

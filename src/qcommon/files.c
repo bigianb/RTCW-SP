@@ -336,7 +336,7 @@ static fileHandle_t FS_HandleForFile( void ) {
 }
 
 static FILE *FS_FileForHandle( fileHandle_t f ) {
-	if ( f < 0 || f > MAX_FILE_HANDLES ) {
+	if ( f < 0 || f >= MAX_FILE_HANDLES ) {
 		Com_Error( ERR_DROP, "FS_FileForHandle: out of reange" );
         return NULL; // keep the linter happy, ERR_DROP does not return
 	}
