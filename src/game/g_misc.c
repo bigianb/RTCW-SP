@@ -2578,6 +2578,7 @@ void misc_tagemitter_finishspawning( gentity_t *ent ) {
 	parent = G_Find( NULL, FOFS( targetname ), ent->target );
 	if ( !parent ) {
 		Com_Error( ERR_DROP, "misc_tagemitter: can't find parent script mover with targetname \"%s\"\n", ent->target );
+        return; // keep the linter happy, ERR_DROP does not return
 	}
 
 	emitter = ent->target_ent;
@@ -2605,6 +2606,7 @@ void SP_misc_tagemitter( gentity_t *ent ) {
 
 	if ( !G_SpawnString( "tag", NULL, &tagName ) ) {
 		Com_Error( ERR_DROP, "misc_tagemitter: no 'tag' specified\n" );
+        return; // keep the linter happy, ERR_DROP does not return
 	}
 
 	ent->target_ent = G_Spawn();    // spawn the emitter
@@ -2631,6 +2633,7 @@ void misc_firetrails_finishspawning( gentity_t *ent ) {
 	airplane = G_Find( NULL, FOFS( targetname ), ent->target );
 	if ( !airplane ) {
 		Com_Error( ERR_DROP, "can't find airplane with targetname \"%s\" for firetrails", ent->target );
+        return; // keep the linter happy, ERR_DROP does not return
 	}
 
 	// left fire trail

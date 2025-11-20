@@ -424,6 +424,7 @@ Joystick values stay set until changed
 void CL_JoystickEvent( int axis, int value, int time ) {
 	if ( axis < 0 || axis >= MAX_JOYSTICK_AXIS ) {
 		Com_Error( ERR_DROP, "CL_JoystickEvent: bad axis %i", axis );
+        return;  // Keep linter happy. ERR_DROP does not return
 	}
 	cl.joystickAxis[axis] = value;
 }

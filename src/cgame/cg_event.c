@@ -2427,6 +2427,7 @@ void CG_EntityEvent( centity_t *cent, vec3_t position ) {
 	default:
 		DEBUGNAME( "UNKNOWN" );
 		Com_Error( ERR_DROP, "Unknown event: %i", event );
+        return;  // Keep linter happy. ERR_DROP does not return
 		break;
 	}
 

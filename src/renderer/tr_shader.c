@@ -319,7 +319,7 @@ static void ParseTexMod( char *_text, shaderStage_t *stage ) {
 
 	if ( stage->bundle[0].numTexMods == TR_MAX_TEXMODS ) {
 		ri.Error( ERR_DROP, "ERROR: too many tcMod stages in shader '%s'\n", shader.name );
-		return;
+        return; // keep the linter happy, ERR_DROP does not return
 	}
 
 	tmi = &stage->bundle[0].texMods[stage->bundle[0].numTexMods];
@@ -2920,6 +2920,7 @@ static void BuildShaderChecksumLookup( void ) {
 
 			if ( numShaderStringPointers >= MAX_SHADER_STRING_POINTERS ) {
 				ri.Error( ERR_DROP, "MAX_SHADER_STRING_POINTERS exceeded, too many shaders" );
+                return; // keep the linter happy, ERR_DROP does not return
 			}
 
 			newStrPtr = &shaderStringPointerList[numShaderStringPointers++]; //ri.Hunk_Alloc( sizeof( shaderStringPointer_t ), h_low );
@@ -2971,6 +2972,7 @@ static void ScanAndLoadShaderFiles( void ) {
 		sum += FS_ReadFile( filename, (void **)&buffers[i] );
 		if ( !buffers[i] ) {
 			ri.Error( ERR_DROP, "Couldn't load %s", filename );
+            return; // keep the linter happy, ERR_DROP does not return
 		}
 	}
 

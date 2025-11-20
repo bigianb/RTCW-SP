@@ -2055,6 +2055,7 @@ animation_t *BG_GetAnimationForIndex( int client, int index ) {
 	modelInfo = BG_ModelInfoForClient( client );
 	if ( index < 0 || index >= modelInfo->numAnimations ) {
 		Com_Error( ERR_DROP, "BG_GetAnimationForIndex: index out of bounds" );
+        return NULL;  // Keep linter happy. ERR_DROP does not return
 	}
 
 	return &modelInfo->animations[index];
@@ -2119,6 +2120,7 @@ float BG_AnimGetFootstepGap( playerState_t *ps, float xyspeed ) {
 	index = ps->legsAnim & ~ANIM_TOGGLEBIT;
 	if ( index < 0 || index >= modelInfo->numAnimations ) {
 		Com_Error( ERR_DROP, "BG_AnimGetFootstepGap: anim index out of bounds" );
+        return 0.0;  // Keep linter happy. ERR_DROP does not return
 	}
 
 	anim = &modelInfo->animations[index];

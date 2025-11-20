@@ -226,6 +226,7 @@ localEntity_t *CG_MakeExplosion( vec3_t origin, vec3_t dir,
 
 	if ( msec <= 0 ) {
 		Com_Error( ERR_DROP, "CG_MakeExplosion: msec = %i", msec );
+        return NULL;  // Keep linter happy. ERR_DROP does not return
 	}
 
 	// skew the time a bit so they aren't all in sync
@@ -528,6 +529,7 @@ void CG_LoseHat( centity_t *cent, vec3_t dir ) {
 	clientNum = cent->currentState.clientNum;
 	if ( clientNum < 0 || clientNum >= MAX_CLIENTS ) {
 		Com_Error( ERR_DROP, "Bad clientNum on player entity" );
+        return;  // Keep linter happy. ERR_DROP does not return
 	}
 	ci = &cgs.clientinfo[ clientNum ];
 
@@ -734,6 +736,7 @@ void CG_GibPlayer( centity_t *cent, vec3_t playerOrigin, vec3_t gdir ) {
 	clientNum = cent->currentState.clientNum;
 	if ( clientNum < 0 || clientNum >= MAX_CLIENTS ) {
 		Com_Error( ERR_DROP, "Bad clientNum on player entity" );
+        return;  // Keep linter happy. ERR_DROP does not return
 	}
 	ci = &cgs.clientinfo[ clientNum ];
 

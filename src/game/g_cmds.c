@@ -525,6 +525,7 @@ void Cmd_FollowCycle_f( gentity_t *ent, int dir ) {
 
 	if ( dir != 1 && dir != -1 ) {
 		Com_Error( ERR_DROP, "Cmd_FollowCycle_f: bad dir %i", dir );
+        return; // keep the linter happy, ERR_DROP does not return
 	}
 
 	clientnum = ent->client->sess.spectatorClient;

@@ -680,6 +680,7 @@ static qboolean R_MDC_ConvertMD3( model_t *mod, int lod, const char *mod_name ) 
 			} else {
 				if ( !R_MDC_CompressSurfaceFrame( md3, surf, f, baseFrames[i - 1], ( mdcXyzCompressed_t * )( (byte *)cSurf + cSurf->ofsXyzCompressed + sizeof( mdcXyzCompressed_t ) * cSurf->numVerts * c ) ) ) {
 					ri.Error( ERR_DROP, "R_MDC_ConvertMD3: tried to compress an unsuitable frame\n" );
+                    return qfalse; // keep the linter happy, ERR_DROP does not return
 				}
 				frameCompFrames[f] = c;
 				frameBaseFrames[f] = i - 1;
@@ -814,10 +815,12 @@ static qboolean R_LoadMDC( model_t *mod, int lod, void *buffer, const char *mod_
 		if ( surf->numVerts > SHADER_MAX_VERTEXES ) {
 			ri.Error( ERR_DROP, "R_LoadMDC: %s has more than %i verts on a surface (%i)",
 					  mod_name, SHADER_MAX_VERTEXES, surf->numVerts );
+            return qfalse; // keep the linter happy, ERR_DROP does not return
 		}
 		if ( surf->numTriangles * 3 > SHADER_MAX_INDEXES ) {
 			ri.Error( ERR_DROP, "R_LoadMDC: %s has more than %i triangles on a surface (%i)",
 					  mod_name, SHADER_MAX_INDEXES / 3, surf->numTriangles );
+            return qfalse; // keep the linter happy, ERR_DROP does not return
 		}
 
 		// change to surface identifier
@@ -1028,10 +1031,12 @@ static qboolean R_LoadMD3( model_t *mod, int lod, void *buffer, const char *mod_
 		if ( surf->numVerts > SHADER_MAX_VERTEXES ) {
 			ri.Error( ERR_DROP, "R_LoadMD3: %s has more than %i verts on a surface (%i)",
 					  mod_name, SHADER_MAX_VERTEXES, surf->numVerts );
+            return qfalse; // keep the linter happy, ERR_DROP does not return
 		}
 		if ( surf->numTriangles * 3 > SHADER_MAX_INDEXES ) {
 			ri.Error( ERR_DROP, "R_LoadMD3: %s has more than %i triangles on a surface (%i)",
 					  mod_name, SHADER_MAX_INDEXES / 3, surf->numTriangles );
+            return qfalse; // keep the linter happy, ERR_DROP does not return
 		}
 
 		// change to surface identifier
@@ -1219,10 +1224,12 @@ static qboolean R_LoadMDS( model_t *mod, void *buffer, const char *mod_name ) {
 		if ( surf->numVerts > SHADER_MAX_VERTEXES ) {
 			ri.Error( ERR_DROP, "R_LoadMDS: %s has more than %i verts on a surface (%i)",
 					  mod_name, SHADER_MAX_VERTEXES, surf->numVerts );
+            return qfalse; // keep the linter happy, ERR_DROP does not return
 		}
 		if ( surf->numTriangles * 3 > SHADER_MAX_INDEXES ) {
 			ri.Error( ERR_DROP, "R_LoadMDS: %s has more than %i triangles on a surface (%i)",
 					  mod_name, SHADER_MAX_INDEXES / 3, surf->numTriangles );
+            return qfalse; // keep the linter happy, ERR_DROP does not return
 		}
 
 		// register the shaders
@@ -1744,6 +1751,7 @@ void *R_Hunk_Begin( void ) {
 
 	if ( !membase ) {
 		ri.Error( ERR_DROP, "R_Hunk_Begin: reserve failed" );
+        return NULL; // keep the linter happy, ERR_DROP does not return
 	}
 
 	return (void *)membase;
@@ -1778,6 +1786,7 @@ void *R_Hunk_Alloc( int size ) {
 	hunkcursize += size;
 	if ( hunkcursize > hunkmaxsize ) {
 		ri.Error( ERR_DROP, "R_Hunk_Alloc overflow" );
+        return NULL; // keep the linter happy, ERR_DROP does not return
 	}
 
 	return ( void * )( membase + hunkcursize - size );
@@ -1814,6 +1823,7 @@ void R_Hunk_Reset( void ) {
 #if !defined( __MACOS__ )
 	if ( !membase ) {
 		ri.Error( ERR_DROP, "R_Hunk_Reset called without a membase!" );
+        return; // keep the linter happy, ERR_DROP does not return
 	}
 #endif
 

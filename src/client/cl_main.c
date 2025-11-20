@@ -152,6 +152,7 @@ void CL_AddReliableCommand( const char *cmd )
 	// we must drop the connection
 	if ( clc.reliableSequence - clc.reliableAcknowledge > MAX_RELIABLE_COMMANDS ) {
 		Com_Error( ERR_DROP, "Client command overflow" );
+        return;  // Keep linter happy. ERR_DROP does not return
 	}
 	clc.reliableSequence++;
 	int index = clc.reliableSequence & ( MAX_RELIABLE_COMMANDS - 1 );

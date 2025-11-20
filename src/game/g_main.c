@@ -1385,6 +1385,7 @@ void G_RunThink( gentity_t *ent ) {
 	ent->nextthink = 0;
 	if ( !ent->think ) {
 		Com_Error( ERR_DROP, "NULL ent->think" );
+        return; // keep the linter happy, ERR_DROP does not return
 	}
 	ent->think( ent );
 }

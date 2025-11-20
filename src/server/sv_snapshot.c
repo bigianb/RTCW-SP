@@ -524,7 +524,7 @@ static void SV_BuildClientSnapshot( client_t *client )
 	int clientNum = frame->ps.clientNum;
 	if ( clientNum < 0 || clientNum >= MAX_GENTITIES ) {
 		Com_Error( ERR_DROP, "SV_SvEntityForGentity: bad gEnt" );
-		return;
+        return; // keep the linter happy, ERR_DROP does not return
 	}
 	svEntity_t* svEnt = &sv.svEntities[ clientNum ];
 

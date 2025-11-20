@@ -668,6 +668,7 @@ void SP_trigger_deathCheck( gentity_t *ent ) {
 
 	if ( !( ent->aiName ) ) {
 		Com_Error( ERR_DROP, "trigger_once_enabledeath does not have an aiName \n" );
+        return; // keep the linter happy, ERR_DROP does not return
 	}
 
 	ent->wait   = -1;           // this will remove itself after one use

@@ -933,6 +933,7 @@ void CG_RegisterWeapon( int weaponNum ) {
 	}
 	if ( !item->classname ) {
 		Com_Error( ERR_DROP, "Couldn't find weapon %i", weaponNum );
+        return;  // Keep linter happy. ERR_DROP does not return
 	}
 	CG_RegisterItemVisuals( item - bg_itemlist );
 
@@ -952,11 +953,7 @@ void CG_RegisterWeapon( int weaponNum ) {
 		//	ie. every weapon and it's associated effects/parts/sounds etc. are loaded for every level.
 		// This was turned off when we started (the "only load what the level calls for" thing) because when
 		// DM does a "give all" and fires, he doesn't want to wait for everything to load.  So perhaps a "cacheallweaps" or something.
-//		Com_Printf( "Couldn't register weapon model %i (unable to load view model)", weaponNum );
-// RF, I need to be able to run the game, I dont have the silencer weapon (19)
-#ifndef _DEBUG
-//		Com_Error( ERR_DROP, "Couldn't register weapon model %i (unable to load view model)", weaponNum );
-#endif
+
 		return;
 	}
 
@@ -967,6 +964,7 @@ void CG_RegisterWeapon( int weaponNum ) {
 		COM_StripFilename( item->world_model[W_FP_MODEL], path );
 		if ( !CG_ParseWeaponConfig( va( "%sweapon.cfg", path ), weaponInfo ) ) {
 			Com_Error( ERR_DROP, "Couldn't register weapon %i (%s) (failed to parse weapon.cfg)", weaponNum, path );
+            return;  // Keep linter happy. ERR_DROP does not return
 		}
 	}
 //----(SA)	end
@@ -1435,6 +1433,7 @@ static void CG_SetWeapLerpFrameAnimation( weaponInfo_t *wi, lerpFrame_t *lf, int
 
 	if ( newAnimation < 0 || newAnimation >= MAX_WP_ANIMATIONS ) {
 		Com_Error( ERR_DROP, "Bad animation number (CG_SWLFA): %i", newAnimation );
+        return;  // Keep linter happy. ERR_DROP does not return
 	}
 
 	anim = &wi->weapAnimations[ newAnimation ];
@@ -5695,6 +5694,7 @@ CG_ClientDamage
 void CG_ClientDamage( int entnum, int enemynum, int id ) {
 	if ( id > CLDMG_MAX ) {
 		Com_Error( ERR_DROP, "CG_ClientDamage: unknown damage type: %i\n", id );
+        return;  // Keep linter happy. ERR_DROP does not return
 	}
 
 	CL_AddReliableCommand( va( "cld %i %i %i", entnum, enemynum, id ) );

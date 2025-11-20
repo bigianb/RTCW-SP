@@ -173,6 +173,7 @@ static void ClipSkyPolygon( int nump, vec3_t vecs, int stage ) {
 
 	if ( nump > MAX_CLIP_VERTS - 2 ) {
 		ri.Error( ERR_DROP, "ClipSkyPolygon: MAX_CLIP_VERTS" );
+        return; // keep the linter happy, ERR_DROP does not return
 	}
 	if ( stage == 6 ) { // fully clipped, so draw it
 		AddSkyPolygon( nump, vecs );
@@ -585,6 +586,7 @@ static void FillCloudySkySide( const int mins[2], const int maxs[2], qboolean ad
 
 			if ( tess.numVertexes >= SHADER_MAX_VERTEXES ) {
 				ri.Error( ERR_DROP, "SHADER_MAX_VERTEXES hit in FillCloudySkySide()\n" );
+                return; // keep the linter happy, ERR_DROP does not return
 			}
 		}
 	}

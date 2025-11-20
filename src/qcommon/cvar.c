@@ -56,6 +56,7 @@ static long generateHashValue( const char *fname ) {
 
 	if ( !fname ) {
 		Com_Error( ERR_DROP, "null name in generateHashValue" );       //gjd
+        return 0; // keep the linter happy, ERR_DROP does not return
 	}
 	hash = 0;
 	i = 0;
@@ -853,6 +854,7 @@ void    Cvar_Update( vmCvar_t *vmCvar ) {
 
 	if ( (unsigned)vmCvar->handle >= cvar_numIndexes ) {
 		Com_Error( ERR_DROP, "Cvar_Update: handle out of range" );
+        return; // keep the linter happy, ERR_DROP does not return
 	}
 
 	cv = cvar_indexes + vmCvar->handle;
@@ -870,6 +872,7 @@ void    Cvar_Update( vmCvar_t *vmCvar ) {
 				   cv->string,
 				   strlen( cv->string ),
 				   sizeof( vmCvar->string ) );
+        return; // keep the linter happy, ERR_DROP does not return
 	}
 	// bk001212 - Q_strncpyz guarantees zero padding and dest[MAX_CVAR_VALUE_STRING-1]==0
 	// bk001129 - paranoia. Never trust the destination string.

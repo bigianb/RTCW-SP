@@ -1540,6 +1540,7 @@ void CG_ParticleExplosion( char *animStr, vec3_t origin, vec3_t vel, int duratio
 
 	if ( animStr < (char *)10 ) {
 		Com_Error( ERR_DROP, "CG_ParticleExplosion: animStr is probably an index rather than a string" );
+        return;  // Keep linter happy. ERR_DROP does not return
 	}
 
 	if ( !CG_ParticleLODCheck() ) {

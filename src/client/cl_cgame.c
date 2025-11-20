@@ -64,6 +64,7 @@ qboolean CL_GetUserCmd( int cmdNumber, usercmd_t *ucmd )
 	// can't return anything that we haven't created yet
 	if ( cmdNumber > cl.cmdNumber ) {
 		Com_Error( ERR_DROP, "CL_GetUserCmd: %i >= %i", cmdNumber, cl.cmdNumber );
+        return;  // Keep linter happy. ERR_DROP does not return
 	}
 
 	// the usercmd has been overwritten in the wrapping
@@ -190,6 +191,7 @@ void CL_ConfigstringModified()
 	int index = atoi( Cmd_Argv( 1 ) );
 	if ( index < 0 || index >= MAX_CONFIGSTRINGS ) {
 		Com_Error( ERR_DROP, "configstring > MAX_CONFIGSTRINGS" );
+        return;  // Keep linter happy. ERR_DROP does not return
 	}
 
 	char* s = Cmd_ArgsFrom( 2 );
@@ -222,6 +224,7 @@ void CL_ConfigstringModified()
 
 		if ( len + 1 + cl.gameState.dataCount > MAX_GAMESTATE_CHARS ) {
 			Com_Error( ERR_DROP, "MAX_GAMESTATE_CHARS exceeded" );
+            return;  // Keep linter happy. ERR_DROP does not return
 		}
 
 		// append it to the gameState string buffer
@@ -282,6 +285,7 @@ rescan:
 		s = Cmd_Argv( 2 );
 		if ( strlen( bigConfigString ) + strlen( s ) >= BIG_INFO_STRING ) {
 			Com_Error( ERR_DROP, "bcs exceeded BIG_INFO_STRING" );
+            return;  // Keep linter happy. ERR_DROP does not return
 		}
 		strcat( bigConfigString, s );
 		return qfalse;
@@ -291,6 +295,7 @@ rescan:
 		s = Cmd_Argv( 2 );
 		if ( strlen( bigConfigString ) + strlen( s ) + 1 >= BIG_INFO_STRING ) {
 			Com_Error( ERR_DROP, "bcs exceeded BIG_INFO_STRING" );
+            return;  // Keep linter happy. ERR_DROP does not return
 		}
 		strcat( bigConfigString, s );
 		strcat( bigConfigString, "\"" );
@@ -570,6 +575,7 @@ void CL_SetCGameTime()
 	// if we have gotten to this point, cl.snap is guaranteed to be valid
 	if ( !cl.snap.valid ) {
 		Com_Error( ERR_DROP, "CL_SetCGameTime: !cl.snap.valid" );
+        return;  // Keep linter happy. ERR_DROP does not return
 	}
 
 	// allow pause in single player

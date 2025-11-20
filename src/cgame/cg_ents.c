@@ -215,6 +215,7 @@ void CG_LoseArmor( centity_t *cent, int index ) {
 	clientNum = cent->currentState.clientNum;
 	if ( clientNum < 0 || clientNum >= MAX_CLIENTS ) {
 		Com_Error( ERR_DROP, "Bad clientNum on player entity" );
+        return;  // Keep linter happy. ERR_DROP does not return
 	}
 	ci = &cgs.clientinfo[ clientNum ];
 
@@ -943,6 +944,7 @@ static void CG_Item( centity_t *cent ) {
 
 	if ( es->modelindex >= bg_numItems ) {
 		Com_Error( ERR_DROP, "Bad item index %i on entity", es->modelindex );
+        return;  // Keep linter happy. ERR_DROP does not return
 	}
 
 	// if set to invisible, skip
@@ -2257,6 +2259,7 @@ static void CG_InterpolateEntityPosition( centity_t *cent ) {
 	// a snapshot ahead of the current one
 	if ( cg.nextSnap == NULL ) {
 		Com_Error( ERR_DROP, "CG_InterpoateEntityPosition: cg.nextSnap == NULL" );
+        return;  // Keep linter happy. ERR_DROP does not return
 	}
 
 	f = cg.frameInterpolation;
@@ -2312,6 +2315,7 @@ static void CG_ProcessEntity( centity_t *cent ) {
 	switch ( cent->currentState.eType ) {
 	default:
 		Com_Error( ERR_DROP, "Bad entity type: %i\n", cent->currentState.eType );
+        return;  // Keep linter happy. ERR_DROP does not return
 		break;
 	case ET_CAMERA:
 	case ET_INVISIBLE:
@@ -2474,16 +2478,19 @@ static void CG_AddEntityToTag( centity_t *cent ) {
 			token = COM_Parse( &cs );
 			if ( !token[0] ) {
 				Com_Error( ERR_DROP, "CG_EntityTagConnected: missing parameter in configstring" );
+                return;  // Keep linter happy. ERR_DROP does not return
 			}
 			pi = atoi( token );
 			if ( pi < 0 || pi >= MAX_GENTITIES ) {
 				Com_Error( ERR_DROP, "CG_EntityTagConnected: parent out of range" );
+                return;  // Keep linter happy. ERR_DROP does not return
 			}
 			centParent = &cg_entities[pi];
 			sParent = &( cg_entities[pi].currentState );
 			token = COM_Parse( &cs );
 			if ( !token[0] ) {
 				Com_Error( ERR_DROP, "CG_EntityTagConnected: missing parameter in configstring" );
+                return;  // Keep linter happy. ERR_DROP does not return
 			}
 
 			// NOTE: token is now the tag name to attach to
@@ -2495,6 +2502,7 @@ static void CG_AddEntityToTag( centity_t *cent ) {
 	if ( !sParent ) {
 		//return;	// assume the configstring hasn't arrived yet?
 		Com_Error( ERR_DROP, "CG_EntityTagConnected: unable to find configstring to perform connection" );
+        return;  // Keep linter happy. ERR_DROP does not return
 	}
 
 	// if parent isn't visible, then don't draw us

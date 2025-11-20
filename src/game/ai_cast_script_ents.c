@@ -112,7 +112,6 @@ void ai_effect_think( gentity_t *ent ) {
 		ent->think = ai_effect_think;
 		ent->nextthink = level.time + 200;
 		return;
-		//Com_Error( ERR_DROP, "ai_effect with invalid aiName at %s\n", vtos(ent->shared.s.origin) );
 	}
 
 	// make sure the clients can use this association
@@ -204,9 +203,11 @@ void SP_ai_trigger( gentity_t *ent ) {
 
 	if ( !ent->aiName ) {
 		Com_Error( ERR_DROP, "ai_trigger without \"ainame\"\n" );
+        return;  // Keep linter happy. ERR_DROP does not return
 	}
 	if ( !ent->target ) {
 		Com_Error( ERR_DROP, "ai_trigger without \"target\"\n" );
+        return;  // Keep linter happy. ERR_DROP does not return
 	}
 
 	if ( ent->spawnflags & 1 ) { // TriggerSpawn

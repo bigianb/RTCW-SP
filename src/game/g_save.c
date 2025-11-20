@@ -312,6 +312,7 @@ void WriteField1( saveField_t *field, byte *base )
 		}
 		if ( index >= MAX_GENTITIES || index < -1 ) {
 			Com_Error( ERR_DROP, "WriteField1: entity out of range (%i)", index );
+            return; // keep the linter happy, ERR_DROP does not return
 		}
 		*(int *)p = index;
 		break;
@@ -323,6 +324,7 @@ void WriteField1( saveField_t *field, byte *base )
 		}
 		if ( index >= MAX_CLIENTS || index < -1 ) {
 			Com_Error( ERR_DROP, "WriteField1: client out of range (%i)", index );
+            return; // keep the linter happy, ERR_DROP does not return
 		}
 		*(int *)p = index;
 		break;
@@ -345,6 +347,7 @@ void WriteField1( saveField_t *field, byte *base )
 			func = G_FindFuncAtAddress( *(byte **)p );
 			if ( !func ) {
 				Com_Error( ERR_DROP, "WriteField1: unknown function, cannot save game" );
+                return; // keep the linter happy, ERR_DROP does not return
 			}
 			len = strlen( func->funcStr ) + 1;
 		}
@@ -378,6 +381,7 @@ void WriteField2( fileHandle_t f, saveField_t *field, byte *base )
 			func = G_FindFuncAtAddress( *(byte **)p );
 			if ( !func ) {
 				Com_Error( ERR_DROP, "WriteField1: unknown function, cannot save game" );
+                return; // keep the linter happy, ERR_DROP does not return
 			}
 			len = strlen( func->funcStr ) + 1;
 			if ( !G_SaveWrite( func->funcStr, len, f ) ) {
@@ -413,6 +417,7 @@ void ReadField( fileHandle_t f, saveField_t *field, byte *base )
 		index = *(int *)p;
 		if ( index >= MAX_GENTITIES || index < -1 ) {
 			Com_Error( ERR_DROP, "ReadField: entity out of range (%i)", index );
+            return; // keep the linter happy, ERR_DROP does not return
 		}
 		if ( index == -1 ) {
 			*(gentity_t **)p = NULL;
@@ -424,6 +429,7 @@ void ReadField( fileHandle_t f, saveField_t *field, byte *base )
 		index = *(int *)p;
 		if ( index >= MAX_CLIENTS || index < -1 ) {
 			Com_Error( ERR_DROP, "ReadField: client out of range (%i)", index );
+            return; // keep the linter happy, ERR_DROP does not return
 		}
 		if ( index == -1 ) {
 			*(gclient_t **)p = NULL;
@@ -448,10 +454,12 @@ void ReadField( fileHandle_t f, saveField_t *field, byte *base )
 		} else {
 			if ( len > sizeof( funcStr ) ) {
 				Com_Error( ERR_DROP, "ReadField: function name is greater than buffer (%i chars)", sizeof( funcStr ) );
+                return; // keep the linter happy, ERR_DROP does not return
 			}
 			FS_Read( funcStr, len, f );
 			if ( !( *(byte **)p = G_FindFuncByName( funcStr ) ) ) {
 				Com_Error( ERR_DROP, "ReadField: unknown function '%s'\ncannot load game", funcStr );
+                return; // keep the linter happy, ERR_DROP does not return
 			}
 		}
 		break;
@@ -594,7 +602,7 @@ void ReadClient( fileHandle_t f, gclient_t *client, int size )
     FS_Read( &decodedSize, sizeof( int ), f );
     if ( decodedSize > sizeof( clientBuf ) ) {
         Com_Error( ERR_DROP, "G_LoadGame: encoded chunk is greater than buffer" );
-        return;
+        return; // keep the linter happy, ERR_DROP does not return
     }
     
     FS_Read( clientBuf, decodedSize, f );
@@ -704,6 +712,7 @@ void ReadEntity( fileHandle_t f, gentity_t *ent, int size )
     FS_Read( &decodedSize, sizeof( int ), f );
     if ( decodedSize > sizeof( entityBuf ) ) {
         Com_Error( ERR_DROP, "G_LoadGame: encoded chunk is greater than buffer" );
+        return; // keep the linter happy, ERR_DROP does not return
     }
     FS_Read( entityBuf, decodedSize, f );
     gentity_t temp;
@@ -848,7 +857,7 @@ void ReadCastState( fileHandle_t f, cast_state_t *cs, int size )
     FS_Read( &decodedSize, sizeof( int ), f );
     if ( decodedSize > sizeof( castStateBuf ) ) {
         Com_Error( ERR_DROP, "G_LoadGame: encoded chunk is greater than buffer" );
-        return;
+        return; // keep the linter happy, ERR_DROP does not return
     }
     FS_Read( castStateBuf, decodedSize, f );
     cast_state_t temp;
@@ -1020,6 +1029,7 @@ qboolean G_SaveGame( char *username )
     fileHandle_t f;
 	if ( FS_FOpenFileByMode( filename, &f, FS_WRITE ) < 0 ) {
 		Com_Error( ERR_DROP, "G_SaveGame: cannot open file for saving\n" );
+        return qfalse; // keep the linter happy, ERR_DROP does not return
 	}
 
 	// write the version
@@ -1250,6 +1260,7 @@ void G_LoadGame( char *filename )
 	// open the file
 	if ( FS_FOpenFileByMode( filename, &f, FS_READ ) < 0 ) {
 		Com_Error( ERR_DROP, "G_LoadGame: savegame '%s' not found\n", filename );
+        return; // keep the linter happy, ERR_DROP does not return
 	}
 
 	// read the version
@@ -1258,6 +1269,7 @@ void G_LoadGame( char *filename )
 	if ( i != SAVE_VERSION ) {
 		FS_FCloseFile( f );
 		Com_Error( ERR_DROP, "G_LoadGame: savegame '%s' is wrong version (%i, should be %i)\n", filename, i, SAVE_VERSION );
+        return; // keep the linter happy, ERR_DROP does not return
 	}
 
 	// read the mapname (this is only used in the sever exe, so just discard it)
@@ -1345,7 +1357,7 @@ void G_LoadGame( char *filename )
 		if ( i >= MAX_GENTITIES ) {
 			FS_FCloseFile( f );
 			Com_Error( ERR_DROP, "G_LoadGame: entitynum out of range (%i, MAX = %i)\n", i, MAX_GENTITIES );
-            return;
+            return; // keep the linter happy, ERR_DROP does not return
 		}
 		if ( i >= level.num_entities ) {  // notify server
 			level.num_entities = i;
@@ -1386,13 +1398,13 @@ void G_LoadGame( char *filename )
 		if ( i > MAX_CLIENTS ) {
 			FS_FCloseFile( f );
 			Com_Error( ERR_DROP, "G_LoadGame: clientnum out of range\n" );
-            return;
+            return; // keep the linter happy, ERR_DROP does not return
 		}
 		cl = &level.clients[i];
 		if ( cl->pers.connected == CON_DISCONNECTED ) {
 			FS_FCloseFile( f );
 			Com_Error( ERR_DROP, "G_LoadGame: client mis-match in savegame" );
-            return;
+            return; // keep the linter happy, ERR_DROP does not return
 		}
 		ReadClient( f, cl, size );
 	}
@@ -1409,7 +1421,7 @@ void G_LoadGame( char *filename )
 		if ( i > MAX_CLIENTS ) {
 			FS_FCloseFile( f );
 			Com_Error( ERR_DROP, "G_LoadGame: clientnum out of range\n" );
-            return;
+            return; // keep the linter happy, ERR_DROP does not return
 		}
 		cs = &caststates[i];
 		ReadCastState( f, cs, size );

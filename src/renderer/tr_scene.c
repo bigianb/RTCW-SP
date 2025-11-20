@@ -300,6 +300,7 @@ void RE_AddRefEntityToScene( const refEntity_t *ent ) {
 	}
 	if ( ent->reType < 0 || ent->reType >= RT_MAX_REF_ENTITY_TYPE ) {
 		ri.Error( ERR_DROP, "RE_AddRefEntityToScene: bad reType %i", ent->reType );
+        return; // keep the linter happy, ERR_DROP does not return
 	}
 
 	backEndData[tr.smpFrame]->entities[r_numentities].e = *ent;
@@ -422,6 +423,7 @@ void RE_RenderScene( const refdef_t *fd ) {
 
 	if ( !tr.world && !( fd->rdflags & RDF_NOWORLDMODEL ) ) {
 		ri.Error( ERR_DROP, "R_RenderScene: NULL worldmodel" );
+        return; // keep the linter happy, ERR_DROP does not return
 	}
 
 	memcpy( tr.refdef.text, fd->text, sizeof( tr.refdef.text ) );

@@ -204,7 +204,7 @@ void target_speaker_multiple( gentity_t *ent ) {
 
 	if ( !( ent->target ) ) {
 		Com_Error( ERR_DROP, "target_speaker missing target at pos %s", vtos( ent->shared.s.origin ) );
-		return;
+        return; // keep the linter happy, ERR_DROP does not return
 	}
 
 	vis_dummy = G_Find( NULL, FOFS( targetname ), ent->target );
@@ -213,6 +213,7 @@ void target_speaker_multiple( gentity_t *ent ) {
 		ent->shared.s.otherEntityNum = vis_dummy->shared.s.number;
 	} else {
 		Com_Error( ERR_DROP, "target_speaker cant find vis_dummy_multiple %s", vtos( ent->shared.s.origin ) );
+        return; // keep the linter happy, ERR_DROP does not return
 	}
 
 }
@@ -226,6 +227,7 @@ void SP_target_speaker( gentity_t *ent ) {
 
 	if ( !G_SpawnString( "noise", "NOSOUND", &s ) ) {
 		Com_Error( ERR_DROP, "target_speaker without a noise key at %s", vtos( ent->shared.s.origin ) );
+        return; // keep the linter happy, ERR_DROP does not return
 	}
 
 	// force all client reletive sounds to be "activator" speakers that

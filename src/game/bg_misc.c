@@ -2686,8 +2686,6 @@ gitem_t *BG_FindItemForHoldable( holdable_t pw ) {
 		}
 	}
 
-//	Com_Error( ERR_DROP, "HoldableItem not found" );
-
 	return NULL;
 }
 
@@ -2720,10 +2718,12 @@ gitem_t *BG_FindItemForWeapon( weapon_t weapon ) {
 
 	if ( weapon < 0 || weapon > NUM_TABLE_ELEMENTS ) {
 		Com_Error( ERR_DROP, "BG_FindItemForWeapon: weapon out of range %i", weapon );
+        return NULL;  // Keep linter happy. ERR_DROP does not return
 	}
 
 	if ( !lookupTable[weapon] ) {
 		Com_Error( ERR_DROP, "Couldn't find item for weapon %i", weapon );
+        return NULL;  // Keep linter happy. ERR_DROP does not return
 	}
 
 	// get the weapon from the lookup table
@@ -2762,6 +2762,7 @@ weapon_t BG_FindClipForWeapon( weapon_t weapon ) {
 
 	if ( weapon < 0 || weapon > NUM_TABLE_ELEMENTS ) {
 		Com_Error( ERR_DROP, "BG_FindClipForWeapon: weapon out of range %i", weapon );
+        weapon = 0; // keep the linter happy, ERR_DROP does not return
 	}
 
 	// get the weapon from the lookup table
@@ -2797,6 +2798,7 @@ weapon_t BG_FindAmmoForWeapon( weapon_t weapon ) {
 
 	if ( weapon < 0 || weapon > NUM_TABLE_ELEMENTS ) {
 		Com_Error( ERR_DROP, "BG_FindAmmoForWeapon: weapon out of range %i", weapon );
+        weapon = 0; // keep the linter happy, ERR_DROP does not return
 	}
 
 	// get the weapon from the lookup table
@@ -2990,6 +2992,7 @@ qboolean    BG_CanItemBeGrabbed( const entityState_t *ent, const playerState_t *
 
 	if ( ent->modelindex < 1 || ent->modelindex >= bg_numItems ) {
 		Com_Error( ERR_DROP, "BG_CanItemBeGrabbed: index out of range" );
+        return qfalse; // keep the linter happy, ERR_DROP does not return
 	}
 
 	item = &bg_itemlist[ent->modelindex];

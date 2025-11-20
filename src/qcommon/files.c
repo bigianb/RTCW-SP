@@ -338,12 +338,15 @@ static fileHandle_t FS_HandleForFile( void ) {
 static FILE *FS_FileForHandle( fileHandle_t f ) {
 	if ( f < 0 || f > MAX_FILE_HANDLES ) {
 		Com_Error( ERR_DROP, "FS_FileForHandle: out of reange" );
+        return NULL; // keep the linter happy, ERR_DROP does not return
 	}
 	if ( fsh[f].zipFile == qtrue ) {
 		Com_Error( ERR_DROP, "FS_FileForHandle: can't get FILE on zip file" );
+        return NULL; // keep the linter happy, ERR_DROP does not return
 	}
 	if ( !fsh[f].handleFiles.file.o ) {
 		Com_Error( ERR_DROP, "FS_FileForHandle: NULL" );
+        return NULL; // keep the linter happy, ERR_DROP does not return
 	}
 
 	return fsh[f].handleFiles.file.o;
@@ -2776,7 +2779,7 @@ void FS_Restart( int checksumFeed ) {
 			lastValidGame[0] = '\0';
 			FS_Restart( checksumFeed );
 			Com_Error( ERR_DROP, "Invalid game folder\n" );
-			return;
+            return; // keep the linter happy, ERR_DROP does not return
 		}
 		Com_Error( ERR_FATAL, "Couldn't load default.cfg" );
 	}

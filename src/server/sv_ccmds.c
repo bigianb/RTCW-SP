@@ -87,7 +87,7 @@ static void SV_Map_f( void ) {
 				Hunk_FreeTempMemory( buffer );
 				FS_Delete( "save/current.svg" );
 				Com_Error( ERR_DROP, "Insufficient free disk space.\n\nPlease free at least 5mb of free space on game drive." );
-				return;
+                return; // keep the linter happy, ERR_DROP does not return
 			}
 		}
 

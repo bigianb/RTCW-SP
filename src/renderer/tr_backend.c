@@ -86,6 +86,7 @@ void GL_SelectTexture( int unit ) {
 		GLimp_LogComment( "glClientActiveTextureARB( GL_TEXTURE1_ARB )\n" );
 	} else {
 		ri.Error( ERR_DROP, "GL_SelectTexture: unit = %i", unit );
+        return; // keep the linter happy, ERR_DROP does not return
 	}
 
 	glState.currenttmu = unit;
@@ -182,6 +183,7 @@ void GL_TexEnv( int env ) {
 		break;
 	default:
 		ri.Error( ERR_DROP, "GL_TexEnv: invalid env '%d' passed\n", env );
+        return; // keep the linter happy, ERR_DROP does not return
 		break;
 	}
 }
@@ -250,6 +252,7 @@ void GL_State( unsigned long stateBits ) {
 			default:
 				srcFactor = GL_ONE;     // to get warning to shut up
 				ri.Error( ERR_DROP, "GL_State: invalid src blend state bits\n" );
+                return; // keep the linter happy, ERR_DROP does not return
 				break;
 			}
 
@@ -282,6 +285,7 @@ void GL_State( unsigned long stateBits ) {
 			default:
 				dstFactor = GL_ONE;     // to get warning to shut up
 				ri.Error( ERR_DROP, "GL_State: invalid dst blend state bits\n" );
+                return; // keep the linter happy, ERR_DROP does not return
 				break;
 			}
 
@@ -1159,6 +1163,7 @@ void RE_StretchRaw( int x, int y, int w, int h, int cols, int rows, const byte *
 	}
 	if ( ( 1 << i ) != cols || ( 1 << j ) != rows ) {
 		ri.Error( ERR_DROP, "Draw_StretchRaw: size not a power of 2: %i by %i", cols, rows );
+        return; // keep the linter happy, ERR_DROP does not return
 	}
 
 	GL_Bind( tr.scratchImage[client] );

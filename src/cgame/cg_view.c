@@ -1191,24 +1191,28 @@ void CG_DrawSkyBoxPortal( void ) {
 		token = COM_ParseExt( &cstr, qfalse );
 		if ( !token || !token[0] ) {
 			Com_Error( ERR_DROP, "CG_DrawSkyBoxPortal: error parsing skybox configstring\n" );
+            return;  // Keep linter happy. ERR_DROP does not return
 		}
 		cg.refdef.vieworg[0] = atof( token );
 
 		token = COM_ParseExt( &cstr, qfalse );
 		if ( !token || !token[0] ) {
 			Com_Error( ERR_DROP, "CG_DrawSkyBoxPortal: error parsing skybox configstring\n" );
+            return;  // Keep linter happy. ERR_DROP does not return
 		}
 		cg.refdef.vieworg[1] = atof( token );
 
 		token = COM_ParseExt( &cstr, qfalse );
 		if ( !token || !token[0] ) {
 			Com_Error( ERR_DROP, "CG_DrawSkyBoxPortal: error parsing skybox configstring\n" );
+            return;  // Keep linter happy. ERR_DROP does not return
 		}
 		cg.refdef.vieworg[2] = atof( token );
 
 		token = COM_ParseExt( &cstr, qfalse );
 		if ( !token || !token[0] ) {
 			Com_Error( ERR_DROP, "CG_DrawSkyBoxPortal: error parsing skybox configstring\n" );
+            return;  // Keep linter happy. ERR_DROP does not return
 		}
 		fov_x = atoi( token );
 
@@ -1221,6 +1225,7 @@ void CG_DrawSkyBoxPortal( void ) {
 		token = COM_ParseExt( &cstr, qfalse );
 		if ( !token || !token[0] ) {
 			Com_Error( ERR_DROP, "CG_DrawSkyBoxPortal: error parsing skybox configstring.  No fog state\n" );
+            return;  // Keep linter happy. ERR_DROP does not return
 		} else {
 			vec4_t fogColor;
 			int fogStart, fogEnd;
@@ -1231,18 +1236,21 @@ void CG_DrawSkyBoxPortal( void ) {
 					token = COM_ParseExt( &cstr, qfalse );
 					if ( !token || !token[0] ) {
 						Com_Error( ERR_DROP, "CG_DrawSkyBoxPortal: error parsing skybox configstring.  No fog[0]\n" );
+                        return;  // Keep linter happy. ERR_DROP does not return
 					}
 					fogColor[0] = atof( token );
 
 					token = COM_ParseExt( &cstr, qfalse );
 					if ( !token || !token[0] ) {
 						Com_Error( ERR_DROP, "CG_DrawSkyBoxPortal: error parsing skybox configstring.  No fog[1]\n" );
+                        return;  // Keep linter happy. ERR_DROP does not return
 					}
 					fogColor[1] = atof( token );
 
 					token = COM_ParseExt( &cstr, qfalse );
 					if ( !token || !token[0] ) {
 						Com_Error( ERR_DROP, "CG_DrawSkyBoxPortal: error parsing skybox configstring.  No fog[2]\n" );
+                        return;  // Keep linter happy. ERR_DROP does not return
 					}
 					fogColor[2] = atof( token );
 

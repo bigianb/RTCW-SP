@@ -325,6 +325,7 @@ void AICast_SetAASIndex( cast_state_t *cs ) {
 		cs->travelflags = AICAST_TFL_DEFAULT & ~TFL_DONOTENTER_LARGE;
 	} else {
 		Com_Error( ERR_DROP, "AICast_SetAASIndex: unsupported bounds size (%i)", aiDefaults[cs->aiCharacter].bboxType );
+        return;  // Keep linter happy. ERR_DROP does not return
 	}
 
 	if ( !cs->attributes[ATTACK_CROUCH] ) {

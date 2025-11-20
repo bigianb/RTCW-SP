@@ -333,6 +333,7 @@ void CM_FloodArea_r( int areaNum, int floodnum ) {
 			return;
 		}
 		Com_Error( ERR_DROP, "FloodArea_r: reflooded" );
+        return; // keep the linter happy, ERR_DROP does not return
 	}
 
 	area->floodnum = floodnum;
@@ -384,6 +385,7 @@ void    CM_AdjustAreaPortalState( int area1, int area2, qboolean open ) {
 
 	if ( area1 >= cm.numAreas || area2 >= cm.numAreas ) {
 		Com_Error( ERR_DROP, "CM_ChangeAreaPortalState: bad area number" );
+        return; // keep the linter happy, ERR_DROP does not return
 	}
 
 	if ( open ) {
@@ -394,6 +396,7 @@ void    CM_AdjustAreaPortalState( int area1, int area2, qboolean open ) {
 		cm.areaPortals[ area2 * cm.numAreas + area1 ]--;
 		if ( cm.areaPortals[ area2 * cm.numAreas + area1 ] < 0 ) {
 			Com_Error( ERR_DROP, "CM_AdjustAreaPortalState: negative reference count" );
+            return; // keep the linter happy, ERR_DROP does not return
 		}
 	}
 
@@ -419,6 +422,7 @@ qboolean    CM_AreasConnected( int area1, int area2 ) {
 
 	if ( area1 >= cm.numAreas || area2 >= cm.numAreas ) {
 		Com_Error( ERR_DROP, "area >= cm.numAreas" );
+        return qfalse; // keep the linter happy, ERR_DROP does not return
 	}
 
 	if ( cm.areas[area1].floodnum == cm.areas[area2].floodnum ) {

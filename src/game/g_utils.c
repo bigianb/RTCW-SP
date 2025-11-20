@@ -117,6 +117,7 @@ int G_FindConfigstringIndex( const char *name, int start, int max, qboolean crea
 
 	if ( i == max ) {
 		Com_Error( ERR_DROP, "G_FindConfigstringIndex: overflow" );
+        return 0; // keep the linter happy, ERR_DROP does not return
 	}
 
 	SV_SetConfigstring( start + i, name );
@@ -431,6 +432,7 @@ gentity_t *G_Spawn()
 			Com_Printf( "%4i: %s\n", i, g_entities[i].classname );
 		}
 		Com_Error( ERR_DROP, "G_Spawn: no free entities" );
+        return NULL; // keep the linter happy, ERR_DROP does not return
 	}
 
 	// open up a new slot
@@ -728,9 +730,11 @@ G_ProcessTagConnect
 void G_ProcessTagConnect( gentity_t *ent, qboolean clearAngles ) {
 	if ( !ent->tagName ) {
 		Com_Error( ERR_DROP, "G_ProcessTagConnect: NULL ent->tagName\n" );
+        return; // keep the linter happy, ERR_DROP does not return
 	}
 	if ( !ent->tagParent ) {
 		Com_Error( ERR_DROP, "G_ProcessTagConnect: NULL ent->tagParent\n" );
+        return; // keep the linter happy, ERR_DROP does not return
 	}
 	G_FindConfigstringIndex( va( "%i %i %s", ent->shared.s.number, ent->tagParent->shared.s.number, ent->tagName ), CS_TAGCONNECTS, MAX_TAGCONNECTS, qtrue );
 	ent->shared.s.eFlags |= EF_TAGCONNECT;

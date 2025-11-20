@@ -274,6 +274,7 @@ qboolean    G_TryPushingEntity( gentity_t *check, gentity_t *pusher, vec3_t move
 	// save off the old position
 	if ( pushed_p > &pushed[MAX_GENTITIES] ) {
 		Com_Error( ERR_DROP, "pushed_p > &pushed[MAX_GENTITIES]" );
+        return qfalse; // keep the linter happy, ERR_DROP does not return
 	}
 	pushed_p->ent = check;
 	VectorCopy( check->shared.s.pos.trBase, pushed_p->origin );
@@ -1074,9 +1075,10 @@ void Reached_BinaryMover( gentity_t *ent ) {
 		}
 	} else {
 		Com_Error( ERR_DROP, "Reached_BinaryMover: bad moverState" );
+        return; // keep the linter happy, ERR_DROP does not return
 	}
 
-//	ent->flags &= ~(FL_KICKACTIVATE|FL_SOFTACTIVATE);	// (SA) it was not opened normally.  Clear this so it thinks it's closed normally
+
 	ent->flags &= ~FL_KICKACTIVATE; // (SA) it was not opened normally.  Clear this so it thinks it's closed normally
 
 }
@@ -1210,6 +1212,7 @@ void Reached_TrinaryMover( gentity_t *ent ) {
 		G_AddEvent( ent, EV_GENERAL_SOUND, ent->soundPos3 );
 	} else {
 		Com_Error( ERR_DROP, "Reached_BinaryMover: bad moverState" );
+        return; // keep the linter happy, ERR_DROP does not return
 	}
 }
 // END JOSEPH
@@ -3231,6 +3234,7 @@ void FuncEndSpiritsThink( gentity_t *self ) {
 	cEnt = G_Find( NULL, FOFS( targetname ), self->target );
 	if ( !cEnt ) {
 		Com_Error( ERR_DROP, "couldnt find center marker for spirit spawner" );
+        return; // keep the linter happy, ERR_DROP does not return
 	}
 	if ( VectorDistance( enemyPos, cEnt->shared.s.origin ) > self->radius ) {
 		// also make sure the player is between us and the center entity

@@ -431,6 +431,7 @@ void CG_CheckLocalSounds( playerState_t *ps, playerState_t *ops ) {
 			break;
 		default:
 			Com_Error( ERR_DROP, "Bad reward_t" );
+            return;  // Keep linter happy. ERR_DROP does not return
 		}
 	} else {
 		// lead changes (only if no reward)

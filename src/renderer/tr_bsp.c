@@ -282,6 +282,7 @@ static shader_t *ShaderForShaderNum( int shaderNum, int lightmapNum ) {
 	shaderNum = LittleLong( shaderNum );
 	if ( shaderNum < 0 || shaderNum >= s_worldData.numShaders ) {
 		ri.Error( ERR_DROP, "ShaderForShaderNum: bad num %i", shaderNum );
+        return NULL; // keep the linter happy, ERR_DROP does not return
 	}
 	dsh = &s_worldData.shaders[ shaderNum ];
 
@@ -543,6 +544,7 @@ static void ParseTriSurf( dsurface_t *ds, drawVert_t *verts, msurface_t *surf, i
 		tri->indexes[i] = LittleLong( indexes[i] );
 		if ( tri->indexes[i] < 0 || tri->indexes[i] >= numVerts ) {
 			ri.Error( ERR_DROP, "Bad index in triangle surface" );
+            return; // keep the linter happy, ERR_DROP does not return
 		}
 	}
 }
@@ -1481,17 +1483,20 @@ static void R_LoadSurfaces( lump_t *surfs, lump_t *verts, lump_t *indexLump ) {
 	in = ( void * )( fileBase + surfs->fileofs );
 	if ( surfs->filelen % sizeof( *in ) ) {
 		ri.Error( ERR_DROP, "LoadMap: funny lump size in %s",s_worldData.name );
+        return; // keep the linter happy, ERR_DROP does not return
 	}
 	count = surfs->filelen / sizeof( *in );
 
 	dv = ( void * )( fileBase + verts->fileofs );
 	if ( verts->filelen % sizeof( *dv ) ) {
 		ri.Error( ERR_DROP, "LoadMap: funny lump size in %s",s_worldData.name );
+        return; // keep the linter happy, ERR_DROP does not return
 	}
 
 	indexes = ( void * )( fileBase + indexLump->fileofs );
 	if ( indexLump->filelen % sizeof( *indexes ) ) {
 		ri.Error( ERR_DROP, "LoadMap: funny lump size in %s",s_worldData.name );
+        return; // keep the linter happy, ERR_DROP does not return
 	}
 
 	out = ri.Hunk_Alloc( count * sizeof( *out ), h_low );
@@ -1524,6 +1529,7 @@ static void R_LoadSurfaces( lump_t *surfs, lump_t *verts, lump_t *indexLump ) {
 			break;
 		default:
 			ri.Error( ERR_DROP, "Bad surfaceType" );
+            return; // keep the linter happy, ERR_DROP does not return
 		}
 	}
 
@@ -1556,6 +1562,7 @@ static void R_LoadSubmodels( lump_t *l ) {
 	in = ( void * )( fileBase + l->fileofs );
 	if ( l->filelen % sizeof( *in ) ) {
 		ri.Error( ERR_DROP, "LoadMap: funny lump size in %s",s_worldData.name );
+        return; // keep the linter happy, ERR_DROP does not return
 	}
 	count = l->filelen / sizeof( *in );
 
@@ -1616,6 +1623,7 @@ static void R_LoadNodesAndLeafs( lump_t *nodeLump, lump_t *leafLump ) {
 	if ( nodeLump->filelen % sizeof( dnode_t ) ||
 		 leafLump->filelen % sizeof( dleaf_t ) ) {
 		ri.Error( ERR_DROP, "LoadMap: funny lump size in %s",s_worldData.name );
+        return; // keep the linter happy, ERR_DROP does not return
 	}
 	numNodes = nodeLump->filelen / sizeof( dnode_t );
 	numLeafs = leafLump->filelen / sizeof( dleaf_t );
@@ -1691,6 +1699,7 @@ static void R_LoadShaders( lump_t *l ) {
 	in = ( void * )( fileBase + l->fileofs );
 	if ( l->filelen % sizeof( *in ) ) {
 		ri.Error( ERR_DROP, "LoadMap: funny lump size in %s",s_worldData.name );
+        return; // keep the linter happy, ERR_DROP does not return
 	}
 	count = l->filelen / sizeof( *in );
 	out = ri.Hunk_Alloc( count * sizeof( *out ), h_low );
@@ -1720,6 +1729,7 @@ static void R_LoadMarksurfaces( lump_t *l ) {
 	in = ( void * )( fileBase + l->fileofs );
 	if ( l->filelen % sizeof( *in ) ) {
 		ri.Error( ERR_DROP, "LoadMap: funny lump size in %s",s_worldData.name );
+        return; // keep the linter happy, ERR_DROP does not return
 	}
 	count = l->filelen / sizeof( *in );
 	out = ri.Hunk_Alloc( count * sizeof( *out ), h_low );
@@ -1750,6 +1760,7 @@ static void R_LoadPlanes( lump_t *l ) {
 	in = ( void * )( fileBase + l->fileofs );
 	if ( l->filelen % sizeof( *in ) ) {
 		ri.Error( ERR_DROP, "LoadMap: funny lump size in %s",s_worldData.name );
+        return; // keep the linter happy, ERR_DROP does not return
 	}
 	count = l->filelen / sizeof( *in );
 	out = ri.Hunk_Alloc( count * 2 * sizeof( *out ), h_low );
@@ -1794,6 +1805,7 @@ static void R_LoadFogs( lump_t *l, lump_t *brushesLump, lump_t *sidesLump ) {
 	fogs = ( void * )( fileBase + l->fileofs );
 	if ( l->filelen % sizeof( *fogs ) ) {
 		ri.Error( ERR_DROP, "LoadMap: funny lump size in %s",s_worldData.name );
+        return; // keep the linter happy, ERR_DROP does not return
 	}
 	count = l->filelen / sizeof( *fogs );
 
@@ -1809,12 +1821,14 @@ static void R_LoadFogs( lump_t *l, lump_t *brushesLump, lump_t *sidesLump ) {
 	brushes = ( void * )( fileBase + brushesLump->fileofs );
 	if ( brushesLump->filelen % sizeof( *brushes ) ) {
 		ri.Error( ERR_DROP, "LoadMap: funny lump size in %s",s_worldData.name );
+        return; // keep the linter happy, ERR_DROP does not return
 	}
 	brushesCount = brushesLump->filelen / sizeof( *brushes );
 
 	sides = ( void * )( fileBase + sidesLump->fileofs );
 	if ( sidesLump->filelen % sizeof( *sides ) ) {
 		ri.Error( ERR_DROP, "LoadMap: funny lump size in %s",s_worldData.name );
+        return; // keep the linter happy, ERR_DROP does not return
 	}
 	sidesCount = sidesLump->filelen / sizeof( *sides );
 
@@ -1823,6 +1837,7 @@ static void R_LoadFogs( lump_t *l, lump_t *brushesLump, lump_t *sidesLump ) {
 
 		if ( (unsigned)out->originalBrushNumber >= brushesCount ) {
 			ri.Error( ERR_DROP, "fog brushNumber out of range" );
+            return; // keep the linter happy, ERR_DROP does not return
 		}
 		brush = brushes + out->originalBrushNumber;
 
@@ -1830,6 +1845,7 @@ static void R_LoadFogs( lump_t *l, lump_t *brushesLump, lump_t *sidesLump ) {
 
 		if ( (unsigned)firstSide > sidesCount - 6 ) {
 			ri.Error( ERR_DROP, "fog brush sideNumber out of range" );
+            return; // keep the linter happy, ERR_DROP does not return
 		}
 
 		// brushes are always sorted with the axial sides first
@@ -2156,6 +2172,7 @@ void RE_LoadWorldMap( const char *name ) {
 
 	if ( tr.worldMapLoaded ) {
 		ri.Error( ERR_DROP, "ERROR: attempted to redundantly load world map\n" );
+        return; // keep the linter happy, ERR_DROP does not return
 	}
 
 	// set default sun direction to be used if it isn't
@@ -2187,6 +2204,7 @@ void RE_LoadWorldMap( const char *name ) {
 	FS_ReadFile( name, (void **)&buffer );
 	if ( !buffer ) {
 		ri.Error( ERR_DROP, "RE_LoadWorldMap: %s not found", name );
+        return; // keep the linter happy, ERR_DROP does not return
 	}
 
 	// clear tr.world so if the level fails to load, the next
@@ -2210,6 +2228,7 @@ void RE_LoadWorldMap( const char *name ) {
 	if ( i != BSP_VERSION ) {
 		ri.Error( ERR_DROP, "RE_LoadWorldMap: %s has wrong version number (%i should be %i)",
 				  name, i, BSP_VERSION );
+        return; // keep the linter happy, ERR_DROP does not return
 	}
 
 	// swap all the lumps

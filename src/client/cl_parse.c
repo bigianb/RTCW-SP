@@ -115,6 +115,7 @@ void CL_ParsePacketEntities( msg_t *msg, clSnapshot_t *oldframe, clSnapshot_t *n
 
 		if ( msg->readcount > msg->cursize ) {
 			Com_Error( ERR_DROP,"CL_ParsePacketEntities: end of message" );
+            return;  // Keep linter happy. ERR_DROP does not return
 		}
 
 		while ( oldnum < newnum ) {
@@ -355,6 +356,7 @@ void CL_ParseGamestate( msg_t *msg )
 			int newnum = MSG_ReadBits( msg, GENTITYNUM_BITS );
 			if ( newnum < 0 || newnum >= MAX_GENTITIES ) {
 				Com_Error( ERR_DROP, "Baseline number out of range: %i", newnum );
+                return;  // Keep linter happy. ERR_DROP does not return
 			}
 			entityState_t nullstate;
 			memset( &nullstate, 0, sizeof( nullstate ) );
@@ -362,6 +364,7 @@ void CL_ParseGamestate( msg_t *msg )
 			MSG_ReadDeltaEntity( msg, &nullstate, es, newnum );
 		} else {
 			Com_Error( ERR_DROP, "CL_ParseGamestate: bad command byte" );
+            return;  // Keep linter happy. ERR_DROP does not return
 		}
 	}
 
@@ -459,6 +462,7 @@ void CL_ParseServerMessage( msg_t *msg )
 	while ( 1 ) {
 		if ( msg->readcount > msg->cursize ) {
 			Com_Error( ERR_DROP,"CL_ParseServerMessage: read past end of server message" );
+            return;  // Keep linter happy. ERR_DROP does not return
 			break;
 		}
 
@@ -472,6 +476,7 @@ void CL_ParseServerMessage( msg_t *msg )
 		switch ( cmd ) {
 		default:
 			Com_Error( ERR_DROP,"CL_ParseServerMessage: Illegible server message\n" );
+            return;  // Keep linter happy. ERR_DROP does not return
 			break;
 		case svc_nop:
 			break;

@@ -1426,6 +1426,7 @@ void CG_DrawActive( stereoFrame_t stereoView ) {
 	default:
 		separation = 0;
 		Com_Error( ERR_DROP, "CG_DrawActive: Undefined stereoView" );
+        return;  // Keep linter happy. ERR_DROP does not return
 	}
 
 	// offset vieworg appropriately if we're doing stereo separation

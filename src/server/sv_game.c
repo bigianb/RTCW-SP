@@ -107,12 +107,12 @@ void SV_SetBrushModel( sharedEntity_t *ent, const char *name )
 {
 	if ( !name ) {
 		Com_Error( ERR_DROP, "SV_SetBrushModel: NULL" );
-		return;
+        return; // keep the linter happy, ERR_DROP does not return
 	}
 
 	if ( name[0] != '*' ) {
 		Com_Error( ERR_DROP, "SV_SetBrushModel: %s isn't a brush model", name );
-		return;
+        return; // keep the linter happy, ERR_DROP does not return
 	}
 
 
@@ -228,7 +228,7 @@ void SV_GetServerinfo( char *buffer, int bufferSize )
 {
 	if ( bufferSize < 1 ) {
 		Com_Error( ERR_DROP, "SV_GetServerinfo: bufferSize == %i", bufferSize );
-		return;
+        return; // keep the linter happy, ERR_DROP does not return
 	}
 	Q_strncpyz( buffer, Cvar_InfoString( CVAR_SERVERINFO ), bufferSize );
 }
@@ -260,7 +260,7 @@ void SV_GetUsercmd( int clientNum, usercmd_t *cmd )
 {
 	if ( clientNum < 0 || clientNum >= sv_maxclients->integer ) {
 		Com_Error( ERR_DROP, "SV_GetUsercmd: bad clientNum:%i", clientNum );
-		return;
+        return; // keep the linter happy, ERR_DROP does not return
 	}
 	*cmd = svs.clients[clientNum].lastUsercmd;
 }

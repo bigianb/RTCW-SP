@@ -214,6 +214,7 @@ gentity_t *SelectSpawnPoint( vec3_t avoidPoint, vec3_t origin, vec3_t angles ) {
 	// find a single player start spot
 	if ( !spot ) {
 		Com_Error( ERR_DROP, "Couldn't find a spawn point" );
+        return NULL; // keep the linter happy, ERR_DROP does not return
 	}
 
 	VectorCopy( spot->shared.s.origin, origin );
@@ -581,6 +582,7 @@ qboolean G_GetModelInfo( int clientNum, char *modelName, animModelInfo_t **model
 		level.clients[clientNum].modelInfo = *modelInfo;
 		if ( !G_ParseAnimationFiles( modelName, &level.clients[clientNum] ) ) {
 			Com_Error( ERR_DROP, "Failed to load animation scripts for model %s\n", modelName );
+            return qfalse; // keep the linter happy, ERR_DROP does not return
 		}
 	}
 
@@ -759,6 +761,7 @@ void ClientUserinfoChanged( int clientNum ) {
 	if ( !G_CheckForExistingModelInfo( client, modelname, &client->modelInfo ) ) {
 		if ( !G_ParseAnimationFiles( modelname, client ) ) {
 			Com_Error( ERR_DROP, "Failed to load animation scripts for model %s\n", modelname );
+            return; // keep the linter happy, ERR_DROP does not return
 		}
 	}
 
@@ -1253,6 +1256,7 @@ void G_RetrieveMoveSpeedsFromClient( int entnum, char *text ) {
 	token = COM_Parse( &text_p );
 	if ( !token || !token[0] ) {
 		Com_Error( ERR_DROP, "G_RetrieveMoveSpeedsFromClient: internal error" );
+        return; // keep the linter happy, ERR_DROP does not return
 	}
 
 	modelInfo = BG_ModelInfoForModelname( token );
@@ -1272,12 +1276,14 @@ void G_RetrieveMoveSpeedsFromClient( int entnum, char *text ) {
 		anim = BG_AnimationForString( token, modelInfo );
 		if ( anim->moveSpeed == 0 ) {
 			Com_Error( ERR_DROP, "G_RetrieveMoveSpeedsFromClient: trying to set movespeed for non-moving animation" );
+            return; // keep the linter happy, ERR_DROP does not return
 		}
 
 		// get the movespeed
 		token = COM_Parse( &text_p );
 		if ( !token || !token[0] ) {
 			Com_Error( ERR_DROP, "G_RetrieveMoveSpeedsFromClient: missing movespeed" );
+            return; // keep the linter happy, ERR_DROP does not return
 		}
 		anim->moveSpeed = atoi( token );
 
@@ -1285,6 +1291,7 @@ void G_RetrieveMoveSpeedsFromClient( int entnum, char *text ) {
 		token = COM_Parse( &text_p );
 		if ( !token || !token[0] ) {
 			Com_Error( ERR_DROP, "G_RetrieveMoveSpeedsFromClient: missing stepGap" );
+            return; // keep the linter happy, ERR_DROP does not return
 		}
 		anim->stepGap = atoi( token );
 	}

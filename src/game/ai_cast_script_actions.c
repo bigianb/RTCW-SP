@@ -116,6 +116,7 @@ qboolean AICast_ScriptAction_GotoMarker( cast_state_t *cs, char *params ) {
 	token = COM_ParseExt( &pString, qfalse );
 	if ( !token[0] ) {
 		Com_Error( ERR_DROP, "AI scripting: gotomarker must have an targetname\n" );
+        return qfalse;  // Keep linter happy. ERR_DROP does not return
 	}
 
 	// if we already are going to the marker, just use that, and check if we're in range
@@ -146,6 +147,7 @@ qboolean AICast_ScriptAction_GotoMarker( cast_state_t *cs, char *params ) {
 						ent = AICast_FindEntityForName( token );
 						if ( !ent ) {
 							Com_Error( ERR_DROP, "AI Scripting: gotomarker cannot find targetname \"%s\"\n", token );
+                            return qfalse;  // Keep linter happy. ERR_DROP does not return
 						}
 					}
 					// set the view angle manually
@@ -200,6 +202,7 @@ qboolean AICast_ScriptAction_GotoMarker( cast_state_t *cs, char *params ) {
 
 	if ( !ent ) {
 		Com_Error( ERR_DROP, "AI Scripting: can't find ai_marker with \"targetname\" = \"%s\"\n", token );
+        return qfalse;  // Keep linter happy. ERR_DROP does not return
 	}
 
 	if ( Distance( cs->bs->origin, ent->shared.r.currentOrigin ) < SCRIPT_REACHGOAL_DIST ) { // we made it
@@ -307,6 +310,7 @@ qboolean AICast_ScriptAction_GotoCast( cast_state_t *cs, char *params ) {
 	token = COM_ParseExt( &pString, qfalse );
 	if ( !token[0] ) {
 		Com_Error( ERR_DROP, "AI scripting: gotocast must have an ainame\n" );
+        return qfalse;  // Keep linter happy. ERR_DROP does not return
 	}
 
 	// if we already are going to the marker, just use that, and check if we're in range
@@ -330,6 +334,7 @@ qboolean AICast_ScriptAction_GotoCast( cast_state_t *cs, char *params ) {
 						ent = AICast_FindEntityForName( token );
 						if ( !ent ) {
 							Com_Error( ERR_DROP, "AI Scripting: gotomarker cannot find targetname \"%s\"\n", token );
+                            return qfalse;  // Keep linter happy. ERR_DROP does not return
 						}
 					}
 
@@ -378,6 +383,7 @@ qboolean AICast_ScriptAction_GotoCast( cast_state_t *cs, char *params ) {
 	ent = AICast_FindEntityForName( token );
 	if ( !ent ) {
 		Com_Error( ERR_DROP, "AI Scripting: can't find AI cast with \"ainame\" = \"%s\"\n", token );
+        return qfalse;  // Keep linter happy. ERR_DROP does not return
 	}
 
 	if ( Distance( cs->bs->origin, ent->shared.r.currentOrigin ) < SCRIPT_REACHCAST_DIST ) { // we made it
@@ -386,6 +392,7 @@ qboolean AICast_ScriptAction_GotoCast( cast_state_t *cs, char *params ) {
 
 	if ( !ent ) {
 		Com_Error( ERR_DROP, "AI Scripting: can't find ai_marker with \"targetname\" = \"%s\"\n", token );
+        return qfalse;  // Keep linter happy. ERR_DROP does not return
 	}
 
 	cs->castScriptStatus.scriptNoMoveTime = 0;
@@ -509,6 +516,7 @@ qboolean AICast_ScriptAction_Wait( cast_state_t *cs, char *params ) {
 	token = COM_ParseExt( &pString, qfalse );
 	if ( !token[0] ) {
 		Com_Error( ERR_DROP, "AI scripting: wait must have a duration\n" );
+        return qfalse;  // Keep linter happy. ERR_DROP does not return
 	}
 	if ( !Q_stricmp( token, "forever" ) ) {
 		duration = level.time + 10000;
@@ -587,6 +595,7 @@ qboolean AICast_ScriptAction_Wait( cast_state_t *cs, char *params ) {
 			ent = AICast_FindEntityForName( facetarget );
 			if ( !ent ) {
 				Com_Error( ERR_DROP, "AI Scripting: wait cannot find targetname \"%s\"\n", token );
+                return qfalse;  // Keep linter happy. ERR_DROP does not return
 			}
 		}
 		// set the view angle manually
@@ -618,6 +627,7 @@ qboolean AICast_ScriptAction_Trigger( cast_state_t *cs, char *params ) {
 	token = COM_ParseExt( &pString, qfalse );
 	if ( !token[0] ) {
 		Com_Error( ERR_DROP, "AI scripting: trigger must have a name and an identifier\n" );
+        return qfalse;  // Keep linter happy. ERR_DROP does not return
 	}
 
 	ent = AICast_FindEntityForName( token );
@@ -634,6 +644,7 @@ qboolean AICast_ScriptAction_Trigger( cast_state_t *cs, char *params ) {
 	token = COM_ParseExt( &pString, qfalse );
 	if ( !token[0] ) {
 		Com_Error( ERR_DROP, "AI scripting: trigger must have a name and an identifier\n" );
+        return qfalse;  // Keep linter happy. ERR_DROP does not return
 	}
 
 	oldId = cs->castScriptStatus.scriptId;
@@ -661,6 +672,7 @@ qboolean AICast_ScriptAction_FollowCast( cast_state_t *cs, char *params ) {
 	ent = AICast_FindEntityForName( params );
 	if ( !ent ) {
 		Com_Error( ERR_DROP, "AI Scripting: can't find AI cast with \"ainame\" = \"%s\"\n", params );
+        return qfalse;  // Keep linter happy. ERR_DROP does not return
 	}
 
 	AIFunc_ChaseGoalStart( cs, ent->shared.s.number, 64, qtrue );
@@ -680,6 +692,7 @@ AICast_ScriptAction_PlaySound
 qboolean AICast_ScriptAction_PlaySound( cast_state_t *cs, char *params ) {
 	if ( !params ) {
 		Com_Error( ERR_DROP, "AI Scripting: syntax error\n\nplaysound <soundname OR scriptname>\n" );
+        return qfalse;  // Keep linter happy. ERR_DROP does not return
 	}
 
 	G_AddEvent( &g_entities[cs->bs->entitynum], EV_GENERAL_SOUND, G_SoundIndex( params ) );
@@ -709,6 +722,7 @@ AICast_ScriptAction_NoAttack
 qboolean AICast_ScriptAction_NoAttack( cast_state_t *cs, char *params ) {
 	if ( !params ) {
 		Com_Error( ERR_DROP, "AI Scripting: syntax error\n\nnoattack <duration>\n" );
+        return qfalse;  // Keep linter happy. ERR_DROP does not return
 	}
 
 	cs->castScriptStatus.scriptNoAttackTime = level.time + atoi( params );
@@ -737,6 +751,7 @@ qboolean AICast_ScriptAction_Attack( cast_state_t *cs, char *params ) {
 		ent = AICast_FindEntityForName( params );
 		if ( !ent ) {
 			Com_Error( ERR_DROP, "AI Scripting: \"attack\" command unable to find aiName \"%s\"", params );
+            return qfalse;  // Keep linter happy. ERR_DROP does not return
 		}
 		cs->castScriptStatus.scriptAttackEnt = ent->shared.s.number;
 		cs->enemyNum = ent->shared.s.number;
@@ -775,6 +790,7 @@ qboolean AICast_ScriptAction_PlayAnim( cast_state_t *cs, char *params ) {
 		token = COM_ParseExt( &pString, qfalse );
 		if ( !token || !token[0] ) {
 			Com_Error( ERR_DROP, "AI Scripting: syntax error\n\nplayanim <animation> <legs/torso/both>\n" );
+            return qfalse;  // Keep linter happy. ERR_DROP does not return
 		}
 		Q_strncpyz( tokens[0], token, sizeof( tokens[0] ) );
 		Q_strlwr( tokens[0] );
@@ -783,6 +799,7 @@ qboolean AICast_ScriptAction_PlayAnim( cast_state_t *cs, char *params ) {
 		token = COM_ParseExt( &pString, qfalse );
 		if ( !token || !token[0] ) {
 			Com_Error( ERR_DROP, "AI Scripting: syntax error\n\nplayanim <animation> <legs/torso/both>\n" );
+            return qfalse;  // Keep linter happy. ERR_DROP does not return
 		}
 		Q_strncpyz( tokens[1], token, sizeof( tokens[1] ) );
 		Q_strlwr( tokens[1] );
@@ -818,6 +835,7 @@ qboolean AICast_ScriptAction_PlayAnim( cast_state_t *cs, char *params ) {
 					ent = AICast_FindEntityForName( token );
 					if ( !ent ) {
 						Com_Error( ERR_DROP, "AI Scripting: playanim cannot find targetname \"%s\"\n", token );
+                        return qfalse;  // Keep linter happy. ERR_DROP does not return
 					}
 				}
 				// set the view angle manually
@@ -915,7 +933,6 @@ qboolean AICast_ScriptAction_PlayAnim( cast_state_t *cs, char *params ) {
 		for ( i = 0; i < 3; i++ ) {
 			token = COM_ParseExt( &pString, qfalse );
 			if ( !token || !token[0] ) {
-				//Com_Error( ERR_DROP,"AI Scripting: syntax error\n\nplayanim <animation> <pausetime> [legs/torso/both]\n");
 				Com_Printf( "AI Scripting: syntax error\n\nplayanim <animation> <pausetime> <legs/torso/both>\n" );
 				return qtrue;
 			} else {
@@ -1026,6 +1043,7 @@ qboolean AICast_ScriptAction_SetAmmo( cast_state_t *cs, char *params ) {
 	token = COM_ParseExt( &pString, qfalse );
 	if ( !token[0] ) {
 		Com_Error( ERR_DROP, "AI Scripting: setammo without ammo identifier\n" );
+        return qfalse;  // Keep linter happy. ERR_DROP does not return
 	}
 
 	weapon = WP_NONE;
@@ -1047,6 +1065,7 @@ qboolean AICast_ScriptAction_SetAmmo( cast_state_t *cs, char *params ) {
 	token = COM_ParseExt( &pString, qfalse );
 	if ( !token[0] ) {
 		Com_Error( ERR_DROP, "AI Scripting: setammo without ammo count\n" );
+        return qfalse;  // Keep linter happy. ERR_DROP does not return
 	}
 
 	if ( weapon != WP_NONE ) {
@@ -1095,6 +1114,7 @@ qboolean AICast_ScriptAction_SetClip( cast_state_t *cs, char *params ) {
 	token = COM_ParseExt( &pString, qfalse );
 	if ( !token[0] ) {
 		Com_Error( ERR_DROP, "AI Scripting: setclip without weapon identifier\n" );
+        return qfalse;  // Keep linter happy. ERR_DROP does not return
 	}
 
 	weapon = WP_NONE;
@@ -1116,6 +1136,7 @@ qboolean AICast_ScriptAction_SetClip( cast_state_t *cs, char *params ) {
 	token = COM_ParseExt( &pString, qfalse );
 	if ( !token[0] ) {
 		Com_Error( ERR_DROP, "AI Scripting: setclip without ammo count\n" );
+        return qfalse;  // Keep linter happy. ERR_DROP does not return
 	}
 
 	if ( weapon != WP_NONE ) {
@@ -1132,9 +1153,8 @@ qboolean AICast_ScriptAction_SetClip( cast_state_t *cs, char *params ) {
 		}
 
 	} else {
-//		Com_Printf( "--SCRIPTER WARNING-- AI Scripting: setclip: unknown weapon \"%s\"", params );
-		return qfalse;  // (SA) temp as scripts transition to new names
-//		Com_Error( ERR_DROP, "AI Scripting: setclip: unknown weapon \"%s\"", params );
+		return qfalse;  // temp as scripts transition to new names
+
 	}
 
 	return qtrue;
@@ -1172,6 +1192,7 @@ qboolean AICast_ScriptAction_SuggestWeapon( cast_state_t *cs, char *params ) {
 		G_AddEvent( &g_entities[cs->entityNum], EV_SUGGESTWEAP, weapon );
 	} else {
 		Com_Error( ERR_DROP, "AI Scripting: suggestweapon: unknown weapon \"%s\"", params );
+        return qfalse;  // Keep linter happy. ERR_DROP does not return
 	}
 
 	return qtrue;
@@ -1228,6 +1249,7 @@ qboolean AICast_ScriptAction_SelectWeapon( cast_state_t *cs, char *params ) {
 //		Com_Printf( "--SCRIPTER WARNING-- AI Scripting: selectweapon: unknown weapon \"%s\"", params );
 //		return qfalse;	// (SA) temp as scripts transition to new names
 		Com_Error( ERR_DROP, "AI Scripting: selectweapon: unknown weapon \"%s\"", params );
+        return qfalse;  // Keep linter happy. ERR_DROP does not return
 	}
 
 	return qtrue;
@@ -1246,6 +1268,7 @@ AICast_ScriptAction_GiveArmor
 qboolean AICast_ScriptAction_SetArmor( cast_state_t *cs, char *params ) {
 	if ( !params || !params[0] ) {
 		Com_Error( ERR_DROP, "AI Scripting: setarmor requires an armor value" );
+        return qfalse;  // Keep linter happy. ERR_DROP does not return
 	}
 
 	g_entities[cs->entityNum].client->ps.stats[STAT_ARMOR] += atoi( params );
@@ -1280,6 +1303,7 @@ qboolean AICast_ScriptAction_GiveArmor( cast_state_t *cs, char *params ) {
 
 	if ( !item ) { // item not found
 		Com_Error( ERR_DROP, "AI Scripting: givearmor%s, unknown item", params );
+        return qfalse;  // Keep linter happy. ERR_DROP does not return
 	}
 
 	if ( item->giType == IT_ARMOR ) {
@@ -1362,6 +1386,7 @@ qboolean AICast_ScriptAction_GiveWeapon( cast_state_t *cs, char *params ) {
 		}
 	} else {
 		Com_Error( ERR_DROP, "AI Scripting: giveweapon %s, unknown weapon", params );
+        return qfalse;  // Keep linter happy. ERR_DROP does not return
 	}
 
 	return qtrue;
@@ -1437,6 +1462,7 @@ qboolean AICast_ScriptAction_TakeWeapon( cast_state_t *cs, char *params ) {
 			}
 		} else {
 			Com_Error( ERR_DROP, "AI Scripting: takeweapon %s, unknown weapon", params );
+            return qfalse;  // Keep linter happy. ERR_DROP does not return
 		}
 
 	}
@@ -1478,6 +1504,7 @@ qboolean AICast_ScriptAction_GiveInventory( cast_state_t *cs, char *params ) {
 
 	if ( !item ) { // item not found
 		Com_Error( ERR_DROP, "AI Scripting: giveinventory %s, unknown item", params );
+        return qfalse;  // Keep linter happy. ERR_DROP does not return
 	}
 
 	if ( item->giType == IT_KEY ) {
@@ -1539,6 +1566,7 @@ qboolean AICast_ScriptAction_AlertEntity( cast_state_t *cs, char *params ) {
 
 	if ( !params || !params[0] ) {
 		Com_Error( ERR_DROP, "AI Scripting: alertentity without targetname\n" );
+        return qfalse;  // Keep linter happy. ERR_DROP does not return
 	}
 
 	// find this targetname
@@ -1547,6 +1575,7 @@ qboolean AICast_ScriptAction_AlertEntity( cast_state_t *cs, char *params ) {
 		ent = G_Find( NULL, FOFS( aiName ), params ); // look for an AI
 		if ( !ent || !ent->client ) { // accept only AI for aiName check
 			Com_Error( ERR_DROP, "AI Scripting: alertentity cannot find targetname \"%s\"\n", params );
+            return qfalse;  // Keep linter happy. ERR_DROP does not return
 		}
 	}
 
@@ -1560,7 +1589,6 @@ qboolean AICast_ScriptAction_AlertEntity( cast_state_t *cs, char *params ) {
 		if ( aicast_debug.integer ) {
 			Com_Printf( "AI Scripting: alertentity \"%s\" (classname = %s) doesn't have an \"AIScript_AlertEntity\" function\n", params, ent->classname );
 		}
-		//Com_Error( ERR_DROP, "AI Scripting: alertentity \"%s\" (classname = %s) doesn't have an \"AIScript_AlertEntity\" function\n", params, ent->classname );
 		return qtrue;
 	}
 
@@ -1584,6 +1612,7 @@ qboolean AICast_ScriptAction_SaveGame( cast_state_t *cs, char *params ) {
 
 	if ( cs->bs ) {
 		Com_Error( ERR_DROP, "AI Scripting: savegame attempted on a non-player" );
+        return qfalse;  // Keep linter happy. ERR_DROP does not return
 	}
 
 //----(SA)	check for parameter
@@ -1617,10 +1646,12 @@ qboolean AICast_ScriptAction_FireAtTarget( cast_state_t *cs, char *params ) {
 	token = COM_ParseExt( &pString, qfalse );
 	if ( !token[0] ) {
 		Com_Error( ERR_DROP, "AI Scripting: fireattarget without a targetname\n" );
+        return qfalse;  // Keep linter happy. ERR_DROP does not return
 	}
 
 	if ( !cs->bs ) {
 		Com_Error( ERR_DROP, "AI Scripting: fireattarget called for non-AI character\n" );
+        return qfalse;  // Keep linter happy. ERR_DROP does not return
 	}
 
 	// find this targetname
@@ -1629,6 +1660,7 @@ qboolean AICast_ScriptAction_FireAtTarget( cast_state_t *cs, char *params ) {
 		ent = AICast_FindEntityForName( token );
 		if ( !ent ) {
 			Com_Error( ERR_DROP, "AI Scripting: fireattarget cannot find targetname/aiName \"%s\"\n", token );
+            return qfalse;  // Keep linter happy. ERR_DROP does not return
 		}
 	}
 
@@ -1697,6 +1729,7 @@ AICast_ScriptAction_GodMode
 qboolean AICast_ScriptAction_GodMode( cast_state_t *cs, char *params ) {
 	if ( !params || !params[0] ) {
 		Com_Error( ERR_DROP, "AI Scripting: godmode requires an on/off specifier\n" );
+        return qfalse;  // Keep linter happy. ERR_DROP does not return
 	}
 
 	if ( !Q_stricmp( params, "on" ) ) {
@@ -1705,6 +1738,7 @@ qboolean AICast_ScriptAction_GodMode( cast_state_t *cs, char *params ) {
 		g_entities[cs->bs->entitynum].flags &= ~FL_GODMODE;
 	} else {
 		Com_Error( ERR_DROP, "AI Scripting: godmode requires an on/off specifier\n" );
+        return qfalse;  // Keep linter happy. ERR_DROP does not return
 	}
 
 	return qtrue;
@@ -1740,6 +1774,7 @@ qboolean AICast_ScriptAction_Accum( cast_state_t *cs, char *params ) {
 	token = COM_ParseExt( &pString, qfalse );
 	if ( !token[0] ) {
 		Com_Error( ERR_DROP, "AI Scripting: accum without a buffer index\n" );
+        return qfalse;  // Keep linter happy. ERR_DROP does not return
 	}
 
 	bufferIndex = atoi( token );
@@ -1750,6 +1785,7 @@ qboolean AICast_ScriptAction_Accum( cast_state_t *cs, char *params ) {
 	token = COM_ParseExt( &pString, qfalse );
 	if ( !token[0] ) {
 		Com_Error( ERR_DROP, "AI Scripting: accum without a command\n" );
+        return qfalse;  // Keep linter happy. ERR_DROP does not return
 	}
 
 	Q_strncpyz( lastToken, token, sizeof( lastToken ) );
@@ -1758,11 +1794,13 @@ qboolean AICast_ScriptAction_Accum( cast_state_t *cs, char *params ) {
 	if ( !Q_stricmp( lastToken, "inc" ) ) {
 		if ( !token[0] ) {
 			Com_Error( ERR_DROP, "AI Scripting: accum %s requires a parameter\n", lastToken );
+            return qfalse;  // Keep linter happy. ERR_DROP does not return
 		}
 		cs->scriptAccumBuffer[bufferIndex] += atoi( token );
 	} else if ( !Q_stricmp( lastToken, "abort_if_less_than" ) ) {
 		if ( !token[0] ) {
 			Com_Error( ERR_DROP, "AI Scripting: accum %s requires a parameter\n", lastToken );
+            return qfalse;  // Keep linter happy. ERR_DROP does not return
 		}
 		if ( cs->scriptAccumBuffer[bufferIndex] < atoi( token ) ) {
 			// abort the current script
@@ -1771,6 +1809,7 @@ qboolean AICast_ScriptAction_Accum( cast_state_t *cs, char *params ) {
 	} else if ( !Q_stricmp( lastToken, "abort_if_greater_than" ) ) {
 		if ( !token[0] ) {
 			Com_Error( ERR_DROP, "AI Scripting: accum %s requires a parameter\n", lastToken );
+            return qfalse;  // Keep linter happy. ERR_DROP does not return
 		}
 		if ( cs->scriptAccumBuffer[bufferIndex] > atoi( token ) ) {
 			// abort the current script
@@ -1779,6 +1818,7 @@ qboolean AICast_ScriptAction_Accum( cast_state_t *cs, char *params ) {
 	} else if ( !Q_stricmp( lastToken, "abort_if_not_equal" ) ) {
 		if ( !token[0] ) {
 			Com_Error( ERR_DROP, "AI Scripting: accum %s requires a parameter\n", lastToken );
+            return qfalse;  // Keep linter happy. ERR_DROP does not return
 		}
 		if ( cs->scriptAccumBuffer[bufferIndex] != atoi( token ) ) {
 			// abort the current script
@@ -1787,6 +1827,7 @@ qboolean AICast_ScriptAction_Accum( cast_state_t *cs, char *params ) {
 	} else if ( !Q_stricmp( lastToken, "abort_if_equal" ) ) {
 		if ( !token[0] ) {
 			Com_Error( ERR_DROP, "AI Scripting: accum %s requires a parameter\n", lastToken );
+            return qfalse;  // Keep linter happy. ERR_DROP does not return
 		}
 		if ( cs->scriptAccumBuffer[bufferIndex] == atoi( token ) ) {
 			// abort the current script
@@ -1795,16 +1836,19 @@ qboolean AICast_ScriptAction_Accum( cast_state_t *cs, char *params ) {
 	} else if ( !Q_stricmp( lastToken, "bitset" ) ) {
 		if ( !token[0] ) {
 			Com_Error( ERR_DROP, "AI Scripting: accum %s requires a parameter\n", lastToken );
+            return qfalse;  // Keep linter happy. ERR_DROP does not return
 		}
 		cs->scriptAccumBuffer[bufferIndex] |= ( 1 << atoi( token ) );
 	} else if ( !Q_stricmp( lastToken, "bitreset" ) ) {
 		if ( !token[0] ) {
 			Com_Error( ERR_DROP, "AI Scripting: accum %s requires a parameter\n", lastToken );
+            return qfalse;  // Keep linter happy. ERR_DROP does not return
 		}
 		cs->scriptAccumBuffer[bufferIndex] &= ~( 1 << atoi( token ) );
 	} else if ( !Q_stricmp( lastToken, "abort_if_bitset" ) ) {
 		if ( !token[0] ) {
 			Com_Error( ERR_DROP, "AI Scripting: accum %s requires a parameter\n", lastToken );
+            return qfalse;  // Keep linter happy. ERR_DROP does not return
 		}
 		if ( cs->scriptAccumBuffer[bufferIndex] & ( 1 << atoi( token ) ) ) {
 			// abort the current script
@@ -1813,6 +1857,7 @@ qboolean AICast_ScriptAction_Accum( cast_state_t *cs, char *params ) {
 	} else if ( !Q_stricmp( lastToken, "abort_if_not_bitset" ) ) {
 		if ( !token[0] ) {
 			Com_Error( ERR_DROP, "AI Scripting: accum %s requires a parameter\n", lastToken );
+            return qfalse;  // Keep linter happy. ERR_DROP does not return
 		}
 		if ( !( cs->scriptAccumBuffer[bufferIndex] & ( 1 << atoi( token ) ) ) ) {
 			// abort the current script
@@ -1821,15 +1866,18 @@ qboolean AICast_ScriptAction_Accum( cast_state_t *cs, char *params ) {
 	} else if ( !Q_stricmp( lastToken, "set" ) ) {
 		if ( !token[0] ) {
 			Com_Error( ERR_DROP, "AI Scripting: accum %s requires a parameter\n", lastToken );
+            return qfalse;  // Keep linter happy. ERR_DROP does not return
 		}
 		cs->scriptAccumBuffer[bufferIndex] = atoi( token );
 	} else if ( !Q_stricmp( lastToken, "random" ) ) {
 		if ( !token[0] ) {
 			Com_Error( ERR_DROP, "AI Scripting: accum %s requires a parameter\n", lastToken );
+            return qfalse;  // Keep linter happy. ERR_DROP does not return
 		}
 		cs->scriptAccumBuffer[bufferIndex] = rand() % atoi( token );
 	} else {
 		Com_Error( ERR_DROP, "AI Scripting: accum %s: unknown command\n", params );
+        return qfalse;  // Keep linter happy. ERR_DROP does not return
 	}
 
 	return qtrue;
@@ -1905,6 +1953,7 @@ qboolean AICast_ScriptAction_ObjectivesNeeded( cast_state_t *cs, char *params ) 
 	token = COM_ParseExt( &pString, qfalse );
 	if ( !token[0] ) {
 		Com_Error( ERR_DROP, "AI Scripting: objectivesneeded requires a num_objectives identifier\n" );
+        return qfalse;  // Keep linter happy. ERR_DROP does not return
 	}
 
 	level.numObjectives = atoi( token );
@@ -1932,6 +1981,7 @@ qboolean AICast_ScriptAction_ObjectiveMet( cast_state_t *cs, char *params ) {
 	token = COM_ParseExt( &pString, qfalse );
 	if ( !token[0] ) {
 		Com_Error( ERR_DROP, "AI Scripting: missionsuccess requires a num_objective identifier\n" );
+        return qfalse;  // Keep linter happy. ERR_DROP does not return
 	}
 
 	player = AICast_FindEntityForName( "player" );
@@ -1958,6 +2008,7 @@ qboolean AICast_ScriptAction_ObjectiveMet( cast_state_t *cs, char *params ) {
 	if ( token[0] ) {
 		if ( Q_strcasecmp( token,"nodisplay" ) ) {   // unknown command
 			Com_Error( ERR_DROP, "AI Scripting: missionsuccess with unknown parameter: %s\n", token );
+            return qfalse;  // Keep linter happy. ERR_DROP does not return
 		}
 	} else {    // show on-screen information
 		Cvar_Set( "cg_youGotMail", "2" ); // set flag to draw icon
@@ -1976,6 +2027,7 @@ AICast_ScriptAction_NoAIDamage
 qboolean AICast_ScriptAction_NoAIDamage( cast_state_t *cs, char *params ) {
 	if ( !params || !params[0] ) {
 		Com_Error( ERR_DROP, "AI Scripting: noaidamage requires an on/off specifier\n" );
+        return qfalse;  // Keep linter happy. ERR_DROP does not return
 	}
 
 	if ( !Q_stricmp( params, "on" ) ) {
@@ -1984,6 +2036,7 @@ qboolean AICast_ScriptAction_NoAIDamage( cast_state_t *cs, char *params ) {
 		cs->castScriptStatus.scriptFlags &= ~SFL_NOAIDAMAGE;
 	} else {
 		Com_Error( ERR_DROP, "AI Scripting: noaidamage requires an on/off specifier\n" );
+        return qfalse;  // Keep linter happy. ERR_DROP does not return
 	}
 	return qtrue;
 }
@@ -2000,6 +2053,7 @@ AICast_ScriptAction_Print
 qboolean AICast_ScriptAction_Print( cast_state_t *cs, char *params ) {
 	if ( !params || !params[0] ) {
 		Com_Error( ERR_DROP, "AI Scripting: print requires some text\n" );
+        return qfalse;  // Keep linter happy. ERR_DROP does not return
 	}
 
 	Com_Printf( "(AI) %s-> %s\n", g_entities[cs->entityNum].aiName, params );
@@ -2020,11 +2074,13 @@ qboolean AICast_ScriptAction_FaceTargetAngles( cast_state_t *cs, char *params ) 
 
 	if ( !params || !params[0] ) {
 		Com_Error( ERR_DROP, "AI Scripting: facetargetangles requires a targetname\n" );
+        return qfalse;  // Keep linter happy. ERR_DROP does not return
 	}
 
 	targetEnt = G_Find( NULL, FOFS( targetname ), params );
 	if ( !targetEnt ) {
 		Com_Error( ERR_DROP, "AI Scripting: cannot find targetname \"%s\"\n", params );
+        return qfalse;  // Keep linter happy. ERR_DROP does not return
 	}
 
 	VectorCopy( targetEnt->shared.s.angles, cs->ideal_viewangles );
@@ -2090,11 +2146,13 @@ qboolean AICast_ScriptAction_Mount( cast_state_t *cs, char *params ) {
 
 	if ( !params || !params[0] ) {
 		Com_Error( ERR_DROP, "AI Scripting: mount requires a targetname\n" );
+        return qfalse;  // Keep linter happy. ERR_DROP does not return
 	}
 
 	targetEnt = G_Find( NULL, FOFS( targetname ), params );
 	if ( !targetEnt ) {
 		Com_Error( ERR_DROP, "AI Scripting: cannot find targetname \"%s\"\n", params );
+        return qfalse;  // Keep linter happy. ERR_DROP does not return
 	}
 
 	VectorSubtract( targetEnt->shared.r.currentOrigin, cs->bs->origin, vec );
@@ -2188,6 +2246,7 @@ qboolean AICast_ScriptAction_Teleport( cast_state_t *cs, char *params ) {
 	dest =  G_PickTarget( params );
 	if ( !dest ) {
 		Com_Error( ERR_DROP, "AI Scripting: couldn't find teleporter destination: '%s'\n", params );
+        return qfalse;  // Keep linter happy. ERR_DROP does not return
 	}
 
 	TeleportPlayer( &g_entities[cs->entityNum], dest->shared.s.origin, dest->shared.s.angles );
@@ -2347,6 +2406,7 @@ AICast_ScriptAction_NoSight
 qboolean AICast_ScriptAction_NoSight( cast_state_t *cs, char *params ) {
 	if ( !params ) {
 		Com_Error( ERR_DROP, "AI Scripting: syntax error\n\nnosight <duration>\n" );
+        return qfalse;  // Keep linter happy. ERR_DROP does not return
 	}
 
 	cs->castScriptStatus.scriptNoSightTime = level.time + atoi( params );
@@ -2405,6 +2465,7 @@ qboolean AICast_ScriptAction_Attrib( cast_state_t *cs, char *params ) {
 	token = COM_ParseExt( &pString, qfalse );
 	if ( !token[0] ) {
 		Com_Error( ERR_DROP, "AI_Scripting: syntax: attrib <attribute> <value>" );
+        return qfalse;  // Keep linter happy. ERR_DROP does not return
 	}
 
 	for ( i = 0; i < AICAST_MAX_ATTRIBUTES; i++ ) {
@@ -2413,6 +2474,7 @@ qboolean AICast_ScriptAction_Attrib( cast_state_t *cs, char *params ) {
 			token = COM_ParseExt( &pString, qfalse );
 			if ( !token[0] ) {
 				Com_Error( ERR_DROP, "AI_Scripting: syntax: attrib <attribute> <value>" );
+                return qfalse;  // Keep linter happy. ERR_DROP does not return
 			}
 			// set the attribute
 			cs->attributes[i] = atof( token );
@@ -2462,6 +2524,7 @@ qboolean AICast_ScriptAction_Headlook( cast_state_t *cs, char *params ) {
 	token = COM_ParseExt( &pString, qfalse );
 	if ( !token[0] ) {
 		Com_Error( ERR_DROP, "AI_Scripting: syntax: headlook <ON/OFF>" );
+        return qfalse;  // Keep linter happy. ERR_DROP does not return
 	}
 	Q_strlwr( token );
 
@@ -2471,6 +2534,7 @@ qboolean AICast_ScriptAction_Headlook( cast_state_t *cs, char *params ) {
 		cs->aiFlags |= AIFL_NO_HEADLOOK;
 	} else {
 		Com_Error( ERR_DROP, "AI_Scripting: syntax: headlook <ON/OFF>" );
+        return qfalse;  // Keep linter happy. ERR_DROP does not return
 	}
 
 	return qtrue;
@@ -2545,6 +2609,7 @@ qboolean AICast_ScriptAction_KnockBack( cast_state_t *cs, char *params ) {
 	token = COM_ParseExt( &pString, qfalse );
 	if ( !token[0] ) {
 		Com_Error( ERR_DROP, "AI_Scripting: syntax: knockback <ON/OFF>" );
+        return qfalse;  // Keep linter happy. ERR_DROP does not return
 	}
 	Q_strlwr( token );
 
@@ -2554,6 +2619,7 @@ qboolean AICast_ScriptAction_KnockBack( cast_state_t *cs, char *params ) {
 		g_entities[cs->entityNum].flags |= FL_NO_KNOCKBACK;
 	} else {
 		Com_Error( ERR_DROP, "AI_Scripting: syntax: knockback <ON/OFF>" );
+        return qfalse;  // Keep linter happy. ERR_DROP does not return
 	}
 
 	return qtrue;
@@ -2575,6 +2641,7 @@ qboolean AICast_ScriptAction_Zoom( cast_state_t *cs, char *params ) {
 	token = COM_ParseExt( &pString, qfalse );
 	if ( !token[0] ) {
 		Com_Error( ERR_DROP, "AI_Scripting: syntax: zoom <ON/OFF>" );
+        return qfalse;  // Keep linter happy. ERR_DROP does not return
 	}
 	Q_strlwr( token );
 
@@ -2587,6 +2654,7 @@ qboolean AICast_ScriptAction_Zoom( cast_state_t *cs, char *params ) {
 		cs->aiFlags &= ~AIFL_ZOOMING;
 	} else {
 		Com_Error( ERR_DROP, "AI_Scripting: syntax: zoom <ON/OFF>" );
+        return qfalse;  // Keep linter happy. ERR_DROP does not return
 	}
 
 	return qtrue;
@@ -2610,6 +2678,7 @@ qboolean ScriptStartCam( cast_state_t *cs, char *params, qboolean black ) {
 	token = COM_Parse( &pString );
 	if ( !token[0] ) {
 		Com_Error( ERR_DROP, "G_ScriptAction_Cam: filename parameter required\n" );
+        return qfalse;  // Keep linter happy. ERR_DROP does not return
 	}
 
 	// turn off noclient flag
@@ -2654,6 +2723,7 @@ qboolean AICast_ScriptAction_Cigarette( cast_state_t *cs, char *params ) {
 	token = COM_ParseExt( &pString, qfalse );
 	if ( !token[0] ) {
 		Com_Error( ERR_DROP, "AI_Scripting: syntax: cigarette <ON/OFF>" );
+        return qfalse;  // Keep linter happy. ERR_DROP does not return
 	}
 	Q_strlwr( token );
 
@@ -2663,6 +2733,7 @@ qboolean AICast_ScriptAction_Cigarette( cast_state_t *cs, char *params ) {
 		g_entities[cs->entityNum].client->ps.eFlags &= ~EF_CIG;
 	} else {
 		Com_Error( ERR_DROP, "AI_Scripting: syntax: cigarette <ON/OFF>" );
+        return qfalse;  // Keep linter happy. ERR_DROP does not return
 	}
 
 	return qtrue;
@@ -2687,6 +2758,7 @@ qboolean AICast_ScriptAction_Parachute( cast_state_t *cs, char *params ) {
 	token = COM_ParseExt( &pString, qfalse );
 	if ( !token[0] ) {
 		Com_Error( ERR_DROP, "AI_Scripting: syntax: parachute <ON/OFF>" );
+        return qfalse;  // Keep linter happy. ERR_DROP does not return
 	}
 	Q_strlwr( token );
 
@@ -2696,6 +2768,7 @@ qboolean AICast_ScriptAction_Parachute( cast_state_t *cs, char *params ) {
 		ent->flags &= ~FL_PARACHUTE;
 	} else {
 		Com_Error( ERR_DROP, "AI_Scripting: syntax: parachute <ON/OFF>" );
+        return qfalse;  // Keep linter happy. ERR_DROP does not return
 	}
 
 	return qtrue;
@@ -2731,6 +2804,7 @@ AICast_ScriptAction_SetHealth
 qboolean AICast_ScriptAction_SetHealth( cast_state_t *cs, char *params ) {
 	if ( !params || !params[0] ) {
 		Com_Error( ERR_DROP, "AI Scripting: sethealth requires a health value" );
+        return qfalse;  // Keep linter happy. ERR_DROP does not return
 	}
 
 	g_entities[cs->entityNum].health = atoi( params );
@@ -2749,6 +2823,7 @@ AICast_ScriptAction_NoTarget
 qboolean AICast_ScriptAction_NoTarget( cast_state_t *cs, char *params ) {
 	if ( !params || !params[0] ) {
 		Com_Error( ERR_DROP, "AI Scripting: notarget requires ON or OFF as parameter" );
+        return qfalse;  // Keep linter happy. ERR_DROP does not return
 	}
 
 	if ( !Q_strcasecmp( params, "ON" ) ) {
@@ -2757,6 +2832,7 @@ qboolean AICast_ScriptAction_NoTarget( cast_state_t *cs, char *params ) {
 		g_entities[cs->entityNum].flags &= ~FL_NOTARGET;
 	} else {
 		Com_Error( ERR_DROP, "AI Scripting: notarget requires ON or OFF as parameter" );
+        return qfalse;  // Keep linter happy. ERR_DROP does not return
 	}
 
 	return qtrue;
@@ -2776,12 +2852,14 @@ qboolean AICast_ScriptAction_Cvar( cast_state_t *cs, char *params ) {
 	token = COM_ParseExt( &pString, qfalse );
 	if ( !token[0] ) {
 		Com_Error( ERR_DROP, "AI_Scripting: syntax: cvar <cvarName> <cvarValue>" );
+        return qfalse;  // Keep linter happy. ERR_DROP does not return
 	}
 	Q_strncpyz( cvarName, token, sizeof( cvarName ) );
 
 	token = COM_ParseExt( &pString, qfalse );
 	if ( !token[0] ) {
 		Com_Error( ERR_DROP, "AI_Scripting: syntax: cvar <cvarName> <cvarValue>" );
+        return qfalse;  // Keep linter happy. ERR_DROP does not return
 	}
 
 	if ( !strcmp( cvarName, "objective" ) ) {
@@ -2814,6 +2892,7 @@ qboolean AICast_ScriptAction_MusicStart( cast_state_t *cs, char *params ) {
 	token = COM_ParseExt( &pString, qfalse );
 	if ( !token[0] ) {
 		Com_Error( ERR_DROP, "AI_Scripting: syntax: mu_start <musicfile> <fadeuptime>" );
+        return qfalse;  // Keep linter happy. ERR_DROP does not return
 	}
 	Q_strncpyz( cvarName, token, sizeof( cvarName ) );
 
@@ -2842,6 +2921,7 @@ qboolean AICast_ScriptAction_MusicPlay( cast_state_t *cs, char *params ) {
 	token = COM_ParseExt( &pString, qfalse );
 	if ( !token[0] ) {
 		Com_Error( ERR_DROP, "AI_Scripting: syntax: mu_play <musicfile> [fadeup time]" );
+        return qfalse;  // Keep linter happy. ERR_DROP does not return
 	}
 	Q_strncpyz( cvarName, token, sizeof( cvarName ) );
 
@@ -2886,12 +2966,14 @@ qboolean AICast_ScriptAction_MusicFade( cast_state_t *cs, char *params ) {
 	token = COM_ParseExt( &pString, qfalse );
 	if ( !token[0] ) {
 		Com_Error( ERR_DROP, "AI_Scripting: syntax: mu_fade <targetvol> <fadetime>" );
+        return qfalse;  // Keep linter happy. ERR_DROP does not return
 	}
 	targetvol = atof( token );
 
 	token = COM_ParseExt( &pString, qfalse );
 	if ( !token[0] ) {
 		Com_Error( ERR_DROP, "AI_Scripting: syntax: mu_fade <targetvol> <fadetime>" );
+        return qfalse;  // Keep linter happy. ERR_DROP does not return
 	}
 	fadetime = atoi( token );
 
@@ -2914,6 +2996,7 @@ qboolean AICast_ScriptAction_MusicQueue( cast_state_t *cs, char *params ) {
 	token = COM_ParseExt( &pString, qfalse );
 	if ( !token[0] ) {
 		Com_Error( ERR_DROP, "AI_Scripting: syntax: mu_queue <musicfile>" );
+        return qfalse;  // Keep linter happy. ERR_DROP does not return
 	}
 	Q_strncpyz( cvarName, token, sizeof( cvarName ) );
 
@@ -2934,6 +3017,7 @@ AICast_ScriptAction_ExplicitRouting
 qboolean AICast_ScriptAction_ExplicitRouting( cast_state_t *cs, char *params ) {
 	if ( !params || !params[0] ) {
 		Com_Error( ERR_DROP, "AI Scripting: explicit_routing requires an on/off specifier\n" );
+        return qfalse;  // Keep linter happy. ERR_DROP does not return
 	}
 
 	if ( !Q_stricmp( params, "on" ) ) {
@@ -2942,6 +3026,7 @@ qboolean AICast_ScriptAction_ExplicitRouting( cast_state_t *cs, char *params ) {
 		cs->aiFlags &= ~AIFL_EXPLICIT_ROUTING;
 	} else {
 		Com_Error( ERR_DROP, "AI Scripting: explicit_routing requires an on/off specifier\n" );
+        return qfalse;  // Keep linter happy. ERR_DROP does not return
 	}
 
 	return qtrue;
@@ -2961,6 +3046,7 @@ qboolean AICast_ScriptAction_LockPlayer( cast_state_t *cs, char *params ) {
 
 	if ( !params || !params[0] ) {
 		Com_Error( ERR_DROP, "AI Scripting: lockplayer requires an on/off specifier\n" );
+        return qfalse;  // Keep linter happy. ERR_DROP does not return
 	}
 
 	if ( !Q_stricmp( params, "on" ) ) {
@@ -2969,6 +3055,7 @@ qboolean AICast_ScriptAction_LockPlayer( cast_state_t *cs, char *params ) {
 		ent->client->ps.pm_flags &= ~PMF_IGNORE_INPUT;
 	} else {
 		Com_Error( ERR_DROP, "AI Scripting: lockplayer requires an on/off specifier\n" );
+        return qfalse;  // Keep linter happy. ERR_DROP does not return
 	}
 
 	return qtrue;
@@ -2989,12 +3076,14 @@ qboolean AICast_ScriptAction_AnimCondition( cast_state_t *cs, char *params ) {
 	token = COM_ParseExt( &pString, qfalse );
 	if ( !token[0] ) {
 		Com_Error( ERR_DROP, "AI_Scripting: syntax: anim_condition <condition> <string>" );
+        return qfalse;  // Keep linter happy. ERR_DROP does not return
 	}
 	Q_strncpyz( condition, token, sizeof( condition ) );
 	//
 	token = COM_ParseExt( &pString, qfalse );
 	if ( !token[0] ) {
 		Com_Error( ERR_DROP, "AI_Scripting: syntax: anim_condition <condition> <string>" );
+        return qfalse;  // Keep linter happy. ERR_DROP does not return
 	}
 	//
 	BG_UpdateConditionValueStrings( cs->entityNum, condition, token );
@@ -3015,11 +3104,13 @@ qboolean AICast_ScriptAction_PushAway( cast_state_t *cs, char *params ) {
 
 	if ( !params || !params[0] ) {
 		Com_Error( ERR_DROP, "AI_Scripting: syntax: pushaway <ainame>" );
+        return qfalse;  // Keep linter happy. ERR_DROP does not return
 	}
 	// find them
 	pushed = AICast_FindEntityForName( params );
 	if ( !pushed ) {
 		Com_Error( ERR_DROP, "AI_Scripting: pushaway: cannot find \"%s\"", params );
+        return qfalse;  // Keep linter happy. ERR_DROP does not return
 	}
 	// calc the vecs
 	VectorSubtract( pushed->shared.s.pos.trBase, cs->bs->origin, v );

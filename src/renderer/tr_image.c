@@ -881,6 +881,7 @@ image_t *R_CreateImageExt( const char *name, const byte *pic, int width, int hei
 
 	if ( strlen( name ) >= MAX_QPATH ) {
 		ri.Error( ERR_DROP, "R_CreateImage: \"%s\" is too long\n", name );
+        return NULL; // keep the linter happy, ERR_DROP does not return
 	}
 	if ( !strncmp( name, "*lightmap", 9 ) ) {
 		isLightmap = qtrue;
@@ -901,6 +902,7 @@ image_t *R_CreateImageExt( const char *name, const byte *pic, int width, int hei
 
 	if ( tr.numImages == MAX_DRAWIMAGES ) {
 		ri.Error( ERR_DROP, "R_CreateImage: MAX_DRAWIMAGES hit\n" );
+        return NULL; // keep the linter happy, ERR_DROP does not return
 	}
 
 	// Ridah
@@ -1063,15 +1065,19 @@ static void LoadBMP( const char *name, byte **pic, int *width, int *height ) {
 
 	if ( bmpHeader.id[0] != 'B' && bmpHeader.id[1] != 'M' ) {
 		ri.Error( ERR_DROP, "LoadBMP: only Windows-style BMP files supported (%s)\n", name );
+        return; // keep the linter happy, ERR_DROP does not return
 	}
-	if ( bmpHeader.fileSize != length ) {
-		ri.Error( ERR_DROP, "LoadBMP: header size does not match file size (%d vs. %d) (%s)\n", bmpHeader.fileSize, length, name );
-	}
+    if ( bmpHeader.fileSize != length ) {
+        ri.Error( ERR_DROP, "LoadBMP: header size does not match file size (%d vs. %d) (%s)\n", bmpHeader.fileSize, length, name );
+        return; // keep the linter happy, ERR_DROP does not return
+    }
 	if ( bmpHeader.compression != 0 ) {
 		ri.Error( ERR_DROP, "LoadBMP: only uncompressed BMP files supported (%s)\n", name );
+        return; // keep the linter happy, ERR_DROP does not return
 	}
 	if ( bmpHeader.bitsPerPixel < 8 ) {
 		ri.Error( ERR_DROP, "LoadBMP: monochrome and 4-bit BMP files not supported (%s)\n", name );
+        return; // keep the linter happy, ERR_DROP does not return
 	}
 
 	columns = bmpHeader.width;
@@ -1142,6 +1148,7 @@ static void LoadBMP( const char *name, byte **pic, int *width, int *height ) {
 				break;
 			default:
 				ri.Error( ERR_DROP, "LoadBMP: illegal pixel_size '%d' in file '%s'\n", bmpHeader.bitsPerPixel, name );
+                return; // keep the linter happy, ERR_DROP does not return
 				break;
 			}
 		}
@@ -1343,14 +1350,17 @@ void LoadTGA( const char *name, byte **pic, int *width, int *height ) {
 		 && targa_header.image_type != 10
 		 && targa_header.image_type != 3 ) {
 		ri.Error( ERR_DROP, "LoadTGA: Only type 2 (RGB), 3 (gray), and 10 (RGB) TGA images supported\n" );
+        return; // keep the linter happy, ERR_DROP does not return
 	}
 
 	if ( targa_header.colormap_type != 0 ) {
 		ri.Error( ERR_DROP, "LoadTGA: colormaps not supported\n" );
+        return; // keep the linter happy, ERR_DROP does not return
 	}
 
 	if ( ( targa_header.pixel_size != 32 && targa_header.pixel_size != 24 ) && targa_header.image_type != 3 ) {
 		ri.Error( ERR_DROP, "LoadTGA: Only 32 or 24 bit images supported (no colormaps)\n" );
+        return; // keep the linter happy, ERR_DROP does not return
 	}
 
 	columns = targa_header.width;
@@ -1413,6 +1423,7 @@ void LoadTGA( const char *name, byte **pic, int *width, int *height ) {
 					break;
 				default:
 					ri.Error( ERR_DROP, "LoadTGA: illegal pixel_size '%d' in file '%s'\n", targa_header.pixel_size, name );
+                    return; // keep the linter happy, ERR_DROP does not return
 					break;
 				}
 			}
@@ -1446,6 +1457,7 @@ void LoadTGA( const char *name, byte **pic, int *width, int *height ) {
 						break;
 					default:
 						ri.Error( ERR_DROP, "LoadTGA: illegal pixel_size '%d' in file '%s'\n", targa_header.pixel_size, name );
+                        return; // keep the linter happy, ERR_DROP does not return
 						break;
 					}
 
@@ -1489,7 +1501,8 @@ void LoadTGA( const char *name, byte **pic, int *width, int *height ) {
 							break;
 						default:
 							ri.Error( ERR_DROP, "LoadTGA: illegal pixel_size '%d' in file '%s'\n", targa_header.pixel_size, name );
-							break;
+                            return; // keep the linter happy, ERR_DROP does not return
+                            break;
 						}
 						column++;
 						if ( column == columns ) { // pixel packet run spans across rows
@@ -3118,6 +3131,7 @@ qboolean R_TouchImage( image_t *inImage ) {
 			// add it to the current images
 			if ( tr.numImages == MAX_DRAWIMAGES ) {
 				ri.Error( ERR_DROP, "R_CreateImage: MAX_DRAWIMAGES hit\n" );
+                return qfalse; // keep the linter happy, ERR_DROP does not return
 			}
 
 			tr.images[tr.numImages] = bImage;
@@ -3274,6 +3288,7 @@ image_t *R_FindCachedImage( const char *name, int hash ) {
 			// add it to the current images
 			if ( tr.numImages == MAX_DRAWIMAGES ) {
 				ri.Error( ERR_DROP, "R_CreateImage: MAX_DRAWIMAGES hit\n" );
+                return NULL; // keep the linter happy, ERR_DROP does not return
 			}
 
 			R_TouchImage( bImage );
@@ -3330,6 +3345,7 @@ void R_FindFreeTexnum( image_t *inImage ) {
 		texnumImages[i] = inImage;
 	} else {
 		ri.Error( ERR_DROP, "R_FindFreeTexnum: MAX_DRAWIMAGES hit\n" );
+        return; // keep the linter happy, ERR_DROP does not return
 	}
 }
 

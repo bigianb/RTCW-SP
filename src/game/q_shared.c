@@ -594,6 +594,7 @@ void COM_MatchToken( char **buf_p, char *match ) {
 	token = COM_Parse( buf_p );
 	if ( strcmp( token, match ) ) {
 		Com_Error( ERR_DROP, "MatchToken: %s != %s", token, match );
+        return; // keep the linter happy, ERR_DROP does not return
 	}
 }
 
@@ -1025,6 +1026,7 @@ char    *  va( char *format, ... ) {
 
 	if ( ( len = strlen( temp_buffer ) ) >= MAX_VA_STRING ) {
 		Com_Error( ERR_DROP, "Attempted to overrun string in call to va()\n" );
+        return NULL; // keep the linter happy, ERR_DROP does not return
 	}
 
 	if ( len + index >= MAX_VA_STRING - 1 ) {
@@ -1096,6 +1098,7 @@ char *Info_ValueForKey( const char *s, const char *key ) {
 
 	if ( strlen( s ) >= BIG_INFO_STRING ) {
 		Com_Error( ERR_DROP, "Info_ValueForKey: oversize infostring" );
+        return NULL; // keep the linter happy, ERR_DROP does not return
 	}
 
 	valueindex ^= 1;
@@ -1191,6 +1194,7 @@ void Info_RemoveKey( char *s, const char *key ) {
 
 	if ( strlen( s ) >= MAX_INFO_STRING ) {
 		Com_Error( ERR_DROP, "Info_RemoveKey: oversize infostring" );
+        return; // keep the linter happy, ERR_DROP does not return
 	}
 
 	if ( strchr( key, '\\' ) ) {
@@ -1249,6 +1253,7 @@ void Info_RemoveKey_Big( char *s, const char *key ) {
 
 	if ( strlen( s ) >= BIG_INFO_STRING ) {
 		Com_Error( ERR_DROP, "Info_RemoveKey_Big: oversize infostring" );
+        return; // keep the linter happy, ERR_DROP does not return
 	}
 
 	if ( strchr( key, '\\' ) ) {
@@ -1327,6 +1332,7 @@ void Info_SetValueForKey( char *s, const char *key, const char *value ) {
 
 	if ( strlen( s ) >= MAX_INFO_STRING ) {
 		Com_Error( ERR_DROP, "Info_SetValueForKey: oversize infostring" );
+        return; // keep the linter happy, ERR_DROP does not return
 	}
 
 	if ( strchr( key, '\\' ) || strchr( value, '\\' ) ) {
@@ -1371,6 +1377,7 @@ void Info_SetValueForKey_Big( char *s, const char *key, const char *value ) {
 
 	if ( strlen( s ) >= BIG_INFO_STRING ) {
 		Com_Error( ERR_DROP, "Info_SetValueForKey: oversize infostring" );
+        return; // keep the linter happy, ERR_DROP does not return
 	}
 
 	if ( strchr( key, '\\' ) || strchr( value, '\\' ) ) {

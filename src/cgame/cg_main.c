@@ -578,6 +578,7 @@ static void CG_LoadPickupNames( void ) {
 	}
 	if ( len > MAX_BUFFER ) {
 		Com_Error( ERR_DROP, "%s is too big, make it smaller (max = %i bytes)\n", filename, MAX_BUFFER );
+        return;  // Keep linter happy. ERR_DROP does not return
 	}
 
 	// load the file into memory
@@ -621,6 +622,7 @@ static void CG_LoadTranslationStrings( void ) {
 	}
 	if ( len > MAX_BUFFER ) {
 		Com_Error( ERR_DROP, "%s is too big, make it smaller (max = %i bytes)\n", filename, MAX_BUFFER );
+        return;  // Keep linter happy. ERR_DROP does not return
 	}
 
 	// load the file into memory
@@ -1300,6 +1302,7 @@ CG_ConfigString
 const char *CG_ConfigString( int index ) {
 	if ( index < 0 || index >= MAX_CONFIGSTRINGS ) {
 		Com_Error( ERR_DROP, "CG_ConfigString: bad index: %i", index );
+        return NULL;  // Keep linter happy. ERR_DROP does not return
 	}
 	return cgs.gameState.stringData + cgs.gameState.stringOffsets[ index ];
 }
@@ -1477,6 +1480,7 @@ void CG_Init( int serverMessageNum, int serverCommandSequence ) {
 	s = CG_ConfigString( CS_GAME_VERSION );
 	if ( strcmp( s, GAME_VERSION ) ) {
 		Com_Error( ERR_DROP, "Client/Server game mismatch: %s/%s", GAME_VERSION, s );
+        return;  // Keep linter happy. ERR_DROP does not return
 	}
 
 	s = CG_ConfigString( CS_LEVEL_START_TIME );

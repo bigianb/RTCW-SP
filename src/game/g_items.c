@@ -474,6 +474,7 @@ void RespawnItem( gentity_t *ent ) {
 
 		if ( !ent->teammaster ) {
 			Com_Error( ERR_DROP, "RespawnItem: bad teammaster" );
+            return; // keep the linter happy, ERR_DROP does not return
 		}
 		master = ent->teammaster;
 
@@ -957,6 +958,7 @@ The item will be added to the precache list
 void RegisterItem( gitem_t *item ) {
 	if ( !item ) {
 		Com_Error( ERR_DROP, "RegisterItem: NULL" );
+        return; // keep the linter happy, ERR_DROP does not return
 	}
 	itemRegistered[ item - bg_itemlist ] = qtrue;
 }

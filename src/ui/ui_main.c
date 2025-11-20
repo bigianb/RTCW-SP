@@ -552,9 +552,7 @@ void LoadMenus( const char *menuFile, qboolean reset, qboolean isHud )
 	int handle = trap_PC_LoadSource( menuFile );
 	if ( !handle ) {
         Com_Error( ERR_DROP, S_COLOR_YELLOW "menu file not found: %s, using default\n", menuFile );
-		if ( !handle ) {
-            Com_Error( ERR_DROP, S_COLOR_RED "default menu file not found: ui/menus.txt, unable to continue!\n", menuFile );
-		}
+        return; // keep the linter happy, ERR_DROP does not return
 	}
 
 	ui_new.integer = 1;
@@ -605,7 +603,7 @@ static void UI_LoadTranslationStrings( void )
 	}
 	if ( len >= MAX_BUFFER ) {
 		Com_Error( ERR_DROP, "%s is too big, make it smaller (max = %i bytes)\n", filename, MAX_BUFFER );
-        return;
+        return; // keep the linter happy, ERR_DROP does not return
 	}
 
 	// load the file into memory

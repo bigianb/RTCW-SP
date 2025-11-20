@@ -296,6 +296,7 @@ void G_Script_ScriptParse( gentity_t *ent ) {
 		if ( !token[0] ) {
 			if ( !wantName ) {
 				Com_Error( ERR_DROP, "G_Script_ScriptParse(), Error (line %d): '}' expected, end of script found.\n", COM_GetCurrentParseLine() );
+                return; // keep the linter happy, ERR_DROP does not return
 			}
 			break;
 		}
@@ -307,11 +308,13 @@ void G_Script_ScriptParse( gentity_t *ent ) {
 			}
 			if ( wantName ) {
 				Com_Error( ERR_DROP, "G_Script_ScriptParse(), Error (line %d): '}' found, but not expected.\n", COM_GetCurrentParseLine() );
+                return; // keep the linter happy, ERR_DROP does not return
 			}
 			wantName = qtrue;
 		} else if ( token[0] == '{' )    {
 			if ( wantName ) {
 				Com_Error( ERR_DROP, "G_Script_ScriptParse(), Error (line %d): '{' found, NAME expected.\n", COM_GetCurrentParseLine() );
+                return; // keep the linter happy, ERR_DROP does not return
 			}
 		} else if ( wantName )   {
 			if ( !Q_strcasecmp( ent->scriptName, token ) ) {
@@ -328,9 +331,11 @@ void G_Script_ScriptParse( gentity_t *ent ) {
 			eventNum = G_Script_EventForString( token );
 			if ( eventNum < 0 ) {
 				Com_Error( ERR_DROP, "G_Script_ScriptParse(), Error (line %d): unknown event: %s.\n", COM_GetCurrentParseLine(), token );
+                return; // keep the linter happy, ERR_DROP does not return
 			}
 			if ( numEventItems >= MAX_SCRIPT_EVENTS ) {
 				Com_Error( ERR_DROP, "G_Script_ScriptParse(), Error (line %d): MAX_SCRIPT_EVENTS reached (%d)\n", COM_GetCurrentParseLine(), MAX_SCRIPT_EVENTS );
+                return; // keep the linter happy, ERR_DROP does not return
 			}
 
 			curEvent = &events[numEventItems];
@@ -342,6 +347,7 @@ void G_Script_ScriptParse( gentity_t *ent ) {
 			{
 				if ( !token[0] ) {
 					Com_Error( ERR_DROP, "G_Script_ScriptParse(), Error (line %d): '}' expected, end of script found.\n", COM_GetCurrentParseLine() );
+                    return; // keep the linter happy, ERR_DROP does not return
 				}
 
 				if ( strlen( params ) ) { // add a space between each param
@@ -360,11 +366,13 @@ void G_Script_ScriptParse( gentity_t *ent ) {
 			{
 				if ( !token[0] ) {
 					Com_Error( ERR_DROP, "G_Script_ScriptParse(), Error (line %d): '}' expected, end of script found.\n", COM_GetCurrentParseLine() );
+                    return; // keep the linter happy, ERR_DROP does not return
 				}
 
 				action = G_Script_ActionForString( token );
 				if ( !action ) {
 					Com_Error( ERR_DROP, "G_Script_ScriptParse(), Error (line %d): unknown action: %s.\n", COM_GetCurrentParseLine(), token );
+                    return; // keep the linter happy, ERR_DROP does not return
 				}
 
 				curEvent->stack.items[curEvent->stack.numItems].action = action;
@@ -420,6 +428,7 @@ void G_Script_ScriptParse( gentity_t *ent ) {
 
 				if ( curEvent->stack.numItems >= G_MAX_SCRIPT_STACK_ITEMS ) {
 					Com_Error( ERR_DROP, "G_Script_ScriptParse(): script exceeded MAX_SCRIPT_ITEMS (%d), line %d\n", G_MAX_SCRIPT_STACK_ITEMS, COM_GetCurrentParseLine() );
+                    return; // keep the linter happy, ERR_DROP does not return
 				}
 			}
 
@@ -431,6 +440,7 @@ void G_Script_ScriptParse( gentity_t *ent ) {
 			{
 				if ( !token[0] ) {
 					Com_Error( ERR_DROP, "G_Script_ScriptParse(), Error (line %d): '}' expected, end of script found.\n", COM_GetCurrentParseLine() );
+                    return; // keep the linter happy, ERR_DROP does not return
 				} else if ( token[0] == '{' ) {
 					bracketLevel++;
 				} else if ( token[0] == '}' ) {
@@ -691,9 +701,11 @@ void SP_script_mover( gentity_t *ent ) {
 
 	if ( !ent->model ) {
 		Com_Error( ERR_DROP, "script_model_med must have a \"model\"\n" );
+        return; // keep the linter happy, ERR_DROP does not return
 	}
 	if ( !ent->scriptName ) {
 		Com_Error( ERR_DROP, "script_model_med must have a \"scriptname\"\n" );
+        return; // keep the linter happy, ERR_DROP does not return
 	}
 
 	ent->blocked = script_mover_blocked;
@@ -777,9 +789,11 @@ straight through it
 void SP_script_model_med( gentity_t *ent ) {
 	if ( !ent->model ) {
 		Com_Error( ERR_DROP, "script_model_med %s must have a \"model\"\n", ent->scriptName );
+        return; // keep the linter happy, ERR_DROP does not return
 	}
 	if ( !ent->scriptName ) {
 		Com_Error( ERR_DROP, "script_model_med must have a \"scriptname\"\n" );
+        return; // keep the linter happy, ERR_DROP does not return
 	}
 
 	ent->shared.s.eType = ET_GENERAL;
@@ -810,6 +824,7 @@ void SP_script_model_med( gentity_t *ent ) {
 void SP_script_camera( gentity_t *ent ) {
 	if ( !ent->scriptName ) {
 		Com_Error( ERR_DROP, "%s must have a \"scriptname\"\n", ent->classname );
+        return; // keep the linter happy, ERR_DROP does not return
 	}
 
 	ent->shared.s.eType = ET_CAMERA;

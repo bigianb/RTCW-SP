@@ -72,6 +72,7 @@ int Com_AddToGrowList( growList_t *list, void *data ) {
 
 	if ( !list->elements ) {
 		Com_Error( ERR_DROP, "Growlist alloc failed" );
+        return 0; // keep the linter happy, ERR_DROP does not return
 	}
 
 	memcpy( list->elements, old, list->currentElements * sizeof( void * ) );
@@ -85,6 +86,7 @@ void *Com_GrowListElement( const growList_t *list, int index ) {
 	if ( index < 0 || index >= list->currentElements ) {
 		Com_Error( ERR_DROP, "Com_GrowListElement: %i out of range of %i",
 				   index, list->currentElements );
+        return NULL; // keep the linter happy, ERR_DROP does not return
 	}
 	return list->elements[index];
 }

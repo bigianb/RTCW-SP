@@ -198,9 +198,11 @@ static void CG_TransitionSnapshot( void ) {
 
 	if ( !cg.snap ) {
 		Com_Error( ERR_DROP, "CG_TransitionSnapshot: NULL cg.snap" );
+        return;  // Keep linter happy. ERR_DROP does not return
 	}
 	if ( !cg.nextSnap ) {
 		Com_Error( ERR_DROP, "CG_TransitionSnapshot: NULL cg.nextSnap" );
+        return;  // Keep linter happy. ERR_DROP does not return
 	}
 
 	// execute any server string commands before transitioning entities
@@ -438,6 +440,7 @@ void CG_ProcessSnapshots( void ) {
 		if ( n < cg.latestSnapshotNum ) {
 			// this should never happen
 			Com_Error( ERR_DROP, "CG_ProcessSnapshots: n < cg.latestSnapshotNum" );
+            return;  // Keep linter happy. ERR_DROP does not return
 		}
 		cg.latestSnapshotNum = n;
 	}
@@ -478,6 +481,7 @@ void CG_ProcessSnapshots( void ) {
 			// if time went backwards, we have a level restart
 			if ( cg.nextSnap->serverTime < cg.snap->serverTime ) {
 				Com_Error( ERR_DROP, "CG_ProcessSnapshots: Server time went backwards" );
+                return;  // Keep linter happy. ERR_DROP does not return
 			}
 		}
 
@@ -493,6 +497,7 @@ void CG_ProcessSnapshots( void ) {
 	// assert our valid conditions upon exiting
 	if ( cg.snap == NULL ) {
 		Com_Error( ERR_DROP, "CG_ProcessSnapshots: cg.snap == NULL" );
+        return;  // Keep linter happy. ERR_DROP does not return
 	}
 	if ( cg.time < cg.snap->serverTime ) {
 		// this can happen right after a vid_restart
@@ -500,6 +505,7 @@ void CG_ProcessSnapshots( void ) {
 	}
 	if ( cg.nextSnap != NULL && cg.nextSnap->serverTime <= cg.time ) {
 		Com_Error( ERR_DROP, "CG_ProcessSnapshots: cg.nextSnap->serverTime <= cg.time" );
+        return;  // Keep linter happy. ERR_DROP does not return
 	}
 
 }

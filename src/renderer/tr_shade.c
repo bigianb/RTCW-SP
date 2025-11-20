@@ -985,6 +985,7 @@ static void ComputeTexCoords( shaderStage_t *pStage ) {
 
 			default:
 				ri.Error( ERR_DROP, "ERROR: unknown texmod '%d' in shader '%s'\n", pStage->bundle[b].texMods[tm].type, tess.shader->name );
+                return; // keep the linter happy, ERR_DROP does not return
 				break;
 			}
 		}
@@ -1460,9 +1461,11 @@ void RB_EndSurface( void ) {
 
 	if ( input->indexes[SHADER_MAX_INDEXES - 1] != 0 ) {
 		ri.Error( ERR_DROP, "RB_EndSurface() - SHADER_MAX_INDEXES hit" );
+        return; // keep the linter happy, ERR_DROP does not return
 	}
 	if ( input->xyz[SHADER_MAX_VERTEXES - 1][0] != 0 ) {
 		ri.Error( ERR_DROP, "RB_EndSurface() - SHADER_MAX_VERTEXES hit" );
+        return; // keep the linter happy, ERR_DROP does not return
 	}
 
 	if ( tess.shader == tr.shadowShader ) {

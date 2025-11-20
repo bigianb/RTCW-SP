@@ -626,6 +626,7 @@ CG_MergeFlameChunks
 void CG_MergeFlameChunks( flameChunk_t *f1, flameChunk_t *f2 ) {
 	if ( f1->nextFlameChunk != f2 ) {
 		Com_Error( ERR_DROP, "CG_MergeFlameChunks: f2 doesn't follow f1, cannot merge\n" );
+        return;  // Keep linter happy. ERR_DROP does not return
 	}
 
 	f1->nextFlameChunk = f2->nextFlameChunk;

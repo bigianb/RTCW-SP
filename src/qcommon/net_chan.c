@@ -170,6 +170,7 @@ void Netchan_Transmit( netchan_t *chan, int length, const byte *data ) {
 
 	if ( length > MAX_MSGLEN ) {
 		Com_Error( ERR_DROP, "Netchan_Transmit: length = %i", length );
+        return; // keep the linter happy, ERR_DROP does not return
 	}
 	chan->unsentFragmentStart = 0;
 

@@ -113,6 +113,7 @@ void MSG_WriteBits( msg_t *msg, int value, int bits ) {
 
 	if ( bits == 0 || bits < -31 || bits > 32 ) {
 		Com_Error( ERR_DROP, "MSG_WriteBits: bad bits %i", bits );
+        return; // keep the linter happy, ERR_DROP does not return
 	}
 
 	if ( bits < 0 ) {
@@ -140,6 +141,7 @@ void MSG_WriteBits( msg_t *msg, int value, int bits ) {
                     msg->bit += 32;
                 } else {
                     Com_Error( ERR_DROP, "can't read %d bits", bits );
+                    return; // keep the linter happy, ERR_DROP does not return
                 }
 	} else {
 		value &= ( 0xffffffff >> ( 32 - bits ) );
@@ -215,6 +217,7 @@ int MSG_ReadBits( msg_t *msg, int bits ) {
             msg->bit += 32;
         } else {
             Com_Error( ERR_DROP, "can't read %d bits", bits );
+            return; // keep the linter happy, ERR_DROP does not return
         }
 	} else {
 		nbits = 0;
@@ -1134,6 +1137,7 @@ void MSG_ReadDeltaEntity( msg_t *msg, entityState_t *from, entityState_t *to,
 
 	if ( number < 0 || number >= MAX_GENTITIES ) {
 		Com_Error( ERR_DROP, "Bad delta entity number: %i", number );
+        return; // keep the linter happy, ERR_DROP does not return
 	}
 
 	if ( msg->bit == 0 ) {

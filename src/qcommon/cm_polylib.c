@@ -222,6 +222,7 @@ winding_t *BaseWindingForPlane( vec3_t normal, vec_t dist ) {
 	}
 	if ( x == -1 ) {
 		Com_Error( ERR_DROP, "BaseWindingForPlane: no axis found" );
+        return NULL; // keep the linter happy, ERR_DROP does not return
 	}
 
 	VectorCopy( vec3_origin, vup );
@@ -404,9 +405,11 @@ void    ClipWindingEpsilon( winding_t *in, vec3_t normal, vec_t dist,
 
 	if ( f->numpoints > maxpts || b->numpoints > maxpts ) {
 		Com_Error( ERR_DROP, "ClipWinding: points exceeded estimate" );
+        return; // keep the linter happy, ERR_DROP does not return
 	}
 	if ( f->numpoints > MAX_POINTS_ON_WINDING || b->numpoints > MAX_POINTS_ON_WINDING ) {
 		Com_Error( ERR_DROP, "ClipWinding: MAX_POINTS_ON_WINDING" );
+        return; // keep the linter happy, ERR_DROP does not return
 	}
 }
 
@@ -504,9 +507,11 @@ void ChopWindingInPlace( winding_t **inout, vec3_t normal, vec_t dist, vec_t eps
 
 	if ( f->numpoints > maxpts ) {
 		Com_Error( ERR_DROP, "ClipWinding: points exceeded estimate" );
+        return; // keep the linter happy, ERR_DROP does not return
 	}
 	if ( f->numpoints > MAX_POINTS_ON_WINDING ) {
 		Com_Error( ERR_DROP, "ClipWinding: MAX_POINTS_ON_WINDING" );
+        return; // keep the linter happy, ERR_DROP does not return
 	}
 
 	FreeWinding( in );
@@ -550,11 +555,13 @@ void CheckWinding( winding_t *w ) {
 
 	if ( w->numpoints < 3 ) {
 		Com_Error( ERR_DROP, "CheckWinding: %i points",w->numpoints );
+        return; // keep the linter happy, ERR_DROP does not return
 	}
 
 	area = WindingArea( w );
 	if ( area < 1 ) {
 		Com_Error( ERR_DROP, "CheckWinding: %f area", area );
+        return; // keep the linter happy, ERR_DROP does not return
 	}
 
 	WindingPlane( w, facenormal, &facedist );
@@ -566,6 +573,7 @@ void CheckWinding( winding_t *w ) {
 		for ( j = 0 ; j < 3 ; j++ )
 			if ( p1[j] > MAX_MAP_BOUNDS || p1[j] < -MAX_MAP_BOUNDS ) {
 				Com_Error( ERR_DROP, "CheckFace: BUGUS_RANGE: %f",p1[j] );
+                return; // keep the linter happy, ERR_DROP does not return
 			}
 
 		j = i + 1 == w->numpoints ? 0 : i + 1;
@@ -574,6 +582,7 @@ void CheckWinding( winding_t *w ) {
 		d = DotProduct( p1, facenormal ) - facedist;
 		if ( d < -ON_EPSILON || d > ON_EPSILON ) {
 			Com_Error( ERR_DROP, "CheckWinding: point off plane" );
+            return; // keep the linter happy, ERR_DROP does not return
 		}
 
 		// check the edge isnt degenerate
@@ -582,6 +591,7 @@ void CheckWinding( winding_t *w ) {
 
 		if ( VectorLength( dir ) < ON_EPSILON ) {
 			Com_Error( ERR_DROP, "CheckWinding: degenerate edge" );
+            return; // keep the linter happy, ERR_DROP does not return
 		}
 
 		CrossProduct( facenormal, dir, edgenormal );
@@ -598,6 +608,7 @@ void CheckWinding( winding_t *w ) {
 			d = DotProduct( w->p[j], edgenormal );
 			if ( d > edgedist ) {
 				Com_Error( ERR_DROP, "CheckWinding: non-convex" );
+                return; // keep the linter happy, ERR_DROP does not return
 			}
 		}
 	}

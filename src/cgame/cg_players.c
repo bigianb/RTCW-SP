@@ -216,6 +216,7 @@ void CG_CalcMoveSpeeds( clientInfo_t *ci ) {
 		for ( k = 0; k < 2; k++ ) {
 			if ( trap_R_LerpTag( &o[k], &refent, tags[k], 0 ) < 0 ) {
 				Com_Error( ERR_DROP, "CG_CalcMoveSpeeds: unable to find tag %s, cannot calculate movespeed", tags[k] );
+                return;  // Keep linter happy. ERR_DROP does not return
 			}
 		}
 		// save the positions
@@ -245,6 +246,7 @@ void CG_CalcMoveSpeeds( clientInfo_t *ci ) {
 			for ( k = 0; k < 2; k++ ) {
 				if ( trap_R_LerpTag( &o[k], &refent, tags[k], 0 ) < 0 ) {
 					Com_Error( ERR_DROP, "CG_CalcMoveSpeeds: unable to find tag %s, cannot calculate movespeed", tags[k] );
+                    return;  // Keep linter happy. ERR_DROP does not return
 				}
 			}
 
@@ -317,76 +319,6 @@ void CG_CalcMoveSpeeds( clientInfo_t *ci ) {
 	}
 }
 
-/*
-======================
-CG_ParseAnimationFiles
-
-  Read in all the configuration and script files for this model.
-======================
-*/
-
-#if 0   // RF, this entire function not used anymore, since we now grab all this stuff from the server
-
-static qboolean CG_ParseAnimationFiles( const char *modelname, clientInfo_t *ci, int client ) {
-	char text[100000];
-	char filename[MAX_QPATH];
-	fileHandle_t f;
-	int len;
-
-	// set the name of the model in the modelinfo structure
-	Q_strncpyz( ci->modelInfo->modelname, modelname, sizeof( ci->modelInfo->modelname ) );
-
-	// load the cfg file
-	snprintf( filename, sizeof( filename ), "models/players/%s/wolfanim.cfg", modelname );
-	len = FS_FOpenFileByMode( filename, &f, FS_READ );
-	if ( len <= 0 ) {
-		return qfalse;
-	}
-	if ( len >= sizeof( text ) - 1 ) {
-		Com_Printf( "File %s too long\n", filename );
-		return qfalse;
-	}
-	FS_Read( text, len, f );
-	text[len] = 0;
-	FS_FCloseFile( f );
-
-	// parse the text
-	BG_AnimParseAnimConfig( ci->modelInfo, filename, text );
-
-	if ( ci->isSkeletal != ci->modelInfo->isSkeletal ) {
-		Com_Error( ERR_DROP, "Mis-match in %s, loaded skeletal model, but file does not specify SKELETAL\n", filename );
-	}
-
-	// calc movespeed values if required
-	CG_CalcMoveSpeeds( ci );
-
-	// load the script file
-	snprintf( filename, sizeof( filename ), "models/players/%s/wolfanim.script", modelname );
-	len = FS_FOpenFileByMode( filename, &f, FS_READ );
-	if ( len <= 0 ) {
-		if ( ci->modelInfo->version > 1 ) {
-			return qfalse;
-		}
-		// try loading the default script for old legacy models
-		snprintf( filename, sizeof( filename ), "models/players/default.script", modelname );
-		len = FS_FOpenFileByMode( filename, &f, FS_READ );
-		if ( len <= 0 ) {
-			return qfalse;
-		}
-	}
-	if ( len >= sizeof( text ) - 1 ) {
-		Com_Printf( "File %s too long\n", filename );
-		return qfalse;
-	}
-	FS_Read( text, len, f );
-	text[len] = 0;
-	FS_FCloseFile( f );
-
-	// parse the text
-	BG_AnimParseAnimScript( ci->modelInfo, &cgs.animScriptData, ci->clientNum, filename, text );
-	return qtrue;
-}
-#endif
 
 /*
 ==========================
@@ -536,6 +468,7 @@ qboolean CG_CheckForExistingModelInfo( clientInfo_t *ci, char *modelName, animMo
 
 			// huh!?
 			Com_Error( ERR_DROP, "CG_CheckForExistingModelInfo: unable to optain modelInfo from server" );
+            return qfalse;  // Keep linter happy. ERR_DROP does not return
 		}
 
 	}
@@ -1227,6 +1160,7 @@ void CG_LoadClientInfo( clientInfo_t *ci ) {
 	if ( !CG_RegisterClientHeadname( ci, ci->modelName, ci->hSkinName ) ) {
 		if ( cg_buildScript.integer ) {
 			Com_Error( ERR_DROP, "CG_RegisterClientHeadname( %s, %s ) failed.  setting default", ci->modelName, ci->hSkinName );
+            return;  // Keep linter happy. ERR_DROP does not return
 		}
 
 		// fall back to default head
@@ -1234,6 +1168,7 @@ void CG_LoadClientInfo( clientInfo_t *ci ) {
 			headfail = 1;
 			if ( cg_buildScript.integer ) {
 				Com_Error( ERR_DROP, "head model/skin (%s/default) failed to register", ci->modelName );    //----(SA)
+                return;  // Keep linter happy. ERR_DROP does not return
 			}
 		}
 	}
@@ -1241,6 +1176,7 @@ void CG_LoadClientInfo( clientInfo_t *ci ) {
 	if ( headfail || !CG_RegisterClientModelname( ci, ci->modelName, ci->skinName ) ) {
 		if ( cg_buildScript.integer ) {
 			Com_Error( ERR_DROP, "CG_RegisterClientModelname( %s, %s ) failed", ci->modelName, ci->skinName );
+            return;  // Keep linter happy. ERR_DROP does not return
 		}
 
 		// fall back
@@ -1248,16 +1184,19 @@ void CG_LoadClientInfo( clientInfo_t *ci ) {
 			// try to keep the model but default the skin (so you can tell bad guys from good)
 			if ( !CG_RegisterClientModelname( ci, ci->modelName, "default" ) ) {
 				Com_Error( ERR_DROP, "DEFAULT_MODEL (%s/default) failed to register", ci->modelName );
+                return;  // Keep linter happy. ERR_DROP does not return
 			}
 		} else {
 			// go totally default
 			if ( !CG_RegisterClientModelname( ci, DEFAULT_MODEL, "default" ) ) {
 				Com_Error( ERR_DROP, "DEFAULT_MODEL (%s/default) failed to register", DEFAULT_MODEL );
+                return;  // Keep linter happy. ERR_DROP does not return
 			}
 
 			// fall back to default head
 			if ( !CG_RegisterClientHeadname( ci, DEFAULT_MODEL, "default" ) ) {
 				Com_Error( ERR_DROP, "model/ DEFAULT_HEAD / skin (%s/default) failed to register", DEFAULT_HEAD );
+                return;  // Keep linter happy. ERR_DROP does not return
 			}
 
 		}
@@ -1529,6 +1468,7 @@ static void CG_SetLerpFrameAnimation( clientInfo_t *ci, lerpFrame_t *lf, int new
 
 	if ( newAnimation < 0 || newAnimation >= ci->modelInfo->numAnimations ) {
 		Com_Error( ERR_DROP, "Bad animation number (CG_SLFA): %i", newAnimation );
+        return;  // Keep linter happy. ERR_DROP does not return
 	}
 
 	anim = &ci->modelInfo->animations[ newAnimation ];
@@ -1663,6 +1603,7 @@ void CG_SetLerpFrameAnimationRate( centity_t *cent, clientInfo_t *ci, lerpFrame_
 
 	if ( newAnimation < 0 || newAnimation >= ci->modelInfo->numAnimations ) {
 		Com_Error( ERR_DROP, "Bad animation number (CG_SLFAR): %i", newAnimation );
+        return;  // Keep linter happy. ERR_DROP does not return
 	}
 
 	anim = &ci->modelInfo->animations[ newAnimation ];
@@ -4280,6 +4221,7 @@ void CG_Player( centity_t *cent ) {
 	clientNum = cent->currentState.clientNum;
 	if ( clientNum < 0 || clientNum >= MAX_CLIENTS ) {
 		Com_Error( ERR_DROP, "Bad clientNum on player entity" );
+        return;  // Keep linter happy. ERR_DROP does not return
 	}
 	ci = &cgs.clientinfo[ clientNum ];
 

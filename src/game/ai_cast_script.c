@@ -423,6 +423,7 @@ void AICast_ScriptParse( cast_state_t *cs )
 		if ( !token[0] ) {
 			if ( !wantName ) {
 				Com_Error( ERR_DROP, "AICast_ScriptParse(), Error (line %d): '}' expected, end of script found.\n", COM_GetCurrentParseLine() );
+                return;  // Keep linter happy. ERR_DROP does not return
 			}
 			break;
 		}
@@ -434,11 +435,13 @@ void AICast_ScriptParse( cast_state_t *cs )
 			}
 			if ( wantName ) {
 				Com_Error( ERR_DROP, "AICast_ScriptParse(), Error (line %d): '}' found, but not expected.\n", COM_GetCurrentParseLine() );
+                return;  // Keep linter happy. ERR_DROP does not return
 			}
 			wantName = qtrue;
 		} else if ( token[0] == '{' )    {
 			if ( wantName ) {
 				Com_Error( ERR_DROP, "AICast_ScriptParse(), Error (line %d): '{' found, NAME expected.\n", COM_GetCurrentParseLine() );
+                return;  // Keep linter happy. ERR_DROP does not return
 			}
 		} else if ( wantName )   {
 			if ( !Q_strcasecmp( ent->aiName, token ) ) {
@@ -455,9 +458,11 @@ void AICast_ScriptParse( cast_state_t *cs )
 			eventNum = AICast_EventForString( token );
 			if ( eventNum < 0 ) {
 				Com_Error( ERR_DROP, "AICast_ScriptParse(), Error (line %d): unknown event: %s.\n", COM_GetCurrentParseLine(), token );
+                return;  // Keep linter happy. ERR_DROP does not return
 			}
 			if ( numEventItems >= MAX_SCRIPT_EVENTS ) {
 				Com_Error( ERR_DROP, "AICast_ScriptParse(), Error (line %d): MAX_SCRIPT_EVENTS reached (%d)\n", COM_GetCurrentParseLine(), MAX_SCRIPT_EVENTS );
+                return;  // Keep linter happy. ERR_DROP does not return
 			}
 
 			// if this is a "friendlysightcorpse" event, then disable corpse vis sharing
@@ -474,12 +479,14 @@ void AICast_ScriptParse( cast_state_t *cs )
 			{
 				if ( !token[0] ) {
 					Com_Error( ERR_DROP, "AICast_ScriptParse(), Error (line %d): '}' expected, end of script found.\n", COM_GetCurrentParseLine() );
+                    return;  // Keep linter happy. ERR_DROP does not return
 				}
 
 				if ( eventNum == 13 ) {   // statechange event, check params
 					if ( strlen( token ) > 1 ) {
 						if ( BG_IndexForString( token, animStateStr, qtrue ) < 0 ) {
 							Com_Error( ERR_DROP, "AICast_ScriptParse(), Error (line %d): unknown state type '%s'.\n", COM_GetCurrentParseLine(), token );
+                            return;  // Keep linter happy. ERR_DROP does not return
 						}
 					}
 				}
@@ -500,11 +507,13 @@ void AICast_ScriptParse( cast_state_t *cs )
 			{
 				if ( !token[0] ) {
 					Com_Error( ERR_DROP, "AICast_ScriptParse(), Error (line %d): '}' expected, end of script found.\n", COM_GetCurrentParseLine() );
+                    return;  // Keep linter happy. ERR_DROP does not return
 				}
 
 				action = AICast_ActionForString( cs, token );
 				if ( !action ) {
 					Com_Error( ERR_DROP, "AICast_ScriptParse(), Error (line %d): unknown action: %s.\n", COM_GetCurrentParseLine(), token );
+                    return;  // Keep linter happy. ERR_DROP does not return
 				}
 
 				curEvent->stack.items[curEvent->stack.numItems].action = action;
@@ -566,6 +575,7 @@ void AICast_ScriptParse( cast_state_t *cs )
 
 				if ( curEvent->stack.numItems >= AICAST_MAX_SCRIPT_STACK_ITEMS ) {
 					Com_Error( ERR_DROP, "AICast_ScriptParse(): script exceeded MAX_SCRIPT_ITEMS (%d), line %d\n", AICAST_MAX_SCRIPT_STACK_ITEMS, COM_GetCurrentParseLine() );
+                    return;  // Keep linter happy. ERR_DROP does not return
 				}
 			}
 
@@ -576,6 +586,7 @@ void AICast_ScriptParse( cast_state_t *cs )
 			{
 				if ( !token[0] ) {
 					Com_Error( ERR_DROP, "AICast_ScriptParse(), Error (line %d): '}' expected, end of script found.\n", COM_GetCurrentParseLine() );
+                    return;  // Keep linter happy. ERR_DROP does not return
 				} else if ( token[0] == '{' ) {
 					bracketLevel++;
 				} else if ( token[0] == '}' ) {

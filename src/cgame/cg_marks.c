@@ -75,6 +75,7 @@ CG_FreeMarkPoly
 void CG_FreeMarkPoly( markPoly_t *le ) {
 	if ( !le->prevMark ) {
 		Com_Error( ERR_DROP, "CG_FreeLocalEntity: not active" );
+        return;  // Keep linter happy. ERR_DROP does not return
 	}
 
 	// remove from the doubly linked active list
@@ -169,7 +170,6 @@ void CG_ImpactMark( qhandle_t markShader, const vec3_t origin, const vec3_t dir,
 	if ( radius <= 0 ) {
 		// just ignore it, don't error out
 		return;
-//		Com_Error( ERR_DROP, "CG_ImpactMark called with <= 0 radius" );
 	}
 
 	// Ridah, if no duration, use the default

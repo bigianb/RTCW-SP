@@ -674,6 +674,7 @@ void S_ThreadStartSoundEx( vec3_t origin, int entityNum, int entchannel, sfxHand
 
 	if ( !origin && ( entityNum < 0 || entityNum > MAX_GENTITIES ) ) {
 		Com_Error( ERR_DROP, "S_StartSound: bad entitynum %i", entityNum );
+        return;  // Keep linter happy. ERR_DROP does not return
 	}
 
 	if ( sfxHandle < 0 || sfxHandle >= snd.s_numSfx ) {
@@ -967,6 +968,7 @@ void S_AddLoopingSound( int entityNum, const vec3_t origin, const vec3_t velocit
 
 	if ( sfxHandle < 0 || sfxHandle >= snd.s_numSfx ) {
 		Com_Error( ERR_DROP, "S_AddLoopingSound: handle %i out of range", sfxHandle );
+        return;  // Keep linter happy. ERR_DROP does not return
 	}
 
 	sfx = &s_knownSfx[ sfxHandle ];
@@ -977,6 +979,7 @@ void S_AddLoopingSound( int entityNum, const vec3_t origin, const vec3_t velocit
 
 	if ( !sfx->soundLength ) {
 		Com_Error( ERR_DROP, "%s has length 0", sfx->soundName );
+        return;  // Keep linter happy. ERR_DROP does not return
 	}
 	VectorCopy( origin, snd.loopSounds[snd.numLoopSounds].origin );
 	VectorCopy( velocity, snd.loopSounds[snd.numLoopSounds].velocity );
@@ -1255,6 +1258,7 @@ let the sound system know where an entity currently is
 void S_UpdateEntityPosition( int entityNum, const vec3_t origin ) {
 	if ( entityNum < 0 || entityNum > MAX_GENTITIES ) {
 		Com_Error( ERR_DROP, "S_UpdateEntityPosition: bad entitynum %i", entityNum );
+        return;  // Keep linter happy. ERR_DROP does not return
 	}
 	VectorCopy( origin, snd.entityPositions[entityNum] );
 }

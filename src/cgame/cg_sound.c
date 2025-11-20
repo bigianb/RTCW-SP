@@ -168,6 +168,7 @@ void CG_SoundPickOldestRandomSound( soundScript_t *sound, vec3_t org, int entnum
 		}
 	} else {
 		Com_Error( ERR_DROP, "Unable to locate a valid sound for soundScript: %s\n", sound->name );
+        return;  // Keep linter happy. ERR_DROP does not return
 	}
 }
 
@@ -252,15 +253,18 @@ static void CG_SoundParseSounds( char *filename, char *buffer ) {
 		if ( !token[0] ) {
 			if ( inSound ) {
 				Com_Error( ERR_DROP, "no concluding '}' in sound %s, file %s\n", sound.name, filename );
+                return;  // Keep linter happy. ERR_DROP does not return
 			}
 			return;
 		}
 		if ( !Q_strcasecmp( token, "{" ) ) {
 			if ( inSound ) {
 				Com_Error( ERR_DROP, "no concluding '}' in sound %s, file %s\n", sound.name, filename );
+                return;  // Keep linter happy. ERR_DROP does not return
 			}
 			if ( wantSoundName ) {
 				Com_Error( ERR_DROP, "'{' found but not expected, after %s, file %s\n", sound.name, filename );
+                return;  // Keep linter happy. ERR_DROP does not return
 			}
 			inSound = qtrue;
 			continue;
@@ -268,6 +272,7 @@ static void CG_SoundParseSounds( char *filename, char *buffer ) {
 		if ( !Q_strcasecmp( token, "}" ) ) {
 			if ( !inSound ) {
 				Com_Error( ERR_DROP, "'}' unexpected after sound %s, file %s\n", sound.name, filename );
+                return;  // Keep linter happy. ERR_DROP does not return
 			}
 
 			// end of a sound, copy it to the global list and stick it in the hashTable
@@ -278,6 +283,7 @@ static void CG_SoundParseSounds( char *filename, char *buffer ) {
 
 			if ( numSoundScripts == MAX_SOUND_SCRIPTS ) {
 				Com_Error( ERR_DROP, "MAX_SOUND_SCRIPTS exceeded.\nReduce number of sound scripts.\n" );
+                return;  // Keep linter happy. ERR_DROP does not return
 			}
 
 			inSound = qfalse;
@@ -288,6 +294,7 @@ static void CG_SoundParseSounds( char *filename, char *buffer ) {
 			// this is the identifier for a new sound
 			if ( !wantSoundName ) {
 				Com_Error( ERR_DROP, "'%s' unexpected after sound %s, file %s\n", token, sound.name, filename );
+                return;  // Keep linter happy. ERR_DROP does not return
 			}
 			memset( &sound, 0, sizeof( sound ) );
 			Q_strncpyz( sound.name, token, sizeof( sound.name ) );
@@ -358,6 +365,7 @@ static void CG_SoundParseSounds( char *filename, char *buffer ) {
 
 			if ( numSoundScripts == MAX_SOUND_SCRIPT_SOUNDS ) {
 				Com_Error( ERR_DROP, "MAX_SOUND_SCRIPT_SOUNDS exceeded.\nReduce number of sound scripts.\n" );
+                return;  // Keep linter happy. ERR_DROP does not return
 			}
 
 			token = COM_ParseExt( text, qtrue );
@@ -397,6 +405,7 @@ static void CG_SoundLoadSoundFiles( void ) {
 	}
 	if ( len > MAX_BUFFER ) {
 		Com_Error( ERR_DROP, "%s is too big, make it smaller (max = %i bytes)\n", filename, MAX_BUFFER );
+        return;  // Keep linter happy. ERR_DROP does not return
 	}
 	// load the file into memory
 	FS_Read( buffer, len, f );
@@ -426,9 +435,11 @@ static void CG_SoundLoadSoundFiles( void ) {
 		len = FS_FOpenFileByMode( filename, &f, FS_READ );
 		if ( len <= 0 ) {
 			Com_Error( ERR_DROP, "Couldn't load %s", filename );
+            return;  // Keep linter happy. ERR_DROP does not return
 		}
 		if ( len > MAX_BUFFER ) {
 			Com_Error( ERR_DROP, "%s is too big, make it smaller (max = %i bytes)\n", filename, MAX_BUFFER );
+            return;  // Keep linter happy. ERR_DROP does not return
 		}
 		memset( buffer, 0, sizeof( buffer ) );
 		FS_Read( buffer, len, f );

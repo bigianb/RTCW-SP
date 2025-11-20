@@ -34,7 +34,6 @@ qboolean    G_SpawnString( const char *key, const char *defaultString, char **ou
 
 	if ( !level.spawning ) {
 		*out = (char *)defaultString;
-//		Com_Error( ERR_DROP, "G_SpawnString() called while not spawning" );
 	}
 
 	for ( i = 0 ; i < level.numSpawnVars ; i++ ) {
@@ -769,6 +768,7 @@ char *G_AddSpawnVarToken( const char *string )
 	size_t l = strlen( string );
 	if ( level.numSpawnVarChars + l + 1 > MAX_SPAWN_VARS_CHARS ) {
 		Com_Error( ERR_DROP, "G_AddSpawnVarToken: MAX_SPAWN_VARS" );
+        return NULL; // keep the linter happy, ERR_DROP does not return
 	}
 
 	char* dest = level.spawnVarChars + level.numSpawnVarChars;
@@ -815,6 +815,7 @@ qboolean G_ParseSpawnVars()
 	}
 	if ( com_token[0] != '{' ) {
 		Com_Error( ERR_DROP, "G_ParseSpawnVars: found %s when expecting {",com_token );
+        return qfalse; // keep the linter happy, ERR_DROP does not return
 	}
 
 	// go through all the key / value pairs
@@ -822,6 +823,7 @@ qboolean G_ParseSpawnVars()
 		// parse key
 		if ( !GetEntityToken( keyname, sizeof( keyname ) ) ) {
 			Com_Error( ERR_DROP, "G_ParseSpawnVars: EOF without closing brace" );
+            return qfalse; // keep the linter happy, ERR_DROP does not return
 		}
 
 		if ( keyname[0] == '}' ) {
@@ -831,13 +833,16 @@ qboolean G_ParseSpawnVars()
 		// parse value
 		if ( !GetEntityToken( com_token, sizeof( com_token ) ) ) {
 			Com_Error( ERR_DROP, "G_ParseSpawnVars: EOF without closing brace" );
+            return qfalse; // keep the linter happy, ERR_DROP does not return
 		}
 
 		if ( com_token[0] == '}' ) {
 			Com_Error( ERR_DROP, "G_ParseSpawnVars: closing brace without data" );
+            return qfalse; // keep the linter happy, ERR_DROP does not return
 		}
 		if ( level.numSpawnVars == MAX_SPAWN_VARS ) {
 			Com_Error( ERR_DROP, "G_ParseSpawnVars: MAX_SPAWN_VARS" );
+            return qfalse; // keep the linter happy, ERR_DROP does not return
 		}
 		level.spawnVars[ level.numSpawnVars ][0] = G_AddSpawnVarToken( keyname );
 		level.spawnVars[ level.numSpawnVars ][1] = G_AddSpawnVarToken( com_token );
@@ -866,6 +871,7 @@ void SP_worldspawn()
 	G_SpawnString( "classname", "", &s );
 	if ( Q_stricmp( s, "worldspawn" ) ) {
 		Com_Error( ERR_DROP, "SP_worldspawn: The first entity isn't 'worldspawn'" );
+        return qfalse; // keep the linter happy, ERR_DROP does not return
 	}
 
 	// make some data visible to connecting client
@@ -917,6 +923,7 @@ void G_SpawnEntitiesFromString()
 	// needed by a level (setting configstrings or cvars, etc)
 	if ( !G_ParseSpawnVars() ) {
 		Com_Error( ERR_DROP, "SpawnEntities: no entities" );
+        return; // keep the linter happy, ERR_DROP does not return
 	}
 	SP_worldspawn();
 

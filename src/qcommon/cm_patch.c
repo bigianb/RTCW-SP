@@ -501,6 +501,7 @@ int CM_FindPlane2( float plane[4], int *flipped ) {
 	// add a new plane
 	if ( numPlanes == MAX_PATCH_PLANES ) {
 		Com_Error( ERR_DROP, "MAX_PATCH_PLANES" );
+        return 0; // keep the linter happy, ERR_DROP does not return
 	}
 
 	Vector4Copy( plane, planes[numPlanes].plane );
@@ -555,6 +556,7 @@ static int CM_FindPlane( float *p1, float *p2, float *p3 ) {
 	// add a new plane
 	if ( numPlanes == MAX_PATCH_PLANES ) {
 		Com_Error( ERR_DROP, "MAX_PATCH_PLANES" );
+        return 0; // keep the linter happy, ERR_DROP does not return
 	}
 
 	Vector4Copy( plane, planes[numPlanes].plane );
@@ -1069,6 +1071,7 @@ static void CM_PatchCollideFromGrid( cGrid_t *grid, patchCollide_t *pf ) {
 
 			if ( numFacets == MAX_FACETS ) {
 				Com_Error( ERR_DROP, "MAX_FACETS" );
+                return; // keep the linter happy, ERR_DROP does not return
 			}
 			facet = &facets[numFacets];
 			Com_Memset( facet, 0, sizeof( *facet ) );
@@ -1115,6 +1118,7 @@ static void CM_PatchCollideFromGrid( cGrid_t *grid, patchCollide_t *pf ) {
 
 				if ( numFacets == MAX_FACETS ) {
 					Com_Error( ERR_DROP, "MAX_FACETS" );
+                    return; // keep the linter happy, ERR_DROP does not return
 				}
 				facet = &facets[numFacets];
 				Com_Memset( facet, 0, sizeof( *facet ) );
@@ -1169,14 +1173,17 @@ struct patchCollide_s   *CM_GeneratePatchCollide( int width, int height, vec3_t 
 	if ( width <= 2 || height <= 2 || !points ) {
 		Com_Error( ERR_DROP, "CM_GeneratePatchFacets: bad parameters: (%i, %i, %p)",
 				   width, height, points );
+        return NULL; // keep the linter happy, ERR_DROP does not return
 	}
 
 	if ( !( width & 1 ) || !( height & 1 ) ) {
 		Com_Error( ERR_DROP, "CM_GeneratePatchFacets: even sizes are invalid for quadratic meshes" );
+        return NULL; // keep the linter happy, ERR_DROP does not return
 	}
 
 	if ( width > MAX_GRID_SIZE || height > MAX_GRID_SIZE ) {
 		Com_Error( ERR_DROP, "CM_GeneratePatchFacets: source is > MAX_GRID_SIZE" );
+        return NULL; // keep the linter happy, ERR_DROP does not return
 	}
 
 	// build a grid

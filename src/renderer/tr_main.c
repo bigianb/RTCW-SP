@@ -1488,6 +1488,7 @@ void R_SortDrawSurfs( drawSurf_t *drawSurfs, int numDrawSurfs ) {
 		// no shader should ever have this sort type
 		if ( shader->sort == SS_BAD ) {
 			ri.Error( ERR_DROP, "Shader '%s'with sort == SS_BAD", shader->name );
+            return; // keep the linter happy, ERR_DROP does not return
 		}
 
 		// if the mirror was completely clipped away, we may need to check another surface
@@ -1591,12 +1592,14 @@ void R_AddEntitySurfaces( void ) {
 					break;
 				default:
 					ri.Error( ERR_DROP, "R_AddEntitySurfaces: Bad modeltype" );
+                    return; // keep the linter happy, ERR_DROP does not return
 					break;
 				}
 			}
 			break;
 		default:
 			ri.Error( ERR_DROP, "R_AddEntitySurfaces: Bad reType" );
+            return; // keep the linter happy, ERR_DROP does not return
 		}
 	}
 
