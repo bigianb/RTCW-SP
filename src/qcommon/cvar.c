@@ -501,20 +501,20 @@ Allows setting and defining of arbitrary cvars from console, even if they
 weren't declared in C code.
 ============
 */
-void Cvar_Set_f( void ) {
-	int i, c, l, len;
+void Cvar_Set_f()
+{
 	char combined[MAX_STRING_TOKENS];
 
-	c = Cmd_Argc();
+	int c = Cmd_Argc();
 	if ( c < 3 ) {
 		Com_Printf( "usage: set <variable> <value>\n" );
 		return;
 	}
 
 	combined[0] = 0;
-	l = 0;
-	for ( i = 2 ; i < c ; i++ ) {
-		len = strlen( Cmd_Argv( i ) + 1 );
+	size_t l = 0;
+	for (int i = 2 ; i < c ; i++ ) {
+		size_t len = strlen( Cmd_Argv( i ) + 1 );
 		if ( l + len >= MAX_STRING_TOKENS - 2 ) {
 			break;
 		}
@@ -828,10 +828,9 @@ Cvar_Register
 basically a slightly modified Cvar_Get for the interpreted modules
 =====================
 */
-void    Cvar_Register( vmCvar_t *vmCvar, const char *varName, const char *defaultValue, int flags ) {
-	cvar_t  *cv;
-
-	cv = Cvar_Get( varName, defaultValue, flags );
+void    Cvar_Register( vmCvar_t *vmCvar, const char *varName, const char *defaultValue, int flags )
+{
+    cvar_t  *cv = Cvar_Get( varName, defaultValue, flags );
 	if ( !vmCvar ) {
 		return;
 	}
