@@ -330,26 +330,22 @@ qboolean AICast_CheckVisibility( gentity_t *srcent, gentity_t *destent ) {
 AICast_UpdateVisibility
 ==============
 */
-void AICast_UpdateVisibility( gentity_t *srcent, gentity_t *destent, qboolean shareVis, qboolean directview ) {
-	cast_visibility_t   *vis, *ovis, *svis, oldvis;
-	cast_state_t        *cs, *ocs;
-	qboolean shareRange;
-	int cnt, i;
-
+void AICast_UpdateVisibility( gentity_t *srcent, gentity_t *destent, qboolean shareVis, qboolean directview )
+{
 	if ( destent->flags & FL_NOTARGET ) {
 		return;
 	}
 
-	cs = AICast_GetCastState( srcent->shared.s.number );
-	ocs = AICast_GetCastState( destent->shared.s.number );
+    cast_state_t* cs = AICast_GetCastState( srcent->shared.s.number );
+    cast_state_t* ocs = AICast_GetCastState( destent->shared.s.number );
 
 	if ( cs->castScriptStatus.scriptNoSightTime >= level.time ) {
 		return;     // absolutely no sight (or hear) information allowed
 
 	}
-	shareRange = ( VectorDistance( srcent->client->ps.origin, destent->client->ps.origin ) < AIVIS_SHARE_RANGE );
+    qboolean shareRange = ( VectorDistance( srcent->client->ps.origin, destent->client->ps.origin ) < AIVIS_SHARE_RANGE );
 
-	vis = &cs->vislist[destent->shared.s.number];
+    cast_visibility_t* vis = &cs->vislist[destent->shared.s.number];
 
 	vis->chase_marker_count = 0;
 
@@ -395,9 +391,9 @@ void AICast_UpdateVisibility( gentity_t *srcent, gentity_t *destent, qboolean sh
 
 	// if they are an enemy and inside the detection radius, go hostile
 	if ( !( vis->flags & AIVIS_ENEMY ) && !AICast_SameTeam( cs, destent->shared.s.number ) ) {
-		float idr;
 
-		idr = cs->attributes[INNER_DETECTION_RADIUS];
+
+		float idr = cs->attributes[INNER_DETECTION_RADIUS];
 		if ( cs->aiFlags & AIFL_ZOOMING ) {
 			idr *= 10;
 		}
@@ -440,9 +436,9 @@ void AICast_UpdateVisibility( gentity_t *srcent, gentity_t *destent, qboolean sh
 		 ( srcent->aiTeam == destent->aiTeam ) && // only share with exact same team, and non-neutrals
 		 ( srcent->aiTeam != AITEAM_NEUTRAL ) ) {
 		ocs = AICast_GetCastState( destent->shared.s.number );
-		cnt = 0;
+		int cnt = 0;
 		//
-		for ( i = 0; i < aicast_maxclients && cnt < level.numPlayingClients; i++ ) {
+		for (int i = 0; i < aicast_maxclients && cnt < level.numPlayingClients; i++ ) {
 			if ( !g_entities[i].inuse ) {
 				continue;
 			}
@@ -456,12 +452,12 @@ void AICast_UpdateVisibility( gentity_t *srcent, gentity_t *destent, qboolean sh
 				continue;
 			}
 			//
-			ovis = &ocs->vislist[i];
-			svis = &cs->vislist[i];
+            cast_visibility_t* ovis = &ocs->vislist[i];
+            cast_visibility_t* svis = &cs->vislist[i];
 			//
 			// if we are close to the friendly, then we should share their visibility info
 			if ( destent->health > 0 && shareRange ) {
-				oldvis = *svis;
+                cast_visibility_t oldvis = *svis;
 				// if they have seen this character more recently than us, share
 				if ( ( ovis->visible_timestamp > svis->visible_timestamp ) ||
 					 ( ( ovis->visible_timestamp > level.time - 5000 ) && ( ovis->flags & AIVIS_ENEMY ) && !( svis->flags & AIVIS_ENEMY ) ) ) {
