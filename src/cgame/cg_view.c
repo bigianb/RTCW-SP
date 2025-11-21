@@ -37,153 +37,6 @@ extern int notebookModel;
 //========================
 
 /*
-=============================================================================
-
-  MODEL TESTING
-
-The viewthing and gun positioning tools from Q2 have been integrated and
-enhanced into a single model testing facility.
-
-Model viewing can begin with either "testmodel <modelname>" or "testgun <modelname>".
-
-The names must be the full pathname after the basedir, like
-"models/weapons/v_launch/tris.md3" or "players/male/tris.md3"
-
-Testmodel will create a fake entity 100 units in front of the current view
-position, directly facing the viewer.  It will remain immobile, so you can
-move around it to view it from different angles.
-
-Testgun will cause the model to follow the player around and supress the real
-view weapon model.  The default frame 0 of most guns is completely off screen,
-so you will probably have to cycle a couple frames to see it.
-
-"nextframe", "prevframe", "nextskin", and "prevskin" commands will change the
-frame or skin of the testmodel.  These are bound to F5, F6, F7, and F8 in
-q3default.cfg.
-
-If a gun is being tested, the "gun_x", "gun_y", and "gun_z" variables will let
-you adjust the positioning.
-
-Note that none of the model testing features update while the game is paused, so
-it may be convenient to test with deathmatch set to 1 so that bringing down the
-console doesn't pause the game.
-
-=============================================================================
-*/
-
-/*
-=================
-CG_TestModel_f
-
-Creates an entity in front of the current position, which
-can then be moved around
-=================
-*/
-void CG_TestModel_f( void ) {
-	vec3_t angles;
-
-	memset( &cg.testModelEntity, 0, sizeof( cg.testModelEntity ) );
-	if ( Cmd_Argc() < 2 ) {
-		return;
-	}
-
-	Q_strncpyz( cg.testModelName, CG_Argv( 1 ), MAX_QPATH );
-	cg.testModelEntity.hModel = trap_R_RegisterModel( cg.testModelName );
-
-	if ( Cmd_Argc() == 3 ) {
-		cg.testModelEntity.backlerp = atof( CG_Argv( 2 ) );
-		cg.testModelEntity.frame = 1;
-		cg.testModelEntity.oldframe = 0;
-	}
-	if ( !cg.testModelEntity.hModel ) {
-		Com_Printf( "Can't register model\n" );
-		return;
-	}
-
-	VectorMA( cg.refdef.vieworg, 100, cg.refdef.viewaxis[0], cg.testModelEntity.origin );
-
-	angles[PITCH] = 0;
-	angles[YAW] = 180 + cg.refdefViewAngles[1];
-	angles[ROLL] = 0;
-
-	AnglesToAxis( angles, cg.testModelEntity.axis );
-	cg.testGun = qfalse;
-}
-
-/*
-=================
-CG_TestGun_f
-
-Replaces the current view weapon with the given model
-=================
-*/
-void CG_TestGun_f( void ) {
-	CG_TestModel_f();
-	cg.testGun = qtrue;
-	cg.testModelEntity.renderfx = RF_MINLIGHT | RF_DEPTHHACK | RF_FIRST_PERSON;
-}
-
-
-void CG_TestModelNextFrame_f( void ) {
-	cg.testModelEntity.frame++;
-	Com_Printf( "frame %i\n", cg.testModelEntity.frame );
-}
-
-void CG_TestModelPrevFrame_f( void ) {
-	cg.testModelEntity.frame--;
-	if ( cg.testModelEntity.frame < 0 ) {
-		cg.testModelEntity.frame = 0;
-	}
-	Com_Printf( "frame %i\n", cg.testModelEntity.frame );
-}
-
-void CG_TestModelNextSkin_f( void ) {
-	cg.testModelEntity.skinNum++;
-	Com_Printf( "skin %i\n", cg.testModelEntity.skinNum );
-}
-
-void CG_TestModelPrevSkin_f( void ) {
-	cg.testModelEntity.skinNum--;
-	if ( cg.testModelEntity.skinNum < 0 ) {
-		cg.testModelEntity.skinNum = 0;
-	}
-	Com_Printf( "skin %i\n", cg.testModelEntity.skinNum );
-}
-
-static void CG_AddTestModel( void ) {
-	int i;
-
-	// re-register the model, because the level may have changed
-	cg.testModelEntity.hModel = trap_R_RegisterModel( cg.testModelName );
-	if ( !cg.testModelEntity.hModel ) {
-		Com_Printf( "Can't register model\n" );
-		return;
-	}
-
-	// if testing a gun, set the origin reletive to the view origin
-	if ( cg.testGun ) {
-		VectorCopy( cg.refdef.vieworg, cg.testModelEntity.origin );
-		VectorCopy( cg.refdef.viewaxis[0], cg.testModelEntity.axis[0] );
-		VectorCopy( cg.refdef.viewaxis[1], cg.testModelEntity.axis[1] );
-		VectorCopy( cg.refdef.viewaxis[2], cg.testModelEntity.axis[2] );
-
-		// allow the position to be adjusted
-		for ( i = 0 ; i < 3 ; i++ ) {
-			cg.testModelEntity.origin[i] += cg.refdef.viewaxis[0][i] * cg_gun_x.value;
-			cg.testModelEntity.origin[i] += cg.refdef.viewaxis[1][i] * cg_gun_y.value;
-			cg.testModelEntity.origin[i] += cg.refdef.viewaxis[2][i] * cg_gun_z.value;
-		}
-	}
-
-	trap_R_AddRefEntityToScene( &cg.testModelEntity );
-}
-
-
-
-//============================================================================
-
-
-/*
 =================
 CG_CalcVrect
 
@@ -962,26 +815,6 @@ static void CG_DamageBlendBlob( void ) {
 		redFlash += ent.radius;
 	}
 
-	/* moved over to cg_draw.c
-	if (cg.v_dmg_time > cg.time) {
-		redFlash = fabs(cg.v_dmg_pitch * ((cg.v_dmg_time - cg.time) / DAMAGE_TIME));
-
-		// blend the entire screen red
-		if (redFlash > 5)
-			redFlash = 5;
-
-		memset( &ent, 0, sizeof( ent ) );
-		ent.reType = RT_SPRITE;
-		ent.renderfx = RF_FIRST_PERSON;
-
-		VectorMA( cg.refdef.vieworg, 8, cg.refdef.viewaxis[0], ent.origin );
-		ent.radius = 80;	// occupy entire screen
-		ent.customShader = cgs.media.viewFlashBlood;
-		ent.shaderRGBA[3] = (int)(180.0 * redFlash/5.0);
-
-		trap_R_AddRefEntityToScene( &ent );
-	}
-	*/
 }
 
 /*
@@ -996,10 +829,6 @@ static int CG_CalcViewValues( void ) {
 	static vec3_t oldOrigin = {0,0,0};
 
 	memset( &cg.refdef, 0, sizeof( cg.refdef ) );
-
-	// strings for in game rendering
-	// Q_strncpyz( cg.refdef.text[0], "Park Ranger", sizeof(cg.refdef.text[0]) );
-	// Q_strncpyz( cg.refdef.text[1], "19", sizeof(cg.refdef.text[1]) );
 
 	// calculate size of 3D view
 	CG_CalcVrect();
@@ -1023,11 +852,6 @@ static int CG_CalcViewValues( void ) {
 			cg.refdef.fov_y = cg.refdef.fov_y * 360 / M_PI;
 			cg.refdef.fov_x = fov;
 
-			// RF, had to disable, sometimes a loadgame to a camera in the same position
-			// can cause the game to not know where the camera is, therefore snapshots
-			// dont show the correct entities
-			//if(VectorCompare(origin, oldOrigin))
-			//	return 0;
 
 			VectorCopy( origin, oldOrigin );
 			CL_AddReliableCommand( va( "setCameraOrigin %f %f %f", origin[0], origin[1], origin[2] ) );
@@ -1078,15 +902,6 @@ static int CG_CalcViewValues( void ) {
 	// Ridah, lock the viewangles if the game has told us to
 	if ( ps->viewlocked ) {
 
-		/*
-		if (ps->viewlocked == 4)
-		{
-			centity_t *tent;
-			tent = &cg_entities[ps->viewlocked_entNum];
-			VectorCopy (tent->currentState.apos.trBase, cg.refdefViewAngles);
-		}
-		else
-		*/
 		BG_EvaluateTrajectory( &cg_entities[ps->viewlocked_entNum].currentState.apos, cg.time, cg.refdefViewAngles );
 
 		if ( ps->viewlocked == 2 ) {
@@ -1488,10 +1303,7 @@ void CG_DrawActiveFrame( int serverTime, stereoFrame_t stereoView) {
 	}
 	// done.
 
-	// finish up the rest of the refdef
-	if ( cg.testModelEntity.hModel ) {
-		CG_AddTestModel();
-	}
+
 	cg.refdef.time = cg.time;
 	memcpy( cg.refdef.areamask, cg.snap->areamask, sizeof( cg.refdef.areamask ) );
 

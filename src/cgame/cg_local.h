@@ -912,11 +912,6 @@ typedef struct {
 	float xyspeed;
 	int nextOrbitTime;
 
-	// development tool
-	refEntity_t testModelEntity;
-	char testModelName[MAX_QPATH];
-	qboolean testGun;
-
 	// RF, new kick angles
 	vec3_t kickAVel;            // for damage feedback, weapon recoil, etc
 								// This is the angular velocity, to give a smooth
@@ -1731,12 +1726,6 @@ qboolean CG_GetWeaponTag( int clientNum, char *tagname, orientation_t * or );
 //
 // cg_view.c
 //
-void CG_TestModel_f( void );
-void CG_TestGun_f( void );
-void CG_TestModelNextFrame_f( void );
-void CG_TestModelPrevFrame_f( void );
-void CG_TestModelNextSkin_f( void );
-void CG_TestModelPrevSkin_f( void );
 void CG_ZoomDown_f( void );
 void CG_ZoomIn_f( void );
 void CG_ZoomOut_f( void );

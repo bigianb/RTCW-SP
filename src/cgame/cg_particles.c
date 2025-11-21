@@ -26,8 +26,6 @@ If you have questions concerning this license or the applicable additional terms
 ===========================================================================
 */
 
-// Rafael particles
-// cg_particles.c
 
 #include "cg_local.h"
 
@@ -111,7 +109,7 @@ static char *shaderAnimNames[MAX_SHADER_ANIMS] = {
 static qhandle_t shaderAnims[MAX_SHADER_ANIMS][MAX_SHADER_ANIM_FRAMES];
 static int shaderAnimCounts[MAX_SHADER_ANIMS] = {
 	23,
-	23, // (SA) removing warning messages from startup
+	23,
 	45,
 	25,
 	23,
@@ -147,11 +145,11 @@ float oldtime;
 CG_ParticleLODCheck
 ==============
 */
-qboolean CG_ParticleLODCheck( void ) {
+qboolean CG_ParticleLODCheck()
+{
 	if ( cg_particleLOD.integer <= 1 ) {
 		return qtrue;
 	}
-
 
 	if ( !( rand() % ( cg_particleLOD.integer ) ) ) { // let particle lod thin out particles
 		return qtrue;
@@ -165,15 +163,15 @@ qboolean CG_ParticleLODCheck( void ) {
 CL_ClearParticles
 ===============
 */
-void CG_ClearParticles( void ) {
-	int i;
-
+void CG_ClearParticles()
+{
 	memset( particles, 0, sizeof( particles ) );
 
 	free_particles = &particles[0];
 	active_particles = NULL;
 
-	for ( i = 0 ; i < cl_numparticles ; i++ )
+	int i;
+	for (i = 0 ; i < cl_numparticles ; i++ )
 	{
 		particles[i].next = &particles[i + 1];
 		particles[i].type = 0;
@@ -183,10 +181,8 @@ void CG_ClearParticles( void ) {
 	oldtime = cg.time;
 
 	// Ridah, init the shaderAnims
-	for ( i = 0; shaderAnimNames[i]; i++ ) {
-		int j;
-
-		for ( j = 0; j < shaderAnimCounts[i]; j++ ) {
+	for (i = 0; shaderAnimNames[i]; i++ ) {
+		for (int j = 0; j < shaderAnimCounts[i]; j++ ) {
 			shaderAnims[i][j] = trap_R_RegisterShader( va( "%s%i", shaderAnimNames[i], j + 1 ) );
 		}
 	}
@@ -215,8 +211,8 @@ void CG_AddParticleToScene( cparticle_t *p, vec3_t org, float alpha ) {
 	polyVert_t TRIverts[3];
 	vec3_t rright2, rup2;
 
-	if ( p->type == P_WEATHER || p->type == P_WEATHER_TURBULENT || p->type == P_WEATHER_FLURRY
-		 || p->type == P_BUBBLE || p->type == P_BUBBLE_TURBULENT ) { // create a front facing polygon
+	if ( p->type == P_WEATHER || p->type == P_WEATHER_TURBULENT || p->type == P_WEATHER_FLURRY || p->type == P_BUBBLE || p->type == P_BUBBLE_TURBULENT ) {
+		// create a front facing polygon
 
 		if ( p->type != P_WEATHER_FLURRY ) {
 			if ( p->type == P_BUBBLE || p->type == P_BUBBLE_TURBULENT ) {
@@ -233,8 +229,7 @@ void CG_AddParticleToScene( cparticle_t *p, vec3_t org, float alpha ) {
 					}
 
 				}
-			} else
-			{
+			} else {
 				if ( org[2] < p->end ) {
 					p->time = cg.time;
 					VectorCopy( org, p->org ); // Ridah, fixes rare snow flakes that flicker on the ground
@@ -266,23 +261,18 @@ void CG_AddParticleToScene( cparticle_t *p, vec3_t org, float alpha ) {
 		//----(SA)	made the dist a cvar
 
 		// dot product removal  (gets you the dist^2, which you needed anyway, also dot lets you adjust lod when zooming)
-		if ( 1 ) {
-			vec3_t dir;
-			float dot, distSqrd;
 
-			VectorSubtract( cg.refdef.vieworg, org, dir );
-			distSqrd = dir[0] * dir[0] + dir[1] * dir[1] + dir[2] * dir[2];
+		vec3_t dir;
+		float dot, distSqrd;
 
-			dot = DotProduct( dir, cg.refdef.viewaxis[0] );
+		VectorSubtract( cg.refdef.vieworg, org, dir );
+		distSqrd = dir[0] * dir[0] + dir[1] * dir[1] + dir[2] * dir[2];
 
-			if ( distSqrd > ( cg_particleDist.value * cg_particleDist.value ) ) {
-				return;
-			}
+		dot = DotProduct( dir, cg.refdef.viewaxis[0] );
+
+		if ( distSqrd > ( cg_particleDist.value * cg_particleDist.value ) ) {
+			return;
 		}
-
-
-
-		// done.
 
 		if ( p->type == P_BUBBLE || p->type == P_BUBBLE_TURBULENT ) {
 			VectorMA( org, -p->height, vup, point );
@@ -324,8 +314,7 @@ void CG_AddParticleToScene( cparticle_t *p, vec3_t org, float alpha ) {
 			verts[3].modulate[1] = 255;
 			verts[3].modulate[2] = 255;
 			verts[3].modulate[3] = 255 * p->alpha;
-		} else
-		{
+		} else {
 			VectorMA( org, -p->height, vup, point );
 			VectorMA( point, -p->width, vright, point );
 			VectorCopy( point, TRIverts[0].xyz );
@@ -357,7 +346,7 @@ void CG_AddParticleToScene( cparticle_t *p, vec3_t org, float alpha ) {
 			TRIverts[2].modulate[3] = 255 * p->alpha;
 		}
 
-	} else if ( p->type == P_SPRITE )     {
+	} else if ( p->type == P_SPRITE ){
 		vec3_t rr, ru;
 		vec3_t rotate_ang;
 
@@ -430,40 +419,30 @@ void CG_AddParticleToScene( cparticle_t *p, vec3_t org, float alpha ) {
 		verts[3].modulate[3] = 255;
 	} else if ( p->type == P_SMOKE || p->type == P_SMOKE_IMPACT )     { // create a front rotating facing polygon
 
-//		if ( p->type == P_SMOKE_IMPACT && Distance( cg.snap->ps.origin, org ) > 1024) {
-//			return;
-//		}
-
 		// dot product removal  (gets you the dist^2, which you needed anyway, also dot lets you adjust lod when zooming)
-		if ( 1 ) {
-			vec3_t dir;
-			float dot, distSqrd, fardist;
+		vec3_t dir;
+		float dot, distSqrd, fardist;
 
-			VectorSubtract( org, cg.refdef.vieworg, dir );
-			distSqrd = dir[0] * dir[0] + dir[1] * dir[1] + dir[2] * dir[2];
+		VectorSubtract( org, cg.refdef.vieworg, dir );
+		distSqrd = dir[0] * dir[0] + dir[1] * dir[1] + dir[2] * dir[2];
 
-			VectorNormalize( dir );
-			dot = DotProduct( dir, cg.refdef.viewaxis[0] );
+		VectorNormalize( dir );
+		dot = DotProduct( dir, cg.refdef.viewaxis[0] );
 
-			if ( dot < 0 ) { // behind camera
-				return;
-			}
-
-			fardist = ( cg_particleDist.value * cg_particleDist.value );
-			// push distance out when zooming
-			if ( cg.predictedPlayerState.eFlags & EF_ZOOMING ) {
-				fardist *= 2;
-			}
-
-//			if(fabs(dot) < 0.8)
-//				return;
-
-			if ( distSqrd > fardist ) {
-				return;
-			}
+		if ( dot < 0 ) { // behind camera
+			return;
 		}
 
+		fardist = ( cg_particleDist.value * cg_particleDist.value );
+		// push distance out when zooming
+		if ( cg.predictedPlayerState.eFlags & EF_ZOOMING ) {
+			fardist *= 2;
+		}
 
+		if ( distSqrd > fardist ) {
+			return;
+		}
+		
 		if ( p->color == MUSTARD ) {
 			VectorSet( color, 0.42, 0.33, 0.19 );
 		} else if ( p->color == BLOODRED ) {
@@ -471,16 +450,14 @@ void CG_AddParticleToScene( cparticle_t *p, vec3_t org, float alpha ) {
 		} else if ( p->color == ZOMBIE ) {
 			VectorSet( color, 0.4, 0.28, 0.23 );
 		} else if ( p->color == GREY75 ) {
-			float len;
-			float greyit;
-			float val;
-			len = Distance( cg.snap->ps.origin, org );
+			
+			float len = Distance( cg.snap->ps.origin, org );
 			if ( !len ) {
 				len = 1;
 			}
 
-			val = 4096 / len;
-			greyit = 0.25 * val;
+			float val = 4096.0/ len;
+			float greyit = 0.25 * val;
 			if ( greyit > 0.5 ) {
 				greyit = 0.5;
 			}
@@ -521,21 +498,15 @@ void CG_AddParticleToScene( cparticle_t *p, vec3_t org, float alpha ) {
 		width = p->width + ( ratio * ( p->endwidth - p->width ) );
 		height = p->height + ( ratio * ( p->endheight - p->height ) );
 
-//		if (p->type != P_SMOKE_IMPACT)
 		{
 			vec3_t temp;
 
 			vectoangles( rforward, temp );
 			p->accumroll += p->roll;
 			temp[ROLL] += p->accumroll * 0.1;
-//			temp[ROLL] += p->roll * 0.1;
 			AngleVectors( temp, NULL, rright2, rup2 );
 		}
-//		else
-//		{
-//			VectorCopy (rright, rright2);
-//			VectorCopy (rup, rup2);
-//		}
+
 
 		if ( p->rotate ) {
 			VectorMA( org, -height, rup2, point );
@@ -907,8 +878,6 @@ void CG_AddParticleToScene( cparticle_t *p, vec3_t org, float alpha ) {
 	}
 
 	if ( !p->pshader ) {
-// (SA) temp commented out for DM again.  FIXME: TODO: this needs to be addressed
-//		Com_Printf ("CG_AddParticleToScene type %d p->pshader == ZERO\n", p->type);
 		return;
 	}
 

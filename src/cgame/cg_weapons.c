@@ -2687,23 +2687,9 @@ void CG_AddViewWeapon( playerState_t *ps ) {
 
 	// allow the gun to be completely removed
 	if ( !cg_drawGun.integer ) {
-/*
-		vec3_t		origin;
-
-		if ( cg.predictedPlayerState.eFlags & EF_FIRING ) {
-			// special hack for lightning gun...
-			VectorCopy( cg.refdef.vieworg, origin );
-			VectorMA( origin, -8, cg.refdef.viewaxis[2], origin );
-			CG_LightningBolt( &cg_entities[ps->clientNum], origin );
-		}
-*/
 		return;
 	}
 
-	// don't draw if testing a gun model
-	if ( cg.testGun ) {
-		return;
-	}
 
 	if ( ps->eFlags & EF_MG42_ACTIVE ) {
 		return;

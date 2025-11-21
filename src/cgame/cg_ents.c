@@ -1382,8 +1382,6 @@ static void CG_Crowbar( centity_t *cent ) {
 
 }
 
-
-//----(SA)	animation_t struct changed, so changes are to keep this working
 static animation_t grabberAnims[] = {
 	{"", 0,  6,  6,  1000 / 5,     1000 / 5  },  // (main idle)
 	{"", 5,  21, 21, 1000 / 7,     1000 / 7  },  // (random idle)
@@ -1392,31 +1390,6 @@ static animation_t grabberAnims[] = {
 	{"", 50, 16, 0,  1000 / 15,    1000 / 15 },  // (attack grab)
 	{"", 66, 1,  0,  1000 / 15,    1000 / 15 }   // (starting position)
 };
-
-//----(SA)	added
-// TTimo: unused
-/*
-static animation_t footlockerAnims[] = {
-	{"",	0,	1,	1,	1000/5,		1000/5	},	// (main idle)
-	{"",	0,	5,	5,	1000/5,		1000/5	},	// (lock rattle)
-	{"",	5,	6,	0,	1000/5,		1000/5	}	// (break open)
-};
-*/
-//----(SA)	end
-
-// DHM - Nerve :: capture and hold flag
-
-static animation_t multi_flagpoleAnims[] = {
-	{"", 0,      1,      0,      1000 / 15,    1000 / 15 },  // (no flags, idle)
-	{"", 0,      15,     0,      1000 / 15,    1000 / 15 },  // (nazi flag rising)
-	{"", 490,    15,     0,      1000 / 15,    1000 / 15 },  // (american flag rising)
-	{"", 20,     211,    211,    1000 / 15,    1000 / 15 },  // (nazi flag raised)
-	{"", 255,    211,    211,    1000 / 15,    1000 / 15 },  // (american flag raised)
-	{"", 235,    15,     0,      1000 / 15,    1000 / 15 },  // (nazi switching to american)
-	{"", 470,    15,     0,      1000 / 15,    1000 / 15 }   // (american switching to nazi)
-};
-
-// dhm - end
 
 extern void CG_RunLerpFrame( clientInfo_t *ci, lerpFrame_t *lf, int newAnimation, float speedScale );
 
