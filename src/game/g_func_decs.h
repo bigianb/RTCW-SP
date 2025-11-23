@@ -28,6 +28,10 @@ If you have questions concerning this license or the applicable additional terms
 
 #pragma once
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include "ai_cast.h"
 #include "g_save.h"
 
@@ -866,7 +870,7 @@ extern int trap_BotLibVarGet ( char * var_name , char * value , int size ) ;
 extern int trap_BotLibVarSet ( char * var_name , char * value ) ;
 extern int trap_BotLibShutdown ( void ) ;
 
-extern qboolean CG_GetTag ( int clientNum , char * tagName , orientation_t * or ) ;
+extern qboolean CG_GetTag ( int clientNum , char * tagName , orientation_t * orientation ) ;
 extern void trap_SnapVector ( float * v ) ;
 extern time_t trap_RealTime ( qtime_t * qtime ) ;
 extern void trap_DebugPolygonDelete ( int id ) ;
@@ -1419,3 +1423,7 @@ extern void AIChar_Pain ( gentity_t * ent , gentity_t * attacker , int damage , 
 extern int AIChar_GetPainLocation ( gentity_t * ent , vec3_t point ) ;
 extern void AIChar_Death ( gentity_t * ent , gentity_t * attacker , int damage , int mod ) ;
 extern void AIChar_SetBBox ( gentity_t * ent , cast_state_t * cs , qboolean useHeadTag ) ;
+
+#ifdef __cplusplus
+}
+#endif

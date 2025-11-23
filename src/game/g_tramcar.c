@@ -187,7 +187,7 @@ void InitTramcar( gentity_t *ent ) {
 
 	VectorCopy( ent->pos1, ent->shared.r.currentOrigin );
 
-	SV_LinkEntity( ent );
+	SV_LinkEntity( &ent->shared );
 
 	ent->shared.s.pos.trType = TR_STATIONARY;
 	VectorCopy( ent->pos1, ent->shared.s.pos.trBase );
@@ -252,7 +252,7 @@ void Calc_Roll( gentity_t *ent ) {
 		ent->shared.s.apos.trBase[ROLL] = 0;
 	}
 
-	SV_LinkEntity( ent );
+	SV_LinkEntity( &ent->shared );
 
 	ent->nextthink = level.time + 50;
 }
@@ -581,7 +581,7 @@ void Tramcar_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, in
 			slave->use = self->use;
 		}
 
-		SV_LinkEntity( slave );
+		SV_LinkEntity( &slave->shared );
 	}
 
 	self->use = NULL;
@@ -600,7 +600,7 @@ void Tramcar_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, in
 	VectorCopy( self->shared.r.currentAngles, self->shared.s.apos.trBase );
 
 	self->flags |= FL_TEAMSLAVE;
-	SV_UnlinkEntity( self );
+	SV_UnlinkEntity( &self->shared );
 
 }
 
@@ -711,7 +711,7 @@ void SP_func_tramcar( gentity_t *self ) {
 		}
 	}
 
-	SV_SetBrushModel( self, self->model );
+	SV_SetBrushModel( &self->shared, self->model );
 
 	if ( G_SpawnInt( "mass", "75", &mass ) ) {
 		self->count = mass;
@@ -836,7 +836,7 @@ void ExplodePlaneSndFx( gentity_t *self ) {
 	G_AddEvent( temp, EV_GLOBAL_SOUND, fpexpdebris_snd );
 	temp->think = G_FreeEntity;
 	temp->nextthink = level.time + 10000;
-	SV_LinkEntity( temp );
+	SV_LinkEntity( &temp->shared );
 
 	// added this because plane may be parked on runway
 	// we may want to add some exotic deaths to parked aircraft
@@ -1007,7 +1007,7 @@ void props_me109_think( gentity_t *self ) {
 				self->melee->shared.s.eType = ET_GENERAL;
 			}
 
-			SV_LinkEntity( self->melee );
+			SV_LinkEntity( &self->melee->shared );
 		}
 	}
 
@@ -1150,7 +1150,7 @@ void InitPlaneSpeaker( gentity_t *ent ) {
 
 	ent->melee = snd;
 
-	SV_LinkEntity( snd );
+	SV_LinkEntity( &snd->shared );
 
 }
 
@@ -1246,7 +1246,7 @@ void truck_cam_touch( gentity_t *self, gentity_t *other, trace_t *trace ) {
 	{
 		vec3_t point;
 
-		SV_UnlinkEntity( other );
+		SV_UnlinkEntity( &other->shared );
 
 		// VectorCopy ( self->r.currentOrigin, other->client->ps.origin );
 		VectorCopy( self->shared.r.currentOrigin, point );
@@ -1261,7 +1261,7 @@ void truck_cam_touch( gentity_t *self, gentity_t *other, trace_t *trace ) {
 
 		other->client->ps.persistant[PERS_HWEAPON_USE] = 1;
 
-		SV_LinkEntity( other );
+		SV_LinkEntity( &other->shared );
 	}
 
 }
@@ -1285,7 +1285,7 @@ void SP_truck_cam( gentity_t *self ) {
 		return;
 	}
 
-	SV_SetBrushModel( self, self->model );
+	SV_SetBrushModel( &self->shared, self->model );
 
 	if ( G_SpawnInt( "mass", "20", &mass ) ) {
 		self->count = mass;
@@ -1383,7 +1383,7 @@ void camera_cam_think( gentity_t *ent ) {
 	if ( ent->spawnflags & 2 ) { // tracking
 		vec3_t point;
 
-		SV_UnlinkEntity( player );
+		SV_UnlinkEntity( &player->shared );
 
 		// VectorCopy ( self->r.currentOrigin, other->client->ps.origin );
 		VectorCopy( ent->shared.r.currentOrigin, point );
@@ -1418,7 +1418,7 @@ void camera_cam_think( gentity_t *ent ) {
 			}
 		}
 
-		SV_LinkEntity( player );
+		SV_LinkEntity( &player->shared );
 	}
 
 	ent->nextthink = level.time + ( FRAMETIME / 2 );
@@ -1500,7 +1500,7 @@ void SP_camera_cam( gentity_t *ent ) {
 		delayOn->think = delayOnthink;
 		delayOn->nextthink = level.time + 1000;
 		delayOn->melee = ent;
-		SV_LinkEntity( delayOn );
+		SV_LinkEntity( &delayOn->shared );
 	}
 
 }
@@ -1571,7 +1571,7 @@ void reset_players_pos( gentity_t *ent, gentity_t *other, gentity_t *activator )
 		return;
 	}
 
-	SV_UnlinkEntity( player );
+	SV_UnlinkEntity( &player->shared );
 
 	VectorCopy( ent->shared.s.origin2, player->client->ps.origin );
 
@@ -1587,7 +1587,7 @@ void reset_players_pos( gentity_t *ent, gentity_t *other, gentity_t *activator )
 	player->client->ps.viewlocked = 0;
 	player->client->ps.viewlocked_entNum = 0;
 
-	SV_LinkEntity( player );
+	SV_LinkEntity( &player->shared );
 
 }
 

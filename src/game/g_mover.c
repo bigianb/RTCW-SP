@@ -445,14 +445,14 @@ qboolean G_MoverPush( gentity_t *pusher, vec3_t move, vec3_t amove, gentity_t **
 	}
 
 	// unlink the pusher so we don't get it in the entityList
-	SV_UnlinkEntity( pusher );
+	SV_UnlinkEntity( &pusher->shared );
 
 	listedEntities = SV_AreaEntities( totalMins, totalMaxs, entityList, MAX_GENTITIES );
 
 	// move the pusher to it's final position
 	VectorAdd( pusher->shared.r.currentOrigin, move, pusher->shared.r.currentOrigin );
 	VectorAdd( pusher->shared.r.currentAngles, amove, pusher->shared.r.currentAngles );
-	SV_LinkEntity( pusher );
+	SV_LinkEntity( &pusher->shared );
 
 	moveEntities = 0;
 	// see if any solid entities are inside the final position
@@ -505,7 +505,7 @@ qboolean G_MoverPush( gentity_t *pusher, vec3_t move, vec3_t amove, gentity_t **
 	for ( e = 0; e < moveEntities; e++ ) {
 		check = &g_entities[ moveList[e] ];
 
-		SV_UnlinkEntity( check );
+		SV_UnlinkEntity( &check->shared );
 	}
 
 	for ( e = 0; e < moveEntities; e++ ) {
@@ -514,7 +514,7 @@ qboolean G_MoverPush( gentity_t *pusher, vec3_t move, vec3_t amove, gentity_t **
 		// the entity needs to be pushed
 		if ( G_TryPushingEntity( check, pusher, move, amove ) ) {
 			// link it in now so nothing else tries to clip into us
-			SV_LinkEntity( check );
+			SV_LinkEntity( &check->shared );
 			continue;
 		}
 
@@ -545,7 +545,7 @@ qboolean G_MoverPush( gentity_t *pusher, vec3_t move, vec3_t amove, gentity_t **
 		for ( e = 0; e < moveEntities; e++ ) {
 			check = &g_entities[ moveList[e] ];
 
-			SV_LinkEntity( check );
+			SV_LinkEntity( &check->shared );
 		}
 		// movement failed
 		return qfalse;
@@ -554,7 +554,7 @@ qboolean G_MoverPush( gentity_t *pusher, vec3_t move, vec3_t amove, gentity_t **
 	for ( e = 0; e < moveEntities; e++ ) {
 		check = &g_entities[ moveList[e] ];
 
-		SV_LinkEntity( check );
+		SV_LinkEntity( &check->shared );
 	}
 	// movement was successfull
 	return qtrue;
@@ -601,7 +601,7 @@ void G_MoverTeam( gentity_t *ent ) {
 			part->shared.s.apos.trTime += level.time - level.previousTime;
 			BG_EvaluateTrajectory( &part->shared.s.pos, level.time, part->shared.r.currentOrigin );
 			BG_EvaluateTrajectory( &part->shared.s.apos, level.time, part->shared.r.currentAngles );
-			SV_LinkEntity( part );
+			SV_LinkEntity( &part->shared );
 		}
 
 		// if the pusher has a "blocked" function, call it
@@ -1268,7 +1268,7 @@ void Use_TrinaryMover( gentity_t *ent, gentity_t *other, gentity_t *activator ) 
 
 		// open areaportal
 		if ( ent->teammaster == ent || !ent->teammaster ) {
-			SV_AdjustAreaPortalState( ent, qtrue );
+			SV_AdjustAreaPortalState( &ent->shared, qtrue );
 		}
 		return;
 	}
@@ -1471,7 +1471,7 @@ void Use_BinaryMover( gentity_t *ent, gentity_t *other, gentity_t *activator ) {
 
 		// open areaportal
 		if ( ent->teammaster == ent || !ent->teammaster ) {
-			SV_AdjustAreaPortalState( ent, qtrue );
+			SV_AdjustAreaPortalState( &ent->shared, qtrue );
 		}
 		return;
 	}
@@ -1507,7 +1507,7 @@ void Use_BinaryMover( gentity_t *ent, gentity_t *other, gentity_t *activator ) {
 
 		// open areaportal
 		if ( ent->teammaster == ent || !ent->teammaster ) {
-			SV_AdjustAreaPortalState( ent, qtrue );
+			SV_AdjustAreaPortalState( &ent->shared, qtrue );
 		}
 		return;
 	}
@@ -1655,7 +1655,7 @@ void InitMover( gentity_t *ent ) {
 	ent->shared.s.eType = ET_MOVER;
 
 	VectorCopy( ent->pos1, ent->shared.r.currentOrigin );
-	SV_LinkEntity( ent );
+	SV_LinkEntity( &ent->shared );
 
 	ent->shared.s.pos.trType = TR_STATIONARY;
 	VectorCopy( ent->pos1, ent->shared.s.pos.trBase );
@@ -1746,7 +1746,7 @@ void InitMoverRotate( gentity_t *ent ) {
 	ent->shared.s.eType = ET_MOVER;
 	VectorCopy( ent->shared.s.origin, ent->shared.s.pos.trBase );
 	VectorCopy( ent->pos1, ent->shared.r.currentOrigin );
-	SV_LinkEntity( ent );
+	SV_LinkEntity( &ent->shared );
 
 	ent->shared.s.pos.trType = TR_STATIONARY;
 	VectorCopy( ent->pos1, ent->shared.s.pos.trBase );
@@ -1826,7 +1826,7 @@ void Blocked_Door( gentity_t *ent, gentity_t *other ) {
 		} else {
 			SetMoverState( slave, MOVER_1TO2, time );
 		}
-		SV_LinkEntity( slave );
+		SV_LinkEntity( &slave->shared );
 	}
 
 }
@@ -1908,7 +1908,7 @@ void Blocked_DoorRotate( gentity_t *ent, gentity_t *other ) {
 		{
 			SetMoverState( slave, MOVER_1TO2ROTATE, time );
 		}
-		SV_LinkEntity( slave );
+		SV_LinkEntity( &slave->shared );
 	}
 
 
@@ -1970,7 +1970,7 @@ void Think_SpawnNewDoorTrigger( gentity_t *ent ) {
 	other->parent = ent;
 	other->shared.r.contents = CONTENTS_TRIGGER;
 	other->touch = Touch_DoorTrigger;
-	SV_LinkEntity( other );
+	SV_LinkEntity( &other->shared );
 
 	MatchTeam( ent, ent->moverState, level.time );
 }
@@ -2319,7 +2319,7 @@ void SP_func_door( gentity_t *ent ) {
 	VectorCopy( ent->shared.s.origin, ent->pos1 );
 
 	// calculate second position
-	SV_SetBrushModel( ent, ent->model );
+	SV_SetBrushModel( &ent->shared, ent->model );
 	G_SetMovedir( ent->shared.s.angles, ent->movedir );
 	abs_movedir[0] = fabs( ent->movedir[0] );
 	abs_movedir[1] = fabs( ent->movedir[1] );
@@ -2599,7 +2599,7 @@ void SP_func_plat( gentity_t *ent ) {
 	ent->wait = 1000;
 
 	// create second position
-	SV_SetBrushModel( ent, ent->model );
+	SV_SetBrushModel( &ent->shared, ent->model );
 
 	if ( !G_SpawnFloat( "height", "0", &height ) ) {
 		height = ( ent->shared.r.maxs[2] - ent->shared.r.mins[2] ) - lip;
@@ -2686,7 +2686,7 @@ void SP_func_button( gentity_t *ent ) {
 	VectorCopy( ent->shared.s.origin, ent->pos1 );
 
 	// calculate second position
-	SV_SetBrushModel( ent, ent->model );
+	SV_SetBrushModel( &ent->shared, ent->model );
 
 	G_SpawnFloat( "lip", "4", &lip );
 
@@ -2982,7 +2982,7 @@ void SP_func_train( gentity_t *self ) {
 		return;
 	}
 
-	SV_SetBrushModel( self, self->model );
+	SV_SetBrushModel( &self->shared, self->model );
 	InitMover( self );
 
 	self->reached = Reached_Train;
@@ -3033,7 +3033,7 @@ void Func_train_particles_reached( gentity_t *self ) {
 	}
 
 	tent->shared.s.frame = self->shared.s.number;
-	SV_LinkEntity( self );
+	SV_LinkEntity( &self->shared );
 
 }
 
@@ -3115,7 +3115,7 @@ void BatMoveThink( gentity_t *bat ) {
 		if ( dist * speed > 20 ) {
 			vectoangles( vec, bat->shared.s.angles );
 		}
-		SV_LinkEntity( bat );
+		SV_LinkEntity( &bat->shared );
 /*
 		// check for hurting someone
 		if (bat->damage < level.time) {
@@ -3181,7 +3181,7 @@ void FuncBatsActivate( gentity_t *self, gentity_t * other, gentity_t * activator
 			bat->think = BatMoveThink;
 			bat->nextthink = level.time + 50;
 
-			SV_LinkEntity( bat );
+			SV_LinkEntity( &bat->shared );
 		}
 
 		InitMover( self );  // start moving
@@ -3295,7 +3295,7 @@ void SP_func_bats( gentity_t *self ) {
 		self->nextthink = level.time + ( self->wait * 1000 );
 		//
 		self->shared.r.contents = 0;
-		SV_LinkEntity( self );
+		SV_LinkEntity( &self->shared );
 	}
 }
 
@@ -3521,7 +3521,7 @@ void SP_func_train_rotating( gentity_t *self ) {
 		return;
 	}
 
-	SV_SetBrushModel( self, self->model );
+	SV_SetBrushModel( &self->shared, self->model );
 	InitMover( self );
 
 	self->reached = Reached_Train_rotating;
@@ -3692,7 +3692,7 @@ void SP_func_static( gentity_t *ent ) {
 	if ( ent->model2 ) {
 		ent->shared.s.modelindex2 = G_ModelIndex( ent->model2 );
 	}
-	SV_SetBrushModel( ent, ent->model );
+	SV_SetBrushModel( &ent->shared, ent->model );
 	InitMover( ent );
 	VectorCopy( ent->shared.s.origin, ent->shared.s.pos.trBase );
 	VectorCopy( ent->shared.s.origin, ent->shared.r.currentOrigin );

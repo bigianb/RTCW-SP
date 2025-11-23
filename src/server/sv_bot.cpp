@@ -359,7 +359,7 @@ void SV_BotFrame( int time ) {
 SV_BotLibSetup
 ===============
 */
-extern int Export_BotLibSetup();
+
 int SV_BotLibSetup( void ) {
 	return Export_BotLibSetup();
 }

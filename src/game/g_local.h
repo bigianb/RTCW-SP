@@ -27,6 +27,9 @@ If you have questions concerning this license or the applicable additional terms
 */
 
 #pragma once
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 // g_local.h -- local definitions for game module
 
@@ -1297,3 +1300,6 @@ typedef enum
 void SV_LocateGameData( sharedEntity_t *gEnts, int numGEntities, int sizeofGEntity_t, playerState_t *clients, int sizeofGameClient );
 void SV_GameDropClient( int clientNum, const char *reason );
 
+#ifdef __cplusplus
+}
+#endif

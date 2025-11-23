@@ -52,7 +52,7 @@ static void SV_Map_f( void ) {
 		return;
 	}
 
-	buildScript = Cvar_VariableIntegerValue( "com_buildScript" );
+	buildScript = Cvar_VariableIntegerValue( "com_buildScript" ) != 0 ? qtrue : qfalse;
 
 	if ( !buildScript && sv_reloading->integer && sv_reloading->integer != RELOAD_NEXTMAP ) {  // game is in 'reload' mode, don't allow starting new maps yet.
 		return;

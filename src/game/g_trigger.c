@@ -34,7 +34,7 @@ void InitTrigger( gentity_t *self ) {
 		G_SetMovedir( self->shared.s.angles, self->movedir );
 	}
 
-	SV_SetBrushModel( self, self->model );
+	SV_SetBrushModel( &self->shared, self->model );
 
 	self->shared.r.contents = CONTENTS_TRIGGER;        // replaces the -1 from SV_SetBrushModel
 	self->shared.r.svFlags = SVF_NOCLIENT;
@@ -121,7 +121,7 @@ void Enable_Trigger_Touch( gentity_t *ent ) {
 		ent->clipmask   = CONTENTS_SOLID;
 		ent->shared.r.contents = CONTENTS_SOLID;
 
-		SV_LinkEntity( ent );
+		SV_LinkEntity( &ent->shared );
 
 		// same with targ cause targ is dead
 
@@ -131,7 +131,7 @@ void Enable_Trigger_Touch( gentity_t *ent ) {
 		targ->clipmask   = CONTENTS_SOLID;
 		targ->shared.r.contents = CONTENTS_SOLID;
 
-		SV_LinkEntity( targ );
+		SV_LinkEntity( &targ->shared );
 
 		SV_Trace( &tr, targ->client->ps.origin, targ->shared.r.mins, targ->shared.r.maxs, targ->client->ps.origin, targ->shared.s.number, mask, qfalse );
 
@@ -149,12 +149,12 @@ void Enable_Trigger_Touch( gentity_t *ent ) {
 		ent->clipmask = entTemp1;
 		ent->shared.r.contents = entTemp2;
 
-		SV_LinkEntity( ent );
+		SV_LinkEntity( &ent->shared );
 
 		targ->clipmask = targTemp1;
 		targ->shared.r.contents = targTemp2;
 
-		SV_LinkEntity( targ );
+		SV_LinkEntity( &targ->shared );
 
 		if ( ent->shared.s.angles2[YAW] && thisone ) {
 			angle = ent->shared.s.angles2[YAW];
@@ -304,7 +304,7 @@ void AimAtTarget( gentity_t *self ) {
 
 void trigger_push_use( gentity_t *self, gentity_t *other, gentity_t *activator ) {
 	self->touch = trigger_push_touch;
-	SV_LinkEntity( self );
+	SV_LinkEntity( &self->shared );
 }
 
 /*QUAKED trigger_push (.5 .5 .5) ? TOGGLE REMOVEAFTERTOUCH PUSHPLAYERONLY
@@ -319,7 +319,7 @@ void SP_trigger_push( gentity_t *self ) {
 		G_SetMovedir( self->shared.s.angles, self->movedir );
 	}
 
-	SV_SetBrushModel( self, self->model );
+	SV_SetBrushModel( &self->shared, self->model );
 
 	self->shared.r.contents = CONTENTS_TRIGGER;        // replaces the -1 from SV_SetBrushModel
 	self->shared.r.svFlags = SVF_NOCLIENT;
@@ -341,9 +341,9 @@ void SP_trigger_push( gentity_t *self ) {
 	if ( self->spawnflags & 1 ) { // toggle
 		self->use = trigger_push_use;
 		self->touch = NULL;
-		SV_UnlinkEntity( self );
+		SV_UnlinkEntity( &self->shared );
 	} else {
-		SV_LinkEntity( self );
+		SV_LinkEntity( &self->shared );
 	}
 
 	self->nextthink = level.time + FRAMETIME;
@@ -442,7 +442,7 @@ void SP_trigger_teleport( gentity_t *self ) {
 	self->shared.s.eType = ET_TELEPORT_TRIGGER;
 	self->touch = trigger_teleporter_touch;
 
-	SV_LinkEntity( self );
+	SV_LinkEntity( &self->shared );
 }
 
 
@@ -835,7 +835,7 @@ void gas_think( gentity_t *ent ) {
 		tent->shared.s.angles2[1] = 96;
 	}
 
-	SV_LinkEntity( ent );
+	SV_LinkEntity( &ent->shared );
 }
 
 /*QUAKED test_gas (0 0.5 0) (-4 -4 -4) (4 4 4)
@@ -845,7 +845,7 @@ void SP_gas( gentity_t *self ) {
 	self->nextthink = level.time + FRAMETIME;
 	self->shared.r.contents = CONTENTS_TRIGGER;
 	self->touch = gas_touch;
-	SV_LinkEntity( self );
+	SV_LinkEntity( &self->shared );
 
 	if ( !self->health ) {
 		self->health = 100;

@@ -82,7 +82,7 @@ void SV_SetConfigstring( int index, const char *val )
 			if ( len >= maxChunkSize ) {
 				int sent = 0;
 				size_t remaining = len;
-				char    *cmd;
+				const char    *cmd;
 				char buf[MAX_STRING_CHARS];
 
 				while ( remaining > 0 ) {
@@ -236,9 +236,9 @@ void SV_InitReliableCommandsForClient( client_t *cl, int commands )
 	}
 	//
 	cl->reliableCommands.bufSize = commands * RELIABLE_COMMANDS_CHARS;
-	cl->reliableCommands.buf = calloc(1, cl->reliableCommands.bufSize );
-	cl->reliableCommands.commandLengths = calloc(1, commands * sizeof( *cl->reliableCommands.commandLengths ) );
-	cl->reliableCommands.commands = calloc(1, commands * sizeof( *cl->reliableCommands.commands ) );
+	cl->reliableCommands.buf = (char*) calloc(1, cl->reliableCommands.bufSize );
+	cl->reliableCommands.commandLengths = (int *)calloc(1, commands * sizeof( *cl->reliableCommands.commandLengths ) );
+	cl->reliableCommands.commands = (char **)calloc(1, commands * sizeof( *cl->reliableCommands.commands ) );
 	//
 	cl->reliableCommands.rover = cl->reliableCommands.buf;
 }
@@ -408,7 +408,7 @@ void SV_Startup()
 	}
 	SV_BoundMaxClients( 1 );
 
-	svs.clients = calloc( sizeof( client_t ) * sv_maxclients->integer, 1 );
+	svs.clients = (client_t *)calloc( sizeof( client_t ) * sv_maxclients->integer, 1 );
 	if ( !svs.clients ) {
 		Com_Error( ERR_FATAL, "SV_Startup: unable to allocate svs.clients" );
 	}
@@ -455,7 +455,7 @@ void SV_ChangeMaxClients()
 		}
 	}
 
-	client_t* oldClients = Hunk_AllocateTempMemory( count * sizeof( client_t ) );
+	client_t* oldClients = (client_t *)Hunk_AllocateTempMemory( count * sizeof( client_t ) );
 	// copy the clients to hunk memory
 	for (int i = 0 ; i < count ; i++ ) {
 		if ( svs.clients[i].state >= CS_CONNECTED ) {
@@ -473,7 +473,7 @@ void SV_ChangeMaxClients()
 	// allocate new clients
 
 	// RF, avoid trying to allocate large chunk on a fragmented zone
-	svs.clients = calloc( sizeof( client_t ) * sv_maxclients->integer, 1 );
+	svs.clients = (client_t *)calloc( sizeof( client_t ) * sv_maxclients->integer, 1 );
 	if ( !svs.clients ) {
 		Com_Error( ERR_FATAL, "SV_Startup: unable to allocate svs.clients" );
 	}
@@ -562,7 +562,6 @@ void SV_ClearServer()
 	Com_Memset( &sv, 0, sizeof( sv ) );
 }
 
-extern int Export_BotLibShutdown( void );
 /*
 ================
 SV_SpawnServer
@@ -634,7 +633,7 @@ void SV_SpawnServer( char *server, qboolean killBots )
 	FS_ClearPakReferences( 0 );
 
 	// allocate the snapshot entities on the hunk
-	svs.snapshotEntities = Hunk_Alloc( sizeof( entityState_t ) * svs.numSnapshotEntities, h_high );
+	svs.snapshotEntities = (entityState_t *)Hunk_Alloc( sizeof( entityState_t ) * svs.numSnapshotEntities, h_high );
 	svs.nextSnapshotEntities = 0;
 
 	// toggle the server bit so clients can detect that a
@@ -853,7 +852,7 @@ not just stuck on the outgoing message list, because the server is going
 to totally exit after returning from this function.
 ==================
 */
-void SV_FinalMessage( char *message )
+void SV_FinalMessage( const char *message )
 {
 	// send it twice, ignoring rate
 	for (int j = 0 ; j < 2 ; j++ ) {
@@ -877,7 +876,7 @@ Called when each game quits,
 before Sys_Quit or Sys_Error
 ================
 */
-void SV_Shutdown( char *finalmsg )
+void SV_Shutdown( const char *finalmsg )
 {
 	if ( !com_sv_running || !com_sv_running->integer ) {
 		return;

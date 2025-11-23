@@ -577,14 +577,14 @@ void SV_ClipMoveToEntities( moveclip_t *clip )
 		}
 
 		if ( trace.fraction < clip->trace.fraction ) {
-			qboolean oldStart;
-
 			// make sure we keep a startsolid from a previous trace
-			oldStart = clip->trace.startsolid;
+			bool oldStart = clip->trace.startsolid == qtrue;
 
 			trace.entityNum = touch->s.number;
 			clip->trace = trace;
-			clip->trace.startsolid |= oldStart;
+			if ( oldStart ){
+				clip->trace.startsolid = qtrue;
+			}
 		}
 	}
 }

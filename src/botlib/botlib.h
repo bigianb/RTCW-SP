@@ -37,6 +37,10 @@ If you have questions concerning this license or the applicable additional terms
 
 #pragma once
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #define BOTLIB_API_VERSION      2
 
 struct aas_clientmove_s;
@@ -412,6 +416,8 @@ typedef struct botlib_export_s
 
 void BotImport_Print( int type, char *fmt, ... );
 
+int Export_BotLibSetup();
+int Export_BotLibShutdown();
 
 /* Library variables:
 
@@ -468,3 +474,6 @@ name:						default:			module(s):			description:
 
 */
 
+#ifdef __cplusplus
+}
+#endif

@@ -129,7 +129,7 @@ void TeleportPlayer( gentity_t *player, vec3_t origin, vec3_t angles ) {
 	tent->shared.s.clientNum = player->shared.s.clientNum;
 
 	// unlink to make sure it can't possibly interfere with G_KillBox
-	SV_UnlinkEntity( player );
+	SV_UnlinkEntity( &player->shared );
 
 	VectorCopy( origin, player->client->ps.origin );
 	player->client->ps.origin[2] += 1;
@@ -156,7 +156,7 @@ void TeleportPlayer( gentity_t *player, vec3_t origin, vec3_t angles ) {
 	VectorCopy( player->client->ps.origin, player->shared.r.currentOrigin );
 
 
-	SV_LinkEntity( player );
+	SV_LinkEntity( &player->shared );
 }
 
 
@@ -314,7 +314,7 @@ void grabber_wake( gentity_t *ent ) {
 		parent->active      = qtrue;
 		parent->die         = grabber_die;
 		parent->pain        = grabber_pain;
-		SV_LinkEntity( parent );
+		SV_LinkEntity( &parent->shared );
 
 		ent->shared.s.frame        = 5;    // starting position
 
@@ -447,7 +447,7 @@ void SP_misc_grabber_trap( gentity_t *ent ) {
 	trig->shared.r.contents    = CONTENTS_TRIGGER;
 	trig->shared.r.svFlags     = SVF_NOCLIENT;
 	trig->touch         = grabber_wake_touch;
-	SV_LinkEntity( trig );
+	SV_LinkEntity( &trig->shared );
 
 }
 
@@ -1312,7 +1312,7 @@ use_dlight
 */
 void use_dlight( gentity_t *ent, gentity_t *other, gentity_t *activator ) {
 	if ( ent->shared.r.linked ) {
-		SV_UnlinkEntity( ent );
+		SV_UnlinkEntity( &ent->shared );
 	} else
 	{
 		ent->active = 0;
@@ -1612,7 +1612,7 @@ void mg42_muzzleflash( gentity_t *ent, vec3_t muzzlepos ) {  // cheezy, but lets
 		flash->think = G_FreeEntity;
 		flash->nextthink = level.time + 50;
 
-		SV_LinkEntity( flash );
+		SV_LinkEntity( &flash->shared );
 	}
 
 }
@@ -1866,7 +1866,7 @@ void clamp_playerbehindgun( gentity_t *self, gentity_t *other, vec3_t dang ) {
 	VectorMA( self->shared.r.currentOrigin, -36, forward, point );
 
 	point[2] = other->shared.r.currentOrigin[2];
-	SV_UnlinkEntity( other );
+	SV_UnlinkEntity( &other->shared );
 	VectorCopy( point, other->client->ps.origin );
 
 	// save results of pmove
@@ -1875,7 +1875,7 @@ void clamp_playerbehindgun( gentity_t *self, gentity_t *other, vec3_t dang ) {
 	// use the precise origin for linking
 	VectorCopy( other->client->ps.origin, other->shared.r.currentOrigin );
 
-	SV_LinkEntity( other );
+	SV_LinkEntity( &other->shared );
 }
 
 #define MG42_SPREAD 200
@@ -2302,7 +2302,7 @@ void mg42_spawn( gentity_t *ent ) {
 		base->die = mg42_die;
 		base->soundPos3 = ent->soundPos3;   //----(SA)
 		base->activateArc = ent->activateArc;           //----(SA)	added
-		SV_LinkEntity( base );
+		SV_LinkEntity( &base->shared );
 	}
 
 	gun = G_Spawn();

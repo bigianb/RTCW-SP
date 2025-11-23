@@ -475,7 +475,7 @@ Marks the entity as free
 =================
 */
 void G_FreeEntity( gentity_t *ed ) {
-	SV_UnlinkEntity( ed );     // unlink from world
+	SV_UnlinkEntity( &ed->shared );     // unlink from world
 
 	if ( ed->neverFree ) {
 		return;
@@ -513,7 +513,7 @@ gentity_t *G_TempEntity( vec3_t origin, int event ) {
 	G_SetOrigin( e, snapped );
 
 	// find cluster for PVS
-	SV_LinkEntity( e );
+	SV_LinkEntity( &e->shared );
 
 	return e;
 }

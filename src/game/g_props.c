@@ -2422,7 +2422,7 @@ void SP_crate_32( gentity_t *self ) {
 	self->isProp = qtrue;
 	self->nopickup = qtrue;
 
-	SV_LinkEntity( self );
+	SV_LinkEntity( &self->shared );
 
 	self->think = DropToFloor;
 	self->nextthink = level.time + FRAMETIME;
@@ -3747,7 +3747,7 @@ THE damage has been disabled at the moment
 
 void SP_props_statueBRUSH( gentity_t *self ) {
 
-	SV_SetBrushModel( self, self->model );
+	SV_SetBrushModel( &self->shared, self->model );
 
 	SP_props_statue( self );
 
@@ -3802,7 +3802,7 @@ void Spawn_Junk( gentity_t *ent ) {
 
 	sfx->nextthink = level.time + 1000;
 
-	SV_LinkEntity( sfx );
+	SV_LinkEntity( &sfx->shared );
 }
 
 /*

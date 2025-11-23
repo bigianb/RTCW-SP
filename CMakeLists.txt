@@ -52,8 +52,21 @@ list(REMOVE_ITEM QCOMMON_SOURCES src/qcommon/vm_x86.c)
 file(GLOB RENDERER_INCLUDES src/renderer/*.h)
 file(GLOB RENDERER_SOURCES src/renderer/*.c)
 
-file(GLOB SERVER_INCLUDES src/server/*.h)
-file(GLOB SERVER_SOURCES src/server/*.c)
+set(SERVER_INCLUDES 
+	src/server/server.h
+)
+set(SERVER_SOURCES 
+	src/server/sv_bot.cpp
+	src/server/sv_ccmds.cpp
+	src/server/sv_client.cpp
+	src/server/sv_game.cpp
+	src/server/sv_init.cpp
+	src/server/sv_main.cpp
+	src/server/sv_net_chan.cpp
+	src/server/sv_snapshot.cpp
+	src/server/sv_world.cpp
+)
+	
 
 file(GLOB SPLINES_INCLUDES src/splines/*.h)
 file(GLOB SPLINES_SOURCES src/splines/*.cpp)

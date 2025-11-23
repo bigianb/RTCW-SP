@@ -150,12 +150,8 @@ qboolean BotLibSetup( char *str ) {
 	} //end if
 	return qtrue;
 } //end of the function BotLibSetup
-//===========================================================================
-//
-// Parameter:				-
-// Returns:					-
-// Changes Globals:		-
-//===========================================================================
+
+
 int Export_BotLibSetup( void ) {
 	int errnum;
 

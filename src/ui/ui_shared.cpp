@@ -304,7 +304,7 @@ void PC_SourceError( int handle, const char *format, ... ) {
 	static char string[4096];
 
 	va_start( argptr, format );
-	vsprintf( string, format, argptr );
+	vsnprintf( string, 4096, format, argptr );
 	va_end( argptr );
 
 	filename[0] = '\0';

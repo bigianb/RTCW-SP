@@ -63,7 +63,7 @@ void Use_Target_Give( gentity_t *ent, gentity_t *other, gentity_t *activator ) {
 
 		// make sure it isn't going to respawn or show any events
 		t->nextthink = 0;
-		SV_UnlinkEntity( t );
+		SV_UnlinkEntity( &t->shared );
 	}
 }
 
@@ -324,7 +324,7 @@ void target_laser_think( gentity_t *self ) {
 
 	VectorCopy( tr.endpos, self->shared.s.origin2 );
 
-	SV_LinkEntity( self );
+	SV_LinkEntity( &self->shared );
 	self->nextthink = level.time + FRAMETIME;
 }
 
@@ -336,7 +336,7 @@ void target_laser_on( gentity_t *self ) {
 }
 
 void target_laser_off( gentity_t *self ) {
-	SV_UnlinkEntity( self );
+	SV_UnlinkEntity( &self->shared );
 	self->nextthink = 0;
 }
 
@@ -564,7 +564,7 @@ void target_kill_use( gentity_t *self, gentity_t *other, gentity_t *activator ) 
 				continue;
 			}
 
-			SV_UnlinkEntity( targ );
+			SV_UnlinkEntity( &targ->shared );
 			targ->use = 0;
 			targ->touch = 0;
 			targ->nextthink = level.time + FRAMETIME;
