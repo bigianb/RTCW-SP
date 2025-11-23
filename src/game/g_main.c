@@ -737,7 +737,7 @@ void G_FindTeams( void ) {
 				e2->flags |= FL_TEAMSLAVE;
 
 				if ( !Q_stricmp( e2->classname, "func_tramcar" ) ) {
-					SV_UnlinkEntity( e2 );
+					SV_UnlinkEntity( &e2->shared );
 				}
 
 				// make sure that targets only point at the master

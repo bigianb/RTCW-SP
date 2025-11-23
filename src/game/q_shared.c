@@ -1010,7 +1010,7 @@ Ridah, modified this into a circular list, to further prevent stepping on
 previous strings
 ============
 */
-char    *  va( char *format, ... ) {
+char    *  va( const char *format, ... ) {
 	va_list argptr;
 	#define MAX_VA_STRING   32000
 	static char temp_buffer[MAX_VA_STRING];

@@ -293,7 +293,7 @@ void SV_PacketEvent( netadr_t from, msg_t *msg )
 	int qport = MSG_ReadShort( msg ) & 0xffff;
 
 	// find which client the message is from
-	for (int i = 0, cl = svs.clients ; i < sv_maxclients->integer ; i++,cl++ ) {
+	for (int i = 0; i < sv_maxclients->integer; i++ ) {
 		client_t *cl = &svs.clients[i];
 		if ( cl->state == CS_FREE ) {
 			continue;

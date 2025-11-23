@@ -265,7 +265,7 @@ int AICast_ScanForEnemies( cast_state_t *cs, int *enemies ) {
 		}
 		if ( best < 0 ) {
 			Com_Error( ERR_DROP, "error sorting enemies by distance\n" );
-            return;  // Keep linter happy. ERR_DROP does not return
+            return 0;  // Keep linter happy. ERR_DROP does not return
 		}
 		sortedEnemies[j] = enemies[best];
 		distances[best] = -1;

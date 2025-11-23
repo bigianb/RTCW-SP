@@ -26,8 +26,11 @@ If you have questions concerning this license or the applicable additional terms
 ===========================================================================
 */
 
-#ifndef __Q_SHARED_H
-#define __Q_SHARED_H
+#pragma once
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 // q_shared.h -- included first by ALL program modules.
 // A user mod should never modify this file
@@ -549,7 +552,7 @@ float   BigFloat( float l );
 float   LittleFloat( float l );
 
 void    Swap_Init( void );
-char    *  va( char *format, ... );
+char    *  va( const char *format, ... );
 float   *tv( float x, float y, float z );
 
 //=============================================
@@ -1206,4 +1209,6 @@ typedef enum {
 
 #include "../qcommon/entity_state.h"
 
-#endif  // __Q_SHARED_H
+#ifdef __cplusplus
+}
+#endif

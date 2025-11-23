@@ -64,7 +64,7 @@ qboolean CL_GetUserCmd( int cmdNumber, usercmd_t *ucmd )
 	// can't return anything that we haven't created yet
 	if ( cmdNumber > cl.cmdNumber ) {
 		Com_Error( ERR_DROP, "CL_GetUserCmd: %i >= %i", cmdNumber, cl.cmdNumber );
-        return;  // Keep linter happy. ERR_DROP does not return
+        return qfalse;  // Keep linter happy. ERR_DROP does not return
 	}
 
 	// the usercmd has been overwritten in the wrapping
@@ -285,7 +285,7 @@ rescan:
 		s = Cmd_Argv( 2 );
 		if ( strlen( bigConfigString ) + strlen( s ) >= BIG_INFO_STRING ) {
 			Com_Error( ERR_DROP, "bcs exceeded BIG_INFO_STRING" );
-            return;  // Keep linter happy. ERR_DROP does not return
+            return qfalse;  // Keep linter happy. ERR_DROP does not return
 		}
 		strcat( bigConfigString, s );
 		return qfalse;
@@ -295,7 +295,7 @@ rescan:
 		s = Cmd_Argv( 2 );
 		if ( strlen( bigConfigString ) + strlen( s ) + 1 >= BIG_INFO_STRING ) {
 			Com_Error( ERR_DROP, "bcs exceeded BIG_INFO_STRING" );
-            return;  // Keep linter happy. ERR_DROP does not return
+            return qfalse;  // Keep linter happy. ERR_DROP does not return
 		}
 		strcat( bigConfigString, s );
 		strcat( bigConfigString, "\"" );

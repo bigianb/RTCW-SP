@@ -39,6 +39,10 @@ If you have questions concerning this license or the applicable additional terms
 
 #pragma once
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include "../game/q_shared.h"
 #include "tr_types.h"
 #include "../game/bg_public.h"
@@ -1720,8 +1724,8 @@ void CG_MouseEvent( int x, int y );
 void CG_EventHandling( int type );
 void CG_Init( int serverMessageNum, int serverCommandSequence );
 
-qboolean CG_GetTag( int clientNum, char *tagname, orientation_t * or );
-qboolean CG_GetWeaponTag( int clientNum, char *tagname, orientation_t * or );
+qboolean CG_GetTag( int clientNum, char *tagname, orientation_t * orient );
+qboolean CG_GetWeaponTag( int clientNum, char *tagname, orientation_t * orient );
 
 //
 // cg_view.c
@@ -2273,3 +2277,7 @@ void CG_StartShakeCamera( float p, int duration, vec3_t src, float radius );
 qboolean    trap_GetModelInfo( int clientNum, char *modelName, animModelInfo_t **modelInfo );
 
 void CL_GetGlconfig( glconfig_t *glconfig );
+
+#ifdef __cplusplus
+}
+#endif

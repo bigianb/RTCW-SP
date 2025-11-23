@@ -28,6 +28,10 @@ If you have questions concerning this license or the applicable additional terms
 
 #pragma once
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include "../game/q_shared.h"
 #include "../cgame/tr_types.h"
 #include "../cgame/cg_local.h"
@@ -338,7 +342,7 @@ extern sfxHandle_t  MenuField_Key( menufield_s* m, int* key );
 // ui_main.c
 //
 void            UI_Load();
-void            UI_LoadMenus( const char *menuFile, qboolean reset );
+
 void            UI_SetActiveMenu( uiMenuCommand_t menu );
 uiMenuCommand_t UI_GetActiveMenu( void );
 int             UI_AdjustTimeByGame( int time );
@@ -858,3 +862,7 @@ void UI_SoundOptionsMenu( void );
 // ui_main.c
 //
 void UI_OwnerDraw( float x, float y, float w, float h, float text_x, float text_y, int ownerDraw, int ownerDrawFlags, int align, float special, int font, float scale, vec4_t color, qhandle_t shader, int textStyle );
+
+#ifdef __cplusplus
+}
+#endif

@@ -32,8 +32,8 @@ If you have questions concerning this license or the applicable additional terms
 #include "../renderer/tr_local.h"
 #include "../client/client.h"
 
-// IJB FIXME
-int PC_SourceFileAndLine( int handle, char *filename, int *line );
+#include "../botlib/l_script.h"
+#include "../botlib/l_precomp.h"
 
 #define SCROLL_TIME_START                   500
 #define SCROLL_TIME_ADJUST              150
@@ -93,7 +93,8 @@ static qboolean Menu_OverActiveItem( menuDef_t *menu, float x, float y );
 #define MEM_POOL_SIZE  1024 * 1024 * 2
 
 static char memoryPool[MEM_POOL_SIZE];
-static int allocPoint, outOfMemory;
+static int allocPoint;
+static qboolean outOfMemory;
 
 
 // these are expected to be translated by the strings.txt file
@@ -258,7 +259,7 @@ const char *String_Alloc( const char *p ) {
 			str = str->next;
 		}
 
-		str  = UI_Alloc( sizeof( stringDef_t ) );
+		str  = (stringDef_t*)UI_Alloc( sizeof( stringDef_t ) );
 		str->next = NULL;
 		str->str = &strPool[ph];
 		if ( last ) {
@@ -296,7 +297,7 @@ void String_Init() {
 PC_SourceError
 =================
 */
-void PC_SourceError( int handle, char *format, ... ) {
+void PC_SourceError( int handle, const char *format, ... ) {
 	int line;
 	char filename[128];
 	va_list argptr;
@@ -775,7 +776,7 @@ void Item_UpdatePosition( itemDef_t *item ) {
 		return;
 	}
 
-	menu = item->parent;
+	menu = (menuDef_t*)item->parent;
 
 	x = menu->window.rect.x;
 	y = menu->window.rect.y;
@@ -845,7 +846,7 @@ itemDef_t *Menu_ClearFocus( menuDef_t *menu ) {
 }
 
 qboolean IsVisible( int flags ) {
-	return ( flags & WINDOW_VISIBLE && !( flags & WINDOW_FADINGOUT ) );
+	return ( flags & WINDOW_VISIBLE && !( flags & WINDOW_FADINGOUT ) ) ? qtrue : qfalse;
 }
 
 qboolean Rect_ContainsPoint( rectDef_t *rect, float x, float y ) {
@@ -858,18 +859,17 @@ qboolean Rect_ContainsPoint( rectDef_t *rect, float x, float y ) {
 }
 
 int Menu_ItemsMatchingGroup( menuDef_t *menu, const char *name ) {
-	int i;
+
 	int count = 0;
-	char *pdest;
 	int wildcard = -1;  // if wildcard is set, it's value is the number of characters to compare
 
 
-	pdest = strstr( name, "*" ); // allow wildcard strings (ex.  "hide nb_*" would translate to "hide nb_pg1; hide nb_extra" etc)
+	const char* pdest = strstr( name, "*" ); // allow wildcard strings (ex.  "hide nb_*" would translate to "hide nb_pg1; hide nb_extra" etc)
 	if ( pdest ) {
 		wildcard = pdest - name;
 	}
 
-	for ( i = 0; i < menu->itemCount; i++ ) {
+	for (int i = 0; i < menu->itemCount; i++ ) {
 		if ( wildcard != -1 ) {
 			if ( Q_strncmp( menu->items[i]->window.name, name, wildcard ) == 0 || ( menu->items[i]->window.group && Q_strncmp( menu->items[i]->window.group, name, wildcard ) == 0 ) ) {
 				count++;
@@ -887,10 +887,10 @@ int Menu_ItemsMatchingGroup( menuDef_t *menu, const char *name ) {
 itemDef_t *Menu_GetMatchingItemByNumber( menuDef_t *menu, int index, const char *name ) {
 	int i;
 	int count = 0;
-	char *pdest;
+
 	int wildcard = -1;  // if wildcard is set, it's value is the number of characters to compare
 
-	pdest = strstr( name, "*" ); // allow wildcard strings (ex.  "hide nb_*" would translate to "hide nb_pg1; hide nb_extra" etc)
+	const char* pdest = strstr( name, "*" ); // allow wildcard strings (ex.  "hide nb_*" would translate to "hide nb_pg1; hide nb_extra" etc)
 	if ( pdest ) {
 		wildcard = pdest - name;
 	}
@@ -993,14 +993,14 @@ void Script_SetItemColor( itemDef_t *item, char **args ) {
 	if ( String_Parse( args, &itemname ) && String_Parse( args, &name ) ) {
 		itemDef_t *item2;
 		int j;
-		int count = Menu_ItemsMatchingGroup( item->parent, itemname );
+		int count = Menu_ItemsMatchingGroup( (menuDef_t *)item->parent, itemname );
 
 		if ( !Color_Parse( args, &color ) ) {
 			return;
 		}
 
 		for ( j = 0; j < count; j++ ) {
-			item2 = Menu_GetMatchingItemByNumber( item->parent, j, itemname );
+			item2 = Menu_GetMatchingItemByNumber( (menuDef_t *)item->parent, j, itemname );
 			if ( item2 != NULL ) {
 				out = NULL;
 				if ( Q_stricmp( name, "backcolor" ) == 0 ) {
@@ -1116,28 +1116,28 @@ void Menus_CloseAll() {
 void Script_Show( itemDef_t *item, char **args ) {
 	const char *name;
 	if ( String_Parse( args, &name ) ) {
-		Menu_ShowItemByName( item->parent, name, qtrue );
+		Menu_ShowItemByName( (menuDef_t *)item->parent, name, qtrue );
 	}
 }
 
 void Script_Hide( itemDef_t *item, char **args ) {
 	const char *name;
 	if ( String_Parse( args, &name ) ) {
-		Menu_ShowItemByName( item->parent, name, qfalse );
+		Menu_ShowItemByName( (menuDef_t *)item->parent, name, qfalse );
 	}
 }
 
 void Script_FadeIn( itemDef_t *item, char **args ) {
 	const char *name;
 	if ( String_Parse( args, &name ) ) {
-		Menu_FadeItemByName( item->parent, name, qfalse );
+		Menu_FadeItemByName( (menuDef_t *)item->parent, name, qfalse );
 	}
 }
 
 void Script_FadeOut( itemDef_t *item, char **args ) {
 	const char *name;
 	if ( String_Parse( args, &name ) ) {
-		Menu_FadeItemByName( item->parent, name, qtrue );
+		Menu_FadeItemByName( (menuDef_t *)item->parent, name, qtrue );
 	}
 }
 
@@ -1166,7 +1166,7 @@ Script_Clipboard
 void Script_Clipboard( itemDef_t *item, char **args ) {
 	char curscript[64];
 	Cvar_VariableStringBuffer( "cg_clipboardName", curscript, sizeof( curscript ) ); // grab the string the client set
-	Menu_ShowItemByName( item->parent, curscript, qtrue );
+	Menu_ShowItemByName( (menuDef_t *)item->parent, curscript, qtrue );
 }
 
 #define NOTEBOOK_MAX_PAGES 6    // this will not be a define
@@ -1252,17 +1252,17 @@ void Script_NotebookShowpage( itemDef_t *item, char **args ) {
 
 
 		// hide all the pages
-		Menu_ShowItemByName( item->parent, "cover", qfalse );
+		Menu_ShowItemByName( (menuDef_t *)item->parent, "cover", qfalse );
 		for ( i = 1; i <= NOTEBOOK_MAX_PAGES; i++ ) {
-			Menu_ShowItemByName( item->parent, va( "page%d", i ), qfalse );
+			Menu_ShowItemByName( (menuDef_t *)item->parent, va( "page%d", i ), qfalse );
 		}
 
 		// show the visible one
 
 		if ( curpage ) {
-			Menu_ShowItemByName( item->parent, va( "page%d", curpage ), qtrue );
+			Menu_ShowItemByName( (menuDef_t *)item->parent, va( "page%d", curpage ), qtrue );
 		} else {
-			Menu_ShowItemByName( item->parent, "cover", qtrue );
+			Menu_ShowItemByName( (menuDef_t *)item->parent, "cover", qtrue );
 		}
 
 		DC->setCVar( "ui_notebookCurrentPage", va( "%d", curpage ) ); // store new current page
@@ -1301,7 +1301,7 @@ void Script_Transition( itemDef_t *item, char **args ) {
 
 	if ( String_Parse( args, &name ) ) {
 		if ( Rect_Parse( args, &rectFrom ) && Rect_Parse( args, &rectTo ) && Int_Parse( args, &time ) && Float_Parse( args, &amt ) ) {
-			Menu_TransitionItemByName( item->parent, name, rectFrom, rectTo, time, amt );
+			Menu_TransitionItemByName( (menuDef_t *)item->parent, name, rectFrom, rectTo, time, amt );
 		}
 	}
 }
@@ -1333,7 +1333,7 @@ void Script_Orbit( itemDef_t *item, char **args ) {
 
 	if ( String_Parse( args, &name ) ) {
 		if ( Float_Parse( args, &x ) && Float_Parse( args, &y ) && Float_Parse( args, &cx ) && Float_Parse( args, &cy ) && Int_Parse( args, &time ) ) {
-			Menu_OrbitItemByName( item->parent, name, x, y, cx, cy, time );
+			Menu_OrbitItemByName( (menuDef_t *)item->parent, name, x, y, cx, cy, time );
 		}
 	}
 }
@@ -1345,9 +1345,9 @@ void Script_SetFocus( itemDef_t *item, char **args ) {
 	itemDef_t *focusItem;
 
 	if ( String_Parse( args, &name ) ) {
-		focusItem = Menu_FindItemByName( item->parent, name );
+		focusItem = Menu_FindItemByName( (menuDef_t *)item->parent, name );
 		if ( focusItem && !( focusItem->window.flags & WINDOW_DECORATION ) && !( focusItem->window.flags & WINDOW_HASFOCUS ) ) {
-			Menu_ClearFocus( item->parent );
+			Menu_ClearFocus((menuDef_t *) item->parent );
 			focusItem->window.flags |= WINDOW_HASFOCUS;
 			if ( focusItem->onFocus ) {
 				Item_RunScript( focusItem, focusItem->onFocus );
@@ -1395,7 +1395,7 @@ void Script_AddListItem( itemDef_t *item, char **args ) {
 	itemDef_t *t;
 
 	if ( String_Parse( args, &itemname ) && String_Parse( args, &val ) && String_Parse( args, &name ) ) {
-		t = Menu_FindItemByName( item->parent, itemname );
+		t = Menu_FindItemByName( (menuDef_t*)item->parent, itemname );
 		if ( t && t->special ) {
 			DC->feederAddItem( t->special, name, atoi( val ) );
 		}
@@ -1530,7 +1530,7 @@ qboolean Item_SetFocus( itemDef_t *item, float x, float y ) {
 		return qfalse;
 	}
 
-	oldFocus = Menu_ClearFocus( item->parent );
+	oldFocus = Menu_ClearFocus( (menuDef_t *)item->parent );
 
 	if ( item->type == ITEM_TYPE_TEXT ) {
 		rectDef_t r;
@@ -1645,7 +1645,7 @@ int Item_ListBox_ThumbDrawPosition( itemDef_t *item ) {
 
 float Item_Slider_ThumbPosition( itemDef_t *item ) {
 	float value, range, x;
-	editFieldDef_t *editDef = item->typeData;
+	editFieldDef_t *editDef = (editFieldDef_t *)item->typeData;
 
 	if ( item->text ) {
 		x = item->textRect.x + item->textRect.w + 8;
@@ -2303,20 +2303,20 @@ qboolean Item_TextField_HandleKey( itemDef_t *item, int key ) {
 			}
 
 			if ( key == K_INS || key == K_KP_INS ) {
-                Key_SetOverstrikeMode( !Key_GetOverstrikeMode() );
+                Key_SetOverstrikeMode( Key_GetOverstrikeMode() == qtrue ? qfalse : qtrue );
 				return qtrue;
 			}
 		}
 
 		if ( key == K_TAB || key == K_DOWNARROW || key == K_KP_DOWNARROW ) {
-			newItem = Menu_SetNextCursorItem( item->parent );
+			newItem = Menu_SetNextCursorItem( (menuDef_t *)item->parent );
 			if ( newItem && ( newItem->type == ITEM_TYPE_EDITFIELD || newItem->type == ITEM_TYPE_NUMERICFIELD || newItem->type == ITEM_TYPE_VALIDFILEFIELD ) ) {
 				g_editItem = newItem;
 			}
 		}
 
 		if ( key == K_UPARROW || key == K_KP_UPARROW ) {
-			newItem = Menu_SetPrevCursorItem( item->parent );
+			newItem = Menu_SetPrevCursorItem( (menuDef_t *)item->parent );
 			if ( newItem && ( newItem->type == ITEM_TYPE_EDITFIELD || newItem->type == ITEM_TYPE_NUMERICFIELD || newItem->type == ITEM_TYPE_VALIDFILEFIELD ) ) {
 				g_editItem = newItem;
 			}
@@ -2419,7 +2419,7 @@ static void Scroll_ListBox_ThumbFunc( void *p ) {
 static void Scroll_Slider_ThumbFunc( void *p ) {
 	float x, value, cursorx;
 	scrollInfo_t *si = (scrollInfo_t*)p;
-	editFieldDef_t *editDef = si->item->typeData;
+	editFieldDef_t *editDef = (editFieldDef_t*)si->item->typeData;
 
 	if ( si->item->text ) {
 		x = si->item->textRect.x + si->item->textRect.w + 8;
@@ -2498,7 +2498,7 @@ qboolean Item_Slider_HandleKey( itemDef_t *item, int key, qboolean down ) {
 
 	if ( item->window.flags & WINDOW_HASFOCUS && item->cvar && Rect_ContainsPoint( &item->window.rect, DC->cursorx, DC->cursory ) ) {
 		if ( key == K_MOUSE1 || key == K_ENTER || key == K_MOUSE2 || key == K_MOUSE3 ) {
-			editFieldDef_t *editDef = item->typeData;
+			editFieldDef_t *editDef = (editFieldDef_t*)item->typeData;
 			if ( editDef ) {
 				rectDef_t testRect;
 				width = SLIDER_WIDTH;
@@ -2847,7 +2847,11 @@ void Menu_HandleKey( menuDef_t *menu, int key, qboolean down ) {
 	case K_F10:
 	case K_F11:
 		if ( Cvar_VariableValue( "developer" ) ) {
-			debugMode ^= 1;
+			if (debugMode == qfalse) {
+				debugMode = qtrue;
+			} else {
+				debugMode = qfalse;
+			}
 		}
 		break;
 
@@ -3284,7 +3288,7 @@ void Item_Multi_Paint( itemDef_t *item ) {
 
 
 typedef struct {
-	char    *command;
+	const char    *command;
 	int id;
 	int defaultbind1;
 	int defaultbind2;
@@ -3423,7 +3427,7 @@ static const int g_bindCount = sizeof( g_bindings ) / sizeof( bind_t );
 Controls_GetKeyAssignment
 =================
 */
-static void Controls_GetKeyAssignment( char *command, int *twokeys ) {
+static void Controls_GetKeyAssignment( const char *command, int *twokeys ) {
 	int count;
 	int j;
 	char b[256];
@@ -4530,13 +4534,13 @@ Keyword Hash
 
 typedef struct keywordHash_s
 {
-	char *keyword;
+	const char *keyword;
 	qboolean ( *func )( itemDef_t *item, int handle );
 	struct keywordHash_s *next;
 } keywordHash_t;
 
-int KeywordHash_Key( char *keyword ) {
-	int register hash, i;
+int KeywordHash_Key( const char *keyword ) {
+	int hash, i;
 
 	hash = 0;
 	for ( i = 0; keyword[i] != '\0'; i++ ) {
@@ -5827,7 +5831,7 @@ qboolean MenuParse_itemDef( itemDef_t *item, int handle ) {
 	menuDef_t *menu = (menuDef_t*)item;
 	if ( menu->itemCount < MAX_MENUITEMS ) {
         
-		menu->items[menu->itemCount] = UI_Alloc( sizeof( itemDef_t ) );
+		menu->items[menu->itemCount] = (itemDef_t *)UI_Alloc( sizeof( itemDef_t ) );
 		Item_Init( menu->items[menu->itemCount] );
 		if ( !Item_Parse( handle, menu->items[menu->itemCount] ) ) {
 			return qfalse;
@@ -6039,8 +6043,8 @@ void *Display_CaptureItem( int x, int y ) {
 
 // FIXME:
 qboolean Display_MouseMove( void *p, int x, int y ) {
-	int i;
-	menuDef_t *menu = p;
+	
+	menuDef_t *menu = (menuDef_t*)p;
 
 	if ( menu == NULL ) {
 		menu = Menu_GetFocused();
@@ -6050,7 +6054,7 @@ qboolean Display_MouseMove( void *p, int x, int y ) {
 				return qtrue;
 			}
 		}
-		for ( i = 0; i < menuCount; i++ ) {
+		for (int i = 0; i < menuCount; i++ ) {
 			Menu_HandleMouseMove( &Menus[i], x, y );
 		}
 	} else {
@@ -6078,7 +6082,7 @@ int Display_CursorType( int x, int y ) {
 
 
 void Display_HandleKey( int key, qboolean down, int x, int y ) {
-	menuDef_t *menu = Display_CaptureItem( x, y );
+	menuDef_t *menu = (menuDef_t *)Display_CaptureItem( x, y );
 	if ( menu == NULL ) {
 		menu = Menu_GetFocused();
 	}

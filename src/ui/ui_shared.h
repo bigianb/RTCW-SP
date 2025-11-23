@@ -26,9 +26,11 @@ If you have questions concerning this license or the applicable additional terms
 ===========================================================================
 */
 
-#ifndef __UI_SHARED_H
-#define __UI_SHARED_H
+#pragma once
 
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 #include "../game/q_shared.h"
 #include "../cgame/tr_types.h"
@@ -415,22 +417,19 @@ typedef struct {
 
 } displayContextDef_t;
 
-
-//----(SA)	added
-
 typedef struct {
-	char *name;
-	char *localname;
+	const char *name;
+	const char *localname;
 } translateString_t;
 
 #define MAX_TRANSLATESTRINGS 64
 extern translateString_t translateStrings[MAX_TRANSLATESTRINGS];
 
-//----(SA)	end
-
 
 const char *String_Alloc( const char *p );
 void String_Init();
+
+void LoadMenus( const char *menuFile, qboolean reset, qboolean isHud );
 
 void Init_Display( displayContextDef_t *dc );
 void Display_ExpandMacros( char * buff );
@@ -490,4 +489,6 @@ int         trap_PC_LoadSource( const char *filename );
 int         trap_PC_FreeSource( int handle );
 int         PC_ReadTokenHandle( int handle, pc_token_t *pc_token );
 
+#ifdef __cplusplus
+}
 #endif

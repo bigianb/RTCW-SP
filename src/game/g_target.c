@@ -1103,5 +1103,5 @@ void SP_target_rumble( gentity_t *self ) {
 		self->duration *= 1000;
 	}
 
-	SV_LinkEntity( self );
+	SV_LinkEntity( &self->shared );
 }

@@ -26,12 +26,10 @@ If you have questions concerning this license or the applicable additional terms
 ===========================================================================
 */
 
-#ifndef __Q_SHARED_H
-#define __Q_SHARED_H
+#pragma once
 
-extern "C" {
-#include "../game/q_shared.h"
-}
+//#include "../game/q_shared.h"
+
 
 // q_splineshared.h -- included first by ALL program modules.
 // these are the definitions that have no dependance on
@@ -670,5 +668,3 @@ void Info_RemoveKey( char *s, const char *key );
 qboolean Info_Validate( const char *s );
 void Info_NextPair( const char *( *s ), char key[MAX_INFO_KEY], char value[MAX_INFO_VALUE] );
 
-
-#endif  // __Q_SHARED_H

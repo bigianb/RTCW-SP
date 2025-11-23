@@ -26,6 +26,10 @@ If you have questions concerning this license or the applicable additional terms
 ===========================================================================
 */
 
+#pragma once
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 //undef if binary numbers of the form 0b... or 0B... are not allowed
 #define BINARYNUMBERS
@@ -245,3 +249,6 @@ void  ScriptWarning( script_t *script, char *str, ... );
 
 
 
+#ifdef __cplusplus
+}
+#endif

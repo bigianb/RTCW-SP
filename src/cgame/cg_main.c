@@ -639,8 +639,8 @@ static void CG_LoadTranslationStrings( void ) {
 		if ( !token[0] ) {
 			break;
 		}
-		translateStrings[i].localname = malloc( strlen( token ) + 1 );
-		strcpy( translateStrings[i].localname, token );
+		translateStrings[i].localname = (const char* )malloc( strlen( token ) + 1 );
+		strcpy( (char*)translateStrings[i].localname, token );
 	}
 }
 
@@ -1353,12 +1353,6 @@ void CG_QueueMusic( void ) {
 //----(SA)	end
 
 
-
-extern void LoadMenus(const char*, qboolean, qboolean);
-void CG_LoadMenus( const char *menuFile ) {
-	LoadMenus(menuFile, qtrue, qtrue);
-}
-
 void CG_Text_PaintWithCursor( float x, float y, int font, float scale, vec4_t color, const char *text, int cursorPos, char cursor, int limit, int style ) {
 	Text_Paint( x, y, font, scale, color, text, 0, limit, style );
 }
@@ -1409,12 +1403,6 @@ const char *CG_translateString( const char *str ) {
 	return str;
 }
 
-/*
-=================
-CG_LoadHudMenu();
-
-=================
-*/
 void CG_LoadHudMenu() {
 	char buff[1024];
 	const char *hudSet;
@@ -1425,7 +1413,7 @@ void CG_LoadHudMenu() {
 		hudSet = "ui/hud.txt";
 	}
 
-	CG_LoadMenus( hudSet );
+	LoadMenus( hudSet, qtrue, qtrue );
 }
 
 /*

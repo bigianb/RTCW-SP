@@ -871,7 +871,7 @@ void SP_worldspawn()
 	G_SpawnString( "classname", "", &s );
 	if ( Q_stricmp( s, "worldspawn" ) ) {
 		Com_Error( ERR_DROP, "SP_worldspawn: The first entity isn't 'worldspawn'" );
-        return qfalse; // keep the linter happy, ERR_DROP does not return
+        return; // keep the linter happy, ERR_DROP does not return
 	}
 
 	// make some data visible to connecting client

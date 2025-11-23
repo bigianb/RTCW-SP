@@ -58,8 +58,17 @@ file(GLOB SERVER_SOURCES src/server/*.c)
 file(GLOB SPLINES_INCLUDES src/splines/*.h)
 file(GLOB SPLINES_SOURCES src/splines/*.cpp)
 
-file(GLOB UI_INCLUDES src/ui/*.h)
-file(GLOB UI_SOURCES src/ui/*.c)
+set (UI_INCLUDES
+	src/ui/keycodes.h
+	src/ui/ui_local.h
+	src/ui/ui_public.h
+	src/ui/ui_shared.h
+)
+set(UI_SOURCES
+	src/ui/ui_atoms.cpp
+	src/ui/ui_main.cpp
+	src/ui/ui_shared.cpp
+)
 
 file(GLOB SDL_INCLUDES src/sdl/*.h)
 file(GLOB SDL_SOURCES src/sdl/*.c)

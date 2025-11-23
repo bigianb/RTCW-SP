@@ -916,7 +916,7 @@ void FinishSpawningItem( gentity_t *ent ) {
 		ent->shared.s.density = i - 1;   // store number of stages in 'density' for client (most will have '1')
 	}
 
-	SV_LinkEntity( ent );
+	SV_LinkEntity( &ent->shared );
 }
 
 

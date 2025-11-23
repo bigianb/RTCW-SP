@@ -580,10 +580,6 @@ void LoadMenus( const char *menuFile, qboolean reset, qboolean isHud )
 	trap_PC_FreeSource( handle );
 }
 
-void UI_LoadMenus( const char *menuFile, qboolean reset ) {
-	LoadMenus(menuFile, reset, qfalse);
-}
-
 /*
 ==============
 UI_LoadTranslationStrings
@@ -621,8 +617,8 @@ static void UI_LoadTranslationStrings( void )
 		if ( !token[0] ) {
 			break;
 		}
-		translateStrings[i].localname = malloc( strnlen( token, 1024 ) + 1 );
-		strcpy( translateStrings[i].localname, token );
+		translateStrings[i].localname = (const char*)malloc( strnlen( token, 1024 ) + 1 );
+		strcpy( (char*)translateStrings[i].localname, token );
 	}
 }
 
@@ -630,7 +626,7 @@ static void UI_LoadTranslationStrings( void )
 void UI_Load() {
 	char lastName[1024];
 	menuDef_t *menu = Menu_GetFocused();
-	char *menuSet = UI_Cvar_VariableString( "ui_menuFiles" );
+	const char *menuSet = UI_Cvar_VariableString( "ui_menuFiles" );
 	if ( menu && menu->window.name ) {
 		strcpy( lastName, menu->window.name );
 	}
@@ -643,7 +639,7 @@ void UI_Load() {
 	// load translation text
 	UI_LoadTranslationStrings();
 
-	UI_LoadMenus( menuSet, qtrue );
+	LoadMenus( menuSet, qtrue, qfalse );
 	Menus_CloseAll();
 	Menus_ActivateByName( lastName );
 }
@@ -1275,7 +1271,7 @@ UI_ParseSavegame
 ==============
 */
 
-static char *monthStr[12] =
+static const char *monthStr[12] =
 {
 	"JAN", "FEB", "MAR", "APR", "MAY", "JUN", "JUL", "AUG", "SEP", "OCT", "NOV", "DEC"
 };
@@ -1358,7 +1354,7 @@ void UI_ParseSavegame( int index )
 UI_LoadSavegames
 ==============
 */
-static void UI_LoadSavegames( char *dir )
+static void UI_LoadSavegames(const char *dir )
 {
 	char sglist[4096];
 
@@ -1605,12 +1601,6 @@ static void scriptResetDefaults()
     Cvar_Set( "com_recommendedSet", "1" );
     Cbuf_ExecuteText( EXEC_APPEND, "vid_restart\n" );
 }
-
-/*
-==============
-UI_RunMenuScript
-==============
-*/
 
 static void UI_RunMenuScript( char **args ) {
 	const char *name, *name2;
@@ -1899,7 +1889,7 @@ void UI_LoadNonIngame()
 	if ( menuSet == NULL || menuSet[0] == '\0' ) {
 		menuSet = "ui/menus.txt";
 	}
-	UI_LoadMenus( menuSet, qfalse );
+	LoadMenus( menuSet, qfalse, qfalse );
 	uiInfo.inGameLoad = qfalse;
 }
 
@@ -2080,8 +2070,8 @@ cvars
 
 typedef struct {
 	vmCvar_t    *vmCvar;
-	char        *cvarName;
-	char        *defaultString;
+	const char        *cvarName;
+	const char        *defaultString;
 	int cvarFlags;
 } cvarTable_t;
 
@@ -2384,8 +2374,8 @@ void UI_Init()
         menuSet = "ui/menus.txt";
     }
 
-    UI_LoadMenus( menuSet, qtrue );
-    UI_LoadMenus( "ui/ingame.txt", qfalse );
+    LoadMenus( menuSet, qtrue, qfalse );
+    LoadMenus( "ui/ingame.txt", qfalse, qfalse );
 
     Menus_CloseAll();
 

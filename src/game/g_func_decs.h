@@ -282,7 +282,7 @@ extern void Info_RemoveKey ( char * s , const char * key ) ;
 extern void Info_NextPair ( const char * * head , char * key , char * value ) ;
 extern char * Info_ValueForKey ( const char * s , const char * key ) ;
 extern float * tv ( float x , float y , float z ) ;
-extern char *  va ( char * format , ... ) ;
+extern char *  va ( const char * format , ... ) ;
 extern int Q_strcasecmp ( char * s1 , char * s2 ) ;
 extern int Q_strncasecmp ( char * s1 , char * s2 , int n ) ;
 extern char * Q_CleanStr ( char * string ) ;

@@ -2829,12 +2829,7 @@ int PC_ReadTokenHandle( int handle, pc_token_t *pc_token ) {
 	}
 	return ret;
 } //end of the function PC_ReadTokenHandle
-//============================================================================
-//
-// Parameter:			-
-// Returns:				-
-// Changes Globals:		-
-//============================================================================
+
 int PC_SourceFileAndLine( int handle, char *filename, int *line ) {
 	if ( handle < 1 || handle >= MAX_SOURCEFILES ) {
 		return qfalse;

@@ -636,7 +636,7 @@ void script_mover_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacke
 	G_Script_ScriptEvent( self, "death", "" );
 	self->die = NULL;
 
-	SV_UnlinkEntity( self );
+	SV_UnlinkEntity( &self->shared );
 	G_FreeEntity( self );
 }
 
@@ -776,7 +776,7 @@ void script_model_med_spawn( gentity_t *ent ) {
 }
 
 void script_model_med_use( gentity_t *ent, gentity_t *other, gentity_t *activator ) {
-	script_model_med_spawn( &ent->shared );
+	script_model_med_spawn( ent );
 }
 
 /*QUAKED script_model_med (0.5 0.25 1.0) (-16 -16 -24) (16 16 64) TriggerSpawn Solid

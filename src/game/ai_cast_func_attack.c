@@ -789,7 +789,7 @@ char *AIFunc_StimSoldierAttack1Start( cast_state_t *cs ) {
 		cs->weaponNum = WP_TESLA;
 	} else {    // no weapon?
 		Com_Error( ERR_DROP, "stim soldier tried special jump attack without a tesla or rocket launcher\n" );
-        return;  // Keep linter happy. ERR_DROP does not return
+        return NULL;  // Keep linter happy. ERR_DROP does not return
 	}
 	if ( !AICast_CheckAttackAtPos( cs->entityNum, cs->enemyNum, pos, qfalse, qfalse ) ) {
 		AICast_ChooseWeapon( cs, qfalse );

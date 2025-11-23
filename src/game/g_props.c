@@ -149,7 +149,7 @@ void SP_props_box_32( gentity_t *self ) {
 
 	self->touch = touch_props_box_32;
 
-	SV_LinkEntity( self );
+	SV_LinkEntity( &self->shared );
 
 	self->think = DropToFloor;
 	self->nextthink = level.time + FRAMETIME;
@@ -215,7 +215,7 @@ void SP_props_box_64( gentity_t *self ) {
 
 	self->touch = touch_props_box_64;
 
-	SV_LinkEntity( self );
+	SV_LinkEntity( &self->shared );
 
 	self->think = DropToFloor;
 	self->nextthink = level.time + FRAMETIME;
@@ -1090,7 +1090,7 @@ void Props_Activated( gentity_t *self ) {
 		prop->shared.r.ownerNum = owner->shared.s.number;
 		prop->shared.s.otherEntityNum = ENTITYNUM_WORLD;
 
-		SV_LinkEntity( prop );
+		SV_LinkEntity( &prop->shared );
 
 		G_FreeEntity( self );
 
@@ -2041,7 +2041,7 @@ void SP_OilParticles( gentity_t *ent ) {
 	OilLeak->shared.s.density = ent->shared.s.number;
 	OilLeak->count2 = level.time;
 
-	SV_LinkEntity( OilLeak );
+	SV_LinkEntity( &OilLeak->shared );
 
 }
 
@@ -2080,7 +2080,7 @@ void OilSlick_remove( gentity_t *ent ) {
 	remove->think = OilSlick_remove_think;
 	remove->nextthink = level.time + 1000;
 	VectorCopy( ent->shared.r.currentOrigin, remove->shared.r.currentOrigin );
-	SV_LinkEntity( remove );
+	SV_LinkEntity( &remove->shared );
 }
 
 void Props_Barrel_Die( gentity_t *ent, gentity_t *inflictor, gentity_t *attacker, int damage, int mod ) {
@@ -2095,7 +2095,7 @@ void Props_Barrel_Die( gentity_t *ent, gentity_t *inflictor, gentity_t *attacker
 		smoker->think = smoker_think;
 		smoker->count = 150 + rand() % 100;
 		G_SetOrigin( smoker, ent->shared.r.currentOrigin );
-		SV_LinkEntity( smoker );
+		SV_LinkEntity( &smoker->shared );
 	}
 
 	G_UseTargets( ent, NULL );
@@ -2380,7 +2380,7 @@ void SP_crate_64( gentity_t *self ) {
 	self->isProp = qtrue;
 	self->nopickup = qtrue;
 
-	SV_LinkEntity( self );
+	SV_LinkEntity( &self->shared );
 
 	self->think = DropToFloor;
 	self->nextthink = level.time + FRAMETIME;
@@ -2521,7 +2521,7 @@ void flippy_table_use( gentity_t *ent, gentity_t *other, gentity_t *activator ) 
 
 			slave->flags &= ~FL_TEAMSLAVE;
 			// make it visible
-			SV_LinkEntity( slave );
+			SV_LinkEntity( &slave->shared );
 
 			Use_BinaryMover( slave, other, other );
 		}
@@ -3387,7 +3387,7 @@ must have an origin brush
 
 void SP_props_decorBRUSH( gentity_t *self ) {
 
-	SV_SetBrushModel( self, self->model );
+	SV_SetBrushModel( &self->shared, self->model );
 
 	SP_props_decoration( self );
 

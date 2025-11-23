@@ -215,7 +215,7 @@ void SP_alarm_box( gentity_t *ent ) {
 	}
 
 	// model
-	SV_SetBrushModel( ent, ent->model );
+	SV_SetBrushModel( &ent->shared, ent->model );
 	ent->shared.s.modelindex2 = G_ModelIndex( "models/mapobjects/electronics/alarmbox.md3" );
 
 	// sound

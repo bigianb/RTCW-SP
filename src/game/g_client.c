@@ -336,7 +336,7 @@ void CopyToBodyQue( gentity_t *ent ) {
 	body = level.bodyQue[ level.bodyQueIndex ];
 	level.bodyQueIndex = ( level.bodyQueIndex + 1 ) % BODY_QUEUE_SIZE;
 
-	SV_UnlinkEntity( body );
+	SV_UnlinkEntity( &body->shared );
 
 	body->shared.s = ent->shared.s;
 	body->shared.s.eFlags = EF_DEAD;       // clear EF_TALK, etc
@@ -390,7 +390,7 @@ void CopyToBodyQue( gentity_t *ent ) {
 
 
 	VectorCopy( body->shared.s.pos.trBase, body->shared.r.currentOrigin );
-	SV_LinkEntity( body );
+	SV_LinkEntity( &body->shared );
 }
 
 //======================================================================
@@ -629,7 +629,7 @@ qboolean G_ParseAnimationFiles( char *modelname, gclient_t *cl ) {
 			return qfalse;
 		}
 		// try loading the default script for old legacy models
-		snprintf( filename, sizeof( filename ), "models/players/default.script", modelname );
+		snprintf( filename, sizeof( filename ), "models/players/default.script" );
 		len = FS_FOpenFileByMode( filename, &f, FS_READ );
 		if ( len <= 0 ) {
 			return qfalse;

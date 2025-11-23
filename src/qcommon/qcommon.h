@@ -26,9 +26,10 @@ If you have questions concerning this license or the applicable additional terms
 ===========================================================================
 */
 
-// qcommon.h -- definitions common between client and server, but not game.or ref modules
-#ifndef _QCOMMON_H_
-#define _QCOMMON_H_
+#pragma once
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 #include "../qcommon/cm_public.h"
 
@@ -669,7 +670,7 @@ void        Com_Quit_f( void );
 int         Com_Milliseconds( void );   // will be journaled properly
 unsigned    int Com_BlockChecksum( const void *buffer, size_t length );
 unsigned    Com_BlockChecksumKey( void *buffer, int length, int key );
-int         Com_HashKey( char *string, int maxlen );
+int         Com_HashKey( const char *string, int maxlen );
 int         Com_Filter( char *filter, char *name, int casesensitive );
 int         Com_FilterPath( char *filter, char *name, int casesensitive );
 time_t         Com_RealTime( qtime_t *qtime );
@@ -972,4 +973,6 @@ void IN_Restart( void );
 
 #define ARRAY_LEN(x)			(sizeof(x) / sizeof(*(x)))
 
-#endif // _QCOMMON_H_
+#ifdef __cplusplus
+}
+#endif

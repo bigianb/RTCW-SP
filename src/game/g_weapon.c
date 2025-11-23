@@ -464,7 +464,7 @@ void RubbleFlagCheck( gentity_t *ent, trace_t tr ) {
 
 			sfx->shared.s.frame = 3 + ( rand() % 3 ) ;
 
-			SV_LinkEntity( sfx );
+			SV_LinkEntity( &sfx->shared );
 
 		}
 	}

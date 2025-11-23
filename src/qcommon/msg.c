@@ -217,7 +217,7 @@ int MSG_ReadBits( msg_t *msg, int bits ) {
             msg->bit += 32;
         } else {
             Com_Error( ERR_DROP, "can't read %d bits", bits );
-            return; // keep the linter happy, ERR_DROP does not return
+            return 0; // keep the linter happy, ERR_DROP does not return
         }
 	} else {
 		nbits = 0;
