@@ -127,18 +127,8 @@ punctuation_t default_punctuations[] =
 	{NULL, 0}
 };
 
-#ifdef BSPC
-char basefolder[MAX_PATH];
-#else
 char basefolder[MAX_QPATH];
-#endif
 
-//===========================================================================
-//
-// Parameter:				-
-// Returns:					-
-// Changes Globals:		-
-//===========================================================================
 void PS_CreatePunctuationTable( script_t *script, punctuation_t *punctuations ) {
 	int i;
 	punctuation_t *p, *lastp, *newp;
@@ -1341,30 +1331,14 @@ script_t *LoadScriptMemory( char *ptr, size_t length, char *name ) {
 	return script;
 }
     
-//============================================================================
-//
-// Parameter:				-
-// Returns:					-
-// Changes Globals:		-
-//============================================================================
 void FreeScript( script_t *script ) {
-#ifdef PUNCTABLE
 	if ( script->punctuationtable ) {
 		FreeMemory( script->punctuationtable );
 	}
-#endif //PUNCTABLE
 	FreeMemory( script );
-} //end of the function FreeScript
-//============================================================================
-//
-// Parameter:				-
-// Returns:					-
-// Changes Globals:		-
-//============================================================================
+}
+	
 void PS_SetBaseFolder( char *path ) {
-#ifdef BSPC
-	sprintf( basefolder, path );
-#else
+
 	snprintf( basefolder, sizeof( basefolder ), path );
-#endif
-} //end of the function PS_SetBaseFolder
+}

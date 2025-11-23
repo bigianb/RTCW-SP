@@ -29,19 +29,9 @@ If you have questions concerning this license or the applicable additional terms
 // Copyright (C) 1999-2000 Id Software, Inc.
 //
 
-/*****************************************************************************
- * name:		l_precomp.c
- *
- * desc:		pre compiler
- *
- *
- *****************************************************************************/
-
-//Notes:			fix: PC_StringizeTokens
-
 #define BOTLIB
 
-#ifdef BOTLIB
+
 #include "../game/q_shared.h"
 #include "../game/botlib.h"
 #include "be_interface.h"
@@ -49,26 +39,6 @@ If you have questions concerning this license or the applicable additional terms
 #include "l_script.h"
 #include "l_precomp.h"
 #include "l_log.h"
-#endif //BOTLIB
-
-#ifdef MEQCC
-#include "qcc.h"
-#include "time.h"   //time & ctime
-#include "math.h"   //fabs
-#include "l_memory.h"
-#include "l_script.h"
-#include "l_precomp.h"
-#include "l_log.h"
-
-#define qtrue   true
-#define qfalse  false
-#endif //MEQCC
-
-#if defined( QUAKE ) && !defined( BSPC )
-#include "l_utils.h"
-#endif //QUAKE
-
-//#define DEBUG_EVAL
 
 #define MAX_DEFINEPARMS         128
 
@@ -86,11 +56,7 @@ typedef struct directive_s
 #define TOKEN_HEAP_SIZE     4096
 
 int numtokens;
-/*
-int tokenheapinitialized;				//true when the token heap is initialized
-token_t token_heap[TOKEN_HEAP_SIZE];	//heap with tokens
-token_t *freetokens;					//free tokens from the heap
-*/
+
 
 //list with global defines added to every source loaded
 define_t *globaldefines;
@@ -108,15 +74,7 @@ void  SourceError( source_t *source, char *str, ... ) {
 	va_start( ap, str );
 	vsprintf( text, str, ap );
 	va_end( ap );
-#ifdef BOTLIB
 	BotImport_Print( PRT_ERROR, "file %s, line %d: %s\n", source->scriptstack->filename, source->scriptstack->line, text );
-#endif  //BOTLIB
-#ifdef MEQCC
-	printf( "error: file %s, line %d: %s\n", source->scriptstack->filename, source->scriptstack->line, text );
-#endif //MEQCC
-#ifdef BSPC
-	Log_Print( "error: file %s, line %d: %s\n", source->scriptstack->filename, source->scriptstack->line, text );
-#endif //BSPC
 } //end of the function SourceError
 //===========================================================================
 //
@@ -131,22 +89,10 @@ void  SourceWarning( source_t *source, char *str, ... ) {
 	va_start( ap, str );
 	vsprintf( text, str, ap );
 	va_end( ap );
-#ifdef BOTLIB
+
 	BotImport_Print( PRT_WARNING, "file %s, line %d: %s\n", source->scriptstack->filename, source->scriptstack->line, text );
-#endif //BOTLIB
-#ifdef MEQCC
-	printf( "warning: file %s, line %d: %s\n", source->scriptstack->filename, source->scriptstack->line, text );
-#endif //MEQCC
-#ifdef BSPC
-	Log_Print( "warning: file %s, line %d: %s\n", source->scriptstack->filename, source->scriptstack->line, text );
-#endif //BSPC
-} //end of the function ScriptWarning
-//============================================================================
-//
-// Parameter:				-
-// Returns:					-
-// Changes Globals:		-
-//============================================================================
+}
+
 void PC_PushIndent( source_t *source, int type, int skip ) {
 	indent_t *indent;
 
@@ -213,18 +159,7 @@ void PC_PushScript( source_t *source, script_t *script ) {
 // Changes Globals:		-
 //============================================================================
 void PC_InitTokenHeap( void ) {
-	/*
-	int i;
-
-	if (tokenheapinitialized) return;
-	freetokens = NULL;
-	for (i = 0; i < TOKEN_HEAP_SIZE; i++)
-	{
-		token_heap[i].next = freetokens;
-		freetokens = &token_heap[i];
-	} //end for
-	tokenheapinitialized = qtrue;
-	*/
+	
 } //end of the function PC_InitTokenHeap
 //============================================================================
 //
@@ -235,42 +170,21 @@ void PC_InitTokenHeap( void ) {
 token_t *PC_CopyToken( token_t *token ) {
 	token_t *t;
 
-//	t = (token_t *) malloc(sizeof(token_t));
 	t = (token_t *) GetMemory( sizeof( token_t ) );
-//	t = freetokens;
 	if ( !t ) {
-#ifdef BSPC
-		Error( "out of token space\n" );
-#else
 		Com_Error( ERR_FATAL, "out of token space\n" );
-#endif
 		return NULL;
 	} //end if
-//	freetokens = freetokens->next;
 	memcpy( t, token, sizeof( token_t ) );
 	t->next = NULL;
 	numtokens++;
 	return t;
-} //end of the function PC_CopyToken
-//============================================================================
-//
-// Parameter:				-
-// Returns:					-
-// Changes Globals:		-
-//============================================================================
+}
 void PC_FreeToken( token_t *token ) {
 	//free(token);
 	FreeMemory( token );
-//	token->next = freetokens;
-//	freetokens = token;
 	numtokens--;
-} //end of the function PC_FreeToken
-//============================================================================
-//
-// Parameter:				-
-// Returns:					-
-// Changes Globals:		-
-//============================================================================
+}
 int PC_ReadSourceToken( source_t *source, token_t *token ) {
 	token_t *t;
 	script_t *script;
@@ -455,25 +369,8 @@ int PC_MergeTokens( token_t *t1, token_t *t2 ) {
 	} //end if
 	  //FIXME: merging of two number of the same sub type
 	return qfalse;
-} //end of the function PC_MergeTokens
-//============================================================================
-//
-// Parameter:				-
-// Returns:					-
-// Changes Globals:		-
-//============================================================================
-/*
-void PC_PrintDefine(define_t *define)
-{
-	printf("define->name = %s\n", define->name);
-	printf("define->flags = %d\n", define->flags);
-	printf("define->builtin = %d\n", define->builtin);
-	printf("define->numparms = %d\n", define->numparms);
-//	token_t *parms;					//define parameters
-//	token_t *tokens;					//macro tokens (possibly containing parm tokens)
-//	struct define_s *next;			//next defined macro in a list
-} //end of the function PC_PrintDefine*/
-#if DEFINEHASHING
+}
+
 //============================================================================
 //
 // Parameter:				-
@@ -509,8 +406,6 @@ int PC_NameHash( char *name ) {
 	for ( i = 0; name[i] != '\0'; i++ )
 	{
 		hash += name[i] * ( 119 + i );
-		//hash += (name[i] << 7) + i;
-		//hash += (name[i] << (i&15));
 	} //end while
 	hash = ( hash ^ ( hash >> 10 ) ^ ( hash >> 20 ) ) & ( DEFINEHASHSIZE - 1 );
 	return hash;
@@ -547,7 +442,7 @@ define_t *PC_FindHashedDefine( define_t **definehash, char *name ) {
 	} //end for
 	return NULL;
 } //end of the function PC_FindHashedDefine
-#endif //DEFINEHASHING
+
 //============================================================================
 //
 // Parameter:				-
@@ -918,9 +813,6 @@ int PC_Directive_include( source_t *source ) {
 	script_t *script;
 	token_t token;
 	char path[_MAX_PATH];
-#ifdef QUAKE
-	foundfile_t file;
-#endif //QUAKE
 
 	if ( source->skip > 0 ) {
 		return qtrue;
@@ -972,23 +864,10 @@ int PC_Directive_include( source_t *source ) {
 		SourceError( source, "#include without file name" );
 		return qfalse;
 	} //end else
-#ifdef QUAKE
+
 	if ( !script ) {
-		memset( &file, 0, sizeof( foundfile_t ) );
-		script = LoadScriptFile( path );
-		if ( script ) {
-			strncpy( script->filename, path, _MAX_PATH );
-		}
-	} //end if
-#endif //QUAKE
-	if ( !script ) {
-#ifdef SCREWUP
-		SourceWarning( source, "file %s not found", path );
-		return qtrue;
-#else
 		SourceError( source, "file %s not found", path );
 		return qfalse;
-#endif //SCREWUP
 	} //end if
 	PC_PushScript( source, script );
 	return qtrue;
@@ -1063,7 +942,6 @@ int PC_Directive_undef( source_t *source ) {
 		SourceError( source, "expected name, found %s", token.string );
 		return qfalse;
 	} //end if
-#if DEFINEHASHING
 
 	hash = PC_NameHash( token.string );
 	for ( lastdefine = NULL, define = source->definehash[hash]; define; define = define->hashnext )
@@ -1083,25 +961,7 @@ int PC_Directive_undef( source_t *source ) {
 		} //end if
 		lastdefine = define;
 	} //end for
-#else //DEFINEHASHING
-	for ( lastdefine = NULL, define = source->defines; define; define = define->next )
-	{
-		if ( !strcmp( define->name, token.string ) ) {
-			if ( define->flags & DEFINE_FIXED ) {
-				SourceWarning( source, "can't undef %s", token.string );
-			} //end if
-			else
-			{
-				if ( lastdefine ) {
-					lastdefine->next = define->next;
-				} else { source->defines = define->next;}
-				PC_FreeDefine( define );
-			} //end else
-			break;
-		} //end if
-		lastdefine = define;
-	} //end for
-#endif //DEFINEHASHING
+
 	return qtrue;
 } //end of the function PC_Directive_undef
 //============================================================================
@@ -1128,11 +988,8 @@ int PC_Directive_define( source_t *source ) {
 		return qfalse;
 	} //end if
 	  //check if the define already exists
-#if DEFINEHASHING
+
 	define = PC_FindHashedDefine( source->definehash, token.string );
-#else
-	define = PC_FindDefine( source->defines, token.string );
-#endif //DEFINEHASHING
 	if ( define ) {
 		if ( define->flags & DEFINE_FIXED ) {
 			SourceError( source, "can't redefine %s", token.string );
@@ -1145,11 +1002,7 @@ int PC_Directive_define( source_t *source ) {
 			return qfalse;
 		}
 		//if the define was not removed (define->flags & DEFINE_FIXED)
-#if DEFINEHASHING
 		define = PC_FindHashedDefine( source->definehash, token.string );
-#else
-		define = PC_FindDefine( source->defines, token.string );
-#endif //DEFINEHASHING
 	} //end if
 	  //allocate define
 	define = (define_t *) GetMemory( sizeof( define_t ) + strlen( token.string ) + 1 );
@@ -1157,12 +1010,7 @@ int PC_Directive_define( source_t *source ) {
 	define->name = (char *) define + sizeof( define_t );
 	strcpy( define->name, token.string );
 	//add the define to the source
-#if DEFINEHASHING
 	PC_AddDefineToHash( define, source->definehash );
-#else //DEFINEHASHING
-	define->next = source->defines;
-	source->defines = define;
-#endif //DEFINEHASHING
 	   //if nothing is defined, just return
 	if ( !PC_ReadLine( source, &token ) ) {
 		return qtrue;
@@ -1264,9 +1112,7 @@ define_t *PC_DefineFromString( char *string ) {
 	memset( &src, 0, sizeof( source_t ) );
 	strncpy( src.filename, "*extern", _MAX_PATH );
 	src.scriptstack = script;
-#if DEFINEHASHING
 	src.definehash = GetClearedMemory( DEFINEHASHSIZE * sizeof( define_t * ) );
-#endif //DEFINEHASHING
 	   //create a define from the source
 	res = PC_Directive_define( &src );
 	//free any tokens if left
@@ -1275,7 +1121,6 @@ define_t *PC_DefineFromString( char *string ) {
 		src.tokens = src.tokens->next;
 		PC_FreeToken( t );
 	} //end for
-#ifdef DEFINEHASHING
 	def = NULL;
 	for ( i = 0; i < DEFINEHASHSIZE; i++ )
 	{
@@ -1284,14 +1129,7 @@ define_t *PC_DefineFromString( char *string ) {
 			break;
 		} //end if
 	} //end for
-#else
-	def = src.defines;
-#endif //DEFINEHASHING
-	   //
-#if DEFINEHASHING
 	FreeMemory( src.definehash );
-#endif //DEFINEHASHING
-	   //
 	FreeScript( script );
 	//if the define was created succesfully
 	if ( res > 0 ) {
@@ -1317,12 +1155,7 @@ int PC_AddDefine( source_t *source, char *string ) {
 	if ( !define ) {
 		return qfalse;
 	}
-#if DEFINEHASHING
 	PC_AddDefineToHash( define, source->definehash );
-#else //DEFINEHASHING
-	define->next = source->defines;
-	source->defines = define;
-#endif //DEFINEHASHING
 	return qtrue;
 } //end of the function PC_AddDefine
 //============================================================================
@@ -1432,12 +1265,7 @@ void PC_AddGlobalDefinesToSource( source_t *source ) {
 	for ( define = globaldefines; define; define = define->next )
 	{
 		newdefine = PC_CopyDefine( source, define );
-#if DEFINEHASHING
 		PC_AddDefineToHash( newdefine, source->definehash );
-#else //DEFINEHASHING
-		newdefine->next = source->defines;
-		source->defines = newdefine;
-#endif //DEFINEHASHING
 	} //end for
 } //end of the function PC_AddGlobalDefinesToSource
 //============================================================================
@@ -1460,11 +1288,7 @@ int PC_Directive_if_def( source_t *source, int type ) {
 		SourceError( source, "expected name after #ifdef, found %s", token.string );
 		return qfalse;
 	} //end if
-#if DEFINEHASHING
 	d = PC_FindHashedDefine( source->definehash, token.string );
-#else
-	d = PC_FindDefine( source->defines, token.string );
-#endif //DEFINEHASHING
 	skip = ( type == INDENT_IFDEF ) == ( d == NULL );
 	PC_PushIndent( source, type, skip );
 	return qtrue;
@@ -1578,12 +1402,7 @@ int PC_OperatorPriority( int op ) {
 	case P_QUESTIONMARK: return 5;
 	} //end switch
 	return qfalse;
-} //end of the function PC_OperatorPriority
-
-//#define AllocValue()			GetClearedMemory(sizeof(value_t));
-//#define FreeValue(val)		FreeMemory(val)
-//#define AllocOperator(op)		op = (operator_t *) GetClearedMemory(sizeof(operator_t));
-//#define FreeOperator(op)		FreeMemory(op);
+} 
 
 #define MAX_VALUES      64
 #define MAX_OPERATORS   64
@@ -1900,21 +1719,7 @@ int PC_EvaluateTokens( source_t *source, token_t *tokens, signed long int *intva
 		}
 		v1 = v;
 		v2 = v->next;
-#ifdef DEBUG_EVAL
-		if ( integer ) {
-			Log_Write( "operator %s, value1 = %d", PunctuationFromNum( source->scriptstack, o->operator ), v1->intvalue );
-			if ( v2 ) {
-				Log_Write( "value2 = %d", v2->intvalue );
-			}
-		} //end if
-		else
-		{
-			Log_Write( "operator %s, value1 = %f", PunctuationFromNum( source->scriptstack, o->operator ), v1->floatvalue );
-			if ( v2 ) {
-				Log_Write( "value2 = %f", v2->floatvalue );
-			}
-		} //end else
-#endif //DEBUG_EVAL
+
 		switch ( o->operator )
 		{
 		case P_LOGIC_NOT:       v1->intvalue = !v1->intvalue;
@@ -2592,64 +2397,6 @@ int PC_ReadDollarDirective( source_t *source ) {
 	return qfalse;
 } //end of the function PC_ReadDirective
 
-#ifdef QUAKEC
-//============================================================================
-//
-// Parameter:				-
-// Returns:					-
-// Changes Globals:		-
-//============================================================================
-int BuiltinFunction( source_t *source ) {
-	token_t token;
-
-	if ( !PC_ReadSourceToken( source, &token ) ) {
-		return qfalse;
-	}
-	if ( token.type == TT_NUMBER ) {
-		PC_UnreadSourceToken( source, &token );
-		return qtrue;
-	} //end if
-	else
-	{
-		PC_UnreadSourceToken( source, &token );
-		return qfalse;
-	} //end else
-} //end of the function BuiltinFunction
-//============================================================================
-//
-// Parameter:				-
-// Returns:					-
-// Changes Globals:		-
-//============================================================================
-int QuakeCMacro( source_t *source ) {
-	int i;
-	token_t token;
-
-	if ( !PC_ReadSourceToken( source, &token ) ) {
-		return qtrue;
-	}
-	if ( token.type != TT_NAME ) {
-		PC_UnreadSourceToken( source, &token );
-		return qtrue;
-	} //end if
-	  //find the precompiler directive
-	for ( i = 0; dollardirectives[i].name; i++ )
-	{
-		if ( !strcmp( dollardirectives[i].name, token.string ) ) {
-			PC_UnreadSourceToken( source, &token );
-			return qfalse;
-		} //end if
-	} //end for
-	PC_UnreadSourceToken( source, &token );
-	return qtrue;
-} //end of the function QuakeCMacro
-#endif //QUAKEC
-//============================================================================
-//
-// Parameter:				-
-// Returns:					-
-// Changes Globals:		-
-//============================================================================
 int PC_ReadToken( source_t *source, token_t *token ) {
 	define_t *define;
 
@@ -2876,13 +2623,8 @@ int PC_CheckTokenType( source_t *source, int type, int subtype, token_t *token )
 	  //
 	PC_UnreadSourceToken( source, &tok );
 	return qfalse;
-} //end of the function PC_CheckTokenType
-//============================================================================
-//
-// Parameter:				-
-// Returns:					-
-// Changes Globals:		-
-//============================================================================
+}
+
 int PC_SkipUntilString( source_t *source, char *string ) {
 	token_t token;
 
@@ -2902,22 +2644,12 @@ int PC_SkipUntilString( source_t *source, char *string ) {
 //============================================================================
 void PC_UnreadLastToken( source_t *source ) {
 	PC_UnreadSourceToken( source, &source->token );
-} //end of the function PC_UnreadLastToken
-//============================================================================
-//
-// Parameter:				-
-// Returns:					-
-// Changes Globals:		-
-//============================================================================
+}
+
 void PC_UnreadToken( source_t *source, token_t *token ) {
 	PC_UnreadSourceToken( source, token );
-} //end of the function PC_UnreadToken
-//============================================================================
-//
-// Parameter:				-
-// Returns:					-
-// Changes Globals:		-
-//============================================================================
+}
+
 void PC_SetIncludePath( source_t *source, char *path ) {
 	strncpy( source->includepath, path, _MAX_PATH );
 	//add trailing path seperator
@@ -2925,22 +2657,12 @@ void PC_SetIncludePath( source_t *source, char *path ) {
 		 source->includepath[strlen( source->includepath ) - 1] != '/' ) {
 		strcat( source->includepath, PATHSEPERATOR_STR );
 	} //end if
-} //end of the function PC_SetIncludePath
-//============================================================================
-//
-// Parameter:				-
-// Returns:					-
-// Changes Globals:		-
-//============================================================================
+}
+
 void PC_SetPunctuations( source_t *source, punctuation_t *p ) {
 	source->punctuations = p;
-} //end of the function PC_SetPunctuations
-//============================================================================
-//
-// Parameter:			-
-// Returns:				-
-// Changes Globals:		-
-//============================================================================
+}
+
 source_t *LoadSourceFile( const char *filename ) {
 	source_t *source;
 	script_t *script;
@@ -2970,46 +2692,8 @@ source_t *LoadSourceFile( const char *filename ) {
 	PC_AddGlobalDefinesToSource( source );
 	return source;
 } //end of the function LoadSourceFile
-//============================================================================
-//
-// Parameter:				-
-// Returns:					-
-// Changes Globals:		-
-//============================================================================
-source_t *LoadSourceMemory( char *ptr, int length, char *name ) {
-	source_t *source;
-	script_t *script;
 
-	PC_InitTokenHeap();
 
-	script = LoadScriptMemory( ptr, length, name );
-	if ( !script ) {
-		return NULL;
-	}
-	script->next = NULL;
-
-	source = (source_t *) GetMemory( sizeof( source_t ) );
-	memset( source, 0, sizeof( source_t ) );
-
-	strncpy( source->filename, name, _MAX_PATH );
-	source->scriptstack = script;
-	source->tokens = NULL;
-	source->defines = NULL;
-	source->indentstack = NULL;
-	source->skip = 0;
-
-#if DEFINEHASHING
-	source->definehash = GetClearedMemory( DEFINEHASHSIZE * sizeof( define_t * ) );
-#endif //DEFINEHASHING
-	PC_AddGlobalDefinesToSource( source );
-	return source;
-} //end of the function LoadSourceMemory
-//============================================================================
-//
-// Parameter:				-
-// Returns:					-
-// Changes Globals:		-
-//============================================================================
 void FreeSource( source_t *source ) {
 	script_t *script;
 	token_t *token;
@@ -3175,22 +2859,15 @@ int PC_SourceFileAndLine( int handle, char *filename, int *line ) {
 //============================================================================
 void PC_SetBaseFolder( char *path ) {
 	PS_SetBaseFolder( path );
-} //end of the function PC_SetBaseFolder
-//============================================================================
-//
-// Parameter:			-
-// Returns:				-
-// Changes Globals:		-
-//============================================================================
+}
+
 void PC_CheckOpenSourceHandles( void ) {
 	int i;
 
 	for ( i = 1; i < MAX_SOURCEFILES; i++ )
 	{
 		if ( sourceFiles[i] ) {
-#ifdef BOTLIB
 			BotImport_Print( PRT_ERROR, "file %s still open in precompiler\n", sourceFiles[i]->scriptstack->filename );
-#endif  //BOTLIB
 		} //end if
 	} //end for
-} //end of the function PC_CheckOpenSourceHandles
+}
