@@ -29,7 +29,7 @@ If you have questions concerning this license or the applicable additional terms
 // cg_marks.c -- wall marks
 
 #include "cg_local.h"
-#include "../renderer/tr_local.h"
+#include "../renderer/tr_public.h"
 
 /*
 ===================================================================

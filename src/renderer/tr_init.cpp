@@ -454,7 +454,7 @@ void R_TakeScreenshot( int x, int y, int width, int height, char *fileName ) {
 	byte        *buffer;
 	int i, c, temp;
 
-	buffer = Hunk_AllocateTempMemory( glConfig.vidWidth * glConfig.vidHeight * 3 + 18 );
+	buffer = (byte *)Hunk_AllocateTempMemory( glConfig.vidWidth * glConfig.vidHeight * 3 + 18 );
 
 	memset( buffer, 0, 18 );
 	buffer[2] = 2;      // uncompressed type
@@ -561,11 +561,11 @@ void R_LevelShot( void ) {
 	float xScale, yScale;
 	int xx, yy;
 
-	sprintf( checkname, "levelshots/%s.tga", tr.world->baseName );
+	snprintf( checkname, MAX_OSPATH, "levelshots/%s.tga", tr.world->baseName );
 
-	source = Hunk_AllocateTempMemory( glConfig.vidWidth * glConfig.vidHeight * 3 );
+	source = (byte *)Hunk_AllocateTempMemory( glConfig.vidWidth * glConfig.vidHeight * 3 );
 
-	buffer = Hunk_AllocateTempMemory( 128 * 128 * 3 + 18 );
+	buffer = (byte *)Hunk_AllocateTempMemory( 128 * 128 * 3 + 18 );
 	memset( buffer, 0, 18 );
 	buffer[2] = 2;      // uncompressed type
 	buffer[12] = 128;
@@ -1205,11 +1205,11 @@ void R_Init( void ) {
 	}
 
 //	backEndData[0] = ri.Hunk_Alloc( sizeof( *backEndData[0] ), h_low );
-	backEndData[0] = ri.Hunk_Alloc( sizeof( *backEndData[0] ) + sizeof( srfPoly_t ) * max_polys + sizeof( polyVert_t ) * max_polyverts, h_low );
+	backEndData[0] = (backEndData_t *)ri.Hunk_Alloc( sizeof( *backEndData[0] ) + sizeof( srfPoly_t ) * max_polys + sizeof( polyVert_t ) * max_polyverts, h_low );
 
 	if ( r_smp->integer ) {
 //		backEndData[1] = ri.Hunk_Alloc( sizeof( *backEndData[1] ), h_low );
-		backEndData[1] = ri.Hunk_Alloc( sizeof( *backEndData[1] ) + sizeof( srfPoly_t ) * max_polys + sizeof( polyVert_t ) * max_polyverts, h_low );
+		backEndData[1] = (backEndData_t *)ri.Hunk_Alloc( sizeof( *backEndData[1] ) + sizeof( srfPoly_t ) * max_polys + sizeof( polyVert_t ) * max_polyverts, h_low );
 	} else {
 		backEndData[1] = NULL;
 	}

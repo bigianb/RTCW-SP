@@ -595,12 +595,12 @@ static void CG_LoadPickupNames( void ) {
 		}
 		if ( !Q_stricmp( token, "---" ) ) {   // no name.  use hardcoded value
 			if ( bg_itemlist[i].pickup_name && strlen( bg_itemlist[i].pickup_name ) ) {
-				snprintf( cgs.itemPrintNames[i], MAX_QPATH, bg_itemlist[ i ].pickup_name );
+				strncpy( cgs.itemPrintNames[i], bg_itemlist[ i ].pickup_name, MAX_QPATH );
 			} else {
 				cgs.itemPrintNames[i][0] = 0;
 			}
 		} else {
-			snprintf( cgs.itemPrintNames[i], MAX_QPATH, token );
+			strncpy( cgs.itemPrintNames[i], token, MAX_QPATH );
 		}
 	}
 }

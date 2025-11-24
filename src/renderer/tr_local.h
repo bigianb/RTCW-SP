@@ -65,7 +65,7 @@ typedef struct {
 
 	float axisLength;           // compensate for non-normalized axis
 
-	qboolean needDlights;       // true for bmodels that touch a dlight
+	unsigned int needDlights;       // true for bmodels that touch a dlight
 	qboolean lightingCalculated;
 	vec3_t lightDir;            // normalized direction towards light
 	vec3_t ambientLight;        // color normalized to 0-255
@@ -808,8 +808,7 @@ typedef struct model_s {
 
 void        R_ModelInit( void );
 model_t     *R_GetModelByHandle( qhandle_t hModel );
-int         R_LerpTag( orientation_t *tag, const refEntity_t *refent, const char *tagName, int startIndex );
-void        R_ModelBounds( qhandle_t handle, vec3_t mins, vec3_t maxs );
+
 
 void        R_Modellist_f( void );
 
@@ -1300,30 +1299,27 @@ void    RE_UploadCinematic( int w, int h, int cols, int rows, const byte *data, 
 
 void        RE_BeginFrame( stereoFrame_t stereoFrame );
 void        RE_BeginRegistration( glconfig_t *glconfig );
-void        RE_LoadWorldMap( const char *mapname );
+
 void        RE_SetWorldVisData( const byte *vis );
-qhandle_t   RE_RegisterModel( const char *name );
-qhandle_t   RE_RegisterSkin( const char *name );
+
+
 void        RE_Shutdown( qboolean destroyWindow );
 
 qboolean    R_GetEntityToken( char *buffer, int size );
 
-//----(SA)
-qboolean    RE_GetSkinModel( qhandle_t skinid, const char *type, char *name );
-qhandle_t   RE_GetShaderFromModel( qhandle_t modelid, int surfnum, int withlightmap );    //----(SA)
-//----(SA) end
+
 
 model_t     *R_AllocModel( void );
 
 void        R_Init( void );
-image_t     *R_FindImageFile( const char *name, qboolean mipmap, qboolean allowPicmip, int glWrapClampMode );
-image_t     *R_FindImageFileExt( const char *name, qboolean mipmap, qboolean allowPicmip, qboolean characterMip, int glWrapClampMode ); //----(SA)	added
+image_t     *R_FindImageFile( const char *name, bool mipmap, bool allowPicmip, int glWrapClampMode );
+image_t     *R_FindImageFileExt( const char *name, bool mipmap, bool allowPicmip, bool characterMip, int glWrapClampMode ); //----(SA)	added
 
 image_t     *R_CreateImage( const char *name, const byte *pic, int width, int height, qboolean mipmap
 							, qboolean allowPicmip, int wrapClampMode );
 //----(SA)	added (didn't want to modify all instances of R_CreateImage()
-image_t     *R_CreateImageExt( const char *name, const byte *pic, int width, int height, qboolean mipmap
-							   , qboolean allowPicmip, qboolean characterMip, int wrapClampMode );
+image_t     *R_CreateImageExt( const char *name, const byte *pic, int width, int height, bool mipmap
+							   , bool allowPicmip, bool characterMip, int wrapClampMode );
 //----(SA)	end
 qboolean    R_GetModeInfo( int *width, int *height, float *windowAspect, int mode );
 
@@ -1348,7 +1344,7 @@ skin_t  *R_GetSkinByHandle( qhandle_t hSkin );
 // tr_shader.c
 //
 qhandle_t        RE_RegisterShaderLightMap( const char *name, int lightmapIndex );
-qhandle_t        RE_RegisterShader( const char *name );
+
 qhandle_t        RE_RegisterShaderNoMip( const char *name );
 qhandle_t RE_RegisterShaderFromImage( const char *name, int lightmapIndex, image_t *image, qboolean mipRawImage );
 
@@ -1358,7 +1354,6 @@ shader_t    *R_GetShaderByState( int index, long *cycleTime );
 shader_t *R_FindShaderByName( const char *name );
 void        R_InitShaders( void );
 void        R_ShaderList_f( void );
-void    R_RemapShader( const char *oldShader, const char *newShader, const char *timeOffset );
 
 /*
 ====================================================================
@@ -1367,6 +1362,12 @@ IMPLEMENTATION SPECIFIC FUNCTIONS
 
 ====================================================================
 */
+
+#define R_MDC_DecodeXyzCompressed( ofsVec, out, normal ) \
+	( out )[0] = ( (float)( ( ofsVec ) & 255 ) - MDC_MAX_OFS ) * MDC_DIST_SCALE; \
+	( out )[1] = ( (float)( ( ofsVec >> 8 ) & 255 ) - MDC_MAX_OFS ) * MDC_DIST_SCALE; \
+	( out )[2] = ( (float)( ( ofsVec >> 16 ) & 255 ) - MDC_MAX_OFS ) * MDC_DIST_SCALE; \
+	VectorCopy( ( r_anormals )[( ofsVec >> 24 )], normal );
 
 void        GLimp_Init( qboolean fixedFunction );
 void        GLimp_Shutdown( void );
@@ -1377,7 +1378,7 @@ void        *GLimp_RendererSleep( void );
 void        GLimp_FrontEndSleep( void );
 void        GLimp_WakeRenderer( void *data );
 
-void        GLimp_LogComment( char *comment );
+void        GLimp_LogComment(const char *comment );
 
 void GLimp_SetGamma( unsigned char red[256],
 					 unsigned char green[256],
@@ -1421,7 +1422,7 @@ typedef struct shaderCommands_s
 	int numIndexes;
 	int numVertexes;
 
-	qboolean ATI_tess;
+	bool ATI_tess;
 
 	// info extracted from current shader
 	int numPasses;
@@ -1530,16 +1531,6 @@ srfGridMesh_t *R_GridInsertColumn( srfGridMesh_t *grid, int column, int row, vec
 srfGridMesh_t *R_GridInsertRow( srfGridMesh_t *grid, int row, int column, vec3_t point, float loderror );
 void R_FreeSurfaceGridMesh( srfGridMesh_t *grid );
 
-/*
-============================================================
-
-MARKERS, POLYGON PROJECTION ON WORLD POLYGONS
-
-============================================================
-*/
-
-int R_MarkFragments( int orientation, const vec3_t *points, const vec3_t projection,
-					 int maxPoints, vec3_t pointBuffer, int maxFragments, markFragment_t *fragmentBuffer );
 
 
 /*
@@ -1552,19 +1543,6 @@ SCENE GENERATION
 
 void R_ToggleSmpFrame( void );
 
-void RE_ClearScene( void );
-void RE_AddRefEntityToScene( const refEntity_t *ent );
-void RE_AddPolyToScene( qhandle_t hShader, int numVerts, const polyVert_t *verts );
-// Ridah
-void RE_AddPolysToScene( qhandle_t hShader, int numVerts, const polyVert_t *verts, int numPolys );
-// done.
-// Ridah
-void RE_AddLightToScene( const vec3_t org, float intensity, float r, float g, float b, unsigned int overdraw );
-// done.
-//----(SA)
-void RE_AddCoronaToScene( const vec3_t org, float r, float g, float b, float scale, int id, int flags );
-//----(SA)
-void RE_RenderScene( const refdef_t *fd );
 
 /*
 =============================================================
@@ -1612,7 +1590,7 @@ void    RB_CalcSpecularAlpha( unsigned char *alphas );
 void    RB_CalcDiffuseColor( unsigned char *colors );
 
 void    RB_ZombieFXInit( void );
-void    RB_ZombieFXAddNewHit( int entityNum, const vec3_t hitPos, const vec3_t hitDir );
+
 
 
 /*
@@ -1745,17 +1723,13 @@ void R_SyncRenderThread( void );
 void R_AddDrawSurfCmd( drawSurf_t *drawSurfs, int numDrawSurfs );
 
 void RE_SetColor( const float *rgba );
-void RE_StretchPic( float x, float y, float w, float h,
-					float s1, float t1, float s2, float t2, qhandle_t hShader );
-void RE_StretchPicGradient( float x, float y, float w, float h,
-							float s1, float t1, float s2, float t2, qhandle_t hShader, const float *gradientColor, int gradientType );
+
 void RE_BeginFrame( stereoFrame_t stereoFrame );
 void RE_EndFrame( int *frontEndMsec, int *backEndMsec );
 
 // font stuff
 void R_InitFreeType();
 void R_DoneFreeType();
-void RE_RegisterFont( const char *fontName, int pointSize, fontInfo_t *font );
 
 // Ridah, caching system
 // NOTE: to disable this for development, set "r_cache 0" in autoexec.cfg
@@ -1804,15 +1778,6 @@ extern float r_anormals[NUMMDCVERTEXNORMALS][3];
 
 #define MDC_MAX_DIST        ( MDC_MAX_OFS * MDC_DIST_SCALE )
 
-#if 0
-void R_MDC_DecodeXyzCompressed( mdcXyzCompressed_t *xyzComp, vec3_t out, vec3_t normal );
-#else   // optimized version
-#define R_MDC_DecodeXyzCompressed( ofsVec, out, normal ) \
-	( out )[0] = ( (float)( ( ofsVec ) & 255 ) - MDC_MAX_OFS ) * MDC_DIST_SCALE; \
-	( out )[1] = ( (float)( ( ofsVec >> 8 ) & 255 ) - MDC_MAX_OFS ) * MDC_DIST_SCALE; \
-	( out )[2] = ( (float)( ( ofsVec >> 16 ) & 255 ) - MDC_MAX_OFS ) * MDC_DIST_SCALE; \
-	VectorCopy( ( r_anormals )[( ofsVec >> 24 )], normal );
-#endif
 
 void R_AddMDCSurfaces( trRefEntity_t *ent );
 // done.
@@ -1837,8 +1802,6 @@ extern qboolean fogIsOn;
 
 extern void         R_FogOff( void );
 extern void         R_FogOn( void );
-
-extern void R_SetFog( int fogvar, int var1, int var2, float r, float g, float b, float density );
 
 extern int skyboxportal;
 extern int drawskyboxportal;

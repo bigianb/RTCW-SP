@@ -563,7 +563,7 @@ static void DrawSkyBoxInner( shader_t *shader ) {
 
 }
 
-static void FillCloudySkySide( const int mins[2], const int maxs[2], qboolean addIndexes ) {
+static void FillCloudySkySide( const int mins[2], const int maxs[2], bool addIndexes ) {
 	int s, t;
 	int vertexStart = tess.numVertexes;
 	int tHeight, sWidth;

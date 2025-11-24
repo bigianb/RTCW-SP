@@ -26,12 +26,54 @@ If you have questions concerning this license or the applicable additional terms
 ===========================================================================
 */
 
-#ifndef __TR_PUBLIC_H
-#define __TR_PUBLIC_H
+#pragma once
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 #include "../cgame/tr_types.h"
 
 #define REF_API_VERSION     8
+
+/*
+============================================================
+
+MARKERS, POLYGON PROJECTION ON WORLD POLYGONS
+
+============================================================
+*/
+
+int R_MarkFragments( int orientation, const vec3_t *points, const vec3_t projection,
+					 int maxPoints, vec3_t pointBuffer, int maxFragments, markFragment_t *fragmentBuffer );
+
+void        RE_LoadWorldMap( const char *mapname );
+qhandle_t   RE_RegisterModel( const char *name );
+
+qboolean    RE_GetSkinModel( qhandle_t skinid, const char *type, char *name );
+qhandle_t   RE_GetShaderFromModel( qhandle_t modelid, int surfnum, int withlightmap );    //----(SA)
+qhandle_t   RE_RegisterSkin( const char *name );
+qhandle_t   RE_RegisterShader( const char *name );
+void RE_RegisterFont( const char *fontName, int pointSize, fontInfo_t *font );
+void RE_ClearScene( void );
+void RE_AddRefEntityToScene( const refEntity_t *ent );
+void RE_AddPolyToScene( qhandle_t hShader, int numVerts, const polyVert_t *verts );
+void RE_AddPolysToScene( qhandle_t hShader, int numVerts, const polyVert_t *verts, int numPolys );
+void RB_ZombieFXAddNewHit( int entityNum, const vec3_t hitPos, const vec3_t hitDir );
+void RE_AddLightToScene( const vec3_t org, float intensity, float r, float g, float b, unsigned int overdraw );
+void RE_AddCoronaToScene( const vec3_t org, float r, float g, float b, float scale, int id, int flags );
+
+void R_SetFog( int fogvar, int var1, int var2, float r, float g, float b, float density );
+void RE_RenderScene( const refdef_t *fd );
+
+void RE_StretchPic( float x, float y, float w, float h,
+					float s1, float t1, float s2, float t2, qhandle_t hShader );
+void RE_StretchPicGradient( float x, float y, float w, float h,
+							float s1, float t1, float s2, float t2, qhandle_t hShader, const float *gradientColor, int gradientType );
+
+int         R_LerpTag( orientation_t *tag, const refEntity_t *refent, const char *tagName, int startIndex );
+void        R_ModelBounds( qhandle_t handle, vec3_t mins, vec3_t maxs );
+void    R_RemapShader( const char *oldShader, const char *newShader, const char *timeOffset );
+
 
 //
 // these are the functions exported by the refresh module
@@ -159,4 +201,6 @@ typedef struct {
 // returned.
 refexport_t*GetRefAPI( int apiVersion, refimport_t *rimp );
 
-#endif  // __TR_PUBLIC_H
+#ifdef __cplusplus
+}
+#endif

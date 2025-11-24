@@ -586,7 +586,7 @@ extern vec_t VectorLengthSquared( const vec3_t v );
 #define ZOMBIEFX_PERHIT_TAKEALPHA       150
 #define ZOMBIEFX_MAX_HITS_PER_VERT      2
 
-static char *zombieFxFleshHitSurfaceNames[2] = {"u_body","l_legs"};
+static const char *zombieFxFleshHitSurfaceNames[2] = {"u_body","l_legs"};
 
 // this stores each of the flesh hits for each of the zombies in the game
 typedef struct {
@@ -1545,7 +1545,7 @@ const void  *RB_SwapBuffers( const void *data ) {
 		long sum = 0;
 		unsigned char *stencilReadback;
 
-		stencilReadback = Hunk_AllocateTempMemory( glConfig.vidWidth * glConfig.vidHeight );
+		stencilReadback = (unsigned char *)Hunk_AllocateTempMemory( glConfig.vidWidth * glConfig.vidHeight );
 		qglReadPixels( 0, 0, glConfig.vidWidth, glConfig.vidHeight, GL_STENCIL_INDEX, GL_UNSIGNED_BYTE, stencilReadback );
 
 		for ( i = 0; i < glConfig.vidWidth * glConfig.vidHeight; i++ ) {

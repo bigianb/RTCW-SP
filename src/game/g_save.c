@@ -1041,7 +1041,7 @@ qboolean G_SaveGame( char *username )
 	// write the mapname
     vmCvar_t mapname;
 	Cvar_Register( &mapname, "mapname", "", CVAR_SERVERINFO | CVAR_ROM );
-	snprintf( mapstr, MAX_QPATH, mapname.string );
+	strncpy( mapstr, mapname.string, MAX_QPATH );
 	if ( !G_SaveWrite( mapstr, MAX_QPATH, f ) ) {
 		G_SaveWriteError();
 	}

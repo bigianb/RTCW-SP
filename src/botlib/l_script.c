@@ -1340,5 +1340,5 @@ void FreeScript( script_t *script ) {
 	
 void PS_SetBaseFolder( char *path ) {
 
-	snprintf( basefolder, sizeof( basefolder ), path );
+	strncpy( basefolder, path, sizeof( basefolder ) );
 }

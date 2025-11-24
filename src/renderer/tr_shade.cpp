@@ -331,7 +331,7 @@ void RB_BeginSurface( shader_t *shader, int fogNum ) {
 
 	shader_t *state = ( shader->remappedShader ) ? shader->remappedShader : shader;
 
-	tess.ATI_tess = qfalse;     //----(SA)	added
+	tess.ATI_tess = false;     //----(SA)	added
 	tess.numIndexes = 0;
 	tess.numVertexes = 0;
 	tess.shader = state;

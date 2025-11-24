@@ -419,7 +419,7 @@ static void CG_SoundLoadSoundFiles( void ) {
 		if ( !token[0] ) {
 			break;
 		}
-		snprintf( soundFiles[numSounds++], MAX_QPATH, token );
+		strncpy( soundFiles[numSounds++], token, MAX_QPATH );
 	}
 
 	if ( !numSounds ) {

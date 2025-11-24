@@ -917,7 +917,7 @@ static void LerpCMeshVertexes( mdcSurface_t *surf, float backlerp ) {
 	mdcXyzCompressed_t *oldXyzComp = NULL, *newXyzComp = NULL; // TTimo: init
 	vec3_t oldOfsVec, newOfsVec;
 
-	qboolean hasComp;
+	bool hasComp;
 
 	outXyz = tess.xyz[tess.numVertexes];
 	outNormal = tess.normal[tess.numVertexes];

@@ -49,8 +49,41 @@ file(GLOB QCOMMON_INCLUDES src/qcommon/*.h)
 file(GLOB QCOMMON_SOURCES RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} src/qcommon/*.c)
 list(REMOVE_ITEM QCOMMON_SOURCES src/qcommon/vm_x86.c)
 
-file(GLOB RENDERER_INCLUDES src/renderer/*.h)
-file(GLOB RENDERER_SOURCES src/renderer/*.c)
+set(RENDERER_INCLUDES
+	src/renderer/anorms256.h
+	src/renderer/qgl_linked.h
+	src/renderer/qgl.h
+	src/renderer/tr_local.h
+	src/renderer/tr_public.h
+)
+
+set(RENDERER_SOURCES
+	src/renderer/tr_animation.cpp
+	src/renderer/tr_backend.cpp
+	src/renderer/tr_bsp.cpp
+	src/renderer/tr_cmds.cpp
+	src/renderer/tr_cmesh.cpp
+	src/renderer/tr_curve.cpp
+	src/renderer/tr_flares.cpp
+	src/renderer/tr_font.cpp
+	src/renderer/tr_image.cpp
+	src/renderer/tr_init.cpp
+	src/renderer/tr_light.cpp
+	src/renderer/tr_local_null.cpp
+	src/renderer/tr_main.cpp
+	src/renderer/tr_marks.cpp
+	src/renderer/tr_mesh.cpp
+	src/renderer/tr_model.cpp
+	src/renderer/tr_noise.cpp
+	src/renderer/tr_scene.cpp
+	src/renderer/tr_shade_calc.cpp
+	src/renderer/tr_shade.cpp
+	src/renderer/tr_shader.cpp
+	src/renderer/tr_shadows.cpp
+	src/renderer/tr_sky.cpp
+	src/renderer/tr_surface.cpp
+	src/renderer/tr_world.cpp
+)
 
 set(SERVER_INCLUDES 
 	src/server/server.h
@@ -83,7 +116,7 @@ set(UI_SOURCES
 	src/ui/ui_shared.cpp
 )
 
-set(SDL_INCLUDES src/sdl/sdl_icon.h)
+set(SDL_INCLUDES )
 set(SDL_SOURCES
 	src/sdl/sdl_gamma.cpp
 	src/sdl/sdl_glimp.cpp

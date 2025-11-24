@@ -236,13 +236,13 @@ void R_SetFog( int fogvar, int var1, int var2, float r, float g, float b, float 
 		if ( density >= 1 ) {
 			glfogsettings[fogvar].mode          = GL_LINEAR;
 			glfogsettings[fogvar].drawsky       = qfalse;
-			glfogsettings[fogvar].clearscreen   = qtrue;
+			glfogsettings[fogvar].clearscreen   = 1;
 			glfogsettings[fogvar].density       = 1.0;
 		} else
 		{
 			glfogsettings[fogvar].mode          = GL_EXP;
 			glfogsettings[fogvar].drawsky       = qtrue;
-			glfogsettings[fogvar].clearscreen   = qfalse;
+			glfogsettings[fogvar].clearscreen   = 0;
 			glfogsettings[fogvar].density       = density;
 		}
 		glfogsettings[fogvar].hint          = GL_DONT_CARE;
@@ -278,7 +278,7 @@ void R_SetFog( int fogvar, int var1, int var2, float r, float g, float b, float 
 	}
 
 
-	glfogNum = var1;
+	glfogNum = (glfogType_t)var1;
 
 	// transitioning to new fog, store the current values as the 'from'
 
@@ -1522,7 +1522,7 @@ void R_AddEntitySurfaces( void ) {
 		  tr.currentEntityNum++ ) {
 		ent = tr.currentEntity = &tr.refdef.entities[tr.currentEntityNum];
 
-		ent->needDlights = qfalse;
+		ent->needDlights = 0;
 
 		// preshift the value we are going to OR into the drawsurf sort
 		tr.shiftedEntityNum = tr.currentEntityNum << QSORT_ENTITYNUM_SHIFT;

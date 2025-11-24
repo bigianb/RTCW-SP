@@ -116,7 +116,7 @@ void R_GammaCorrect( byte *buffer, int bufSize ) {
 }
 
 typedef struct {
-	char *name;
+	const char *name;
 	int minimize, maximize;
 } textureMode_t;
 
@@ -354,7 +354,7 @@ Scale up the pixel values in a texture to increase the
 lighting range
 ================
 */
-void R_LightScaleTexture( unsigned *in, int inwidth, int inheight, qboolean only_gamma ) {
+void R_LightScaleTexture( unsigned *in, int inwidth, int inheight, bool only_gamma ) {
 	if ( only_gamma ) {
 		if ( !glConfig.deviceSupportsGamma ) {
 			int i, c;
@@ -417,7 +417,7 @@ static void R_MipMap2( unsigned *in, int inWidth, int inHeight ) {
 
 	outWidth = inWidth >> 1;
 	outHeight = inHeight >> 1;
-	temp = Hunk_AllocateTempMemory( outWidth * outHeight * 4 );
+	temp = (unsigned *)Hunk_AllocateTempMemory( outWidth * outHeight * 4 );
 
 	inWidthMask = inWidth - 1;
 	inHeightMask = inHeight - 1;
@@ -602,13 +602,13 @@ Upload32
 */
 static void Upload32(   unsigned *data,
 						int width, int height,
-						qboolean mipmap,
-						qboolean picmip,
-						qboolean characterMip,  //----(SA)	added
-						qboolean lightMap,
+						bool mipmap,
+						bool picmip,
+						bool characterMip,  //----(SA)	added
+						bool lightMap,
 						int *format,
 						int *pUploadWidth, int *pUploadHeight,
-						qboolean noCompress ) {
+						bool noCompress ) {
 	int samples;
 	int scaled_width, scaled_height;
 	unsigned    *scaledBuffer = NULL;
@@ -624,7 +624,7 @@ static void Upload32(   unsigned *data,
 	if ( r_rmse->value ) {
 		while ( R_RMSE( (byte *)data, width, height ) < r_rmse->value ) {
 			rmse_saved += ( height * width * 4 ) - ( ( width >> 1 ) * ( height >> 1 ) * 4 );
-			resampledBuffer = R_GetImageBuffer( ( width >> 1 ) * ( height >> 1 ) * 4, BUFFER_RESAMPLED );
+			resampledBuffer = (unsigned *)R_GetImageBuffer( ( width >> 1 ) * ( height >> 1 ) * 4, BUFFER_RESAMPLED );
 			ResampleTexture( data, width, height, resampledBuffer, width >> 1, height >> 1 );
 			data = resampledBuffer;
 			width = width >> 1;
@@ -635,7 +635,7 @@ static void Upload32(   unsigned *data,
 		// just do the RMSE of 1 (reduce perfect)
 		while ( R_RMSE( (byte *)data, width, height ) < 1.0 ) {
 			rmse_saved += ( height * width * 4 ) - ( ( width >> 1 ) * ( height >> 1 ) * 4 );
-			resampledBuffer = R_GetImageBuffer( ( width >> 1 ) * ( height >> 1 ) * 4, BUFFER_RESAMPLED );
+			resampledBuffer = (unsigned *)R_GetImageBuffer( ( width >> 1 ) * ( height >> 1 ) * 4, BUFFER_RESAMPLED );
 			ResampleTexture( data, width, height, resampledBuffer, width >> 1, height >> 1 );
 			data = resampledBuffer;
 			width = width >> 1;
@@ -658,7 +658,7 @@ static void Upload32(   unsigned *data,
 	}
 
 	if ( scaled_width != width || scaled_height != height ) {
-		resampledBuffer = R_GetImageBuffer( scaled_width * scaled_height * 4, BUFFER_RESAMPLED );
+		resampledBuffer = (unsigned *)R_GetImageBuffer( scaled_width * scaled_height * 4, BUFFER_RESAMPLED );
 		ResampleTexture( data, width, height, resampledBuffer, scaled_width, scaled_height );
 		data = resampledBuffer;
 		width = scaled_width;
@@ -705,7 +705,7 @@ static void Upload32(   unsigned *data,
 
 		ri.Printf( PRINT_ALL, "r_lowMemTextureSize forcing reduction from %i x %i to %i x %i\n", width, height, scaled_width, scaled_height );
 
-		resampledBuffer = R_GetImageBuffer( scaled_width * scaled_height * 4, BUFFER_RESAMPLED );
+		resampledBuffer = (unsigned *)R_GetImageBuffer( scaled_width * scaled_height * 4, BUFFER_RESAMPLED );
 		ResampleTexture( data, width, height, resampledBuffer, scaled_width, scaled_height );
 		data = resampledBuffer;
 		width = scaled_width;
@@ -724,7 +724,7 @@ static void Upload32(   unsigned *data,
 		scaled_height = 1;
 	}
 
-	scaledBuffer = R_GetImageBuffer( sizeof( unsigned ) * scaled_width * scaled_height, BUFFER_SCALED );
+	scaledBuffer = (unsigned *)R_GetImageBuffer( sizeof( unsigned ) * scaled_width * scaled_height, BUFFER_SCALED );
 
 	//
 	// scan the texture for each channel's max values
@@ -873,11 +873,11 @@ This is the only way any image_t are created
 ================
 */
 image_t *R_CreateImageExt( const char *name, const byte *pic, int width, int height,
-						   qboolean mipmap, qboolean allowPicmip, qboolean characterMip, int glWrapClampMode ) {
+						   bool mipmap, bool allowPicmip, bool characterMip, int glWrapClampMode ) {
 	image_t     *image;
-	qboolean isLightmap = qfalse;
+	bool isLightmap = false;
 	long hash;
-	qboolean noCompress = qfalse;
+	bool noCompress = false;
 
 	if ( strlen( name ) >= MAX_QPATH ) {
 		ri.Error( ERR_DROP, "R_CreateImage: \"%s\" is too long\n", name );
@@ -906,7 +906,7 @@ image_t *R_CreateImageExt( const char *name, const byte *pic, int width, int hei
 	}
 
 	// Ridah
-	image = tr.images[tr.numImages] = R_CacheImageAlloc( sizeof( image_t ) );
+	image = tr.images[tr.numImages] = (image_t *)R_CacheImageAlloc( sizeof( image_t ) );
 
 	image->texnum = 1024 + tr.numImages;
 
@@ -918,8 +918,8 @@ image_t *R_CreateImageExt( const char *name, const byte *pic, int width, int hei
 
 	tr.numImages++;
 
-	image->mipmap = mipmap;
-	image->allowPicmip = allowPicmip;
+	image->mipmap = mipmap ? qtrue : qfalse;
+	image->allowPicmip = allowPicmip ? qtrue : qfalse;
 
 	strcpy( image->imgName, name );
 
@@ -1094,7 +1094,7 @@ static void LoadBMP( const char *name, byte **pic, int *width, int *height ) {
 		*height = rows;
 	}
 
-	bmpRGBA = R_GetImageBuffer( numPixels * 4, BUFFER_IMAGE );
+	bmpRGBA = (unsigned char *)R_GetImageBuffer( numPixels * 4, BUFFER_IMAGE );
 
 	*pic = bmpRGBA;
 
@@ -1212,14 +1212,14 @@ static void LoadPCX( const char *filename, byte **pic, byte **palette, int *widt
 		return;
 	}
 
-	out = R_GetImageBuffer( ( ymax + 1 ) * ( xmax + 1 ), BUFFER_IMAGE );
+	out = (byte *)R_GetImageBuffer( ( ymax + 1 ) * ( xmax + 1 ), BUFFER_IMAGE );
 
 	*pic = out;
 
 	pix = out;
 
 	if ( palette ) {
-		*palette = malloc( 768 );
+		*palette = (byte *)malloc( 768 );
 		memcpy( *palette, (byte *)pcx + len - 768, 768 );
 	}
 
@@ -1278,7 +1278,7 @@ static void LoadPCX32( const char *filename, byte **pic, int *width, int *height
 	}
 
 	c = ( *width ) * ( *height );
-	pic32 = *pic = R_GetImageBuffer( 4 * c, BUFFER_IMAGE );
+	pic32 = *pic = (byte *)R_GetImageBuffer( 4 * c, BUFFER_IMAGE );
 	for ( i = 0 ; i < c ; i++ ) {
 		p = pic8[i];
 		pic32[0] = palette[p * 3];
@@ -1374,7 +1374,7 @@ void LoadTGA( const char *name, byte **pic, int *width, int *height ) {
 		*height = rows;
 	}
 
-	targa_rgba = R_GetImageBuffer( numPixels * 4, BUFFER_IMAGE );
+	targa_rgba = (byte *)R_GetImageBuffer( numPixels * 4, BUFFER_IMAGE );
 	*pic = targa_rgba;
 
 	if ( targa_header.id_length != 0 ) {
@@ -1567,7 +1567,7 @@ static void LoadJPG( const char *filename, unsigned char **pic, int *width, int 
 	row_stride = cinfo.output_width * cinfo.output_components;
 
 	// always alloc enough for RGBA even when the source is RGB
-	out = R_GetImageBuffer( cinfo.output_width * cinfo.output_height * 4, BUFFER_IMAGE );
+	out = (byte *)R_GetImageBuffer( cinfo.output_width * cinfo.output_height * 4, BUFFER_IMAGE );
 
 	*pic = out;
 	*width = cinfo.output_width;
@@ -1669,7 +1669,7 @@ Returns NULL if it fails, not a default image.
 */
 
 
-image_t *R_FindImageFileExt( const char *name, qboolean mipmap, qboolean allowPicmip, qboolean characterMIP, int glWrapClampMode ) {
+image_t *R_FindImageFileExt( const char *name, bool mipmap, bool allowPicmip, bool characterMIP, int glWrapClampMode ) {
 	image_t *image;
 	int width, height;
 	byte    *pic;
@@ -1753,7 +1753,7 @@ image_t *R_FindImageFileExt( const char *name, qboolean mipmap, qboolean allowPi
 }
 
 
-image_t *R_FindImageFile( const char *name, qboolean mipmap, qboolean allowPicmip, int glWrapClampMode ) {
+image_t *R_FindImageFile( const char *name, bool mipmap, bool allowPicmip, int glWrapClampMode ) {
 	return R_FindImageFileExt( name, mipmap, allowPicmip, qfalse, glWrapClampMode );
 }
 
@@ -1861,7 +1861,7 @@ static void R_CreateFogImage( void ) {
 	float d;
 	float borderColor[4];
 
-	data = Hunk_AllocateTempMemory( FOG_S * FOG_T * 4 );
+	data = (byte *)Hunk_AllocateTempMemory( FOG_S * FOG_T * 4 );
 
 	g = 2.0;
 
@@ -2116,7 +2116,7 @@ This is unfortunate, but the skin files aren't
 compatable with our normal parsing rules.
 ==================
 */
-static char *CommaParse( char **data_p ) {
+static const char *CommaParse( char **data_p ) {
 	int c = 0, len;
 	char *data;
 	static char com_token[MAX_TOKEN_CHARS];
@@ -2307,7 +2307,7 @@ qhandle_t RE_RegisterSkin( const char *name ) {
 	skinSurface_t   *surf;
 	skinModel_t *model;          //----(SA) added
 	char        *text, *text_p;
-	char        *token;
+	const char        *token;
 	char surfName[MAX_QPATH];
 
 	if ( !name || !name[0] ) {
@@ -2349,13 +2349,13 @@ qhandle_t RE_RegisterSkin( const char *name ) {
 	// If not a .skin file, load as a single shader
 	if ( strcmp( name + strlen( name ) - 5, ".skin" ) ) {
 		tr.numSkins++;
-		skin = ri.Hunk_Alloc( sizeof( skin_t ), h_low );
+		skin = (skin_t *)ri.Hunk_Alloc( sizeof( skin_t ), h_low );
 		tr.skins[hSkin] = skin;
 		Q_strncpyz( skin->name, name, sizeof( skin->name ) );
 		skin->numSurfaces   = 0;
 		skin->numModels     = 0;    //----(SA) added
 		skin->numSurfaces = 1;
-		skin->surfaces = ri.Hunk_Alloc( sizeof(skinSurface_t), h_low );
+		skin->surfaces = (skinSurface_t *)ri.Hunk_Alloc( sizeof(skinSurface_t), h_low );
 		skin->surfaces[0].shader = R_FindShader( name, LIGHTMAP_NONE, qtrue );
 		return hSkin;
 	}
@@ -2367,7 +2367,7 @@ qhandle_t RE_RegisterSkin( const char *name ) {
 	}
 
 	tr.numSkins++;
-	skin = ri.Hunk_Alloc( sizeof( skin_t ), h_low );
+	skin = (skin_t *)ri.Hunk_Alloc( sizeof( skin_t ), h_low );
 	tr.skins[hSkin] = skin;
 	Q_strncpyz( skin->name, name, sizeof( skin->name ) );
 	skin->numSurfaces   = 0;
@@ -2397,7 +2397,7 @@ qhandle_t RE_RegisterSkin( const char *name ) {
 		}
 
 		if ( strstr( token, "md3_" ) ) {  // this is specifying a model
-			model = skin->models[ skin->numModels ] = ri.Hunk_Alloc( sizeof( *skin->models[0] ), h_low );
+			model = skin->models[ skin->numModels ] = (skinModel_t *)ri.Hunk_Alloc( sizeof( *skin->models[0] ), h_low );
 			Q_strncpyz( model->type, token, sizeof( model->type ) );
 
 			// get the model name
@@ -2446,7 +2446,7 @@ qhandle_t RE_RegisterSkin( const char *name ) {
 	}
 
     // copy surfaces to skin
-    skin->surfaces = ri.Hunk_Alloc( skin->numSurfaces * sizeof( skinSurface_t ), h_low );
+    skin->surfaces = (skinSurface_t *)ri.Hunk_Alloc( skin->numSurfaces * sizeof( skinSurface_t ), h_low );
     memcpy( skin->surfaces, parseSurfaces, skin->numSurfaces * sizeof( skinSurface_t ) );
 
     
@@ -2465,10 +2465,10 @@ void    R_InitSkins( void ) {
 	tr.numSkins = 1;
 
 	// make the default skin have all default shaders
-	skin = tr.skins[0] = ri.Hunk_Alloc( sizeof( skin_t ), h_low );
+	skin = tr.skins[0] = (skin_t *)ri.Hunk_Alloc( sizeof( skin_t ), h_low );
 	Q_strncpyz( skin->name, "<default skin>", sizeof( skin->name )  );
 	skin->numSurfaces = 1;
-	skin->surfaces = ri.Hunk_Alloc( sizeof( skinSurface_t ), h_low );
+	skin->surfaces = (skinSurface_t *)ri.Hunk_Alloc( sizeof( skinSurface_t ), h_low );
 	skin->surfaces[0].shader = tr.defaultShader;
 }
 
@@ -2519,7 +2519,7 @@ void SaveTGA( char *name, byte **pic, int width, int height ) {
 	byte    *inpixel, *outpixel;
 	byte    *outbuf, *b;
 
-	outbuf = Hunk_AllocateTempMemory( width * height * 4 + 18 );
+	outbuf = (byte *)Hunk_AllocateTempMemory( width * height * 4 + 18 );
 	b = outbuf;
 
 	memset( b, 0, 18 );
@@ -2572,7 +2572,7 @@ void SaveTGAAlpha( char *name, byte **pic, int width, int height ) {
 	byte    *inpixel, *outpixel;
 	byte    *outbuf, *b;
 
-	outbuf = Hunk_AllocateTempMemory( width * height * 4 + 18 );
+	outbuf = (byte *)Hunk_AllocateTempMemory( width * height * 4 + 18 );
 	b = outbuf;
 
 	memset( b, 0, 18 );
@@ -2901,7 +2901,7 @@ qboolean R_CropImage( char *name, byte **pic, int border, int *width, int *heigh
 #endif  // RESIZE
 #endif  // FUNNEL_HACK
 
-	temppic = malloc( sizeof( unsigned int ) * diff[0] * diff[1] );
+	temppic = (byte *)malloc( sizeof( unsigned int ) * diff[0] * diff[1] );
 	outpixel = temppic;
 
 	for ( row = mins[1]; row < maxs[1]; row++ )
@@ -3014,7 +3014,7 @@ void    R_CropAndNumberImagesInDirectory( char *dir, char *ext, int maxWidth, in
 #else
 		newWidth = maxWidth;
 		newHeight = maxHeight;
-		temppic = malloc( sizeof( unsigned int ) * newWidth * newHeight );
+		temppic = (byte *)malloc( sizeof( unsigned int ) * newWidth * newHeight );
 		ResampleTexture( (unsigned int *)pic, width, height, (unsigned int *)temppic, newWidth, newHeight );
 		memcpy( pic, temppic, sizeof( unsigned int ) * newWidth * newHeight );
 		free( temppic );

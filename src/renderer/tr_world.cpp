@@ -354,7 +354,6 @@ void R_AddBrushModelSurfaces( trRefEntity_t *ent ) {
 
 	R_DlightBmodel( bmodel );
 
-//----(SA) modified
 	// determine if in fog
 	fognum = R_BmodelFogNum( ent, bmodel );
 
@@ -362,7 +361,6 @@ void R_AddBrushModelSurfaces( trRefEntity_t *ent ) {
 		( bmodel->firstSurface + i )->fogIndex = fognum;
 		R_AddWorldSurface( bmodel->firstSurface + i, tr.currentEntity->needDlights );
 	}
-//----(SA) end
 }
 
 

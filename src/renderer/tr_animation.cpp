@@ -325,7 +325,7 @@ void R_AddAnimSurfaces( trRefEntity_t *ent ) {
 	mdsSurface_t    *surface;
 	shader_t        *shader = 0;
 	int i, fogNum, cull;
-	qboolean personalModel;
+	bool personalModel;
 
 	// don't add third_person objects if not in a portal
 	personalModel = ( ent->e.renderfx & RF_THIRD_PERSON ) && !tr.viewParms.isPortal;
@@ -399,7 +399,7 @@ void R_AddAnimSurfaces( trRefEntity_t *ent ) {
 		// don't add third_person objects if not viewing through a portal
 		if ( !personalModel ) {
 			// GR - always tessellate these objects
-			R_AddDrawSurf( (void *)surface, shader, fogNum, qfalse, ATI_TESS_TRUFORM );
+			R_AddDrawSurf( (surfaceType_t *)surface, shader, fogNum, 0, ATI_TESS_TRUFORM );
 		}
 
 		surface = ( mdsSurface_t * )( (byte *)surface + surface->ofsEnd );
@@ -1246,7 +1246,7 @@ void RB_SurfaceAnim( mdsSurface_t *surface ) {
 
 	tess.numVertexes += render_count;
 
-	pIndexes = &tess.indexes[baseIndex];
+	pIndexes = (int *)&tess.indexes[baseIndex];
 
 //DBG_SHOWTIME
 
@@ -1373,7 +1373,7 @@ void RB_SurfaceAnim( mdsSurface_t *surface ) {
 			qglBegin( GL_LINES );
 			qglColor3f( .0,.0,.8 );
 
-			pIndexes = &tess.indexes[oldIndexes];
+			pIndexes = (int *)&tess.indexes[oldIndexes];
 			for ( j = 0; j < render_indexes / 3; j++, pIndexes += 3 ) {
 				qglVertex3fv( tempVert + 4 * pIndexes[0] );
 				qglVertex3fv( tempVert + 4 * pIndexes[1] );

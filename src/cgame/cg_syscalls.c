@@ -30,7 +30,7 @@ If you have questions concerning this license or the applicable additional terms
 #include "client.h"
 #include "botlib/l_script.h"
 #include "botlib/l_precomp.h"
-#include "../renderer/tr_local.h"
+//#include "../renderer/tr_local.h"
 #include "../game/g_func_decs.h"
 
 void    trap_S_ClearLoopingSounds( int killall ) {
