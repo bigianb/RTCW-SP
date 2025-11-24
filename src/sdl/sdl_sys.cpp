@@ -37,7 +37,7 @@ void Sys_LeaveCriticalSection( void *ptr ) {
 
 #define MAX_FOUND_FILES 0x1000
 
-void Sys_ListFilteredFiles( const char *basedir, char *subdirs, char *filter, char **list, int *numfiles ) {
+void Sys_ListFilteredFiles( const char *basedir, const char *subdirs, const char *filter, char **list, int *numfiles ) {
 	char search[MAX_OSPATH], newsubdirs[MAX_OSPATH];
 	char filename[MAX_OSPATH];
 	DIR         *fdir;
@@ -116,7 +116,7 @@ char **Sys_ListFiles( const char *directory, const char *extension, char *filter
 			return NULL;
 		}
 
-		listCopy = calloc(1, ( nfiles + 1 ) * sizeof( *listCopy ) );
+		listCopy = (char **)calloc(1, ( nfiles + 1 ) * sizeof( *listCopy ) );
 		for ( i = 0 ; i < nfiles ; i++ ) {
 			listCopy[i] = list[i];
 		}
@@ -181,7 +181,7 @@ char **Sys_ListFiles( const char *directory, const char *extension, char *filter
 		return NULL;
 	}
 
-	listCopy = calloc(1, ( nfiles + 1 ) * sizeof( *listCopy ) );
+	listCopy = (char **)calloc(1, ( nfiles + 1 ) * sizeof( *listCopy ) );
 	for ( i = 0 ; i < nfiles ; i++ ) {
 		listCopy[i] = list[i];
 	}
@@ -243,21 +243,4 @@ int Sys_Milliseconds( void ) {
 
 void    Sys_Mkdir( const char *path ) {
 	mkdir( path, 0777 );
-}
-
-void Sys_ShowIP( void ) {
-
-}
-
-void    Sys_SendPacket( int length, const void *data, netadr_t to ) {
-}
-
-void Sys_StartProcess( char *cmdline, qboolean doexit ) {
-}
-
-qboolean    Sys_StringToAdr( const char *s, netadr_t *a ) {
-	return false;
-}
-
-void Sys_UnloadDll( void *dllHandle ) {
 }

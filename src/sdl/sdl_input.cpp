@@ -33,8 +33,8 @@ static cvar_t *in_keyboardDebug     = NULL;
 static SDL_Gamepad *gamepad = NULL;
 static SDL_Joystick *stick = NULL;
 
-static qboolean mouseAvailable = qfalse;
-static qboolean mouseActive = qfalse;
+static bool mouseAvailable = qfalse;
+static bool mouseActive = qfalse;
 
 static cvar_t *in_mouse             = NULL;
 static cvar_t *in_nograb;
@@ -94,7 +94,7 @@ TODO: If the SDL_Scancode situation improves, use it instead of
       both of these methods
 ===============
 */
-static qboolean IN_IsConsoleKey( keyNum_t key, int character )
+static bool IN_IsConsoleKey( keyNum_t key, int character )
 {
 	typedef struct consoleKey_s
 	{
@@ -137,20 +137,12 @@ static qboolean IN_IsConsoleKey( keyNum_t key, int character )
 
 			if( charCode > 0 )
 			{
-				c->type = CHARACTER;
+				c->type = consoleKey_s::CHARACTER;
 				c->u.character = charCode;
 			}
 			else
 			{
 				continue;
-				/*
-				c->type = QUAKE_KEY;
-				c->u.key = Key_StringToKeynum( token );
-
-				// 0 isn't a key
-				if( c->u.key <= 0 )
-					continue;
-					*/
 			}
 
 			numConsoleKeys++;
@@ -158,8 +150,9 @@ static qboolean IN_IsConsoleKey( keyNum_t key, int character )
 	}
 
 	// If the character is the same as the key, prefer the character
-	if( key == character )
-		key = 0;
+	if( key == character ){
+		key = K_NONE;
+	}
 
 	for( i = 0; i < numConsoleKeys; i++ )
 	{
@@ -167,19 +160,19 @@ static qboolean IN_IsConsoleKey( keyNum_t key, int character )
 
 		switch( c->type )
 		{
-			case QUAKE_KEY:
-				if( key && c->u.key == key )
-					return qtrue;
+			case consoleKey_s::QUAKE_KEY:
+				if( key != K_NONE && c->u.key == key )
+					return true;
 				break;
 
-			case CHARACTER:
+			case consoleKey_s::CHARACTER:
 				if( c->u.character == character )
-					return qtrue;
+					return true;
 				break;
 		}
 	}
 
-	return qfalse;
+	return false;
 }
 
 /*
@@ -189,7 +182,7 @@ IN_TranslateSDLToQ3Key
 */
 static keyNum_t IN_TranslateSDLToQ3Key( SDL_KeyboardEvent *keyEvent, qboolean down )
 {
-	keyNum_t key = 0;
+	keyNum_t key = K_NONE;
 
 	if( keyEvent->scancode >= SDL_SCANCODE_1 && keyEvent->scancode <= SDL_SCANCODE_0 )
 	{
@@ -198,14 +191,14 @@ static keyNum_t IN_TranslateSDLToQ3Key( SDL_KeyboardEvent *keyEvent, qboolean do
 		// This is required for SDL before 2.0.6, except on Windows
 		// which already had this behavior.
 		if( keyEvent->scancode == SDL_SCANCODE_0 )
-			key = '0';
+			key = (keyNum_t)'0';
 		else
-			key = '1' + keyEvent->scancode - SDL_SCANCODE_1;
+			key = (keyNum_t)('1' + keyEvent->scancode - SDL_SCANCODE_1);
 	}
 	else if( keyEvent->key >= SDLK_SPACE && keyEvent->key < SDLK_DELETE )
 	{
 		// These happen to match the ASCII chars
-		key = (int)keyEvent->key;
+		key = (keyNum_t)keyEvent->key;
 	}
 	else
 	{
@@ -297,7 +290,7 @@ static keyNum_t IN_TranslateSDLToQ3Key( SDL_KeyboardEvent *keyEvent, qboolean do
 					// Maybe create a map of scancode to quake key at start up and on
 					// key map change; allocate world key numbers as needed similar
 					// to SDL 1.2.
-					key = K_WORLD_0 + (int)keyEvent->scancode;
+					key = (keyNum_t)(K_WORLD_0 + (int)keyEvent->scancode);
 				}
 				break;
 		}
@@ -433,7 +426,7 @@ static int hat_keys[16] = {
 
 struct
 {
-	qboolean buttons[SDL_GAMEPAD_BUTTON_COUNT + 1]; // +1 because old max was 16, current SDL_GAMEPAD_BUTTON_COUNT is 15
+	bool buttons[SDL_GAMEPAD_BUTTON_COUNT + 1]; // +1 because old max was 16, current SDL_GAMEPAD_BUTTON_COUNT is 15
 	unsigned int oldaxes;
 	int oldaaxes[MAX_JOYSTICK_AXIS];
 	unsigned int oldhats;
@@ -574,17 +567,17 @@ static void IN_ShutdownJoystick( void )
 }
 
 
-static qboolean KeyToAxisAndSign(int keynum, int *outAxis, int *outSign)
+static bool KeyToAxisAndSign(int keynum, int *outAxis, int *outSign)
 {
 	char *bind;
 
 	if (!keynum)
-		return qfalse;
+		return false;
 
 	bind = Key_GetBinding(keynum);
 
 	if (!bind || *bind != '+')
-		return qfalse;
+		return false;
 
 	*outSign = 0;
 
@@ -651,14 +644,14 @@ static void IN_GamepadMove( void )
 {
 	int i;
 	int translatedAxes[SDL_GAMEPAD_AXIS_COUNT];
-	qboolean translatedAxesSet[SDL_GAMEPAD_AXIS_COUNT];
+	bool translatedAxesSet[SDL_GAMEPAD_AXIS_COUNT];
 
 	SDL_UpdateGamepads();
 
 	// check buttons
 	for (i = 0; i < SDL_GAMEPAD_BUTTON_COUNT; i++)
 	{
-		qboolean pressed = SDL_GetGamepadButton(gamepad, SDL_GAMEPAD_BUTTON_SOUTH + i);
+		bool pressed = SDL_GetGamepadButton(gamepad, (SDL_GamepadButton)(SDL_GAMEPAD_BUTTON_SOUTH + i));
 		if (pressed != stick_state.buttons[i])
 		{
 			if ( i >= SDL_GAMEPAD_BUTTON_MISC1 ) {
@@ -685,7 +678,7 @@ static void IN_GamepadMove( void )
 	// check axes
 	for (i = 0; i < SDL_GAMEPAD_AXIS_COUNT; i++)
 	{
-		int axis = SDL_GetGamepadAxis(gamepad, SDL_GAMEPAD_AXIS_LEFTX + i);
+		int axis = SDL_GetGamepadAxis(gamepad, (SDL_GamepadAxis)(SDL_GAMEPAD_AXIS_LEFTX + i));
 		int oldAxis = stick_state.oldaaxes[i];
 
 		// Smoothly ramp from dead zone to maximum value
@@ -702,7 +695,7 @@ static void IN_GamepadMove( void )
 			const int negMap[SDL_GAMEPAD_AXIS_COUNT] = { K_PAD0_LEFTSTICK_LEFT,  K_PAD0_LEFTSTICK_UP,   K_PAD0_RIGHTSTICK_LEFT,  K_PAD0_RIGHTSTICK_UP, 0, 0 };
 			const int posMap[SDL_GAMEPAD_AXIS_COUNT] = { K_PAD0_LEFTSTICK_RIGHT, K_PAD0_LEFTSTICK_DOWN, K_PAD0_RIGHTSTICK_RIGHT, K_PAD0_RIGHTSTICK_DOWN, K_PAD0_LEFTTRIGGER, K_PAD0_RIGHTTRIGGER };
 
-			qboolean posAnalog = qfalse, negAnalog = qfalse;
+			bool posAnalog = false, negAnalog = false;
 			int negKey = negMap[i];
 			int posKey = posMap[i];
 
@@ -835,7 +828,7 @@ static void IN_JoyMove( void )
 			total = ARRAY_LEN(stick_state.buttons);
 		for (i = 0; i < total; i++)
 		{
-			qboolean pressed = (SDL_GetJoystickButton(stick, i) != 0);
+			bool pressed = (SDL_GetJoystickButton(stick, i) != 0);
 			if (pressed != stick_state.buttons[i])
 			{
 				Com_QueueEvent( in_eventTime, SE_KEY, K_JOY1 + i, pressed, 0, NULL );
@@ -996,8 +989,8 @@ IN_ProcessEvents
 static void IN_ProcessEvents( void )
 {
 	SDL_Event e;
-	keyNum_t key = 0;
-	static keyNum_t lastKeyDown = 0;
+	keyNum_t key = K_NONE;
+	static keyNum_t lastKeyDown = K_NONE;
 
 	if( SDL_WasInit( SDL_INIT_VIDEO ) != SDL_INIT_VIDEO)
 			return;
@@ -1025,7 +1018,7 @@ static void IN_ProcessEvents( void )
 				if( ( key = IN_TranslateSDLToQ3Key( &e.key, qfalse ) ) )
 					Com_QueueEvent( in_eventTime, SE_KEY, key, qfalse, 0, NULL );
 
-				lastKeyDown = 0;
+				lastKeyDown = K_NONE;
 				break;
 
 			case SDL_EVENT_TEXT_INPUT:
@@ -1066,7 +1059,7 @@ static void IN_ProcessEvents( void )
 
 						if( utf32 != 0 )
 						{
-							if( IN_IsConsoleKey( 0, utf32 ) )
+							if( IN_IsConsoleKey( K_NONE, utf32 ) )
 							{
 								Com_QueueEvent( in_eventTime, SE_KEY, K_CONSOLE, qtrue, 0, NULL );
 								Com_QueueEvent( in_eventTime, SE_KEY, K_CONSOLE, qfalse, 0, NULL );
@@ -1178,7 +1171,7 @@ IN_Frame
 */
 void IN_Frame( void )
 {
-	qboolean loading;
+	bool loading;
 
 	IN_JoyMove( );
 
@@ -1186,7 +1179,7 @@ void IN_Frame( void )
 	loading = ( cls.state != CA_DISCONNECTED && cls.state != CA_ACTIVE );
 
 	// update isFullscreen since it might of changed since the last vid_restart
-	cls.glconfig.isFullscreen = Cvar_VariableIntegerValue( "r_fullscreen" ) != 0;
+	cls.glconfig.isFullscreen = (Cvar_VariableIntegerValue( "r_fullscreen" ) != 0 )? qtrue : qfalse;
 
 	if( !cls.glconfig.isFullscreen && ( Key_GetCatcher( ) & KEYCATCH_CONSOLE ) )
 	{
@@ -1250,7 +1243,7 @@ void IN_Init( void *windowData )
 	SDL_StartTextInput( SDL_window );
 
 	mouseAvailable = ( in_mouse->value != 0 );
-	IN_DeactivateMouse( Cvar_VariableIntegerValue( "r_fullscreen" ) != 0 );
+	IN_DeactivateMouse( Cvar_VariableIntegerValue( "r_fullscreen" ) != 0 ? qtrue : qfalse );
 
 	appState = SDL_GetWindowFlags( SDL_window );
 	Cvar_SetValue( "com_unfocused",	!( appState & SDL_WINDOW_INPUT_FOCUS ) );
@@ -1269,7 +1262,7 @@ void IN_Shutdown( void )
 {
 	SDL_StopTextInput( SDL_window );
 
-	IN_DeactivateMouse( Cvar_VariableIntegerValue( "r_fullscreen" ) != 0 );
+	IN_DeactivateMouse( Cvar_VariableIntegerValue( "r_fullscreen" ) != 0 ? qtrue : qfalse );
 	mouseAvailable = qfalse;
 
 	IN_ShutdownJoystick( );

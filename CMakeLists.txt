@@ -83,8 +83,15 @@ set(UI_SOURCES
 	src/ui/ui_shared.cpp
 )
 
-file(GLOB SDL_INCLUDES src/sdl/*.h)
-file(GLOB SDL_SOURCES src/sdl/*.c)
+set(SDL_INCLUDES src/sdl/sdl_icon.h)
+set(SDL_SOURCES
+	src/sdl/sdl_gamma.cpp
+	src/sdl/sdl_glimp.cpp
+	src/sdl/sdl_input.cpp
+	src/sdl/sdl_main.cpp
+	src/sdl/sdl_null.cpp
+	src/sdl/sdl_snd.cpp
+	src/sdl/sdl_sys.cpp)
 
 include_directories(.)
 include_directories(${CMAKE_SOURCE_DIR}/src)

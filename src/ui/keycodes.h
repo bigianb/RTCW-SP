@@ -36,6 +36,7 @@ If you have questions concerning this license or the applicable additional terms
 // normal keys should be passed as lowercased ascii
 
 typedef enum {
+	K_NONE = 0,
 	K_TAB = 9,
 	K_ENTER = 13,
 	K_ESCAPE = 27,

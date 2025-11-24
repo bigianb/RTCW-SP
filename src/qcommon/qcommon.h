@@ -672,7 +672,7 @@ unsigned    int Com_BlockChecksum( const void *buffer, size_t length );
 unsigned    Com_BlockChecksumKey( void *buffer, int length, int key );
 int         Com_HashKey( const char *string, int maxlen );
 int         Com_Filter( char *filter, char *name, int casesensitive );
-int         Com_FilterPath( char *filter, char *name, int casesensitive );
+int         Com_FilterPath(const char *filter, const char *name, int casesensitive );
 time_t         Com_RealTime( qtime_t *qtime );
 qboolean    Com_SafeMode( void );
 
@@ -835,7 +835,7 @@ void Sys_LeaveCriticalSection( void *ptr );
 // general development dll loading for virtual machine testing
 void    *  Sys_LoadDll( const char *name, int(  * *entryPoint ) ( int, ... ),
 							 int (  * systemcalls )( int, ... ) );
-void    Sys_UnloadDll( void *dllHandle );
+
 
 void    Sys_UnloadGame( void );
 void    *Sys_GetGameAPI( void *parms );
@@ -878,13 +878,6 @@ void    Sys_StreamSeek( fileHandle_t f, size_t offset, int origin );
 void    Sys_ShowConsole( int level, qboolean quitOnClose );
 void    Sys_SetErrorText( const char *text );
 
-void    Sys_SendPacket( int length, const void *data, netadr_t to );
-
-qboolean    Sys_StringToAdr( const char *s, netadr_t *a );
-//Does NOT parse port numbers, only base addresses.
-
-void        Sys_ShowIP( void );
-
 qboolean    Sys_CheckCD( void );
 
 void    Sys_Mkdir( const char *path );
@@ -902,8 +895,6 @@ void    Sys_EndProfiling( void );
 
 qboolean Sys_LowPhysicalMemory();
 unsigned int Sys_ProcessorCount();
-
-void Sys_StartProcess( char *exeName, qboolean doexit );            // NERVE - SMF
 
 int Sys_GetHighQualityCPU();
 

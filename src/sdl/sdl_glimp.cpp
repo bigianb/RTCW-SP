@@ -31,7 +31,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include <math.h>
 
 #include "../renderer/tr_local.h"
-#include "sdl_icon.h"
+//#include "sdl_icon.h"
 
 float displayAspect = 1.333f; // default to 4:3 aspect ratio
 
@@ -55,13 +55,6 @@ cvar_t *r_sdlDriver;
 
 int qglMajorVersion, qglMinorVersion;
 int qglesMajorVersion, qglesMinorVersion;
-
-void (APIENTRYP qglActiveTextureARB) (GLenum texture);
-void (APIENTRYP qglClientActiveTextureARB) (GLenum texture);
-void (APIENTRYP qglMultiTexCoord2fARB) (GLenum target, GLfloat s, GLfloat t);
-
-void (APIENTRYP qglLockArraysEXT) (GLint first, GLsizei count);
-void (APIENTRYP qglUnlockArraysEXT) (void);
 
 /*
 ===============
@@ -128,7 +121,7 @@ static int GLimp_CompareModes( const void *a, const void *b )
 GLimp_SetMode
 ===============
 */
-static int GLimp_SetMode(int mode, qboolean fullscreen, qboolean noborder, qboolean fixedFunction)
+static int GLimp_SetMode(int mode, bool fullscreen, bool noborder, bool fixedFunction)
 {
 	const char *glstring;
 	int perChannelColorBits;
@@ -437,10 +430,8 @@ static int GLimp_SetMode(int mode, qboolean fullscreen, qboolean noborder, qbool
 GLimp_StartDriverAndSetMode
 ===============
 */
-static qboolean GLimp_StartDriverAndSetMode(int mode, qboolean fullscreen, qboolean noborder, qboolean gl3Core)
+static bool GLimp_StartDriverAndSetMode(int mode, bool fullscreen, bool noborder, bool gl3Core)
 {
-	rserr_t err;
-
 	if (SDL_WasInit(SDL_INIT_VIDEO) != SDL_INIT_VIDEO)
 	{
 		const char *driverName;
@@ -452,7 +443,7 @@ static qboolean GLimp_StartDriverAndSetMode(int mode, qboolean fullscreen, qbool
 		}
 	}
 	
-	err = GLimp_SetMode(mode, fullscreen, noborder, gl3Core);
+	rserr_t err = (rserr_t)GLimp_SetMode(mode, fullscreen, noborder, gl3Core);
 
 	switch ( err )
 	{
@@ -636,8 +627,8 @@ void GLimp_EndFrame( void )
 
 	if( r_fullscreen->modified )
 	{
-		int         fullscreen;
-		qboolean    needToToggle;
+		bool         fullscreen;
+		bool    needToToggle;
 
 		// Find out the current state
 		fullscreen = !!( SDL_GetWindowFlags( SDL_window ) & SDL_WINDOW_FULLSCREEN );
