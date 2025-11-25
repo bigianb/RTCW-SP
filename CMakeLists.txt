@@ -45,9 +45,33 @@ file(GLOB GAME_INCLUDES src/game/*.h)
 file(GLOB GAME_SOURCES RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} src/game/*.c)
 list(REMOVE_ITEM GAME_SOURCES src/game/bg_lib.c)
 
-file(GLOB QCOMMON_INCLUDES src/qcommon/*.h)
-file(GLOB QCOMMON_SOURCES RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} src/qcommon/*.c)
-list(REMOVE_ITEM QCOMMON_SOURCES src/qcommon/vm_x86.c)
+set(QCOMMON_INCLUDES
+	src/qcommon/cm_local.h
+	src/qcommon/cm_patch.h
+	src/qcommon/cm_polylib.h
+	src/qcommon/cm_public.h
+	src/qcommon/entity_state.h
+	src/qcommon/qcommon.h
+	src/qcommon/qfiles.h
+	src/qcommon/unzip.h
+)
+
+set(QCOMMON_SOURCES
+	src/qcommon/cm_load.cpp
+	src/qcommon/cm_patch.cpp
+	src/qcommon/cm_polylib.cpp
+	src/qcommon/cm_test.cpp
+	src/qcommon/cm_trace.cpp
+	src/qcommon/cmd.cpp
+	src/qcommon/common.cpp
+	src/qcommon/cvar.cpp
+	src/qcommon/files.cpp
+	src/qcommon/huffman.cpp
+	src/qcommon/md4.cpp
+	src/qcommon/msg.cpp
+	src/qcommon/net_chan.cpp
+	src/qcommon/unzip.cpp
+)
 
 set(RENDERER_INCLUDES
 	src/renderer/anorms256.h

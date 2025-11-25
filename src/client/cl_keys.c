@@ -673,7 +673,7 @@ static void PrintMatches( const char *s ) {
 
 static void keyConcatArgs( void ) {
 	int i;
-	char    *arg;
+	const char    *arg;
 
 	for ( i = 1 ; i < Cmd_Argc() ; i++ ) {
 		Q_strcat( g_consoleField.buffer, sizeof( g_consoleField.buffer ), " " );
@@ -985,7 +985,7 @@ the K_* names are matched up.
 to be configured even if they don't have defined names.
 ===================
 */
-int Key_StringToKeynum( char *str ) {
+int Key_StringToKeynum( const char *str ) {
 	keyname_t   *kn;
 
 	if ( !str || !str[0] ) {

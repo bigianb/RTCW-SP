@@ -245,11 +245,11 @@ void SV_ConnectionlessPacket( netadr_t from, msg_t *msg )
 	MSG_BeginReadingOOB( msg );
 	MSG_ReadLong( msg );        // skip the -1 marker
 
-	char* s = MSG_ReadStringLine( msg );
+	const char* s = MSG_ReadStringLine( msg );
 
 	Cmd_TokenizeString( s );
 
-	char* c = Cmd_Argv( 0 );
+	const char* c = Cmd_Argv( 0 );
 	Com_DPrintf( "SV packet %s : %s\n", NET_AdrToString( from ), c );
 
 	if ( !Q_stricmp( c,"getstatus" ) ) {

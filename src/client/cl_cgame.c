@@ -263,14 +263,14 @@ qboolean CL_GetServerCommand( int serverCommandNumber )
 		return qfalse;
 	}
 
-	char* s = clc.serverCommands[ serverCommandNumber & ( MAX_RELIABLE_COMMANDS - 1 ) ];
+	const char* s = clc.serverCommands[ serverCommandNumber & ( MAX_RELIABLE_COMMANDS - 1 ) ];
 	clc.lastExecutedServerCommand = serverCommandNumber;
 
 	Com_DPrintf( "serverCommand: %i : %s\n", serverCommandNumber, s );
 
 rescan:
 	Cmd_TokenizeString( s );
-	char* cmd = Cmd_Argv( 0 );
+	const char* cmd = Cmd_Argv( 0 );
 
 	if ( !strcmp( cmd, "disconnect" ) ) {
 		Com_Error( ERR_SERVERDISCONNECT,"Server disconnected\n" );

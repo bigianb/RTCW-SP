@@ -2499,7 +2499,12 @@ struct inflate_blocks_state {
 #define LOAD {LOADIN LOADOUT}
 
 /* masks for lower bits (size given to avoid silly warnings with Visual C++) */
-static  uInt inflate_mask[17];
+/* And'ing with mask[n] masks the lower n bits */
+static uInt inflate_mask[17] = {
+    0x0000,
+    0x0001, 0x0003, 0x0007, 0x000f, 0x001f, 0x003f, 0x007f, 0x00ff,
+    0x01ff, 0x03ff, 0x07ff, 0x0fff, 0x1fff, 0x3fff, 0x7fff, 0xffff
+};
 
 /* copy as much as possible from the sliding window to the output area */
 static  int inflate_flush OF((
@@ -2856,33 +2861,6 @@ int inflate_blocks_free(inflate_blocks_statef *s, z_streamp z)
   return Z_OK;
 }
 
-#if 0
-void inflate_set_dictionary(inflate_blocks_statef *s, const Byte *d, uInt n)
-{
-  zmemcpy(s->window, d, n);
-  s->read = s->write = s->window + n;
-}
-
-
-/* Returns true if inflate is currently at the end of a block generated
- * by Z_SYNC_FLUSH or Z_FULL_FLUSH. 
- * IN assertion: s != Z_NULL
- */
-int inflate_blocks_sync_point(inflate_blocks_statef *s)
-{
-  return s->mode == LENS;
-}
-#endif
-
-
-/* And'ing with mask[n] masks the lower n bits */
-static uInt inflate_mask[17] = {
-    0x0000,
-    0x0001, 0x0003, 0x0007, 0x000f, 0x001f, 0x003f, 0x007f, 0x00ff,
-    0x01ff, 0x03ff, 0x07ff, 0x0fff, 0x1fff, 0x3fff, 0x7fff, 0xffff
-};
-
-
 /* copy as much as possible from the sliding window to the output area */
 int inflate_flush(inflate_blocks_statef *s, z_streamp z, int r)
 {
@@ -3054,16 +3032,16 @@ static int huft_build(uInt *b, uInt n, uInt s, const uInt *d, const uInt *e, inf
   uInt f;                       /* i repeats in table every f entries */
   int g;                        /* maximum code length */
   int h;                        /* table level */
-  register uInt i;              /* counter, current code */
-  register uInt j;              /* counter */
-  register int k;               /* number of bits in current code */
+  uInt i;              /* counter, current code */
+  uInt j;              /* counter */
+  int k;               /* number of bits in current code */
   int l;                        /* bits per table (returned in m) */
   uInt mask;                    /* (1 << w) - 1, to avoid cc -O bug on HP */
-  register uInt *p;            /* pointer into c[], b[], or v[] */
+  uInt *p;            /* pointer into c[], b[], or v[] */
   inflate_huft *q;              /* points to current table */
   struct inflate_huft_s r;      /* table entry for structure assignment */
   inflate_huft *u[BMAX];        /* table stack */
-  register int w;               /* bits before this table == (l * h) */
+  int w;               /* bits before this table == (l * h) */
   uInt x[BMAX+1];               /* bit offsets, then code stack */
   uInt *xp;                    /* pointer into x */
   int y;                        /* number of dummy codes added */

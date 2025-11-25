@@ -1461,7 +1461,8 @@ void CIN_DrawCinematic( int handle ) {
 }
 
 void CL_PlayCinematic_f( void ) {
-	char    *arg, *s;
+	const char    *arg;
+	const char *s;
 	qboolean holdatend;
 	int bits = CIN_system;
 

@@ -26,8 +26,7 @@ If you have questions concerning this license or the applicable additional terms
 ===========================================================================
 */
 
-
-//#define	CULL_BBOX
+#pragma once
 
 /*
 
@@ -78,7 +77,7 @@ typedef struct {
 	int numBorders;             // 3 or four + 6 axial bevels + 4 or 3 * 4 edge bevels
 	int borderPlanes[4 + 6 + 16];
 	int borderInward[4 + 6 + 16];
-	qboolean borderNoAdjust[4 + 6 + 16];
+	bool borderNoAdjust[4 + 6 + 16];
 } facet_t;
 
 typedef struct patchCollide_s {

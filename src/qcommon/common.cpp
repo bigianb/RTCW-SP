@@ -404,7 +404,7 @@ be after execing the config and default.
 */
 void Com_StartupVariable( const char *match ) {
 	int i;
-	char    *s;
+	const char    *s;
 	cvar_t  *cv;
 
 	for ( i = 0 ; i < com_numConsoleLines ; i++ ) {
@@ -533,7 +533,7 @@ char *Com_StringContains( char *str1, char *str2, int casesensitive ) {
 Com_Filter
 ============
 */
-int Com_Filter( char *filter, char *name, int casesensitive ) {
+int Com_Filter( const char *filter, char *name, int casesensitive ) {
 	char buf[MAX_TOKEN_CHARS];
 	char *ptr;
 	int i, found;
@@ -704,7 +704,7 @@ CopyString
 char *CopyString( const char *in ) {
 	char    *out;
 
-	out = calloc(1,  strlen( in ) + 1 );
+	out = (char *)calloc(1,  strlen( in ) + 1 );
 	strcpy( out, in );
 	return out;
 }
@@ -1159,7 +1159,7 @@ int Com_EventLoop( void ) {
 		case EVT_NONE:
 			break;
 		case SE_KEY:
-			CL_KeyEvent( ev.evValue, ev.evValue2, ev.evTime );
+			CL_KeyEvent( ev.evValue, ev.evValue2 != 0 ? qtrue : qfalse, ev.evTime );
 			break;
 		case SE_CHAR:
 			CL_CharEvent( ev.evValue );
@@ -1268,9 +1268,9 @@ static void Com_Crash_f( void ) {
 
 void Com_SetRecommended( qboolean vidrestart ) {
 	cvar_t *cv;
-	qboolean goodVideo;
-	qboolean goodCPU;
-	qboolean lowMemory;
+	bool goodVideo;
+	bool goodCPU;
+	bool lowMemory;
 	// will use this for recommended settings as well.. do i outside the lower check so it gets done even with command line stuff
 	cv = Cvar_Get( "r_highQualityVideo", "1", CVAR_ARCHIVE );
 	goodVideo = ( cv && cv->integer );
@@ -1810,7 +1810,7 @@ static void keyConcatArgs( void ) {
 
 	for (int i = 1 ; i < Cmd_Argc() ; i++ ) {
 		Q_strcat( completionField->buffer, sizeof( completionField->buffer ), " " );
-		char* arg = Cmd_Argv( i );
+		const char* arg = Cmd_Argv( i );
 		while ( *arg ) {
 			if ( *arg == ' ' ) {
 				Q_strcat( completionField->buffer, sizeof( completionField->buffer ),  "\"" );
@@ -1826,9 +1826,9 @@ static void keyConcatArgs( void ) {
 }
 
 static void ConcatRemaining( const char *src, const char *start ) {
-	char *str;
+	
 
-	str = strstr( src, start );
+	const char *str = strstr( src, start );
 	if ( !str ) {
 		keyConcatArgs();
 		return;

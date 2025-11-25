@@ -272,7 +272,7 @@ void Cmd_Vstr_f()
 		return;
 	}
 
-	char* v = Cvar_VariableString( Cmd_Argv( 1 ) );
+	const char* v = Cvar_VariableString( Cmd_Argv( 1 ) );
 	Cbuf_InsertText( va( "%s\n", v ) );
 }
 
@@ -329,7 +329,7 @@ int     Cmd_Argc( void ) {
 Cmd_Argv
 ============
 */
-char    *Cmd_Argv( int arg ) {
+const char    *Cmd_Argv( int arg ) {
 	if ( (unsigned)arg >= cmd_argc ) {
 		return "";
 	}
@@ -532,7 +532,7 @@ void    Cmd_AddCommand( const char *cmd_name, xcommand_t function ) {
 	}
 
 	// use a small malloc to avoid zone fragmentation
-	cmd = calloc(1, sizeof( cmd_function_t ) );
+	cmd = (cmd_function_t *)calloc(1, sizeof( cmd_function_t ) );
 	cmd->name = CopyString( cmd_name );
 	cmd->function = function;
 	cmd->next = cmd_functions;
@@ -650,7 +650,7 @@ Cmd_List_f
 */
 void Cmd_List_f()
 {
-	char            *match;
+	const char            *match;
 	if ( Cmd_Argc() > 1 ) {
 		match = Cmd_Argv( 1 );
 	} else {

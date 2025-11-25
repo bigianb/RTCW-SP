@@ -160,7 +160,7 @@ Returns true if the given quadratic curve is not flat enough for our
 collision detection purposes
 =================
 */
-static qboolean CM_NeedsSubdivision( vec3_t a, vec3_t b, vec3_t c ) {
+static bool CM_NeedsSubdivision( vec3_t a, vec3_t b, vec3_t c ) {
 	vec3_t cmid;
 	vec3_t lmid;
 	vec3_t delta;
@@ -1148,9 +1148,9 @@ static void CM_PatchCollideFromGrid( cGrid_t *grid, patchCollide_t *pf ) {
 	// copy the results out
 	pf->numPlanes = numPlanes;
 	pf->numFacets = numFacets;
-	pf->facets = Hunk_Alloc( numFacets * sizeof( *pf->facets ), h_high );
+	pf->facets = (facet_t *)Hunk_Alloc( numFacets * sizeof( *pf->facets ), h_high );
 	Com_Memcpy( pf->facets, facets, numFacets * sizeof( *pf->facets ) );
-	pf->planes = Hunk_Alloc( numPlanes * sizeof( *pf->planes ), h_high );
+	pf->planes = (patchPlane_t *)Hunk_Alloc( numPlanes * sizeof( *pf->planes ), h_high );
 	Com_Memcpy( pf->planes, planes, numPlanes * sizeof( *pf->planes ) );
 }
 
@@ -1211,7 +1211,7 @@ struct patchCollide_s   *CM_GeneratePatchCollide( int width, int height, vec3_t 
 	// we now have a grid of points exactly on the curve
 	// the aproximate surface defined by these points will be
 	// collided against
-	pf = Hunk_Alloc( sizeof( *pf ), h_high );
+	pf = (patchCollide_t *)Hunk_Alloc( sizeof( *pf ), h_high );
 	ClearBounds( pf->bounds[0], pf->bounds[1] );
 	for ( i = 0 ; i < grid.width ; i++ ) {
 		for ( j = 0 ; j < grid.height ; j++ ) {

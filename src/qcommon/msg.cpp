@@ -560,7 +560,7 @@ delta functions with keys
 =============================================================================
 */
 
-int kbitmask[32] = {
+unsigned int kbitmask[32] = {
 	0x00000001, 0x00000003, 0x00000007, 0x0000000F,
 	0x0000001F, 0x0000003F, 0x0000007F, 0x000000FF,
 	0x000001FF, 0x000003FF, 0x000007FF, 0x00000FFF,
@@ -862,8 +862,8 @@ void MSG_ReportChangeVectors_f( void ) {
 
 
 typedef struct {
-	char    *name;
-	int offset;
+	const char    *name;
+	intptr_t offset;
 	int bits;           // 0 = float
 } netField_t;
 

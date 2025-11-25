@@ -176,7 +176,7 @@ typedef struct {
 	void ( *Cmd_RemoveCommand )( const char *name );
 
 	int ( *Cmd_Argc )( void );
-	char    *( *Cmd_Argv )( int i );
+	const char    *( *Cmd_Argv )( int i );
 
 	// a -1 return means the file does not exist
 	// NULL can be passed for buf to just determine existance

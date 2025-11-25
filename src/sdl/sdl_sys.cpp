@@ -89,7 +89,7 @@ void Sys_ListFilteredFiles( const char *basedir, const char *subdirs, const char
 }
 
 
-char **Sys_ListFiles( const char *directory, const char *extension, char *filter, int *numfiles, qboolean wantsubs ) {
+char **Sys_ListFiles( const char *directory, const char *extension, const char *filter, int *numfiles, qboolean wantsubs ) {
 	struct dirent *d;
 	// char *p; // bk001204 - unused
 	DIR     *fdir;

@@ -64,7 +64,7 @@ winding_t   *AllocWinding( int points ) {
 	}
 
 	s = sizeof( vec_t ) * 3 * points + sizeof( int );
-	w = calloc(1, s );
+	w = (winding_t *)calloc(1, s );
 	Com_Memset( w, 0, s );
 	return w;
 }

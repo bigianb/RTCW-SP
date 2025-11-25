@@ -367,7 +367,7 @@ void Cmd_CommandCompletion( void ( *callback )( const char *s ) );
 // callback with each valid string
 
 int     Cmd_Argc( void );
-char    *Cmd_Argv( int arg );
+const char    *Cmd_Argv( int arg );
 void    Cmd_ArgvBuffer( int arg, char *buffer, int bufferLength );
 char    *Cmd_Args( void );
 char    *Cmd_ArgsFrom( int arg );
@@ -437,7 +437,7 @@ float   Cvar_VariableValue( const char *var_name );
 int     Cvar_VariableIntegerValue( const char *var_name );
 // returns 0 if not defined or non numeric
 
-char    *Cvar_VariableString( const char *var_name );
+const char    *Cvar_VariableString( const char *var_name );
 void    Cvar_VariableStringBuffer( const char *var_name, char *buffer, int bufsize );
 // returns an empty string if not defined
 
@@ -580,7 +580,7 @@ int     FS_FOpenFileByMode( const char *qpath, fileHandle_t *f, fsMode_t mode );
 size_t     FS_Seek( fileHandle_t f, size_t offset, int origin );
 // seek on a file (doesn't work for zip files!!!!!!!!)
 
-qboolean FS_FilenameCompare( const char *s1, const char *s2 );
+int FS_FilenameCompare( const char *s1, const char *s2 );
 
 const char *FS_ReferencedPakNames( void );
 const char *FS_ReferencedPakChecksums( void );
@@ -671,7 +671,7 @@ int         Com_Milliseconds( void );   // will be journaled properly
 unsigned    int Com_BlockChecksum( const void *buffer, size_t length );
 unsigned    Com_BlockChecksumKey( void *buffer, int length, int key );
 int         Com_HashKey( const char *string, int maxlen );
-int         Com_Filter( char *filter, char *name, int casesensitive );
+int         Com_Filter( const char *filter, char *name, int casesensitive );
 int         Com_FilterPath(const char *filter, const char *name, int casesensitive );
 time_t         Com_RealTime( qtime_t *qtime );
 qboolean    Com_SafeMode( void );
@@ -887,7 +887,7 @@ char    *Sys_DefaultBasePath( void );
 char    *Sys_DefaultInstallPath( void );
 const char    *Sys_DefaultHomePath( void );
 
-char **Sys_ListFiles( const char *directory, const char *extension, char *filter, int *numfiles, qboolean wantsubs );
+char **Sys_ListFiles( const char *directory, const char *extension, const char *filter, int *numfiles, qboolean wantsubs );
 void    Sys_FreeFileList( char **list );
 
 void    Sys_BeginProfiling( void );

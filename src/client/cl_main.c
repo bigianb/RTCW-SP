@@ -336,7 +336,7 @@ so when they are typed in at the console, they will need to be forwarded.
 */
 void CL_ForwardCommandToServer( const char *string )
 {
-	char* cmd = Cmd_Argv( 0 );
+	const char* cmd = Cmd_Argv( 0 );
 
 	// ignore key up commands
 	if ( cmd[0] == '-' ) {
@@ -501,7 +501,7 @@ void CL_Connect_f()
 	// clear any previous "server full" type messages
 	clc.serverMessage[0] = 0;
 
-	char* server = Cmd_Argv( 1 );
+	const char* server = Cmd_Argv( 1 );
 
 	if ( com_sv_running->integer) {
 		// if running a local server, kill it
@@ -955,7 +955,7 @@ void CL_ConnectionlessPacket( netadr_t from, msg_t *msg )
 
 	Cmd_TokenizeString( s );
 
-	char* c = Cmd_Argv( 0 );
+	const char* c = Cmd_Argv( 0 );
 
 	Com_DPrintf( "CL packet %s: %s\n", NET_AdrToString( from ), c );
 

@@ -39,15 +39,15 @@ Restart the server on a different map
 ==================
 */
 static void SV_Map_f( void ) {
-	char        *cmd;
-	char        *map;
+	const char        *cmd;
+
 	char smapname[MAX_QPATH];
 	char mapname[MAX_QPATH];
 	qboolean killBots, cheat, buildScript;
 	char expanded[MAX_QPATH];
 	int savegameTime = -1;
 
-	map = Cmd_Argv( 1 );
+	const char* map = Cmd_Argv( 1 );
 	if ( !map ) {
 		return;
 	}
@@ -222,7 +222,7 @@ static void SV_MapRestart_f( void ) {
 	// Ridah, check for loading a saved game
 	if ( Cvar_VariableIntegerValue( "savegame_loading" ) ) {
 		// open the current savegame, and find out what the time is, everything else we can ignore
-		char *savemap = "save/current.svg";
+		const char *savemap = "save/current.svg";
 		byte *buffer;
 		int size, savegameTime;
 

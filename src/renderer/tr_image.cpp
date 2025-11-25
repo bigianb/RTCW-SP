@@ -2940,7 +2940,7 @@ qboolean R_CropImage( char *name, byte **pic, int border, int *width, int *heigh
 R_CropAndNumberImagesInDirectory
 ===============
 */
-void    R_CropAndNumberImagesInDirectory( char *dir, char *ext, int maxWidth, int maxHeight, int withAlpha ) {
+void    R_CropAndNumberImagesInDirectory( const char *dir, const char *ext, int maxWidth, int maxHeight, int withAlpha ) {
 #ifdef CROPIMAGES_ENABLED
 	char    **fileList;
 	int numFiles, j;
