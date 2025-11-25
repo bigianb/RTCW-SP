@@ -29,21 +29,214 @@ if(APPLE)
 endif()
 
 
-file(GLOB BOTAI_INCLUDES src/botai/*.h)
-file(GLOB BOTAI_SOURCES src/botai/*.c)
+set(BOTAI_INCLUDES 
+	src/botai/ai_dmnet.h
+	src/botai/ai_dmq3.h
+	src/botai/ai_main.h
+	src/botai/botai.h
+	src/botai/chars.h
+	src/botai/inv.h
+	src/botai/match.h
+	src/botai/syn.h
+)
 
-file(GLOB BOTLIB_INCLUDES src/botlib/*.h)
-file(GLOB BOTLIB_SOURCES src/botlib/*.c)
+set(BOTAI_SOURCES 
+	src/botai/ai_dmnet.c
+	src/botai/ai_dmq3.c
+	src/botai/ai_main.c
+)
 
-file(GLOB CGAME_INCLUDES src/cgame/*.h)
-file(GLOB CGAME_SOURCES src/cgame/*.c)
+set(BOTLIB_INCLUDES
+	src/botlib/aasfile.h
+	src/botlib/be_aas.h
+	src/botlib/be_aas_bsp.h
+	src/botlib/be_aas_cluster.h
+	src/botlib/be_aas_debug.h
+	src/botlib/be_aas_def.h
+	src/botlib/be_aas_entity.h
+	src/botlib/be_aas_file.h
+	src/botlib/be_aas_funcs.h
+	src/botlib/be_aas_main.h
+	src/botlib/be_aas_move.h
+	src/botlib/be_aas_optimize.h
+	src/botlib/be_aas_reach.h
+	src/botlib/be_aas_route.h
+	src/botlib/be_aas_routealt.h
+	src/botlib/be_aas_routetable.h
+	src/botlib/be_aas_sample.h
+	src/botlib/be_ai_weight.h
+	src/botlib/be_interface.h
+	src/botlib/botlib.h
+	src/botlib/l_crc.h
+	src/botlib/l_libvar.h
+	src/botlib/l_log.h
+	src/botlib/l_memory.h
+	src/botlib/l_precomp.h
+	src/botlib/l_script.h
+	src/botlib/l_struct.h
+	src/botlib/l_utils.h
+)
 
-file(GLOB CLIENT_INCLUDES src/client/*.h)
-file(GLOB CLIENT_SOURCES src/client/*.c)
+set(BOTLIB_SOURCES
+	src/botlib/be_aas_bspq3.c
+	src/botlib/be_aas_cluster.c
+	src/botlib/be_aas_debug.c
+	src/botlib/be_aas_entity.c
+	src/botlib/be_aas_file.c
+	src/botlib/be_aas_main.c
+	src/botlib/be_aas_move.c
+	src/botlib/be_aas_optimize.c
+	src/botlib/be_aas_reach.c
+	src/botlib/be_aas_route.c
+	src/botlib/be_aas_routealt.c
+	src/botlib/be_aas_routetable.c
+	src/botlib/be_aas_sample.c
+	src/botlib/be_ai_char.c
+	src/botlib/be_ai_chat.c
+	src/botlib/be_ai_gen.c
+	src/botlib/be_ai_goal.c
+	src/botlib/be_ai_move.c
+	src/botlib/be_ai_weap.c
+	src/botlib/be_ai_weight.c
+	src/botlib/be_ea.c
+	src/botlib/be_interface.c
+	src/botlib/l_crc.c
+	src/botlib/l_libvar.c
+	src/botlib/l_log.c
+	src/botlib/l_memory.c
+	src/botlib/l_precomp.c
+	src/botlib/l_script.c
+	src/botlib/l_struct.c
+)
 
-file(GLOB GAME_INCLUDES src/game/*.h)
-file(GLOB GAME_SOURCES RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} src/game/*.c)
-list(REMOVE_ITEM GAME_SOURCES src/game/bg_lib.c)
+set(CGAME_INCLUDES 
+	src/cgame/cg_local.h
+	src/cgame/cg_public.h
+	src/cgame/tr_types.h
+)
+
+set(CGAME_SOURCES 
+	src/cgame/cg_consolecmds.c
+	src/cgame/cg_draw.c
+	src/cgame/cg_drawtools.c
+	src/cgame/cg_effects.c
+	src/cgame/cg_ents.c
+	src/cgame/cg_event.c
+	src/cgame/cg_flamethrower.c
+	src/cgame/cg_info.c
+	src/cgame/cg_localents.c
+	src/cgame/cg_main.c
+	src/cgame/cg_marks.c
+	src/cgame/cg_newDraw.c
+	src/cgame/cg_particles.c
+	src/cgame/cg_players.c
+	src/cgame/cg_playerstate.c
+	src/cgame/cg_predict.c
+	src/cgame/cg_servercmds.c
+	src/cgame/cg_snapshot.c
+	src/cgame/cg_sound.c
+	src/cgame/cg_syscalls.c
+	src/cgame/cg_trails.c
+	src/cgame/cg_view.c
+	src/cgame/cg_weapons.c
+)
+
+set(CLIENT_INCLUDES 
+	src/client/client.h
+	src/client/keys.h
+	src/client/snd_local.h
+	src/client/snd_public.h
+)
+
+set(CLIENT_SOURCES 
+	src/client/cl_cgame.c
+	src/client/cl_cin.c
+	src/client/cl_console.c
+	src/client/cl_input.c
+	src/client/cl_keys.c
+	src/client/cl_main.c
+	src/client/cl_net_chan.c
+	src/client/cl_parse.c
+	src/client/cl_scrn.c
+	src/client/cl_ui.c
+	src/client/snd_adpcm.c
+	src/client/snd_dma.c
+	src/client/snd_mem.c
+	src/client/snd_mix.c
+	src/client/snd_wavelet.c
+)
+
+set(GAME_INCLUDES 
+	src/game/ai_cast.h 
+	src/game/ai_cast_fight.h
+	src/game/ai_cast_global.h  
+	src/game/be_aas.h
+	src/game/be_ai_char.h
+	src/game/be_ai_chat.h 
+	src/game/be_ai_gen.h        
+	src/game/be_ai_goal.h    
+	src/game/be_ai_move.h           
+	src/game/be_ai_weap.h
+	src/game/be_ea.h       
+	src/game/bg_local.h      
+	src/game/bg_public.h     
+	src/game/botlib.h         
+	src/game/g_func_decs.h     
+	src/game/g_funcs.h      
+	src/game/g_local.h    
+	src/game/g_public.h    
+	src/game/q_shared.h            
+	src/game/g_team.h
+	src/game/surfaceflags.h
+)
+
+set(GAME_SOURCES 
+	src/game/ai_cast.c
+	src/game/ai_cast_characters.c
+	src/game/ai_cast_debug.c
+	src/game/ai_cast_events.c
+	src/game/ai_cast_fight.c
+	src/game/ai_cast_func_attack.c
+	src/game/ai_cast_func_boss1.c
+	src/game/ai_cast_funcs.c
+	src/game/ai_cast_script.c
+	src/game/ai_cast_script_actions.c
+	src/game/ai_cast_script_ents.c
+	src/game/ai_cast_sight.c
+	src/game/ai_cast_think.c
+	src/game/bg_animation.c
+	src/game/bg_misc.c
+	src/game/bg_pmove.c
+	src/game/bg_slidemove.c
+	src/game/g_active.c
+	src/game/g_alarm.c
+	src/game/g_bot.c
+	src/game/g_client.c
+	src/game/g_cmds.c
+	src/game/g_combat.c
+	src/game/g_items.c
+	src/game/g_main.c
+	src/game/g_mem.c
+	src/game/g_misc.c
+	src/game/g_missile.c
+	src/game/g_mover.c
+	src/game/g_props.c
+	src/game/g_save.c
+	src/game/g_script.c
+	src/game/g_script_actions.c
+	src/game/g_session.c
+	src/game/g_spawn.c
+	src/game/g_svcmds.c
+	src/game/g_syscalls.c
+	src/game/g_target.c
+	src/game/g_team.c
+	src/game/g_tramcar.c
+	src/game/g_trigger.c
+	src/game/g_utils.c
+	src/game/g_weapon.c
+	src/game/q_math.c
+	src/game/q_shared.c
+)
 
 set(QCOMMON_INCLUDES
 	src/qcommon/cm_local.h
