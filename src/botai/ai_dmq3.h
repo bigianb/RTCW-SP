@@ -37,6 +37,10 @@ If you have questions concerning this license or the applicable additional terms
 
 #pragma once
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include "../botlib/be_aas_entity.h"
 #include "../game/be_ai_move.h"
 #include "../game/be_ai_goal.h"
@@ -59,12 +63,10 @@ void BotUpdateInventory( bot_state_t *bs );
 void BotUpdateBattleInventory( bot_state_t *bs, int enemy );
 //use holdable items during battle
 void BotBattleUseItems( bot_state_t *bs );
-//return true if the bot is dead
-qboolean BotIsDead( bot_state_t *bs );
+
 //returns true if the bot is in observer mode
 qboolean BotIsObserver( bot_state_t *bs );
-//returns true if the bot is in the intermission
-qboolean BotIntermission( bot_state_t *bs );
+
 //returns true if the bot is in lava
 qboolean BotInLava( bot_state_t *bs );
 //returns true if the bot is in slime
@@ -76,11 +78,11 @@ qboolean EntityIsInvisible( aas_entityinfo_t *entinfo );
 //returns true if the entity is shooting
 qboolean EntityIsShooting( aas_entityinfo_t *entinfo );
 //returns the name of the client
-char *ClientName( int client, char *name, int size );
-//returns an simplyfied client name
+const char *ClientName( int client, char *name, int size );
+//returns an simplified client name
 char *EasyClientName( int client, char *name, int size );
 //returns the skin used by the client
-char *ClientSkin( int client, char *skin, int size );
+const char *ClientSkin( int client, char *skin, int size );
 //returns the aggression of the bot in the range [0, 100]
 float BotAggression( bot_state_t *bs );
 //returns true if the bot wants to retreat
@@ -142,3 +144,7 @@ extern vmCvar_t bot_rocketjump;
 extern vmCvar_t bot_fastchat;
 extern vmCvar_t bot_nochat;
 extern vmCvar_t bot_testrchat;
+
+#ifdef __cplusplus
+}
+#endif  

@@ -1151,7 +1151,7 @@ int     trap_DebugPolygonCreate( int color, int numPoints, vec3_t *points );
 void    trap_DebugPolygonDelete( int id );
 
 int     trap_BotLibShutdown( void );
-int     trap_BotLibVarSet( char *var_name, char *value );
+int     trap_BotLibVarSet( const char *var_name, const char *value );
 int     trap_BotLibVarGet( char *var_name, char *value, int size );
 int     trap_BotLibDefine( char *string );
 int     trap_BotLibStartFrame( float time );
@@ -1174,10 +1174,10 @@ int         trap_AAS_TraceAreas( vec3_t start, vec3_t end, int *areas, vec3_t *p
 
 int         trap_AAS_PointContents( vec3_t point );
 int         trap_AAS_NextBSPEntity( int ent );
-int         trap_AAS_ValueForBSPEpairKey( int ent, char *key, char *value, int size );
-int         trap_AAS_VectorForBSPEpairKey( int ent, char *key, vec3_t v );
-int         trap_AAS_FloatForBSPEpairKey( int ent, char *key, float *value );
-int         trap_AAS_IntForBSPEpairKey( int ent, char *key, int *value );
+int         trap_AAS_ValueForBSPEpairKey( int ent, const char *key, char *value, int size );
+int         trap_AAS_VectorForBSPEpairKey( int ent, const char *key, vec3_t v );
+int         trap_AAS_FloatForBSPEpairKey( int ent, const char *key, float *value );
+int         trap_AAS_IntForBSPEpairKey( int ent, const char *key, int *value );
 
 int         trap_AAS_AreaReachability( int areanum );
 
@@ -1251,14 +1251,13 @@ int     trap_BotTouchingGoal( vec3_t origin, void /* struct bot_goal_s */ *goal 
 int     trap_BotItemGoalInVisButNotVisible( int viewer, vec3_t eye, vec3_t viewangles, void /* struct bot_goal_s */ *goal );
 int     trap_BotGetNextCampSpotGoal( int num, void /* struct bot_goal_s */ *goal );
 int     trap_BotGetMapLocationGoal( char *name, void /* struct bot_goal_s */ *goal );
-int     trap_BotGetLevelItemGoal( int index, char *classname, void /* struct bot_goal_s */ *goal );
+int     trap_BotGetLevelItemGoal( int index, const char *classname, void /* struct bot_goal_s */ *goal );
 float   trap_BotAvoidGoalTime( int goalstate, int number );
 void    trap_BotInitLevelItems( void );
 void    trap_BotUpdateEntityItems( void );
 int     trap_BotLoadItemWeights( int goalstate, char *filename );
 void    trap_BotFreeItemWeights( int goalstate );
 
-void    trap_BotSaveGoalFuzzyLogic( int goalstate, char *filename );
 void    trap_BotMutateGoalFuzzyLogic( int goalstate, float range );
 int     trap_BotAllocGoalState( int state );
 void    trap_BotFreeGoalState( int handle );

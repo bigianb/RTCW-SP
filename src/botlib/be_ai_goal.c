@@ -193,19 +193,7 @@ bot_goalstate_t *BotGoalStateFromHandle( int handle ) {
 	return botgoalstates[handle];
 } //end of the function BotGoalStateFromHandle
 
-//===========================================================================
-//
-// Parameter:				-
-// Returns:					-
-// Changes Globals:		-
-//===========================================================================
-void BotSaveGoalFuzzyLogic( int goalstate, char *filename ) {
-	bot_goalstate_t *gs;
 
-	gs = BotGoalStateFromHandle( goalstate );
-
-	//WriteWeightConfig(filename, gs->itemweightconfig);
-} //end of the function BotSaveGoalFuzzyLogic
 //===========================================================================
 //
 // Parameter:				-
@@ -717,7 +705,7 @@ float BotAvoidGoalTime( int goalstate, int number ) {
 // Returns:				-
 // Changes Globals:		-
 //===========================================================================
-int BotGetLevelItemGoal( int index, char *name, bot_goal_t *goal ) {
+int BotGetLevelItemGoal( int index, const char *name, bot_goal_t *goal ) {
 	levelitem_t *li;
 
 	if ( !itemconfig ) {

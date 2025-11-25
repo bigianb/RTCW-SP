@@ -237,10 +237,10 @@ typedef struct aas_export_s
 	//--------------------------------------------
 	int ( *AAS_PointContents )( vec3_t point );
 	int ( *AAS_NextBSPEntity )( int ent );
-	int ( *AAS_ValueForBSPEpairKey )( int ent, char *key, char *value, int size );
-	int ( *AAS_VectorForBSPEpairKey )( int ent, char *key, vec3_t v );
-	int ( *AAS_FloatForBSPEpairKey )( int ent, char *key, float *value );
-	int ( *AAS_IntForBSPEpairKey )( int ent, char *key, int *value );
+	int ( *AAS_ValueForBSPEpairKey )( int ent, const char *key, char *value, int size );
+	int ( *AAS_VectorForBSPEpairKey )( int ent, const char *key, vec3_t v );
+	int ( *AAS_FloatForBSPEpairKey )( int ent, const char *key, float *value );
+	int ( *AAS_IntForBSPEpairKey )( int ent, const char *key, int *value );
 	//--------------------------------------------
 	// be_aas_reach.c
 	//--------------------------------------------
@@ -343,7 +343,7 @@ typedef struct ai_export_s
 							   struct bot_goal_s *ltg, float maxtime );
 	int ( *BotTouchingGoal )( vec3_t origin, struct bot_goal_s *goal );
 	int ( *BotItemGoalInVisButNotVisible )( int viewer, vec3_t eye, vec3_t viewangles, struct bot_goal_s *goal );
-	int ( *BotGetLevelItemGoal )( int index, char *classname, struct bot_goal_s *goal );
+	int ( *BotGetLevelItemGoal )( int index, const char *classname, struct bot_goal_s *goal );
 	int ( *BotGetNextCampSpotGoal )( int num, struct bot_goal_s *goal );
 	int ( *BotGetMapLocationGoal )( char *name, struct bot_goal_s *goal );
 	float ( *BotAvoidGoalTime )( int goalstate, int number );
@@ -352,7 +352,6 @@ typedef struct ai_export_s
 	int ( *BotLoadItemWeights )( int goalstate, char *filename );
 	void ( *BotFreeItemWeights )( int goalstate );
 
-	void ( *BotSaveGoalFuzzyLogic )( int goalstate, char *filename );
 	void ( *BotMutateGoalFuzzyLogic )( int goalstate, float range );
 	int ( *BotAllocGoalState )( int client );
 	void ( *BotFreeGoalState )( int handle );

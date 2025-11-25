@@ -70,7 +70,7 @@ vmCvar_t memorydump;
 BotAI_Print
 ==================
 */
-void BotAI_Print( int type, char *fmt, ... ) {
+void BotAI_Print( int type, const char *fmt, ... ) {
 	char str[2048];
 	va_list ap;
 
@@ -580,7 +580,7 @@ int BotAISetupClient( int client, struct bot_settings_s *settings ) {
 	int errnum;
 
 	if ( !botstates[client] ) {
-		botstates[client] = G_Alloc( sizeof( bot_state_t ) );
+		botstates[client] = (bot_state_t *)G_Alloc( sizeof( bot_state_t ) );
 	}
 	bs = botstates[client];
 

@@ -28,6 +28,10 @@ If you have questions concerning this license or the applicable additional terms
 
 #pragma once
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include "../botlib/be_aas_def.h"
 #include "../botai/botai.h"
 #include "../game/be_ai_goal.h"
@@ -217,9 +221,16 @@ void AICast_StartFrame( int time );
 // done.
 
 // from the game source
-void  BotAI_Print( int type, char *fmt, ... );
+void  BotAI_Print( int type, const char *fmt, ... );
 void   BotAI_BotInitialChat( bot_state_t *bs, char *type, ... );
 void    BotAI_Trace( bsp_trace_t *bsptrace, vec3_t start, vec3_t mins, vec3_t maxs, vec3_t end, int passent, int contentmask );
 int     BotAI_GetClientState( int clientNum, playerState_t *state );
 int     BotAI_GetEntityState( int entityNum, entityState_t *state );
 int     BotAI_GetSnapshotEntity( int clientNum, int sequence, entityState_t *state );
+
+float   BotChangeViewAngle( float angle, float ideal_angle, float speed );
+void    BotCheckAir( bot_state_t *bs );
+
+#ifdef __cplusplus
+}
+#endif

@@ -41,9 +41,9 @@ set(BOTAI_INCLUDES
 )
 
 set(BOTAI_SOURCES 
-	src/botai/ai_dmnet.c
-	src/botai/ai_dmq3.c
-	src/botai/ai_main.c
+	src/botai/ai_dmnet.cpp
+	src/botai/ai_dmq3.cpp
+	src/botai/ai_main.cpp
 )
 
 set(BOTLIB_INCLUDES

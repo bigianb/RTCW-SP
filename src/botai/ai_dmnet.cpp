@@ -59,6 +59,8 @@ If you have questions concerning this license or the applicable additional terms
 
 #include "../server/server.h"
 
+#include "botai_local.h"
+
 //goal flag, see be_ai_goal.h for the other GFL_*
 #define GFL_AIR         16
 
@@ -98,7 +100,7 @@ void BotDumpNodeSwitches( bot_state_t *bs ) {
 BotRecordNodeSwitch
 ==================
 */
-void BotRecordNodeSwitch( bot_state_t *bs, char *node, char *str ) {
+void BotRecordNodeSwitch( bot_state_t *bs, const char *node, const char *str ) {
 	char netname[MAX_NETNAME];
 
 	ClientName( bs->client, netname, sizeof( netname ) );

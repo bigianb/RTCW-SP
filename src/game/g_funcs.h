@@ -765,7 +765,6 @@ If you have questions concerning this license or the applicable additional terms
 {"trap_BotFreeGoalState", (byte *)trap_BotFreeGoalState},
 {"trap_BotAllocGoalState", (byte *)trap_BotAllocGoalState},
 {"trap_BotMutateGoalFuzzyLogic", (byte *)trap_BotMutateGoalFuzzyLogic},
-{"trap_BotSaveGoalFuzzyLogic", (byte *)trap_BotSaveGoalFuzzyLogic},
 
 {"trap_BotFreeItemWeights", (byte *)trap_BotFreeItemWeights},
 {"trap_BotLoadItemWeights", (byte *)trap_BotLoadItemWeights},

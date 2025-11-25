@@ -71,8 +71,8 @@ int trap_BotLibShutdown( void ) {
 }
 
 
-extern int Export_BotLibVarSet( char *var_name, char *value );
-int trap_BotLibVarSet( char *var_name, char *value ) {
+extern int Export_BotLibVarSet( const char *var_name, const char *value );
+int trap_BotLibVarSet( const char *var_name, const char *value ) {
 	return Export_BotLibVarSet(var_name, value );
 }
 
@@ -149,19 +149,19 @@ int trap_AAS_NextBSPEntity( int ent ) {
 	return AAS_NextBSPEntity(ent);
 }
 
-int trap_AAS_ValueForBSPEpairKey( int ent, char *key, char *value, int size ) {
+int trap_AAS_ValueForBSPEpairKey( int ent, const char *key, char *value, int size ) {
 	return AAS_ValueForBSPEpairKey( ent, key, value, size );
 }
 
-int trap_AAS_VectorForBSPEpairKey( int ent, char *key, vec3_t v ) {
+int trap_AAS_VectorForBSPEpairKey( int ent, const char *key, vec3_t v ) {
 	return AAS_VectorForBSPEpairKey( ent, key, v );
 }
 
-int trap_AAS_FloatForBSPEpairKey( int ent, char *key, float *value ) {
+int trap_AAS_FloatForBSPEpairKey( int ent, const char *key, float *value ) {
 	return AAS_FloatForBSPEpairKey( ent, key, value );
 }
 
-int trap_AAS_IntForBSPEpairKey( int ent, char *key, int *value ) {
+int trap_AAS_IntForBSPEpairKey( int ent, const char *key, int *value ) {
 	return AAS_IntForBSPEpairKey( ent, key, value );
 }
 
@@ -406,7 +406,7 @@ int trap_BotItemGoalInVisButNotVisible( int viewer, vec3_t eye, vec3_t viewangle
 	return BotItemGoalInVisButNotVisible(viewer, eye, viewangles, goal );
 }
 
-int trap_BotGetLevelItemGoal( int index, char *classname, void /* struct bot_goal_s */ *goal ) {
+int trap_BotGetLevelItemGoal( int index, const char *classname, void /* struct bot_goal_s */ *goal ) {
 	return BotGetLevelItemGoal(index, classname, goal );
 }
 
@@ -436,10 +436,6 @@ int trap_BotLoadItemWeights( int goalstate, char *filename ) {
 
 void trap_BotFreeItemWeights( int goalstate ) {
 	BotFreeItemWeights(goalstate );
-}
-
-void trap_BotSaveGoalFuzzyLogic( int goalstate, char *filename ) {
-	BotSaveGoalFuzzyLogic(goalstate, filename );
 }
 
 void trap_BotMutateGoalFuzzyLogic( int goalstate, float range ) {

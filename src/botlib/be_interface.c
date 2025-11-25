@@ -233,7 +233,7 @@ int Export_BotLibShutdown( void ) {
 // Returns:					-
 // Changes Globals:		-
 //===========================================================================
-int Export_BotLibVarSet( char *var_name, char *value ) {
+int Export_BotLibVarSet( const char *var_name, const char *value ) {
 	LibVarSet( var_name, value );
 	return BLERR_NOERROR;
 } //end of the function Export_BotLibVarSet
@@ -402,7 +402,6 @@ static void Init_AI_Export( ai_export_t *ai ) {
 	ai->BotLoadItemWeights = BotLoadItemWeights;
 	ai->BotFreeItemWeights = BotFreeItemWeights;
 
-	ai->BotSaveGoalFuzzyLogic = BotSaveGoalFuzzyLogic;
 	ai->BotMutateGoalFuzzyLogic = BotMutateGoalFuzzyLogic;
 	ai->BotAllocGoalState = BotAllocGoalState;
 	ai->BotFreeGoalState = BotFreeGoalState;

@@ -133,7 +133,7 @@ int BotPointAreaNum( vec3_t origin ) {
 ClientName
 ==================
 */
-char *ClientName( int client, char *name, int size ) {
+const char *ClientName( int client, char *name, int size ) {
 	char buf[MAX_INFO_STRING];
 
 	if ( client < 0 || client >= MAX_CLIENTS ) {
@@ -152,7 +152,7 @@ char *ClientName( int client, char *name, int size ) {
 ClientSkin
 ==================
 */
-char *ClientSkin( int client, char *skin, int size ) {
+const char *ClientSkin( int client, char *skin, int size ) {
 	char buf[MAX_INFO_STRING];
 
 	if ( client < 0 || client >= MAX_CLIENTS ) {
@@ -413,7 +413,7 @@ void BotSetTeleportTime( bot_state_t *bs ) {
 BotIsDead
 ==================
 */
-qboolean BotIsDead( bot_state_t *bs ) {
+bool BotIsDead( bot_state_t *bs ) {
 	return ( bs->cur_ps.pm_type == PM_DEAD );
 }
 
@@ -437,7 +437,7 @@ qboolean BotIsObserver( bot_state_t *bs ) {
 BotIntermission
 ==================
 */
-qboolean BotIntermission( bot_state_t *bs ) {
+bool BotIntermission( bot_state_t *bs ) {
 	//NOTE: we shouldn't look at the game code...
 	if ( level.intermissiontime ) {
 		return qtrue;
@@ -456,7 +456,7 @@ qboolean BotInLava( bot_state_t *bs ) {
 
 	VectorCopy( bs->origin, feet );
 	feet[2] -= 23;
-	return ( trap_AAS_PointContents( feet ) & CONTENTS_LAVA );
+	return ( trap_AAS_PointContents( feet ) & CONTENTS_LAVA ) ? qtrue : qfalse;
 }
 
 /*
@@ -469,7 +469,7 @@ qboolean BotInSlime( bot_state_t *bs ) {
 
 	VectorCopy( bs->origin, feet );
 	feet[2] -= 23;
-	return ( trap_AAS_PointContents( feet ) & CONTENTS_SLIME );
+	return ( trap_AAS_PointContents( feet ) & CONTENTS_SLIME ) ? qtrue : qfalse;
 }
 
 /*
@@ -848,7 +848,7 @@ int BotWantsToCamp( bot_state_t *bs ) {
 BotDontAvoid
 ==================
 */
-void BotDontAvoid( bot_state_t *bs, char *itemname ) {
+void BotDontAvoid( bot_state_t *bs, const char *itemname ) {
 	bot_goal_t goal;
 	int num;
 

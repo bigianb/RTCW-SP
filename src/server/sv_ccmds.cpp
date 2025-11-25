@@ -97,7 +97,7 @@ static void SV_Map_f( void ) {
 		Cvar_Set( "savegame_filename", savemap );
 
 		// the mapname is at the very start of the savegame file
-		snprintf( savemap, sizeof( savemap ), ( char * )( buffer + sizeof( int ) ) );  // skip the version
+		snprintf( savemap, sizeof( savemap ), "%s", ( char * )( buffer + sizeof( int ) ) );  // skip the version
 		Q_strncpyz( smapname, savemap, sizeof( smapname ) );
 		map = smapname;
 
@@ -355,7 +355,7 @@ void    SV_LoadGame_f( void ) {
 	FS_ReadFile( filename, (void **)&buffer );
 
 	// read the mapname, if it is the same as the current map, then do a fast load
-	snprintf( mapname, sizeof( mapname ), (const char*)( buffer + sizeof( int ) ) );
+	snprintf( mapname, sizeof( mapname ), "%s", (const char*)( buffer + sizeof( int ) ) );
 
 	if ( com_sv_running->integer && ( com_frameTime != sv.serverId ) ) {
 		// check mapname
