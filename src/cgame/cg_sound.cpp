@@ -235,8 +235,8 @@ void CG_SoundPlayIndexedScript( int index, vec3_t org, int entnum ) {
 CG_SoundParseSounds
 ===============
 */
-static void CG_SoundParseSounds( char *filename, char *buffer ) {
-	char *token, **text;
+static void CG_SoundParseSounds( char *filename, const char *buffer ) {
+	char *token;
 	int s;
 	long hash;
 	soundScript_t sound;                // the current sound being read
@@ -246,7 +246,7 @@ static void CG_SoundParseSounds( char *filename, char *buffer ) {
 	s = 0;
 	inSound = qfalse;
 	wantSoundName = qtrue;
-	text = &buffer;
+	const char **text = &buffer;
 
 	while ( 1 ) {
 		token = COM_ParseExt( text, qtrue );
@@ -389,7 +389,7 @@ CG_SoundLoadSoundFiles
 static void CG_SoundLoadSoundFiles( void ) {
 	char soundFiles[MAX_SOUND_FILES][MAX_QPATH];
 	char buffer[MAX_BUFFER];
-	char *text;
+
 	char filename[MAX_QPATH];
 	fileHandle_t f;
 	int numSounds;
@@ -412,7 +412,7 @@ static void CG_SoundLoadSoundFiles( void ) {
 	buffer[len] = 0;
 	FS_FCloseFile( f );
 	// parse the list
-	text = buffer;
+	const char* text = buffer;
 	numSounds = 0;
 	while ( 1 ) {
 		token = COM_ParseExt( &text, qtrue );

@@ -63,7 +63,7 @@ If you have questions concerning this license or the applicable additional terms
 
 extern int lastZombieSpiritAttack;
 
-char *AIFunc_Helga_SpiritAttack( cast_state_t *cs ) {
+const char *AIFunc_Helga_SpiritAttack( cast_state_t *cs ) {
 	bot_state_t *bs;
 	gentity_t *ent;
 	//
@@ -116,7 +116,7 @@ char *AIFunc_Helga_SpiritAttack( cast_state_t *cs ) {
 	return NULL;
 }
 
-char *AIFunc_Helga_SpiritAttack_Start( cast_state_t *cs ) {
+const char *AIFunc_Helga_SpiritAttack_Start( cast_state_t *cs ) {
 	gentity_t *ent;
 	//
 	ent = &g_entities[cs->entityNum];
@@ -158,7 +158,7 @@ int helgaHitDamage[NUM_HELGA_ANIMS] = {
 AIFunc_Helga_Melee
 ================
 */
-char *AIFunc_Helga_Melee( cast_state_t *cs ) {
+const char *AIFunc_Helga_Melee( cast_state_t *cs ) {
 	gentity_t *ent = &g_entities[cs->entityNum];
 	gentity_t *enemy;
 	cast_state_t *ecs;
@@ -250,7 +250,7 @@ char *AIFunc_Helga_Melee( cast_state_t *cs ) {
 AIFunc_Helga_MeleeStart
 ================
 */
-char *AIFunc_Helga_MeleeStart( cast_state_t *cs ) {
+const char *AIFunc_Helga_MeleeStart( cast_state_t *cs ) {
 	gentity_t *ent;
 
 	ent = &g_entities[cs->entityNum];
@@ -283,7 +283,7 @@ char *AIFunc_Helga_MeleeStart( cast_state_t *cs ) {
 AIFunc_FlameZombie_Portal
 ==============
 */
-char *AIFunc_FlameZombie_Portal( cast_state_t *cs ) {
+const char *AIFunc_FlameZombie_Portal( cast_state_t *cs ) {
 	gentity_t *ent = &g_entities[cs->entityNum];
 	//
 	if ( cs->thinkFuncChangeTime < level.time - PORTAL_ZOMBIE_SPAWNTIME ) {
@@ -301,7 +301,7 @@ char *AIFunc_FlameZombie_Portal( cast_state_t *cs ) {
 AIFunc_FlameZombie_PortalStart
 ==============
 */
-char *AIFunc_FlameZombie_PortalStart( cast_state_t *cs ) {
+const char *AIFunc_FlameZombie_PortalStart( cast_state_t *cs ) {
 	gentity_t *ent = &g_entities[cs->entityNum];
 	//
 	ent->shared.s.time2 = level.time + 200;    // hijacking this for portal spawning effect
@@ -347,7 +347,7 @@ typedef enum
 	MAX_HEINRICH_SOUNDS
 } heinrichSounds_t;
 
-char *heinrichSounds[MAX_HEINRICH_SOUNDS] = {
+const char *heinrichSounds[MAX_HEINRICH_SOUNDS] = {
 	"heinrichSwordImpact",
 	"heinrichSwordLungeStart",
 	"heinrichSwordKnockbackStart",
@@ -390,7 +390,7 @@ void AICast_Heinrich_Taunt( cast_state_t *cs ) {
 #define HEINRICH_LUNGE_RANGE    170
 #define HEINRICH_LUNGE_DAMAGE   ( 50 + rand() % 20 )
 
-char *AIFunc_Heinrich_SwordLunge( cast_state_t *cs ) {
+const char *AIFunc_Heinrich_SwordLunge( cast_state_t *cs ) {
 	gentity_t *ent = &g_entities[cs->entityNum];
 	trace_t *tr;
 	vec3_t left;
@@ -460,7 +460,7 @@ char *AIFunc_Heinrich_SwordLunge( cast_state_t *cs ) {
 	return NULL;
 }
 
-char *AIFunc_Heinrich_SwordLungeStart( cast_state_t *cs ) {
+const char *AIFunc_Heinrich_SwordLungeStart( cast_state_t *cs ) {
 	gentity_t *ent = &g_entities[cs->entityNum];
 //	gentity_t	*enemy = &g_entities[cs->enemyNum];
 
@@ -482,7 +482,7 @@ char *AIFunc_Heinrich_SwordLungeStart( cast_state_t *cs ) {
 #define HEINRICH_KNOCKBACK_RANGE    150
 #define HEINRICH_KNOCKBACK_DAMAGE   ( 60 + rand() % 20 )
 
-char *AIFunc_Heinrich_SwordKnockback( cast_state_t *cs ) {
+const char *AIFunc_Heinrich_SwordKnockback( cast_state_t *cs ) {
 	gentity_t *ent = &g_entities[cs->entityNum];
 	trace_t *tr;
 	vec3_t right, left;
@@ -544,7 +544,7 @@ char *AIFunc_Heinrich_SwordKnockback( cast_state_t *cs ) {
 	return NULL;
 }
 
-char *AIFunc_Heinrich_SwordKnockbackStart( cast_state_t *cs ) {
+const char *AIFunc_Heinrich_SwordKnockbackStart( cast_state_t *cs ) {
 	gentity_t *ent = &g_entities[cs->entityNum];
 //	gentity_t	*enemy = &g_entities[cs->enemyNum];
 
@@ -572,7 +572,7 @@ char *AIFunc_Heinrich_SwordKnockbackStart( cast_state_t *cs ) {
 #define HEINRICH_SLASH_RANGE    140
 #define HEINRICH_SLASH_DAMAGE   ( 30 + rand() % 15 )
 
-char *AIFunc_Heinrich_SwordSideSlash( cast_state_t *cs ) {
+const char *AIFunc_Heinrich_SwordSideSlash( cast_state_t *cs ) {
 	gentity_t *ent = &g_entities[cs->entityNum];
 	trace_t *tr;
 	vec3_t right, left;
@@ -646,7 +646,7 @@ char *AIFunc_Heinrich_SwordSideSlash( cast_state_t *cs ) {
 	return NULL;
 }
 
-char *AIFunc_Heinrich_SwordSideSlashStart( cast_state_t *cs ) {
+const char *AIFunc_Heinrich_SwordSideSlashStart( cast_state_t *cs ) {
 	gentity_t *ent = &g_entities[cs->entityNum];
 
 	cs->aiFlags |= AIFL_SPECIAL_FUNC;
@@ -670,7 +670,7 @@ char *AIFunc_Heinrich_SwordSideSlashStart( cast_state_t *cs ) {
 #define HEINRICH_STOMP_VELOCITY_Z   420
 #define HEINRICH_STOMP_DAMAGE       35
 
-char *AIFunc_Heinrich_Earthquake( cast_state_t *cs ) {
+const char *AIFunc_Heinrich_Earthquake( cast_state_t *cs ) {
 	gentity_t   *ent = &g_entities[cs->entityNum];
 	gentity_t   *enemy;
 	cast_state_t *ecs;
@@ -766,7 +766,7 @@ char *AIFunc_Heinrich_Earthquake( cast_state_t *cs ) {
 	return NULL;
 }
 
-char *AIFunc_Heinrich_MeleeStart( cast_state_t *cs ) {
+const char *AIFunc_Heinrich_MeleeStart( cast_state_t *cs ) {
 	gentity_t *ent = &g_entities[cs->entityNum];
 	gentity_t   *enemy = &g_entities[cs->enemyNum];
 	int rnd;
@@ -828,7 +828,7 @@ char *AIFunc_Heinrich_MeleeStart( cast_state_t *cs ) {
 #define HEINRICH_RAISEDEAD_COUNT        3
 int lastRaise;
 
-char *AIFunc_Heinrich_RaiseDead( cast_state_t *cs ) {
+const char *AIFunc_Heinrich_RaiseDead( cast_state_t *cs ) {
 	int i;
 	gentity_t   *ent = &g_entities[cs->entityNum];
 	gentity_t   *enemy = &g_entities[cs->enemyNum];
@@ -883,7 +883,7 @@ char *AIFunc_Heinrich_RaiseDead( cast_state_t *cs ) {
 	return NULL;
 }
 
-char *AIFunc_Heinrich_RaiseDeadStart( cast_state_t *cs ) {
+const char *AIFunc_Heinrich_RaiseDeadStart( cast_state_t *cs ) {
 	int i, cnt, free;
 	gentity_t   *ent = &g_entities[cs->entityNum];
 //	gentity_t	*enemy = &g_entities[cs->enemyNum];
@@ -928,7 +928,7 @@ char *AIFunc_Heinrich_RaiseDeadStart( cast_state_t *cs ) {
 	// TTimo: gcc: suggest () around assignment used as truth value
 	while ( ( trav = G_Find( trav, FOFS( classname ), "func_bats" ) ) ) {
 		if ( !trav->active && trav->spawnflags & 4 ) {
-			trav->active = 1;   // let them release spirits now
+			trav->active = qtrue;   // let them release spirits now
 		}
 	}
 	// is the player outside the circle?
@@ -960,7 +960,7 @@ char *AIFunc_Heinrich_RaiseDeadStart( cast_state_t *cs ) {
 	return NULL;
 }
 
-char *AIFunc_Heinrich_SpawnSpiritsStart( cast_state_t *cs ) {
+const char *AIFunc_Heinrich_SpawnSpiritsStart( cast_state_t *cs ) {
 	gentity_t   *ent = &g_entities[cs->entityNum];
 	gentity_t *trav, *spirits;
 	float circleDist;
@@ -970,7 +970,7 @@ char *AIFunc_Heinrich_SpawnSpiritsStart( cast_state_t *cs ) {
 	// TTimo: gcc: suggest () around assignment used as truth value
 	while ( ( trav = G_Find( trav, FOFS( classname ), "func_bats" ) ) ) {
 		if ( !trav->active && trav->spawnflags & 4 ) {
-			trav->active = 1;   // let them release spirits now
+			trav->active = qtrue;   // let them release spirits now
 		}
 	}
 	// is the player outside the circle?

@@ -231,7 +231,7 @@ qboolean AICast_CheckVisibility( gentity_t *srcent, gentity_t *destent ) {
 	float fov, dist;
 	int viewer, ent;
 	cast_visibility_t   *vis;
-	orientation_t       or;
+	orientation_t       orientation;
 
 	if ( destent->flags & FL_NOTARGET ) {
 		return qfalse;
@@ -280,14 +280,14 @@ qboolean AICast_CheckVisibility( gentity_t *srcent, gentity_t *destent ) {
 			vectoangles( clientHeadTags[srcent->shared.s.number].axis[0], viewangles );
 			// and the actual position of the head
 			VectorCopy( clientHeadTags[srcent->shared.s.number].origin, eye );
-		} else if ( CG_GetTag( srcent->shared.s.number, "tag_head", &or ) ) {
+		} else if ( CG_GetTag( srcent->shared.s.number, "tag_head", &orientation ) ) {
 			// use the actual direction the head is facing
-			vectoangles( or.axis[0], viewangles );
+			vectoangles( orientation.axis[0], viewangles );
 			// and the actual position of the head
-			VectorCopy( or.origin, eye );
-			VectorMA( eye, 12, or.axis[2], eye );
+			VectorCopy( orientation.origin, eye );
+			VectorMA( eye, 12, orientation.axis[2], eye );
 			// save orientation data
-			memcpy( &clientHeadTags[srcent->shared.s.number], &or, sizeof( orientation_t ) );
+			memcpy( &clientHeadTags[srcent->shared.s.number], &orientation, sizeof( orientation_t ) );
 			clientHeadTagTimes[srcent->shared.s.number] = level.time;
 		} else {
 			VectorCopy( srcent->client->ps.origin, eye );
@@ -343,7 +343,7 @@ void AICast_UpdateVisibility( gentity_t *srcent, gentity_t *destent, qboolean sh
 		return;     // absolutely no sight (or hear) information allowed
 
 	}
-    qboolean shareRange = ( VectorDistance( srcent->client->ps.origin, destent->client->ps.origin ) < AIVIS_SHARE_RANGE );
+    bool shareRange = ( VectorDistance( srcent->client->ps.origin, destent->client->ps.origin ) < AIVIS_SHARE_RANGE );
 
     cast_visibility_t* vis = &cs->vislist[destent->shared.s.number];
 

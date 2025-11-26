@@ -853,7 +853,7 @@ void AICast_UpdateBattleInventory( cast_state_t *cs, int enemy ) {
 
 	// stock up ammo that should never run out
 	for ( i = 0; i < WP_NUM_WEAPONS; i++ ) {
-		if ( ( i >= WP_MONSTER_ATTACK1 && i <= WP_MONSTER_ATTACK3 ) || ( g_entities[cs->bs->entitynum].client->ps.ammo[ BG_FindAmmoForWeapon( i )] > 800 ) ) {
+		if ( ( i >= WP_MONSTER_ATTACK1 && i <= WP_MONSTER_ATTACK3 ) || ( g_entities[cs->bs->entitynum].client->ps.ammo[ BG_FindAmmoForWeapon( (weapon_t)i )] > 800 ) ) {
 			Add_Ammo( &g_entities[cs->entityNum], i, 999, qfalse );
 		}
 	}
@@ -888,15 +888,15 @@ qboolean AICast_GotEnoughAmmoForWeapon( cast_state_t *cs, int weapon ) {
 	int ammo, clip;
 
 	ent = &g_entities[cs->entityNum];
-	ammo = ent->client->ps.ammo[BG_FindAmmoForWeapon( weapon )];
-	clip = ent->client->ps.ammoclip[BG_FindClipForWeapon( weapon )];
+	ammo = ent->client->ps.ammo[BG_FindAmmoForWeapon( (weapon_t)weapon )];
+	clip = ent->client->ps.ammoclip[BG_FindClipForWeapon( (weapon_t)weapon )];
 
 	// TODO!! check some kind of weapon list that holds the minimum requirements for each weapon
 	switch ( weapon ) {
 	case WP_GAUNTLET:
 		return qtrue;
 	default:
-		return (qboolean)( ( clip >= ammoTable[weapon].uses ) || ( ammo >= ammoTable[weapon].uses ) );    //----(SA)
+		return (qboolean)( ( clip >= ammoTable[weapon].uses ) || ( ammo >= ammoTable[weapon].uses ) );
 	}
 }
 
@@ -912,7 +912,7 @@ AICast_WeaponUsable
   NOTE: that monster_attack2 will always override monster_attack1 if both are usable
 ==============
 */
-qboolean AICast_WeaponUsable( cast_state_t *cs, int weaponNum ) {
+bool AICast_WeaponUsable( cast_state_t *cs, int weaponNum ) {
 	int delay, oldweap, hitclient;
 	float dist = -1;
 	gentity_t *ent, *grenade;

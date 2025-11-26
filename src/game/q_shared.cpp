@@ -315,7 +315,7 @@ static char com_parsename[MAX_TOKEN_CHARS];
 static int com_lines;
 
 static int backup_lines;
-static char    *backup_text;
+static const char    *backup_text;
 
 /*
 ================
@@ -360,7 +360,7 @@ int COM_GetCurrentParseLine( void ) {
 COM_Parse
 ================
 */
-char *COM_Parse( char **data_p ) {
+char *COM_Parse( const char **data_p ) {
 	return COM_ParseExt( data_p, qtrue );
 }
 
@@ -484,10 +484,10 @@ int COM_Compress( char *data_p ) {
 COM_ParseExt
 ================
 */
-char *COM_ParseExt( char **data_p, qboolean allowLineBreaks ) {
+char *COM_ParseExt( const char **data_p, qboolean allowLineBreaks ) {
 	int c = 0, len;
 	qboolean hasNewLines = qfalse;
-	char *data;
+	const char *data;
 
 	data = *data_p;
 	len = 0;

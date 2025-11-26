@@ -49,7 +49,7 @@ animScriptData_t *globalScriptData = NULL;
 
 #define MAX_ANIM_DEFINES    16
 
-static char *globalFilename;    // to prevent redundant params
+static const char *globalFilename;    // to prevent redundant params
 static int parseClient;
 
 // these are used globally during script parsing
@@ -379,7 +379,7 @@ animModelInfo_t *BG_ModelInfoForModelname( char *modelname ) {
 BG_AnimationIndexForString
 =================
 */
-int BG_AnimationIndexForString( char *string, int client ) {
+int BG_AnimationIndexForString( const char *string, int client ) {
 	int i, hash;
 	animation_t *anim;
 	animModelInfo_t *modelInfo;
@@ -518,7 +518,7 @@ BG_AnimParseAnimConfig
 ============
 */
 qboolean BG_AnimParseAnimConfig( animModelInfo_t *animModelInfo, const char *filename, const char *input ) {
-	char    *text_p, *token, *oldtext_p;
+	char     *token;
 	animation_t *animations;
 	headAnimation_t *headAnims;
 	int i, fps, skip = -1;
@@ -527,13 +527,13 @@ qboolean BG_AnimParseAnimConfig( animModelInfo_t *animModelInfo, const char *fil
 		BG_InitWeaponStrings();
 	}
 
-	globalFilename = (char *)filename;
+	globalFilename = filename;
 
 	animations = animModelInfo->animations;
 	animModelInfo->numAnimations = 0;
 	headAnims = animModelInfo->headAnims;
 
-	text_p = (char *)input;
+	const char* text_p = input;
 	COM_BeginParseSession( "BG_AnimParseAnimConfig" );
 
 	animModelInfo->footsteps = FOOTSTEP_NORMAL;
@@ -697,7 +697,7 @@ qboolean BG_AnimParseAnimConfig( animModelInfo_t *animModelInfo, const char *fil
 		animations[i].moveSpeed = atoi( token );
 
 		// animation blending
-		oldtext_p = text_p;
+		const char *oldtext_p = text_p;
 		token = COM_ParseExt( &text_p, qfalse );    // must be on same line
 		if ( !token || !token[0] ) {
 			text_p = oldtext_p;
@@ -1656,7 +1656,7 @@ int BG_PlayAnim( playerState_t *ps, int animNum, animBodyPart_t bodyPart, int fo
 BG_PlayAnimName
 ===============
 */
-int BG_PlayAnimName( playerState_t *ps, char *animName, animBodyPart_t bodyPart, qboolean setTimer, qboolean isContinue, qboolean force ) {
+int BG_PlayAnimName( playerState_t *ps, const char *animName, animBodyPart_t bodyPart, qboolean setTimer, qboolean isContinue, qboolean force ) {
 	return BG_PlayAnim( ps, BG_AnimationIndexForString( animName, ps->clientNum ), bodyPart, 0, setTimer, isContinue, force );
 }
 

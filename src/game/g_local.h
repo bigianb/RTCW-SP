@@ -191,7 +191,7 @@ struct gentity_s {
 
 	qboolean inuse;
 
-	char        *classname;         // set in QuakeEd
+	const char        *classname;         // set in QuakeEd
 	int spawnflags;                 // set in QuakeEd
 
 	qboolean neverFree;             // if true, FreeEntity will only unlink
@@ -324,8 +324,8 @@ struct gentity_s {
 	int aiCharacter;            // the index of the type of character we are (from aicast_soldier.c)
 	// done.
 
-	char        *aiSkin;
-	char        *aihSkin;
+	const char        *aiSkin;
+	const char        *aihSkin;
 
 	vec3_t dl_color;
 	char        *dl_stylestring;
@@ -733,7 +733,7 @@ typedef struct {
 //
 // g_spawn.c
 //
-qboolean    G_SpawnString( const char *key, const char *defaultString, char **out );
+qboolean    G_SpawnString( const char *key, const char *defaultString, const char **out );
 // spawn string returns a temporary reference, you must CopyString() if you want to keep it
 qboolean    G_SpawnFloat( const char *key, const char *defaultString, float *out );
 qboolean    G_SpawnInt( const char *key, const char *defaultString, int *out );

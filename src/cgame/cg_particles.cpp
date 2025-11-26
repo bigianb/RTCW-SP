@@ -1568,8 +1568,7 @@ void CG_AddParticleShrapnel( localEntity_t *le ) {
 // done.
 
 int CG_NewParticleArea( int num ) {
-	// const char *str;
-	char *str;
+
 	char *token;
 	int type;
 	vec3_t origin, origin2;
@@ -1579,7 +1578,7 @@ int CG_NewParticleArea( int num ) {
 	int numparticles;
 	int snum;
 
-	str = (char *) CG_ConfigString( num );
+	const char* str =  CG_ConfigString( num );
 	if ( !str[0] ) {
 		return ( 0 );
 	}

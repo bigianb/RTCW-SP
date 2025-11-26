@@ -46,7 +46,7 @@ If you have questions concerning this license or the applicable additional terms
 #include "ai_cast.h"
 
 static int numaifuncs;
-static char     *aifuncs[MAX_AIFUNCS];
+static const char     *aifuncs[MAX_AIFUNCS];
 
 /*
 ==========
@@ -62,7 +62,7 @@ void AICast_DBG_InitAIFuncs( void ) {
 AICast_DBG_AddAIFunc
 ==========
 */
-void AICast_DBG_AddAIFunc( cast_state_t *cs, char *funcname ) {
+void AICast_DBG_AddAIFunc( cast_state_t *cs, const char *funcname ) {
 	if ( aicast_debug.integer ) {
 		if ( aicast_debug.integer != 2 || ( g_entities[cs->entityNum].aiName && !strcmp( aicast_debugname.string, g_entities[cs->entityNum].aiName ) ) ) {
 			Com_Printf( "%s: %s\n", g_entities[cs->entityNum].aiName, funcname );
@@ -153,8 +153,8 @@ void AICast_DBG_Spawn_f( gclient_t *client, char *cmd ) {
 	vec3_t dir;
 
 	ent = G_Spawn();
-	ent->classname = G_Alloc( strlen( cmd ) + 1 );
-	strcpy( ent->classname, cmd );
+	ent->classname = (char *)G_Alloc( strlen( cmd ) + 1 );
+	strcpy( (char *)ent->classname, cmd );
 	AngleVectors( client->ps.viewangles, dir, NULL, NULL );
 	VectorMA( client->ps.origin, 96, dir, ent->shared.s.origin );
 

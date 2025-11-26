@@ -232,7 +232,7 @@ cast_script_stack_action_t scriptActions[] =
 AICast_EventMatch_StringEqual
 ===============
 */
-qboolean AICast_EventMatch_StringEqual( cast_script_event_t *event, char *eventParm ) {
+qboolean AICast_EventMatch_StringEqual( cast_script_event_t *event, const char *eventParm ) {
     if ( !event->params || !event->params[0] || ( eventParm && !Q_strcasecmp( event->params, eventParm ) ) ) {
         return qtrue;
     } else {
@@ -245,11 +245,11 @@ qboolean AICast_EventMatch_StringEqual( cast_script_event_t *event, char *eventP
 AICast_EventMatch_IntInRange
 ===============
 */
-qboolean AICast_EventMatch_IntInRange( cast_script_event_t *event, char *eventParm )
+qboolean AICast_EventMatch_IntInRange( cast_script_event_t *event, const char *eventParm )
 {
     // get the cast name
-    char* pString = eventParm;
-    char* token = COM_ParseExt( &pString, qfalse );
+    const char* pString = eventParm;
+    const char* token = COM_ParseExt( &pString, qfalse );
     int int1 = atoi( token );
     token = COM_ParseExt( &pString, qfalse );
     int int2 = atoi( token );
@@ -369,7 +369,7 @@ void AICast_ScriptLoad( void ) {
 		return;
 	}
 
-	level.scriptAI = G_Alloc( len );
+	level.scriptAI = (char *)G_Alloc( len );
 	FS_Read( level.scriptAI, len, f );
 
 	FS_FCloseFile( f );
@@ -403,10 +403,10 @@ void AICast_ScriptParse( cast_state_t *cs )
 		return;
 	}
 
-    qboolean buildScript = Cvar_VariableIntegerValue( "com_buildScript" );
-	buildScript = qtrue;
+    //qboolean buildScript = Cvar_VariableIntegerValue( "com_buildScript" );
+	qboolean buildScript = qtrue;
 
-	char* pScript = level.scriptAI;
+	const char* pScript = level.scriptAI;
     qboolean wantName = qtrue;
     qboolean inScript = qfalse;
 	COM_BeginParseSession( "AICast_ScriptParse" );
@@ -498,7 +498,7 @@ void AICast_ScriptParse( cast_state_t *cs )
 			}
 
 			if ( strlen( params ) ) { // copy the params into the event
-				curEvent->params = G_Alloc( strlen( params ) + 1 );
+				curEvent->params = (char *)G_Alloc( strlen( params ) + 1 );
 				Q_strncpyz( curEvent->params, params, strlen( params ) + 1 );
 			}
 
@@ -567,7 +567,7 @@ void AICast_ScriptParse( cast_state_t *cs )
 				}
 
 				if ( strlen( params ) ) { // copy the params into the event
-					curEvent->stack.items[curEvent->stack.numItems].params = G_Alloc( strlen( params ) + 1 );
+					curEvent->stack.items[curEvent->stack.numItems].params = (char *)G_Alloc( strlen( params ) + 1 );
 					Q_strncpyz( curEvent->stack.items[curEvent->stack.numItems].params, params, strlen( params ) + 1 );
 				}
 
@@ -600,7 +600,7 @@ void AICast_ScriptParse( cast_state_t *cs )
 
 	// alloc and copy the events into the cast_state_t for this cast
 	if ( numEventItems > 0 ) {
-		cs->castScriptEvents = G_Alloc( sizeof( cast_script_event_t ) * numEventItems );
+		cs->castScriptEvents = (cast_script_event_t*)G_Alloc( sizeof( cast_script_event_t ) * numEventItems );
 		memcpy( cs->castScriptEvents, events, sizeof( cast_script_event_t ) * numEventItems );
 		cs->numCastScriptEvents = numEventItems;
 
@@ -647,7 +647,7 @@ AICast_ScriptEvent
   An event has occured, for which a script may exist
 ================
 */
-void AICast_ScriptEvent( struct cast_state_s *cs, char *eventStr, char *params ) {
+void AICast_ScriptEvent( struct cast_state_s *cs, const char *eventStr, const char *params ) {
 	int i, eventNum;
 
 	eventNum = -1;
@@ -714,7 +714,7 @@ AICast_ForceScriptEvent
   Definately run this event now, overriding any paised state
 ================
 */
-void AICast_ForceScriptEvent( struct cast_state_s *cs, char *eventStr, char *params ) {
+void AICast_ForceScriptEvent( struct cast_state_s *cs, const char *eventStr, const char *params ) {
 	int oldPauseTime;
 
 	oldPauseTime = cs->scriptPauseTime;

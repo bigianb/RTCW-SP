@@ -750,7 +750,7 @@ CG_ParseWeaponConfig
 ======================
 */
 static qboolean CG_ParseWeaponConfig( const char *filename, weaponInfo_t *wi ) {
-	char        *text_p, *prev;
+	char *prev;
 	int len;
 	int i;
 	float fps;
@@ -775,7 +775,7 @@ static qboolean CG_ParseWeaponConfig( const char *filename, weaponInfo_t *wi ) {
 	FS_FCloseFile( f );
 
 	// parse the text
-	text_p = text;
+	const const *text_p = text;
 
 	// read optional parameters
 	while ( 1 ) {

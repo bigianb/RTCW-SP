@@ -343,7 +343,7 @@ void AICast_Die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
 				cs->rebirthTime = level.time + 5000 + rand() % 2000;
 				// RF, only set for gib at next death, if NoRevive is not set
 				if ( !( self->spawnflags & 2 ) ) {
-					cs->secondDeadTime = qtrue;
+					cs->secondDeadTime = 1;
 				}
 				cs->revivingTime = 0;
 			} else if ( cs->secondDeadTime > 1 ) {

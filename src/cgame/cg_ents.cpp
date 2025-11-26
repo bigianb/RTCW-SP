@@ -2402,7 +2402,7 @@ static void CG_AddEntityToTag( centity_t *cent ) {
 	centity_t           *centParent;
 	entityState_t       *sParent;
 	refEntity_t ent;
-	char *cs, *token = NULL;
+	char *token = NULL;
 	int i, pi;
 	vec3_t ang;
 
@@ -2432,7 +2432,7 @@ static void CG_AddEntityToTag( centity_t *cent ) {
 	sParent = NULL;
 	centParent = NULL;
 	for ( i = CS_TAGCONNECTS + 1; i < CS_TAGCONNECTS + MAX_TAGCONNECTS; i++ ) {   // NOTE: +1 since G_FindConfigStringIndex() starts at index 1 rather than 0 (not sure why)
-		cs = (char *)CG_ConfigString( i );
+		const char* cs = CG_ConfigString( i );
 		token = COM_Parse( &cs );
 		if ( !token[0] ) {
 			break;

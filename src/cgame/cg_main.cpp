@@ -447,7 +447,7 @@ const char *CG_Argv( int arg ) {
 //========================================================================
 void CG_SetupDlightstyles( void ) {
 	int i, j;
-	char        *str;
+
 	char        *token;
 	int entnum;
 	centity_t   *cent;
@@ -456,7 +456,7 @@ void CG_SetupDlightstyles( void ) {
 
 	for ( i = 1; i < MAX_DLIGHT_CONFIGSTRINGS; i++ )
 	{
-		str = (char *) CG_ConfigString( CS_DLIGHTS + i );
+		const char* str = CG_ConfigString( CS_DLIGHTS + i );
 		if ( !strlen( str ) ) {
 			break;
 		}
@@ -564,7 +564,7 @@ CG_LoadPickupNames
 #define MAX_BUFFER          20000
 static void CG_LoadPickupNames( void ) {
 	char buffer[MAX_BUFFER];
-	char *text;
+
 	char filename[MAX_QPATH];
 	fileHandle_t f;
 	int len, i;
@@ -586,7 +586,7 @@ static void CG_LoadPickupNames( void ) {
 	buffer[len] = 0;
 	FS_FCloseFile( f );
 	// parse the list
-	text = buffer;
+	const char* text = buffer;
 
 	for ( i = 0; i < bg_numItems; i++ ) {
 		token = COM_ParseExt( &text, qtrue );
@@ -608,7 +608,7 @@ static void CG_LoadPickupNames( void ) {
 // a straight dupe right now so I don't mess anything up while adding this
 static void CG_LoadTranslationStrings( void ) {
 	char buffer[MAX_BUFFER];
-	char *text;
+
 	char filename[MAX_QPATH];
 	fileHandle_t f;
 	int len, i, numStrings;
@@ -630,7 +630,7 @@ static void CG_LoadTranslationStrings( void ) {
 	buffer[len] = 0;
 	FS_FCloseFile( f );
 	// parse the list
-	text = buffer;
+	const char* text = buffer;
 
 	numStrings = sizeof( translateStrings ) / sizeof( translateStrings[0] ) - 1;
 
@@ -1316,11 +1316,11 @@ CG_StartMusic
 ======================
 */
 void CG_StartMusic( void ) {
-	char    *s;
+
 	char parm1[MAX_QPATH], parm2[MAX_QPATH];
 
 	// start the background music
-	s = (char *)CG_ConfigString( CS_MUSIC );
+	const char* s = CG_ConfigString( CS_MUSIC );
 	Q_strncpyz( parm1, COM_Parse( &s ), sizeof( parm1 ) );
 	Q_strncpyz( parm2, COM_Parse( &s ), sizeof( parm2 ) );
 
@@ -1336,11 +1336,11 @@ CG_QueueMusic
 ==============
 */
 void CG_QueueMusic( void ) {
-	char    *s;
+
 	char parm[MAX_QPATH];
 
 	// prepare the next background track
-	s = (char *)CG_ConfigString( CS_MUSIC_QUEUE );
+	const char *s = (char *)CG_ConfigString( CS_MUSIC_QUEUE );
 	Q_strncpyz( parm, COM_Parse( &s ), sizeof( parm ) );
 
 	// even if no strlen(parm).  we want to be able to clear the queue

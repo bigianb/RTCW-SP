@@ -984,13 +984,13 @@ void CG_DrawSkyBoxPortal( void ) {
 	float fov_x;
 	float fov_y;
 	float x;
-	char *cstr;
+	const char *cstr;
 	char *token;
 	float zoomFov;
 	float f;
 	static qboolean foginited = qfalse; // only set the portal fog values once
 
-	if ( !( cstr = (char *)CG_ConfigString( CS_SKYBOXORG ) ) || !strlen( cstr ) ) {
+	if ( !( cstr = CG_ConfigString( CS_SKYBOXORG ) ) || !strlen( cstr ) ) {
 		// no skybox in this map
 		return;
 	}

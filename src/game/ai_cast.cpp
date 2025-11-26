@@ -83,7 +83,7 @@ vmCvar_t aicast_debugname;
 vmCvar_t aicast_scripts;
 
 // string versions of the attributes used for per-level, per-character definitions
-char *castAttributeStrings[] =
+const char *castAttributeStrings[] =
 {
 	"RUNNING_SPEED", // max = 300	(running speed)
 	"WALKING_SPEED", // max = 300	(walking speed)
@@ -160,7 +160,7 @@ int AICast_SetupClient( int client ) {
 	bot_state_t     *bs;
 
 	if ( !botstates[client] ) {
-		botstates[client] = G_Alloc( sizeof( bot_state_t ) );
+		botstates[client] = (bot_state_t *)G_Alloc( sizeof( bot_state_t ) );
 		memset( botstates[client], 0, sizeof( bot_state_t ) );
 	}
 	bs = botstates[client];
@@ -229,7 +229,7 @@ AICast_AddCastToGame
 ============
 */
 //----(SA) modified this for head separation
-gentity_t *AICast_AddCastToGame( gentity_t *ent, char *castname, char *model, char *head, char *sex, char *color, char *handicap ) {
+gentity_t *AICast_AddCastToGame( gentity_t *ent, const char *castname, const char *model, const char *head, const char *sex, const char *color, const char *handicap ) {
 	int clientNum;
 	gentity_t *bot;
 	char userinfo[MAX_INFO_STRING];
@@ -282,7 +282,7 @@ gentity_t *AICast_AddCastToGame( gentity_t *ent, char *castname, char *model, ch
 AICast_CheckLevelAttributes
 ============
 */
-void AICast_CheckLevelAttributes( cast_state_t *cs, gentity_t *ent, char **ppStr ) {
+void AICast_CheckLevelAttributes( cast_state_t *cs, gentity_t *ent, const char **ppStr ) {
 	char    *s;
 	int i;
 
@@ -340,7 +340,7 @@ AICast_CreateCharacter
   returns 0 if unable to create the character
 ============
 */
-gentity_t *AICast_CreateCharacter( gentity_t *ent, float *attributes, cast_weapon_info_t *weaponInfo, char *castname, char *model, char *head, char *sex, char *color, char *handicap ) {
+gentity_t *AICast_CreateCharacter( gentity_t *ent, float *attributes, cast_weapon_info_t *weaponInfo, const char *castname, const char *model, const char *head, const char *sex, const char *color, const char *handicap ) {
 	gentity_t       *newent;
 	gclient_t       *client;
 	cast_state_t    *cs;
@@ -379,7 +379,7 @@ gentity_t *AICast_CreateCharacter( gentity_t *ent, float *attributes, cast_weapo
 	// setup the attributes
 	memcpy( cs->attributes, attributes, sizeof( cs->attributes ) );
 	ppStr = &ent->aiAttributes;
-	AICast_CheckLevelAttributes( cs, ent, ppStr );
+	AICast_CheckLevelAttributes( cs, ent, (const char **)ppStr );
 	//
 	AICast_SetAASIndex( cs );
 	// make sure they face the right direction
@@ -492,7 +492,7 @@ void AICast_Init( void ) {
 
 	aicast_skillscale = (float)Cvar_VariableIntegerValue( "g_gameSkill" ) / (float)GSKILL_MAX;
 
-	caststates = G_Alloc( aicast_maxclients * sizeof( cast_state_t ) );
+	caststates = (cast_state_t *)G_Alloc( aicast_maxclients * sizeof( cast_state_t ) );
 	memset( caststates, 0, aicast_maxclients * sizeof( cast_state_t ) );
 	for ( i = 0; i < MAX_CLIENTS; i++ ) {
 		caststates[i].entityNum = i;
@@ -505,7 +505,7 @@ void AICast_Init( void ) {
 AICast_FindEntityForName
 ===============
 */
-gentity_t *AICast_FindEntityForName( char *name ) {
+gentity_t *AICast_FindEntityForName( const char *name ) {
 	gentity_t *trav;
 	int i;
 
@@ -640,7 +640,7 @@ void AICast_DelayedSpawnCast( gentity_t *ent, int castType )
 
 	// make sure client registers the default weapons for this char
 	for (int i = 0; aiDefaults[ent->aiCharacter].weapons[i]; i++ ) {
-		RegisterItem( BG_FindItemForWeapon( aiDefaults[ent->aiCharacter].weapons[i] ) );
+		RegisterItem( BG_FindItemForWeapon( (weapon_t) aiDefaults[ent->aiCharacter].weapons[i] ) );
 	}
 
 	// we have to wait a bit before spawning it,
@@ -840,7 +840,7 @@ void AICast_Activate( int activatorNum, int entNum ) {
 AICast_NoFlameDamage
 ================
 */
-qboolean AICast_NoFlameDamage( int entNum ) {
+bool AICast_NoFlameDamage( int entNum ) {
 	cast_state_t *cs;
 
 	if ( entNum >= MAX_CLIENTS ) {

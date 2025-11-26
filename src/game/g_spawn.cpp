@@ -29,7 +29,7 @@ If you have questions concerning this license or the applicable additional terms
 #include "g_local.h"
 #include "../server/server.h"
 
-qboolean    G_SpawnString( const char *key, const char *defaultString, char **out ) {
+qboolean    G_SpawnString( const char *key, const char *defaultString, const char **out ) {
 	int i;
 
 	if ( !level.spawning ) {

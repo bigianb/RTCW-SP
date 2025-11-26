@@ -95,7 +95,7 @@ AICast_ScriptAction_GotoMarker
 */
 qboolean AICast_ScriptAction_GotoMarker( cast_state_t *cs, char *params ) {
 #define SCRIPT_REACHGOAL_DIST   8
-	char    *pString, *token;
+	char    *token;
 	gentity_t *ent;
 	vec3_t vec, org;
 	int i, diff;
@@ -112,7 +112,7 @@ qboolean AICast_ScriptAction_GotoMarker( cast_state_t *cs, char *params ) {
 		return qfalse;
 	}
 
-	pString = params;
+	const char *pString = (const char*)params;
 	token = COM_ParseExt( &pString, qfalse );
 	if ( !token[0] ) {
 		Com_Error( ERR_DROP, "AI scripting: gotomarker must have an targetname\n" );
@@ -290,7 +290,7 @@ AICast_ScriptAction_GotoCast
 */
 qboolean AICast_ScriptAction_GotoCast( cast_state_t *cs, char *params ) {
 #define SCRIPT_REACHCAST_DIST   64
-	char    *pString, *token;
+	char  *token;
 	gentity_t *ent;
 	vec3_t vec, org;
 	int i, diff;
@@ -306,7 +306,7 @@ qboolean AICast_ScriptAction_GotoCast( cast_state_t *cs, char *params ) {
 		return qfalse;
 	}
 
-	pString = params;
+	const char *pString = params;
 	token = COM_ParseExt( &pString, qfalse );
 	if ( !token[0] ) {
 		Com_Error( ERR_DROP, "AI scripting: gotocast must have an ainame\n" );
