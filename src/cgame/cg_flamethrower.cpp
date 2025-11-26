@@ -338,7 +338,7 @@ void CG_FireFlameChunks( centity_t *cent, vec3_t origin, vec3_t angles, float sp
 			f->velSpeed = FLAME_START_SPEED * ( 0.3 + 0.7 * speedScale );
 			f->ownerCent = cent->currentState.number;
 			f->rollAngle = crandom() * 179;
-			f->ignitionOnly = !firing;
+			f->ignitionOnly = !firing ? qtrue : qfalse;
 			if ( !firing ) {
 				f->gravity = -150;
 				f->blueLife = FLAME_BLUE_LIFE * 0.5;
@@ -416,7 +416,7 @@ void CG_FireFlameChunks( centity_t *cent, vec3_t origin, vec3_t angles, float sp
 		f->velSpeed = FLAME_START_SPEED * ( 0.3 + 0.7 * speedScale );
 		f->ownerCent = cent->currentState.number;
 		f->rollAngle = crandom() * 179;
-		f->ignitionOnly = !firing;
+		f->ignitionOnly = !firing ? qtrue : qfalse;
 		f->speedScale = speedScale;
 		if ( !firing ) {
 			f->gravity = -100;
@@ -1084,9 +1084,9 @@ void CG_AddFlameToScene( flameChunk_t *fHead ) {
 	float vdist, bdot;
 #define FLAME_SOUND_RANGE   1024.0
 
-	//flameChunk_t *lastSoundFlameChunk=NULL; // TTimo: unused
 	flameChunk_t *lastBlowChunk = NULL;
-	qboolean isClientFlame, firing;
+	bool isClientFlame;
+	qboolean firing;
 	int shader;
 
 	flameChunk_t *lastBlueChunk = NULL;
@@ -1105,11 +1105,8 @@ void CG_AddFlameToScene( flameChunk_t *fHead ) {
 
 	float lastFuelAlpha;
 
-
-	//if (fHead->ownerCent == cg.snap->ps.clientNum)
 	isClientFlame = ( fHead == centFlameInfo[fHead->ownerCent].lastFlameChunk );
-	//else
-	//	isClientFlame = qfalse;	// always optimize enemy flames
+
 
 	if ( ( cg_entities[fHead->ownerCent].currentState.eFlags & EF_FIRING ) /*(centFlameInfo[fHead->ownerCent].lastClientFrame == cg_entities[fHead->ownerCent].lastWeaponClientFrame)*/ && ( centFlameInfo[fHead->ownerCent].lastFlameChunk == fHead ) ) {
 		headTimeStart = fHead->timeStart;
@@ -1119,11 +1116,6 @@ void CG_AddFlameToScene( flameChunk_t *fHead ) {
 		headTimeStart = cg.time;
 		firing = qfalse;
 	}
-
-	// Zombie ignition is just to make on/off transitions look better
-	//if (cg_entities[fHead->ownerCent].currentState.aiChar == AICHAR_ZOMBIE && !centFlameInfo[fHead->ownerCent].lastFiring) {
-	//	return;
-	//}
 
 	VectorClear( lightOrg );
 	lightSize = 0;

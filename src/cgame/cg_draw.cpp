@@ -1435,7 +1435,7 @@ void CG_DrawActive( stereoFrame_t stereoView ) {
 		VectorMA( cg.refdef.vieworg, -separation, cg.refdef.viewaxis[1], cg.refdef.vieworg );
 	}
 
-	cg.refdef.glfog.registered = 0; // make sure it doesn't use fog from another scene
+	cg.refdef.glfog.registered = qfalse; // make sure it doesn't use fog from another scene
 
 	cg.refdef.rdflags |= RDF_DRAWSKYBOX;
 	if ( !cg_skybox.integer ) {

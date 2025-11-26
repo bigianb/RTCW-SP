@@ -668,7 +668,7 @@ if desired.
 */
 void ClientUserinfoChanged( int clientNum ) {
 	gentity_t *ent;
-	char    *s;
+	const char    *s;
 	char model[MAX_QPATH], modelname[MAX_QPATH];
 
 //----(SA) added this for head separation
@@ -676,7 +676,7 @@ void ClientUserinfoChanged( int clientNum ) {
 
 	char oldname[MAX_STRING_CHARS];
 	gclient_t   *client;
-	char    *c1;
+	
 	char userinfo[MAX_INFO_STRING];
 
 	ent = g_entities + clientNum;
@@ -777,7 +777,7 @@ void ClientUserinfoChanged( int clientNum ) {
 //----(SA) end
 
 	// colors
-	c1 = Info_ValueForKey( userinfo, "color" );
+	const char* c1 = Info_ValueForKey( userinfo, "color" );
 
 	// send over a subset of the userinfo keys so other clients can
 	// print scoreboards, display models, and play custom sounds
@@ -844,7 +844,7 @@ restarts.
 ============
 */
 char *ClientConnect( int clientNum, qboolean firstTime, qboolean isBot ) {
-	char        *value;
+
 	gclient_t   *client;
 	char userinfo[MAX_INFO_STRING];
 	gentity_t   *ent;
@@ -854,7 +854,7 @@ char *ClientConnect( int clientNum, qboolean firstTime, qboolean isBot ) {
 	SV_GetUserinfo( clientNum, userinfo, sizeof( userinfo ) );
 
 	// check to see if they are on the banned IP list
-	value = Info_ValueForKey( userinfo, "ip" );
+	const char* value = Info_ValueForKey( userinfo, "ip" );
 
 	// they can connect
 	ent->client = level.clients + clientNum;

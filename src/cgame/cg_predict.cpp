@@ -380,8 +380,8 @@ static void CG_TouchItem( centity_t *cent ) {
 		}
 //----(SA)	end
 
-		if ( !cg.predictedPlayerState.ammo[ BG_FindAmmoForWeapon( weapon )] ) {
-			cg.predictedPlayerState.ammo[ BG_FindAmmoForWeapon( weapon )] = 1;
+		if ( !cg.predictedPlayerState.ammo[ BG_FindAmmoForWeapon( (weapon_t)weapon )] ) {
+			cg.predictedPlayerState.ammo[ BG_FindAmmoForWeapon( (weapon_t)weapon )] = 1;
 		}
 	}
 
@@ -545,10 +545,10 @@ void CG_PredictPlayerState( void ) {
 		cg_pmove.tracemask = MASK_PLAYERSOLID;
 	}
 
-	cg_pmove.noFootsteps = ( cgs.dmflags & DF_NO_FOOTSTEPS ) > 0;
+	cg_pmove.noFootsteps = ( cgs.dmflags & DF_NO_FOOTSTEPS ) != 0 ? qtrue : qfalse;
 
 	//----(SA)	added
-	cg_pmove.noWeapClips = ( cgs.dmflags & DF_NO_WEAPRELOAD ) > 0;
+	cg_pmove.noWeapClips = ( cgs.dmflags & DF_NO_WEAPRELOAD ) != 0 ? qtrue : qfalse;
 	if ( cg.predictedPlayerState.aiChar ) {
 		cg_pmove.noWeapClips = qtrue;   // ensure AI characters don't use clips
 	}
@@ -611,7 +611,8 @@ void CG_PredictPlayerState( void ) {
 
 	// RF, anim system
 	if ( cg_animState.integer ) {
-		cg.predictedPlayerState.aiState = cg_animState.integer - 1;
+		cg.predictedPlayerState.aiState = AISTATE_RELAXED;
+		cg_animState.integer = -1;
 	}
 
 	// run cmds

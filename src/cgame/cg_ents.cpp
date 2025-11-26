@@ -52,7 +52,7 @@ tag location
 ======================
 */
 void CG_PositionEntityOnTag( refEntity_t *entity, const refEntity_t *parent,
-							 char *tagName, int startIndex, vec3_t *offset ) {
+							 const char *tagName, int startIndex, vec3_t *offset ) {
 	int i;
 	orientation_t lerped;
 
@@ -89,7 +89,7 @@ tag location
 ======================
 */
 void CG_PositionRotatedEntityOnTag( refEntity_t *entity, const refEntity_t *parent,
-									char *tagName ) {
+									const char *tagName ) {
 	int i;
 	orientation_t lerped;
 	vec3_t tempAxis[3];
@@ -118,7 +118,7 @@ CG_LoseArmor
 ==============
 */
 void CG_LoseArmor( centity_t *cent, int index ) {
-	char *protoTags[] = {   "tag_chest",
+	const char *protoTags[] = {   "tag_chest",
 							"tag_calfleft",
 							"tag_armleft",
 							"tag_back",
@@ -128,7 +128,7 @@ void CG_LoseArmor( centity_t *cent, int index ) {
 							"tag_back",
 							"tag_legright"};
 
-	char *ssTags[] = {      "tag_chest",
+	const char *ssTags[] = {      "tag_chest",
 							"tag_calfleft",
 							"tag_armleft",
 							"tag_back",
@@ -146,7 +146,7 @@ void CG_LoseArmor( centity_t *cent, int index ) {
 							"tag_calfleft",
 							"tag_calfright"};
 
-	char *heinrichTags[] = {"tag_chest",
+	const char *heinrichTags[] = {"tag_chest",
 							"tag_calfleft",
 							"tag_armleft",
 							"tag_back",
@@ -174,7 +174,7 @@ void CG_LoseArmor( centity_t *cent, int index ) {
 	clientInfo_t *ci;
 	// TTimo: bunch of inits
 	int totalparts = 0, dynamicparts = 0, protoParts = 9, superParts = 16, heinrichParts = 22;
-	char        **tags = NULL;
+	const char        **tags = NULL;
 	qhandle_t   *models = NULL;
 	qhandle_t sound = 0;    //----(SA)	added
 	int dmgbits = 16;         // 32/2;
@@ -694,7 +694,7 @@ void CG_DrawHoldableSelect( void ) {
 			continue;
 		}
 
-		item = BG_FindItemForHoldable( i );
+		item = BG_FindItemForHoldable( (holdable_t)i );
 		if ( !item ) {
 			continue;
 		}
@@ -728,7 +728,7 @@ void CG_DrawHoldableSelect( void ) {
 
 	// draw the selected name
 	if ( cg.holdableSelect ) {
-		item = BG_FindItemForHoldable( cg.holdableSelect );
+		item = BG_FindItemForHoldable( (holdable_t)cg.holdableSelect );
 		if ( item ) {
 			name = cgs.itemPrintNames[ item - bg_itemlist ];
 			if ( name ) {
@@ -1724,7 +1724,6 @@ static void CG_Efx( centity_t *cent ) {
 		forward[1] = cent->lerpAngles[0];
 		forward[2] = cent->lerpAngles[2];
 
-//		CG_FireFlameChunks( cent, cent->lerpOrigin, forward, 1.0, qtrue, 1 );
 		CG_FireFlameChunks( cent, cent->currentState.pos.trBase, forward, 1.0, qtrue, 1 );
 	}
 }
@@ -2144,18 +2143,8 @@ void CG_FlamethrowerProp( centity_t *cent ) {
 		flags |= 2; // silent
 
 	}
-	// shoot this only in bursts
 
-// (SA) this first one doesn't seem to do anything.  ?
-
-//	if ((cg.time+cent->currentState.number*100)%1000 > 200) {
-//		CG_FireFlameChunks( cent, cent->currentState.origin, cent->lerpAngles, 0.1, qfalse, flags );
-//		CG_FireFlameChunks( cent, cent->currentState.origin, cent->currentState.apos.trBase, 0.1, qfalse, flags );
-//	}
-//	else
-//		CG_FireFlameChunks( cent, cent->currentState.origin, cent->lerpAngles, 0.6, 2, flags );
-
-	CG_FireFlameChunks( cent, cent->currentState.origin, cent->currentState.apos.trBase, 0.6, 2, flags );
+	CG_FireFlameChunks( cent, cent->currentState.origin, cent->currentState.apos.trBase, 0.6, qtrue, flags );
 
 	cent->currentState.aiChar = old;
 

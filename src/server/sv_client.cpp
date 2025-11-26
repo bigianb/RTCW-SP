@@ -49,7 +49,7 @@ void SV_DirectConnect( netadr_t from ) {
 	int version;
 	int qport;
 	int challenge;
-	char        *password;
+
 	int startIndex;
 	char        *denied;
 	int count;
@@ -119,14 +119,15 @@ void SV_DirectConnect( netadr_t from ) {
 	// servers so we can play without having to kick people.
 
 	// check for privateClient password
-	password = Info_ValueForKey( userinfo, "password" );
-	if ( !strcmp( password, sv_privatePassword->string ) ) {
-		startIndex = 0;
-	} else {
-		// skip past the reserved slots
-		startIndex = sv_privateClients->integer;
+	{
+		const char* password = Info_ValueForKey( userinfo, "password" );
+		if ( !strcmp( password, sv_privatePassword->string ) ) {
+			startIndex = 0;
+		} else {
+			// skip past the reserved slots
+			startIndex = sv_privateClients->integer;
+		}
 	}
-
 	newcl = NULL;
 	for ( i = startIndex; i < sv_maxclients->integer ; i++ ) {
 		cl = &svs.clients[i];
@@ -416,10 +417,8 @@ Pull specific info from a newly changed userinfo string
 into a more C friendly form.
 =================
 */
-void SV_UserinfoChanged( client_t *cl ) {
-	char    *val;
-	int i;
-
+void SV_UserinfoChanged( client_t *cl )
+{
 	// name for C code
 	Q_strncpyz( cl->name, Info_ValueForKey( cl->userinfo, "name" ), sizeof( cl->name ) );
 
@@ -430,9 +429,9 @@ void SV_UserinfoChanged( client_t *cl ) {
 	cl->rate = 99999;   // lans should not rate limit
 	
 	
-	val = Info_ValueForKey( cl->userinfo, "handicap" );
+	const char* val = Info_ValueForKey( cl->userinfo, "handicap" );
 	if ( strlen( val ) ) {
-		i = atoi( val );
+		int i = atoi( val );
 		if ( i <= 0 || i > 100 || strlen( val ) > 4 ) {
 			Info_SetValueForKey( cl->userinfo, "handicap", "100" );
 		}
@@ -441,7 +440,7 @@ void SV_UserinfoChanged( client_t *cl ) {
 	// snaps command
 	val = Info_ValueForKey( cl->userinfo, "snaps" );
 	if ( strlen( val ) ) {
-		i = atoi( val );
+		int i = atoi( val );
 		if ( i < 1 ) {
 			i = 1;
 		} else if ( i > 30 ) {

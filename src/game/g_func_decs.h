@@ -284,11 +284,11 @@ extern qboolean Info_Validate ( const char * s ) ;
 extern void Info_RemoveKey_Big ( char * s , const char * key ) ;
 extern void Info_RemoveKey ( char * s , const char * key ) ;
 extern void Info_NextPair ( const char * * head , char * key , char * value ) ;
-extern char * Info_ValueForKey ( const char * s , const char * key ) ;
+extern const char * Info_ValueForKey ( const char * s , const char * key ) ;
 extern float * tv ( float x , float y , float z ) ;
 extern char *  va ( const char * format , ... ) ;
-extern int Q_strcasecmp ( char * s1 , char * s2 ) ;
-extern int Q_strncasecmp ( char * s1 , char * s2 , int n ) ;
+extern int Q_strcasecmp ( const char * s1 , const char * s2 ) ;
+extern int Q_strncasecmp ( const char * s1 , const char * s2 , int n ) ;
 extern char * Q_CleanStr ( char * string ) ;
 extern int Q_PrintStrlen ( const char * string ) ;
 extern void Q_strcat ( char * dest , int size , const char * src ) ;
@@ -869,7 +869,7 @@ extern int trap_BotLibVarGet ( const char * var_name , char * value , int size )
 extern int trap_BotLibVarSet ( const char * var_name , const char * value ) ;
 extern int trap_BotLibShutdown ( void ) ;
 
-extern qboolean CG_GetTag ( int clientNum , char * tagName , orientation_t * orientation ) ;
+extern qboolean CG_GetTag ( int clientNum , const char * tagName , orientation_t * orientation ) ;
 extern void trap_SnapVector ( float * v ) ;
 extern time_t trap_RealTime ( qtime_t * qtime ) ;
 extern void trap_DebugPolygonDelete ( int id ) ;

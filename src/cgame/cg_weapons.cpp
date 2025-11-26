@@ -984,7 +984,7 @@ void CG_RegisterWeapon( int weaponNum ) {
 	// END JOSEPH
 
 	for ( ammo = bg_itemlist + 1 ; ammo->classname ; ammo++ ) {
-		if ( ( ammo->giType == IT_AMMO && ammo->giTag == BG_FindAmmoForWeapon( weaponNum ) ) ) {
+		if ( ( ammo->giType == IT_AMMO && ammo->giTag == BG_FindAmmoForWeapon( (weapon_t)weaponNum ) ) ) {
 			break;
 		}
 	}
@@ -1710,9 +1710,6 @@ static void CG_FlamethrowerFlame( centity_t *cent, vec3_t origin ) {
 		}
 	}
 
-//	if (cent->currentState.aiChar)
-//		CG_FireFlameChunks( cent, origin, cent->lerpAngles, 650.0 / FLAMETHROWER_RANGE, qtrue, 0 );	// fixed length for AI
-//	else
 	CG_FireFlameChunks( cent, origin, cent->lerpAngles, 1.0, qtrue, 0 );
 
 	return;
@@ -1806,7 +1803,7 @@ static float CG_VenomSpinAngle( centity_t *cent ) {
 	if ( cent->pe.barrelSpinning == !firing ) {
 		cent->pe.barrelTime = cg.time;
 		cent->pe.barrelAngle = AngleMod( angle );
-		cent->pe.barrelSpinning = !!firing;
+		cent->pe.barrelSpinning = !!firing ? qtrue : qfalse;;
 
 		// just switching between not spinning and spinning, play the appropriate weapon sound
 		if ( cent->pe.barrelSpinning ) {
@@ -2089,7 +2086,14 @@ void CG_PlayerTeslaCoilFire( centity_t *cent, vec3_t flashorigin ) {
 		// we have a valid lightning point, so draw it
 		// sanity check though to make sure it's valid
 		if ( VectorDistance( tagPos, cent->pe.teslaEndPoints[i] ) <= maxDist ) {
-			CG_DynamicLightningBolt( cgs.media.lightningBoltShader, tagPos, cent->pe.teslaEndPoints[i], 1 + ( ( cg.time % ( ( i + 2 ) * ( i + 3 ) ) ) + i ) % 2, 20 + (float)( i % 3 ) * 5 + 6.0 * random(), ( cent->pe.teslaEnemy[i] < 0 ), 1.0, 0, i * i * 3 );
+			CG_DynamicLightningBolt( cgs.media.lightningBoltShader,
+				tagPos,
+				cent->pe.teslaEndPoints[i],
+				1 + ( ( cg.time % ( ( i + 2 ) * ( i + 3 ) ) ) + i ) % 2,
+				20 + (float)( i % 3 ) * 5 + 6.0 * random(),
+				( cent->pe.teslaEnemy[i] < 0 )? qtrue : qfalse,
+				1.0,
+				0, i * i * 3 );
 
 			// play a zap sound
 			if ( cent->pe.lightningSoundTime < cg.time - 200 ) {
@@ -2162,7 +2166,7 @@ CG_MonsterUsingWeapon
 ==============
 */
 qboolean CG_MonsterUsingWeapon( centity_t *cent, int aiChar, int weaponNum ) {
-	return ( cent->currentState.aiChar == aiChar ) && ( cent->currentState.weapon == weaponNum );
+	return (( cent->currentState.aiChar == aiChar ) && ( cent->currentState.weapon == weaponNum )) ? qtrue : qfalse;;
 }
 
 
@@ -2201,8 +2205,8 @@ void CG_AddPlayerWeapon( refEntity_t *parent, playerState_t *ps, centity_t *cent
 	// (SA) might as well have this check consistant throughout the routine
 	isPlayer = (qboolean)( cent->currentState.clientNum == cg.snap->ps.clientNum );
 
-	weaponNum = cent->currentState.weapon;
-	weapSelect = cg.weaponSelect;
+	weaponNum = (weapon_t)cent->currentState.weapon;
+	weapSelect = (weapon_t)cg.weaponSelect;
 
 	if ( ps && cg.cameraMode ) {
 		return;
@@ -2296,7 +2300,7 @@ void CG_AddPlayerWeapon( refEntity_t *parent, playerState_t *ps, centity_t *cent
 		if ( ( cent->currentState.eFlags & EF_FIRING ) && weapon->firingSound ) {
 			// lightning gun and guantlet make a different sound when fire is held down
 			trap_S_AddLoopingSound( cent->currentState.number, cent->lerpOrigin, vec3_origin, weapon->firingSound, 255 );
-			cent->pe.lightningFiring = qtrue;
+			cent->pe.lightningFiring = 1;
 		} else if ( weapon->readySound ) {
 			trap_S_AddLoopingSound( cent->currentState.number, cent->lerpOrigin, vec3_origin, weapon->readySound, 255 );
 		}
@@ -2304,7 +2308,7 @@ void CG_AddPlayerWeapon( refEntity_t *parent, playerState_t *ps, centity_t *cent
 
 
 	// Ridah
-	firing = ( ( cent->currentState.eFlags & EF_FIRING ) != 0 );
+	firing = ( ( cent->currentState.eFlags & EF_FIRING ) != 0 ) ? qtrue : qfalse;
 
 	CG_PositionEntityOnTag( &gun, parent, "tag_weapon", 0, NULL );
 
@@ -2617,7 +2621,7 @@ void CG_AddPlayerFoot( refEntity_t *parent, playerState_t *ps, centity_t *cent )
 		return;
 	}
 
-	weaponNum = cent->currentState.weapon;
+	weaponNum = (weapon_t)cent->currentState.weapon;
 	weapon = &cg_weapons[weaponNum];
 
 	memset( &wolfkick, 0, sizeof( wolfkick ) );
@@ -2942,8 +2946,8 @@ CG_WeaponHasAmmo
 ==============
 */
 static qboolean CG_WeaponHasAmmo( int i ) {
-	if ( !( cg.predictedPlayerState.ammo[BG_FindAmmoForWeapon( i )] ) &&
-		 !( cg.predictedPlayerState.ammoclip[BG_FindClipForWeapon( i )] ) ) {
+	if ( !( cg.predictedPlayerState.ammo[BG_FindAmmoForWeapon( (weapon_t)i )] ) &&
+		 !( cg.predictedPlayerState.ammoclip[BG_FindClipForWeapon( (weapon_t)i )] ) ) {
 		return qfalse;
 	}
 
@@ -3932,7 +3936,7 @@ CG_Weapon_f
 void CG_Weapon_f( void ) {
 	int num, i, curweap;
 	int bank = 0, cycle = 0, newbank = 0, newcycle = 0;
-	qboolean banked = qfalse;
+	int banked = 0;
 
 	if ( !cg.snap ) {
 		return;
@@ -4483,7 +4487,7 @@ CG_AddDirtBulletParticles
 =================
 */
 void CG_AddDirtBulletParticles( vec3_t origin, vec3_t dir, int speed, int duration, int count, float randScale,
-								float width, float height, float alpha, char *shadername ) { // JPW NERVE
+								float width, float height, float alpha, const char *shadername ) { // JPW NERVE
 	vec3_t velocity, pos;
 	int i;
 
@@ -5163,7 +5167,7 @@ void CG_MissileHitWallSmall( int weapon, int clientNum, vec3_t origin, vec3_t di
 	//
 	// impact mark
 	//
-	alphaFade = ( mark == cgs.media.energyMarkShader );   // plasma fades alpha, all others fade color
+	alphaFade = ( mark == cgs.media.energyMarkShader ) ? qtrue : qfalse;   // plasma fades alpha, all others fade color
 	// CG_ImpactMark( mark, origin, dir, random()*360, 1,1,1,1, alphaFade, radius, qfalse, 60000 );
 	CG_ImpactMark( mark, origin, dir, random() * 360, 1,1,1,1, alphaFade, radius, qfalse, 0xffffffff );
 
@@ -5316,7 +5320,7 @@ void CG_SpawnTracer( int sourceEnt, vec3_t pstart, vec3_t pend ) {
 	localEntity_t   *le;
 	float dist;
 	vec3_t dir, ofs;
-	orientation_t or;
+	orientation_t orientation;
 	vec3_t start, end;
 
 	VectorCopy( pstart, start );
@@ -5335,8 +5339,8 @@ void CG_SpawnTracer( int sourceEnt, vec3_t pstart, vec3_t pend ) {
 		if ( cg_entities[sourceEnt].currentState.eFlags & EF_MG42_ACTIVE ) {   // mounted
 			start[2] -= 32; // (SA) hack to get the tracer down below the barrel FIXME: do properly
 		} else {
-			if ( CG_GetWeaponTag( sourceEnt, "tag_flash", &or ) ) {
-				VectorSubtract( or.origin, start, ofs );
+			if ( CG_GetWeaponTag( sourceEnt, "tag_flash", &orientation ) ) {
+				VectorSubtract( orientation.origin, start, ofs );
 				if ( VectorLength( ofs ) < 64 ) {
 					VectorAdd( start, ofs, start );
 					//VectorAdd( end, ofs, end );
@@ -5530,12 +5534,6 @@ void CG_Bullet( vec3_t end, int sourceEntityNum, vec3_t normal, qboolean flesh, 
 			}
 			// bubble trail from air into water
 			else if ( ( destContentType & CONTENTS_WATER ) ) {
-//				Com_Printf( "Dist: %f\n", Distance(cg.refdef.vieworg, end) );
-//				CG_AddDirtBulletParticles( end, dir,
-//							190,	// speed
-//							900,	// duration
-//							5,	// count
-//							0.5, 80, 16, 0.125, "water_splash" );	// rand scale
 				// only add bubbles if effect is close to viewer
 				if ( Distance( cg.snap->ps.origin, end ) < 1024 ) {
 					CM_BoxTrace( &trace, start, end, NULL, NULL, 0, CONTENTS_WATER, qfalse );

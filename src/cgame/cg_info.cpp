@@ -120,7 +120,7 @@ CG_LoadingClient
 */
 void CG_LoadingClient( int clientNum ) {
 	const char      *info;
-	char            *skin;
+	const char            *skin;
 	char personality[MAX_QPATH];
 	char model[MAX_QPATH];
 	char iconName[MAX_QPATH];
@@ -134,7 +134,7 @@ void CG_LoadingClient( int clientNum ) {
 	Q_strncpyz( model, Info_ValueForKey( info, "model" ), sizeof( model ) );
 	skin = Q_strrchr( model, '/' );
 	if ( skin ) {
-		*skin++ = '\0';
+		++skin;
 	} else {
 		skin = "default";
 	}
@@ -157,13 +157,13 @@ CG_DrawStats
 */
 
 typedef struct {
-	char    *label;
+	const char    *label;
 	int YOfs;
 	int labelX;
 	int labelFlags;
 	vec4_t labelColor;
 
-	char    *format;
+	const char    *format;
 	int formatX;
 	int formatFlags;
 	vec4_t formatColor;

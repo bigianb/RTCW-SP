@@ -28,7 +28,7 @@ If you have questions concerning this license or the applicable additional terms
 
 #pragma once
 
-//#include "../game/q_shared.h"
+#include "../game/q_shared.h"
 
 
 // q_splineshared.h -- included first by ALL program modules.
@@ -37,8 +37,6 @@ If you have questions concerning this license or the applicable additional terms
 // of the program without any state issues.
 
 // A user mod should never modify this file
-
-#define Q3_VERSION      "DOOM 0.01"
 
 // alignment macros for SIMD
 #define ALIGN_ON
@@ -91,9 +89,6 @@ If you have questions concerning this license or the applicable additional terms
 //=============================================================
 
 
-
-typedef enum {qfalse, qtrue}    qboolean;
-
 typedef unsigned char byte;
 
 #define EQUAL_EPSILON   0.001
@@ -140,18 +135,9 @@ typedef enum {
 
 
 #define MAX_QPATH           64      // max length of a quake game pathname
-#define MAX_OSPATH          128     // max length of a filesystem pathname
+
 
 #define MAX_NAME_LENGTH     32      // max length of a client name
-
-// paramters for command buffer stuffing
-typedef enum {
-	EXEC_NOW,           // don't return until completed, a VM should NEVER use this,
-						// because some commands might cause the VM to be unloaded...
-	EXEC_INSERT,        // insert at current position, but don't run yet
-	EXEC_APPEND         // add to end of the command buffer (normal case)
-} cbufExec_t;
-
 
 //
 // these aren't needed by any of the VMs.  put in another header?
@@ -159,15 +145,6 @@ typedef enum {
 #define MAX_MAP_AREA_BYTES      32      // bit vector of area visibility
 
 #undef ERR_FATAL                        // malloc.h on unix
-
-// parameters to the main Error routine
-typedef enum {
-	ERR_NONE,
-	ERR_FATAL,                  // exit the entire game with a popup window
-	ERR_DROP,                   // print to console and disconnect from game
-	ERR_DISCONNECT,             // don't kill server
-} errorParm_t;
-
 
 // font rendering values used by ui and cgame
 
@@ -230,7 +207,6 @@ typedef const mat3_t &mat3_c;       // for passing matrices as const function ar
 
 
 #define NUMVERTEXNORMALS    162
-extern idVec3 bytedirs[NUMVERTEXNORMALS];
 
 // all drawing is done to a 640*480 virtual screen size
 // and will be automatically scaled to the real resolution
@@ -248,18 +224,6 @@ extern idVec3 bytedirs[NUMVERTEXNORMALS];
 
 #define GIANTCHAR_WIDTH     32
 #define GIANTCHAR_HEIGHT    48
-
-extern idVec4 colorBlack;
-extern idVec4 colorRed;
-extern idVec4 colorGreen;
-extern idVec4 colorBlue;
-extern idVec4 colorYellow;
-extern idVec4 colorMagenta;
-extern idVec4 colorCyan;
-extern idVec4 colorWhite;
-extern idVec4 colorLtGrey;
-extern idVec4 colorMdGrey;
-extern idVec4 colorDkGrey;
 
 #define Q_COLOR_ESCAPE  '^'
 #define Q_IsColorString( p )  ( p && *( p ) == Q_COLOR_ESCAPE && *( ( p ) + 1 ) && *( ( p ) + 1 ) != Q_COLOR_ESCAPE )
@@ -283,8 +247,6 @@ extern idVec4 colorDkGrey;
 #define S_COLOR_MAGENTA "^6"
 #define S_COLOR_WHITE   "^7"
 
-extern idVec4 g_color_table[8];
-
 #define MAKERGB( v, r, g, b ) v[0] = r; v[1] = g; v[2] = b
 #define MAKERGBA( v, r, g, b, a ) v[0] = r; v[1] = g; v[2] = b; v[3] = a
 
@@ -293,9 +255,7 @@ extern idVec4 g_color_table[8];
 
 struct cplane_s;
 
-extern idVec3 vec3_origin;
 extern idVec4 vec4_origin;
-extern mat3_t axisDefault;
 
 #define nanmask ( 255 << 23 )
 
@@ -322,7 +282,7 @@ signed short ClampShort( int i );
 // this isn't a real cheap function to call!
 int DirToByte( const idVec3 &dir );
 void ByteToDir( int b, vec3_p dir );
-
+/*
 #define DotProduct( a,b )         ( ( a )[0] * ( b )[0] + ( a )[1] * ( b )[1] + ( a )[2] * ( b )[2] )
 #define VectorSubtract( a,b,c )   ( ( c )[0] = ( a )[0] - ( b )[0],( c )[1] = ( a )[1] - ( b )[1],( c )[2] = ( a )[2] - ( b )[2] )
 #define VectorAdd( a,b,c )        ( ( c )[0] = ( a )[0] + ( b )[0],( c )[1] = ( a )[1] + ( b )[1],( c )[2] = ( a )[2] + ( b )[2] )
@@ -347,8 +307,9 @@ void ByteToDir( int b, vec3_p dir );
 #define Vector4Copy( a,b )        ( ( b )[0] = ( a )[0],( b )[1] = ( a )[1],( b )[2] = ( a )[2],( b )[3] = ( a )[3] )
 
 #define SnapVector( v ) {v[0] = (int)v[0]; v[1] = (int)v[1]; v[2] = (int)v[2];}
+*/
 
-float NormalizeColor( vec3_c in, vec3_p out );
+float NormalizeColor( vec3_c inp, vec3_p out );
 
 int VectorCompare( vec3_c v1, vec3_c v2 );
 float VectorLength( vec3_c v );
@@ -358,7 +319,7 @@ float VectorNormalize( vec3_p v );       // returns vector length
 void VectorNormalizeFast( vec3_p v );     // does NOT return vector length, uses rsqrt approximation
 float VectorNormalize2( vec3_c v, vec3_p out );
 void VectorInverse( vec3_p v );
-void VectorRotate( vec3_c in, mat3_c matrix, vec3_p out );
+void VectorRotate( vec3_c inp, mat3_c matrix, vec3_p out );
 void VectorPolar( vec3_p v, float radius, float theta, float phi );
 void VectorSnap( vec3_p v );
 void Vector53Copy( const idVec5_t &in, vec3_p out );
@@ -404,7 +365,7 @@ void RotateAroundDirection( mat3_p axis, float yaw );
 void MakeNormalVectors( vec3_c forward, vec3_p right, vec3_p up );
 // perpendicular vector could be replaced by this
 
-int PlaneTypeForNormal( vec3_c normal );
+//int PlaneTypeForNormal( vec3_c normal );
 
 void MatrixMultiply( mat3_c in1, mat3_c in2, mat3_p out );
 void MatrixInverseMultiply( mat3_c in1, mat3_c in2, mat3_p out );   // in2 is transposed during multiply
@@ -480,22 +441,6 @@ void Com_Parse3DMatrix( const char *( *buf_p ), int z, int y, int x, float *m );
 #ifdef __cplusplus
 extern "C" {
 #endif
-
-// mode parm for FS_FOpenFile
-typedef enum {
-	FS_READ,
-	FS_WRITE,
-	FS_APPEND,
-	FS_APPEND_SYNC
-} fsMode_t;
-
-typedef enum {
-	FS_SEEK_CUR,
-	FS_SEEK_END,
-	FS_SEEK_SET
-} fsOrigin_t;
-
-//=============================================
 
 int Q_isprint( int c );
 int Q_islower( int c );

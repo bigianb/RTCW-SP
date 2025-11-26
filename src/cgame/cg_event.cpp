@@ -38,53 +38,6 @@ If you have questions concerning this license or the applicable additional terms
 extern int hWeaponSnd;
 
 extern void CG_Tracer( vec3_t source, vec3_t dest, int sparks );
-//==========================================================================
-
-/*
-===================
-CG_PlaceString
-
-Also called by scoreboard drawing
-===================
-*/
-const char  *CG_PlaceString( int rank ) {
-	static char str[64];
-	char    *s, *t;
-
-	if ( rank & RANK_TIED_FLAG ) {
-		rank &= ~RANK_TIED_FLAG;
-		t = "Tied for ";
-	} else {
-		t = "";
-	}
-
-	if ( rank == 1 ) {
-		s = S_COLOR_BLUE "1st" S_COLOR_WHITE;        // draw in blue
-	} else if ( rank == 2 ) {
-		s = S_COLOR_RED "2nd" S_COLOR_WHITE;     // draw in red
-	} else if ( rank == 3 ) {
-		s = S_COLOR_YELLOW "3rd" S_COLOR_WHITE;      // draw in yellow
-	} else if ( rank == 11 ) {
-		s = "11th";
-	} else if ( rank == 12 ) {
-		s = "12th";
-	} else if ( rank == 13 ) {
-		s = "13th";
-	} else if ( rank % 10 == 1 ) {
-		s = va( "%ist", rank );
-	} else if ( rank % 10 == 2 ) {
-		s = va( "%ind", rank );
-	} else if ( rank % 10 == 3 ) {
-		s = va( "%ird", rank );
-	} else {
-		s = va( "%ith", rank );
-	}
-
-	snprintf( str, sizeof( str ), "%s%s", t, s );
-	return str;
-}
-
-//==========================================================================
 
 /*
 ===============
@@ -111,7 +64,7 @@ static void CG_UseItem( centity_t *cent ) {
 		if ( !itemNum ) {
 			CG_CenterPrint( "noitem", SCREEN_HEIGHT - ( SCREEN_HEIGHT * 0.25 ), SMALLCHAR_WIDTH ); //----(SA)	modified
 		} else {
-			item = BG_FindItemForHoldable( itemNum );
+			item = BG_FindItemForHoldable( (holdable_t)itemNum );
 
 			if ( item ) {
 				cg.holdableSelectTime = cg.time;    // show remaining items
@@ -285,15 +238,15 @@ Also called by playerstate transition
 ================
 */
 typedef struct {
-	char *tag;
-	int refEntOfs;
+	const char *tag;
+	intptr_t refEntOfs;
 	int anim;
 } painAnimForTag_t;
 
 #define PEFOFS( x ) ( (intptr_t)&( ( (playerEntity_t *)0 )->x ) )
 
 void CG_PainEvent( centity_t *cent, int health, qboolean crouching ) {
-	char    *snd;
+
 
 	#define STUNNED_ANIM    BOTH_PAIN8
 	painAnimForTag_t tagAnims[] = {
@@ -386,6 +339,7 @@ void CG_PainEvent( centity_t *cent, int health, qboolean crouching ) {
 		return;
 	}
 
+	const char *snd;
 	if ( health < 25 ) {
 		snd = "*pain25_1.wav";
 	} else if ( health < 50 ) {
@@ -453,13 +407,12 @@ void CG_Explode( centity_t *cent, vec3_t origin, vec3_t dir, qhandle_t shader ) 
 	CG_Explodef(    pos,
 					dir,
 					cent->currentState.density,         // mass
-//					cent->currentState.time2,			// type
 					cent->currentState.effect3Time,                 //----(SA)	needed .time
 					cent->currentState.dl_intensity,    // sound
 					cent->currentState.weapon,          // forceLowGrav
 					shader,
 					cent->currentState.number,
-					cent->currentState.teamNum
+					cent->currentState.teamNum ? qtrue : qfalse
 					);
 
 }
@@ -675,7 +628,7 @@ void CG_Explodef( vec3_t origin, vec3_t dir, int mass, int type, qhandle_t sound
 
 			// RF, debris rocks last longer in the boss map (is thee a better way of doing this at this late stage?)
 			if ( snd == LEBS_ROCK && damage ) {
-				snd = 0;
+				snd = LEBS_NONE;
 				if ( damage ) {
 					le->leFlags |= LEF_PLAYER_DAMAGE;
 				}
@@ -711,7 +664,7 @@ void CG_Explodef( vec3_t origin, vec3_t dir, int mass, int type, qhandle_t sound
 
 			le->lifeRate    = 1.0 / ( le->endTime - le->startTime );
 			le->leFlags     |= LEF_TUMBLE;
-			le->leMarkType  = 0;
+			le->leMarkType  = LEMT_NONE;
 
 			VectorCopy( origin, re->origin );
 			AxisCopy( axisDefault, re->axis );
@@ -1017,7 +970,7 @@ void CG_Shard( centity_t *cent, vec3_t origin, vec3_t dir ) {
 		le->leFlags             |= LEF_TUMBLE;
 		le->bounceFactor        = 0.4;
 		// le->leBounceSoundType	= LEBS_WOOD;
-		le->leMarkType          = 0;
+		le->leMarkType          = LEMT_NONE;
 
 		VectorCopy( origin, re->origin );
 		AxisCopy( axisDefault, re->axis );
@@ -1117,7 +1070,7 @@ void CG_ShardJunk( centity_t *cent, vec3_t origin, vec3_t dir ) {
 	le->lifeRate            = 1.0 / ( le->endTime - le->startTime );
 	le->leFlags             |= LEF_TUMBLE;
 	le->bounceFactor        = 0.4;
-	le->leMarkType          = 0;
+	le->leMarkType          = LEMT_NONE;
 
 	VectorCopy( origin, re->origin );
 	AxisCopy( axisDefault, re->axis );
@@ -2208,17 +2161,7 @@ void CG_EntityEvent( centity_t *cent, vec3_t position ) {
 		old = cent->currentState.aiChar;
 		cent->currentState.aiChar = AICHAR_ZOMBIE;
 
-		// shoot this only in bursts
-
-		// (SA) this first one doesn't seem to do anything.  ?
-
-//			if ((cg.time+cent->currentState.number*100)%1000 > 200) {
-//				CG_FireFlameChunks( cent, cent->currentState.origin, cent->lerpAngles, 0.1, qfalse, 1 );
-//				CG_FireFlameChunks( cent, cent->currentState.origin, cent->currentState.apos.trBase, 0.1, qfalse, 1 );
-//			}
-//			else
-//				CG_FireFlameChunks( cent, cent->currentState.origin, cent->lerpAngles, 0.6, 2, 1 );
-		CG_FireFlameChunks( cent, cent->currentState.origin, cent->currentState.apos.trBase, 0.6, 2, 1 );
+		CG_FireFlameChunks( cent, cent->currentState.origin, cent->currentState.apos.trBase, 0.6, qtrue, 1 );
 
 		cent->currentState.aiChar = old;
 	}

@@ -196,7 +196,7 @@ void CG_ImpactMark( qhandle_t markShader, const vec3_t origin, const vec3_t dir,
 	// get the fragments
 	//VectorScale( dir, -20, projection );
 	VectorScale( dir, radius * 2, projection );
-	numFragments = R_MarkFragments( (int)orientation, (void *)originalPoints,
+	numFragments = R_MarkFragments( (int)orientation, originalPoints,
 										  projection, MAX_MARK_POINTS, (float *)&markPoints[0],
 										  MAX_MARK_FRAGMENTS * multMaxFragments, markFragments );
 

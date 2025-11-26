@@ -26,7 +26,6 @@ If you have questions concerning this license or the applicable additional terms
 ===========================================================================
 */
 
-
 #include "cg_local.h"
 
 #define MUSTARD     1
@@ -97,7 +96,7 @@ typedef enum
 
 #define MAX_SHADER_ANIMS        8
 #define MAX_SHADER_ANIM_FRAMES  64
-static char *shaderAnimNames[MAX_SHADER_ANIMS] = {
+static const char *shaderAnimNames[MAX_SHADER_ANIMS] = {
 	"explode1",
 	"blacksmokeanim",
 	"twiltb2",
@@ -1454,8 +1453,7 @@ void CG_ParticleDirtBulletDebris( vec3_t org, vec3_t vel, int duration ) {
 
 // NERVE - SMF :: the core of the dirt explosion
 void CG_ParticleDirtBulletDebris_Core( vec3_t org, vec3_t vel, int duration,
-									   float width, float height, float alpha, char *shadername ) { // JPW NERVE
-//	int r = rand(); // TTimo: unused
+									   float width, float height, float alpha, const char *shadername ) { 
 	cparticle_t *p;
 
 	if ( !free_particles ) {
@@ -1479,7 +1477,7 @@ void CG_ParticleDirtBulletDebris_Core( vec3_t org, vec3_t vel, int duration,
 	p->endheight = p->height;
 	p->endwidth = p->width;
 
-	p->rotate = 0;
+	p->rotate = qfalse;
 
 	p->pshader = trap_R_RegisterShader( shadername ); // JPW NERVE was "dirt_splash"
 
@@ -1503,7 +1501,7 @@ CG_ParticleExplosion
 ======================
 */
 
-void CG_ParticleExplosion( char *animStr, vec3_t origin, vec3_t vel, int duration, int sizeStart, int sizeEnd ) {
+void CG_ParticleExplosion( const char *animStr, vec3_t origin, vec3_t vel, int duration, int sizeStart, int sizeEnd ) {
 	cparticle_t *p;
 	int anim;
 

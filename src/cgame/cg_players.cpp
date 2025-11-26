@@ -40,7 +40,7 @@ If you have questions concerning this license or the applicable additional terms
 #define SWING_RIGHT 1
 #define SWING_LEFT  2
 
-char    *cg_customSoundNames[MAX_CUSTOM_SOUNDS] = {
+const char    *cg_customSoundNames[MAX_CUSTOM_SOUNDS] = {
 	"*death1.wav",
 	"*death2.wav",
 	"*death3.wav",
@@ -67,7 +67,7 @@ CG_EntOnFire
 */
 qboolean CG_EntOnFire( centity_t *cent ) {
 	return  (   ( cent->currentState.onFireStart < cg.time ) &&
-				( cent->currentState.onFireEnd > cg.time ) );
+				( cent->currentState.onFireEnd > cg.time ) ) ? qtrue : qfalse;
 }
 
 /*
@@ -181,7 +181,7 @@ CG_CalcMoveSpeeds
 ==================
 */
 void CG_CalcMoveSpeeds( clientInfo_t *ci ) {
-	char *tags[2] = {"tag_footleft", "tag_footright"};
+	const char *tags[2] = {"tag_footleft", "tag_footright"};
 	vec3_t oldPos[2];
 	refEntity_t refent;
 	animation_t *anim;
@@ -1398,7 +1398,7 @@ void CG_NewClientInfo( int clientNum ) {
 
 	// team
 	v = Info_ValueForKey( configstring, "t" );
-	newInfo.team = atoi( v );
+	newInfo.team = (team_t)atoi( v );
 
 	// head
 	v = Info_ValueForKey( configstring, "head" );
@@ -1671,8 +1671,8 @@ cg.time should be between oldFrameTime and frameTime after exit
 void CG_RunLerpFrameRate( clientInfo_t *ci, lerpFrame_t *lf, int newAnimation, centity_t *cent, int recursion ) {
 	int f;
 	animation_t *anim, *oldAnim;
-	animation_t *otherAnim = NULL; // TTimo: init
-	qboolean isLadderAnim;
+	animation_t *otherAnim = NULL; 
+	bool isLadderAnim;
 
 #define ANIM_SCALEMAX_LOW   1.1
 #define ANIM_SCALEMAX_HIGH  1.6
@@ -1961,7 +1961,7 @@ CG_SwingAngles
 ==================
 */
 static void CG_SwingAngles( float destination, float swingTolerance, float clampTolerance,
-							float speed, float *angle, qboolean *swinging ) {
+							float speed, float *angle, int *swinging ) {
 	float swing;
 	float move;
 	float scale;
@@ -2631,7 +2631,7 @@ Returns the Z component of the surface being shadowed
 */
 #define SHADOW_DISTANCE     64
 typedef struct {
-	char *tagname;
+	const char *tagname;
 	float size;
 	float maxdist;
 	float maxalpha;
@@ -3354,7 +3354,7 @@ void CG_AddZombieFlameShort( centity_t *cent ) {
 		return;
 	}
 
-	CG_FireFlameChunks( cent, morg, cent->lerpAngles, 0.4, 2, 0 );
+	CG_FireFlameChunks( cent, morg, cent->lerpAngles, 0.4, qtrue, 0 );
 	trap_S_AddLoopingSound( cent->currentState.number, cent->lerpOrigin, vec3_origin, cgs.media.flameSound, 50 );
 }
 
@@ -3483,7 +3483,15 @@ void CG_AddLoperLightningEffect( centity_t *cent ) {
 		// we have a valid lightning point, so draw it
 		// sanity check though to make sure it's valid
 		if ( VectorDistance( cent->lerpOrigin, cent->pe.lightningPoints[i] ) <= maxDist ) {
-			CG_DynamicLightningBolt( cgs.media.lightningBoltShader, tagPos, cent->pe.lightningPoints[i], 1, 25 + 12.0 * random(), ( cent->currentState.eFlags & EF_MONSTER_EFFECT ) == 0, 1.0, 0, i * i * 2 );
+			CG_DynamicLightningBolt( cgs.media.lightningBoltShader,
+				tagPos,
+				cent->pe.lightningPoints[i],
+				1,
+				25 + 12.0 * random(),
+				(( cent->currentState.eFlags & EF_MONSTER_EFFECT ) == 0) ? qtrue : qfalse,
+				1.0,
+				0,
+				i * i * 2 );
 		}
 	}
 }
@@ -4443,7 +4451,7 @@ void CG_Player( centity_t *cent ) {
 	if ( !( cent->currentState.eFlags & EF_DEAD ) ) {
 		#define HEAD_EMOTION_SUBTYPES   8       // closed, A, O, I, E
 		int talk_frame; //, subtype;
-		qboolean closed;
+		bool closed;
 
 		#define NUM_EMOTIONS            2   // 0 neutral, 1 happy, 2 angry
 		int emotion = 0;  // this should default to the entity's current emotion
@@ -4501,14 +4509,6 @@ void CG_Player( centity_t *cent ) {
 				//if (closed)
 				//	cent->pe.head.frameTime += 30;		// slow it down a bit
 			} else {
-#if 0
-				// debugging, play all the frames and display the frame numbers
-				if ( ++cent->pe.head.frame > ( ci->headAnims[( NUM_EMOTIONS - 1 ) * HEAD_EMOTION_SUBTYPES + HEAD_EMOTION_SUBTYPES - 1].firstFrame ) ) {
-					cent->pe.head.frame = ci->headAnims[0].firstFrame;
-				}
-				cent->pe.head.frameTime = cg.time + 2000;
-				Com_Printf( "%d - %d\n", cent->currentState.number, cent->pe.head.oldFrame );
-#else
 				while ( ( emotion = rand() % NUM_EMOTIONS ) == 1 ) ; // don't use happy emotion
 				if ( ( cent->pe.head.frame - ci->modelInfo->headAnims[0].firstFrame ) % HEAD_EMOTION_SUBTYPES ) {
 					cent->pe.head.frame = ci->modelInfo->headAnims[emotion * HEAD_EMOTION_SUBTYPES].firstFrame;
@@ -4520,7 +4520,6 @@ void CG_Player( centity_t *cent ) {
 						cent->pe.head.frameTime = cg.time + 1000;
 					}
 				}
-#endif
 			}
 
 			cent->pe.head.animationTime = 0;
@@ -4537,8 +4536,6 @@ void CG_Player( centity_t *cent ) {
 		head.backlerp = 0.0;
 	}
 	// done.
-
-
 
 	// set blinking flag
 	if ( cent->currentState.eFlags & EF_DEAD ) {
@@ -4628,7 +4625,7 @@ void CG_Player( centity_t *cent ) {
 				cent->currentState.aiChar == AICHAR_SUPERSOLDIER ||
 				cent->currentState.aiChar == AICHAR_HEINRICH ) {
 
-		char *protoTags[] = {   "tag_chest",
+		const char *protoTags[] = {   "tag_chest",
 								"tag_calfleft",
 								"tag_armleft",
 								"tag_back",
@@ -4638,7 +4635,7 @@ void CG_Player( centity_t *cent ) {
 								"tag_back",
 								"tag_legright"};
 
-		char *ssTags[] = {      "tag_chest",
+		const char *ssTags[] = {      "tag_chest",
 								"tag_calfleft",
 								"tag_armleft",
 								"tag_back",
@@ -4656,7 +4653,7 @@ void CG_Player( centity_t *cent ) {
 								"tag_calfleft",
 								"tag_calfright"};
 
-		char *heinrichTags[] = {"tag_chest",
+		const char *heinrichTags[] = {"tag_chest",
 								"tag_calfleft",
 								"tag_armleft",
 								"tag_back",
@@ -4683,7 +4680,7 @@ void CG_Player( centity_t *cent ) {
 
 		// TTimo: init
 		int totalparts = 0, dynamicparts = 0, protoParts = 9, superParts = 16, heinrichParts = 22;
-		char        **tags = NULL;
+		const char        **tags = NULL;
 		qhandle_t   *models = NULL;
 		int dmgbits = 16;         // 32/2;
 
@@ -5039,7 +5036,7 @@ void CG_GetBleedOrigin( vec3_t head_origin, vec3_t torso_origin, vec3_t legs_ori
 CG_GetTag
 ===============
 */
-qboolean CG_GetTag( int clientNum, char *tagname, orientation_t *or ) {
+qboolean CG_GetTag( int clientNum, const char *tagname, orientation_t *orientation ) {
 	clientInfo_t    *ci;
 	centity_t       *cent;
 	refEntity_t     *refent;
@@ -5064,24 +5061,24 @@ qboolean CG_GetTag( int clientNum, char *tagname, orientation_t *or ) {
 
 	refent = &cent->pe.legsRefEnt;
 
-	if ( trap_R_LerpTag( or, refent, tagname, 0 ) < 0 ) {
+	if ( trap_R_LerpTag( orientation, refent, tagname, 0 ) < 0 ) {
 		return qfalse;
 	}
 
 	VectorCopy( refent->origin, org );
 
 	for ( i = 0 ; i < 3 ; i++ ) {
-		VectorMA( org, or->origin[i], refent->axis[i], org );
+		VectorMA( org, orientation->origin[i], refent->axis[i], org );
 	}
 
-	VectorCopy( org, or->origin );
+	VectorCopy( org, orientation->origin );
 
 	// add the origin of the entity
 	//VectorAdd( refent->origin, or->origin, or->origin );
 
 	// rotate with entity
-	MatrixMultiply( refent->axis, or->axis, tempAxis );
-	memcpy( or->axis, tempAxis, sizeof( vec3_t ) * 3 );
+	MatrixMultiply( refent->axis, orientation->axis, tempAxis );
+	memcpy( orientation->axis, tempAxis, sizeof( vec3_t ) * 3 );
 
 	return qtrue;
 }
@@ -5091,7 +5088,7 @@ qboolean CG_GetTag( int clientNum, char *tagname, orientation_t *or ) {
 CG_GetWeaponTag
 ===============
 */
-qboolean CG_GetWeaponTag( int clientNum, char *tagname, orientation_t *or ) {
+qboolean CG_GetWeaponTag( int clientNum, const char *tagname, orientation_t *orientation ) {
 	clientInfo_t    *ci;
 	centity_t       *cent;
 	refEntity_t     *refent;
@@ -5120,24 +5117,24 @@ qboolean CG_GetWeaponTag( int clientNum, char *tagname, orientation_t *or ) {
 
 	refent = &cent->pe.gunRefEnt;
 
-	if ( trap_R_LerpTag( or, refent, tagname, 0 ) < 0 ) {
+	if ( trap_R_LerpTag( orientation, refent, tagname, 0 ) < 0 ) {
 		return qfalse;
 	}
 
 	VectorCopy( refent->origin, org );
 
 	for ( i = 0 ; i < 3 ; i++ ) {
-		VectorMA( org, or->origin[i], refent->axis[i], org );
+		VectorMA( org, orientation->origin[i], refent->axis[i], org );
 	}
 
-	VectorCopy( org, or->origin );
+	VectorCopy( org, orientation->origin );
 
 	// add the origin of the entity
 	//VectorAdd( refent->origin, or->origin, or->origin );
 
 	// rotate with entity
-	MatrixMultiply( refent->axis, or->axis, tempAxis );
-	memcpy( or->axis, tempAxis, sizeof( vec3_t ) * 3 );
+	MatrixMultiply( refent->axis, orientation->axis, tempAxis );
+	memcpy( orientation->axis, tempAxis, sizeof( vec3_t ) * 3 );
 
 	return qtrue;
 }

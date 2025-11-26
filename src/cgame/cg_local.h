@@ -126,9 +126,9 @@ typedef struct {
 	float backlerp;
 
 	float yawAngle;
-	qboolean yawing;
+	int yawing;
 	float pitchAngle;
-	qboolean pitching;
+	int pitching;
 
 	int animationNumber;            // may include ANIM_TOGGLEBIT
 	int oldAnimationNumber;         // may include ANIM_TOGGLEBIT
@@ -1724,8 +1724,8 @@ void CG_MouseEvent( int x, int y );
 void CG_EventHandling( int type );
 void CG_Init( int serverMessageNum, int serverCommandSequence );
 
-qboolean CG_GetTag( int clientNum, char *tagname, orientation_t * orient );
-qboolean CG_GetWeaponTag( int clientNum, char *tagname, orientation_t * orient );
+qboolean CG_GetTag( int clientNum, const char *tagname, orientation_t * orient );
+qboolean CG_GetWeaponTag( int clientNum, const char *tagname, orientation_t * orient );
 
 //
 // cg_view.c
@@ -1840,7 +1840,6 @@ void CG_PredictPlayerState( void );
 // cg_events.c
 //
 void CG_CheckEvents( centity_t *cent );
-const char  *CG_PlaceString( int rank );
 void CG_EntityEvent( centity_t *cent, vec3_t position );
 void CG_PainEvent( centity_t *cent, int health, qboolean crouching );
 
@@ -1854,8 +1853,8 @@ void CG_Beam( centity_t *cent );
 void CG_AdjustPositionForMover( const vec3_t in, int moverNum, int fromTime, int toTime, vec3_t out, vec3_t outDeltaAngles );
 
 void CG_PositionEntityOnTag( refEntity_t *entity, const refEntity_t *parent,
-							 char *tagName, int startIndex, vec3_t *offset );
-void CG_PositionRotatedEntityOnTag( refEntity_t *entity, const refEntity_t *parent, char *tagName );
+							 const char *tagName, int startIndex, vec3_t *offset );
+void CG_PositionRotatedEntityOnTag( refEntity_t *entity, const refEntity_t *parent, const char *tagName );
 
 
 //----(SA)
@@ -1953,13 +1952,13 @@ void    CG_AddParticleShrapnel( localEntity_t *le );
 void    CG_ParticleSnowFlurry( qhandle_t pshader, centity_t *cent );
 void    CG_ParticleBulletDebris( vec3_t org, vec3_t vel, int duration );
 void    CG_ParticleDirtBulletDebris( vec3_t org, vec3_t vel, int duration );     // DHM - Nerve
-void    CG_ParticleDirtBulletDebris_Core( vec3_t org, vec3_t vel, int duration, float width, float height, float alpha, char *shadername );  // NERVE - SMF // JPW addtnl params
+void    CG_ParticleDirtBulletDebris_Core( vec3_t org, vec3_t vel, int duration, float width, float height, float alpha,const char *shadername );  
 void    CG_ParticleSparks( vec3_t org, vec3_t vel, int duration, float x, float y, float speed );
 void    CG_ParticleDust( centity_t *cent, vec3_t origin, vec3_t dir );
 void    CG_ParticleMisc( qhandle_t pshader, vec3_t origin, int size, int duration, float alpha );
 
 // Ridah
-void CG_ParticleExplosion( char *animStr, vec3_t origin, vec3_t vel, int duration, int sizeStart, int sizeEnd );
+void CG_ParticleExplosion( const char *animStr, vec3_t origin, vec3_t vel, int duration, int sizeStart, int sizeEnd );
 
 // Rafael snow pvs check
 void    CG_SnowLink( centity_t *cent, qboolean particleOn );
@@ -2018,7 +2017,7 @@ void    CG_AddLocalEntities( void );
 //
 // cg_effects.c
 //
-int CG_GetOriginForTag( centity_t * cent, refEntity_t * parent, char *tagName, int startIndex, vec3_t org, vec3_t axis[3] );
+int CG_GetOriginForTag( centity_t * cent, refEntity_t * parent, const char *tagName, int startIndex, vec3_t org, vec3_t axis[3] );
 localEntity_t *CG_SmokePuff( const vec3_t p,
 							 const vec3_t vel,
 							 float radius,

@@ -623,7 +623,7 @@ CG_GetOriginForTag
   returns the index of the tag it used, so we can cycle through tag's with the same name
 ======================
 */
-int CG_GetOriginForTag( centity_t *cent, refEntity_t *parent, char *tagName, int startIndex, vec3_t org, vec3_t axis[3] ) {
+int CG_GetOriginForTag( centity_t *cent, refEntity_t *parent, const char *tagName, int startIndex, vec3_t org, vec3_t axis[3] ) {
 	int i;
 	orientation_t lerped;
 	int retval;
@@ -676,7 +676,7 @@ void CG_GibPlayer( centity_t *cent, vec3_t playerOrigin, vec3_t gdir ) {
 	float size;
 	vec3_t axis[3], angles;
 
-	char *JunctiongibTags[] = {
+	const char *JunctiongibTags[] = {
 		// leg tag
 		"tag_footright",
 		"tag_footleft",
@@ -691,7 +691,7 @@ void CG_GibPlayer( centity_t *cent, vec3_t playerOrigin, vec3_t gdir ) {
 		"tag_chest"
 	};
 
-	char *ConnectTags[] = {
+	const char *ConnectTags[] = {
 		// legs tags
 		"tag_legright",
 		"tag_legleft",
@@ -710,7 +710,7 @@ void CG_GibPlayer( centity_t *cent, vec3_t playerOrigin, vec3_t gdir ) {
 
 	// (SA) and perhaps which body part that tag is attached to?
 
-	char *gibTags[] = {
+	const char *gibTags[] = {
 		// tags in the legs
 		"tag_footright",
 		"tag_footleft",

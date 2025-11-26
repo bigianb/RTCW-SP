@@ -206,8 +206,8 @@ vmCvar_t cg_loadWeaponSelect;
 
 typedef struct {
 	vmCvar_t    *vmCvar;
-	char        *cvarName;
-	char        *defaultString;
+	const char        *cvarName;
+	const char        *defaultString;
 	int cvarFlags;
 } cvarTable_t;
 
@@ -396,7 +396,7 @@ void CG_RegisterCvars( void ) {
 
 	// see if we are also running the server on this machine
 	Cvar_VariableStringBuffer( "sv_running", var, sizeof( var ) );
-	cgs.localServer = atoi( var );
+	cgs.localServer = atoi( var ) != 0 ? qtrue : qfalse;
 
 	forceModelModificationCount = cg_forceModel.modificationCount;
 
@@ -906,7 +906,7 @@ static void CG_RegisterGraphics( void ) {
 
 	int i;
 	char items[MAX_ITEMS + 1];
-	static char     *sb_nums[11] = {
+	static const char     *sb_nums[11] = {
 		"gfx/2d/numbers/zero_32b",
 		"gfx/2d/numbers/one_32b",
 		"gfx/2d/numbers/two_32b",

@@ -45,11 +45,9 @@ This is called explicitly when the gamestate is first received,
 and whenever the server updates any serverinfo flagged cvars
 ================
 */
-void CG_ParseServerinfo( void ) {
-	const char  *info;
-	char    *mapname;
-
-	info = CG_ConfigString( CS_SERVERINFO );
+void CG_ParseServerinfo()
+{
+	const char* info = CG_ConfigString( CS_SERVERINFO );
 
 	cgs.dmflags = atoi( Info_ValueForKey( info, "dmflags" ) );
 	cgs.teamflags = atoi( Info_ValueForKey( info, "teamflags" ) );
@@ -57,7 +55,7 @@ void CG_ParseServerinfo( void ) {
 	cgs.capturelimit = atoi( Info_ValueForKey( info, "capturelimit" ) );
 	cgs.timelimit = atoi( Info_ValueForKey( info, "timelimit" ) );
 	cgs.maxclients = atoi( Info_ValueForKey( info, "sv_maxclients" ) );
-	mapname = Info_ValueForKey( info, "mapname" );
+	const char* mapname = Info_ValueForKey( info, "mapname" );
 	snprintf( cgs.mapname, sizeof( cgs.mapname ), "maps/%s.bsp", mapname );
 
 }
@@ -230,17 +228,15 @@ void CG_ShaderStateChanged( void ) {
 	char originalShader[MAX_QPATH];
 	char newShader[MAX_QPATH];
 	char timeOffset[16];
-	const char *o;
-	char *n,*t;
 
-	o = CG_ConfigString( CS_SHADERSTATE );
+	const char *o = CG_ConfigString( CS_SHADERSTATE );
 	while ( o && *o ) {
-		n = strstr( o, "=" );
+		const char* n = strstr( o, "=" );
 		if ( n && *n ) {
 			strncpy( originalShader, o, n - o );
 			originalShader[n - o] = 0;
 			n++;
-			t = strstr( n, ":" );
+			const char* t = strstr( n, ":" );
 			if ( t && *t ) {
 				strncpy( newShader, n, t - n );
 				newShader[t - n] = 0;
@@ -309,7 +305,7 @@ static void CG_ConfigStringModified( void ) {
 	} else if ( num == CS_VOTE_STRING ) {
 		Q_strncpyz( cgs.voteString, str, sizeof( cgs.voteString ) );
 	} else if ( num == CS_INTERMISSION ) {
-		cg.intermissionStarted = atoi( str );
+		cg.intermissionStarted = atoi( str ) ? qtrue : qfalse;
 	} else if ( num == CS_SCREENFADE ) {
 		CG_ParseScreenFade();
 	} else if ( num == CS_FOGVARS ) {
@@ -402,7 +398,8 @@ static void CG_MapRestart( void ) {
 
 	// (SA) clear zoom (so no warpies)
 	cg.zoomedBinoc = qfalse;
-	cg.zoomedBinoc = cg.zoomedScope = qfalse;
+	cg.zoomedBinoc = qfalse;
+	cg.zoomedScope = 0;
 	cg.zoomTime = 0;
 	cg.zoomval = 0;
 
@@ -549,7 +546,7 @@ static void CG_ServerCommand( void ) {
 	}
 
 	if ( !strcmp( cmd, "startCam" ) ) {
-		qboolean startBlack = atoi( CG_Argv( 2 ) );
+		qboolean startBlack = atoi( CG_Argv( 2 ) ) ? qtrue : qfalse;;
 
 		CG_StartCamera( CG_Argv( 1 ), startBlack );
 		return;

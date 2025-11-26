@@ -28,6 +28,7 @@ If you have questions concerning this license or the applicable additional terms
 
 #include "q_splineshared.h"
 #include "splines.h"
+#include "splines_camera.h"
 
 extern "C" {
 int FS_Write( const void *buffer, int len, fileHandle_t h );
@@ -39,12 +40,6 @@ void Cbuf_AddText( const char *text );
 void Cbuf_Execute( void );
 }
 
-float Q_fabs( float f ) {
-	int tmp = *( int * ) &f;
-	tmp &= 0x7FFFFFFF;
-	return *( float * ) &tmp;
-}
-
 // (SA) making a list of cameras so I can use
 //		the splines as targets for other things.
 //		Certainly better ways to do this, but this lets
@@ -54,7 +49,6 @@ float Q_fabs( float f ) {
 
 idCameraDef camera[MAX_CAMERAS];
 
-extern "C" {
 qboolean loadCamera( int camNum, const char *name ) {
 	if ( camNum < 0 || camNum >= MAX_CAMERAS ) {
 		return qfalse;
@@ -90,7 +84,6 @@ void startCamera( int camNum, int time ) {
 	camera[camNum].startCamera( time );
 }
 
-}
 
 idCameraDef splineList;
 idCameraDef *g_splineList = &splineList;

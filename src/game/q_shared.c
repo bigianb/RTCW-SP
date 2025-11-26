@@ -966,7 +966,7 @@ char *Q_CleanStr( char *string ) {
 }
 
 // Ridah, ripped from l_bsp.c
-int Q_strncasecmp( char *s1, char *s2, int n ) {
+int Q_strncasecmp( const char *s1, const char *s2, int n ) {
 	int c1, c2;
 
 	do
@@ -994,7 +994,7 @@ int Q_strncasecmp( char *s1, char *s2, int n ) {
 	return 0;       // strings are equal
 }
 
-int Q_strcasecmp( char *s1, char *s2 ) {
+int Q_strcasecmp( const char *s1, const char *s2 ) {
 	return Q_strncasecmp( s1, s2, 99999 );
 }
 // done.
@@ -1085,7 +1085,7 @@ key and returns the associated value, or an empty string.
 FIXME: overflow check?
 ===============
 */
-char *Info_ValueForKey( const char *s, const char *key ) {
+const char *Info_ValueForKey( const char *s, const char *key ) {
 	char pkey[BIG_INFO_KEY];
 	static char value[2][BIG_INFO_VALUE];   // use two buffers so compares
 											// work without stomping on each other

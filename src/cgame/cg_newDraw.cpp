@@ -441,15 +441,14 @@ static void CG_DrawPlayerAmmoValue( rectDef_t *rect, int font, float scale, vec4
 
 
 	if ( type == 0 ) { // ammo
-		value = cg.snap->ps.ammo[BG_FindAmmoForWeapon( weap )];
+		value = cg.snap->ps.ammo[BG_FindAmmoForWeapon( (weapon_t)weap )];
 	} else {        // clip
-		value = ps->ammoclip[BG_FindClipForWeapon( weap )];
+		value = ps->ammoclip[BG_FindClipForWeapon( (weapon_t)weap )];
 		if ( special ) {
 			value2 = value;
 			if ( weapAlts[weap] ) {
 				value = ps->ammoclip[weapAlts[weap]];
 			}
-//				value2 = ps->ammoclip[weapAlts[weap]];
 		}
 	}
 
@@ -477,7 +476,7 @@ static void CG_DrawHoldableItem( rectDef_t *rect, int font, float scale, qboolea
 	int value;
 	gitem_t *item;
 
-	item    = BG_FindItemForHoldable( cg.holdableSelect );
+	item    = BG_FindItemForHoldable( (holdable_t)cg.holdableSelect );
 
 	if ( !item ) {
 		return;
@@ -547,19 +546,19 @@ float CG_GetValue( int ownerDraw, int type ) {
 	case CG_PLAYER_AMMO_VALUE:
 		if ( cent->currentState.weapon ) {
 			if ( type == RANGETYPE_RELATIVE ) {
-				int weap = BG_FindAmmoForWeapon( cent->currentState.weapon );
+				int weap = BG_FindAmmoForWeapon( (weapon_t)cent->currentState.weapon );
 				return (float)ps->ammo[weap] / (float)ammoTable[weap].maxammo;
 			} else {
-				return ps->ammo[BG_FindAmmoForWeapon( cent->currentState.weapon )];
+				return ps->ammo[BG_FindAmmoForWeapon( (weapon_t)cent->currentState.weapon )];
 			}
 		}
 		break;
 	case CG_PLAYER_AMMOCLIP_VALUE:
 		if ( cent->currentState.weapon ) {
 			if ( type == RANGETYPE_RELATIVE ) {
-				return (float)ps->ammoclip[BG_FindClipForWeapon( cent->currentState.weapon )] / (float)ammoTable[cent->currentState.weapon].maxclip;
+				return (float)ps->ammoclip[BG_FindClipForWeapon( (weapon_t)cent->currentState.weapon )] / (float)ammoTable[cent->currentState.weapon].maxclip;
 			} else {
-				return ps->ammoclip[BG_FindClipForWeapon( cent->currentState.weapon )];
+				return ps->ammoclip[BG_FindClipForWeapon( (weapon_t)cent->currentState.weapon )];
 			}
 		}
 		break;
@@ -772,7 +771,7 @@ void CG_OwnerDraw( float x, float y, float w, float h, float text_x, float text_
 
 	switch ( ownerDraw ) {
 	case CG_PLAYER_WEAPON_ICON2D:
-		CG_DrawPlayerWeaponIcon( &rect, ownerDrawFlags & CG_SHOW_HIGHLIGHTED, align );
+		CG_DrawPlayerWeaponIcon( &rect, (ownerDrawFlags & CG_SHOW_HIGHLIGHTED) ? qtrue : qfalse, align );
 		break;
 	case CG_PLAYER_ARMOR_VALUE:
 		CG_DrawPlayerArmorValue( &rect, font, scale, color, shader, textStyle );
@@ -799,7 +798,7 @@ void CG_OwnerDraw( float x, float y, float w, float h, float text_x, float text_
 		CG_DrawFatigue( &rect, color, align );
 		break;
 	case CG_PLAYER_HOLDABLE:
-		CG_DrawHoldableItem( &rect, font, scale, ownerDrawFlags & CG_SHOW_2DONLY );
+		CG_DrawHoldableItem( &rect, font, scale, (ownerDrawFlags & CG_SHOW_2DONLY)?qtrue : qfalse );
 		break;
 	case CG_PLAYER_HEALTH:
 		CG_DrawPlayerHealth( &rect, font, scale, color, shader, textStyle );

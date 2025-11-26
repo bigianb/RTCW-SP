@@ -81,7 +81,7 @@ void CG_CheckAmmo()
 		case WP_MAUSER:
 		case WP_GARAND:
 		default:
-			total += cg.snap->ps.ammo[BG_FindAmmoForWeapon( i )] * 1000;
+			total += cg.snap->ps.ammo[BG_FindAmmoForWeapon( (weapon_t)i )] * 1000;
 		}
 
 		if ( total >= 5000 ) {
@@ -253,7 +253,8 @@ void CG_Respawn( void ) {
 	//cg.weaponSelect = cg.snap->ps.weapon;
 	// DHM - Nerve :: Clear even more things on respawn
 	cg.zoomedBinoc = qfalse;
-	cg.zoomedBinoc = cg.zoomedScope = qfalse;
+	cg.zoomedBinoc = qfalse;
+	cg.zoomedScope = 0;
 	cg.zoomTime = 0;
 	cg.zoomval = 0;
 

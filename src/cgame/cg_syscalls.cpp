@@ -30,8 +30,9 @@ If you have questions concerning this license or the applicable additional terms
 #include "client.h"
 #include "botlib/l_script.h"
 #include "botlib/l_precomp.h"
-//#include "../renderer/tr_local.h"
 #include "../game/g_func_decs.h"
+#include "../splines/splines_camera.h"
+#include "../src/ui/ui_shared.h"
 
 void    trap_S_ClearLoopingSounds( int killall ) {
 	S_ClearLoopingSounds(); 
@@ -206,8 +207,6 @@ void        trap_SetUserCmdValue( int stateValue, int holdableValue, float sensi
 	CL_SetUserCmdValue(stateValue, holdableValue, sensitivityScale, cld );
 }
 
-
-extern qboolean loadCamera( int camNum, const char *name );
 qboolean trap_loadCamera( int camNum, const char *name ) {
 	return loadCamera(camNum, name );
 }
@@ -226,10 +225,8 @@ void trap_stopCamera( int camNum ) {
 	}
 }
 
-extern qboolean getCameraInfo( int camNum, int time, vec3_t *origin, vec3_t *angles, float *fov );
-
 qboolean trap_getCameraInfo( int camNum, int time, vec3_t *origin, vec3_t *angles, float *fov ) {
-	return getCameraInfo(camNum, time, origin, angles, fov );
+	return getCameraInfo(camNum, time, *origin, *angles, fov );
 }
 
 

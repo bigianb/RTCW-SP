@@ -102,20 +102,6 @@ int Com_IndexForGrowListElement( const growList_t *list, const void *element ) {
 	return -1;
 }
 
-//============================================================================
-
-
-float Com_Clamp( float min, float max, float value ) {
-	if ( value < min ) {
-		return min;
-	}
-	if ( value > max ) {
-		return max;
-	}
-	return value;
-}
-
-
 /*
 ============
 Com_SkipPath

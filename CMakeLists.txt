@@ -116,29 +116,29 @@ set(CGAME_INCLUDES
 )
 
 set(CGAME_SOURCES 
-	src/cgame/cg_consolecmds.c
-	src/cgame/cg_draw.c
-	src/cgame/cg_drawtools.c
-	src/cgame/cg_effects.c
-	src/cgame/cg_ents.c
-	src/cgame/cg_event.c
-	src/cgame/cg_flamethrower.c
-	src/cgame/cg_info.c
-	src/cgame/cg_localents.c
-	src/cgame/cg_main.c
-	src/cgame/cg_marks.c
-	src/cgame/cg_newDraw.c
-	src/cgame/cg_particles.c
-	src/cgame/cg_players.c
-	src/cgame/cg_playerstate.c
-	src/cgame/cg_predict.c
-	src/cgame/cg_servercmds.c
-	src/cgame/cg_snapshot.c
-	src/cgame/cg_sound.c
-	src/cgame/cg_syscalls.c
-	src/cgame/cg_trails.c
-	src/cgame/cg_view.c
-	src/cgame/cg_weapons.c
+	src/cgame/cg_consolecmds.cpp
+	src/cgame/cg_draw.cpp
+	src/cgame/cg_drawtools.cpp
+	src/cgame/cg_effects.cpp
+	src/cgame/cg_ents.cpp
+	src/cgame/cg_event.cpp
+	src/cgame/cg_flamethrower.cpp
+	src/cgame/cg_info.cpp
+	src/cgame/cg_localents.cpp
+	src/cgame/cg_main.cpp
+	src/cgame/cg_marks.cpp
+	src/cgame/cg_newDraw.cpp
+	src/cgame/cg_particles.cpp
+	src/cgame/cg_players.cpp
+	src/cgame/cg_playerstate.cpp
+	src/cgame/cg_predict.cpp
+	src/cgame/cg_servercmds.cpp
+	src/cgame/cg_snapshot.cpp
+	src/cgame/cg_sound.cpp
+	src/cgame/cg_syscalls.cpp
+	src/cgame/cg_trails.cpp
+	src/cgame/cg_view.cpp
+	src/cgame/cg_weapons.cpp
 )
 
 set(CLIENT_INCLUDES 
