@@ -26,15 +26,12 @@ If you have questions concerning this license or the applicable additional terms
 ===========================================================================
 */
 
-#include "../botlib/botlib.h"
+#pragma once
+#ifdef __cplusplus
+extern "C" {
+#endif
 
-/*****************************************************************************
- * name:		be_ea.h
- *
- * desc:		elementary actions
- *
- *
- *****************************************************************************/
+#include "../botlib/botlib.h"
 
 //ClientCommand elementary actions
 void EA_Say( int client, char *str );
@@ -43,7 +40,7 @@ void EA_UseItem( int client, char *it );
 void EA_DropItem( int client, char *it );
 void EA_UseInv( int client, char *inv );
 void EA_DropInv( int client, char *inv );
-void EA_Command( int client, char *command );
+void EA_Command( int client, const char *command );
 //regular elementary actions
 void EA_SelectWeapon( int client, int weapon );
 void EA_Attack( int client );
@@ -71,3 +68,7 @@ void EA_ResetInput( int client, bot_input_t *init );
 //setup and shutdown routines
 int EA_Setup( void );
 void EA_Shutdown( void );
+
+#ifdef __cplusplus
+}
+#endif

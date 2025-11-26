@@ -76,8 +76,8 @@ int trap_BotLibVarSet( const char *var_name, const char *value ) {
 	return Export_BotLibVarSet(var_name, value );
 }
 
-extern int Export_BotLibVarGet( char *var_name, char *value, int size );
-int trap_BotLibVarGet( char *var_name, char *value, int size ) {
+extern int Export_BotLibVarGet(const char *var_name, char *value, int size );
+int trap_BotLibVarGet( const char *var_name, char *value, int size ) {
 	return Export_BotLibVarGet(var_name, value, size );
 }
 
@@ -86,7 +86,7 @@ int trap_BotLibDefine( char *string ) {
 	return PC_AddGlobalDefine( string );
 }
 
-extern qboolean BotLibSetup( char *str );
+extern qboolean BotLibSetup( const char *str );
 int trap_BotLibStartFrame( float time ) {
 	if ( !BotLibSetup( "BotStartFrame" ) ) {
 		return BLERR_LIBRARYNOTSETUP;

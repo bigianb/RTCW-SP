@@ -292,11 +292,7 @@ void String_Init() {
 	Controls_GetConfig();
 }
 
-/*
-=================
-PC_SourceError
-=================
-*/
+
 void PC_SourceError( int handle, const char *format, ... ) {
 	int line;
 	char filename[128];

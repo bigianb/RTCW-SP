@@ -45,29 +45,16 @@ aas_t aasworlds[MAX_AAS_WORLDS];
 
 aas_t *aasworld;
 
-//===========================================================================
-//
-// Parameter:				-
-// Returns:					-
-// Changes Globals:		-
-//===========================================================================
-void  AAS_Error( char *fmt, ... ) {
+void  AAS_Error( const char *fmt, ... ) {
 	char str[1024];
 	va_list arglist;
 
 	va_start( arglist, fmt );
-	vsprintf( str, fmt, arglist );
+	vsnprintf( str, sizeof(str), fmt, arglist );
 	va_end( arglist );
 	BotImport_Print( PRT_FATAL, str );
-} //end of the function AAS_Error
+} 
 
-// Ridah, multiple AAS worlds
-//===========================================================================
-//
-// Parameter:				-
-// Returns:					-
-// Changes Globals:		-
-//===========================================================================
 void AAS_SetCurrentWorld( int index ) {
 	if ( index >= MAX_AAS_WORLDS || index < 0 ) {
 		AAS_Error( "AAS_SetCurrentWorld: index out of range\n" );
@@ -77,37 +64,7 @@ void AAS_SetCurrentWorld( int index ) {
 	// set the current world pointer
 	aasworld = &aasworlds[index];
 }
-// done.
 
-//===========================================================================
-//
-// Parameter:				-
-// Returns:					-
-// Changes Globals:		-
-//===========================================================================
-char *AAS_StringFromIndex( char *indexname, char *stringindex[], int numindexes, int index ) {
-	if ( !( *aasworld ).indexessetup ) {
-		BotImport_Print( PRT_ERROR, "%s: index %d not setup\n", indexname, index );
-		return "";
-	} //end if
-	if ( index < 0 || index >= numindexes ) {
-		BotImport_Print( PRT_ERROR, "%s: index %d out of range\n", indexname, index );
-		return "";
-	} //end if
-	if ( !stringindex[index] ) {
-		if ( index ) {
-			BotImport_Print( PRT_ERROR, "%s: reference to unused index %d\n", indexname, index );
-		} //end if
-		return "";
-	} //end if
-	return stringindex[index];
-} //end of the function AAS_StringFromIndex
-//===========================================================================
-//
-// Parameter:				-
-// Returns:					-
-// Changes Globals:		-
-//===========================================================================
 int AAS_IndexFromString( char *indexname, char *stringindex[], int numindexes, char *string ) {
 	int i;
 	if ( !( *aasworld ).indexessetup ) {
@@ -125,24 +82,16 @@ int AAS_IndexFromString( char *indexname, char *stringindex[], int numindexes, c
 	} //end for
 	return 0;
 } //end of the function AAS_IndexFromString
+
+
 //===========================================================================
 //
 // Parameter:				-
 // Returns:					-
 // Changes Globals:		-
 //===========================================================================
-char *AAS_ModelFromIndex( int index ) {
-//	return AAS_StringFromIndex("ModelFromIndex", &(*aasworld).configstrings[CS_MODELS], MAX_MODELS, index);
-	return 0;   // removed so the CS_ defines could be removed from be_aas_def.h
-} //end of the function AAS_ModelFromIndex
-//===========================================================================
-//
-// Parameter:				-
-// Returns:					-
-// Changes Globals:		-
-//===========================================================================
-int AAS_IndexFromModel( char *modelname ) {
-//	return AAS_IndexFromString("IndexFromModel", &(*aasworld).configstrings[CS_MODELS], MAX_MODELS, modelname);
+int AAS_IndexFromModel( const char *modelname ) {
+
 	return 0;   // removed so the CS_ defines could be removed from be_aas_def.h
 } //end of the function AAS_IndexFromModel
 //===========================================================================
@@ -327,7 +276,7 @@ int AAS_LoadMap( const char *mapname ) {
 
 		strncpy( this_mapname, mapname, 256 );
 		strncat( this_mapname, "_b", 256 );
-		sprintf( intstr, "%i", i );
+		snprintf( intstr, 4, "%i", i );
 		strncat( this_mapname, intstr, 256 );
 
 		//if no mapname is provided then the string indexes are updated

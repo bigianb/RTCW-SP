@@ -865,7 +865,7 @@ extern int trap_BotLibUpdateEntity ( int ent , void * bue ) ;
 extern int trap_BotLibLoadMap ( const char * mapname ) ;
 extern int trap_BotLibStartFrame ( float time ) ;
 extern int trap_BotLibDefine ( char * string ) ;
-extern int trap_BotLibVarGet ( char * var_name , char * value , int size ) ;
+extern int trap_BotLibVarGet ( const char * var_name , char * value , int size ) ;
 extern int trap_BotLibVarSet ( const char * var_name , const char * value ) ;
 extern int trap_BotLibShutdown ( void ) ;
 

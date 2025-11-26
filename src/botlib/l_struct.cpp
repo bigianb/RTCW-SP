@@ -63,50 +63,45 @@ fielddef_t *FindField( fielddef_t *defs, char *name ) {
 		}
 	} //end for
 	return NULL;
-} //end of the function FindField
-//===========================================================================
-//
-// Parameter:				-
-// Returns:					-
-// Changes Globals:		-
-//===========================================================================
-qboolean ReadNumber( source_t *source, fielddef_t *fd, void *p ) {
+} 
+
+bool ReadNumber( source_t *source, fielddef_t *fd, void *p ) {
 	token_t token;
 	int negative = qfalse;
 	long int intval, intmin = 0, intmax = 0;
 	double floatval;
 
 	if ( !PC_ExpectAnyToken( source, &token ) ) {
-		return 0;
+		return false;
 	}
 
 	//check for minus sign
 	if ( token.type == TT_PUNCTUATION ) {
 		if ( fd->type & FT_UNSIGNED ) {
 			SourceError( source, "expected unsigned value, found %s", token.string );
-			return 0;
+			return false;
 		} //end if
 		  //if not a minus sign
 		if ( strcmp( token.string, "-" ) ) {
 			SourceError( source, "unexpected punctuation %s", token.string );
-			return 0;
+			return false;
 		} //end if
 		negative = qtrue;
 		//read the number
 		if ( !PC_ExpectAnyToken( source, &token ) ) {
-			return 0;
+			return false;
 		}
 	} //end if
 	  //check if it is a number
 	if ( token.type != TT_NUMBER ) {
 		SourceError( source, "expected number, found %s", token.string );
-		return 0;
+		return false;
 	} //end if
 	  //check for a float value
 	if ( token.subtype & TT_FLOAT ) {
 		if ( ( fd->type & FT_TYPE ) != FT_FLOAT ) {
 			SourceError( source, "unexpected float" );
-			return 0;
+			return false;
 		} //end if
 		floatval = token.floatvalue;
 		if ( negative ) {
@@ -115,11 +110,11 @@ qboolean ReadNumber( source_t *source, fielddef_t *fd, void *p ) {
 		if ( fd->type & FT_BOUNDED ) {
 			if ( floatval < fd->floatmin || floatval > fd->floatmax ) {
 				SourceError( source, "float out of range [%f, %f]", fd->floatmin, fd->floatmax );
-				return 0;
+				return false;
 			} //end if
 		} //end if
 		*(float *) p = (float) floatval;
-		return 1;
+		return true;
 	} //end if
 	  //
 	intval = token.intvalue;
@@ -144,14 +139,14 @@ qboolean ReadNumber( source_t *source, fielddef_t *fd, void *p ) {
 		} //end if
 		if ( intval < intmin || intval > intmax ) {
 			SourceError( source, "value %d out of range [%d, %d]", intval, intmin, intmax );
-			return 0;
+			return true;
 		} //end if
 	} //end if
 	else if ( ( fd->type & FT_TYPE ) == FT_FLOAT ) {
 		if ( fd->type & FT_BOUNDED ) {
 			if ( intval < fd->floatmin || intval > fd->floatmax ) {
 				SourceError( source, "value %d out of range [%f, %f]", intval, fd->floatmin, fd->floatmax );
-				return 0;
+				return false;
 			} //end if
 		} //end if
 	} //end else if
@@ -169,19 +164,14 @@ qboolean ReadNumber( source_t *source, fielddef_t *fd, void *p ) {
 	else if ( ( fd->type & FT_TYPE ) == FT_FLOAT ) {
 		*(float *) p = (float) intval;
 	} //end else
-	return 1;
-} //end of the function ReadNumber
-//===========================================================================
-//
-// Parameter:				-
-// Returns:					-
-// Changes Globals:		-
-//===========================================================================
-qboolean ReadChar( source_t *source, fielddef_t *fd, void *p ) {
+	return true;
+} 
+
+bool ReadChar( source_t *source, fielddef_t *fd, void *p ) {
 	token_t token;
 
 	if ( !PC_ExpectAnyToken( source, &token ) ) {
-		return 0;
+		return false;
 	}
 
 	//take literals into account
@@ -193,17 +183,12 @@ qboolean ReadChar( source_t *source, fielddef_t *fd, void *p ) {
 	{
 		PC_UnreadLastToken( source );
 		if ( !ReadNumber( source, fd, p ) ) {
-			return 0;
+			return false;
 		}
 	} //end if
-	return 1;
-} //end of the function ReadChar
-//===========================================================================
-//
-// Parameter:				-
-// Returns:					-
-// Changes Globals:		-
-//===========================================================================
+	return true;
+}
+
 int ReadString( source_t *source, fielddef_t *fd, void *p ) {
 	token_t token;
 
@@ -352,7 +337,7 @@ int WriteIndent( FILE *fp, int indent ) {
 int WriteFloat( FILE *fp, float value ) {
 	char buf[128];
 
-	sprintf( buf, "%f", value );
+	snprintf( buf, sizeof(buf), "%f", value );
 	size_t l = strlen( buf );
 	//strip any trailing zeros
 	while ( l-- > 1 )

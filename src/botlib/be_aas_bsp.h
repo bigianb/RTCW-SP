@@ -28,8 +28,8 @@ If you have questions concerning this license or the applicable additional terms
 
 #pragma once
 #include "../botai/botai.h"
+#include "be_aas_def.h"
 
-#ifdef AASINTERN
 //loads the given BSP file
 int AAS_LoadBSPFile( void );
 //dump the loaded BSP data
@@ -54,7 +54,6 @@ qboolean AAS_EntityCollision( int entnum,
 void AAS_PrintFreeBSPLinks( char *str );
 //
 
-#endif //AASINTERN
 
 #define MAX_EPAIRKEY        128
 

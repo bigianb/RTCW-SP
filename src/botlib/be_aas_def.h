@@ -282,7 +282,6 @@ typedef struct aas_s
 	byte *visCache;
 } aas_t;
 
-#define AASINTERN
 
 #ifndef BSPCINCLUDE
 

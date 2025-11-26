@@ -191,13 +191,8 @@ void DumpWeaponConfig( weaponconfig_t *wc ) {
 	} //end for
 } //end of the function DumpWeaponConfig
 #endif //DEBUG_AI_WEAP
-//===========================================================================
-//
-// Parameter:				-
-// Returns:					-
-// Changes Globals:		-
-//===========================================================================
-weaponconfig_t *LoadWeaponConfig( char *filename ) {
+
+weaponconfig_t *LoadWeaponConfig( const char *filename ) {
 	int max_weaponinfo, max_projectileinfo;
 	token_t token;
 	char path[MAX_PATH];
@@ -476,7 +471,7 @@ int BotAllocWeaponState( void ) {
 	for ( i = 1; i <= MAX_CLIENTS; i++ )
 	{
 		if ( !botweaponstates[i] ) {
-			botweaponstates[i] = GetClearedMemory( sizeof( bot_weaponstate_t ) );
+			botweaponstates[i] = (bot_weaponstate_t *)GetClearedMemory( sizeof( bot_weaponstate_t ) );
 			return i;
 		} //end if
 	} //end for
@@ -500,17 +495,11 @@ void BotFreeWeaponState( int handle ) {
 	BotFreeWeaponWeights( handle );
 	FreeMemory( botweaponstates[handle] );
 	botweaponstates[handle] = NULL;
-} //end of the function BotFreeWeaponState
-//===========================================================================
-//
-// Parameter:				-
-// Returns:					-
-// Changes Globals:		-
-//===========================================================================
-int BotSetupWeaponAI( void ) {
-	char *file;
+} 
 
-	file = LibVarString( "weaponconfig", "weapons.c" );
+int BotSetupWeaponAI( void ) {
+
+	const char* file = LibVarString( "weaponconfig", "weapons.c" );
 	weaponconfig = LoadWeaponConfig( file );
 	if ( !weaponconfig ) {
 		BotImport_Print( PRT_FATAL, "couldn't load the weapon config\n" );

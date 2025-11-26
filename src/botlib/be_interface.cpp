@@ -120,29 +120,18 @@ qboolean ValidClientNumber( int num, char *str ) {
 		return qfalse;
 	} //end if
 	return qtrue;
-} //end of the function BotValidateClientNumber
-//===========================================================================
-//
-// Parameter:				-
-// Returns:					-
-// Changes Globals:		-
-//===========================================================================
-qboolean ValidEntityNumber( int num, char *str ) {
+}
+
+bool ValidEntityNumber( int num, const char *str ) {
 	if ( num < 0 || num > botlibglobals.maxentities ) {
 		BotImport_Print( PRT_ERROR, "%s: invalid entity number %d, [0, %d]\n",
 						 str, num, botlibglobals.maxentities );
-		return qfalse;
-	} //end if
-	return qtrue;
-} //end of the function BotValidateClientNumber
-//===========================================================================
-//
-// Parameter:				-
-// Returns:					-
-// Changes Globals:		-
-//===========================================================================
-qboolean BotLibSetup( char *str ) {
-//	return qtrue;
+		return false;
+	} 
+	return true;
+} 
+
+qboolean BotLibSetup( const char *str ) {
 
 	if ( !botlibglobals.botlibsetup ) {
 		BotImport_Print( PRT_ERROR, "%s: bot library used before being setup\n", str );
@@ -243,10 +232,9 @@ int Export_BotLibVarSet( const char *var_name, const char *value ) {
 // Returns:					-
 // Changes Globals:		-
 //===========================================================================
-int Export_BotLibVarGet( char *var_name, char *value, int size ) {
-	char *varvalue;
-
-	varvalue = LibVarGetString( var_name );
+int Export_BotLibVarGet( const char *var_name, char *value, int size )
+{
+	const char* varvalue = LibVarGetString( var_name );
 	strncpy( value, varvalue, size - 1 );
 	value[size - 1] = '\0';
 	return BLERR_NOERROR;
@@ -311,37 +299,7 @@ int Export_BotLibUpdateEntity( int ent, bot_entitystate_t *state ) {
 	}
 
 	return AAS_UpdateEntity( ent, state );
-} //end of the function Export_BotLibUpdateEntity
-//===========================================================================
-//
-// Parameter:				-
-// Returns:					-
-// Changes Globals:		-
-//===========================================================================
-void AAS_TestMovementPrediction( int entnum, vec3_t origin, vec3_t dir );
-void ElevatorBottomCenter( aas_reachability_t *reach, vec3_t bottomcenter );
-int BotGetReachabilityToGoal( vec3_t origin, int areanum, int entnum,
-							  int lastgoalareanum, int lastareanum,
-							  int *avoidreach, float *avoidreachtimes, int *avoidreachtries,
-							  bot_goal_t *goal, int travelflags, int movetravelflags );
-
-int AAS_PointLight( vec3_t origin, int *red, int *green, int *blue );
-
-int AAS_TraceAreas( vec3_t start, vec3_t end, int *areas, vec3_t *points, int maxareas );
-
-int AAS_Reachability_WeaponJump( int area1num, int area2num );
-
-int BotFuzzyPointReachabilityArea( vec3_t origin );
-
-float BotGapDistance( vec3_t origin, vec3_t hordir, int entnum );
-
-int AAS_NearestHideArea( int srcnum, vec3_t origin, int areanum, int enemynum, vec3_t enemyorigin, int enemyareanum, int travelflags );
-
-int AAS_FindAttackSpotWithinRange( int srcnum, int rangenum, int enemynum, float rangedist, int travelflags, float *outpos );
-
-qboolean AAS_GetRouteFirstVisPos( vec3_t srcpos, vec3_t destpos, int travelflags, vec3_t retpos );
-
-void AAS_SetAASBlockingEntity( vec3_t absmin, vec3_t absmax, qboolean blocking );
+}
 
 int BotExportTest( int parm0, char *parm1, vec3_t parm2, vec3_t parm3 ) {
 

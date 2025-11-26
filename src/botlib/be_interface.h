@@ -26,15 +26,17 @@ If you have questions concerning this license or the applicable additional terms
 ===========================================================================
 */
 
+#pragma once
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include "botlib.h"
 
-/*****************************************************************************
- * name:		be_interface.h
- *
- * desc:		botlib interface
- *
- *
- *****************************************************************************/
+int Export_BotLibLoadMap( const char *mapname );
+int Export_BotLibUpdateEntity( int ent, bot_entitystate_t *state );
+int Export_BotLibVarGet(const char *var_name, char *value, int size );
+int Export_BotLibVarSet( const char *var_name, const char *value );
 
 /*
 "Do not go where the path leads, rather go where there's no track and leave a trail."
@@ -92,3 +94,6 @@ extern int bot_developer;                   //true if developer is on
 //
 int Sys_MilliSeconds( void );
 
+#ifdef __cplusplus
+}
+#endif

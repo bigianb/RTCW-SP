@@ -26,15 +26,6 @@ If you have questions concerning this license or the applicable additional terms
 ===========================================================================
 */
 
-
-/*****************************************************************************
- * name:		l_log.c
- *
- * desc:		log file
- *
- *
- *****************************************************************************/
-
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
@@ -55,13 +46,7 @@ typedef struct logfile_s
 
 static logfile_t logfile;
 
-//===========================================================================
-//
-// Parameter:				-
-// Returns:					-
-// Changes Globals:		-
-//===========================================================================
-void Log_AlwaysOpen( char *filename ) {
+void Log_AlwaysOpen( const char *filename ) {
 	if ( !filename || !strlen( filename ) ) {
 		BotImport_Print( PRT_MESSAGE, "openlog <filename>\n" );
 		return;
@@ -77,27 +62,18 @@ void Log_AlwaysOpen( char *filename ) {
 	} //end if
 	strncpy( logfile.filename, filename, MAX_LOGFILENAMESIZE );
 	BotImport_Print( PRT_MESSAGE, "Opened log %s\n", logfile.filename );
-} //end of the function Log_Create
-//===========================================================================
-//
-// Parameter:				-
-// Returns:					-
-// Changes Globals:		-
-//===========================================================================
-void Log_Open( char *filename ) {
+} 
+
+void Log_Open(  const char *filename ) {
 	if ( !LibVarValue( "log", "0" ) ) {
 		return;
 	}
 	Log_AlwaysOpen( filename );
 
 }
-//===========================================================================
-//
-// Parameter:				-
-// Returns:					-
-// Changes Globals:		-
-//===========================================================================
-void Log_Close( void ) {
+
+
+void Log_Close(  ) {
 	if ( !logfile.fp ) {
 		return;
 	}
@@ -107,25 +83,15 @@ void Log_Close( void ) {
 	} //end if
 	logfile.fp = NULL;
 	BotImport_Print( PRT_MESSAGE, "Closed log %s\n", logfile.filename );
-} //end of the function Log_Close
-//===========================================================================
-//
-// Parameter:				-
-// Returns:					-
-// Changes Globals:		-
-//===========================================================================
-void Log_Shutdown( void ) {
+} 
+
+void Log_Shutdown(  ) {
 	if ( logfile.fp ) {
 		Log_Close();
 	}
-} //end of the function Log_Shutdown
-//===========================================================================
-//
-// Parameter:				-
-// Returns:					-
-// Changes Globals:		-
-//===========================================================================
-void  Log_Write( char *fmt, ... ) {
+} 
+
+void  Log_Write( const char *fmt, ... ) {
 	va_list ap;
 
 	if ( !logfile.fp ) {
@@ -136,14 +102,9 @@ void  Log_Write( char *fmt, ... ) {
 	va_end( ap );
 	//fprintf(logfile.fp, "\r\n");
 	fflush( logfile.fp );
-} //end of the function Log_Write
-//===========================================================================
-//
-// Parameter:				-
-// Returns:					-
-// Changes Globals:		-
-//===========================================================================
-void  Log_WriteTimeStamped( char *fmt, ... ) {
+} 
+
+void  Log_WriteTimeStamped( const char *fmt, ... ) {
 	va_list ap;
 
 	if ( !logfile.fp ) {
@@ -162,25 +123,15 @@ void  Log_WriteTimeStamped( char *fmt, ... ) {
 	fprintf( logfile.fp, "\r\n" );
 	logfile.numwrites++;
 	fflush( logfile.fp );
-} //end of the function Log_Write
-//===========================================================================
-//
-// Parameter:				-
-// Returns:					-
-// Changes Globals:		-
-//===========================================================================
-FILE *Log_FilePointer( void ) {
+} 
+
+FILE *Log_FilePointer(  ) {
 	return logfile.fp;
-} //end of the function Log_FilePointer
-//===========================================================================
-//
-// Parameter:				-
-// Returns:					-
-// Changes Globals:		-
-//===========================================================================
-void Log_Flush( void ) {
+} 
+
+void Log_Flush(  ) {
 	if ( logfile.fp ) {
 		fflush( logfile.fp );
 	}
-} //end of the function Log_Flush
+} 
 

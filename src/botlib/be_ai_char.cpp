@@ -205,7 +205,7 @@ void BotDefaultCharacteristics( bot_character_t *ch, bot_character_t *defaultch 
 // Returns:				-
 // Changes Globals:		-
 //===========================================================================
-bot_character_t *BotLoadCharacterFromFile( char *charfile, int skill ) {
+bot_character_t *BotLoadCharacterFromFile( const char *charfile, int skill ) {
 	int indent, index, foundcharacter;
 	bot_character_t *ch;
 	source_t *source;
@@ -286,7 +286,7 @@ bot_character_t *BotLoadCharacterFromFile( char *charfile, int skill ) {
 					} //end if
 					else if ( token.type == TT_STRING ) {
 						StripDoubleQuotes( token.string );
-						ch->c[index].value.string = GetMemory( strlen( token.string ) + 1 );
+						ch->c[index].value.string = (char*)GetMemory( strlen( token.string ) + 1 );
 						strcpy( ch->c[index].value.string, token.string );
 						ch->c[index].type = CT_STRING;
 					} //end else if
@@ -337,14 +337,9 @@ bot_character_t *BotLoadCharacterFromFile( char *charfile, int skill ) {
 		return NULL;
 	} //end if
 	return ch;
-} //end of the function BotLoadCharacterFromFile
-//===========================================================================
-//
-// Parameter:			-
-// Returns:				-
-// Changes Globals:		-
-//===========================================================================
-int BotFindCachedCharacter( char *charfile, int skill ) {
+} 
+
+int BotFindCachedCharacter( const char *charfile, int skill ) {
 	int handle;
 
 	for ( handle = 1; handle <= MAX_CLIENTS; handle++ )
@@ -365,7 +360,7 @@ int BotFindCachedCharacter( char *charfile, int skill ) {
 // Returns:				-
 // Changes Globals:		-
 //===========================================================================
-int BotLoadCachedCharacter( char *charfile, int skill, int reload ) {
+int BotLoadCachedCharacter( const char *charfile, int skill, int reload ) {
 	int handle, cachedhandle;
 	bot_character_t *ch = NULL;
 #ifdef DEBUG

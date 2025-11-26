@@ -326,8 +326,6 @@ qboolean AAS_RT_ReadRouteTable( fileHandle_t fp ) {
 	aas_rt_parent_link_t *plink;
 	unsigned short int  *psi;
 
-	qboolean doswap;
-
 #ifdef DEBUG_READING_TIME
 	int pretime;
 
@@ -336,7 +334,7 @@ qboolean AAS_RT_ReadRouteTable( fileHandle_t fp ) {
 
 	routetable = ( *aasworld ).routetable;
 
-	doswap = ( LittleLong( 1 ) != 1 );
+	bool doswap = ( LittleLong( 1 ) != 1 );
 
 	// check ident
 	AAS_RT_DBG_Read( &ident, sizeof( ident ), fp );

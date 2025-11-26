@@ -163,14 +163,9 @@ void PS_CreatePunctuationTable( script_t *script, punctuation_t *punctuations ) 
 			} else { script->punctuationtable[(unsigned int) newp->p[0]] = newp;}
 		} //end if
 	} //end for
-} //end of the function PS_CreatePunctuationTable
-//===========================================================================
-//
-// Parameter:				-
-// Returns:					-
-// Changes Globals:		-
-//===========================================================================
-char *PunctuationFromNum( script_t *script, int num ) {
+} 
+
+const char *PunctuationFromNum( script_t *script, int num ) {
 	int i;
 
 	for ( i = 0; script->punctuations[i].p; i++ )
@@ -180,14 +175,9 @@ char *PunctuationFromNum( script_t *script, int num ) {
 		}
 	} //end for
 	return "unkown punctuation";
-} //end of the function PunctuationFromNum
-//===========================================================================
-//
-// Parameter:				-
-// Returns:					-
-// Changes Globals:		-
-//===========================================================================
-void  ScriptError( script_t *script, char *str, ... ) {
+} 
+
+void  ScriptError( script_t *script, const char *str, ... ) {
 	char text[1024];
 	va_list ap;
 
@@ -196,7 +186,7 @@ void  ScriptError( script_t *script, char *str, ... ) {
 	}
 
 	va_start( ap, str );
-	vsprintf( text, str, ap );
+	vsnprintf( text, sizeof(text), str, ap );
 	va_end( ap );
 #ifdef BOTLIB
 	BotImport_Print( PRT_ERROR, "file %s, line %d: %s\n", script->filename, script->line, text );
@@ -214,7 +204,7 @@ void  ScriptError( script_t *script, char *str, ... ) {
 // Returns:					-
 // Changes Globals:		-
 //===========================================================================
-void  ScriptWarning( script_t *script, char *str, ... ) {
+void  ScriptWarning( script_t *script, const char *str, ... ) {
 	char text[1024];
 	va_list ap;
 
@@ -223,7 +213,7 @@ void  ScriptWarning( script_t *script, char *str, ... ) {
 	}
 
 	va_start( ap, str );
-	vsprintf( text, str, ap );
+	vsnprintf( text, sizeof(text), str, ap );
 	va_end( ap );
 #ifdef BOTLIB
 	BotImport_Print( PRT_WARNING, "file %s, line %d: %s\n", script->filename, script->line, text );
@@ -747,30 +737,14 @@ int PS_ReadLiteral( script_t *script, token_t *token ) {
 	token->subtype = token->string[1];
 	//
 	return 1;
-} //end of the function PS_ReadLiteral
-//============================================================================
-//
-// Parameter:				-
-// Returns:					-
-// Changes Globals:		-
-//============================================================================
+}
+
 int PS_ReadPunctuation( script_t *script, token_t *token ) {
-	int len;
-	char *p;
-	punctuation_t *punc;
 
-#ifdef PUNCTABLE
-	for ( punc = script->punctuationtable[(unsigned int)*script->script_p]; punc; punc = punc->next )
+	for (punctuation_t * punc = script->punctuationtable[(unsigned int)*script->script_p]; punc; punc = punc->next )
 	{
-#else
-	int i;
-
-	for ( i = 0; script->punctuations[i].p; i++ )
-	{
-		punc = &script->punctuations[i];
-#endif //PUNCTABLE
-		p = punc->p;
-		len = strlen( p );
+		const char* p = punc->p;
+		int len = strlen( p );
 		//if the script contains at least as much characters as the punctuation
 		if ( script->script_p + len <= script->end_p ) {
 			//if the script contains the punctuation
@@ -785,13 +759,8 @@ int PS_ReadPunctuation( script_t *script, token_t *token ) {
 		} //end if
 	} //end for
 	return 0;
-} //end of the function PS_ReadPunctuation
-//============================================================================
-//
-// Parameter:				-
-// Returns:					-
-// Changes Globals:		-
-//============================================================================
+} 
+
 int PS_ReadPrimitive( script_t *script, token_t *token ) {
 	int len;
 
@@ -1301,7 +1270,7 @@ script_t *LoadScriptFile( const char *filename ) {
 } //end of the function LoadScriptFile
 
     
-script_t *LoadScriptMemory( char *ptr, size_t length, char *name ) {
+script_t *LoadScriptMemory( char *ptr, size_t length, const char *name ) {
 	void *buffer;
 	script_t *script;
 
@@ -1338,7 +1307,7 @@ void FreeScript( script_t *script ) {
 	FreeMemory( script );
 }
 	
-void PS_SetBaseFolder( char *path ) {
+void PS_SetBaseFolder( const char *path ) {
 
 	strncpy( basefolder, path, sizeof( basefolder ) );
 }

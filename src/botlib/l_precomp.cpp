@@ -47,7 +47,7 @@ If you have questions concerning this license or the applicable additional terms
 //directive name with parse function
 typedef struct directive_s
 {
-	char *name;
+	const char *name;
 	int ( *func )( source_t *source );
 } directive_t;
 
@@ -61,33 +61,23 @@ int numtokens;
 //list with global defines added to every source loaded
 define_t *globaldefines;
 
-//============================================================================
-//
-// Parameter:				-
-// Returns:					-
-// Changes Globals:		-
-//============================================================================
-void  SourceError( source_t *source, char *str, ... ) {
+
+void  SourceError( source_t *source, const char *str, ... ) {
 	char text[1024];
 	va_list ap;
 
 	va_start( ap, str );
-	vsprintf( text, str, ap );
+	vsnprintf( text, sizeof(text), str, ap );
 	va_end( ap );
 	BotImport_Print( PRT_ERROR, "file %s, line %d: %s\n", source->scriptstack->filename, source->scriptstack->line, text );
-} //end of the function SourceError
-//===========================================================================
-//
-// Parameter:				-
-// Returns:					-
-// Changes Globals:		-
-//===========================================================================
-void  SourceWarning( source_t *source, char *str, ... ) {
+}
+
+void  SourceWarning( source_t *source, const char *str, ... ) {
 	char text[1024];
 	va_list ap;
 
 	va_start( ap, str );
-	vsprintf( text, str, ap );
+	vsnprintf( text, sizeof(text), str, ap );
 	va_end( ap );
 
 	BotImport_Print( PRT_WARNING, "file %s, line %d: %s\n", source->scriptstack->filename, source->scriptstack->line, text );
@@ -400,7 +390,7 @@ void PC_PrintDefineHashTable( define_t **definehash ) {
 //char primes[16] = {1, 3, 5, 7, 11, 13, 17, 19, 23, 27, 29, 31, 37, 41, 43, 47};
 
 int PC_NameHash( char *name ) {
-	int register hash, i;
+	int hash, i;
 
 	hash = 0;
 	for ( i = 0; name[i] != '\0'; i++ )
@@ -516,7 +506,7 @@ void PC_AddBuiltinDefines( source_t *source ) {
 	define_t *define;
 	struct builtin
 	{
-		char *string;
+		const char *string;
 		int builtin;
 	} builtin[] = {
 		{ "__LINE__",    BUILTIN_LINE },
@@ -561,7 +551,7 @@ int PC_ExpandBuiltinDefine( source_t *source, token_t *deftoken, define_t *defin
 	{
 	case BUILTIN_LINE:
 	{
-		sprintf( token->string, "%d", deftoken->line );
+		snprintf( token->string, sizeof(token->string), "%d", deftoken->line );
 #ifdef NUMBERVALUE
 		token->intvalue = deftoken->line;
 		token->floatvalue = deftoken->line;
@@ -1112,7 +1102,7 @@ define_t *PC_DefineFromString( char *string ) {
 	memset( &src, 0, sizeof( source_t ) );
 	strncpy( src.filename, "*extern", _MAX_PATH );
 	src.scriptstack = script;
-	src.definehash = GetClearedMemory( DEFINEHASHSIZE * sizeof( define_t * ) );
+	src.definehash = (define_t **)GetClearedMemory( DEFINEHASHSIZE * sizeof( define_t * ) );
 	   //create a define from the source
 	res = PC_Directive_define( &src );
 	//free any tokens if left
@@ -1356,7 +1346,7 @@ int PC_Directive_endif( source_t *source ) {
 //============================================================================
 typedef struct operator_s
 {
-	int operator;
+	int operatorType;
 	int priority;
 	int parentheses;
 	struct operator_s *prev, *next;
@@ -1643,9 +1633,8 @@ int PC_EvaluateTokens( source_t *source, token_t *tokens, signed long int *intva
 			}         //end default
 			}     //end switch
 			if ( !error && !negativevalue ) {
-				//o = (operator_t *) GetClearedMemory(sizeof(operator_t));
 				AllocOperator( o );
-				o->operator = t->subtype;
+				o->operatorType = t->subtype;
 				o->priority = PC_OperatorPriority( t->subtype );
 				o->parentheses = parentheses;
 				o->next = NULL;
@@ -1703,8 +1692,8 @@ int PC_EvaluateTokens( source_t *source, token_t *tokens, signed long int *intva
 				}
 			} //end if
 			  //if the arity of the operator isn't equal to 1
-			if ( o->operator != P_LOGIC_NOT
-				 && o->operator != P_BIN_NOT ) {
+			if ( o->operatorType != P_LOGIC_NOT
+				 && o->operatorType != P_BIN_NOT ) {
 				v = v->next;
 			}
 			//if there's no value or no next value
@@ -1720,7 +1709,7 @@ int PC_EvaluateTokens( source_t *source, token_t *tokens, signed long int *intva
 		v1 = v;
 		v2 = v->next;
 
-		switch ( o->operator )
+		switch ( o->operatorType )
 		{
 		case P_LOGIC_NOT:       v1->intvalue = !v1->intvalue;
 			v1->floatvalue = !v1->floatvalue; break;
@@ -1813,12 +1802,12 @@ int PC_EvaluateTokens( source_t *source, token_t *tokens, signed long int *intva
 		if ( error ) {
 			break;
 		}
-		lastoperatortype = o->operator;
+		lastoperatortype = o->operatorType;
 		//if not an operator with arity 1
-		if ( o->operator != P_LOGIC_NOT
-			 && o->operator != P_BIN_NOT ) {
+		if ( o->operatorType != P_LOGIC_NOT
+			 && o->operatorType != P_BIN_NOT ) {
 			//remove the second value if not question mark operator
-			if ( o->operator != P_QUESTIONMARK ) {
+			if ( o->operatorType != P_QUESTIONMARK ) {
 				v = v->next;
 			}
 			//
@@ -2205,7 +2194,7 @@ int PC_Directive_eval( source_t *source ) {
 	token.whitespace_p = source->scriptstack->script_p;
 	token.endwhitespace_p = source->scriptstack->script_p;
 	token.linescrossed = 0;
-	sprintf( token.string, "%ld", labs( value ) );
+	snprintf( token.string, sizeof(token.string), "%ld", labs( value ) );
 	token.type = TT_NUMBER;
 	token.subtype = TT_INTEGER | TT_LONG | TT_DECIMAL;
 	PC_UnreadSourceToken( source, &token );
@@ -2231,7 +2220,7 @@ int PC_Directive_evalfloat( source_t *source ) {
 	token.whitespace_p = source->scriptstack->script_p;
 	token.endwhitespace_p = source->scriptstack->script_p;
 	token.linescrossed = 0;
-	sprintf( token.string, "%1.2f", fabs( value ) );
+	snprintf( token.string, sizeof(token.string), "%1.2f", fabs( value ) );
 	token.type = TT_NUMBER;
 	token.subtype = TT_FLOAT | TT_LONG | TT_DECIMAL;
 	PC_UnreadSourceToken( source, &token );
@@ -2311,7 +2300,7 @@ int PC_DollarDirective_evalint( source_t *source ) {
 	token.whitespace_p = source->scriptstack->script_p;
 	token.endwhitespace_p = source->scriptstack->script_p;
 	token.linescrossed = 0;
-	sprintf( token.string, "%ld", labs( value ) );
+	snprintf( token.string, sizeof(token.string), "%ld", labs( value ) );
 	token.type = TT_NUMBER;
 	token.subtype = TT_INTEGER | TT_LONG | TT_DECIMAL;
 #ifdef NUMBERVALUE
@@ -2341,7 +2330,7 @@ int PC_DollarDirective_evalfloat( source_t *source ) {
 	token.whitespace_p = source->scriptstack->script_p;
 	token.endwhitespace_p = source->scriptstack->script_p;
 	token.linescrossed = 0;
-	sprintf( token.string, "%1.2f", fabs( value ) );
+	snprintf( token.string, sizeof(token.string), "%1.2f", fabs( value ) );
 	token.type = TT_NUMBER;
 	token.subtype = TT_FLOAT | TT_LONG | TT_DECIMAL;
 #ifdef NUMBERVALUE
@@ -2473,14 +2462,9 @@ int PC_ReadToken( source_t *source, token_t *token ) {
 		//found a token
 		return qtrue;
 	} //end while
-} //end of the function PC_ReadToken
-//============================================================================
-//
-// Parameter:				-
-// Returns:					-
-// Changes Globals:		-
-//============================================================================
-int PC_ExpectTokenString( source_t *source, char *string ) {
+}
+
+int PC_ExpectTokenString( source_t *source, const char *string ) {
 	token_t token;
 
 	if ( !PC_ReadToken( source, &token ) ) {
@@ -2493,13 +2477,8 @@ int PC_ExpectTokenString( source_t *source, char *string ) {
 		return qfalse;
 	} //end if
 	return qtrue;
-} //end of the function PC_ExpectTokenString
-//============================================================================
-//
-// Parameter:				-
-// Returns:					-
-// Changes Globals:		-
-//============================================================================
+}
+
 int PC_ExpectTokenType( source_t *source, int type, int subtype, token_t *token ) {
 	char str[MAX_TOKEN];
 
@@ -2581,14 +2560,9 @@ int PC_ExpectAnyToken( source_t *source, token_t *token ) {
 	{
 		return qtrue;
 	} //end else
-} //end of the function PC_ExpectAnyToken
-//============================================================================
-//
-// Parameter:				-
-// Returns:					-
-// Changes Globals:		-
-//============================================================================
-int PC_CheckTokenString( source_t *source, char *string ) {
+}
+
+int PC_CheckTokenString( source_t *source, const char *string ) {
 	token_t tok;
 
 	if ( !PC_ReadToken( source, &tok ) ) {
@@ -2601,13 +2575,8 @@ int PC_CheckTokenString( source_t *source, char *string ) {
 	//
 	PC_UnreadSourceToken( source, &tok );
 	return qfalse;
-} //end of the function PC_CheckTokenString
-//============================================================================
-//
-// Parameter:				-
-// Returns:					-
-// Changes Globals:		-
-//============================================================================
+}
+
 int PC_CheckTokenType( source_t *source, int type, int subtype, token_t *token ) {
 	token_t tok;
 
@@ -2687,7 +2656,7 @@ source_t *LoadSourceFile( const char *filename ) {
 	source->skip = 0;
 
 #if DEFINEHASHING
-	source->definehash = GetClearedMemory( DEFINEHASHSIZE * sizeof( define_t * ) );
+	source->definehash = (define_t **)GetClearedMemory( DEFINEHASHSIZE * sizeof( define_t * ) );
 #endif //DEFINEHASHING
 	PC_AddGlobalDefinesToSource( source );
 	return source;
@@ -2852,7 +2821,7 @@ int PC_SourceFileAndLine( int handle, char *filename, int *line ) {
 // Returns:				-
 // Changes Globals:		-
 //============================================================================
-void PC_SetBaseFolder( char *path ) {
+void PC_SetBaseFolder( const char *path ) {
 	PS_SetBaseFolder( path );
 }
 

@@ -26,17 +26,10 @@ If you have questions concerning this license or the applicable additional terms
 ===========================================================================
 */
 
-//===========================================================================
-//
-// Name:			be_aas_routetable.h
-// Function:		Area Awareness System, Route-table defines
-// Programmer:		Ridah
-// Tab Size:		3
-//===========================================================================
-
-#ifndef RT_DEFINED
-
-#define RT_DEFINED
+#pragma once
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 #define RTBID                       ( ( 'B' << 24 ) + ( 'T' << 16 ) + ( 'R' << 8 ) + 'X' )
 #define RTBVERSION                  17
@@ -158,10 +151,6 @@ typedef struct
 	unsigned short int  *visibleParents;        // list of other parents that we can see (used for fast hide/retreat checks)
 } aas_area_parent_t;
 
-#endif  // RT_DEFINED
-
-//....................................................................
-
 void AAS_RT_BuildRouteTable( void );
 void AAS_RT_ShowRoute( vec3_t srcpos, int srcnum, int destnum );
 aas_rt_route_t *AAS_RT_GetRoute( int srcnum, vec3_t origin, int destnum );
@@ -169,3 +158,7 @@ void AAS_RT_ShutdownRouteTable( void );
 qboolean AAS_RT_GetHidePos( vec3_t srcpos, int srcnum, int srcarea, vec3_t destpos, int destnum, int destarea, vec3_t returnPos );
 int AAS_RT_GetReachabilityIndex( int areanum, int reachIndex );
 
+
+#ifdef __cplusplus
+}
+#endif

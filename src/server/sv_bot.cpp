@@ -109,7 +109,7 @@ void SV_BotFreeClient( int clientNum )
 BotImport_Print
 ==================
 */
-void  BotImport_Print( int type, char *fmt, ... ) {
+void  BotImport_Print( int type, const char *fmt, ... ) {
 	char str[2048];
 	va_list ap;
 
@@ -338,7 +338,7 @@ void BotImport_DebugLineShow( int line, vec3_t start, vec3_t end, int color ) {
 SV_BotClientCommand
 ==================
 */
-void BotClientCommand( int client, char *command ) {
+void BotClientCommand( int client, const char *command ) {
 	SV_ExecuteClientCommand( &svs.clients[client], command, qtrue );
 }
 

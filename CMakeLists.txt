@@ -78,35 +78,35 @@ set(BOTLIB_INCLUDES
 )
 
 set(BOTLIB_SOURCES
-	src/botlib/be_aas_bspq3.c
-	src/botlib/be_aas_cluster.c
-	src/botlib/be_aas_debug.c
-	src/botlib/be_aas_entity.c
-	src/botlib/be_aas_file.c
-	src/botlib/be_aas_main.c
-	src/botlib/be_aas_move.c
-	src/botlib/be_aas_optimize.c
-	src/botlib/be_aas_reach.c
-	src/botlib/be_aas_route.c
-	src/botlib/be_aas_routealt.c
-	src/botlib/be_aas_routetable.c
-	src/botlib/be_aas_sample.c
-	src/botlib/be_ai_char.c
-	src/botlib/be_ai_chat.c
-	src/botlib/be_ai_gen.c
-	src/botlib/be_ai_goal.c
-	src/botlib/be_ai_move.c
-	src/botlib/be_ai_weap.c
-	src/botlib/be_ai_weight.c
-	src/botlib/be_ea.c
-	src/botlib/be_interface.c
-	src/botlib/l_crc.c
-	src/botlib/l_libvar.c
-	src/botlib/l_log.c
-	src/botlib/l_memory.c
-	src/botlib/l_precomp.c
-	src/botlib/l_script.c
-	src/botlib/l_struct.c
+	src/botlib/be_aas_bspq3.cpp
+	src/botlib/be_aas_cluster.cpp
+	src/botlib/be_aas_debug.cpp
+	src/botlib/be_aas_entity.cpp
+	src/botlib/be_aas_file.cpp
+	src/botlib/be_aas_main.cpp
+	src/botlib/be_aas_move.cpp
+	src/botlib/be_aas_optimize.cpp
+	src/botlib/be_aas_reach.cpp
+	src/botlib/be_aas_route.cpp
+	src/botlib/be_aas_routealt.cpp
+	src/botlib/be_aas_routetable.cpp
+	src/botlib/be_aas_sample.cpp
+	src/botlib/be_ai_char.cpp
+	src/botlib/be_ai_chat.cpp
+	src/botlib/be_ai_gen.cpp
+	src/botlib/be_ai_goal.cpp
+	src/botlib/be_ai_move.cpp
+	src/botlib/be_ai_weap.cpp
+	src/botlib/be_ai_weight.cpp
+	src/botlib/be_ea.cpp
+	src/botlib/be_interface.cpp
+	src/botlib/l_crc.cpp
+	src/botlib/l_libvar.cpp
+	src/botlib/l_log.cpp
+	src/botlib/l_memory.cpp
+	src/botlib/l_precomp.cpp
+	src/botlib/l_script.cpp
+	src/botlib/l_struct.cpp
 )
 
 set(CGAME_INCLUDES 

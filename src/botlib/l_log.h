@@ -26,29 +26,26 @@ If you have questions concerning this license or the applicable additional terms
 ===========================================================================
 */
 
-
-/*****************************************************************************
- * name:		l_log.h
- *
- * desc:		log file
- *
- *
- *****************************************************************************/
-
 //open a log file
-void Log_Open( char *filename );
-//
-void Log_AlwaysOpen( char *filename );
+void Log_Open( const char *filename );
+
+void Log_AlwaysOpen( const char *filename );
+
 //close the current log file
 void Log_Close( void );
+
 //close log file if present
 void Log_Shutdown( void );
+
 //write to the current opened log file
-void  Log_Write( char *fmt, ... );
+void  Log_Write( const char *fmt, ... );
+
 //write to the current opened log file with a time stamp
-void  Log_WriteTimeStamped( char *fmt, ... );
+void  Log_WriteTimeStamped( const char *fmt, ... );
+
 //returns a pointer to the log file
 FILE *Log_FilePointer( void );
+
 //flush log file
 void Log_Flush( void );
 

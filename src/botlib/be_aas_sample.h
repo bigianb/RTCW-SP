@@ -26,7 +26,7 @@ If you have questions concerning this license or the applicable additional terms
 ===========================================================================
 */
 
-#ifdef AASINTERN
+
 void AAS_InitAASLinkHeap( void );
 void AAS_InitAASLinkedEntities( void );
 void AAS_FreeAASLinkHeap( void );
@@ -39,7 +39,6 @@ aas_link_t *AAS_LinkEntityClientBBox( vec3_t absmins, vec3_t absmaxs, int entnum
 qboolean AAS_PointInsideFace( int facenum, vec3_t point, float epsilon );
 qboolean AAS_InsideFace( aas_face_t *face, vec3_t pnormal, vec3_t point, float epsilon );
 void AAS_UnlinkFromAreas( aas_link_t *areas );
-#endif //AASINTERN
 
 //returns the mins and maxs of the bounding box for the given presence type
 void AAS_PresenceTypeBoundingBox( int presencetype, vec3_t mins, vec3_t maxs );

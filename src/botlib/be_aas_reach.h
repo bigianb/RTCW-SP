@@ -27,22 +27,17 @@ If you have questions concerning this license or the applicable additional terms
 */
 
 
-/*****************************************************************************
- * name:		be_aas_reach.h
- *
- * desc:		AAS
- *
- *
- *****************************************************************************/
+#pragma once
+#ifdef __cplusplus
+extern "C" {
+#endif
 
-#ifdef AASINTERN
 //initialize calculating the reachabilities
 void AAS_InitReachability( void );
 //continue calculating the reachabilities
 int AAS_ContinueInitReachability( float time );
 //
 int AAS_BestReachableLinkArea( aas_link_t *areas );
-#endif //AASINTERN
 
 //returns true if the are has reachabilities to other areas
 int AAS_AreaReachability( int areanum );
@@ -72,3 +67,7 @@ int AAS_AreaJumpPad( int areanum );
 int AAS_AreaDoNotEnter( int areanum );
 //returns true if the area is donotenterlarge
 int AAS_AreaDoNotEnterLarge( int areanum );
+
+#ifdef __cplusplus
+}
+#endif

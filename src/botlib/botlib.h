@@ -41,6 +41,9 @@ If you have questions concerning this license or the applicable additional terms
 extern "C" {
 #endif
 
+#include "be_aas_routetable.h"
+
+
 #define BOTLIB_API_VERSION      2
 
 struct aas_clientmove_s;
@@ -204,7 +207,7 @@ qboolean SV_inPVS(const vec3_t p1, const vec3_t p2 );
 void BotImport_BSPModelMinsMaxsOrigin( int modelnum, vec3_t angles, vec3_t mins, vec3_t maxs, vec3_t origin );
 
 //send a bot client command
-void BotClientCommand( int client, char *command );
+void BotClientCommand( int client, const char *command );
 
 int BotImport_DebugLineCreate( void );
 void BotImport_DebugLineDelete( int line );
@@ -214,6 +217,11 @@ void BotImport_DebugPolygonDelete( int id );
 qboolean BotImport_AICast_VisibleFromPos(vec3_t srcpos, int srcnum, vec3_t destpos, int destnum, qboolean updateVisPos );
 qboolean BotImport_AICast_CheckAttackAtPos( int entnum, int enemy, vec3_t pos, qboolean ducking, qboolean allowHitWorld );
 
+int AAS_FindAttackSpotWithinRange( int srcnum, int rangenum, int enemynum, float rangedist, int travelflags, float *outpos );
+qboolean AAS_GetRouteFirstVisPos( vec3_t srcpos, vec3_t destpos, int travelflags, vec3_t retpos );
+void AAS_SetAASBlockingEntity( vec3_t absmin, vec3_t absmax, qboolean blocking );
+
+qboolean BotLibSetup(const char* );
 
 typedef struct aas_export_s
 {
@@ -287,7 +295,7 @@ typedef struct ea_export_s
 	void ( *EA_UseInv )( int client, char *inv );
 	void ( *EA_DropInv )( int client, char *inv );
 	void ( *EA_Gesture )( int client );
-	void ( *EA_Command )( int client, char *command );
+	void ( *EA_Command )( int client, const char *command );
 	//regular elementary actions
 	void ( *EA_SelectWeapon )( int client, int weapon );
 	void ( *EA_Talk )( int client );
@@ -413,7 +421,7 @@ typedef struct botlib_export_s
 	int ( *Test )( int parm0, char *parm1, vec3_t parm2, vec3_t parm3 );
 } botlib_export_t;
 
-void BotImport_Print( int type, char *fmt, ... );
+void BotImport_Print( int type, const char *fmt, ... );
 
 int Export_BotLibSetup();
 int Export_BotLibShutdown();

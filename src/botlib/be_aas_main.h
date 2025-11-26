@@ -26,31 +26,29 @@ If you have questions concerning this license or the applicable additional terms
 ===========================================================================
 */
 
+#pragma once
+#ifdef __cplusplus
+extern "C" {
+#endif
 
-/*****************************************************************************
- * name:		be_aas_main.h
- *
- * desc:		AAS
- *
- *
- *****************************************************************************/
-
-#ifdef AASINTERN
-
+#include "be_aas_def.h"
 extern aas_t( *aasworld );
 
-#endif //AASINTERN
-
 //AAS error message
-void  AAS_Error( char *fmt, ... );
+void  AAS_Error( const char *fmt, ... );
+
 //set AAS initialized
 void AAS_SetInitialized( void );
+
 //setup AAS with the given number of entities and clients
 int AAS_Setup( void );
+
 //shutdown AAS
 void AAS_Shutdown( void );
+
 //start a new map
 int AAS_LoadMap( const char *mapname );
+
 //start a new time frame
 int AAS_StartFrame( float time );
 
@@ -59,13 +57,17 @@ int AAS_StartFrame( float time );
 int AAS_Initialized( void );
 //returns true if the AAS file is loaded
 int AAS_Loaded( void );
-//returns the model name from the given index
-char *AAS_ModelFromIndex( int index );
+
 //returns the index from the given model name
-int AAS_IndexFromModel( char *modelname );
+int AAS_IndexFromModel( const char *modelname );
+
 //returns the current time
 float AAS_Time( void );
 
 // Ridah
 void AAS_SetCurrentWorld( int index );
 // done.
+
+#ifdef __cplusplus
+}
+#endif

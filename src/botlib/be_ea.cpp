@@ -42,6 +42,7 @@ If you have questions concerning this license or the applicable additional terms
 #include "l_struct.h"
 #include "../game/botlib.h"
 #include "be_interface.h"
+#include "../game/be_ea.h"
 
 #define MAX_USERMOVE                400
 #define MAX_COMMANDARGUMENTS        10
@@ -122,7 +123,7 @@ void EA_Gesture( int client ) {
 // Returns:					-
 // Changes Globals:		-
 //===========================================================================
-void EA_Command( int client, char *command ) {
+void EA_Command( int client, const char *command ) {
 	BotClientCommand( client, command );
 } //end of the function EA_Command
 //===========================================================================

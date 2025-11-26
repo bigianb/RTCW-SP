@@ -28,6 +28,11 @@ If you have questions concerning this license or the applicable additional terms
 
 
 #pragma once
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+#include "../game/q_shared.h"
 
 #define MAX_AVOIDGOALS          64
 #define MAX_GOALSTACK           8
@@ -106,3 +111,7 @@ void BotFreeGoalState( int handle );
 int BotSetupGoalAI( void );
 //shut down the goal AI
 void BotShutdownGoalAI( void );
+
+#ifdef __cplusplus
+}
+#endif

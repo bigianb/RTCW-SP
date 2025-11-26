@@ -27,13 +27,10 @@ If you have questions concerning this license or the applicable additional terms
 */
 
 
-/*****************************************************************************
- * name:		be_ai_char.h
- *
- * desc:		bot characters
- *
- *
- *****************************************************************************/
+#pragma once
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 //loads a bot character from a file
 int BotLoadCharacter( char *charfile, int skill );
@@ -51,3 +48,7 @@ int Characteristic_BInteger( int character, int index, int min, int max );
 void Characteristic_String( int character, int index, char *buf, int size );
 //free cached bot characters
 void BotShutdownCharacters( void );
+
+#ifdef __cplusplus
+}
+#endif

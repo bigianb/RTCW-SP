@@ -35,6 +35,7 @@ If you have questions concerning this license or the applicable additional terms
  *
  *****************************************************************************/
 
+#include "../game/be_ai_goal.h"
 #include "../game/q_shared.h"
 #include "../game/bg_public.h"
 #include "l_utils.h"
@@ -50,7 +51,7 @@ If you have questions concerning this license or the applicable additional terms
 #include "be_aas_funcs.h"
 #include "be_interface.h"
 #include "be_ai_weight.h"
-#include "../game/be_ai_goal.h"
+
 #include "../game/be_ai_move.h"
 
 //#define DEBUG_AI_GOAL
@@ -213,7 +214,7 @@ void BotMutateGoalFuzzyLogic( int goalstate, float range ) {
 // Returns:					-
 // Changes Globals:		-
 //===========================================================================
-itemconfig_t *LoadItemConfig( char *filename ) {
+itemconfig_t *LoadItemConfig( const char *filename ) {
 	int max_iteminfo;
 	token_t token;
 	char path[MAX_PATH];
@@ -502,7 +503,6 @@ void BotInitLevelItems( void ) {
 	//update the modelindexes of the item info
 	for ( i = 0; i < ic->numiteminfo; i++ )
 	{
-		//ic->iteminfo[i].modelindex = AAS_IndexFromModel(ic->iteminfo[i].model);
 		if ( !ic->iteminfo[i].modelindex ) {
 			Log_Write( "item %s has modelindex 0", ic->iteminfo[i].classname );
 		} //end if
@@ -1450,7 +1450,7 @@ int BotAllocGoalState( int client ) {
 	for ( i = 1; i <= MAX_CLIENTS; i++ )
 	{
 		if ( !botgoalstates[i] ) {
-			botgoalstates[i] = GetClearedMemory( sizeof( bot_goalstate_t ) );
+			botgoalstates[i] = (bot_goalstate_t *)GetClearedMemory( sizeof( bot_goalstate_t ) );
 			botgoalstates[i]->client = client;
 			return i;
 		} //end if
@@ -1485,7 +1485,7 @@ void BotFreeGoalState( int handle ) {
 int BotSetupGoalAI( void ) {
 	
 	//item configuration file
-	char* filename = LibVarString( "itemconfig", "items.c" );
+	const char* filename = LibVarString( "itemconfig", "items.c" );
 	//load the item configuration
 	itemconfig = LoadItemConfig( filename );
 	if ( !itemconfig ) {

@@ -27,17 +27,8 @@ If you have questions concerning this license or the applicable additional terms
 */
 
 
-/*****************************************************************************
- * name:		be_aas_move.h
- *
- * desc:		AAS
- *
- *
- *****************************************************************************/
-
-#ifdef AASINTERN
 extern aas_settings_t aassettings;
-#endif //AASINTERN
+
 
 //movement prediction
 int AAS_PredictClientMovement( struct aas_clientmove_s *move,

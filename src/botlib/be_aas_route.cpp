@@ -52,6 +52,8 @@ If you have questions concerning this license or the applicable additional terms
 #include "be_aas_def.h"
 #include "../qcommon/qcommon.h"
 
+#include "botlib.h"
+
 #define ROUTING_DEBUG
 
 //travel time in hundreths of a second = distance * 100 / speed
@@ -2411,12 +2413,7 @@ int AAS_NearestHideArea( int srcnum, vec3_t origin, int areanum, int enemynum, v
 	return bestarea;
 } //end of the function AAS_NearestHideArea
 
-//===========================================================================
-//
-// Parameter:			-
-// Returns:				-
-// Changes Globals:		-
-//===========================================================================
+
 int AAS_FindAttackSpotWithinRange( int srcnum, int rangenum, int enemynum, float rangedist, int travelflags, float *outpos ) {
 	int i, nextareanum, badtravelflags, numreach, bestarea;
 	unsigned short int t, besttraveltime, enemytraveltime;
@@ -2584,12 +2581,7 @@ int AAS_FindAttackSpotWithinRange( int srcnum, int rangenum, int enemynum, float
 	return bestarea;
 } //end of the function AAS_NearestHideArea
 
-//===========================================================================
-//
-// Parameter:			-
-// Returns:				-
-// Changes Globals:		-
-//===========================================================================
+
 qboolean AAS_GetRouteFirstVisPos( vec3_t srcpos, vec3_t destpos, int travelflags, vec3_t retpos ) {
 	int srcarea, destarea, travarea;
 	vec3_t travpos;

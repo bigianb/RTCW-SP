@@ -27,14 +27,10 @@ If you have questions concerning this license or the applicable additional terms
 */
 
 #pragma once
+#ifdef __cplusplus
+extern "C" {
+#endif
 
-/*****************************************************************************
- * name:		be_ai_move.h
- *
- * desc:		movement AI
- *
- *
- *****************************************************************************/
 
 //movement types
 #define MOVE_WALK                       1
@@ -132,3 +128,7 @@ void BotShutdownMoveAI( void );
 //initialize avoid reachabilities
 void BotInitAvoidReach( int handle );
 // done.
+
+#ifdef __cplusplus
+}
+#endif

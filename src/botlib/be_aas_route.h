@@ -26,16 +26,12 @@ If you have questions concerning this license or the applicable additional terms
 ===========================================================================
 */
 
+#pragma once
 
-/*****************************************************************************
- * name:		be_aas_route.h
- *
- * desc:		AAS
- *
- *
- *****************************************************************************/
+#ifdef __cplusplus
+extern "C" {
+#endif
 
-#ifdef AASINTERN
 //initialize the AAS routing
 void AAS_InitRouting( void );
 //free the AAS routing caches
@@ -46,7 +42,6 @@ unsigned short int AAS_AreaTravelTime( int areanum, vec3_t start, vec3_t end );
 void AAS_CreateAllRoutingCache( void );
 //
 void AAS_RoutingInfo( void );
-#endif //AASINTERN
 
 //returns the travel flag for the given travel type
 int AAS_TravelFlagForType( int traveltype );
@@ -66,3 +61,7 @@ int AAS_AreaTravelTimeToGoalArea( int areanum, vec3_t origin, int goalareanum, i
 int AAS_AreaTravelTimeToGoalAreaCheckLoop( int areanum, vec3_t origin, int goalareanum, int travelflags, int loopareanum );
 
 extern int BotFuzzyPointReachabilityArea( vec3_t origin );
+
+#ifdef __cplusplus
+}
+#endif
