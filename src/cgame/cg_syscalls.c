@@ -177,32 +177,31 @@ void    trap_R_RemapShader( const char *oldShader, const char *newShader, const 
 	R_RemapShader(oldShader, newShader, timeOffset );
 }
 
-extern void CL_GetGameState( gameState_t *gs );
+
 void        trap_GetGameState( gameState_t *gamestate ) {
 	CL_GetGameState( gamestate );
 }
 
-extern void    CL_GetCurrentSnapshotNumber( int *snapshotNumber, int *serverTime );
+
 void        trap_GetCurrentSnapshotNumber( int *snapshotNumber, int *serverTime ) {
 	CL_GetCurrentSnapshotNumber( snapshotNumber, serverTime );
 }
 
-extern qboolean    CL_GetSnapshot( int snapshotNumber, snapshot_t *snapshot );
+
 qboolean    trap_GetSnapshot( int snapshotNumber, snapshot_t *snapshot ) {
 	return CL_GetSnapshot( snapshotNumber, snapshot );
 }
 
-extern qboolean CL_GetServerCommand( int serverCommandNumber );
+
 qboolean    trap_GetServerCommand( int serverCommandNumber ) {
 	return CL_GetServerCommand( serverCommandNumber );
 }
 
-extern int CL_GetCurrentCmdNumber( void );
 int         trap_GetCurrentCmdNumber( void ) {
 	return CL_GetCurrentCmdNumber();
 }
 
-extern void CL_SetUserCmdValue( int userCmdValue, int holdableValue, float sensitivityScale, int cld );
+
 void        trap_SetUserCmdValue( int stateValue, int holdableValue, float sensitivityScale, int cld ) {    //----(SA)	// NERVE - SMF - added cld
 	CL_SetUserCmdValue(stateValue, holdableValue, sensitivityScale, cld );
 }
@@ -303,7 +302,7 @@ void trap_CIN_SetExtents( int handle, int x, int y, int w, int h ) {
 // bring up a popup menu
 extern void Menus_OpenByName( const char *p );
 
-extern void IngamePopup(const char *arg0);
+
 void trap_UI_Popup( const char *arg0 ) {
 	IngamePopup(arg0 );
 }

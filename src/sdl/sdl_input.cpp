@@ -569,12 +569,10 @@ static void IN_ShutdownJoystick( void )
 
 static bool KeyToAxisAndSign(int keynum, int *outAxis, int *outSign)
 {
-	char *bind;
-
 	if (!keynum)
 		return false;
 
-	bind = Key_GetBinding(keynum);
+	const char *bind = Key_GetBinding(keynum);
 
 	if (!bind || *bind != '+')
 		return false;

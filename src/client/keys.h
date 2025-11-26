@@ -34,7 +34,6 @@ typedef struct {
 	char        *binding;
 } qkey_t;
 
-extern qboolean key_overstrikeMode;
 extern qkey_t keys[MAX_KEYS];
 
 // NOTE TTimo the declaration of field_t and Field_Clear is now in qcommon/qcommon.h
@@ -49,17 +48,17 @@ extern field_t historyEditLines[COMMAND_HISTORY];
 
 extern field_t g_consoleField;
 extern field_t chatField;
-extern qboolean anykeydown;
+extern int anykeydown;		// number of keys down
 extern qboolean chat_team;
 
 extern int chat_playerNum;
 
 void Key_WriteBindings( fileHandle_t f );
 void Key_SetBinding( int keynum, const char *binding );
-char *Key_GetBinding( int keynum );
+const char *Key_GetBinding( int keynum );
 void Key_GetBindingBuf( int keynum, char *buf, int buflen );
 qboolean Key_IsDown( int keynum );
-qboolean Key_GetOverstrikeMode( void );
+qboolean Key_GetOverstrikeMode(  );
 void Key_SetOverstrikeMode( qboolean state );
 void Key_ClearStates( void );
 int Key_GetKey( const char *binding );

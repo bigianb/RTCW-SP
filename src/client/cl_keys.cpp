@@ -48,14 +48,14 @@ qboolean chat_team;
 int chat_playerNum;
 
 
-qboolean key_overstrikeMode;
+bool key_overstrikeMode;
 
-qboolean anykeydown;
+int anykeydown;		// number of keys down
 qkey_t keys[MAX_KEYS];
 
 
 typedef struct {
-	char    *name;
+	const char    *name;
 	int keynum;
 } keyname_t;
 
@@ -692,10 +692,9 @@ static void keyConcatArgs( void ) {
 	}
 }
 
-static void ConcatRemaining( const char *src, const char *start ) {
-	char *str;
-
-	str = strstr( src, start );
+static void ConcatRemaining( const char *src, const char *start )
+{
+	const char* str = strstr( src, start );
 	if ( !str ) {
 		keyConcatArgs();
 		return;
@@ -949,7 +948,7 @@ void Message_Key( int key ) {
 
 
 qboolean Key_GetOverstrikeMode( void ) {
-	return key_overstrikeMode;
+	return key_overstrikeMode ? qtrue : qfalse;
 }
 
 
@@ -1038,7 +1037,7 @@ Returns a string (either a single ascii char, a K_* name, or a 0x11 hex string) 
 given keynum.
 ===================
 */
-char *Key_KeynumToString( int keynum, qboolean bTranslate ) {
+const char *Key_KeynumToString( int keynum, qboolean bTranslate ) {
 	keyname_t   *kn;
 	static char tinystr[6];
 
@@ -1121,7 +1120,7 @@ void Key_SetBinding( int keynum, const char *binding ) {
 Key_GetBinding
 ===================
 */
-char *Key_GetBinding( int keynum ) {
+const char *Key_GetBinding( int keynum ) {
 	if ( keynum == -1 ) {
 		return "";
 	}
@@ -1507,17 +1506,17 @@ void CL_CharEvent( int key ) {
 Key_ClearStates
 ===================
 */
-void Key_ClearStates( void ) {
+void Key_ClearStates(  ) {
 	int i;
 
-	anykeydown = qfalse;
+	anykeydown = 0;
 
 	for ( i = 0 ; i < MAX_KEYS ; i++ ) {
 		if ( keys[i].down ) {
 			CL_KeyEvent( i, qfalse, 0 );
 
 		}
-		keys[i].down = 0;
+		keys[i].down = qfalse;
 		keys[i].repeats = 0;
 	}
 }

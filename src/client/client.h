@@ -453,7 +453,7 @@ void IN_Salute( void );
 void CL_VerifyCode( void );
 
 float CL_KeyState( kbutton_t *key );
-char *Key_KeynumToString( int keynum, qboolean bTranslate );
+const char *Key_KeynumToString( int keynum, qboolean bTranslate );
 
 //
 // cl_parse.c
@@ -519,7 +519,7 @@ e_status CIN_StopCinematic( int handle );
 e_status CIN_RunCinematic( int handle );
 void CIN_DrawCinematic( int handle );
 void CIN_SetExtents( int handle, int x, int y, int w, int h );
-void CIN_SetLooping( int handle, qboolean loop );
+
 void CIN_UploadCinematic( int handle );
 void CIN_CloseAllVideos( void );
 
@@ -535,6 +535,14 @@ void CL_FirstSnapshot( void );
 void CL_ShaderStateChanged( void );
 
 qboolean CL_GetUserCmd( int cmdNumber, usercmd_t *ucmd );
+int CL_GetCurrentCmdNumber(  );
+void   CL_GetCurrentSnapshotNumber( int *snapshotNumber, int *serverTime );
+void CL_GetGameState( gameState_t *gs );
+qboolean    CL_GetSnapshot( int snapshotNumber, snapshot_t *snapshot );
+qboolean CL_GetServerCommand( int serverCommandNumber );
+void CL_SetUserCmdValue( int userCmdValue, int holdableValue, float sensitivityScale, int cld );
+void IngamePopup(const char *arg0);
+
 
 // cl_ui.c
 //

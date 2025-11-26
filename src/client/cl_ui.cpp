@@ -72,7 +72,7 @@ Key_GetBindingBuf
 */
 void Key_GetBindingBuf( int keynum, char *buf, int buflen )
 {
-	char* value = Key_GetBinding( keynum );
+	const char* value = Key_GetBinding( keynum );
 	if ( value ) {
 		Q_strncpyz( buf, value, buflen );
 	} else {

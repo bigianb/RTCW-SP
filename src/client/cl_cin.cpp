@@ -88,7 +88,7 @@ typedef struct
 	char fileName[MAX_OSPATH];
 	int CIN_WIDTH, CIN_HEIGHT;
 	int xpos, ypos, width, height;
-	qboolean looping, holdAtEnd, dirty, alterGameState, silent, shader, letterBox, sound;
+	bool looping, holdAtEnd, dirty, alterGameState, silent, shader, letterBox, sound;
 	fileHandle_t iFile;
 	e_status status;
 	unsigned int startTime;
@@ -112,7 +112,7 @@ typedef struct
 	byte*               gray;
 	unsigned int xsize, ysize, maxsize, minsize;
 
-	qboolean half, smootheddouble, inMemory;
+	bool half, smootheddouble, inMemory;
 	int normalBuffer0;
 	int roq_flags;
 	int roqF0;
@@ -1060,7 +1060,9 @@ redump:
 		return;
 	}
 	if ( cinTable[currentHandle].inMemory && ( cinTable[currentHandle].status != FMV_EOF ) ) {
-		cinTable[currentHandle].inMemory--; framedata += 8; goto redump;
+		cinTable[currentHandle].inMemory = false;
+		framedata += 8;
+		goto redump;
 	}
 
 //
@@ -1250,15 +1252,16 @@ e_status CIN_RunCinematic( int handle ) {
 	}
 	// RoQShutdown sets the currentHandle to -1
 	// Nothing uses the return value.
-	return 0;
+	return FMV_IDLE;
 }
 
-/*
-==================
-CL_PlayCinematic
+void CIN_SetLooping( int handle, qboolean loop ) {
+	if ( handle < 0 || handle >= MAX_VIDEO_HANDLES || cinTable[handle].status == FMV_EOF ) {
+		return;
+	}
+	cinTable[handle].looping = loop;
+}
 
-==================
-*/
 int CIN_PlayCinematic( const char *arg, int x, int y, int w, int h, int systemBits ) {
 	unsigned short RoQID;
 	char name[MAX_OSPATH];
@@ -1298,7 +1301,7 @@ int CIN_PlayCinematic( const char *arg, int x, int y, int w, int h, int systemBi
 	}
 
 	CIN_SetExtents( currentHandle, x, y, w, h );
-	CIN_SetLooping( currentHandle, ( systemBits & CIN_loop ) != 0 );
+	CIN_SetLooping( currentHandle, ( systemBits & CIN_loop ) != 0 ? qtrue : qfalse );
 
 	cinTable[currentHandle].CIN_HEIGHT = DEFAULT_CIN_HEIGHT;
 	cinTable[currentHandle].CIN_WIDTH  =  DEFAULT_CIN_WIDTH;
@@ -1356,12 +1359,7 @@ void CIN_SetExtents( int handle, int x, int y, int w, int h ) {
 	cinTable[handle].dirty = qtrue;
 }
 
-void CIN_SetLooping( int handle, qboolean loop ) {
-	if ( handle < 0 || handle >= MAX_VIDEO_HANDLES || cinTable[handle].status == FMV_EOF ) {
-		return;
-	}
-	cinTable[handle].looping = loop;
-}
+
 
 /*
 ==================
@@ -1412,7 +1410,7 @@ void CIN_DrawCinematic( int handle ) {
 		}
 
 		buf3 = (int*)buf;
-		buf2 = Hunk_AllocateTempMemory( 256 * 256 * 4 );
+		buf2 = (int *)Hunk_AllocateTempMemory( 256 * 256 * 4 );
 		if ( xm == 2 && ym == 2 ) {
 			byte *bc2, *bc3;
 			int ic, iiy;
@@ -1456,7 +1454,7 @@ void CIN_DrawCinematic( int handle ) {
 		return;
 	}
 
-	re.DrawStretchRaw( x, y, w, h, cinTable[handle].drawX, cinTable[handle].drawY, buf, handle, cinTable[handle].dirty );
+	re.DrawStretchRaw( x, y, w, h, cinTable[handle].drawX, cinTable[handle].drawY, buf, handle, cinTable[handle].dirty ? qtrue : qfalse );
 	cinTable[handle].dirty = qfalse;
 }
 
@@ -1539,7 +1537,7 @@ void CIN_UploadCinematic( int handle ) {
 				}
 			}
 		}
-		re.UploadCinematic( 256, 256, 256, 256, cinTable[handle].buf, handle, cinTable[handle].dirty );
+		re.UploadCinematic( 256, 256, 256, 256, cinTable[handle].buf, handle, cinTable[handle].dirty ? qtrue : qfalse );
 		if ( cl_inGameVideo->integer == 0 && cinTable[handle].playonwalls == 1 ) {
 			cinTable[handle].playonwalls--;
 		}

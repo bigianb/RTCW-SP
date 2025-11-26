@@ -149,21 +149,21 @@ set(CLIENT_INCLUDES
 )
 
 set(CLIENT_SOURCES 
-	src/client/cl_cgame.c
-	src/client/cl_cin.c
-	src/client/cl_console.c
-	src/client/cl_input.c
-	src/client/cl_keys.c
-	src/client/cl_main.c
-	src/client/cl_net_chan.c
-	src/client/cl_parse.c
-	src/client/cl_scrn.c
-	src/client/cl_ui.c
-	src/client/snd_adpcm.c
-	src/client/snd_dma.c
-	src/client/snd_mem.c
-	src/client/snd_mix.c
-	src/client/snd_wavelet.c
+	src/client/cl_cgame.cpp
+	src/client/cl_cin.cpp
+	src/client/cl_console.cpp
+	src/client/cl_input.cpp
+	src/client/cl_keys.cpp
+	src/client/cl_main.cpp
+	src/client/cl_net_chan.cpp
+	src/client/cl_parse.cpp
+	src/client/cl_scrn.cpp
+	src/client/cl_ui.cpp
+	src/client/snd_adpcm.cpp
+	src/client/snd_dma.cpp
+	src/client/snd_mem.cpp
+	src/client/snd_mix.cpp
+	src/client/snd_wavelet.cpp
 )
 
 set(GAME_INCLUDES 
