@@ -2053,13 +2053,12 @@ static void PM_FinishWeaponChange( void ) {
 PM_ReloadClip
 ==============
 */
-static void PM_ReloadClip( int weapon ) {
-	int ammoreserve, ammoclip, ammomove;
+static void PM_ReloadClip( weapon_t weapon )
+{	
+	int ammoreserve = pm->ps->ammo[ BG_FindAmmoForWeapon( weapon )];
+	int ammoclip    = pm->ps->ammoclip[BG_FindClipForWeapon( weapon )];
 
-	ammoreserve = pm->ps->ammo[ BG_FindAmmoForWeapon( weapon )];
-	ammoclip    = pm->ps->ammoclip[BG_FindClipForWeapon( weapon )];
-
-	ammomove = ammoTable[weapon].maxclip - ammoclip;
+	int ammomove = ammoTable[weapon].maxclip - ammoclip;
 
 	if ( ammoreserve < ammomove ) {
 		ammomove = ammoreserve;
@@ -2082,7 +2081,7 @@ PM_FinishWeaponReload
 */
 
 static void PM_FinishWeaponReload( void ) {
-	PM_ReloadClip( pm->ps->weapon );          // move ammo into clip
+	PM_ReloadClip( (weapon_t)pm->ps->weapon );          // move ammo into clip
 	pm->ps->weaponstate = WEAPON_READY;     // ready to fire
 }
 
@@ -2092,7 +2091,7 @@ static void PM_FinishWeaponReload( void ) {
 PM_CheckforReload
 ==============
 */
-void PM_CheckForReload( int weapon ) {
+void PM_CheckForReload( weapon_t weapon ) {
 	qboolean reloadRequested;
 	qboolean doReload = qfalse;
 	int clipWeap, ammoWeap;
@@ -2212,11 +2211,11 @@ static void PM_SwitchIfEmpty( void ) {
 	}
 
 
-	if ( pm->ps->ammoclip[ BG_FindClipForWeapon( pm->ps->weapon )] ) { // still got ammo in clip
+	if ( pm->ps->ammoclip[ BG_FindClipForWeapon( (weapon_t) pm->ps->weapon )] ) { // still got ammo in clip
 		return;
 	}
 
-	if ( pm->ps->ammo[ BG_FindAmmoForWeapon( pm->ps->weapon )] ) { // still got ammo in reserve
+	if ( pm->ps->ammo[ BG_FindAmmoForWeapon( (weapon_t) pm->ps->weapon )] ) { // still got ammo in reserve
 		return;
 	}
 
@@ -2248,9 +2247,9 @@ void PM_WeaponUseAmmo( int wp, int amount ) {
 	int takeweapon;
 
 	if ( pm->noWeapClips ) {
-		pm->ps->ammo[ BG_FindAmmoForWeapon( wp )] -= amount;
+		pm->ps->ammo[ BG_FindAmmoForWeapon( (weapon_t)wp )] -= amount;
 	} else {
-		takeweapon = BG_FindClipForWeapon( wp );
+		takeweapon = BG_FindClipForWeapon((weapon_t) wp );
 		if ( wp == WP_AKIMBO ) {
 			if ( !BG_AkimboFireSequence( wp, pm->ps->ammoclip[WP_AKIMBO], pm->ps->ammoclip[WP_COLT] ) ) {
 				takeweapon = WP_COLT;
@@ -2272,10 +2271,10 @@ int PM_WeaponAmmoAvailable( int wp ) {
 	int takeweapon;
 
 	if ( pm->noWeapClips ) {
-		return pm->ps->ammo[ BG_FindAmmoForWeapon( wp )];
+		return pm->ps->ammo[ BG_FindAmmoForWeapon( (weapon_t)wp )];
 	} else {
 //		return pm->ps->ammoclip[BG_FindClipForWeapon( wp )];
-		takeweapon = BG_FindClipForWeapon( wp );
+		takeweapon = BG_FindClipForWeapon((weapon_t) wp );
 		if ( wp == WP_AKIMBO ) {
 			if ( !BG_AkimboFireSequence( pm->ps->weapon, pm->ps->ammoclip[WP_AKIMBO], pm->ps->ammoclip[WP_COLT] ) ) {
 				takeweapon = WP_COLT;
@@ -2294,11 +2293,11 @@ PM_WeaponClipEmpty
 */
 int PM_WeaponClipEmpty( int wp ) {
 	if ( pm->noWeapClips ) {
-		if ( !( pm->ps->ammo[ BG_FindAmmoForWeapon( wp )] ) ) {
+		if ( !( pm->ps->ammo[ BG_FindAmmoForWeapon( (weapon_t)wp )] ) ) {
 			return 1;
 		}
 	} else {
-		if ( !( pm->ps->ammoclip[BG_FindClipForWeapon( wp )] ) ) {
+		if ( !( pm->ps->ammoclip[BG_FindClipForWeapon( (weapon_t)wp )] ) ) {
 			return 1;
 		}
 	}
@@ -2597,7 +2596,7 @@ static void PM_Weapon( void ) {
 			pm->ps->pm_flags |= PMF_USE_ITEM_HELD;
 
 			if ( pm->cmd.holdable ) {
-				item = BG_FindItemForHoldable( pm->cmd.holdable );
+				item = BG_FindItemForHoldable( (holdable_t)pm->cmd.holdable );
 
 				if ( item && ( pm->ps->holdable[pm->cmd.holdable] >= item->quantity ) ) { // ->quantity being how much 'ammo' is taken per use
 					PM_AddEvent( EV_USE_ITEM0 + pm->cmd.holdable );
@@ -2712,7 +2711,7 @@ if ( pm->ps->weaponTime <= 0 || ( !weaponstateFiring && pm->ps->weaponDelay <= 0
 }
 
 // check for clip change
-PM_CheckForReload( pm->ps->weapon );
+PM_CheckForReload( (weapon_t)pm->ps->weapon );
 
 if ( pm->ps->weaponTime > 0 || pm->ps->weaponDelay > 0 ) {
 	return;
@@ -2880,7 +2879,7 @@ if ( pm->ps->weapon ) {
 
 	if ( ammoNeeded > ammoAvailable ) {
 
-		reloadingW = (qboolean)( ammoNeeded <= pm->ps->ammo[ BG_FindAmmoForWeapon( pm->ps->weapon )] ); // you have ammo for this, just not in the clip
+		reloadingW = (qboolean)( ammoNeeded <= pm->ps->ammo[ BG_FindAmmoForWeapon( (weapon_t)pm->ps->weapon )] ); // you have ammo for this, just not in the clip
 
 		if ( pm->ps->eFlags & EF_MELEE_ACTIVE ) {   // not going to be allowed to reload if holding a chair
 			reloadingW = qfalse;
@@ -3389,7 +3388,7 @@ void PM_UpdateViewAngles( playerState_t *ps, usercmd_t *cmd, void( trace ) ( tra
 	}
 
 
-	tpm.trace = (void *)&trace;
+	tpm.trace = trace;
 //	tpm.trace (&trace, start, tmins, tmaxs, end, ps->clientNum, MASK_PLAYERSOLID);
 
 	PM_UpdateLean( ps, cmd, &tpm );
@@ -3411,14 +3410,10 @@ void PM_CheckLadderMove( void ) {
 	trace_t trace;
 	float tracedist;
 	#define TRACE_LADDER_DIST   48.0
-	qboolean wasOnLadder;
 
 	if ( pm->ps->pm_time ) {
 		return;
 	}
-
-	//if (pm->ps->pm_flags & PM_DEAD)
-	//	return;
 
 	if ( pml.walking ) {
 		tracedist = 1.0;
@@ -3426,7 +3421,7 @@ void PM_CheckLadderMove( void ) {
 		tracedist = TRACE_LADDER_DIST;
 	}
 
-	wasOnLadder = ( ( pm->ps->pm_flags & PMF_LADDER ) != 0 );
+	bool wasOnLadder = ( ( pm->ps->pm_flags & PMF_LADDER ) != 0 );
 
 	pml.ladder = qfalse;
 	pm->ps->pm_flags &= ~PMF_LADDER;    // clear ladder bit
@@ -3661,9 +3656,8 @@ void trap_SnapVector( float *v );
 
 void PmoveSingle( pmove_t *pmove ) {
 	// Ridah
-	qboolean isDummy;
 
-	isDummy = ( ( pmove->ps->eFlags & EF_DUMMY_PMOVE ) != 0 );
+	bool isDummy = ( ( pmove->ps->eFlags & EF_DUMMY_PMOVE ) != 0 );
 	// done.
 
 	if ( !isDummy ) {

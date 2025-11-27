@@ -496,7 +496,7 @@ CG_RequestMoveSpeed
 void CG_RequestMoveSpeed( const char *modelname ) {
 	animModelInfo_t *modelInfo;
 
-	modelInfo = BG_ModelInfoForModelname( (char *)modelname );
+	modelInfo = BG_ModelInfoForModelname( modelname );
 
 	if ( !modelInfo ) {
 		// ignore it

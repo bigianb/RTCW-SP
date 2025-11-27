@@ -420,7 +420,7 @@ qboolean BotImport_AICast_VisibleFromPos(   vec3_t srcpos, int srcnum,
 BotImport_AICast_CheckAttackAtPos
 ===============
 */
-qboolean BotImport_AICast_CheckAttackAtPos( int entnum, int enemy, vec3_t pos, qboolean ducking, qboolean allowHitWorld ) {
+bool BotImport_AICast_CheckAttackAtPos( int entnum, int enemy, vec3_t pos, bool ducking, bool allowHitWorld ) {
 	return AICast_CheckAttackAtPos( entnum, enemy, pos, ducking, allowHitWorld );
 }
 // done.

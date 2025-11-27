@@ -3181,7 +3181,8 @@ const char *AIFunc_AvoidDanger( cast_state_t *cs ) {
 		// pretend we can still see them while we run to our hide pos, this way they are less likely
 		// to forget about their enemy once they get there
 		if ( ent->shared.s.onFireEnd < level.time && cs->enemyNum >= 0 && cs->vislist[cs->enemyNum].real_visible_timestamp && ( cs->vislist[cs->enemyNum].real_visible_timestamp > level.time - 10000 ) ) {
-			AICast_UpdateVisibility( &g_entities[cs->entityNum], &g_entities[cs->enemyNum], qfalse, cs->vislist[cs->enemyNum].real_visible_timestamp == cs->vislist[cs->enemyNum].lastcheck_timestamp );
+			AICast_UpdateVisibility( &g_entities[cs->entityNum], &g_entities[cs->enemyNum], qfalse,
+				(cs->vislist[cs->enemyNum].real_visible_timestamp == cs->vislist[cs->enemyNum].lastcheck_timestamp)? qtrue : qfalse );
 		}
 
 	} else {
@@ -3300,7 +3301,7 @@ const char *AIFunc_BattleTakeCover( cast_state_t *cs ) {
 	if ( numEnemies == -1 ) { // query mode
 		return NULL;
 	} else if ( numEnemies == -2 )     { // inspection may be required
-		char *retval;
+		const char *retval;
 		// TTimo: gcc: suggest () around assignment used as truth value
 		if ( ( retval = AIFunc_InspectFriendlyStart( cs, enemies[0] ) ) ) {
 			return retval;
@@ -3761,7 +3762,7 @@ const char *AIFunc_GrenadeFlush( cast_state_t *cs ) {
 	if ( numEnemies == -1 ) { // query mode
 		return NULL;
 	} else if ( numEnemies == -2 )     { // inspection may be required
-		char *retval;
+		const char *retval;
 		// TTimo: gcc: suggest () around assignment used as truth value
 		if ( ( retval = AIFunc_InspectFriendlyStart( cs, enemies[0] ) ) ) {
 			return retval;
@@ -4081,7 +4082,7 @@ const char *AIFunc_BattleMG42( cast_state_t *cs ) {
 AIFunc_BattleMG42Start()
 ============
 */
-char *AIFunc_BattleMG42Start( cast_state_t *cs ) {
+const char *AIFunc_BattleMG42Start( cast_state_t *cs ) {
 	cs->aiFlags &= ~AIFL_DISMOUNTING;
 	//
 	cs->aifunc = AIFunc_BattleMG42;
@@ -4135,7 +4136,7 @@ const char *AIFunc_InspectBody( cast_state_t *cs ) {
 	if ( numEnemies == -1 ) { // query mode
 		return NULL;
 	} else if ( numEnemies == -2 )     { // inspection may be required
-		char *retval;
+		const char *retval;
 		// TTimo: gcc: suggest () around assignment used as truth value
 		if ( ( retval = AIFunc_InspectFriendlyStart( cs, enemies[0] ) ) ) {
 			return retval;
@@ -4308,7 +4309,7 @@ const char *AIFunc_GrenadeKick( cast_state_t *cs ) {
 	cs->attackcrouch_time = 0;  // animation is played from standing start
 	//
 	// are we close enough to pick it up?
-	if ( /*cs->grenadeGrabFlag <= 0 || */
+	if ( 
 		( danger->shared.s.pos.trDelta[2] < 20 && VectorDistance( danger->shared.r.currentOrigin, cs->bs->origin ) < 48 && ( danger->shared.r.currentOrigin[2] < cs->bs->origin[2] ) &&
 		  VectorLength( danger->shared.s.pos.trDelta ) < 50 ) ) {
 		//
@@ -4318,7 +4319,7 @@ const char *AIFunc_GrenadeKick( cast_state_t *cs ) {
 			AICast_AimAtEnemy( cs );
 			// play the kick anim
 			BG_AnimScriptEvent( &ent->client->ps, ANIM_ET_KICKGRENADE, qfalse, qtrue );
-			cs->grenadeGrabFlag = -1;
+			cs->grenadeGrabFlag = qfalse;
 			// stop the grenade from moving away
 			danger->shared.s.pos.trDelta[0] = 0;
 			danger->shared.s.pos.trDelta[1] = 0;
@@ -4389,7 +4390,7 @@ const char *AIFunc_GrenadeKick( cast_state_t *cs ) {
 			return NULL;
 		}
 		if ( numEnemies == -2 ) { // inspection may be required
-			char *retval;
+			const char *retval;
 			// TTimo: gcc: suggest () around assignment used as truth value
 			if ( ( retval = AIFunc_InspectFriendlyStart( cs, enemies[0] ) ) ) {
 				return retval;
@@ -4752,7 +4753,7 @@ const char *AIFunc_Battle( cast_state_t *cs ) {
 	}
 	//
 	// reload?
-	if ( ( cs->bs->cur_ps.weaponstate != WEAPON_RELOADING ) && ( cs->bs->cur_ps.ammoclip[BG_FindClipForWeapon( cs->bs->cur_ps.weapon )] < (int)( ammoTable[cs->bs->cur_ps.weapon].uses ) ) ) {
+	if ( ( cs->bs->cur_ps.weaponstate != WEAPON_RELOADING ) && ( cs->bs->cur_ps.ammoclip[BG_FindClipForWeapon( (weapon_t)cs->bs->cur_ps.weapon )] < (int)( ammoTable[cs->bs->cur_ps.weapon].uses ) ) ) {
 		if ( AICast_GotEnoughAmmoForWeapon( cs, cs->weaponNum ) ) {
 			trap_EA_Reload( cs->entityNum );
 		} else {    // no ammo, switch?

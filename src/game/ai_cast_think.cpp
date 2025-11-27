@@ -1206,7 +1206,7 @@ qboolean AICast_GetAvoid( cast_state_t *cs, bot_goal_t *goal, vec3_t outpos, qbo
 	vec3_t bestpos;
 	aicast_predictmove_t castmove;
 	usercmd_t ucmd;
-	qboolean enemyVisible;
+	bool enemyVisible;
 	float angleDiff;
 	int starttraveltime = 0, besttraveltime, traveltime;         // TTimo: init
 	int invert;
@@ -1232,7 +1232,7 @@ qboolean AICast_GetAvoid( cast_state_t *cs, bot_goal_t *goal, vec3_t outpos, qbo
 
 	// if they have an enemy, and can currently see them, don't move out of their view
 	enemyVisible =  ( cs->enemyNum >= 0 ) &&
-				   ( AICast_CheckAttack( cs, cs->enemyNum, qfalse ) );
+				   ( AICast_CheckAttack( cs, cs->enemyNum, qfalse ) ? qtrue : qfalse );
 	//
 	// look for a good direction to move out of the way
 	bestmoved = 0;
@@ -1315,8 +1315,6 @@ qboolean AICast_GetAvoid( cast_state_t *cs, bot_goal_t *goal, vec3_t outpos, qbo
 	} else {
 		return qfalse;
 	}
-
-//Com_Printf("GetAvoid: %i ms\n", -pretime + Sys_MilliSeconds() );
 }
 
 /*
@@ -1686,7 +1684,7 @@ void AICast_IdleReload( cast_state_t *cs ) {
 	if ( cs->noReloadTime >= level.time ) {
 		return;
 	}
-	if ( !( ( cs->bs->cur_ps.ammoclip[BG_FindClipForWeapon( cs->bs->cur_ps.weapon )] < (int)( 0.75 * ammoTable[cs->bs->cur_ps.weapon].maxclip ) ) && cs->bs->cur_ps.ammo[BG_FindAmmoForWeapon( cs->bs->cur_ps.weapon )] ) ) {
+	if ( !( ( cs->bs->cur_ps.ammoclip[BG_FindClipForWeapon( (weapon_t)cs->bs->cur_ps.weapon )] < (int)( 0.75 * ammoTable[cs->bs->cur_ps.weapon].maxclip ) ) && cs->bs->cur_ps.ammo[BG_FindAmmoForWeapon( (weapon_t)cs->bs->cur_ps.weapon )] ) ) {
 		return;
 	}
 	//

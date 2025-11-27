@@ -335,7 +335,7 @@ argv(0) god
 ==================
 */
 void Cmd_God_f( gentity_t *ent ) {
-	char    *msg;
+	const char    *msg;
 
 	if ( !CheatsOk( ent ) ) {
 		return;
@@ -362,7 +362,7 @@ argv(0) nofatigue
 */
 
 void Cmd_Nofatigue_f( gentity_t *ent ) {
-	char    *msg;
+	const char    *msg;
 
 	if ( !CheatsOk( ent ) ) {
 		return;
@@ -388,7 +388,7 @@ argv(0) notarget
 ==================
 */
 void Cmd_Notarget_f( gentity_t *ent ) {
-	char    *msg;
+	const char    *msg;
 
 	if ( !CheatsOk( ent ) ) {
 		return;
@@ -413,7 +413,7 @@ argv(0) noclip
 ==================
 */
 void Cmd_Noclip_f( gentity_t *ent ) {
-	char    *msg;
+	const char    *msg;
 
 	if ( !CheatsOk( ent ) ) {
 		return;
@@ -424,7 +424,7 @@ void Cmd_Noclip_f( gentity_t *ent ) {
 	} else {
 		msg = "noclip ON\n";
 	}
-	ent->client->noclip = !ent->client->noclip;
+	ent->client->noclip = !ent->client->noclip ? qtrue : qfalse;
 
 	SV_GameSendServerCommand( ent - g_entities, va( "print \"%s\"", msg ) );
 }
@@ -702,7 +702,7 @@ qboolean G_ThrowChair( gentity_t *ent, vec3_t dir, qboolean force ) {
 	vec3_t mins, maxs;
 //	vec3_t		forward;
 	vec3_t start, end;
-	qboolean isthrown = qtrue;
+	bool isthrown = true;
 	gentity_t   *traceEnt;
 
 	if ( !ent->active || !ent->melee ) {
@@ -727,11 +727,11 @@ qboolean G_ThrowChair( gentity_t *ent, vec3_t dir, qboolean force ) {
 	traceEnt = &g_entities[ trace.entityNum ];
 
 	if ( trace.startsolid ) {
-		isthrown = qfalse;
+		isthrown = false;
 	}
 
 	if ( trace.fraction != 1 ) {
-		isthrown = qfalse;
+		isthrown = false;
 	}
 
 	if ( isthrown || force ) {
@@ -748,7 +748,7 @@ qboolean G_ThrowChair( gentity_t *ent, vec3_t dir, qboolean force ) {
 		G_Damage( traceEnt, ent, ent, NULL, NULL, 99999, 0, MOD_CRUSH );    // Die!
 	}
 
-	return ( isthrown || force );
+	return ( isthrown || force ) ? qtrue : qfalse;
 }
 
 
@@ -914,7 +914,7 @@ void Cmd_Activate_f( gentity_t *ent ) {
 
 		if ( ent->client->ps.persistant[PERS_HWEAPON_USE] ) {
 			// we wish to dismount mg42
-			ent->active = 2;
+			ent->active = qtrue; //2;
 
 		} else if ( ent->melee ) {
 			// throw chair
@@ -1004,7 +1004,7 @@ int Cmd_WolfKick_f( gentity_t *ent ) {
 
 //			if(traceEnt->key > 0) {	// door requires key
 			if ( traceEnt->key > KEY_NONE && traceEnt->key < KEY_NUM_KEYS ) {
-				gitem_t *item = BG_FindItemForKey( traceEnt->key, 0 );
+				gitem_t *item = BG_FindItemForKey( (wkey_t)traceEnt->key, 0 );
 				if ( !( ent->client->ps.stats[STAT_KEYS] & ( 1 << item->giTag ) ) ) {
 					//----(SA)	play kick "hit" sound
 					tent = G_TempEntity( tr.endpos, EV_WOLFKICK_HIT_WALL );

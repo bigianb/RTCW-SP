@@ -215,11 +215,11 @@ void BotImport_DebugLineShow( int line, vec3_t start, vec3_t end, int color );
 int BotImport_DebugPolygonCreate( int color, int numPoints, vec3_t *points );
 void BotImport_DebugPolygonDelete( int id );
 qboolean BotImport_AICast_VisibleFromPos(vec3_t srcpos, int srcnum, vec3_t destpos, int destnum, qboolean updateVisPos );
-qboolean BotImport_AICast_CheckAttackAtPos( int entnum, int enemy, vec3_t pos, qboolean ducking, qboolean allowHitWorld );
+bool BotImport_AICast_CheckAttackAtPos( int entnum, int enemy, vec3_t pos, bool ducking, bool allowHitWorld );
 
 int AAS_FindAttackSpotWithinRange( int srcnum, int rangenum, int enemynum, float rangedist, int travelflags, float *outpos );
 qboolean AAS_GetRouteFirstVisPos( vec3_t srcpos, vec3_t destpos, int travelflags, vec3_t retpos );
-void AAS_SetAASBlockingEntity( vec3_t absmin, vec3_t absmax, qboolean blocking );
+void AAS_SetAASBlockingEntity( vec3_t absmin, vec3_t absmax, int blocking );
 
 qboolean BotLibSetup(const char* );
 
@@ -276,7 +276,7 @@ typedef struct aas_export_s
 	void ( *AAS_RT_ShowRoute )( vec3_t srcpos, int srcnum, int destnum );
 	qboolean ( *AAS_RT_GetHidePos )( vec3_t srcpos, int srcnum, int srcarea, vec3_t destpos, int destnum, int destarea, vec3_t returnPos );
 	int ( *AAS_FindAttackSpotWithinRange )( int srcnum, int rangenum, int enemynum, float rangedist, int travelflags, float *outpos );
-	void ( *AAS_SetAASBlockingEntity )( vec3_t absmin, vec3_t absmax, qboolean blocking );
+	void ( *AAS_SetAASBlockingEntity )( vec3_t absmin, vec3_t absmax, int blocking );
 	// done.
 
 	// Ridah

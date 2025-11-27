@@ -1020,8 +1020,8 @@ typedef enum {
 } animNumber_t;
 
 // text represenation for scripting
-extern char *animStrings[];     // defined in bg_misc.c
-extern char *animStringsOld[];      // defined in bg_misc.c
+extern const char *animStrings[];     // defined in bg_misc.c
+extern const char *animStringsOld[];      // defined in bg_misc.c
 
 
 typedef enum {
@@ -1211,13 +1211,13 @@ typedef enum {
 
 // JOSEPH 4-17-00
 typedef struct gitem_s {
-	char        *classname; // spawning name
-	char        *pickup_sound;
-	char        *world_model[MAX_ITEM_MODELS];
+	const char        *classname; // spawning name
+	const char        *pickup_sound;
+	const char        *world_model[MAX_ITEM_MODELS];
 
-	char        *icon;
-	char        *ammoicon;
-	char        *pickup_name;   // for printing on pickup
+	const char        *icon;
+	const char        *ammoicon;
+	const char        *pickup_name;   // for printing on pickup
 
 	int quantity;               // for ammo how much, or duration of powerup (value not necessary for ammo/health.  that value set in gameskillnumber[] below)
 	itemType_t giType;          // IT_* flags
@@ -1227,8 +1227,8 @@ typedef struct gitem_s {
 	int giAmmoIndex;            // type of weapon ammo this uses.  (ex. WP_MP40 and WP_LUGER share 9mm ammo, so they both have WP_LUGER for giAmmoIndex)
 	int giClipIndex;            // which clip this weapon uses.  this allows the sniper rifle to use the same clip as the garand, etc.
 
-	char        *precaches;     // string of all models and images this item will use
-	char        *sounds;        // string of all sounds this item will use
+	const char        *precaches;     // string of all models and images this item will use
+	const char        *sounds;        // string of all sounds this item will use
 
 	int gameskillnumber[4];
 } gitem_t;
@@ -1401,8 +1401,8 @@ void    BG_AddPredictableEventToPlayerstate( int newEvent, int eventParm, player
 
 //void	BG_TouchJumpPad( playerState_t *ps, entityState_t *jumppad );
 
-void    BG_PlayerStateToEntityState( playerState_t *ps, entityState_t *s, qboolean snap );
-void    BG_PlayerStateToEntityStateExtraPolate( playerState_t *ps, entityState_t *s, int time, qboolean snap );
+void    BG_PlayerStateToEntityState( playerState_t *ps, entityState_t *s, bool snap );
+void    BG_PlayerStateToEntityStateExtraPolate( playerState_t *ps, entityState_t *s, int time, bool snap );
 
 qboolean    BG_PlayerTouchesItem( playerState_t *ps, entityState_t *item, int atTime );
 qboolean    BG_PlayerSeesItem( playerState_t *ps, entityState_t *item, int atTime );
@@ -1707,14 +1707,14 @@ typedef enum
 //------------------------------------------------------------------
 // Global Function Decs
 
-animModelInfo_t *BG_ModelInfoForModelname( char *modelname );
+animModelInfo_t *BG_ModelInfoForModelname( const char *modelname );
 qboolean BG_AnimParseAnimConfig( animModelInfo_t *animModelInfo, const char *filename, const char *input );
 void BG_AnimParseAnimScript( animModelInfo_t *modelInfo, animScriptData_t *scriptData, int client, char *filename, char *input );
 int BG_AnimScriptAnimation( playerState_t *ps, aistateEnum_t state, scriptAnimMoveTypes_t movetype, qboolean isContinue );
 int BG_AnimScriptCannedAnimation( playerState_t *ps, aistateEnum_t state );
 int BG_AnimScriptStateChange( playerState_t *ps, aistateEnum_t newState, aistateEnum_t oldState );
 int BG_AnimScriptEvent( playerState_t *ps, scriptAnimEventTypes_t event, qboolean isContinue, qboolean force );
-int BG_IndexForString( char *token, animStringItem_t *strings, qboolean allowFail );
+int BG_IndexForString( const char *token, animStringItem_t *strings, qboolean allowFail );
 int BG_PlayAnimName( playerState_t *ps, const char *animName, animBodyPart_t bodyPart, qboolean setTimer, qboolean isContinue, qboolean force );
 qboolean BG_ValidAnimScript( int clientNum );
 char *BG_GetAnimString( int client, int anim );
@@ -1723,10 +1723,10 @@ int BG_GetConditionValue( int client, int condition, qboolean checkConversion );
 int BG_GetAnimScriptAnimation( int client, aistateEnum_t state, scriptAnimMoveTypes_t movetype );
 void BG_AnimUpdatePlayerStateConditions( pmove_t *pmove );
 int BG_AnimationIndexForString( const char *string, int client );
-animation_t *BG_AnimationForString( char *string, animModelInfo_t *modelInfo );
+animation_t *BG_AnimationForString( const char *string, animModelInfo_t *modelInfo );
 animation_t *BG_GetAnimationForIndex( int client, int index );
 int BG_GetAnimScriptEvent( playerState_t *ps, scriptAnimEventTypes_t event );
-void BG_UpdateConditionValueStrings( int client, char *conditionStr, char *valueStr );
+void BG_UpdateConditionValueStrings( int client, const char *conditionStr, const char *valueStr );
 float BG_AnimGetFootstepGap( playerState_t *ps, float xyspeed );
 
 extern animStringItem_t animStateStr[];

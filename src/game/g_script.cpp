@@ -145,17 +145,15 @@ G_Script_EventMatch_IntInRange
 ===============
 */
 qboolean G_Script_EventMatch_IntInRange( g_script_event_t *event, char *eventParm ) {
-	char *pString, *token;
-	int int1, int2, eInt;
-
+	
 	// get the cast name
-	pString = eventParm;
+	const char* pString = eventParm;
+	const char* token = COM_ParseExt( &pString, qfalse );
+	int int1 = atoi( token );
 	token = COM_ParseExt( &pString, qfalse );
-	int1 = atoi( token );
-	token = COM_ParseExt( &pString, qfalse );
-	int2 = atoi( token );
+	int int2 = atoi( token );
 
-	eInt = atoi( event->params );
+	int eInt = atoi( event->params );
 
 	if ( eventParm && eInt > int1 && eInt <= int2 ) {
 		return qtrue;
@@ -169,10 +167,9 @@ qboolean G_Script_EventMatch_IntInRange( g_script_event_t *event, char *eventPar
 G_Script_EventForString
 ===============
 */
-int G_Script_EventForString( char *string ) {
-	int i;
-
-	for ( i = 0; gScriptEvents[i].eventStr; i++ )
+int G_Script_EventForString( const char *string ) {
+	
+	for (int i = 0; gScriptEvents[i].eventStr; i++ )
 	{
 		if ( !Q_strcasecmp( string, gScriptEvents[i].eventStr ) ) {
 			return i;
@@ -187,10 +184,10 @@ int G_Script_EventForString( char *string ) {
 G_Script_ActionForString
 ===============
 */
-g_script_stack_action_t *G_Script_ActionForString( char *string ) {
-	int i;
+g_script_stack_action_t *G_Script_ActionForString( const char *string ) {
+	
 
-	for ( i = 0; gScriptActions[i].actionString; i++ )
+	for (int i = 0; gScriptActions[i].actionString; i++ )
 	{
 		if ( !Q_strcasecmp( string, gScriptActions[i].actionString ) ) {
 			if ( !Q_strcasecmp( string, "foundsecret" ) ) {
@@ -240,7 +237,7 @@ void G_Script_ScriptLoad( void ) {
 		return;
 	}
 
-	level.scriptEntity = G_Alloc( len );
+	level.scriptEntity = (char *)G_Alloc( len );
 	FS_Read( level.scriptEntity, len, f );
 
 	FS_FCloseFile( f );
@@ -255,8 +252,7 @@ G_Script_ScriptParse
 */
 void G_Script_ScriptParse( gentity_t *ent ) {
 	#define MAX_SCRIPT_EVENTS   64
-	char        *pScript;
-	char        *token;
+
 	qboolean wantName;
 	qboolean inScript;
 	int eventNum;
@@ -277,10 +273,10 @@ void G_Script_ScriptParse( gentity_t *ent ) {
 		return;
 	}
 
-	buildScript = Cvar_VariableIntegerValue( "com_buildScript" );
+	// FIXME buildScript = Cvar_VariableIntegerValue( "com_buildScript" );
 	buildScript = qtrue;
 
-	pScript = level.scriptEntity;
+	const char* pScript = level.scriptEntity;
 	wantName = qtrue;
 	inScript = qfalse;
 	COM_BeginParseSession( "G_Script_ScriptParse" );
@@ -291,7 +287,7 @@ void G_Script_ScriptParse( gentity_t *ent ) {
 
 	while ( 1 )
 	{
-		token = COM_Parse( &pScript );
+		const char* token = COM_Parse( &pScript );
 
 		if ( !token[0] ) {
 			if ( !wantName ) {
@@ -323,11 +319,7 @@ void G_Script_ScriptParse( gentity_t *ent ) {
 			}
 			wantName = qfalse;
 		} else if ( inScript )   {
-			//if ( !Q_strcasecmp( token, "attributes" ) ) {
-			//	// read in all the attributes
-			//	G_Script_CheckLevelAttributes( cs, ent, &pScript );
-			//	continue;
-			//}
+
 			eventNum = G_Script_EventForString( token );
 			if ( eventNum < 0 ) {
 				Com_Error( ERR_DROP, "G_Script_ScriptParse(), Error (line %d): unknown event: %s.\n", COM_GetCurrentParseLine(), token );
@@ -357,7 +349,7 @@ void G_Script_ScriptParse( gentity_t *ent ) {
 			}
 
 			if ( strlen( params ) ) { // copy the params into the event
-				curEvent->params = G_Alloc( strlen( params ) + 1 );
+				curEvent->params = (char*)G_Alloc( strlen( params ) + 1 );
 				Q_strncpyz( curEvent->params, params, strlen( params ) + 1 );
 			}
 
@@ -420,7 +412,7 @@ void G_Script_ScriptParse( gentity_t *ent ) {
 				}
 
 				if ( strlen( params ) ) { // copy the params into the event
-					curEvent->stack.items[curEvent->stack.numItems].params = G_Alloc( strlen( params ) + 1 );
+					curEvent->stack.items[curEvent->stack.numItems].params = (char *)G_Alloc( strlen( params ) + 1 );
 					Q_strncpyz( curEvent->stack.items[curEvent->stack.numItems].params, params, strlen( params ) + 1 );
 				}
 
@@ -454,7 +446,7 @@ void G_Script_ScriptParse( gentity_t *ent ) {
 
 	// alloc and copy the events into the gentity_t for this cast
 	if ( numEventItems > 0 ) {
-		ent->scriptEvents = G_Alloc( sizeof( g_script_event_t ) * numEventItems );
+		ent->scriptEvents = (g_script_event_t *)G_Alloc( sizeof( g_script_event_t ) * numEventItems );
 		memcpy( ent->scriptEvents, events, sizeof( g_script_event_t ) * numEventItems );
 		ent->numScriptEvents = numEventItems;
 	}
@@ -492,7 +484,7 @@ G_Script_ScriptEvent
   An event has occured, for which a script may exist
 ================
 */
-void G_Script_ScriptEvent( gentity_t *ent, char *eventStr, char *params ) {
+void G_Script_ScriptEvent( gentity_t *ent, const char *eventStr, const char *params ) {
 	int i, eventNum;
 
 	eventNum = -1;
@@ -518,7 +510,7 @@ void G_Script_ScriptEvent( gentity_t *ent, char *eventStr, char *params ) {
 	{
 		if ( ent->scriptEvents[i].eventNum == eventNum ) {
 			if (    ( !ent->scriptEvents[i].params )
-					||  ( !gScriptEvents[eventNum].eventMatch || gScriptEvents[eventNum].eventMatch( &ent->scriptEvents[i], params ) ) ) {
+					||  ( !gScriptEvents[eventNum].eventMatch || gScriptEvents[eventNum].eventMatch( &ent->scriptEvents[i], (char *)params ) ) ) {
 				G_Script_ScriptChange( ent, i );
 				break;
 			}

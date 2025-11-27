@@ -424,11 +424,11 @@ float Com_Clamp( float min, float max, float value );
 
 char    *COM_SkipPath( char *pathname );
 void    COM_StripExtension( const char *in, char *out );
-void    COM_StripFilename( char *in, char *out );
+void    COM_StripFilename( const char *in, char *out );
 void    COM_DefaultExtension( char *path, int maxSize, const char *extension );
 
 void    COM_BeginParseSession( const char *name );
-void    COM_RestoreParseSession( char **data_p );
+void    COM_RestoreParseSession( const char **data_p );
 void    COM_SetCurrentParseLine( int line );
 int     COM_GetCurrentParseLine( void );
 char    *COM_Parse( const char **data_p );
@@ -464,14 +464,14 @@ typedef struct pc_token_s
 
 // data is an in/out parm, returns a parsed out token
 
-void    COM_MatchToken( char**buf_p, char *match );
+void    COM_MatchToken( const char**buf_p, const char *match );
 
-void SkipBracedSection( char **program );
+void SkipBracedSection( const char **program );
 void SkipRestOfLine( char **data );
 
-void Parse1DMatrix( char **buf_p, int x, float *m );
-void Parse2DMatrix( char **buf_p, int y, int x, float *m );
-void Parse3DMatrix( char **buf_p, int z, int y, int x, float *m );
+void Parse1DMatrix( const char **buf_p, int x, float *m );
+void Parse2DMatrix( const char **buf_p, int y, int x, float *m );
+void Parse3DMatrix( const char **buf_p, int z, int y, int x, float *m );
 int Com_HexStrToInt( const char *str );
 
 // mode parm for FS_FOpenFile

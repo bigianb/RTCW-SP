@@ -489,7 +489,7 @@ AICast_ScriptAction_Wait
 =================
 */
 qboolean AICast_ScriptAction_Wait( cast_state_t *cs, char *params ) {
-	char    *pString, *token, *facetarget;
+	
 	int duration;
 	float moverange;
 	float dist;
@@ -512,8 +512,8 @@ qboolean AICast_ScriptAction_Wait( cast_state_t *cs, char *params ) {
 	}
 
 	// get the duration
-	pString = params;
-	token = COM_ParseExt( &pString, qfalse );
+	const char* pString = params;
+	const char* token = COM_ParseExt( &pString, qfalse );
 	if ( !token[0] ) {
 		Com_Error( ERR_DROP, "AI scripting: wait must have a duration\n" );
         return qfalse;  // Keep linter happy. ERR_DROP does not return
@@ -526,13 +526,13 @@ qboolean AICast_ScriptAction_Wait( cast_state_t *cs, char *params ) {
 
 	// if this is for the player, don't worry about enforcing the moverange
 	if ( !cs->bs ) {
-		return ( cs->castScriptStatus.castScriptStackChangeTime + duration < level.time );
+		return ( cs->castScriptStatus.castScriptStackChangeTime + duration < level.time ) ? qtrue : qfalse;
 	}
 
 	token = COM_ParseExt( &pString, qfalse );
 	// if this token is a number, then assume it is the moverange, otherwise we have a default moverange with a facetarget
 	moverange = -999;
-	facetarget = NULL;
+	const char* facetarget = NULL;
 	if ( token[0] ) {
 		if ( toupper( token[0] ) >= 'A' && toupper( token[0] ) <= 'Z' ) {
 			facetarget = token;
@@ -605,7 +605,7 @@ qboolean AICast_ScriptAction_Wait( cast_state_t *cs, char *params ) {
 		vectoangles( vec, cs->ideal_viewangles );
 	}
 
-	return ( cs->castScriptStatus.castScriptStackChangeTime + duration < level.time );
+	return ( cs->castScriptStatus.castScriptStackChangeTime + duration < level.time ) ? qtrue : qfalse;
 }
 
 /*
@@ -617,20 +617,17 @@ AICast_ScriptAction_Trigger
   Calls the specified trigger for the given ai character
 =================
 */
-qboolean AICast_ScriptAction_Trigger( cast_state_t *cs, char *params ) {
-	gentity_t *ent;
-	char *pString, *token;
-	int oldId;
-
+qboolean AICast_ScriptAction_Trigger( cast_state_t *cs, char *params )
+{
 	// get the cast name
-	pString = params;
-	token = COM_ParseExt( &pString, qfalse );
+	const char* pString = params;
+	const char* token = COM_ParseExt( &pString, qfalse );
 	if ( !token[0] ) {
 		Com_Error( ERR_DROP, "AI scripting: trigger must have a name and an identifier\n" );
         return qfalse;  // Keep linter happy. ERR_DROP does not return
 	}
 
-	ent = AICast_FindEntityForName( token );
+	gentity_t *ent = AICast_FindEntityForName( token );
 	if ( !ent ) {
 		ent = G_Find( &g_entities[MAX_CLIENTS], FOFS( scriptName ), token );
 		if ( !ent ) {
@@ -647,7 +644,7 @@ qboolean AICast_ScriptAction_Trigger( cast_state_t *cs, char *params ) {
         return qfalse;  // Keep linter happy. ERR_DROP does not return
 	}
 
-	oldId = cs->castScriptStatus.scriptId;
+	int oldId = cs->castScriptStatus.scriptId;
 	if ( ent->client ) {
 		AICast_ScriptEvent( AICast_GetCastState( ent->shared.s.number ), "trigger", token );
 	} else {
@@ -655,7 +652,7 @@ qboolean AICast_ScriptAction_Trigger( cast_state_t *cs, char *params ) {
 	}
 
 	// if the script changed, return false so we don't muck with it's variables
-	return ( oldId == cs->castScriptStatus.scriptId );
+	return ( oldId == cs->castScriptStatus.scriptId ) ? qtrue : qfalse;
 }
 
 /*
@@ -772,7 +769,7 @@ AICast_ScriptAction_PlayAnim
 =================
 */
 qboolean AICast_ScriptAction_PlayAnim( cast_state_t *cs, char *params ) {
-	char *pString, *token, tokens[3][MAX_QPATH];
+	char tokens[3][MAX_QPATH];
 	int i, endtime, duration, numLoops;
 	gclient_t *client;
 	gentity_t *ent;
@@ -780,14 +777,14 @@ qboolean AICast_ScriptAction_PlayAnim( cast_state_t *cs, char *params ) {
 	qboolean forever = qfalse, setAngles = qfalse;
 	qboolean holdframe = qfalse;
 
-	pString = params;
+	const char *pString = params;
 
 	client = &level.clients[cs->entityNum];
 
 	if ( level.animScriptData.modelInfo[level.animScriptData.clientModels[cs->entityNum] - 1]->version > 1 ) {    // new (scripted) model
 
 		// read the name
-		token = COM_ParseExt( &pString, qfalse );
+		const char *token = COM_ParseExt( &pString, qfalse );
 		if ( !token || !token[0] ) {
 			Com_Error( ERR_DROP, "AI Scripting: syntax error\n\nplayanim <animation> <legs/torso/both>\n" );
             return qfalse;  // Keep linter happy. ERR_DROP does not return
@@ -853,7 +850,7 @@ qboolean AICast_ScriptAction_PlayAnim( cast_state_t *cs, char *params ) {
 
 		if ( cs->castScriptStatus.scriptFlags & SFL_FIRST_CALL ) {
 			// first time in here, play the anim
-			duration = BG_PlayAnimName( &( client->ps ), tokens[0], BG_IndexForString( tokens[1], animBodyPartsStr, qfalse ), qtrue, qfalse, qtrue );
+			duration = BG_PlayAnimName( &( client->ps ), tokens[0], (animBodyPart_t)BG_IndexForString( tokens[1], animBodyPartsStr, qfalse ), qtrue, qfalse, qtrue );
 			if ( numLoops == -1 ) {
 				cs->scriptAnimTime = 0x7fffffff;    // maximum time allowed
 			} else {
@@ -931,7 +928,7 @@ qboolean AICast_ScriptAction_PlayAnim( cast_state_t *cs, char *params ) {
 	} else {    // old model
 
 		for ( i = 0; i < 3; i++ ) {
-			token = COM_ParseExt( &pString, qfalse );
+			const char* token = COM_ParseExt( &pString, qfalse );
 			if ( !token || !token[0] ) {
 				Com_Printf( "AI Scripting: syntax error\n\nplayanim <animation> <pausetime> <legs/torso/both>\n" );
 				return qtrue;
@@ -1034,21 +1031,17 @@ AICast_ScriptAction_SetAmmo
 =================
 */
 qboolean AICast_ScriptAction_SetAmmo( cast_state_t *cs, char *params ) {
-	char *pString, *token;
-	int weapon;
-	int i;
-
-	pString = params;
-
-	token = COM_ParseExt( &pString, qfalse );
+	
+	const char* pString= params;
+	const char* token = COM_ParseExt( &pString, qfalse );
 	if ( !token[0] ) {
 		Com_Error( ERR_DROP, "AI Scripting: setammo without ammo identifier\n" );
         return qfalse;  // Keep linter happy. ERR_DROP does not return
 	}
 
-	weapon = WP_NONE;
+	int weapon = WP_NONE;
 
-	for ( i = 1; bg_itemlist[i].classname; i++ )
+	for (int i = 1; bg_itemlist[i].classname; i++ )
 	{
 		//----(SA)	first try the name they see in the editor, then the pickup name
 		if ( !Q_strcasecmp( token, bg_itemlist[i].classname ) ) {
@@ -1074,14 +1067,14 @@ qboolean AICast_ScriptAction_SetAmmo( cast_state_t *cs, char *params ) {
 		if ( atoi( token ) ) {
 			int amt;
 			amt = atoi( token );
-			if ( amt > 50 + ammoTable[BG_FindAmmoForWeapon( weapon )].maxammo ) {
+			if ( amt > 50 + ammoTable[BG_FindAmmoForWeapon( (weapon_t)weapon )].maxammo ) {
 				amt = 999;  // unlimited
 			}
 			Add_Ammo( &g_entities[cs->entityNum], weapon, amt, qtrue );
 		} else {
 			// remove ammo for this weapon
-			g_entities[cs->entityNum].client->ps.ammo[BG_FindAmmoForWeapon( weapon )] = 0;
-			g_entities[cs->entityNum].client->ps.ammoclip[BG_FindClipForWeapon( weapon )] = 0;
+			g_entities[cs->entityNum].client->ps.ammo[BG_FindAmmoForWeapon( (weapon_t)weapon )] = 0;
+			g_entities[cs->entityNum].client->ps.ammoclip[BG_FindClipForWeapon( (weapon_t)weapon )] = 0;
 		}
 
 	} else {
@@ -1105,13 +1098,13 @@ AICast_ScriptAction_SetClip
 =================
 */
 qboolean AICast_ScriptAction_SetClip( cast_state_t *cs, char *params ) {
-	char *pString, *token;
+	
 	int weapon;
 	int i;
 
-	pString = params;
+	const char* pString = params;
 
-	token = COM_ParseExt( &pString, qfalse );
+	const char* token = COM_ParseExt( &pString, qfalse );
 	if ( !token[0] ) {
 		Com_Error( ERR_DROP, "AI Scripting: setclip without weapon identifier\n" );
         return qfalse;  // Keep linter happy. ERR_DROP does not return
@@ -1145,8 +1138,8 @@ qboolean AICast_ScriptAction_SetClip( cast_state_t *cs, char *params ) {
 
 		if ( spillover > 0 ) {
 			// there was excess, put it in storage and fill the clip
-			g_entities[cs->entityNum].client->ps.ammo[BG_FindAmmoForWeapon( weapon )] += spillover;
-			g_entities[cs->entityNum].client->ps.ammoclip[BG_FindClipForWeapon( weapon )] = ammoTable[weapon].maxclip;
+			g_entities[cs->entityNum].client->ps.ammo[BG_FindAmmoForWeapon( (weapon_t)weapon )] += spillover;
+			g_entities[cs->entityNum].client->ps.ammoclip[BG_FindClipForWeapon( (weapon_t)weapon )] = ammoTable[weapon].maxclip;
 		} else {
 			// set the clip amount to the exact specified value
 			g_entities[cs->entityNum].client->ps.ammoclip[weapon] = atoi( token );
@@ -1374,7 +1367,7 @@ qboolean AICast_ScriptAction_GiveWeapon( cast_state_t *cs, char *params ) {
 		// monsters have full ammo for their attacks
 		// knife gets infinite ammo too
 		if ( !Q_strncasecmp( params, "monsterattack", 13 ) || weapon == WP_KNIFE ) {
-			g_entities[cs->entityNum].client->ps.ammo[BG_FindAmmoForWeapon( weapon )] = 999;
+			g_entities[cs->entityNum].client->ps.ammo[BG_FindAmmoForWeapon( (weapon_t)weapon )] = 999;
 			Fill_Clip( &g_entities[cs->entityNum].client->ps, weapon );      //----(SA)	added
 		}
 		// conditional flags
@@ -1449,7 +1442,7 @@ qboolean AICast_ScriptAction_TakeWeapon( cast_state_t *cs, char *params ) {
 			// but first make sure we dont have any other weapons that use the same ammo
 			clear = qtrue;
 			for ( i = 0; i < WP_NUM_WEAPONS; i++ ) {
-				if ( BG_FindAmmoForWeapon( weapon ) != BG_FindAmmoForWeapon( i ) ) {
+				if ( BG_FindAmmoForWeapon( (weapon_t)weapon ) != BG_FindAmmoForWeapon( (weapon_t)i ) ) {
 					continue;
 				}
 				if ( COM_BitCheck( g_entities[cs->entityNum].client->ps.weapons, i ) ) {
@@ -1607,8 +1600,7 @@ AICast_ScriptAction_SaveGame
 =================
 */
 qboolean AICast_ScriptAction_SaveGame( cast_state_t *cs, char *params ) {
-	char *pString, *saveName;
-	pString = params;
+	const char* pString = params;
 
 	if ( cs->bs ) {
 		Com_Error( ERR_DROP, "AI Scripting: savegame attempted on a non-player" );
@@ -1616,7 +1608,7 @@ qboolean AICast_ScriptAction_SaveGame( cast_state_t *cs, char *params ) {
 	}
 
 //----(SA)	check for parameter
-	saveName = COM_ParseExt( &pString, qfalse );
+	const char* saveName = COM_ParseExt( &pString, qfalse );
 	if ( !saveName[0] ) {
 		G_SaveGame( NULL ); // save the default "current" savegame
 	} else {
@@ -1637,13 +1629,13 @@ AICast_ScriptAction_FireAtTarget
 qboolean AICast_ScriptAction_FireAtTarget( cast_state_t *cs, char *params ) {
 	gentity_t   *ent;
 	vec3_t vec, org, src;
-	char *pString, *token;
+
 	float diff;
 	int i;
 
-	pString = params;
+	const char* pString = params;
 
-	token = COM_ParseExt( &pString, qfalse );
+	const char* token = COM_ParseExt( &pString, qfalse );
 	if ( !token[0] ) {
 		Com_Error( ERR_DROP, "AI Scripting: fireattarget without a targetname\n" );
         return qfalse;  // Keep linter happy. ERR_DROP does not return
@@ -1716,7 +1708,7 @@ qboolean AICast_ScriptAction_FireAtTarget( cast_state_t *cs, char *params ) {
 		return qtrue;   // no need to wait around
 	}
 	// only return true if we've been firing for long enough
-	return ( ( cs->castScriptStatus.castScriptStackChangeTime + atoi( token ) ) < level.time );
+	return ( ( cs->castScriptStatus.castScriptStackChangeTime + atoi( token ) ) < level.time ) ? qtrue : qfalse;
 }
 
 /*
@@ -1766,12 +1758,12 @@ AICast_ScriptAction_Accum
 =================
 */
 qboolean AICast_ScriptAction_Accum( cast_state_t *cs, char *params ) {
-	char *pString, *token, lastToken[MAX_QPATH];
+	char lastToken[MAX_QPATH];
 	int bufferIndex;
 
-	pString = params;
+	const char* pString = params;
 
-	token = COM_ParseExt( &pString, qfalse );
+	const char* token = COM_ParseExt( &pString, qfalse );
 	if ( !token[0] ) {
 		Com_Error( ERR_DROP, "AI Scripting: accum without a buffer index\n" );
         return qfalse;  // Keep linter happy. ERR_DROP does not return
@@ -1900,12 +1892,12 @@ AICast_ScriptAction_MissionFailed
 =================
 */
 qboolean AICast_ScriptAction_MissionFailed( cast_state_t *cs, char *params ) {
-	char    *pString, *token;
+
 	int time = 6, mof = 0;
 
-	pString = params;
+	const char* pString = params;
 
-	token = COM_ParseExt( &pString, qfalse );   // time
+	const char* token = COM_ParseExt( &pString, qfalse );   // time
 	if ( token && token[0] ) {
 		time = atoi( token );
 	}
@@ -1946,11 +1938,10 @@ AICast_ScriptAction_ObjectivesNeeded
 =================
 */
 qboolean AICast_ScriptAction_ObjectivesNeeded( cast_state_t *cs, char *params ) {
-	char *pString, *token;
 
-	pString = params;
+	const char *pString = params;
 
-	token = COM_ParseExt( &pString, qfalse );
+	const char *token = COM_ParseExt( &pString, qfalse );
 	if ( !token[0] ) {
 		Com_Error( ERR_DROP, "AI Scripting: objectivesneeded requires a num_objectives identifier\n" );
         return qfalse;  // Keep linter happy. ERR_DROP does not return
@@ -1974,11 +1965,9 @@ qboolean AICast_ScriptAction_ObjectiveMet( cast_state_t *cs, char *params ) {
 	gentity_t   *player;
 	vmCvar_t cvar;
 	int lvl;
-	char *pString, *token;
+	const char *pString = params;
 
-	pString = params;
-
-	token = COM_ParseExt( &pString, qfalse );
+	const char *token = COM_ParseExt( &pString, qfalse );
 	if ( !token[0] ) {
 		Com_Error( ERR_DROP, "AI Scripting: missionsuccess requires a num_objective identifier\n" );
         return qfalse;  // Keep linter happy. ERR_DROP does not return
@@ -2458,17 +2447,15 @@ AICast_ScriptAction_Attrib
 ==================
 */
 qboolean AICast_ScriptAction_Attrib( cast_state_t *cs, char *params ) {
-	char    *pString, *token;
-	int i;
 
-	pString = params;
-	token = COM_ParseExt( &pString, qfalse );
+	const char* pString = params;
+	const char* token = COM_ParseExt( &pString, qfalse );
 	if ( !token[0] ) {
 		Com_Error( ERR_DROP, "AI_Scripting: syntax: attrib <attribute> <value>" );
         return qfalse;  // Keep linter happy. ERR_DROP does not return
 	}
 
-	for ( i = 0; i < AICAST_MAX_ATTRIBUTES; i++ ) {
+	for (int i = 0; i < AICAST_MAX_ATTRIBUTES; i++ ) {
 		if ( !Q_strcasecmp( token, castAttributeStrings[i] ) ) {
 			// found a match, read in the value
 			token = COM_ParseExt( &pString, qfalse );
@@ -2518,10 +2505,9 @@ AICast_ScriptAction_Headlook
 =================
 */
 qboolean AICast_ScriptAction_Headlook( cast_state_t *cs, char *params ) {
-	char    *pString, *token;
-
-	pString = params;
-	token = COM_ParseExt( &pString, qfalse );
+	
+	const char* pString = params;
+	char* token = COM_ParseExt( &pString, qfalse );
 	if ( !token[0] ) {
 		Com_Error( ERR_DROP, "AI_Scripting: syntax: headlook <ON/OFF>" );
         return qfalse;  // Keep linter happy. ERR_DROP does not return
@@ -2603,10 +2589,8 @@ AICast_ScriptAction_KnockBack
 */
 qboolean AICast_ScriptAction_KnockBack( cast_state_t *cs, char *params ) {
 
-	char    *pString, *token;
-
-	pString = params;
-	token = COM_ParseExt( &pString, qfalse );
+	const char* pString = params;
+	char* token = COM_ParseExt( &pString, qfalse );
 	if ( !token[0] ) {
 		Com_Error( ERR_DROP, "AI_Scripting: syntax: knockback <ON/OFF>" );
         return qfalse;  // Keep linter happy. ERR_DROP does not return
@@ -2635,10 +2619,8 @@ AICast_ScriptAction_Zoom
 */
 qboolean AICast_ScriptAction_Zoom( cast_state_t *cs, char *params ) {
 
-	char    *pString, *token;
-
-	pString = params;
-	token = COM_ParseExt( &pString, qfalse );
+	const char* pString = params;
+	char *token = COM_ParseExt( &pString, qfalse );
 	if ( !token[0] ) {
 		Com_Error( ERR_DROP, "AI_Scripting: syntax: zoom <ON/OFF>" );
         return qfalse;  // Keep linter happy. ERR_DROP does not return
@@ -2669,13 +2651,13 @@ AICast_ScriptAction_StartCam
 ===================
 */
 qboolean ScriptStartCam( cast_state_t *cs, char *params, qboolean black ) {
-	char *pString, *token;
+	
 	gentity_t *ent;
 
 	ent = &g_entities[cs->entityNum];
 
-	pString = params;
-	token = COM_Parse( &pString );
+	const char* pString = params;
+	const char *token = COM_Parse( &pString );
 	if ( !token[0] ) {
 		Com_Error( ERR_DROP, "G_ScriptAction_Cam: filename parameter required\n" );
         return qfalse;  // Keep linter happy. ERR_DROP does not return
@@ -2714,13 +2696,13 @@ qboolean AICast_ScriptAction_StopCam( cast_state_t *cs, char *params ) {
 //----(SA)	added
 qboolean AICast_ScriptAction_Cigarette( cast_state_t *cs, char *params ) {
 
-	char    *pString, *token;
+	
 	gentity_t *ent;
 
 	ent = &g_entities[cs->entityNum];
 
-	pString = params;
-	token = COM_ParseExt( &pString, qfalse );
+	const char* pString = params;
+	char *token = COM_ParseExt( &pString, qfalse );
 	if ( !token[0] ) {
 		Com_Error( ERR_DROP, "AI_Scripting: syntax: cigarette <ON/OFF>" );
         return qfalse;  // Keep linter happy. ERR_DROP does not return
@@ -2749,13 +2731,13 @@ AICast_ScriptAction_Parachute
 */
 qboolean AICast_ScriptAction_Parachute( cast_state_t *cs, char *params ) {
 
-	char    *pString, *token;
+
 	gentity_t *ent;
 
 	ent = &g_entities[cs->entityNum];
 
-	pString = params;
-	token = COM_ParseExt( &pString, qfalse );
+	const char* pString = params;
+	char *token = COM_ParseExt( &pString, qfalse );
 	if ( !token[0] ) {
 		Com_Error( ERR_DROP, "AI_Scripting: syntax: parachute <ON/OFF>" );
         return qfalse;  // Keep linter happy. ERR_DROP does not return
@@ -2845,11 +2827,11 @@ AICast_ScriptAction_Cvar
 */
 qboolean AICast_ScriptAction_Cvar( cast_state_t *cs, char *params ) {
 	vmCvar_t cvar;
-	char    *pString, *token;
+
 	char cvarName[MAX_QPATH];
 
-	pString = params;
-	token = COM_ParseExt( &pString, qfalse );
+	const char* pString = params;
+	char *token = COM_ParseExt( &pString, qfalse );
 	if ( !token[0] ) {
 		Com_Error( ERR_DROP, "AI_Scripting: syntax: cvar <cvarName> <cvarValue>" );
         return qfalse;  // Keep linter happy. ERR_DROP does not return
@@ -2884,12 +2866,12 @@ AICast_ScriptAction_MusicStart
 ==================
 */
 qboolean AICast_ScriptAction_MusicStart( cast_state_t *cs, char *params ) {
-	char    *pString, *token;
+	
 	char cvarName[MAX_QPATH];
 	int fadeupTime = 0;
 
-	pString = params;
-	token = COM_ParseExt( &pString, qfalse );
+	const char* pString = params;
+	char *token = COM_ParseExt( &pString, qfalse );
 	if ( !token[0] ) {
 		Com_Error( ERR_DROP, "AI_Scripting: syntax: mu_start <musicfile> <fadeuptime>" );
         return qfalse;  // Keep linter happy. ERR_DROP does not return
@@ -2913,12 +2895,12 @@ AICast_ScriptAction_MusicPlay
 ==================
 */
 qboolean AICast_ScriptAction_MusicPlay( cast_state_t *cs, char *params ) {
-	char    *pString, *token;
+	
 	char cvarName[MAX_QPATH];
 	int fadeupTime = 0;
 
-	pString = params;
-	token = COM_ParseExt( &pString, qfalse );
+	const char* pString = params;
+	char *token = COM_ParseExt( &pString, qfalse );
 	if ( !token[0] ) {
 		Com_Error( ERR_DROP, "AI_Scripting: syntax: mu_play <musicfile> [fadeup time]" );
         return qfalse;  // Keep linter happy. ERR_DROP does not return
@@ -2937,11 +2919,11 @@ AICast_ScriptAction_MusicStop
 ==================
 */
 qboolean AICast_ScriptAction_MusicStop( cast_state_t *cs, char *params ) {
-	char    *pString, *token;
+	
 	int fadeoutTime = 0;
 
-	pString = params;
-	token = COM_ParseExt( &pString, qfalse );
+	const char* pString = params;
+	char *token = COM_ParseExt( &pString, qfalse );
 	if ( token[0] ) {
 		fadeoutTime = atoi( token );
 	}
@@ -2958,12 +2940,12 @@ AICast_ScriptAction_MusicFade
 ==================
 */
 qboolean AICast_ScriptAction_MusicFade( cast_state_t *cs, char *params ) {
-	char    *pString, *token;
+	
 	float targetvol;
 	int fadetime;
 
-	pString = params;
-	token = COM_ParseExt( &pString, qfalse );
+	const char *pString = params;
+	const char *token = COM_ParseExt( &pString, qfalse );
 	if ( !token[0] ) {
 		Com_Error( ERR_DROP, "AI_Scripting: syntax: mu_fade <targetvol> <fadetime>" );
         return qfalse;  // Keep linter happy. ERR_DROP does not return
@@ -2989,11 +2971,11 @@ AICast_ScriptAction_MusicQueue
 ==================
 */
 qboolean AICast_ScriptAction_MusicQueue( cast_state_t *cs, char *params ) {
-	char    *pString, *token;
+	
 	char cvarName[MAX_QPATH];
 
-	pString = params;
-	token = COM_ParseExt( &pString, qfalse );
+	const char *pString = params;
+	const char *token = COM_ParseExt( &pString, qfalse );
 	if ( !token[0] ) {
 		Com_Error( ERR_DROP, "AI_Scripting: syntax: mu_queue <musicfile>" );
         return qfalse;  // Keep linter happy. ERR_DROP does not return
@@ -3069,11 +3051,11 @@ AICast_ScriptAction_AnimCondition
 ==================
 */
 qboolean AICast_ScriptAction_AnimCondition( cast_state_t *cs, char *params ) {
-	char    *pString, *token;
+	
 	char condition[MAX_QPATH];
 
-	pString = params;
-	token = COM_ParseExt( &pString, qfalse );
+	const char* pString = params;
+	const char *token = COM_ParseExt( &pString, qfalse );
 	if ( !token[0] ) {
 		Com_Error( ERR_DROP, "AI_Scripting: syntax: anim_condition <condition> <string>" );
         return qfalse;  // Keep linter happy. ERR_DROP does not return

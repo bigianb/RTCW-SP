@@ -58,7 +58,7 @@ G_ScriptAction_GotoMarker
 ===============
 */
 qboolean G_ScriptAction_GotoMarker( gentity_t *ent, char *params ) {
-	char    *pString, *token;
+
 	gentity_t *target;
 	vec3_t vec;
 	float speed, dist;
@@ -101,8 +101,8 @@ qboolean G_ScriptAction_GotoMarker( gentity_t *ent, char *params ) {
 		}
 	} else {    // we have just started this command
 
-		pString = params;
-		token = COM_ParseExt( &pString, qfalse );
+		const char* pString = params;
+		const char* token = COM_ParseExt( &pString, qfalse );
 		if ( !token[0] ) {
 			Com_Error( ERR_DROP, "G_Scripting: gotomarker must have an targetname\n" );
             return qfalse; // keep the linter happy, ERR_DROP does not return
@@ -158,7 +158,7 @@ qboolean G_ScriptAction_GotoMarker( gentity_t *ent, char *params ) {
 			SetMoverState( ent, MOVER_1TO2, level.time );
 			if ( trType != TR_LINEAR_STOP ) { // allow for acceleration/decceleration
 				ent->shared.s.pos.trDuration = 1000.0 * dist / ( speed / 2.0 );
-				ent->shared.s.pos.trType = trType;
+				ent->shared.s.pos.trType = (trType_t)trType;
 			}
 			ent->reached = NULL;
 
@@ -184,7 +184,7 @@ qboolean G_ScriptAction_GotoMarker( gentity_t *ent, char *params ) {
 				ent->shared.s.apos.trType = TR_LINEAR_STOP;
 				if ( trType != TR_LINEAR_STOP ) { // allow for acceleration/decceleration
 					ent->shared.s.pos.trDuration = 1000.0 * dist / ( speed / 2.0 );
-					ent->shared.s.pos.trType = trType;
+					ent->shared.s.pos.trType = (trType_t)trType;
 				}
 			}
 
@@ -255,19 +255,19 @@ G_ScriptAction_Wait
 =================
 */
 qboolean G_ScriptAction_Wait( gentity_t *ent, char *params ) {
-	char    *pString, *token;
+	
 	int duration;
 
 	// get the duration
-	pString = params;
-	token = COM_ParseExt( &pString, qfalse );
+	const char* pString = params;
+	const char* token = COM_ParseExt( &pString, qfalse );
 	if ( !token[0] ) {
 		Com_Error( ERR_DROP, "G_Scripting: wait must have a duration\n" );
         return qfalse; // keep the linter happy, ERR_DROP does not return
 	}
 	duration = atoi( token );
 
-	return ( ent->scriptStatus.scriptStackChangeTime + duration < level.time );
+	return ( ent->scriptStatus.scriptStackChangeTime + duration < level.time ) ? qtrue : qfalse;
 }
 
 /*
@@ -281,12 +281,12 @@ G_ScriptAction_Trigger
 */
 qboolean G_ScriptAction_Trigger( gentity_t *ent, char *params ) {
 	gentity_t *trent;
-	char *pString, name[MAX_QPATH], trigger[MAX_QPATH], *token;
+	char name[MAX_QPATH], trigger[MAX_QPATH];
 	int oldId;
 
 	// get the cast name
-	pString = params;
-	token = COM_ParseExt( &pString, qfalse );
+	const char* pString = params;
+	const char* token = COM_ParseExt( &pString, qfalse );
 	Q_strncpyz( name, token, sizeof( name ) );
 	if ( !name[0] ) {
 		Com_Error( ERR_DROP, "G_Scripting: trigger must have a name and an identifier\n" );
@@ -313,7 +313,7 @@ qboolean G_ScriptAction_Trigger( gentity_t *ent, char *params ) {
 		oldId = trent->scriptStatus.scriptId;
 		G_Script_ScriptEvent( trent, "trigger", trigger );
 		// if the script changed, return false so we don't muck with it's variables
-		return ( ( trent != ent ) || ( oldId == trent->scriptStatus.scriptId ) );
+		return ( ( trent != ent ) || ( oldId == trent->scriptStatus.scriptId ) ) ? qtrue : qfalse;
 	}
 
 	Com_Error( ERR_DROP, "G_Scripting: trigger has unknown name: %s\n", name );
@@ -332,7 +332,6 @@ G_ScriptAction_PlaySound
 ================
 */
 qboolean G_ScriptAction_PlaySound( gentity_t *ent, char *params ) {
-	char *pString, *token;
 	char sound[MAX_QPATH];
 
 	if ( !params ) {
@@ -340,8 +339,8 @@ qboolean G_ScriptAction_PlaySound( gentity_t *ent, char *params ) {
         return qfalse; // keep the linter happy, ERR_DROP does not return
 	}
 
-	pString = params;
-	token = COM_ParseExt( &pString, qfalse );
+	const char* pString = params;
+	const char* token = COM_ParseExt( &pString, qfalse );
 	Q_strncpyz( sound, token, sizeof( sound ) );
 
 	token = COM_ParseExt( &pString, qfalse );
@@ -362,12 +361,12 @@ AICast_ScriptAction_MusicStart
 ==================
 */
 qboolean G_ScriptAction_MusicStart( gentity_t *ent, char *params ) {
-	char    *pString, *token;
+	
 	char cvarName[MAX_QPATH];
 	int fadeupTime = 0;
 
-	pString = params;
-	token = COM_ParseExt( &pString, qfalse );
+	const char* pString = params;
+	const char* token = COM_ParseExt( &pString, qfalse );
 	if ( !token[0] ) {
 		Com_Error( ERR_DROP, "G_Scripting: syntax: mu_start <musicfile> <fadeuptime>" );
         return qfalse; // keep the linter happy, ERR_DROP does not return
@@ -391,12 +390,12 @@ AICast_ScriptAction_MusicPlay
 ==================
 */
 qboolean G_ScriptAction_MusicPlay( gentity_t *ent, char *params ) {
-	char    *pString, *token;
+	
 	char cvarName[MAX_QPATH];
 	int fadeupTime = 0;
 
-	pString = params;
-	token = COM_ParseExt( &pString, qfalse );
+	const char* pString = params;
+	const char* token = COM_ParseExt( &pString, qfalse );
 	if ( !token[0] ) {
 		Com_Error( ERR_DROP, "G_Scripting: syntax: mu_play <musicfile> [fadeup time]" );
         return qfalse; // keep the linter happy, ERR_DROP does not return
@@ -415,11 +414,10 @@ AICast_ScriptAction_MusicStop
 ==================
 */
 qboolean G_ScriptAction_MusicStop( gentity_t *ent, char *params ) {
-	char    *pString, *token;
 	int fadeoutTime = 0;
 
-	pString = params;
-	token = COM_ParseExt( &pString, qfalse );
+	const char* pString = params;
+	const char* token = COM_ParseExt( &pString, qfalse );
 	if ( token[0] ) {
 		fadeoutTime = atoi( token );
 	}
@@ -436,12 +434,12 @@ AICast_ScriptAction_MusicFade
 ==================
 */
 qboolean G_ScriptAction_MusicFade( gentity_t *ent, char *params ) {
-	char    *pString, *token;
+	
 	float targetvol;
 	int fadetime;
 
-	pString = params;
-	token = COM_ParseExt( &pString, qfalse );
+	const char* pString = params;
+	const char* token = COM_ParseExt( &pString, qfalse );
 	if ( !token[0] ) {
 		Com_Error( ERR_DROP, "G_Scripting: syntax: mu_fade <targetvol> <fadetime>" );
         return qfalse; // keep the linter happy, ERR_DROP does not return
@@ -467,11 +465,11 @@ AICast_ScriptAction_MusicQueue
 ==================
 */
 qboolean G_ScriptAction_MusicQueue( gentity_t *ent, char *params ) {
-	char    *pString, *token;
+	
 	char cvarName[MAX_QPATH];
 
-	pString = params;
-	token = COM_ParseExt( &pString, qfalse );
+	const char *pString = params;
+	const char *token = COM_ParseExt( &pString, qfalse );
 	if ( !token[0] ) {
 		Com_Error( ERR_DROP, "G_Scripting: syntax: mu_queue <musicfile>" );
         return qfalse; // keep the linter happy, ERR_DROP does not return
@@ -495,7 +493,7 @@ G_ScriptAction_PlayAnim
 =================
 */
 qboolean G_ScriptAction_PlayAnim( gentity_t *ent, char *params ) {
-	char *pString, *token, tokens[2][MAX_QPATH];
+	char tokens[2][MAX_QPATH];
 	int i, endtime = 0; // TTimo: init
 	qboolean looping = qfalse, forever = qfalse;
 	int startframe, endframe, idealframe;
@@ -506,10 +504,10 @@ qboolean G_ScriptAction_PlayAnim( gentity_t *ent, char *params ) {
 		ent->scriptStatus.scriptFlags &= ~SCFL_ANIMATING;
 	}
 
-	pString = params;
+	const char* pString = params;
 
 	for ( i = 0; i < 2; i++ ) {
-		token = COM_ParseExt( &pString, qfalse );
+		const char* token = COM_ParseExt( &pString, qfalse );
 		if ( !token || !token[0] ) {
 			Com_Printf( "G_Scripting: syntax error\n\nplayanim <startframe> <endframe> [LOOPING <duration>]\n" );
 			return qtrue;
@@ -522,7 +520,7 @@ qboolean G_ScriptAction_PlayAnim( gentity_t *ent, char *params ) {
 	endframe = atoi( tokens[1] );
 
 	// check for optional parameters
-	token = COM_ParseExt( &pString, qfalse );
+	const char* token = COM_ParseExt( &pString, qfalse );
 	if ( token[0] ) {
 		if ( !Q_strcasecmp( token, "looping" ) ) {
 			looping = qtrue;
@@ -654,10 +652,10 @@ G_ScriptAction_Accum
 =================
 */
 qboolean G_ScriptAction_Accum( gentity_t *ent, char *params ) {
-	char *pString, *token, lastToken[MAX_QPATH];
+	char *token, lastToken[MAX_QPATH];
 	int bufferIndex;
 
-	pString = params;
+	const char *pString = params;
 
 	token = COM_ParseExt( &pString, qfalse );
 	if ( !token[0] ) {
@@ -780,10 +778,10 @@ G_ScriptAction_MissionFailed
 =================
 */
 qboolean G_ScriptAction_MissionFailed( gentity_t *ent, char *params ) {
-	char    *pString, *token;
+	char   *token;
 	int time = 6, mof = 0;
 
-	pString = params;
+	const char* pString = params;
 
 	token = COM_ParseExt( &pString, qfalse );   // time
 	if ( token && token[0] ) {
@@ -827,9 +825,9 @@ qboolean G_ScriptAction_MissionSuccess( gentity_t *ent, char *params ) {
 	gentity_t   *player;
 	vmCvar_t cvar;
 	int lvl;
-	char *pString, *token;
+	char *token;
 
-	pString = params;
+	const char* pString = params;
 
 	token = COM_ParseExt( &pString, qfalse );
 	if ( !token[0] ) {
@@ -902,7 +900,7 @@ G_ScriptAction_FaceAngles
 =================
 */
 qboolean G_ScriptAction_FaceAngles( gentity_t *ent, char *params ) {
-	char *pString, *token;
+	char  *token;
 	int duration, i;
 	vec3_t diff;
 	vec3_t angles;
@@ -914,7 +912,7 @@ qboolean G_ScriptAction_FaceAngles( gentity_t *ent, char *params ) {
 	}
 
 	if ( ent->scriptStatus.scriptStackChangeTime == level.time ) {
-		pString = params;
+		const char* pString = params;
 		for ( i = 0; i < 3; i++ ) {
 			token = COM_Parse( &pString );
 			if ( !token || !token[0] ) {
@@ -968,7 +966,7 @@ qboolean G_ScriptAction_FaceAngles( gentity_t *ent, char *params ) {
 			for ( i = 0; i < 3; i++ ) {
 				ent->shared.s.apos.trDelta[i] = 2.0 * 1000.0 * diff[i] / (float)duration;
 			}
-			ent->shared.s.apos.trType = trType;
+			ent->shared.s.apos.trType = (trType_t)trType;
 		}
 
 	} else if ( ent->shared.s.apos.trTime + ent->shared.s.apos.trDuration <= level.time ) {
@@ -1018,10 +1016,10 @@ G_ScriptAction_TagConnect
 ===================
 */
 qboolean G_ScriptAction_TagConnect( gentity_t *ent, char *params ) {
-	char *pString, *token;
+	char *token;
 	gentity_t *parent;
 
-	pString = params;
+	const char* pString = params;
 	token = COM_Parse( &pString );
 	if ( !token[0] ) {
 		Com_Error( ERR_DROP, "G_ScriptAction_TagConnect: syntax: attachtotag <targetname> <tagname>\n" );
@@ -1044,8 +1042,8 @@ qboolean G_ScriptAction_TagConnect( gentity_t *ent, char *params ) {
 	}
 
 	ent->tagParent = parent;
-	ent->tagName = G_Alloc( strlen( token ) + 1 );
-	Q_strncpyz( ent->tagName, token, strlen( token ) + 1 );
+	ent->tagName = (char *)G_Alloc( strlen( token ) + 1 );
+	Q_strncpyz( (char *)ent->tagName, token, strlen( token ) + 1 );
 
 	G_ProcessTagConnect( ent, qtrue );
 
@@ -1113,10 +1111,10 @@ G_ScriptAction_StartCam
 ===================
 */
 qboolean G_ScriptAction_StartCam( gentity_t *ent, char *params ) {
-	char *pString, *token;
+	char *token;
 	gentity_t *player;
 
-	pString = params;
+	const char* pString = params;
 	token = COM_Parse( &pString );
 	if ( !token[0] ) {
 		Com_Error( ERR_DROP, "G_ScriptAction_Cam: filename parameter required\n" );

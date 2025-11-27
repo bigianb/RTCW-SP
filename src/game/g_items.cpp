@@ -223,7 +223,7 @@ Fill_Clip
 */
 void Fill_Clip( playerState_t *ps, int weapon ) {
 	int inclip, maxclip, ammomove;
-	int ammoweap = BG_FindAmmoForWeapon( weapon );
+	int ammoweap = BG_FindAmmoForWeapon( (weapon_t)weapon );
 
 	if ( weapon < WP_LUGER || weapon >= WP_NUM_WEAPONS ) {
 		return;
@@ -233,7 +233,7 @@ void Fill_Clip( playerState_t *ps, int weapon ) {
 		return;
 	}
 
-	inclip  = ps->ammoclip[BG_FindClipForWeapon( weapon )];
+	inclip  = ps->ammoclip[BG_FindClipForWeapon( (weapon_t)weapon )];
 	maxclip = ammoTable[weapon].maxclip;
 
 	ammomove = maxclip - inclip;    // max amount that can be moved into the clip
@@ -247,7 +247,7 @@ void Fill_Clip( playerState_t *ps, int weapon ) {
 		if ( !ps->aiChar || ps->ammo[ammoweap] < 999 ) {  // RF, dont take ammo away if they need unlimited supplies
 			ps->ammo[ammoweap] -= ammomove;
 		}
-		ps->ammoclip[BG_FindClipForWeapon( weapon )] += ammomove;
+		ps->ammoclip[BG_FindClipForWeapon( (weapon_t)weapon )] += ammomove;
 	}
 }
 
@@ -261,7 +261,7 @@ Add_Ammo
 ==============
 */
 void Add_Ammo( gentity_t *ent, int weapon, int count, qboolean fillClip ) {
-	int ammoweap = BG_FindAmmoForWeapon( weapon );
+	int ammoweap = BG_FindAmmoForWeapon( (weapon_t)weapon );
 	qboolean noPack = qfalse;       // no extra ammo in your 'pack'
 
 	ent->client->ps.ammo[ammoweap] += count;
@@ -394,7 +394,7 @@ int Pickup_Weapon( gentity_t *ent, gentity_t *other ) {
 		COM_BitSet( other->client->ps.weapons, WP_MAUSER );
 	}
 
-	Add_Ammo( other, weapon, quantity, !alreadyHave );
+	Add_Ammo( other, weapon, quantity, !alreadyHave ? qtrue : qfalse ); 
 
 	if ( !( ent->spawnflags & 8 ) ) {
 		return RESPAWN_SP;
@@ -1002,10 +1002,8 @@ Items can't be immediately dropped to floor, because they might
 be on an entity that hasn't spawned yet.
 ============
 */
-void G_SpawnItem( gentity_t *ent, gitem_t *item ) {
-	char    *noise;
-	int page;
-
+void G_SpawnItem( gentity_t *ent, gitem_t *item )
+{	
 	G_SpawnFloat( "random", "0", &ent->random );
 	G_SpawnFloat( "wait", "0", &ent->wait );
 
@@ -1016,6 +1014,7 @@ void G_SpawnItem( gentity_t *ent, gitem_t *item ) {
 	ent->nextthink = level.time + FRAMETIME * 2;
 	ent->think = FinishSpawningItem;
 
+	const char* noise;
 	if ( G_SpawnString( "noise", 0, &noise ) ) {
 		ent->noise_index = G_SoundIndex( noise );
 	}
@@ -1027,6 +1026,7 @@ void G_SpawnItem( gentity_t *ent, gitem_t *item ) {
 	}
 
 	if ( item->giType == IT_CLIPBOARD ) {
+		int page;
 		if ( G_SpawnInt( "notebookpage", "1", &page ) ) {
 			ent->key = page;
 		}

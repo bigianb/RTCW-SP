@@ -37,7 +37,7 @@ If you have questions concerning this license or the applicable additional terms
 #include "g_local.h"
 #include "../server/server.h"
 
-char *hintStrings[] = {
+const char *hintStrings[] = {
 	"",                  // HINT_NONE
 	"HINT_NONE",     // actually HINT_FORCENONE, but since this is being specified in the ent, the designer actually means HINT_FORCENONE
 	"HINT_PLAYER",
@@ -831,7 +831,7 @@ void MatchTeam( gentity_t *teamLeader, int moverState, int time ) {
 			slave->flags |= FL_SOFTACTIVATE;
 		}
 
-		SetMoverState( slave, moverState, time );
+		SetMoverState( slave, (moverState_t)moverState, time );
 	}
 }
 
@@ -855,7 +855,7 @@ void MatchTeamReverseAngleOnSlaves( gentity_t *teamLeader, int moverState, int t
 			slave->flags |= FL_SOFTACTIVATE;
 		}
 
-		SetMoverState( slave, moverState, time );
+		SetMoverState( slave, (moverState_t)moverState, time );
 	}
 }
 
@@ -1598,7 +1598,7 @@ void InitMover( gentity_t *ent ) {
 	float light;
 	vec3_t color;
 	qboolean lightSet, colorSet;
-	char        *sound;
+	const char        *sound;
 
 	// if the "model2" key is set, use a seperate model
 	// for drawing, but clip against the brushes
@@ -2166,7 +2166,7 @@ void G_TryDoor( gentity_t *ent, gentity_t *other, gentity_t *activator ) {
 
 			if ( activator ) {
 				if ( ent->key > KEY_NONE && ent->key < KEY_NUM_KEYS ) { // door requires key
-					gitem_t *item = BG_FindItemForKey( ent->key, 0 );
+					gitem_t *item = BG_FindItemForKey( (wkey_t)ent->key, 0 );
 					if ( !( activator->client->ps.stats[STAT_KEYS] & ( 1 << item->giTag ) ) ) {
 						if ( !walking ) {  // only send audible event if not trying to open slowly
 							AICast_AudibleEvent( activator->shared.s.clientNum, ent->shared.s.origin, HEAR_RANGE_DOOR_LOCKED );   // "someone tried locked door near me!"
@@ -4098,7 +4098,7 @@ void use_target_effect( gentity_t *self, gentity_t *other, gentity_t *activator 
 */
 void SP_target_effect( gentity_t *ent ) {
 	int mass;
-	char    *type;
+	const char    *type;
 
 	ent->use = use_target_effect;
 
@@ -4326,7 +4326,7 @@ InitExplosive
 ==============
 */
 void InitExplosive( gentity_t *ent ) {
-	char        *damage;
+	const char        *damage;
 
 	// if the "model2" key is set, use a seperate model
 	// for drawing, but clip against the brushes
@@ -4409,9 +4409,9 @@ the default sounds are:
 void SP_func_explosive( gentity_t *ent ) {
 	int health, mass, dam, i;
 	char buffer[MAX_QPATH];
-	char    *s;
-	char    *type;
-	char    *cursorhint;
+	const char    *s;
+	const char    *type;
+	const char    *cursorhint;
 
 	SV_SetBrushModel( &ent->shared, ent->model );
 	InitExplosive( ent );
@@ -4635,8 +4635,8 @@ void use_invisible_user( gentity_t *ent, gentity_t *other, gentity_t *activator 
 
 void func_invisible_user( gentity_t *ent ) {
 	int i;
-	char    *sound;
-	char    *cursorhint;
+	const char    *sound;
+	const char    *cursorhint;
 
 	VectorCopy( ent->shared.s.origin, ent->pos1 );
 	SV_SetBrushModel( &ent->shared, ent->model );
@@ -4697,7 +4697,7 @@ void G_Activate( gentity_t *ent, gentity_t *activator ) {
 		}
 
 		if ( ent->key > KEY_NONE && ent->key < KEY_NUM_KEYS ) { // ent requires key
-			gitem_t *item = BG_FindItemForKey( ent->key, 0 );
+			gitem_t *item = BG_FindItemForKey( (wkey_t)ent->key, 0 );
 			if ( !( activator->client->ps.stats[STAT_KEYS] & ( 1 << item->giTag ) ) ) {
 				return;
 			}

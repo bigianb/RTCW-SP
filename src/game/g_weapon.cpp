@@ -762,7 +762,7 @@ gentity_t *weapon_grenadelauncher_fire( gentity_t *ent, int grenType ) {
 	gentity_t   *m, *te; // JPW NERVE
 	float upangle = 0;                  //	start with level throwing and adjust based on angle
 	vec3_t tosspos;
-	qboolean underhand = 0;
+	qboolean underhand = qfalse;
 
 	if ( ( ent->shared.s.apos.trBase[0] > 0 ) && ( grenType != WP_GRENADE_SMOKE ) ) { // JPW NERVE -- smoke grenades always overhand
 		underhand = qtrue;

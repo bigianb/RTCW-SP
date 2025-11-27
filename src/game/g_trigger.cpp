@@ -544,7 +544,7 @@ SP_trigger_hurt
 */
 void SP_trigger_hurt( gentity_t *self ) {
 
-	char    *life;
+	const char    *life;
 	float dalife;
 
 	InitTrigger( self );

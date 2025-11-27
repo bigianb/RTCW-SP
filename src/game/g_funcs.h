@@ -202,7 +202,7 @@ If you have questions concerning this license or the applicable additional terms
 {"PM_WeaponClipEmpty", (byte *)PM_WeaponClipEmpty},
 {"PM_WeaponAmmoAvailable", (byte *)PM_WeaponAmmoAvailable},
 {"PM_WeaponUseAmmo", (byte *)PM_WeaponUseAmmo},
-{"PM_CheckForReload", (byte *)PM_CheckForReload},
+
 {"PM_AddFallEvent", (byte *)PM_AddFallEvent},
 {"PM_ClipVelocity", (byte *)PM_ClipVelocity},
 {"PM_AddTouchEnt", (byte *)PM_AddTouchEnt},

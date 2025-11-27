@@ -220,7 +220,7 @@ void target_speaker_multiple( gentity_t *ent ) {
 
 void SP_target_speaker( gentity_t *ent ) {
 	char buffer[MAX_QPATH];
-	char    *s;
+	const char    *s;
 
 	G_SpawnFloat( "wait", "0", &ent->wait );
 	G_SpawnFloat( "random", "0", &ent->random );
@@ -460,7 +460,7 @@ void target_relay_use( gentity_t *self, gentity_t *other, gentity_t *activator )
 				return;
 			}
 
-			item = BG_FindItemForKey( self->key, 0 );
+			item = BG_FindItemForKey( (wkey_t)self->key, 0 );
 
 			if ( item ) {
 				if ( activator->client->ps.stats[STAT_KEYS] & ( 1 << item->giTag ) ) { // user has key
@@ -503,7 +503,7 @@ SP_target_relay
 ==============
 */
 void SP_target_relay( gentity_t *self ) {
-	char    *sound;
+	const char    *sound;
 	int key;
 
 	self->use = target_relay_use;
@@ -757,7 +757,7 @@ void Use_Target_Lock( gentity_t *ent, gentity_t *other, gentity_t *activator ) {
 
 	while ( ( t = G_Find( t, FOFS( targetname ), ent->target ) ) != NULL ) {
 		t->key = ent->key;
-		G_SetAASBlockingEntity( t, t->key != 0 );
+		G_SetAASBlockingEntity( t, t->key != 0 ? qtrue : qfalse ); // update AAS
 	}
 
 }
@@ -1045,15 +1045,15 @@ void target_rumble_use( gentity_t *ent, gentity_t *other, gentity_t *activator )
 }
 
 void SP_target_rumble( gentity_t *self ) {
-	char        *pitch;
-	char        *yaw;
-	char        *rampup;
-	char        *rampdown;
+	const char        *pitch;
+	const char        *yaw;
+	const char        *rampup;
+	const char        *rampdown;
 	float dapitch;
 	float dayaw;
-	char        *sound;
-	char        *startsound;
-	char        *endsound;
+	const char        *sound;
+	const char        *startsound;
+	const char        *endsound;
 
 	if ( G_SpawnString( "noise", "100", &sound ) ) {
 		self->soundLoop = G_SoundIndex( sound );

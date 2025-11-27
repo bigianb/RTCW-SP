@@ -512,7 +512,7 @@ The server says this item is used on this level
 static void CG_RegisterItemSounds( int itemNum ) {
 	gitem_t         *item;
 	char data[MAX_QPATH];
-	char *s;
+	
 
 	item = &bg_itemlist[ itemNum ];
 
@@ -521,13 +521,13 @@ static void CG_RegisterItemSounds( int itemNum ) {
 	}
 
 	// parse the space seperated precache string for other media
-	s = item->sounds;
+	const char* s = item->sounds;
 	if ( !s || !s[0] ) {
 		return;
 	}
 
 	while ( *s ) {
-		char *start = s;
+		const char *start = s;
 		while ( *s && *s != ' ' ) {
 			s++;
 		}

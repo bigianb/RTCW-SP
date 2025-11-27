@@ -698,7 +698,7 @@ int     AICast_WantsToTakeCover( cast_state_t *cs, qboolean attacking );
 qboolean AICast_EntityVisible( cast_state_t *cs, int enemynum, qboolean directview );
 bot_moveresult_t AICast_CombatMove( cast_state_t *cs, int tfl );
 qboolean AICast_AimAtEnemy( cast_state_t *cs );
-qboolean AICast_CheckAttackAtPos( int entnum, int enemy, vec3_t pos, qboolean ducking, qboolean allowHitWorld );
+bool AICast_CheckAttackAtPos( int entnum, int enemy, vec3_t pos, bool ducking, bool allowHitWorld );
 qboolean AICast_CheckAttack( cast_state_t *cs, int enemy, qboolean allowHitWorld );
 void    AICast_ProcessAttack( cast_state_t *cs );
 void    AICast_ChooseWeapon( cast_state_t *cs, qboolean battleFunc );

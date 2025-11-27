@@ -131,7 +131,7 @@ void InitTramcar( gentity_t *ent ) {
 	float light;
 	vec3_t color;
 	qboolean lightSet, colorSet;
-	char        *sound;
+	const char        *sound;
 
 	// This is here just for show
 	// if the "model2" key is set, use a seperate model
@@ -672,21 +672,15 @@ position when you bsp the map you can the start it by targeting the desired path
 void SP_func_tramcar( gentity_t *self ) {
 
 	int mass;
-	char    *type;
-	char    *s;
+	const char    *type;
+	const char    *s;
 	char buffer[MAX_QPATH];
 
 	VectorClear( self->shared.s.angles );
 
-	//if (self->spawnflags & TRAMCAR_BLOCK_STOPS) {
-	//	self->damage = 0;
-	//	self->s.eFlags |= EF_MOVER_STOP;
-	//}
-	//else {
 	if ( !self->damage ) {
 		self->damage = 100;
 	}
-	//}
 
 	if ( !self->speed ) {
 		self->speed = 100;
@@ -1254,7 +1248,7 @@ void truck_cam_touch( gentity_t *self, gentity_t *other, trace_t *trace ) {
 		VectorCopy( point, other->client->ps.origin );
 
 		// save results of pmove
-		BG_PlayerStateToEntityState( &other->client->ps, &other->shared.s, qtrue );
+		BG_PlayerStateToEntityState( &other->client->ps, &other->shared.s, true );
 
 		// use the precise origin for linking
 		VectorCopy( other->client->ps.origin, other->shared.r.currentOrigin );
@@ -1391,7 +1385,7 @@ void camera_cam_think( gentity_t *ent ) {
 		VectorCopy( point, player->client->ps.origin );
 
 		// save results of pmove
-		BG_PlayerStateToEntityState( &player->client->ps, &player->shared.s, qtrue );
+		BG_PlayerStateToEntityState( &player->client->ps, &player->shared.s, true );
 
 		// use the precise origin for linking
 		VectorCopy( player->client->ps.origin, player->shared.r.currentOrigin );
@@ -1576,7 +1570,7 @@ void reset_players_pos( gentity_t *ent, gentity_t *other, gentity_t *activator )
 	VectorCopy( ent->shared.s.origin2, player->client->ps.origin );
 
 	// save results of pmove
-	BG_PlayerStateToEntityState( &player->client->ps, &player->shared.s, qtrue );
+	BG_PlayerStateToEntityState( &player->client->ps, &player->shared.s, true );
 
 	// use the precise origin for linking
 	VectorCopy( player->client->ps.origin, player->shared.r.currentOrigin );

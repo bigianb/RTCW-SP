@@ -262,7 +262,7 @@ void  trap_S_StopBackgroundTrack( void ) {
 	S_StopBackgroundTrack();
 }
 
-void trap_SendMoveSpeedsToGame( int entnum, char *movespeeds ) {
+void trap_SendMoveSpeedsToGame( int entnum, const char *movespeeds ) {
 	G_RetrieveMoveSpeedsFromClient(entnum, movespeeds );
 }
 

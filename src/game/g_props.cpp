@@ -550,7 +550,7 @@ void InitProp( gentity_t *ent ) {
 	float light;
 	vec3_t color;
 	qboolean lightSet, colorSet;
-	char        *sound;
+	const char        *sound;
 
 	if ( !Q_stricmp( ent->classname, "props_bench" ) ) {
 		ent->shared.s.modelindex2 = G_ModelIndex( "models/furniture/bench/bench_sm.md3" );
@@ -3105,8 +3105,8 @@ void props_ExploPartInit( gentity_t *ent ) {
 }
 
 void SP_props_ExploPart( gentity_t *ent ) {
-	char *sound;
-	char *type;
+	const char *sound;
+	const char *type;
 //	float	bbox;
 
 	if ( ent->model ) {
@@ -3235,18 +3235,18 @@ void SP_props_decoration( gentity_t *ent ) {
 	float light;
 	vec3_t color;
 	qboolean lightSet, colorSet;
-	char        *sound;
-	char        *type;
-	char        *high;
-	char        *wide;
-	char        *frames;
+	const char        *sound;
+	const char        *type;
+	const char        *high;
+	const char        *wide;
+	const char        *frames;
 	float height;
 	float width;
 	float num_frames;
 
-	char        *loop;
+	const char        *loop;
 
-	char        *startonframe;
+	const char        *startonframe;
 
 	if ( G_SpawnString( "startonframe", "0", &startonframe ) ) {
 		ent->shared.s.frame = atoi( startonframe );
@@ -3455,7 +3455,7 @@ To have the portal sky fogged, enter any of the following values:
 
 */
 void SP_skyportal( gentity_t *ent ) {
-	char    *fov;
+	const char    *fov;
 	vec3_t fogv;    //----(SA)
 	int fogn;       //----(SA)
 	int fogf;       //----(SA)
@@ -3625,11 +3625,11 @@ void SP_props_statue( gentity_t *ent ) {
 	float light;
 	vec3_t color;
 	qboolean lightSet, colorSet;
-	char        *sound;
-	char        *type;
-	char        *high;
-	char        *wide;
-	char        *frames;
+	const char        *sound;
+	const char        *type;
+	const char        *high;
+	const char        *wide;
+	const char        *frames;
 	float height;
 	float width;
 	float num_frames;
@@ -3963,9 +3963,9 @@ void props_locker_death( gentity_t *ent, gentity_t *inflictor, gentity_t *attack
 
 
 void SP_props_footlocker( gentity_t *self ) {
-	char    *type;
-	char    *sound;
-	char    *locked;
+	const char    *type;
+	const char    *sound;
+	const char    *locked;
 	int mass;
 
 //	SV_SetBrushModel (self, self->model);
@@ -4142,7 +4142,7 @@ void props_flamethrower_init( gentity_t *ent ) {
 }
 
 void SP_props_flamethrower( gentity_t *ent ) {
-	char *size;
+	const char *size;
 	float dsize;
 
 	ent->think = props_flamethrower_init;

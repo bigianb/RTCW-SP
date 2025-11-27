@@ -109,7 +109,7 @@ static saveField_t gentityFields_17[] = {
 	{FOFS( tagName ),     F_STRING},
 	{FOFS( tagParent ),   F_ENTITY},
 
-	{0, 0}
+	{0, F_NONE}
 };
 
 // TTimo
@@ -118,14 +118,14 @@ static saveField_t gentityFields_17[] = {
 // not in gentityField to keep backward compatibility loading v17
 static saveField_t gentityFields_18[] = {
 	{FOFS( targetdeath ), F_STRING},
-	{0, 0}
+	{0, F_NONE}
 };
 
 
 static saveField_t gclientFields[] = {
 	{CFOFS( hook ),       F_ENTITY},
 
-	{0, 0}
+	{0, F_NONE}
 };
 
 static saveField_t castStateFields[] = {
@@ -141,13 +141,13 @@ static saveField_t castStateFields[] = {
 	{CSFOFS( aifuncAttack2 ), F_FUNCTION},
 	{CSFOFS( aifuncAttack3 ), F_FUNCTION},
 
-	{0, 0}
+	{0, F_NONE}
 };
 
 //.......................................................................................
 // this is where we define fields or sections of structures that we should totally ignore
 typedef struct {
-	int ofs;
+	intptr_t ofs;
 	int len;
 } ignoreField_t;
 
@@ -179,7 +179,7 @@ static ignoreField_t castStateIgnoreFields[] =
 // !! WARNING: cannot save pointer or string variables
 typedef struct
 {
-	int ofs;
+	intptr_t ofs;
 	int len;
 } persField_t;
 
@@ -409,7 +409,7 @@ void ReadField( fileHandle_t f, saveField_t *field, byte *base )
 			*(char **)p = NULL;
 		} else
 		{
-			*(char **)p = G_Alloc( len );
+			*(char **)p = (char *)G_Alloc( len );
 			FS_Read( *(char **)p, len, f );
 		}
 		break;
@@ -952,7 +952,7 @@ char *G_Save_TimeStr()
 			   ( tm.tm_hour < 12 ? "am" : "pm" ) );
 }
 
-static char *monthStr[12] =
+static const char *monthStr[12] =
 {
 	"JAN", "FEB", "MAR", "APR", "MAY", "JUN", "JUL", "AUG", "SEP", "OCT", "NOV", "DEC"
 };
@@ -994,7 +994,7 @@ G_SaveGame
   so full disks don't result in lost saved games.
 ===============
 */
-qboolean G_SaveGame( char *username )
+qboolean G_SaveGame( const char *username )
 {
 	char filename[MAX_QPATH];
 	char mapstr[MAX_QPATH];
@@ -1237,7 +1237,7 @@ G_LoadGame
   Always loads in "current.svg". So if loading a specific savegame, first copy it to that.
 ===============
 */
-void G_LoadGame( char *filename )
+void G_LoadGame( const char *filename )
 {
 	char mapname[MAX_QPATH];
 	fileHandle_t f;
@@ -1430,7 +1430,7 @@ void G_LoadGame( char *filename )
 	// inform server of entity count if it has increased
 	if ( serverEntityUpdate ) {
 		// let the server system know that there are more entities
-		SV_LocateGameData( level.gentities, level.num_entities, sizeof( gentity_t ),
+		SV_LocateGameData( &level.gentities[0].shared, level.num_entities, sizeof( gentity_t ),
 							 &level.clients[0].ps, sizeof( level.clients[0] ) );
 	}
 
@@ -1620,12 +1620,12 @@ G_LoadPersistant
 void G_LoadPersistant()
 {
 	fileHandle_t f;
-	char *filename;
+	
 	char mapstr[MAX_QPATH];
 	vmCvar_t cvar_mapname;
 	int persid;
 
-	filename = "save\\current.psw";
+	const char* filename = "save\\current.psw";
 
 	// open the file
 	if ( FS_FOpenFileByMode( filename, &f, FS_READ ) < 0 ) {

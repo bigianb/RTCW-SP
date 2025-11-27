@@ -169,7 +169,7 @@ int weapAlts[] = {
 
 
 // new (10/18/00)
-char *animStrings[] = {
+const char *animStrings[] = {
 	"BOTH_DEATH1",
 	"BOTH_DEAD1",
 	"BOTH_DEAD1_WATER",
@@ -327,7 +327,7 @@ char *animStrings[] = {
 
 
 // old
-char *animStringsOld[] = {
+const char *animStringsOld[] = {
 	"BOTH_DEATH1",
 	"BOTH_DEAD1",
 	"BOTH_DEATH2",
@@ -466,7 +466,7 @@ gitem_t bg_itemlist[] =
 		NULL,   // ammo icon
 		NULL,   // pickup
 		0,
-		0,
+		IT_BAD,
 		0,
 		0,          // ammotype
 		0,          // cliptype
@@ -2749,10 +2749,10 @@ weapon_t BG_FindClipForWeapon( weapon_t weapon ) {
 
 	if ( lookupTableInit ) {
 		for ( i = 0; i < NUM_TABLE_ELEMENTS; i++ ) {
-			lookupTable[i] = 0; // default value for no match found
+			lookupTable[i] = WP_NONE; // default value for no match found
 			for ( it = bg_itemlist + 1 ; it->classname ; it++ ) {
 				if ( it->giType == IT_WEAPON && it->giTag == i ) {
-					lookupTable[i] = it->giClipIndex;
+					lookupTable[i] = (weapon_t)it->giClipIndex;
 				}
 			}
 		}
@@ -2762,7 +2762,7 @@ weapon_t BG_FindClipForWeapon( weapon_t weapon ) {
 
 	if ( weapon < 0 || weapon > NUM_TABLE_ELEMENTS ) {
 		Com_Error( ERR_DROP, "BG_FindClipForWeapon: weapon out of range %i", weapon );
-        weapon = 0; // keep the linter happy, ERR_DROP does not return
+        weapon = WP_NONE; // keep the linter happy, ERR_DROP does not return
 	}
 
 	// get the weapon from the lookup table
@@ -2785,10 +2785,10 @@ weapon_t BG_FindAmmoForWeapon( weapon_t weapon ) {
 
 	if ( lookupTableInit ) {
 		for ( i = 0; i < NUM_TABLE_ELEMENTS; i++ ) {
-			lookupTable[i] = 0; // default value for no match found
+			lookupTable[i] = WP_NONE; // default value for no match found
 			for ( it = bg_itemlist + 1 ; it->classname ; it++ ) {
 				if ( it->giType == IT_WEAPON && it->giTag == i ) {
-					lookupTable[i] = it->giAmmoIndex;
+					lookupTable[i] = (weapon_t)it->giAmmoIndex;
 				}
 			}
 		}
@@ -2798,7 +2798,7 @@ weapon_t BG_FindAmmoForWeapon( weapon_t weapon ) {
 
 	if ( weapon < 0 || weapon > NUM_TABLE_ELEMENTS ) {
 		Com_Error( ERR_DROP, "BG_FindAmmoForWeapon: weapon out of range %i", weapon );
-        weapon = 0; // keep the linter happy, ERR_DROP does not return
+        weapon = WP_NONE; // keep the linter happy, ERR_DROP does not return
 	}
 
 	// get the weapon from the lookup table
@@ -3017,7 +3017,7 @@ qboolean    BG_CanItemBeGrabbed( const entityState_t *ent, const playerState_t *
 		return qtrue;
 
 	case IT_AMMO:
-		ammoweap = BG_FindAmmoForWeapon( item->giTag );
+		ammoweap = (weapon_t)BG_FindAmmoForWeapon( (weapon_t)item->giTag );
 
 		if ( isClipOnly( ammoweap ) ) {
 			if ( ps->ammoclip[ammoweap] >= ammoTable[ammoweap].maxclip ) {
@@ -3305,7 +3305,7 @@ void BG_GetMarkDir( const vec3_t dir, const vec3_t normal, vec3_t out ) {
 }
 
 
-char *eventnames[] = {
+const char *eventnames[] = {
 	"EV_NONE",
 	"EV_FOOTSTEP",
 	"EV_FOOTSTEP_METAL",
@@ -3474,7 +3474,7 @@ This is done after each set of usercmd_t on the server,
 and after local prediction on the client
 ========================
 */
-void BG_PlayerStateToEntityState( playerState_t *ps, entityState_t *s, qboolean snap ) {
+void BG_PlayerStateToEntityState( playerState_t *ps, entityState_t *s, bool snap ) {
 	int i;
 
     if ( ps->stats[STAT_HEALTH] <= GIB_HEALTH ) {
@@ -3579,7 +3579,7 @@ This is done after each set of usercmd_t on the server,
 and after local prediction on the client
 ========================
 */
-void BG_PlayerStateToEntityStateExtraPolate( playerState_t *ps, entityState_t *s, int time, qboolean snap ) {
+void BG_PlayerStateToEntityStateExtraPolate( playerState_t *ps, entityState_t *s, int time, bool snap ) {
 	int i;
 
 	if ( ps->stats[STAT_HEALTH] <= GIB_HEALTH ) {

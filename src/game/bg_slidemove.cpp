@@ -44,11 +44,11 @@ output: origin, velocity, impacts, stairup boolean
 ==================
 PM_SlideMove
 
-Returns qtrue if the velocity was clipped in some way
+Returns true if the velocity was clipped in some way
 ==================
 */
 #define MAX_CLIP_PLANES 5
-qboolean    PM_SlideMove( qboolean gravity ) {
+bool    PM_SlideMove( qboolean gravity ) {
 	int bumpcount, numbumps;
 	vec3_t dir;
 	float d;

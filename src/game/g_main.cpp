@@ -38,8 +38,8 @@ level_locals_t level;
 
 typedef struct {
 	vmCvar_t    *vmCvar;
-	char        *cvarName;
-	char        *defaultString;
+	const char  *cvarName;
+	const char  *defaultString;
 	int cvarFlags;
 	int modificationCount;          // for tracking changes
 	qboolean trackChange;           // track this variable, and announce if changed
@@ -238,11 +238,11 @@ void G_ShutdownGame( int restart );
 // Ridah, Cast AI
 qboolean AICast_VisibleFromPos( vec3_t srcpos, int srcnum,
 								vec3_t destpos, int destnum, qboolean updateVisPos );
-qboolean AICast_CheckAttackAtPos( int entnum, int enemy, vec3_t pos, qboolean ducking, qboolean allowHitWorld );
+bool AICast_CheckAttackAtPos( int entnum, int enemy, vec3_t pos, bool ducking, bool allowHitWorld );
 void AICast_Init( void );
 // done.
 
-void G_RetrieveMoveSpeedsFromClient( int entnum, char *text );
+void G_RetrieveMoveSpeedsFromClient( int entnum, const char *text );
 
 qboolean G_canStealthStab( int aiChar ) {
 	switch ( aiChar ) {
@@ -1026,7 +1026,7 @@ void G_InitGame( int levelTime, int randomSeed, int restart )
 	level.num_entities = MAX_CLIENTS;
 
 	// let the server system know where the entites are
-	SV_LocateGameData( level.gentities, level.num_entities, sizeof( gentity_t ),
+	SV_LocateGameData( &level.gentities[0].shared, level.num_entities, sizeof( gentity_t ),
 						 &level.clients[0].ps, sizeof( level.clients[0] ) );
 
 

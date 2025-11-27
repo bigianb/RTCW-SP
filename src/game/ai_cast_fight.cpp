@@ -557,7 +557,7 @@ float AICast_WeaponRange( cast_state_t *cs, int weaponnum ) {
 AICast_CheckAttack_real
 ==================
 */
-qboolean AICast_CheckAttack_real( cast_state_t *cs, int enemy, qboolean allowHitWorld ) {
+qboolean AICast_CheckAttack_real( cast_state_t *cs, int enemy, bool allowHitWorld ) {
 	//float points;
 	vec3_t forward, right, start, end, dir, up, angles;
 	weaponinfo_t wi;
@@ -777,11 +777,11 @@ qboolean AICast_CheckAttack_real( cast_state_t *cs, int enemy, qboolean allowHit
 AICast_CheckAttackAtPos
 ==================
 */
-qboolean AICast_CheckAttackAtPos( int entnum, int enemy, vec3_t pos, qboolean ducking, qboolean allowHitWorld ) {
+bool AICast_CheckAttackAtPos( int entnum, int enemy, vec3_t pos, bool ducking, bool allowHitWorld ) {
 	gentity_t   *ent;
 	vec3_t savepos;
 	int saveview;
-	qboolean rval;
+	bool rval;
 	cast_state_t *cs;
 
 	cs = AICast_GetCastState( entnum );

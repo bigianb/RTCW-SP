@@ -556,7 +556,7 @@ qboolean G_CheckForExistingModelInfo( gclient_t *cl, char *modelName, animModelI
 				return qtrue;
 			}
 		} else {
-			level.animScriptData.modelInfo[i] = G_Alloc( sizeof( animModelInfo_t ) );
+			level.animScriptData.modelInfo[i] = (animModelInfo_t *)G_Alloc( sizeof( animModelInfo_t ) );
 			*modelInfo = level.animScriptData.modelInfo[i];
 			// clear the structure out ready for use
 			memset( *modelInfo, 0, sizeof( **modelInfo ) );
@@ -843,7 +843,7 @@ to the server machine, but qfalse on map changes and tournement
 restarts.
 ============
 */
-char *ClientConnect( int clientNum, qboolean firstTime, qboolean isBot ) {
+const char *ClientConnect( int clientNum, qboolean firstTime, qboolean isBot ) {
 
 	gclient_t   *client;
 	char userinfo[MAX_INFO_STRING];
@@ -873,7 +873,7 @@ char *ClientConnect( int clientNum, qboolean firstTime, qboolean isBot ) {
 	if ( isBot ) {
 		ent->shared.r.svFlags |= SVF_BOT;
 		ent->inuse = qtrue;
-		if ( !G_BotConnect( clientNum, !firstTime ) ) {
+		if ( !G_BotConnect( clientNum, !firstTime ? qtrue : qfalse ) ) {
 			return "BotConnectfailed";
 		}
 	}
@@ -1169,7 +1169,7 @@ void ClientSpawn( gentity_t *ent ) {
 
 	// positively link the client, even if the command times are weird
 	{
-		BG_PlayerStateToEntityState( &client->ps, &ent->shared.s, qtrue );
+		BG_PlayerStateToEntityState( &client->ps, &ent->shared.s, true );
 		VectorCopy( ent->client->ps.origin, ent->shared.r.currentOrigin );
 		SV_LinkEntity( &ent->shared );
 	}
@@ -1178,7 +1178,7 @@ void ClientSpawn( gentity_t *ent ) {
 	ClientEndFrame( ent );
 
 	// clear entity state values
-	BG_PlayerStateToEntityState( &client->ps, &ent->shared.s, qtrue );
+	BG_PlayerStateToEntityState( &client->ps, &ent->shared.s, true );
 }
 
 
@@ -1245,15 +1245,15 @@ void ClientDisconnect( int clientNum ) {
 G_RetrieveMoveSpeedsFromClient
 ==================
 */
-void G_RetrieveMoveSpeedsFromClient( int entnum, char *text ) {
-	char *text_p, *token;
+void G_RetrieveMoveSpeedsFromClient( int entnum, const char *text ) {
+	
 	animation_t *anim;
 	animModelInfo_t *modelInfo;
 
-	text_p = text;
+	const char* text_p = text;
 
 	// get the model name
-	token = COM_Parse( &text_p );
+	const char* token = COM_Parse( &text_p );
 	if ( !token || !token[0] ) {
 		Com_Error( ERR_DROP, "G_RetrieveMoveSpeedsFromClient: internal error" );
         return; // keep the linter happy, ERR_DROP does not return

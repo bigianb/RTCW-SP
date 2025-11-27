@@ -150,7 +150,7 @@ void TeleportPlayer( gentity_t *player, vec3_t origin, vec3_t angles ) {
 	G_KillBox( player );
 
 	// save results of pmove
-	BG_PlayerStateToEntityState( &player->client->ps, &player->shared.s, qtrue );
+	BG_PlayerStateToEntityState( &player->client->ps, &player->shared.s, true );
 
 	// use the precise origin for linking
 	VectorCopy( player->client->ps.origin, player->shared.r.currentOrigin );
@@ -473,7 +473,7 @@ void spotlight_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, 
 
 	self->shared.s.time2 = level.time;
 	self->shared.s.frame   = 1;    // 1 == dead
-	self->takedamage = 0;
+	self->takedamage = qfalse;;
 
 //	G_AddEvent( self, EV_ENTDEATH, 0 );
 }
@@ -489,7 +489,7 @@ void spotlight_finish_spawning( gentity_t *ent ) {
 	if ( !ent->health ) {
 		ent->health = 1;
 	}
-	ent->takedamage = 1;
+	ent->takedamage = qtrue;
 	ent->think      = 0;
 	ent->nextthink  = 0;
 	ent->shared.s.frame    = 0;
@@ -603,7 +603,7 @@ void SP_misc_gamemodel( gentity_t *ent ) {
 	VectorCopy( ent->shared.s.angles, ent->shared.s.apos.trBase );
 
 	if ( ent->spawnflags & 1 ) {
-		ent->shared.s.apos.trType = 1; // misc_gamemodels (since they have no movement) will use type = 0 for static models, type = 1 for auto-aligning models
+		ent->shared.s.apos.trType = (trType_t)1; // misc_gamemodels (since they have no movement) will use type = 0 for static models, type = 1 for auto-aligning models
 
 
 	}
@@ -838,7 +838,7 @@ void InitShooter( gentity_t *ent, int weapon ) {
 
 	// Rafael sniper
 	if ( weapon != WP_SNIPER ) {
-		RegisterItem( BG_FindItemForWeapon( weapon ) );
+		RegisterItem( BG_FindItemForWeapon( (weapon_t)weapon ) );
 	}
 	// done
 
@@ -1046,7 +1046,7 @@ Fires at either the target or the current direction.
 */
 void SP_shooter_sniper( gentity_t *ent ) {
 
-	char        *damage;
+	const char        *damage;
 
 	if ( G_SpawnString( "damage", "0", &damage ) ) {
 		ent->damage = atoi( damage );
@@ -1215,7 +1215,7 @@ void SP_corona( gentity_t *ent ) {
 
 // (SA) dlights and dlightstyles
 
-char* predef_lightstyles[] = {
+const char* predef_lightstyles[] = {
 	"mmnmmommommnonmmonqnmmo",
 	"abcdefghijklmnopqrstuvwxyzyxwvutsrqponmlkjihgfedcba",
 	"mmmmmaaaaammmmmaaaaaabcdefgabcdefg",
@@ -1336,7 +1336,8 @@ SP_dlight
 ==============
 */
 void SP_dlight( gentity_t *ent ) {
-	char    *snd, *shader;
+	const char    *snd;
+	const char *shader;
 	int i;
 	int offset, style, atten;
 
@@ -1432,7 +1433,7 @@ void snowInPVS( gentity_t *ent ) {
 	gentity_t *tent;
 	gentity_t *player;
 	qboolean inPVS = qfalse;
-	qboolean oldactive;
+	int oldactive;
 
 	oldactive = ent->active;
 
@@ -1870,7 +1871,7 @@ void clamp_playerbehindgun( gentity_t *self, gentity_t *other, vec3_t dang ) {
 	VectorCopy( point, other->client->ps.origin );
 
 	// save results of pmove
-	BG_PlayerStateToEntityState( &other->client->ps, &other->shared.s, qtrue );
+	BG_PlayerStateToEntityState( &other->client->ps, &other->shared.s, true );
 
 	// use the precise origin for linking
 	VectorCopy( other->client->ps.origin, other->shared.r.currentOrigin );
@@ -2377,8 +2378,8 @@ damage - determines how much the weapon will inflict if a non player uses it
 accuracy - all guns are 100% accurate a value of 0.5 would make it 50%
 */
 void SP_mg42( gentity_t *self ) {
-	char        *damage;
-	char        *accuracy;
+	const char        *damage;
+	const char        *accuracy;
 	float grabarc;
 
 	if ( !self->harc ) {
@@ -2599,7 +2600,7 @@ void misc_tagemitter_finishspawning( gentity_t *ent ) {
 
 
 void SP_misc_tagemitter( gentity_t *ent ) {
-	char *tagName;
+	const char *tagName;
 
 	ent->think = misc_tagemitter_finishspawning;    // so it can find it's target
 	ent->nextthink = level.time + 100;
@@ -2610,11 +2611,11 @@ void SP_misc_tagemitter( gentity_t *ent ) {
 	}
 
 	ent->target_ent = G_Spawn();    // spawn the emitter
-	ent->target_ent->tagName = G_Alloc( strlen( tagName ) + 1 );
-	Q_strncpyz( ent->target_ent->tagName, tagName, strlen( tagName ) + 1 );
+	ent->target_ent->tagName = (char *)G_Alloc( strlen( tagName ) + 1 );
+	Q_strncpyz( (char *)ent->target_ent->tagName, tagName, strlen( tagName ) + 1 );
 
-	ent->tagName = G_Alloc( strlen( tagName ) + 1 );
-	Q_strncpyz( ent->tagName, tagName, strlen( tagName ) + 1 );
+	ent->tagName = (char *)G_Alloc( strlen( tagName ) + 1 );
+	Q_strncpyz( (char *)ent->tagName, tagName, strlen( tagName ) + 1 );
 
 }
 

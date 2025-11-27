@@ -431,7 +431,7 @@ AAS_SetAASBlockingEntity
 =============
 */
 int AAS_EnableRoutingArea( int areanum, int enable );
-void AAS_SetAASBlockingEntity( vec3_t absmin, vec3_t absmax, qboolean blocking ) {
+void AAS_SetAASBlockingEntity( vec3_t absmin, vec3_t absmax, int blocking ) {
 	int areas[128];
 	int numareas, i, w;
 	//

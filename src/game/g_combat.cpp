@@ -113,9 +113,9 @@ void TossClientItems( gentity_t *self ) {
 //----(SA)	end
 
 
-	if ( weapon > WP_NONE && weapon < WP_MONSTER_ATTACK1 && self->client->ps.ammo[ BG_FindAmmoForWeapon( weapon )] ) {
+	if ( weapon > WP_NONE && weapon < WP_MONSTER_ATTACK1 && self->client->ps.ammo[ BG_FindAmmoForWeapon( (weapon_t) weapon )] ) {
 		// find the item type for this weapon
-		item = BG_FindItemForWeapon( weapon );
+		item = BG_FindItemForWeapon( (weapon_t)weapon );
 		// spawn the item
 
 		// Rafael
@@ -131,7 +131,7 @@ void TossClientItems( gentity_t *self ) {
 	angle = 45;
 	for ( i = 1 ; i < PW_NUM_POWERUPS ; i++ ) {
 		if ( self->client->ps.powerups[ i ] > level.time ) {
-			item = BG_FindItemForPowerup( i );
+			item = BG_FindItemForPowerup( (powerup_t) i );
 			if ( !item ) {
 				continue;
 			}
@@ -234,7 +234,7 @@ void body_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int d
 
 
 // these are just for logging, the client prints its own messages
-char    *modNames[] = {
+const char    *modNames[] = {
 	"MOD_UNKNOWN",
 	"MOD_SHOTGUN",
 	"MOD_GAUNTLET",
@@ -316,7 +316,8 @@ void player_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
 	int contents = 0;
 	int killer;
 	int i;
-	char        *killerName, *obit;
+	const char        *killerName;
+	const char	*obit;
 	qboolean nogib = qtrue;
 	gitem_t     *item = NULL; // JPW NERVE for flag drop
 	vec3_t launchvel;      // JPW NERVE
@@ -583,7 +584,7 @@ qboolean IsHeadShot( gentity_t *targ, gentity_t *attacker, vec3_t dir, vec3_t po
 	trace_t tr;
 	vec3_t start, end;
 	gentity_t   *traceEnt;
-	orientation_t or;
+	orientation_t orientation;
 
 	qboolean head_shot_weapon = qfalse;
 
@@ -604,9 +605,9 @@ qboolean IsHeadShot( gentity_t *targ, gentity_t *attacker, vec3_t dir, vec3_t po
 		G_SetOrigin( head, targ->shared.r.currentOrigin );
 
 		// RF, if there is a valid tag_head for this entity, then use that
-		if ( ( targ->shared.r.svFlags & SVF_CASTAI ) && CG_GetTag( targ->shared.s.number, "tag_head", &or ) ) {
-			VectorCopy( or.origin, head->shared.r.currentOrigin );
-			VectorMA( head->shared.r.currentOrigin, 6, or.axis[2], head->shared.r.currentOrigin );    // tag is at base of neck
+		if ( ( targ->shared.r.svFlags & SVF_CASTAI ) && CG_GetTag( targ->shared.s.number, "tag_head", &orientation ) ) {
+			VectorCopy( orientation.origin, head->shared.r.currentOrigin );
+			VectorMA( head->shared.r.currentOrigin, 6, orientation.axis[2], head->shared.r.currentOrigin );    // tag is at base of neck
 		} else if ( targ->client->ps.pm_flags & PMF_DUCKED ) { // closer fake offset for 'head' box when crouching
 			head->shared.r.currentOrigin[2] += targ->client->ps.crouchViewHeight + 8; // JPW NERVE 16 is kludge to get head height to match up
 		}

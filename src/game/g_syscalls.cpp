@@ -102,7 +102,7 @@ int trap_BotLibLoadMap( const char *mapname ) {
 int Export_BotLibUpdateEntity( int ent, bot_entitystate_t *state );
 int trap_BotLibUpdateEntity( int ent, void /* struct bot_updateentity_s */ *bue ) {
 	
-	return Export_BotLibUpdateEntity(ent, bue );
+	return Export_BotLibUpdateEntity(ent, (bot_entitystate_t *)bue );
 }
 
 int trap_BotGetSnapshotEntity( int clientNum, int sequence ) {
@@ -118,7 +118,7 @@ void trap_BotUserCommand( int clientNum, usercmd_t *ucmd ) {
 }
 
 void trap_AAS_EntityInfo( int entnum, void /* struct aas_entityinfo_s */ *info ) {
-	AAS_EntityInfo(entnum, info );
+	AAS_EntityInfo(entnum, (aas_entityinfo_t *)info );
 }
 
 int trap_AAS_Initialized( void ) {
@@ -178,7 +178,7 @@ int trap_AAS_Swimming( vec3_t origin ) {
 }
 
 int trap_AAS_PredictClientMovement( void /* struct aas_clientmove_s */ *move, int entnum, vec3_t origin, int presencetype, int onground, vec3_t velocity, vec3_t cmdmove, int cmdframes, int maxframes, float frametime, int stopevent, int stopareanum, int visualize ) {
-	return AAS_PredictClientMovement(move, entnum, origin, presencetype, onground, velocity, cmdmove, cmdframes, maxframes, frametime, stopevent, stopareanum, visualize );
+	return AAS_PredictClientMovement((aas_clientmove_t *)move, entnum, origin, presencetype, onground, velocity, cmdmove, cmdframes, maxframes, frametime, stopevent, stopareanum, visualize );
 }
 
 // Ridah, route-tables
@@ -200,8 +200,8 @@ qboolean trap_AAS_GetRouteFirstVisPos( vec3_t srcpos, vec3_t destpos, int travel
 	return AAS_GetRouteFirstVisPos(srcpos, destpos, travelflags, retpos );
 }
 
-extern void AAS_SetAASBlockingEntity( vec3_t absmin, vec3_t absmax, qboolean blocking );
-void trap_AAS_SetAASBlockingEntity( vec3_t absmin, vec3_t absmax, qboolean blocking ) {
+extern void AAS_SetAASBlockingEntity( vec3_t absmin, vec3_t absmax, int blocking );
+void trap_AAS_SetAASBlockingEntity( vec3_t absmin, vec3_t absmax, int blocking ) {
 	AAS_SetAASBlockingEntity( absmin, absmax, blocking );
 }
 // done.
@@ -311,11 +311,11 @@ void trap_EA_EndRegular( int client, float thinktime ) {
 }
 
 void trap_EA_GetInput( int client, float thinktime, void /* struct bot_input_s */ *input ) {
-	EA_GetInput(client, thinktime, input );
+	EA_GetInput(client, thinktime, (bot_input_t *)input );
 }
 
 void trap_EA_ResetInput( int client, void *init ) {
-	EA_ResetInput( client, init );
+	EA_ResetInput( client, (bot_input_t *)init );
 }
 
 int trap_BotLoadCharacter( char *charfile, int skill ) {
@@ -359,7 +359,7 @@ void trap_BotRemoveFromAvoidGoals( int goalstate, int number ) {
 }
 
 void trap_BotPushGoal( int goalstate, void /* struct bot_goal_s */ *goal ) {
-	BotPushGoal(goalstate, goal );
+	BotPushGoal(goalstate, (bot_goal_t *)goal );
 }
 
 void trap_BotPopGoal( int goalstate ) {
@@ -383,11 +383,11 @@ void trap_BotGoalName( int number, char *name, int size ) {
 }
 
 int trap_BotGetTopGoal( int goalstate, void /* struct bot_goal_s */ *goal ) {
-	return BotGetTopGoal(goalstate, goal );
+	return BotGetTopGoal(goalstate, (bot_goal_t *)goal );
 }
 
 int trap_BotGetSecondGoal( int goalstate, void /* struct bot_goal_s */ *goal ) {
-	return BotGetSecondGoal(goalstate, goal );
+	return BotGetSecondGoal(goalstate, (bot_goal_t *)goal );
 }
 
 int trap_BotChooseLTGItem( int goalstate, vec3_t origin, int *inventory, int travelflags ) {
@@ -395,27 +395,27 @@ int trap_BotChooseLTGItem( int goalstate, vec3_t origin, int *inventory, int tra
 }
 
 int trap_BotChooseNBGItem( int goalstate, vec3_t origin, int *inventory, int travelflags, void /* struct bot_goal_s */ *ltg, float maxtime ) {
-	return BotChooseNBGItem(goalstate, origin, inventory, travelflags, ltg, maxtime );
+	return BotChooseNBGItem(goalstate, origin, inventory, travelflags, (bot_goal_t *)ltg, maxtime );
 }
 
 int trap_BotTouchingGoal( vec3_t origin, void /* struct bot_goal_s */ *goal ) {
-	return BotTouchingGoal(origin, goal );
+	return BotTouchingGoal(origin, (bot_goal_t *)goal );
 }
 
 int trap_BotItemGoalInVisButNotVisible( int viewer, vec3_t eye, vec3_t viewangles, void /* struct bot_goal_s */ *goal ) {
-	return BotItemGoalInVisButNotVisible(viewer, eye, viewangles, goal );
+	return BotItemGoalInVisButNotVisible(viewer, eye, viewangles, (bot_goal_t *)goal );
 }
 
 int trap_BotGetLevelItemGoal( int index, const char *classname, void /* struct bot_goal_s */ *goal ) {
-	return BotGetLevelItemGoal(index, classname, goal );
+	return BotGetLevelItemGoal(index, classname, (bot_goal_t *)goal );
 }
 
 int trap_BotGetNextCampSpotGoal( int num, void /* struct bot_goal_s */ *goal ) {
-	return BotGetNextCampSpotGoal(num, goal );
+	return BotGetNextCampSpotGoal(num, (bot_goal_t *)goal );
 }
 
 int trap_BotGetMapLocationGoal( char *name, void /* struct bot_goal_s */ *goal ) {
-	return BotGetMapLocationGoal(name, goal );
+	return BotGetMapLocationGoal(name, (bot_goal_t *)goal );
 }
 
 float trap_BotAvoidGoalTime( int goalstate, int number ) {
@@ -455,7 +455,7 @@ void trap_BotResetMoveState( int movestate ) {
 }
 
 void trap_BotMoveToGoal( void /* struct bot_moveresult_s */ *result, int movestate, void /* struct bot_goal_s */ *goal, int travelflags ) {
-	BotMoveToGoal(result, movestate, goal, travelflags );
+	BotMoveToGoal((bot_moveresult_t *)result, movestate, (bot_goal_t *)goal, travelflags );
 }
 
 int trap_BotMoveInDirection( int movestate, vec3_t dir, float speed, int type ) {
@@ -475,11 +475,11 @@ int trap_BotReachabilityArea( vec3_t origin, int testground ) {
 }
 
 int trap_BotMovementViewTarget( int movestate, void /* struct bot_goal_s */ *goal, int travelflags, float lookahead, vec3_t target ) {
-	return BotMovementViewTarget(movestate, goal, travelflags, lookahead, target );
+	return BotMovementViewTarget(movestate, (bot_goal_t *)goal, travelflags, lookahead, target );
 }
 
 int trap_BotPredictVisiblePosition( vec3_t origin, int areanum, void /* struct bot_goal_s */ *goal, int travelflags, vec3_t target ) {
-	return BotPredictVisiblePosition(origin, areanum, goal, travelflags, target );
+	return BotPredictVisiblePosition(origin, areanum, (bot_goal_t *)goal, travelflags, target );
 }
 
 int trap_BotAllocMoveState( void ) {
@@ -491,7 +491,7 @@ void trap_BotFreeMoveState( int handle ) {
 }
 
 void trap_BotInitMoveState( int handle, void /* struct bot_initmove_s */ *initmove ) {
-	BotInitMoveState(handle, initmove );
+	BotInitMoveState(handle, (bot_initmove_t *)initmove );
 }
 
 // Ridah
@@ -505,7 +505,7 @@ int trap_BotChooseBestFightWeapon( int weaponstate, int *inventory ) {
 }
 
 void trap_BotGetWeaponInfo( int weaponstate, int weapon, void /* struct weaponinfo_s */ *weaponinfo ) {
-	BotGetWeaponInfo(weaponstate, weapon, weaponinfo );
+	BotGetWeaponInfo(weaponstate, weapon, (weaponinfo_t *)weaponinfo );
 }
 
 int trap_BotLoadWeaponWeights( int weaponstate, char *filename ) {

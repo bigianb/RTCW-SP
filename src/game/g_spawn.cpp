@@ -48,7 +48,7 @@ qboolean    G_SpawnString( const char *key, const char *defaultString, const cha
 }
 
 qboolean    G_SpawnFloat( const char *key, const char *defaultString, float *out ) {
-	char        *s;
+	const char        *s;
 	qboolean present;
 
 	present = G_SpawnString( key, defaultString, &s );
@@ -57,7 +57,7 @@ qboolean    G_SpawnFloat( const char *key, const char *defaultString, float *out
 }
 
 qboolean    G_SpawnInt( const char *key, const char *defaultString, int *out ) {
-	char        *s;
+	const char        *s;
 	qboolean present;
 
 	present = G_SpawnString( key, defaultString, &s );
@@ -66,7 +66,7 @@ qboolean    G_SpawnInt( const char *key, const char *defaultString, int *out ) {
 }
 
 qboolean    G_SpawnVector( const char *key, const char *defaultString, float *out ) {
-	char        *s;
+	const char        *s;
 	qboolean present;
 
 	present = G_SpawnString( key, defaultString, &s );
@@ -94,8 +94,8 @@ typedef enum {
 
 typedef struct
 {
-	char    *name;
-	int ofs;
+	const char    *name;
+	intptr_t ofs;
 	fieldtype_t type;
 	int flags;
 } gentity_field_t;
@@ -172,7 +172,7 @@ gentity_field_t fields[] = {
 
 
 typedef struct {
-	char    *name;
+	const char    *name;
 	void ( *spawn )( gentity_t *ent );
 } spawn_t;
 
@@ -657,7 +657,7 @@ char *G_NewString( const char *string )
 {
 	size_t l = strlen( string ) + 1;
 
-	char* newb = G_Alloc( l );
+	char* newb = (char *)G_Alloc( l );
 
 	char* new_p = newb;
 
@@ -781,7 +781,7 @@ char *G_AddSpawnVarToken( const char *string )
 
 qboolean GetEntityToken( char *buffer, int bufferSize )
 {
-	const char  *s = COM_Parse( &sv.entityParsePoint );
+	const char  *s = COM_Parse( (const char**)&sv.entityParsePoint );
 	Q_strncpyz( buffer, s, bufferSize );
 	if ( !sv.entityParsePoint && !s[0] ) {
 		return qfalse;
@@ -866,7 +866,7 @@ Every map should have exactly one worldspawn.
 */
 void SP_worldspawn()
 {
-	char    *s;
+	const char    *s;
 
 	G_SpawnString( "classname", "", &s );
 	if ( Q_stricmp( s, "worldspawn" ) ) {

@@ -53,7 +53,7 @@ alarmbox_updateparts
 */
 void alarmbox_updateparts( gentity_t *ent, qboolean matestoo ) {
 	gentity_t   *t, *mate;
-	qboolean alarming = ( ent->shared.s.frame == 1 );
+	bool alarming = ( ent->shared.s.frame == 1 );
 
 	// update teammates
 	if ( matestoo ) {
@@ -207,7 +207,7 @@ model: the model used is "models/mapobjects/electronics/alarmbox.md3"
 place the origin at the center of your trigger box
 */
 void SP_alarm_box( gentity_t *ent ) {
-	char *s;
+	
 
 	if ( !ent->model ) {
 		Com_Printf( S_COLOR_RED "alarm_box with NULL model\n" );
@@ -219,6 +219,7 @@ void SP_alarm_box( gentity_t *ent ) {
 	ent->shared.s.modelindex2 = G_ModelIndex( "models/mapobjects/electronics/alarmbox.md3" );
 
 	// sound
+	const char* s;
 	if ( G_SpawnString( "noise", "0", &s ) ) {
 		ent->soundLoop = G_SoundIndex( s );
 	}

@@ -112,7 +112,7 @@ Check for lava / slime contents and drowning
 =============
 */
 void P_WorldEffects( gentity_t *ent ) {
-	qboolean envirosuit;
+	bool envirosuit;
 	int waterlevel;
 
 	if ( ent->client->noclip ) {
@@ -407,7 +407,7 @@ void ClientIntermissionThink( gclient_t *client ) {
 
 	if ( ( client->buttons & ( BUTTON_ATTACK | BUTTON_USE_HOLDABLE ) & ( client->oldbuttons ^ client->buttons ) ) ||
 		 ( client->wbuttons & WBUTTON_ATTACK2 & ( client->oldwbuttons ^ client->wbuttons ) ) ) {
-		client->readyToExit ^= 1;
+		client->readyToExit = client->readyToExit == qtrue ? qfalse : qtrue;
 	}
 }
 
@@ -783,12 +783,12 @@ void ClientThink_real( gentity_t *ent ) {
 	pm.trace = SV_TraceCapsule; //SV_Trace;
 	pm.pointcontents = SV_PointContents;
 	pm.debugLevel = g_debugMove.integer;
-	pm.noFootsteps = ( g_dmflags.integer & DF_NO_FOOTSTEPS ) > 0;
+	pm.noFootsteps = ( g_dmflags.integer & DF_NO_FOOTSTEPS ) > 0 ? qtrue : qfalse;
 
 	pm.pmove_fixed = pmove_fixed.integer | client->pers.pmoveFixed;
 	pm.pmove_msec = pmove_msec.integer;
 
-	pm.noWeapClips = ( g_dmflags.integer & DF_NO_WEAPRELOAD ) > 0;
+	pm.noWeapClips = ( g_dmflags.integer & DF_NO_WEAPRELOAD ) > 0 ? qtrue : qfalse;
 	if ( ent->aiCharacter && AICast_NoReload( ent->shared.s.number ) ) {
 		pm.noWeapClips = qtrue; // ensure AI characters don't use clips if they're not supposed to.
 
@@ -845,13 +845,13 @@ void ClientThink_real( gentity_t *ent ) {
 			if ( !bogus ) {
 				// when an actor dies test if tag_head is in a contents_solid and stop slide
 				{
-					orientation_t   or;
+					orientation_t   orientation;
 					trace_t tr;
 					vec3_t start, end;
 					qboolean slide = qtrue;
 
-					if ( CG_GetTag( ent->shared.s.number, "tag_head", &or ) ) {
-						VectorCopy( or.origin, start );
+					if ( CG_GetTag( ent->shared.s.number, "tag_head", &orientation ) ) {
+						VectorCopy( orientation.origin, start );
 						VectorCopy( start, end );
 						end[2] += 1.0;
 
@@ -880,30 +880,30 @@ void ClientThink_real( gentity_t *ent ) {
 
 	} else if ( ( ent->health <= 0 ) && !( ent->flags & FL_NO_HEADCHECK ) ) { // move bodies away from walls
 
-		orientation_t or;
+		orientation_t orientation;
 		vec3_t src, vel;
 		trace_t tr;
 
 		if ( VectorLength( pm.ps->velocity ) < 100 && SV_inPVS( pm.ps->origin, g_entities[0].shared.s.pos.trBase ) ) {
 			// find the head position
-			if ( CG_GetTag( ent->shared.s.number, "tag_head", &or ) ) {
+			if ( CG_GetTag( ent->shared.s.number, "tag_head", &orientation ) ) {
 				// move up a tad
-				or.origin[2] += 3;
+				orientation.origin[2] += 3;
 				// move to tip of head
-				VectorMA( or.origin, 12, or.axis[2], or.origin );
+				VectorMA( orientation.origin, 12, orientation.axis[2], orientation.origin );
 
 				// trace from the base of our bounding box, to the head
 				VectorCopy( pm.ps->origin, src );
 				src[2] += pm.ps->mins[2] + 3;
-				if ( or.origin[2] < src[2] ) {
-					or.origin[2] = src[2];  // dont let the head sink into the ground (even if it is visually)
+				if ( orientation.origin[2] < src[2] ) {
+					orientation.origin[2] = src[2];  // dont let the head sink into the ground (even if it is visually)
 				}
-				SV_Trace( &tr, src, vec3_origin, vec3_origin, or.origin, ent->shared.s.number, MASK_SOLID, qfalse );
+				SV_Trace( &tr, src, vec3_origin, vec3_origin, orientation.origin, ent->shared.s.number, MASK_SOLID, qfalse );
 
 				// if we hit something, move away from it
 				if ( !tr.startsolid && !tr.allsolid && tr.fraction < 1.0 ) {
 					// move towards feet
-					VectorSubtract( src, or.origin, vel );
+					VectorSubtract( src, orientation.origin, vel );
 					vel[2] = 0;
 					VectorNormalize( vel );
 					VectorScale( vel, 80 /** (1.0-tr.fraction)*/, vel );

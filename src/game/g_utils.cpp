@@ -126,7 +126,7 @@ int G_FindConfigstringIndex( const char *name, int start, int max, qboolean crea
 }
 
 
-int G_ModelIndex( char *name ) {
+int G_ModelIndex( const char *name ) {
 	return G_FindConfigstringIndex( name, CS_MODELS, MAX_MODELS, qtrue );
 }
 
@@ -439,7 +439,7 @@ gentity_t *G_Spawn()
 	gentity_t* e = &g_entities[level.num_entities++];
 	
 	// let the server system know that there are more entities
-	SV_LocateGameData( level.gentities, level.num_entities, sizeof( gentity_t ),
+	SV_LocateGameData( &level.gentities[0].shared, level.num_entities, sizeof( gentity_t ),
 						 &level.clients[0].ps, sizeof( level.clients[0] ) );
 
 	G_InitGentity( e );

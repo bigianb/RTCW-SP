@@ -749,18 +749,14 @@ CG_ParseWeaponConfig
 	read information for weapon animations (first/length/fps)
 ======================
 */
-static qboolean CG_ParseWeaponConfig( const char *filename, weaponInfo_t *wi ) {
-	char *prev;
-	int len;
-	int i;
-	float fps;
-	char        *token;
-	qboolean newfmt = qfalse;       //----(SA)
+static qboolean CG_ParseWeaponConfig( const char *filename, weaponInfo_t *wi )
+{
+	qboolean newfmt = qfalse; 
 	char text[20000];
 	fileHandle_t f;
 
 	// load the file
-	len = FS_FOpenFileByMode( filename, &f, FS_READ );
+	int len = FS_FOpenFileByMode( filename, &f, FS_READ );
 	if ( len <= 0 ) {
 		return qfalse;
 	}
@@ -775,12 +771,12 @@ static qboolean CG_ParseWeaponConfig( const char *filename, weaponInfo_t *wi ) {
 	FS_FCloseFile( f );
 
 	// parse the text
-	const const *text_p = text;
+	const char *text_p = text;
 
 	// read optional parameters
 	while ( 1 ) {
-		prev = text_p;  // so we can unget
-		token = COM_Parse( &text_p );
+		const char* prev = text_p;  // so we can unget
+		const char* token = COM_Parse( &text_p );
 		if ( !token ) {                     // get the variable
 			break;
 		}
@@ -805,10 +801,10 @@ static qboolean CG_ParseWeaponConfig( const char *filename, weaponInfo_t *wi ) {
 		Com_Printf( "unknown token in weapon cfg '%s' is %s\n", token, filename );
 	}
 
+	int i;
+	for (i = 0 ; i < MAX_WP_ANIMATIONS  ; i++ ) {
 
-	for ( i = 0 ; i < MAX_WP_ANIMATIONS  ; i++ ) {
-
-		token = COM_Parse( &text_p );   // first frame
+		const char* token = COM_Parse( &text_p );   // first frame
 		if ( !token ) {
 			break;
 		}
@@ -824,7 +820,7 @@ static qboolean CG_ParseWeaponConfig( const char *filename, weaponInfo_t *wi ) {
 		if ( !token ) {
 			break;
 		}
-		fps = atof( token );
+		float fps = atof( token );
 		if ( fps == 0 ) {
 			fps = 1;
 		}

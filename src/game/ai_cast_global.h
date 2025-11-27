@@ -49,7 +49,7 @@ qboolean AICast_SameTeam( struct cast_state_s *cs, int enemynum );
 struct cast_state_s *AICast_GetCastState( int entitynum );
 void AICast_ScriptLoad( void );
 void AICast_ScriptEvent( struct cast_state_s *cs, const char *eventStr, const char *params );
-void AICast_ForceScriptEvent( struct cast_state_s *cs, const char *eventStr, char *params );
+void AICast_ForceScriptEvent( struct cast_state_s *cs, const char *eventStr, const char *params );
 qboolean AICast_AIDamageOK( struct cast_state_s *cs, struct cast_state_s *ocs );
 gentity_t *AICast_FindEntityForName( const char *name );
 gentity_t *AICast_TravEntityForName( gentity_t *startent, char *name );

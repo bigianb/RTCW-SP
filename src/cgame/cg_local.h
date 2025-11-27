@@ -2237,7 +2237,7 @@ void        trap_Key_SetCatcher( int catcher );
 int         trap_Key_GetKey( const char *binding );
 
 // RF
-void trap_SendMoveSpeedsToGame( int entnum, char *movespeeds );
+void trap_SendMoveSpeedsToGame( int entnum, const char *movespeeds );
 
 typedef enum {
 	SYSTEM_PRINT,

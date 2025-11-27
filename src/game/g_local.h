@@ -121,7 +121,7 @@ typedef struct gclient_s gclient_t;
 // Scripting, these structure are not saved into savegames (parsed each start)
 typedef struct
 {
-	char    *actionString;
+	const char    *actionString;
 	qboolean ( *actionFunc )( gentity_t *ent, char *params );
 } g_script_stack_action_t;
 //
@@ -150,7 +150,7 @@ typedef struct
 //
 typedef struct
 {
-	char        *eventStr;
+	const char        *eventStr;
 	qboolean ( *eventMatch )( g_script_event_t *event, char *eventParm );
 } g_script_event_define_t;
 //
@@ -172,7 +172,7 @@ typedef struct
 //
 #define G_MAX_SCRIPT_ACCUM_BUFFERS  8
 //
-void G_Script_ScriptEvent( gentity_t *ent, char *eventStr, char *params );
+void G_Script_ScriptEvent( gentity_t *ent, const char *eventStr, const char *params );
 //====================================================================
 
 
@@ -199,7 +199,7 @@ struct gentity_s {
 
 	int flags;                      // FL_* variables
 
-	char        *model;
+	const char        *model;
 	char        *model2;
 	int freetime;                   // level.time when the object was freed
 
@@ -317,7 +317,7 @@ struct gentity_s {
 
 	// Ridah, AI fields
 	char        *aiAttributes;
-	char        *aiName;
+	const char        *aiName;
 	int aiTeam;
 	void ( *AIScript_AlertEntity )( gentity_t *ent );
 	qboolean aiInactive;
@@ -328,14 +328,14 @@ struct gentity_s {
 	const char        *aihSkin;
 
 	vec3_t dl_color;
-	char        *dl_stylestring;
+	const char        *dl_stylestring;
 	char        *dl_shader;
 	int dl_atten;
 
 
 	int key;                    // used by:  target_speaker->nopvs,
 
-	qboolean active;
+	int active;
 	qboolean botDelayBegin;
 
 	// Rafael - mg42
@@ -388,7 +388,7 @@ struct gentity_s {
 	char        *track;
 
 	// entity scripting system
-	char                *scriptName;
+	const char                *scriptName;
 
 	int numScriptEvents;
 	g_script_event_t    *scriptEvents;  // contains a list of actions to perform for each event type
@@ -400,7 +400,7 @@ struct gentity_s {
 	qboolean AASblocking;
 	float accuracy;
 
-	char        *tagName;       // name of the tag we are attached to
+	const char        *tagName;       // name of the tag we are attached to
 	gentity_t   *tagParent;
 
 	float headshotDamageScale;
@@ -788,7 +788,7 @@ void Spawn_Shard( gentity_t *ent, gentity_t *inflictor, int quantity, int type )
 // Ridah
 int G_FindConfigstringIndex( const char *name, int start, int max, qboolean create );
 // done.
-int G_ModelIndex( char *name );
+int G_ModelIndex( const char *name );
 int     G_SoundIndex( const char *name );
 
 void    G_KillBox( gentity_t *ent );
@@ -976,7 +976,7 @@ void G_ChangeLevel( char *mapName );
 //
 // g_client.c
 //
-char *ClientConnect( int clientNum, qboolean firstTime, qboolean isBot );
+const char *ClientConnect( int clientNum, qboolean firstTime, qboolean isBot );
 void ClientUserinfoChanged( int clientNum );
 void ClientDisconnect( int clientNum );
 void ClientBegin( int clientNum );
@@ -1040,15 +1040,15 @@ int Cmd_WolfKick_f( gentity_t *ent );
 // Ridah
 
 // g_save.c
-qboolean G_SaveGame( char *username );
-void G_LoadGame( char *username );
+qboolean G_SaveGame( const char *username );
+void G_LoadGame( const char *username );
 qboolean G_SavePersistant( char *nextmap );
 void G_LoadPersistant( void );
 
 // g_script.c
 void G_Script_ScriptParse( gentity_t *ent );
 qboolean G_Script_ScriptRun( gentity_t *ent );
-void G_Script_ScriptEvent( gentity_t *ent, char *eventStr, char *params );
+
 void G_Script_ScriptLoad( void );
 
 float AngleDifference( float ang1, float ang2 );
@@ -1191,7 +1191,7 @@ void        trap_AAS_RT_ShowRoute( vec3_t srcpos, int srcnum, int destnum );
 qboolean    trap_AAS_RT_GetHidePos( vec3_t srcpos, int srcnum, int srcarea, vec3_t destpos, int destnum, int destarea, vec3_t returnPos );
 int         trap_AAS_FindAttackSpotWithinRange( int srcnum, int rangenum, int enemynum, float rangedist, int travelflags, float *outpos );
 qboolean    trap_AAS_GetRouteFirstVisPos( vec3_t srcpos, vec3_t destpos, int travelflags, vec3_t retpos );
-void        trap_AAS_SetAASBlockingEntity( vec3_t absmin, vec3_t absmax, qboolean blocking );
+void        trap_AAS_SetAASBlockingEntity( vec3_t absmin, vec3_t absmax, int blocking );
 // done.
 
 void    trap_EA_Say( int client, char *str );

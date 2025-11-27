@@ -10,13 +10,13 @@ typedef enum {
 } saveFieldtype_t;
 
 typedef struct {
-	int ofs;
+	intptr_t ofs;
 	saveFieldtype_t type;
 } saveField_t;
 
 //.......................................................................................
 // this stores all functions in the game code
 typedef struct {
-	char *funcStr;
+	const char *funcStr;
 	byte *funcPtr;
 } funcList_t;
