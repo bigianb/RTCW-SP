@@ -27,9 +27,6 @@ If you have questions concerning this license or the applicable additional terms
 */
 
 #pragma once
-#ifdef __cplusplus
-extern "C" {
-#endif
 
 //projectile flags
 #define PFL_WINDOWDAMAGE            1       //projectile damages through window
@@ -104,6 +101,3 @@ void BotFreeWeaponState( int weaponstate );
 //resets the whole weapon state
 void BotResetWeaponState( int weaponstate );
 
-#ifdef __cplusplus
-}
-#endif

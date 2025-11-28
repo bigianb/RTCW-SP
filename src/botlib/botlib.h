@@ -37,10 +37,6 @@ If you have questions concerning this license or the applicable additional terms
 
 #pragma once
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 #include "be_aas_routetable.h"
 
 
@@ -481,6 +477,3 @@ name:						default:			module(s):			description:
 
 */
 
-#ifdef __cplusplus
-}
-#endif

@@ -27,9 +27,7 @@ If you have questions concerning this license or the applicable additional terms
 */
 
 #pragma once
-#ifdef __cplusplus
-extern "C" {
-#endif
+
 
 #define RTBID                       ( ( 'B' << 24 ) + ( 'T' << 16 ) + ( 'R' << 8 ) + 'X' )
 #define RTBVERSION                  17
@@ -159,6 +157,4 @@ qboolean AAS_RT_GetHidePos( vec3_t srcpos, int srcnum, int srcarea, vec3_t destp
 int AAS_RT_GetReachabilityIndex( int areanum, int reachIndex );
 
 
-#ifdef __cplusplus
-}
-#endif
+

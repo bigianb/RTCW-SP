@@ -28,9 +28,7 @@ If you have questions concerning this license or the applicable additional terms
 
 
 #pragma once
-#ifdef __cplusplus
-extern "C" {
-#endif
+
 
 #ifndef _MAX_PATH
 	#define MAX_PATH            MAX_QPATH
@@ -177,6 +175,3 @@ int PC_ReadTokenHandle( int handle, struct pc_token_s *pc_token );
 int PC_SourceFileAndLine( int handle, char *filename, int *line );
 void PC_CheckOpenSourceHandles( void );
 
-#ifdef __cplusplus
-}
-#endif

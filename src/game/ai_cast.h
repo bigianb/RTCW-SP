@@ -37,9 +37,7 @@ If you have questions concerning this license or the applicable additional terms
 
 #pragma once
 
-#ifdef __cplusplus
-extern "C" {
-#endif
+
 
 #include "../botai/ai_main.h"    // just so we can use the structures
 #include "../botai/ai_dmq3.h"    // just so we can use the structures
@@ -752,7 +750,3 @@ void    GibEntity( gentity_t *self, int killer );
 void    GibHead( gentity_t *self, int killer );
 //
 extern bot_state_t  *botstates[MAX_CLIENTS];
-
-#ifdef __cplusplus
-}
-#endif

@@ -526,8 +526,8 @@ void SV_SetExpectedHunkUsage( char *mapname )
 		FS_FCloseFile( handle );
 
 		// now parse the file, filtering out the current map
-		char* buftrav = buf;
-		char* token;
+		const char* buftrav = buf;
+		const char* token;
 		while ( ( token = COM_Parse( &buftrav ) ) && token[0] ) {
 			if ( !Q_strcasecmp( token, mapname ) ) {
 				// found a match

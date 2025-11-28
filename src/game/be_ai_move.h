@@ -27,9 +27,7 @@ If you have questions concerning this license or the applicable additional terms
 */
 
 #pragma once
-#ifdef __cplusplus
-extern "C" {
-#endif
+
 
 
 //movement types
@@ -129,6 +127,3 @@ void BotShutdownMoveAI( void );
 void BotInitAvoidReach( int handle );
 // done.
 
-#ifdef __cplusplus
-}
-#endif

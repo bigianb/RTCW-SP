@@ -349,7 +349,7 @@ void COM_ParseError( char *format, ... ) {
 	static char string[4096];
 
 	va_start( argptr, format );
-	vsprintf( string, format, argptr );
+	vsnprintf( string, sizeof(string), format, argptr );
 	va_end( argptr );
 
 	Com_Printf( "ERROR: %s, line %d: %s\n", com_parsename, com_lines, string );
@@ -365,7 +365,7 @@ void COM_ParseWarning( char *format, ... ) {
 	static char string[4096];
 
 	va_start( argptr, format );
-	vsprintf( string, format, argptr );
+	vsnprintf( string, sizeof(string), format, argptr );
 	va_end( argptr );
 
 	Com_Printf( "WARNING: %s, line %d: %s\n", com_parsename, com_lines, string );
@@ -604,8 +604,8 @@ void SkipBracedSection( const char **program ) {
 SkipRestOfLine
 =================
 */
-void SkipRestOfLine( char **data ) {
-	char    *p;
+void SkipRestOfLine( const char **data ) {
+	const char    *p;
 	int c;
 
 	p = *data;

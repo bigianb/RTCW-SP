@@ -2093,7 +2093,7 @@ R_LoadCacheModels
 void R_LoadCacheModels( void ) {
 	int len;
 	byte *buf;
-	char    *token, *pString;
+	char    *token;
 	char name[MAX_QPATH];
 
 	//Com_Printf("R_LoadCachedModels\n");
@@ -2115,7 +2115,7 @@ void R_LoadCacheModels( void ) {
 
 	buf = (byte *)Hunk_AllocateTempMemory( len );
 	FS_ReadFile( "model.cache", (void **)&buf );
-	pString = (char*)buf;       //DAJ added (char*)
+	const char* pString = (const char*)buf;       //DAJ added (char*)
 
 	while ( ( token = COM_ParseExt( &pString, qtrue ) ) && token[0] ) {
 		Q_strncpyz( name, token, sizeof( name ) );

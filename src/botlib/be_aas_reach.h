@@ -28,9 +28,7 @@ If you have questions concerning this license or the applicable additional terms
 
 
 #pragma once
-#ifdef __cplusplus
-extern "C" {
-#endif
+
 
 //initialize calculating the reachabilities
 void AAS_InitReachability( void );
@@ -68,6 +66,4 @@ int AAS_AreaDoNotEnter( int areanum );
 //returns true if the area is donotenterlarge
 int AAS_AreaDoNotEnterLarge( int areanum );
 
-#ifdef __cplusplus
-}
-#endif
+

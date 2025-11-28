@@ -27,9 +27,7 @@ If you have questions concerning this license or the applicable additional terms
 */
 
 #pragma once
-#ifdef __cplusplus
-extern "C" {
-#endif
+
 
 #include "botlib.h"
 
@@ -94,6 +92,3 @@ extern int bot_developer;                   //true if developer is on
 //
 int Sys_MilliSeconds( void );
 
-#ifdef __cplusplus
-}
-#endif

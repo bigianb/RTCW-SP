@@ -48,7 +48,7 @@ static shader_t*       hashTable[FILE_HASH_SIZE];
 // values.
 typedef struct shaderStringPointer_s
 {
-	char *pStr;
+	const char *pStr;
 	struct shaderStringPointer_s *next;
 } shaderStringPointer_t;
 //
@@ -129,7 +129,7 @@ void R_RemapShader( const char *shaderName, const char *newShaderName, const cha
 ParseVector
 ===============
 */
-static qboolean ParseVector( char **text, int count, float *v ) {
+static qboolean ParseVector( const char **text, int count, float *v ) {
 	char    *token;
 	int i;
 
@@ -266,8 +266,8 @@ static genFunc_t NameToGenFunc( const char *funcname ) {
 ParseWaveForm
 ===================
 */
-static void ParseWaveForm( char **text, waveForm_t *wave ) {
-	char *token;
+static void ParseWaveForm( const char **text, waveForm_t *wave ) {
+	const char *token;
 
 	token = COM_ParseExt( text, qfalse );
 	if ( token[0] == 0 ) {
@@ -312,9 +312,9 @@ static void ParseWaveForm( char **text, waveForm_t *wave ) {
 ParseTexMod
 ===================
 */
-static void ParseTexMod( char *_text, shaderStage_t *stage ) {
+static void ParseTexMod( const char *_text, shaderStage_t *stage ) {
 	const char *token;
-	char **text = &_text;
+	const char **text = &_text;
 	texModInfo_t *tmi;
 
 	if ( stage->bundle[0].numTexMods == TR_MAX_TEXMODS ) {
@@ -520,7 +520,7 @@ static void ParseTexMod( char *_text, shaderStage_t *stage ) {
 ParseStage
 ===================
 */
-static qboolean ParseStage( shaderStage_t *stage, char **text ) {
+static qboolean ParseStage( shaderStage_t *stage, const char **text ) {
 	const char *token;
 	int depthMaskBits = GLS_DEPTHMASK_TRUE, blendSrcBits = 0, blendDstBits = 0, atestBits = 0, depthFuncBits = 0;
 	qboolean depthMaskExplicit = qfalse;
@@ -1009,8 +1009,8 @@ deformVertexes autoSprite2
 deformVertexes text[0-7]
 ===============
 */
-static void ParseDeform( char **text ) {
-	char    *token;
+static void ParseDeform( const char **text ) {
+	const char *token;
 	deformStage_t   *ds;
 
 	token = COM_ParseExt( text, qfalse );
@@ -1146,8 +1146,8 @@ ParseSkyParms
 skyParms <outerbox> <cloudheight> <innerbox>
 ===============
 */
-static void ParseSkyParms( char **text ) {
-	char        *token;
+static void ParseSkyParms( const char **text ) {
+	const char        *token;
 	static const char *suf[6] = {"rt", "bk", "lf", "ft", "up", "dn"};
 	char pathname[MAX_QPATH];
 	int i;
@@ -1208,8 +1208,8 @@ static void ParseSkyParms( char **text ) {
 ParseSort
 =================
 */
-void ParseSort( char **text ) {
-	char    *token;
+void ParseSort( const char **text ) {
+	const char *token;
 
 	token = COM_ParseExt( text, qfalse );
 	if ( token[0] == 0 ) {
@@ -1338,8 +1338,8 @@ ParseSurfaceParm
 surfaceparm <name>
 ===============
 */
-static void ParseSurfaceParm( char **text ) {
-	char    *token;
+static void ParseSurfaceParm( const char **text ) {
+	const char    *token;
 	int numInfoParms = sizeof( infoParms ) / sizeof( infoParms[0] );
 	int i;
 
@@ -1362,8 +1362,8 @@ shader.  Parse it into the global shader variable.  Later functions
 will optimize it.
 =================
 */
-static qboolean ParseShader( char **text ) {
-	char *token;
+static qboolean ParseShader( const char **text ) {
+	const char *token;
 	int s;
 
 	s = 0;
@@ -2306,9 +2306,9 @@ return NULL if not found
 If found, it will return a valid shader
 =====================
 */
-static char *FindShaderInShaderText( const char *shadername ) {
-	char *p = s_shaderText;
-	char *token;
+static const char *FindShaderInShaderText( const char *shadername ) {
+	const char *p = s_shaderText;
+	const char *token;
 
 	if ( !p ) {
 		return NULL;
@@ -2434,7 +2434,7 @@ shader_t *R_FindShader( const char *name, int lightmapIndex, qboolean mipRawImag
 	char strippedName[MAX_QPATH];
 	char fileName[MAX_QPATH];
 	int i;
-	char        *shaderText;
+	const char        *shaderText;
 	image_t     *image;
 	shader_t    *sh;
 
@@ -2876,8 +2876,9 @@ BuildShaderChecksumLookup
 ====================
 */
 static void BuildShaderChecksumLookup( void ) {
-	char *p = s_shaderText, *pOld;
-	char *token;
+	const char *p = s_shaderText;
+	const char *pOld;
+	const char *token;
 	unsigned short int checksum;
 	int numShaderStringPointers = 0;
 
@@ -3230,7 +3231,7 @@ R_LoadCacheShaders
 void R_LoadCacheShaders( void ) {
 
 	byte *buf;
-	char    *token, *pString;
+	const char    *token, *pString;
 	char name[MAX_QPATH];
 
 	if ( !r_cacheShaders->integer ) {

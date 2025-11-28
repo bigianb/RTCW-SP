@@ -51,7 +51,7 @@ void SV_DirectConnect( netadr_t from ) {
 	int challenge;
 
 	int startIndex;
-	char        *denied;
+
 	int count;
 
 	Com_DPrintf( "SVC_DirectConnect ()\n" );
@@ -184,7 +184,7 @@ gotnewcl:
 	Q_strncpyz( newcl->userinfo, userinfo, sizeof( newcl->userinfo ) );
 
 	// get the game a chance to reject this connection or modify the userinfo
-	denied = ClientConnect( clientNum, qtrue, qfalse ); // firstTime = qtrue
+	const char* denied = ClientConnect( clientNum, qtrue, qfalse ); // firstTime = qtrue
 	if ( denied ) {
 		NET_OutOfBandPrint( NS_SERVER, from, "print\n%s\n", denied );
 		Com_DPrintf( "Game rejected a connection: %s.\n", denied );

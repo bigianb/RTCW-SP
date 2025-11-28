@@ -28,10 +28,6 @@ If you have questions concerning this license or the applicable additional terms
 
 #pragma once
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 #include "../botlib/be_aas_def.h"
 #include "../botai/botai.h"
 #include "../game/be_ai_goal.h"
@@ -230,7 +226,3 @@ int     BotAI_GetSnapshotEntity( int clientNum, int sequence, entityState_t *sta
 
 float   BotChangeViewAngle( float angle, float ideal_angle, float speed );
 void    BotCheckAir( bot_state_t *bs );
-
-#ifdef __cplusplus
-}
-#endif

@@ -27,12 +27,6 @@ If you have questions concerning this license or the applicable additional terms
 */
 
 
-
-#ifdef __cplusplus
-extern "C" {
-#endif
-
-
 void S_Init( void );
 void S_Shutdown( void );
 void S_UpdateThread( void );
@@ -91,9 +85,4 @@ void S_DisplayFreeMemory( void );
 
 //
 int S_GetVoiceAmplitude( int entityNum );
-
-
-#ifdef __cplusplus
-}
-#endif
 

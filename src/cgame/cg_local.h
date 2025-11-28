@@ -39,9 +39,6 @@ If you have questions concerning this license or the applicable additional terms
 
 #pragma once
 
-#ifdef __cplusplus
-extern "C" {
-#endif
 
 #include "../game/q_shared.h"
 #include "tr_types.h"
@@ -2276,7 +2273,3 @@ void CG_StartShakeCamera( float p, int duration, vec3_t src, float radius );
 qboolean    trap_GetModelInfo( int clientNum, char *modelName, animModelInfo_t **modelInfo );
 
 void CL_GetGlconfig( glconfig_t *glconfig );
-
-#ifdef __cplusplus
-}
-#endif

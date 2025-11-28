@@ -28,9 +28,6 @@ If you have questions concerning this license or the applicable additional terms
 
 #pragma once
 
-#ifdef __cplusplus
-extern "C" {
-#endif
 
 //initialize the AAS routing
 void AAS_InitRouting( void );
@@ -62,6 +59,3 @@ int AAS_AreaTravelTimeToGoalAreaCheckLoop( int areanum, vec3_t origin, int goala
 
 extern int BotFuzzyPointReachabilityArea( vec3_t origin );
 
-#ifdef __cplusplus
-}
-#endif

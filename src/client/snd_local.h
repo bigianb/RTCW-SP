@@ -27,9 +27,7 @@ If you have questions concerning this license or the applicable additional terms
 */
 
 #pragma once
-#ifdef __cplusplus
-extern "C" {
-#endif
+
 
 
 #include "../game/q_shared.h"
@@ -317,6 +315,3 @@ extern unsigned char s_entityTalkAmplitude[MAX_CLIENTS];
 
 extern float S_GetStreamingFade( streamingSound_t *ss );    //----(SA)	added
 
-#ifdef __cplusplus
-}
-#endif

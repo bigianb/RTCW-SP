@@ -37,10 +37,6 @@ If you have questions concerning this license or the applicable additional terms
 
 #pragma once
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 #include "../botlib/be_aas_entity.h"
 #include "../game/be_ai_move.h"
 #include "../game/be_ai_goal.h"
@@ -144,7 +140,3 @@ extern vmCvar_t bot_rocketjump;
 extern vmCvar_t bot_fastchat;
 extern vmCvar_t bot_nochat;
 extern vmCvar_t bot_testrchat;
-
-#ifdef __cplusplus
-}
-#endif  

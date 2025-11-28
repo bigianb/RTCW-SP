@@ -27,9 +27,7 @@ If you have questions concerning this license or the applicable additional terms
 */
 
 #pragma once
-#ifdef __cplusplus
-extern "C" {
-#endif
+
 
 #include "../botlib/be_aas_def.h"
 #include "../botlib/be_aas.h"
@@ -72,6 +70,3 @@ int AAS_EntityModelindex( int entnum );
 // Ridah
 int AAS_IsEntityInArea( int entnumIgnore, int entnumIgnore2, int areanum );
 
-#ifdef __cplusplus
-}
-#endif

@@ -28,9 +28,7 @@ If you have questions concerning this license or the applicable additional terms
 
 
 #pragma once
-#ifdef __cplusplus
-extern "C" {
-#endif
+
 
 //loads a bot character from a file
 int BotLoadCharacter( char *charfile, int skill );
@@ -49,6 +47,3 @@ void Characteristic_String( int character, int index, char *buf, int size );
 //free cached bot characters
 void BotShutdownCharacters( void );
 
-#ifdef __cplusplus
-}
-#endif

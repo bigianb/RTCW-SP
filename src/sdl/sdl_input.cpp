@@ -118,7 +118,7 @@ static bool IN_IsConsoleKey( keyNum_t key, int character )
 	// Only parse the variable when it changes
 	if( cl_consoleKeys->modified )
 	{
-		char *text_p, *token;
+		const char *text_p, *token;
 
 		cl_consoleKeys->modified = qfalse;
 		text_p = cl_consoleKeys->string;

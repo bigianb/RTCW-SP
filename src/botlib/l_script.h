@@ -27,9 +27,7 @@ If you have questions concerning this license or the applicable additional terms
 */
 
 #pragma once
-#ifdef __cplusplus
-extern "C" {
-#endif
+
 
 //undef if binary numbers of the form 0b... or 0B... are not allowed
 #define BINARYNUMBERS
@@ -247,8 +245,3 @@ void  ScriptError( script_t *script, const char *str, ... );
 //print a script warning with filename and line number
 void  ScriptWarning( script_t *script, const char *str, ... );
 
-
-
-#ifdef __cplusplus
-}
-#endif

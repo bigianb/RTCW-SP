@@ -608,12 +608,12 @@ static void UI_LoadTranslationStrings( void )
 	buffer[len] = 0;
 	FS_FCloseFile( f );
 	// parse the list
-	char* text = buffer;
+	const char* text = buffer;
 
 	int numStrings = sizeof( translateStrings ) / sizeof( translateStrings[0] ) - 1;
 
 	for (int i = 0; i < numStrings; i++ ) {
-		char* token = COM_ParseExt( &text, qtrue );
+		const char* token = COM_ParseExt( &text, qtrue );
 		if ( !token[0] ) {
 			break;
 		}
@@ -1602,7 +1602,7 @@ static void scriptResetDefaults()
     Cbuf_ExecuteText( EXEC_APPEND, "vid_restart\n" );
 }
 
-static void UI_RunMenuScript( char **args ) {
+static void UI_RunMenuScript( const char **args ) {
 	const char *name, *name2;
 	char buff[1024];
 
@@ -1630,7 +1630,7 @@ static void UI_RunMenuScript( char **args ) {
 			UI_DelSavegame();
 		} else if ( Q_stricmp( name, "SavegameSort" ) == 0 ) {
 			int sortColumn;
-			if ( Int_Parse( args, &sortColumn ) ) {
+			if ( Int_Parse( (const char**)args, &sortColumn ) ) {
 				// if same column we're already sorting on then flip the direction
 				if ( sortColumn == uiInfo.savegameStatus.sortKey ) {
 					uiInfo.savegameStatus.sortDir = !uiInfo.savegameStatus.sortDir;
