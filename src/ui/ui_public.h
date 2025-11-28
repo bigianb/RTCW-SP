@@ -28,10 +28,6 @@ If you have questions concerning this license or the applicable additional terms
 
 #pragma once
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 #define UI_API_VERSION  4
 
 typedef struct {
@@ -236,6 +232,3 @@ typedef enum {
 // a GetClientState syscall will be made to get the current strings
 } uiExport_t;
 
-#ifdef __cplusplus
-}
-#endif

@@ -438,9 +438,6 @@ void Com_Parse2DMatrix( const char *( *buf_p ), int y, int x, float *m );
 void Com_Parse3DMatrix( const char *( *buf_p ), int z, int y, int x, float *m );
 
 //=====================================================================================
-#ifdef __cplusplus
-extern "C" {
-#endif
 
 int Q_isprint( int c );
 int Q_islower( int c );
@@ -480,13 +477,6 @@ float   LittleFloat( float l );
 void    Swap_Init( void );
 char    *  va( const char *format, ... );
 
-#ifdef __cplusplus
-}
-#endif
-
-
-//=============================================
-#ifdef __cplusplus
 //
 // mapfile parsing
 //
@@ -557,38 +547,29 @@ const char  *ValueForMapEntityKey( const mapEntity_t *ent, const char *key );
 float   FloatForMapEntityKey( const mapEntity_t *ent, const char *key );
 qboolean    GetVectorForMapEntityKey( const mapEntity_t *ent, const char *key, idVec3 &vec );
 
+
 typedef struct {
 	idVec3 xyz;
 	idVec2 st;
 	idVec3 normal;
 	idVec3 tangents[2];
 	byte smoothing[4];              // colors for silhouette smoothing
-} drawVert_t;
+} iddrawVert_t;
 
 typedef struct {
 	int width, height;
-	drawVert_t  *verts;
+	iddrawVert_t  *verts;
 } drawVertMesh_t;
 
 // Tesselate a map patch into smoothed, drawable vertexes
 // MaxError of around 4 is reasonable
 drawVertMesh_t *SubdivideMapPatch( const mapPatch_t *patch, float maxError );
-#endif          // __cplusplus
 
 //=========================================
-
-#ifdef __cplusplus
-extern "C" {
-#endif
 
 void  Com_Error( int level, const char *error, ... );
 void  Com_Printf( const char *msg, ... );
 void  Com_DPrintf( const char *msg, ... );
-
-#ifdef __cplusplus
-}
-#endif
-
 
 typedef struct {
 	qboolean frameMemory;

@@ -2064,6 +2064,11 @@ void CG_EntityEvent( centity_t *cent, vec3_t position ) {
 
 		break;
 
+	case EV_OBITUARY:
+		DEBUGNAME( "EV_OBITUARY" );
+		// no obit in single player
+		break;
+
 		//
 		// powerup events
 		//

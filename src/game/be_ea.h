@@ -27,9 +27,6 @@ If you have questions concerning this license or the applicable additional terms
 */
 
 #pragma once
-#ifdef __cplusplus
-extern "C" {
-#endif
 
 #include "../botlib/botlib.h"
 
@@ -68,7 +65,3 @@ void EA_ResetInput( int client, bot_input_t *init );
 //setup and shutdown routines
 int EA_Setup( void );
 void EA_Shutdown( void );
-
-#ifdef __cplusplus
-}
-#endif

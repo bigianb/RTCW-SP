@@ -29,16 +29,7 @@ If you have questions concerning this license or the applicable additional terms
 #include "q_splineshared.h"
 #include "splines.h"
 #include "splines_camera.h"
-
-extern "C" {
-int FS_Write( const void *buffer, int len, fileHandle_t h );
-int FS_ReadFile( const char *qpath, void **buffer );
-void FS_FreeFile( void *buffer );
-fileHandle_t FS_FOpenFileWrite( const char *filename );
-void FS_FCloseFile( fileHandle_t f );
-void Cbuf_AddText( const char *text );
-void Cbuf_Execute( void );
-}
+#include "../qcommon/qcommon.h"
 
 // (SA) making a list of cameras so I can use
 //		the splines as targets for other things.

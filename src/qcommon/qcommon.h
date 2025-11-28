@@ -27,9 +27,7 @@ If you have questions concerning this license or the applicable additional terms
 */
 
 #pragma once
-#ifdef __cplusplus
-extern "C" {
-#endif
+
 
 #include "../qcommon/cm_public.h"
 
@@ -964,6 +962,3 @@ void IN_Restart( void );
 
 #define ARRAY_LEN(x)			(sizeof(x) / sizeof(*(x)))
 
-#ifdef __cplusplus
-}
-#endif

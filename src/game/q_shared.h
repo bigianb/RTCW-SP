@@ -28,10 +28,6 @@ If you have questions concerning this license or the applicable additional terms
 
 #pragma once
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 // q_shared.h -- included first by ALL program modules.
 // A user mod should never modify this file
 
@@ -1209,6 +1205,3 @@ typedef enum {
 
 #include "../qcommon/entity_state.h"
 
-#ifdef __cplusplus
-}
-#endif

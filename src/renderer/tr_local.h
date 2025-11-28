@@ -28,10 +28,6 @@ If you have questions concerning this license or the applicable additional terms
 
 #pragma once
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 #include "../game/q_shared.h"
 #include "../qcommon/qfiles.h"
 #include "../qcommon/qcommon.h"
@@ -1811,6 +1807,3 @@ void *R_Hunk_Begin( void );
 void R_Hunk_End( void );
 void R_FreeImageBuffer( void );
 
-#ifdef __cplusplus
-}
-#endif	

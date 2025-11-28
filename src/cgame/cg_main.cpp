@@ -151,15 +151,13 @@ vmCvar_t cg_deferPlayers;
 
 vmCvar_t cg_enableBreath;
 vmCvar_t cg_autoactivate;
-vmCvar_t cg_useSuggestedWeapons;    //----(SA)	added
+vmCvar_t cg_useSuggestedWeapons; 
 vmCvar_t cg_emptyswitch;
 vmCvar_t cg_particleDist;
 vmCvar_t cg_particleLOD;
-vmCvar_t cg_blinktime;      //----(SA)	added
+vmCvar_t cg_blinktime;
 
 vmCvar_t cg_smoothClients;
-vmCvar_t pmove_fixed;
-vmCvar_t pmove_msec;
 
 // Rafael - particle switch
 vmCvar_t cg_wolfparticles;

@@ -28,10 +28,6 @@ If you have questions concerning this license or the applicable additional terms
 
 #pragma once
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 #include "../game/q_shared.h"
 #include "../cgame/tr_types.h"
 #include "../cgame/cg_local.h"
@@ -863,6 +859,3 @@ void UI_SoundOptionsMenu( void );
 //
 void UI_OwnerDraw( float x, float y, float w, float h, float text_x, float text_y, int ownerDraw, int ownerDrawFlags, int align, float special, int font, float scale, vec4_t color, qhandle_t shader, int textStyle );
 
-#ifdef __cplusplus
-}
-#endif

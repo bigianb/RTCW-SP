@@ -27,9 +27,6 @@ If you have questions concerning this license or the applicable additional terms
 */
 
 #pragma once
-#ifdef __cplusplus
-extern "C" {
-#endif
 
 #include "../game/q_shared.h"
 #include "../qcommon/qcommon.h"
@@ -380,7 +377,3 @@ void SV_Netchan_Transmit( client_t *client, msg_t *msg );    //int length, const
 void SV_Netchan_TransmitNextFragment( netchan_t *chan );
 qboolean SV_Netchan_Process( client_t *client, msg_t *msg );
 
-
-#ifdef __cplusplus
-}
-#endif

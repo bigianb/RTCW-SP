@@ -172,10 +172,6 @@ maplocation_t *maplocations = NULL;
 //camp spots
 campspot_t *campspots = NULL;
 
-// Rafael gameskill
-int g_gameskill;
-// done
-
 //========================================================================
 //
 // Parameter:				-

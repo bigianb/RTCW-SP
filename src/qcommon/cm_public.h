@@ -27,9 +27,6 @@ If you have questions concerning this license or the applicable additional terms
 */
 
 #pragma once
-#ifdef __cplusplus
-extern "C" {
-#endif
 
 #include "qfiles.h"
 
@@ -83,7 +80,3 @@ int         CM_LerpTag( orientation_t *tag, const refEntity_t *refent, const cha
 // cm_marks.c
 int CM_MarkFragments( int numPoints, const vec3_t *points, const vec3_t projection,
 					  int maxPoints, vec3_t pointBuffer, int maxFragments, markFragment_t *fragmentBuffer );
-
-#ifdef __cplusplus
-}
-#endif

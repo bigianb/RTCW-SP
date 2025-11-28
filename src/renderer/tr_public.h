@@ -27,9 +27,6 @@ If you have questions concerning this license or the applicable additional terms
 */
 
 #pragma once
-#ifdef __cplusplus
-extern "C" {
-#endif
 
 #include "../cgame/tr_types.h"
 
@@ -201,6 +198,3 @@ typedef struct {
 // returned.
 refexport_t*GetRefAPI( int apiVersion, refimport_t *rimp );
 
-#ifdef __cplusplus
-}
-#endif

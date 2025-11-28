@@ -28,10 +28,6 @@ If you have questions concerning this license or the applicable additional terms
 
 #pragma once
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 #include "../game/q_shared.h"
 #include "../cgame/tr_types.h"
 #include "keycodes.h"
@@ -489,6 +485,3 @@ int         trap_PC_LoadSource( const char *filename );
 int         trap_PC_FreeSource( int handle );
 int         PC_ReadTokenHandle( int handle, pc_token_t *pc_token );
 
-#ifdef __cplusplus
-}
-#endif

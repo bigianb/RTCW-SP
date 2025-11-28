@@ -28,10 +28,6 @@ If you have questions concerning this license or the applicable additional terms
 
 #pragma once
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 #include "ai_cast.h"
 #include "g_save.h"
 
@@ -1422,7 +1418,3 @@ extern void AIChar_Pain ( gentity_t * ent , gentity_t * attacker , int damage , 
 extern int AIChar_GetPainLocation ( gentity_t * ent , vec3_t point ) ;
 extern void AIChar_Death ( gentity_t * ent , gentity_t * attacker , int damage , int mod ) ;
 extern void AIChar_SetBBox ( gentity_t * ent , cast_state_t * cs , qboolean useHeadTag ) ;
-
-#ifdef __cplusplus
-}
-#endif
