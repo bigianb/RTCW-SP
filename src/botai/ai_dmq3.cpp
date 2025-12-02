@@ -422,14 +422,14 @@ bool BotIsDead( bot_state_t *bs ) {
 BotIsObserver
 ==================
 */
-qboolean BotIsObserver( bot_state_t *bs ) {
+bool BotIsObserver( bot_state_t *bs ) {
 	char buf[MAX_INFO_STRING];
 	if ( bs->cur_ps.pm_type == PM_SPECTATOR ) {
-		return qtrue;
+		return true;
 	}
 	SV_GetConfigstring( CS_PLAYERS + bs->client, buf, sizeof( buf ) );
 
-	return qfalse;
+	return false;
 }
 
 /*
@@ -440,7 +440,7 @@ BotIntermission
 bool BotIntermission( bot_state_t *bs ) {
 	//NOTE: we shouldn't look at the game code...
 	if ( level.intermissiontime ) {
-		return qtrue;
+		return true;
 	}
 	return ( bs->cur_ps.pm_type == PM_FREEZE || bs->cur_ps.pm_type == PM_INTERMISSION );
 }
@@ -451,12 +451,12 @@ bool BotIntermission( bot_state_t *bs ) {
 BotInLava
 ==============
 */
-qboolean BotInLava( bot_state_t *bs ) {
+bool BotInLava( bot_state_t *bs ) {
 	vec3_t feet;
 
 	VectorCopy( bs->origin, feet );
 	feet[2] -= 23;
-	return ( trap_AAS_PointContents( feet ) & CONTENTS_LAVA ) ? qtrue : qfalse;
+	return ( trap_AAS_PointContents( feet ) & CONTENTS_LAVA );
 }
 
 /*
@@ -464,12 +464,12 @@ qboolean BotInLava( bot_state_t *bs ) {
 BotInSlime
 ==============
 */
-qboolean BotInSlime( bot_state_t *bs ) {
+bool BotInSlime( bot_state_t *bs ) {
 	vec3_t feet;
 
 	VectorCopy( bs->origin, feet );
 	feet[2] -= 23;
-	return ( trap_AAS_PointContents( feet ) & CONTENTS_SLIME ) ? qtrue : qfalse;
+	return ( trap_AAS_PointContents( feet ) & CONTENTS_SLIME );
 }
 
 /*
@@ -477,17 +477,17 @@ qboolean BotInSlime( bot_state_t *bs ) {
 EntityIsDead
 ==================
 */
-qboolean EntityIsDead( aas_entityinfo_t *entinfo ) {
+bool EntityIsDead( aas_entityinfo_t *entinfo ) {
 	playerState_t ps;
 
 	if ( entinfo->number >= 0 && entinfo->number < MAX_CLIENTS ) {
 		//retrieve the current client state
 		BotAI_GetClientState( entinfo->number, &ps );
 		if ( ps.pm_type != PM_NORMAL ) {
-			return qtrue;
+			return true;
 		}
 	}
-	return qfalse;
+	return false;
 }
 
 /*
@@ -495,11 +495,11 @@ qboolean EntityIsDead( aas_entityinfo_t *entinfo ) {
 EntityIsInvisible
 ==================
 */
-qboolean EntityIsInvisible( aas_entityinfo_t *entinfo ) {
+bool EntityIsInvisible( aas_entityinfo_t *entinfo ) {
 	if ( entinfo->powerups & ( 1 << PW_INVIS ) ) {
-		return qtrue;
+		return true;
 	}
-	return qfalse;
+	return false;
 }
 
 /*
@@ -507,11 +507,11 @@ qboolean EntityIsInvisible( aas_entityinfo_t *entinfo ) {
 EntityIsShooting
 ==================
 */
-qboolean EntityIsShooting( aas_entityinfo_t *entinfo ) {
+bool EntityIsShooting( aas_entityinfo_t *entinfo ) {
 	if ( entinfo->flags & EF_FIRING ) {
-		return qtrue;
+		return true;
 	}
-	return qfalse;
+	return false;
 }
 
 /*
@@ -519,11 +519,11 @@ qboolean EntityIsShooting( aas_entityinfo_t *entinfo ) {
 EntityIsChatting
 ==================
 */
-qboolean EntityIsChatting( aas_entityinfo_t *entinfo ) {
+bool EntityIsChatting( aas_entityinfo_t *entinfo ) {
 	if ( entinfo->flags & EF_TALK ) {
-		return qtrue;
+		return true;
 	}
-	return qfalse;
+	return false;
 }
 
 /*
@@ -531,11 +531,11 @@ qboolean EntityIsChatting( aas_entityinfo_t *entinfo ) {
 EntityHasQuad
 ==================
 */
-qboolean EntityHasQuad( aas_entityinfo_t *entinfo ) {
+bool EntityHasQuad( aas_entityinfo_t *entinfo ) {
 	if ( entinfo->powerups & ( 1 << PW_QUAD ) ) {
-		return qtrue;
+		return true;
 	}
-	return qfalse;
+	return false;
 }
 
 /*
@@ -684,9 +684,9 @@ BotWantsToRetreat
 int BotWantsToRetreat( bot_state_t *bs ) {
 
 	if ( BotAggression( bs ) < 50 ) {
-		return qtrue;
+		return true;
 	}
-	return qfalse;
+	return false;
 }
 
 /*
@@ -697,9 +697,9 @@ BotWantsToChase
 int BotWantsToChase( bot_state_t *bs ) {
 
 	if ( BotAggression( bs ) > 50 ) {
-		return qtrue;
+		return true;
 	}
-	return qfalse;
+	return false;
 }
 
 /*
@@ -708,7 +708,7 @@ BotWantsToHelp
 ==================
 */
 int BotWantsToHelp( bot_state_t *bs ) {
-	return qtrue;
+	return true;
 }
 
 /*
@@ -721,36 +721,36 @@ int BotCanAndWantsToRocketJump( bot_state_t *bs ) {
 
 	//if rocket jumping is disabled
 	if ( !bot_rocketjump.integer ) {
-		return qfalse;
+		return false;
 	}
 	//if no rocket launcher
 	if ( bs->inventory[INVENTORY_ROCKETLAUNCHER] <= 0 ) {
-		return qfalse;
+		return false;
 	}
 	//if low on rockets
 	if ( bs->inventory[INVENTORY_ROCKETS] < 3 ) {
-		return qfalse;
+		return false;
 	}
 	//never rocket jump with the Quad
 	if ( bs->inventory[INVENTORY_QUAD] ) {
-		return qfalse;
+		return false;
 	}
 	//if low on health
 	if ( bs->inventory[INVENTORY_HEALTH] < 60 ) {
-		return qfalse;
+		return false;
 	}
 	//if not full health
 	if ( bs->inventory[INVENTORY_HEALTH] < 90 ) {
 		//if the bot has insufficient armor
 		if ( bs->inventory[INVENTORY_ARMOR] < 40 ) {
-			return qfalse;
+			return false;
 		}
 	}
 	rocketjumper = trap_Characteristic_BFloat( bs->character, CHARACTERISTIC_WEAPONJUMPING, 0, 1 );
 	if ( rocketjumper < 0.5 ) {
-		return qfalse;
+		return false;
 	}
-	return qtrue;
+	return true;
 }
 
 /*
@@ -792,7 +792,7 @@ int BotWantsToCamp( bot_state_t *bs ) {
 
 	camper = trap_Characteristic_BFloat( bs->character, CHARACTERISTIC_CAMPER, 0, 1 );
 	if ( camper < 0.1 ) {
-		return qfalse;
+		return false;
 	}
 	//if the bot has a team goal
 	if ( bs->ltgtype == LTG_TEAMHELP ||
@@ -803,27 +803,27 @@ int BotWantsToCamp( bot_state_t *bs ) {
 		 bs->ltgtype == LTG_CAMP ||
 		 bs->ltgtype == LTG_CAMPORDER ||
 		 bs->ltgtype == LTG_PATROL ) {
-		return qfalse;
+		return false;
 	}
 	//if camped recently
 	if ( bs->camp_time > trap_AAS_Time() - 60 + 300 * ( 1 - camper ) ) {
-		return qfalse;
+		return false;
 	}
 	//
 	if ( random() > camper ) {
 		bs->camp_time = trap_AAS_Time();
-		return qfalse;
+		return false;
 	}
 	//if the bot isn't healthy anough
 	if ( BotAggression( bs ) < 50 ) {
-		return qfalse;
+		return false;
 	}
 	//the bot should have at least have the rocket launcher, the railgun or the bfg10k with some ammo
 	if ( ( bs->inventory[INVENTORY_ROCKETLAUNCHER] <= 0 || bs->inventory[INVENTORY_ROCKETS < 10] )
 //		&& (bs->inventory[INVENTORY_RAILGUN] <= 0 || bs->inventory[INVENTORY_SLUGS] < 10)
 //		&& (bs->inventory[INVENTORY_BFG10K] <= 0 || bs->inventory[INVENTORY_BFGAMMO] < 10)
 		 ) {
-		return qfalse;
+		return false;
 	}
 	//find the closest camp spot
 	besttraveltime = 99999;
@@ -835,12 +835,12 @@ int BotWantsToCamp( bot_state_t *bs ) {
 		}
 	}
 	if ( besttraveltime > 150 ) {
-		return qfalse;
+		return false;
 	}
 	//ok found a camp spot, go camp there
 	BotGoCamp( bs, &bestgoal );
 	//
-	return qtrue;
+	return true;
 }
 
 /*
@@ -1095,14 +1095,14 @@ int BotSameTeam( bot_state_t *bs, int entnum ) {
 
 	if ( bs->client < 0 || bs->client >= MAX_CLIENTS ) {
 		//BotAI_Print(PRT_ERROR, "BotSameTeam: client out of range\n");
-		return qfalse;
+		return false;
 	}
 	if ( entnum < 0 || entnum >= MAX_CLIENTS ) {
 		//BotAI_Print(PRT_ERROR, "BotSameTeam: client out of range\n");
-		return qfalse;
+		return false;
 	}
 
-	return qfalse;
+	return false;
 }
 
 /*
@@ -1110,7 +1110,7 @@ int BotSameTeam( bot_state_t *bs, int entnum ) {
 InFieldOfVision
 ==================
 */
-qboolean InFieldOfVision( vec3_t viewangles, float fov, vec3_t angles ) {
+bool InFieldOfVision( vec3_t viewangles, float fov, vec3_t angles ) {
 	int i;
 	float diff, angle;
 
@@ -1129,15 +1129,15 @@ qboolean InFieldOfVision( vec3_t viewangles, float fov, vec3_t angles ) {
 		}
 		if ( diff > 0 ) {
 			if ( diff > fov * 0.5 ) {
-				return qfalse;
+				return false;
 			}
 		} else {
 			if ( diff < -fov * 0.5 ) {
-				return qfalse;
+				return false;
 			}
 		}
 	}
-	return qtrue;
+	return true;
 }
 
 /*
@@ -1356,11 +1356,11 @@ int BotFindEnemy( bot_state_t *bs, int curenemy ) {
 		if ( curenemy >= 0 ) {
 			bs->enemysight_time = trap_AAS_Time() - 2;
 		} else { bs->enemysight_time = trap_AAS_Time();}
-		bs->enemysuicide = qfalse;
+		bs->enemysuicide = false;
 		bs->enemydeath_time = 0;
-		return qtrue;
+		return true;
 	}
-	return qfalse;
+	return false;
 }
 
 /*
@@ -1510,9 +1510,9 @@ void BotAimAtEnemy( bot_state_t *bs ) {
 					VectorClear( cmdmove );
 					//AAS_ClearShownDebugLines();
 					trap_AAS_PredictClientMovement( &move, bs->enemy, origin,
-													PRESENCE_CROUCH, qfalse,
+													PRESENCE_CROUCH, false,
 													dir, cmdmove, 0,
-													dist * 10 / wi.speed, 0.1, 0, 0, qfalse );
+													dist * 10 / wi.speed, 0.1, 0, 0, false );
 					VectorCopy( move.endpos, bestorigin );
 					//BotAI_Print(PRT_MESSAGE, "%1.1f predicted speed = %f, frames = %f\n", trap_AAS_Time(), VectorLength(dir), dist * 10 / wi.speed);
 				}
@@ -1783,7 +1783,7 @@ void BotMapScripts( bot_state_t *bs ) {
 				}
 			}
 		}
-		shootbutton = qfalse;
+		shootbutton = false;
 		//if an enemy is below this bounding box then shoot the button
 		for ( i = 0; i < MAX_CLIENTS; i++ ) {
 
@@ -1806,10 +1806,10 @@ void BotMapScripts( bot_state_t *bs ) {
 					if ( entinfo.origin[2] < mins[2] ) {
 						//if there's a team mate below the crusher
 						if ( BotSameTeam( bs, i ) ) {
-							shootbutton = qfalse;
+							shootbutton = false;
 							break;
 						} else {
-							shootbutton = qtrue;
+							shootbutton = true;
 						}
 					}
 				}
@@ -2218,8 +2218,8 @@ void BotCheckEvents( bot_state_t *bs, entityState_t *state ) {
 			bs->lastkilledby = attacker;
 			//
 			if ( target == attacker ) {
-				bs->botsuicide = qtrue;
-			} else { bs->botsuicide = qfalse;}
+				bs->botsuicide = true;
+			} else { bs->botsuicide = false;}
 			//
 			bs->num_deaths++;
 		}
@@ -2231,7 +2231,7 @@ void BotCheckEvents( bot_state_t *bs, entityState_t *state ) {
 			//
 			bs->num_kills++;
 		} else if ( attacker == bs->enemy && target == attacker )     {
-			bs->enemysuicide = qtrue;
+			bs->enemysuicide = true;
 		}
 		break;
 	}
@@ -2245,11 +2245,11 @@ void BotCheckEvents( bot_state_t *bs, entityState_t *state ) {
 		if ( !strcmp( buf, "sound/teamplay/flagret_red.wav" ) ) {
 			//red flag is returned
 			bs->redflagstatus = 0;
-			bs->flagstatuschanged = qtrue;
+			bs->flagstatuschanged = true;
 		} else if ( !strcmp( buf, "sound/teamplay/flagret_blu.wav" ) )        {
 			//blue flag is returned
 			bs->blueflagstatus = 0;
-			bs->flagstatuschanged = qtrue;
+			bs->flagstatuschanged = true;
 		} else if ( !strcmp( buf, "sound/items/poweruprespawn.wav" ) )        {
 			//powerup respawned... go get it
 			BotGoForPowerups( bs );
@@ -2380,7 +2380,7 @@ void BotDeathmatchAI( bot_state_t *bs, float thinktime ) {
 	//if the bot entered the game less than 8 seconds ago
 	if ( !bs->entergamechat && bs->entergame_time > trap_AAS_Time() - 8 ) {
 		
-		bs->entergamechat = qtrue;
+		bs->entergamechat = true;
 	}
 	//reset the node switches from the previous frame
 	BotResetNodeSwitches();

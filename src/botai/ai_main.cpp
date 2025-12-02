@@ -114,7 +114,7 @@ BotAI_Trace
 void BotAI_Trace( bsp_trace_t *bsptrace, vec3_t start, vec3_t mins, vec3_t maxs, vec3_t end, int passent, int contentmask ) {
 	trace_t trace;
 
-    SV_Trace( &trace, start, mins, maxs, end, passent, contentmask, qfalse );
+    SV_Trace( &trace, start, mins, maxs, end, passent, contentmask, false );
 	//copy the trace information
 	bsptrace->allsolid = trace.allsolid;
 	bsptrace->startsolid = trace.startsolid;
@@ -141,14 +141,14 @@ int BotAI_GetClientState( int clientNum, playerState_t *state ) {
 
 	ent = &g_entities[clientNum];
 	if ( !ent->inuse ) {
-		return qfalse;
+		return false;
 	}
 	if ( !ent->client ) {
-		return qfalse;
+		return false;
 	}
 
 	memcpy( state, &ent->client->ps, sizeof( playerState_t ) );
-	return qtrue;
+	return true;
 }
 
 /*
@@ -162,16 +162,16 @@ int BotAI_GetEntityState( int entityNum, entityState_t *state ) {
 	ent = &g_entities[entityNum];
 	memset( state, 0, sizeof( entityState_t ) );
 	if ( !ent->inuse ) {
-		return qfalse;
+		return false;
 	}
 	if ( !ent->shared.r.linked ) {
-		return qfalse;
+		return false;
 	}
 	if ( ent->shared.r.svFlags & SVF_NOCLIENT ) {
-		return qfalse;
+		return false;
 	}
 	memcpy( state, &(ent->shared.s), sizeof( entityState_t ) );
-	return qtrue;
+	return true;
 }
 
 /*
@@ -586,19 +586,19 @@ int BotAISetupClient( int client, struct bot_settings_s *settings ) {
 
 	if ( bs && bs->inuse ) {
 		BotAI_Print( PRT_FATAL, "client %d already setup\n", client );
-		return qfalse;
+		return false;
 	}
 
 	if ( !trap_AAS_Initialized() ) {
 		BotAI_Print( PRT_FATAL, "AAS not initialized\n" );
-		return qfalse;
+		return false;
 	}
 
 	//load the bot character
 	bs->character = trap_BotLoadCharacter( settings->characterfile, settings->skill );
 	if ( !bs->character ) {
 		BotAI_Print( PRT_FATAL, "couldn't load skill %d from %s\n", settings->skill, settings->characterfile );
-		return qfalse;
+		return false;
 	}
 	//copy the settings
 	memcpy( &bs->settings, settings, sizeof( bot_settings_t ) );
@@ -609,7 +609,7 @@ int BotAISetupClient( int client, struct bot_settings_s *settings ) {
 	errnum = trap_BotLoadItemWeights( bs->gs, filename );
 	if ( errnum != BLERR_NOERROR ) {
 		trap_BotFreeGoalState( bs->gs );
-		return qfalse;
+		return false;
 	}
 	//allocate a weapon state
 	bs->ws = trap_BotAllocWeaponState();
@@ -619,7 +619,7 @@ int BotAISetupClient( int client, struct bot_settings_s *settings ) {
 	if ( errnum != BLERR_NOERROR ) {
 		trap_BotFreeGoalState( bs->gs );
 		trap_BotFreeWeaponState( bs->ws );
-		return qfalse;
+		return false;
 	}
 	//allocate a chat state
 
@@ -631,7 +631,7 @@ int BotAISetupClient( int client, struct bot_settings_s *settings ) {
 	trap_Characteristic_String( bs->character, CHARACTERISTIC_GENDER, gender, MAX_AIPATH );
 
 
-	bs->inuse = qtrue;
+	bs->inuse = true;
 	bs->client = client;
 	bs->entitynum = client;
 	bs->setupcount = 4;
@@ -643,7 +643,7 @@ int BotAISetupClient( int client, struct bot_settings_s *settings ) {
 	//NOTE: reschedule the bot thinking
 	BotScheduleBotThink();
 	//
-	return qtrue;
+	return true;
 }
 
 /*
@@ -681,8 +681,8 @@ int BotAIShutdownClient( int client ) {
 	BotFreeWaypoints( bs->patrolpoints );
 	//clear the bot state
 	memset( bs, 0, sizeof( bot_state_t ) );
-	//set the inuse flag to qfalse
-	bs->inuse = qfalse;
+	//set the inuse flag to false
+	bs->inuse = false;
 	//there's one bot less
 	numbots--;
 	//everything went ok
@@ -1032,7 +1032,7 @@ int BotAISetup( int restart ) {
 
 	errnum = BotInitLibrary();
 	if ( errnum != BLERR_NOERROR ) {
-		return qfalse;
+		return false;
 	}
 	return BLERR_NOERROR;
 }
@@ -1056,6 +1056,6 @@ int BotAIShutdown( int restart )
 	} else {
 		trap_BotLibShutdown();
 	}
-	return qtrue;
+	return true;
 }
 

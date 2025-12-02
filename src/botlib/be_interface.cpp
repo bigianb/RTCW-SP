@@ -65,8 +65,8 @@ botlib_globals_t botlibglobals;
 botlib_export_t be_botlib_export;
 //
 int bot_developer;
-//qtrue if the library is setup
-int botlibsetup = qfalse;
+//true if the library is setup
+int botlibsetup = false;
 
 //===========================================================================
 //
@@ -92,12 +92,12 @@ int Sys_MilliSeconds( void ) {
 // Ridah, faster Win32 code
 #ifdef _WIN32
 	int sys_curtime;
-	static qboolean initialized = qfalse;
+	static bool initialized = false;
 	static int sys_timeBase;
 
 	if ( !initialized ) {
 		sys_timeBase = timeGetTime();
-		initialized = qtrue;
+		initialized = true;
 	}
 	sys_curtime = timeGetTime() - sys_timeBase;
 
@@ -112,14 +112,14 @@ int Sys_MilliSeconds( void ) {
 // Returns:					-
 // Changes Globals:		-
 //===========================================================================
-qboolean ValidClientNumber( int num, char *str ) {
+bool ValidClientNumber( int num, char *str ) {
 	if ( num < 0 || num > botlibglobals.maxclients ) {
 		//weird: the disabled stuff results in a crash
 		BotImport_Print( PRT_ERROR, "%s: invalid client number %d, [0, %d]\n",
 						 str, num, botlibglobals.maxclients );
-		return qfalse;
+		return false;
 	} //end if
-	return qtrue;
+	return true;
 }
 
 bool ValidEntityNumber( int num, const char *str ) {
@@ -131,13 +131,13 @@ bool ValidEntityNumber( int num, const char *str ) {
 	return true;
 } 
 
-qboolean BotLibSetup( const char *str ) {
+bool BotLibSetup( const char *str ) {
 
 	if ( !botlibglobals.botlibsetup ) {
 		BotImport_Print( PRT_ERROR, "%s: bot library used before being setup\n", str );
-		return qfalse;
+		return false;
 	} //end if
-	return qtrue;
+	return true;
 } //end of the function BotLibSetup
 
 
@@ -167,8 +167,8 @@ int Export_BotLibSetup( void ) {
 		return errnum;
 	}
 
-	botlibsetup = qtrue;
-	botlibglobals.botlibsetup = qtrue;
+	botlibsetup = true;
+	botlibglobals.botlibsetup = true;
 
 	return BLERR_NOERROR;
 } //end of the function Export_BotLibSetup
@@ -207,8 +207,8 @@ int Export_BotLibShutdown( void ) {
 	// shut down library log file
 	Log_Shutdown();
 	//
-	botlibsetup = qfalse;
-	botlibglobals.botlibsetup = qfalse;
+	botlibsetup = false;
+	botlibglobals.botlibsetup = false;
 	recursive = 0;
 	// print any files still open
 	PC_CheckOpenSourceHandles();

@@ -56,7 +56,7 @@ void CL_Netchan_Transmit( netchan_t *chan, msg_t* msg ) {
 CL_Netchan_Process
 =================
 */
-qboolean CL_Netchan_Process( netchan_t *chan, msg_t *msg )
+bool CL_Netchan_Process( netchan_t *chan, msg_t *msg )
 {
 	return Netchan_Process( chan, msg );
 }

@@ -218,7 +218,7 @@ CG_MakeExplosion
 */
 localEntity_t *CG_MakeExplosion( vec3_t origin, vec3_t dir,
 								 qhandle_t hModel, qhandle_t shader,
-								 int msec, qboolean isSprite ) {
+								 int msec, bool isSprite ) {
 	float ang;
 	localEntity_t   *ex;
 	int offset;
@@ -662,14 +662,14 @@ void CG_GibPlayer( centity_t *cent, vec3_t playerOrigin, vec3_t gdir ) {
 	vec3_t origin, velocity, dir;
 	int i, count, tagIndex, gibIndex;
 	trace_t trace;
-	qboolean foundtag;
+	bool foundtag;
 
 	clientInfo_t    *ci;
 	int clientNum;
 
 	// Rafael
 	// BloodCloud
-	qboolean newjunction[MAXJUNCTIONS];
+	bool newjunction[MAXJUNCTIONS];
 	vec3_t junctionOrigin[MAXJUNCTIONS];
 	int junction;
 	int j;
@@ -737,7 +737,7 @@ void CG_GibPlayer( centity_t *cent, vec3_t playerOrigin, vec3_t gdir ) {
 
 	// Rafael
 	for ( i = 0; i < MAXJUNCTIONS; i++ )
-		newjunction[i] = qfalse;
+		newjunction[i] = false;
 
 	clientNum = cent->currentState.clientNum;
 	if ( clientNum < 0 || clientNum >= MAX_CLIENTS ) {
@@ -748,11 +748,11 @@ void CG_GibPlayer( centity_t *cent, vec3_t playerOrigin, vec3_t gdir ) {
 
 	// Ridah, fetch the various positions of the tag_gib*'s
 	// and spawn the gibs from the correct places (especially the head)
-	for ( gibIndex = 0, count = 0, foundtag = qtrue; foundtag && gibIndex < MAX_GIB_MODELS && gibTags[gibIndex]; gibIndex++ ) {
+	for ( gibIndex = 0, count = 0, foundtag = true; foundtag && gibIndex < MAX_GIB_MODELS && gibTags[gibIndex]; gibIndex++ ) {
 
 		refEntity_t *re = 0;
 
-		foundtag = qfalse;
+		foundtag = false;
 
 		if ( !ci->gibModels[gibIndex] ) {
 			continue;
@@ -766,7 +766,7 @@ void CG_GibPlayer( centity_t *cent, vec3_t playerOrigin, vec3_t gdir ) {
 
 		for ( tagIndex = 0; ( tagIndex = CG_GetOriginForTag( cent, re, gibTags[gibIndex], tagIndex, origin, axis ) ) >= 0; count++, tagIndex++ ) {
 
-			foundtag = qtrue;
+			foundtag = true;
 
 			VectorSubtract( origin, re->origin, dir );
 			VectorNormalize( dir );
@@ -805,7 +805,7 @@ void CG_GibPlayer( centity_t *cent, vec3_t playerOrigin, vec3_t gdir ) {
 			{
 				if ( !Q_stricmp( gibTags[gibIndex], JunctiongibTags[junction] ) ) {
 					VectorCopy( origin, junctionOrigin[junction] );
-					newjunction[junction] = qtrue;
+					newjunction[junction] = true;
 				}
 			}
 		}
@@ -814,11 +814,11 @@ void CG_GibPlayer( centity_t *cent, vec3_t playerOrigin, vec3_t gdir ) {
 
 	for ( i = 0; i < MAXJUNCTIONS; i++ )
 	{
-		if ( newjunction[i] == qtrue ) {
+		if ( newjunction[i] == true ) {
 			for ( j = 0; j < MAXJUNCTIONS; j++ )
 			{
 				if ( !Q_stricmp( JunctiongibTags[j], ConnectTags[i] ) ) {
-					if ( newjunction[j] == qtrue ) {
+					if ( newjunction[j] == true ) {
 						// spawn a blood cloud somewhere on the vec from
 						VectorSubtract( junctionOrigin[i], junctionOrigin[j], dir );
 
@@ -970,7 +970,7 @@ void CG_GibPlayer( centity_t *cent, vec3_t playerOrigin, vec3_t gdir ) {
 		if ( trace.fraction < 1.0 ) {
 			BG_GetMarkDir( velocity, trace.plane.normal, velocity );
 			CG_ImpactMark( cgs.media.bloodDotShaders[rand() % 5], trace.endpos, velocity, random() * 360,
-						   1,1,1,1, qtrue, 30, qfalse, cg_bloodTime.integer * 1000 );
+						   1,1,1,1, true, 30, false, cg_bloodTime.integer * 1000 );
 			if ( count++ > GIB_BLOOD_DOTS ) {
 				break;
 			}
@@ -1073,7 +1073,7 @@ float lt_crandom( int thisrandseed, int t ) {
 CG_DynamicLightningBolt
 ===============
 */
-void CG_DynamicLightningBolt( qhandle_t shader, vec3_t start, vec3_t pend, int numBolts, float maxWidth, qboolean fade, float startAlpha, int recursion, int randseed ) {
+void CG_DynamicLightningBolt( qhandle_t shader, vec3_t start, vec3_t pend, int numBolts, float maxWidth, bool fade, float startAlpha, int recursion, int randseed ) {
 	int i,j;
 	float segMin, segMax, length;
 	float thisSeg, distLeft, thisWidth;
@@ -1249,10 +1249,10 @@ void CG_DynamicLightningBolt( qhandle_t shader, vec3_t start, vec3_t pend, int n
 				VectorMA( pos, 0.2 + 0.7 * lt_random( randseed,6 + i + forks ), fend, fend );
 
 				//if (recursion > 0 && recursion < 2) {
-				//	CG_DynamicLightningBolt( cgs.media.lightningBoltShader, pos, fend, 1, maxWidth, qtrue, alpha, recursion, randseed );
+				//	CG_DynamicLightningBolt( cgs.media.lightningBoltShader, pos, fend, 1, maxWidth, true, alpha, recursion, randseed );
 				//	return;	// divert bolt rather than split
 				//} else {
-				CG_DynamicLightningBolt( shader, pos, fend, 1, maxWidth, qtrue, alpha, recursion + 1, randseed + 765 );
+				CG_DynamicLightningBolt( shader, pos, fend, 1, maxWidth, true, alpha, recursion + 1, randseed + 765 );
 				//}
 			}
 
@@ -1287,7 +1287,7 @@ void CG_ProjectedSpotLight( vec3_t start, vec3_t dir ) {
 	//
 	radius = 32 + 64 * tr.fraction;
 	VectorNegate( dir, proj );
-	CG_ImpactMark( cgs.media.spotLightShader, tr.endpos, proj, 0, alpha, alpha, alpha, 1.0, qfalse, radius, qtrue, -2 );
+	CG_ImpactMark( cgs.media.spotLightShader, tr.endpos, proj, 0, alpha, alpha, alpha, 1.0, false, radius, true, -2 );
 }
 
 
@@ -1338,7 +1338,7 @@ void CG_Spotlight( centity_t *cent, float *color, vec3_t realstart, vec3_t light
 	trace_t tr;
 	float /*alpha,*/ radius = 0.0f;       // TTimo: init
 	float coreEndRadius;
-	qboolean capStart = qtrue;
+	bool capStart = true;
 	float hitDist;          // the actual distance of the trace impact	(0 is no hit)
 	float beamLen;          // actual distance of the drawn beam
 	float startAlpha, endAlpha;
@@ -1366,11 +1366,11 @@ void CG_Spotlight( centity_t *cent, float *color, vec3_t realstart, vec3_t light
 
 
 	if ( flags & SL_NOSTARTCAP ) {
-		capStart = qfalse;
+		capStart = false;
 	}
 
 	if ( startWidth == 0 ) {   // cone, not cylinder
-		capStart = qfalse;
+		capStart = false;
 	}
 
 
@@ -1603,8 +1603,8 @@ void CG_Spotlight( centity_t *cent, float *color, vec3_t realstart, vec3_t light
 
 			VectorMA( tr.endpos, -0.5f * radius, lightDir, impactPos );   // back away a little from the hit
 
-			CG_ImpactMark( cgs.media.spotLightShader, impactPos, proj, 0, colorNorm[0], colorNorm[1], colorNorm[2], 0.3f, qfalse, radius, qtrue, -1 );
-//			CG_ImpactMark( cgs.media.spotLightShader, tr.endpos, proj, 0, colorNorm[0], colorNorm[1], colorNorm[2], 1.0f, qfalse, radius, qtrue, -1 );
+			CG_ImpactMark( cgs.media.spotLightShader, impactPos, proj, 0, colorNorm[0], colorNorm[1], colorNorm[2], 0.3f, false, radius, true, -1 );
+//			CG_ImpactMark( cgs.media.spotLightShader, tr.endpos, proj, 0, colorNorm[0], colorNorm[1], colorNorm[2], 1.0f, false, radius, true, -1 );
 		}
 	}
 
@@ -1622,7 +1622,7 @@ void CG_Spotlight( centity_t *cent, float *color, vec3_t realstart, vec3_t light
 
 	// draw flare at source
 	if ( !( flags & SL_NOFLARE ) ) {
-		qboolean lightInEyes = qfalse;
+		bool lightInEyes = false;
 		vec3_t camloc, dirtolight;
 		float dot, deg, dist;
 		float flarescale = 0.0f;       // TTimo: init
@@ -1640,7 +1640,7 @@ void CG_Spotlight( centity_t *cent, float *color, vec3_t realstart, vec3_t light
 
 		deg = RAD2DEG( M_PI - acos( dot ) );
 		if ( deg <= FLAREANGLE ) { // start flare a bit before the camera gets inside the cylinder
-			lightInEyes = qtrue;
+			lightInEyes = true;
 			flarescale = 1 - ( deg / FLAREANGLE );
 		}
 
@@ -1648,7 +1648,7 @@ void CG_Spotlight( centity_t *cent, float *color, vec3_t realstart, vec3_t light
 //			CG_Trace( &tr, start, NULL, NULL, camloc, -1, MASK_ALL &~(CONTENTS_MONSTERCLIP|CONTENTS_AREAPORTAL|CONTENTS_CLUSTERPORTAL));
 			CG_Trace( &tr, start, NULL, NULL, camloc, -1, MASK_SOLID );
 			if ( tr.fraction != 1 ) {
-				lightInEyes = qfalse;
+				lightInEyes = false;
 			}
 
 		}

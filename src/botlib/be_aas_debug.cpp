@@ -115,7 +115,7 @@ void AAS_ClearShownDebugLines( void ) {
 			//BotImport_DebugLineShow(debuglines[i], NULL, NULL, LINECOLOR_NONE);
 			BotImport_DebugLineDelete( debuglines[i] );
 			debuglines[i] = 0;
-			debuglinevisible[i] = qfalse;
+			debuglinevisible[i] = false;
 		} //end if
 	} //end for
 } //end of the function AAS_ClearShownDebugLines
@@ -132,12 +132,12 @@ void AAS_DebugLine( vec3_t start, vec3_t end, int color ) {
 	{
 		if ( !debuglines[line] ) {
 			debuglines[line] = BotImport_DebugLineCreate();
-			debuglinevisible[line] = qfalse;
+			debuglinevisible[line] = false;
 			numdebuglines++;
 		} //end if
 		if ( !debuglinevisible[line] ) {
 			BotImport_DebugLineShow( debuglines[line], start, end, color );
-			debuglinevisible[line] = qtrue;
+			debuglinevisible[line] = true;
 			return;
 		} //end else
 	} //end for
@@ -217,12 +217,12 @@ void AAS_DrawPlaneCross( vec3_t point, vec3_t normal, float dist, int type, int 
 		if ( !debuglines[line] ) {
 			debuglines[line] = BotImport_DebugLineCreate();
 			lines[j++] = debuglines[line];
-			debuglinevisible[line] = qtrue;
+			debuglinevisible[line] = true;
 			numdebuglines++;
 		} //end if
 		else if ( !debuglinevisible[line] ) {
 			lines[j++] = debuglines[line];
-			debuglinevisible[line] = qtrue;
+			debuglinevisible[line] = true;
 		} //end else
 	} //end for
 	BotImport_DebugLineShow( lines[0], start1, end1, color );
@@ -266,12 +266,12 @@ void AAS_ShowBoundingBox( vec3_t origin, vec3_t mins, vec3_t maxs ) {
 			if ( !debuglines[line] ) {
 				debuglines[line] = BotImport_DebugLineCreate();
 				lines[j++] = debuglines[line];
-				debuglinevisible[line] = qtrue;
+				debuglinevisible[line] = true;
 				numdebuglines++;
 			} //end if
 			else if ( !debuglinevisible[line] ) {
 				lines[j++] = debuglines[line];
-				debuglinevisible[line] = qtrue;
+				debuglinevisible[line] = true;
 			} //end else
 		} //end for
 		  //top plane
@@ -442,7 +442,7 @@ void AAS_ShowArea( int areanum, int groundfacesonly ) {
 		{
 			if ( !debuglines[line] ) {
 				debuglines[line] = BotImport_DebugLineCreate();
-				debuglinevisible[line] = qfalse;
+				debuglinevisible[line] = false;
 				numdebuglines++;
 			} //end if
 			if ( !debuglinevisible[line] ) {
@@ -464,7 +464,7 @@ void AAS_ShowArea( int areanum, int groundfacesonly ) {
 								 ( *aasworld ).vertexes[edge->v[0]],
 								 ( *aasworld ).vertexes[edge->v[1]],
 								 color );
-		debuglinevisible[line] = qtrue;
+		debuglinevisible[line] = true;
 	} //end for*/
 } //end of the function AAS_ShowArea
 //===========================================================================
@@ -593,8 +593,8 @@ void AAS_ShowReachability( aas_reachability_t *reach ) {
 	float speed, zvel;
 	aas_clientmove_t move;
 
-	AAS_ShowAreaPolygons( reach->areanum, 5, qtrue );
-	//AAS_ShowArea(reach->areanum, qtrue);
+	AAS_ShowAreaPolygons( reach->areanum, 5, true );
+	//AAS_ShowArea(reach->areanum, true);
 	AAS_DrawArrow( reach->start, reach->end, LINECOLOR_BLUE, LINECOLOR_YELLOW );
 	//
 	if ( reach->traveltype == TRAVEL_JUMP || reach->traveltype == TRAVEL_WALKOFFLEDGE ) {
@@ -609,10 +609,10 @@ void AAS_ShowReachability( aas_reachability_t *reach ) {
 		VectorClear( cmdmove );
 		cmdmove[2] = aassettings.sv_jumpvel;
 		//
-		AAS_PredictClientMovement( &move, -1, reach->start, PRESENCE_NORMAL, qtrue,
+		AAS_PredictClientMovement( &move, -1, reach->start, PRESENCE_NORMAL, true,
 								   velocity, cmdmove, 3, 30, 0.1,
 								   SE_HITGROUND | SE_ENTERWATER | SE_ENTERSLIME |
-								   SE_ENTERLAVA | SE_HITGROUNDDAMAGE, 0, qtrue );
+								   SE_ENTERLAVA | SE_HITGROUNDDAMAGE, 0, true );
 		//
 		if ( reach->traveltype == TRAVEL_JUMP ) {
 			AAS_JumpReachRunStart( reach, dir );
@@ -630,11 +630,11 @@ void AAS_ShowReachability( aas_reachability_t *reach ) {
 		VectorScale( dir, speed, cmdmove );
 		VectorSet( velocity, 0, 0, zvel );
 		//
-		AAS_PredictClientMovement( &move, -1, reach->start, PRESENCE_NORMAL, qtrue,
+		AAS_PredictClientMovement( &move, -1, reach->start, PRESENCE_NORMAL, true,
 								   velocity, cmdmove, 30, 30, 0.1,
 								   SE_ENTERWATER | SE_ENTERSLIME |
 								   SE_ENTERLAVA | SE_HITGROUNDDAMAGE |
-								   SE_TOUCHJUMPPAD | SE_HITGROUNDAREA, reach->areanum, qtrue );
+								   SE_TOUCHJUMPPAD | SE_HITGROUNDAREA, reach->areanum, true );
 	} //end else if
 	else if ( reach->traveltype == TRAVEL_JUMPPAD ) {
 		VectorSet( cmdmove, 0, 0, 0 );
@@ -648,11 +648,11 @@ void AAS_ShowReachability( aas_reachability_t *reach ) {
 		//NOTE: the facenum is the Z velocity
 		velocity[2] = reach->facenum;
 		//
-		AAS_PredictClientMovement( &move, -1, reach->start, PRESENCE_NORMAL, qtrue,
+		AAS_PredictClientMovement( &move, -1, reach->start, PRESENCE_NORMAL, true,
 								   velocity, cmdmove, 30, 30, 0.1,
 								   SE_ENTERWATER | SE_ENTERSLIME |
 								   SE_ENTERLAVA | SE_HITGROUNDDAMAGE |
-								   SE_TOUCHJUMPPAD | SE_HITGROUNDAREA, reach->areanum, qtrue );
+								   SE_TOUCHJUMPPAD | SE_HITGROUNDAREA, reach->areanum, true );
 	} //end else if
 } //end of the function AAS_ShowReachability
 //===========================================================================

@@ -76,7 +76,7 @@ void P_DamageFeedback( gentity_t *player ) {
 		client->ps.damagePitch = 255;
 		client->ps.damageYaw = 255;
 
-		client->damage_fromWorld = qfalse;
+		client->damage_fromWorld = false;
 	} else {
 		vectoangles( client->damage_from, angles );
 		client->ps.damagePitch = angles[PITCH] / 360.0 * 256;
@@ -325,7 +325,7 @@ void    G_TouchTriggers( gentity_t *ent ) {
 			}
 		} else {
 			// MrE: always use capsule for player
-			if ( !SV_EntityContact( mins, maxs, &hit->shared, qtrue ) ) {
+			if ( !SV_EntityContact( mins, maxs, &hit->shared, true ) ) {
 				continue;
 			}
 		}
@@ -407,7 +407,7 @@ void ClientIntermissionThink( gclient_t *client ) {
 
 	if ( ( client->buttons & ( BUTTON_ATTACK | BUTTON_USE_HOLDABLE ) & ( client->oldbuttons ^ client->buttons ) ) ||
 		 ( client->wbuttons & WBUTTON_ATTACK2 & ( client->oldwbuttons ^ client->wbuttons ) ) ) {
-		client->readyToExit = client->readyToExit == qtrue ? qfalse : qtrue;
+		client->readyToExit = client->readyToExit == true ? false : true;
 	}
 }
 
@@ -743,7 +743,7 @@ void ClientThink_real( gentity_t *ent ) {
 	}
 
 	// set parachute anim condition flag
-	BG_UpdateConditionValue( ent->shared.s.number, ANIM_COND_PARACHUTE, ( ent->flags & FL_PARACHUTE ) != 0, qfalse );
+	BG_UpdateConditionValue( ent->shared.s.number, ANIM_COND_PARACHUTE, ( ent->flags & FL_PARACHUTE ) != 0, false );
 
 	// all playing clients are assumed to be in combat mode
 	if ( !client->ps.aiChar ) {
@@ -783,14 +783,14 @@ void ClientThink_real( gentity_t *ent ) {
 	pm.trace = SV_TraceCapsule; //SV_Trace;
 	pm.pointcontents = SV_PointContents;
 	pm.debugLevel = g_debugMove.integer;
-	pm.noFootsteps = ( g_dmflags.integer & DF_NO_FOOTSTEPS ) > 0 ? qtrue : qfalse;
+	pm.noFootsteps = ( g_dmflags.integer & DF_NO_FOOTSTEPS ) > 0;
 
 	pm.pmove_fixed = pmove_fixed.integer | client->pers.pmoveFixed;
 	pm.pmove_msec = pmove_msec.integer;
 
-	pm.noWeapClips = ( g_dmflags.integer & DF_NO_WEAPRELOAD ) > 0 ? qtrue : qfalse;
+	pm.noWeapClips = ( g_dmflags.integer & DF_NO_WEAPRELOAD ) > 0;
 	if ( ent->aiCharacter && AICast_NoReload( ent->shared.s.number ) ) {
-		pm.noWeapClips = qtrue; // ensure AI characters don't use clips if they're not supposed to.
+		pm.noWeapClips = true; // ensure AI characters don't use clips if they're not supposed to.
 
 	}
 
@@ -804,7 +804,7 @@ void ClientThink_real( gentity_t *ent ) {
 			vec3_t kvel;
 			vec3_t forward;
 			float angle = 0.0f;   // TTimo: init
-			qboolean bogus = qfalse;
+			bool bogus = false;
 
 			// NE
 			if ( ( monsterslick & SURF_MONSLICK_N ) && ( monsterslick & SURF_MONSLICK_E ) ) {
@@ -839,7 +839,7 @@ void ClientThink_real( gentity_t *ent ) {
 				angle = 180;
 			} else
 			{
-				bogus = qtrue;
+				bogus = true;
 			}
 
 			if ( !bogus ) {
@@ -848,18 +848,18 @@ void ClientThink_real( gentity_t *ent ) {
 					orientation_t   orientation;
 					trace_t tr;
 					vec3_t start, end;
-					qboolean slide = qtrue;
+					bool slide = true;
 
 					if ( CG_GetTag( ent->shared.s.number, "tag_head", &orientation ) ) {
 						VectorCopy( orientation.origin, start );
 						VectorCopy( start, end );
 						end[2] += 1.0;
 
-						SV_Trace( &tr, start, NULL, NULL, end, ent->shared.s.number, ( CONTENTS_SOLID | CONTENTS_BODY | CONTENTS_CORPSE | CONTENTS_TRIGGER ), qfalse );
+						SV_Trace( &tr, start, NULL, NULL, end, ent->shared.s.number, ( CONTENTS_SOLID | CONTENTS_BODY | CONTENTS_CORPSE | CONTENTS_TRIGGER ), false );
 
 						if ( tr.contents & CONTENTS_SOLID ) {
 							//VectorClear (pm.ps->velocity);
-							slide = qfalse;
+							slide = false;
 							// stop checking for slicks
 							ent->flags |= FL_NO_MONSTERSLICK;
 						}
@@ -898,7 +898,7 @@ void ClientThink_real( gentity_t *ent ) {
 				if ( orientation.origin[2] < src[2] ) {
 					orientation.origin[2] = src[2];  // dont let the head sink into the ground (even if it is visually)
 				}
-				SV_Trace( &tr, src, vec3_origin, vec3_origin, orientation.origin, ent->shared.s.number, MASK_SOLID, qfalse );
+				SV_Trace( &tr, src, vec3_origin, vec3_origin, orientation.origin, ent->shared.s.number, MASK_SOLID, false );
 
 				// if we hit something, move away from it
 				if ( !tr.startsolid && !tr.allsolid && tr.fraction < 1.0 ) {
@@ -957,7 +957,7 @@ void ClientThink_real( gentity_t *ent ) {
 	G_CheckForCursorHints( ent );
 
 	// get this for the clients
-	ent->shared.s.animMovetype = BG_GetConditionValue( ent->shared.s.number, ANIM_COND_MOVETYPE, qtrue );
+	ent->shared.s.animMovetype = BG_GetConditionValue( ent->shared.s.number, ANIM_COND_MOVETYPE, true );
 
 	// Rafael Kick
 	if ( ucmd->wolfkick && ent->health > 0 ) {
@@ -1021,7 +1021,7 @@ void ClientThink_real( gentity_t *ent ) {
 	}
 
 	if ( !( ent->client->ps.eFlags & EF_FIRING ) ) {
-		client->fireHeld = qfalse;      // for grapple
+		client->fireHeld = false;      // for grapple
 	}
 
 //	// use the snapped origin for linking so it matches client predicted versions
@@ -1202,38 +1202,38 @@ void ClientEndFrame( gentity_t *ent ) {
 
     switch ( ent->client->ps.weapon ) {
     case WP_TESLA:          // fear the tesla
-        AICast_CheckDangerousEntity( ent, DANGER_CLIENTAIM, TESLA_RANGE + 150, 0.5, 0.6, ( ent->client->buttons & BUTTON_ATTACK ? qtrue : qfalse ) );
+        AICast_CheckDangerousEntity( ent, DANGER_CLIENTAIM, TESLA_RANGE + 150, 0.5, 0.6, ( ent->client->buttons & BUTTON_ATTACK ) );
         break;
     case WP_MONSTER_ATTACK1:
         if ( ent->aiCharacter == AICHAR_ZOMBIE ) {
-            AICast_CheckDangerousEntity( ent, DANGER_CLIENTAIM | DANGER_FLAMES, FLAMETHROWER_RANGE + 150, 0.5, 0.8, qtrue );
+            AICast_CheckDangerousEntity( ent, DANGER_CLIENTAIM | DANGER_FLAMES, FLAMETHROWER_RANGE + 150, 0.5, 0.8, true );
         }
         break;
     case WP_MONSTER_ATTACK2:
         if ( ent->aiCharacter == AICHAR_ZOMBIE ) {
             if ( ent->client->ps.eFlags & EF_MONSTER_EFFECT ) {
-                AICast_CheckDangerousEntity( ent, 0, 4000, 0.5, 0.8, qtrue );
+                AICast_CheckDangerousEntity( ent, 0, 4000, 0.5, 0.8, true );
             }
         }
         break;
     case WP_MONSTER_ATTACK3:
         if ( ent->aiCharacter == AICHAR_LOPER ) {
-            AICast_CheckDangerousEntity( ent, 0, LOPER_GROUND_RANGE + 100, 0.5, 0.8, qtrue );
+            AICast_CheckDangerousEntity( ent, 0, LOPER_GROUND_RANGE + 100, 0.5, 0.8, true );
         }
         break;
     case WP_FLAMETHROWER:           // fear the flamethrower
-        AICast_CheckDangerousEntity( ent, DANGER_CLIENTAIM | DANGER_FLAMES, FLAMETHROWER_RANGE + 150, 0.5, 0.8, ( ent->client->buttons & BUTTON_ATTACK ? qtrue : qfalse ) );
+        AICast_CheckDangerousEntity( ent, DANGER_CLIENTAIM | DANGER_FLAMES, FLAMETHROWER_RANGE + 150, 0.5, 0.8, ( ent->client->buttons & BUTTON_ATTACK ) );
         break;
     case WP_VENOM:              // avoid the venom
-        AICast_CheckDangerousEntity( ent, DANGER_CLIENTAIM, 4000, 0.5, 0.8, ( ent->client->buttons & BUTTON_ATTACK ? qtrue : qfalse ) );
+        AICast_CheckDangerousEntity( ent, DANGER_CLIENTAIM, 4000, 0.5, 0.8, ( ent->client->buttons & BUTTON_ATTACK ) );
         break;
     case WP_PANZERFAUST:    // just predict a rocket attack, rather than waiting for them to fire, then avoiding
-        AICast_CheckDangerousEntity( ent, DANGER_CLIENTAIM, 1000, 0.5, 0.8, ( ent->client->buttons & BUTTON_ATTACK ? qtrue : qfalse ) );
+        AICast_CheckDangerousEntity( ent, DANGER_CLIENTAIM, 1000, 0.5, 0.8, ( ent->client->buttons & BUTTON_ATTACK ) );
         break;
     case WP_GRENADE_PINEAPPLE:
     case WP_GRENADE_LAUNCHER:   // if they are wearing down a grenade fuse, we should be very afraid
         if ( ent->client->ps.grenadeTimeLeft && ent->client->ps.grenadeTimeLeft < 3000 ) {
-            AICast_CheckDangerousEntity( ent, DANGER_CLIENTAIM, 1000, 0.5, 0.9, qtrue );
+            AICast_CheckDangerousEntity( ent, DANGER_CLIENTAIM, 1000, 0.5, 0.9, true );
         }
         break;
     }

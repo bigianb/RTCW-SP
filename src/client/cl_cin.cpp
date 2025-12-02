@@ -879,8 +879,8 @@ static void readQuadInfo( byte *qData ) {
 	cinTable[currentHandle].samplesPerLine = cinTable[currentHandle].CIN_WIDTH * cinTable[currentHandle].samplesPerPixel;
 	cinTable[currentHandle].screenDelta = cinTable[currentHandle].CIN_HEIGHT * cinTable[currentHandle].samplesPerLine;
 
-	cinTable[currentHandle].half = qfalse;
-	cinTable[currentHandle].smootheddouble = qfalse;
+	cinTable[currentHandle].half = false;
+	cinTable[currentHandle].smootheddouble = false;
 
 	cinTable[currentHandle].VQ0 = cinTable[currentHandle].VQNormal;
 	cinTable[currentHandle].VQ1 = cinTable[currentHandle].VQBuffer;
@@ -929,7 +929,7 @@ static void RoQReset() {
 	}
 
 	FS_FCloseFile( cinTable[currentHandle].iFile );
-	FS_FOpenFileRead( cinTable[currentHandle].fileName, &cinTable[currentHandle].iFile, qtrue );
+	FS_FOpenFileRead( cinTable[currentHandle].fileName, &cinTable[currentHandle].iFile, true );
 	FS_Read( cin.file, 16, cinTable[currentHandle].iFile );
 	RoQ_init();
 	cinTable[currentHandle].status = FMV_LOOPED;
@@ -945,7 +945,7 @@ static void RoQInterrupt( void ) {
 	}
 	FS_Read( cin.file, cinTable[currentHandle].RoQFrameSize + 8, cinTable[currentHandle].iFile );
 	if ( cinTable[currentHandle].RoQPlayed >= cinTable[currentHandle].ROQSize ) {
-		if ( cinTable[currentHandle].holdAtEnd == qfalse ) {
+		if ( cinTable[currentHandle].holdAtEnd == false ) {
 			if ( cinTable[currentHandle].looping ) {
 				RoQReset();
 			} else {
@@ -979,7 +979,7 @@ redump:
 			Com_Memcpy( cin.linbuf + cinTable[currentHandle].screenDelta, cin.linbuf, cinTable[currentHandle].samplesPerLine * cinTable[currentHandle].ysize );
 		}
 		cinTable[currentHandle].numQuads++;
-		cinTable[currentHandle].dirty = qtrue;
+		cinTable[currentHandle].dirty = true;
 		break;
 	case    ROQ_CODEBOOK:
 		decodeCodeBook( framedata, (unsigned short)cinTable[currentHandle].roq_flags );
@@ -1032,7 +1032,7 @@ redump:
 // read in next frame data
 //
 	if ( cinTable[currentHandle].RoQPlayed >= cinTable[currentHandle].ROQSize ) {
-		if ( cinTable[currentHandle].holdAtEnd == qfalse ) {
+		if ( cinTable[currentHandle].holdAtEnd == false ) {
 			if ( cinTable[currentHandle].looping ) {
 				RoQReset();
 			} else {
@@ -1255,7 +1255,7 @@ e_status CIN_RunCinematic( int handle ) {
 	return FMV_IDLE;
 }
 
-void CIN_SetLooping( int handle, qboolean loop ) {
+void CIN_SetLooping( int handle, bool loop ) {
 	if ( handle < 0 || handle >= MAX_VIDEO_HANDLES || cinTable[handle].status == FMV_EOF ) {
 		return;
 	}
@@ -1292,7 +1292,7 @@ int CIN_PlayCinematic( const char *arg, int x, int y, int w, int h, int systemBi
 	strcpy( cinTable[currentHandle].fileName, name );
 
 	cinTable[currentHandle].ROQSize = 0;
-	cinTable[currentHandle].ROQSize = FS_FOpenFileRead( cinTable[currentHandle].fileName, &cinTable[currentHandle].iFile, qtrue );
+	cinTable[currentHandle].ROQSize = FS_FOpenFileRead( cinTable[currentHandle].fileName, &cinTable[currentHandle].iFile, true );
 
 	if ( cinTable[currentHandle].ROQSize <= 0 ) {
 		Com_DPrintf( "play(%s), ROQSize<=0\n", arg );
@@ -1301,7 +1301,7 @@ int CIN_PlayCinematic( const char *arg, int x, int y, int w, int h, int systemBi
 	}
 
 	CIN_SetExtents( currentHandle, x, y, w, h );
-	CIN_SetLooping( currentHandle, ( systemBits & CIN_loop ) != 0 ? qtrue : qfalse );
+	CIN_SetLooping( currentHandle, ( systemBits & CIN_loop ) != 0 );
 
 	cinTable[currentHandle].CIN_HEIGHT = DEFAULT_CIN_HEIGHT;
 	cinTable[currentHandle].CIN_WIDTH  =  DEFAULT_CIN_WIDTH;
@@ -1356,7 +1356,7 @@ void CIN_SetExtents( int handle, int x, int y, int w, int h ) {
 	cinTable[handle].ypos = y;
 	cinTable[handle].width = w;
 	cinTable[handle].height = h;
-	cinTable[handle].dirty = qtrue;
+	cinTable[handle].dirty = true;
 }
 
 
@@ -1448,20 +1448,20 @@ void CIN_DrawCinematic( int handle ) {
 				}
 			}
 		}
-		re.DrawStretchRaw( x, y, w, h, 256, 256, (byte *)buf2, handle, qtrue );
-		cinTable[handle].dirty = qfalse;
+		re.DrawStretchRaw( x, y, w, h, 256, 256, (byte *)buf2, handle, true );
+		cinTable[handle].dirty = false;
 		Hunk_FreeTempMemory( buf2 );
 		return;
 	}
 
-	re.DrawStretchRaw( x, y, w, h, cinTable[handle].drawX, cinTable[handle].drawY, buf, handle, cinTable[handle].dirty ? qtrue : qfalse );
-	cinTable[handle].dirty = qfalse;
+	re.DrawStretchRaw( x, y, w, h, cinTable[handle].drawX, cinTable[handle].drawY, buf, handle, cinTable[handle].dirty );
+	cinTable[handle].dirty = false;
 }
 
 void CL_PlayCinematic_f( void ) {
 	const char    *arg;
 	const char *s;
-	qboolean holdatend;
+	bool holdatend;
 	int bits = CIN_system;
 
 	Com_DPrintf( "CL_PlayCinematic_f\n" );
@@ -1472,7 +1472,7 @@ void CL_PlayCinematic_f( void ) {
 	arg = Cmd_Argv( 1 );
 	s = Cmd_Argv( 2 );
 
-	holdatend = qfalse;
+	holdatend = false;
 	if ( ( s && s[0] == '1' ) || Q_stricmp( arg,"demoend.roq" ) == 0 || Q_stricmp( arg,"end.roq" ) == 0 ) {
 		bits |= CIN_hold;
 	}
@@ -1533,11 +1533,11 @@ void CIN_UploadCinematic( int handle ) {
 				if ( cinTable[handle].playonwalls == -1 ) {
 					cinTable[handle].playonwalls = -2;
 				} else {
-					cinTable[handle].dirty = qfalse;
+					cinTable[handle].dirty = false;
 				}
 			}
 		}
-		re.UploadCinematic( 256, 256, 256, 256, cinTable[handle].buf, handle, cinTable[handle].dirty ? qtrue : qfalse );
+		re.UploadCinematic( 256, 256, 256, 256, cinTable[handle].buf, handle, cinTable[handle].dirty );
 		if ( cl_inGameVideo->integer == 0 && cinTable[handle].playonwalls == 1 ) {
 			cinTable[handle].playonwalls--;
 		}

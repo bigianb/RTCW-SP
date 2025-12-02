@@ -134,7 +134,7 @@ const char *AIFunc_ZombieFlameAttackStart( cast_state_t *cs ) {
 	ent->shared.s.onFireEnd = level.time + ZOMBIE_FLAME_DURATION;
 	//
 	// set the correct animation
-	BG_PlayAnimName( &ent->client->ps, "both_attack1", ANIM_BP_BOTH, qtrue, qfalse, qtrue );
+	BG_PlayAnimName( &ent->client->ps, "both_attack1", ANIM_BP_BOTH, true, false, true );
 	ent->client->ps.legsTimer = ZOMBIE_FLAME_DURATION;
 	ent->client->ps.torsoTimer = ZOMBIE_FLAME_DURATION;
 	//
@@ -292,7 +292,7 @@ const char *AIFunc_ZombieMelee( cast_state_t *cs ) {
 			// check for inflicting damage
 			if ( level.time - cs->weaponFireTimes[cs->weaponNum] > hitDelay ) {
 				// do melee damage
-				if ( ( tr = CheckMeleeAttack( ent, AICast_WeaponRange( cs, cs->weaponNum ) + 4.0, qfalse ) ) && ( tr->entityNum == cs->enemyNum ) ) {
+				if ( ( tr = CheckMeleeAttack( ent, AICast_WeaponRange( cs, cs->weaponNum ) + 4.0, false ) ) && ( tr->entityNum == cs->enemyNum ) ) {
 					G_Damage( &g_entities[tr->entityNum], ent, ent, vec3_origin, tr->endpos,
 							  zombieHitDamage[anim], 0, MOD_GAUNTLET );
 					G_AddEvent( ent, EV_GENERAL_SOUND, G_SoundIndex( aiDefaults[ent->aiCharacter].soundScripts[STAYSOUNDSCRIPT] ) );
@@ -348,8 +348,8 @@ const char *AIFunc_ZombieMeleeStart( cast_state_t *cs ) {
 	AIChar_AttackSound( cs );
 
 	// play an anim
-	BG_UpdateConditionValue( cs->entityNum, ANIM_COND_WEAPON, cs->weaponNum, qtrue );
-	BG_AnimScriptEvent( &ent->client->ps, ANIM_ET_FIREWEAPON, qfalse, qtrue );
+	BG_UpdateConditionValue( cs->entityNum, ANIM_COND_WEAPON, cs->weaponNum, true );
+	BG_AnimScriptEvent( &ent->client->ps, ANIM_ET_FIREWEAPON, false, true );
 
 	cs->aifunc = AIFunc_ZombieMelee;
 	return "AIFunc_ZombieMelee";
@@ -400,7 +400,7 @@ const char *AIFunc_LoperAttack1( cast_state_t *cs ) {
 	if ( cs->thinkFuncChangeTime < level.time - loperHitTimes[anim] ) {
 		// check for damage
 		// TTimo: gcc: suggests () around assignment used as truth value
-		if ( ( tr = CheckMeleeAttack( &g_entities[cs->entityNum], LOPER_MELEE_RANGE, qfalse ) ) ) {
+		if ( ( tr = CheckMeleeAttack( &g_entities[cs->entityNum], LOPER_MELEE_RANGE, false ) ) ) {
 			G_Damage( &g_entities[tr->entityNum], ent, ent, vec3_origin, tr->endpos,
 					  LOPER_MELEE_DAMAGE, 0, MOD_LOPER_HIT );
 			// sound
@@ -426,10 +426,10 @@ const char *AIFunc_LoperAttack1Start( cast_state_t *cs ) {
 	// start the animation
 	if ( rand() % 2 ) {
 		G_AddEvent( ent, EV_GENERAL_SOUND, G_SoundIndex( aiDefaults[ent->aiCharacter].soundScripts[FOLLOWSOUNDSCRIPT] ) );
-		BG_PlayAnimName( &ent->client->ps, "legs_extra", ANIM_BP_LEGS, qtrue, qfalse, qtrue );
+		BG_PlayAnimName( &ent->client->ps, "legs_extra", ANIM_BP_LEGS, true, false, true );
 	} else {
 		G_AddEvent( ent, EV_GENERAL_SOUND, G_SoundIndex( aiDefaults[ent->aiCharacter].soundScripts[STAYSOUNDSCRIPT] ) );
-		BG_PlayAnimName( &ent->client->ps, "legs_extra2", ANIM_BP_LEGS, qtrue, qfalse, qtrue );
+		BG_PlayAnimName( &ent->client->ps, "legs_extra2", ANIM_BP_LEGS, true, false, true );
 	}
 	//
 	cs->aifunc = AIFunc_LoperAttack1;
@@ -478,7 +478,7 @@ AIFunc_LoperAttack2()
 const char *AIFunc_LoperAttack2( cast_state_t *cs ) {
 	gentity_t *ent;
 	vec3_t vec;
-	qboolean onGround = qfalse;
+	bool onGround = false;
 	//
 	ent = &g_entities[cs->entityNum];
 	//
@@ -501,13 +501,13 @@ const char *AIFunc_LoperAttack2( cast_state_t *cs ) {
 	//
 	// landed?
 	if ( cs->bs->cur_ps.groundEntityNum != ENTITYNUM_NONE ) {
-		onGround = qtrue;
+		onGround = true;
 	} else {    // predict a landing
 		aicast_predictmove_t move;
 		float changeTime;
 		AICast_PredictMovement( cs, 1, 0.2, &move, &cs->lastucmd, cs->enemyNum );
 		if ( move.groundEntityNum != ENTITYNUM_NONE ) {
-			onGround = qtrue;
+			onGround = true;
 		}
 		//
 		// adjust velocity
@@ -528,7 +528,7 @@ const char *AIFunc_LoperAttack2( cast_state_t *cs ) {
 		if ( cs->thinkFuncChangeTime < level.time - LOPER_LEAP_DELAY ) {
 			// loper is back on ground, wait for animation to play out
 			if ( !( cs->aiFlags & AIFL_LAND_ANIM_PLAYED ) ) {
-				BG_PlayAnimName( &ent->client->ps, "legs_extra4", ANIM_BP_LEGS, qtrue, qfalse, qtrue );
+				BG_PlayAnimName( &ent->client->ps, "legs_extra4", ANIM_BP_LEGS, true, false, true );
 				//
 				cs->aiFlags |= AIFL_LAND_ANIM_PLAYED;
 				// TODO:play the landing thud
@@ -568,7 +568,7 @@ const char *AIFunc_LoperAttack2Start( cast_state_t *cs ) {
 		return NULL;
 	}
 	// OK, start the animation
-	BG_PlayAnimName( &ent->client->ps, "legs_extra3", ANIM_BP_LEGS, qtrue, qfalse, qtrue );
+	BG_PlayAnimName( &ent->client->ps, "legs_extra3", ANIM_BP_LEGS, true, false, true );
 	ent->client->ps.legsTimer = 500;    // stay on this until landing
 	// send us hurtling towards our enemy
 	VectorScale( vec, LOPER_LEAP_VELOCITY_START, vec );
@@ -607,7 +607,7 @@ AIFunc_LoperAttack3()
 */
 const char *AIFunc_LoperAttack3( cast_state_t *cs ) {
 	gentity_t *ent;
-	qboolean hitClient = qfalse;
+	bool hitClient = false;
 	//
 	ent = &g_entities[cs->entityNum];
 	//
@@ -633,7 +633,7 @@ const char *AIFunc_LoperAttack3( cast_state_t *cs ) {
 			// TODO: client-side visual effect
 			// TODO: throw them backwards (away from us)
 		} else {
-			hitClient = qtrue;  // so we don't abort
+			hitClient = true;  // so we don't abort
 		}
 		//
 		if ( !hitClient && ( ent->client->ps.legsTimer > 400 ) && cs->thinkFuncChangeTime < ( level.time - 1000 ) ) { // we're done with this attack
@@ -654,7 +654,7 @@ const char *AIFunc_LoperAttack3Start( cast_state_t *cs ) {
 	// face them
 	AICast_AimAtEnemy( cs );
 	// play the animation
-	BG_PlayAnimName( &ent->client->ps, "legs_extra5", ANIM_BP_LEGS, qtrue, qfalse, qtrue );
+	BG_PlayAnimName( &ent->client->ps, "legs_extra5", ANIM_BP_LEGS, true, false, true );
 	//
 	// play the buildup sound
 	// TODO
@@ -742,7 +742,7 @@ const char *AIFunc_StimSoldierAttack1( cast_state_t *cs ) {
 			// attack them
 			//
 			// if we can't attack, abort
-			if ( AICast_CheckAttack( cs, cs->enemyNum, qfalse ) ) {
+			if ( AICast_CheckAttack( cs, cs->enemyNum, false ) ) {
 				// apply weapons..
 				trap_EA_Attack( cs->entityNum );
 			}
@@ -777,7 +777,7 @@ const char *AIFunc_StimSoldierAttack1Start( cast_state_t *cs ) {
 	AngleVectors( cs->ideal_viewangles, dir, NULL, NULL );
 	VectorMA( cs->bs->origin, 300, dir, pos );
 	pos[2] += 128;
-    SV_Trace( &tr, cs->bs->origin, cs->bs->cur_ps.mins, cs->bs->cur_ps.maxs, pos, cs->entityNum, ent->clipmask, qfalse );
+    SV_Trace( &tr, cs->bs->origin, cs->bs->cur_ps.mins, cs->bs->cur_ps.maxs, pos, cs->entityNum, ent->clipmask, false );
 	if ( tr.startsolid || tr.allsolid ) {
 		return NULL;    // not a good place
 	}
@@ -791,8 +791,8 @@ const char *AIFunc_StimSoldierAttack1Start( cast_state_t *cs ) {
 		Com_Error( ERR_DROP, "stim soldier tried special jump attack without a tesla or rocket launcher\n" );
         return NULL;  // Keep linter happy. ERR_DROP does not return
 	}
-	if ( !AICast_CheckAttackAtPos( cs->entityNum, cs->enemyNum, pos, qfalse, qfalse ) ) {
-		AICast_ChooseWeapon( cs, qfalse );
+	if ( !AICast_CheckAttackAtPos( cs->entityNum, cs->enemyNum, pos, false, false ) ) {
+		AICast_ChooseWeapon( cs, false );
 		return NULL;
 	}
 	// play the animation
@@ -863,7 +863,7 @@ const char *AIFunc_BlackGuardAttack1( cast_state_t *cs ) {
 		if ( cs->thinkFuncChangeTime < level.time - BLACKGUARD_KICK_DELAY ) {
 			cs->aiFlags |= AIFL_MISCFLAG1;
 			// keep checking for impact status
-			tr = CheckMeleeAttack( ent, BLACKGUARD_KICK_RANGE, qfalse );
+			tr = CheckMeleeAttack( ent, BLACKGUARD_KICK_RANGE, false );
 			// do melee damage?
 			if ( tr && ( tr->entityNum == cs->enemyNum ) ) {
 				AngleVectors( cs->viewangles, fwd, NULL, NULL );
@@ -887,7 +887,7 @@ const char *AIFunc_BlackGuardAttack1Start( cast_state_t *cs ) {
 	// audible sound
 	AIChar_AttackSound( cs );
 	// start the animation
-	BG_PlayAnimName( &ent->client->ps, "kick", ANIM_BP_BOTH, qtrue, qfalse, qtrue );
+	BG_PlayAnimName( &ent->client->ps, "kick", ANIM_BP_BOTH, true, false, true );
 	// clear flags
 	cs->aiFlags &= ~( AIFL_MISCFLAG1 | AIFL_MISCFLAG2 );
 	//
@@ -994,7 +994,7 @@ const char *AIFunc_WarriorZombieMelee( cast_state_t *cs ) {
 			// check for inflicting damage
 			if ( level.time - cs->weaponFireTimes[cs->weaponNum] > hitDelay ) {
 				// do melee damage
-				if ( ( tr = CheckMeleeAttack( ent, 44, qfalse ) ) && ( tr->entityNum == cs->enemyNum ) ) {
+				if ( ( tr = CheckMeleeAttack( ent, 44, false ) ) && ( tr->entityNum == cs->enemyNum ) ) {
 					G_Damage( &g_entities[tr->entityNum], ent, ent, vec3_origin, tr->endpos,
 							  warriorHitDamage[anim], 0, MOD_GAUNTLET );
 					G_AddEvent( ent, EV_GENERAL_SOUND, G_SoundIndex( aiDefaults[ent->aiCharacter].soundScripts[STAYSOUNDSCRIPT] ) );
@@ -1051,11 +1051,11 @@ const char *AIFunc_WarriorZombieMeleeStart( cast_state_t *cs ) {
 	AIChar_AttackSound( cs );
 
 	// play an anim
-	BG_UpdateConditionValue( cs->entityNum, ANIM_COND_WEAPON, cs->weaponNum, qtrue );
-	BG_AnimScriptEvent( &ent->client->ps, ANIM_ET_FIREWEAPON, qfalse, qtrue );
+	BG_UpdateConditionValue( cs->entityNum, ANIM_COND_WEAPON, cs->weaponNum, true );
+	BG_AnimScriptEvent( &ent->client->ps, ANIM_ET_FIREWEAPON, false, true );
 
 	// stop charging
-	BG_UpdateConditionValue( cs->entityNum, ANIM_COND_CHARGING, 0, qfalse );
+	BG_UpdateConditionValue( cs->entityNum, ANIM_COND_CHARGING, 0, false );
 	ent->flags &= ~FL_WARZOMBIECHARGE;
 
 	cs->aifunc = AIFunc_WarriorZombieMelee;
@@ -1096,8 +1096,8 @@ const char *AIFunc_WarriorZombieSightStart( cast_state_t *cs ) {
 	AICast_AimAtEnemy( cs );
 
 	// anim
-	BG_AnimScriptEvent( &ent->client->ps, ANIM_ET_FIRSTSIGHT, qfalse, qtrue );
-	//BG_PlayAnimName( &ent->client->ps, "first_sight", ANIM_BP_BOTH, qtrue, qfalse, qtrue );
+	BG_AnimScriptEvent( &ent->client->ps, ANIM_ET_FIRSTSIGHT, false, true );
+	//BG_PlayAnimName( &ent->client->ps, "first_sight", ANIM_BP_BOTH, true, false, true );
 
 	cs->aifunc = AIFunc_WarriorZombieSight;
 	return "AIFunc_WarriorZombieSight";
@@ -1133,7 +1133,7 @@ const char *AIFunc_WarriorZombieDefense( cast_state_t *cs ) {
 
 	if ( cs->thinkFuncChangeTime < level.time - 1500 ) {
 		// if we cant see them
-		if ( !AICast_EntityVisible( cs, cs->enemyNum, qtrue ) ) {
+		if ( !AICast_EntityVisible( cs, cs->enemyNum, true ) ) {
 			ent->flags &= ~FL_DEFENSE_GUARD;
 			ent->client->ps.torsoTimer = 0;
 			ent->client->ps.legsTimer = 0;
@@ -1229,15 +1229,15 @@ const char *AIFunc_WarriorZombieDefenseStart( cast_state_t *cs ) {
 	AICast_AimAtEnemy( cs );
 
 	// anim
-	BG_UpdateConditionValue( cs->entityNum, ANIM_COND_WEAPON, cs->weaponNum, qtrue );
-	BG_AnimScriptEvent( &ent->client->ps, ANIM_ET_FIREWEAPON, qfalse, qtrue );
+	BG_UpdateConditionValue( cs->entityNum, ANIM_COND_WEAPON, cs->weaponNum, true );
+	BG_AnimScriptEvent( &ent->client->ps, ANIM_ET_FIREWEAPON, false, true );
 	ent->client->ps.torsoTimer = 3000;
 	ent->client->ps.legsTimer = 3000;
 
 	ent->flags |= FL_DEFENSE_GUARD;
 
 	// when they come out of defense mode, go into charge mode
-	BG_UpdateConditionValue( cs->entityNum, ANIM_COND_CHARGING, 1, qfalse );
+	BG_UpdateConditionValue( cs->entityNum, ANIM_COND_CHARGING, 1, false );
 	ent->flags |= FL_WARZOMBIECHARGE;
 
 	cs->aifunc = AIFunc_WarriorZombieDefense;

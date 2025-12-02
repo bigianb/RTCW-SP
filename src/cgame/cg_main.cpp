@@ -394,7 +394,7 @@ void CG_RegisterCvars( void ) {
 
 	// see if we are also running the server on this machine
 	Cvar_VariableStringBuffer( "sv_running", var, sizeof( var ) );
-	cgs.localServer = atoi( var ) != 0 ? qtrue : qfalse;
+	cgs.localServer = atoi( var ) != 0;
 
 	forceModelModificationCount = cg_forceModel.modificationCount;
 
@@ -450,7 +450,7 @@ void CG_SetupDlightstyles( void ) {
 	int entnum;
 	centity_t   *cent;
 
-	cg.lightstylesInited = qtrue;
+	cg.lightstylesInited = true;
 
 	for ( i = 1; i < MAX_DLIGHT_CONFIGSTRINGS; i++ )
 	{
@@ -587,7 +587,7 @@ static void CG_LoadPickupNames( void ) {
 	const char* text = buffer;
 
 	for ( i = 0; i < bg_numItems; i++ ) {
-		token = COM_ParseExt( &text, qtrue );
+		token = COM_ParseExt( &text, true );
 		if ( !token[0] ) {
 			break;
 		}
@@ -633,7 +633,7 @@ static void CG_LoadTranslationStrings( void ) {
 	numStrings = sizeof( translateStrings ) / sizeof( translateStrings[0] ) - 1;
 
 	for ( i = 0; i < numStrings; i++ ) {
-		token = COM_ParseExt( &text, qtrue );
+		token = COM_ParseExt( &text, true );
 		if ( !token[0] ) {
 			break;
 		}
@@ -1411,7 +1411,7 @@ void CG_LoadHudMenu() {
 		hudSet = "ui/hud.txt";
 	}
 
-	LoadMenus( hudSet, qtrue, qtrue );
+	LoadMenus( hudSet, true, true );
 }
 
 /*
@@ -1478,9 +1478,9 @@ void CG_Init( int serverMessageNum, int serverCommandSequence ) {
 	CG_LoadingString( "collision map" );
 
 	int checksum;
-	CM_LoadMap( cgs.mapname, qtrue, &checksum );
+	CM_LoadMap( cgs.mapname, true, &checksum );
 
-	cg.loading = qtrue;     // force players to load instead of defer
+	cg.loading = true;     // force players to load instead of defer
 
 	CG_LoadingString( "sounds" );
 
@@ -1500,7 +1500,7 @@ void CG_Init( int serverMessageNum, int serverCommandSequence ) {
 
 	CG_LoadHudMenu();      // load new hud stuff
 
-	cg.loading = qfalse;    // future players will be deferred
+	cg.loading = false;    // future players will be deferred
 
 	CG_InitLocalEntities();
 
@@ -1517,7 +1517,7 @@ void CG_Init( int serverMessageNum, int serverCommandSequence ) {
 
 	CG_StartMusic();
 
-	cg.lightstylesInited = qfalse;
+	cg.lightstylesInited = false;
 
 	CG_LoadingString( "" );
 

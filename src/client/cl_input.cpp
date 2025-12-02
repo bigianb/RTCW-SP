@@ -57,11 +57,11 @@ at the same time.
 static kbutton_t kb[NUM_BUTTONS];
 
 void IN_MLookDown( void ) {
-	kb[KB_MLOOK].active = qtrue;
+	kb[KB_MLOOK].active = true;
 }
 
 void IN_MLookUp( void ) {
-	kb[KB_MLOOK].active = qfalse;
+	kb[KB_MLOOK].active = false;
 	if ( !cl_freelook->integer ) {
 		IN_CenterView();
 	}
@@ -99,8 +99,8 @@ void IN_KeyDown( kbutton_t *b ) {
 	c = Cmd_Argv( 2 );
 	b->downtime = atoi( c );
 
-	b->active = qtrue;
-	b->wasPressed = qtrue;
+	b->active = true;
+	b->wasPressed = true;
 }
 
 void IN_KeyUp( kbutton_t *b ) {
@@ -114,7 +114,7 @@ void IN_KeyUp( kbutton_t *b ) {
 	} else {
 		// typed manually at the console, assume for unsticking, so clear all
 		b->down[0] = b->down[1] = 0;
-		b->active = qfalse;
+		b->active = false;
 		return;
 	}
 
@@ -129,7 +129,7 @@ void IN_KeyUp( kbutton_t *b ) {
 		return;     // some other key is still holding it down
 	}
 
-	b->active = qfalse;
+	b->active = false;
 
 	// save timestamp for partial frame summing
 	c = Cmd_Argv( 2 );
@@ -140,7 +140,7 @@ void IN_KeyUp( kbutton_t *b ) {
 		b->msec += frame_msec / 2;
 	}
 
-	b->active = qfalse;
+	b->active = false;
 }
 
 
@@ -581,14 +581,14 @@ void CL_CmdButtons( usercmd_t *cmd ) {
 		if ( kb[KB_BUTTONS0 + i].active || kb[KB_BUTTONS0 + i].wasPressed ) {
 			cmd->buttons |= 1 << i;
 		}
-		kb[KB_BUTTONS0 + i].wasPressed = qfalse;
+		kb[KB_BUTTONS0 + i].wasPressed = false;
 	}
 
 	for ( i = 0 ; i < 7 ; i++ ) {
 		if ( kb[KB_WBUTTONS0 + i].active || kb[KB_WBUTTONS0 + i].wasPressed ) {
 			cmd->wbuttons |= 1 << i;
 		}
-		kb[KB_WBUTTONS0 + i].wasPressed = qfalse;
+		kb[KB_WBUTTONS0 + i].wasPressed = false;
 	}
 
 	if ( cls.keyCatchers ) {
@@ -717,20 +717,20 @@ void CL_CreateNewCommands( void ) {
 =================
 CL_ReadyToSendPacket
 
-Returns qfalse if we are over the maxpackets limit
+Returns false if we are over the maxpackets limit
 and should choke back the bandwidth a bit by not sending
 a packet this frame.  All the commands will still get
 delivered in the next packet, but saving a header and
 getting more delta compression will reduce total bandwidth.
 =================
 */
-qboolean CL_ReadyToSendPacket( void ) {
+bool CL_ReadyToSendPacket( void ) {
 	int oldPacketNum;
 	int delta;
 
 	// don't send anything if playing back a demo
 	if ( cls.state == CA_CINEMATIC ) {
-		return qfalse;
+		return false;
 	}
 
 	// if we don't have a valid gamestate yet, only send
@@ -738,11 +738,11 @@ qboolean CL_ReadyToSendPacket( void ) {
 	if ( cls.state != CA_ACTIVE &&
 		 cls.state != CA_PRIMED &&
 		 cls.realtime - clc.lastPacketSentTime < 1000 ) {
-		return qfalse;
+		return false;
 	}
 
 	// send every frame for loopbacks
-	return qtrue;
+	return true;
 }
 
 /*

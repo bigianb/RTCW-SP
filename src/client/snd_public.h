@@ -56,7 +56,7 @@ void S_StopAllSounds( void );
 
 // all continuous looping sounds must be added before calling S_Update
 void S_ClearLoopingSounds( void );
-void S_ClearSounds( qboolean clearStreaming, qboolean clearMusic ); //----(SA)	modified
+void S_ClearSounds( bool clearStreaming, bool clearMusic ); //----(SA)	modified
 void S_AddLoopingSound( int entityNum, const vec3_t origin, const vec3_t velocity, const int range, sfxHandle_t sfxHandle, int volume );
 void S_AddRealLoopingSound( int entityNum, const vec3_t origin, const vec3_t velocity, const int range, sfxHandle_t sfx );
 void S_StopLoopingSound( int entityNum );

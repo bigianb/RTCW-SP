@@ -295,17 +295,17 @@ static void CG_ConfigStringModified( void ) {
 		cgs.levelStartTime = atoi( str );
 	} else if ( num == CS_VOTE_TIME ) {
 		cgs.voteTime = atoi( str );
-		cgs.voteModified = qtrue;
+		cgs.voteModified = true;
 	} else if ( num == CS_VOTE_YES ) {
 		cgs.voteYes = atoi( str );
-		cgs.voteModified = qtrue;
+		cgs.voteModified = true;
 	} else if ( num == CS_VOTE_NO ) {
 		cgs.voteNo = atoi( str );
-		cgs.voteModified = qtrue;
+		cgs.voteModified = true;
 	} else if ( num == CS_VOTE_STRING ) {
 		Q_strncpyz( cgs.voteString, str, sizeof( cgs.voteString ) );
 	} else if ( num == CS_INTERMISSION ) {
-		cg.intermissionStarted = atoi( str ) ? qtrue : qfalse;
+		cg.intermissionStarted = atoi( str );
 	} else if ( num == CS_SCREENFADE ) {
 		CG_ParseScreenFade();
 	} else if ( num == CS_FOGVARS ) {
@@ -397,8 +397,8 @@ static void CG_MapRestart( void ) {
 	cg.yougotmailTime = 0;  // reset
 
 	// (SA) clear zoom (so no warpies)
-	cg.zoomedBinoc = qfalse;
-	cg.zoomedBinoc = qfalse;
+	cg.zoomedBinoc = false;
+	cg.zoomedBinoc = false;
 	cg.zoomedScope = 0;
 	cg.zoomTime = 0;
 	cg.zoomval = 0;
@@ -440,13 +440,13 @@ static void CG_MapRestart( void ) {
 
 	cg.timelimitWarnings = 0;
 
-	cg.intermissionStarted = qfalse;
+	cg.intermissionStarted = false;
 
 	cgs.voteTime = 0;
 
-	cg.lightstylesInited    = qfalse;
+	cg.lightstylesInited    = false;
 
-	cg.mapRestart = qtrue;
+	cg.mapRestart = true;
 
 	CG_StartMusic();
 
@@ -546,7 +546,7 @@ static void CG_ServerCommand( void ) {
 	}
 
 	if ( !strcmp( cmd, "startCam" ) ) {
-		qboolean startBlack = atoi( CG_Argv( 2 ) ) ? qtrue : qfalse;;
+		bool startBlack = atoi( CG_Argv( 2 ) );;
 
 		CG_StartCamera( CG_Argv( 1 ), startBlack );
 		return;
@@ -617,7 +617,7 @@ static void CG_ServerCommand( void ) {
 	// clientLevelShot is sent before taking a special screenshot for
 	// the menu system during development
 	if ( !strcmp( cmd, "clientLevelShot" ) ) {
-		cg.levelShot = qtrue;
+		cg.levelShot = true;
 		return;
 	}
 

@@ -117,7 +117,7 @@ typedef struct {
 
 	vec3_t axis[3];                 // rotation vectors
 	vec3_t torsoAxis[3];            // rotation vectors for torso section of skeletal animation
-	qboolean nonNormalizedAxes;     // axis are not normalized, i.e. they have scale
+	bool nonNormalizedAxes;     // axis are not normalized, i.e. they have scale
 	float origin[3];                // also used as MODEL_BEAM's "from"
 	int frame;                      // also used as MODEL_BEAM's diameter
 	int torsoFrame;                 // skeletal torso can have frame independant of legs frame
@@ -195,10 +195,10 @@ typedef struct {
 	float color[4];
 	float start;                // near
 	float end;                  // far
-	qboolean useEndForClip;     // use the 'far' value for the far clipping plane
+	bool useEndForClip;     // use the 'far' value for the far clipping plane
 	float density;              // 0.0-1.0
-	qboolean registered;        // has this fog been set up?
-	qboolean drawsky;           // draw skybox
+	bool registered;        // has this fog been set up?
+	bool drawsky;           // draw skybox
 	int clearscreen;       // clear the GL color buffer. TODO: bool
 
 	int dirty;
@@ -290,15 +290,15 @@ typedef struct {
 	glDriverType_t driverType;
 	glHardwareType_t hardwareType;
 
-	qboolean deviceSupportsGamma;
+	bool deviceSupportsGamma;
 	textureCompression_t textureCompression;
-	qboolean textureEnvAddAvailable;
-	qboolean anisotropicAvailable;                  //----(SA)	added
+	bool textureEnvAddAvailable;
+	bool anisotropicAvailable;                  //----(SA)	added
 	float maxAnisotropy;                            //----(SA)	added
 
 	// vendor-specific support
 	// NVidia
-	qboolean NVFogAvailable;                    //----(SA)	added
+	bool NVFogAvailable;                    //----(SA)	added
 	int NVFogMode;                                  //----(SA)	added
 	// ATI
 	int ATIMaxTruformTess;                          // for truform support
@@ -317,11 +317,11 @@ typedef struct {
 	// synonymous with "does rendering consume the entire screen?", therefore
 	// a Voodoo or Voodoo2 will have this set to TRUE, as will a Win32 ICD that
 	// used CDS.
-	qboolean isFullscreen;
-	qboolean stereoEnabled;
-	qboolean smpActive;                     // dual processor
+	bool isFullscreen;
+	bool stereoEnabled;
+	bool smpActive;                     // dual processor
 
-	qboolean textureFilterAnisotropicAvailable;                 //DAJ
+	bool textureFilterAnisotropicAvailable;                 //DAJ
 } glconfig_t;
 
 

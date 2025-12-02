@@ -477,7 +477,7 @@ void AICast_Think( int client, float thinktime ) {
 	}
 	//
 	// update bounding box
-	AIChar_SetBBox( ent, cs, qtrue );
+	AIChar_SetBBox( ent, cs, true );
 	//
 	// set/disable these each frame as required
 	//ent->shared.r.svFlags |= SVF_BROADCAST;
@@ -510,7 +510,7 @@ void AICast_Think( int client, float thinktime ) {
 			oldmaxZ = ent->shared.r.maxs[2];
 
 			// make sure the area is clear
-			AIChar_SetBBox( ent, cs, qfalse );
+			AIChar_SetBBox( ent, cs, false );
 
 			VectorAdd( ent->shared.r.currentOrigin, ent->shared.r.mins, mins );
 			VectorAdd( ent->shared.r.currentOrigin, ent->shared.r.maxs, maxs );
@@ -541,7 +541,7 @@ void AICast_Think( int client, float thinktime ) {
 
 				ent->shared.r.contents = CONTENTS_BODY;
 				ent->clipmask = MASK_PLAYERSOLID | CONTENTS_MONSTERCLIP;
-				ent->takedamage = qtrue;
+				ent->takedamage = true;
 				ent->waterlevel = 0;
 				ent->watertype = 0;
 				ent->flags = 0;
@@ -557,7 +557,7 @@ void AICast_Think( int client, float thinktime ) {
 				ent->client->ps.eFlags |= EF_NO_TURN_ANIM;
 
 				// play the revive animation
-				cs->revivingTime = level.time + BG_AnimScriptEvent( &ent->client->ps, ANIM_ET_REVIVE, qfalse, qtrue );;
+				cs->revivingTime = level.time + BG_AnimScriptEvent( &ent->client->ps, ANIM_ET_REVIVE, false, true );;
 			} else {
 				// can't spawn yet, so set bbox back, and wait
 				ent->shared.r.maxs[2] = oldmaxZ;
@@ -599,33 +599,33 @@ void AICast_Think( int client, float thinktime ) {
 	//
 	// set some anim conditions
 	if ( cs->secondDeadTime ) {
-		BG_UpdateConditionValue( cs->entityNum, ANIM_COND_SECONDLIFE, qtrue, qfalse );
+		BG_UpdateConditionValue( cs->entityNum, ANIM_COND_SECONDLIFE, true, false );
 	} else {
-		BG_UpdateConditionValue( cs->entityNum, ANIM_COND_SECONDLIFE, qfalse, qfalse );
+		BG_UpdateConditionValue( cs->entityNum, ANIM_COND_SECONDLIFE, false, false );
 	}
 	// set health value
 	if ( ent->health <= 0.25 * cs->attributes[STARTING_HEALTH] ) {
-		BG_UpdateConditionValue( cs->entityNum, ANIM_COND_HEALTH_LEVEL, 2, qfalse );
+		BG_UpdateConditionValue( cs->entityNum, ANIM_COND_HEALTH_LEVEL, 2, false );
 	} else if ( ent->health <= 0.5 * cs->attributes[STARTING_HEALTH] ) {
-		BG_UpdateConditionValue( cs->entityNum, ANIM_COND_HEALTH_LEVEL, 1, qfalse );
+		BG_UpdateConditionValue( cs->entityNum, ANIM_COND_HEALTH_LEVEL, 1, false );
 	} else {
-		BG_UpdateConditionValue( cs->entityNum, ANIM_COND_HEALTH_LEVEL, 0, qfalse );
+		BG_UpdateConditionValue( cs->entityNum, ANIM_COND_HEALTH_LEVEL, 0, false );
 	}
 	// set enemy position
 	if ( cs->enemyNum >= 0 ) {
 		if ( infront( ent, &g_entities[cs->enemyNum] ) ) {
-			BG_UpdateConditionValue( ent->shared.s.number, ANIM_COND_ENEMY_POSITION, POSITION_INFRONT, qtrue );
+			BG_UpdateConditionValue( ent->shared.s.number, ANIM_COND_ENEMY_POSITION, POSITION_INFRONT, true );
 		} else {
-			BG_UpdateConditionValue( ent->shared.s.number, ANIM_COND_ENEMY_POSITION, POSITION_BEHIND, qtrue );
+			BG_UpdateConditionValue( ent->shared.s.number, ANIM_COND_ENEMY_POSITION, POSITION_BEHIND, true );
 		}
 	} else {
-		BG_UpdateConditionValue( ent->shared.s.number, ANIM_COND_ENEMY_POSITION, POSITION_UNUSED, qtrue );
+		BG_UpdateConditionValue( ent->shared.s.number, ANIM_COND_ENEMY_POSITION, POSITION_UNUSED, true );
 	}
 	// set defense pose
 	if ( ent->flags & FL_DEFENSE_CROUCH ) {
-		BG_UpdateConditionValue( ent->shared.s.number, ANIM_COND_DEFENSE, qtrue, qfalse );
+		BG_UpdateConditionValue( ent->shared.s.number, ANIM_COND_DEFENSE, true, false );
 	} else {
-		BG_UpdateConditionValue( ent->shared.s.number, ANIM_COND_DEFENSE, qfalse, qfalse );
+		BG_UpdateConditionValue( ent->shared.s.number, ANIM_COND_DEFENSE, false, false );
 	}
 	//
 	cs->speedScale = 1.0;           // reset each frame, set if required
@@ -705,7 +705,7 @@ void AICast_Think( int client, float thinktime ) {
 	// if we don't have ammo for the current weapon, get rid of it
 	if ( !( COM_BitCheck( cs->bs->cur_ps.weapons, cs->weaponNum ) ) || !AICast_GotEnoughAmmoForWeapon( cs, cs->weaponNum ) ) {
 		// select a weapon
-		AICast_ChooseWeapon( cs, qfalse );
+		AICast_ChooseWeapon( cs, false );
 
 	}
 	//
@@ -721,7 +721,7 @@ void AICast_Think( int client, float thinktime ) {
 		//
 		// process current script if it exists
 		cs->castScriptStatusCurrent = cs->castScriptStatus;
-		AICast_ScriptRun( cs, qfalse );
+		AICast_ScriptRun( cs, false );
 		//
 		// do some special handling for this character
 		AICast_SpecialFunc( cs );
@@ -871,7 +871,7 @@ void AICast_StartFrame( int time )
 		cs = AICast_GetCastState( i );
 		// is this a cast AI?
 		if ( cs->bs ) {
-			if ( ent->aiInactive == qfalse ) {
+			if ( ent->aiInactive == false ) {
 				//
 				elapsed = time - cs->lastThink;
 				//
@@ -931,7 +931,7 @@ void AICast_StartServerFrame( int time ) {
 	static vmCvar_t aicast_disable;
 	gentity_t *ent;
 	cast_state_t *pcs;
-	qboolean highPriority;
+	bool highPriority;
 	int oldLegsTimer;
 
 	if ( Cvar_VariableIntegerValue( "savegame_loading" ) ) {
@@ -987,7 +987,7 @@ void AICast_StartServerFrame( int time ) {
 	}
 	//
 	// process player's current script if it exists
-	AICast_ScriptRun( AICast_GetCastState( 0 ), qfalse );
+	AICast_ScriptRun( AICast_GetCastState( 0 ), false );
 
 	count = 0;
 	castcount = 0;
@@ -1000,15 +1000,15 @@ void AICast_StartServerFrame( int time ) {
 		cs = AICast_GetCastState( i );
 		// is this a cast AI?
 		if ( cs->bs ) {
-			if ( ent->aiInactive == qfalse && ent->inuse ) {
+			if ( ent->aiInactive == false && ent->inuse ) {
 				//
 				elapsed = level.time - cs->lastMoveThink;
 				if ( cs->lastThink && elapsed > 0 ) {
-					highPriority = qfalse;
+					highPriority = false;
 					if ( ent->health > 0 ) {
-						highPriority = qtrue;
+						highPriority = true;
 					} else if ( cs->deathTime > ( level.time - 5000 ) ) {
-						highPriority = qtrue;
+						highPriority = true;
 					}
 					//
 					if ( highPriority ) {
@@ -1074,7 +1074,7 @@ void AICast_PredictMovement( cast_state_t *cs, int numframes, float frametime, a
 	pmove_t pm;
 	trace_t tr;
 	vec3_t end, startHitVec, thisHitVec, lastOrg, projPoint;
-	qboolean checkReachMarker;
+	bool checkReachMarker;
 	gentity_t   *ent = &g_entities[cs->entityNum];
 	bot_input_t bi;
 
@@ -1093,11 +1093,11 @@ void AICast_PredictMovement( cast_state_t *cs, int numframes, float frametime, a
 	move->stopevent = PREDICTSTOP_NONE;
 
 	if ( checkHitEnt >= 0 && !Q_stricmp( g_entities[checkHitEnt].classname, "ai_marker" ) ) {
-		checkReachMarker = qtrue;
+		checkReachMarker = true;
 		VectorSubtract( g_entities[checkHitEnt].shared.r.currentOrigin, ps.origin, startHitVec );
 		VectorCopy( ps.origin, lastOrg );
 	} else {
-		checkReachMarker = qfalse;
+		checkReachMarker = false;
 	}
 
 	for ( frame = 0; frame < numframes; frame++ )
@@ -1112,10 +1112,10 @@ void AICast_PredictMovement( cast_state_t *cs, int numframes, float frametime, a
 
 		pm.trace = SV_TraceCapsule; //SV_Trace;
 		pm.pointcontents = SV_PointContents;
-		pm.debugLevel = qfalse;
-		pm.noFootsteps = qtrue;
+		pm.debugLevel = false;
+		pm.noFootsteps = true;
 		// RF, not needed for prediction
-		//pm.noWeapClips = qtrue;	// (SA) AI's ignore weapon clips
+		//pm.noWeapClips = true;	// (SA) AI's ignore weapon clips
 
 		// perform a pmove
 		Pmove( &pm );
@@ -1177,7 +1177,7 @@ done:
 	if ( move->groundEntityNum == ENTITYNUM_NONE ) {
 		VectorCopy( move->endpos, end );
 		end[2] -= 32;
-		SV_Trace( &tr, move->endpos, pm.mins, pm.maxs, end, pm.ps->clientNum, pm.tracemask, qfalse );
+		SV_Trace( &tr, move->endpos, pm.mins, pm.maxs, end, pm.ps->clientNum, pm.tracemask, false );
 		if ( !tr.startsolid && !tr.allsolid && tr.fraction < 1 ) {
 			VectorCopy( tr.endpos, pm.ps->origin );
 			pm.ps->groundEntityNum = tr.entityNum;
@@ -1201,7 +1201,7 @@ done:
 AICast_GetAvoid
 ============
 */
-qboolean AICast_GetAvoid( cast_state_t *cs, bot_goal_t *goal, vec3_t outpos, qboolean reverse, int blockEnt ) {
+bool AICast_GetAvoid( cast_state_t *cs, bot_goal_t *goal, vec3_t outpos, bool reverse, int blockEnt ) {
 	float yaw, oldyaw, distmoved, bestmoved, bestyaw;
 	vec3_t bestpos;
 	aicast_predictmove_t castmove;
@@ -1211,28 +1211,28 @@ qboolean AICast_GetAvoid( cast_state_t *cs, bot_goal_t *goal, vec3_t outpos, qbo
 	int starttraveltime = 0, besttraveltime, traveltime;         // TTimo: init
 	int invert;
 	float inc;
-	qboolean averting = qfalse;
+	bool averting = false;
 	float maxYaw, simTime;
 	static int lastTime;
 	//
 	// if we are in the air, no chance of avoiding
 	if ( cs->bs->cur_ps.groundEntityNum == ENTITYNUM_NONE && g_entities[cs->entityNum].waterlevel <= 1 ) {
-		return qfalse;
+		return false;
 	}
 	//
 	if ( cs->lastAvoid > level.time - rand() % 500 ) {
-		return qfalse;
+		return false;
 	}
 	cs->lastAvoid = level.time + 50 + rand() % 500;
 	//
 	if ( lastTime == level.time ) {
-		return qfalse;
+		return false;
 	}
 	lastTime = level.time;
 
 	// if they have an enemy, and can currently see them, don't move out of their view
 	enemyVisible =  ( cs->enemyNum >= 0 ) &&
-				   ( AICast_CheckAttack( cs, cs->enemyNum, qfalse ) ? qtrue : qfalse );
+				   ( AICast_CheckAttack( cs, cs->enemyNum, false ) );
 	//
 	// look for a good direction to move out of the way
 	bestmoved = 0;
@@ -1246,9 +1246,9 @@ qboolean AICast_GetAvoid( cast_state_t *cs, bot_goal_t *goal, vec3_t outpos, qbo
 	ucmd.rightmove = 0;
 	ucmd.upmove = 0;
 	if ( cs->dangerEntity >= 0 && cs->dangerEntityValidTime >= level.time ) {
-		averting = qtrue;
+		averting = true;
 	} else if ( !goal ) {
-		averting = qtrue;   // not heading for a goal, so we must be getting out of someone's way
+		averting = true;   // not heading for a goal, so we must be getting out of someone's way
 	}
 	//
 	maxYaw = 0;
@@ -1296,7 +1296,7 @@ qboolean AICast_GetAvoid( cast_state_t *cs, bot_goal_t *goal, vec3_t outpos, qbo
 				//&&	((cs->bs->origin[2] - castmove.endpos[2]) < 64)	// allow up, but not down (falling)
 				&&  ( castmove.groundEntityNum != ENTITYNUM_NONE ) ) {
 			// they all passed, check any other stuff
-			if ( !enemyVisible || AICast_CheckAttackAtPos( cs->entityNum, cs->enemyNum, castmove.endpos, qfalse, qfalse ) ) {
+			if ( !enemyVisible || AICast_CheckAttackAtPos( cs->entityNum, cs->enemyNum, castmove.endpos, false, false ) ) {
 				if ( !goal || ( traveltime = trap_AAS_AreaTravelTimeToGoalArea( BotPointAreaNum( castmove.endpos ), castmove.endpos, goal->areanum, cs->travelflags ) ) < ( starttraveltime + 200 ) ) {
 					bestyaw = yaw;
 					bestmoved = distmoved;
@@ -1311,9 +1311,9 @@ qboolean AICast_GetAvoid( cast_state_t *cs, bot_goal_t *goal, vec3_t outpos, qbo
 	//
 	if ( bestmoved > 0 ) {
 		VectorCopy( bestpos, outpos );
-		return qtrue;
+		return true;
 	} else {
-		return qfalse;
+		return false;
 	}
 }
 
@@ -1415,7 +1415,7 @@ void AICast_Blocked( cast_state_t *cs, bot_moveresult_t *moveresult, int activat
 					if ( ocs->leaderNum >= 0 ) {
 						ogoal.entitynum = ocs->leaderNum;
 						VectorCopy( g_entities[ocs->leaderNum].shared.r.currentOrigin, ogoal.origin );
-						if ( AICast_GetAvoid( ocs, &ogoal, ocs->obstructingPos, qfalse, cs->entityNum ) ) {
+						if ( AICast_GetAvoid( ocs, &ogoal, ocs->obstructingPos, false, cs->entityNum ) ) {
 							// give them time to move somewhere else
 							ocs->obstructingTime = level.time + 1000;
 						} else {
@@ -1424,7 +1424,7 @@ void AICast_Blocked( cast_state_t *cs, bot_moveresult_t *moveresult, int activat
 							blockEnt = move.touchents[i];
 						}
 					} else {
-						if ( AICast_GetAvoid( ocs, NULL, ocs->obstructingPos, qfalse, cs->entityNum ) ) {
+						if ( AICast_GetAvoid( ocs, NULL, ocs->obstructingPos, false, cs->entityNum ) ) {
 							// give them time to move somewhere else
 							ocs->obstructingTime = level.time + 1000;
 						} else {
@@ -1458,7 +1458,7 @@ void AICast_Blocked( cast_state_t *cs, bot_moveresult_t *moveresult, int activat
 		}
 
 		// avoid geometry and props, but assume clients will get out the way
-		if ( /*blockEnt > MAX_CLIENTS &&*/ AICast_GetAvoid( cs, goal, pos, qfalse, blockEnt ) ) {
+		if ( /*blockEnt > MAX_CLIENTS &&*/ AICast_GetAvoid( cs, goal, pos, false, blockEnt ) ) {
 			VectorSubtract( pos, cs->bs->cur_ps.origin, dir );
 			VectorNormalize( dir );
 			cs->blockedAvoidYaw = vectoyaw( dir );
@@ -1521,7 +1521,7 @@ void AICast_EvaluatePmove( int clientnum, pmove_t *pm ) {
 		// if they are an AI Cast, inform them of our disposition, and hope that they are reasonable
 		// enough to assist us in our desire to move beyond our current position
 		if ( pm->touchents[i] < aicast_maxclients ) {
-			if ( !AICast_EntityVisible( cs, pm->touchents[i], qtrue ) ) {
+			if ( !AICast_EntityVisible( cs, pm->touchents[i], true ) ) {
 				continue;
 			}
 
@@ -1531,7 +1531,7 @@ void AICast_EvaluatePmove( int clientnum, pmove_t *pm ) {
 			}
 
 			// anything we touch, should see us
-			AICast_UpdateVisibility( &g_entities[pm->touchents[i]], &g_entities[cs->entityNum], qfalse, qtrue );
+			AICast_UpdateVisibility( &g_entities[pm->touchents[i]], &g_entities[cs->entityNum], false, true );
 
 			ocs = AICast_GetCastState( pm->touchents[i] );
 			if (    ( ocs->bs ) &&
@@ -1555,11 +1555,11 @@ void AICast_EvaluatePmove( int clientnum, pmove_t *pm ) {
 					VectorCopy( g_entities[ocs->leaderNum].shared.r.currentOrigin, ogoal.origin );
 					ogoal.areanum = BotPointAreaNum( ogoal.origin );
 					ogoal.entitynum = ocs->leaderNum;
-					if ( ocs->bs && AICast_GetAvoid( ocs, &ogoal, ocs->obstructingPos, qfalse, cs->entityNum ) ) { // give them time to move somewhere else
+					if ( ocs->bs && AICast_GetAvoid( ocs, &ogoal, ocs->obstructingPos, false, cs->entityNum ) ) { // give them time to move somewhere else
 						ocs->obstructingTime = level.time + 1000;
 					}
 				} else {
-					if ( ocs->bs && AICast_GetAvoid( ocs, NULL, ocs->obstructingPos, qfalse, cs->entityNum ) ) { // give them time to move somewhere else
+					if ( ocs->bs && AICast_GetAvoid( ocs, NULL, ocs->obstructingPos, false, cs->entityNum ) ) { // give them time to move somewhere else
 						ocs->obstructingTime = level.time + 1000;
 					}
 				}
@@ -1588,15 +1588,15 @@ void AICast_EvaluatePmove( int clientnum, pmove_t *pm ) {
 AICast_RequestCrouchAttack
 ==============
 */
-qboolean AICast_RequestCrouchAttack( cast_state_t *cs, vec3_t org, float time ) {
-	if ( cs->attributes[ATTACK_CROUCH] > 0 && AICast_CheckAttackAtPos( cs->entityNum, cs->enemyNum, org, qtrue, qfalse ) ) {
+bool AICast_RequestCrouchAttack( cast_state_t *cs, vec3_t org, float time ) {
+	if ( cs->attributes[ATTACK_CROUCH] > 0 && AICast_CheckAttackAtPos( cs->entityNum, cs->enemyNum, org, true, false ) ) {
 		if ( time ) {
 			cs->attackcrouch_time = level.time + (int)( time * 1000 );
 		}
-		return qtrue;
+		return true;
 	}
 
-	return qfalse;
+	return false;
 }
 
 /*
@@ -1606,7 +1606,7 @@ AICast_QueryThink
 */
 void AICast_QueryThink( cast_state_t *cs ) {
 	gentity_t *ent;
-	qboolean visible;
+	bool visible;
 	cast_state_t *ocs;
 	vec3_t vec;
 
@@ -1622,7 +1622,7 @@ void AICast_QueryThink( cast_state_t *cs ) {
 	vectoangles( vec, cs->ideal_viewangles );
 
 	// are they visible now?
-	visible = AICast_VisibleFromPos( cs->bs->origin, cs->entityNum, g_entities[cs->enemyNum].shared.r.currentOrigin, cs->enemyNum, qfalse );
+	visible = AICast_VisibleFromPos( cs->bs->origin, cs->entityNum, g_entities[cs->enemyNum].shared.r.currentOrigin, cs->enemyNum, false );
 
 	// make sure we dont process the sighting of this enemy by going into query mode again, without them being visible again after we leave here
 	cs->vislist[cs->enemyNum].flags &= ~AIVIS_PROCESS_SIGHTING;
@@ -1634,10 +1634,10 @@ void AICast_QueryThink( cast_state_t *cs ) {
 	if ( ( cs->queryAlertSightTime < 0 ) || ( ( cs->queryAlertSightTime < level.time ) && visible ) ) {
 		if ( !cs->queryAlertSightTime ) {
 			// set the "short reaction" condition
-			BG_UpdateConditionValue( cs->entityNum, ANIM_COND_SHORT_REACTION, qtrue, qfalse );
+			BG_UpdateConditionValue( cs->entityNum, ANIM_COND_SHORT_REACTION, true, false );
 		}
 		AICast_StateChange( cs, AISTATE_COMBAT );
-		BG_UpdateConditionValue( cs->entityNum, ANIM_COND_SHORT_REACTION, qfalse, qfalse );
+		BG_UpdateConditionValue( cs->entityNum, ANIM_COND_SHORT_REACTION, false, false );
 		AIFunc_BattleStart( cs );
 		return;
 	}
@@ -1645,9 +1645,9 @@ void AICast_QueryThink( cast_state_t *cs ) {
 	// if they've fired since the start of the query mode, go POSTAL
 	if ( ocs->lastWeaponFired > cs->queryStartTime ) {
 		// set the "short reaction" condition
-		BG_UpdateConditionValue( cs->entityNum, ANIM_COND_SHORT_REACTION, qtrue, qfalse );
+		BG_UpdateConditionValue( cs->entityNum, ANIM_COND_SHORT_REACTION, true, false );
 		AICast_StateChange( cs, AISTATE_COMBAT );
-		BG_UpdateConditionValue( cs->entityNum, ANIM_COND_SHORT_REACTION, qfalse, qfalse );
+		BG_UpdateConditionValue( cs->entityNum, ANIM_COND_SHORT_REACTION, false, false );
 		AIFunc_BattleStart( cs );
 		return;
 	}

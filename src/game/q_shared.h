@@ -48,9 +48,6 @@ If you have questions concerning this license or the applicable additional terms
 
 typedef unsigned char byte;
 
-typedef enum {qfalse, qtrue}    qboolean;
-
-
 typedef int qhandle_t;
 typedef int sfxHandle_t;
 typedef int fileHandle_t;
@@ -396,7 +393,7 @@ float AngleNormalize360( float angle );
 float AngleNormalize180( float angle );
 float AngleDelta( float angle1, float angle2 );
 
-qboolean PlaneFromPoints( vec4_t plane, const vec3_t a, const vec3_t b, const vec3_t c );
+bool PlaneFromPoints( vec4_t plane, const vec3_t a, const vec3_t b, const vec3_t c );
 void ProjectPointOnPlane( vec3_t dst, const vec3_t p, const vec3_t normal );
 void RotatePointAroundVector( vec3_t dst, const vec3_t dir, const vec3_t point, float degrees );
 void RotateAroundDirection( vec3_t axis[3], float yaw );
@@ -428,13 +425,13 @@ void    COM_RestoreParseSession( const char **data_p );
 void    COM_SetCurrentParseLine( int line );
 int     COM_GetCurrentParseLine( void );
 char    *COM_Parse( const char **data_p );
-char    *COM_ParseExt( const char **data_p, qboolean allowLineBreak );
+char    *COM_ParseExt( const char **data_p, bool allowLineBreak );
 int     COM_Compress( char *data_p );
 void    COM_ParseError( char *format, ... );
 void    COM_ParseWarning( char *format, ... );
 
 // TTimo
-qboolean COM_BitCheck( const int array[], int bitNum );
+bool COM_BitCheck( const int array[], int bitNum );
 void COM_BitSet( int array[], int bitNum );
 void COM_BitClear( int array[], int bitNum );
 
@@ -561,7 +558,7 @@ void Info_RemoveKey( char *s, const char *key );
 void Info_RemoveKey_big( char *s, const char *key );
 void Info_SetValueForKey( char *s, const char *key, const char *value );
 void Info_SetValueForKey_Big( char *s, const char *key, const char *value );
-qboolean Info_Validate( const char *s );
+bool Info_Validate( const char *s );
 void Info_NextPair( const char **s, char *key, char *value );
 
 // this is only here so the functions in q_shared.c and bg_*.c can link
@@ -624,12 +621,12 @@ typedef struct cvar_s {
 	char        *resetString;       // cvar_restart will reset to this value
 	char        *latchedString;     // for CVAR_LATCH vars
 	int flags;
-	qboolean modified;              // set each time the cvar is changed
+	bool modified;              // set each time the cvar is changed
 	int modificationCount;          // incremented each time the cvar is changed
 	float value;                    // atof( string )
 	int integer;                    // atoi( string )
-	qboolean	validate;
-	qboolean	integral;
+	bool	validate;
+	bool	integral;
 	float			min;
 	float			max;
 	struct cvar_s *next;
@@ -689,8 +686,8 @@ typedef struct cplane_s {
 
 // a trace is returned when a box is swept through the world
 typedef struct {
-	qboolean allsolid;      // if true, plane is not valid
-	qboolean startsolid;    // if true, the initial point was in a solid area
+	bool allsolid;      // if true, plane is not valid
+	bool startsolid;    // if true, the initial point was in a solid area
 	float fraction;         // time completed, 1.0 = didn't hit anything
 	vec3_t endpos;          // final position
 	cplane_t plane;         // surface normal at impact, transformed to world space
@@ -1001,7 +998,7 @@ typedef struct playerState_s {
 	int weapAnimTimer;              // don't change low priority animations until this runs out
 	int weapAnim;               // mask off ANIM_TOGGLEBIT
 
-	qboolean releasedFire;
+	bool releasedFire;
 
 	float aimSpreadScaleFloat;          // (SA) the server-side aimspreadscale that lets it track finer changes but still only
 										// transmit the 8bit int to the client

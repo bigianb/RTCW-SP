@@ -30,7 +30,7 @@ If you have questions concerning this license or the applicable additional terms
 #include "../renderer/tr_local.h"
 
 uiStatic_t uis;
-qboolean m_entersound;              // after a frame, so caching won't disrupt the sound
+bool m_entersound;              // after a frame, so caching won't disrupt the sound
 
 float UI_ClampCvar( float min, float max, float value ) {
 	if ( value < min ) {
@@ -60,7 +60,7 @@ char *UI_Cvar_VariableString( const char *var_name ) {
 }
 
 
-qboolean UI_ConsoleCommand( int realTime ) {
+bool UI_ConsoleCommand( int realTime ) {
 	char    *cmd;
 
 	uiInfo.uiDC.frameTime = realTime - uiInfo.uiDC.realTime;
@@ -71,7 +71,7 @@ qboolean UI_ConsoleCommand( int realTime ) {
 
 	if ( Q_stricmp( cmd, "ui_load" ) == 0 ) {
 		UI_Load();
-		return qtrue;
+		return true;
 	}
 
 	if ( Q_stricmp( cmd, "remapShader" ) == 0 ) {
@@ -81,11 +81,11 @@ qboolean UI_ConsoleCommand( int realTime ) {
 			Q_strncpyz( shader1, UI_Argv( 1 ), sizeof( shader1 ) );
 			Q_strncpyz( shader2, UI_Argv( 2 ), sizeof( shader2 ) );
 			trap_R_RemapShader( shader1, shader2, UI_Argv( 3 ) );
-			return qtrue;
+			return true;
 		}
 	}
 
-	return qfalse;
+	return false;
 }
 
 /*
@@ -170,13 +170,13 @@ void UI_DrawTextBox( int x, int y, int width, int lines ) {
 	UI_DrawRect( x + BIGCHAR_WIDTH / 2, y + BIGCHAR_HEIGHT / 2, ( width + 1 ) * BIGCHAR_WIDTH, ( lines + 1 ) * BIGCHAR_HEIGHT, 1.0f, colorWhite );
 }
 
-qboolean UI_CursorInRect( int x, int y, int width, int height ) {
+bool UI_CursorInRect( int x, int y, int width, int height ) {
 	if ( uiInfo.uiDC.cursorx < x ||
 		 uiInfo.uiDC.cursory < y ||
 		 uiInfo.uiDC.cursorx > x + width ||
 		 uiInfo.uiDC.cursory > y + height ) {
-		return qfalse;
+		return false;
 	}
 
-	return qtrue;
+	return true;
 }

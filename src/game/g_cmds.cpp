@@ -34,16 +34,16 @@ If you have questions concerning this license or the applicable additional terms
 CheatsOk
 ==================
 */
-qboolean    CheatsOk( gentity_t *ent ) {
+bool    CheatsOk( gentity_t *ent ) {
 	if ( !g_cheats.integer ) {
 		SV_GameSendServerCommand( ent - g_entities, va( "print \"Cheats are not enabled on this server.\n\"" ) );
-		return qfalse;
+		return false;
 	}
 	if ( ent->health <= 0 ) {
 		SV_GameSendServerCommand( ent - g_entities, va( "print \"You must be alive to use this command.\n\"" ) );
-		return qfalse;
+		return false;
 	}
-	return qtrue;
+	return true;
 }
 
 
@@ -182,7 +182,7 @@ void Cmd_Give_f( gentity_t *ent ) {
 	char        *name, *amt;
 	gitem_t     *it;
 	int i;
-	qboolean give_all;
+	bool give_all;
 	gentity_t       *it_ent;
 	trace_t trace;
 	int amount;
@@ -203,9 +203,9 @@ void Cmd_Give_f( gentity_t *ent ) {
 	}
 
 	if ( Q_stricmp( name, "all" ) == 0 ) {
-		give_all = qtrue;
+		give_all = true;
 	} else {
-		give_all = qfalse;
+		give_all = false;
 	}
 
 
@@ -258,11 +258,11 @@ void Cmd_Give_f( gentity_t *ent ) {
 	if ( give_all || Q_stricmpn( name, "ammo", 4 ) == 0 ) {
 		if ( amount ) {
 			if ( ent->client->ps.weapon ) {
-				Add_Ammo( ent, ent->client->ps.weapon, amount, qtrue );
+				Add_Ammo( ent, ent->client->ps.weapon, amount, true );
 			}
 		} else {
 			for ( i = 1 ; i < WP_MONSTER_ATTACK1 ; i++ )
-				Add_Ammo( ent, i, 999, qtrue );
+				Add_Ammo( ent, i, 999, true );
 		}
 
 		if ( !give_all ) {
@@ -274,7 +274,7 @@ void Cmd_Give_f( gentity_t *ent ) {
 	//	allowing "give ammo <n>" to only give to the selected weap.
 	if ( Q_stricmpn( name, "allammo", 7 ) == 0 && amount ) {
 		for ( i = 1 ; i < WP_MONSTER_ATTACK1 ; i++ )
-			Add_Ammo( ent, i, amount, qtrue );
+			Add_Ammo( ent, i, amount, true );
 
 		if ( !give_all ) {
 			return;
@@ -315,9 +315,9 @@ void Cmd_Give_f( gentity_t *ent ) {
 		G_SpawnItem( it_ent, it );
 		FinishSpawningItem( it_ent );
 		memset( &trace, 0, sizeof( trace ) );
-		it_ent->active = qtrue;
+		it_ent->active = true;
 		Touch_Item( it_ent, ent, &trace );
-		it_ent->active = qfalse;
+		it_ent->active = false;
 		if ( it_ent->inuse ) {
 			G_FreeEntity( it_ent );
 		}
@@ -424,7 +424,7 @@ void Cmd_Noclip_f( gentity_t *ent ) {
 	} else {
 		msg = "noclip ON\n";
 	}
-	ent->client->noclip = !ent->client->noclip ? qtrue : qfalse;
+	ent->client->noclip = !ent->client->noclip;
 
 	SV_GameSendServerCommand( ent - g_entities, va( "print \"%s\"", msg ) );
 }
@@ -566,25 +566,25 @@ void Cmd_Where_f( gentity_t *ent ) {
 
 
 
-qboolean G_canPickupMelee( gentity_t *ent ) {
+bool G_canPickupMelee( gentity_t *ent ) {
 
 	if ( !( ent->client ) ) {
-		return qfalse;  // hmm, shouldn't be too likely...
+		return false;  // hmm, shouldn't be too likely...
 
 	}
 	if ( !( ent->shared.s.weapon ) ) {  // no weap, go ahead
-		return qtrue;
+		return true;
 	}
 
 	if ( ent->client->ps.weaponstate == WEAPON_RELOADING ) {
-		return qfalse;
+		return false;
 	}
 
 	if ( WEAPS_ONE_HANDED & ( 1 << ( ent->client->pers.cmd.weapon ) ) ) {
-		return qtrue;
+		return true;
 	}
 
-	return qfalse;
+	return false;
 }
 
 
@@ -697,7 +697,7 @@ void Cmd_InterruptCamera_f( gentity_t *ent ) {
 G_ThrowChair
 ==============
 */
-qboolean G_ThrowChair( gentity_t *ent, vec3_t dir, qboolean force ) {
+bool G_ThrowChair( gentity_t *ent, vec3_t dir, bool force ) {
 	trace_t trace;
 	vec3_t mins, maxs;
 //	vec3_t		forward;
@@ -706,7 +706,7 @@ qboolean G_ThrowChair( gentity_t *ent, vec3_t dir, qboolean force ) {
 	gentity_t   *traceEnt;
 
 	if ( !ent->active || !ent->melee ) {
-		return qfalse;
+		return false;
 	}
 
 	VectorCopy( ent->shared.r.mins, mins );
@@ -722,7 +722,7 @@ qboolean G_ThrowChair( gentity_t *ent, vec3_t dir, qboolean force ) {
 	VectorCopy( start, end );
 	VectorMA( end, 32, dir, end );
 
-	SV_Trace( &trace, start, mins, maxs, end, ent->shared.s.number, MASK_SOLID | MASK_MISSILESHOT, qfalse );
+	SV_Trace( &trace, start, mins, maxs, end, ent->shared.s.number, MASK_SOLID | MASK_MISSILESHOT, false );
 
 	traceEnt = &g_entities[ trace.entityNum ];
 
@@ -736,10 +736,10 @@ qboolean G_ThrowChair( gentity_t *ent, vec3_t dir, qboolean force ) {
 
 	if ( isthrown || force ) {
 		// successful drop
-		traceEnt->active = qfalse;
+		traceEnt->active = false;
 
 		ent->melee = NULL;
-		ent->active = qfalse;
+		ent->active = false;
 		ent->client->ps.eFlags &= ~EF_MELEE_ACTIVE;
 //		ent->shared.s.eFlags &= ~EF_MELEE_ACTIVE;
 	}
@@ -748,7 +748,7 @@ qboolean G_ThrowChair( gentity_t *ent, vec3_t dir, qboolean force ) {
 		G_Damage( traceEnt, ent, ent, NULL, NULL, 99999, 0, MOD_CRUSH );    // Die!
 	}
 
-	return ( isthrown || force ) ? qtrue : qfalse;
+	return ( isthrown || force );
 }
 
 
@@ -765,10 +765,10 @@ void Cmd_Activate_f( gentity_t *ent ) {
 	vec3_t forward, right, up, offset;
 	static int oldactivatetime = 0;
 	int activatetime = level.time;
-	qboolean walking = qfalse;
+	bool walking = false;
 
 	if ( ent->client->pers.cmd.buttons & BUTTON_WALKING ) {
-		walking = qtrue;
+		walking = true;
 	}
 
 	AngleVectors( ent->client->ps.viewangles, forward, right, up );
@@ -777,7 +777,7 @@ void Cmd_Activate_f( gentity_t *ent ) {
 
 	VectorMA( offset, 96, forward, end );
 
-	SV_Trace( &tr, offset, NULL, NULL, end, ent->shared.s.number, ( CONTENTS_SOLID | CONTENTS_BODY | CONTENTS_CORPSE | CONTENTS_TRIGGER ), qfalse );
+	SV_Trace( &tr, offset, NULL, NULL, end, ent->shared.s.number, ( CONTENTS_SOLID | CONTENTS_BODY | CONTENTS_CORPSE | CONTENTS_TRIGGER ), false );
 
 	//----(SA)	removed erroneous code
 
@@ -807,10 +807,10 @@ void Cmd_Activate_f( gentity_t *ent ) {
 //----(SA)	end
 		} else if ( ( Q_stricmp( traceEnt->classname, "func_button" ) == 0 )
 					&& ( traceEnt->shared.s.apos.trType == TR_STATIONARY && traceEnt->shared.s.pos.trType == TR_STATIONARY )
-					&& traceEnt->active == qfalse ) {
+					&& traceEnt->active == false ) {
 			G_TryDoor( traceEnt, ent, ent );      // (door,other,activator)
 //			Use_BinaryMover (traceEnt, ent, ent);
-//			traceEnt->active = qtrue;
+//			traceEnt->active = true;
 		} else if ( !Q_stricmp( traceEnt->classname, "func_invisible_user" ) )     {
 			if ( walking ) {
 				traceEnt->flags |= FL_SOFTACTIVATE;     // no noise
@@ -836,11 +836,11 @@ void Cmd_Activate_f( gentity_t *ent ) {
 				if ( ent->client->pers.autoActivate == PICKUP_ACTIVATE ) {
 					ent->client->pers.autoActivate = PICKUP_FORCE;      //----(SA) force the pickup of a normally autoactivate only item
 				}
-				traceEnt->active = qtrue;
+				traceEnt->active = true;
 				traceEnt->touch( traceEnt, ent, &trace );
 			}
 
-		} else if ( ( Q_stricmp( traceEnt->classname, "misc_mg42" ) == 0 ) /*&& activatetime > oldactivatetime + 1000*/ && traceEnt->active == qfalse )         {
+		} else if ( ( Q_stricmp( traceEnt->classname, "misc_mg42" ) == 0 ) /*&& activatetime > oldactivatetime + 1000*/ && traceEnt->active == false )         {
 			if ( !ent->active && traceEnt->takedamage ) {  // not a dead gun
 				// RF, dont allow activating MG42 if crouching
 				if ( !( ent->client->ps.pm_flags & PMF_DUCKED ) && !infront( traceEnt, ent ) ) {
@@ -859,8 +859,8 @@ void Cmd_Activate_f( gentity_t *ent ) {
 					}
 
 					if ( !( cl->ps.grenadeTimeLeft ) ) { // make sure the client isn't holding a hot potato
-						traceEnt->active = qtrue;
-						ent->active = qtrue;
+						traceEnt->active = true;
+						ent->active = true;
 						traceEnt->shared.r.ownerNum = ent->shared.s.number;
 						VectorCopy( traceEnt->shared.s.angles, traceEnt->TargetAngles );
 
@@ -872,13 +872,13 @@ void Cmd_Activate_f( gentity_t *ent ) {
 					}
 				}
 			}
-		} else if ( ( Q_stricmp( traceEnt->classname, "misc_flak" ) == 0 ) /*&& activatetime > oldactivatetime + 1000*/ && traceEnt->active == qfalse )         {
+		} else if ( ( Q_stricmp( traceEnt->classname, "misc_flak" ) == 0 ) /*&& activatetime > oldactivatetime + 1000*/ && traceEnt->active == false )         {
 			if ( !infront( traceEnt, ent ) ) {     // make sure the client isn't holding a hot potato
 				gclient_t   *cl;
 				cl = &level.clients[ ent->shared.s.clientNum ];
 				if ( !( cl->ps.grenadeTimeLeft ) ) {
-					traceEnt->active = qtrue;
-					ent->active = qtrue;
+					traceEnt->active = true;
+					ent->active = true;
 					traceEnt->shared.r.ownerNum = ent->shared.s.number;
 					// Rafael fix for wierd mg42 movement
 					VectorCopy( traceEnt->shared.s.angles, traceEnt->TargetAngles );
@@ -890,16 +890,16 @@ void Cmd_Activate_f( gentity_t *ent ) {
 			if ( !ent->active ) {
 				if ( traceEnt->active ) {
 					// ?
-					traceEnt->active = qfalse;
+					traceEnt->active = false;
 				} else
 
 				// pickup item
 				{
 					// only allow if using a 'one-handed' weapon
 					if ( G_canPickupMelee( ent ) ) {
-						traceEnt->active = qtrue;
+						traceEnt->active = true;
 						traceEnt->shared.r.ownerNum = ent->shared.s.number;
-						ent->active = qtrue;
+						ent->active = true;
 						ent->melee = traceEnt;
 						ent->client->ps.eFlags |= EF_MELEE_ACTIVE;
 //						ent->shared.s.eFlags |= EF_MELEE_ACTIVE;
@@ -914,16 +914,16 @@ void Cmd_Activate_f( gentity_t *ent ) {
 
 		if ( ent->client->ps.persistant[PERS_HWEAPON_USE] ) {
 			// we wish to dismount mg42
-			ent->active = qtrue; //2;
+			ent->active = true; //2;
 
 		} else if ( ent->melee ) {
 			// throw chair
 			if ( ( tr.fraction == 1 ) || ( !( traceEnt->shared.r.contents & CONTENTS_SOLID ) ) ) {
-				G_ThrowChair( ent, forward, qfalse );
+				G_ThrowChair( ent, forward, false );
 			}
 
 		} else {
-			ent->active = qfalse;
+			ent->active = false;
 		}
 	}
 
@@ -947,7 +947,7 @@ int Cmd_WolfKick_f( gentity_t *ent ) {
 	gentity_t   *tent;
 	static int oldkicktime = 0;
 	int kicktime = level.time;
-	qboolean solidKick = qfalse;    // don't play "hit" sound on a trigger unless it's an func_invisible_user
+	bool solidKick = false;    // don't play "hit" sound on a trigger unless it's an func_invisible_user
 
 	int damage = 15;
 
@@ -962,7 +962,7 @@ int Cmd_WolfKick_f( gentity_t *ent ) {
 	}
 
 	// play the anim
-	BG_AnimScriptEvent( &ent->client->ps, ANIM_ET_KICK, qfalse, qtrue );
+	BG_AnimScriptEvent( &ent->client->ps, ANIM_ET_KICK, false, true );
 
 	ent->client->ps.persistant[PERS_WOLFKICK] = 1;
 
@@ -973,7 +973,7 @@ int Cmd_WolfKick_f( gentity_t *ent ) {
 	// note to self: we need to determine the usable distance for wolf
 	VectorMA( offset, WOLFKICKDISTANCE, forward, end );
 
-	SV_Trace( &tr, offset, NULL, NULL, end, ent->shared.s.number, ( CONTENTS_SOLID | CONTENTS_BODY | CONTENTS_CORPSE | CONTENTS_TRIGGER ), qfalse );
+	SV_Trace( &tr, offset, NULL, NULL, end, ent->shared.s.number, ( CONTENTS_SOLID | CONTENTS_BODY | CONTENTS_CORPSE | CONTENTS_TRIGGER ), false );
 
 	if ( tr.surfaceFlags & SURF_NOIMPACT || tr.fraction == 1.0 ) {
 		tent = G_TempEntity( tr.endpos, EV_WOLFKICK_MISS );
@@ -986,7 +986,7 @@ int Cmd_WolfKick_f( gentity_t *ent ) {
 	if ( !ent->melee ) { // because we dont want you to open a door with a prop
 		if ( ( Q_stricmp( traceEnt->classname, "func_door_rotating" ) == 0 )
 			 && ( traceEnt->shared.s.apos.trType == TR_STATIONARY && traceEnt->shared.s.pos.trType == TR_STATIONARY )
-			 && traceEnt->active == qfalse ) {
+			 && traceEnt->active == false ) {
 //			if(traceEnt->key < 0) {	// door force locked
 			if ( traceEnt->key >= KEY_LOCKED_TARGET ) {    // door force locked
 
@@ -1021,22 +1021,22 @@ int Cmd_WolfKick_f( gentity_t *ent ) {
 			}
 
 			if ( traceEnt->teammaster && traceEnt->team && traceEnt != traceEnt->teammaster ) {
-				traceEnt->teammaster->active = qtrue;
+				traceEnt->teammaster->active = true;
 				traceEnt->teammaster->flags |= FL_KICKACTIVATE;
 				Use_BinaryMover( traceEnt->teammaster, ent, ent );
 				G_UseTargets( traceEnt->teammaster, ent );
 			} else
 			{
-				traceEnt->active = qtrue;
+				traceEnt->active = true;
 				traceEnt->flags |= FL_KICKACTIVATE;
 				Use_BinaryMover( traceEnt, ent, ent );
 				G_UseTargets( traceEnt, ent );
 			}
 		} else if ( ( Q_stricmp( traceEnt->classname, "func_button" ) == 0 )
 					&& ( traceEnt->shared.s.apos.trType == TR_STATIONARY && traceEnt->shared.s.pos.trType == TR_STATIONARY )
-					&& traceEnt->active == qfalse ) {
+					&& traceEnt->active == false ) {
 			Use_BinaryMover( traceEnt, ent, ent );
-			traceEnt->active = qtrue;
+			traceEnt->active = true;
 
 		} else if ( !Q_stricmp( traceEnt->classname, "func_invisible_user" ) )     {
 			traceEnt->flags |= FL_KICKACTIVATE;     // so cell doors know they were kicked
@@ -1045,11 +1045,11 @@ int Cmd_WolfKick_f( gentity_t *ent ) {
 			traceEnt->use( traceEnt, ent, ent );
 			traceEnt->flags &= ~FL_KICKACTIVATE;    // reset
 
-			solidKick = qtrue;  //----(SA)
+			solidKick = true;  //----(SA)
 		} else if ( !Q_stricmp( traceEnt->classname, "props_flippy_table" ) && traceEnt->use )       {
 			traceEnt->use( traceEnt, ent, ent );
 		} else if ( !Q_stricmp( traceEnt->classname, "misc_mg42" ) )     {
-			solidKick = qtrue;  //----(SA)	play kick hit sound
+			solidKick = true;  //----(SA)	play kick hit sound
 		}
 	}
 
@@ -1084,7 +1084,7 @@ int Cmd_WolfKick_f( gentity_t *ent ) {
 
 		// (SA) should break...
 		if ( ent->melee ) {
-			ent->active = qfalse;
+			ent->active = false;
 			ent->melee->health = 0;
 			ent->client->ps.eFlags &= ~EF_MELEE_ACTIVE; // whoops, missed this one
 		}
@@ -1096,7 +1096,7 @@ int Cmd_WolfKick_f( gentity_t *ent ) {
 	if ( traceEnt->takedamage ) {
 
 		if ( ent->melee ) {
-			ent->active = qfalse;
+			ent->active = false;
 			ent->melee->health = 0;
 			ent->client->ps.eFlags &= ~EF_MELEE_ACTIVE;
 

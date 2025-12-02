@@ -78,7 +78,7 @@ void Sys_ListFilteredFiles( const char *basedir, const char *subdirs, const char
 			break;
 		}
 		snprintf( filename, sizeof( filename ), "%s/%s", subdirs, d->d_name );
-		if ( !Com_FilterPath( filter, filename, qfalse ) ) {
+		if ( !Com_FilterPath( filter, filename, false ) ) {
 			continue;
 		}
 		list[ *numfiles ] = CopyString( filename );
@@ -89,11 +89,11 @@ void Sys_ListFilteredFiles( const char *basedir, const char *subdirs, const char
 }
 
 
-char **Sys_ListFiles( const char *directory, const char *extension, const char *filter, int *numfiles, qboolean wantsubs ) {
+char **Sys_ListFiles( const char *directory, const char *extension, const char *filter, int *numfiles, bool wantsubs ) {
 	struct dirent *d;
 	// char *p; // bk001204 - unused
 	DIR     *fdir;
-	qboolean dironly = wantsubs;
+	bool dironly = wantsubs;
 	char search[MAX_OSPATH];
 	int nfiles;
 	char        **listCopy;
@@ -131,7 +131,7 @@ char **Sys_ListFiles( const char *directory, const char *extension, const char *
 
 	if ( extension[0] == '/' && extension[1] == 0 ) {
 		extension = "";
-		dironly = qtrue;
+		dironly = true;
 	}
 
 	extLen = strlen( extension );
@@ -219,11 +219,11 @@ int Sys_GetHighQualityCPU() {
 	return 0;
 }
 
-qboolean Sys_LowPhysicalMemory() {
-	return qfalse; 
+bool Sys_LowPhysicalMemory() {
+	return false; 
 }
 
-void Sys_ShowConsole( int visLevel, qboolean quitOnClose ) {
+void Sys_ShowConsole( int visLevel, bool quitOnClose ) {
 }
 
 time_t sys_timeBase = 0;

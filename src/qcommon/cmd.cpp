@@ -659,7 +659,7 @@ void Cmd_List_f()
 
 	int i = 0;
 	for (cmd_function_t  * cmd = cmd_functions ; cmd ; cmd = cmd->next ) {
-		if ( match && !Com_Filter( match, cmd->name, qfalse ) ) {
+		if ( match && !Com_Filter( match, cmd->name, false ) ) {
 			continue;
 		}
 

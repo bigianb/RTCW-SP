@@ -57,12 +57,12 @@ G_ScriptAction_GotoMarker
   transitions
 ===============
 */
-qboolean G_ScriptAction_GotoMarker( gentity_t *ent, char *params ) {
+bool G_ScriptAction_GotoMarker( gentity_t *ent, char *params ) {
 
 	gentity_t *target;
 	vec3_t vec;
 	float speed, dist;
-	qboolean wait = qfalse, turntotarget = qfalse;
+	bool wait = false, turntotarget = false;
 	int trType;
 	int duration, i;
 	vec3_t diff;
@@ -70,7 +70,7 @@ qboolean G_ScriptAction_GotoMarker( gentity_t *ent, char *params ) {
 
 	if ( params && ( ent->scriptStatus.scriptFlags & SCFL_GOING_TO_MARKER ) ) {
 		// we can't process a new movement until the last one has finished
-		return qfalse;
+		return false;
 	}
 
 	if ( !params || ent->scriptStatus.scriptStackChangeTime < level.time ) {          // we are waiting for it to reach destination
@@ -97,15 +97,15 @@ qboolean G_ScriptAction_GotoMarker( gentity_t *ent, char *params ) {
 
 			script_linkentity( ent );
 
-			return qtrue;
+			return true;
 		}
 	} else {    // we have just started this command
 
 		const char* pString = params;
-		const char* token = COM_ParseExt( &pString, qfalse );
+		const char* token = COM_ParseExt( &pString, false );
 		if ( !token[0] ) {
 			Com_Error( ERR_DROP, "G_Scripting: gotomarker must have an targetname\n" );
-            return qfalse; // keep the linter happy, ERR_DROP does not return
+            return false; // keep the linter happy, ERR_DROP does not return
 		}
 
 		// find the entity with the given "targetname"
@@ -113,31 +113,31 @@ qboolean G_ScriptAction_GotoMarker( gentity_t *ent, char *params ) {
 
 		if ( !target ) {
 			Com_Error( ERR_DROP, "G_Scripting: can't find entity with \"targetname\" = \"%s\"\n", token );
-            return qfalse; // keep the linter happy, ERR_DROP does not return
+            return false; // keep the linter happy, ERR_DROP does not return
 		}
 
 		VectorSubtract( target->shared.r.currentOrigin, ent->shared.r.currentOrigin, vec );
 
-		token = COM_ParseExt( &pString, qfalse );
+		token = COM_ParseExt( &pString, false );
 		if ( !token[0] ) {
 			Com_Error( ERR_DROP, "G_Scripting: gotomarker must have a speed\n" );
-            return qfalse; // keep the linter happy, ERR_DROP does not return
+            return false; // keep the linter happy, ERR_DROP does not return
 		}
 
 		speed = atof( token );
 		trType = TR_LINEAR_STOP;
 
 		while ( token[0] ) {
-			token = COM_ParseExt( &pString, qfalse );
+			token = COM_ParseExt( &pString, false );
 			if ( token[0] ) {
 				if ( !Q_stricmp( token, "accel" ) ) {
 					trType = TR_ACCELERATE;
 				} else if ( !Q_stricmp( token, "deccel" ) )      {
 					trType = TR_DECCELERATE;
 				} else if ( !Q_stricmp( token, "wait" ) )      {
-					wait = qtrue;
+					wait = true;
 				} else if ( !Q_stricmp( token, "turntotarget" ) )      {
-					turntotarget = qtrue;
+					turntotarget = true;
 				}
 			}
 		}
@@ -235,7 +235,7 @@ qboolean G_ScriptAction_GotoMarker( gentity_t *ent, char *params ) {
 
 			// set the goto flag, so we can keep processing the move until we reach the destination
 			ent->scriptStatus.scriptFlags |= SCFL_GOING_TO_MARKER;
-			return qtrue;   // continue to next command
+			return true;   // continue to next command
 		}
 
 	}
@@ -244,7 +244,7 @@ qboolean G_ScriptAction_GotoMarker( gentity_t *ent, char *params ) {
 	BG_EvaluateTrajectory( &ent->shared.s.apos, level.time, ent->shared.r.currentAngles );
 	script_linkentity( ent );
 
-	return qfalse;
+	return false;
 }
 
 /*
@@ -254,20 +254,20 @@ G_ScriptAction_Wait
   syntax: wait <duration>
 =================
 */
-qboolean G_ScriptAction_Wait( gentity_t *ent, char *params ) {
+bool G_ScriptAction_Wait( gentity_t *ent, char *params ) {
 	
 	int duration;
 
 	// get the duration
 	const char* pString = params;
-	const char* token = COM_ParseExt( &pString, qfalse );
+	const char* token = COM_ParseExt( &pString, false );
 	if ( !token[0] ) {
 		Com_Error( ERR_DROP, "G_Scripting: wait must have a duration\n" );
-        return qfalse; // keep the linter happy, ERR_DROP does not return
+        return false; // keep the linter happy, ERR_DROP does not return
 	}
 	duration = atoi( token );
 
-	return ( ent->scriptStatus.scriptStackChangeTime + duration < level.time ) ? qtrue : qfalse;
+	return ( ent->scriptStatus.scriptStackChangeTime + duration < level.time );
 }
 
 /*
@@ -279,32 +279,32 @@ G_ScriptAction_Trigger
   Calls the specified trigger for the given ai character or script entity
 =================
 */
-qboolean G_ScriptAction_Trigger( gentity_t *ent, char *params ) {
+bool G_ScriptAction_Trigger( gentity_t *ent, char *params ) {
 	gentity_t *trent;
 	char name[MAX_QPATH], trigger[MAX_QPATH];
 	int oldId;
 
 	// get the cast name
 	const char* pString = params;
-	const char* token = COM_ParseExt( &pString, qfalse );
+	const char* token = COM_ParseExt( &pString, false );
 	Q_strncpyz( name, token, sizeof( name ) );
 	if ( !name[0] ) {
 		Com_Error( ERR_DROP, "G_Scripting: trigger must have a name and an identifier\n" );
-        return qfalse; // keep the linter happy, ERR_DROP does not return
+        return false; // keep the linter happy, ERR_DROP does not return
 	}
 
-	token = COM_ParseExt( &pString, qfalse );
+	token = COM_ParseExt( &pString, false );
 	Q_strncpyz( trigger, token, sizeof( trigger ) );
 	if ( !trigger[0] ) {
 		Com_Error( ERR_DROP, "G_Scripting: trigger must have a name and an identifier\n" );
-        return qfalse; // keep the linter happy, ERR_DROP does not return
+        return false; // keep the linter happy, ERR_DROP does not return
 	}
 
 	trent = AICast_FindEntityForName( name );
 	if ( trent ) { // we are triggering an AI
 				  //oldId = trent->scriptStatus.scriptId;
 		AICast_ScriptEvent( AICast_GetCastState( trent->shared.s.number ), "trigger", trigger );
-		return qtrue;
+		return true;
 	}
 
 	// look for an entity
@@ -313,11 +313,11 @@ qboolean G_ScriptAction_Trigger( gentity_t *ent, char *params ) {
 		oldId = trent->scriptStatus.scriptId;
 		G_Script_ScriptEvent( trent, "trigger", trigger );
 		// if the script changed, return false so we don't muck with it's variables
-		return ( ( trent != ent ) || ( oldId == trent->scriptStatus.scriptId ) ) ? qtrue : qfalse;
+		return ( ( trent != ent ) || ( oldId == trent->scriptStatus.scriptId ) );
 	}
 
 	Com_Error( ERR_DROP, "G_Scripting: trigger has unknown name: %s\n", name );
-	return qfalse;  // shutup the compiler
+	return false;  // shutup the compiler
 }
 
 /*
@@ -331,26 +331,26 @@ G_ScriptAction_PlaySound
   Use the optional LOOPING paramater to attach the sound to the entities looping channel.
 ================
 */
-qboolean G_ScriptAction_PlaySound( gentity_t *ent, char *params ) {
+bool G_ScriptAction_PlaySound( gentity_t *ent, char *params ) {
 	char sound[MAX_QPATH];
 
 	if ( !params ) {
 		Com_Error( ERR_DROP, "G_Scripting: syntax error\n\nplaysound <soundname OR scriptname>\n" );
-        return qfalse; // keep the linter happy, ERR_DROP does not return
+        return false; // keep the linter happy, ERR_DROP does not return
 	}
 
 	const char* pString = params;
-	const char* token = COM_ParseExt( &pString, qfalse );
+	const char* token = COM_ParseExt( &pString, false );
 	Q_strncpyz( sound, token, sizeof( sound ) );
 
-	token = COM_ParseExt( &pString, qfalse );
+	token = COM_ParseExt( &pString, false );
 	if ( !token[0] || Q_strcasecmp( token, "looping" ) ) {
 		G_AddEvent( ent, EV_GENERAL_SOUND, G_SoundIndex( sound ) );
 	} else {    // looping channel
 		ent->shared.s.loopSound = G_SoundIndex( sound );
 	}
 
-	return qtrue;
+	return true;
 }
 
 //----(SA)	added
@@ -360,27 +360,27 @@ AICast_ScriptAction_MusicStart
 
 ==================
 */
-qboolean G_ScriptAction_MusicStart( gentity_t *ent, char *params ) {
+bool G_ScriptAction_MusicStart( gentity_t *ent, char *params ) {
 	
 	char cvarName[MAX_QPATH];
 	int fadeupTime = 0;
 
 	const char* pString = params;
-	const char* token = COM_ParseExt( &pString, qfalse );
+	const char* token = COM_ParseExt( &pString, false );
 	if ( !token[0] ) {
 		Com_Error( ERR_DROP, "G_Scripting: syntax: mu_start <musicfile> <fadeuptime>" );
-        return qfalse; // keep the linter happy, ERR_DROP does not return
+        return false; // keep the linter happy, ERR_DROP does not return
 	}
 	Q_strncpyz( cvarName, token, sizeof( cvarName ) );
 
-	token = COM_ParseExt( &pString, qfalse );
+	token = COM_ParseExt( &pString, false );
 	if ( token[0] ) {
 		fadeupTime = atoi( token );
 	}
 
 	SV_GameSendServerCommand( -1, va( "mu_start %s %d", cvarName, fadeupTime ) );
 
-	return qtrue;
+	return true;
 }
 
 /*
@@ -389,22 +389,22 @@ AICast_ScriptAction_MusicPlay
 
 ==================
 */
-qboolean G_ScriptAction_MusicPlay( gentity_t *ent, char *params ) {
+bool G_ScriptAction_MusicPlay( gentity_t *ent, char *params ) {
 	
 	char cvarName[MAX_QPATH];
 	int fadeupTime = 0;
 
 	const char* pString = params;
-	const char* token = COM_ParseExt( &pString, qfalse );
+	const char* token = COM_ParseExt( &pString, false );
 	if ( !token[0] ) {
 		Com_Error( ERR_DROP, "G_Scripting: syntax: mu_play <musicfile> [fadeup time]" );
-        return qfalse; // keep the linter happy, ERR_DROP does not return
+        return false; // keep the linter happy, ERR_DROP does not return
 	}
 	Q_strncpyz( cvarName, token, sizeof( cvarName ) );
 
 	SV_GameSendServerCommand( -1, va( "mu_play %s %d", cvarName, fadeupTime ) );
 
-	return qtrue;
+	return true;
 }
 
 
@@ -413,18 +413,18 @@ qboolean G_ScriptAction_MusicPlay( gentity_t *ent, char *params ) {
 AICast_ScriptAction_MusicStop
 ==================
 */
-qboolean G_ScriptAction_MusicStop( gentity_t *ent, char *params ) {
+bool G_ScriptAction_MusicStop( gentity_t *ent, char *params ) {
 	int fadeoutTime = 0;
 
 	const char* pString = params;
-	const char* token = COM_ParseExt( &pString, qfalse );
+	const char* token = COM_ParseExt( &pString, false );
 	if ( token[0] ) {
 		fadeoutTime = atoi( token );
 	}
 
 	SV_GameSendServerCommand( -1, va( "mu_stop %i\n", fadeoutTime ) );
 
-	return qtrue;
+	return true;
 }
 
 
@@ -433,29 +433,29 @@ qboolean G_ScriptAction_MusicStop( gentity_t *ent, char *params ) {
 AICast_ScriptAction_MusicFade
 ==================
 */
-qboolean G_ScriptAction_MusicFade( gentity_t *ent, char *params ) {
+bool G_ScriptAction_MusicFade( gentity_t *ent, char *params ) {
 	
 	float targetvol;
 	int fadetime;
 
 	const char* pString = params;
-	const char* token = COM_ParseExt( &pString, qfalse );
+	const char* token = COM_ParseExt( &pString, false );
 	if ( !token[0] ) {
 		Com_Error( ERR_DROP, "G_Scripting: syntax: mu_fade <targetvol> <fadetime>" );
-        return qfalse; // keep the linter happy, ERR_DROP does not return
+        return false; // keep the linter happy, ERR_DROP does not return
 	}
 	targetvol = atof( token );
 
-	token = COM_ParseExt( &pString, qfalse );
+	token = COM_ParseExt( &pString, false );
 	if ( !token[0] ) {
 		Com_Error( ERR_DROP, "G_Scripting: syntax: mu_fade <targetvol> <fadetime>" );
-        return qfalse; // keep the linter happy, ERR_DROP does not return
+        return false; // keep the linter happy, ERR_DROP does not return
 	}
 	fadetime = atoi( token );
 
 	SV_GameSendServerCommand( -1, va( "mu_fade %f %i\n", targetvol, fadetime ) );
 
-	return qtrue;
+	return true;
 }
 
 
@@ -464,21 +464,21 @@ qboolean G_ScriptAction_MusicFade( gentity_t *ent, char *params ) {
 AICast_ScriptAction_MusicQueue
 ==================
 */
-qboolean G_ScriptAction_MusicQueue( gentity_t *ent, char *params ) {
+bool G_ScriptAction_MusicQueue( gentity_t *ent, char *params ) {
 	
 	char cvarName[MAX_QPATH];
 
 	const char *pString = params;
-	const char *token = COM_ParseExt( &pString, qfalse );
+	const char *token = COM_ParseExt( &pString, false );
 	if ( !token[0] ) {
 		Com_Error( ERR_DROP, "G_Scripting: syntax: mu_queue <musicfile>" );
-        return qfalse; // keep the linter happy, ERR_DROP does not return
+        return false; // keep the linter happy, ERR_DROP does not return
 	}
 	Q_strncpyz( cvarName, token, sizeof( cvarName ) );
 
 	SV_SetConfigstring( CS_MUSIC_QUEUE, cvarName );
 
-	return qtrue;
+	return true;
 }
 
 //----(SA)	end
@@ -492,10 +492,10 @@ G_ScriptAction_PlayAnim
   NOTE: all source animations must be at 20fps
 =================
 */
-qboolean G_ScriptAction_PlayAnim( gentity_t *ent, char *params ) {
+bool G_ScriptAction_PlayAnim( gentity_t *ent, char *params ) {
 	char tokens[2][MAX_QPATH];
 	int i, endtime = 0; // TTimo: init
-	qboolean looping = qfalse, forever = qfalse;
+	bool looping = false, forever = false;
 	int startframe, endframe, idealframe;
 	int rate = 20;
 
@@ -507,10 +507,10 @@ qboolean G_ScriptAction_PlayAnim( gentity_t *ent, char *params ) {
 	const char* pString = params;
 
 	for ( i = 0; i < 2; i++ ) {
-		const char* token = COM_ParseExt( &pString, qfalse );
+		const char* token = COM_ParseExt( &pString, false );
 		if ( !token || !token[0] ) {
 			Com_Printf( "G_Scripting: syntax error\n\nplayanim <startframe> <endframe> [LOOPING <duration>]\n" );
-			return qtrue;
+			return true;
 		} else {
 			Q_strncpyz( tokens[i], token, sizeof( tokens[i] ) );
 		}
@@ -520,15 +520,15 @@ qboolean G_ScriptAction_PlayAnim( gentity_t *ent, char *params ) {
 	endframe = atoi( tokens[1] );
 
 	// check for optional parameters
-	const char* token = COM_ParseExt( &pString, qfalse );
+	const char* token = COM_ParseExt( &pString, false );
 	if ( token[0] ) {
 		if ( !Q_strcasecmp( token, "looping" ) ) {
-			looping = qtrue;
+			looping = true;
 
-			token = COM_ParseExt( &pString, qfalse );
+			token = COM_ParseExt( &pString, false );
 			if ( !token || !token[0] ) {
 				Com_Printf( "G_Scripting: syntax error\n\nplayanim <startframe> <endframe> [LOOPING <duration>]\n" );
-				return qtrue;
+				return true;
 			}
 			if ( !Q_strcasecmp( token, "untilreachmarker" ) ) {
 				if ( level.time < ent->shared.s.pos.trTime + ent->shared.s.pos.trDuration ) {
@@ -540,19 +540,19 @@ qboolean G_ScriptAction_PlayAnim( gentity_t *ent, char *params ) {
 				ent->scriptStatus.animatingParams = params;
 				ent->scriptStatus.scriptFlags |= SCFL_ANIMATING;
 				endtime = level.time + 100;     // we don't care when it ends, since we are going forever!
-				forever = qtrue;
+				forever = true;
 			} else {
 				endtime = ent->scriptStatus.scriptStackChangeTime + atoi( token );
 			}
 
-			token = COM_ParseExt( &pString, qfalse );
+			token = COM_ParseExt( &pString, false );
 		}
 
 		if ( token[0] && !Q_strcasecmp( token, "rate" ) ) {
-			token = COM_ParseExt( &pString, qfalse );
+			token = COM_ParseExt( &pString, false );
 			if ( !token[0] ) {
 				Com_Error( ERR_DROP, "G_Scripting: playanim has RATE parameter without an actual rate specified" );
-                return qfalse; // keep the linter happy, ERR_DROP does not return
+                return false; // keep the linter happy, ERR_DROP does not return
 			}
 			rate = atoi( token );
 		}
@@ -578,14 +578,14 @@ qboolean G_ScriptAction_PlayAnim( gentity_t *ent, char *params ) {
 
 	if ( forever ) {
 		ent->shared.s.eFlags |= EF_MOVER_ANIMATE;
-		return qtrue;   // continue to the next command
+		return true;   // continue to the next command
 	}
 
 	if ( endtime <= level.time ) {
 		ent->shared.s.eFlags &= ~EF_MOVER_ANIMATE; // stop animating
-		return qtrue;
+		return true;
 	} else {
-		return qfalse;
+		return false;
 	}
 };
 
@@ -596,38 +596,38 @@ G_ScriptAction_AlertEntity
   syntax: alertentity <targetname>
 =================
 */
-qboolean G_ScriptAction_AlertEntity( gentity_t *ent, char *params ) {
+bool G_ScriptAction_AlertEntity( gentity_t *ent, char *params ) {
 	gentity_t   *alertent;
 
 	if ( !params || !params[0] ) {
 		Com_Error( ERR_DROP, "G_Scripting: alertentity without targetname\n" );
-        return qfalse; // keep the linter happy, ERR_DROP does not return
+        return false; // keep the linter happy, ERR_DROP does not return
 	}
 
 	// find this targetname
 	alertent = G_Find( NULL, FOFS( targetname ), params );
 	if ( !alertent ) {
 		Com_Error( ERR_DROP, "G_Scripting: alertentity cannot find targetname \"%s\"\n", params );
-        return qfalse; // keep the linter happy, ERR_DROP does not return
+        return false; // keep the linter happy, ERR_DROP does not return
 	}
 
 	if ( alertent->client ) {
 		// call this entity's AlertEntity function
 		if ( !alertent->AIScript_AlertEntity ) {
 			Com_Error( ERR_DROP, "G_Scripting: alertentity \"%s\" (classname = %s) doesn't have an \"AIScript_AlertEntity\" function\n", params, alertent->classname );
-            return qfalse; // keep the linter happy, ERR_DROP does not return
+            return false; // keep the linter happy, ERR_DROP does not return
 		}
 		alertent->AIScript_AlertEntity( alertent );
 	} else {
 		if ( !alertent->use ) {
 			Com_Error( ERR_DROP, "G_Scripting: alertentity \"%s\" (classname = %s) doesn't have a \"use\" function\n", params, alertent->classname );
-            return qfalse; // keep the linter happy, ERR_DROP does not return
+            return false; // keep the linter happy, ERR_DROP does not return
             
 		}
 		alertent->use( alertent, NULL, NULL );
 	}
 
-	return qtrue;
+	return true;
 }
 
 /*
@@ -651,43 +651,43 @@ G_ScriptAction_Accum
 	accum <n> abort_if_not_bitset <m>
 =================
 */
-qboolean G_ScriptAction_Accum( gentity_t *ent, char *params ) {
+bool G_ScriptAction_Accum( gentity_t *ent, char *params ) {
 	char *token, lastToken[MAX_QPATH];
 	int bufferIndex;
 
 	const char *pString = params;
 
-	token = COM_ParseExt( &pString, qfalse );
+	token = COM_ParseExt( &pString, false );
 	if ( !token[0] ) {
 		Com_Error( ERR_DROP, "G_Scripting: accum without a buffer index\n" );
-        return qfalse; // keep the linter happy, ERR_DROP does not return
+        return false; // keep the linter happy, ERR_DROP does not return
 	}
 
 	bufferIndex = atoi( token );
 	if ( bufferIndex >= G_MAX_SCRIPT_ACCUM_BUFFERS ) {
 		Com_Error( ERR_DROP, "G_Scripting: accum buffer is outside range (0 - %i)\n", G_MAX_SCRIPT_ACCUM_BUFFERS );
-        return qfalse; // keep the linter happy, ERR_DROP does not return
+        return false; // keep the linter happy, ERR_DROP does not return
 	}
 
-	token = COM_ParseExt( &pString, qfalse );
+	token = COM_ParseExt( &pString, false );
 	if ( !token[0] ) {
 		Com_Error( ERR_DROP, "G_Scripting: accum without a command\n" );
-        return qfalse; // keep the linter happy, ERR_DROP does not return
+        return false; // keep the linter happy, ERR_DROP does not return
 	}
 
 	Q_strncpyz( lastToken, token, sizeof( lastToken ) );
-	token = COM_ParseExt( &pString, qfalse );
+	token = COM_ParseExt( &pString, false );
 
 	if ( !Q_stricmp( lastToken, "inc" ) ) {
 		if ( !token[0] ) {
 			Com_Error( ERR_DROP, "Scripting: accum %s requires a parameter\n", lastToken );
-            return qfalse; // keep the linter happy, ERR_DROP does not return
+            return false; // keep the linter happy, ERR_DROP does not return
 		}
 		ent->scriptAccumBuffer[bufferIndex] += atoi( token );
 	} else if ( !Q_stricmp( lastToken, "abort_if_less_than" ) ) {
 		if ( !token[0] ) {
 			Com_Error( ERR_DROP, "Scripting: accum %s requires a parameter\n", lastToken );
-            return qfalse; // keep the linter happy, ERR_DROP does not return
+            return false; // keep the linter happy, ERR_DROP does not return
 		}
 		if ( ent->scriptAccumBuffer[bufferIndex] < atoi( token ) ) {
 			// abort the current script
@@ -696,7 +696,7 @@ qboolean G_ScriptAction_Accum( gentity_t *ent, char *params ) {
 	} else if ( !Q_stricmp( lastToken, "abort_if_greater_than" ) ) {
 		if ( !token[0] ) {
 			Com_Error( ERR_DROP, "Scripting: accum %s requires a parameter\n", lastToken );
-            return qfalse; // keep the linter happy, ERR_DROP does not return
+            return false; // keep the linter happy, ERR_DROP does not return
 		}
 		if ( ent->scriptAccumBuffer[bufferIndex] > atoi( token ) ) {
 			// abort the current script
@@ -705,7 +705,7 @@ qboolean G_ScriptAction_Accum( gentity_t *ent, char *params ) {
 	} else if ( !Q_stricmp( lastToken, "abort_if_not_equal" ) ) {
 		if ( !token[0] ) {
 			Com_Error( ERR_DROP, "Scripting: accum %s requires a parameter\n", lastToken );
-            return qfalse; // keep the linter happy, ERR_DROP does not return
+            return false; // keep the linter happy, ERR_DROP does not return
 		}
 		if ( ent->scriptAccumBuffer[bufferIndex] != atoi( token ) ) {
 			// abort the current script
@@ -714,7 +714,7 @@ qboolean G_ScriptAction_Accum( gentity_t *ent, char *params ) {
 	} else if ( !Q_stricmp( lastToken, "abort_if_equal" ) ) {
 		if ( !token[0] ) {
 			Com_Error( ERR_DROP, "Scripting: accum %s requires a parameter\n", lastToken );
-            return qfalse; // keep the linter happy, ERR_DROP does not return
+            return false; // keep the linter happy, ERR_DROP does not return
 		}
 		if ( ent->scriptAccumBuffer[bufferIndex] == atoi( token ) ) {
 			// abort the current script
@@ -723,19 +723,19 @@ qboolean G_ScriptAction_Accum( gentity_t *ent, char *params ) {
 	} else if ( !Q_stricmp( lastToken, "bitset" ) ) {
 		if ( !token[0] ) {
 			Com_Error( ERR_DROP, "Scripting: accum %s requires a parameter\n", lastToken );
-            return qfalse; // keep the linter happy, ERR_DROP does not return
+            return false; // keep the linter happy, ERR_DROP does not return
 		}
 		ent->scriptAccumBuffer[bufferIndex] |= ( 1 << atoi( token ) );
 	} else if ( !Q_stricmp( lastToken, "bitreset" ) ) {
 		if ( !token[0] ) {
 			Com_Error( ERR_DROP, "Scripting: accum %s requires a parameter\n", lastToken );
-            return qfalse; // keep the linter happy, ERR_DROP does not return
+            return false; // keep the linter happy, ERR_DROP does not return
 		}
 		ent->scriptAccumBuffer[bufferIndex] &= ~( 1 << atoi( token ) );
 	} else if ( !Q_stricmp( lastToken, "abort_if_bitset" ) ) {
 		if ( !token[0] ) {
 			Com_Error( ERR_DROP, "Scripting: accum %s requires a parameter\n", lastToken );
-            return qfalse; // keep the linter happy, ERR_DROP does not return
+            return false; // keep the linter happy, ERR_DROP does not return
 		}
 		if ( ent->scriptAccumBuffer[bufferIndex] & ( 1 << atoi( token ) ) ) {
 			// abort the current script
@@ -744,7 +744,7 @@ qboolean G_ScriptAction_Accum( gentity_t *ent, char *params ) {
 	} else if ( !Q_stricmp( lastToken, "abort_if_not_bitset" ) ) {
 		if ( !token[0] ) {
 			Com_Error( ERR_DROP, "Scripting: accum %s requires a parameter\n", lastToken );
-            return qfalse; // keep the linter happy, ERR_DROP does not return
+            return false; // keep the linter happy, ERR_DROP does not return
 		}
 		if ( !( ent->scriptAccumBuffer[bufferIndex] & ( 1 << atoi( token ) ) ) ) {
 			// abort the current script
@@ -753,21 +753,21 @@ qboolean G_ScriptAction_Accum( gentity_t *ent, char *params ) {
 	} else if ( !Q_stricmp( lastToken, "set" ) ) {
 		if ( !token[0] ) {
 			Com_Error( ERR_DROP, "Scripting: accum %s requires a parameter\n", lastToken );
-            return qfalse; // keep the linter happy, ERR_DROP does not return
+            return false; // keep the linter happy, ERR_DROP does not return
 		}
 		ent->scriptAccumBuffer[bufferIndex] = atoi( token );
 	} else if ( !Q_stricmp( lastToken, "random" ) ) {
 		if ( !token[0] ) {
 			Com_Error( ERR_DROP, "Scripting: accum %s requires a parameter\n", lastToken );
-            return qfalse; // keep the linter happy, ERR_DROP does not return
+            return false; // keep the linter happy, ERR_DROP does not return
 		}
 		ent->scriptAccumBuffer[bufferIndex] = rand() % atoi( token );
 	} else {
 		Com_Error( ERR_DROP, "Scripting: accum: \"%s\": unknown command\n", params );
-        return qfalse; // keep the linter happy, ERR_DROP does not return
+        return false; // keep the linter happy, ERR_DROP does not return
 	}
 
-	return qtrue;
+	return true;
 }
 
 /*
@@ -777,18 +777,18 @@ G_ScriptAction_MissionFailed
   syntax: missionfailed
 =================
 */
-qboolean G_ScriptAction_MissionFailed( gentity_t *ent, char *params ) {
+bool G_ScriptAction_MissionFailed( gentity_t *ent, char *params ) {
 	char   *token;
 	int time = 6, mof = 0;
 
 	const char* pString = params;
 
-	token = COM_ParseExt( &pString, qfalse );   // time
+	token = COM_ParseExt( &pString, false );   // time
 	if ( token && token[0] ) {
 		time = atoi( token );
 	}
 
-	token = COM_ParseExt( &pString, qfalse );   // mof (means of failure)
+	token = COM_ParseExt( &pString, false );   // mof (means of failure)
 	if ( token && token[0] ) {
 		mof = atoi( token );
 	}
@@ -811,7 +811,7 @@ qboolean G_ScriptAction_MissionFailed( gentity_t *ent, char *params ) {
 
 	level.reloadDelayTime = level.time + 1000 + time * 1000;
 
-	return qtrue;
+	return true;
 }
 
 /*
@@ -821,7 +821,7 @@ G_ScriptAction_MissionSuccess
   syntax: missionsuccess <mission_level>
 =================
 */
-qboolean G_ScriptAction_MissionSuccess( gentity_t *ent, char *params ) {
+bool G_ScriptAction_MissionSuccess( gentity_t *ent, char *params ) {
 	gentity_t   *player;
 	vmCvar_t cvar;
 	int lvl;
@@ -829,23 +829,23 @@ qboolean G_ScriptAction_MissionSuccess( gentity_t *ent, char *params ) {
 
 	const char* pString = params;
 
-	token = COM_ParseExt( &pString, qfalse );
+	token = COM_ParseExt( &pString, false );
 	if ( !token[0] ) {
 		Com_Error( ERR_DROP, "AI Scripting: missionsuccess requires a mission_level identifier\n" );
-        return qfalse; // keep the linter happy, ERR_DROP does not return
+        return false; // keep the linter happy, ERR_DROP does not return
 	}
 
 	player = AICast_FindEntityForName( "player" );
 	// double check that they are still alive
 	if ( player->health <= 0 ) {
-		return qfalse;  // hold the script here
+		return false;  // hold the script here
 
 	}
 	lvl = atoi( token );
 
 // if you've already got it, just return.  don't need to set 'yougotmail'
 	if ( player->missionObjectives & ( 1 << ( lvl - 1 ) ) ) {
-		return qtrue;
+		return true;
 	}
 
 	player->missionObjectives |= ( 1 << ( lvl - 1 ) );  // make this bitwise
@@ -855,17 +855,17 @@ qboolean G_ScriptAction_MissionSuccess( gentity_t *ent, char *params ) {
 	// set it to make sure
 	Cvar_Set( va( "g_objective%i", lvl ), "1" );
 
-	token = COM_ParseExt( &pString, qfalse );
+	token = COM_ParseExt( &pString, false );
 	if ( token[0] ) {
 		if ( Q_strcasecmp( token,"nodisplay" ) ) {   // unknown command
 			Com_Error( ERR_DROP, "AI Scripting: missionsuccess with unknown parameter: %s\n", token );
-            return qfalse; // keep the linter happy, ERR_DROP does not return
+            return false; // keep the linter happy, ERR_DROP does not return
 		}
 	} else {    // show on-screen information
 		Cvar_Set( "cg_youGotMail", "2" ); // set flag to draw icon
 	}
 
-	return qtrue;
+	return true;
 }
 
 
@@ -878,14 +878,14 @@ G_ScriptAction_Print
   Mostly for debugging purposes
 =================
 */
-qboolean G_ScriptAction_Print( gentity_t *ent, char *params ) {
+bool G_ScriptAction_Print( gentity_t *ent, char *params ) {
 	if ( !params || !params[0] ) {
 		Com_Error( ERR_DROP, "G_Scripting: print requires some text\n" );
-        return qfalse; // keep the linter happy, ERR_DROP does not return
+        return false; // keep the linter happy, ERR_DROP does not return
 	}
 
 	Com_Printf( "(G_Script) %s-> %s\n", ent->scriptName, params );
-	return qtrue;
+	return true;
 }
 
 /*
@@ -899,7 +899,7 @@ G_ScriptAction_FaceAngles
   last gotomarker command will be used instead.
 =================
 */
-qboolean G_ScriptAction_FaceAngles( gentity_t *ent, char *params ) {
+bool G_ScriptAction_FaceAngles( gentity_t *ent, char *params ) {
 	char  *token;
 	int duration, i;
 	vec3_t diff;
@@ -908,7 +908,7 @@ qboolean G_ScriptAction_FaceAngles( gentity_t *ent, char *params ) {
 
 	if ( !params || !params[0] ) {
 		Com_Error( ERR_DROP, "G_Scripting: syntax: faceangles <pitch> <yaw> <roll> <duration/GOTOTIME>\n" );
-        return qfalse; // keep the linter happy, ERR_DROP does not return
+        return false; // keep the linter happy, ERR_DROP does not return
 	}
 
 	if ( ent->scriptStatus.scriptStackChangeTime == level.time ) {
@@ -917,7 +917,7 @@ qboolean G_ScriptAction_FaceAngles( gentity_t *ent, char *params ) {
 			token = COM_Parse( &pString );
 			if ( !token || !token[0] ) {
 				Com_Error( ERR_DROP, "G_Scripting: syntax: faceangles <pitch> <yaw> <roll> <duration/GOTOTIME>\n" );
-                return qfalse; // keep the linter happy, ERR_DROP does not return
+                return false; // keep the linter happy, ERR_DROP does not return
 			}
 			angles[i] = atoi( token );
 		}
@@ -925,7 +925,7 @@ qboolean G_ScriptAction_FaceAngles( gentity_t *ent, char *params ) {
 		token = COM_Parse( &pString );
 		if ( !token || !token[0] ) {
 			Com_Error( ERR_DROP, "G_Scripting: faceangles requires a <pitch> <yaw> <roll> <duration/GOTOTIME>\n" );
-            return qfalse; // keep the linter happy, ERR_DROP does not return
+            return false; // keep the linter happy, ERR_DROP does not return
 		}
 		if ( !Q_strcasecmp( token, "gototime" ) ) {
 			duration = ent->shared.s.pos.trDuration;
@@ -981,13 +981,13 @@ qboolean G_ScriptAction_FaceAngles( gentity_t *ent, char *params ) {
 
 		script_linkentity( ent );
 
-		return qtrue;
+		return true;
 	}
 
 	BG_EvaluateTrajectory( &ent->shared.s.apos, level.time, ent->shared.r.currentAngles );
 	script_linkentity( ent );
 
-	return qfalse;
+	return false;
 }
 
 /*
@@ -997,13 +997,13 @@ G_ScriptAction_ResetScript
 	causes any currently running scripts to abort, in favour of the current script
 ===================
 */
-qboolean G_ScriptAction_ResetScript( gentity_t *ent, char *params )
+bool G_ScriptAction_ResetScript( gentity_t *ent, char *params )
 {
 	if ( level.time == ent->scriptStatus.scriptStackChangeTime ) {
-		return qfalse;
+		return false;
 	}
 
-	return qtrue;
+	return true;
 }
 
 /*
@@ -1015,7 +1015,7 @@ G_ScriptAction_TagConnect
 	connect this entity onto the tag of another entity
 ===================
 */
-qboolean G_ScriptAction_TagConnect( gentity_t *ent, char *params ) {
+bool G_ScriptAction_TagConnect( gentity_t *ent, char *params ) {
 	char *token;
 	gentity_t *parent;
 
@@ -1023,7 +1023,7 @@ qboolean G_ScriptAction_TagConnect( gentity_t *ent, char *params ) {
 	token = COM_Parse( &pString );
 	if ( !token[0] ) {
 		Com_Error( ERR_DROP, "G_ScriptAction_TagConnect: syntax: attachtotag <targetname> <tagname>\n" );
-        return qfalse; // keep the linter happy, ERR_DROP does not return
+        return false; // keep the linter happy, ERR_DROP does not return
 	}
 
 	parent = G_Find( NULL, FOFS( targetname ), token );
@@ -1031,23 +1031,23 @@ qboolean G_ScriptAction_TagConnect( gentity_t *ent, char *params ) {
 		parent = G_Find( NULL, FOFS( scriptName ), token );
 		if ( !parent ) {
 			Com_Error( ERR_DROP, "G_ScriptAction_TagConnect: unable to find entity with targetname \"%s\"", token );
-            return qfalse; // keep the linter happy, ERR_DROP does not return
+            return false; // keep the linter happy, ERR_DROP does not return
 		}
 	}
 
 	token = COM_Parse( &pString );
 	if ( !token[0] ) {
 		Com_Error( ERR_DROP, "G_ScriptAction_TagConnect: syntax: attachtotag <targetname> <tagname>\n" );
-        return qfalse; // keep the linter happy, ERR_DROP does not return
+        return false; // keep the linter happy, ERR_DROP does not return
 	}
 
 	ent->tagParent = parent;
 	ent->tagName = (char *)G_Alloc( strlen( token ) + 1 );
 	Q_strncpyz( (char *)ent->tagName, token, strlen( token ) + 1 );
 
-	G_ProcessTagConnect( ent, qtrue );
+	G_ProcessTagConnect( ent, true );
 
-	return qtrue;
+	return true;
 }
 
 /*
@@ -1059,7 +1059,7 @@ G_ScriptAction_Halt
   Stop moving.
 ====================
 */
-qboolean G_ScriptAction_Halt( gentity_t *ent, char *params ) {
+bool G_ScriptAction_Halt( gentity_t *ent, char *params ) {
 	if ( level.time == ent->scriptStatus.scriptStackChangeTime ) {
 		ent->scriptStatus.scriptFlags &= ~SCFL_GOING_TO_MARKER;
 
@@ -1083,9 +1083,9 @@ qboolean G_ScriptAction_Halt( gentity_t *ent, char *params ) {
 
 		script_linkentity( ent );
 
-		return qfalse;  // kill any currently running script
+		return false;  // kill any currently running script
 	} else {
-		return qtrue;
+		return true;
 	}
 }
 
@@ -1098,9 +1098,9 @@ G_ScriptAction_StopSound
   Stops any looping sounds for this entity.
 ===================
 */
-qboolean G_ScriptAction_StopSound( gentity_t *ent, char *params ) {
+bool G_ScriptAction_StopSound( gentity_t *ent, char *params ) {
 	ent->shared.s.loopSound = 0;
-	return qtrue;
+	return true;
 }
 
 /*
@@ -1110,7 +1110,7 @@ G_ScriptAction_StartCam
   syntax: startcam <camera filename>
 ===================
 */
-qboolean G_ScriptAction_StartCam( gentity_t *ent, char *params ) {
+bool G_ScriptAction_StartCam( gentity_t *ent, char *params ) {
 	char *token;
 	gentity_t *player;
 
@@ -1118,7 +1118,7 @@ qboolean G_ScriptAction_StartCam( gentity_t *ent, char *params ) {
 	token = COM_Parse( &pString );
 	if ( !token[0] ) {
 		Com_Error( ERR_DROP, "G_ScriptAction_Cam: filename parameter required\n" );
-        return qfalse; // keep the linter happy, ERR_DROP does not return
+        return false; // keep the linter happy, ERR_DROP does not return
 	}
 
 	// turn off noclient flag
@@ -1128,11 +1128,11 @@ qboolean G_ScriptAction_StartCam( gentity_t *ent, char *params ) {
 	player = AICast_FindEntityForName( "player" );
 	if ( !player ) {
 		Com_Error( ERR_DROP, "player not found, perhaps you should give them more time to spawn in" );
-        return qfalse; // keep the linter happy, ERR_DROP does not return
+        return false; // keep the linter happy, ERR_DROP does not return
 	}
 	SV_GameSendServerCommand( player->shared.s.number, va( "startCam %s", token ) );
 
-	return qtrue;
+	return true;
 }
 
 /*
@@ -1140,9 +1140,9 @@ qboolean G_ScriptAction_StartCam( gentity_t *ent, char *params ) {
 G_ScriptAction_EntityScriptName
 =================
 */
-qboolean G_ScriptAction_EntityScriptName( gentity_t *ent, char *params ) {
+bool G_ScriptAction_EntityScriptName( gentity_t *ent, char *params ) {
 	Cvar_Set( "g_scriptName", params );
-	return qtrue;
+	return true;
 }
 
 
@@ -1151,9 +1151,9 @@ qboolean G_ScriptAction_EntityScriptName( gentity_t *ent, char *params ) {
 G_ScriptAction_AIScriptName
 =================
 */
-qboolean G_ScriptAction_AIScriptName( gentity_t *ent, char *params ) {
+bool G_ScriptAction_AIScriptName( gentity_t *ent, char *params ) {
 	Cvar_Set( "ai_scriptName", params );
-	return qtrue;
+	return true;
 }
 
 /*
@@ -1164,7 +1164,7 @@ G_ScriptAction_BackupScript
   were we left off (useful if player gets in our way)
 =================
 */
-qboolean G_ScriptAction_BackupScript( gentity_t *ent, char *params ) {
+bool G_ScriptAction_BackupScript( gentity_t *ent, char *params ) {
 
 	// if we're not at the top of an event, then something is _probably_ wrong with the script
 //	if (ent->scriptStatus.scriptStackHead > 0) {
@@ -1202,7 +1202,7 @@ qboolean G_ScriptAction_BackupScript( gentity_t *ent, char *params ) {
 		ent->scriptStatus.scriptFlags |= SCFL_WAITING_RESTORE;
 	}
 
-	return qtrue;
+	return true;
 }
 
 /*
@@ -1212,11 +1212,11 @@ G_ScriptAction_RestoreScript
   restores the state of the scripting to the previous backup
 =================
 */
-qboolean G_ScriptAction_RestoreScript( gentity_t *ent, char *params ) {
+bool G_ScriptAction_RestoreScript( gentity_t *ent, char *params ) {
 
 	ent->scriptStatus = ent->scriptStatusBackup;
 	ent->scriptStatus.scriptStackChangeTime = level.time;       // start moves again
-	return qfalse;  // dont continue scripting until next frame
+	return false;  // dont continue scripting until next frame
 
 }
 
@@ -1225,11 +1225,11 @@ qboolean G_ScriptAction_RestoreScript( gentity_t *ent, char *params ) {
 G_ScriptAction_SetHealth
 ==================
 */
-qboolean G_ScriptAction_SetHealth( gentity_t *ent, char *params ) {
+bool G_ScriptAction_SetHealth( gentity_t *ent, char *params ) {
 	if ( !params || !params[0] ) {
 		Com_Error( ERR_DROP, "G_ScriptAction_SetHealth: sethealth requires a health value\n" );
-        return qfalse; // keep the linter happy, ERR_DROP does not return
+        return false; // keep the linter happy, ERR_DROP does not return
 	}
 	ent->health = atoi( params );
-	return qtrue;
+	return true;
 }

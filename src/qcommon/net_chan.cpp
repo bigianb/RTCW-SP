@@ -151,7 +151,7 @@ void Netchan_TransmitNextFragment( netchan_t *chan ) {
 	// can tell there aren't more to follow
 	if ( chan->unsentFragmentStart == chan->unsentLength && fragmentLength != FRAGMENT_SIZE ) {
 		chan->outgoingSequence++;
-		chan->unsentFragments = qfalse;
+		chan->unsentFragments = false;
 	}
 }
 
@@ -176,7 +176,7 @@ void Netchan_Transmit( netchan_t *chan, int length, const byte *data ) {
 
 	// fragment large reliable messages
 	if ( length >= FRAGMENT_SIZE ) {
-		chan->unsentFragments = qtrue;
+		chan->unsentFragments = true;
 		chan->unsentLength = length;
 		Com_Memcpy( chan->unsentBuffer, data, length );
 
@@ -216,7 +216,7 @@ void Netchan_Transmit( netchan_t *chan, int length, const byte *data ) {
 =================
 Netchan_Process
 
-Returns qfalse if the message should not be processed due to being
+Returns false if the message should not be processed due to being
 out of order or a fragment.
 
 Msg must be large enough to hold MAX_MSGLEN, because if this is the
@@ -224,11 +224,11 @@ final fragment of a multi-part message, the entire thing will be
 copied out.
 =================
 */
-qboolean Netchan_Process( netchan_t *chan, msg_t *msg ) {
+bool Netchan_Process( netchan_t *chan, msg_t *msg ) {
 	int sequence;
 	int qport;
 	int fragmentStart, fragmentLength;
-	qboolean fragmented;
+	bool fragmented;
 
 	// get sequence numbers
 	MSG_BeginReadingOOB( msg );
@@ -237,9 +237,9 @@ qboolean Netchan_Process( netchan_t *chan, msg_t *msg ) {
 	// check for fragment information
 	if ( sequence & FRAGMENT_BIT ) {
 		sequence &= ~FRAGMENT_BIT;
-		fragmented = qtrue;
+		fragmented = true;
 	} else {
-		fragmented = qfalse;
+		fragmented = false;
 	}
 
 	// read the qport if we are a server
@@ -281,7 +281,7 @@ qboolean Netchan_Process( netchan_t *chan, msg_t *msg ) {
 						,  sequence
 						, chan->incomingSequence );
 		}
-		return qfalse;
+		return false;
 	}
 
 	//
@@ -318,7 +318,7 @@ qboolean Netchan_Process( netchan_t *chan, msg_t *msg ) {
 			}
 			// we can still keep the part that we have so far,
 			// so we don't need to clear chan->fragmentLength
-			return qfalse;
+			return false;
 		}
 
 		// copy the fragment to the fragment buffer
@@ -328,7 +328,7 @@ qboolean Netchan_Process( netchan_t *chan, msg_t *msg ) {
 				Com_Printf( "%s:illegal fragment length\n"
 							, NET_AdrToString( chan->remoteAddress ) );
 			}
-			return qfalse;
+			return false;
 		}
 
 		memcpy( chan->fragmentBuffer + chan->fragmentLength,
@@ -338,14 +338,14 @@ qboolean Netchan_Process( netchan_t *chan, msg_t *msg ) {
 
 		// if this wasn't the last fragment, don't process anything
 		if ( fragmentLength == FRAGMENT_SIZE ) {
-			return qfalse;
+			return false;
 		}
 
 		if ( chan->fragmentLength > msg->maxsize ) {
 			Com_Printf( "%s:fragmentLength %i > msg->maxsize\n"
 						, NET_AdrToString( chan->remoteAddress ),
 						chan->fragmentLength );
-			return qfalse;
+			return false;
 		}
 
 		// copy the full message over the partial fragment
@@ -359,7 +359,7 @@ qboolean Netchan_Process( netchan_t *chan, msg_t *msg ) {
 		msg->readcount = 4; // past the sequence number
 		msg->bit = 32;  // past the sequence number
 
-		return qtrue;
+		return true;
 	}
 
 	//
@@ -367,7 +367,7 @@ qboolean Netchan_Process( netchan_t *chan, msg_t *msg ) {
 	//
 	chan->incomingSequence = sequence;
 
-	return qtrue;
+	return true;
 }
 
 
@@ -380,12 +380,12 @@ NET_CompareBaseAdr
 Compares without the port
 ===================
 */
-qboolean    NET_CompareBaseAdr( netadr_t a, netadr_t b ) {
+bool    NET_CompareBaseAdr( netadr_t a, netadr_t b ) {
 	if ( a.type != b.type ) {
-		return qfalse;
+		return false;
 	}
 
-	return qtrue;
+	return true;
 }
 
 const char  *NET_AdrToString( netadr_t a ) {
@@ -397,17 +397,17 @@ const char  *NET_AdrToString( netadr_t a ) {
 }
 
 
-qboolean    NET_CompareAdr( netadr_t a, netadr_t b ) {
+bool    NET_CompareAdr( netadr_t a, netadr_t b ) {
 	if ( a.type != b.type ) {
-		return qfalse;
+		return false;
 	}
 
-	return qtrue;
+	return true;
 }
 
 
-qboolean    NET_IsLocalAddress( netadr_t adr ) {
-	return qtrue;
+bool    NET_IsLocalAddress( netadr_t adr ) {
+	return true;
 }
 
 
@@ -437,7 +437,7 @@ typedef struct {
 loopback_t loopbacks[2];
 
 
-qboolean    NET_GetLoopPacket( netsrc_t sock, netadr_t *net_from, msg_t *net_message )
+bool    NET_GetLoopPacket( netsrc_t sock, netadr_t *net_from, msg_t *net_message )
 {
 	loopback_t* loop = &loopbacks[sock];
 
@@ -446,7 +446,7 @@ qboolean    NET_GetLoopPacket( netsrc_t sock, netadr_t *net_from, msg_t *net_mes
 	}
 
 	if ( loop->get >= loop->send ) {
-		return qfalse;
+		return false;
 	}
 
 	int i = loop->get & ( MAX_LOOPBACK - 1 );
@@ -456,7 +456,7 @@ qboolean    NET_GetLoopPacket( netsrc_t sock, netadr_t *net_from, msg_t *net_mes
 	net_message->cursize = loop->msgs[i].datalen;
 	memset( net_from, 0, sizeof( *net_from ) );
 	net_from->type = NA_LOOPBACK;
-	return qtrue;
+	return true;
 
 }
 
@@ -514,10 +514,10 @@ NET_StringToAdr
 Traps "localhost" for loopback, passes everything else to system
 =============
 */
-qboolean NET_StringToAdr( const char *s, netadr_t *a )
+bool NET_StringToAdr( const char *s, netadr_t *a )
 {
 		memset( a, 0, sizeof( *a ) );
 		a->type = NA_LOOPBACK;
-		return qtrue;
+		return true;
 }
 

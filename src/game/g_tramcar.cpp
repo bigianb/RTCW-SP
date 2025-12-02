@@ -130,7 +130,7 @@ void InitTramcar( gentity_t *ent ) {
 	float distance;
 	float light;
 	vec3_t color;
-	qboolean lightSet, colorSet;
+	bool lightSet, colorSet;
 	const char        *sound;
 
 	// This is here just for show
@@ -342,7 +342,7 @@ void Reached_Tramcar( gentity_t *ent ) {
 			GetNextTrack( ent );
 			Think_SetupAirplaneWaypoints( ent );
 		} else if ( ( next->spawnflags & 2 ) && ( ent->spawnflags & 8 ) && ent->health <= 0 && ent->takedamage )         { // death path
-			ent->takedamage = qfalse;
+			ent->takedamage = false;
 
 			GetNextTrack( ent );
 			Think_SetupAirplaneWaypoints( ent );
@@ -586,9 +586,9 @@ void Tramcar_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, in
 
 	self->use = NULL;
 
-	self->is_dead = qtrue;
+	self->is_dead = true;
 
-	self->takedamage = qfalse;
+	self->takedamage = false;
 
 	if ( self->nextTrain ) {
 		self->nextTrain = 0;
@@ -697,11 +697,11 @@ void SP_func_tramcar( gentity_t *self ) {
 			self->health = 50;
 		}
 
-		self->takedamage = qtrue;
+		self->takedamage = true;
 		self->die = Tramcar_die;
 
 		if ( self->health < 999 ) {
-			self->isProp = qtrue;
+			self->isProp = true;
 		}
 	}
 
@@ -941,7 +941,7 @@ void Plane_Fire_Lead( gentity_t *self ) {
 	fire_lead( self, pos2, dir, 12 );
 }
 
-void Plane_Attack( gentity_t *self, qboolean in_PVS ) {
+void Plane_Attack( gentity_t *self, bool in_PVS ) {
 	if ( self->nextTrain->spawnflags & 16 ) {
 		self->count++;
 
@@ -967,7 +967,7 @@ void Plane_Attack( gentity_t *self, qboolean in_PVS ) {
 
 void props_me109_think( gentity_t *self ) {
 
-	qboolean in_PVS = qfalse;
+	bool in_PVS = false;
 
 	{
 		gentity_t *player;
@@ -1158,7 +1158,7 @@ void SP_props_me109( gentity_t *ent ) {
 	ent->shared.r.svFlags  = SVF_USE_CURRENT_ORIGIN;
 	ent->shared.s.eType = ET_MOVER;
 
-	ent->isProp = qtrue;
+	ent->isProp = true;
 
 	ent->shared.s.modelindex = G_ModelIndex( "models/mapobjects/vehicles/m109.md3" );
 
@@ -1166,7 +1166,7 @@ void SP_props_me109( gentity_t *ent ) {
 		ent->health = 500;
 	}
 
-	ent->takedamage = qtrue;
+	ent->takedamage = true;
 
 	ent->die = props_me109_die;
 	ent->pain = props_me109_pain;

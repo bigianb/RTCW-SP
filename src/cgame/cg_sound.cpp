@@ -176,16 +176,16 @@ void CG_SoundPickOldestRandomSound( soundScript_t *sound, vec3_t org, int entnum
 ==============
 CG_SoundPlaySoundScript
 
-  returns qtrue is a script is found
+  returns true is a script is found
 ==============
 */
-qboolean CG_SoundPlaySoundScript( const char *name, vec3_t org, int entnum ) {
+bool CG_SoundPlaySoundScript( const char *name, vec3_t org, int entnum ) {
 	long hash;
 	char *s;
 	soundScript_t   *sound;
 
 	if ( !name || !name[0] ) {
-		return qfalse;
+		return false;
 	}
 
 	hash = generateHashValue( name );
@@ -196,13 +196,13 @@ qboolean CG_SoundPlaySoundScript( const char *name, vec3_t org, int entnum ) {
 		if ( !Q_strcasecmp( s, sound->name ) ) {
 			// found a match, pick the oldest sound
 			CG_SoundPickOldestRandomSound( sound, org, entnum );
-			return qtrue;
+			return true;
 		}
 		sound = sound->nextHash;
 	}
 
 	//Com_Printf( S_COLOR_RED "CG_SoundPlaySoundScript: cannot find sound script '%s'\n", name );
-	return qfalse;
+	return false;
 }
 
 
@@ -211,7 +211,7 @@ qboolean CG_SoundPlaySoundScript( const char *name, vec3_t org, int entnum ) {
 ==============
 CG_SoundPlayIndexedScript
 
-  returns qtrue is a script is found
+  returns true is a script is found
 ==============
 */
 void CG_SoundPlayIndexedScript( int index, vec3_t org, int entnum ) {
@@ -241,15 +241,15 @@ static void CG_SoundParseSounds( char *filename, const char *buffer ) {
 	long hash;
 	soundScript_t sound;                // the current sound being read
 	soundScriptSound_t  *scriptSound;
-	qboolean inSound, wantSoundName;
+	bool inSound, wantSoundName;
 
 	s = 0;
-	inSound = qfalse;
-	wantSoundName = qtrue;
+	inSound = false;
+	wantSoundName = true;
 	const char **text = &buffer;
 
 	while ( 1 ) {
-		token = COM_ParseExt( text, qtrue );
+		token = COM_ParseExt( text, true );
 		if ( !token[0] ) {
 			if ( inSound ) {
 				Com_Error( ERR_DROP, "no concluding '}' in sound %s, file %s\n", sound.name, filename );
@@ -266,7 +266,7 @@ static void CG_SoundParseSounds( char *filename, const char *buffer ) {
 				Com_Error( ERR_DROP, "'{' found but not expected, after %s, file %s\n", sound.name, filename );
                 return;  // Keep linter happy. ERR_DROP does not return
 			}
-			inSound = qtrue;
+			inSound = true;
 			continue;
 		}
 		if ( !Q_strcasecmp( token, "}" ) ) {
@@ -286,8 +286,8 @@ static void CG_SoundParseSounds( char *filename, const char *buffer ) {
                 return;  // Keep linter happy. ERR_DROP does not return
 			}
 
-			inSound = qfalse;
-			wantSoundName = qtrue;
+			inSound = false;
+			wantSoundName = true;
 			continue;
 		}
 		if ( !inSound ) {
@@ -298,7 +298,7 @@ static void CG_SoundParseSounds( char *filename, const char *buffer ) {
 			}
 			memset( &sound, 0, sizeof( sound ) );
 			Q_strncpyz( sound.name, token, sizeof( sound.name ) );
-			wantSoundName = qfalse;
+			wantSoundName = false;
 			sound.index = numSoundScripts;
 			// setup the new sound defaults
 			sound.channel = CHAN_AUTO;
@@ -340,19 +340,19 @@ static void CG_SoundParseSounds( char *filename, const char *buffer ) {
 			continue;
 		}
 		if ( !Q_strcasecmp( token, "streaming" ) ) {
-			sound.streaming = qtrue;
+			sound.streaming = true;
 			continue;
 		}
 		if ( !Q_strcasecmp( token, "looping" ) ) {
-			sound.looping = qtrue;
+			sound.looping = true;
 			continue;
 		}
 		if ( !Q_strcasecmp( token, "shake" ) ) {
-			token = COM_ParseExt( text, qfalse );
+			token = COM_ParseExt( text, false );
 			sound.shakeScale = atof( token );
-			token = COM_ParseExt( text, qfalse );
+			token = COM_ParseExt( text, false );
 			sound.shakeRadius = atof( token );
-			token = COM_ParseExt( text, qfalse );
+			token = COM_ParseExt( text, false );
 			if ( !token || !token[0] ) {
 				sound.shakeDuration = 350 + 900 * ( sound.shakeScale * sound.shakeScale );
 			} else {
@@ -368,7 +368,7 @@ static void CG_SoundParseSounds( char *filename, const char *buffer ) {
                 return;  // Keep linter happy. ERR_DROP does not return
 			}
 
-			token = COM_ParseExt( text, qtrue );
+			token = COM_ParseExt( text, true );
 			Q_strncpyz( scriptSound->filename, token, sizeof( scriptSound->filename ) );
 			scriptSound->lastPlayed = 0;
 			scriptSound->sfxHandle = 0;
@@ -415,7 +415,7 @@ static void CG_SoundLoadSoundFiles( void ) {
 	const char* text = buffer;
 	numSounds = 0;
 	while ( 1 ) {
-		token = COM_ParseExt( &text, qtrue );
+		token = COM_ParseExt( &text, true );
 		if ( !token[0] ) {
 			break;
 		}

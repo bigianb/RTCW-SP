@@ -148,7 +148,7 @@ AICast_DBG_Spawn_f
 ===============
 */
 void AICast_DBG_Spawn_f( gclient_t *client, char *cmd ) {
-	extern qboolean G_CallSpawn( gentity_t *ent );
+	extern bool G_CallSpawn( gentity_t *ent );
 	gentity_t   *ent;
 	vec3_t dir;
 

@@ -111,7 +111,7 @@ void AAS_UpdateStringIndexes( int numconfigstrings, char *configstrings[] ) {
 			strcpy( ( *aasworld ).configstrings[i], configstrings[i] );
 		} //end if
 	} //end for
-	( *aasworld ).indexessetup = qtrue;
+	( *aasworld ).indexessetup = true;
 } //end of the function AAS_UpdateStringIndexes
 //===========================================================================
 //
@@ -140,7 +140,7 @@ int AAS_Initialized( void ) {
 // Changes Globals:		-
 //===========================================================================
 void AAS_SetInitialized( void ) {
-	( *aasworld ).initialized = qtrue;
+	( *aasworld ).initialized = true;
 	BotImport_Print( PRT_MESSAGE, "AAS initialized.\n" );
 
 	AAS_RT_BuildRouteTable();
@@ -267,7 +267,7 @@ int AAS_LoadMap( const char *mapname ) {
 	int errnum;
 	int i;
 	char this_mapname[256], intstr[4];
-	qboolean loaded = qfalse;
+	bool loaded = false;
 	int missingErrNum = 0;     // TTimo: init
 
 	for ( i = 0; i < MAX_AAS_WORLDS; i++ )
@@ -284,7 +284,7 @@ int AAS_LoadMap( const char *mapname ) {
 			return 0;
 		} //end if
 		  //
-		( *aasworld ).initialized = qfalse;
+		( *aasworld ).initialized = false;
 		//NOTE: free the routing caches before loading a new map because
 		// to free the caches the old number of areas, number of clusters
 		// and number of areas in a clusters must be available
@@ -292,14 +292,14 @@ int AAS_LoadMap( const char *mapname ) {
 		//load the map
 		errnum = AAS_LoadFiles( this_mapname );
 		if ( errnum != BLERR_NOERROR ) {
-			( *aasworld ).loaded = qfalse;
+			( *aasworld ).loaded = false;
 			// RF, we are allowed to skip one of the files, but not both
 			//return errnum;
 			missingErrNum = errnum;
 			continue;
 		} //end if
 		  //
-		loaded = qtrue;
+		loaded = true;
 		//
 		AAS_InitSettings();
 		//initialize the AAS link heap for the new map
@@ -387,7 +387,7 @@ void AAS_Shutdown( void ) {
 		//clear the (*aasworld) structure
 		memset( &( *aasworld ), 0, sizeof( aas_t ) );
 		//aas has not been initialized
-		( *aasworld ).initialized = qfalse;
+		( *aasworld ).initialized = false;
 	}
 
 	//NOTE: as soon as a new .bsp file is loaded the .bsp file memory is

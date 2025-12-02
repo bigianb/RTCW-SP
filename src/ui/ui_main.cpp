@@ -54,10 +54,10 @@ vmCvar_t ui_WolfFirstRun;
 
 void UI_Init( void );
 void UI_Shutdown( void );
-void UI_KeyEvent( int key, qboolean down );
+void UI_KeyEvent( int key, bool down );
 void UI_MouseEvent( int dx, int dy );
 
-qboolean UI_IsFullscreen( void );
+bool UI_IsFullscreen( void );
 
 
 void AssetCache()
@@ -326,15 +326,15 @@ void UI_Shutdown( void ) {
 
 }
 
-qboolean Asset_Parse( int handle ) {
+bool Asset_Parse( int handle ) {
 	pc_token_t token;
 	const char *tempStr;
 
 	if ( !PC_ReadTokenHandle( handle, &token ) ) {
-		return qfalse;
+		return false;
 	}
 	if ( Q_stricmp( token.string, "{" ) != 0 ) {
-		return qfalse;
+		return false;
 	}
 
 	while ( 1 ) {
@@ -342,28 +342,28 @@ qboolean Asset_Parse( int handle ) {
 		memset( &token, 0, sizeof( pc_token_t ) );
 
 		if ( !PC_ReadTokenHandle( handle, &token ) ) {
-			return qfalse;
+			return false;
 		}
 
 		if ( Q_stricmp( token.string, "}" ) == 0 ) {
-			return qtrue;
+			return true;
 		}
 
 		// font
 		if ( Q_stricmp( token.string, "font" ) == 0 ) {
 			int pointSize;
 			if ( !PC_String_Parse( handle, &tempStr ) || !PC_Int_Parse( handle,&pointSize ) ) {
-				return qfalse;
+				return false;
 			}
 			trap_R_RegisterFont( tempStr, pointSize, &uiInfo.uiDC.Assets.textFont );
-			uiInfo.uiDC.Assets.fontRegistered = qtrue;
+			uiInfo.uiDC.Assets.fontRegistered = true;
 			continue;
 		}
 
 		if ( Q_stricmp( token.string, "smallFont" ) == 0 ) {
 			int pointSize;
 			if ( !PC_String_Parse( handle, &tempStr ) || !PC_Int_Parse( handle,&pointSize ) ) {
-				return qfalse;
+				return false;
 			}
 			trap_R_RegisterFont( tempStr, pointSize, &uiInfo.uiDC.Assets.smallFont );
 			continue;
@@ -372,7 +372,7 @@ qboolean Asset_Parse( int handle ) {
 		if ( Q_stricmp( token.string, "bigFont" ) == 0 ) {
 			int pointSize;
 			if ( !PC_String_Parse( handle, &tempStr ) || !PC_Int_Parse( handle,&pointSize ) ) {
-				return qfalse;
+				return false;
 			}
 			trap_R_RegisterFont( tempStr, pointSize, &uiInfo.uiDC.Assets.bigFont );
 			continue;
@@ -382,7 +382,7 @@ qboolean Asset_Parse( int handle ) {
 		if ( Q_stricmp( token.string, "handwritingFont" ) == 0 ) {
 			int pointSize;
 			if ( !PC_String_Parse( handle, &tempStr ) || !PC_Int_Parse( handle,&pointSize ) ) {
-				return qfalse;
+				return false;
 			}
 			trap_R_RegisterFont( tempStr, pointSize, &uiInfo.uiDC.Assets.handwritingFont );
 			continue;
@@ -392,7 +392,7 @@ qboolean Asset_Parse( int handle ) {
 		// gradientbar
 		if ( Q_stricmp( token.string, "gradientbar" ) == 0 ) {
 			if ( !PC_String_Parse( handle, &tempStr ) ) {
-				return qfalse;
+				return false;
 			}
 			uiInfo.uiDC.Assets.gradientBar = RE_RegisterShaderNoMip( tempStr );
 			continue;
@@ -401,7 +401,7 @@ qboolean Asset_Parse( int handle ) {
 		// enterMenuSound
 		if ( Q_stricmp( token.string, "menuEnterSound" ) == 0 ) {
 			if ( !PC_String_Parse( handle, &tempStr ) ) {
-				return qfalse;
+				return false;
 			}
 			uiInfo.uiDC.Assets.menuEnterSound = S_RegisterSound( tempStr );
 			continue;
@@ -410,7 +410,7 @@ qboolean Asset_Parse( int handle ) {
 		// exitMenuSound
 		if ( Q_stricmp( token.string, "menuExitSound" ) == 0 ) {
 			if ( !PC_String_Parse( handle, &tempStr ) ) {
-				return qfalse;
+				return false;
 			}
 			uiInfo.uiDC.Assets.menuExitSound = S_RegisterSound( tempStr );
 			continue;
@@ -419,7 +419,7 @@ qboolean Asset_Parse( int handle ) {
 		// itemFocusSound
 		if ( Q_stricmp( token.string, "itemFocusSound" ) == 0 ) {
 			if ( !PC_String_Parse( handle, &tempStr ) ) {
-				return qfalse;
+				return false;
 			}
 			uiInfo.uiDC.Assets.itemFocusSound = S_RegisterSound( tempStr );
 			continue;
@@ -428,7 +428,7 @@ qboolean Asset_Parse( int handle ) {
 		// menuBuzzSound
 		if ( Q_stricmp( token.string, "menuBuzzSound" ) == 0 ) {
 			if ( !PC_String_Parse( handle, &tempStr ) ) {
-				return qfalse;
+				return false;
 			}
 			uiInfo.uiDC.Assets.menuBuzzSound = S_RegisterSound( tempStr );
 			continue;
@@ -436,7 +436,7 @@ qboolean Asset_Parse( int handle ) {
 
 		if ( Q_stricmp( token.string, "cursor" ) == 0 ) {
 			if ( !PC_String_Parse( handle, &uiInfo.uiDC.Assets.cursorStr ) ) {
-				return qfalse;
+				return false;
 			}
 			uiInfo.uiDC.Assets.cursor = RE_RegisterShaderNoMip( uiInfo.uiDC.Assets.cursorStr );
 			continue;
@@ -444,53 +444,53 @@ qboolean Asset_Parse( int handle ) {
 
 		if ( Q_stricmp( token.string, "fadeClamp" ) == 0 ) {
 			if ( !PC_Float_Parse( handle, &uiInfo.uiDC.Assets.fadeClamp ) ) {
-				return qfalse;
+				return false;
 			}
 			continue;
 		}
 
 		if ( Q_stricmp( token.string, "fadeCycle" ) == 0 ) {
 			if ( !PC_Int_Parse( handle, &uiInfo.uiDC.Assets.fadeCycle ) ) {
-				return qfalse;
+				return false;
 			}
 			continue;
 		}
 
 		if ( Q_stricmp( token.string, "fadeAmount" ) == 0 ) {
 			if ( !PC_Float_Parse( handle, &uiInfo.uiDC.Assets.fadeAmount ) ) {
-				return qfalse;
+				return false;
 			}
 			continue;
 		}
 
 		if ( Q_stricmp( token.string, "shadowX" ) == 0 ) {
 			if ( !PC_Float_Parse( handle, &uiInfo.uiDC.Assets.shadowX ) ) {
-				return qfalse;
+				return false;
 			}
 			continue;
 		}
 
 		if ( Q_stricmp( token.string, "shadowY" ) == 0 ) {
 			if ( !PC_Float_Parse( handle, &uiInfo.uiDC.Assets.shadowY ) ) {
-				return qfalse;
+				return false;
 			}
 			continue;
 		}
 
 		if ( Q_stricmp( token.string, "shadowColor" ) == 0 ) {
 			if ( !PC_Color_Parse( handle, &uiInfo.uiDC.Assets.shadowColor ) ) {
-				return qfalse;
+				return false;
 			}
 			uiInfo.uiDC.Assets.shadowFadeClamp = uiInfo.uiDC.Assets.shadowColor[3];
 			continue;
 		}
 
 	}
-	return qfalse;
+	return false;
 }
 
 
-void UI_ParseMenu( const char *menuFile, qboolean isHud  )
+void UI_ParseMenu( const char *menuFile, bool isHud  )
 {
 	Com_Printf( "Parsing menu file:%s\n", menuFile );
 
@@ -526,27 +526,27 @@ void UI_ParseMenu( const char *menuFile, qboolean isHud  )
 	trap_PC_FreeSource( handle );
 }
 
-qboolean Load_Menu( int handle, qboolean isHud )
+bool Load_Menu( int handle, bool isHud )
 {
 	pc_token_t token;
 
 	if ( !PC_ReadTokenHandle( handle, &token ) ) {
-		return qfalse;
+		return false;
 	}
 	if ( token.string[0] != '{' ) {
-		return qfalse;
+		return false;
 	}
 
 	while ( PC_ReadTokenHandle( handle, &token ) && token.string[0] != 0) {
 		if ( token.string[0] == '}' ) {
-			return qtrue;
+			return true;
 		}
 		UI_ParseMenu( token.string, isHud );
 	}
-	return qfalse;
+	return false;
 }
 
-void LoadMenus( const char *menuFile, qboolean reset, qboolean isHud )
+void LoadMenus( const char *menuFile, bool reset, bool isHud )
 {
 	int start = Sys_Milliseconds();
 	int handle = trap_PC_LoadSource( menuFile );
@@ -613,7 +613,7 @@ static void UI_LoadTranslationStrings( void )
 	int numStrings = sizeof( translateStrings ) / sizeof( translateStrings[0] ) - 1;
 
 	for (int i = 0; i < numStrings; i++ ) {
-		const char* token = COM_ParseExt( &text, qtrue );
+		const char* token = COM_ParseExt( &text, true );
 		if ( !token[0] ) {
 			break;
 		}
@@ -639,7 +639,7 @@ void UI_Load() {
 	// load translation text
 	UI_LoadTranslationStrings();
 
-	LoadMenus( menuSet, qtrue, qfalse );
+	LoadMenus( menuSet, true, false );
 	Menus_CloseAll();
 	Menus_ActivateByName( lastName );
 }
@@ -1061,12 +1061,12 @@ void UI_OwnerDraw( float x, float y, float w, float h, float text_x, float text_
 	}
 }
 
-static qboolean UI_OwnerDrawVisible( int flags )
+static bool UI_OwnerDrawVisible( int flags )
 {
-	return qtrue;
+	return true;
 }
 
-static qboolean UI_SavegameName_HandleKey( int flags, float *special, int key )
+static bool UI_SavegameName_HandleKey( int flags, float *special, int key )
 {
 	if ( key == K_MOUSE1 || key == K_MOUSE2 || key == K_ENTER || key == K_KP_ENTER ) {
 		int i = UI_SavegameIndexFromName( ui_savegameName.string );
@@ -1087,13 +1087,13 @@ static qboolean UI_SavegameName_HandleKey( int flags, float *special, int key )
 
 		Cvar_Set( "ui_savegameName", uiInfo.savegameList[uiInfo.savegameStatus.displaySavegames[i]].savegameName );
 		Cvar_Set( "ui_savegameInfo", uiInfo.savegameList[uiInfo.savegameStatus.displaySavegames[i]].savegameInfoText );
-		return qtrue;
+		return true;
 	}
-	return qfalse;
+	return false;
 }
 
 
-static qboolean UI_Crosshair_HandleKey( int flags, float *special, int key )
+static bool UI_Crosshair_HandleKey( int flags, float *special, int key )
 {
 	if ( key == K_MOUSE1 || key == K_MOUSE2 || key == K_ENTER || key == K_KP_ENTER ) {
 		if ( key == K_MOUSE2 ) {
@@ -1108,13 +1108,13 @@ static qboolean UI_Crosshair_HandleKey( int flags, float *special, int key )
 			uiInfo.currentCrosshair = NUM_CROSSHAIRS - 1;
 		}
 		Cvar_Set( "cg_drawCrosshair", va( "%d", uiInfo.currentCrosshair ) );
-		return qtrue;
+		return true;
 	}
-	return qfalse;
+	return false;
 }
 
 
-qboolean UI_OwnerDrawHandleKey( int ownerDraw, int flags, float *special, int key )
+bool UI_OwnerDrawHandleKey( int ownerDraw, int flags, float *special, int key )
 {
 	switch ( ownerDraw ) {
 
@@ -1130,7 +1130,7 @@ qboolean UI_OwnerDrawHandleKey( int ownerDraw, int flags, float *special, int ke
 		break;
 	}
 
-	return qfalse;
+	return false;
 }
 
 
@@ -1214,7 +1214,7 @@ static int  UI_SavegamesQsortCompare( const void *arg1, const void *arg2 )
 }
 
 static void UI_FeederSelection( float feederID, int index );
-void UI_SavegameSort( int column, qboolean force )
+void UI_SavegameSort( int column, bool force )
 {
 	if ( !force ) {
 		if ( uiInfo.savegameStatus.sortKey == column ) {
@@ -1258,7 +1258,7 @@ static void UI_DelSavegame()
 		Com_Printf( "Unable to delete savegame: %s.svg\n", uiInfo.savegameList[i].savegameName );
 	}
 
-	UI_SavegameSort( uiInfo.savegameStatus.sortKey, qtrue );  // re-sort
+	UI_SavegameSort( uiInfo.savegameStatus.sortKey, true );  // re-sort
 }
 
 
@@ -1410,7 +1410,7 @@ static void UI_LoadSavegames(const char *dir )
 		}
 
 		// sort it
-		UI_SavegameSort( 0, qtrue );
+		UI_SavegameSort( 0, true );
 
 		// set current selection
 //		i = UI_SavegameIndexFromName(ui_savegameName.string);
@@ -1560,17 +1560,17 @@ static void UI_Update( const char *name ) {
 
 }
 
-static qboolean saveExists(const char* name)
+static bool saveExists(const char* name)
 {
     for (int i = 0; i < uiInfo.savegameCount; i++ ) {
         if ( Q_stricmp( name, uiInfo.savegameList[uiInfo.savegameStatus.displaySavegames[i]].savegameName ) == 0 ) {
-            return qtrue;
+            return true;
         }
     }
-    return qfalse;
+    return false;
 }
 
-static void scriptSavegame(qboolean promptOverwrite)
+static void scriptSavegame(bool promptOverwrite)
 {
     char name[MAX_NAME_LENGTH];
 
@@ -1580,7 +1580,7 @@ static void scriptSavegame(qboolean promptOverwrite)
     if ( !strnlen( name, MAX_NAME_LENGTH) ) {
         Menus_OpenByName( "save_name_popmenu" );
     } else {
-        const qboolean exists = saveExists(name);
+        const bool exists = saveExists(name);
         if (exists && promptOverwrite){
             Menus_OpenByName( "save_overwrite_popmenu" );
         } else {
@@ -1610,7 +1610,7 @@ static void UI_RunMenuScript( const char **args ) {
 		if ( Q_stricmp( name, "resetDefaults" ) == 0 ) {
             scriptResetDefaults();
 		} else if ( Q_stricmp( name, "saveControls" ) == 0 ) {
-			Controls_SetConfig( qtrue );
+			Controls_SetConfig( true );
 		} else if ( Q_stricmp( name, "loadControls" ) == 0 ) {
 			Controls_GetConfig();
 		} else if ( Q_stricmp( name, "clearError" ) == 0 ) {
@@ -1622,9 +1622,9 @@ static void UI_RunMenuScript( const char **args ) {
 			Cbuf_ExecuteText( EXEC_APPEND, va( "loadgame %s\n", uiInfo.savegameList[i].savegameFile ) );
 		} else if ( Q_stricmp( name, "Savegame" ) == 0 ) {
             // save.  throw dialog box if file exists
-            scriptSavegame(qtrue);
+            scriptSavegame(true);
 		} else if ( Q_stricmp( name, "Savegame2" ) == 0 ) {
-            scriptSavegame(qfalse); // save with no confirm for overwrite
+            scriptSavegame(false); // save with no confirm for overwrite
 		} else if ( Q_stricmp( name, "DelSavegame" ) == 0 ) {
 			int i = UI_SavegameIndexFromName2( ui_savegameName.string );
 			UI_DelSavegame();
@@ -1636,7 +1636,7 @@ static void UI_RunMenuScript( const char **args ) {
 					uiInfo.savegameStatus.sortDir = !uiInfo.savegameStatus.sortDir;
 				}
 				// make sure we sort again
-				UI_SavegameSort( sortColumn, qtrue );
+				UI_SavegameSort( sortColumn, true );
 			}
 		} else if ( Q_stricmp( name, "playerstart" ) == 0 ) {
 			Cbuf_ExecuteText( EXEC_APPEND, "fade 0 0 0 0 3\n" );    // fade screen up
@@ -1797,7 +1797,7 @@ static const char *UI_FeederItemText( float feederID, int index, int column, qha
 }
 
 
-static void UI_Pause( qboolean b )
+static void UI_Pause( bool b )
 {
 	if ( b ) {
 		// pause the game and set the ui keycatcher
@@ -1837,7 +1837,7 @@ static void UI_RunCinematicFrame( int handle ) {
 UI_KeyEvent
 =================
 */
-void UI_KeyEvent( int key, qboolean down )
+void UI_KeyEvent( int key, bool down )
 {
 	if ( Menu_Count() > 0 ) {
 		menuDef_t *menu = Menu_GetFocused();
@@ -1889,8 +1889,8 @@ void UI_LoadNonIngame()
 	if ( menuSet == NULL || menuSet[0] == '\0' ) {
 		menuSet = "ui/menus.txt";
 	}
-	LoadMenus( menuSet, qfalse, qfalse );
-	uiInfo.inGameLoad = qfalse;
+	LoadMenus( menuSet, false, false );
+	uiInfo.inGameLoad = false;
 }
 
 /*
@@ -2018,7 +2018,7 @@ void UI_SetActiveMenu( uiMenuCommand_t menu )
 	}
 }
 
-qboolean UI_IsFullscreen( void ) {
+bool UI_IsFullscreen( void ) {
 	return Menus_AnyFullScreenVisible();
 }
 
@@ -2374,8 +2374,8 @@ void UI_Init()
         menuSet = "ui/menus.txt";
     }
 
-    LoadMenus( menuSet, qtrue, qfalse );
-    LoadMenus( "ui/ingame.txt", qfalse, qfalse );
+    LoadMenus( menuSet, true, false );
+    LoadMenus( "ui/ingame.txt", false, false );
 
     Menus_CloseAll();
 

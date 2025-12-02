@@ -46,7 +46,7 @@ void DropToFloorG( gentity_t *ent ) {
 	trace_t tr;
 
 	VectorSet( dest, ent->shared.r.currentOrigin[0], ent->shared.r.currentOrigin[1], ent->shared.r.currentOrigin[2] - 4096 );
-	SV_Trace( &tr, ent->shared.r.currentOrigin, ent->shared.r.mins, ent->shared.r.maxs, dest, ent->shared.s.number, MASK_SOLID, qfalse );
+	SV_Trace( &tr, ent->shared.r.currentOrigin, ent->shared.r.mins, ent->shared.r.maxs, dest, ent->shared.s.number, MASK_SOLID, false );
 
 	if ( tr.startsolid ) {
 		return;
@@ -64,7 +64,7 @@ void DropToFloor( gentity_t *ent ) {
 	trace_t tr;
 
 	VectorSet( dest, ent->shared.r.currentOrigin[0], ent->shared.r.currentOrigin[1], ent->shared.r.currentOrigin[2] - 4096 );
-	SV_Trace( &tr, ent->shared.r.currentOrigin, ent->shared.r.mins, ent->shared.r.maxs, dest, ent->shared.s.number, MASK_SOLID, qfalse );
+	SV_Trace( &tr, ent->shared.r.currentOrigin, ent->shared.r.mins, ent->shared.r.maxs, dest, ent->shared.s.number, MASK_SOLID, false );
 
 	if ( tr.startsolid ) {
 		return;
@@ -104,7 +104,7 @@ void moveit( gentity_t *ent, float yaw, float dist ) {
 	maxs[1] = ent->shared.r.maxs[1];
 	maxs[2] = ent->shared.r.maxs[2] - .01;
 
-	SV_Trace( &tr, ent->shared.r.currentOrigin, mins, maxs, origin, ent->shared.s.number, MASK_SHOT, qfalse );
+	SV_Trace( &tr, ent->shared.r.currentOrigin, mins, maxs, origin, ent->shared.s.number, MASK_SHOT, false );
 
 	if ( ( tr.endpos[0] != origin[0] ) || ( tr.endpos[1] != origin[1] ) ) {
 		mins[0] = ent->shared.r.mins[0] - 2.0;
@@ -112,7 +112,7 @@ void moveit( gentity_t *ent, float yaw, float dist ) {
 		maxs[0] = ent->shared.r.maxs[0] + 2.0;
 		maxs[1] = ent->shared.r.maxs[1] + 2.0;
 
-		SV_Trace( &tr, ent->shared.r.currentOrigin, mins, maxs, origin, ent->shared.s.number, MASK_SHOT, qfalse );
+		SV_Trace( &tr, ent->shared.r.currentOrigin, mins, maxs, origin, ent->shared.s.number, MASK_SHOT, false );
 	}
 
 	VectorCopy( tr.endpos, ent->shared.r.currentOrigin );
@@ -549,7 +549,7 @@ void propExplosion( gentity_t *ent ) {
 void InitProp( gentity_t *ent ) {
 	float light;
 	vec3_t color;
-	qboolean lightSet, colorSet;
+	bool lightSet, colorSet;
 	const char        *sound;
 
 	if ( !Q_stricmp( ent->classname, "props_bench" ) ) {
@@ -600,7 +600,7 @@ void InitProp( gentity_t *ent ) {
 		ent->shared.s.constantLight = r | ( g << 8 ) | ( b << 16 ) | ( i << 24 );
 	}
 
-	ent->isProp = qtrue;
+	ent->isProp = true;
 
 	ent->moverState = MOVER_POS1;
 	ent->shared.s.eType = ET_MOVER;
@@ -618,7 +618,7 @@ void props_bench_think( gentity_t *ent ) {
 	{
 		ent->clipmask = 0;
 		ent->shared.r.contents = 0;
-		ent->takedamage = qfalse;
+		ent->takedamage = false;
 
 		G_UseTargets( ent, NULL );
 	}
@@ -644,7 +644,7 @@ void SP_Props_Bench( gentity_t *ent ) {
 		ent->health = 10;
 	}
 
-	ent->takedamage = qtrue;
+	ent->takedamage = true;
 
 	ent->clipmask = CONTENTS_SOLID;
 
@@ -657,7 +657,7 @@ void props_radio_die( gentity_t *ent, gentity_t *inflictor, gentity_t *attacker,
 
 	propExplosion( ent );
 
-	ent->takedamage = qfalse;
+	ent->takedamage = false;
 
 	G_UseTargets( ent, NULL );
 
@@ -684,7 +684,7 @@ void SP_Props_Radio( gentity_t *ent ) {
 		ent->health = 100;
 	}
 
-	ent->takedamage = qtrue;
+	ent->takedamage = true;
 
 	ent->die = props_radio_die;
 
@@ -704,7 +704,7 @@ void props_radio_dieSEVEN( gentity_t *ent, gentity_t *inflictor, gentity_t *atta
 
 	Prop_Break_Sound( ent );
 
-	ent->takedamage = qfalse;
+	ent->takedamage = false;
 	ent->die = NULL;
 
 	SV_LinkEntity( &ent->shared );
@@ -743,7 +743,7 @@ void SP_Props_RadioSEVEN( gentity_t *ent ) {
 		ent->health = 100;
 	}
 
-	ent->takedamage = qtrue;
+	ent->takedamage = true;
 
 	ent->die = props_radio_dieSEVEN;
 
@@ -770,7 +770,7 @@ void props_locker_tall_die( gentity_t *ent, gentity_t *inflictor, gentity_t *att
 	ent->think = locker_tall_think;
 	ent->nextthink = level.time + FRAMETIME;
 
-	ent->takedamage = qfalse;
+	ent->takedamage = false;
 
 	G_UseTargets( ent, NULL );
 }
@@ -794,7 +794,7 @@ void SP_Props_Locker_Tall( gentity_t *ent ) {
 		ent->health = 100;
 	}
 
-	ent->takedamage = qtrue;
+	ent->takedamage = true;
 
 	ent->die = props_locker_tall_die;
 
@@ -879,7 +879,7 @@ void Props_Chair_Die( gentity_t *ent, gentity_t *inflictor, gentity_t *attacker,
 void Just_Got_Thrown( gentity_t *self ) {
 	float len;
 	vec3_t vec;
-	qboolean prop_hits = qfalse;
+	bool prop_hits = false;
 
 	len = 0;
 
@@ -892,7 +892,7 @@ void Just_Got_Thrown( gentity_t *self ) {
 			player = AICast_FindEntityForName( "player" );
 
 			if ( player && player != self->enemy ) {
-				prop_hits = qtrue;
+				prop_hits = true;
 				G_Damage( self->enemy, self, player, NULL, NULL, 5, 0, MOD_CRUSH );
 
 				self->die = Props_Chair_Die;
@@ -916,12 +916,12 @@ void Just_Got_Thrown( gentity_t *self ) {
 			vec3_t end;
 			gentity_t   *traceEnt;
 			gentity_t   *player;
-			qboolean reGrab = qtrue;
+			bool reGrab = true;
 
 			VectorCopy( self->shared.r.currentOrigin, end );
 			end[2] += 1;
 
-			SV_Trace( &trace, self->shared.r.currentOrigin, self->shared.r.mins, self->shared.r.maxs, end, self->shared.s.number, MASK_SHOT, qfalse );
+			SV_Trace( &trace, self->shared.r.currentOrigin, self->shared.r.mins, self->shared.r.maxs, end, self->shared.s.number, MASK_SHOT, false );
 
 			traceEnt = &g_entities[ trace.entityNum ];
 
@@ -930,25 +930,25 @@ void Just_Got_Thrown( gentity_t *self ) {
 
 				// only player can catch
 				if ( traceEnt != player ) {
-					reGrab = qfalse;
+					reGrab = false;
 				}
 
 				// no catch when dead
 				if ( traceEnt->health <= 0 ) {
-					reGrab = qfalse;
+					reGrab = false;
 				}
 
 				// player can throw, then switch to a two handed weapon before catching.
 				// need to catch this (no pun intended)
 				if ( player->shared.s.weapon && !( WEAPS_ONE_HANDED & ( 1 << ( player->shared.s.weapon ) ) ) ) {
-					reGrab = qfalse;
+					reGrab = false;
 				}
 
 				if ( reGrab ) {
 					// pick the chair back up
-					self->active = qtrue;
+					self->active = true;
 					self->shared.r.ownerNum = player->shared.s.number;
-					player->active = qtrue;
+					player->active = true;
 					player->melee = self;
 					self->nextthink = level.time + 50;
 
@@ -1014,11 +1014,11 @@ void Props_Activated( gentity_t *self ) {
 
 	Props_TurnLightsOff( self );
 
-	if ( owner->active == qfalse ) {
+	if ( owner->active == false ) {
 
 		owner->melee = NULL;
 
-		self->physicsObject = qtrue;
+		self->physicsObject = true;
 		self->physicsBounce = 0.2;
 
 		self->shared.s.groundEntityNum = -1;
@@ -1026,7 +1026,7 @@ void Props_Activated( gentity_t *self ) {
 		self->shared.s.pos.trType = TR_GRAVITY;
 		self->shared.s.pos.trTime = level.time;
 
-		self->active = qfalse;
+		self->active = false;
 
 		G_AddEvent( owner, EV_GENERAL_SOUND, snd_chairthrow );
 
@@ -1049,12 +1049,12 @@ void Props_Activated( gentity_t *self ) {
 
 		prop->clipmask   = CONTENTS_SOLID | CONTENTS_MISSILECLIP;
 		prop->shared.r.contents = CONTENTS_SOLID;
-		prop->isProp = qtrue;
+		prop->isProp = true;
 
 		VectorSet( prop->shared.r.mins, -12, -12, 0 );
 		VectorSet( prop->shared.r.maxs, 12, 12, 48 );
 
-		prop->physicsObject = qtrue;
+		prop->physicsObject = true;
 		prop->physicsBounce = 0.2;
 
 		VectorCopy( owner->client->ps.origin, prop->shared.s.pos.trBase );
@@ -1064,7 +1064,7 @@ void Props_Activated( gentity_t *self ) {
 		prop->shared.s.pos.trType = TR_GRAVITY;
 		prop->shared.s.pos.trTime = level.time;
 
-		prop->active = qfalse;
+		prop->active = false;
 
 		prop->health = self->health;
 
@@ -1075,7 +1075,7 @@ void Props_Activated( gentity_t *self ) {
 		prop->think = Just_Got_Thrown;
 		prop->nextthink = level.time + FRAMETIME;
 
-		prop->takedamage = qtrue;
+		prop->takedamage = true;
 
 		prop->wait = self->wait;
 
@@ -1159,7 +1159,7 @@ void Props_Chair_Think( gentity_t *self ) {
 
 		mins[2] += 1;
 
-		SV_Trace( &tr, self->shared.r.currentOrigin, mins, maxs, self->shared.s.pos.trBase, self->shared.s.number, MASK_SHOT, qfalse );
+		SV_Trace( &tr, self->shared.r.currentOrigin, mins, maxs, self->shared.s.pos.trBase, self->shared.s.number, MASK_SHOT, false );
 
 		if ( tr.fraction == 1 ) {
 			VectorCopy( self->shared.s.pos.trBase, self->shared.r.currentOrigin );
@@ -1175,7 +1175,7 @@ void Props_Chair_Think( gentity_t *self ) {
 
 	if ( self->shared.s.groundEntityNum == -1 ) {
 
-		self->physicsObject = qtrue;
+		self->physicsObject = true;
 		self->physicsBounce = 0.2;
 
 		self->shared.s.pos.trDelta[2] -= 200;
@@ -1183,7 +1183,7 @@ void Props_Chair_Think( gentity_t *self ) {
 		self->shared.s.pos.trType = TR_GRAVITY;
 		self->shared.s.pos.trTime = level.time;
 
-		self->active = qfalse;
+		self->active = false;
 
 		self->think = Just_Got_Thrown;
 
@@ -1201,7 +1201,7 @@ void Props_Chair_Think( gentity_t *self ) {
 	SV_LinkEntity( &self->shared );
 }
 
-qboolean Prop_Touch( gentity_t *self, gentity_t *other, vec3_t v ) {
+bool Prop_Touch( gentity_t *self, gentity_t *other, vec3_t v ) {
 
 	vec3_t forward;
 	vec3_t dest;
@@ -1211,7 +1211,7 @@ qboolean Prop_Touch( gentity_t *self, gentity_t *other, vec3_t v ) {
 	trace_t tr;
 
 	if ( !other->client ) {
-		return qfalse;
+		return false;
 	}
 
 	vectoangles( v, angle );
@@ -1230,10 +1230,10 @@ qboolean Prop_Touch( gentity_t *self, gentity_t *other, vec3_t v ) {
 
 	mins[2] += 1;
 
-	SV_Trace( &tr, start, mins, maxs, end, self->shared.s.number, MASK_SHOT, qfalse );
+	SV_Trace( &tr, start, mins, maxs, end, self->shared.s.number, MASK_SHOT, false );
 
 	if ( tr.fraction != 1 ) {
-		return qfalse;
+		return false;
 	}
 
 	VectorCopy( dest, self->shared.s.pos.trDelta );
@@ -1243,9 +1243,9 @@ qboolean Prop_Touch( gentity_t *self, gentity_t *other, vec3_t v ) {
 	self->shared.s.pos.trTime = level.time;
 	self->shared.s.pos.trType = TR_LINEAR;
 
-	self->physicsObject = qtrue;
+	self->physicsObject = true;
 
-	return qtrue;
+	return true;
 }
 
 void Prop_Check_Ground( gentity_t *self ) {
@@ -1262,7 +1262,7 @@ void Prop_Check_Ground( gentity_t *self ) {
 	VectorCopy( self->shared.r.maxs, maxs );
 
 //	SV_Trace( &tr, start, mins, maxs, end, self->shared.s.number, MASK_SHOT );
-	SV_Trace( &tr, start, mins, maxs, end, self->shared.s.number, MASK_MISSILESHOT, qfalse );
+	SV_Trace( &tr, start, mins, maxs, end, self->shared.s.number, MASK_MISSILESHOT, false );
 
 	if ( tr.fraction == 1 ) {
 		self->shared.s.groundEntityNum = -1;
@@ -1274,7 +1274,7 @@ void Prop_Check_Ground( gentity_t *self ) {
 
 void Props_Chair_Touch( gentity_t *self, gentity_t *other, trace_t *trace ) {
 	vec3_t v;
-	qboolean has_moved;
+	bool has_moved;
 
 	if ( !other->client ) {
 		return;
@@ -1461,11 +1461,11 @@ void Props_Chair_Die( gentity_t *ent, gentity_t *inflictor, gentity_t *attacker,
 
 		if ( player && player->melee == ent ) {
 			player->melee = NULL;
-			player->active = qfalse;
+			player->active = false;
 			player->client->ps.eFlags &= ~EF_MELEE_ACTIVE;
 
 		} else if ( player && player->shared.s.number == ent->shared.r.ownerNum )     {
-			player->active = qfalse;
+			player->active = false;
 			player->melee = NULL;
 			player->client->ps.eFlags &= ~EF_MELEE_ACTIVE;
 		}
@@ -1519,10 +1519,10 @@ void Props_Chair_Skyboxtouch( gentity_t *ent ) {
 
 	if ( player && player->melee == ent ) {
 		player->melee = NULL;
-		player->active = qfalse;
+		player->active = false;
 		player->client->ps.eFlags &= ~EF_MELEE_ACTIVE;
 	} else if ( player && player->shared.s.number == ent->shared.r.ownerNum )     {
-		player->active = qfalse;
+		player->active = false;
 		player->melee = NULL;
 		player->client->ps.eFlags &= ~EF_MELEE_ACTIVE;
 	}
@@ -1548,7 +1548,7 @@ void SP_Props_Chair( gentity_t *ent ) {
 	ent->shared.r.contents = CONTENTS_SOLID;
 	ent->shared.s.eType = ET_MOVER;
 
-	ent->isProp = qtrue;
+	ent->isProp = true;
 
 	VectorSet( ent->shared.r.mins, -12, -12, 0 );
 	VectorSet( ent->shared.r.maxs, 12, 12, 48 );
@@ -1572,7 +1572,7 @@ void SP_Props_Chair( gentity_t *ent ) {
 
 	ent->touch = Props_Chair_Touch;
 	ent->die = Props_Chair_Die;
-	ent->takedamage = qtrue;
+	ent->takedamage = true;
 	SV_LinkEntity( &ent->shared );
 
 	snd_boardbreak = G_SoundIndex( "sound/world/boardbreak.wav" );
@@ -1610,7 +1610,7 @@ void SP_Props_GenericChair( gentity_t *ent ) {
 	ent->shared.r.contents = CONTENTS_SOLID;
 	ent->shared.s.eType    = ET_MOVER;
 
-	ent->isProp     = qtrue;
+	ent->isProp     = true;
 
 	VectorSet( ent->shared.r.mins, -12, -12, 0 );
 	VectorSet( ent->shared.r.maxs, 12, 12, 48 );
@@ -1633,7 +1633,7 @@ void SP_Props_GenericChair( gentity_t *ent ) {
 
 	ent->touch = Props_Chair_Touch;
 	ent->die = Props_Chair_Die;
-	ent->takedamage = qtrue;
+	ent->takedamage = true;
 	SV_LinkEntity( &ent->shared );
 
 	snd_boardbreak = G_SoundIndex( "sound/world/boardbreak.wav" );
@@ -1811,8 +1811,8 @@ void SP_Props_Desklamp( gentity_t *ent ) {
 	ent->shared.r.contents = CONTENTS_SOLID;
 	ent->shared.s.eType = ET_MOVER;
 
-	ent->isProp = qtrue;
-	ent->nopickup = qtrue;
+	ent->isProp = true;
+	ent->nopickup = true;
 
 	VectorSet( ent->shared.r.mins, -6, -6, 0 );
 	VectorSet( ent->shared.r.maxs, 6, 6, 14 );
@@ -1835,7 +1835,7 @@ void SP_Props_Desklamp( gentity_t *ent ) {
 
 	ent->touch = Props_Chair_Touch;
 	ent->die = Props_Chair_Die;
-	ent->takedamage = qtrue;
+	ent->takedamage = true;
 	SV_LinkEntity( &ent->shared );
 
 	snd_boardbreak = G_SoundIndex( "sound/world/boardbreak.wav" );
@@ -1984,7 +1984,7 @@ void Delayed_Leak_Think( gentity_t *ent ) {
 	tent->shared.s.density = ent->count;
 }
 
-qboolean validOilSlickSpawnPoint( vec3_t point, gentity_t *ent ) {
+bool validOilSlickSpawnPoint( vec3_t point, gentity_t *ent ) {
 	trace_t tr;
 	vec3_t end;
 	gentity_t *traceEnt;
@@ -1992,19 +1992,19 @@ qboolean validOilSlickSpawnPoint( vec3_t point, gentity_t *ent ) {
 	VectorCopy( point, end );
 	end[2] -= 9999;
 
-	SV_Trace( &tr, point, NULL, NULL, end, ent->shared.s.number, MASK_SHOT, qfalse );
+	SV_Trace( &tr, point, NULL, NULL, end, ent->shared.s.number, MASK_SHOT, false );
 
 	traceEnt = &g_entities[ tr.entityNum ];
 
 	if ( traceEnt && traceEnt->classname ) {
 		if ( !Q_stricmp( traceEnt->classname, "worldspawn" ) ) {
 			if ( tr.plane.normal[0] == 0 && tr.plane.normal[1] == 0 && tr.plane.normal[2] == 1 ) {
-				return qtrue;
+				return true;
 			}
 		}
 	}
 
-	return qfalse;
+	return false;
 
 }
 
@@ -2108,7 +2108,7 @@ void Props_Barrel_Die( gentity_t *ent, gentity_t *inflictor, gentity_t *attacker
 	propExplosion( ent );
 	ent->health = 0;
 
-	ent->takedamage = qfalse;
+	ent->takedamage = false;
 
 	AngleVectors( ent->shared.r.currentAngles, dir, NULL, NULL );
 	dir[2] = 1;
@@ -2184,7 +2184,7 @@ void Props_OilSlickSlippery( gentity_t *ent ) {
 }
 
 void Props_Barrel_Think( gentity_t *self ) {
-	self->active = qfalse;
+	self->active = false;
 	Props_Chair_Think( self );
 
 	if ( self->spawnflags & 8 ) { // there is an oil slick
@@ -2215,8 +2215,8 @@ void SP_Props_Flamebarrel( gentity_t *ent ) {
 	ent->shared.r.contents = CONTENTS_SOLID;
 	ent->shared.s.eType = ET_MOVER;
 
-	ent->isProp = qtrue;
-	ent->nopickup = qtrue;
+	ent->isProp = true;
+	ent->nopickup = true;
 
 	VectorSet( ent->shared.r.mins, -13, -13, 0 );
 	VectorSet( ent->shared.r.maxs, 13, 13, 36 );
@@ -2243,7 +2243,7 @@ void SP_Props_Flamebarrel( gentity_t *ent ) {
 		ent->pain = Props_Barrel_Pain;
 	}
 
-	ent->takedamage = qtrue;
+	ent->takedamage = true;
 	SV_LinkEntity( &ent->shared );
 }
 
@@ -2329,7 +2329,7 @@ void crate_die( gentity_t *ent, gentity_t *inflictor, gentity_t *attacker, int d
 
 	Spawn_Shard( ent, inflictor, quantity, type );
 
-	ent->takedamage = qfalse;
+	ent->takedamage = false;
 	ent->think = crate_animate;
 	ent->nextthink = level.time + FRAMETIME;
 	ent->touch = NULL;
@@ -2355,15 +2355,15 @@ void SP_crate_64( gentity_t *self ) {
 
 	self->shared.s.eType = ET_MOVER;
 
-	self->isProp = qtrue;
-	self->nopickup = qtrue;
+	self->isProp = true;
+	self->nopickup = true;
 	G_SetOrigin( self, self->shared.s.origin );
 	G_SetAngle( self, self->shared.s.angles );
 
 	self->touch = touch_crate_64;
 	self->die = crate_die;
 
-	self->takedamage = qtrue;
+	self->takedamage = true;
 
 	if ( !self->health ) {
 		self->health = 20;
@@ -2377,8 +2377,8 @@ void SP_crate_64( gentity_t *self ) {
 		self->wait = 10;
 	}
 
-	self->isProp = qtrue;
-	self->nopickup = qtrue;
+	self->isProp = true;
+	self->nopickup = true;
 
 	SV_LinkEntity( &self->shared );
 
@@ -2397,15 +2397,15 @@ void SP_crate_32( gentity_t *self ) {
 
 	self->shared.s.eType = ET_MOVER;
 
-	self->isProp = qtrue;
-	self->nopickup = qtrue;
+	self->isProp = true;
+	self->nopickup = true;
 	G_SetOrigin( self, self->shared.s.origin );
 	G_SetAngle( self, self->shared.s.angles );
 
 	self->touch = touch_crate_64;
 	self->die = crate_die;
 
-	self->takedamage = qtrue;
+	self->takedamage = true;
 
 	if ( !self->health ) {
 		self->health = 20;
@@ -2419,8 +2419,8 @@ void SP_crate_32( gentity_t *self ) {
 		self->wait = 10;
 	}
 
-	self->isProp = qtrue;
-	self->nopickup = qtrue;
+	self->isProp = true;
+	self->nopickup = true;
 
 	SV_LinkEntity( &self->shared );
 
@@ -2439,7 +2439,7 @@ void props_crate32x64_think( gentity_t *ent ) {
 	{
 		ent->clipmask = 0;
 		ent->shared.r.contents = 0;
-		ent->takedamage = qfalse;
+		ent->takedamage = false;
 
 		G_UseTargets( ent, NULL );
 	}
@@ -2461,7 +2461,7 @@ void SP_Props_Crate32x64( gentity_t *ent ) {
 		ent->health = 10;
 	}
 
-	ent->takedamage = qtrue;
+	ent->takedamage = true;
 
 	ent->clipmask = CONTENTS_SOLID;
 
@@ -2478,7 +2478,7 @@ slave so that the table will flip over correctly.
 */
 
 void flippy_table_use( gentity_t *ent, gentity_t *other, gentity_t *activator ) {
-	qboolean is_infront;
+	bool is_infront;
 	gentity_t   *slave;
 
 	// it would be odd to flip a table if your standing on it
@@ -2551,7 +2551,7 @@ void props_flippy_table_die( gentity_t *ent, gentity_t *inflictor, gentity_t *at
 	ent->think = flippy_table_animate;
 	ent->nextthink = level.time + FRAMETIME;
 
-	ent->takedamage = qfalse;
+	ent->takedamage = false;
 
 	G_UseTargets( ent, NULL );
 }
@@ -2641,7 +2641,7 @@ void SP_Props_Flipping_Table( gentity_t *ent ) {
 
 	ent->wait *= 1000;
 
-	//ent->takedamage = qtrue;
+	//ent->takedamage = true;
 
 	//ent->die = props_flippy_table_die;
 
@@ -2691,7 +2691,7 @@ void props_58x112tablew_think( gentity_t *ent ) {
 void props_58x112tablew_die( gentity_t *ent, gentity_t *inflictor, gentity_t *attacker, int damage, int mod ) {
 	ent->think = props_58x112tablew_think;
 	ent->nextthink = level.time + FRAMETIME;
-	ent->takedamage = qfalse;
+	ent->takedamage = false;
 }
 
 void SP_Props_58x112tablew( gentity_t *ent ) {
@@ -2704,7 +2704,7 @@ void SP_Props_58x112tablew( gentity_t *ent ) {
 		ent->health = 10;
 	}
 
-	ent->takedamage = qtrue;
+	ent->takedamage = true;
 
 	ent->clipmask = CONTENTS_SOLID;
 
@@ -2771,7 +2771,7 @@ void props_castlebed_die( gentity_t *ent, gentity_t *inflictor, gentity_t *attac
 	ent->think = props_castlebed_animate;
 	ent->nextthink = level.time + FRAMETIME;
 	ent->touch = NULL;
-	ent->takedamage = qfalse;
+	ent->takedamage = false;
 
 	ent->count = shard_wood;
 	Prop_Break_Sound( ent );
@@ -2786,7 +2786,7 @@ void SP_props_castlebed( gentity_t *ent ) {
 		ent->health = 20;
 	}
 
-	ent->takedamage = qtrue;
+	ent->takedamage = true;
 
 	ent->clipmask = CONTENTS_SOLID;
 
@@ -3170,12 +3170,12 @@ void props_decoration_animate( gentity_t *ent ) {
 			ent->shared.s.frame = ent->props_frame_state;
 
 			if ( !( ent->spawnflags & 64 ) ) {
-				ent->takedamage = qfalse;
+				ent->takedamage = false;
 			}
 		} else
 		{
 			ent->shared.s.frame = ent->count2;
-			ent->takedamage = qfalse;
+			ent->takedamage = false;
 
 			return;
 		}
@@ -3192,7 +3192,7 @@ void props_decoration_death( gentity_t *ent, gentity_t *inflictor, gentity_t *at
 		SV_LinkEntity( &ent->shared );
 	}
 
-	ent->takedamage = qfalse;
+	ent->takedamage = false;
 
 	G_UseTargets( ent, NULL );
 
@@ -3234,7 +3234,7 @@ void props_touch( gentity_t *self, gentity_t *other, trace_t *trace ) {
 void SP_props_decoration( gentity_t *ent ) {
 	float light;
 	vec3_t color;
-	qboolean lightSet, colorSet;
+	bool lightSet, colorSet;
 	const char        *sound;
 	const char        *type;
 	const char        *high;
@@ -3290,8 +3290,8 @@ void SP_props_decoration( gentity_t *ent ) {
 	}
 
 	if ( ent->health ) {
-		ent->isProp = qtrue;
-		ent->takedamage = qtrue;
+		ent->isProp = true;
+		ent->takedamage = true;
 		ent->die = props_decoration_death;
 
 		G_SpawnString( "type", "wood", &type );
@@ -3520,7 +3520,7 @@ void props_statue_blocked( gentity_t *ent ) {
 
 	VectorMA( end, dist, forward, end );
 
-	SV_Trace( &trace, start, mins, maxs, end, ent->shared.s.number, MASK_SHOT, qfalse );
+	SV_Trace( &trace, start, mins, maxs, end, ent->shared.s.number, MASK_SHOT, false );
 
 	if ( trace.surfaceFlags & SURF_NOIMPACT ) { // bogus test but just in case
 		return;
@@ -3557,20 +3557,20 @@ void props_statue_blocked( gentity_t *ent ) {
 
 void props_statue_animate( gentity_t *ent ) {
 
-	qboolean takeashot = qfalse;
+	bool takeashot = false;
 
 	ent->shared.s.frame++;
 	ent->shared.s.eType = ET_GENERAL;
 
 	if ( ent->shared.s.frame > ent->count2 ) {
 		ent->shared.s.frame = ent->count2;
-		ent->takedamage = qfalse;
+		ent->takedamage = false;
 	}
 
 	if ( ( ( ent->delay * 1000 ) + ent->timestamp ) > level.time ) {
 		ent->count = 0;
 	} else if ( ent->count == 5 )     {
-		takeashot = qtrue;
+		takeashot = true;
 		ent->count = 0;
 	} else {
 		ent->count++;
@@ -3599,7 +3599,7 @@ void props_statue_death( gentity_t *ent, gentity_t *inflictor, gentity_t *attack
 		SV_LinkEntity( &ent->shared );
 	}
 
-	ent->takedamage = qfalse;
+	ent->takedamage = false;
 
 	G_UseTargets( ent, NULL );
 
@@ -3624,7 +3624,7 @@ void props_statue_touch( gentity_t *self, gentity_t *other, trace_t *trace ) {
 void SP_props_statue( gentity_t *ent ) {
 	float light;
 	vec3_t color;
-	qboolean lightSet, colorSet;
+	bool lightSet, colorSet;
 	const char        *sound;
 	const char        *type;
 	const char        *high;
@@ -3667,8 +3667,8 @@ void SP_props_statue( gentity_t *ent ) {
 		ent->shared.s.constantLight = r | ( g << 8 ) | ( b << 16 ) | ( i << 24 );
 	}
 
-	ent->isProp = qtrue;
-	ent->takedamage = qtrue;
+	ent->isProp = true;
+	ent->takedamage = true;
 	ent->die = props_statue_death;
 
 	G_SpawnString( "type", "wood", &type );
@@ -3833,8 +3833,8 @@ void props_locker_pain( gentity_t *ent, gentity_t *attacker, int damage, vec3_t 
 
 
 void init_locker( gentity_t *ent ) {
-	ent->isProp = qtrue;
-	ent->takedamage = qtrue;
+	ent->isProp = true;
+	ent->takedamage = true;
 	ent->delay = 0;
 
 	ent->clipmask   = CONTENTS_SOLID;
@@ -3875,7 +3875,7 @@ void props_locker_spawn_item( gentity_t *ent ) {
 		return;
 	}
 
-//	drop = Drop_Item (ent, item, 0, qtrue);
+//	drop = Drop_Item (ent, item, 0, true);
 	drop = LaunchItem( item, ent->shared.r.currentOrigin, tv( 0, 0, 20 ) );
 
 
@@ -3949,7 +3949,7 @@ props_locker_death
 ==============
 */
 void props_locker_death( gentity_t *ent, gentity_t *inflictor, gentity_t *attacker, int damage, int mod ) {
-	ent->takedamage = qfalse;
+	ent->takedamage = false;
 	ent->shared.s.frame = 2;   // opening animation
 	ent->think = 0;
 	ent->nextthink = 0;

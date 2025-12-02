@@ -80,7 +80,7 @@ void SP_ai_marker( gentity_t *ent ) {
 		// drop to floor
 		ent->shared.r.currentOrigin[2] += 1.0; // fixes QErad -> engine bug?
 		VectorSet( dest, ent->shared.r.currentOrigin[0], ent->shared.r.currentOrigin[1], ent->shared.r.currentOrigin[2] - 4096 );
-		SV_Trace( &tr, ent->shared.r.currentOrigin, checkMins, checkMaxs, dest, ent->shared.s.number, MASK_PLAYERSOLID | CONTENTS_MONSTERCLIP, qfalse );
+		SV_Trace( &tr, ent->shared.r.currentOrigin, checkMins, checkMaxs, dest, ent->shared.s.number, MASK_PLAYERSOLID | CONTENTS_MONSTERCLIP, false );
 
 		if ( tr.startsolid ) {
 			Com_Printf( "WARNING: ai_marker (%s) in solid at %s\n", ent->targetname, vtos( ent->shared.r.currentOrigin ) );

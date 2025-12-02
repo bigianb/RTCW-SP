@@ -66,7 +66,7 @@ static int c_begins;
 static void R_DrawStripElements( int numIndexes, const glIndex_t *indexes, void ( APIENTRY *element )( GLint ) ) {
 	int i;
 	int last[3] = { -1, -1, -1 };
-	qboolean even;
+	bool even;
 
 	c_begins++;
 
@@ -86,7 +86,7 @@ static void R_DrawStripElements( int numIndexes, const glIndex_t *indexes, void 
 	last[1] = indexes[1];
 	last[2] = indexes[2];
 
-	even = qfalse;
+	even = false;
 
 	for ( i = 3; i < numIndexes; i += 3 )
 	{
@@ -97,7 +97,7 @@ static void R_DrawStripElements( int numIndexes, const glIndex_t *indexes, void 
 				element( indexes[i + 2] );
 				c_vertexes++;
 				assert( indexes[i + 2] < tess.numVertexes );
-				even = qtrue;
+				even = true;
 			}
 			// otherwise we're done with this strip so finish it and start
 			// a new one
@@ -114,7 +114,7 @@ static void R_DrawStripElements( int numIndexes, const glIndex_t *indexes, void 
 
 				c_vertexes += 3;
 
-				even = qfalse;
+				even = false;
 			}
 		} else
 		{
@@ -123,7 +123,7 @@ static void R_DrawStripElements( int numIndexes, const glIndex_t *indexes, void 
 				element( indexes[i + 2] );
 				c_vertexes++;
 
-				even = qfalse;
+				even = false;
 			}
 			// otherwise we're done with this strip so finish it and start
 			// a new one
@@ -139,7 +139,7 @@ static void R_DrawStripElements( int numIndexes, const glIndex_t *indexes, void 
 				element( indexes[i + 2] );
 				c_vertexes += 3;
 
-				even = qfalse;
+				even = false;
 			}
 		}
 
@@ -209,7 +209,7 @@ SURFACE SHADERS
 */
 
 shaderCommands_t tess;
-static qboolean setArraysOnce;
+static bool setArraysOnce;
 
 /*
 =================
@@ -752,7 +752,7 @@ static void ComputeColors( shaderStage_t *pStage ) {
 	{
 		float alpha, range, lowest, highest, dot;
 		vec3_t worldUp;
-		qboolean zombieEffect = qfalse;
+		bool zombieEffect = false;
 
 		if ( VectorCompare( backEnd.currentEntity->e.fireRiseDir, vec3_origin ) ) {
 			VectorSet( backEnd.currentEntity->e.fireRiseDir, 0, 0, 1 );
@@ -767,12 +767,12 @@ static void ComputeColors( shaderStage_t *pStage ) {
 		lowest = pStage->zFadeBounds[0];
 		if ( lowest == -1000 ) {    // use entity alpha
 			lowest = backEnd.currentEntity->e.shaderTime;
-			zombieEffect = qtrue;
+			zombieEffect = true;
 		}
 		highest = pStage->zFadeBounds[1];
 		if ( highest == -1000 ) {   // use entity alpha
 			highest = backEnd.currentEntity->e.shaderTime;
-			zombieEffect = qtrue;
+			zombieEffect = true;
 		}
 		range = highest - lowest;
 		for ( i = 0; i < tess.numVertexes; i++ ) {
@@ -1182,12 +1182,12 @@ void RB_StageIteratorGeneric( void ) {
 	// during multipass rendering
 	//
 	if ( tess.numPasses > 1 || input->shader->multitextureEnv ) {
-		setArraysOnce = qfalse;
+		setArraysOnce = false;
 		qglDisableClientState( GL_COLOR_ARRAY );
 		qglDisableClientState( GL_TEXTURE_COORD_ARRAY );
 	} else
 	{
-		setArraysOnce = qtrue;
+		setArraysOnce = true;
 
 		qglEnableClientState( GL_COLOR_ARRAY );
 		qglColorPointer( 4, GL_UNSIGNED_BYTE, 0, tess.svars.colors );

@@ -126,7 +126,7 @@ void RB_CalcDeformVertexes( deformStage_t *ds ) {
 
 	// Ridah
 	if ( ds->deformationWave.frequency < 0 ) {
-		qboolean inverse = qfalse;
+		bool inverse = false;
 		vec3_t worldUp;
 		//static vec3_t up = {0,0,1};
 
@@ -145,7 +145,7 @@ void RB_CalcDeformVertexes( deformStage_t *ds ) {
 
 		ds->deformationWave.frequency *= -1;
 		if ( ds->deformationWave.frequency > 999 ) {  // hack for negative Z deformation (ack)
-			inverse = qtrue;
+			inverse = true;
 			ds->deformationWave.frequency -= 999;
 		}
 
@@ -855,7 +855,7 @@ void RB_CalcFogTexCoords( float *st ) {
 	float       *v;
 	float s, t;
 	float eyeT;
-	qboolean eyeOutside;
+	bool eyeOutside;
 	fog_t       *fog;
 	vec3_t local;
 	vec4_t fogDistanceVector, fogDepthVector;
@@ -894,9 +894,9 @@ void RB_CalcFogTexCoords( float *st ) {
 	// this is needed for clipping distance even for constant fog
 
 	if ( eyeT < 0 ) {
-		eyeOutside = qtrue;
+		eyeOutside = true;
 	} else {
-		eyeOutside = qfalse;
+		eyeOutside = false;
 	}
 
 	fogDistanceVector[3] += 1.0 / 512;

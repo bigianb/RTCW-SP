@@ -29,7 +29,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "../client/snd_local.h"
 #include "../client/client.h"
 
-qboolean snd_inited = qfalse;
+bool snd_inited = false;
 
 cvar_t *s_sdlBits;
 cvar_t *s_sdlSpeed;
@@ -97,7 +97,7 @@ static void SNDDMA_PrintAudiospec(const char *str, const SDL_AudioSpec *spec)
 SNDDMA_Init
 ===============
 */
-qboolean SNDDMA_Init(void)
+bool SNDDMA_Init(void)
 {
 	SDL_AudioSpec desired;
 	SDL_AudioSpec obtained;
@@ -105,7 +105,7 @@ qboolean SNDDMA_Init(void)
 	int tmp;
 
 	if (snd_inited)
-		return qtrue;
+		return true;
 
 	if (!s_sdlBits) {
 		s_sdlBits = Cvar_Get("s_sdlBits", "16", CVAR_ARCHIVE);
@@ -120,7 +120,7 @@ qboolean SNDDMA_Init(void)
 	if (!SDL_Init(SDL_INIT_AUDIO))
 	{
 		Com_Printf( "SDL_Init( SDL_INIT_AUDIO ) FAILED (%s)\n", SDL_GetError( ) );
-		return qfalse;
+		return false;
 	}
 
 	Com_DPrintf( "OK\n" );
@@ -136,8 +136,8 @@ qboolean SNDDMA_Init(void)
 
 
 	Com_Printf("SDL audio initialized.\n");
-	snd_inited = qtrue;
-	return qtrue;
+	snd_inited = true;
+	return true;
 }
 
 /*
@@ -157,7 +157,7 @@ SNDDMA_Shutdown
 */
 void SNDDMA_Shutdown(void)
 {
-	snd_inited = qfalse;
+	snd_inited = false;
 	Com_Printf("SDL audio shut down.\n");
 }
 

@@ -194,17 +194,17 @@ Redirect all printfs
 */
 void SVC_RemoteCommand( netadr_t from, msg_t *msg )
 {
-	qboolean valid;
+	bool valid;
 
 	char remaining[1024];
 #define SV_OUTPUTBUF_LENGTH ( MAX_MSGLEN - 16 )
 	char sv_outputbuf[SV_OUTPUTBUF_LENGTH];
 
 	if ( !strlen( sv_rconPassword->string ) || strcmp( Cmd_Argv( 1 ), sv_rconPassword->string ) ) {
-		valid = qfalse;
+		valid = false;
 		Com_DPrintf( "Bad rcon from %s:\n%s\n", NET_AdrToString( from ), Cmd_Argv( 2 ) );
 	} else {
-		valid = qtrue;
+		valid = true;
 		Com_DPrintf( "Rcon from %s:\n%s\n", NET_AdrToString( from ), Cmd_Argv( 2 ) );
 	}
 
@@ -385,10 +385,10 @@ void SV_CheckTimeouts()
 SV_CheckPaused
 ==================
 */
-qboolean SV_CheckPaused()
+bool SV_CheckPaused()
 {
 	if ( !cl_paused->integer ) {
-		return qfalse;
+		return false;
 	}
 
 	// only pause if there is just a single client connected
@@ -403,11 +403,11 @@ qboolean SV_CheckPaused()
 	if ( count > 1 ) {
 		// don't pause
 		sv_paused->integer = 0;
-		return qfalse;
+		return false;
 	}
 
 	sv_paused->integer = 1;
-	return qtrue;
+	return true;
 }
 
 /*

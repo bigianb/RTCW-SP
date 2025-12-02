@@ -96,7 +96,7 @@ void Enable_Trigger_Touch( gentity_t *ent ) {
 	int entTemp1, entTemp2;
 	vec3_t dir, forward, kvel;
 	float angle;
-	qboolean thisone = qfalse;
+	bool thisone = false;
 
 
 	// ent->touch = Touch_Multi;
@@ -133,14 +133,14 @@ void Enable_Trigger_Touch( gentity_t *ent ) {
 
 		SV_LinkEntity( &targ->shared );
 
-		SV_Trace( &tr, targ->client->ps.origin, targ->shared.r.mins, targ->shared.r.maxs, targ->client->ps.origin, targ->shared.s.number, mask, qfalse );
+		SV_Trace( &tr, targ->client->ps.origin, targ->shared.r.mins, targ->shared.r.maxs, targ->client->ps.origin, targ->shared.s.number, mask, false );
 
 		if ( tr.startsolid ) {
 			daent = &g_entities[ tr.entityNum ];
 
 			if ( daent == ent ) { // wooo hooo
 				multi_trigger( ent, targ );
-				thisone = qtrue;
+				thisone = true;
 			}
 		}
 
@@ -774,7 +774,7 @@ void gas_touch( gentity_t *ent, gentity_t *other, trace_t *trace ) {
 		damage = 5;
 	}
 
-	SV_Trace( &tr, ent->shared.r.currentOrigin, NULL, NULL, other->shared.r.currentOrigin, ent->shared.s.number, MASK_SHOT, qfalse );
+	SV_Trace( &tr, ent->shared.r.currentOrigin, NULL, NULL, other->shared.r.currentOrigin, ent->shared.s.number, MASK_SHOT, false );
 
 	if ( tr.surfaceFlags & SURF_NOIMPACT ) {
 		return;

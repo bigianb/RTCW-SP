@@ -132,7 +132,7 @@ short MuLawDecode( byte uLaw ) {
 }
 
 short mulawToShort[256];
-static qboolean madeTable = qfalse;
+static bool madeTable = false;
 
 static int NXStreamCount;
 
@@ -151,7 +151,7 @@ void encodeWavelet( sfx_t *sfx, short *packets ) {
 		for ( i = 0; i < 256; i++ ) {
 			mulawToShort[i] = (float)MuLawDecode( (byte)i );
 		}
-		madeTable = qtrue;
+		madeTable = true;
 	}
 	chunk = NULL;
 
@@ -228,7 +228,7 @@ void encodeMuLaw( sfx_t *sfx, short *packets ) {
 		for ( i = 0; i < 256; i++ ) {
 			mulawToShort[i] = (float)MuLawDecode( (byte)i );
 		}
-		madeTable = qtrue;
+		madeTable = true;
 	}
 
 	chunk = NULL;

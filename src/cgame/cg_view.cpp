@@ -568,14 +568,14 @@ void CG_Zoom( void ) {
 		if ( cg.zoomedBinoc ) {
 			return;
 		}
-		cg.zoomedBinoc  = qtrue;
+		cg.zoomedBinoc  = true;
 		cg.zoomTime = cg.time;
 		cg.zoomval = cg_zoomDefaultBinoc.value;
 	} else {
 		if ( !cg.zoomedBinoc ) {
 			return;
 		}
-		cg.zoomedBinoc  = qfalse;
+		cg.zoomedBinoc  = false;
 		cg.zoomTime = cg.time;
 
 		// check for scope wepon in use, and switch to if necessary
@@ -612,17 +612,17 @@ static int CG_CalcFov( void ) {
 	float zoomFov;
 	float f;
 	int inwater;
-	qboolean dead;
+	bool dead;
 
 	CG_Zoom();
 
 	if ( cg.predictedPlayerState.stats[STAT_HEALTH] <= 0 ) {
-		dead = qtrue;
-		cg.zoomedBinoc = qfalse;
+		dead = true;
+		cg.zoomedBinoc = false;
 		cg.zoomTime = 0;
 		cg.zoomval = 0;
 	} else {
-		dead = qfalse;
+		dead = false;
 	}
 
 	if ( cg.predictedPlayerState.pm_type == PM_INTERMISSION ) {
@@ -698,11 +698,11 @@ static int CG_CalcFov( void ) {
 		v = WAVE_AMPLITUDE * sin( phase );
 		fov_x += v;
 		fov_y -= v;
-		inwater = qtrue;
+		inwater = true;
 		cg.refdef.rdflags |= RDF_UNDERWATER;
 	} else {
 		cg.refdef.rdflags &= ~RDF_UNDERWATER;
-		inwater = qfalse;
+		inwater = false;
 	}
 
 	contents = CG_PointContents( cg.refdef.vieworg, -1 );
@@ -761,7 +761,7 @@ static void CG_DamageBlendBlob( void ) {
 	int t,i;
 	int maxTime;
 	refEntity_t ent;
-	qboolean pointDamage;
+	bool pointDamage;
 	viewDamage_t *vd;
 	float redFlash;
 
@@ -787,7 +787,7 @@ static void CG_DamageBlendBlob( void ) {
 			continue;
 		}
 
-		pointDamage = !( !vd->damageX && !vd->damageY ) ? qtrue : qfalse;
+		pointDamage = !( !vd->damageX && !vd->damageY );
 
 		// if not point Damage, only do flash blend
 		if ( !pointDamage ) {
@@ -858,7 +858,7 @@ static int CG_CalcViewValues( void ) {
 			return 0;
 
 		} else {
-			cg.cameraMode = qfalse;                 // camera off in cgame
+			cg.cameraMode = false;                 // camera off in cgame
 			Cvar_Set( "cg_letterbox", "0" );
 			CL_AddReliableCommand( "stopCamera" );    // camera off in game
 			trap_stopCamera( CAM_PRIMARY );           // camera off in client
@@ -988,7 +988,7 @@ void CG_DrawSkyBoxPortal( void ) {
 	char *token;
 	float zoomFov;
 	float f;
-	static qboolean foginited = qfalse; // only set the portal fog values once
+	static bool foginited = false; // only set the portal fog values once
 
 	if ( !( cstr = CG_ConfigString( CS_SKYBOXORG ) ) || !strlen( cstr ) ) {
 		// no skybox in this map
@@ -1003,28 +1003,28 @@ void CG_DrawSkyBoxPortal( void ) {
 	backuprefdef = cg.refdef;
 
 	if ( cg_skybox.integer ) {
-		token = COM_ParseExt( &cstr, qfalse );
+		token = COM_ParseExt( &cstr, false );
 		if ( !token || !token[0] ) {
 			Com_Error( ERR_DROP, "CG_DrawSkyBoxPortal: error parsing skybox configstring\n" );
             return;  // Keep linter happy. ERR_DROP does not return
 		}
 		cg.refdef.vieworg[0] = atof( token );
 
-		token = COM_ParseExt( &cstr, qfalse );
+		token = COM_ParseExt( &cstr, false );
 		if ( !token || !token[0] ) {
 			Com_Error( ERR_DROP, "CG_DrawSkyBoxPortal: error parsing skybox configstring\n" );
             return;  // Keep linter happy. ERR_DROP does not return
 		}
 		cg.refdef.vieworg[1] = atof( token );
 
-		token = COM_ParseExt( &cstr, qfalse );
+		token = COM_ParseExt( &cstr, false );
 		if ( !token || !token[0] ) {
 			Com_Error( ERR_DROP, "CG_DrawSkyBoxPortal: error parsing skybox configstring\n" );
             return;  // Keep linter happy. ERR_DROP does not return
 		}
 		cg.refdef.vieworg[2] = atof( token );
 
-		token = COM_ParseExt( &cstr, qfalse );
+		token = COM_ParseExt( &cstr, false );
 		if ( !token || !token[0] ) {
 			Com_Error( ERR_DROP, "CG_DrawSkyBoxPortal: error parsing skybox configstring\n" );
             return;  // Keep linter happy. ERR_DROP does not return
@@ -1037,7 +1037,7 @@ void CG_DrawSkyBoxPortal( void ) {
 
 
 		// setup fog the first time, ignore this part of the configstring after that
-		token = COM_ParseExt( &cstr, qfalse );
+		token = COM_ParseExt( &cstr, false );
 		if ( !token || !token[0] ) {
 			Com_Error( ERR_DROP, "CG_DrawSkyBoxPortal: error parsing skybox configstring.  No fog state\n" );
             return;  // Keep linter happy. ERR_DROP does not return
@@ -1048,35 +1048,35 @@ void CG_DrawSkyBoxPortal( void ) {
 			if ( atoi( token ) ) {   // this camera has fog
 				//			if(!foginited) {
 				if ( 1 ) {
-					token = COM_ParseExt( &cstr, qfalse );
+					token = COM_ParseExt( &cstr, false );
 					if ( !token || !token[0] ) {
 						Com_Error( ERR_DROP, "CG_DrawSkyBoxPortal: error parsing skybox configstring.  No fog[0]\n" );
                         return;  // Keep linter happy. ERR_DROP does not return
 					}
 					fogColor[0] = atof( token );
 
-					token = COM_ParseExt( &cstr, qfalse );
+					token = COM_ParseExt( &cstr, false );
 					if ( !token || !token[0] ) {
 						Com_Error( ERR_DROP, "CG_DrawSkyBoxPortal: error parsing skybox configstring.  No fog[1]\n" );
                         return;  // Keep linter happy. ERR_DROP does not return
 					}
 					fogColor[1] = atof( token );
 
-					token = COM_ParseExt( &cstr, qfalse );
+					token = COM_ParseExt( &cstr, false );
 					if ( !token || !token[0] ) {
 						Com_Error( ERR_DROP, "CG_DrawSkyBoxPortal: error parsing skybox configstring.  No fog[2]\n" );
                         return;  // Keep linter happy. ERR_DROP does not return
 					}
 					fogColor[2] = atof( token );
 
-					token = COM_ParseExt( &cstr, qfalse );
+					token = COM_ParseExt( &cstr, false );
 					if ( !token || !token[0] ) {
 						fogStart = 0;
 					} else {
 						fogStart = atoi( token );
 					}
 
-					token = COM_ParseExt( &cstr, qfalse );
+					token = COM_ParseExt( &cstr, false );
 					if ( !token || !token[0] ) {
 						fogEnd = 0;
 					} else {
@@ -1084,12 +1084,12 @@ void CG_DrawSkyBoxPortal( void ) {
 					}
 
 					trap_R_SetFog( FOG_PORTALVIEW, fogStart, fogEnd, fogColor[0], fogColor[1], fogColor[2], 1.1 );
-					foginited = qtrue;
+					foginited = true;
 				}
 			} else {
 				if ( !foginited ) {
 					trap_R_SetFog( FOG_PORTALVIEW, 0,0,0,0,0,0 ); // init to null
-					foginited = qtrue;
+					foginited = true;
 				}
 			}
 		}
@@ -1262,7 +1262,7 @@ void CG_DrawActiveFrame( int serverTime, stereoFrame_t stereoView) {
 	CG_PredictPlayerState();
 
 	// decide on third person view
-	cg.renderingThirdPerson = cg_thirdPerson.integer ? qtrue : qfalse;
+	cg.renderingThirdPerson = cg_thirdPerson.integer;
 
 	// build cg.refdef
 	inwater = CG_CalcViewValues();

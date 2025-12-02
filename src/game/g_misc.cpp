@@ -310,8 +310,8 @@ void grabber_wake( gentity_t *ent ) {
 	{
 		parent->clipmask    = CONTENTS_SOLID;
 		parent->shared.r.contents  = CONTENTS_SOLID;
-		parent->takedamage  = qtrue;
-		parent->active      = qtrue;
+		parent->takedamage  = true;
+		parent->active      = true;
 		parent->die         = grabber_die;
 		parent->pain        = grabber_pain;
 		SV_LinkEntity( &parent->shared );
@@ -473,7 +473,7 @@ void spotlight_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, 
 
 	self->shared.s.time2 = level.time;
 	self->shared.s.frame   = 1;    // 1 == dead
-	self->takedamage = qfalse;;
+	self->takedamage = false;;
 
 //	G_AddEvent( self, EV_ENTDEATH, 0 );
 }
@@ -489,7 +489,7 @@ void spotlight_finish_spawning( gentity_t *ent ) {
 	if ( !ent->health ) {
 		ent->health = 1;
 	}
-	ent->takedamage = qtrue;
+	ent->takedamage = true;
 	ent->think      = 0;
 	ent->nextthink  = 0;
 	ent->shared.s.frame    = 0;
@@ -525,7 +525,7 @@ void SP_misc_spotlight( gentity_t *ent ) {
 //		ent->shared.s.modelindex	= G_ModelIndex("models/mapobjects/light/searchlight_pivot.md3");
 
 	if ( ent->target ) {
-		ent->shared.s.density = G_FindConfigstringIndex( ent->target, CS_SPLINES, MAX_SPLINE_CONFIGSTRINGS, qtrue );
+		ent->shared.s.density = G_FindConfigstringIndex( ent->target, CS_SPLINES, MAX_SPLINE_CONFIGSTRINGS, true );
 	}
 
 }
@@ -1246,7 +1246,7 @@ dlight_finish_spawning
 ==============
 */
 void dlight_finish_spawning( gentity_t *ent ) {
-	G_FindConfigstringIndex( va( "%i %s %i %i %i", ent->shared.s.number, ent->dl_stylestring, ent->health, ent->soundLoop, ent->dl_atten ), CS_DLIGHTS, MAX_DLIGHT_CONFIGSTRINGS, qtrue );
+	G_FindConfigstringIndex( va( "%i %s %i %i %i", ent->shared.s.number, ent->dl_stylestring, ent->health, ent->soundLoop, ent->dl_atten ), CS_DLIGHTS, MAX_DLIGHT_CONFIGSTRINGS, true );
 }
 
 static int dlightstarttime = 0;
@@ -1432,7 +1432,7 @@ health = density defaults to 32
 void snowInPVS( gentity_t *ent ) {
 	gentity_t *tent;
 	gentity_t *player;
-	qboolean inPVS = qfalse;
+	bool inPVS = false;
 	int oldactive;
 
 	oldactive = ent->active;
@@ -1445,9 +1445,9 @@ void snowInPVS( gentity_t *ent ) {
 		inPVS = SV_inPVS( player->shared.r.currentOrigin, ent->shared.r.currentOrigin );
 
 		if ( inPVS ) {
-			ent->active = qtrue;
+			ent->active = true;
 		} else {
-			ent->active = qfalse;
+			ent->active = false;
 		}
 	} else {
 		return;
@@ -1484,7 +1484,7 @@ void snow_think( gentity_t *ent ) {
 		dest[2] -= 8192;
 	}
 
-	SV_Trace( &tr, ent->shared.s.origin, NULL, NULL, dest, ent->shared.s.number, MASK_SHOT, qfalse );
+	SV_Trace( &tr, ent->shared.s.origin, NULL, NULL, dest, ent->shared.s.number, MASK_SHOT, false );
 
 	if ( ent->spawnflags & 1 ) {
 		turb = 1;
@@ -1493,21 +1493,21 @@ void snow_think( gentity_t *ent ) {
 	}
 
 	if ( !Q_stricmp( ent->classname, "misc_snow256" ) ) {
-		G_FindConfigstringIndex( va( "%i %.2f %.2f %.2f %.2f %.2f %.2f %i %i %i", PARTICLE_SNOW256, ent->shared.s.origin[0], ent->shared.s.origin[1], ent->shared.s.origin[2], tr.endpos[0], tr.endpos[1], tr.endpos[2], ent->health, turb, ent->shared.s.number ), CS_PARTICLES, MAX_PARTICLES_AREAS, qtrue );
+		G_FindConfigstringIndex( va( "%i %.2f %.2f %.2f %.2f %.2f %.2f %i %i %i", PARTICLE_SNOW256, ent->shared.s.origin[0], ent->shared.s.origin[1], ent->shared.s.origin[2], tr.endpos[0], tr.endpos[1], tr.endpos[2], ent->health, turb, ent->shared.s.number ), CS_PARTICLES, MAX_PARTICLES_AREAS, true );
 	} else if ( !Q_stricmp( ent->classname, "misc_snow128" ) )       {
-		G_FindConfigstringIndex( va( "%i %.2f %.2f %.2f %.2f %.2f %.2f %i %i %i", PARTICLE_SNOW128, ent->shared.s.origin[0], ent->shared.s.origin[1], ent->shared.s.origin[2], tr.endpos[0], tr.endpos[1], tr.endpos[2], ent->health, turb, ent->shared.s.number ), CS_PARTICLES, MAX_PARTICLES_AREAS, qtrue );
+		G_FindConfigstringIndex( va( "%i %.2f %.2f %.2f %.2f %.2f %.2f %i %i %i", PARTICLE_SNOW128, ent->shared.s.origin[0], ent->shared.s.origin[1], ent->shared.s.origin[2], tr.endpos[0], tr.endpos[1], tr.endpos[2], ent->health, turb, ent->shared.s.number ), CS_PARTICLES, MAX_PARTICLES_AREAS, true );
 	} else if ( !Q_stricmp( ent->classname, "misc_snow64" ) )       {
-		G_FindConfigstringIndex( va( "%i %.2f %.2f %.2f %.2f %.2f %.2f %i %i %i", PARTICLE_SNOW64, ent->shared.s.origin[0], ent->shared.s.origin[1], ent->shared.s.origin[2], tr.endpos[0], tr.endpos[1], tr.endpos[2], ent->health, turb, ent->shared.s.number ), CS_PARTICLES, MAX_PARTICLES_AREAS, qtrue );
+		G_FindConfigstringIndex( va( "%i %.2f %.2f %.2f %.2f %.2f %.2f %i %i %i", PARTICLE_SNOW64, ent->shared.s.origin[0], ent->shared.s.origin[1], ent->shared.s.origin[2], tr.endpos[0], tr.endpos[1], tr.endpos[2], ent->health, turb, ent->shared.s.number ), CS_PARTICLES, MAX_PARTICLES_AREAS, true );
 	} else if ( !Q_stricmp( ent->classname, "misc_snow32" ) )       {
-		G_FindConfigstringIndex( va( "%i %.2f %.2f %.2f %.2f %.2f %.2f %i %i %i", PARTICLE_SNOW32, ent->shared.s.origin[0], ent->shared.s.origin[1], ent->shared.s.origin[2], tr.endpos[0], tr.endpos[1], tr.endpos[2], ent->health, turb, ent->shared.s.number ), CS_PARTICLES, MAX_PARTICLES_AREAS, qtrue );
+		G_FindConfigstringIndex( va( "%i %.2f %.2f %.2f %.2f %.2f %.2f %i %i %i", PARTICLE_SNOW32, ent->shared.s.origin[0], ent->shared.s.origin[1], ent->shared.s.origin[2], tr.endpos[0], tr.endpos[1], tr.endpos[2], ent->health, turb, ent->shared.s.number ), CS_PARTICLES, MAX_PARTICLES_AREAS, true );
 	} else if ( !Q_stricmp( ent->classname, "misc_bubbles8" ) )       {
-		G_FindConfigstringIndex( va( "%i %.2f %.2f %.2f %.2f %.2f %.2f %i %i %i", PARTICLE_BUBBLE8, ent->shared.s.origin[0], ent->shared.s.origin[1], ent->shared.s.origin[2], tr.endpos[0], tr.endpos[1], tr.endpos[2], ent->health, turb, ent->shared.s.number ), CS_PARTICLES, MAX_PARTICLES_AREAS, qtrue );
+		G_FindConfigstringIndex( va( "%i %.2f %.2f %.2f %.2f %.2f %.2f %i %i %i", PARTICLE_BUBBLE8, ent->shared.s.origin[0], ent->shared.s.origin[1], ent->shared.s.origin[2], tr.endpos[0], tr.endpos[1], tr.endpos[2], ent->health, turb, ent->shared.s.number ), CS_PARTICLES, MAX_PARTICLES_AREAS, true );
 	} else if ( !Q_stricmp( ent->classname, "misc_bubbles16" ) )       {
-		G_FindConfigstringIndex( va( "%i %.2f %.2f %.2f %.2f %.2f %.2f %i %i %i", PARTICLE_BUBBLE16, ent->shared.s.origin[0], ent->shared.s.origin[1], ent->shared.s.origin[2], tr.endpos[0], tr.endpos[1], tr.endpos[2], ent->health, turb, ent->shared.s.number ), CS_PARTICLES, MAX_PARTICLES_AREAS, qtrue );
+		G_FindConfigstringIndex( va( "%i %.2f %.2f %.2f %.2f %.2f %.2f %i %i %i", PARTICLE_BUBBLE16, ent->shared.s.origin[0], ent->shared.s.origin[1], ent->shared.s.origin[2], tr.endpos[0], tr.endpos[1], tr.endpos[2], ent->health, turb, ent->shared.s.number ), CS_PARTICLES, MAX_PARTICLES_AREAS, true );
 	} else if ( !Q_stricmp( ent->classname, "misc_bubbles32" ) )       {
-		G_FindConfigstringIndex( va( "%i %.2f %.2f %.2f %.2f %.2f %.2f %i %i %i", PARTICLE_BUBBLE32, ent->shared.s.origin[0], ent->shared.s.origin[1], ent->shared.s.origin[2], tr.endpos[0], tr.endpos[1], tr.endpos[2], ent->health, turb, ent->shared.s.number ), CS_PARTICLES, MAX_PARTICLES_AREAS, qtrue );
+		G_FindConfigstringIndex( va( "%i %.2f %.2f %.2f %.2f %.2f %.2f %i %i %i", PARTICLE_BUBBLE32, ent->shared.s.origin[0], ent->shared.s.origin[1], ent->shared.s.origin[2], tr.endpos[0], tr.endpos[1], tr.endpos[2], ent->health, turb, ent->shared.s.number ), CS_PARTICLES, MAX_PARTICLES_AREAS, true );
 	} else if ( !Q_stricmp( ent->classname, "misc_bubbles64" ) )       {
-		G_FindConfigstringIndex( va( "%i %.2f %.2f %.2f %.2f %.2f %.2f %i %i %i", PARTICLE_BUBBLE64, ent->shared.s.origin[0], ent->shared.s.origin[1], ent->shared.s.origin[2], tr.endpos[0], tr.endpos[1], tr.endpos[2], ent->health, turb, ent->shared.s.number ), CS_PARTICLES, MAX_PARTICLES_AREAS, qtrue );
+		G_FindConfigstringIndex( va( "%i %.2f %.2f %.2f %.2f %.2f %.2f %i %i %i", PARTICLE_BUBBLE64, ent->shared.s.origin[0], ent->shared.s.origin[1], ent->shared.s.origin[2], tr.endpos[0], tr.endpos[1], tr.endpos[2], ent->health, turb, ent->shared.s.number ), CS_PARTICLES, MAX_PARTICLES_AREAS, true );
 	}
 
 	ent->think = snowInPVS;
@@ -1530,7 +1530,7 @@ void SP_Snow( gentity_t *ent ) {
 		ent->health = 32;
 	}
 
-	ent->active = qtrue;
+	ent->active = true;
 }
 // done.
 
@@ -1550,7 +1550,7 @@ void SP_Bubbles( gentity_t *ent ) {
 		ent->health = 32;
 	}
 
-	ent->active = qtrue;
+	ent->active = true;
 
 	ent->spawnflags |= 2;
 }
@@ -1558,7 +1558,7 @@ void SP_Bubbles( gentity_t *ent ) {
 static vec3_t forward, right, up;
 static vec3_t muzzle;
 
-void flakPuff( vec3_t origin, qboolean sky ) {
+void flakPuff( vec3_t origin, bool sky ) {
 	gentity_t *tent;
 	vec3_t point;
 
@@ -1632,7 +1632,7 @@ void Fire_Lead( gentity_t *ent, gentity_t *activator, float spread, int damage )
 	gentity_t       *tent;
 	gentity_t       *traceEnt;
 
-	//qboolean	isflak = qfalse;
+	//bool	isflak = false;
 
 	// 'muzzle' is bogus for mg42.  adjust for it
 	if ( !Q_stricmp( ent->classname, "misc_mg42" ) ) {
@@ -1648,7 +1648,7 @@ void Fire_Lead( gentity_t *ent, gentity_t *activator, float spread, int damage )
 	VectorMA( end, r, right, end );
 	VectorMA( end, u, up, end );
 
-	SV_Trace( &tr, lead_muzzle, NULL, NULL, end, ent->shared.s.number, MASK_SHOT, qfalse );
+	SV_Trace( &tr, lead_muzzle, NULL, NULL, end, ent->shared.s.number, MASK_SHOT, false );
 
 	AICast_ProcessBullet( activator, lead_muzzle, tr.endpos );
 
@@ -1664,7 +1664,7 @@ void Fire_Lead( gentity_t *ent, gentity_t *activator, float spread, int damage )
 				G_AddEvent( ent, EV_FLAKGUN4, 0 );
 			}
 
-			flakPuff( tr.endpos, qtrue );
+			flakPuff( tr.endpos, true );
 		} else {
 //			mg42_muzzleflash (ent, 0);
 			G_AddEvent( ent, EV_FIRE_WEAPON_MG42, 0 );
@@ -1724,7 +1724,7 @@ void Fire_Lead( gentity_t *ent, gentity_t *activator, float spread, int damage )
 			G_AddEvent( ent, EV_FLAKGUN4, 0 );
 		}
 
-		flakPuff( tr.endpos, qfalse );
+		flakPuff( tr.endpos, false );
 	}
 
 }
@@ -1739,9 +1739,9 @@ void clamp_hweapontofirearc( gentity_t *self, gentity_t *other, vec3_t dang ) {
 
 	int i;
 	float diff, yawspeed;
-	qboolean clamped;
+	bool clamped;
 
-	clamped = qfalse;
+	clamped = false;
 
 	if ( other ) {
 		VectorCopy( self->TargetAngles, dang );
@@ -1752,7 +1752,7 @@ void clamp_hweapontofirearc( gentity_t *self, gentity_t *other, vec3_t dang ) {
 	}
 
 	if ( dang[0] < 0 && dang[0] < -( self->varc ) ) {
-		clamped = qtrue;
+		clamped = true;
 		dang[0] = -( self->varc );
 	}
 
@@ -1760,22 +1760,22 @@ void clamp_hweapontofirearc( gentity_t *self, gentity_t *other, vec3_t dang ) {
 	if ( other && other->shared.r.svFlags & SVF_CASTAI ) {
 		if ( self->spawnflags & 1 ) {
 			if ( dang[0] > 0 && dang[0] > 20.0 ) {
-				clamped = qtrue;
+				clamped = true;
 				dang[0] = 20.0;
 			}
 		} else if ( dang[0] > 0 && dang[0] > 10.0 )     {
-			clamped = qtrue;
+			clamped = true;
 			dang[0] = 10.0;
 		}
 	} else
 	{
 		if ( self->spawnflags & 1 ) {
 			if ( dang[0] > 0 && dang[0] > ( self->varc / 2 ) ) {
-				clamped = qtrue;
+				clamped = true;
 				dang[0] = self->varc / 2;
 			}
 		} else if ( dang[0] > 0 && dang[0] > ( self->varc / 2 ) )    {
-			clamped = qtrue;
+			clamped = true;
 			dang[0] = self->varc / 2;
 		}
 	}
@@ -1785,7 +1785,7 @@ void clamp_hweapontofirearc( gentity_t *self, gentity_t *other, vec3_t dang ) {
 	if ( !Q_stricmp( self->classname, "misc_mg42" ) || !( self->active ) ) {
 		diff = AngleDifference( dang[YAW], self->shared.s.angles[YAW] );
 		if ( fabs( diff ) > self->harc ) {
-			clamped = qtrue;
+			clamped = true;
 			if ( diff > 0 ) {
 				dang[YAW] = AngleMod( self->shared.s.angles[YAW] + self->harc );
 			} else {
@@ -1798,7 +1798,7 @@ void clamp_hweapontofirearc( gentity_t *self, gentity_t *other, vec3_t dang ) {
 			BG_EvaluateTrajectory( &self->shared.s.apos, level.time, self->shared.r.currentAngles );
 			diff = AngleDifference( dang[i], self->shared.r.currentAngles[i] );
 			if ( fabs( diff ) > ( yawspeed * ( (float)FRAMETIME / 1000.0 ) ) ) {
-				clamped = qtrue;
+				clamped = true;
 				if ( diff > 0 ) {
 					dang[i] = AngleMod( self->shared.r.currentAngles[i] + ( yawspeed * ( (float)FRAMETIME / 1000.0 ) ) );
 				} else {
@@ -1809,7 +1809,7 @@ void clamp_hweapontofirearc( gentity_t *self, gentity_t *other, vec3_t dang ) {
 	}
 
 	if ( other && other->shared.r.svFlags & SVF_CASTAI ) {
-		clamped = qfalse;
+		clamped = false;
 	}
 
 	// sanity check the angles again to make sure we don't go passed the harc whilst trying to get to the other side
@@ -1817,7 +1817,7 @@ void clamp_hweapontofirearc( gentity_t *self, gentity_t *other, vec3_t dang ) {
 	diff = AngleDifference( self->shared.s.angles[YAW], dang[YAW] );
 	// if (fabs(diff) > self->harc) {
 	if ( fabs( diff ) > self->harc && other && other->shared.r.svFlags & SVF_CASTAI ) {
-		clamped = qtrue;
+		clamped = true;
 
 		if ( diff > 0 ) {
 			dang[YAW] = AngleMod( self->shared.s.angles[YAW] + self->harc );
@@ -1842,7 +1842,7 @@ void clamp_hweapontofirearc( gentity_t *self, gentity_t *other, vec3_t dang ) {
 			if ( !other->mg42ClampTime ) {
 				other->mg42ClampTime = level.time;
 			} else if ( other->mg42ClampTime < level.time - 750 ) {
-				other->active = qfalse;
+				other->active = false;
 			}
 		}
 	} else if ( other ) {
@@ -1930,11 +1930,11 @@ void mg42_touch( gentity_t *self, gentity_t *other, trace_t *trace ) {
 void mg42_track( gentity_t *self, gentity_t *other ) {
 	vec3_t dang;
 	int i;
-	qboolean validshot = qfalse;
-	qboolean is_flak = qfalse;
+	bool validshot = false;
+	bool is_flak = false;
 
 	if ( !Q_stricmp( self->classname, "misc_flak" ) ) {
-		is_flak = qtrue;
+		is_flak = true;
 	}
 
 	if ( !self->active ) {
@@ -1955,7 +1955,7 @@ void mg42_track( gentity_t *self, gentity_t *other ) {
 				if ( !Q_stricmp( self->classname, "misc_mg42" ) ) {
 					VectorMA( muzzle, 16, forward, muzzle );
 					VectorMA( muzzle, 16, up, muzzle );
-					validshot = qtrue;
+					validshot = true;
 				} else if ( !Q_stricmp( self->classname, "misc_flak" ) )       {
 					if ( self->delay < level.time ) {
 						self->delay = level.time + 250;
@@ -1985,7 +1985,7 @@ void mg42_track( gentity_t *self, gentity_t *other ) {
 							VectorMA( muzzle, -22, right, muzzle );
 						}
 
-						validshot = qtrue;
+						validshot = true;
 						self->shared.s.frame++;
 					}
 				}
@@ -2011,7 +2011,7 @@ void mg42_track( gentity_t *self, gentity_t *other ) {
 					}
 
 					// play character anim
-					BG_AnimScriptEvent( &other->client->ps, ANIM_ET_FIREWEAPON, qfalse, qtrue );
+					BG_AnimScriptEvent( &other->client->ps, ANIM_ET_FIREWEAPON, false, true );
 
 					other->client->ps.viewlocked = 2; // this enable screen jitter when firing
 				}
@@ -2086,10 +2086,10 @@ void mg42_think( gentity_t *self ) {
 	int i;
 	float len;
 	float usedist;
-	qboolean is_flak = qfalse;
+	bool is_flak = false;
 
 	if ( !Q_stricmp( self->classname, "misc_flak" ) ) {
-		is_flak = qtrue;
+		is_flak = true;
 		Flak_Animate( self );
 	}
 
@@ -2114,7 +2114,7 @@ void mg42_think( gentity_t *self ) {
 
 		}
 		if ( len < usedist && ( owner->active == 1 ) && owner->health > 0 ) {
-			self->active = qtrue;
+			self->active = true;
 			if ( is_flak ) {
 				owner->client->ps.persistant[PERS_HWEAPON_USE] = 2;
 			} else {
@@ -2186,13 +2186,13 @@ void mg42_think( gentity_t *self ) {
 		}
 	}
 
-	self->active = qfalse;
+	self->active = false;
 
 	if ( owner->client ) {
 		owner->client->ps.eFlags &= ~EF_MG42_ACTIVE;        // whoops, missed this
 		owner->client->ps.persistant[PERS_HWEAPON_USE] = 0;
 		owner->client->ps.viewlocked = 0;   // let them look around
-		owner->active = qfalse;
+		owner->active = false;
 		owner->client->ps.gunfx = 0;
 	}
 
@@ -2221,21 +2221,21 @@ void mg42_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int d
 
 	if ( gun && self->health <= 0 ) {
 		gun->shared.s.frame = 2;
-		gun->takedamage = qfalse;
+		gun->takedamage = false;
 
 	}
 
-	self->takedamage = qfalse;
+	self->takedamage = false;
 
 	if ( owner && owner->client ) {
 		owner->client->ps.persistant[PERS_HWEAPON_USE] = 0;
 		self->shared.r.ownerNum = self->shared.s.number;
 		owner->client->ps.viewlocked = 0;   // let them look around
-		owner->active = qfalse;
+		owner->active = false;
 		owner->client->ps.gunfx = 0;
 
-		self->active = qfalse;
-		gun->active = qfalse;
+		self->active = false;
+		gun->active = false;
 	}
 
 
@@ -2251,7 +2251,7 @@ void mg42_use( gentity_t *ent, gentity_t *other, gentity_t *activator ) {
 		owner->client->ps.persistant[PERS_HWEAPON_USE] = 0;
 		ent->shared.r.ownerNum = ent->shared.s.number;
 		owner->client->ps.viewlocked = 0;   // let them look around
-		owner->active = qfalse;
+		owner->active = false;
 		owner->client->ps.gunfx = 0;
 	}
 
@@ -2299,7 +2299,7 @@ void mg42_spawn( gentity_t *ent ) {
 		VectorCopy( base->shared.s.angles, base->shared.s.apos.trDelta );
 		base->health = ent->health;
 		base->target = ent->target; //----(SA)	added so mounting mg42 can trigger targets
-		base->takedamage = qtrue;
+		base->takedamage = true;
 		base->die = mg42_die;
 		base->soundPos3 = ent->soundPos3;   //----(SA)
 		base->activateArc = ent->activateArc;           //----(SA)	added
@@ -2337,7 +2337,7 @@ void mg42_spawn( gentity_t *ent ) {
 	gun->harc = ent->harc;
 	gun->varc = ent->varc;
 	gun->shared.s.apos.trType = TR_LINEAR_STOP;    // interpolate the angles
-	gun->takedamage = qtrue;
+	gun->takedamage = true;
 	gun->targetname = ent->targetname;      // need this for scripting
 	gun->damage = ent->damage;
 	gun->health = ent->health;  //----(SA)	added
@@ -2449,7 +2449,7 @@ void flak_spawn( gentity_t *ent ) {
 	gun->harc = ent->harc;
 	gun->varc = ent->varc;
 	gun->shared.s.apos.trType = TR_LINEAR_STOP;    // interpolate the angles
-	gun->takedamage = qtrue;
+	gun->takedamage = true;
 	gun->targetname = ent->targetname;      // need this for scripting
 	gun->mg42BaseEnt = ent->shared.s.number;
 
@@ -2500,7 +2500,7 @@ void misc_spawner_think( gentity_t *ent ) {
 
 	item = BG_FindItem( ent->spawnitem );
 
-	drop = Drop_Item( ent, item, 0, qfalse );
+	drop = Drop_Item( ent, item, 0, false );
 
 	if ( !drop ) {
 		Com_Printf( "-----> WARNING <-------\n" );
@@ -2592,7 +2592,7 @@ void misc_tagemitter_finishspawning( gentity_t *ent ) {
 	emitter->use = tagemitter_use;
 	emitter->AIScript_AlertEntity = tagemitter_die;
 	emitter->targetname = ent->targetname;
-	G_ProcessTagConnect( emitter, qtrue );
+	G_ProcessTagConnect( emitter, true );
 //	SV_LinkEntity( emitter );
 
 	ent->target_ent = NULL;
@@ -2648,7 +2648,7 @@ void misc_firetrails_finishspawning( gentity_t *ent ) {
 	left->use = firetrail_use;
 	left->AIScript_AlertEntity = firetrail_die;
 	left->targetname = ent->targetname;
-	G_ProcessTagConnect( left, qtrue );
+	G_ProcessTagConnect( left, true );
 	SV_LinkEntity( &left->shared );
 
 	// right fire trail
@@ -2662,7 +2662,7 @@ void misc_firetrails_finishspawning( gentity_t *ent ) {
 	right->use = firetrail_use;
 	right->AIScript_AlertEntity = firetrail_die;
 	right->targetname = ent->targetname;
-	G_ProcessTagConnect( right, qtrue );
+	G_ProcessTagConnect( right, true );
 	SV_LinkEntity( &right->shared );
 
 }

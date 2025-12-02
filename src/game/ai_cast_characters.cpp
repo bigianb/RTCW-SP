@@ -946,7 +946,7 @@ AIChar_SetBBox
   since height isn't important for the AAS routing (whereas width is very important)
 ============
 */
-void AIChar_SetBBox( gentity_t *ent, cast_state_t *cs, qboolean useHeadTag ) {
+void AIChar_SetBBox( gentity_t *ent, cast_state_t *cs, bool useHeadTag ) {
 	vec3_t bbox[2];
 	trace_t tr;
 	orientation_t orientation;
@@ -1082,7 +1082,7 @@ void AIChar_Pain( gentity_t *ent, gentity_t *attacker, int damage, vec3_t point 
 	#define STUNNED_THRESHOLD   30
 	cast_state_t    *cs;
 	float dist;
-	qboolean forceStun = qfalse;
+	bool forceStun = false;
 	float painThreshold, stunnedThreshold;
 
 	cs = AICast_GetCastState( ent->shared.s.number );
@@ -1123,7 +1123,7 @@ void AIChar_Pain( gentity_t *ent, gentity_t *attacker, int damage, vec3_t point 
 
 	if ( !Q_stricmp( attacker->classname, "props_statue" ) ) {
 		damage = 99999; // try and force a stun
-		forceStun = qtrue;
+		forceStun = true;
 	}
 
 	if ( attacker->shared.s.weapon == WP_TESLA ) {
@@ -1176,26 +1176,26 @@ void AIChar_Pain( gentity_t *ent, gentity_t *attacker, int damage, vec3_t point 
 
 		// stunned?
 		if ( damage > stunnedThreshold && ( forceStun || ( rand() % 2 ) ) ) {   // stunned
-			BG_UpdateConditionValue( ent->shared.s.number, ANIM_COND_STUNNED, qtrue, qfalse );
+			BG_UpdateConditionValue( ent->shared.s.number, ANIM_COND_STUNNED, true, false );
 		}
 		// enemy weapon
 		if ( attacker->client ) {
-			BG_UpdateConditionValue( ent->shared.s.number, ANIM_COND_ENEMY_WEAPON, attacker->shared.s.weapon, qtrue );
+			BG_UpdateConditionValue( ent->shared.s.number, ANIM_COND_ENEMY_WEAPON, attacker->shared.s.weapon, true );
 		}
 		if ( point ) {
 			// location
-			BG_UpdateConditionValue( ent->shared.s.number, ANIM_COND_IMPACT_POINT, AIChar_GetPainLocation( ent, point ), qtrue );
+			BG_UpdateConditionValue( ent->shared.s.number, ANIM_COND_IMPACT_POINT, AIChar_GetPainLocation( ent, point ), true );
 		} else {
-			BG_UpdateConditionValue( ent->shared.s.number, ANIM_COND_IMPACT_POINT, 0, qfalse );
+			BG_UpdateConditionValue( ent->shared.s.number, ANIM_COND_IMPACT_POINT, 0, false );
 		}
 
 		// pause while we play a pain
-		delay = BG_AnimScriptEvent( &ent->client->ps, ANIM_ET_PAIN, qfalse, qtrue );
+		delay = BG_AnimScriptEvent( &ent->client->ps, ANIM_ET_PAIN, false, true );
 
 		// turn off temporary conditions
-		BG_UpdateConditionValue( ent->shared.s.number, ANIM_COND_STUNNED, 0, qfalse );
-		BG_UpdateConditionValue( ent->shared.s.number, ANIM_COND_ENEMY_WEAPON, 0, qfalse );
-		BG_UpdateConditionValue( ent->shared.s.number, ANIM_COND_IMPACT_POINT, 0, qfalse );
+		BG_UpdateConditionValue( ent->shared.s.number, ANIM_COND_STUNNED, 0, false );
+		BG_UpdateConditionValue( ent->shared.s.number, ANIM_COND_ENEMY_WEAPON, 0, false );
+		BG_UpdateConditionValue( ent->shared.s.number, ANIM_COND_IMPACT_POINT, 0, false );
 
 		if ( delay >= 0 ) {
 			// setup game stuff to handle the character movements, etc

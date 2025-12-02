@@ -212,14 +212,14 @@ static int GLimp_SetMode(int mode, bool fullscreen, bool noborder, bool fixedFun
 	if( fullscreen )
 	{
 		flags |= SDL_WINDOW_FULLSCREEN;
-		glConfig.isFullscreen = qtrue;
+		glConfig.isFullscreen = true;
 	}
 	else
 	{
 		if( noborder )
 			flags |= SDL_WINDOW_BORDERLESS;
 
-		glConfig.isFullscreen = qfalse;
+		glConfig.isFullscreen = false;
 	}
 
 	colorBits = r_colorbits->value;
@@ -307,7 +307,7 @@ static int GLimp_SetMode(int mode, bool fullscreen, bool noborder, bool fixedFun
 		SDL_GL_SetAttribute( SDL_GL_MULTISAMPLEBUFFERS, samples ? 1 : 0 );
 		SDL_GL_SetAttribute( SDL_GL_MULTISAMPLESAMPLES, samples );
 
-		glConfig.stereoEnabled = qfalse;
+		glConfig.stereoEnabled = false;
 		SDL_GL_SetAttribute(SDL_GL_STEREO, 0);
 		
 		SDL_GL_SetAttribute( SDL_GL_DOUBLEBUFFER, 1 );
@@ -439,7 +439,7 @@ static bool GLimp_StartDriverAndSetMode(int mode, bool fullscreen, bool noborder
 		if (!SDL_Init(SDL_INIT_VIDEO))
 		{
 			ri.Printf( PRINT_ALL, "SDL_Init( SDL_INIT_VIDEO ) FAILED (%s)\n", SDL_GetError());
-			return qfalse;
+			return false;
 		}
 	}
 	
@@ -449,15 +449,15 @@ static bool GLimp_StartDriverAndSetMode(int mode, bool fullscreen, bool noborder
 	{
 		case RSERR_INVALID_FULLSCREEN:
 			ri.Printf( PRINT_ALL, "...WARNING: fullscreen unavailable in this mode\n" );
-			return qfalse;
+			return false;
 		case RSERR_INVALID_MODE:
 			ri.Printf( PRINT_ALL, "...WARNING: could not set the given mode (%d)\n", mode );
-			return qfalse;
+			return false;
 		default:
 			break;
 	}
 
-	return qtrue;
+	return true;
 }
 
 
@@ -466,7 +466,7 @@ static bool GLimp_StartDriverAndSetMode(int mode, bool fullscreen, bool noborder
 GLimp_InitExtensions
 ===============
 */
-static void GLimp_InitExtensions( qboolean fixedFunction )
+static void GLimp_InitExtensions( bool fixedFunction )
 {
 	if ( !r_allowExtensions->integer )
 	{
@@ -481,17 +481,17 @@ static void GLimp_InitExtensions( qboolean fixedFunction )
 	// OpenGL 1 fixed function pipeline
 	if ( fixedFunction )
 	{
-		glConfig.textureEnvAddAvailable = qfalse;
+		glConfig.textureEnvAddAvailable = false;
 		if ( SDL_GL_ExtensionSupported( "GL_EXT_texture_env_add" ) )
 		{
 			if ( r_ext_texture_env_add->integer )
 			{
-				glConfig.textureEnvAddAvailable = qtrue;
+				glConfig.textureEnvAddAvailable = true;
 				ri.Printf( PRINT_ALL, "...using GL_EXT_texture_env_add\n" );
 			}
 			else
 			{
-				glConfig.textureEnvAddAvailable = qfalse;
+				glConfig.textureEnvAddAvailable = false;
 				ri.Printf( PRINT_ALL, "...ignoring GL_EXT_texture_env_add\n" );
 			}
 		}
@@ -540,7 +540,7 @@ This routine is responsible for initializing the OS specific portions
 of OpenGL
 ===============
 */
-void GLimp_Init( qboolean fixedFunction )
+void GLimp_Init( bool fixedFunction )
 {
 	ri.Printf( PRINT_DEVELOPER, "Glimp_Init( )\n" );
 
@@ -560,14 +560,14 @@ void GLimp_Init( qboolean fixedFunction )
 	// IJB Sys_GLimpInit( );
 
 	// Create the window and set up the context
-	if(!GLimp_StartDriverAndSetMode(r_mode->integer, r_fullscreen->integer, qfalse, fixedFunction))
+	if(!GLimp_StartDriverAndSetMode(r_mode->integer, r_fullscreen->integer, false, fixedFunction))
 	{
 		/*
 	
 	// Try again, this time in a platform specific "safe mode"
 	ri.Sys_GLimpSafeInit( );
 
-	if(GLimp_StartDriverAndSetMode(r_mode->integer, r_fullscreen->integer, qfalse, fixedFunction))
+	if(GLimp_StartDriverAndSetMode(r_mode->integer, r_fullscreen->integer, false, fixedFunction))
 		goto success;
 
 	// Finally, try the default screen resolution
@@ -576,7 +576,7 @@ void GLimp_Init( qboolean fixedFunction )
 		ri.Printf( PRINT_ALL, "Setting r_mode %d failed, falling back on r_mode %d\n",
 				r_mode->integer, R_MODE_FALLBACK );
 
-		if(GLimp_StartDriverAndSetMode(R_MODE_FALLBACK, qfalse, qfalse, fixedFunction))
+		if(GLimp_StartDriverAndSetMode(R_MODE_FALLBACK, false, false, fixedFunction))
 			goto success;
 	}
 
@@ -637,7 +637,7 @@ void GLimp_EndFrame( void )
 		{
 			ri.Printf( PRINT_ALL, "Fullscreen not allowed with in_nograb 1\n");
 			ri.Cvar_Set( "r_fullscreen", "0" );
-			r_fullscreen->modified = qfalse;
+			r_fullscreen->modified = false;
 		}
 
 		// Is the state we want different from the current state?
@@ -660,6 +660,6 @@ void GLimp_EndFrame( void )
 			IN_Restart( );
 		}
 
-		r_fullscreen->modified = qfalse;
+		r_fullscreen->modified = false;
 	}
 }

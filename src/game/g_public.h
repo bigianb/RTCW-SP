@@ -71,13 +71,13 @@ If you have questions concerning this license or the applicable additional terms
 typedef struct {
 	entityState_t s;                // communicated by server to clients
 
-	qboolean linked;                // qfalse if not in any good cluster
+	bool linked;                // false if not in any good cluster
 	int linkcount;
 
 	int svFlags;                    // SVF_NOCLIENT, SVF_BROADCAST, etc
 	int singleClient;               // only send to this client when SVF_SINGLECLIENT is set
 
-	qboolean bmodel;                // if false, assume an explicit mins / maxs bounding box
+	bool bmodel;                // if false, assume an explicit mins / maxs bounding box
 									// only set by SV_SetBrushModel
 	vec3_t mins, maxs;
 	int contents;                   // CONTENTS_TRIGGER, CONTENTS_SOLID, CONTENTS_BODY, etc
@@ -121,7 +121,7 @@ typedef enum {
 
 	GAME_SHUTDOWN,  // (void);
 
-	GAME_CLIENT_CONNECT,    // ( int clientNum, qboolean firstTime, qboolean isBot );
+	GAME_CLIENT_CONNECT,    // ( int clientNum, bool firstTime, bool isBot );
 	// return NULL if the client is allowed to connect, otherwise return
 	// a text string with the reason for denial
 
@@ -141,7 +141,7 @@ typedef enum {
 	// ConsoleCommand will be called when a command has been issued
 	// that is not recognized as a builtin function.
 	// The game can issue trap_argc() / trap_argv() commands to get the command
-	// and parameters.  Return qfalse if the game doesn't recognize it as a command.
+	// and parameters.  Return false if the game doesn't recognize it as a command.
 
 	BOTAI_START_FRAME,              // ( int time );
 

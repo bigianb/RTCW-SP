@@ -172,12 +172,12 @@ typedef struct {
 
 	// railgun trail spawning
 	vec3_t railgunImpact;
-	qboolean railgunFlash;
+	bool railgunFlash;
 
 	// machinegun spinning
 	float barrelAngle;
 	int barrelTime;
-	qboolean barrelSpinning;
+	bool barrelSpinning;
 
 	//----(SA) machinegun bolt sliding
 	float boltPosition;
@@ -188,7 +188,7 @@ typedef struct {
 	//----(SA) 'spinner' spinning (body part)
 	float spinnerAngle;
 	int spinnerTime;
-	qboolean spinnerSpinning;
+	bool spinnerSpinning;
 	//----(SA)	end
 
 	// Ridah, so we can do fast tag grabbing
@@ -199,7 +199,7 @@ typedef struct {
 
 	// Zombie spirit effect
 	// !!FIXME: these effects will be restarted by a *_restart command, can we save this data somehow?
-	qboolean cueZombieSpirit;               // if this is qfalse, and the zombie effect flag is set, then we need to start a new attack
+	bool cueZombieSpirit;               // if this is false, and the zombie effect flag is set, then we need to start a new attack
 	int zombieSpiritStartTime;              // time the effect was started, so we can fade things in
 	int zombieSpiritTrailHead[MAX_ZOMBIE_SPIRITS];
 	int zombieSpiritRotationTimes[MAX_ZOMBIE_SPIRITS];
@@ -214,7 +214,7 @@ typedef struct {
 
 	// Zombie death effect
 	// !!FIXME: these effects will be restarted by a *_restart command, can we save this data somehow?
-	qboolean cueZombieDeath;            // if this is qfalse, and the zombie effect flag is set, then we need to start a new attack
+	bool cueZombieDeath;            // if this is false, and the zombie effect flag is set, then we need to start a new attack
 	int zombieDeathStartTime;               // time the effect was started, so we can fade things in
 	int zombieDeathEndTime;             // time the effect was disabled
 	int lastZombieDeath;
@@ -254,7 +254,7 @@ typedef struct {
 	int lightningTimes[MAX_LOPER_LIGHTNING_POINTS];
 	int lightningSoundTime;
 
-	qboolean forceLOD;
+	bool forceLOD;
 
 } playerEntity_t;
 
@@ -268,8 +268,8 @@ typedef struct {
 typedef struct centity_s {
 	entityState_t currentState;     // from cg.frame
 	entityState_t nextState;        // from cg.nextFrame, if available
-	qboolean interpolate;           // true if next is valid to interpolate to
-	qboolean currentValid;          // true if cg.frame holds this entity
+	bool interpolate;           // true if next is valid to interpolate to
+	bool currentValid;          // true if cg.frame holds this entity
 
 	int muzzleFlashTime;                // move to playerEntity?
 	int overheatTime;
@@ -286,7 +286,7 @@ typedef struct centity_s {
 	vec3_t errorOrigin;
 	vec3_t errorAngles;
 
-	qboolean extrapolated;          // false if origin / angles is an interpolation
+	bool extrapolated;          // false if origin / angles is an interpolation
 	vec3_t rawOrigin;
 	vec3_t rawAngles;
 
@@ -321,7 +321,7 @@ typedef struct centity_s {
 
 	lerpFrame_t lerpFrame;      //----(SA)	added
 	vec3_t highlightOrigin;             // center of the geometry.  for things like corona placement on treasure
-	qboolean usehighlightOrigin;
+	bool usehighlightOrigin;
 
 	refEntity_t refEnt;
 	int processedFrame;                 // frame we were last added to the scene
@@ -334,12 +334,12 @@ typedef struct centity_s {
 	// item highlighting
 
 	int highlightTime;
-	qboolean highlighted;
+	bool highlighted;
 
 	animation_t centAnim[2];
 
 	// (SA) added to help akimbo effects attach to the correct model
-	qboolean akimboFire;
+	bool akimboFire;
 } centity_t;
 
 
@@ -352,7 +352,7 @@ typedef struct markPoly_s {
 	struct markPoly_s   *prevMark, *nextMark;
 	int time;
 	qhandle_t markShader;
-	qboolean alphaFade;         // fade alpha instead of rgb
+	bool alphaFade;         // fade alpha instead of rgb
 	float color[4];
 	poly_t poly;
 	polyVert_t verts[MAX_VERTS_ON_POLY];
@@ -508,7 +508,7 @@ typedef enum {
 #define MAX_CUSTOM_SOUNDS   32
 #define MAX_GIB_MODELS      16
 typedef struct {
-	qboolean infoValid;
+	bool infoValid;
 
 	int clientNum;
 
@@ -538,7 +538,7 @@ typedef struct {
 	char modelName[MAX_QPATH];
 	char skinName[MAX_QPATH];
 	char hSkinName[MAX_QPATH];
-	qboolean deferred;
+	bool deferred;
 
 	qhandle_t legsModel;
 	qhandle_t legsSkin;
@@ -546,7 +546,7 @@ typedef struct {
 	qhandle_t torsoModel;
 	qhandle_t torsoSkin;
 
-	qboolean isSkeletal;
+	bool isSkeletal;
 
 	//----(SA) added accessory models/skins for belts/backpacks/etc.
 	qhandle_t accModels[ACC_MAX];       // see def of ACC_MAX for index descriptions
@@ -600,7 +600,7 @@ typedef enum {
 // that contains media references necessary to present the
 // weapon and its effects
 typedef struct weaponInfo_s {
-	qboolean registered;
+	bool registered;
 	gitem_t         *item;
 
 //----(SA)	weapon animation sequences loaded from the weapon.cfg
@@ -661,7 +661,7 @@ typedef struct weaponInfo_s {
 // that constains media references necessary to present the
 // item and its effects
 typedef struct {
-	qboolean registered;
+	bool registered;
 	qhandle_t models[MAX_ITEM_MODELS];
 	qhandle_t icons[MAX_ITEM_ICONS];
 } itemInfo_t;
@@ -698,11 +698,11 @@ typedef struct {
 
 	int clientNum;
 
-	qboolean demoPlayback;
-	qboolean levelShot;             // taking a level menu screenshot
+	bool demoPlayback;
+	bool levelShot;             // taking a level menu screenshot
 
-	qboolean loading;               // don't defer players at initial startup
-	qboolean intermissionStarted;       // don't play voice rewards, because game will end shortly
+	bool loading;               // don't defer players at initial startup
+	bool intermissionStarted;       // don't play voice rewards, because game will end shortly
 
 	// there are only one or two snapshot_t that are relevent at a time
 	int latestSnapshotNum;          // the number of snapshots the client system has received
@@ -714,8 +714,8 @@ typedef struct {
 
 	float frameInterpolation;       // (float)( cg.time - cg.frame->serverTime ) / (cg.nextFrame->serverTime - cg.frame->serverTime)
 
-	qboolean thisFrameTeleport;
-	qboolean nextFrameTeleport;
+	bool thisFrameTeleport;
+	bool nextFrameTeleport;
 
 	int frametime;              // cg.time - cg.oldTime
 
@@ -728,15 +728,15 @@ typedef struct {
 	int timelimitWarnings;          // 5 min, 1 min, overtime
 	int fraglimitWarnings;
 
-	qboolean mapRestart;            // set on a map restart to set back the weapon
+	bool mapRestart;            // set on a map restart to set back the weapon
 
-	qboolean renderingThirdPerson;          // during deaths, chasecams, etc
+	bool renderingThirdPerson;          // during deaths, chasecams, etc
 
 	// prediction state
-	qboolean hyperspace;                // true if prediction has hit a trigger_teleport
+	bool hyperspace;                // true if prediction has hit a trigger_teleport
 	playerState_t predictedPlayerState;
 	centity_t predictedPlayerEntity;
-	qboolean validPPS;                  // clear until the first call to CG_PredictPlayerState
+	bool validPPS;                  // clear until the first call to CG_PredictPlayerState
 	int predictedErrorTime;
 	vec3_t predictedError;
 
@@ -769,8 +769,8 @@ typedef struct {
 	vec3_t refdefViewAngles;            // will be converted to refdef.viewaxis
 
 	// zoom key
-	qboolean zoomed;
-	qboolean zoomedBinoc;
+	bool zoomed;
+	bool zoomedBinoc;
 	int zoomedScope;            //----(SA)	changed to int
 	int zoomTime;
 	float zoomSensitivity;
@@ -780,10 +780,10 @@ typedef struct {
 	// information screen text during loading
 	char infoScreenText[MAX_STRING_CHARS];
 
-	qboolean showItems;
+	bool showItems;
 	int itemFadeTime;
 
-	qboolean lightstylesInited;
+	bool lightstylesInited;
 
 	// centerprinting
 	int centerPrintTime;
@@ -924,11 +924,11 @@ typedef struct {
 	float recoilPitch, recoilPitchAngle;
 
 	// Duffy
-	qboolean cameraMode;        // if rendering from a camera
+	bool cameraMode;        // if rendering from a camera
 	// Duffy end
 
 	unsigned int cld;           // NERVE - SMF
-	qboolean limboMenu;         // NERVE - SMF
+	bool limboMenu;         // NERVE - SMF
 
 	// NERVE - SMF - Objective info display
 	int oidTeam;
@@ -1429,12 +1429,12 @@ typedef struct soundScript_s
 	char name[MAX_QPATH];
 	int channel;
 	int attenuation;
-	qboolean streaming;
-	qboolean looping;
+	bool streaming;
+	bool looping;
 	float shakeScale;
 	float shakeRadius;
 	int shakeDuration;
-	qboolean random;    // TODO
+	bool random;    // TODO
 	int numSounds;
 	soundScriptSound_t  *soundList;         // pointer into the global list of soundScriptSounds (defined below)
 
@@ -1470,7 +1470,7 @@ typedef struct {
 	int serverCommandSequence;              // reliable command stream counter
 	int processedSnapshotNum;            // the number of snapshots cgame has requested
 
-	qboolean localServer;               // detected on startup by checking sv_running
+	bool localServer;               // detected on startup by checking sv_running
 
 	// Rafael gameskill
 	gameskill_t gameskill;
@@ -1489,13 +1489,13 @@ typedef struct {
 	int voteTime;
 	int voteYes;
 	int voteNo;
-	qboolean voteModified;                  // beep whenever changed
+	bool voteModified;                  // beep whenever changed
 	char voteString[MAX_STRING_TOKENS];
 
 	int teamVoteTime[2];
 	int teamVoteYes[2];
 	int teamVoteNo[2];
-	qboolean teamVoteModified[2];           // beep whenever changed
+	bool teamVoteModified[2];           // beep whenever changed
 	char teamVoteString[2][MAX_STRING_TOKENS];
 
 	int levelStartTime;
@@ -1521,8 +1521,8 @@ typedef struct {
 	int cursorX;
 	int cursorY;
 
-	qboolean mouseCaptured;
-	qboolean sizingHud;
+	bool mouseCaptured;
+	bool sizingHud;
 	void *capturedItem;
 	qhandle_t activeCursor;
 
@@ -1716,13 +1716,13 @@ void CG_UpdateCvars( void );
 
 int CG_CrosshairPlayer( void );
 int CG_LastAttacker( void );
-void CG_KeyEvent( int key, qboolean down );
+void CG_KeyEvent( int key, bool down );
 void CG_MouseEvent( int x, int y );
 void CG_EventHandling( int type );
 void CG_Init( int serverMessageNum, int serverCommandSequence );
 
-qboolean CG_GetTag( int clientNum, const char *tagname, orientation_t * orient );
-qboolean CG_GetWeaponTag( int clientNum, const char *tagname, orientation_t * orient );
+bool CG_GetTag( int clientNum, const char *tagname, orientation_t * orient );
+bool CG_GetWeaponTag( int clientNum, const char *tagname, orientation_t * orient );
 
 //
 // cg_view.c
@@ -1751,10 +1751,10 @@ void CG_DrawString( float x, float y, const char *string,
 
 
 void CG_DrawStringExt( int x, int y, const char *string, const float *setColor,
-					   qboolean forceColor, qboolean shadow, int charWidth, int charHeight, int maxChars );
+					   bool forceColor, bool shadow, int charWidth, int charHeight, int maxChars );
 // JOSEPH 4-17-00
 void CG_DrawStringExt2( int x, int y, const char *string, const float *setColor,
-						qboolean forceColor, qboolean shadow, int charWidth, int charHeight, int maxChars );
+						bool forceColor, bool shadow, int charWidth, int charHeight, int maxChars );
 // END JOSEPH
 void CG_DrawBigString( int x, int y, const char *s, float alpha );
 void CG_DrawBigStringColor( int x, int y, const char *s, vec4_t color );
@@ -1800,7 +1800,7 @@ void Text_Paint( float x, float y, int font, float scale, vec4_t color, const ch
 int Text_Width( const char *text, int font, float scale, int limit );
 
 float CG_GetValue( int ownerDraw, int type ); // 'type' is relative or absolute (fractional-'0.5' or absolute- '50' health)
-qboolean CG_OwnerDrawVisible( int flags );
+bool CG_OwnerDrawVisible( int flags );
 void CG_RunMenuScript( char **args );
 
 void CG_Draw3DModel( float x, float y, float w, float h, qhandle_t model, qhandle_t skin, vec3_t origin, vec3_t angles );
@@ -1813,7 +1813,7 @@ void CG_ApplyShakeCamera();
 //
 // cg_player.c
 //
-qboolean CG_EntOnFire( centity_t *cent );    // Ridah
+bool CG_EntOnFire( centity_t *cent );    // Ridah
 void CG_Player( centity_t *cent );
 void CG_ResetPlayerEntity( centity_t *cent );
 void CG_AddRefEntityWithPowerups( refEntity_t *ent, int powerups, int team, entityState_t *es, const vec3_t fireRiseDir );
@@ -1821,7 +1821,7 @@ void CG_NewClientInfo( int clientNum );
 sfxHandle_t CG_CustomSound( int clientNum, const char *soundName );
 
 // Rafael particles
-extern qboolean initparticles;
+extern bool initparticles;
 int CG_NewParticleArea( int num );
 
 //
@@ -1838,7 +1838,7 @@ void CG_PredictPlayerState( void );
 //
 void CG_CheckEvents( centity_t *cent );
 void CG_EntityEvent( centity_t *cent, vec3_t position );
-void CG_PainEvent( centity_t *cent, int health, qboolean crouching );
+void CG_PainEvent( centity_t *cent, int health, bool crouching );
 
 
 //
@@ -1895,7 +1895,7 @@ void CG_FLAKEFX( centity_t *cent, int whichgun );
 void CG_MortarEFX( centity_t *cent );
 
 // Ridah
-qboolean CG_MonsterUsingWeapon( centity_t *cent, int aiChar, int weaponNum );
+bool CG_MonsterUsingWeapon( centity_t *cent, int aiChar, int weaponNum );
 
 // Rafael
 void CG_MissileHitWall2( int weapon, int clientNum, vec3_t origin, vec3_t dir );
@@ -1903,9 +1903,9 @@ void CG_MissileHitWall2( int weapon, int clientNum, vec3_t origin, vec3_t dir );
 
 void CG_MissileHitPlayer( centity_t *cent, int weapon, vec3_t origin, vec3_t dir, int entityNum );
 //----(SA)
-void CG_VenomFire( entityState_t *es, qboolean fullmode );
+void CG_VenomFire( entityState_t *es, bool fullmode );
 //----(SA)
-void CG_Bullet( vec3_t origin, int sourceEntityNum, vec3_t normal, qboolean flesh, int fleshEntityNum, qboolean wolfkick, int otherEntNum2 );
+void CG_Bullet( vec3_t origin, int sourceEntityNum, vec3_t normal, bool flesh, int fleshEntityNum, bool wolfkick, int otherEntNum2 );
 
 void CG_RailTrail( clientInfo_t *ci, vec3_t start, vec3_t end, int type );   //----(SA)	added 'type'
 void CG_GrappleTrail( centity_t *ent, const weaponInfo_t *wi );
@@ -1934,8 +1934,8 @@ void    CG_ImpactMark( qhandle_t markShader,
 					   const vec3_t origin, const vec3_t dir,
 					   float orientation,
 					   float r, float g, float b, float a,
-					   qboolean alphaFade,
-					   float radius, qboolean temporary, int duration );
+					   bool alphaFade,
+					   float radius, bool temporary, int duration );
 
 // Rafael particles
 //
@@ -1958,7 +1958,7 @@ void    CG_ParticleMisc( qhandle_t pshader, vec3_t origin, int size, int duratio
 void CG_ParticleExplosion( const char *animStr, vec3_t origin, vec3_t vel, int duration, int sizeStart, int sizeEnd );
 
 // Rafael snow pvs check
-void    CG_SnowLink( centity_t *cent, qboolean particleOn );
+void    CG_SnowLink( centity_t *cent, bool particleOn );
 // done.
 
 // Rafael bats
@@ -1991,13 +1991,13 @@ void CG_ClearTrails( void );
 
 // Ridah, sound scripting
 int CG_SoundScriptPrecache( const char *name );
-qboolean CG_SoundPlaySoundScript( const char *name, vec3_t org, int entnum );
+bool CG_SoundPlaySoundScript( const char *name, vec3_t org, int entnum );
 void CG_SoundPlayIndexedScript( int index, vec3_t org, int entnum );
 void CG_SoundInit( void );
 // done.
 
 // Ridah, flamethrower
-void CG_FireFlameChunks( centity_t *cent, vec3_t origin, vec3_t angles, float speedScale, qboolean firing, int flags ); //----(SA)	added 'flags'
+void CG_FireFlameChunks( centity_t *cent, vec3_t origin, vec3_t angles, float speedScale, bool firing, int flags ); //----(SA)	added 'flags'
 void CG_InitFlameChunks( void );
 void CG_AddFlameChunks( void );
 void CG_UpdateFlamethrowerSounds( void );
@@ -2035,9 +2035,9 @@ void CG_Bleed( vec3_t origin, int entityNum );
 
 localEntity_t *CG_MakeExplosion( vec3_t origin, vec3_t dir,
 								 qhandle_t hModel, qhandle_t shader, int msec,
-								 qboolean isSprite );
+								 bool isSprite );
 // Ridah
-void CG_DynamicLightningBolt( qhandle_t shader, vec3_t start, vec3_t pend, int numBolts, float maxWidth, qboolean fade, float startAlpha, int recursion, int randseed );
+void CG_DynamicLightningBolt( qhandle_t shader, vec3_t start, vec3_t pend, int numBolts, float maxWidth, bool fade, float startAlpha, int recursion, int randseed );
 void CG_SparklerSparks( vec3_t origin, int count );
 void CG_ClearFlameChunks( void );
 void CG_ProjectedSpotLight( vec3_t start, vec3_t dir );
@@ -2075,7 +2075,7 @@ const char *CG_translateString( const char *str );
 //
 // cg_consolecmds.c
 //
-qboolean CG_ConsoleCommand( void );
+bool CG_ConsoleCommand( void );
 void CG_InitConsoleCommands( void );
 
 //
@@ -2166,7 +2166,7 @@ qhandle_t   trap_R_RegisterSkin( const char *name );            // returns all w
 qhandle_t   trap_R_RegisterShader( const char *name );          // returns all white if not found
 qhandle_t   RE_RegisterShaderNoMip( const char *name );         // returns all white if not found
 
-qboolean    trap_R_GetSkinModel( qhandle_t skinid, const char *type, char *name );   //----(SA) added
+bool    trap_R_GetSkinModel( qhandle_t skinid, const char *type, char *name );   //----(SA) added
 qhandle_t   trap_R_GetShaderFromModel( qhandle_t modelid, int surfnum, int withlightmap );   //----(SA)	added
 
 // a scene is built up by calls to R_ClearScene and the various R_Add functions.
@@ -2210,13 +2210,13 @@ void        trap_GetCurrentSnapshotNumber( int *snapshotNumber, int *serverTime 
 
 // a snapshot get can fail if the snapshot (or the entties it holds) is so
 // old that it has fallen out of the client system queue
-qboolean    trap_GetSnapshot( int snapshotNumber, snapshot_t *snapshot );
+bool    trap_GetSnapshot( int snapshotNumber, snapshot_t *snapshot );
 
 // retrieve a text command from the server stream
 // the current snapshot will hold the number of the most recent command
-// qfalse can be returned if the client system handled the command
+// false can be returned if the client system handled the command
 // argc() / argv() can be used to examine the parameters of the command
-qboolean    trap_GetServerCommand( int serverCommandNumber );
+bool    trap_GetServerCommand( int serverCommandNumber );
 
 // returns the most recent command number that can be passed to GetUserCmd
 // this will always be at least one higher than the number in the current
@@ -2228,7 +2228,7 @@ int         trap_GetCurrentCmdNumber( void );
 void        trap_SetUserCmdValue( int stateValue, int holdValue, float sensitivityScale, int cld );     // NERVE - SMF - added cld
 
 void        trap_R_RegisterFont( const char *fontName, int pointSize, fontInfo_t *font );
-qboolean    trap_Key_IsDown( int keynum );
+bool    trap_Key_IsDown( int keynum );
 int         trap_Key_GetCatcher( void );
 void        trap_Key_SetCatcher( int catcher );
 int         trap_Key_GetKey( const char *binding );
@@ -2256,11 +2256,11 @@ void trap_SnapVector( float *v );
 
 // Duffy, camera stuff
 #define CAM_PRIMARY 0   // the main camera for cutscenes, etc.
-qboolean    trap_loadCamera( int camNum, const char *name );
+bool    trap_loadCamera( int camNum, const char *name );
 void        trap_startCamera( int camNum, int time );
 void        trap_stopCamera( int camNum );    //----(SA)	added
-qboolean    trap_getCameraInfo( int camNum, int time, vec3_t *origin, vec3_t *angles, float *fov );
-void        CG_StartCamera( const char *name, qboolean startBlack );
+bool    trap_getCameraInfo( int camNum, int time, vec3_t *origin, vec3_t *angles, float *fov );
+void        CG_StartCamera( const char *name, bool startBlack );
 void        CG_StopCamera( void );
 
 //----(SA)	added
@@ -2270,6 +2270,6 @@ void        CG_FreeCamera( int camNum );
 
 void CG_StartShakeCamera( float p, int duration, vec3_t src, float radius );
 
-qboolean    trap_GetModelInfo( int clientNum, char *modelName, animModelInfo_t **modelInfo );
+bool    trap_GetModelInfo( int clientNum, char *modelName, animModelInfo_t **modelInfo );
 
 void CL_GetGlconfig( glconfig_t *glconfig );

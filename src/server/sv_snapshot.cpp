@@ -100,9 +100,9 @@ static void SV_EmitPacketEntities(clientSnapshot_t *from, clientSnapshot_t *to,
 
     if (newnum == oldnum) {
       // delta update from old position
-      // because the force parm is qfalse, this will not result
+      // because the force parm is false, this will not result
       // in any bytes being emited if the entity has not changed at all
-      MSG_WriteDeltaEntity(msg, oldent, newent, qfalse);
+      MSG_WriteDeltaEntity(msg, oldent, newent, false);
       oldindex++;
       newindex++;
       continue;
@@ -110,14 +110,14 @@ static void SV_EmitPacketEntities(clientSnapshot_t *from, clientSnapshot_t *to,
 
     if (newnum < oldnum) {
       // this is a new entity, send it from the baseline
-      MSG_WriteDeltaEntity(msg, &sv.svEntities[newnum].baseline, newent, qtrue);
+      MSG_WriteDeltaEntity(msg, &sv.svEntities[newnum].baseline, newent, true);
       newindex++;
       continue;
     }
 
     if (newnum > oldnum) {
       // the old entity isn't present in the new message
-      MSG_WriteDeltaEntity(msg, oldent, NULL, qtrue);
+      MSG_WriteDeltaEntity(msg, oldent, NULL, true);
       oldindex++;
       continue;
     }
@@ -295,7 +295,7 @@ SV_AddEntitiesVisibleFromPoint
 static void SV_AddEntitiesVisibleFromPoint(vec3_t origin,
                                            clientSnapshot_t *frame,
                                            snapshotEntityNumbers_t *eNums,
-                                           qboolean portal) {
+                                           bool portal) {
   // during an error shutdown message we may need to transmit
   // the shutdown message after the server has shutdown, so
   // specfically check for it
@@ -359,7 +359,7 @@ static void SV_AddEntitiesVisibleFromPoint(vec3_t origin,
     if ((playerEnt->s.eFlags & EF_VIEWING_CAMERA) && !portal) {
       if (ent->r.svFlags & SVF_PORTAL) {
         SV_AddEntToSnapshot(svEnt, ent, eNums);
-        SV_AddEntitiesVisibleFromPoint(ent->s.origin2, frame, eNums, qtrue);
+        SV_AddEntitiesVisibleFromPoint(ent->s.origin2, frame, eNums, true);
       }
       continue;
     }
@@ -477,7 +477,7 @@ static void SV_AddEntitiesVisibleFromPoint(vec3_t origin,
 
     // if its a portal entity, add everything visible from its camera position
     if (ent->r.svFlags & SVF_PORTAL) {
-      SV_AddEntitiesVisibleFromPoint(ent->s.origin2, frame, eNums, qtrue);
+      SV_AddEntitiesVisibleFromPoint(ent->s.origin2, frame, eNums, true);
     }
 
     continue;
@@ -563,7 +563,7 @@ static void SV_BuildClientSnapshot(client_t *client) {
 
   // add all the entities directly visible to the eye, which
   // may include portal entities that merge other viewpoints
-  SV_AddEntitiesVisibleFromPoint(org, frame, &entityNumbers, qfalse);
+  SV_AddEntitiesVisibleFromPoint(org, frame, &entityNumbers, false);
 
   // if there were portals visible, there may be out of order entities
   // in the list which will need to be resorted for the delta compression
@@ -675,7 +675,7 @@ void SV_SendClientSnapshot(client_t *client) {
   byte msg_buf[MAX_MSGLEN];
   msg_t msg;
   MSG_Init(&msg, msg_buf, sizeof(msg_buf));
-  msg.allowoverflow = qtrue;
+  msg.allowoverflow = true;
 
   // NOTE, MRE: all server->client messages now acknowledge
   // let the client know which reliable clientCommands we have received

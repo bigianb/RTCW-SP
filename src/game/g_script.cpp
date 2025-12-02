@@ -43,35 +43,35 @@ vmCvar_t g_scriptDebug;
 //====================================================================
 //
 // action functions need to be declared here so they can be accessed in the scriptAction table
-qboolean G_ScriptAction_GotoMarker( gentity_t *ent, char *params );
-qboolean G_ScriptAction_Wait( gentity_t *ent, char *params );
-qboolean G_ScriptAction_Trigger( gentity_t *ent, char *params );
-qboolean G_ScriptAction_PlaySound( gentity_t *ent, char *params );
-qboolean G_ScriptAction_PlayAnim( gentity_t *ent, char *params );
-qboolean G_ScriptAction_AlertEntity( gentity_t *ent, char *params );
-qboolean G_ScriptAction_Accum( gentity_t *ent, char *params );
-qboolean G_ScriptAction_MissionFailed( gentity_t *ent, char *params );
-qboolean G_ScriptAction_MissionSuccess( gentity_t *ent, char *params );
-qboolean G_ScriptAction_Print( gentity_t *ent, char *params );
-qboolean G_ScriptAction_FaceAngles( gentity_t *ent, char *params );
-qboolean G_ScriptAction_ResetScript( gentity_t *ent, char *params );
-qboolean G_ScriptAction_TagConnect( gentity_t *ent, char *params );
-qboolean G_ScriptAction_Halt( gentity_t *ent, char *params );
-qboolean G_ScriptAction_StopSound( gentity_t *ent, char *params );
-qboolean G_ScriptAction_StartCam( gentity_t *ent, char *params );
-qboolean G_ScriptAction_EntityScriptName( gentity_t *ent, char *params );
-qboolean G_ScriptAction_AIScriptName( gentity_t *ent, char *params );
+bool G_ScriptAction_GotoMarker( gentity_t *ent, char *params );
+bool G_ScriptAction_Wait( gentity_t *ent, char *params );
+bool G_ScriptAction_Trigger( gentity_t *ent, char *params );
+bool G_ScriptAction_PlaySound( gentity_t *ent, char *params );
+bool G_ScriptAction_PlayAnim( gentity_t *ent, char *params );
+bool G_ScriptAction_AlertEntity( gentity_t *ent, char *params );
+bool G_ScriptAction_Accum( gentity_t *ent, char *params );
+bool G_ScriptAction_MissionFailed( gentity_t *ent, char *params );
+bool G_ScriptAction_MissionSuccess( gentity_t *ent, char *params );
+bool G_ScriptAction_Print( gentity_t *ent, char *params );
+bool G_ScriptAction_FaceAngles( gentity_t *ent, char *params );
+bool G_ScriptAction_ResetScript( gentity_t *ent, char *params );
+bool G_ScriptAction_TagConnect( gentity_t *ent, char *params );
+bool G_ScriptAction_Halt( gentity_t *ent, char *params );
+bool G_ScriptAction_StopSound( gentity_t *ent, char *params );
+bool G_ScriptAction_StartCam( gentity_t *ent, char *params );
+bool G_ScriptAction_EntityScriptName( gentity_t *ent, char *params );
+bool G_ScriptAction_AIScriptName( gentity_t *ent, char *params );
 
-qboolean G_ScriptAction_BackupScript( gentity_t *ent, char *params );
-qboolean G_ScriptAction_RestoreScript( gentity_t *ent, char *params );
-qboolean G_ScriptAction_SetHealth( gentity_t *ent, char *params );
+bool G_ScriptAction_BackupScript( gentity_t *ent, char *params );
+bool G_ScriptAction_RestoreScript( gentity_t *ent, char *params );
+bool G_ScriptAction_SetHealth( gentity_t *ent, char *params );
 
 //----(SA)	added
-qboolean G_ScriptAction_MusicStart( gentity_t *ent, char *params );
-qboolean G_ScriptAction_MusicPlay( gentity_t *ent, char *params );
-qboolean G_ScriptAction_MusicStop( gentity_t *ent, char *params );
-qboolean G_ScriptAction_MusicFade( gentity_t *ent, char *params );
-qboolean G_ScriptAction_MusicQueue( gentity_t *ent, char *params );
+bool G_ScriptAction_MusicStart( gentity_t *ent, char *params );
+bool G_ScriptAction_MusicPlay( gentity_t *ent, char *params );
+bool G_ScriptAction_MusicStop( gentity_t *ent, char *params );
+bool G_ScriptAction_MusicFade( gentity_t *ent, char *params );
+bool G_ScriptAction_MusicQueue( gentity_t *ent, char *params );
 //----(SA)	end
 
 // these are the actions that each event can call
@@ -109,8 +109,8 @@ g_script_stack_action_t gScriptActions[] =
 	{NULL,                      NULL}
 };
 
-qboolean G_Script_EventMatch_StringEqual( g_script_event_t *event, char *eventParm );
-qboolean G_Script_EventMatch_IntInRange( g_script_event_t *event, char *eventParm );
+bool G_Script_EventMatch_StringEqual( g_script_event_t *event, char *eventParm );
+bool G_Script_EventMatch_IntInRange( g_script_event_t *event, char *eventParm );
 
 // the list of events that can start an action sequence
 g_script_event_define_t gScriptEvents[] =
@@ -131,11 +131,11 @@ g_script_event_define_t gScriptEvents[] =
 G_Script_EventMatch_StringEqual
 ===============
 */
-qboolean G_Script_EventMatch_StringEqual( g_script_event_t *event, char *eventParm ) {
+bool G_Script_EventMatch_StringEqual( g_script_event_t *event, char *eventParm ) {
 	if ( eventParm && !Q_strcasecmp( event->params, eventParm ) ) {
-		return qtrue;
+		return true;
 	} else {
-		return qfalse;
+		return false;
 	}
 }
 
@@ -144,21 +144,21 @@ qboolean G_Script_EventMatch_StringEqual( g_script_event_t *event, char *eventPa
 G_Script_EventMatch_IntInRange
 ===============
 */
-qboolean G_Script_EventMatch_IntInRange( g_script_event_t *event, char *eventParm ) {
+bool G_Script_EventMatch_IntInRange( g_script_event_t *event, char *eventParm ) {
 	
 	// get the cast name
 	const char* pString = eventParm;
-	const char* token = COM_ParseExt( &pString, qfalse );
+	const char* token = COM_ParseExt( &pString, false );
 	int int1 = atoi( token );
-	token = COM_ParseExt( &pString, qfalse );
+	token = COM_ParseExt( &pString, false );
 	int int2 = atoi( token );
 
 	int eInt = atoi( event->params );
 
 	if ( eventParm && eInt > int1 && eInt <= int2 ) {
-		return qtrue;
+		return true;
 	} else {
-		return qfalse;
+		return false;
 	}
 }
 
@@ -253,8 +253,8 @@ G_Script_ScriptParse
 void G_Script_ScriptParse( gentity_t *ent ) {
 	#define MAX_SCRIPT_EVENTS   64
 
-	qboolean wantName;
-	qboolean inScript;
+	bool wantName;
+	bool inScript;
 	int eventNum;
 	g_script_event_t events[MAX_SCRIPT_EVENTS];
 	int numEventItems;
@@ -264,7 +264,7 @@ void G_Script_ScriptParse( gentity_t *ent ) {
 	g_script_stack_action_t *action;
 	int i;
 	int bracketLevel;
-	qboolean buildScript;       //----(SA)	added
+	bool buildScript;       //----(SA)	added
 
 	if ( !ent->scriptName ) {
 		return;
@@ -274,11 +274,11 @@ void G_Script_ScriptParse( gentity_t *ent ) {
 	}
 
 	// FIXME buildScript = Cvar_VariableIntegerValue( "com_buildScript" );
-	buildScript = qtrue;
+	buildScript = true;
 
 	const char* pScript = level.scriptEntity;
-	wantName = qtrue;
-	inScript = qfalse;
+	wantName = true;
+	inScript = false;
 	COM_BeginParseSession( "G_Script_ScriptParse" );
 	bracketLevel = 0;
 	numEventItems = 0;
@@ -306,7 +306,7 @@ void G_Script_ScriptParse( gentity_t *ent ) {
 				Com_Error( ERR_DROP, "G_Script_ScriptParse(), Error (line %d): '}' found, but not expected.\n", COM_GetCurrentParseLine() );
                 return; // keep the linter happy, ERR_DROP does not return
 			}
-			wantName = qtrue;
+			wantName = true;
 		} else if ( token[0] == '{' )    {
 			if ( wantName ) {
 				Com_Error( ERR_DROP, "G_Script_ScriptParse(), Error (line %d): '{' found, NAME expected.\n", COM_GetCurrentParseLine() );
@@ -314,10 +314,10 @@ void G_Script_ScriptParse( gentity_t *ent ) {
 			}
 		} else if ( wantName )   {
 			if ( !Q_strcasecmp( ent->scriptName, token ) ) {
-				inScript = qtrue;
+				inScript = true;
 				numEventItems = 0;
 			}
-			wantName = qfalse;
+			wantName = false;
 		} else if ( inScript )   {
 
 			eventNum = G_Script_EventForString( token );
@@ -370,7 +370,7 @@ void G_Script_ScriptParse( gentity_t *ent ) {
 				curEvent->stack.items[curEvent->stack.numItems].action = action;
 
 				memset( params, 0, sizeof( params ) );
-				token = COM_ParseExt( &pScript, qfalse );
+				token = COM_ParseExt( &pScript, false );
 				for ( i = 0; token[0]; i++ )
 				{
 					if ( strlen( params ) ) { // add a space between each param
@@ -408,7 +408,7 @@ void G_Script_ScriptParse( gentity_t *ent ) {
 						Q_strcat( params, sizeof( params ), "\"" );
 					}
 
-					token = COM_ParseExt( &pScript, qfalse );
+					token = COM_ParseExt( &pScript, false );
 				}
 
 				if ( strlen( params ) ) { // copy the params into the event
@@ -457,7 +457,7 @@ void G_Script_ScriptParse( gentity_t *ent ) {
 G_Script_ScriptChange
 ================
 */
-qboolean G_Script_ScriptRun( gentity_t *ent );
+bool G_Script_ScriptRun( gentity_t *ent );
 void G_Script_ScriptChange( gentity_t *ent, int newScriptNum ) {
 	g_script_status_t scriptStatusBackup;
 
@@ -522,28 +522,28 @@ void G_Script_ScriptEvent( gentity_t *ent, const char *eventStr, const char *par
 =============
 G_Script_ScriptRun
 
-  returns qtrue if the script completed
+  returns true if the script completed
 =============
 */
-qboolean G_Script_ScriptRun( gentity_t *ent ) {
+bool G_Script_ScriptRun( gentity_t *ent ) {
 	g_script_stack_t *stack;
 
 	if ( saveGamePending ) {
-		return qfalse;
+		return false;
 	}
 
 	if ( strlen( g_missionStats.string ) > 1 ) {
-		return qfalse;
+		return false;
 	}
 
 	//if (!g_scripts.integer)
-	//	return qtrue;
+	//	return true;
 
 	Cvar_Update( &g_scriptDebug );
 
 	if ( !ent->scriptEvents ) {
 		ent->scriptStatus.scriptEventIndex = -1;
-		return qtrue;
+		return true;
 	}
 
 	// if we are still doing a gotomarker, process the movement
@@ -557,14 +557,14 @@ qboolean G_Script_ScriptRun( gentity_t *ent ) {
 	}
 
 	if ( ent->scriptStatus.scriptEventIndex < 0 ) {
-		return qtrue;
+		return true;
 	}
 
 	stack = &ent->scriptEvents[ent->scriptStatus.scriptEventIndex].stack;
 
 	if ( !stack->numItems ) {
 		ent->scriptStatus.scriptEventIndex = -1;
-		return qtrue;
+		return true;
 	}
 	//
 	// show debugging info
@@ -577,7 +577,7 @@ qboolean G_Script_ScriptRun( gentity_t *ent ) {
 	while ( ent->scriptStatus.scriptStackHead < stack->numItems )
 	{
 		if ( !stack->items[ent->scriptStatus.scriptStackHead].action->actionFunc( ent, stack->items[ent->scriptStatus.scriptStackHead].params ) ) {
-			return qfalse;
+			return false;
 		}
 		// move to the next action in the script
 		ent->scriptStatus.scriptStackHead++;
@@ -594,7 +594,7 @@ qboolean G_Script_ScriptRun( gentity_t *ent ) {
 
 	ent->scriptStatus.scriptEventIndex = -1;
 
-	return qtrue;
+	return true;
 }
 
 //================================================================================
@@ -723,7 +723,7 @@ void SP_script_mover( gentity_t *ent ) {
 
 	G_SpawnInt( "health", "0", &ent->health );
 	if ( ent->health ) {
-		ent->takedamage = qtrue;
+		ent->takedamage = true;
 	}
 
 	ent->die = script_mover_die;

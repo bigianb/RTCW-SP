@@ -66,7 +66,7 @@ cast_state_t    *caststates;
 //number of characters
 int numcast;
 //
-qboolean saveGamePending;
+bool saveGamePending;
 //
 // minimum time between thinks (maximum is double this)
 int aicast_thinktime;
@@ -167,7 +167,7 @@ int AICast_SetupClient( int client ) {
 
 	if ( bs->inuse ) {
 		BotAI_Print( PRT_FATAL, "client %d already setup\n", client );
-		return qfalse;
+		return false;
 	}
 
 	cs = AICast_GetCastState( client );
@@ -176,14 +176,14 @@ int AICast_SetupClient( int client ) {
 	//allocate a goal state
 	bs->gs = trap_BotAllocGoalState( client );
 
-	bs->inuse = qtrue;
+	bs->inuse = true;
 	bs->client = client;
 	bs->entitynum = client;
-	bs->setupcount = qtrue;
+	bs->setupcount = true;
 	bs->entergame_time = trap_AAS_Time();
 	bs->ms = trap_BotAllocMoveState();
 
-	return qtrue;
+	return true;
 }
 
 /*
@@ -217,8 +217,8 @@ int AICast_ShutdownClient( int client ) {
 	//
 	//clear the bot state
 	memset( bs, 0, sizeof( bot_state_t ) );
-	//set the inuse flag to qfalse
-	bs->inuse = qfalse;
+	//set the inuse flag to false
+	bs->inuse = false;
 	//everything went ok
 	return BLERR_NOERROR;
 }
@@ -260,8 +260,8 @@ gentity_t *AICast_AddCastToGame( gentity_t *ent, const char *castname, const cha
 	SV_SetUserinfo( bot->shared.s.number, userinfo );
 
 	// have it connect to the game as a normal client
-//----(SA) ClientConnect requires a third 'isbot' parameter.  setting to qfalse and noting
-	ClientConnect( bot->shared.s.number, qtrue, qfalse );
+//----(SA) ClientConnect requires a third 'isbot' parameter.  setting to false and noting
+	ClientConnect( bot->shared.s.number, true, false );
 //----(SA) end
 
 	// copy the origin/angles across
@@ -410,7 +410,7 @@ gentity_t *AICast_CreateCharacter( gentity_t *ent, float *attributes, cast_weapo
 	//
 	// setup bounding boxes
 
-	AIChar_SetBBox( newent, cs, qfalse );
+	AIChar_SetBBox( newent, cs, false );
 	client->ps.friction = cs->attributes[RUNNING_SPEED] / 300.0;
 	//
 	// clear weapons/ammo
@@ -443,7 +443,7 @@ gentity_t *AICast_CreateCharacter( gentity_t *ent, float *attributes, cast_weapo
 //----(SA)	end
 
 	// select a weapon
-	AICast_ChooseWeapon( cs, qfalse );
+	AICast_ChooseWeapon( cs, false );
 
 	//
 	// set the default function, overwrite if necessary
@@ -470,7 +470,7 @@ void AICast_Init( void ) {
 
 	numcast = 0;
 	numSpawningCast = 0;
-	saveGamePending = qtrue;
+	saveGamePending = true;
 
 	Cvar_Register( &aicast_debug, "aicast_debug", "1", 0 );
 	Cvar_Register( &aicast_debugname, "aicast_debugname", "", 0 );
@@ -606,7 +606,7 @@ void AIChar_AIScript_AlertEntity( gentity_t *ent ) {
 	// RF, has to disable this so I could test some maps which have erroneously placed alertentity calls
 	//ent->AIScript_AlertEntity = NULL;
 	cs->aiFlags &= ~AIFL_WAITINGTOSPAWN;
-	ent->aiInactive = qfalse;
+	ent->aiInactive = false;
 	SV_LinkEntity( &ent->shared );
 
 	// trigger a spawn script event
@@ -654,7 +654,7 @@ void AICast_DelayedSpawnCast( gentity_t *ent, int castType )
 	// won't get spawned properly.
 	if ( ent->spawnflags & 1 ) { // TriggerSpawn
 		ent->AIScript_AlertEntity = AIChar_AIScript_AlertEntity;
-		ent->aiInactive = qtrue;
+		ent->aiInactive = true;
 	}
 
 	// RF, had to move this down since some dev maps don't properly spawn the guys in, so we
@@ -686,7 +686,7 @@ void AICast_CastScriptThink( void )
 		if ( ent->health <= 0 ) {
 			continue;
 		}
-		AICast_ScriptRun( cs, qfalse );
+		AICast_ScriptRun( cs, false );
 	}
 }
 
@@ -712,7 +712,7 @@ AICast_CheckLoadGame
 void AICast_CheckLoadGame( void ) {
 	char loading[4];
 	gentity_t *ent = NULL;
-	qboolean ready;
+	bool ready;
 	cast_state_t *pcs;
 
 	// have we already done the save or load?
@@ -736,18 +736,18 @@ void AICast_CheckLoadGame( void ) {
 			Cvar_Set( "g_reloading", "1" );
 		}
 
-		ready = qtrue;
+		ready = true;
 		if ( numSpawningCast != numcast ) {
-			ready = qfalse;
+			ready = false;
 		} else if ( !( ent = AICast_FindEntityForName( "player" ) ) ) {
-			ready = qfalse;
+			ready = false;
 		} else if ( !ent->client || ent->client->pers.connected != CON_CONNECTED ) {
-			ready = qfalse;
+			ready = false;
 		}
 
 		if ( ready ) {
 			Cvar_Set( "savegame_loading", "0" ); // in-case it aborts
-			saveGamePending = qfalse;
+			saveGamePending = false;
 			G_LoadGame( NULL );     // always load the "current" savegame
 
 			// RF, spawn a thinker that will enable rendering after the client has had time to process the entities and setup the display
@@ -766,13 +766,13 @@ void AICast_CheckLoadGame( void ) {
 		}
 	} else {
 
-		ready = qtrue;
+		ready = true;
 		if ( numSpawningCast != numcast ) {
-			ready = qfalse;
+			ready = false;
 		} else if ( !( ent = AICast_FindEntityForName( "player" ) ) ) {
-			ready = qfalse;
+			ready = false;
 		} else if ( !ent->client || ent->client->pers.connected != CON_CONNECTED ) {
-			ready = qfalse;
+			ready = false;
 		}
 
 		// not loading a game, we must be in a new level, so look for some persistant data to read in, then save the game
@@ -786,7 +786,7 @@ void AICast_CheckLoadGame( void ) {
 			pcs->lastLoadTime = 0;
 			pcs->attempts = 0;
 
-			saveGamePending = qfalse;
+			saveGamePending = false;
 
 			// (SA) send a command that will be interpreted for both the screenfade and any other effects (music cues, pregame menu, etc)
 			// briefing menu will handle transition, just set a cvar for it to check for drawing the 'continue' button
@@ -804,18 +804,18 @@ void AICast_CheckLoadGame( void ) {
 AICast_SolidsInBBox
 ===============
 */
-qboolean AICast_SolidsInBBox( vec3_t pos, vec3_t mins, vec3_t maxs, int entnum, int mask ) {
+bool AICast_SolidsInBBox( vec3_t pos, vec3_t mins, vec3_t maxs, int entnum, int mask ) {
 	trace_t tr;
 
 	if ( g_entities[entnum].health <= 0 ) {
-		return qfalse;
+		return false;
 	}
 
-    SV_Trace( &tr, pos, mins, maxs, pos, entnum, mask, qfalse );
+    SV_Trace( &tr, pos, mins, maxs, pos, entnum, mask, false );
 	if ( tr.startsolid || tr.allsolid ) {
-		return qtrue;
+		return true;
 	} else {
-		return qfalse;
+		return false;
 	}
 }
 
@@ -844,7 +844,7 @@ bool AICast_NoFlameDamage( int entNum ) {
 	cast_state_t *cs;
 
 	if ( entNum >= MAX_CLIENTS ) {
-		return qfalse;
+		return false;
 	}
 
 	cs = AICast_GetCastState( entNum );
@@ -856,7 +856,7 @@ bool AICast_NoFlameDamage( int entNum ) {
 AICast_SetFlameDamage
 ================
 */
-void AICast_SetFlameDamage( int entNum, qboolean status ) {
+void AICast_SetFlameDamage( int entNum, bool status ) {
 	cast_state_t *cs;
 
 	if ( entNum >= MAX_CLIENTS ) {
@@ -879,7 +879,7 @@ G_SetAASBlockingEntity
   Adjusts routing so AI knows it can't move through this entity
 ===============
 */
-void G_SetAASBlockingEntity( gentity_t *ent, qboolean blocking ) {
+void G_SetAASBlockingEntity( gentity_t *ent, bool blocking ) {
 	ent->AASblocking = blocking;
 	trap_AAS_SetAASBlockingEntity( ent->shared.r.absmin, ent->shared.r.absmax, blocking );
 }

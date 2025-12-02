@@ -597,7 +597,7 @@ static void CG_General( centity_t *cent ) {
 		VectorScale( ent.axis[0], cent->currentState.angles2[0], ent.axis[0] );
 		VectorScale( ent.axis[1], cent->currentState.angles2[1], ent.axis[1] );
 		VectorScale( ent.axis[2], cent->currentState.angles2[2], ent.axis[2] );
-		ent.nonNormalizedAxes = qtrue;
+		ent.nonNormalizedAxes = true;
 
 	}
 
@@ -737,7 +737,7 @@ void CG_DrawHoldableSelect( void ) {
 				w = CG_DrawStrlen( name ) * 10;
 				x = ( SCREEN_WIDTH - w ) / 2;
 //				CG_DrawBigStringColor(x, y - 22, name, color);
-				CG_DrawStringExt2( x, y + 74, name, color, qfalse, qtrue, 10, 10, 0 );
+				CG_DrawStringExt2( x, y + 74, name, color, false, true, 10, 10, 0 );
 //				Text_Paint(x, y + 74, 2, 0.3f, color, name, 0, 0, 6); // ITEM_TEXTSTYLE_SHADOWEDMORE
 			}
 		}
@@ -869,7 +869,7 @@ void CG_HoldableUsedupChange( void ) {
 
 
 
-qboolean CG_PlayerSeesItem( playerState_t *ps, entityState_t *item, int atTime, int itemType ) {
+bool CG_PlayerSeesItem( playerState_t *ps, entityState_t *item, int atTime, int itemType ) {
 	vec3_t vorigin, eorigin, viewa, dir;
 	float dot, dist, foo;
 	trace_t tr;
@@ -886,7 +886,7 @@ qboolean CG_PlayerSeesItem( playerState_t *ps, entityState_t *item, int atTime, 
 	dist = VectorNormalize( dir );            // dir is now the direction from the item to the player
 
 	if ( dist > 255 ) {
-		return qfalse;                      // only run the remaining stuff on items that are close enough
+		return false;                      // only run the remaining stuff on items that are close enough
 
 	}
 	// (SA) FIXME: do this without AngleVectors.
@@ -903,9 +903,9 @@ qboolean CG_PlayerSeesItem( playerState_t *ps, entityState_t *item, int atTime, 
 //	foo = -0.94f - (dist/255.0f) * 0.057f;	// (ranging from -0.94 to -0.997) (it happened to be a pretty good range)
 	foo = -0.94f - ( dist * ( 1.0f / 255.0f ) ) * 0.057f;   // (ranging from -0.94 to -0.997) (it happened to be a pretty good range)
 
-///	Com_Printf("test: if(%f > %f) return qfalse (dot > foo)\n", dot, foo);
+///	Com_Printf("test: if(%f > %f) return false (dot > foo)\n", dot, foo);
 	if ( dot > foo ) {
-		return qfalse;
+		return false;
 	}
 
 	// (SA) okay, everything else is okay, so do a bloody trace. (so coronas on treasure doesn't show through walls) <sigh>
@@ -913,11 +913,11 @@ qboolean CG_PlayerSeesItem( playerState_t *ps, entityState_t *item, int atTime, 
 		CG_Trace( &tr, vorigin, NULL, NULL, eorigin, -1, MASK_SOLID );
 
 		if ( tr.fraction != 1 ) {
-			return qfalse;
+			return false;
 		}
 	}
 
-	return qtrue;
+	return true;
 
 }
 
@@ -932,13 +932,13 @@ static void CG_Item( centity_t *cent ) {
 	entityState_t       *es;
 	gitem_t             *item;
 	float scale;
-	qboolean hasStand, highlight;
+	bool hasStand, highlight;
 	float highlightFadeScale = 1.0f;
 
 	es = &cent->currentState;
 
-	hasStand = qfalse;
-	highlight = qfalse;
+	hasStand = false;
+	highlight = false;
 
 	// (item index is stored in es->modelindex for item)
 
@@ -972,13 +972,13 @@ static void CG_Item( centity_t *cent ) {
 
 	memset( &ent, 0, sizeof( ent ) );
 
-	ent.nonNormalizedAxes = qfalse;
+	ent.nonNormalizedAxes = false;
 
 	if ( item->giType == IT_WEAPON ) {
 		weaponInfo_t    *weaponInfo = &cg_weapons[item->giTag];
 
 		if ( weaponInfo->standModel ) {
-			hasStand = qtrue;
+			hasStand = true;
 		}
 
 		if ( hasStand ) {                          // first try to put the weapon on it's 'stand'
@@ -1013,7 +1013,7 @@ static void CG_Item( centity_t *cent ) {
 //----(SA)	end
 
 			VectorCopy( ent.origin, ent.oldorigin );
-			ent.nonNormalizedAxes = qtrue;
+			ent.nonNormalizedAxes = true;
 
 		} else {                                // then default to laying it on it's side
 			if ( !cg_items[es->modelindex].models[2] ) {
@@ -1026,7 +1026,7 @@ static void CG_Item( centity_t *cent ) {
 			VectorScale( ent.axis[0], 1.5, ent.axis[0] );
 			VectorScale( ent.axis[1], 1.5, ent.axis[1] );
 			VectorScale( ent.axis[2], 1.5, ent.axis[2] );
-			ent.nonNormalizedAxes = qtrue;
+			ent.nonNormalizedAxes = true;
 
 			VectorCopy( cent->lerpOrigin, ent.origin );
 			VectorCopy( cent->lerpOrigin, ent.oldorigin );
@@ -1100,7 +1100,7 @@ static void CG_Item( centity_t *cent ) {
 										offset[2] * ent.axis[2][i];
 		}
 
-		cent->usehighlightOrigin = qtrue;
+		cent->usehighlightOrigin = true;
 	}
 
 	// items without glow textures need to keep a minimum light value so they are always visible
@@ -1113,11 +1113,11 @@ static void CG_Item( centity_t *cent ) {
 
 
 		if ( cg_drawCrosshairPickups.integer == 2 ) {  // '2' is 'force highlights'
-			highlight = qtrue;
+			highlight = true;
 		}
 
 		if ( CG_PlayerSeesItem( &cg.predictedPlayerState, es, cg.time, item->giType ) ) {
-			highlight = qtrue;
+			highlight = true;
 
 			if ( item->giType == IT_TREASURE ) {
 				trap_R_AddCoronaToScene( cent->highlightOrigin, 1, 0.85, 0.5, 2, cent->currentState.number, 1 );     //----(SA)	add corona to treasure
@@ -1132,13 +1132,13 @@ static void CG_Item( centity_t *cent ) {
 
 		if ( highlight ) {
 			if ( !cent->highlighted ) {
-				cent->highlighted = qtrue;
+				cent->highlighted = true;
 				cent->highlightTime = cg.time;
 			}
 			ent.hilightIntensity = ( ( cg.time - cent->highlightTime ) / 250.0f ) * highlightFadeScale;  // .25 sec to brighten up
 		} else {
 			if ( cent->highlighted ) {
-				cent->highlighted = qfalse;
+				cent->highlighted = false;
 				cent->highlightTime = cg.time;
 			}
 			ent.hilightIntensity = 1.0f - ( ( cg.time - cent->highlightTime ) / 1000.0f ) * highlightFadeScale; // 1 sec to dim down (diff in time causes problems if you quickly flip to/away from looking at the item)
@@ -1506,8 +1506,8 @@ static void CG_Corona( centity_t *cent ) {
 	int r, g, b;
 	int dli;
 	int flags = 0;
-	qboolean behind = qfalse,
-			 toofar = qfalse;
+	bool behind = false,
+			 toofar = false;
 
 	float dot, dist;
 	vec3_t dir;
@@ -1527,20 +1527,20 @@ static void CG_Corona( centity_t *cent ) {
 
 	dist = VectorNormalize2( dir, dir );
 	if ( dist > cg_coronafardist.integer ) {   // performance variable cg_coronafardist will keep down super long traces
-		toofar = qtrue;
+		toofar = true;
 	}
 
 	dot = DotProduct( dir, cg.refdef.viewaxis[0] );
 	if ( dot >= -0.6 ) {     // assumes ~90 deg fov	(SA) changed value to 0.6 (screen corner at 90 fov)
-		behind = qtrue;     // use the dot to at least do trivial removal of those behind you.
+		behind = true;     // use the dot to at least do trivial removal of those behind you.
 	}
 	// yeah, I could calc side planes to clip against, but would that be worth it? (much better than dumb dot>= thing?)
 
 //	Com_Printf("dot: %f\n", dot);
 
 	if ( cg_coronas.integer == 2 ) {   // if set to '2' trace everything
-		behind = qfalse;
-		toofar = qfalse;
+		behind = false;
+		toofar = false;
 	}
 
 
@@ -1561,7 +1561,7 @@ static void CG_Corona( centity_t *cent ) {
 CG_Efx
 ==============
 */
-extern void CG_Explodef( vec3_t origin, vec3_t dir, int mass, int type, qhandle_t sound, int forceLowGrav, qhandle_t shader, int parent, qboolean damage );
+extern void CG_Explodef( vec3_t origin, vec3_t dir, int mass, int type, qhandle_t sound, int forceLowGrav, qhandle_t shader, int parent, bool damage );
 
 static void CG_Efx( centity_t *cent ) {
 	int i;
@@ -1625,7 +1625,7 @@ static void CG_Efx( centity_t *cent ) {
 										perpvec,                // end
 										cent->currentState.density,     // numBolts
 										cent->currentState.frame,       // maxWidth
-										qtrue,      // fade
+										true,      // fade
 										1.0,        // startAlpha
 										0,          // recursion
 										i * i * 2 );     // randseed
@@ -1709,7 +1709,7 @@ static void CG_Efx( centity_t *cent ) {
 
 		if ( cent->currentState.frame == 1 ) { // dead
 			if ( ( cg.time - cent->currentState.time2 ) < 100 ) {   // it just died, throw some glass
-				CG_Explodef( cent->lerpOrigin, normalized_direction, 50, 1, cgs.media.sfx_bullet_glasshit[0], 1, 0, cent->currentState.number, qfalse );
+				CG_Explodef( cent->lerpOrigin, normalized_direction, 50, 1, cgs.media.sfx_bullet_glasshit[0], 1, 0, cent->currentState.number, false );
 			}
 		}
 
@@ -1724,7 +1724,7 @@ static void CG_Efx( centity_t *cent ) {
 		forward[1] = cent->lerpAngles[0];
 		forward[2] = cent->lerpAngles[2];
 
-		CG_FireFlameChunks( cent, cent->currentState.pos.trBase, forward, 1.0, qtrue, 1 );
+		CG_FireFlameChunks( cent, cent->currentState.pos.trBase, forward, 1.0, true, 1 );
 	}
 }
 
@@ -1866,7 +1866,7 @@ static void CG_Mover( centity_t *cent ) {
 		VectorScale( ent.axis[0], cent->currentState.angles2[0], ent.axis[0] );
 		VectorScale( ent.axis[1], cent->currentState.angles2[1], ent.axis[1] );
 		VectorScale( ent.axis[2], cent->currentState.angles2[2], ent.axis[2] );
-		ent.nonNormalizedAxes = qtrue;
+		ent.nonNormalizedAxes = true;
 	}
 
 
@@ -2144,7 +2144,7 @@ void CG_FlamethrowerProp( centity_t *cent ) {
 
 	}
 
-	CG_FireFlameChunks( cent, cent->currentState.origin, cent->currentState.apos.trBase, 0.6, qtrue, flags );
+	CG_FireFlameChunks( cent, cent->currentState.origin, cent->currentState.apos.trBase, 0.6, true, flags );
 
 	cent->currentState.aiChar = old;
 
@@ -2571,7 +2571,7 @@ void CG_AddPacketEntities( void ) {
 	// RF, count the number of players in the scene, so we can force low LOD's for dead bodies
 	for ( num = 0, clcount = 0 ; num < cg.snap->numEntities ; num++ ) {
 		cent = &cg_entities[ cg.snap->entities[ num ].number ];
-		cent->pe.forceLOD = qfalse;
+		cent->pe.forceLOD = false;
 		if ( cent->currentState.number < MAX_CLIENTS ) {
 			clcount++;
 		}
@@ -2584,7 +2584,7 @@ void CG_AddPacketEntities( void ) {
 //----(SA)	commented this out for DM and Dom
 //			if (cent->currentState.number < MAX_CLIENTS) {
 //				if ((clcount > 2) && (cent->currentState.eFlags & EF_DEAD)) {
-//					cent->pe.forceLOD = qtrue;
+//					cent->pe.forceLOD = true;
 //				}
 //			}
 //----(SA)	end

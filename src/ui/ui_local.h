@@ -163,9 +163,9 @@ typedef struct _tag_menuframework
 	void ( *draw )( void );
 	sfxHandle_t ( *key )( int key );
 
-	qboolean wrapAround;
-	qboolean fullscreen;
-	qboolean showlogo;
+	bool wrapAround;
+	bool fullscreen;
+	bool showlogo;
 
 	// JOSEPH 11-9-99
 	int specialmenutype;
@@ -366,7 +366,7 @@ extern void UI_InGameMenu( void );
 // ui_confirm.c
 //
 extern void ConfirmMenu_Cache( void );
-extern void UI_ConfirmMenu( const char *question, void ( *draw )( void ), void ( *action )( qboolean result ) );
+extern void UI_ConfirmMenu( const char *question, void ( *draw )( void ), void ( *action )( bool result ) );
 
 //
 // ui_setup.c
@@ -455,10 +455,10 @@ typedef struct {
 	int pendingTorsoAnim;
 	int legsAnimationTimer;
 
-	qboolean chat;
-	qboolean newModel;
+	bool chat;
+	bool newModel;
 
-	qboolean barrelSpinning;
+	bool barrelSpinning;
 	float barrelAngle;
 	int barrelTime;
 
@@ -470,7 +470,7 @@ typedef struct {
 	footstep_t footsteps;
 	vec3_t headOffset;
 	int version;
-	qboolean isSkeletal;
+	bool isSkeletal;
 	int numAnimations;
 
 	qhandle_t backpackModel;
@@ -490,7 +490,7 @@ typedef struct {
 	menuframework_s*    activemenu;
 	menuframework_s*    stack[MAX_MENUDEPTH];
 	glconfig_t glconfig;
-	qboolean debug;
+	bool debug;
 	qhandle_t whiteShader;
 	qhandle_t menuBackShader;
 	qhandle_t menuBackNoLogoShader;
@@ -511,7 +511,7 @@ typedef struct {
 	// END JOSEPH
 	float scale;
 	float bias;
-	qboolean firstdraw;
+	bool firstdraw;
 } uiStatic_t;
 
 // new ui stuff
@@ -555,7 +555,7 @@ typedef struct {
 	const char *name;
 	const char *imageName;
 	qhandle_t headImage;
-	qboolean female;
+	bool female;
 } characterInfo;
 
 //----(SA)	added
@@ -610,7 +610,7 @@ typedef struct serverStatus_s {
 	int sortKey;
 	int sortDir;
 	int lastCount;
-	qboolean refreshActive;
+	bool refreshActive;
 	int currentServer;
 	int displayServers[MAX_DISPLAY_SERVERS];
 	int numDisplayServers;
@@ -644,7 +644,7 @@ typedef struct {
 	char name[MAX_ADDRESSLENGTH];
 	int startTime;
 	int serverNum;
-	qboolean valid;
+	bool valid;
 } pendingServer_t;
 
 typedef struct {
@@ -670,8 +670,8 @@ typedef struct {
 	int newHighScoreTime;
 	int newBestTime;
 	int showPostGameTime;
-	qboolean newHighScore;
-	qboolean soundHighScore;
+	bool newHighScore;
+	bool soundHighScore;
 
 	int characterCount;
 	int botIndex;
@@ -687,7 +687,7 @@ typedef struct {
 	int playerRefresh;
 	int playerIndex;
 	int playerNumber;
-	qboolean teamLeader;
+	bool teamLeader;
 	char playerNames[MAX_CLIENTS][MAX_NAME_LENGTH];
 	char teamNames[MAX_CLIENTS][MAX_NAME_LENGTH];
 	int teamClientNums[MAX_CLIENTS];
@@ -738,7 +738,7 @@ typedef struct {
 
 	int effectsColor;
 
-	qboolean inGameLoad;
+	bool inGameLoad;
 
 	// NERVE - SMF
 	char spawnPoints[MAX_SPAWNPOINTS][MAX_SPAWNDESC];
@@ -754,7 +754,7 @@ extern void         UI_Init( void );
 extern void         UI_Shutdown( void );
 extern void         UI_MouseEvent( int dx, int dy );
 extern void         UI_Refresh( int realtime );
-extern qboolean     UI_ConsoleCommand( int realTime );
+extern bool     UI_ConsoleCommand( int realTime );
 extern float        UI_ClampCvar( float min, float max, float value );
 extern void         UI_DrawNamedPic( float x, float y, float width, float height, const char *picname );
 extern void         UI_DrawHandlePic( float x, float y, float w, float h, qhandle_t hShader );
@@ -770,10 +770,10 @@ extern void         UI_DrawProportionalString( int x, int y, const char* str, in
 extern int          UI_ProportionalStringWidth( const char* str );
 extern void         UI_DrawString( int x, int y, const char* str, int style, vec4_t color );
 extern void         UI_DrawChar( int x, int y, int ch, int style, vec4_t color );
-extern qboolean     UI_CursorInRect( int x, int y, int width, int height );
+extern bool     UI_CursorInRect( int x, int y, int width, int height );
 extern void         UI_AdjustFrom640( float *x, float *y, float *w, float *h );
 extern void         UI_DrawTextBox( int x, int y, int width, int lines );
-extern qboolean     UI_IsFullscreen( void );
+extern bool     UI_IsFullscreen( void );
 extern void         UI_SetActiveMenu( uiMenuCommand_t menu );
 extern void         UI_PushMenu( menuframework_s *menu );
 extern void         UI_PopMenu( void );
@@ -782,7 +782,7 @@ extern char         *UI_Argv( int arg );
 extern char         *UI_Cvar_VariableString( const char *var_name );
 extern void         UI_Refresh( int time );
 
-extern qboolean m_entersound;
+extern bool m_entersound;
 extern uiStatic_t uis;
 
 //
@@ -808,9 +808,9 @@ void            SCR_UpdateScreen( void );
 void            trap_S_FadeAllSound( float targetvol, int time ); //----(SA)	added
 
 
-qboolean        trap_Key_IsDown( int keynum );
+bool        trap_Key_IsDown( int keynum );
 
-void            trap_Key_SetOverstrikeMode( qboolean state );
+void            trap_Key_SetOverstrikeMode( bool state );
 
 int             trap_Key_GetCatcher( void );
 void            trap_Key_SetCatcher( int catcher );

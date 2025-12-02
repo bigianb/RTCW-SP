@@ -236,7 +236,7 @@ static void CG_DrawPickupItem( void ) {
 			//----(SA)	trying smaller text
 			color[0] = color[1] = color[2] = 1.0;
 			color[3] = fadeColor[0];
-			CG_DrawStringExt2( ICON_SIZE + 16, 398, pickupText, color, qfalse, qtrue, 10, 10, 0 );
+			CG_DrawStringExt2( ICON_SIZE + 16, 398, pickupText, color, false, true, 10, 10, 0 );
 //			Text_Paint(ICON_SIZE + 16, 398, 2, 0.3f, color, pickupText, 0, 0, ITEM_TEXTSTYLE_SHADOWEDMORE);
 
 
@@ -397,7 +397,7 @@ static void CG_DrawCenterString( void ) {
 
 		x = ( SCREEN_WIDTH - w ) / 2;
 
-		CG_DrawStringExt( x, y, linebuffer, color, qfalse, qtrue, cg.centerPrintCharWidth, (int)( cg.centerPrintCharWidth * 1.5 ), 0 );
+		CG_DrawStringExt( x, y, linebuffer, color, false, true, cg.centerPrintCharWidth, (int)( cg.centerPrintCharWidth * 1.5 ), 0 );
 		y += cg.centerPrintCharWidth * 2;
 
 		while ( *start && ( *start != '\n' ) ) {
@@ -576,7 +576,7 @@ static void CG_DrawCrosshair( void ) {
 	float x, y;
 	int weapnum;                // DHM - Nerve
 	vec4_t hcolor = {1, 1, 1, 0};
-	qboolean friendInSights = qfalse;
+	bool friendInSights = false;
 
 	if ( cg.renderingThirdPerson ) {
 		return;
@@ -605,7 +605,7 @@ static void CG_DrawCrosshair( void ) {
 		return;
 	}
 
-	friendInSights = (qboolean)( cg.snap->ps.serverCursorHint == HINT_PLYR_FRIEND );  //----(SA)	added
+	friendInSights = (bool)( cg.snap->ps.serverCursorHint == HINT_PLYR_FRIEND );  //----(SA)	added
 
 
     weapnum = cg.weaponSelect;
@@ -838,14 +838,14 @@ static void CG_DrawIntermission( void ) {
 CG_DrawFollow
 =================
 */
-static qboolean CG_DrawFollow( void ) {
+static bool CG_DrawFollow( void ) {
 	float x;
 	vec4_t color;
 	const char  *name;
 	char deploytime[128];        // JPW NERVE
 
 	if ( !( cg.snap->ps.pm_flags & PMF_FOLLOW ) ) {
-		return qfalse;
+		return false;
 	}
 	color[0] = 1;
 	color[1] = 1;
@@ -859,9 +859,9 @@ static qboolean CG_DrawFollow( void ) {
 
 		x = 0.5 * ( 640 - GIANT_WIDTH * CG_DrawStrlen( name ) );
 
-		CG_DrawStringExt( x, 40, name, color, qtrue, qtrue, GIANT_WIDTH, GIANT_HEIGHT, 0 );
+		CG_DrawStringExt( x, 40, name, color, true, true, GIANT_WIDTH, GIANT_HEIGHT, 0 );
 
-	return qtrue;
+	return true;
 }
 
 
@@ -1435,7 +1435,7 @@ void CG_DrawActive( stereoFrame_t stereoView ) {
 		VectorMA( cg.refdef.vieworg, -separation, cg.refdef.viewaxis[1], cg.refdef.vieworg );
 	}
 
-	cg.refdef.glfog.registered = qfalse; // make sure it doesn't use fog from another scene
+	cg.refdef.glfog.registered = false; // make sure it doesn't use fog from another scene
 
 	cg.refdef.rdflags |= RDF_DRAWSKYBOX;
 	if ( !cg_skybox.integer ) {

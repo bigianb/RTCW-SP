@@ -61,18 +61,18 @@ void BotUpdateBattleInventory( bot_state_t *bs, int enemy );
 void BotBattleUseItems( bot_state_t *bs );
 
 //returns true if the bot is in observer mode
-qboolean BotIsObserver( bot_state_t *bs );
+bool BotIsObserver( bot_state_t *bs );
 
 //returns true if the bot is in lava
-qboolean BotInLava( bot_state_t *bs );
+bool BotInLava( bot_state_t *bs );
 //returns true if the bot is in slime
-qboolean BotInSlime( bot_state_t *bs );
+bool BotInSlime( bot_state_t *bs );
 //returns true if the entity is dead
-qboolean EntityIsDead( aas_entityinfo_t *entinfo );
+bool EntityIsDead( aas_entityinfo_t *entinfo );
 //returns true if the entity is invisible
-qboolean EntityIsInvisible( aas_entityinfo_t *entinfo );
+bool EntityIsInvisible( aas_entityinfo_t *entinfo );
 //returns true if the entity is shooting
-qboolean EntityIsShooting( aas_entityinfo_t *entinfo );
+bool EntityIsShooting( aas_entityinfo_t *entinfo );
 //returns the name of the client
 const char *ClientName( int client, char *name, int size );
 //returns an simplified client name

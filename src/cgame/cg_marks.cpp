@@ -146,7 +146,7 @@ passed to the renderer.
 
 void CG_ImpactMark( qhandle_t markShader, const vec3_t origin, const vec3_t dir,
 					float orientation, float red, float green, float blue, float alpha,
-					qboolean alphaFade, float radius, qboolean temporary, int duration )
+					bool alphaFade, float radius, bool temporary, int duration )
 {
 	vec3_t axis[3];
 	float texCoordScale;
@@ -210,7 +210,7 @@ void CG_ImpactMark( qhandle_t markShader, const vec3_t origin, const vec3_t dir,
 		
 		polyVert_t verts[MAX_VERTS_ON_POLY];
 		markPoly_t  *mark;
-		qboolean hasST;
+		bool hasST;
 
 		// we have an upper limit on the complexity of polygons
 		// that we store persistantly
@@ -218,10 +218,10 @@ void CG_ImpactMark( qhandle_t markShader, const vec3_t origin, const vec3_t dir,
 			mf->numPoints = MAX_VERTS_ON_POLY;
 		}
 		if ( mf->numPoints < 0 ) {
-			hasST = qtrue;
+			hasST = true;
 			mf->numPoints *= -1;
 		} else {
-			hasST = qfalse;
+			hasST = false;
 		}
 		for (int j = 0; j < mf->numPoints ; j++ ) {
 			polyVert_t  *v = &verts[j];

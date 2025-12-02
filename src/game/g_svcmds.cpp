@@ -83,7 +83,7 @@ static int numIPFilters;
 StringToFilter
 =================
 */
-static qboolean StringToFilter( char *s, ipFilter_t *f ) {
+static bool StringToFilter( char *s, ipFilter_t *f ) {
 	char num[128];
 	int i, j;
 	byte b[4];
@@ -99,7 +99,7 @@ static qboolean StringToFilter( char *s, ipFilter_t *f ) {
 	{
 		if ( *s < '0' || *s > '9' ) {
 			Com_Printf( "Bad filter address: %s\n", s );
-			return qfalse;
+			return false;
 		}
 
 		j = 0;
@@ -122,7 +122,7 @@ static qboolean StringToFilter( char *s, ipFilter_t *f ) {
 	f->mask = *(unsigned *)m;
 	f->compare = *(unsigned *)b;
 
-	return qtrue;
+	return true;
 }
 
 /*
@@ -250,7 +250,7 @@ ConsoleCommand
 
 =================
 */
-qboolean    ConsoleCommand( void ) {
+bool    ConsoleCommand( void ) {
 	char cmd[MAX_TOKEN_CHARS];
 
 	Cmd_ArgvBuffer( 0, cmd, sizeof( cmd ) );
@@ -260,10 +260,10 @@ qboolean    ConsoleCommand( void ) {
 
 		// don't allow a manual savegame command while we are waiting for the game to start/exit
 		if ( g_reloading.integer ) {
-			return qtrue;
+			return true;
 		}
 		if ( saveGamePending ) {
-			return qtrue;
+			return true;
 		}
 
 		Cmd_ArgvBuffer( 1, cmd, sizeof( cmd ) );
@@ -274,7 +274,7 @@ qboolean    ConsoleCommand( void ) {
 			}
 			if ( !Q_stricmp( cmd, "current" ) ) {     // beginning of map
 				Com_Printf( "sorry, '%s' is a reserved savegame name.  please use another name.\n", cmd );
-				return qtrue;
+				return true;
 			}
 
 			if ( G_SaveGame( cmd ) ) {
@@ -287,20 +287,20 @@ qboolean    ConsoleCommand( void ) {
 			Com_Printf( "syntax: savegame <name>\n" );
 		}
 
-		return qtrue;
+		return true;
 	}
 	// done.
 
 	if ( Q_stricmp( cmd, "entitylist" ) == 0 ) {
 		Svcmd_EntityList_f();
-		return qtrue;
+		return true;
 	}
 
 	if ( Q_stricmp( cmd, "game_memory" ) == 0 ) {
 		Svcmd_GameMem_f();
-		return qtrue;
+		return true;
 	}
 
-	return qfalse;
+	return false;
 }
 

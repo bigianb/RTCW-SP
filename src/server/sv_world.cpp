@@ -45,11 +45,11 @@ clipHandle_t SV_ClipHandleForEntity( const sharedEntity_t *ent )
 	}
 	if ( ent->r.svFlags & SVF_CAPSULE ) {
 		// create a temp capsule from bounding box sizes
-		return CM_TempBoxModel( ent->r.mins, ent->r.maxs, qtrue );
+		return CM_TempBoxModel( ent->r.mins, ent->r.maxs, true );
 	}
 
 	// create a temp tree from bounding box sizes
-	return CM_TempBoxModel( ent->r.mins, ent->r.maxs, qfalse );
+	return CM_TempBoxModel( ent->r.mins, ent->r.maxs, false );
 }
 
 
@@ -169,7 +169,7 @@ void SV_UnlinkEntity( sharedEntity_t *gEnt )
 {
 	svEntity_t* ent = SV_SvEntityForGentity( gEnt );
 
-	gEnt->r.linked = qfalse;
+	gEnt->r.linked = false;
 
 	worldSector_t* ws = ent->worldSector;
 	if ( !ws ) {
@@ -356,7 +356,7 @@ void SV_LinkEntity( sharedEntity_t *gEnt )
 	ent->nextEntityInWorldSector = node->entities;
 	node->entities = ent;
 
-	gEnt->r.linked = qtrue;
+	gEnt->r.linked = true;
 }
 
 /*
@@ -569,21 +569,21 @@ void SV_ClipMoveToEntities( moveclip_t *clip )
 								origin, angles, clip->capsule );
 
 		if ( trace.allsolid ) {
-			clip->trace.allsolid = qtrue;
+			clip->trace.allsolid = true;
 			trace.entityNum = touch->s.number;
 		} else if ( trace.startsolid ) {
-			clip->trace.startsolid = qtrue;
+			clip->trace.startsolid = true;
 			trace.entityNum = touch->s.number;
 		}
 
 		if ( trace.fraction < clip->trace.fraction ) {
 			// make sure we keep a startsolid from a previous trace
-			bool oldStart = clip->trace.startsolid == qtrue;
+			bool oldStart = clip->trace.startsolid == true;
 
 			trace.entityNum = touch->s.number;
 			clip->trace = trace;
 			if ( oldStart ){
-				clip->trace.startsolid = qtrue;
+				clip->trace.startsolid = true;
 			}
 		}
 	}
@@ -595,7 +595,7 @@ void SV_TraceCapsule( trace_t *results, const vec3_t start,
 					 const vec3_t mins, const vec3_t maxs, const vec3_t end,
 					 int passEntityNum, int contentmask )
 {
-    SV_Trace(results, start, mins, maxs, end, passEntityNum, contentmask, qtrue);
+    SV_Trace(results, start, mins, maxs, end, passEntityNum, contentmask, true);
 }
 
 /*

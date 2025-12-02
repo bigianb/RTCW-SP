@@ -38,10 +38,10 @@ void    trap_S_ClearLoopingSounds( int killall ) {
 	S_ClearLoopingSounds(); 
 
 	if ( killall == 1 ) {
-		//qboolean clearStreaming, qboolean clearMusic
-		S_ClearSounds( qtrue, qfalse );
+		//bool clearStreaming, bool clearMusic
+		S_ClearSounds( true, false );
 	} else if ( killall == 2 ) {
-		S_ClearSounds( qtrue, qtrue );
+		S_ClearSounds( true, true );
 	}
 }
 
@@ -97,7 +97,7 @@ qhandle_t trap_R_RegisterModel( const char *name ) {
 	return RE_RegisterModel( name );
 }
 
-qboolean trap_R_GetSkinModel( qhandle_t skinid, const char *type, char *name ) {
+bool trap_R_GetSkinModel( qhandle_t skinid, const char *type, char *name ) {
 	return RE_GetSkinModel( skinid, type, name );
 }
 
@@ -189,12 +189,12 @@ void        trap_GetCurrentSnapshotNumber( int *snapshotNumber, int *serverTime 
 }
 
 
-qboolean    trap_GetSnapshot( int snapshotNumber, snapshot_t *snapshot ) {
+bool    trap_GetSnapshot( int snapshotNumber, snapshot_t *snapshot ) {
 	return CL_GetSnapshot( snapshotNumber, snapshot );
 }
 
 
-qboolean    trap_GetServerCommand( int serverCommandNumber ) {
+bool    trap_GetServerCommand( int serverCommandNumber ) {
 	return CL_GetServerCommand( serverCommandNumber );
 }
 
@@ -207,30 +207,30 @@ void        trap_SetUserCmdValue( int stateValue, int holdableValue, float sensi
 	CL_SetUserCmdValue(stateValue, holdableValue, sensitivityScale, cld );
 }
 
-qboolean trap_loadCamera( int camNum, const char *name ) {
+bool trap_loadCamera( int camNum, const char *name ) {
 	return loadCamera(camNum, name );
 }
 
 extern void startCamera( int camNum, int time );
 void trap_startCamera( int camNum, int time ) {
 	if (camNum  == 0 ) {
-		cl.cameraMode = qtrue;
+		cl.cameraMode = true;
 	}
 	startCamera( camNum, time );
 }
 
 void trap_stopCamera( int camNum ) {
 	if ( camNum == 0 ) {
-		cl.cameraMode = qfalse;
+		cl.cameraMode = false;
 	}
 }
 
-qboolean trap_getCameraInfo( int camNum, int time, vec3_t *origin, vec3_t *angles, float *fov ) {
+bool trap_getCameraInfo( int camNum, int time, vec3_t *origin, vec3_t *angles, float *fov ) {
 	return getCameraInfo(camNum, time, *origin, *angles, fov );
 }
 
 
-qboolean trap_Key_IsDown( int keynum ) {
+bool trap_Key_IsDown( int keynum ) {
 	return Key_IsDown( keynum );
 }
 
@@ -266,7 +266,7 @@ void trap_SendMoveSpeedsToGame( int entnum, const char *movespeeds ) {
 	G_RetrieveMoveSpeedsFromClient(entnum, movespeeds );
 }
 
-// this returns a handle.  arg0 is the name in the format "idlogo.roq", set arg1 to NULL, alteredstates to qfalse (do not alter gamestate)
+// this returns a handle.  arg0 is the name in the format "idlogo.roq", set arg1 to NULL, alteredstates to false (do not alter gamestate)
 int trap_CIN_PlayCinematic( const char *arg0, int xpos, int ypos, int width, int height, int bits ) {
 	return CIN_PlayCinematic(arg0, xpos, ypos, width, height, bits );
 }
@@ -307,10 +307,10 @@ void trap_UI_Popup( const char *arg0 ) {
 
 
 void trap_UI_ClosePopup( const char *arg0 ) {
-	UI_KeyEvent(K_ESCAPE, qtrue );
+	UI_KeyEvent(K_ESCAPE, true );
 }
 // -NERVE - SMF
 
-qboolean trap_GetModelInfo( int clientNum, char *modelName, animModelInfo_t **modelInfo ) {
+bool trap_GetModelInfo( int clientNum, char *modelName, animModelInfo_t **modelInfo ) {
 	return G_GetModelInfo(clientNum, modelName, modelInfo );
 }

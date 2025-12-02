@@ -344,7 +344,7 @@ void vectoangles( vec3_c value1, angles_p angles );
 void AnglesToAxis( angles_c angles, mat3_p axis );
 
 void AxisCopy( mat3_c in, mat3_p out );
-qboolean AxisRotated( mat3_c in );          // assumes a non-degenerate axis
+bool AxisRotated( mat3_c in );          // assumes a non-degenerate axis
 
 int SignbitsForNormal( vec3_c normal );
 int BoxOnPlaneSide( const Bounds &b, struct cplane_s *p );
@@ -358,7 +358,7 @@ float AngleNormalize360( float angle );
 float AngleNormalize180( float angle );
 float AngleDelta( float angle1, float angle2 );
 
-qboolean PlaneFromPoints( idVec4 &plane, vec3_c a, vec3_c b, vec3_c c );
+bool PlaneFromPoints( idVec4 &plane, vec3_c a, vec3_c b, vec3_c c );
 void ProjectPointOnPlane( vec3_p dst, vec3_c p, vec3_c normal );
 void RotatePointAroundVector( vec3_p dst, vec3_c dir, vec3_c point, float degrees );
 void RotateAroundDirection( mat3_p axis, float yaw );
@@ -419,9 +419,9 @@ const char *Com_ParseRestOfLine( const char *( *data_p ) );
 void Com_UngetToken( void );
 
 #ifdef __cplusplus
-void Com_MatchToken( const char *( *buf_p ), const char *match, qboolean warning = qfalse );
+void Com_MatchToken( const char *( *buf_p ), const char *match, bool warning = false );
 #else
-void Com_MatchToken( const char *( *buf_p ), const char *match, qboolean warning );
+void Com_MatchToken( const char *( *buf_p ), const char *match, bool warning );
 #endif
 
 void Com_ScriptError( const char *msg, ... );
@@ -545,7 +545,7 @@ void WriteMapFile( const mapFile_t *mapFile, FILE *f );
 // key names are case-insensitive
 const char  *ValueForMapEntityKey( const mapEntity_t *ent, const char *key );
 float   FloatForMapEntityKey( const mapEntity_t *ent, const char *key );
-qboolean    GetVectorForMapEntityKey( const mapEntity_t *ent, const char *key, idVec3 &vec );
+bool    GetVectorForMapEntityKey( const mapEntity_t *ent, const char *key, idVec3 &vec );
 
 
 typedef struct {
@@ -572,7 +572,7 @@ void  Com_Printf( const char *msg, ... );
 void  Com_DPrintf( const char *msg, ... );
 
 typedef struct {
-	qboolean frameMemory;
+	bool frameMemory;
 	int currentElements;
 	int maxElements;            // will reallocate and move when exceeded
 	void    **elements;
@@ -591,6 +591,6 @@ int         Com_IndexForGrowListElement( const growList_t *list, const void *ele
 //
 const char *Info_ValueForKey( const char *s, const char *key );
 void Info_RemoveKey( char *s, const char *key );
-qboolean Info_Validate( const char *s );
+bool Info_Validate( const char *s );
 void Info_NextPair( const char *( *s ), char key[MAX_INFO_KEY], char value[MAX_INFO_VALUE] );
 

@@ -58,14 +58,14 @@ void SV_Netchan_Transmit( client_t *client, msg_t *msg ) {
 Netchan_SV_Process
 =================
 */
-qboolean SV_Netchan_Process( client_t *client, msg_t *msg ) {
+bool SV_Netchan_Process( client_t *client, msg_t *msg ) {
 	int ret;
 
 	ret = Netchan_Process( &client->netchan, msg );
 	if ( !ret ) {
-		return qfalse;
+		return false;
 	}
 
-	return qtrue;
+	return true;
 }
 

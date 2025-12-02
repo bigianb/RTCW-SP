@@ -287,9 +287,9 @@ typedef struct {
 	usercmd_t cmd, oldcmd;
 	int tracemask;                  // collide against these types of surfaces
 	int debugLevel;                 // if set, diagnostic output will be printed
-	qboolean noFootsteps;           // if the game is setup for no footsteps by the server
-	qboolean noWeapClips;               // if the game is setup for no weapon clips by the server
-	qboolean gauntletHit;           // true if a gauntlet attack would actually hit something
+	bool noFootsteps;           // if the game is setup for no footsteps by the server
+	bool noWeapClips;               // if the game is setup for no weapon clips by the server
+	bool gauntletHit;           // true if a gauntlet attack would actually hit something
 
 	// results (out)
 	int numtouch;
@@ -1248,12 +1248,12 @@ gitem_t *BG_FindItemForKey( wkey_t k, int *index );
 weapon_t BG_FindAmmoForWeapon( weapon_t weapon );
 weapon_t BG_FindClipForWeapon( weapon_t weapon );
 
-qboolean BG_AkimboFireSequence( int weapon, int akimboClip, int coltClip );
-//qboolean BG_AkimboFireSequence	( playerState_t *ps );	//----(SA)	added
+bool BG_AkimboFireSequence( int weapon, int akimboClip, int coltClip );
+//bool BG_AkimboFireSequence	( playerState_t *ps );	//----(SA)	added
 
 #define ITEM_INDEX( x ) ( ( x ) - bg_itemlist )
 
-qboolean    BG_CanItemBeGrabbed( const entityState_t *ent, const playerState_t *ps );
+bool    BG_CanItemBeGrabbed( const entityState_t *ent, const playerState_t *ps );
 
 
 // g_dmflags->integer flags
@@ -1404,8 +1404,8 @@ void    BG_AddPredictableEventToPlayerstate( int newEvent, int eventParm, player
 void    BG_PlayerStateToEntityState( playerState_t *ps, entityState_t *s, bool snap );
 void    BG_PlayerStateToEntityStateExtraPolate( playerState_t *ps, entityState_t *s, int time, bool snap );
 
-qboolean    BG_PlayerTouchesItem( playerState_t *ps, entityState_t *item, int atTime );
-qboolean    BG_PlayerSeesItem( playerState_t *ps, entityState_t *item, int atTime );
+bool    BG_PlayerTouchesItem( playerState_t *ps, entityState_t *item, int atTime );
+bool    BG_PlayerSeesItem( playerState_t *ps, entityState_t *item, int atTime );
 
 //----(SA)	removed PM_ammoNeeded 11/27/00
 void PM_ClipVelocity( vec3_t in, vec3_t normal, vec3_t out, float overbounce );
@@ -1626,7 +1626,7 @@ typedef struct
 	footstep_t footsteps;
 	vec3_t headOffset;
 	int version;
-	qboolean isSkeletal;
+	bool isSkeletal;
 
 	// parsed from cfg file
 	animation_t animations[MAX_MODEL_ANIMATIONS];           // anim names, frame ranges, etc
@@ -1708,18 +1708,18 @@ typedef enum
 // Global Function Decs
 
 animModelInfo_t *BG_ModelInfoForModelname( const char *modelname );
-qboolean BG_AnimParseAnimConfig( animModelInfo_t *animModelInfo, const char *filename, const char *input );
+bool BG_AnimParseAnimConfig( animModelInfo_t *animModelInfo, const char *filename, const char *input );
 void BG_AnimParseAnimScript( animModelInfo_t *modelInfo, animScriptData_t *scriptData, int client, char *filename, char *input );
-int BG_AnimScriptAnimation( playerState_t *ps, aistateEnum_t state, scriptAnimMoveTypes_t movetype, qboolean isContinue );
+int BG_AnimScriptAnimation( playerState_t *ps, aistateEnum_t state, scriptAnimMoveTypes_t movetype, bool isContinue );
 int BG_AnimScriptCannedAnimation( playerState_t *ps, aistateEnum_t state );
 int BG_AnimScriptStateChange( playerState_t *ps, aistateEnum_t newState, aistateEnum_t oldState );
-int BG_AnimScriptEvent( playerState_t *ps, scriptAnimEventTypes_t event, qboolean isContinue, qboolean force );
-int BG_IndexForString( const char *token, animStringItem_t *strings, qboolean allowFail );
-int BG_PlayAnimName( playerState_t *ps, const char *animName, animBodyPart_t bodyPart, qboolean setTimer, qboolean isContinue, qboolean force );
-qboolean BG_ValidAnimScript( int clientNum );
+int BG_AnimScriptEvent( playerState_t *ps, scriptAnimEventTypes_t event, bool isContinue, bool force );
+int BG_IndexForString( const char *token, animStringItem_t *strings, bool allowFail );
+int BG_PlayAnimName( playerState_t *ps, const char *animName, animBodyPart_t bodyPart, bool setTimer, bool isContinue, bool force );
+bool BG_ValidAnimScript( int clientNum );
 char *BG_GetAnimString( int client, int anim );
-void BG_UpdateConditionValue( int client, int condition, int value, qboolean checkConversion );
-int BG_GetConditionValue( int client, int condition, qboolean checkConversion );
+void BG_UpdateConditionValue( int client, int condition, int value, bool checkConversion );
+int BG_GetConditionValue( int client, int condition, bool checkConversion );
 int BG_GetAnimScriptAnimation( int client, aistateEnum_t state, scriptAnimMoveTypes_t movetype );
 void BG_AnimUpdatePlayerStateConditions( pmove_t *pmove );
 int BG_AnimationIndexForString( const char *string, int client );

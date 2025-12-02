@@ -30,7 +30,7 @@ If you have questions concerning this license or the applicable additional terms
 
 #include "client.h"
 
-qboolean scr_initialized = qfalse;           // ready to draw
+bool scr_initialized = false;           // ready to draw
 
 /*
 ================
@@ -164,7 +164,7 @@ to a fixed color.
 Coordinates are at 640 by 480 virtual resolution
 ==================
 */
-void SCR_DrawStringExt( int x, int y, float size, const char *string, float *setColor, qboolean forceColor )
+void SCR_DrawStringExt( int x, int y, float size, const char *string, float *setColor, bool forceColor )
 {
 	vec4_t color;
 	// draw the drop shadow
@@ -212,11 +212,11 @@ void SCR_DrawBigString( int x, int y, const char *s, float alpha )
 
 	color[0] = color[1] = color[2] = 1.0;
 	color[3] = alpha;
-	SCR_DrawStringExt( x, y, BIGCHAR_WIDTH, s, color, qfalse );
+	SCR_DrawStringExt( x, y, BIGCHAR_WIDTH, s, color, false );
 }
 
 void SCR_DrawBigStringColor( int x, int y, const char *s, vec4_t color ) {
-	SCR_DrawStringExt( x, y, BIGCHAR_WIDTH, s, color, qtrue );
+	SCR_DrawStringExt( x, y, BIGCHAR_WIDTH, s, color, true );
 }
 
 
@@ -230,7 +230,7 @@ to a fixed color.
 Coordinates are at 640 by 480 virtual resolution
 ==================
 */
-void SCR_DrawSmallStringExt( int x, int y, const char *string, float *setColor, qboolean forceColor )
+void SCR_DrawSmallStringExt( int x, int y, const char *string, float *setColor, bool forceColor )
 {
 	vec4_t color;
 	// draw the colored text
@@ -257,7 +257,7 @@ void SCR_DrawSmallStringExt( int x, int y, const char *string, float *setColor, 
 
 void SCR_Init( )
 {
-	scr_initialized = qtrue;
+	scr_initialized = true;
 }
 
 

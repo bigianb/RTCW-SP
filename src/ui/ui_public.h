@@ -176,13 +176,13 @@ typedef enum {
 
 void UI_Init( void );
 void UI_Shutdown( void );
-void UI_KeyEvent( int key, qboolean down );
+void UI_KeyEvent( int key, bool down );
 void UI_MouseEvent( int dx, int dy );
 void UI_Refresh( int realtime );
 uiMenuCommand_t UI_GetActiveMenu( void );
 void	UI_SetActiveMenu( uiMenuCommand_t menu );
-qboolean UI_IsFullscreen( void );
-qboolean UI_ConsoleCommand( int realTime );
+bool UI_IsFullscreen( void );
+bool UI_ConsoleCommand( int realTime );
 
 
 #define SORT_HOST           0
@@ -213,7 +213,7 @@ typedef enum {
 //	void	UI_Refresh( int time );
 
 	UI_IS_FULLSCREEN,
-//	qboolean UI_IsFullscreen( void );
+//	bool UI_IsFullscreen( void );
 
 	UI_SET_ACTIVE_MENU,
 //	void	UI_SetActiveMenu( uiMenuCommand_t menu );
@@ -222,10 +222,10 @@ typedef enum {
 //	void	UI_GetActiveMenu( void );
 
 	UI_CONSOLE_COMMAND,
-//	qboolean UI_ConsoleCommand( void );
+//	bool UI_ConsoleCommand( void );
 
 	UI_DRAW_CONNECT_SCREEN,
-//	void	UI_DrawConnectScreen( qboolean overlay );
+//	void	UI_DrawConnectScreen( bool overlay );
 	UI_HASUNIQUECDKEY
 // if !overlay, the background will be drawn, otherwise it will be
 // overlayed over whatever the cgame has drawn.

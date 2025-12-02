@@ -740,7 +740,7 @@ void S_PaintChannels( int endtime ) {
 	int ltime, count;
 	int sampleOffset;
 	streamingSound_t *ss;
-	qboolean firstPass = qtrue;
+	bool firstPass = true;
 
 	if ( s_mute->value ) {
 		snd_vol = 0;
@@ -947,6 +947,6 @@ void S_PaintChannels( int endtime ) {
 		// transfer out according to DMA format
 		S_TransferPaintBuffer( end );
 		s_paintedtime = end;
-		firstPass = qfalse;
+		firstPass = false;
 	}
 }

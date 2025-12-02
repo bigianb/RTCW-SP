@@ -42,8 +42,8 @@ typedef struct {
 	const char  *defaultString;
 	int cvarFlags;
 	int modificationCount;          // for tracking changes
-	qboolean trackChange;           // track this variable, and announce if changed
-	qboolean teamShader;      // track and if changed, update shader state
+	bool trackChange;           // track this variable, and announce if changed
+	bool teamShader;      // track and if changed, update shader state
 } cvarTable_t;
 
 gentity_t g_entities[MAX_GENTITIES];
@@ -134,97 +134,97 @@ vmCvar_t g_playerStart;         // set when the player enters the game
 
 cvarTable_t gameCvarTable[] = {
 	// don't override the cheat state set by the system
-	{ &g_cheats, "sv_cheats", "", 0, qfalse },
+	{ &g_cheats, "sv_cheats", "", 0, false },
 
 	// noset vars
-	{ NULL, "gamename", GAMEVERSION, CVAR_SERVERINFO | CVAR_ROM, 0, qfalse  },
-	{ NULL, "gamedate", __DATE__, CVAR_ROM, 0, qfalse  },
-	{ &g_restarted, "g_restarted", "0", CVAR_ROM, 0, qfalse  },
-	{ NULL, "sv_mapname", "", CVAR_SERVERINFO | CVAR_ROM, 0, qfalse  },
+	{ NULL, "gamename", GAMEVERSION, CVAR_SERVERINFO | CVAR_ROM, 0, false  },
+	{ NULL, "gamedate", __DATE__, CVAR_ROM, 0, false  },
+	{ &g_restarted, "g_restarted", "0", CVAR_ROM, 0, false  },
+	{ NULL, "sv_mapname", "", CVAR_SERVERINFO | CVAR_ROM, 0, false  },
 
 	// latched vars
 
 	// Rafael gameskill
-	{ &g_gameskill, "g_gameskill", "2", CVAR_SERVERINFO | CVAR_LATCH, 0, qfalse  },   // (SA) new default '2' (was '1')
+	{ &g_gameskill, "g_gameskill", "2", CVAR_SERVERINFO | CVAR_LATCH, 0, false  },   // (SA) new default '2' (was '1')
 	// done
 
 	{ &g_reloading, "g_reloading", "0", CVAR_ROM },   //----(SA)	added
 
-	{ &g_playerStart, "g_playerStart", "0", CVAR_ROM, 0, qfalse  },
+	{ &g_playerStart, "g_playerStart", "0", CVAR_ROM, 0, false  },
 
-	{ &g_maxclients, "sv_maxclients", "8", CVAR_SERVERINFO | CVAR_LATCH | CVAR_ARCHIVE, 0, qfalse  },
-	{ &g_maxGameClients, "g_maxGameClients", "0", CVAR_SERVERINFO | CVAR_LATCH | CVAR_ARCHIVE, 0, qfalse  },
+	{ &g_maxclients, "sv_maxclients", "8", CVAR_SERVERINFO | CVAR_LATCH | CVAR_ARCHIVE, 0, false  },
+	{ &g_maxGameClients, "g_maxGameClients", "0", CVAR_SERVERINFO | CVAR_LATCH | CVAR_ARCHIVE, 0, false  },
 
 	// change anytime vars
-	{ &g_dmflags, "dmflags", "0", CVAR_SERVERINFO | CVAR_ARCHIVE, 0, qtrue  },
-	{ &g_fraglimit, "fraglimit", "20", CVAR_SERVERINFO | CVAR_ARCHIVE | CVAR_NORESTART, 0, qtrue },
-	{ &g_timelimit, "timelimit", "0", CVAR_SERVERINFO | CVAR_ARCHIVE | CVAR_NORESTART, 0, qtrue },
-	{ &g_capturelimit, "capturelimit", "8", CVAR_SERVERINFO | CVAR_ARCHIVE | CVAR_NORESTART, 0, qtrue },
+	{ &g_dmflags, "dmflags", "0", CVAR_SERVERINFO | CVAR_ARCHIVE, 0, true  },
+	{ &g_fraglimit, "fraglimit", "20", CVAR_SERVERINFO | CVAR_ARCHIVE | CVAR_NORESTART, 0, true },
+	{ &g_timelimit, "timelimit", "0", CVAR_SERVERINFO | CVAR_ARCHIVE | CVAR_NORESTART, 0, true },
+	{ &g_capturelimit, "capturelimit", "8", CVAR_SERVERINFO | CVAR_ARCHIVE | CVAR_NORESTART, 0, true },
 
-	{ &g_syncronousClients, "g_syncronousClients", "0", CVAR_SYSTEMINFO, 0, qfalse  },
+	{ &g_syncronousClients, "g_syncronousClients", "0", CVAR_SYSTEMINFO, 0, false  },
 
-	{ &g_friendlyFire, "g_friendlyFire", "1", CVAR_ARCHIVE, 0, qtrue  },
+	{ &g_friendlyFire, "g_friendlyFire", "1", CVAR_ARCHIVE, 0, true  },
 
-	{ &g_warmup, "g_warmup", "20", CVAR_ARCHIVE, 0, qtrue  },
-	{ &g_doWarmup, "g_doWarmup", "0", 0, 0, qtrue  },
-	{ &g_log, "g_log", "games.log", CVAR_ARCHIVE, 0, qfalse  },
-	{ &g_logSync, "g_logSync", "0", CVAR_ARCHIVE, 0, qfalse  },
+	{ &g_warmup, "g_warmup", "20", CVAR_ARCHIVE, 0, true  },
+	{ &g_doWarmup, "g_doWarmup", "0", 0, 0, true  },
+	{ &g_log, "g_log", "games.log", CVAR_ARCHIVE, 0, false  },
+	{ &g_logSync, "g_logSync", "0", CVAR_ARCHIVE, 0, false  },
 
-	{ &g_banIPs, "g_banIPs", "", CVAR_ARCHIVE, 0, qfalse  },
+	{ &g_banIPs, "g_banIPs", "", CVAR_ARCHIVE, 0, false  },
 
-	{ &g_speed, "g_speed", "320", 0, 0, qtrue  },
-	{ &g_gravity, "g_gravity", "800", 0, 0, qtrue  },
-	{ &g_knockback, "g_knockback", "1000", 0, 0, qtrue  },
-	{ &g_quadfactor, "g_quadfactor", "3", 0, 0, qtrue  },
-	{ &g_weaponRespawn, "g_weaponrespawn", "5", 0, 0, qtrue  },
-	{ &g_weaponTeamRespawn, "g_weaponTeamRespawn", "30", 0, 0, qtrue },
-	{ &g_forcerespawn, "g_forcerespawn", "20", 0, 0, qtrue },
-	{ &g_inactivity, "g_inactivity", "0", 0, 0, qtrue },
-	{ &g_debugMove, "g_debugMove", "0", 0, 0, qfalse },
-	{ &g_debugDamage, "g_debugDamage", "0", 0, 0, qfalse },
-	{ &g_debugAlloc, "g_debugAlloc", "0", 0, 0, qfalse },
-	{ &g_debugBullets, "g_debugBullets", "0", CVAR_CHEAT, 0, qfalse},
-	{ &g_debugAudibleEvents, "g_debugAudibleEvents", "0", CVAR_CHEAT, 0, qfalse},
+	{ &g_speed, "g_speed", "320", 0, 0, true  },
+	{ &g_gravity, "g_gravity", "800", 0, 0, true  },
+	{ &g_knockback, "g_knockback", "1000", 0, 0, true  },
+	{ &g_quadfactor, "g_quadfactor", "3", 0, 0, true  },
+	{ &g_weaponRespawn, "g_weaponrespawn", "5", 0, 0, true  },
+	{ &g_weaponTeamRespawn, "g_weaponTeamRespawn", "30", 0, 0, true },
+	{ &g_forcerespawn, "g_forcerespawn", "20", 0, 0, true },
+	{ &g_inactivity, "g_inactivity", "0", 0, 0, true },
+	{ &g_debugMove, "g_debugMove", "0", 0, 0, false },
+	{ &g_debugDamage, "g_debugDamage", "0", 0, 0, false },
+	{ &g_debugAlloc, "g_debugAlloc", "0", 0, 0, false },
+	{ &g_debugBullets, "g_debugBullets", "0", CVAR_CHEAT, 0, false},
+	{ &g_debugAudibleEvents, "g_debugAudibleEvents", "0", CVAR_CHEAT, 0, false},
 
-	{ &g_headshotMaxDist, "g_headshotMaxDist", "1024", CVAR_CHEAT, 0, qfalse},
-
-
-	{ &g_motd, "g_motd", "", 0, 0, qfalse },
-	{ &g_blood, "com_blood", "1", 0, 0, qfalse },
-
-	{ &g_podiumDist, "g_podiumDist", "80", 0, 0, qfalse },
-	{ &g_podiumDrop, "g_podiumDrop", "70", 0, 0, qfalse },
-
-	{ &g_allowVote, "g_allowVote", "1", 0, 0, qfalse },
-	{ &g_listEntity, "g_listEntity", "0", 0, 0, qfalse },
-
-	{ &g_enableBreath, "g_enableBreath", "1", CVAR_SERVERINFO, 0, qtrue},
-
-	{ &g_testPain, "g_testPain", "0", CVAR_CHEAT, 0, qfalse },
-
-	{ &g_missionStats, "g_missionStats", "0", CVAR_ROM, 0, qfalse },
-
-	{ &g_developer, "developer", "0", CVAR_TEMP, 0, qfalse },
-
-	{ &g_rankings, "g_rankings", "0", 0, 0, qfalse},
-
-	{ &g_userAim, "g_userAim", "1", CVAR_CHEAT, 0, qfalse },
-
-	{ &g_forceModel, "cg_forceModel", "0", CVAR_ARCHIVE, 0, qfalse},
-	{ &g_smoothClients, "g_smoothClients", "1", 0, 0, qfalse},
-	{ &pmove_fixed, "pmove_fixed", "0", CVAR_SYSTEMINFO, 0, qfalse},
-	{ &pmove_msec, "pmove_msec", "8", CVAR_SYSTEMINFO, 0, qfalse},
+	{ &g_headshotMaxDist, "g_headshotMaxDist", "1024", CVAR_CHEAT, 0, false},
 
 
-	{&g_mg42arc, "g_mg42arc", "0", CVAR_TEMP, 0, qfalse},
+	{ &g_motd, "g_motd", "", 0, 0, false },
+	{ &g_blood, "com_blood", "1", 0, 0, false },
 
-	{&g_totalPlayTime, "g_totalPlayTime", "0", CVAR_ROM, 0, qfalse},
-	{&g_attempts, "g_attempts", "0", CVAR_ROM, 0, qfalse},
+	{ &g_podiumDist, "g_podiumDist", "80", 0, 0, false },
+	{ &g_podiumDrop, "g_podiumDrop", "70", 0, 0, false },
 
-	{&g_footstepAudibleRange, "g_footstepAudibleRange", "256", CVAR_CHEAT, 0, qfalse},
+	{ &g_allowVote, "g_allowVote", "1", 0, 0, false },
+	{ &g_listEntity, "g_listEntity", "0", 0, 0, false },
 
-	{&g_scriptName, "g_scriptName", "", CVAR_ROM, 0, qfalse},
-	{&ai_scriptName, "ai_scriptName", "", CVAR_ROM, 0, qfalse},
+	{ &g_enableBreath, "g_enableBreath", "1", CVAR_SERVERINFO, 0, true},
+
+	{ &g_testPain, "g_testPain", "0", CVAR_CHEAT, 0, false },
+
+	{ &g_missionStats, "g_missionStats", "0", CVAR_ROM, 0, false },
+
+	{ &g_developer, "developer", "0", CVAR_TEMP, 0, false },
+
+	{ &g_rankings, "g_rankings", "0", 0, 0, false},
+
+	{ &g_userAim, "g_userAim", "1", CVAR_CHEAT, 0, false },
+
+	{ &g_forceModel, "cg_forceModel", "0", CVAR_ARCHIVE, 0, false},
+	{ &g_smoothClients, "g_smoothClients", "1", 0, 0, false},
+	{ &pmove_fixed, "pmove_fixed", "0", CVAR_SYSTEMINFO, 0, false},
+	{ &pmove_msec, "pmove_msec", "8", CVAR_SYSTEMINFO, 0, false},
+
+
+	{&g_mg42arc, "g_mg42arc", "0", CVAR_TEMP, 0, false},
+
+	{&g_totalPlayTime, "g_totalPlayTime", "0", CVAR_ROM, 0, false},
+	{&g_attempts, "g_attempts", "0", CVAR_ROM, 0, false},
+
+	{&g_footstepAudibleRange, "g_footstepAudibleRange", "256", CVAR_CHEAT, 0, false},
+
+	{&g_scriptName, "g_scriptName", "", CVAR_ROM, 0, false},
+	{&ai_scriptName, "ai_scriptName", "", CVAR_ROM, 0, false},
 };
 
 // bk001129 - made static to avoid aliasing
@@ -236,15 +236,15 @@ void G_RunFrame( int levelTime );
 void G_ShutdownGame( int restart );
 
 // Ridah, Cast AI
-qboolean AICast_VisibleFromPos( vec3_t srcpos, int srcnum,
-								vec3_t destpos, int destnum, qboolean updateVisPos );
+bool AICast_VisibleFromPos( vec3_t srcpos, int srcnum,
+								vec3_t destpos, int destnum, bool updateVisPos );
 bool AICast_CheckAttackAtPos( int entnum, int enemy, vec3_t pos, bool ducking, bool allowHitWorld );
 void AICast_Init( void );
 // done.
 
 void G_RetrieveMoveSpeedsFromClient( int entnum, const char *text );
 
-qboolean G_canStealthStab( int aiChar ) {
+bool G_canStealthStab( int aiChar ) {
 	switch ( aiChar ) {
 	case AICHAR_SOLDIER:
 	case AICHAR_AMERICAN:
@@ -252,9 +252,9 @@ qboolean G_canStealthStab( int aiChar ) {
 	case AICHAR_BLACKGUARD:
 	case AICHAR_PARTISAN:
 	case AICHAR_CIVILIAN:
-		return qtrue;
+		return true;
 	}
-	return qfalse;
+	return false;
 }
 
 /*
@@ -306,7 +306,7 @@ void G_CheckForCursorHints( gentity_t *ent ) {
 	gentity_t   *checkEnt, *traceEnt = 0;
 	playerState_t *ps;
 	int hintType, hintDist, hintVal, oldHintType;
-	qboolean zooming, indirectHit;      // indirectHit means the checkent was not the ent hit by the trace (checkEnt!=traceEnt)
+	bool zooming, indirectHit;      // indirectHit means the checkent was not the ent hit by the trace (checkEnt!=traceEnt)
 	int trace_contents;                 // DHM - Nerve
 
 	// FIXME:	no need at all to do this trace/string comparison every frame.
@@ -340,9 +340,9 @@ void G_CheckForCursorHints( gentity_t *ent ) {
 
 	nextCheckTime = level.time + 100;   // wait a little before checking again	(10hz)
 
-	indirectHit = qfalse;
+	indirectHit = false;
 
-	zooming = (qboolean)( ps->eFlags & EF_ZOOMING );
+	zooming = (bool)( ps->eFlags & EF_ZOOMING );
 
 	AngleVectors( ps->viewangles, forward, right, up );
 
@@ -357,7 +357,7 @@ void G_CheckForCursorHints( gentity_t *ent ) {
 
 	tr = &ps->serverCursorHintTrace;
 	trace_contents = ( CONTENTS_TRIGGER | CONTENTS_SOLID | CONTENTS_PLAYERCLIP | CONTENTS_BODY | CONTENTS_CORPSE );   // SP fine checking corpses
-	SV_Trace( tr, offset, NULL, NULL, end, ps->clientNum, trace_contents, qfalse );
+	SV_Trace( tr, offset, NULL, NULL, end, ps->clientNum, trace_contents, false );
 
 	oldHintType = ps->serverCursorHint; // store the old one so we know when there's a transition
 
@@ -401,11 +401,11 @@ void G_CheckForCursorHints( gentity_t *ent ) {
 
 		if ( ent->shared.s.weapon == WP_KNIFE ) {
 			vec3_t pforward, eforward;
-			qboolean canKnife = qfalse;
+			bool canKnife = false;
 
 // only knife certain characters
 			if ( G_canStealthStab( traceEnt->client->ps.aiChar ) ) {
-				canKnife = qtrue;
+				canKnife = true;
 			}
 
 			if ( canKnife ) {
@@ -445,7 +445,7 @@ void G_CheckForCursorHints( gentity_t *ent ) {
 			}
 
 			if ( !Q_stricmp( traceEnt->classname, "func_invisible_user" ) ) {
-				indirectHit = qtrue;
+				indirectHit = true;
 
 				// use target for hint icon
 				checkEnt = G_Find( NULL, FOFS( targetname ), traceEnt->target );
@@ -776,7 +776,7 @@ G_RegisterCvars
 void G_RegisterCvars( void ) {
 	int i;
 	cvarTable_t *cv;
-	qboolean remapped = qfalse;
+	bool remapped = false;
 
 	for ( i = 0, cv = gameCvarTable ; i < gameCvarTableSize ; i++, cv++ ) {
 		Cvar_Register( cv->vmCvar, cv->cvarName,
@@ -786,7 +786,7 @@ void G_RegisterCvars( void ) {
 		}
 
 		if ( cv->teamShader ) {
-			remapped = qtrue;
+			remapped = true;
 		}
 	}
 
@@ -816,7 +816,7 @@ G_UpdateCvars
 void G_UpdateCvars( void ) {
 	int i;
 	cvarTable_t *cv;
-	qboolean remapped = qfalse;
+	bool remapped = false;
 
 	for ( i = 0, cv = gameCvarTable ; i < gameCvarTableSize ; i++, cv++ ) {
 		if ( cv->vmCvar ) {
@@ -831,7 +831,7 @@ void G_UpdateCvars( void ) {
 				}
 
 				if ( cv->teamShader ) {
-					remapped = qtrue;
+					remapped = true;
 				}
 
 				// check for changed values for particular cvars
@@ -847,9 +847,9 @@ void G_UpdateCvars( void ) {
 						// So we should call the script, but not let it actually run. Therefore upon loading, the
 						// script should run, and the camera start.
 
-						saveGamePending = qtrue;    // set this temporarily so we dont actually run the script just yet
+						saveGamePending = true;    // set this temporarily so we dont actually run the script just yet
 						AICast_ScriptEvent( AICast_GetCastState( player->shared.s.number ), "playerstart", "" );
-						saveGamePending = qfalse;   // set it back
+						saveGamePending = false;   // set it back
 
 						// save the "autosave\\<mapname>" savegame, which is taken before any cameras have been played
 						Cvar_VariableStringBuffer( "mapname", mapname, sizeof( mapname ) );
@@ -1468,7 +1468,7 @@ void G_RunFrame( int levelTime )
 				continue;
 			} else if ( ent->unlinkAfterEvent ) {
 				// items that will respawn will hide themselves after their pickup event
-				ent->unlinkAfterEvent = qfalse;
+				ent->unlinkAfterEvent = false;
 				SV_UnlinkEntity( &ent->shared );
 			}
 			ent->eventTime = 0;

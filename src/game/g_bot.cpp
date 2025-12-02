@@ -98,7 +98,7 @@ void G_QueueBotBegin( int clientNum ) {
 G_BotConnect
 ===============
 */
-qboolean G_BotConnect( int clientNum, qboolean restart ) {
+bool G_BotConnect( int clientNum, bool restart ) {
 	bot_settings_t settings;
 	char userinfo[MAX_INFO_STRING];
 
@@ -110,14 +110,14 @@ qboolean G_BotConnect( int clientNum, qboolean restart ) {
 
 	if ( !BotAISetupClient( clientNum, &settings ) ) {
 		SV_GameDropClient( clientNum, "BotAISetupClient failed" );
-		return qfalse;
+		return false;
 	}
 
 	if ( restart  ) {
-		g_entities[clientNum].botDelayBegin = qtrue;
+		g_entities[clientNum].botDelayBegin = true;
 	}
 
-	return qtrue;
+	return true;
 }
 
 

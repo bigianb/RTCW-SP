@@ -215,7 +215,7 @@ void SV_BoundMaxClients( int minimum )
 	// get the current maxclients value
 	Cvar_Get( "sv_maxclients", "8", 0 );
 
-	sv_maxclients->modified = qfalse;
+	sv_maxclients->modified = false;
 
 	if ( sv_maxclients->integer < minimum ) {
 		Cvar_Set( "sv_maxclients", va( "%i", minimum ) );
@@ -295,13 +295,13 @@ const char *SV_GetReliableCommand( client_t *cl, int index )
 SV_AddReliableCommand
 ===============
 */
-qboolean SV_AddReliableCommand( client_t *cl, int index, const char *cmd )
+bool SV_AddReliableCommand( client_t *cl, int index, const char *cmd )
 {
 	size_t i, j;
 	char    *ch, *ch2;
 	//
 	if ( !cl->reliableCommands.bufSize ) {
-		return qfalse;
+		return false;
 	}
 	//
 	size_t length = strlen( cmd );
@@ -334,7 +334,7 @@ qboolean SV_AddReliableCommand( client_t *cl, int index, const char *cmd )
 				//
 				if ( i == cl->reliableCommands.bufSize - 1 ) {
 					// ran out of room, not enough space for string
-					return qfalse;
+					return false;
 				}
 				//
 				ch = &cl->reliableCommands.buf[i];  // continue where ch2 left off
@@ -350,7 +350,7 @@ qboolean SV_AddReliableCommand( client_t *cl, int index, const char *cmd )
 	// move the rover along
 	cl->reliableCommands.rover += length + 1;
 	//
-	return qtrue;
+	return true;
 }
 
 /*
@@ -416,7 +416,7 @@ void SV_Startup()
 
 	svs.numSnapshotEntities = sv_maxclients->integer * 4 * 64;
 	
-	svs.initialized = qtrue;
+	svs.initialized = true;
 
 	Cvar_Set( "sv_running", "1" );
 }
@@ -571,7 +571,7 @@ clients along with it.
 This is NOT called for map_restart
 ================
 */
-void SV_SpawnServer( char *server, qboolean killBots )
+void SV_SpawnServer( char *server, bool killBots )
 {
 	static cvar_t   *bot_enable;
 
@@ -663,7 +663,7 @@ void SV_SpawnServer( char *server, qboolean killBots )
 	FS_Restart( sv.checksumFeed );
 
 	int checksum;
-	CM_LoadMap( va( "maps/%s.bsp", server ), qfalse, &checksum );
+	CM_LoadMap( va( "maps/%s.bsp", server ), false, &checksum );
 
 	// set serverinfo visible name
 	Cvar_Set( "mapname", server );
@@ -696,7 +696,7 @@ void SV_SpawnServer( char *server, qboolean killBots )
 	// create a baseline for more efficient communications
 	SV_CreateBaseline();
 
-	qboolean isBot = qfalse;	// IJB: what should the default be?
+	bool isBot = false;	// IJB: what should the default be?
 	for (int i = 0 ; i < sv_maxclients->integer ; i++ ) {
 		// send the new gamestate to all connected clients
 		if ( svs.clients[i].state >= CS_CONNECTED ) {
@@ -707,11 +707,11 @@ void SV_SpawnServer( char *server, qboolean killBots )
 				continue;
 	
 			} else {
-				isBot = qfalse;
+				isBot = false;
 			}
 
 			// connect the client again
-			const char* denied = ClientConnect( i, qfalse, isBot ); // firstTime = qfalse
+			const char* denied = ClientConnect( i, false, isBot ); // firstTime = false
 			if ( denied ) {
 				// this generally shouldn't happen, because the client
 				// was connected before the level change
@@ -905,6 +905,6 @@ void SV_Shutdown( const char *finalmsg )
 	Com_Printf( "---------------------------\n" );
 
 	// disconnect any local clients
-	CL_Disconnect( qfalse );
+	CL_Disconnect( false );
 }
 

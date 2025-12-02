@@ -51,7 +51,7 @@ void alarmExplosion( gentity_t *ent ) {
 alarmbox_updateparts
 ==============
 */
-void alarmbox_updateparts( gentity_t *ent, qboolean matestoo ) {
+void alarmbox_updateparts( gentity_t *ent, bool matestoo ) {
 	gentity_t   *t, *mate;
 	bool alarming = ( ent->shared.s.frame == 1 );
 
@@ -73,7 +73,7 @@ void alarmbox_updateparts( gentity_t *ent, qboolean matestoo ) {
 				mate->shared.s.frame = ent->shared.s.frame;
 			}
 
-			alarmbox_updateparts( mate, qfalse );
+			alarmbox_updateparts( mate, false );
 		}
 	}
 
@@ -132,7 +132,7 @@ void alarmbox_use( gentity_t *ent, gentity_t *other, gentity_t *foo ) {
 		ent->shared.s.frame = 1;
 	}
 
-	alarmbox_updateparts( ent, qtrue );
+	alarmbox_updateparts( ent, true );
 	if ( other->client ) {
 		G_AddEvent( ent, EV_GENERAL_SOUND, ent->soundPos3 );
 	}
@@ -150,9 +150,9 @@ void alarmbox_die( gentity_t *ent, gentity_t *inflictor, gentity_t *attacker, in
 
 	alarmExplosion( ent );
 	ent->shared.s.frame    = 2;
-	ent->active     = qfalse;
-	ent->takedamage = qfalse;
-	alarmbox_updateparts( ent, qtrue );
+	ent->active     = false;
+	ent->takedamage = false;
+	alarmbox_updateparts( ent, true );
 
 	// fire 'death' targets
 	if ( ent->targetdeath ) {
@@ -186,7 +186,7 @@ void alarmbox_finishspawning( gentity_t *ent ) {
 		mate->teammaster = ent->teammaster;
 
 	// find lights and set their state
-	alarmbox_updateparts( ent, qtrue );
+	alarmbox_updateparts( ent, true );
 }
 
 
@@ -244,9 +244,9 @@ void SP_alarm_box( gentity_t *ent ) {
 		ent->shared.s.frame = 0;
 	}
 
-	ent->active     = qtrue;
+	ent->active     = true;
 	ent->shared.s.eType    = ET_ALARMBOX;
-	ent->takedamage = qtrue;
+	ent->takedamage = true;
 	ent->die        = alarmbox_die;
 	ent->use        = alarmbox_use;
 	ent->think      = alarmbox_finishspawning;

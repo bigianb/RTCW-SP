@@ -95,7 +95,7 @@ static int weapIconDrawSize( int weap ) {
 CG_DrawPlayerWeaponIcon
 ==============
 */
-static void CG_DrawPlayerWeaponIcon( rectDef_t *rect, qboolean drawHighlighted, int align ) {
+static void CG_DrawPlayerWeaponIcon( rectDef_t *rect, bool drawHighlighted, int align ) {
 	int size;
 	int realweap;                   // DHM - Nerve
 	qhandle_t icon;
@@ -198,7 +198,7 @@ static void CG_DrawPlayerWeaponIcon( rectDef_t *rect, qboolean drawHighlighted, 
 CG_DrawPlayerAmmoIcon
 ==============
 */
-static void CG_DrawPlayerAmmoIcon( rectDef_t *rect, qboolean draw2D ) {
+static void CG_DrawPlayerAmmoIcon( rectDef_t *rect, bool draw2D ) {
 	centity_t   *cent;
 	playerState_t   *ps;
 	vec3_t angles;
@@ -252,7 +252,7 @@ static void CG_DrawCursorhint( rectDef_t *rect ) {
 	float       *color;
 	qhandle_t icon, icon2 = 0;
 	float scale, halfscale;
-	qboolean redbar = qfalse;
+	bool redbar = false;
 
 	if ( !cg_cursorHints.integer ) {
 		return;
@@ -285,12 +285,12 @@ static void CG_DrawCursorhint( rectDef_t *rect ) {
 		break;
 
 	case HINT_NOEXIT_FAR:
-		redbar = qtrue;     // draw the status bar in red to show that you can't exit yet
+		redbar = true;     // draw the status bar in red to show that you can't exit yet
 	case HINT_EXIT_FAR:
 		break;
 
 	case HINT_NOEXIT:
-		redbar = qtrue;     // draw the status bar in red to show that you can't exit yet
+		redbar = true;     // draw the status bar in red to show that you can't exit yet
 	case HINT_EXIT:
 		cg.exitStatsFade = 250;     // fade /up/ time
 		if ( !cg.exitStatsTime ) {
@@ -397,7 +397,7 @@ static void CG_DrawPlayerAmmoValue( rectDef_t *rect, int font, float scale, vec4
 	centity_t   *cent;
 	playerState_t   *ps;
 	int weap;
-	qboolean special = qfalse;
+	bool special = false;
 
     if (cg.snap == NULL){
         return;
@@ -422,7 +422,7 @@ static void CG_DrawPlayerAmmoValue( rectDef_t *rect, int font, float scale, vec4
 		return;
 
 	case WP_AKIMBO:
-		special = qtrue;
+		special = true;
 		break;
 
 	case WP_GRENADE_LAUNCHER:
@@ -472,7 +472,7 @@ static void CG_DrawPlayerAmmoValue( rectDef_t *rect, int font, float scale, vec4
 	}
 }
 
-static void CG_DrawHoldableItem( rectDef_t *rect, int font, float scale, qboolean draw2D ) {
+static void CG_DrawHoldableItem( rectDef_t *rect, int font, float scale, bool draw2D ) {
 	int value;
 	gitem_t *item;
 
@@ -587,11 +587,11 @@ float CG_GetValue( int ownerDraw, int type ) {
 	return -1;
 }
 
-qboolean CG_OwnerDrawVisible( int flags )
+bool CG_OwnerDrawVisible( int flags )
 {
 	if ( flags & CG_SHOW_NOT_V_BINOC ) {      // if looking through binocs
 		if ( cg.zoomedBinoc ) {
-			return qfalse;
+			return false;
 		}
 	}
 
@@ -599,11 +599,11 @@ qboolean CG_OwnerDrawVisible( int flags )
 		// setting any of these does not necessarily disable drawing in regular view
 		// CG_SHOW_NOT_V_CLEAR must also be set to hide for reg view
 		if ( !( flags & CG_SHOW_NOT_V_CLEAR ) ) {
-			return qtrue;
+			return true;
 		}
 	}
 
-	return qfalse;
+	return false;
 }
 
 
@@ -771,7 +771,7 @@ void CG_OwnerDraw( float x, float y, float w, float h, float text_x, float text_
 
 	switch ( ownerDraw ) {
 	case CG_PLAYER_WEAPON_ICON2D:
-		CG_DrawPlayerWeaponIcon( &rect, (ownerDrawFlags & CG_SHOW_HIGHLIGHTED) ? qtrue : qfalse, align );
+		CG_DrawPlayerWeaponIcon( &rect, (ownerDrawFlags & CG_SHOW_HIGHLIGHTED), align );
 		break;
 	case CG_PLAYER_ARMOR_VALUE:
 		CG_DrawPlayerArmorValue( &rect, font, scale, color, shader, textStyle );
@@ -798,7 +798,7 @@ void CG_OwnerDraw( float x, float y, float w, float h, float text_x, float text_
 		CG_DrawFatigue( &rect, color, align );
 		break;
 	case CG_PLAYER_HOLDABLE:
-		CG_DrawHoldableItem( &rect, font, scale, (ownerDrawFlags & CG_SHOW_2DONLY)?qtrue : qfalse );
+		CG_DrawHoldableItem( &rect, font, scale, (ownerDrawFlags & CG_SHOW_2DONLY)?true : false );
 		break;
 	case CG_PLAYER_HEALTH:
 		CG_DrawPlayerHealth( &rect, font, scale, color, shader, textStyle );
@@ -847,7 +847,7 @@ void CG_MouseEvent( int x, int y ) {
 
 }
 
-void CG_KeyEvent( int key, qboolean down ) {
+void CG_KeyEvent( int key, bool down ) {
 
 	if ( !down ) {
 		return;

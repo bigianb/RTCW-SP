@@ -46,8 +46,8 @@ typedef struct flameChunk_s
 	struct flameChunk_s *nextFlameChunk;            // next junction in the trail
 	struct flameChunk_s *nextHead, *prevHead;       // next head junc in the world
 
-	qboolean inuse;
-	qboolean dead;          // set when a chunk is effectively inactive, but waiting to be freed
+	bool inuse;
+	bool dead;          // set when a chunk is effectively inactive, but waiting to be freed
 	int ownerCent;              // cent that spawned us
 
 	int timeStart, timeEnd;
@@ -60,7 +60,7 @@ typedef struct flameChunk_s
 	vec3_t velDir;
 	float velSpeed;                 // flame chunks should start with a fast velocity, then slow down if there is nothing behind them pushing them along
 	float rollAngle;
-	qboolean ignitionOnly;
+	bool ignitionOnly;
 	int blueLife;
 	float gravity;
 	vec3_t startVelDir;
@@ -79,7 +79,7 @@ typedef struct flameChunk_s
 static flameChunk_t flameChunks[MAX_FLAME_CHUNKS];
 static flameChunk_t *freeFlameChunks, *activeFlameChunks, *headFlameChunks;
 
-static qboolean initFlameChunks = qfalse;
+static bool initFlameChunks = false;
 
 static int numFlameChunksInuse;
 
@@ -95,9 +95,9 @@ typedef struct centFlameInfo_s
 	*lastFlameChunk;                // flame chunk we last spawned
 	int lastSoundUpdate;
 
-	qboolean lastFiring;
+	bool lastFiring;
 
-	qboolean silent;                //----(SA)	added
+	bool silent;                //----(SA)	added
 
 	int lastDmgUpdate;              // time we last told server about this ent's flame damage
 	int lastDmgCheck;               // only check once per 100ms
@@ -167,7 +167,7 @@ static vec3_t flameChunkMaxs = { 4,  4,  4};
 //#define FLAMETHROW_LIGHTS
 
 // disable this to stop rotating flames (this is variable so we can change it at run-time)
-int rotatingFlames = qtrue;
+int rotatingFlames = true;
 
 /*
 ===============
@@ -206,7 +206,7 @@ CG_FireFlameChunks
 	2 - silent
 ===============
 */
-void CG_FireFlameChunks( centity_t *cent, vec3_t origin, vec3_t angles, float speedScale, qboolean firing, int flags ) {
+void CG_FireFlameChunks( centity_t *cent, vec3_t origin, vec3_t angles, float speedScale, bool firing, int flags ) {
 	centFlameInfo_t *centInfo;
 	flameChunk_t *f, *of;
 	vec3_t lastFwd, thisFwd, fwd;
@@ -226,7 +226,7 @@ void CG_FireFlameChunks( centity_t *cent, vec3_t origin, vec3_t angles, float sp
 
 //----(SA)	added
 	if ( flags & 2 ) { // silent
-		centInfo->silent = qtrue;
+		centInfo->silent = true;
 	}
 //----(SA)	end
 
@@ -338,7 +338,7 @@ void CG_FireFlameChunks( centity_t *cent, vec3_t origin, vec3_t angles, float sp
 			f->velSpeed = FLAME_START_SPEED * ( 0.3 + 0.7 * speedScale );
 			f->ownerCent = cent->currentState.number;
 			f->rollAngle = crandom() * 179;
-			f->ignitionOnly = !firing ? qtrue : qfalse;
+			f->ignitionOnly = !firing;
 			if ( !firing ) {
 				f->gravity = -150;
 				f->blueLife = FLAME_BLUE_LIFE * 0.5;
@@ -416,7 +416,7 @@ void CG_FireFlameChunks( centity_t *cent, vec3_t origin, vec3_t angles, float sp
 		f->velSpeed = FLAME_START_SPEED * ( 0.3 + 0.7 * speedScale );
 		f->ownerCent = cent->currentState.number;
 		f->rollAngle = crandom() * 179;
-		f->ignitionOnly = !firing ? qtrue : qfalse;
+		f->ignitionOnly = !firing;
 		f->speedScale = speedScale;
 		if ( !firing ) {
 			f->gravity = -100;
@@ -484,11 +484,11 @@ void CG_ClearFlameChunks( void ) {
 			flameChunks[i].prevGlobal = NULL;
 		}
 
-		flameChunks[i].inuse = qfalse;
+		flameChunks[i].inuse = false;
 	}
 	flameChunks[MAX_FLAME_CHUNKS - 1].nextGlobal = NULL;
 
-	initFlameChunks = qtrue;
+	initFlameChunks = true;
 	numFlameChunksInuse = 0;
 }
 
@@ -522,8 +522,8 @@ flameChunk_t *CG_SpawnFlameChunk( flameChunk_t *headFlameChunk ) {
 	}
 	activeFlameChunks = f;
 	f->prevGlobal = NULL;
-	f->inuse = qtrue;
-	f->dead = qfalse;
+	f->inuse = true;
+	f->dead = false;
 
 	// if this owner has a headJunc, add us to the start
 	if ( headFlameChunk ) {
@@ -580,8 +580,8 @@ void CG_FreeFlameChunk( flameChunk_t *f ) {
 	}
 
 	// make it non-active
-	f->inuse = qfalse;
-	f->dead = qfalse;
+	f->inuse = false;
+	f->dead = false;
 	if ( f->nextGlobal ) {
 		f->nextGlobal->prevGlobal = f->prevGlobal;
 	}
@@ -801,7 +801,7 @@ static vec3_t rright, rup;
 
 static qhandle_t flameShaders[NUM_FLAME_SPRITES];
 static qhandle_t nozzleShaders[NUM_NOZZLE_SPRITES];
-static qboolean initFlameShaders = qtrue;
+static bool initFlameShaders = true;
 
 #define MAX_CLIPPED_FLAMES  2       // dont draw more than this many per frame
 static int numClippedFlames;
@@ -1080,17 +1080,17 @@ void CG_AddFlameToScene( flameChunk_t *fHead ) {
 	float alpha;
 	float lived;
 	int headTimeStart;
-	//qboolean	firstFuel = qtrue; // TTimo
+	//bool	firstFuel = true; // TTimo
 	float vdist, bdot;
 #define FLAME_SOUND_RANGE   1024.0
 
 	flameChunk_t *lastBlowChunk = NULL;
 	bool isClientFlame;
-	qboolean firing;
+	bool firing;
 	int shader;
 
 	flameChunk_t *lastBlueChunk = NULL;
-	qboolean skip = qfalse, droppedTrail;
+	bool skip = false, droppedTrail;
 	vec3_t v, lastDrawPos;
 
 #ifdef FLAMETHROW_LIGHTS
@@ -1110,11 +1110,11 @@ void CG_AddFlameToScene( flameChunk_t *fHead ) {
 
 	if ( ( cg_entities[fHead->ownerCent].currentState.eFlags & EF_FIRING ) /*(centFlameInfo[fHead->ownerCent].lastClientFrame == cg_entities[fHead->ownerCent].lastWeaponClientFrame)*/ && ( centFlameInfo[fHead->ownerCent].lastFlameChunk == fHead ) ) {
 		headTimeStart = fHead->timeStart;
-		firing = qtrue;
+		firing = true;
 	} else {
-		//isClientFlame = qfalse;
+		//isClientFlame = false;
 		headTimeStart = cg.time;
-		firing = qfalse;
+		firing = false;
 	}
 
 	VectorClear( lightOrg );
@@ -1155,7 +1155,7 @@ void CG_AddFlameToScene( flameChunk_t *fHead ) {
 		lightSize += f->size;
 		lightFlameCount += f->size / 20.0;
 
-		droppedTrail = qfalse;
+		droppedTrail = false;
 
 		// is it a stream chunk? (no special handling)
 		if ( !f->ignitionOnly && f->velSpeed < 1 ) {
@@ -1164,15 +1164,15 @@ void CG_AddFlameToScene( flameChunk_t *fHead ) {
 			// is it in the blue ignition section of the flame?
 		} else if ( isClientFlame && f->blueLife > ( lived / 2.0 ) ) {
 
-			skip = qfalse;
+			skip = false;
 
 			// if this is backwards from the last chunk, then skip it
 			if ( /*!f->ignitionOnly &&*/ fNext && f != fHead && lastBlueChunk ) {
 				VectorSubtract( f->org, lastBlueChunk->org, v );
 				if ( VectorNormalize( v ) < f->size / 2 ) {
-					skip = qtrue;
+					skip = true;
 				} else if ( DotProduct( v, f->velDir ) < 0 ) {
-					skip = qtrue;
+					skip = true;
 				}
 			}
 
@@ -1218,10 +1218,10 @@ void CG_AddFlameToScene( flameChunk_t *fHead ) {
 				}
 
 				// fire stream
-//if (qfalse)
+//if (false)
 				if ( !f->ignitionOnly ) { // && isClientFlame) {
 					float bscale;
-					qboolean fskip = qfalse;
+					bool fskip = false;
 
 					bscale = 1.0;
 
@@ -1237,7 +1237,7 @@ void CG_AddFlameToScene( flameChunk_t *fHead ) {
 					if ( alpha <= 0.0 ) {
 						alpha = 0.0;
 						if ( lastFuelAlpha <= 0.0 ) {
-							fskip = qtrue;
+							fskip = true;
 						}
 					}
 
@@ -1246,7 +1246,7 @@ void CG_AddFlameToScene( flameChunk_t *fHead ) {
 
 						VectorScale( whiteColor, alpha, c );
 
-						droppedTrail = qtrue;
+						droppedTrail = true;
 
 						fuelTrailHead = CG_AddTrailJunc(    fuelTrailHead,
 															cgs.media.flamethrowerFireStream,
@@ -1273,7 +1273,7 @@ void CG_AddFlameToScene( flameChunk_t *fHead ) {
 			 ( (float)( FLAME_SPRITE_START_BLUE_SCALE * f->blueLife ) < (float)lived ) ) {
 
 			float alpha, lifeFrac;
-			qboolean skip = qfalse;
+			bool skip = false;
 			vec3_t v1, v2;
 			float fDist, vDist;
 
@@ -1288,7 +1288,7 @@ void CG_AddFlameToScene( flameChunk_t *fHead ) {
 						CG_MergeFlameChunks( f, fNext );
 						fNext = f->nextFlameChunk;      // it may have changed
 					} else {
-						skip = qtrue;
+						skip = true;
 						break;
 					}
 				} else {
@@ -1310,7 +1310,7 @@ void CG_AddFlameToScene( flameChunk_t *fHead ) {
 				fDist = VectorNormalize( v2 );
 				vDist = VectorNormalize( v1 );
 				if ( ( vDist / f->size ) * fDist * ( 0.1 + 0.9 * ( 1.0 - fabs( DotProduct( v1, v2 ) ) ) ) < ( 2.0 * ( f->size / 30.0 < 1.0 ? f->size / 30.0 : 1.0 ) ) ) {
-					skip = qtrue;
+					skip = true;
 				}
 			}
 
@@ -1377,7 +1377,7 @@ CG_GenerateShaders
   A util to create a bunch of shaders in a unique shader file, which represent an animation
 =============
 */
-void CG_GenerateShaders( char *filename, char *shaderName, char *dir, int numFrames, char *srcBlend, char *dstBlend, char *extras, qboolean compressedVersionAvailable, qboolean nomipmap ) {
+void CG_GenerateShaders( char *filename, char *shaderName, char *dir, int numFrames, char *srcBlend, char *dstBlend, char *extras, bool compressedVersionAvailable, bool nomipmap ) {
 	fileHandle_t f;
 	int b, c, d, lastNumber;
 	char str[512];
@@ -1421,7 +1421,7 @@ void CG_InitFlameChunks( void ) {
 						FLAME_BLEND_SRC,
 						FLAME_BLEND_DST,
 						"",
-						qtrue, qtrue );
+						true, true );
 
 	CG_GenerateShaders( "scripts/blacksmokeanim.shader",
 						"blacksmokeanim",
@@ -1430,7 +1430,7 @@ void CG_InitFlameChunks( void ) {
 						"GL_ZERO",
 						"GL_ONE_MINUS_SRC_ALPHA",
 						"\t\talphaGen const 0.2\n",
-						qfalse, qfalse );
+						false, false );
 
 	CG_GenerateShaders( "scripts/viewflames.shader",
 						"viewFlashFire",
@@ -1439,7 +1439,7 @@ void CG_InitFlameChunks( void ) {
 						"GL_ONE",
 						"GL_ONE",
 						"\t\talphaGen vertex\n\t\trgbGen vertex\n",
-						qtrue, qtrue );
+						true, true );
 
 	CG_GenerateShaders( "scripts/twiltb.shader",
 						"twiltb",
@@ -1448,7 +1448,7 @@ void CG_InitFlameChunks( void ) {
 						"GL_SRC_ALPHA",
 						"GL_ONE_MINUS_SRC_COLOR",
 						"",
-						qtrue, qfalse );
+						true, false );
 
 	CG_GenerateShaders( "scripts/twiltb2.shader",
 						"twiltb2",
@@ -1457,7 +1457,7 @@ void CG_InitFlameChunks( void ) {
 						"GL_ONE",
 						"GL_ONE_MINUS_SRC_COLOR",
 						"",
-						qtrue, qfalse );
+						true, false );
 
 	CG_GenerateShaders( "scripts/expblue.shader",
 						"expblue",
@@ -1466,7 +1466,7 @@ void CG_InitFlameChunks( void ) {
 						"GL_ONE",
 						"GL_ONE_MINUS_SRC_COLOR",
 						"",
-						qfalse, qfalse );
+						false, false );
 
 	CG_GenerateShaders( "scripts/firest.shader",
 						"firest",
@@ -1475,7 +1475,7 @@ void CG_InitFlameChunks( void ) {
 						"GL_ONE",
 						"GL_ONE_MINUS_SRC_COLOR",
 						"",
-						qtrue, qfalse );
+						true, false );
 
 	CG_GenerateShaders( "scripts/explode1.shader",
 						"explode1",
@@ -1484,7 +1484,7 @@ void CG_InitFlameChunks( void ) {
 						"GL_ONE",
 						"GL_ONE_MINUS_SRC_COLOR",
 						"",
-						qtrue, qfalse );
+						true, false );
 
 	CG_GenerateShaders( "scripts/funnel.shader",
 						"funnel",
@@ -1493,7 +1493,7 @@ void CG_InitFlameChunks( void ) {
 						"GL_ONE",
 						"GL_ONE_MINUS_SRC_COLOR",
 						"",
-						qfalse, qfalse );
+						false, false );
 #endif
 
 	for ( i = 0; i < NUM_FLAME_SPRITES; i++ ) {
@@ -1504,7 +1504,7 @@ void CG_InitFlameChunks( void ) {
 		snprintf( filename, MAX_QPATH, "nozzleFlame%i", i + 1 );
 		nozzleShaders[i] = trap_R_RegisterShader( filename );
 	}
-	initFlameShaders = qfalse;
+	initFlameShaders = false;
 }
 
 /*
@@ -1530,9 +1530,9 @@ void CG_AddFlameChunks( void ) {
 	while ( f ) {
 		if ( !f->dead ) {
 			if ( cg.time > f->timeEnd ) {
-				f->dead = qtrue;
+				f->dead = true;
 			} else if ( f->ignitionOnly && ( f->blueLife < ( cg.time - f->timeStart ) ) ) {
-				f->dead = qtrue;
+				f->dead = true;
 			} else {
 				// adjust by a fraction if crossing the blueLife threshold
 				if ( ( f->sizeTime - f->timeStart < f->blueLife ) != ( cg.time - f->timeStart < f->blueLife ) ) {

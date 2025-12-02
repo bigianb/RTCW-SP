@@ -69,7 +69,7 @@ void AICast_Sight( gentity_t *ent, gentity_t *other, int lastSight ) {
 	//
 	if ( cs->sightfunc ) {
 		// factor in the reaction time
-		if ( AICast_EntityVisible( cs, other->shared.s.number, qfalse ) ) {
+		if ( AICast_EntityVisible( cs, other->shared.s.number, false ) ) {
 			cs->sightfunc( ent, other, lastSight );
 		}
 	}
@@ -127,7 +127,7 @@ void AICast_Pain( gentity_t *targ, gentity_t *attacker, int damage, vec3_t point
 
 	// record the sighting (FIXME: silent weapons shouldn't do this, but the AI should react in some way)
 	if ( attacker->client ) {
-		AICast_UpdateVisibility( targ, attacker, qtrue, qtrue );
+		AICast_UpdateVisibility( targ, attacker, true, true );
 	}
 
 	// if either of us are neutral, then we are now enemies
@@ -161,7 +161,7 @@ void AICast_Die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
 	int contents;
 	int killer;
 	cast_state_t    *cs;
-	qboolean nogib = qtrue;
+	bool nogib = true;
 	char mapname[MAX_QPATH];
 
 	// print debugging message
@@ -179,7 +179,7 @@ void AICast_Die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
 
 	// record the sighting (FIXME: silent weapons shouldn't do this, but the AI should react in some way)
 	if ( attacker->client ) {
-		AICast_UpdateVisibility( self, attacker, qtrue, qtrue );
+		AICast_UpdateVisibility( self, attacker, true, true );
 	}
 
 	if ( self->aiCharacter == AICHAR_HEINRICH || self->aiCharacter == AICHAR_HELGA || self->aiCharacter == AICHAR_SUPERSOLDIER || self->aiCharacter == AICHAR_PROTOSOLDIER ) {
@@ -214,9 +214,9 @@ void AICast_Die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
 			if ( self->aiCharacter == AICHAR_ZOMBIE ) {
 				// RF, changed this so Zombies always gib now
 				GibEntity( self, killer );
-				nogib = qfalse;
+				nogib = false;
 
-				self->takedamage = qfalse;
+				self->takedamage = false;
 				self->shared.r.contents = 0;
 				cs->secondDeadTime = 2;
 				cs->rebirthTime = 0;
@@ -248,7 +248,7 @@ void AICast_Die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
 		// otherwise it might replay it's death animation if it goes out and into client view
 		self->shared.r.svFlags |= SVF_BROADCAST;
 
-		self->takedamage = qtrue;   // can still be gibbed
+		self->takedamage = true;   // can still be gibbed
 
 		self->shared.s.weapon = WP_NONE;
 		if ( cs->bs ) {
@@ -280,11 +280,11 @@ void AICast_Die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
 			if ( self->aiCharacter == AICHAR_ZOMBIE ) {
 				// RF, changed this so Zombies always gib now
 				GibEntity( self, killer );
-				nogib = qfalse;
+				nogib = false;
 			} else if ( !( contents & CONTENTS_NODROP ) ) {
 				body_die( self, inflictor, attacker, damage, meansOfDeath );
 				//GibEntity( self, killer );
-				nogib = qfalse;
+				nogib = false;
 			}
 		}
 
@@ -292,24 +292,24 @@ void AICast_Die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
 		if ( !( self->aiCharacter == AICHAR_ZOMBIE && cs->secondDeadTime && cs->rebirthTime ) ) {
 
 			// set enemy weapon
-			BG_UpdateConditionValue( self->shared.s.number, ANIM_COND_ENEMY_WEAPON, 0, qfalse );
+			BG_UpdateConditionValue( self->shared.s.number, ANIM_COND_ENEMY_WEAPON, 0, false );
 			if ( attacker->client ) {
-				BG_UpdateConditionValue( self->shared.s.number, ANIM_COND_ENEMY_WEAPON, inflictor->shared.s.weapon, qtrue );
+				BG_UpdateConditionValue( self->shared.s.number, ANIM_COND_ENEMY_WEAPON, inflictor->shared.s.weapon, true );
 			} else {
-				BG_UpdateConditionValue( self->shared.s.number, ANIM_COND_ENEMY_WEAPON, 0, qfalse );
+				BG_UpdateConditionValue( self->shared.s.number, ANIM_COND_ENEMY_WEAPON, 0, false );
 			}
 
 			// set enemy location
-			BG_UpdateConditionValue( self->shared.s.number, ANIM_COND_ENEMY_POSITION, 0, qfalse );
+			BG_UpdateConditionValue( self->shared.s.number, ANIM_COND_ENEMY_POSITION, 0, false );
 			if ( infront( self, inflictor ) ) {
-				BG_UpdateConditionValue( self->shared.s.number, ANIM_COND_ENEMY_POSITION, POSITION_INFRONT, qtrue );
+				BG_UpdateConditionValue( self->shared.s.number, ANIM_COND_ENEMY_POSITION, POSITION_INFRONT, true );
 			} else {
-				BG_UpdateConditionValue( self->shared.s.number, ANIM_COND_ENEMY_POSITION, POSITION_BEHIND, qtrue );
+				BG_UpdateConditionValue( self->shared.s.number, ANIM_COND_ENEMY_POSITION, POSITION_BEHIND, true );
 			}
 
 			if ( self->takedamage ) { // only play the anim if we haven't gibbed
 				// play the animation
-				BG_AnimScriptEvent( &self->client->ps, ANIM_ET_DEATH, qfalse, qtrue );
+				BG_AnimScriptEvent( &self->client->ps, ANIM_ET_DEATH, false, true );
 			}
 
 			// set gib delay
@@ -435,7 +435,7 @@ void AICast_AIDoor_Touch( gentity_t *ent, gentity_t *aidoor_trigger, gentity_t *
 	// TTimo: gcc: suggest () around assignment used as truth value
 	for ( trav = NULL; ( trav = G_Find( trav, FOFS( target ), aidoor_trigger->targetname ) ); ) {
 		// make sure the marker is vacant
-        SV_Trace( &tr, trav->shared.r.currentOrigin, ent->shared.r.mins, ent->shared.r.maxs, trav->shared.r.currentOrigin, ent->shared.s.number, ent->clipmask, qfalse );
+        SV_Trace( &tr, trav->shared.r.currentOrigin, ent->shared.r.mins, ent->shared.r.maxs, trav->shared.r.currentOrigin, ent->shared.s.number, ent->clipmask, false );
 		if ( tr.startsolid ) {
 			continue;
 		}
@@ -459,7 +459,7 @@ void AICast_AIDoor_Touch( gentity_t *ent, gentity_t *aidoor_trigger, gentity_t *
 		// make sure there is a clear path
 		VectorCopy( ent->shared.r.mins, mins );
 		mins[2] += 16;  // step height
-        SV_Trace( &tr, ent->shared.r.currentOrigin, mins, ent->shared.r.maxs, trav->shared.r.currentOrigin, ent->shared.s.number, ent->clipmask, qfalse );
+        SV_Trace( &tr, ent->shared.r.currentOrigin, mins, ent->shared.r.maxs, trav->shared.r.currentOrigin, ent->shared.s.number, ent->clipmask, false );
 		if ( tr.fraction < 1.0 ) {
 			continue;
 		}
@@ -528,7 +528,7 @@ void AICast_ProcessActivate( int entNum, int activatorNum ) {
 		newent->classname = "AI_wait_goal";
 		newent->shared.r.ownerNum = entNum;
 		G_SetOrigin( newent, cs->bs->origin );
-		AIFunc_ChaseGoalStart( cs, newent->shared.s.number, 128, qtrue );
+		AIFunc_ChaseGoalStart( cs, newent->shared.s.number, 128, true );
 
 		//AIFunc_IdleStart( cs );
 	} else {    // start following

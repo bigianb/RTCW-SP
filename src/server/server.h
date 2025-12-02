@@ -60,7 +60,7 @@ typedef enum {
 
 typedef struct {
 	serverState_t state;
-	qboolean restarting;                // if true, send configstring changes during SS_LOADING
+	bool restarting;                // if true, send configstring changes during SS_LOADING
 	int serverId;                       // changes each server start
 	int restartedServerId;              // serverId before a map_restart
 	int checksumFeed;                   //
@@ -147,7 +147,7 @@ typedef struct client_s {
 	int lastPacketTime;                 // svs.time when packet was last received
 	int lastConnectTime;                // svs.time when connection started
 	int nextSnapshotTime;               // send another snapshot when svs.time >= nextSnapshotTime
-	qboolean rateDelayed;               // true if nextSnapshotTime was set based on rate instead of snapshotMsec
+	bool rateDelayed;               // true if nextSnapshotTime was set based on rate instead of snapshotMsec
 	int timeoutCount;                   // must timeout a few frames in a row so debugging doesn't break
 	clientSnapshot_t frames[PACKET_BACKUP];     // updates can be delta'd from here
 
@@ -160,7 +160,7 @@ typedef struct client_s {
 
 // this structure will be cleared only when the game dll changes
 typedef struct {
-	qboolean initialized;                   // sv_init has completed
+	bool initialized;                   // sv_init has completed
 
 	int time;                               // will be strictly increasing across level changes
 
@@ -234,12 +234,12 @@ void SV_SetUserinfo( int index, const char *val );
 void SV_GetUserinfo( int index, char *buffer, int bufferSize );
 
 void SV_ChangeMaxClients( void );
-void SV_SpawnServer( char *server, qboolean killBots );
+void SV_SpawnServer( char *server, bool killBots );
 
 //RF, reliable commands
 const char *SV_GetReliableCommand( client_t *cl, int index );
 void SV_FreeAcknowledgedReliableCommands( client_t *cl );
-qboolean SV_AddReliableCommand( client_t *cl, int index, const char *cmd );
+bool SV_AddReliableCommand( client_t *cl, int index, const char *cmd );
 void SV_InitReliableCommandsForClient( client_t *cl, int commands );
 void SV_FreeReliableCommandsForClient( client_t *cl );
 
@@ -257,7 +257,7 @@ void SV_UserinfoChanged( client_t *cl );
 void SV_ClientEnterWorld( client_t *client, usercmd_t *cmd );
 void SV_DropClient( client_t *drop, const char *reason );
 
-void SV_ExecuteClientCommand( client_t *cl, const char *s, qboolean clientOK );
+void SV_ExecuteClientCommand( client_t *cl, const char *s, bool clientOK );
 void SV_ClientThink( client_t *cl, usercmd_t *cmd );
 
 //
@@ -286,15 +286,15 @@ sharedEntity_t *SV_GEntityForSvEntity( svEntity_t *svEnt );
 void        SV_InitGameProgs( void );
 void        SV_ShutdownGameProgs( void );
 void        SV_RestartGameProgs( void );
-qboolean    SV_inPVS( const vec3_t p1, const vec3_t p2 );
+bool    SV_inPVS( const vec3_t p1, const vec3_t p2 );
 
 void SV_SetBrushModel( sharedEntity_t *ent, const char *name );
 
 void SV_GameSendServerCommand( int clientNum, const char *text );
 void SV_GetServerinfo( char *buffer, int bufferSize );
 
-qboolean    SV_EntityContact( const vec3_t mins, const vec3_t maxs, const sharedEntity_t *gEnt, const int capsule );
-void SV_AdjustAreaPortalState( sharedEntity_t *ent, qboolean open );
+bool    SV_EntityContact( const vec3_t mins, const vec3_t maxs, const sharedEntity_t *gEnt, const int capsule );
+void SV_AdjustAreaPortalState( sharedEntity_t *ent, bool open );
 
 void SV_GetUsercmd( int clientNum, usercmd_t *cmd );
 
@@ -375,5 +375,5 @@ void SV_ClipToEntity( trace_t *trace, const vec3_t start, const vec3_t mins, con
 //
 void SV_Netchan_Transmit( client_t *client, msg_t *msg );    //int length, const byte *data );
 void SV_Netchan_TransmitNextFragment( netchan_t *chan );
-qboolean SV_Netchan_Process( client_t *client, msg_t *msg );
+bool SV_Netchan_Process( client_t *client, msg_t *msg );
 

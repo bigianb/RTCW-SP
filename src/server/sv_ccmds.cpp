@@ -43,7 +43,7 @@ static void SV_Map_f( void ) {
 
 	char smapname[MAX_QPATH];
 	char mapname[MAX_QPATH];
-	qboolean killBots, cheat, buildScript;
+	bool killBots, cheat, buildScript;
 	char expanded[MAX_QPATH];
 	int savegameTime = -1;
 
@@ -52,7 +52,7 @@ static void SV_Map_f( void ) {
 		return;
 	}
 
-	buildScript = Cvar_VariableIntegerValue( "com_buildScript" ) != 0 ? qtrue : qfalse;
+	buildScript = Cvar_VariableIntegerValue( "com_buildScript" ) != 0;
 
 	if ( !buildScript && sv_reloading->integer && sv_reloading->integer != RELOAD_NEXTMAP ) {  // game is in 'reload' mode, don't allow starting new maps yet.
 		return;
@@ -139,11 +139,11 @@ static void SV_Map_f( void ) {
 	// may not set sv_maxclients directly, always set latched
 	Cvar_SetLatched( "sv_maxclients", "32" ); // Ridah, modified this
 	cmd += 2;
-	killBots = qtrue;
+	killBots = true;
 	if ( !Q_stricmp( cmd, "devmap" ) ) {
-		cheat = qtrue;
+		cheat = true;
 	} else {
-		cheat = qfalse;
+		cheat = false;
 	}
 
 	// save the map name here cause on a map restart we reload the q3config.cfg
@@ -177,7 +177,7 @@ static void SV_MapRestart_f( void ) {
 	int i;
 	client_t    *client;
 	
-	qboolean isBot;
+	bool isBot;
 	int delay;
 
 	// make sure we aren't restarting twice in the same frame
@@ -215,7 +215,7 @@ static void SV_MapRestart_f( void ) {
 		// restart the map the slow way
 		Q_strncpyz( mapname, Cvar_VariableString( "mapname" ), sizeof( mapname ) );
 
-		SV_SpawnServer( mapname, qfalse );
+		SV_SpawnServer( mapname, false );
 		return;
 	}
 
@@ -259,7 +259,7 @@ static void SV_MapRestart_f( void ) {
 	// note that we do NOT set sv.state = SS_LOADING, so configstrings that
 	// had been changed from their default values will generate broadcast updates
 	sv.state = SS_LOADING;
-	sv.restarting = qtrue;
+	sv.restarting = true;
 
 	SV_RestartGameProgs();
 
@@ -270,7 +270,7 @@ static void SV_MapRestart_f( void ) {
 	}
 
 	sv.state = SS_GAME;
-	sv.restarting = qfalse;
+	sv.restarting = false;
 
 	// connect and begin all the clients
 	for ( i = 0 ; i < sv_maxclients->integer ; i++ ) {
@@ -282,16 +282,16 @@ static void SV_MapRestart_f( void ) {
 		}
 
 		if ( client->netchan.remoteAddress.type == NA_BOT ) {
-			isBot = qtrue;
+			isBot = true;
 		} else {
-			isBot = qfalse;
+			isBot = false;
 		}
 
 		// add the map_restart command
 		SV_AddServerCommand( client, "map_restart\n" );
 
 		// connect the client again, without the firstTime flag
-		const char* denied = ClientConnect( i, qfalse, isBot );
+		const char* denied = ClientConnect( i, false, isBot );
 		if ( denied ) {
 			// this generally shouldn't happen, because the client
 			// was connected before the level change
@@ -444,12 +444,12 @@ SV_AddOperatorCommands
 ==================
 */
 void SV_AddOperatorCommands( void ) {
-	static qboolean initialized;
+	static bool initialized;
 
 	if ( initialized ) {
 		return;
 	}
-	initialized = qtrue;
+	initialized = true;
 
 	Cmd_AddCommand( "heartbeat", SV_Heartbeat_f );
 

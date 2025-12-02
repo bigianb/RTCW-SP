@@ -86,7 +86,7 @@ int trap_BotLibDefine( char *string ) {
 	return PC_AddGlobalDefine( string );
 }
 
-extern qboolean BotLibSetup( const char *str );
+extern bool BotLibSetup( const char *str );
 int trap_BotLibStartFrame( float time ) {
 	if ( !BotLibSetup( "BotStartFrame" ) ) {
 		return BLERR_LIBRARYNOTSETUP;
@@ -186,7 +186,7 @@ void trap_AAS_RT_ShowRoute( vec3_t srcpos, int srcnum, int destnum ) {
 	AAS_RT_ShowRoute(srcpos, srcnum, destnum );
 }
 
-qboolean trap_AAS_RT_GetHidePos( vec3_t srcpos, int srcnum, int srcarea, vec3_t destpos, int destnum, int destarea, vec3_t returnPos ) {
+bool trap_AAS_RT_GetHidePos( vec3_t srcpos, int srcnum, int srcarea, vec3_t destpos, int destnum, int destarea, vec3_t returnPos ) {
 	return AAS_RT_GetHidePos(srcpos, srcnum, srcarea, destpos, destnum, destarea, returnPos );
 }
 
@@ -195,8 +195,8 @@ int trap_AAS_FindAttackSpotWithinRange( int srcnum, int rangenum, int enemynum, 
 	return AAS_FindAttackSpotWithinRange(srcnum, rangenum, enemynum, rangedist, travelflags, outpos );
 }
 
-extern qboolean AAS_GetRouteFirstVisPos( vec3_t srcpos, vec3_t destpos, int travelflags, vec3_t retpos );
-qboolean trap_AAS_GetRouteFirstVisPos( vec3_t srcpos, vec3_t destpos, int travelflags, vec3_t retpos ) {
+extern bool AAS_GetRouteFirstVisPos( vec3_t srcpos, vec3_t destpos, int travelflags, vec3_t retpos );
+bool trap_AAS_GetRouteFirstVisPos( vec3_t srcpos, vec3_t destpos, int travelflags, vec3_t retpos ) {
 	return AAS_GetRouteFirstVisPos(srcpos, destpos, travelflags, retpos );
 }
 

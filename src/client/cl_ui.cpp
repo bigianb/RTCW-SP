@@ -62,7 +62,7 @@ Key_KeynumToStringBuf
 ====================
 */
 void Key_KeynumToStringBuf( int keynum, char *buf, int buflen ) {
-	Q_strncpyz( buf, Key_KeynumToString( keynum, qtrue ), buflen );
+	Q_strncpyz( buf, Key_KeynumToString( keynum, true ), buflen );
 }
 
 /*
@@ -106,7 +106,7 @@ GetConfigString
 int GetConfigString( int index, char *buf, int size )
 {
 	if ( index < 0 || index >= MAX_CONFIGSTRINGS ) {
-		return qfalse;
+		return false;
 	}
 
 	int offset = cl.gameState.stringOffsets[index];
@@ -114,12 +114,12 @@ int GetConfigString( int index, char *buf, int size )
 		if ( size ) {
 			buf[0] = 0;
 		}
-		return qfalse;
+		return false;
 	}
 
 	Q_strncpyz( buf, cl.gameState.stringData + offset, size );
 
-	return qtrue;
+	return true;
 }
 
 
@@ -130,7 +130,7 @@ CL_ShutdownUI
 */
 void CL_ShutdownUI( void ) {
 	cls.keyCatchers &= ~KEYCATCH_UI;
-	cls.uiStarted = qfalse;
+	cls.uiStarted = false;
 	UI_Shutdown();
 }
 
@@ -152,6 +152,6 @@ UI_GameCommand
 See if the current console command is claimed by the ui
 ====================
 */
-qboolean UI_GameCommand( void ) {
+bool UI_GameCommand( void ) {
 	return UI_ConsoleCommand(cls.realtime);
 }

@@ -107,9 +107,9 @@ typedef struct serverStatus_s
 	char string[BIG_INFO_STRING];
 	netadr_t address;
 	int time, startTime;
-	qboolean pending;
-	qboolean print;
-	qboolean retrieved;
+	bool pending;
+	bool print;
+	bool retrieved;
 } serverStatus_t;
 
 serverStatus_t cl_serverStatusList[MAX_SERVERSTATUSREQUESTS];
@@ -127,7 +127,7 @@ Called by Com_Error when a game has ended and is dropping out to main menu in th
 */
 void CL_EndgameMenu()
 {
-	cls.endgamemenu = qtrue;    // start it next frame
+	cls.endgamemenu = true;    // start it next frame
 }
 
 /*
@@ -190,13 +190,13 @@ void CL_ShutdownAll()
 
 	// shutdown the renderer
 	if ( re.Shutdown ) {
-		re.Shutdown( qfalse );      // don't destroy window or context
+		re.Shutdown( false );      // don't destroy window or context
 	}
 
-	cls.uiStarted = qfalse;
-	cls.cgameStarted = qfalse;
-	cls.rendererStarted = qfalse;
-	cls.soundRegistered = qfalse;
+	cls.uiStarted = false;
+	cls.cgameStarted = false;
+	cls.rendererStarted = false;
+	cls.soundRegistered = false;
 }
 
 /*
@@ -251,7 +251,7 @@ void CL_MapLoading()
 	} else {
 		// clear nextmap so the cinematic shutdown doesn't execute it
 		Cvar_Set( "nextmap", "" );
-		CL_Disconnect( qtrue );
+		CL_Disconnect( true );
 		Q_strncpyz( cls.servername, "localhost", sizeof( cls.servername ) );
 		cls.state = CA_CHALLENGING;     // so the connect screen is drawn
 		Key_SetCatcher( 0 );
@@ -288,7 +288,7 @@ Sends a disconnect message to the server
 This is also called on Com_Error and Com_Quit, so it shouldn't cause any errors
 =====================
 */
-void CL_Disconnect( qboolean showMainMenu )
+void CL_Disconnect( bool showMainMenu )
 {
 	if ( !com_cl_running || !com_cl_running->integer ) {
 		return;
@@ -302,7 +302,7 @@ void CL_Disconnect( qboolean showMainMenu )
 	}
 
 	SCR_StopCinematic();
-	S_ClearSoundBuffer( qtrue );
+	S_ClearSoundBuffer( true );
 
 	// send a disconnect message to the server
 	// send it a few times in case one is dropped
@@ -512,7 +512,7 @@ void CL_Connect_f()
 	Cvar_Set( "sv_killserver", "1" );
 	SV_Frame( 0 );
 
-	CL_Disconnect( qtrue );
+	CL_Disconnect( true );
 	Con_Close();
 
 	Q_strncpyz( cls.servername, server, sizeof( cls.servername ) );
@@ -631,10 +631,10 @@ void CL_Vid_Restart_f()
 
 	S_BeginRegistration();  // all sound handles are now invalid
 
-	cls.rendererStarted = qfalse;
-	cls.uiStarted = qfalse;
-	cls.cgameStarted = qfalse;
-	cls.soundRegistered = qfalse;
+	cls.rendererStarted = false;
+	cls.uiStarted = false;
+	cls.cgameStarted = false;
+	cls.soundRegistered = false;
 
 	// unpause so the cgame definately gets a snapshot and renders a frame
 	Cvar_Set( "cl_paused", "0" );
@@ -647,7 +647,7 @@ void CL_Vid_Restart_f()
 
 	// start the cgame if connected
 	if ( cls.state > CA_CONNECTED && cls.state != CA_CINEMATIC ) {
-		cls.cgameStarted = qtrue;
+		cls.cgameStarted = true;
 		CL_InitCGame();
 	}
 
@@ -794,7 +794,7 @@ void CL_DisconnectPacket( netadr_t from )
 
 	// drop the connection (FIXME: connection dropped dialog)
 	Com_Printf( "Server disconnected for unknown reason\n" );
-	CL_Disconnect( qtrue );
+	CL_Disconnect( true );
 }
 
 /*
@@ -1104,7 +1104,7 @@ void CL_CheckTimeout()
 		 && cls.realtime - clc.lastPacketTime > cl_timeout->value * 1000 ) {
 		if ( ++cl.timeoutcount > 5 ) {    // timeoutcount saves debugger
 			Com_Printf( "\nServer connection timed out.\n" );
-			CL_Disconnect( qtrue );
+			CL_Disconnect( true );
 			return;
 		}
 	} else {
@@ -1149,7 +1149,7 @@ void CL_Frame( int msec )
 	}
 
 	if ( cls.endgamemenu ) {
-		cls.endgamemenu = qfalse;
+		cls.endgamemenu = false;
 		UI_SetActiveMenu(UIMENU_ENDGAME );
 	} else if ( cls.state == CA_DISCONNECTED && !( cls.keyCatchers & KEYCATCH_UI ) && !com_sv_running->integer ) {
 		// if disconnected, bring up the menu
@@ -1352,9 +1352,9 @@ CL_SetRecommended_f
 void CL_SetRecommended_f()
 {
 	if ( Cmd_Argc() > 1 ) {
-		Com_SetRecommended( qtrue );
+		Com_SetRecommended( true );
 	} else {
-		Com_SetRecommended( qfalse );
+		Com_SetRecommended( false );
 	}
 }
 
@@ -1399,7 +1399,7 @@ void CL_ShutdownRef()
 	if ( !re.Shutdown ) {
 		return;
 	}
-	re.Shutdown( qtrue );
+	re.Shutdown( true );
 	memset( &re, 0, sizeof( re ) );
 }
 
@@ -1441,22 +1441,22 @@ void CL_StartHunkUsers()
 	}
 
 	if ( !cls.rendererStarted ) {
-		cls.rendererStarted = qtrue;
+		cls.rendererStarted = true;
 		CL_InitRenderer();
 	}
 
 	if ( !cls.soundStarted ) {
-		cls.soundStarted = qtrue;
+		cls.soundStarted = true;
 		S_Init();
 	}
 
 	if ( !cls.soundRegistered ) {
-		cls.soundRegistered = qtrue;
+		cls.soundRegistered = true;
 		S_BeginRegistration();
 	}
 
 	if ( !cls.uiStarted ) {
-		cls.uiStarted = qtrue;
+		cls.uiStarted = true;
 		CL_InitUI();
 	}
 }
@@ -1586,7 +1586,7 @@ void CL_Init()
 	// offset for the power function (for style 1, ignored otherwise)
 	// this should be set to the max rate value
 	cl_mouseAccelOffset = Cvar_Get( "cl_mouseAccelOffset", "5", CVAR_ARCHIVE );
-	Cvar_CheckRange(cl_mouseAccelOffset, 0.001f, 50000.0f, qfalse);
+	Cvar_CheckRange(cl_mouseAccelOffset, 0.001f, 50000.0f, false);
 
 	cl_showMouseRate = Cvar_Get( "cl_showmouserate", "0", 0 );
 
@@ -1626,11 +1626,11 @@ void CL_Init()
 	j_side_axis =    Cvar_Get ("j_side_axis",    "0", CVAR_ARCHIVE);
 	j_up_axis =      Cvar_Get ("j_up_axis",      "4", CVAR_ARCHIVE);
 
-	Cvar_CheckRange(j_pitch_axis, 0, MAX_JOYSTICK_AXIS-1, qtrue);
-	Cvar_CheckRange(j_yaw_axis, 0, MAX_JOYSTICK_AXIS-1, qtrue);
-	Cvar_CheckRange(j_forward_axis, 0, MAX_JOYSTICK_AXIS-1, qtrue);
-	Cvar_CheckRange(j_side_axis, 0, MAX_JOYSTICK_AXIS-1, qtrue);
-	Cvar_CheckRange(j_up_axis, 0, MAX_JOYSTICK_AXIS-1, qtrue);
+	Cvar_CheckRange(j_pitch_axis, 0, MAX_JOYSTICK_AXIS-1, true);
+	Cvar_CheckRange(j_yaw_axis, 0, MAX_JOYSTICK_AXIS-1, true);
+	Cvar_CheckRange(j_forward_axis, 0, MAX_JOYSTICK_AXIS-1, true);
+	Cvar_CheckRange(j_side_axis, 0, MAX_JOYSTICK_AXIS-1, true);
+	Cvar_CheckRange(j_up_axis, 0, MAX_JOYSTICK_AXIS-1, true);
 
 	cl_motdString = Cvar_Get( "cl_motdString", "", CVAR_ROM );
 
@@ -1723,7 +1723,7 @@ CL_Shutdown
 */
 void CL_Shutdown()
 {
-	static qboolean recursive = qfalse;
+	static bool recursive = false;
 
 	Com_Printf( "----- CL_Shutdown -----\n" );
 
@@ -1731,9 +1731,9 @@ void CL_Shutdown()
 		printf( "recursive shutdown\n" );
 		return;
 	}
-	recursive = qtrue;
+	recursive = true;
 
-	CL_Disconnect( qtrue );
+	CL_Disconnect( true );
 
 	S_Shutdown();
 	CL_ShutdownRef();
@@ -1767,7 +1767,7 @@ void CL_Shutdown()
 
 	Cvar_Set( "cl_running", "0" );
 
-	recursive = qfalse;
+	recursive = false;
 
 	memset( &cls, 0, sizeof( cls ) );
 

@@ -138,9 +138,9 @@ static void CG_ClipMoveToEntities( const vec3_t start, const vec3_t mins, const 
 
 			// MrE: use bbox or capsule
 			if ( ent->eFlags & EF_CAPSULE ) {
-				cmodel = CM_TempBoxModel( bmins, bmaxs, qtrue );
+				cmodel = CM_TempBoxModel( bmins, bmaxs, true );
 			} else {
-				cmodel = CM_TempBoxModel( bmins, bmaxs, qfalse );
+				cmodel = CM_TempBoxModel( bmins, bmaxs, false );
 			}
 			VectorCopy( vec3_origin, angles );
 			VectorCopy( cent->lerpOrigin, origin );
@@ -148,17 +148,17 @@ static void CG_ClipMoveToEntities( const vec3_t start, const vec3_t mins, const 
 		// MrE: use bbox of capsule
 		if ( capsule ) {
 			CM_TransformedBoxTrace( &trace, start, end,
-											 mins, maxs, cmodel,  mask, origin, angles, qtrue );
+											 mins, maxs, cmodel,  mask, origin, angles, true );
 		} else {
 			CM_TransformedBoxTrace( &trace, start, end,
-										 mins, maxs, cmodel,  mask, origin, angles, qfalse );
+										 mins, maxs, cmodel,  mask, origin, angles, false );
 		}
 
 		if ( trace.allsolid || trace.fraction < tr->fraction ) {
 			trace.entityNum = ent->number;
 			*tr = trace;
 		} else if ( trace.startsolid ) {
-			tr->startsolid = qtrue;
+			tr->startsolid = true;
 		}
 		if ( tr->allsolid ) {
 			return;
@@ -175,10 +175,10 @@ void    CG_Trace( trace_t *result, const vec3_t start, const vec3_t mins, const 
 				  int skipNumber, int mask ) {
 	trace_t t;
 
-	CM_BoxTrace( &t, start, end, mins, maxs, 0, mask, qfalse );
+	CM_BoxTrace( &t, start, end, mins, maxs, 0, mask, false );
 	t.entityNum = t.fraction != 1.0 ? ENTITYNUM_WORLD : ENTITYNUM_NONE;
 	// check all other solid models
-	CG_ClipMoveToEntities( start, mins, maxs, end, skipNumber, mask, qfalse, &t );
+	CG_ClipMoveToEntities( start, mins, maxs, end, skipNumber, mask, false, &t );
 
 	*result = t;
 }
@@ -192,10 +192,10 @@ void    CG_TraceCapsule( trace_t *result, const vec3_t start, const vec3_t mins,
 						 int skipNumber, int mask ) {
 	trace_t t;
 
-	CM_BoxTrace( &t, start, end, mins, maxs, 0, mask, qtrue );
+	CM_BoxTrace( &t, start, end, mins, maxs, 0, mask, true );
 	t.entityNum = t.fraction != 1.0 ? ENTITYNUM_WORLD : ENTITYNUM_NONE;
 	// check all other solid models
-	CG_ClipMoveToEntities( start, mins, maxs, end, skipNumber, mask, qtrue, &t );
+	CG_ClipMoveToEntities( start, mins, maxs, end, skipNumber, mask, true, &t );
 
 	*result = t;
 }
@@ -247,7 +247,7 @@ Generates cg.predictedPlayerState by interpolating between
 cg.snap->player_state and cg.nextFrame->player_state
 ========================
 */
-static void CG_InterpolatePlayerState( qboolean grabAngles ) {
+static void CG_InterpolatePlayerState( bool grabAngles ) {
 	float f;
 	int i;
 	playerState_t   *out;
@@ -406,7 +406,7 @@ static void CG_TouchTriggerPrediction( void ) {
 	entityState_t   *ent;
 	clipHandle_t cmodel;
 	centity_t   *cent;
-	qboolean spectator;
+	bool spectator;
 
 	// dead clients don't activate triggers
 	if ( cg.predictedPlayerState.stats[STAT_HEALTH] <= 0 ) {
@@ -437,14 +437,14 @@ static void CG_TouchTriggerPrediction( void ) {
 		}
 
 		CM_BoxTrace( &trace, cg.predictedPlayerState.origin, cg.predictedPlayerState.origin,
-						  cg_pmove.mins, cg_pmove.maxs, cmodel, -1, qfalse );
+						  cg_pmove.mins, cg_pmove.maxs, cmodel, -1, false );
 
 		if ( !trace.startsolid ) {
 			continue;
 		}
 
 		if ( ent->eType == ET_TELEPORT_TRIGGER ) {
-			cg.hyperspace = qtrue;
+			cg.hyperspace = true;
 		} else {
 			float s;
 			vec3_t dir;
@@ -503,31 +503,31 @@ to ease the jerk.
 void CG_PredictPlayerState( void ) {
 	int cmdNum, current;
 	playerState_t oldPlayerState;
-	qboolean moved;
+	bool moved;
 	usercmd_t oldestCmd;
 	usercmd_t latestCmd;
 	vec3_t deltaAngles;
 
-	cg.hyperspace = qfalse; // will be set if touching a trigger_teleport
+	cg.hyperspace = false; // will be set if touching a trigger_teleport
 
 	// if this is the first frame we must guarantee
 	// predictedPlayerState is valid even if there is some
 	// other error condition
 	if ( !cg.validPPS ) {
-		cg.validPPS = qtrue;
+		cg.validPPS = true;
 		cg.predictedPlayerState = cg.snap->ps;
 	}
 
 	// demo playback just copies the moves
 	if ( ( cg.snap->ps.pm_flags & PMF_FOLLOW ) ) {
-		CG_InterpolatePlayerState( qfalse );
+		CG_InterpolatePlayerState( false );
 		return;
 	}
 
 	// non-predicting local movement will grab the latest angles
 	if ( cg_nopredict.integer || cg_synchronousClients.integer
 		 || ( cg.snap->ps.eFlags & EF_MG42_ACTIVE ) ) { // RF, somewhat of a hack, but just disable prediction if on MG42, since it's just not very prediction friendly
-		CG_InterpolatePlayerState( qtrue );
+		CG_InterpolatePlayerState( true );
 		return;
 	}
 
@@ -545,12 +545,12 @@ void CG_PredictPlayerState( void ) {
 		cg_pmove.tracemask = MASK_PLAYERSOLID;
 	}
 
-	cg_pmove.noFootsteps = ( cgs.dmflags & DF_NO_FOOTSTEPS ) != 0 ? qtrue : qfalse;
+	cg_pmove.noFootsteps = ( cgs.dmflags & DF_NO_FOOTSTEPS ) != 0;
 
 	//----(SA)	added
-	cg_pmove.noWeapClips = ( cgs.dmflags & DF_NO_WEAPRELOAD ) != 0 ? qtrue : qfalse;
+	cg_pmove.noWeapClips = ( cgs.dmflags & DF_NO_WEAPRELOAD ) != 0;
 	if ( cg.predictedPlayerState.aiChar ) {
-		cg_pmove.noWeapClips = qtrue;   // ensure AI characters don't use clips
+		cg_pmove.noWeapClips = true;   // ensure AI characters don't use clips
 	}
 //----(SA)	end
 
@@ -616,7 +616,7 @@ void CG_PredictPlayerState( void ) {
 	}
 
 	// run cmds
-	moved = qfalse;
+	moved = false;
 	for ( cmdNum = current - CMD_BACKUP + 1 ; cmdNum <= current ; cmdNum++ ) {
 		// get the command
 		CL_GetUserCmd( cmdNum, &cg_pmove.cmd );
@@ -652,7 +652,7 @@ void CG_PredictPlayerState( void ) {
 				if ( cg_showmiss.integer ) {
 					Com_Printf( "PredictionTeleport\n" );
 				}
-				cg.thisFrameTeleport = qfalse;
+				cg.thisFrameTeleport = false;
 			} else {
 				vec3_t adjusted;
 				CG_AdjustPositionForMover( cg.predictedPlayerState.origin,
@@ -695,7 +695,7 @@ void CG_PredictPlayerState( void ) {
 
 		// don't predict gauntlet firing, which is only supposed to happen
 		// when it actually inflicts damage
-		cg_pmove.gauntletHit = qfalse;
+		cg_pmove.gauntletHit = false;
 
 		if ( cg_pmove.pmove_fixed ) {
 			cg_pmove.cmd.serverTime = ( ( cg_pmove.cmd.serverTime + pmove_msec.integer - 1 ) / pmove_msec.integer ) * pmove_msec.integer;
@@ -719,7 +719,7 @@ void CG_PredictPlayerState( void ) {
 
 		Pmove( &cg_pmove );
 
-		moved = qtrue;
+		moved = true;
 
 		// add push trigger movement effects
 		CG_TouchTriggerPrediction();

@@ -81,7 +81,7 @@ void Weapon_Knife( gentity_t *ent ) {
 	AngleVectors( ent->client->ps.viewangles, forward, right, up );
 	CalcMuzzlePoint( ent, ent->shared.s.weapon, forward, right, up, muzzleTrace );
 	VectorMA( muzzleTrace, KNIFE_DIST, forward, end );
-	SV_Trace( &tr, muzzleTrace, NULL, NULL, end, ent->shared.s.number, MASK_SHOT, qfalse );
+	SV_Trace( &tr, muzzleTrace, NULL, NULL, end, ent->shared.s.number, MASK_SHOT, false );
 
 	if ( tr.surfaceFlags & SURF_NOIMPACT ) {
 		return;
@@ -155,7 +155,7 @@ Weapon_Gauntlet
 */
 void Weapon_Gauntlet( gentity_t *ent ) {
 	trace_t *tr;
-	tr = CheckMeleeAttack( ent, 32, qfalse );
+	tr = CheckMeleeAttack( ent, 32, false );
 	if ( tr ) {
 		G_Damage( &g_entities[tr->entityNum], ent, ent, vec3_origin, tr->endpos,
 				  ( 10 + rand() % 5 ) * s_quadFactor, 0, MOD_GAUNTLET );
@@ -168,7 +168,7 @@ CheckMeleeAttack
 	using 'isTest' to return hits to world surfaces
 ===============
 */
-trace_t *CheckMeleeAttack( gentity_t *ent, float dist, qboolean isTest ) {
+trace_t *CheckMeleeAttack( gentity_t *ent, float dist, bool isTest ) {
 	static trace_t tr;
 	vec3_t end;
 	gentity_t   *tent;
@@ -181,7 +181,7 @@ trace_t *CheckMeleeAttack( gentity_t *ent, float dist, qboolean isTest ) {
 
 	VectorMA( muzzleTrace, dist, forward, end );
 
-	SV_Trace( &tr, muzzleTrace, NULL, NULL, end, ent->shared.s.number, MASK_SHOT, qfalse );
+	SV_Trace( &tr, muzzleTrace, NULL, NULL, end, ent->shared.s.number, MASK_SHOT, false );
 	if ( tr.surfaceFlags & SURF_NOIMPACT ) {
 		return NULL;
 	}
@@ -416,7 +416,7 @@ void Tesla_Fire( gentity_t *ent ) {
 
 
 void RubbleFlagCheck( gentity_t *ent, trace_t tr ) {
-	qboolean is_valid = qfalse;
+	bool is_valid = false;
 	int type = 0;
 
 	// (SA) moving client-side
@@ -427,14 +427,14 @@ void RubbleFlagCheck( gentity_t *ent, trace_t tr ) {
 
 
 	if ( tr.surfaceFlags & SURF_RUBBLE || tr.surfaceFlags & SURF_GRAVEL ) {
-		is_valid = qtrue;
+		is_valid = true;
 		type = 4;
 	} else if ( tr.surfaceFlags & SURF_METAL )     {
 //----(SA)	removed
-//		is_valid = qtrue;
+//		is_valid = true;
 //		type = 2;
 	} else if ( tr.surfaceFlags & SURF_WOOD )     {
-		is_valid = qtrue;
+		is_valid = true;
 		type = 1;
 	}
 
@@ -519,7 +519,7 @@ Bullet_Endpos
 */
 void Bullet_Endpos( gentity_t *ent, float spread, vec3_t *end ) {
 	float r, u;
-	qboolean randSpread = qtrue;
+	bool randSpread = true;
 	int dist = 8192;
 
 	r = crandom() * spread;
@@ -534,7 +534,7 @@ void Bullet_Endpos( gentity_t *ent, float spread, vec3_t *end ) {
 	} else {
 		if ( ent->shared.s.weapon == WP_SNOOPERSCOPE || ent->shared.s.weapon == WP_SNIPERRIFLE || ent->shared.s.weapon == WP_FG42SCOPE ) {
 			dist *= 2;
-			randSpread = qfalse;
+			randSpread = false;
 		}
 	}
 
@@ -573,7 +573,7 @@ void Bullet_Fire_Extended( gentity_t *source, gentity_t *attacker, vec3_t start,
 	gentity_t   *tent;
 	gentity_t   *traceEnt;
 	int dflags = 0;         // flag if source==attacker, meaning it wasn't shot directly, but was reflected went through an entity that allows bullets to pass through
-	qboolean reflectBullet = qfalse;
+	bool reflectBullet = false;
 
 	// RF, abort if too many recursions.. there must be a real solution for this, but for now this is the safest
 	// fix I can find
@@ -587,7 +587,7 @@ void Bullet_Fire_Extended( gentity_t *source, gentity_t *attacker, vec3_t start,
 		dflags = DAMAGE_PASSTHRU;
 	}
 
-	SV_Trace( &tr, start, NULL, NULL, end, source->shared.s.number, MASK_SHOT, qfalse );
+	SV_Trace( &tr, start, NULL, NULL, end, source->shared.s.number, MASK_SHOT, false );
 
 	AICast_ProcessBullet( attacker, start, tr.endpos );
 
@@ -610,10 +610,10 @@ void Bullet_Fire_Extended( gentity_t *source, gentity_t *attacker, vec3_t start,
 
 	// should we reflect this bullet?
 	if ( traceEnt->flags & FL_DEFENSE_GUARD ) {
-		reflectBullet = qtrue;
+		reflectBullet = true;
 	} else if ( traceEnt->flags & FL_DEFENSE_CROUCH ) {
 		if ( rand() % 3 < 2 ) {
-			reflectBullet = qtrue;
+			reflectBullet = true;
 		}
 	}
 
@@ -685,14 +685,14 @@ void Bullet_Fire_Extended( gentity_t *source, gentity_t *attacker, vec3_t start,
 	tent->shared.s.otherEntityNum = attacker->shared.s.number;
 
 	if ( traceEnt->takedamage ) {
-		qboolean reflectBool = qfalse;
+		bool reflectBool = false;
 		vec3_t trDir;
 
 		if ( reflectBullet ) {
 			// if we are facing the direction the bullet came from, then reflect it
 			AngleVectors( traceEnt->shared.s.apos.trBase, trDir, NULL, NULL );
 			if ( DotProduct( forward, trDir ) < 0.6 ) {
-				reflectBool = qtrue;
+				reflectBool = true;
 			}
 		}
 
@@ -762,10 +762,10 @@ gentity_t *weapon_grenadelauncher_fire( gentity_t *ent, int grenType ) {
 	gentity_t   *m, *te; // JPW NERVE
 	float upangle = 0;                  //	start with level throwing and adjust based on angle
 	vec3_t tosspos;
-	qboolean underhand = qfalse;
+	bool underhand = false;
 
 	if ( ( ent->shared.s.apos.trBase[0] > 0 ) && ( grenType != WP_GRENADE_SMOKE ) ) { // JPW NERVE -- smoke grenades always overhand
-		underhand = qtrue;
+		underhand = true;
 	}
 
 	if ( underhand ) {
@@ -816,7 +816,7 @@ gentity_t *weapon_grenadelauncher_fire( gentity_t *ent, int grenType ) {
 	VectorCopy( ent->shared.s.pos.trBase, viewpos );
 	viewpos[2] += ent->client->ps.viewheight;
 
-	SV_Trace( &tr, viewpos, NULL, NULL, tosspos, ent->shared.s.number, MASK_SHOT, qfalse);
+	SV_Trace( &tr, viewpos, NULL, NULL, tosspos, ent->shared.s.number, MASK_SHOT, false);
 	if ( tr.fraction < 1 ) {   // oops, bad launch spot
 		VectorCopy( tr.endpos, tosspos );
 	}
@@ -891,17 +891,17 @@ VENOM GUN TRACING
 #define DEFAULT_VENOM_SPREAD 20
 #define DEFAULT_VENOM_DAMAGE 15
 
-qboolean VenomPellet( vec3_t start, vec3_t end, gentity_t *ent ) {
+bool VenomPellet( vec3_t start, vec3_t end, gentity_t *ent ) {
 	trace_t tr;
 	int damage;
 	gentity_t       *traceEnt;
 
-	SV_Trace( &tr, start, NULL, NULL, end, ent->shared.s.number, MASK_SHOT, qfalse );
+	SV_Trace( &tr, start, NULL, NULL, end, ent->shared.s.number, MASK_SHOT, false );
 	traceEnt = &g_entities[ tr.entityNum ];
 
 	// send bullet impact
 	if (  tr.surfaceFlags & SURF_NOIMPACT ) {
-		return qfalse;
+		return false;
 	}
 
 	if ( traceEnt->takedamage ) {
@@ -909,10 +909,10 @@ qboolean VenomPellet( vec3_t start, vec3_t end, gentity_t *ent ) {
 
 		G_Damage( traceEnt, ent, ent, forward, tr.endpos, damage, 0, MOD_VENOM );
 		if ( LogAccuracyHit( traceEnt, ent ) ) {
-			return qtrue;
+			return true;
 		}
 	}
-	return qfalse;
+	return false;
 }
 
 // this should match CG_VenomPattern
@@ -922,7 +922,7 @@ void VenomPattern( vec3_t origin, vec3_t origin2, int seed, gentity_t *ent ) {
 	vec3_t end;
 	vec3_t forward, right, up;
 	int oldScore;
-	qboolean hitClient = qfalse;
+	bool hitClient = false;
 
 	// derive the right and up vectors from the forward vector, because
 	// the client won't have any other information
@@ -940,7 +940,7 @@ void VenomPattern( vec3_t origin, vec3_t origin2, int seed, gentity_t *ent ) {
 		VectorMA( end, r, right, end );
 		VectorMA( end, u, up, end );
 		if ( VenomPellet( origin, end, ent ) && !hitClient ) {
-			hitClient = qtrue;
+			hitClient = true;
 			ent->client->ps.persistant[PERS_ACCURACY_HITS]++;
 		}
 	}
@@ -953,7 +953,7 @@ void VenomPattern( vec3_t origin, vec3_t origin2, int seed, gentity_t *ent ) {
 weapon_venom_fire
 ==============
 */
-void weapon_venom_fire( gentity_t *ent, qboolean fullmode, float aimSpreadScale ) {
+void weapon_venom_fire( gentity_t *ent, bool fullmode, float aimSpreadScale ) {
 	gentity_t       *tent;
 
 	if ( fullmode ) {
@@ -1046,7 +1046,7 @@ void Weapon_LightningFire( gentity_t *ent ) {
 
 	VectorMA( muzzleTrace, LIGHTNING_RANGE, forward, end );
 
-	SV_Trace( &tr, muzzleTrace, NULL, NULL, end, ent->shared.s.number, MASK_SHOT, qfalse );
+	SV_Trace( &tr, muzzleTrace, NULL, NULL, end, ent->shared.s.number, MASK_SHOT, false );
 
 	if ( tr.entityNum == ENTITYNUM_NONE ) {
 		return;
@@ -1115,28 +1115,28 @@ void AddLean( gentity_t *ent, vec3_t point ) {
 LogAccuracyHit
 ===============
 */
-qboolean LogAccuracyHit( gentity_t *target, gentity_t *attacker ) {
+bool LogAccuracyHit( gentity_t *target, gentity_t *attacker ) {
 	if ( !target->takedamage ) {
-		return qfalse;
+		return false;
 	}
 
 	if ( target == attacker ) {
-		return qfalse;
+		return false;
 	}
 
 	if ( !target->client ) {
-		return qfalse;
+		return false;
 	}
 
 	if ( !attacker->client ) {
-		return qfalse;
+		return false;
 	}
 
 	if ( target->client->ps.stats[STAT_HEALTH] <= 0 ) {
-		return qfalse;
+		return false;
 	}
 
-	return qtrue;
+	return true;
 }
 
 
@@ -1323,7 +1323,7 @@ void FireWeapon( gentity_t *ent ) {
 		Bullet_Fire( ent, COLT_SPREAD * aimSpreadScale, COLT_DAMAGE );
 		break;
 	case WP_VENOM:
-		weapon_venom_fire( ent, qfalse, aimSpreadScale );
+		weapon_venom_fire( ent, false, aimSpreadScale );
 		break;
 	case WP_SNIPERRIFLE:
 		Bullet_Fire( ent, SNIPER_SPREAD * aimSpreadScale, SNIPER_DAMAGE );

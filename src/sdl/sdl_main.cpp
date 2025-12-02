@@ -324,7 +324,7 @@ Sys_SigHandler
 */
 void Sys_SigHandler( int signal )
 {
-	static qboolean signalcaught = qfalse;
+	static bool signalcaught = false;
 
 	if( signalcaught )
 	{
@@ -333,7 +333,7 @@ void Sys_SigHandler( int signal )
 	}
 	else
 	{
-		signalcaught = qtrue;
+		signalcaught = true;
 	//	VM_Forced_Unload_Start();
 	//	SV_Shutdown(va("Received signal %d", signal) );
 	//	VM_Forced_Unload_Done();

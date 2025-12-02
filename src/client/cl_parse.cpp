@@ -58,7 +58,7 @@ Parses deltas from the given base and adds the resulting entity
 to the current frame
 ==================
 */
-void CL_DeltaEntity( msg_t *msg, clSnapshot_t *frame, int newnum, entityState_t *old, qboolean unchanged )
+void CL_DeltaEntity( msg_t *msg, clSnapshot_t *frame, int newnum, entityState_t *old, bool unchanged )
 {
 	// save the parsed entity state into the big circular buffer so
 	// it can be used as the source for a later delta
@@ -120,7 +120,7 @@ void CL_ParsePacketEntities( msg_t *msg, clSnapshot_t *oldframe, clSnapshot_t *n
 
 		while ( oldnum < newnum ) {
 			// one or more entities from the old packet are unchanged
-			CL_DeltaEntity( msg, newframe, oldnum, oldstate, qtrue );
+			CL_DeltaEntity( msg, newframe, oldnum, oldstate, true );
 
 			oldindex++;
 
@@ -134,7 +134,7 @@ void CL_ParsePacketEntities( msg_t *msg, clSnapshot_t *oldframe, clSnapshot_t *n
 		}
 		if ( oldnum == newnum ) {
 			// delta from previous state
-			CL_DeltaEntity( msg, newframe, newnum, oldstate, qfalse );
+			CL_DeltaEntity( msg, newframe, newnum, oldstate, false );
 
 			oldindex++;
 
@@ -150,7 +150,7 @@ void CL_ParsePacketEntities( msg_t *msg, clSnapshot_t *oldframe, clSnapshot_t *n
 
 		if ( oldnum > newnum ) {
 			// delta from baseline
-			CL_DeltaEntity( msg, newframe, newnum, &cl.entityBaselines[newnum], qfalse );
+			CL_DeltaEntity( msg, newframe, newnum, &cl.entityBaselines[newnum], false );
 			continue;
 		}
 
@@ -159,7 +159,7 @@ void CL_ParsePacketEntities( msg_t *msg, clSnapshot_t *oldframe, clSnapshot_t *n
 	// any remaining entities in the old frame are copied over
 	while ( oldnum != 99999 ) {
 		// one or more entities from the old packet are unchanged
-		CL_DeltaEntity( msg, newframe, oldnum, oldstate, qtrue );
+		CL_DeltaEntity( msg, newframe, oldnum, oldstate, true );
 
 		oldindex++;
 
@@ -212,7 +212,7 @@ void CL_ParseSnapshot( msg_t *msg )
 	// message
 	clSnapshot_t    *old;
 	if ( newSnap.deltaNum <= 0 ) {
-		newSnap.valid = qtrue;      // uncompressed frame
+		newSnap.valid = true;      // uncompressed frame
 		old = NULL;
 
 	} else {
@@ -227,7 +227,7 @@ void CL_ParseSnapshot( msg_t *msg )
 		} else if ( cl.parseEntitiesNum - old->parseEntitiesNum > MAX_PARSE_ENTITIES - 128 ) {
 			Com_Printf( "Delta parseEntitiesNum too old.\n" );
 		} else {
-			newSnap.valid = qtrue;  // valid delta parse
+			newSnap.valid = true;  // valid delta parse
 		}
 	}
 
@@ -261,7 +261,7 @@ void CL_ParseSnapshot( msg_t *msg )
 		oldMessageNum = newSnap.messageNum - ( PACKET_BACKUP - 1 );
 	}
 	for ( ; oldMessageNum < newSnap.messageNum ; oldMessageNum++ ) {
-		cl.snapshots[oldMessageNum & PACKET_MASK].valid = qfalse;
+		cl.snapshots[oldMessageNum & PACKET_MASK].valid = false;
 	}
 
 	// copy to the current good spot
@@ -270,7 +270,7 @@ void CL_ParseSnapshot( msg_t *msg )
 	// save the frame off in the backup array for later delta comparisons
 	cl.snapshots[cl.snap.messageNum & PACKET_MASK] = cl.snap;
 
-	cl.newSnapshots = qtrue;
+	cl.newSnapshots = true;
 }
 
 /*
@@ -380,7 +380,7 @@ void CL_ParseGamestate( msg_t *msg )
 		// don't set to true because we yet have to start downloading
 		// enabling this can cause double loading of a map when connecting to
 		// a server which has a different game directory set
-		//clc.downloadRestart = qtrue;
+		//clc.downloadRestart = true;
 	}
 
 	// let the client game init and load data
@@ -405,7 +405,7 @@ void CL_ParseGamestate( msg_t *msg )
 	CL_FlushMemory();
 
 	// initialize the CGame
-	cls.cgameStarted = qtrue;
+	cls.cgameStarted = true;
 	CL_InitCGame();
 
 	CL_WritePacket();

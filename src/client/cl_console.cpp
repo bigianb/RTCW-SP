@@ -41,7 +41,7 @@ int g_console_field_width = 78;
 #define     CON_TEXTSIZE    65536
 
 typedef struct {
-	qboolean initialized;
+	bool initialized;
 
 	short text[CON_TEXTSIZE];
 	int current;            // line where next message will be printed
@@ -103,7 +103,7 @@ Con_MessageMode_f
 void Con_MessageMode_f()
 {
 	chat_playerNum = -1;
-	chat_team = qfalse;
+	chat_team = false;
 	Field_Clear( &chatField );
 	chatField.widthInChars = 30;
 
@@ -118,7 +118,7 @@ Con_MessageMode2_f
 void Con_MessageMode2_f()
 {
 	chat_playerNum = -1;
-	chat_team = qtrue;
+	chat_team = true;
 	Field_Clear( &chatField );
 	chatField.widthInChars = 25;
 	cls.keyCatchers ^= KEYCATCH_MESSAGE;
@@ -136,7 +136,7 @@ void Con_MessageMode3_f()
 		chat_playerNum = -1;
 		return;
 	}
-	chat_team = qfalse;
+	chat_team = false;
 	Field_Clear( &chatField );
 	chatField.widthInChars = 30;
 	cls.keyCatchers ^= KEYCATCH_MESSAGE;
@@ -154,7 +154,7 @@ void Con_MessageMode4_f()
 		chat_playerNum = -1;
 		return;
 	}
-	chat_team = qfalse;
+	chat_team = false;
 	Field_Clear( &chatField );
 	chatField.widthInChars = 30;
 	cls.keyCatchers ^= KEYCATCH_MESSAGE;
@@ -387,7 +387,7 @@ void CL_ConsolePrint( char *txt )
 					con.color[3] = 1.0f;
 		con.linewidth = -1;
 		Con_CheckResize();
-		con.initialized = qtrue;
+		con.initialized = true;
 	}
 
 	int color = ColorIndex( CONSOLE_COLOR );
@@ -477,7 +477,7 @@ void Con_DrawInput()
 	SCR_DrawSmallChar( con.xadjust + 1 * SMALLCHAR_WIDTH, y, ']' );
 
 	Field_Draw( &g_consoleField, con.xadjust + 2 * SMALLCHAR_WIDTH, y,
-				SCREEN_WIDTH - 3 * SMALLCHAR_WIDTH, qtrue );
+				SCREEN_WIDTH - 3 * SMALLCHAR_WIDTH, true );
 }
 
 
@@ -545,7 +545,7 @@ void Con_DrawNotify()
 		}
 
 		Field_BigDraw( &chatField, skip * BIGCHAR_WIDTH, v,
-					   SCREEN_WIDTH - ( skip + 1 ) * BIGCHAR_WIDTH, qtrue );
+					   SCREEN_WIDTH - ( skip + 1 ) * BIGCHAR_WIDTH, true );
 
 		v += BIGCHAR_HEIGHT;
 	}

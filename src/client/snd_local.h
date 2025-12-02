@@ -64,9 +64,9 @@ typedef struct sndBuffer_s {
 
 typedef struct sfx_s {
 	sndBuffer       *soundData;
-	qboolean defaultSound;                  // couldn't be loaded, so use buzz
-	qboolean inMemory;                      // not in Memory
-	qboolean soundCompressed;               // not in Memory
+	bool defaultSound;                  // couldn't be loaded, so use buzz
+	bool inMemory;                      // not in Memory
+	bool soundCompressed;               // not in Memory
 	int soundCompressionMethod;
 	int soundLength;
 	char soundName[MAX_QPATH];
@@ -93,7 +93,7 @@ typedef struct loopSound_s {
 	sfx_t       *sfx;
 	int mergeFrame;
 	int vol;
-	qboolean loudUnderWater;    // (SA) set if this sound should be played at full vol even when under water (under water loop sound for ex.)
+	bool loudUnderWater;    // (SA) set if this sound should be played at full vol even when under water (under water loop sound for ex.)
 } loopSound_t;
 
 typedef struct
@@ -109,11 +109,11 @@ typedef struct
 	float dopplerScale;
 	float oldDopplerScale;
 	vec3_t origin;              // only use if fixed_origin is set
-	qboolean fixed_origin;      // use origin instead of fetching entnum's origin
+	bool fixed_origin;      // use origin instead of fetching entnum's origin
 	sfx_t       *thesfx;        // sfx structure
-	qboolean doppler;
+	bool doppler;
 	int flags;                  //----(SA)	added
-	qboolean threadReady;
+	bool threadReady;
 } channel_t;
 
 
@@ -139,7 +139,7 @@ typedef struct {
 */
 
 // initializes cycling through a DMA buffer and returns information on it
-qboolean SNDDMA_Init( void );
+bool SNDDMA_Init( void );
 
 // gets the current DMA position
 int     SNDDMA_GetDMAPos( void );
@@ -203,7 +203,7 @@ typedef struct {
 
 typedef struct {
 	vec3_t origin;
-	qboolean fixedOrigin;
+	bool fixedOrigin;
 	int entityNum;
 	int entityChannel;
 	sfxHandle_t sfx;
@@ -235,11 +235,11 @@ typedef struct {
 	s_pushStack pushPop[MAX_PUSHSTACK];
 	int tart;
 
-	qboolean s_soundPainted;
+	bool s_soundPainted;
 	int s_clearSoundBuffer;
 
 	int s_soundStarted;
-//	qboolean	s_soundMute;
+//	bool	s_soundMute;
 	int s_soundMute;                // 0 - not muted, 1 - muted, 2 - no new sounds, but play out remaining sounds (so they can die if necessary)
 
 	vec3_t entityPositions[MAX_GENTITIES];
@@ -273,7 +273,7 @@ extern cvar_t   *s_separation;
 extern cvar_t   *s_currentMusic;    //----(SA)	added
 extern cvar_t   *s_debugMusic;      //----(SA)	added
 
-qboolean S_LoadSound( sfx_t *sfx );
+bool S_LoadSound( sfx_t *sfx );
 
 void        SND_free( sndBuffer *v );
 sndBuffer*  SND_malloc();

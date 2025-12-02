@@ -225,7 +225,7 @@ void CG_FragmentBounceMark( localEntity_t *le, trace_t *trace ) {
 		if ( !( lastBloodMark > cg.time || lastBloodMark > cg.time - 100 ) ) {
 			radius = 16 + ( rand() & 31 );
 			CG_ImpactMark( cgs.media.bloodDotShaders[rand() % 5], trace->endpos, trace->plane.normal, random() * 360,
-						   1,1,1,1, qtrue, radius, qfalse, cg_bloodTime.integer * 1000 );
+						   1,1,1,1, true, radius, false, cg_bloodTime.integer * 1000 );
 
 			lastBloodMark = cg.time;
 		}
@@ -416,7 +416,7 @@ void CG_AddFragment( localEntity_t *le ) {
 	refEntity_t     *re;
 	float flameAlpha = 0.0f;   // TTimo: init
 	vec3_t flameDir;
-	qboolean hasFlame = qfalse;
+	bool hasFlame = false;
 	int i;
 	int contents;
 
@@ -433,7 +433,7 @@ void CG_AddFragment( localEntity_t *le ) {
 
 	// Ridah, flaming gibs
 	if ( le->onFireStart && ( le->onFireStart < cg.time && le->onFireEnd > cg.time ) ) {
-		hasFlame = qtrue;
+		hasFlame = true;
 		// calc the alpha
 		flameAlpha = 1.0 - ( (float)( cg.time - le->onFireStart ) / (float)( le->onFireEnd - le->onFireStart ) );
 		if ( flameAlpha < 0.0 ) {
@@ -1119,14 +1119,14 @@ void CG_AddClientCritter( localEntity_t *le ) {
 
 		// now trace ahead of time, if we're going to hit something, then avoid it
 		// only avoid dangers if we don't have direct sight to the enemy
-		CM_BoxTrace( &trace, le->refEntity.origin, enemyPos, NULL, NULL, 0, MASK_SOLID, qfalse );
+		CM_BoxTrace( &trace, le->refEntity.origin, enemyPos, NULL, NULL, 0, MASK_SOLID, false );
 		if ( trace.fraction < 1.0 ) {
 			BG_EvaluateTrajectory( &le->pos, time + 1000, newOrigin );
 
 			// if we would go passed the enemy, don't bother
 			if ( VectorDistance( le->refEntity.origin, enemyPos ) > VectorDistance( le->refEntity.origin, newOrigin ) ) {
 
-				CM_BoxTrace( &trace, le->refEntity.origin, newOrigin, NULL, NULL, 0, MASK_SOLID, qfalse );
+				CM_BoxTrace( &trace, le->refEntity.origin, newOrigin, NULL, NULL, 0, MASK_SOLID, false );
 
 				if ( trace.fraction < 1.0 ) {
 					// make sure we are not heading away from the enemy too much

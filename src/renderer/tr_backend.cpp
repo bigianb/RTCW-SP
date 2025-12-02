@@ -383,7 +383,7 @@ static void RB_Hyperspace( void ) {
 	qglClearColor( c, c, c, 1 );
 	qglClear( GL_COLOR_BUFFER_BIT );
 
-	backEnd.isHyperspace = qtrue;
+	backEnd.isHyperspace = true;
 }
 
 
@@ -419,15 +419,15 @@ void RB_BeginDrawingView( void ) {
 	// sync with gl if needed
 	if ( r_finish->integer == 1 && !glState.finishCalled ) {
 		qglFinish();
-		glState.finishCalled = qtrue;
+		glState.finishCalled = true;
 	}
 	if ( r_finish->integer == 0 ) {
-		glState.finishCalled = qtrue;
+		glState.finishCalled = true;
 	}
 
 	// we will need to change the projection matrix before drawing
 	// 2D images again
-	backEnd.projection2D = qfalse;
+	backEnd.projection2D = false;
 
 	//
 	// set the modelview matrix for the viewer
@@ -535,13 +535,13 @@ void RB_BeginDrawingView( void ) {
 		return;
 	} else
 	{
-		backEnd.isHyperspace = qfalse;
+		backEnd.isHyperspace = false;
 	}
 
 	glState.faceCulling = -1;       // force face culling to set next time
 
 	// we will only draw a sun if there was sky rendered in this view
-	backEnd.skyRenderedThisView = qfalse;
+	backEnd.skyRenderedThisView = false;
 
 	// clip to the plane of the portal
 	if ( backEnd.viewParms.isPortal ) {
@@ -590,7 +590,7 @@ static const char *zombieFxFleshHitSurfaceNames[2] = {"u_body","l_legs"};
 
 // this stores each of the flesh hits for each of the zombies in the game
 typedef struct {
-	qboolean isHit;
+	bool isHit;
 	unsigned short numHits;
 	unsigned short vertHits[ZOMBIEFX_MAX_HITS]; // bit flags to represent those verts that have been hit
 	int numNewHits;
@@ -643,7 +643,7 @@ void RB_ZombieFXProcessNewHits( trZombieFleshHitverts_t *fleshHitVerts, int oldN
 	float *xyzTrav, *normTrav;
 	vec3_t hitPos, hitDir, v, testDir;
 	float bestHitDist, thisDist;
-	qboolean foundHit;
+	bool foundHit;
 	int i, j, bestHit;
 	unsigned short *hitTrav;
 	byte hitCounts[ZOMBIEFX_MAX_VERTS];     // so we can quickly tell if a particular vert has been hit enough times already
@@ -668,7 +668,7 @@ void RB_ZombieFXProcessNewHits( trZombieFleshHitverts_t *fleshHitVerts, int oldN
 		GlobalVectorToLocal( v, hitDir );
 
 		// look for close matches
-		foundHit = qfalse;
+		foundHit = false;
 
 		// for each vertex
 		for (   j = 0, bestHitDist = -1, xyzTrav = tess.xyz[oldNumVerts], normTrav = tess.normal[oldNumVerts];
@@ -712,9 +712,9 @@ void RB_ZombieFXProcessNewHits( trZombieFleshHitverts_t *fleshHitVerts, int oldN
 hitCheckDone:
 
 			// this vertex was hit
-			foundHit = qtrue;
+			foundHit = true;
 			// set the appropriate bit-flag
-			fleshHitVerts->isHit = qtrue;
+			fleshHitVerts->isHit = true;
 			fleshHitVerts->vertHits[fleshHitVerts->numHits++] = (unsigned short)j;
 			//if (fleshHitVerts->numHits == ZOMBIEFX_MAX_HITS)
 			//	break;	// only find one close match per shot
@@ -730,7 +730,7 @@ hitCheckDone:
 		// if we didn't find a hit vertex, grab the closest acceptible match
 		if ( !foundHit && bestHitDist >= 0 ) {
 			// set the appropriate bit-flag
-			fleshHitVerts->isHit = qtrue;
+			fleshHitVerts->isHit = true;
 			fleshHitVerts->vertHits[fleshHitVerts->numHits++] = (unsigned short)bestHit;
 			if ( fleshHitVerts->numHits == ZOMBIEFX_MAX_HITS ) {
 				break;
@@ -890,7 +890,7 @@ void RB_RenderDrawSurfList( drawSurf_t *drawSurfs, int numDrawSurfs ) {
 	int fogNum, oldFogNum;
 	int entityNum, oldEntityNum;
 	int dlighted, oldDlighted;
-	qboolean depthRange, oldDepthRange;
+	bool depthRange, oldDepthRange;
 	int i;
 	drawSurf_t      *drawSurf;
 	int oldSort;
@@ -919,10 +919,10 @@ void RB_RenderDrawSurfList( drawSurf_t *drawSurfs, int numDrawSurfs ) {
 	backEnd.currentEntity = &tr.worldEntity;
 	oldShader = NULL;
 	oldFogNum = -1;
-	oldDepthRange = qfalse;
-	oldDlighted = qfalse;
+	oldDepthRange = false;
+	oldDlighted = false;
 	oldSort = -1;
-	depthRange = qfalse;
+	depthRange = false;
 // GR - tessellation also forces to draw everything
 	oldAtiTess = -1;
 
@@ -986,7 +986,7 @@ void RB_RenderDrawSurfList( drawSurf_t *drawSurfs, int numDrawSurfs ) {
 		// change the modelview matrix if needed
 		//
 		if ( entityNum != oldEntityNum ) {
-			depthRange = qfalse;
+			depthRange = false;
 
 			if ( entityNum != ENTITYNUM_WORLD ) {
 				backEnd.currentEntity = &backEnd.refdef.entities[entityNum];
@@ -1006,7 +1006,7 @@ void RB_RenderDrawSurfList( drawSurf_t *drawSurfs, int numDrawSurfs ) {
 
 				if ( backEnd.currentEntity->e.renderfx & RF_DEPTHHACK ) {
 					// hack the depth range to prevent view model from poking into walls
-					depthRange = qtrue;
+					depthRange = true;
 				}
 			} else {
 				backEnd.currentEntity = &tr.worldEntity;
@@ -1104,7 +1104,7 @@ RB_SetGL2D
 ================
 */
 void    RB_SetGL2D( void ) {
-	backEnd.projection2D = qtrue;
+	backEnd.projection2D = true;
 
 	// set 2D virtual screen size
 	qglViewport( 0, 0, glConfig.vidWidth, glConfig.vidHeight );
@@ -1139,7 +1139,7 @@ Stretches a raw 32 bit power of 2 bitmap image over the given screen rectangle.
 Used for cinematics.
 =============
 */
-void RE_StretchRaw( int x, int y, int w, int h, int cols, int rows, const byte *data, int client, qboolean dirty ) {
+void RE_StretchRaw( int x, int y, int w, int h, int cols, int rows, const byte *data, int client, bool dirty ) {
 	int i, j;
 	int start, end;
 
@@ -1207,7 +1207,7 @@ void RE_StretchRaw( int x, int y, int w, int h, int cols, int rows, const byte *
 }
 
 
-void RE_UploadCinematic( int w, int h, int cols, int rows, const byte *data, int client, qboolean dirty ) {
+void RE_UploadCinematic( int w, int h, int cols, int rows, const byte *data, int client, bool dirty ) {
 
 	GL_Bind( tr.scratchImage[client] );
 
@@ -1446,7 +1446,7 @@ const void  *RB_DrawBuffer( const void *data ) {
 	qglDrawBuffer( cmd->buffer );
 
 	// clear screen for debugging
-	if ( qtrue ||  r_clear->integer ) {
+	if ( true ||  r_clear->integer ) {
 		qglClearColor( 1, 0, 0.5, 1 );
 		qglClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
 	}
@@ -1565,7 +1565,7 @@ const void  *RB_SwapBuffers( const void *data ) {
 
 	GLimp_EndFrame();
 
-	backEnd.projection2D = qfalse;
+	backEnd.projection2D = false;
 
 	return (const void *)( cmd + 1 );
 }
@@ -1640,11 +1640,11 @@ void RB_RenderThread( void ) {
 			return; // all done, renderer is shutting down
 		}
 
-		renderThreadActive = qtrue;
+		renderThreadActive = true;
 
 		RB_ExecuteRenderCommands( data );
 
-		renderThreadActive = qfalse;
+		renderThreadActive = false;
 	}
 }
 

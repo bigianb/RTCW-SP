@@ -61,10 +61,10 @@ typedef struct particle_s
 	float end;
 
 	float startfade;
-	qboolean rotate;
+	bool rotate;
 	int snum;
 
-	qboolean link;
+	bool link;
 
 	// Ridah
 	int shaderAnim;
@@ -132,7 +132,7 @@ cparticle_t *active_particles, *free_particles;
 cparticle_t particles[MAX_PARTICLES];
 int cl_numparticles = MAX_PARTICLES;
 
-qboolean initparticles = qfalse;
+bool initparticles = false;
 vec3_t vforward, vright, vup;
 vec3_t rforward, rright, rup;
 
@@ -144,17 +144,17 @@ float oldtime;
 CG_ParticleLODCheck
 ==============
 */
-qboolean CG_ParticleLODCheck()
+bool CG_ParticleLODCheck()
 {
 	if ( cg_particleLOD.integer <= 1 ) {
-		return qtrue;
+		return true;
 	}
 
 	if ( !( rand() % ( cg_particleLOD.integer ) ) ) { // let particle lod thin out particles
-		return qtrue;
+		return true;
 	}
 
-	return qfalse;
+	return false;
 }
 
 /*
@@ -188,7 +188,7 @@ void CG_ClearParticles()
 	numShaderAnims = i;
 	// done.
 
-	initparticles = qtrue;
+	initparticles = true;
 }
 
 
@@ -1026,7 +1026,7 @@ CG_AddParticles
 */
 void CG_ParticleSnowFlurry( qhandle_t pshader, centity_t *cent ) {
 	cparticle_t *p;
-	qboolean turb = qtrue;
+	bool turb = true;
 
 	if ( !pshader ) {
 		Com_Printf( "CG_ParticleSnowFlurry pshader == ZERO!\n" );
@@ -1152,7 +1152,7 @@ void CG_ParticleSnow( qhandle_t pshader, vec3_t origin, vec3_t origin2, int turb
 
 	// Rafael snow pvs check
 	p->snum = snum;
-	p->link = qtrue;
+	p->link = true;
 
 }
 
@@ -1216,7 +1216,7 @@ void CG_ParticleBubble( qhandle_t pshader, vec3_t origin, vec3_t origin2, int tu
 
 	// Rafael snow pvs check
 	p->snum = snum;
-	p->link = qtrue;
+	p->link = true;
 
 }
 
@@ -1255,19 +1255,19 @@ void CG_ParticleSmoke( qhandle_t pshader, centity_t *cent ) {
 	p->end = cent->currentState.origin2[2];
 	p->pshader = pshader;
 	if ( cent->currentState.density == 1 ) {
-		p->rotate = qfalse;
+		p->rotate = false;
 		p->height = 8;
 		p->width = 8;
 		p->endheight = 32;
 		p->endwidth = 32;
 	} else if ( cent->currentState.density == 2 )     {
-		p->rotate = qtrue;
+		p->rotate = true;
 		p->height = 4;
 		p->width = 4;
 		p->endheight = 8;
 		p->endwidth = 8;
 	} else if ( cent->currentState.density == 3 )     {
-		p->rotate = qfalse;
+		p->rotate = false;
 		{
 			float scale;
 
@@ -1278,14 +1278,14 @@ void CG_ParticleSmoke( qhandle_t pshader, centity_t *cent ) {
 			p->endwidth = 64 + scale;
 		}
 	} else if ( cent->currentState.density == 4 )     { // white smoke
-		p->rotate = qtrue;
+		p->rotate = true;
 		p->height = cent->currentState.angles2[0];
 		p->width = cent->currentState.angles2[0];
 		p->endheight = cent->currentState.angles2[1];
 		p->endwidth = cent->currentState.angles2[1];
 		p->color = GREY75;
 	} else if ( cent->currentState.density == 5 )     { // mustard gas
-		p->rotate = qtrue;
+		p->rotate = true;
 		p->height = cent->currentState.angles2[0];
 		p->width = cent->currentState.angles2[0];
 		p->endheight = cent->currentState.angles2[1];
@@ -1294,7 +1294,7 @@ void CG_ParticleSmoke( qhandle_t pshader, centity_t *cent ) {
 		p->alpha = 0.75;
 	} else // black smoke
 	{
-		p->rotate = qtrue;
+		p->rotate = true;
 		p->height = cent->currentState.angles2[0];
 		p->width = cent->currentState.angles2[0];
 		p->endheight = cent->currentState.angles2[1];
@@ -1477,7 +1477,7 @@ void CG_ParticleDirtBulletDebris_Core( vec3_t org, vec3_t vel, int duration,
 	p->endheight = p->height;
 	p->endwidth = p->width;
 
-	p->rotate = qfalse;
+	p->rotate = false;
 
 	p->pshader = trap_R_RegisterShader( shadername ); // JPW NERVE was "dirt_splash"
 
@@ -1639,7 +1639,7 @@ int CG_NewParticleArea( int num ) {
 	return ( 1 );
 }
 
-void    CG_SnowLink( centity_t *cent, qboolean particleOn ) {
+void    CG_SnowLink( centity_t *cent, bool particleOn ) {
 	cparticle_t     *p, *next;
 	int id;
 
@@ -1652,9 +1652,9 @@ void    CG_SnowLink( centity_t *cent, qboolean particleOn ) {
 		if ( p->type == P_WEATHER || p->type == P_WEATHER_TURBULENT ) {
 			if ( p->snum == id ) {
 				if ( particleOn ) {
-					p->link = qtrue;
+					p->link = true;
 				} else {
-					p->link = qfalse;
+					p->link = false;
 				}
 			}
 		}
@@ -1810,7 +1810,7 @@ void CG_ParticleImpactSmokePuffExtended( qhandle_t pshader, vec3_t origin, vec3_
 //	VectorSet(p->vel, 0, 0, vel);
 //	VectorSet(p->accel, 0, 0, acc);
 
-	p->rotate = qtrue;
+	p->rotate = true;
 }
 
 void CG_ParticleImpactSmokePuff( qhandle_t pshader, vec3_t origin ) {
@@ -1865,7 +1865,7 @@ void CG_Particle_Bleed( qhandle_t pshader, vec3_t start, vec3_t dir, int fleshEn
 	p->vel[2] = -20;
 	VectorClear( p->accel );
 
-	p->rotate = qfalse;
+	p->rotate = false;
 
 	p->roll = rand() % 179;
 
@@ -1941,7 +1941,7 @@ void CG_Particle_OilParticle( qhandle_t pshader, vec3_t origin, vec3_t dir, int 
 
 	p->accel[2] = -20;
 
-	p->rotate = qfalse;
+	p->rotate = false;
 
 	p->roll = rand() % 179;
 
@@ -2015,7 +2015,7 @@ void CG_Particle_OilSlick( qhandle_t pshader, centity_t *cent ) {
 	p->vel[2] = 0;
 	VectorClear( p->accel );
 
-	p->rotate = qfalse;
+	p->rotate = false;
 
 	p->roll = rand() % 179;
 
@@ -2049,7 +2049,7 @@ void CG_OilSlickRemove( centity_t *cent ) {
 	}
 }
 
-qboolean ValidBloodPool( vec3_t start ) {
+bool ValidBloodPool( vec3_t start ) {
 #define EXTRUDE_DIST    0.5
 
 	vec3_t angles;
@@ -2083,22 +2083,22 @@ qboolean ValidBloodPool( vec3_t start ) {
 
 
 			if ( trace.entityNum < ( MAX_ENTITIES - 1 ) ) { // may only land on world
-				return qfalse;
+				return false;
 			}
 
 			if ( !( !trace.startsolid && trace.fraction < 1 ) ) {
-				return qfalse;
+				return false;
 			}
 
 		}
 	}
 
-	return qtrue;
+	return true;
 }
 
 void CG_BloodPool( localEntity_t *le, qhandle_t pshader, trace_t *tr ) {
 	cparticle_t *p;
-	qboolean legit;
+	bool legit;
 	vec3_t start;
 	float rndSize;
 
@@ -2149,7 +2149,7 @@ void CG_BloodPool( localEntity_t *le, qhandle_t pshader, trace_t *tr ) {
 	p->vel[2] = 0;
 	VectorClear( p->accel );
 
-	p->rotate = qfalse;
+	p->rotate = false;
 
 	p->roll = rand() % 179;
 
@@ -2246,7 +2246,7 @@ void CG_ParticleBloodCloud( centity_t *cent, vec3_t origin, vec3_t dir ) {
 
 		VectorClear( p->accel );
 
-		p->rotate = qfalse;
+		p->rotate = false;
 
 		p->roll = rand() % 179;
 
@@ -2363,7 +2363,7 @@ void CG_ParticleBloodCloudZombie( centity_t *cent, vec3_t origin, vec3_t dir ) {
 
 		VectorClear( p->accel );
 
-		p->rotate = qfalse;
+		p->rotate = false;
 
 		p->roll = rand() % 179;
 
@@ -2528,7 +2528,7 @@ void CG_ParticleDust( centity_t *cent, vec3_t origin, vec3_t dir ) {
 
 		VectorClear( p->accel );
 
-		p->rotate = qfalse;
+		p->rotate = false;
 
 		p->roll = rand() % 179;
 
@@ -2589,5 +2589,5 @@ void CG_ParticleMisc( qhandle_t pshader, vec3_t origin, int size, int duration, 
 
 	VectorCopy( origin, p->org );
 
-	p->rotate = qfalse;
+	p->rotate = false;
 }

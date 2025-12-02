@@ -1,7 +1,7 @@
 #include "tr_local.h"
 
-qboolean GLimp_SpawnRenderThread( void ( *function )( void ) ) {
-	return qfalse;
+bool GLimp_SpawnRenderThread( void ( *function )( void ) ) {
+	return false;
 }
 
 void *GLimp_RendererSleep( void ) {

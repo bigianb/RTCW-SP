@@ -127,8 +127,8 @@ const char *AIFunc_Helga_SpiritAttack_Start( cast_state_t *cs ) {
 	// dont turn
 	cs->ideal_viewangles[YAW] = cs->viewangles[YAW];
 	// play an anim
-	BG_UpdateConditionValue( cs->entityNum, ANIM_COND_WEAPON, WP_MONSTER_ATTACK2, qtrue );
-	BG_AnimScriptEvent( &ent->client->ps, ANIM_ET_FIREWEAPON, qfalse, qtrue );
+	BG_UpdateConditionValue( cs->entityNum, ANIM_COND_WEAPON, WP_MONSTER_ATTACK2, true );
+	BG_AnimScriptEvent( &ent->client->ps, ANIM_ET_FIREWEAPON, false, true );
 	//
 	cs->aifunc = AIFunc_Helga_SpiritAttack;
 	return "AIFunc_Helga_SpiritAttack";
@@ -215,7 +215,7 @@ const char *AIFunc_Helga_Melee( cast_state_t *cs ) {
 			enemyDist -= g_entities[cs->enemyNum].shared.r.maxs[0];
 			enemyDist -= ent->shared.r.maxs[0];
 			if ( enemyDist < 10 + AICast_WeaponRange( cs, cs->weaponNum ) ) {
-                SV_Trace( &tr, ent->shared.r.currentOrigin, NULL, NULL, enemy->shared.r.currentOrigin, ent->shared.s.number, MASK_SHOT, qfalse );
+                SV_Trace( &tr, ent->shared.r.currentOrigin, NULL, NULL, enemy->shared.r.currentOrigin, ent->shared.s.number, MASK_SHOT, false );
 				if ( tr.entityNum == cs->enemyNum ) {
 					G_Damage( &g_entities[tr.entityNum], ent, ent, vec3_origin, tr.endpos,
 							  helgaHitDamage[anim], 0, MOD_GAUNTLET );
@@ -264,8 +264,8 @@ const char *AIFunc_Helga_MeleeStart( cast_state_t *cs ) {
 	AICast_AimAtEnemy( cs );
 
 	// play an anim
-	BG_UpdateConditionValue( cs->entityNum, ANIM_COND_WEAPON, cs->weaponNum, qtrue );
-	BG_AnimScriptEvent( &ent->client->ps, ANIM_ET_FIREWEAPON, qfalse, qtrue );
+	BG_UpdateConditionValue( cs->entityNum, ANIM_COND_WEAPON, cs->weaponNum, true );
+	BG_AnimScriptEvent( &ent->client->ps, ANIM_ET_FIREWEAPON, false, true );
 
 	// play a sound
 	G_AddEvent( ent, EV_GENERAL_SOUND, G_SoundIndex( aiDefaults[ent->aiCharacter].soundScripts[ATTACKSOUNDSCRIPT] ) );
@@ -288,7 +288,7 @@ const char *AIFunc_FlameZombie_Portal( cast_state_t *cs ) {
 	//
 	if ( cs->thinkFuncChangeTime < level.time - PORTAL_ZOMBIE_SPAWNTIME ) {
 		// HACK, make them aware of the player
-		AICast_UpdateVisibility( &g_entities[cs->entityNum], AICast_FindEntityForName( "player" ), qfalse, qtrue );
+		AICast_UpdateVisibility( &g_entities[cs->entityNum], AICast_FindEntityForName( "player" ), false, true );
 		ent->shared.s.time2 = 0;   // turn spawning effect off
 		return AIFunc_DefaultStart( cs );
 	}
@@ -427,7 +427,7 @@ const char *AIFunc_Heinrich_SwordLunge( cast_state_t *cs ) {
 		// face them
 		AICast_AimAtEnemy( cs );
 		// keep checking for impact status
-		tr = CheckMeleeAttack( ent, HEINRICH_LUNGE_RANGE, qfalse );
+		tr = CheckMeleeAttack( ent, HEINRICH_LUNGE_RANGE, false );
                                                                                                                                                                                                       // ready for damage?
 		if ( cs->thinkFuncChangeTime < level.time - HEINRICH_LUNGE_DELAY ) {
 			cs->aiFlags |= AIFL_MISCFLAG1;
@@ -472,7 +472,7 @@ const char *AIFunc_Heinrich_SwordLungeStart( cast_state_t *cs ) {
 	// clear flags
 	cs->aiFlags &= ~( AIFL_MISCFLAG1 | AIFL_MISCFLAG2 );
 	// play the anim
-	BG_PlayAnimName( &ent->client->ps, "attack9", ANIM_BP_BOTH, qtrue, qfalse, qtrue );
+	BG_PlayAnimName( &ent->client->ps, "attack9", ANIM_BP_BOTH, true, false, true );
 	// start the func
 	cs->aifunc = AIFunc_Heinrich_SwordLunge;
 	return "AIFunc_Heinrich_SwordLunge";
@@ -516,7 +516,7 @@ const char *AIFunc_Heinrich_SwordKnockback( cast_state_t *cs ) {
 		// face them
 		AICast_AimAtEnemy( cs );
 		// keep checking for impact status
-		tr = CheckMeleeAttack( ent, HEINRICH_KNOCKBACK_RANGE, qfalse );
+		tr = CheckMeleeAttack( ent, HEINRICH_KNOCKBACK_RANGE, false );
                                                                                                                                                                                                           // ready for damage?
 		if ( cs->thinkFuncChangeTime < level.time - HEINRICH_KNOCKBACK_DELAY ) {
 			cs->aiFlags |= AIFL_MISCFLAG1;
@@ -559,9 +559,9 @@ const char *AIFunc_Heinrich_SwordKnockbackStart( cast_state_t *cs ) {
 	cs->aiFlags &= ~( AIFL_MISCFLAG1 | AIFL_MISCFLAG2 );
 	// play the anim
 	if ( rand() % 2 ) {
-		BG_PlayAnimName( &ent->client->ps, "attack2", ANIM_BP_BOTH, qtrue, qfalse, qtrue );
+		BG_PlayAnimName( &ent->client->ps, "attack2", ANIM_BP_BOTH, true, false, true );
 	} else {
-		BG_PlayAnimName( &ent->client->ps, "attack3", ANIM_BP_BOTH, qtrue, qfalse, qtrue );
+		BG_PlayAnimName( &ent->client->ps, "attack3", ANIM_BP_BOTH, true, false, true );
 	}
 	// start the func
 	cs->aifunc = AIFunc_Heinrich_SwordKnockback;
@@ -608,7 +608,7 @@ const char *AIFunc_Heinrich_SwordSideSlash( cast_state_t *cs ) {
 		// face them
 		AICast_AimAtEnemy( cs );
 		// keep checking for impact status
-		tr = CheckMeleeAttack( ent, HEINRICH_SLASH_RANGE, qfalse );
+		tr = CheckMeleeAttack( ent, HEINRICH_SLASH_RANGE, false );
 		// ready for damage?
 		if ( cs->thinkFuncChangeTime < level.time - HEINRICH_SLASH_DELAY ) {
 			cs->aiFlags |= AIFL_MISCFLAG1;
@@ -659,7 +659,7 @@ const char *AIFunc_Heinrich_SwordSideSlashStart( cast_state_t *cs ) {
 	// clear flags
 	cs->aiFlags &= ~( AIFL_MISCFLAG1 | AIFL_MISCFLAG2 );
 	// play the anim
-	BG_PlayAnimName( &ent->client->ps, "attack8", ANIM_BP_BOTH, qtrue, qfalse, qtrue );
+	BG_PlayAnimName( &ent->client->ps, "attack8", ANIM_BP_BOTH, true, false, true );
 	// start the func
 	cs->aifunc = AIFunc_Heinrich_SwordSideSlash;
 	return "AIFunc_Heinrich_SwordSideSlash";
@@ -735,7 +735,7 @@ const char *AIFunc_Heinrich_Earthquake( cast_state_t *cs ) {
 			// play the stomp sound
 			G_AddEvent( ent, EV_GENERAL_SOUND, G_SoundIndex( aiDefaults[ent->aiCharacter].soundScripts[ORDERSDENYSOUNDSCRIPT] ) );
 			// check for striking the player
-			tr = CheckMeleeAttack( ent, 70, qfalse );
+			tr = CheckMeleeAttack( ent, 70, false );
 			// do melee damage
 			if ( tr && ( tr->entityNum == cs->enemyNum ) ) {
 				G_Damage( &g_entities[tr->entityNum], ent, ent, vec3_origin, tr->endpos, HEINRICH_STOMP_DAMAGE, 0, MOD_GAUNTLET );
@@ -815,7 +815,7 @@ const char *AIFunc_Heinrich_MeleeStart( cast_state_t *cs ) {
 		// sound
 		G_AddEvent( ent, EV_GENERAL_SOUND, heinrichSoundIndex[HEINRICH_EARTHQUAKE_START] );
 		// play the anim
-		BG_PlayAnimName( &ent->client->ps, "attack7", ANIM_BP_BOTH, qtrue, qfalse, qtrue );
+		BG_PlayAnimName( &ent->client->ps, "attack7", ANIM_BP_BOTH, true, false, true );
 		// start the func
 		cs->aifunc = AIFunc_Heinrich_Earthquake;
 		return "AIFunc_Heinrich_Earthquake";
@@ -874,7 +874,7 @@ const char *AIFunc_Heinrich_RaiseDead( cast_state_t *cs ) {
 		if ( closest ) {
 			closest->AIScript_AlertEntity( closest );
 			// make them aware of the player
-			AICast_UpdateVisibility( closest, enemy, qtrue, qtrue );
+			AICast_UpdateVisibility( closest, enemy, true, true );
 			// reduce the count
 			ent->count2--;
 		}
@@ -916,7 +916,7 @@ const char *AIFunc_Heinrich_RaiseDeadStart( cast_state_t *cs ) {
 		lastRaise = level.time;
 		cs->aiFlags |= AIFL_SPECIAL_FUNC;
 		// start the animation
-		BG_PlayAnimName( &ent->client->ps, "attack4", ANIM_BP_BOTH, qtrue, qfalse, qtrue );
+		BG_PlayAnimName( &ent->client->ps, "attack4", ANIM_BP_BOTH, true, false, true );
 		// play the sound
 		G_AddEvent( ent, EV_GENERAL_SOUND, heinrichSoundIndex[HEINRICH_RAISEDEAD_START] );
 		// start the func
@@ -928,7 +928,7 @@ const char *AIFunc_Heinrich_RaiseDeadStart( cast_state_t *cs ) {
 	// TTimo: gcc: suggest () around assignment used as truth value
 	while ( ( trav = G_Find( trav, FOFS( classname ), "func_bats" ) ) ) {
 		if ( !trav->active && trav->spawnflags & 4 ) {
-			trav->active = qtrue;   // let them release spirits now
+			trav->active = true;   // let them release spirits now
 		}
 	}
 	// is the player outside the circle?
@@ -945,7 +945,7 @@ const char *AIFunc_Heinrich_RaiseDeadStart( cast_state_t *cs ) {
 					ent->count2 = 0;
 					cs->aiFlags |= AIFL_SPECIAL_FUNC;
 					// start the animation
-					BG_PlayAnimName( &ent->client->ps, "attack4", ANIM_BP_BOTH, qtrue, qfalse, qtrue );
+					BG_PlayAnimName( &ent->client->ps, "attack4", ANIM_BP_BOTH, true, false, true );
 					// play the sound
 					G_AddEvent( ent, EV_GENERAL_SOUND, heinrichSoundIndex[HEINRICH_RAISEDEAD_START] );
 					// start the func
@@ -970,7 +970,7 @@ const char *AIFunc_Heinrich_SpawnSpiritsStart( cast_state_t *cs ) {
 	// TTimo: gcc: suggest () around assignment used as truth value
 	while ( ( trav = G_Find( trav, FOFS( classname ), "func_bats" ) ) ) {
 		if ( !trav->active && trav->spawnflags & 4 ) {
-			trav->active = qtrue;   // let them release spirits now
+			trav->active = true;   // let them release spirits now
 		}
 	}
 	// is the player outside the circle?
@@ -987,7 +987,7 @@ const char *AIFunc_Heinrich_SpawnSpiritsStart( cast_state_t *cs ) {
 					ent->count2 = 0;
 					cs->aiFlags |= AIFL_SPECIAL_FUNC;
 					// start the animation
-					BG_PlayAnimName( &ent->client->ps, "attack4", ANIM_BP_BOTH, qtrue, qfalse, qtrue );
+					BG_PlayAnimName( &ent->client->ps, "attack4", ANIM_BP_BOTH, true, false, true );
 					// play the sound
 					G_AddEvent( ent, EV_GENERAL_SOUND, heinrichSoundIndex[HEINRICH_RAISEDEAD_START] );
 					// start the func

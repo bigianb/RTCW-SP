@@ -77,7 +77,7 @@ void AAS_AltRoutingFloodCluster_r( int areanum ) {
 	clusterareas[numclusterareas] = areanum;
 	numclusterareas++;
 	//remove the area from the mid range areas
-	midrangeareas[areanum].valid = qfalse;
+	midrangeareas[areanum].valid = false;
 	//flood to other areas through the faces of this area
 	area = &( *aasworld ).areas[areanum];
 	for ( i = 0; i < area->numfaces; i++ )

@@ -93,7 +93,7 @@ G_FindConfigstringIndex
 
 ================
 */
-int G_FindConfigstringIndex( const char *name, int start, int max, qboolean create ) {
+int G_FindConfigstringIndex( const char *name, int start, int max, bool create ) {
 	int i;
 	char s[MAX_STRING_CHARS];
 
@@ -127,11 +127,11 @@ int G_FindConfigstringIndex( const char *name, int start, int max, qboolean crea
 
 
 int G_ModelIndex( const char *name ) {
-	return G_FindConfigstringIndex( name, CS_MODELS, MAX_MODELS, qtrue );
+	return G_FindConfigstringIndex( name, CS_MODELS, MAX_MODELS, true );
 }
 
 int G_SoundIndex( const char *name ) {
-	return G_FindConfigstringIndex( name, CS_SOUNDS, MAX_SOUNDS, qtrue );
+	return G_FindConfigstringIndex( name, CS_SOUNDS, MAX_SOUNDS, true );
 }
 
 //=====================================================================
@@ -372,14 +372,14 @@ void G_SetMovedir( vec3_t angles, vec3_t movedir ) {
 
 void G_InitGentity( gentity_t *e )
 {
-	e->inuse = qtrue;
+	e->inuse = true;
 	e->classname = "noclass";
 	e->shared.s.number = e - g_entities;
 	e->shared.r.ownerNum = ENTITYNUM_NONE;
 	e->headshotDamageScale = 1.0;   // RF, default value
 	e->eventTime = 0;
-	e->freeAfterEvent = qfalse;
-	e->neverFree = qfalse;
+	e->freeAfterEvent = false;
+	e->neverFree = false;
 
 	// RF, init scripting
 	e->scriptStatus.scriptEventIndex = -1;
@@ -451,7 +451,7 @@ gentity_t *G_Spawn()
 G_EntitiesFree
 =================
 */
-qboolean G_EntitiesFree( void ) {
+bool G_EntitiesFree( void ) {
 	int i;
 	gentity_t   *e;
 
@@ -461,9 +461,9 @@ qboolean G_EntitiesFree( void ) {
 			continue;
 		}
 		// slot available
-		return qtrue;
+		return true;
 	}
-	return qfalse;
+	return false;
 }
 
 
@@ -484,7 +484,7 @@ void G_FreeEntity( gentity_t *ed ) {
 	memset( ed, 0, sizeof( *ed ) );
 	ed->classname = "freed";
 	ed->freetime = level.time;
-	ed->inuse = qfalse;
+	ed->inuse = false;
 }
 
 /*
@@ -506,7 +506,7 @@ gentity_t *G_TempEntity( vec3_t origin, int event ) {
 	e->classname = "tempEntity";
 	e->eventTime = level.time;
 	e->shared.r.eventTime = level.time;
-	e->freeAfterEvent = qtrue;
+	e->freeAfterEvent = true;
 
 	VectorCopy( origin, snapped );
 	SnapVector( snapped );      // save network bandwidth
@@ -680,7 +680,7 @@ infront
 ====================
 */
 
-qboolean infront( gentity_t *self, gentity_t *other ) {
+bool infront( gentity_t *self, gentity_t *other ) {
 	vec3_t vec;
 	float dot;
 	vec3_t forward, otherOrigin;
@@ -709,16 +709,16 @@ qboolean infront( gentity_t *self, gentity_t *other ) {
 		float angle;
 		angle = RAD2DEG( M_PI - acos( dot ) );
 		if ( angle < ( self->activateArc * 2.0 ) ) { // arc is 'half arc' since that's the way the other angles in the mg42 were done
-			return qfalse;
+			return false;
 		} else {
-			return qtrue;
+			return true;
 		}
 	}
 
 	if ( dot > 0.0 ) {
-		return qtrue;
+		return true;
 	}
-	return qfalse;
+	return false;
 }
 
 //RF, tag connections
@@ -727,7 +727,7 @@ qboolean infront( gentity_t *self, gentity_t *other ) {
 G_ProcessTagConnect
 ==================
 */
-void G_ProcessTagConnect( gentity_t *ent, qboolean clearAngles ) {
+void G_ProcessTagConnect( gentity_t *ent, bool clearAngles ) {
 	if ( !ent->tagName ) {
 		Com_Error( ERR_DROP, "G_ProcessTagConnect: NULL ent->tagName\n" );
         return; // keep the linter happy, ERR_DROP does not return
@@ -736,7 +736,7 @@ void G_ProcessTagConnect( gentity_t *ent, qboolean clearAngles ) {
 		Com_Error( ERR_DROP, "G_ProcessTagConnect: NULL ent->tagParent\n" );
         return; // keep the linter happy, ERR_DROP does not return
 	}
-	G_FindConfigstringIndex( va( "%i %i %s", ent->shared.s.number, ent->tagParent->shared.s.number, ent->tagName ), CS_TAGCONNECTS, MAX_TAGCONNECTS, qtrue );
+	G_FindConfigstringIndex( va( "%i %i %s", ent->shared.s.number, ent->tagParent->shared.s.number, ent->tagName ), CS_TAGCONNECTS, MAX_TAGCONNECTS, true );
 	ent->shared.s.eFlags |= EF_TAGCONNECT;
 
 	if ( clearAngles ) {

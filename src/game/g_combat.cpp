@@ -51,7 +51,7 @@ void AddScore( gentity_t *ent, int score ) {
 
 
 
-extern qboolean G_ThrowChair( gentity_t *ent, vec3_t dir, qboolean force );
+extern bool G_ThrowChair( gentity_t *ent, vec3_t dir, bool force );
 
 /*
 =================
@@ -82,7 +82,7 @@ void TossClientItems( gentity_t *self ) {
 
 	AngleVectors( self->shared.r.currentAngles, forward, NULL, NULL );
 
-	G_ThrowChair( self, forward, qtrue ); // drop chair if you're holding one  //----(SA)	added
+	G_ThrowChair( self, forward, true ); // drop chair if you're holding one  //----(SA)	added
 
 	// make a special check to see if they are changing to a new
 	// weapon that isn't the mg or gauntlet.  Without this, a client
@@ -120,7 +120,7 @@ void TossClientItems( gentity_t *self ) {
 
 		// Rafael
 		if ( !( self->client->ps.persistant[PERS_HWEAPON_USE] ) ) {
-			drop = Drop_Item( self, item, 0, qfalse );
+			drop = Drop_Item( self, item, 0, false );
 		}
 	}
 
@@ -135,7 +135,7 @@ void TossClientItems( gentity_t *self ) {
 			if ( !item ) {
 				continue;
 			}
-			drop = Drop_Item( self, item, angle, qfalse );
+			drop = Drop_Item( self, item, angle, false );
 			// decide how many seconds it has left
 			drop->count = ( self->client->ps.powerups[ i ] - level.time ) / 1000;
 			if ( drop->count < 1 ) {
@@ -204,7 +204,7 @@ void GibEntity( gentity_t *self, int killer ) {
 	}
 
 	G_AddEvent( self, EV_GIB_PLAYER, DirToByte( dir ) );
-	self->takedamage = qfalse;
+	self->takedamage = false;
 	self->shared.s.eType = ET_INVISIBLE;
 	self->shared.r.contents = 0;
 }
@@ -318,7 +318,7 @@ void player_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
 	int i;
 	const char        *killerName;
 	const char	*obit;
-	qboolean nogib = qtrue;
+	bool nogib = true;
 	gitem_t     *item = NULL; // JPW NERVE for flag drop
 	vec3_t launchvel;      // JPW NERVE
 	gentity_t   *flag; // JPW NERVE
@@ -392,7 +392,7 @@ void player_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
 		TossClientItems( self );
 	}
 
-	self->takedamage = qtrue;   // can still be gibbed
+	self->takedamage = true;   // can still be gibbed
 
 	self->shared.s.powerups = 0;
 	self->shared.r.contents = CONTENTS_CORPSE;
@@ -424,7 +424,7 @@ void player_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
 	if ( self->health <= GIB_HEALTH && !( contents & CONTENTS_NODROP ) && g_blood.integer ) {
 
 		GibEntity( self, killer );
-		nogib = qfalse;
+		nogib = false;
 	}
 
 	if ( nogib ) {
@@ -520,22 +520,22 @@ int CheckArmor( gentity_t *ent, int damage, int dflags ) {
 IsHeadShotWeapon
 ==============
 */
-qboolean IsHeadShotWeapon( int mod, gentity_t *targ, gentity_t *attacker ) {
+bool IsHeadShotWeapon( int mod, gentity_t *targ, gentity_t *attacker ) {
 	// distance rejection
 	if ( DistanceSquared( targ->shared.r.currentOrigin, attacker->shared.r.currentOrigin )  >  ( g_headshotMaxDist.integer * g_headshotMaxDist.integer ) ) {
-		return qfalse;
+		return false;
 	}
 
 	if ( attacker->aiCharacter ) {
 		// ai's are always allowed headshots from these weapons
 		if ( mod == MOD_SNIPERRIFLE ||
 			 mod == MOD_SNOOPERSCOPE ) {
-			return qtrue;
+			return true;
 		}
 
 		if ( g_gameskill.integer != GSKILL_MAX ) {
 			// ai's allowed headshots in skill==GSKILL_MAX
-			return qfalse;
+			return false;
 		}
 	}
 
@@ -546,7 +546,7 @@ qboolean IsHeadShotWeapon( int mod, gentity_t *targ, gentity_t *attacker ) {
 	case AICHAR_HELGA:      // boss1 (beast)
 	case AICHAR_LOPER:
 	case AICHAR_VENOM:      //----(SA)	added
-		return qfalse;
+		return false;
 	default:
 		break;
 	}
@@ -567,10 +567,10 @@ qboolean IsHeadShotWeapon( int mod, gentity_t *targ, gentity_t *attacker ) {
 	case MOD_FG42SCOPE:
 	case MOD_SNOOPERSCOPE:
 	case MOD_SNIPERRIFLE:
-		return qtrue;
+		return true;
 	}
 
-	return qfalse;
+	return false;
 }
 
 
@@ -579,22 +579,22 @@ qboolean IsHeadShotWeapon( int mod, gentity_t *targ, gentity_t *attacker ) {
 IsHeadShot
 ==============
 */
-qboolean IsHeadShot( gentity_t *targ, gentity_t *attacker, vec3_t dir, vec3_t point, int mod ) {
+bool IsHeadShot( gentity_t *targ, gentity_t *attacker, vec3_t dir, vec3_t point, int mod ) {
 	gentity_t   *head;
 	trace_t tr;
 	vec3_t start, end;
 	gentity_t   *traceEnt;
 	orientation_t orientation;
 
-	qboolean head_shot_weapon = qfalse;
+	bool head_shot_weapon = false;
 
 	// not a player or critter so bail
 	if ( !( targ->client ) ) {
-		return qfalse;
+		return false;
 	}
 
 	if ( targ->health <= 0 ) {
-		return qfalse;
+		return false;
 	}
 
 	head_shot_weapon = IsHeadShotWeapon( mod, targ, attacker );
@@ -631,7 +631,7 @@ qboolean IsHeadShot( gentity_t *targ, gentity_t *attacker, vec3_t dir, vec3_t po
 		// trace another shot see if we hit the head
 		VectorCopy( point, start );
 		VectorMA( start, 64, dir, end );
-		SV_Trace( &tr, start, NULL, NULL, end, targ->shared.s.number, MASK_SHOT, qfalse );
+		SV_Trace( &tr, start, NULL, NULL, end, targ->shared.s.number, MASK_SHOT, false );
 
 		traceEnt = &g_entities[ tr.entityNum ];
 
@@ -659,11 +659,11 @@ qboolean IsHeadShot( gentity_t *targ, gentity_t *attacker, vec3_t dir, vec3_t po
 		G_FreeEntity( head );
 
 		if ( traceEnt == head ) {
-			return qtrue;
+			return true;
 		}
 	}
 
-	return qfalse;
+	return false;
 }
 
 
@@ -717,7 +717,7 @@ void G_ArmorDamage( gentity_t *targ ) {
 
 	// RF, remove flame protection after enough parts gone
 	if ( AICast_NoFlameDamage( targ->shared.s.number ) && ( (float)brokeparts / (float)numParts >= 5.0 / 6.0 ) ) { // figure from DM
-		AICast_SetFlameDamage( targ->shared.s.number, qfalse );
+		AICast_SetFlameDamage( targ->shared.s.number, false );
 	}
 
 	if ( brokeparts && ( ( targ->shared.s.dmgFlags & ( ( 1 << numParts ) - 1 ) ) != ( 1 << numParts ) - 1 ) ) {   // there are still parts left to clear
@@ -1005,7 +1005,7 @@ void G_Damage( gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
 	// always give half damage if hurting self
 	// calculated after knockback, so rocket jumping works
 
-	qboolean dynamite = (qboolean)( mod == MOD_DYNAMITE || mod == MOD_DYNAMITE_SPLASH );
+	bool dynamite = (bool)( mod == MOD_DYNAMITE || mod == MOD_DYNAMITE_SPLASH );
 
 	if ( targ == attacker ) {
 		if ( !dynamite ) {
@@ -1117,10 +1117,10 @@ void G_Damage( gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
 
 		if ( dir ) {
 			VectorCopy( dir, client->damage_from );
-			client->damage_fromWorld = qfalse;
+			client->damage_fromWorld = false;
 		} else {
 			VectorCopy( targ->shared.r.currentOrigin, client->damage_from );
-			client->damage_fromWorld = qtrue;
+			client->damage_fromWorld = true;
 		}
 	}
 
@@ -1195,11 +1195,11 @@ void G_Damage( gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
 ============
 CanDamage
 
-Returns qtrue if the inflictor can directly damage the target.  Used for
+Returns true if the inflictor can directly damage the target.  Used for
 explosions and melee attacks.
 ============
 */
-qboolean CanDamage( gentity_t *targ, vec3_t origin ) {
+bool CanDamage( gentity_t *targ, vec3_t origin ) {
 	vec3_t dest;
 	trace_t tr;
 	vec3_t midpoint;
@@ -1210,15 +1210,15 @@ qboolean CanDamage( gentity_t *targ, vec3_t origin ) {
 	VectorScale( midpoint, 0.5, midpoint );
 
 	VectorCopy( midpoint, dest );
-	SV_Trace( &tr, origin, vec3_origin, vec3_origin, dest, ENTITYNUM_NONE, MASK_SOLID, qfalse );
+	SV_Trace( &tr, origin, vec3_origin, vec3_origin, dest, ENTITYNUM_NONE, MASK_SOLID, false );
 	if ( tr.fraction == 1.0 ) {
-		return qtrue;
+		return true;
 	}
 
 
 
 	if ( &g_entities[tr.entityNum] == targ ) {
-		return qtrue;
+		return true;
 	}
 
 	// this should probably check in the plane of projection,
@@ -1226,37 +1226,37 @@ qboolean CanDamage( gentity_t *targ, vec3_t origin ) {
 	VectorCopy( midpoint, dest );
 	dest[0] += 15.0;
 	dest[1] += 15.0;
-	SV_Trace( &tr, origin, vec3_origin, vec3_origin, dest, ENTITYNUM_NONE, MASK_SOLID, qfalse );
+	SV_Trace( &tr, origin, vec3_origin, vec3_origin, dest, ENTITYNUM_NONE, MASK_SOLID, false );
 	if ( tr.fraction == 1.0 ) {
-		return qtrue;
+		return true;
 	}
 
 	VectorCopy( midpoint, dest );
 	dest[0] += 15.0;
 	dest[1] -= 15.0;
-	SV_Trace( &tr, origin, vec3_origin, vec3_origin, dest, ENTITYNUM_NONE, MASK_SOLID, qfalse );
+	SV_Trace( &tr, origin, vec3_origin, vec3_origin, dest, ENTITYNUM_NONE, MASK_SOLID, false );
 	if ( tr.fraction == 1.0 ) {
-		return qtrue;
+		return true;
 	}
 
 	VectorCopy( midpoint, dest );
 	dest[0] -= 15.0;
 	dest[1] += 15.0;
-	SV_Trace( &tr, origin, vec3_origin, vec3_origin, dest, ENTITYNUM_NONE, MASK_SOLID, qfalse );
+	SV_Trace( &tr, origin, vec3_origin, vec3_origin, dest, ENTITYNUM_NONE, MASK_SOLID, false );
 	if ( tr.fraction == 1.0 ) {
-		return qtrue;
+		return true;
 	}
 
 	VectorCopy( midpoint, dest );
 	dest[0] -= 15.0;
 	dest[1] -= 15.0;
-	SV_Trace( &tr, origin, vec3_origin, vec3_origin, dest, ENTITYNUM_NONE, MASK_SOLID, qfalse );
+	SV_Trace( &tr, origin, vec3_origin, vec3_origin, dest, ENTITYNUM_NONE, MASK_SOLID, false );
 	if ( tr.fraction == 1.0 ) {
-		return qtrue;
+		return true;
 	}
 
 
-	return qfalse;
+	return false;
 }
 
 
@@ -1265,7 +1265,7 @@ qboolean CanDamage( gentity_t *targ, vec3_t origin ) {
 G_RadiusDamage
 ============
 */
-qboolean G_RadiusDamage( vec3_t origin, gentity_t *attacker, float damage, float radius,
+bool G_RadiusDamage( vec3_t origin, gentity_t *attacker, float damage, float radius,
 						 gentity_t *ignore, int mod ) {
 	float points, dist;
 	gentity_t   *ent;
@@ -1275,7 +1275,7 @@ qboolean G_RadiusDamage( vec3_t origin, gentity_t *attacker, float damage, float
 	vec3_t v;
 	vec3_t dir;
 	int i, e;
-	qboolean hitClient = qfalse;
+	bool hitClient = false;
 // JPW NERVE
 	float boxradius;
 	vec3_t dest;
@@ -1331,7 +1331,7 @@ qboolean G_RadiusDamage( vec3_t origin, gentity_t *attacker, float damage, float
 
 		if ( CanDamage( ent, origin ) ) {
 			if ( LogAccuracyHit( ent, attacker ) ) {
-				hitClient = qtrue;
+				hitClient = true;
 			}
 			VectorSubtract( ent->shared.r.currentOrigin, origin, dir );
 			// push the center of mass higher than the origin so players

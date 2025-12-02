@@ -53,86 +53,86 @@ according to each different scenario.
 */
 
 // action functions need to be declared here so they can be accessed in the scriptAction table
-qboolean AICast_ScriptAction_GotoMarker( cast_state_t *cs, char *params );
-qboolean AICast_ScriptAction_WalkToMarker( cast_state_t *cs, char *params );
-qboolean AICast_ScriptAction_CrouchToMarker( cast_state_t *cs, char *params );
-qboolean AICast_ScriptAction_GotoCast( cast_state_t *cs, char *params );
-qboolean AICast_ScriptAction_WalkToCast( cast_state_t *cs, char *params );
-qboolean AICast_ScriptAction_CrouchToCast( cast_state_t *cs, char *params );
-qboolean AICast_ScriptAction_Wait( cast_state_t *cs, char *params );
-qboolean AICast_ScriptAction_AbortIfLoadgame( cast_state_t *cs, char *params ); //----(SA)	added
-qboolean AICast_ScriptAction_Trigger( cast_state_t *cs, char *params );
-qboolean AICast_ScriptAction_FollowCast( cast_state_t *cs, char *params );
-qboolean AICast_ScriptAction_PlaySound( cast_state_t *cs, char *params );
-qboolean AICast_ScriptAction_NoAttack( cast_state_t *cs, char *params );
-qboolean AICast_ScriptAction_Attack( cast_state_t *cs, char *params );
-qboolean AICast_ScriptAction_PlayAnim( cast_state_t *cs, char *params );
-qboolean AICast_ScriptAction_ClearAnim( cast_state_t *cs, char *params );
-qboolean AICast_ScriptAction_SetAmmo( cast_state_t *cs, char *params );
-qboolean AICast_ScriptAction_SetClip( cast_state_t *cs, char *params );         //----(SA)	added
-qboolean AICast_ScriptAction_SelectWeapon( cast_state_t *cs, char *params );
-qboolean AICast_ScriptAction_GiveArmor( cast_state_t *cs, char *params );       //----(SA)	added
-qboolean AICast_ScriptAction_SetArmor( cast_state_t *cs, char *params );        //----(SA)	added
-qboolean AICast_ScriptAction_SuggestWeapon( cast_state_t *cs, char *params );   //----(SA)	added
-qboolean AICast_ScriptAction_GiveWeapon( cast_state_t *cs, char *params );
-qboolean AICast_ScriptAction_GiveInventory( cast_state_t *cs, char *params );
-qboolean AICast_ScriptAction_TakeWeapon( cast_state_t *cs, char *params );
-qboolean AICast_ScriptAction_Movetype( cast_state_t *cs, char *params );
-qboolean AICast_ScriptAction_AlertEntity( cast_state_t *cs, char *params );
-qboolean AICast_ScriptAction_SaveGame( cast_state_t *cs, char *params );
-qboolean AICast_ScriptAction_FireAtTarget( cast_state_t *cs, char *params );
-qboolean AICast_ScriptAction_GodMode( cast_state_t *cs, char *params );
-qboolean AICast_ScriptAction_Accum( cast_state_t *cs, char *params );
-qboolean AICast_ScriptAction_SpawnCast( cast_state_t *cs, char *params );
-qboolean AICast_ScriptAction_MissionFailed( cast_state_t *cs, char *params );
-qboolean AICast_ScriptAction_ObjectiveMet( cast_state_t *cs, char *params );
-qboolean AICast_ScriptAction_ObjectivesNeeded( cast_state_t *cs, char *params );
-qboolean AICast_ScriptAction_NoAIDamage( cast_state_t *cs, char *params );
-qboolean AICast_ScriptAction_Print( cast_state_t *cs, char *params );
-qboolean AICast_ScriptAction_FaceTargetAngles( cast_state_t *cs, char *params );
-qboolean AICast_ScriptAction_ResetScript( cast_state_t *cs, char *params );
-qboolean AICast_ScriptAction_Mount( cast_state_t *cs, char *params );
-qboolean AICast_ScriptAction_Unmount( cast_state_t *cs, char *params );
-qboolean AICast_ScriptAction_SavePersistant( cast_state_t *cs, char *params );
-qboolean AICast_ScriptAction_ChangeLevel( cast_state_t *cs, char *params );
-qboolean AICast_ScriptAction_EndGame( cast_state_t *cs, char *params ); //----(SA)	added
-qboolean AICast_ScriptAction_Teleport( cast_state_t *cs, char *params );    //----(SA)	added
-qboolean AICast_ScriptAction_FoundSecret( cast_state_t *cs, char *params );
-qboolean AICast_ScriptAction_NoSight( cast_state_t *cs, char *params );
-qboolean AICast_ScriptAction_Sight( cast_state_t *cs, char *params );
-qboolean AICast_ScriptAction_NoAvoid( cast_state_t *cs, char *params );
-qboolean AICast_ScriptAction_Avoid( cast_state_t *cs, char *params );
-qboolean AICast_ScriptAction_Attrib( cast_state_t *cs, char *params );
-qboolean AICast_ScriptAction_DenyAction( cast_state_t *cs, char *params );
-qboolean AICast_ScriptAction_LightningDamage( cast_state_t *cs, char *params );
-qboolean AICast_ScriptAction_Headlook( cast_state_t *cs, char *params );
-qboolean AICast_ScriptAction_BackupScript( cast_state_t *cs, char *params );
-qboolean AICast_ScriptAction_RestoreScript( cast_state_t *cs, char *params );
-qboolean AICast_ScriptAction_StateType( cast_state_t *cs, char *params );
-qboolean AICast_ScriptAction_KnockBack( cast_state_t *cs, char *params );
-qboolean AICast_ScriptAction_Zoom( cast_state_t *cs, char *params );
-qboolean AICast_ScriptAction_Parachute( cast_state_t *cs, char *params );
-qboolean AICast_ScriptAction_Cigarette( cast_state_t *cs, char *params );    //----(SA)	added
-qboolean AICast_ScriptAction_StartCam( cast_state_t *cs, char *params );
-qboolean AICast_ScriptAction_StopCam( cast_state_t *cs, char *params );  //----(SA)	added
-qboolean AICast_ScriptAction_StartCamBlack( cast_state_t *cs, char *params );
-qboolean AICast_ScriptAction_EntityScriptName( cast_state_t *cs, char *params );
-qboolean AICast_ScriptAction_AIScriptName( cast_state_t *cs, char *params );
-qboolean AICast_ScriptAction_SetHealth( cast_state_t *cs, char *params );
-qboolean AICast_ScriptAction_NoTarget( cast_state_t *cs, char *params );
-qboolean AICast_ScriptAction_Cvar( cast_state_t *cs, char *params );
+bool AICast_ScriptAction_GotoMarker( cast_state_t *cs, char *params );
+bool AICast_ScriptAction_WalkToMarker( cast_state_t *cs, char *params );
+bool AICast_ScriptAction_CrouchToMarker( cast_state_t *cs, char *params );
+bool AICast_ScriptAction_GotoCast( cast_state_t *cs, char *params );
+bool AICast_ScriptAction_WalkToCast( cast_state_t *cs, char *params );
+bool AICast_ScriptAction_CrouchToCast( cast_state_t *cs, char *params );
+bool AICast_ScriptAction_Wait( cast_state_t *cs, char *params );
+bool AICast_ScriptAction_AbortIfLoadgame( cast_state_t *cs, char *params ); //----(SA)	added
+bool AICast_ScriptAction_Trigger( cast_state_t *cs, char *params );
+bool AICast_ScriptAction_FollowCast( cast_state_t *cs, char *params );
+bool AICast_ScriptAction_PlaySound( cast_state_t *cs, char *params );
+bool AICast_ScriptAction_NoAttack( cast_state_t *cs, char *params );
+bool AICast_ScriptAction_Attack( cast_state_t *cs, char *params );
+bool AICast_ScriptAction_PlayAnim( cast_state_t *cs, char *params );
+bool AICast_ScriptAction_ClearAnim( cast_state_t *cs, char *params );
+bool AICast_ScriptAction_SetAmmo( cast_state_t *cs, char *params );
+bool AICast_ScriptAction_SetClip( cast_state_t *cs, char *params );         //----(SA)	added
+bool AICast_ScriptAction_SelectWeapon( cast_state_t *cs, char *params );
+bool AICast_ScriptAction_GiveArmor( cast_state_t *cs, char *params );       //----(SA)	added
+bool AICast_ScriptAction_SetArmor( cast_state_t *cs, char *params );        //----(SA)	added
+bool AICast_ScriptAction_SuggestWeapon( cast_state_t *cs, char *params );   //----(SA)	added
+bool AICast_ScriptAction_GiveWeapon( cast_state_t *cs, char *params );
+bool AICast_ScriptAction_GiveInventory( cast_state_t *cs, char *params );
+bool AICast_ScriptAction_TakeWeapon( cast_state_t *cs, char *params );
+bool AICast_ScriptAction_Movetype( cast_state_t *cs, char *params );
+bool AICast_ScriptAction_AlertEntity( cast_state_t *cs, char *params );
+bool AICast_ScriptAction_SaveGame( cast_state_t *cs, char *params );
+bool AICast_ScriptAction_FireAtTarget( cast_state_t *cs, char *params );
+bool AICast_ScriptAction_GodMode( cast_state_t *cs, char *params );
+bool AICast_ScriptAction_Accum( cast_state_t *cs, char *params );
+bool AICast_ScriptAction_SpawnCast( cast_state_t *cs, char *params );
+bool AICast_ScriptAction_MissionFailed( cast_state_t *cs, char *params );
+bool AICast_ScriptAction_ObjectiveMet( cast_state_t *cs, char *params );
+bool AICast_ScriptAction_ObjectivesNeeded( cast_state_t *cs, char *params );
+bool AICast_ScriptAction_NoAIDamage( cast_state_t *cs, char *params );
+bool AICast_ScriptAction_Print( cast_state_t *cs, char *params );
+bool AICast_ScriptAction_FaceTargetAngles( cast_state_t *cs, char *params );
+bool AICast_ScriptAction_ResetScript( cast_state_t *cs, char *params );
+bool AICast_ScriptAction_Mount( cast_state_t *cs, char *params );
+bool AICast_ScriptAction_Unmount( cast_state_t *cs, char *params );
+bool AICast_ScriptAction_SavePersistant( cast_state_t *cs, char *params );
+bool AICast_ScriptAction_ChangeLevel( cast_state_t *cs, char *params );
+bool AICast_ScriptAction_EndGame( cast_state_t *cs, char *params ); //----(SA)	added
+bool AICast_ScriptAction_Teleport( cast_state_t *cs, char *params );    //----(SA)	added
+bool AICast_ScriptAction_FoundSecret( cast_state_t *cs, char *params );
+bool AICast_ScriptAction_NoSight( cast_state_t *cs, char *params );
+bool AICast_ScriptAction_Sight( cast_state_t *cs, char *params );
+bool AICast_ScriptAction_NoAvoid( cast_state_t *cs, char *params );
+bool AICast_ScriptAction_Avoid( cast_state_t *cs, char *params );
+bool AICast_ScriptAction_Attrib( cast_state_t *cs, char *params );
+bool AICast_ScriptAction_DenyAction( cast_state_t *cs, char *params );
+bool AICast_ScriptAction_LightningDamage( cast_state_t *cs, char *params );
+bool AICast_ScriptAction_Headlook( cast_state_t *cs, char *params );
+bool AICast_ScriptAction_BackupScript( cast_state_t *cs, char *params );
+bool AICast_ScriptAction_RestoreScript( cast_state_t *cs, char *params );
+bool AICast_ScriptAction_StateType( cast_state_t *cs, char *params );
+bool AICast_ScriptAction_KnockBack( cast_state_t *cs, char *params );
+bool AICast_ScriptAction_Zoom( cast_state_t *cs, char *params );
+bool AICast_ScriptAction_Parachute( cast_state_t *cs, char *params );
+bool AICast_ScriptAction_Cigarette( cast_state_t *cs, char *params );    //----(SA)	added
+bool AICast_ScriptAction_StartCam( cast_state_t *cs, char *params );
+bool AICast_ScriptAction_StopCam( cast_state_t *cs, char *params );  //----(SA)	added
+bool AICast_ScriptAction_StartCamBlack( cast_state_t *cs, char *params );
+bool AICast_ScriptAction_EntityScriptName( cast_state_t *cs, char *params );
+bool AICast_ScriptAction_AIScriptName( cast_state_t *cs, char *params );
+bool AICast_ScriptAction_SetHealth( cast_state_t *cs, char *params );
+bool AICast_ScriptAction_NoTarget( cast_state_t *cs, char *params );
+bool AICast_ScriptAction_Cvar( cast_state_t *cs, char *params );
 
-qboolean AICast_ScriptAction_MusicStart( cast_state_t *cs, char *params );   //----(SA)
-qboolean AICast_ScriptAction_MusicPlay( cast_state_t *cs, char *params );    //----(SA)
-qboolean AICast_ScriptAction_MusicStop( cast_state_t *cs, char *params );    //----(SA)
-qboolean AICast_ScriptAction_MusicFade( cast_state_t *cs, char *params );    //----(SA)
-qboolean AICast_ScriptAction_MusicQueue( cast_state_t *cs, char *params );   //----(SA)
+bool AICast_ScriptAction_MusicStart( cast_state_t *cs, char *params );   //----(SA)
+bool AICast_ScriptAction_MusicPlay( cast_state_t *cs, char *params );    //----(SA)
+bool AICast_ScriptAction_MusicStop( cast_state_t *cs, char *params );    //----(SA)
+bool AICast_ScriptAction_MusicFade( cast_state_t *cs, char *params );    //----(SA)
+bool AICast_ScriptAction_MusicQueue( cast_state_t *cs, char *params );   //----(SA)
 
-qboolean AICast_ScriptAction_ExplicitRouting( cast_state_t *cs, char *params );
-qboolean AICast_ScriptAction_LockPlayer( cast_state_t *cs, char *params );
-qboolean AICast_ScriptAction_AnimCondition( cast_state_t *cs, char *params );
-qboolean AICast_ScriptAction_PushAway( cast_state_t *cs, char *params );
-qboolean AICast_ScriptAction_CatchFire( cast_state_t *cs, char *params );
+bool AICast_ScriptAction_ExplicitRouting( cast_state_t *cs, char *params );
+bool AICast_ScriptAction_LockPlayer( cast_state_t *cs, char *params );
+bool AICast_ScriptAction_AnimCondition( cast_state_t *cs, char *params );
+bool AICast_ScriptAction_PushAway( cast_state_t *cs, char *params );
+bool AICast_ScriptAction_CatchFire( cast_state_t *cs, char *params );
 
 // these are the actions that each event can call
 cast_script_stack_action_t scriptActions[] =
@@ -232,11 +232,11 @@ cast_script_stack_action_t scriptActions[] =
 AICast_EventMatch_StringEqual
 ===============
 */
-qboolean AICast_EventMatch_StringEqual( cast_script_event_t *event, const char *eventParm ) {
+bool AICast_EventMatch_StringEqual( cast_script_event_t *event, const char *eventParm ) {
     if ( !event->params || !event->params[0] || ( eventParm && !Q_strcasecmp( event->params, eventParm ) ) ) {
-        return qtrue;
+        return true;
     } else {
-        return qfalse;
+        return false;
     }
 }
 
@@ -245,21 +245,21 @@ qboolean AICast_EventMatch_StringEqual( cast_script_event_t *event, const char *
 AICast_EventMatch_IntInRange
 ===============
 */
-qboolean AICast_EventMatch_IntInRange( cast_script_event_t *event, const char *eventParm )
+bool AICast_EventMatch_IntInRange( cast_script_event_t *event, const char *eventParm )
 {
     // get the cast name
     const char* pString = eventParm;
-    const char* token = COM_ParseExt( &pString, qfalse );
+    const char* token = COM_ParseExt( &pString, false );
     int int1 = atoi( token );
-    token = COM_ParseExt( &pString, qfalse );
+    token = COM_ParseExt( &pString, false );
     int int2 = atoi( token );
 
     int eInt = atoi( event->params );
 
     if ( eventParm && eInt > int1 && eInt <= int2 ) {
-        return qtrue;
+        return true;
     } else {
-        return qfalse;
+        return false;
     }
 }
 
@@ -403,12 +403,12 @@ void AICast_ScriptParse( cast_state_t *cs )
 		return;
 	}
 
-    //qboolean buildScript = Cvar_VariableIntegerValue( "com_buildScript" );
-	qboolean buildScript = qtrue;
+    //bool buildScript = Cvar_VariableIntegerValue( "com_buildScript" );
+	bool buildScript = true;
 
 	const char* pScript = level.scriptAI;
-    qboolean wantName = qtrue;
-    qboolean inScript = qfalse;
+    bool wantName = true;
+    bool inScript = false;
 	COM_BeginParseSession( "AICast_ScriptParse" );
 	int bracketLevel = 0;
 	int numEventItems = 0;
@@ -437,7 +437,7 @@ void AICast_ScriptParse( cast_state_t *cs )
 				Com_Error( ERR_DROP, "AICast_ScriptParse(), Error (line %d): '}' found, but not expected.\n", COM_GetCurrentParseLine() );
                 return;  // Keep linter happy. ERR_DROP does not return
 			}
-			wantName = qtrue;
+			wantName = true;
 		} else if ( token[0] == '{' )    {
 			if ( wantName ) {
 				Com_Error( ERR_DROP, "AICast_ScriptParse(), Error (line %d): '{' found, NAME expected.\n", COM_GetCurrentParseLine() );
@@ -445,10 +445,10 @@ void AICast_ScriptParse( cast_state_t *cs )
 			}
 		} else if ( wantName )   {
 			if ( !Q_strcasecmp( ent->aiName, token ) ) {
-				inScript = qtrue;
+				inScript = true;
 				numEventItems = 0;
 			}
-			wantName = qfalse;
+			wantName = false;
 		} else if ( inScript )   {
 			if ( !Q_strcasecmp( token, "attributes" ) ) {
 				// read in all the attributes
@@ -484,7 +484,7 @@ void AICast_ScriptParse( cast_state_t *cs )
 
 				if ( eventNum == 13 ) {   // statechange event, check params
 					if ( strlen( token ) > 1 ) {
-						if ( BG_IndexForString( token, animStateStr, qtrue ) < 0 ) {
+						if ( BG_IndexForString( token, animStateStr, true ) < 0 ) {
 							Com_Error( ERR_DROP, "AICast_ScriptParse(), Error (line %d): unknown state type '%s'.\n", COM_GetCurrentParseLine(), token );
                             return;  // Keep linter happy. ERR_DROP does not return
 						}
@@ -519,7 +519,7 @@ void AICast_ScriptParse( cast_state_t *cs )
 				curEvent->stack.items[curEvent->stack.numItems].action = action;
 
 				memset( params, 0, sizeof( params ) );
-				token = COM_ParseExt( &pScript, qfalse );
+				token = COM_ParseExt( &pScript, false );
 				for (int i = 0; token[0]; i++ )
 				{
 					if ( strlen( params ) ) { // add a space between each param
@@ -563,7 +563,7 @@ void AICast_ScriptParse( cast_state_t *cs )
 						Q_strcat( params, sizeof( params ), "\"" );
 					}
 
-					token = COM_ParseExt( &pScript, qfalse );
+					token = COM_ParseExt( &pScript, false );
 				}
 
 				if ( strlen( params ) ) { // copy the params into the event
@@ -630,7 +630,7 @@ void AICast_ScriptChange( cast_state_t *cs, int newScriptNum )
 	cs->castScriptStatus.scriptFlags |= SFL_FIRST_CALL;
 
 	// try and run the script, if it doesn't finish, then abort the current script (discard backup)
-	if ( AICast_ScriptRun( cs, qtrue ) ) {
+	if ( AICast_ScriptRun( cs, true ) ) {
 		// completed successfully
 		cs->castScriptStatus.castScriptStackHead = scriptStatusBackup.castScriptStackHead;
 		cs->castScriptStatus.castScriptStackChangeTime = scriptStatusBackup.castScriptStackChangeTime;
@@ -729,24 +729,24 @@ void AICast_ForceScriptEvent( struct cast_state_s *cs, const char *eventStr, con
 =============
 AICast_ScriptRun
 
-  returns qtrue if the script completed
+  returns true if the script completed
 =============
 */
-qboolean AICast_ScriptRun( cast_state_t *cs, qboolean force )
+bool AICast_ScriptRun( cast_state_t *cs, bool force )
 {
 	if ( !aicast_scripts.integer ) {
-		return qtrue;
+		return true;
 	}
 
     //Com_Printf( "AICast_ScriptRun for (%s)\n", g_entities[cs->entityNum].aiName);
     
 	if ( cs->castScriptStatus.castScriptEventIndex < 0 ) {
-		return qtrue;
+		return true;
 	}
 
 	if ( !cs->castScriptEvents ) {
 		cs->castScriptStatus.castScriptEventIndex = -1;
-		return qtrue;
+		return true;
 	}
 
 	// only allow the PLAYER'S spawn function through if we're NOT still waiting on everything to finish loading in
@@ -754,18 +754,18 @@ qboolean AICast_ScriptRun( cast_state_t *cs, qboolean force )
         saveGamePending &&
         Q_stricmp( "spawn", scriptEvents[cs->castScriptEvents[cs->castScriptStatus.castScriptEventIndex].eventNum].eventStr ) )
     {
-		return qfalse;
+		return false;
 	}
 
 	if ( !force && ( cs->scriptPauseTime >= level.time ) ) {
-		return qtrue;
+		return true;
 	}
 
     cast_script_stack_t *stack = &cs->castScriptEvents[cs->castScriptStatus.castScriptEventIndex].stack;
 
 	if ( !stack->numItems ) {
 		cs->castScriptStatus.castScriptEventIndex = -1;
-		return qtrue;
+		return true;
 	}
 
     // Run script until an action function returns false or we run out of actions.
@@ -787,7 +787,7 @@ qboolean AICast_ScriptRun( cast_state_t *cs, qboolean force )
             {
 				cs->castScriptStatus.scriptFlags &= ~SFL_FIRST_CALL;
 			}
-			return qfalse;
+			return false;
 		}
 		// move to the next action in the script
 		cs->castScriptStatus.castScriptStackHead++;
@@ -801,5 +801,5 @@ qboolean AICast_ScriptRun( cast_state_t *cs, qboolean force )
 
 	cs->castScriptStatus.castScriptEventIndex = -1;
 
-	return qtrue;
+	return true;
 }

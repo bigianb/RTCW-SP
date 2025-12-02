@@ -884,20 +884,20 @@ image_t *R_CreateImageExt( const char *name, const byte *pic, int width, int hei
         return NULL; // keep the linter happy, ERR_DROP does not return
 	}
 	if ( !strncmp( name, "*lightmap", 9 ) ) {
-		isLightmap = qtrue;
-		noCompress = qtrue;
+		isLightmap = true;
+		noCompress = true;
 	}
 	if ( !noCompress && strstr( name, "skies" ) ) {
-		noCompress = qtrue;
+		noCompress = true;
 	}
 	if ( !noCompress && strstr( name, "weapons" ) ) {    // don't compress view weapon skins
-		noCompress = qtrue;
+		noCompress = true;
 	}
 	// RF, if the shader hasn't specifically asked for it, don't allow compression
-	if ( r_ext_compressed_textures->integer == 2 && ( tr.allowCompress != qtrue ) ) {
-		noCompress = qtrue;
+	if ( r_ext_compressed_textures->integer == 2 && ( tr.allowCompress != true ) ) {
+		noCompress = true;
 	} else if ( r_ext_compressed_textures->integer == 1 && ( tr.allowCompress < 0 ) )     {
-		noCompress = qtrue;
+		noCompress = true;
 	}
 
 	if ( tr.numImages == MAX_DRAWIMAGES ) {
@@ -918,8 +918,8 @@ image_t *R_CreateImageExt( const char *name, const byte *pic, int width, int hei
 
 	tr.numImages++;
 
-	image->mipmap = mipmap ? qtrue : qfalse;
-	image->allowPicmip = allowPicmip ? qtrue : qfalse;
+	image->mipmap = mipmap;
+	image->allowPicmip = allowPicmip;
 
 	strcpy( image->imgName, name );
 
@@ -971,8 +971,8 @@ image_t *R_CreateImageExt( const char *name, const byte *pic, int width, int hei
 }
 
 image_t *R_CreateImage( const char *name, const byte *pic, int width, int height,
-						qboolean mipmap, qboolean allowPicmip, int glWrapClampMode ) {
-	return R_CreateImageExt( name, pic, width, height, mipmap, allowPicmip, qfalse, glWrapClampMode );
+						bool mipmap, bool allowPicmip, int glWrapClampMode ) {
+	return R_CreateImageExt( name, pic, width, height, mipmap, allowPicmip, false, glWrapClampMode );
 }
 
 //----(SA)	end
@@ -1754,7 +1754,7 @@ image_t *R_FindImageFileExt( const char *name, bool mipmap, bool allowPicmip, bo
 
 
 image_t *R_FindImageFile( const char *name, bool mipmap, bool allowPicmip, int glWrapClampMode ) {
-	return R_FindImageFileExt( name, mipmap, allowPicmip, qfalse, glWrapClampMode );
+	return R_FindImageFileExt( name, mipmap, allowPicmip, false, glWrapClampMode );
 }
 
 //----(SA)	end
@@ -1789,7 +1789,7 @@ static void R_CreateDlightImage( void ) {
 			data[y][x][3] = 255;
 		}
 	}
-	tr.dlightImage = R_CreateImage( "*dlight", (byte *)data, DLIGHT_SIZE, DLIGHT_SIZE, qfalse, qfalse, GL_CLAMP );
+	tr.dlightImage = R_CreateImage( "*dlight", (byte *)data, DLIGHT_SIZE, DLIGHT_SIZE, false, false, GL_CLAMP );
 }
 
 
@@ -1879,7 +1879,7 @@ static void R_CreateFogImage( void ) {
 	// standard openGL clamping doesn't really do what we want -- it includes
 	// the border color at the edges.  OpenGL 1.2 has clamp-to-edge, which does
 	// what we want.
-	tr.fogImage = R_CreateImage( "*fog", (byte *)data, FOG_S, FOG_T, qfalse, qfalse, GL_CLAMP );
+	tr.fogImage = R_CreateImage( "*fog", (byte *)data, FOG_S, FOG_T, false, false, GL_CLAMP );
 	Hunk_FreeTempMemory( data );
 
 	borderColor[0] = 1.0;
@@ -1923,7 +1923,7 @@ static void R_CreateDefaultImage( void ) {
 				data[x][DEFAULT_SIZE - 1][2] = 0; //----(SA) to make the default grid noticable but not blinding
 		data[x][DEFAULT_SIZE - 1][3] = 255;
 	}
-	tr.defaultImage = R_CreateImage( "*default", (byte *)data, DEFAULT_SIZE, DEFAULT_SIZE, qtrue, qfalse, GL_REPEAT );
+	tr.defaultImage = R_CreateImage( "*default", (byte *)data, DEFAULT_SIZE, DEFAULT_SIZE, true, false, GL_REPEAT );
 }
 
 /*
@@ -1939,7 +1939,7 @@ void R_CreateBuiltinImages( void ) {
 
 	// we use a solid white image instead of disabling texturing
 	memset( data, 255, sizeof( data ) );
-	tr.whiteImage = R_CreateImage( "*white", (byte *)data, 8, 8, qfalse, qfalse, GL_REPEAT );
+	tr.whiteImage = R_CreateImage( "*white", (byte *)data, 8, 8, false, false, GL_REPEAT );
 
 	// with overbright bits active, we need an image which is some fraction of full color,
 	// for default lightmaps, etc
@@ -1952,12 +1952,12 @@ void R_CreateBuiltinImages( void ) {
 		}
 	}
 
-	tr.identityLightImage = R_CreateImage( "*identityLight", (byte *)data, 8, 8, qfalse, qfalse, GL_REPEAT );
+	tr.identityLightImage = R_CreateImage( "*identityLight", (byte *)data, 8, 8, false, false, GL_REPEAT );
 
 
 	for ( x = 0; x < 32; x++ ) {
 		// scratchimage is usually used for cinematic drawing
-		tr.scratchImage[x] = R_CreateImage( "*scratch", (byte *)data, DEFAULT_SIZE, DEFAULT_SIZE, qfalse, qtrue, GL_CLAMP );
+		tr.scratchImage[x] = R_CreateImage( "*scratch", (byte *)data, DEFAULT_SIZE, DEFAULT_SIZE, false, true, GL_CLAMP );
 	}
 
 	R_CreateDlightImage();
@@ -2057,7 +2057,7 @@ void    R_InitImages( void ) {
 	memset( hashTable, 0, sizeof( hashTable ) );
 
 	// Ridah, caching system
-	R_InitTexnumImages( qfalse );
+	R_InitTexnumImages( false );
 	// done.
 
 	// build brightness translation tables
@@ -2084,7 +2084,7 @@ void R_DeleteTextures( void ) {
 	}
 	memset( tr.images, 0, sizeof( tr.images ) );
 	// Ridah
-	R_InitTexnumImages( qtrue );
+	R_InitTexnumImages( true );
 	// done.
 
 	memset( glState.currenttextures, 0, sizeof( glState.currenttextures ) );
@@ -2213,7 +2213,7 @@ static const char *CommaParse( char **data_p ) {
 RE_GetSkinModel
 ==============
 */
-qboolean RE_GetSkinModel( qhandle_t skinid, const char *type, char *name ) {
+bool RE_GetSkinModel( qhandle_t skinid, const char *type, char *name ) {
 	int i;
 	skin_t      *bar;
 
@@ -2221,17 +2221,17 @@ qboolean RE_GetSkinModel( qhandle_t skinid, const char *type, char *name ) {
 
 	if ( !Q_stricmp( type, "playerscale" ) ) {    // client is requesting scale from the skin rather than a model
 		snprintf( name, MAX_QPATH, "%.2f %.2f %.2f", bar->scale[0], bar->scale[1], bar->scale[2] );
-		return qtrue;
+		return true;
 	}
 
 	for ( i = 0; i < bar->numModels; i++ )
 	{
 		if ( !Q_stricmp( bar->models[i]->type, type ) ) { // (SA) whoops, should've been this way
 			Q_strncpyz( name, bar->models[i]->model, sizeof( bar->models[i]->model ) );
-			return qtrue;
+			return true;
 		}
 	}
-	return qfalse;
+	return false;
 }
 
 /*
@@ -2268,7 +2268,7 @@ qhandle_t RE_GetShaderFromModel( qhandle_t modelid, int surfnum, int withlightma
 			if ( surf->shader->lightmapIndex > LIGHTMAP_NONE ) {
 				image_t *image;
 				long hash;
-				qboolean mip = qtrue;   // mip generation on by default
+				bool mip = true;   // mip generation on by default
 
 				// get mipmap info for original texture
 				hash = generateHashValue( surf->shader->name );
@@ -2356,7 +2356,7 @@ qhandle_t RE_RegisterSkin( const char *name ) {
 		skin->numModels     = 0;    //----(SA) added
 		skin->numSurfaces = 1;
 		skin->surfaces = (skinSurface_t *)ri.Hunk_Alloc( sizeof(skinSurface_t), h_low );
-		skin->surfaces[0].shader = R_FindShader( name, LIGHTMAP_NONE, qtrue );
+		skin->surfaces[0].shader = R_FindShader( name, LIGHTMAP_NONE, true );
 		return hSkin;
 	}
 
@@ -2425,7 +2425,7 @@ qhandle_t RE_RegisterSkin( const char *name ) {
         if ( skin->numSurfaces < MAX_SKIN_SURFACES ) {
             surf = &parseSurfaces[skin->numSurfaces];
             Q_strncpyz( surf->name, surfName, sizeof( surf->name ) );
-            surf->shader = R_FindShader( token, LIGHTMAP_NONE, qtrue );
+            surf->shader = R_FindShader( token, LIGHTMAP_NONE, true );
             skin->numSurfaces++;
         }
 
@@ -2625,7 +2625,7 @@ R_CropImage
 //#define QUICKTIME_BANNER
 #define TWILTB2_HACK
 
-qboolean R_CropImage( char *name, byte **pic, int border, int *width, int *height, int lastBox[2] ) {
+bool R_CropImage( char *name, byte **pic, int border, int *width, int *height, int lastBox[2] ) {
 #ifdef CROPIMAGES_ENABLED
 	int row, col;
 	int rows, cols;
@@ -2636,9 +2636,9 @@ qboolean R_CropImage( char *name, byte **pic, int border, int *width, int *heigh
 	int /*a, max,*/ i;
 	int alpha;
 	//int	*center;
-	qboolean /*invalid,*/ skip;
+	bool /*invalid,*/ skip;
 	vec3_t fCol, fScale;
-	qboolean filterColors = qfalse;
+	bool filterColors = false;
 	int fCount;
 	float f,c;
 #define FADE_BORDER_RANGE   ( ( *width ) / 40 )
@@ -2653,7 +2653,7 @@ qboolean R_CropImage( char *name, byte **pic, int border, int *width, int *heigh
 
 #ifdef TWILTB2_HACK
 	// find the filter color (use first few pixels)
-	filterColors = qtrue;
+	filterColors = true;
 	inpixel = ( *pic );
 	VectorClear( fCol );
 	for ( fCount = 0; fCount < 8; fCount++, inpixel += 4 ) {
@@ -2731,7 +2731,7 @@ qboolean R_CropImage( char *name, byte **pic, int border, int *width, int *heigh
 				continue;
 			}
 
-			skip = qfalse;
+			skip = false;
 #ifdef QUICKTIME_BANNER
 			// hack for quicktime ripped images
 			if ( ( col > cols - 3 || row > rows - 36 ) ) {
@@ -2739,7 +2739,7 @@ qboolean R_CropImage( char *name, byte **pic, int border, int *width, int *heigh
 				*( inpixel + 0 ) = 0;
 				*( inpixel + 1 ) = 0;
 				*( inpixel + 2 ) = 0;
-				skip = qtrue;
+				skip = true;
 			}
 #endif
 
@@ -2797,7 +2797,7 @@ qboolean R_CropImage( char *name, byte **pic, int border, int *width, int *heigh
 	}
 
 #ifdef RESIZE
-	return qtrue;
+	return true;
 #endif
 
 	// convert it so that the center is the center of the image
@@ -2861,22 +2861,22 @@ qboolean R_CropImage( char *name, byte **pic, int border, int *width, int *heigh
 		max = *height - 1;
 	}
 	if ( a >= 0 ) {
-		invalid = qfalse;
+		invalid = false;
 		while ( diff[a] < diff[!a] ) {
 			if ( invalid ) {
 				Com_Printf( "unable to find a good crop size\n" );
-				return qfalse;
+				return false;
 			}
-			invalid = qtrue;
+			invalid = true;
 			if ( mins[a] > 0 ) {
 				mins[a] -= 1;
 				diff[a] = maxs[a] - mins[a];
-				invalid = qfalse;
+				invalid = false;
 			}
 			if ( ( diff[a] < diff[!a] ) && ( maxs[a] < max ) ) {
 				maxs[a] += 1;
 				diff[a] = maxs[a] - mins[a];
-				invalid = qfalse;
+				invalid = false;
 			}
 		}
 	}
@@ -2928,9 +2928,9 @@ qboolean R_CropImage( char *name, byte **pic, int border, int *width, int *heigh
 	*width = diff[0];
 	*height = diff[1];
 
-	return qtrue;
+	return true;
 #else
-	return qtrue;   // shutup the compiler
+	return true;   // shutup the compiler
 #endif
 }
 
@@ -3108,7 +3108,7 @@ R_TouchImage
   remove this image from the backupHashTable and make sure it doesn't get overwritten
 ===============
 */
-qboolean R_TouchImage( image_t *inImage ) {
+bool R_TouchImage( image_t *inImage ) {
 	image_t *bImage, *bImagePrev;
 	int hash;
 	char *name;
@@ -3117,7 +3117,7 @@ qboolean R_TouchImage( image_t *inImage ) {
 		 inImage == tr.whiteImage ||
 		 inImage == tr.defaultImage ||
 		 inImage->imgName[0] == '*' ) { // can't use lightmaps since they might have the same name, but different maps will have different actual lightmap pixels
-		return qfalse;
+		return false;
 	}
 
 	hash = inImage->hash;
@@ -3131,7 +3131,7 @@ qboolean R_TouchImage( image_t *inImage ) {
 			// add it to the current images
 			if ( tr.numImages == MAX_DRAWIMAGES ) {
 				ri.Error( ERR_DROP, "R_CreateImage: MAX_DRAWIMAGES hit\n" );
-                return qfalse; // keep the linter happy, ERR_DROP does not return
+                return false; // keep the linter happy, ERR_DROP does not return
 			}
 
 			tr.images[tr.numImages] = bImage;
@@ -3150,14 +3150,14 @@ qboolean R_TouchImage( image_t *inImage ) {
 			// get the new texture
 			tr.numImages++;
 
-			return qtrue;
+			return true;
 		}
 
 		bImagePrev = bImage;
 		bImage = bImage->next;
 	}
 
-	return qtrue;
+	return true;
 }
 
 /*
@@ -3308,7 +3308,7 @@ R_InitTexnumImages
 ===============
 */
 static int last_i;
-void R_InitTexnumImages( qboolean force ) {
+void R_InitTexnumImages( bool force ) {
 	if ( force || !numBackupImages ) {
 		memset( texnumImages, 0, sizeof( texnumImages ) );
 		last_i = 0;
@@ -3375,10 +3375,10 @@ void R_LoadCacheImages( void ) {
 	FS_ReadFile( "image.cache", (void **)&buf );
 	const char* pString = (const char*)buf;   //DAJ added (char*)
 
-	while ( ( token = COM_ParseExt( &pString, qtrue ) ) && token[0] ) {
+	while ( ( token = COM_ParseExt( &pString, true ) ) && token[0] ) {
 		Q_strncpyz( name, token, sizeof( name ) );
 		for ( i = 0; i < 4; i++ ) {
-			token = COM_ParseExt( &pString, qfalse );
+			token = COM_ParseExt( &pString, false );
 			parms[i] = atoi( token );
 		}
 		R_FindImageFileExt( name, parms[0], parms[1], parms[2], parms[3] );

@@ -304,7 +304,7 @@ int AAS_PointPresenceType( vec3_t point ) {
 // Returns:					-
 // Changes Globals:		-
 //===========================================================================
-qboolean AAS_AreaEntityCollision( int areanum, vec3_t start, vec3_t end,
+bool AAS_AreaEntityCollision( int areanum, vec3_t start, vec3_t end,
 								  int presencetype, int passent, aas_trace_t *trace ) {
 	int collision;
 	vec3_t boxmins, boxmaxs;
@@ -316,7 +316,7 @@ qboolean AAS_AreaEntityCollision( int areanum, vec3_t start, vec3_t end,
 	memset( &bsptrace, 0, sizeof( bsp_trace_t ) ); //make compiler happy
 	//assume no collision
 	bsptrace.fraction = 1;
-	collision = qfalse;
+	collision = false;
 	for ( link = ( *aasworld ).arealinkedentities[areanum]; link; link = link->next_ent )
 	{
 		//ignore the pass entity
@@ -326,7 +326,7 @@ qboolean AAS_AreaEntityCollision( int areanum, vec3_t start, vec3_t end,
 		//
 		if ( AAS_EntityCollision( link->entnum, start, boxmins, boxmaxs, end,
 								  CONTENTS_SOLID | CONTENTS_PLAYERCLIP, &bsptrace ) ) {
-			collision = qtrue;
+			collision = true;
 		} //end if
 	} //end for
 	if ( collision ) {
@@ -335,9 +335,9 @@ qboolean AAS_AreaEntityCollision( int areanum, vec3_t start, vec3_t end,
 		VectorCopy( bsptrace.endpos, trace->endpos );
 		trace->area = 0;
 		trace->planenum = 0;
-		return qtrue;
+		return true;
 	} //end if
-	return qfalse;
+	return false;
 } //end of the function AAS_AreaEntityCollision
 //===========================================================================
 // recursive subdivision of the line by the BSP tree.
@@ -382,7 +382,7 @@ aas_trace_t AAS_TraceClientBBox( vec3_t start, vec3_t end, int presencetype,
 		if ( tstack_p < tracestack ) {
 			tstack_p++;
 			//nothing was hit
-			trace.startsolid = qfalse;
+			trace.startsolid = false;
 			trace.fraction = 1.0;
 			//endpos is the end of the line
 			VectorCopy( end, trace.endpos );
@@ -411,12 +411,12 @@ aas_trace_t AAS_TraceClientBBox( vec3_t start, vec3_t end, int presencetype,
 				if ( tstack_p->start[0] == start[0] &&
 					 tstack_p->start[1] == start[1] &&
 					 tstack_p->start[2] == start[2] ) {
-					trace.startsolid = qtrue;
+					trace.startsolid = true;
 					trace.fraction = 0.0;
 				} //end if
 				else
 				{
-					trace.startsolid = qfalse;
+					trace.startsolid = false;
 					VectorSubtract( end, start, v1 );
 					VectorSubtract( tstack_p->start, start, v2 );
 					trace.fraction = VectorLength( v2 ) / VectorNormalize( v1 );
@@ -460,12 +460,12 @@ aas_trace_t AAS_TraceClientBBox( vec3_t start, vec3_t end, int presencetype,
 			if ( tstack_p->start[0] == start[0] &&
 				 tstack_p->start[1] == start[1] &&
 				 tstack_p->start[2] == start[2] ) {
-				trace.startsolid = qtrue;
+				trace.startsolid = true;
 				trace.fraction = 0.0;
 			} //end if
 			else
 			{
-				trace.startsolid = qfalse;
+				trace.startsolid = false;
 				VectorSubtract( end, start, v1 );
 				VectorSubtract( tstack_p->start, start, v2 );
 				trace.fraction = VectorLength( v2 ) / VectorNormalize( v1 );
@@ -804,10 +804,10 @@ int AAS_TraceAreas( vec3_t start, vec3_t end, int *areas, vec3_t *points, int ma
 // Parameter:				face		: face to test if the point is in it
 //								pnormal	: normal of the plane to use for the face
 //								point		: point to test if inside face boundaries
-// Returns:					qtrue if the point is within the face boundaries
+// Returns:					true if the point is within the face boundaries
 // Changes Globals:		-
 //===========================================================================
-qboolean AAS_InsideFace( aas_face_t *face, vec3_t pnormal, vec3_t point, float epsilon ) {
+bool AAS_InsideFace( aas_face_t *face, vec3_t pnormal, vec3_t point, float epsilon ) {
 	int i, firstvertex, edgenum;
 	vec3_t v0;
 	vec3_t edgevec, pointvec, sepnormal;
@@ -817,7 +817,7 @@ qboolean AAS_InsideFace( aas_face_t *face, vec3_t pnormal, vec3_t point, float e
 #endif //AAS_SAMPLE_DEBUG
 
 	if ( !( *aasworld ).loaded ) {
-		return qfalse;
+		return false;
 	}
 
 	for ( i = 0; i < face->numedges; i++ )
@@ -850,10 +850,10 @@ qboolean AAS_InsideFace( aas_face_t *face, vec3_t pnormal, vec3_t point, float e
 		//origin (first vertex of edge) to the point
 		//if the dotproduct is smaller than zero the point is outside the face
 		if ( DotProduct( pointvec, sepnormal ) < -epsilon ) {
-			return qfalse;
+			return false;
 		}
 	} //end for
-	return qtrue;
+	return true;
 } //end of the function AAS_InsideFace
 //===========================================================================
 //
@@ -861,7 +861,7 @@ qboolean AAS_InsideFace( aas_face_t *face, vec3_t pnormal, vec3_t point, float e
 // Returns:					-
 // Changes Globals:		-
 //===========================================================================
-qboolean AAS_PointInsideFace( int facenum, vec3_t point, float epsilon ) {
+bool AAS_PointInsideFace( int facenum, vec3_t point, float epsilon ) {
 	int i, firstvertex, edgenum;
 	vec_t *v1, *v2;
 	vec3_t edgevec, pointvec, sepnormal;
@@ -870,7 +870,7 @@ qboolean AAS_PointInsideFace( int facenum, vec3_t point, float epsilon ) {
 	aas_face_t *face;
 
 	if ( !( *aasworld ).loaded ) {
-		return qfalse;
+		return false;
 	}
 
 	face = &( *aasworld ).faces[facenum];
@@ -892,10 +892,10 @@ qboolean AAS_PointInsideFace( int facenum, vec3_t point, float epsilon ) {
 		CrossProduct( edgevec, plane->normal, sepnormal );
 		//
 		if ( DotProduct( pointvec, sepnormal ) < -epsilon ) {
-			return qfalse;
+			return false;
 		}
 	} //end for
-	return qtrue;
+	return true;
 } //end of the function AAS_PointInsideFace
 //===========================================================================
 // returns the ground face the given point is above in the given area

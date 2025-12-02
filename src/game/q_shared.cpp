@@ -123,7 +123,7 @@ COM_BitCheck
   Allows bit-wise checks on arrays with more than one item (> 32 bits)
 ==================
 */
-qboolean COM_BitCheck( const int array[], int bitNum ) {
+bool COM_BitCheck( const int array[], int bitNum ) {
 	int i;
 
 	i = 0;
@@ -132,7 +132,7 @@ qboolean COM_BitCheck( const int array[], int bitNum ) {
 		bitNum -= 32;
 	}
 
-	return ( ( array[i] & ( 1 << bitNum ) ) != 0 ) ? qtrue : qfalse;  // (SA) heh, whoops. :)
+	return ( ( array[i] & ( 1 << bitNum ) ) != 0 );  // (SA) heh, whoops. :)
 }
 
 /*
@@ -341,7 +341,7 @@ int COM_GetCurrentParseLine( void ) {
 }
 
 char *COM_Parse( const char **data_p ) {
-	return COM_ParseExt( data_p, qtrue );
+	return COM_ParseExt( data_p, true );
 }
 
 void COM_ParseError( char *format, ... ) {
@@ -378,18 +378,18 @@ SkipWhitespace
 Parse a token out of a string
 Will never return NULL, just empty strings
 
-If "allowLineBreaks" is qtrue then an empty
+If "allowLineBreaks" is true then an empty
 string will be returned if the next token is
 a newline.
 ==============
 */
-const char *SkipWhitespace( const char *data, qboolean *hasNewLines ) {
+const char *SkipWhitespace( const char *data, bool *hasNewLines ) {
 	int c;
 
 	while ( ( c = *data ) <= ' ' ) {
 		if ( c == '\n' ) {
 			com_lines++;
-			*hasNewLines = qtrue;
+			*hasNewLines = true;
 		} else if ( !c )   {
 			return NULL;
 		}
@@ -407,7 +407,7 @@ COM_Compress
 int COM_Compress( char *data_p ) {
 	char *datai, *datao;
 	int c, pc, size;
-	qboolean ws = qfalse;
+	bool ws = false;
 
 	size = 0;
 	pc = 0;
@@ -417,7 +417,7 @@ int COM_Compress( char *data_p ) {
 			if ( c == 13 || c == 10 ) {
 				*datao = c;
 				datao++;
-				ws = qfalse;
+				ws = false;
 				pc = c;
 				datai++;
 				size++;
@@ -426,7 +426,7 @@ int COM_Compress( char *data_p ) {
 				while ( *datai && *datai != '\n' ) {
 					datai++;
 				}
-				ws = qfalse;
+				ws = false;
 				// skip /* */ comments
 			} else if ( c == '/' && datai[1] == '*' ) {
 				while ( *datai && ( *datai != '*' || datai[1] != '/' ) ) {
@@ -435,7 +435,7 @@ int COM_Compress( char *data_p ) {
 				if ( *datai ) {
 					datai += 2;
 				}
-				ws = qfalse;
+				ws = false;
 			} else {
 				if ( ws ) {
 					*datao = ' ';
@@ -444,7 +444,7 @@ int COM_Compress( char *data_p ) {
 				*datao = c;
 				datao++;
 				datai++;
-				ws = qfalse;
+				ws = false;
 				pc = c;
 				size++;
 			}
@@ -459,9 +459,9 @@ int COM_Compress( char *data_p ) {
 COM_ParseExt
 ================
 */
-char *COM_ParseExt( const char **data_p, qboolean allowLineBreaks ) {
+char *COM_ParseExt( const char **data_p, bool allowLineBreaks ) {
 	int c = 0, len;
-	qboolean hasNewLines = qfalse;
+	bool hasNewLines = false;
 	const char *data;
 
 	data = *data_p;
@@ -588,7 +588,7 @@ void SkipBracedSection( const char **program ) {
 
 	depth = 0;
 	do {
-		token = COM_ParseExt( program, qtrue );
+		token = COM_ParseExt( program, true );
 		if ( token[1] == 0 ) {
 			if ( token[0] == '{' ) {
 				depth++;
@@ -1285,14 +1285,14 @@ Some characters are illegal in info strings because they
 can mess up the server's parsing
 ==================
 */
-qboolean Info_Validate( const char *s ) {
+bool Info_Validate( const char *s ) {
 	if ( strchr( s, '\"' ) ) {
-		return qfalse;
+		return false;
 	}
 	if ( strchr( s, ';' ) ) {
-		return qfalse;
+		return false;
 	}
-	return qtrue;
+	return true;
 }
 
 /*

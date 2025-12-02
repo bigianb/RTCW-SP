@@ -123,7 +123,7 @@ void SV_SetBrushModel( sharedEntity_t *ent, const char *name )
 	CM_ModelBounds( h, mins, maxs );
 	VectorCopy( mins, ent->r.mins );
 	VectorCopy( maxs, ent->r.maxs );
-	ent->r.bmodel = qtrue;
+	ent->r.bmodel = true;
 
 	ent->r.contents = -1;       // we don't know exactly what is in the brushes
 
@@ -137,7 +137,7 @@ SV_inPVS
 Also checks portalareas so that doors block sight
 =================
 */
-qboolean SV_inPVS( const vec3_t p1, const vec3_t p2 )
+bool SV_inPVS( const vec3_t p1, const vec3_t p2 )
 {
 	int leafnum = CM_PointLeafnum( p1 );
 	int cluster = CM_LeafCluster( leafnum );
@@ -148,12 +148,12 @@ qboolean SV_inPVS( const vec3_t p1, const vec3_t p2 )
 	cluster = CM_LeafCluster( leafnum );
 	int area2 = CM_LeafArea( leafnum );
 	if ( mask && ( !( mask[cluster >> 3] & ( 1 << ( cluster & 7 ) ) ) ) ) {
-		return qfalse;
+		return false;
 	}
 	if ( !CM_AreasConnected( area1, area2 ) ) {
-		return qfalse;      // a door blocks sight
+		return false;      // a door blocks sight
 	}
-	return qtrue;
+	return true;
 }
 
 
@@ -164,7 +164,7 @@ SV_inPVSIgnorePortals
 Does NOT check portalareas
 =================
 */
-qboolean SV_inPVSIgnorePortals( const vec3_t p1, const vec3_t p2 )
+bool SV_inPVSIgnorePortals( const vec3_t p1, const vec3_t p2 )
 {
 	int leafnum = CM_PointLeafnum( p1 );
 	int cluster = CM_LeafCluster( leafnum );
@@ -176,10 +176,10 @@ qboolean SV_inPVSIgnorePortals( const vec3_t p1, const vec3_t p2 )
 	int area2 = CM_LeafArea( leafnum );
 
 	if ( mask && ( !( mask[cluster >> 3] & ( 1 << ( cluster & 7 ) ) ) ) ) {
-		return qfalse;
+		return false;
 	}
 
-	return qtrue;
+	return true;
 }
 
 
@@ -188,7 +188,7 @@ qboolean SV_inPVSIgnorePortals( const vec3_t p1, const vec3_t p2 )
 SV_AdjustAreaPortalState
 ========================
 */
-void SV_AdjustAreaPortalState( sharedEntity_t *ent, qboolean open )
+void SV_AdjustAreaPortalState( sharedEntity_t *ent, bool open )
 {
 	svEntity_t* svEnt = SV_SvEntityForGentity( ent );
 	if ( svEnt->areanum2 == -1 ) {
@@ -203,7 +203,7 @@ void SV_AdjustAreaPortalState( sharedEntity_t *ent, qboolean open )
 SV_GameAreaEntities
 ==================
 */
-qboolean    SV_EntityContact( const vec3_t mins, const vec3_t maxs, const sharedEntity_t *gEnt, const int capsule )
+bool    SV_EntityContact( const vec3_t mins, const vec3_t maxs, const sharedEntity_t *gEnt, const int capsule )
 {
 	// check for exact collision
 	const float* origin = gEnt->r.currentOrigin;
@@ -274,7 +274,7 @@ Called every time a map changes
 */
 void SV_ShutdownGameProgs( void )
 {
-	G_ShutdownGame(qfalse);
+	G_ShutdownGame(false);
 }
 
 /*
@@ -284,7 +284,7 @@ SV_InitGameVM
 Called for both a full init and a restart
 ==================
 */
-static void SV_InitGameVM( qboolean restart )
+static void SV_InitGameVM( bool restart )
 {
 	// start the entity parsing at the beginning
 	sv.entityParsePoint = CM_EntityString();
@@ -311,8 +311,8 @@ Called on a map_restart, but not on a normal map change
 */
 void SV_RestartGameProgs()
 {
-	G_ShutdownGame(qtrue);
-	SV_InitGameVM( qtrue );
+	G_ShutdownGame(true);
+	SV_InitGameVM( true );
 }
 
 
@@ -335,7 +335,7 @@ void SV_InitGameProgs()
 		bot_enable = 0;
 	}
 
-	SV_InitGameVM( qfalse );
+	SV_InitGameVM( false );
 }
 
 
@@ -346,10 +346,10 @@ SV_GameCommand
 See if the current console command is claimed by the game
 ====================
 */
-qboolean SV_GameCommand()
+bool SV_GameCommand()
 {
 	if ( sv.state != SS_GAME ) {
-		return qfalse;
+		return false;
 	}
 	return ConsoleCommand();
 }

@@ -268,9 +268,9 @@ void AAS_DumpAASData( void ) {
 	( *aasworld ).clusters = NULL;
 	( *aasworld ).numclusters = 0;
 	//
-	( *aasworld ).loaded = qfalse;
-	( *aasworld ).initialized = qfalse;
-	( *aasworld ).savefile = qfalse;
+	( *aasworld ).loaded = false;
+	( *aasworld ).initialized = false;
+	( *aasworld ).savefile = false;
 } //end of the function AAS_DumpAASData
 //===========================================================================
 //
@@ -535,7 +535,7 @@ int AAS_LoadAASFile( char *filename ) {
 	//swap everything
 	AAS_SwapAASData();
 	//aas file is loaded
-	( *aasworld ).loaded = qtrue;
+	( *aasworld ).loaded = true;
 	//close the file
 	FS_FCloseFile( fp );
 	//
@@ -567,7 +567,7 @@ int AAS_WriteAASLump( fileHandle_t fp, aas_header_t *h, int lumpnum, void *data,
 
 	AAS_WriteAASLump_offset += length;
 
-	return qtrue;
+	return true;
 } //end of the function AAS_WriteAASLump
 //===========================================================================
 // aas data is useless after writing to file because it is byte swapped
@@ -576,7 +576,7 @@ int AAS_WriteAASLump( fileHandle_t fp, aas_header_t *h, int lumpnum, void *data,
 // Returns:					-
 // Changes Globals:		-
 //===========================================================================
-qboolean AAS_WriteAASFile( char *filename ) {
+bool AAS_WriteAASFile( char *filename ) {
 	aas_header_t header;
 	fileHandle_t fp;
 
@@ -592,7 +592,7 @@ qboolean AAS_WriteAASFile( char *filename ) {
 	FS_FOpenFileByMode( filename, &fp, FS_WRITE );
 	if ( !fp ) {
 		BotImport_Print( PRT_ERROR, "error opening %s\n", filename );
-		return qfalse;
+		return false;
 	} //end if
 	  //write the header
 	FS_Write( &header, sizeof( aas_header_t ), fp );
@@ -600,65 +600,65 @@ qboolean AAS_WriteAASFile( char *filename ) {
 	//add the data lumps to the file
 	if ( !AAS_WriteAASLump( fp, &header, AASLUMP_BBOXES, ( *aasworld ).bboxes,
 							( *aasworld ).numbboxes * sizeof( aas_bbox_t ) ) ) {
-		return qfalse;
+		return false;
 	}
 	if ( !AAS_WriteAASLump( fp, &header, AASLUMP_VERTEXES, ( *aasworld ).vertexes,
 							( *aasworld ).numvertexes * sizeof( aas_vertex_t ) ) ) {
-		return qfalse;
+		return false;
 	}
 	if ( !AAS_WriteAASLump( fp, &header, AASLUMP_PLANES, ( *aasworld ).planes,
 							( *aasworld ).numplanes * sizeof( aas_plane_t ) ) ) {
-		return qfalse;
+		return false;
 	}
 	if ( !AAS_WriteAASLump( fp, &header, AASLUMP_EDGES, ( *aasworld ).edges,
 							( *aasworld ).numedges * sizeof( aas_edge_t ) ) ) {
-		return qfalse;
+		return false;
 	}
 	if ( !AAS_WriteAASLump( fp, &header, AASLUMP_EDGEINDEX, ( *aasworld ).edgeindex,
 							( *aasworld ).edgeindexsize * sizeof( aas_edgeindex_t ) ) ) {
-		return qfalse;
+		return false;
 	}
 	if ( !AAS_WriteAASLump( fp, &header, AASLUMP_FACES, ( *aasworld ).faces,
 							( *aasworld ).numfaces * sizeof( aas_face_t ) ) ) {
-		return qfalse;
+		return false;
 	}
 	if ( !AAS_WriteAASLump( fp, &header, AASLUMP_FACEINDEX, ( *aasworld ).faceindex,
 							( *aasworld ).faceindexsize * sizeof( aas_faceindex_t ) ) ) {
-		return qfalse;
+		return false;
 	}
 	if ( !AAS_WriteAASLump( fp, &header, AASLUMP_AREAS, ( *aasworld ).areas,
 							( *aasworld ).numareas * sizeof( aas_area_t ) ) ) {
-		return qfalse;
+		return false;
 	}
 	if ( !AAS_WriteAASLump( fp, &header, AASLUMP_AREASETTINGS, ( *aasworld ).areasettings,
 							( *aasworld ).numareasettings * sizeof( aas_areasettings_t ) ) ) {
-		return qfalse;
+		return false;
 	}
 	if ( !AAS_WriteAASLump( fp, &header, AASLUMP_REACHABILITY, ( *aasworld ).reachability,
 							( *aasworld ).reachabilitysize * sizeof( aas_reachability_t ) ) ) {
-		return qfalse;
+		return false;
 	}
 	if ( !AAS_WriteAASLump( fp, &header, AASLUMP_NODES, ( *aasworld ).nodes,
 							( *aasworld ).numnodes * sizeof( aas_node_t ) ) ) {
-		return qfalse;
+		return false;
 	}
 	if ( !AAS_WriteAASLump( fp, &header, AASLUMP_PORTALS, ( *aasworld ).portals,
 							( *aasworld ).numportals * sizeof( aas_portal_t ) ) ) {
-		return qfalse;
+		return false;
 	}
 	if ( !AAS_WriteAASLump( fp, &header, AASLUMP_PORTALINDEX, ( *aasworld ).portalindex,
 							( *aasworld ).portalindexsize * sizeof( aas_portalindex_t ) ) ) {
-		return qfalse;
+		return false;
 	}
 	if ( !AAS_WriteAASLump( fp, &header, AASLUMP_CLUSTERS, ( *aasworld ).clusters,
 							( *aasworld ).numclusters * sizeof( aas_cluster_t ) ) ) {
-		return qfalse;
+		return false;
 	}
 	//rewrite the header with the added lumps
 	FS_Seek( fp, 0, FS_SEEK_SET );
 	FS_Write( &header, sizeof( aas_header_t ), fp );
 	//close the file
 	FS_FCloseFile( fp );
-	return qtrue;
+	return true;
 } //end of the function AAS_WriteAASFile
 

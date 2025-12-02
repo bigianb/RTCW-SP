@@ -36,7 +36,7 @@ typedef struct trailJunc_s
 	struct trailJunc_s *nextJunc;                   // next junction in the trail
 	struct trailJunc_s *nextHead, *prevHead;        // next head junc in the world
 
-	qboolean inuse, freed;
+	bool inuse, freed;
 	int ownerIndex;
 	qhandle_t shader;
 
@@ -62,7 +62,7 @@ trailJunc_t trailJuncs[MAX_TRAILJUNCS];
 trailJunc_t *freeTrails, *activeTrails;
 trailJunc_t *headTrails;
 
-qboolean initTrails = qfalse;
+bool initTrails = false;
 
 int numTrailsInuse;
 
@@ -90,11 +90,11 @@ void CG_ClearTrails( void ) {
 			trailJuncs[i].prevGlobal = NULL;
 		}
 
-		trailJuncs[i].inuse = qfalse;
+		trailJuncs[i].inuse = false;
 	}
 	trailJuncs[MAX_TRAILJUNCS - 1].nextGlobal = NULL;
 
-	initTrails = qtrue;
+	initTrails = true;
 	numTrailsInuse = 0;
 }
 
@@ -127,8 +127,8 @@ trailJunc_t *CG_SpawnTrailJunc( trailJunc_t *headJunc ) {
 	}
 	activeTrails = j;
 	j->prevGlobal = NULL;
-	j->inuse = qtrue;
-	j->freed = qfalse;
+	j->inuse = true;
+	j->freed = false;
 
 	// if this owner has a headJunc, add us to the start
 	if ( headJunc ) {
@@ -362,8 +362,8 @@ void CG_FreeTrailJunc( trailJunc_t *junc ) {
 	}
 
 	// make it non-active
-	junc->inuse = qfalse;
-	junc->freed = qtrue;
+	junc->inuse = false;
+	junc->freed = true;
 	if ( junc->nextGlobal ) {
 		junc->nextGlobal->prevGlobal = junc->prevGlobal;
 	}
@@ -747,7 +747,7 @@ void CG_AddTrails( void ) {
 	while ( j ) {
 		lifeFrac = (float)( cg.time - j->spawnTime ) / (float)( j->endTime - j->spawnTime );
 		if ( lifeFrac >= 1.0 ) {
-			j->inuse = qfalse;          // flag it as dead
+			j->inuse = false;          // flag it as dead
 			j->width = j->widthEnd;
 			j->alpha = j->alphaEnd;
 			if ( j->alpha > 1.0 ) {

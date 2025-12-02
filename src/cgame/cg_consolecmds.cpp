@@ -92,11 +92,11 @@ static void CG_Viewpos_f( void ) {
 }
 
 static void CG_InventoryDown_f( void ) {
-	cg.showItems = qtrue;
+	cg.showItems = true;
 }
 
 static void CG_InventoryUp_f( void ) {
-	cg.showItems = qfalse;
+	cg.showItems = false;
 	cg.itemFadeTime = cg.time;
 }
 
@@ -132,14 +132,14 @@ static void CG_TellAttacker_f( void ) {
 
 
 #define MAX_CAMERAS 64  // matches define in splines.cpp
-qboolean cameraInuse[MAX_CAMERAS];
+bool cameraInuse[MAX_CAMERAS];
 
 int CG_LoadCamera( const char *name ) {
 	int i;
 	for ( i = 1; i < MAX_CAMERAS; i++ ) {    // start at '1' since '0' is always taken by the cutscene camera
 		if ( !cameraInuse[i] ) {
 			if ( trap_loadCamera( i, name ) ) {
-				cameraInuse[i] = qtrue;
+				cameraInuse[i] = true;
 				return i;
 			}
 		}
@@ -148,7 +148,7 @@ int CG_LoadCamera( const char *name ) {
 }
 
 void CG_FreeCamera( int camNum ) {
-	cameraInuse[camNum] = qfalse;
+	cameraInuse[camNum] = false;
 }
 
 /*
@@ -156,14 +156,14 @@ void CG_FreeCamera( int camNum ) {
 CG_StartCamera
 ==============
 */
-void CG_StartCamera( const char *name, qboolean startBlack ) {
+void CG_StartCamera( const char *name, bool startBlack ) {
 	char lname[MAX_QPATH];
 
 	COM_StripExtension( name, lname );
 	strcat( lname, ".camera" );
 
 	if ( trap_loadCamera( CAM_PRIMARY, va( "cameras/%s", lname ) ) ) {
-		cg.cameraMode = qtrue;                  // camera on in cgame
+		cg.cameraMode = true;                  // camera on in cgame
 		if ( startBlack ) {
 			CG_Fade( 0, 0, 0, 255, cg.time, 0 );  // go black
 		}
@@ -172,7 +172,7 @@ void CG_StartCamera( const char *name, qboolean startBlack ) {
 		trap_startCamera( CAM_PRIMARY, cg.time ); // camera on in client
 	} else {
 //----(SA)	removed check for cams in main dir
-		cg.cameraMode = qfalse;                 // camera off in cgame
+		cg.cameraMode = false;                 // camera off in cgame
 		CL_AddReliableCommand( "stopCamera" );    // camera off in game
 		trap_stopCamera( CAM_PRIMARY );           // camera off in client
 		CG_Fade( 0, 0, 0, 0, cg.time, 0 );        // ensure fadeup
@@ -187,7 +187,7 @@ CG_SopCamera
 ==============
 */
 void CG_StopCamera( void ) {
-	cg.cameraMode = qfalse;                 // camera off in cgame
+	cg.cameraMode = false;                 // camera off in cgame
 	CL_AddReliableCommand( "stopCamera" );    // camera off in game
 	trap_stopCamera( CAM_PRIMARY );           // camera off in client
 	Cvar_Set( "cg_letterbox", "0" );
@@ -202,7 +202,7 @@ static void CG_Camera_f( void ) {
 	char name[MAX_QPATH];
 	Cmd_ArgvBuffer( 1, name, sizeof( name ) );
 
-	CG_StartCamera( name, qfalse );
+	CG_StartCamera( name, false );
 }
 
 static void CG_Fade_f( void ) {
@@ -267,18 +267,18 @@ The string has been tokenized and can be retrieved with
 Cmd_Argc() / Cmd_Argv()
 =================
 */
-qboolean CG_ConsoleCommand()
+bool CG_ConsoleCommand()
 {
 	const char* cmd = CG_Argv( 0 );
 
 	for (int i = 0 ; i < sizeof( commands ) / sizeof( commands[0] ) ; i++ ) {
 		if ( !Q_stricmp( cmd, commands[i].cmd ) ) {
 			commands[i].function();
-			return qtrue;
+			return true;
 		}
 	}
 
-	return qfalse;
+	return false;
 }
 
 

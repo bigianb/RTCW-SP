@@ -148,8 +148,8 @@ typedef struct bsp_surface_s
 //a trace is returned when a box is swept through the world
 typedef struct bsp_trace_s
 {
-	qboolean allsolid;          // if true, plane is not valid
-	qboolean startsolid;        // if true, the initial point was in a solid area
+	bool allsolid;          // if true, plane is not valid
+	bool startsolid;        // if true, the initial point was in a solid area
 	float fraction;             // time completed, 1.0 = didn't hit anything
 	vec3_t endpos;              // final position
 	cplane_t plane;             // surface normal at impact
@@ -198,7 +198,7 @@ void BotImport_EntityTrace( bsp_trace_t *trace, vec3_t start, vec3_t mins, vec3_
 int SV_PointContents( const vec3_t p, int passEntityNum );
 
 //check if the point is in potential visible sight
-qboolean SV_inPVS(const vec3_t p1, const vec3_t p2 );
+bool SV_inPVS(const vec3_t p1, const vec3_t p2 );
 
 void BotImport_BSPModelMinsMaxsOrigin( int modelnum, vec3_t angles, vec3_t mins, vec3_t maxs, vec3_t origin );
 
@@ -210,14 +210,14 @@ void BotImport_DebugLineDelete( int line );
 void BotImport_DebugLineShow( int line, vec3_t start, vec3_t end, int color );
 int BotImport_DebugPolygonCreate( int color, int numPoints, vec3_t *points );
 void BotImport_DebugPolygonDelete( int id );
-qboolean BotImport_AICast_VisibleFromPos(vec3_t srcpos, int srcnum, vec3_t destpos, int destnum, qboolean updateVisPos );
+bool BotImport_AICast_VisibleFromPos(vec3_t srcpos, int srcnum, vec3_t destpos, int destnum, bool updateVisPos );
 bool BotImport_AICast_CheckAttackAtPos( int entnum, int enemy, vec3_t pos, bool ducking, bool allowHitWorld );
 
 int AAS_FindAttackSpotWithinRange( int srcnum, int rangenum, int enemynum, float rangedist, int travelflags, float *outpos );
-qboolean AAS_GetRouteFirstVisPos( vec3_t srcpos, vec3_t destpos, int travelflags, vec3_t retpos );
+bool AAS_GetRouteFirstVisPos( vec3_t srcpos, vec3_t destpos, int travelflags, vec3_t retpos );
 void AAS_SetAASBlockingEntity( vec3_t absmin, vec3_t absmax, int blocking );
 
-qboolean BotLibSetup(const char* );
+bool BotLibSetup(const char* );
 
 typedef struct aas_export_s
 {
@@ -270,7 +270,7 @@ typedef struct aas_export_s
 	// be_aas_routetable.c
 	//--------------------------------------------
 	void ( *AAS_RT_ShowRoute )( vec3_t srcpos, int srcnum, int destnum );
-	qboolean ( *AAS_RT_GetHidePos )( vec3_t srcpos, int srcnum, int srcarea, vec3_t destpos, int destnum, int destarea, vec3_t returnPos );
+	bool ( *AAS_RT_GetHidePos )( vec3_t srcpos, int srcnum, int srcarea, vec3_t destpos, int destnum, int destarea, vec3_t returnPos );
 	int ( *AAS_FindAttackSpotWithinRange )( int srcnum, int rangenum, int enemynum, float rangedist, int travelflags, float *outpos );
 	void ( *AAS_SetAASBlockingEntity )( vec3_t absmin, vec3_t absmax, int blocking );
 	// done.

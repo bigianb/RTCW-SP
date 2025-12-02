@@ -46,7 +46,7 @@ G_BounceMissile
 
 ================
 */
-qboolean G_BounceMissile( gentity_t *ent, trace_t *trace ) {
+bool G_BounceMissile( gentity_t *ent, trace_t *trace ) {
 	vec3_t velocity;
 	float dot;
 	int hitTime;
@@ -57,9 +57,9 @@ qboolean G_BounceMissile( gentity_t *ent, trace_t *trace ) {
 		(trace->endpos[2] > g_entities[trace->entityNum].r.currentOrigin[2])) {
 		g_entities[trace->entityNum].grenadeExplodeTime = ent->nextthink;
 		g_entities[trace->entityNum].flags &= ~FL_AI_GRENADE_KICK;
-		Add_Ammo( &g_entities[trace->entityNum], WP_GRENADE_LAUNCHER, 1, qfalse );	//----(SA)	modified
+		Add_Ammo( &g_entities[trace->entityNum], WP_GRENADE_LAUNCHER, 1, false );	//----(SA)	modified
 		G_FreeEntity( ent );
-		return qfalse;
+		return false;
 	}
 */
 	contents = SV_PointContents( ent->shared.s.origin, -1 );
@@ -96,7 +96,7 @@ qboolean G_BounceMissile( gentity_t *ent, trace_t *trace ) {
 				// make shootable
 
 				ent->health             = 5;
-				ent->takedamage         = qtrue;
+				ent->takedamage         = true;
 
 				// small target cube
 				VectorSet( ent->shared.r.mins, -4, -4, 0 );
@@ -107,7 +107,7 @@ qboolean G_BounceMissile( gentity_t *ent, trace_t *trace ) {
 			}
 //----(SA)	end
 			G_SetOrigin( ent, trace->endpos );
-			return qfalse;
+			return false;
 		}
 	}
 
@@ -116,10 +116,10 @@ qboolean G_BounceMissile( gentity_t *ent, trace_t *trace ) {
 	ent->shared.s.pos.trTime = level.time;
 
 	if ( contents & MASK_WATER ) {
-		return qfalse;  // no bounce sound
+		return false;  // no bounce sound
 
 	}
-	return qtrue;
+	return true;
 }
 
 /*
@@ -130,7 +130,7 @@ G_MissileImpact
 */
 void G_MissileImpact( gentity_t *ent, trace_t *trace, int impactDamage, vec3_t dir ) {  //----(SA)	added 'dir'
 	gentity_t       *other;
-	qboolean hitClient = qfalse;
+	bool hitClient = false;
 	vec3_t velocity;
 	int etype;
 
@@ -192,7 +192,7 @@ void G_MissileImpact( gentity_t *ent, trace_t *trace, int impactDamage, vec3_t d
 				if ( g_entities[ent->shared.r.ownerNum].client ) {
 					g_entities[ent->shared.r.ownerNum].client->ps.persistant[PERS_ACCURACY_HITS]++;
 				}
-				hitClient = qtrue;
+				hitClient = true;
 			}
 			BG_EvaluateTrajectoryDelta( &ent->shared.s.pos, level.time, velocity );
 			if ( VectorLength( velocity ) == 0 ) {
@@ -225,7 +225,7 @@ void G_MissileImpact( gentity_t *ent, trace_t *trace, int impactDamage, vec3_t d
 		G_AddEvent( ent, EV_MISSILE_MISS, DirToByte( dir ) );
 	}
 
-	ent->freeAfterEvent = qtrue;
+	ent->freeAfterEvent = true;
 
 	// change over to a normal entity right at the point of impact
 	etype = ent->shared.s.eType;
@@ -424,8 +424,8 @@ Explode a missile without an impact
 void G_ExplodeMissile( gentity_t *ent ) {
 	vec3_t dir;
 	vec3_t origin;
-	qboolean small = qfalse;
-	qboolean zombiespit = qfalse;
+	bool small = false;
+	bool zombiespit = false;
 	int etype;
 
 	BG_EvaluateTrajectory( &ent->shared.s.pos, level.time, origin );
@@ -442,29 +442,29 @@ void G_ExplodeMissile( gentity_t *ent ) {
 
 	if ( !Q_stricmp( ent->classname, "props_explosion" ) ) {
 		G_AddEvent( ent, EV_MISSILE_MISS_SMALL, DirToByte( dir ) );
-		small = qtrue;
+		small = true;
 	}
 // JPW NERVE
 	else if ( !Q_stricmp( ent->classname, "air strike" ) ) {
 		G_AddEvent( ent, EV_MISSILE_MISS_LARGE, DirToByte( dir ) );
-		small = qfalse;
+		small = false;
 	}
 // jpw
 	else if ( !Q_stricmp( ent->classname, "props_explosion_large" ) ) {
 		G_AddEvent( ent, EV_MISSILE_MISS_LARGE, DirToByte( dir ) );
-		small = qfalse;
+		small = false;
 	} else if ( !Q_stricmp( ent->classname, "zombiespit" ) )      {
 		G_AddEvent( ent, EV_SPIT_MISS, DirToByte( dir ) );
-		zombiespit = qtrue;
+		zombiespit = true;
 	} else if ( !Q_stricmp( ent->classname, "flamebarrel" ) )      {
-		ent->freeAfterEvent = qtrue;
+		ent->freeAfterEvent = true;
 		SV_LinkEntity( &ent->shared );
 		return;
 	} else {
 		G_AddEvent( ent, EV_MISSILE_MISS, DirToByte( dir ) );
 	}
 
-	ent->freeAfterEvent = qtrue;
+	ent->freeAfterEvent = true;
 
 	// splash damage
 	if ( ent->splashDamage ) {
@@ -507,7 +507,7 @@ void G_MissileDie( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, i
 	if ( inflictor == self ) {
 		return;
 	}
-	self->takedamage    = qfalse;
+	self->takedamage    = false;
 	self->think         = G_ExplodeMissile;
 	self->nextthink     = level.time + 10;
 }
@@ -531,7 +531,7 @@ void G_ExplodeMissilePoisonGas( gentity_t *ent ) {
 	dir[0] = dir[1] = 0;
 	dir[2] = 1;
 
-	ent->freeAfterEvent = qtrue;
+	ent->freeAfterEvent = true;
 
 
 	{
@@ -561,7 +561,7 @@ void G_RunMissile( gentity_t *ent ) {
 	trace_t tr;
 	int impactDamage;
 
-	AICast_CheckDangerousEntity( ent, DANGER_MISSILE, ent->splashRadius, 0.1, 1.0, qtrue );
+	AICast_CheckDangerousEntity( ent, DANGER_MISSILE, ent->splashRadius, 0.1, 1.0, true );
 
 	// get current position
 	BG_EvaluateTrajectory( &ent->shared.s.pos, level.time, origin );
@@ -574,7 +574,7 @@ void G_RunMissile( gentity_t *ent ) {
 	// trace a line from the previous position to the current position,
 	// ignoring interactions with the missile owner
 	SV_Trace( &tr, ent->shared.r.currentOrigin, ent->shared.r.mins, ent->shared.r.maxs, origin,
-				ent->shared.r.ownerNum, ent->clipmask, qfalse );
+				ent->shared.r.ownerNum, ent->clipmask, false );
 
 	VectorCopy( tr.endpos, ent->shared.r.currentOrigin );
 
@@ -657,10 +657,10 @@ G_PredictMissile
 
   selfNum is the character that is checking to see what the missile is going to do
 
-  returns qfalse if the missile won't explode, otherwise it'll return the time is it expected to explode
+  returns false if the missile won't explode, otherwise it'll return the time is it expected to explode
 ================
 */
-int G_PredictMissile( gentity_t *ent, int duration, vec3_t endPos, qboolean allowBounce ) {
+int G_PredictMissile( gentity_t *ent, int duration, vec3_t endPos, bool allowBounce ) {
 	vec3_t origin;
 	trace_t tr;
 	int time;
@@ -681,20 +681,20 @@ int G_PredictMissile( gentity_t *ent, int duration, vec3_t endPos, qboolean allo
 		// trace a line from the previous position to the current position,
 		// ignoring interactions with the missile owner
 		SV_Trace( &tr, org, ent->shared.r.mins, ent->shared.r.maxs, origin,
-					ent->shared.r.ownerNum, ent->clipmask, qfalse );
+					ent->shared.r.ownerNum, ent->clipmask, false );
 
 		VectorCopy( tr.endpos, org );
 
 		if ( tr.startsolid ) {
 			*ent = backupEnt;
-			return qfalse;
+			return false;
 		}
 
 		if ( tr.fraction != 1 ) {
 			// never explode or bounce on sky
 			if  ( tr.surfaceFlags & SURF_NOIMPACT ) {
 				*ent = backupEnt;
-				return qfalse;
+				return false;
 			}
 
 			if ( allowBounce && ( ent->shared.s.eFlags & ( EF_BOUNCE | EF_BOUNCE_HALF ) ) ) {
@@ -751,7 +751,7 @@ void G_RunSpit( gentity_t *ent ) {
 		end[2] -= 8192;
 
 		SV_Trace( &tr, ent->shared.r.currentOrigin, NULL, NULL, end,
-					ent->shared.r.ownerNum, MASK_SHOT, qfalse );
+					ent->shared.r.ownerNum, MASK_SHOT, false );
 
 		smoke = G_Spawn();
 		VectorCopy( tr.endpos, smoke->shared.s.origin );
@@ -771,7 +771,7 @@ void G_RunSpit( gentity_t *ent ) {
 	// trace a line from the previous position to the current position,
 	// ignoring interactions with the missile owner
 	SV_Trace( &tr, ent->shared.r.currentOrigin, ent->shared.r.mins, ent->shared.r.maxs, origin,
-				ent->shared.r.ownerNum, ent->clipmask, qfalse );
+				ent->shared.r.ownerNum, ent->clipmask, false );
 
 	VectorCopy( tr.endpos, ent->shared.r.currentOrigin );
 
@@ -806,7 +806,7 @@ void G_RunSpit( gentity_t *ent ) {
 			gas->shared.s.density = 5;
 			SV_LinkEntity( &gas->shared );
 
-			ent->freeAfterEvent = qtrue;
+			ent->freeAfterEvent = true;
 
 			// change over to a normal entity right at the point of impact
 			ent->shared.s.eType = ET_GENERAL;
@@ -833,7 +833,7 @@ void G_RunCrowbar( gentity_t *ent ) {
 	// trace a line from the previous position to the current position,
 	// ignoring interactions with the missile owner
 	SV_Trace( &tr, ent->shared.r.currentOrigin, ent->shared.r.mins, ent->shared.r.maxs, origin,
-				ent->shared.r.ownerNum, ent->clipmask, qfalse );
+				ent->shared.r.ownerNum, ent->clipmask, false );
 
 	VectorCopy( tr.endpos, ent->shared.r.currentOrigin );
 
@@ -882,7 +882,7 @@ fire_grenade
 */
 gentity_t *fire_grenade( gentity_t *self, vec3_t start, vec3_t dir, int grenadeWPID ) {
 	gentity_t   *bolt, *hit; // JPW NERVE
-	qboolean noExplode = qfalse;
+	bool noExplode = false;
 	vec3_t mins, maxs;      // JPW NERVE
 	static vec3_t range = { 40, 40, 52 };   // JPW NERVE
 	int i,num,touch[MAX_GENTITIES];         // JPW NERVE
@@ -896,7 +896,7 @@ gentity_t *fire_grenade( gentity_t *self, vec3_t start, vec3_t dir, int grenadeW
 			self->client->ps.grenadeTimeLeft -= ( self->client->ps.grenadeTimeLeft % 5000 );
 			self->client->ps.grenadeTimeLeft += 5000;
 //			if(self->client->ps.grenadeTimeLeft < 5000)	// allow dropping of dynamite that won't explode (for shooting)
-//				noExplode = qtrue;
+//				noExplode = true;
 		}
 
 		if ( !noExplode ) {
@@ -1247,7 +1247,7 @@ void fire_lead( gentity_t *self, vec3_t start, vec3_t dir, int damage ) {
 	vec3_t forward, right, up;
 	vec3_t angles;
 	float r, u;
-	qboolean anti_tank_enable = qfalse;
+	bool anti_tank_enable = false;
 
 	r = crandom() * self->random;
 	u = crandom() * self->random;
@@ -1259,7 +1259,7 @@ void fire_lead( gentity_t *self, vec3_t start, vec3_t dir, int damage ) {
 	VectorMA( end, r, right, end );
 	VectorMA( end, u, up, end );
 
-	SV_Trace( &tr, start, NULL, NULL, end, self->shared.s.number, MASK_SHOT, qfalse);
+	SV_Trace( &tr, start, NULL, NULL, end, self->shared.s.number, MASK_SHOT, false);
 	if ( tr.surfaceFlags & SURF_NOIMPACT ) {
 		return;
 	}
@@ -1294,7 +1294,7 @@ void fire_lead( gentity_t *self, vec3_t start, vec3_t dir, int damage ) {
 		if ( self->shared.s.weapon == WP_SNIPER
 			 && traceEnt->shared.s.eType == ET_MOVER
 			 && traceEnt->aiName[0] ) {
-			anti_tank_enable = qtrue;
+			anti_tank_enable = true;
 		}
 
 		if ( anti_tank_enable ) {
@@ -1321,21 +1321,21 @@ void fire_lead( gentity_t *self, vec3_t start, vec3_t dir, int damage ) {
 visible
 ==============
 */
-qboolean visible( gentity_t *self, gentity_t *other ) {
+bool visible( gentity_t *self, gentity_t *other ) {
 //	vec3_t		spot1;
 //	vec3_t		spot2;
 	trace_t tr;
 	gentity_t   *traceEnt;
 
-	SV_Trace( &tr, self->shared.r.currentOrigin, NULL, NULL, other->shared.r.currentOrigin, self->shared.s.number, MASK_SHOT, qfalse );
+	SV_Trace( &tr, self->shared.r.currentOrigin, NULL, NULL, other->shared.r.currentOrigin, self->shared.s.number, MASK_SHOT, false );
 
 	traceEnt = &g_entities[ tr.entityNum ];
 
 	if ( traceEnt == other ) {
-		return qtrue;
+		return true;
 	}
 
-	return qfalse;
+	return false;
 
 }
 

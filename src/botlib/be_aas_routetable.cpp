@@ -313,11 +313,11 @@ void AAS_RT_DBG_Read( void *buf, int size, int fp ) {
 //	reads the given file, and creates the structures required for the route-table system
 //
 // Parameter:				-
-// Returns:					qtrue if succesful, qfalse if not
+// Returns:					true if succesful, false if not
 // Changes Globals:		-
 //===========================================================================
 #define DEBUG_READING_TIME
-qboolean AAS_RT_ReadRouteTable( fileHandle_t fp ) {
+bool AAS_RT_ReadRouteTable( fileHandle_t fp ) {
 	int ident, version, i;
 	unsigned short int crc, crc_aas;
 	aas_rt_t    *routetable;
@@ -343,7 +343,7 @@ qboolean AAS_RT_ReadRouteTable( fileHandle_t fp ) {
 	if ( ident != RTBID ) {
 		AAS_Error( "File is not an RTB file\n" );
 		FS_FCloseFile( fp );
-		return qfalse;
+		return false;
 	}
 
 	// check version
@@ -353,7 +353,7 @@ qboolean AAS_RT_ReadRouteTable( fileHandle_t fp ) {
 	if ( version != RTBVERSION ) {
 		AAS_Error( "File is version %i not %i\n", version, RTBVERSION );
 		FS_FCloseFile( fp );
-		return qfalse;
+		return false;
 	}
 
 	// read the CRC check on the AAS data
@@ -366,7 +366,7 @@ qboolean AAS_RT_ReadRouteTable( fileHandle_t fp ) {
 	if ( crc != crc_aas ) {
 		AAS_Error( "Route-table is from different AAS file, ignoring.\n" );
 		FS_FCloseFile( fp );
-		return qfalse;
+		return false;
 	}
 
 	// read the route-table
@@ -454,7 +454,7 @@ qboolean AAS_RT_ReadRouteTable( fileHandle_t fp ) {
 #endif
 
 	FS_FCloseFile( fp );
-	return qtrue;
+	return true;
 }
 
 int AAS_RT_NumParentLinks( aas_area_childlocaldata_t *child ) {
@@ -1119,8 +1119,8 @@ void AAS_RT_ShowRoute( vec3_t srcpos, int srcnum, int destnum ) {
 #define MAX_RT_AVOID_REACH 1
 	AAS_ClearShownPolygons();
 	AAS_ClearShownDebugLines();
-	AAS_ShowAreaPolygons( srcnum, 1, qtrue );
-	AAS_ShowAreaPolygons( destnum, 4, qtrue );
+	AAS_ShowAreaPolygons( srcnum, 1, true );
+	AAS_ShowAreaPolygons( destnum, 4, true );
 	{
 		static int lastgoalareanum, lastareanum;
 		static int avoidreach[MAX_RT_AVOID_REACH];
@@ -1150,7 +1150,7 @@ AAS_RT_GetHidePos
 =================
 */
 int AAS_NearestHideArea( int srcnum, vec3_t origin, int areanum, int enemynum, vec3_t enemyorigin, int enemyareanum, int travelflags );
-qboolean AAS_RT_GetHidePos( vec3_t srcpos, int srcnum, int srcarea, vec3_t destpos, int destnum, int destarea, vec3_t returnPos ) {
+bool AAS_RT_GetHidePos( vec3_t srcpos, int srcnum, int srcarea, vec3_t destpos, int destnum, int destarea, vec3_t returnPos ) {
 	static int tfl = TFL_DEFAULT & ~( TFL_JUMPPAD | TFL_ROCKETJUMP | TFL_BFGJUMP | TFL_GRAPPLEHOOK | TFL_DOUBLEJUMP | TFL_RAMPJUMP | TFL_STRAFEJUMP | TFL_LAVA );   //----(SA)	modified since slime is no longer deadly
 //	static int tfl = TFL_DEFAULT & ~(TFL_JUMPPAD|TFL_ROCKETJUMP|TFL_BFGJUMP|TFL_GRAPPLEHOOK|TFL_DOUBLEJUMP|TFL_RAMPJUMP|TFL_STRAFEJUMP|TFL_SLIME|TFL_LAVA);
 
@@ -1161,21 +1161,21 @@ qboolean AAS_RT_GetHidePos( vec3_t srcpos, int srcnum, int srcarea, vec3_t destp
 
 	// disabled this so grenade hiding works
 	//if (!srcarea || !destarea)
-	//	return qfalse;
+	//	return false;
 
 //	pretime = -Sys_MilliSeconds();
 
 	hideareanum = AAS_NearestHideArea( srcnum, srcpos, srcarea, destnum, destpos, destarea, tfl );
 	if ( !hideareanum ) {
 //		BotImport_Print(PRT_MESSAGE, "Breadth First HidePos FAILED: %i ms\n", pretime + Sys_MilliSeconds());
-		return qfalse;
+		return false;
 	}
 	// we found a valid hiding area
 	VectorCopy( ( *aasworld ).areawaypoints[hideareanum], returnPos );
 
 //	BotImport_Print(PRT_MESSAGE, "Breadth First HidePos: %i ms\n", pretime + Sys_MilliSeconds());
 
-	return qtrue;
+	return true;
 
 #else
 	// look around at random parent areas, if any of them have a center point
@@ -1192,7 +1192,7 @@ qboolean AAS_RT_GetHidePos( vec3_t srcpos, int srcnum, int srcarea, vec3_t destp
 	static int frameCount, maxPerFrame = 2;
 	int firstreach;
 	aas_reachability_t  *reachability, *reach;
-	qboolean startVisible;
+	bool startVisible;
 	unsigned short int bestTravelTime, thisTravelTime, elapsedTravelTime;
 	#define MAX_HIDE_TRAVELTIME     1000    // 10 seconds is a very long way away
 	unsigned char destVisLookup[MAX_PARENTS];
@@ -1206,12 +1206,12 @@ qboolean AAS_RT_GetHidePos( vec3_t srcpos, int srcnum, int srcarea, vec3_t destp
 	int pretime;
 
 	if ( !( rt = aasworld->routetable ) ) { // no route table present
-		return qfalse;
+		return false;
 	}
 /*
 	if (lastTime > (AAS_Time() - 0.1)) {
 		if (frameCount++ > maxPerFrame) {
-			return qfalse;
+			return false;
 		}
 	} else {
 		frameCount = 0;
@@ -1222,16 +1222,16 @@ qboolean AAS_RT_GetHidePos( vec3_t srcpos, int srcnum, int srcarea, vec3_t destp
 
 	// is the src area grounded?
 	if ( !( srcChild = AAS_RT_GetChild( srcarea ) ) ) {
-		return qfalse;
+		return false;
 	}
 	// does it have a parent?
 // all valid areas have a parent
 //	if (!srcChild->numParentLinks) {
-//		return qfalse;
+//		return false;
 //	}
 	// get the dest (enemy) area
 	if ( !( destChild = AAS_RT_GetChild( destarea ) ) ) {
-		return qfalse;
+		return false;
 	}
 	destParent = &rt->parents[ rt->parentLinks[destChild->startParentLinks].parent ];
 	//
@@ -1271,7 +1271,7 @@ qboolean AAS_RT_GetHidePos( vec3_t srcpos, int srcnum, int srcarea, vec3_t destp
 	//
 	// setup misc stuff
 	reachability = ( *aasworld ).reachability;
-	startVisible = BotImport_AICast_VisibleFromPos( destpos, destnum, srcpos, srcnum, qfalse );
+	startVisible = BotImport_AICast_VisibleFromPos( destpos, destnum, srcpos, srcnum, false );
 	//
 	// set the firstreach to prevent having to do an array and pointer lookup for each destination
 	firstreach = ( *aasworld ).areasettings[srcarea].firstreachablearea;
@@ -1295,11 +1295,11 @@ qboolean AAS_RT_GetHidePos( vec3_t srcpos, int srcnum, int srcarea, vec3_t destp
 		// they might be visible, check to see if the path to the area, takes us towards the
 		// enemy we are trying to hide from
 		{
-			qboolean invalidRoute;
+			bool invalidRoute;
 			vec3_t curPos, lastVec;
 			#define     GETHIDE_MAX_CHECK_PATHS     15
 			//
-			invalidRoute = qfalse;
+			invalidRoute = false;
 			// initialize the pathArea
 			pathArea = srcarea;
 			VectorCopy( srcpos, curPos );
@@ -1308,7 +1308,7 @@ qboolean AAS_RT_GetHidePos( vec3_t srcpos, int srcnum, int srcarea, vec3_t destp
 				// get the reachability to the travParent
 				if ( !( route = AAS_RT_GetRoute( pathArea, curPos, travParent->areanum ) ) ) {
 					// we can't get to the travParent, so don't bother checking it
-					invalidRoute = qtrue;
+					invalidRoute = true;
 					break;
 				}
 				// set the pathArea
@@ -1319,7 +1319,7 @@ qboolean AAS_RT_GetHidePos( vec3_t srcpos, int srcnum, int srcarea, vec3_t destp
 				elapsedTravelTime += AAS_AreaTravelTime( reach->areanum, reach->end, ( *aasworld ).areas[reach->areanum].center );
 				// have we gone too far already?
 				if ( elapsedTravelTime > bestTravelTime ) {
-					invalidRoute = qtrue;
+					invalidRoute = true;
 					break;
 				} else {
 					thisTravelTime = route->travel_time;
@@ -1327,7 +1327,7 @@ qboolean AAS_RT_GetHidePos( vec3_t srcpos, int srcnum, int srcarea, vec3_t destp
 				//
 				// if this travel would have us do something wierd
 				if ( ( reach->traveltype == TRAVEL_WALKOFFLEDGE ) && ( reach->traveltime > 500 ) ) {
-					invalidRoute = qtrue;
+					invalidRoute = true;
 					break;
 				}
 				//
@@ -1336,7 +1336,7 @@ qboolean AAS_RT_GetHidePos( vec3_t srcpos, int srcnum, int srcarea, vec3_t destp
 				//
 				// if this moves us into the enemies area, skip it
 				if ( pathArea == destarea ) {
-					invalidRoute = qtrue;
+					invalidRoute = true;
 					break;
 				}
 				// if we are very close, don't get any closer under any circumstances
@@ -1349,16 +1349,16 @@ qboolean AAS_RT_GetHidePos( vec3_t srcpos, int srcnum, int srcarea, vec3_t destp
 					//
 					if ( destTravelTime < 400 ) {
 						if ( dist < destTravelDist ) {
-							invalidRoute = qtrue;
+							invalidRoute = true;
 							break;
 						}
 						if ( DotProduct( destVec, vec ) < 0.2 ) {
-							invalidRoute = qtrue;
+							invalidRoute = true;
 							break;
 						}
 					} else {
 						if ( dist < destTravelDist * 0.7 ) {
-							invalidRoute = qtrue;
+							invalidRoute = true;
 							break;
 						}
 					}
@@ -1366,11 +1366,11 @@ qboolean AAS_RT_GetHidePos( vec3_t srcpos, int srcnum, int srcarea, vec3_t destp
 					// check the directions to make sure we're not trying to run through them
 					if ( j > 0 ) {
 						if ( DotProduct( vec, lastVec ) < 0.2 ) {
-							invalidRoute = qtrue;
+							invalidRoute = true;
 							break;
 						}
 					} else if ( DotProduct( destVec, vec ) < 0.2 ) {
-						invalidRoute = qtrue;
+						invalidRoute = true;
 						break;
 					}
 					//
@@ -1379,27 +1379,27 @@ qboolean AAS_RT_GetHidePos( vec3_t srcpos, int srcnum, int srcarea, vec3_t destp
 				//
 				// if this area isn't in the visible list for the enemy's area, it's a good hiding spot
 				if ( !( travChild = AAS_RT_GetChild( pathArea ) ) ) {
-					invalidRoute = qtrue;
+					invalidRoute = true;
 					break;
 				}
 				if ( !destVisLookup[rt->parentLinks[travChild->startParentLinks].parent] ) {
 					// success ?
-					if ( !BotImport_AICast_VisibleFromPos( destpos, destnum, ( *aasworld ).areas[pathArea].center, srcnum, qfalse ) ) {
+					if ( !BotImport_AICast_VisibleFromPos( destpos, destnum, ( *aasworld ).areas[pathArea].center, srcnum, false ) ) {
 						// SUCESS !!
 						travParent = &rt->parents[rt->parentLinks[travChild->startParentLinks].parent];
 						break;
 					}
 				} else {
 					// if we weren't visible when starting, make sure we don't move into their view
-					if ( !startVisible ) { //BotImport_AICast_VisibleFromPos( destpos, destnum, reachability[firstreach + route->reachable_index].end, srcnum, qfalse )) {
-						invalidRoute = qtrue;
+					if ( !startVisible ) { //BotImport_AICast_VisibleFromPos( destpos, destnum, reachability[firstreach + route->reachable_index].end, srcnum, false )) {
+						invalidRoute = true;
 						break;
 					}
 				}
 				//
 				// if this is the travParent, then stop checking
 				if ( pathArea == travParent->areanum ) {
-					invalidRoute = qtrue;   // we didn't find a hiding spot
+					invalidRoute = true;   // we didn't find a hiding spot
 					break;
 				}
 			}   // end for areas in route
@@ -1411,7 +1411,7 @@ qboolean AAS_RT_GetHidePos( vec3_t srcpos, int srcnum, int srcarea, vec3_t destp
 		}
 		//
 		// now last of all, check that this area is a safe hiding spot
-//		if (BotImport_AICast_VisibleFromPos( destpos, destnum, (*aasworld).areas[travParent->areanum].center, srcnum, qfalse )) {
+//		if (BotImport_AICast_VisibleFromPos( destpos, destnum, (*aasworld).areas[travParent->areanum].center, srcnum, false )) {
 //			continue;
 //		}
 		//
@@ -1421,19 +1421,19 @@ qboolean AAS_RT_GetHidePos( vec3_t srcpos, int srcnum, int srcarea, vec3_t destp
 		//
 		if ( thisTravelTime < 300 ) {
 			BotImport_Print( PRT_MESSAGE, "Fuzzy RT HidePos: %i ms\n", pretime + Sys_MilliSeconds() );
-			return qtrue;
+			return true;
 		}
 	}
 	//
 	// did we find something?
 	if ( bestTravelTime < MAX_HIDE_TRAVELTIME ) {
 		BotImport_Print( PRT_MESSAGE, "Fuzzy RT HidePos: %i ms\n", pretime + Sys_MilliSeconds() );
-		return qtrue;
+		return true;
 	}
 	//
 	// couldn't find anything
 	BotImport_Print( PRT_MESSAGE, "Fuzzy RT HidePos FAILED: %i ms\n", pretime + Sys_MilliSeconds() );
-	return qfalse;
+	return false;
 #endif
 }
 

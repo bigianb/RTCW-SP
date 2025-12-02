@@ -755,7 +755,7 @@ void ReadEntity( fileHandle_t f, gentity_t *ent, int size )
 		if ( ent->teammaster == ent || !ent->teammaster ) {
 			if ( ent->moverState == MOVER_POS1ROTATE || ent->moverState == MOVER_POS1 ) {
 				// closed areaportal
-				SV_AdjustAreaPortalState( &ent->shared, qfalse );
+				SV_AdjustAreaPortalState( &ent->shared, false );
 			} else {    // must be open
 				// portals are always opened before the mover starts to open, so we must move
 				// it back to the start position, link, set portals, then move it back
@@ -764,7 +764,7 @@ void ReadEntity( fileHandle_t f, gentity_t *ent, int size )
 				// link it at original position
 				SV_LinkEntity( &ent->shared );
 				// set portals
-				SV_AdjustAreaPortalState( &ent->shared, qtrue );
+				SV_AdjustAreaPortalState( &ent->shared, true );
 				// put it back
 				*ent = backup2;
 				SV_LinkEntity( &ent->shared );
@@ -774,12 +774,12 @@ void ReadEntity( fileHandle_t f, gentity_t *ent, int size )
 
 	// check for blocking AAS at save time
 	if ( ent->AASblocking ) {
-		G_SetAASBlockingEntity( ent, qtrue );
+		G_SetAASBlockingEntity( ent, true );
 	}
 
 	// check for this being a tagconnect entity
 	if ( ent->tagName && ent->tagParent ) {   // the parent might not be there yet
-		G_ProcessTagConnect( ent, qfalse );
+		G_ProcessTagConnect( ent, false );
 	}
 
 	// if this is a camera, then make it the current global camera (silly global variables..)
@@ -986,7 +986,7 @@ static char infoString[SAVE_INFOSTRING_LENGTH];
 ===============
 G_SaveGame
 
-  returns qtrue if successful
+  returns true if successful
 
   TODO: have G_SaveWrite return the number of byte's written, so if it doesn't
   succeed, we can abort the save, and not save the file. This means we should
@@ -994,7 +994,7 @@ G_SaveGame
   so full disks don't result in lost saved games.
 ===============
 */
-qboolean G_SaveGame( const char *username )
+bool G_SaveGame( const char *username )
 {
 	char filename[MAX_QPATH];
 	char mapstr[MAX_QPATH];
@@ -1002,7 +1002,7 @@ qboolean G_SaveGame( const char *username )
 	char healthstr[MAX_QPATH];
 
 	if ( g_entities[0].health <= 0 ) { // no save when dead
-		return qtrue;
+		return true;
 	}
 
 	Com_Printf( "G_SaveGame '%s'\n", username );
@@ -1018,7 +1018,7 @@ qboolean G_SaveGame( const char *username )
 	for (int i = 0; i < strlen( username ); i++ ) {
 		if ( !Q_isforfilename( username[i] ) && username[i] != '\\' ) { // (allow '\\' so games can be saved in subdirs)
 			Com_Printf( "G_SaveGame: '%s'.  Invalid character (%c) in filename. Must use alphanumeric characters only.\n", username, username[i] );
-			return qtrue;
+			return true;
 		}
 	}
 
@@ -1029,7 +1029,7 @@ qboolean G_SaveGame( const char *username )
     fileHandle_t f;
 	if ( FS_FOpenFileByMode( filename, &f, FS_WRITE ) < 0 ) {
 		Com_Error( ERR_DROP, "G_SaveGame: cannot open file for saving\n" );
-        return qfalse; // keep the linter happy, ERR_DROP does not return
+        return false; // keep the linter happy, ERR_DROP does not return
 	}
 
 	// write the version
@@ -1209,7 +1209,7 @@ qboolean G_SaveGame( const char *username )
 	if ( ( len = FS_FOpenFileByMode( filename, &f, FS_READ ) ) != saveByteCount ) {
 		FS_FCloseFile( f );
 		G_SaveWriteError();
-		return qfalse;
+		return false;
 	}
 
 	FS_FCloseFile( f );
@@ -1222,12 +1222,12 @@ qboolean G_SaveGame( const char *username )
 	if ( ( len = FS_FOpenFileByMode( mapstr, &f, FS_READ ) ) != saveByteCount ) {
 		FS_FCloseFile( f );
 		G_SaveWriteError();
-		return qfalse;
+		return false;
 	}
 
 	FS_FCloseFile( f );
 
-	return qtrue;
+	return true;
 }
 
 /*
@@ -1246,7 +1246,7 @@ void G_LoadGame( const char *filename )
 	gclient_t   *cl;
 	cast_state_t    *cs;
 	qtime_t tm;
-	qboolean serverEntityUpdate = qfalse;
+	bool serverEntityUpdate = false;
 
 	if ( saveGamePending ) {
 		return;
@@ -1361,7 +1361,7 @@ void G_LoadGame( const char *filename )
 		}
 		if ( i >= level.num_entities ) {  // notify server
 			level.num_entities = i;
-			serverEntityUpdate = qtrue;
+			serverEntityUpdate = true;
 		}
 		ent = &g_entities[i];
 		ReadEntity( f, ent, size );
@@ -1383,7 +1383,7 @@ void G_LoadGame( const char *filename )
 		memset( ent, 0, sizeof( *ent ) );
 		ent->classname = "freed";
 		ent->freetime = level.time;
-		ent->inuse = qfalse;
+		ent->inuse = false;
 	}
 
 	// read the client structures
@@ -1546,7 +1546,7 @@ void PersReadCastState( fileHandle_t f, cast_state_t *cs )
 ===============
 G_SavePersistant
 
-  returns qtrue if successful
+  returns true if successful
 
   NOTE: only saves the local player's data, doesn't support AI characters
 
@@ -1556,7 +1556,7 @@ G_SavePersistant
   so full disks don't result in lost saved games.
 ===============
 */
-qboolean G_SavePersistant( char *nextmap )
+bool G_SavePersistant( char *nextmap )
 {
 	char filename[MAX_QPATH];
 	fileHandle_t f;
@@ -1567,7 +1567,7 @@ qboolean G_SavePersistant( char *nextmap )
 	snprintf( filename, MAX_QPATH, "save\\temp.psw" );
 	if ( FS_FOpenFileByMode( filename, &f, FS_WRITE ) < 0 ) {
 		Com_Error( ERR_DROP, "G_SavePersistant: cannot open '%s' for saving\n", filename );
-        return qfalse;
+        return false;
 	}
 	// write the mapname
 	G_SaveWrite( nextmap, MAX_QPATH, f );
@@ -1593,7 +1593,7 @@ qboolean G_SavePersistant( char *nextmap )
 	if ( FS_FOpenFileByMode( filename, &f, FS_READ ) < saveByteCount ) {
 		FS_FCloseFile( f );
 		G_SaveWriteError();
-		return qfalse;
+		return false;
 	}
 	FS_FCloseFile( f );
 
@@ -1605,11 +1605,11 @@ qboolean G_SavePersistant( char *nextmap )
 	if ( FS_FOpenFileByMode( filename, &f, FS_READ ) < saveByteCount ) {
 		FS_FCloseFile( f );
 		G_SaveWriteError();
-		return qfalse;
+		return false;
 	}
 	FS_FCloseFile( f );
 
-	return qtrue;
+	return true;
 }
 
 /*
