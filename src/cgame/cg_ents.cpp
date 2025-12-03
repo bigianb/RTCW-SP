@@ -174,8 +174,8 @@ void CG_LoseArmor( centity_t *cent, int index ) {
 	clientInfo_t *ci;
 	// TTimo: bunch of inits
 	int totalparts = 0, dynamicparts = 0, protoParts = 9, superParts = 16, heinrichParts = 22;
-	const char        **tags = NULL;
-	qhandle_t   *models = NULL;
+	const char        **tags = nullptr;
+	qhandle_t   *models = nullptr;
 	qhandle_t sound = 0;    //----(SA)	added
 	int dmgbits = 16;         // 32/2;
 	int clientNum;
@@ -228,7 +228,7 @@ void CG_LoseArmor( centity_t *cent, int index ) {
 		return;
 	}
 
-	tagIndex = CG_GetOriginForTag( cent, &cent->pe.torsoRefEnt, tags[index], 0, origin, NULL );
+	tagIndex = CG_GetOriginForTag( cent, &cent->pe.torsoRefEnt, tags[index], 0, origin, nullptr );
 
 	// calculate direction vector based on player center->tag position
 	VectorSubtract( origin, cent->currentState.origin, dir );
@@ -236,7 +236,7 @@ void CG_LoseArmor( centity_t *cent, int index ) {
 
 //----(SA)	added
 	if ( sound ) {
-		CG_SoundPlayIndexedScript( sound, NULL, cent->currentState.number );
+		CG_SoundPlayIndexedScript( sound, nullptr, cent->currentState.number );
 	}
 //----(SA)	end
 
@@ -437,7 +437,7 @@ void CG_AddLightstyle( centity_t *cent ) {
 		if ( cent->dl_oldframe >= stringlength ) {
 			cent->dl_oldframe = ( cent->dl_oldframe ) % stringlength;
 			if ( cent->dl_oldframe < 3 && cent->dl_sound ) { // < 3 so if an alarm comes back into the pvs it will only start a sound if it's going to be closely synced with the light, otherwise wait till the next cycle
-				S_StartSound( NULL, cent->currentState.number, CHAN_AUTO, cgs.gameSounds[cent->dl_sound] );
+				S_StartSound( nullptr, cent->currentState.number, CHAN_AUTO, cgs.gameSounds[cent->dl_sound] );
 			}
 		}
 
@@ -550,7 +550,7 @@ CG_General
 */
 static void CG_General( centity_t *cent ) {
 	refEntity_t ent;
-	entityState_t       *s1;
+	EntityState       *s1;
 
 	s1 = &cent->currentState;
 
@@ -623,7 +623,7 @@ static void CG_Speaker( centity_t *cent ) {
 		return;
 	}
 
-	S_StartSound( NULL, cent->currentState.number, CHAN_ITEM, cgs.gameSounds[cent->currentState.eventParm] );
+	S_StartSound( nullptr, cent->currentState.number, CHAN_ITEM, cgs.gameSounds[cent->currentState.eventParm] );
 
 	//	ent->s.frame = ent->wait * 10;
 	//	ent->s.clientNum = ent->random * 10;
@@ -743,7 +743,7 @@ void CG_DrawHoldableSelect( void ) {
 		}
 	}
 
-	RE_SetColor( NULL );
+	RE_SetColor( nullptr );
 }
 
 
@@ -869,7 +869,7 @@ void CG_HoldableUsedupChange( void ) {
 
 
 
-bool CG_PlayerSeesItem( playerState_t *ps, entityState_t *item, int atTime, int itemType ) {
+bool CG_PlayerSeesItem( PlayerState *ps, EntityState *item, int atTime, int itemType ) {
 	vec3_t vorigin, eorigin, viewa, dir;
 	float dot, dist, foo;
 	trace_t tr;
@@ -910,7 +910,7 @@ bool CG_PlayerSeesItem( playerState_t *ps, entityState_t *item, int atTime, int 
 
 	// (SA) okay, everything else is okay, so do a bloody trace. (so coronas on treasure doesn't show through walls) <sigh>
 	if ( itemType == IT_TREASURE ) {
-		CG_Trace( &tr, vorigin, NULL, NULL, eorigin, -1, MASK_SOLID );
+		CG_Trace( &tr, vorigin, nullptr, nullptr, eorigin, -1, MASK_SOLID );
 
 		if ( tr.fraction != 1 ) {
 			return false;
@@ -929,7 +929,7 @@ CG_Item
 */
 static void CG_Item( centity_t *cent ) {
 	refEntity_t ent;
-	entityState_t       *es;
+	EntityState       *es;
 	gitem_t             *item;
 	float scale;
 	bool hasStand, highlight;
@@ -1006,9 +1006,9 @@ static void CG_Item( centity_t *cent ) {
 
 //----(SA)	modified
 			if ( cent->currentState.frame ) {
-				CG_PositionEntityOnTag( &ent, &stand, va( "tag_stand%d", cent->currentState.frame ), 0, NULL );
+				CG_PositionEntityOnTag( &ent, &stand, va( "tag_stand%d", cent->currentState.frame ), 0, nullptr );
 			} else {
-				CG_PositionEntityOnTag( &ent, &stand, "tag_stand", 0, NULL );
+				CG_PositionEntityOnTag( &ent, &stand, "tag_stand", 0, nullptr );
 			}
 //----(SA)	end
 
@@ -1170,7 +1170,7 @@ extern void CG_RocketTrail( centity_t *ent, const weaponInfo_t *wi );
 
 static void CG_Missile( centity_t *cent ) {
 	refEntity_t ent;
-	entityState_t       *s1;
+	EntityState       *s1;
 	const weaponInfo_t      *weapon;
 
 	s1 = &cent->currentState;
@@ -1187,7 +1187,7 @@ static void CG_Missile( centity_t *cent ) {
 		 || cent->currentState.eType == ET_FIRE_COLUMN
 		 || cent->currentState.eType == ET_FIRE_COLUMN_SMOKE
 		 || cent->currentState.eType == ET_RAMJET ) {
-		CG_RocketTrail( cent, NULL );
+		CG_RocketTrail( cent, nullptr );
 	} else if ( weapon->missileTrailFunc ) {
 		weapon->missileTrailFunc( cent, weapon );
 	}
@@ -1264,7 +1264,7 @@ CG_ZombieSpit
 */
 static void CG_ZombieSpit( centity_t *cent ) {
 	refEntity_t ent;
-	entityState_t       *s1;
+	EntityState       *s1;
 	const weaponInfo_t      *weapon;
 
 	s1 = &cent->currentState;
@@ -1341,7 +1341,7 @@ CG_Crowbar
 */
 static void CG_Crowbar( centity_t *cent ) {
 	refEntity_t ent;
-	entityState_t       *s1;
+	EntityState       *s1;
 	const weaponInfo_t      *weapon;
 
 	s1 = &cent->currentState;
@@ -1449,7 +1449,7 @@ static void CG_RunAnim( centity_t *cent, int *frame, int *oldframe, float *backl
 	}
 
 	// run it
-	CG_RunLerpFrame( NULL, &cent->lerpFrame, 0, 1 );
+	CG_RunLerpFrame( nullptr, &cent->lerpFrame, 0, 1 );
 
 	*frame      = cent->lerpFrame.frame;
 	*oldframe   = cent->lerpFrame.oldFrame;
@@ -1465,7 +1465,7 @@ CG_Trap
 */
 static void CG_Trap( centity_t *cent ) {
 	refEntity_t ent;
-	entityState_t       *cs;
+	EntityState       *cs;
 	animation_t         *trapAnim;
 
 	trapAnim = &grabberAnims[0];
@@ -1545,7 +1545,7 @@ static void CG_Corona( centity_t *cent ) {
 
 
 	if ( !behind && !toofar ) {
-		CG_Trace( &tr, cg.refdef.vieworg, NULL, NULL, cent->lerpOrigin, -1, MASK_SOLID | CONTENTS_BODY ); // added blockage by players.  not sure how this is going to be since this is their bb, not their model (too much blockage)
+		CG_Trace( &tr, cg.refdef.vieworg, nullptr, nullptr, cent->lerpOrigin, -1, MASK_SOLID | CONTENTS_BODY ); // added blockage by players.  not sure how this is going to be since this is their bb, not their model (too much blockage)
 
 		if ( tr.fraction == 1 ) {
 			flags = 1;
@@ -1583,7 +1583,7 @@ static void CG_Efx( centity_t *cent ) {
 				cent->boltTimes[i] = cg.time + rand() % cent->currentState.time2;     // hold this position for ~1 second ('stickytime' value is stored in .time2)
 
 				// cut the bolt short if it collides w/ something
-				CG_Trace( &trace, cent->currentState.origin, NULL, NULL, cent->boltLocs[i], -1, MASK_SOLID | CONTENTS_BODY );
+				CG_Trace( &trace, cent->currentState.origin, nullptr, nullptr, cent->boltLocs[i], -1, MASK_SOLID | CONTENTS_BODY );
 
 				if ( trace.fraction < 1 ) {
 					// take damage
@@ -1668,7 +1668,7 @@ static void CG_Efx( centity_t *cent ) {
 				VectorNormalize2( cent->lerpAngles, angNorm );
 				//		(origin, dir, speed, duration, count, 'randscale')
 				CG_AddBulletParticles( cent->lerpOrigin, angNorm, 2, 800, 4, 16.0f );
-				S_StartSound( NULL, cent->currentState.number, CHAN_AUTO, cgs.media.sparkSounds[0] );
+				S_StartSound( nullptr, cent->currentState.number, CHAN_AUTO, cgs.media.sparkSounds[0] );
 			}
 
 			// smoking dead light
@@ -1742,7 +1742,7 @@ CG_Explosive
 static void CG_Explosive( centity_t *cent ) {
 	lerpFrame_t         *traplf;
 	refEntity_t ent;
-	entityState_t       *s1;
+	EntityState       *s1;
 
 	s1 = &cent->currentState;
 
@@ -1831,7 +1831,7 @@ CG_Mover
 */
 static void CG_Mover( centity_t *cent ) {
 	refEntity_t ent;
-	entityState_t       *s1;
+	EntityState       *s1;
 
 	s1 = &cent->currentState;
 
@@ -1961,7 +1961,7 @@ static void CG_Mover( centity_t *cent ) {
 				VectorNormalize2( cent->lerpAngles, angNorm );
 				//		(origin, dir, speed, duration, count, 'randscale')
 				CG_AddBulletParticles( cent->lerpOrigin, angNorm, 2, 800, 4, 16.0f );
-				S_StartSound( NULL, cent->currentState.number, CHAN_AUTO, cgs.media.sparkSounds[0] );
+				S_StartSound( nullptr, cent->currentState.number, CHAN_AUTO, cgs.media.sparkSounds[0] );
 			}
 		}
 	}
@@ -1976,7 +1976,7 @@ Also called as an event
 */
 void CG_Beam( centity_t *cent ) {
 	refEntity_t ent;
-	entityState_t       *s1;
+	EntityState       *s1;
 
 	s1 = &cent->currentState;
 
@@ -2002,7 +2002,7 @@ CG_Portal
 */
 static void CG_Portal( centity_t *cent ) {
 	refEntity_t ent;
-	entityState_t       *s1;
+	EntityState       *s1;
 
 	s1 = &cent->currentState;
 
@@ -2033,7 +2033,7 @@ CG_Prop
 */
 static void CG_Prop( centity_t *cent ) {
 	refEntity_t ent;
-	entityState_t       *s1;
+	EntityState       *s1;
 	vec3_t angles;
 	float scale;
 
@@ -2220,8 +2220,8 @@ static void CG_InterpolateEntityPosition( centity_t *cent ) {
 
 	// it would be an internal error to find an entity that interpolates without
 	// a snapshot ahead of the current one
-	if ( cg.nextSnap == NULL ) {
-		Com_Error( ERR_DROP, "CG_InterpoateEntityPosition: cg.nextSnap == NULL" );
+	if ( cg.nextSnap == nullptr ) {
+		Com_Error( ERR_DROP, "CG_InterpoateEntityPosition: cg.nextSnap == nullptr" );
         return;  // Keep linter happy. ERR_DROP does not return
 	}
 
@@ -2265,7 +2265,7 @@ static void CG_CalcEntityLerpPositions( centity_t *cent ) {
 	// player state
 	if ( cent != &cg.predictedPlayerEntity ) {
 		CG_AdjustPositionForMover( cent->lerpOrigin, cent->currentState.groundEntityNum,
-								   cg.snap->serverTime, cg.time, cent->lerpOrigin, NULL );
+								   cg.snap->serverTime, cg.time, cent->lerpOrigin, nullptr );
 	}
 }
 
@@ -2398,11 +2398,11 @@ CG_AddEntityToTag
 ==================
 */
 static void CG_AddEntityToTag( centity_t *cent ) {
-	entityState_t       *s1;
+	EntityState       *s1;
 	centity_t           *centParent;
-	entityState_t       *sParent;
+	EntityState       *sParent;
 	refEntity_t ent;
-	char *token = NULL;
+	char *token = nullptr;
 	int i, pi;
 	vec3_t ang;
 
@@ -2429,8 +2429,8 @@ static void CG_AddEntityToTag( centity_t *cent ) {
 	//}
 
 	// find us in the list of tagged entities
-	sParent = NULL;
-	centParent = NULL;
+	sParent = nullptr;
+	centParent = nullptr;
 	for ( i = CS_TAGCONNECTS + 1; i < CS_TAGCONNECTS + MAX_TAGCONNECTS; i++ ) {   // NOTE: +1 since G_FindConfigStringIndex() starts at index 1 rather than 0 (not sure why)
 		const char* cs = CG_ConfigString( i );
 		token = COM_Parse( &cs );
@@ -2492,7 +2492,7 @@ static void CG_AddEntityToTag( centity_t *cent ) {
 	//AnglesToAxis( cent->lerpAngles, ent.axis );
 
 	// get the tag position from parent
-	CG_PositionEntityOnTag( &ent, &centParent->refEnt, token, 0, NULL );
+	CG_PositionEntityOnTag( &ent, &centParent->refEnt, token, 0, nullptr );
 //	CG_PositionRotatedEntityOnTag( &ent, &centParent->refEnt, centParent->refEnt.hModel, token );
 
 	VectorCopy( ent.origin, cent->lerpOrigin );
@@ -2520,7 +2520,7 @@ CG_AddPacketEntities
 void CG_AddPacketEntities( void ) {
 	int num;
 	centity_t           *cent;
-	playerState_t       *ps;
+	PlayerState       *ps;
 	int clcount;
 
 	// set cg.frameInterpolation

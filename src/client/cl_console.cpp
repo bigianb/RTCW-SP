@@ -527,7 +527,7 @@ void Con_DrawNotify()
 		v += SMALLCHAR_HEIGHT;
 	}
 
-	re.SetColor( NULL );
+	re.SetColor( nullptr );
 
 	if ( cls.keyCatchers & ( KEYCATCH_UI | KEYCATCH_CGAME ) ) {
 		return;
@@ -573,7 +573,7 @@ void Con_DrawSolidConsole( float frac )
 
 	// on wide screens, we will center the text
 	con.xadjust = 0;
-	SCR_AdjustFrom640( &con.xadjust, NULL, NULL, NULL );
+	SCR_AdjustFrom640( &con.xadjust, nullptr, nullptr, nullptr );
 
 	// draw the background
 	int y = frac * SCREEN_HEIGHT - 2;
@@ -590,7 +590,7 @@ void Con_DrawSolidConsole( float frac )
 
 			// draw the logo
 			SCR_DrawPic( 192, 70, 256, 128, cls.consoleShader2 );
-			re.SetColor( NULL );
+			re.SetColor( nullptr );
 		}
 	}
 
@@ -670,7 +670,7 @@ void Con_DrawSolidConsole( float frac )
 	// draw the input prompt, user text, and cursor if desired
 	Con_DrawInput();
 
-	re.SetColor( NULL );
+	re.SetColor( nullptr );
 }
 
 

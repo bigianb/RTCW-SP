@@ -45,7 +45,7 @@ These functions will return true if the action has been performed, and the scrip
 should proceed to the next item on the list.
 */
 
-void script_linkentity( gentity_t *ent );
+void script_linkentity( GameEntity *ent );
 
 /*
 ===============
@@ -57,9 +57,9 @@ G_ScriptAction_GotoMarker
   transitions
 ===============
 */
-bool G_ScriptAction_GotoMarker( gentity_t *ent, char *params ) {
+bool G_ScriptAction_GotoMarker( GameEntity *ent, char *params ) {
 
-	gentity_t *target;
+	GameEntity *target;
 	vec3_t vec;
 	float speed, dist;
 	bool wait = false, turntotarget = false;
@@ -109,7 +109,7 @@ bool G_ScriptAction_GotoMarker( gentity_t *ent, char *params ) {
 		}
 
 		// find the entity with the given "targetname"
-		target = G_Find( NULL, FOFS( targetname ), token );
+		target = G_Find( nullptr, FOFS( targetname ), token );
 
 		if ( !target ) {
 			Com_Error( ERR_DROP, "G_Scripting: can't find entity with \"targetname\" = \"%s\"\n", token );
@@ -160,7 +160,7 @@ bool G_ScriptAction_GotoMarker( gentity_t *ent, char *params ) {
 				ent->shared.s.pos.trDuration = 1000.0 * dist / ( speed / 2.0 );
 				ent->shared.s.pos.trType = (trType_t)trType;
 			}
-			ent->reached = NULL;
+			ent->reached = nullptr;
 
 			if ( turntotarget ) {
 				duration = ent->shared.s.pos.trDuration;
@@ -254,7 +254,7 @@ G_ScriptAction_Wait
   syntax: wait <duration>
 =================
 */
-bool G_ScriptAction_Wait( gentity_t *ent, char *params ) {
+bool G_ScriptAction_Wait( GameEntity *ent, char *params ) {
 	
 	int duration;
 
@@ -279,8 +279,8 @@ G_ScriptAction_Trigger
   Calls the specified trigger for the given ai character or script entity
 =================
 */
-bool G_ScriptAction_Trigger( gentity_t *ent, char *params ) {
-	gentity_t *trent;
+bool G_ScriptAction_Trigger( GameEntity *ent, char *params ) {
+	GameEntity *trent;
 	char name[MAX_QPATH], trigger[MAX_QPATH];
 	int oldId;
 
@@ -331,7 +331,7 @@ G_ScriptAction_PlaySound
   Use the optional LOOPING paramater to attach the sound to the entities looping channel.
 ================
 */
-bool G_ScriptAction_PlaySound( gentity_t *ent, char *params ) {
+bool G_ScriptAction_PlaySound( GameEntity *ent, char *params ) {
 	char sound[MAX_QPATH];
 
 	if ( !params ) {
@@ -360,7 +360,7 @@ AICast_ScriptAction_MusicStart
 
 ==================
 */
-bool G_ScriptAction_MusicStart( gentity_t *ent, char *params ) {
+bool G_ScriptAction_MusicStart( GameEntity *ent, char *params ) {
 	
 	char cvarName[MAX_QPATH];
 	int fadeupTime = 0;
@@ -389,7 +389,7 @@ AICast_ScriptAction_MusicPlay
 
 ==================
 */
-bool G_ScriptAction_MusicPlay( gentity_t *ent, char *params ) {
+bool G_ScriptAction_MusicPlay( GameEntity *ent, char *params ) {
 	
 	char cvarName[MAX_QPATH];
 	int fadeupTime = 0;
@@ -413,7 +413,7 @@ bool G_ScriptAction_MusicPlay( gentity_t *ent, char *params ) {
 AICast_ScriptAction_MusicStop
 ==================
 */
-bool G_ScriptAction_MusicStop( gentity_t *ent, char *params ) {
+bool G_ScriptAction_MusicStop( GameEntity *ent, char *params ) {
 	int fadeoutTime = 0;
 
 	const char* pString = params;
@@ -433,7 +433,7 @@ bool G_ScriptAction_MusicStop( gentity_t *ent, char *params ) {
 AICast_ScriptAction_MusicFade
 ==================
 */
-bool G_ScriptAction_MusicFade( gentity_t *ent, char *params ) {
+bool G_ScriptAction_MusicFade( GameEntity *ent, char *params ) {
 	
 	float targetvol;
 	int fadetime;
@@ -464,7 +464,7 @@ bool G_ScriptAction_MusicFade( gentity_t *ent, char *params ) {
 AICast_ScriptAction_MusicQueue
 ==================
 */
-bool G_ScriptAction_MusicQueue( gentity_t *ent, char *params ) {
+bool G_ScriptAction_MusicQueue( GameEntity *ent, char *params ) {
 	
 	char cvarName[MAX_QPATH];
 
@@ -492,7 +492,7 @@ G_ScriptAction_PlayAnim
   NOTE: all source animations must be at 20fps
 =================
 */
-bool G_ScriptAction_PlayAnim( gentity_t *ent, char *params ) {
+bool G_ScriptAction_PlayAnim( GameEntity *ent, char *params ) {
 	char tokens[2][MAX_QPATH];
 	int i, endtime = 0; // TTimo: init
 	bool looping = false, forever = false;
@@ -596,8 +596,8 @@ G_ScriptAction_AlertEntity
   syntax: alertentity <targetname>
 =================
 */
-bool G_ScriptAction_AlertEntity( gentity_t *ent, char *params ) {
-	gentity_t   *alertent;
+bool G_ScriptAction_AlertEntity( GameEntity *ent, char *params ) {
+	GameEntity   *alertent;
 
 	if ( !params || !params[0] ) {
 		Com_Error( ERR_DROP, "G_Scripting: alertentity without targetname\n" );
@@ -605,7 +605,7 @@ bool G_ScriptAction_AlertEntity( gentity_t *ent, char *params ) {
 	}
 
 	// find this targetname
-	alertent = G_Find( NULL, FOFS( targetname ), params );
+	alertent = G_Find( nullptr, FOFS( targetname ), params );
 	if ( !alertent ) {
 		Com_Error( ERR_DROP, "G_Scripting: alertentity cannot find targetname \"%s\"\n", params );
         return false; // keep the linter happy, ERR_DROP does not return
@@ -624,7 +624,7 @@ bool G_ScriptAction_AlertEntity( gentity_t *ent, char *params ) {
             return false; // keep the linter happy, ERR_DROP does not return
             
 		}
-		alertent->use( alertent, NULL, NULL );
+		alertent->use( alertent, nullptr, nullptr );
 	}
 
 	return true;
@@ -651,7 +651,7 @@ G_ScriptAction_Accum
 	accum <n> abort_if_not_bitset <m>
 =================
 */
-bool G_ScriptAction_Accum( gentity_t *ent, char *params ) {
+bool G_ScriptAction_Accum( GameEntity *ent, char *params ) {
 	char *token, lastToken[MAX_QPATH];
 	int bufferIndex;
 
@@ -777,7 +777,7 @@ G_ScriptAction_MissionFailed
   syntax: missionfailed
 =================
 */
-bool G_ScriptAction_MissionFailed( gentity_t *ent, char *params ) {
+bool G_ScriptAction_MissionFailed( GameEntity *ent, char *params ) {
 	char   *token;
 	int time = 6, mof = 0;
 
@@ -821,8 +821,8 @@ G_ScriptAction_MissionSuccess
   syntax: missionsuccess <mission_level>
 =================
 */
-bool G_ScriptAction_MissionSuccess( gentity_t *ent, char *params ) {
-	gentity_t   *player;
+bool G_ScriptAction_MissionSuccess( GameEntity *ent, char *params ) {
+	GameEntity   *player;
 	vmCvar_t cvar;
 	int lvl;
 	char *token;
@@ -878,7 +878,7 @@ G_ScriptAction_Print
   Mostly for debugging purposes
 =================
 */
-bool G_ScriptAction_Print( gentity_t *ent, char *params ) {
+bool G_ScriptAction_Print( GameEntity *ent, char *params ) {
 	if ( !params || !params[0] ) {
 		Com_Error( ERR_DROP, "G_Scripting: print requires some text\n" );
         return false; // keep the linter happy, ERR_DROP does not return
@@ -899,7 +899,7 @@ G_ScriptAction_FaceAngles
   last gotomarker command will be used instead.
 =================
 */
-bool G_ScriptAction_FaceAngles( gentity_t *ent, char *params ) {
+bool G_ScriptAction_FaceAngles( GameEntity *ent, char *params ) {
 	char  *token;
 	int duration, i;
 	vec3_t diff;
@@ -997,7 +997,7 @@ G_ScriptAction_ResetScript
 	causes any currently running scripts to abort, in favour of the current script
 ===================
 */
-bool G_ScriptAction_ResetScript( gentity_t *ent, char *params )
+bool G_ScriptAction_ResetScript( GameEntity *ent, char *params )
 {
 	if ( level.time == ent->scriptStatus.scriptStackChangeTime ) {
 		return false;
@@ -1015,9 +1015,9 @@ G_ScriptAction_TagConnect
 	connect this entity onto the tag of another entity
 ===================
 */
-bool G_ScriptAction_TagConnect( gentity_t *ent, char *params ) {
+bool G_ScriptAction_TagConnect( GameEntity *ent, char *params ) {
 	char *token;
-	gentity_t *parent;
+	GameEntity *parent;
 
 	const char* pString = params;
 	token = COM_Parse( &pString );
@@ -1026,9 +1026,9 @@ bool G_ScriptAction_TagConnect( gentity_t *ent, char *params ) {
         return false; // keep the linter happy, ERR_DROP does not return
 	}
 
-	parent = G_Find( NULL, FOFS( targetname ), token );
+	parent = G_Find( nullptr, FOFS( targetname ), token );
 	if ( !parent ) {
-		parent = G_Find( NULL, FOFS( scriptName ), token );
+		parent = G_Find( nullptr, FOFS( scriptName ), token );
 		if ( !parent ) {
 			Com_Error( ERR_DROP, "G_ScriptAction_TagConnect: unable to find entity with targetname \"%s\"", token );
             return false; // keep the linter happy, ERR_DROP does not return
@@ -1059,7 +1059,7 @@ G_ScriptAction_Halt
   Stop moving.
 ====================
 */
-bool G_ScriptAction_Halt( gentity_t *ent, char *params ) {
+bool G_ScriptAction_Halt( GameEntity *ent, char *params ) {
 	if ( level.time == ent->scriptStatus.scriptStackChangeTime ) {
 		ent->scriptStatus.scriptFlags &= ~SCFL_GOING_TO_MARKER;
 
@@ -1098,7 +1098,7 @@ G_ScriptAction_StopSound
   Stops any looping sounds for this entity.
 ===================
 */
-bool G_ScriptAction_StopSound( gentity_t *ent, char *params ) {
+bool G_ScriptAction_StopSound( GameEntity *ent, char *params ) {
 	ent->shared.s.loopSound = 0;
 	return true;
 }
@@ -1110,9 +1110,9 @@ G_ScriptAction_StartCam
   syntax: startcam <camera filename>
 ===================
 */
-bool G_ScriptAction_StartCam( gentity_t *ent, char *params ) {
+bool G_ScriptAction_StartCam( GameEntity *ent, char *params ) {
 	char *token;
-	gentity_t *player;
+	GameEntity *player;
 
 	const char* pString = params;
 	token = COM_Parse( &pString );
@@ -1140,7 +1140,7 @@ bool G_ScriptAction_StartCam( gentity_t *ent, char *params ) {
 G_ScriptAction_EntityScriptName
 =================
 */
-bool G_ScriptAction_EntityScriptName( gentity_t *ent, char *params ) {
+bool G_ScriptAction_EntityScriptName( GameEntity *ent, char *params ) {
 	Cvar_Set( "g_scriptName", params );
 	return true;
 }
@@ -1151,7 +1151,7 @@ bool G_ScriptAction_EntityScriptName( gentity_t *ent, char *params ) {
 G_ScriptAction_AIScriptName
 =================
 */
-bool G_ScriptAction_AIScriptName( gentity_t *ent, char *params ) {
+bool G_ScriptAction_AIScriptName( GameEntity *ent, char *params ) {
 	Cvar_Set( "ai_scriptName", params );
 	return true;
 }
@@ -1164,7 +1164,7 @@ G_ScriptAction_BackupScript
   were we left off (useful if player gets in our way)
 =================
 */
-bool G_ScriptAction_BackupScript( gentity_t *ent, char *params ) {
+bool G_ScriptAction_BackupScript( GameEntity *ent, char *params ) {
 
 	// if we're not at the top of an event, then something is _probably_ wrong with the script
 //	if (ent->scriptStatus.scriptStackHead > 0) {
@@ -1212,7 +1212,7 @@ G_ScriptAction_RestoreScript
   restores the state of the scripting to the previous backup
 =================
 */
-bool G_ScriptAction_RestoreScript( gentity_t *ent, char *params ) {
+bool G_ScriptAction_RestoreScript( GameEntity *ent, char *params ) {
 
 	ent->scriptStatus = ent->scriptStatusBackup;
 	ent->scriptStatus.scriptStackChangeTime = level.time;       // start moves again
@@ -1225,7 +1225,7 @@ bool G_ScriptAction_RestoreScript( gentity_t *ent, char *params ) {
 G_ScriptAction_SetHealth
 ==================
 */
-bool G_ScriptAction_SetHealth( gentity_t *ent, char *params ) {
+bool G_ScriptAction_SetHealth( GameEntity *ent, char *params ) {
 	if ( !params || !params[0] ) {
 		Com_Error( ERR_DROP, "G_ScriptAction_SetHealth: sethealth requires a health value\n" );
         return false; // keep the linter happy, ERR_DROP does not return

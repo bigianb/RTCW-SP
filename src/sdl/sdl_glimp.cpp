@@ -45,8 +45,8 @@ typedef enum
 	RSERR_UNKNOWN
 } rserr_t;
 
-SDL_Window *SDL_window = NULL;
-static SDL_GLContext SDL_glContext = NULL;
+SDL_Window *SDL_window = nullptr;
+static SDL_GLContext SDL_glContext = nullptr;
 
 cvar_t *r_allowSoftwareGL; // Don't abort out if a hardware visual can't be obtained
 cvar_t *r_allowResize; // make window resizable
@@ -128,7 +128,7 @@ static int GLimp_SetMode(int mode, bool fullscreen, bool noborder, bool fixedFun
 	int colorBits, depthBits, stencilBits;
 	int samples;
 	int i = 0;
-	SDL_Surface *icon = NULL;
+	SDL_Surface *icon = nullptr;
 	Uint32 flags = SDL_WINDOW_OPENGL;
 	
 	int display = 0;
@@ -140,7 +140,7 @@ static int GLimp_SetMode(int mode, bool fullscreen, bool noborder, bool fixedFun
 		flags |= SDL_WINDOW_RESIZABLE;
 	}
 	// If a window exists, note its display index
-	if( SDL_window != NULL )
+	if( SDL_window != nullptr )
 	{
 		display = SDL_GetDisplayForWindow( SDL_window );
 		if( display < 0 )
@@ -165,7 +165,7 @@ static int GLimp_SetMode(int mode, bool fullscreen, bool noborder, bool fixedFun
 	if (mode == -2)
 	{
 		// use desktop video resolution
-		if( desktopMode != NULL && desktopMode->h > 0 )
+		if( desktopMode != nullptr && desktopMode->h > 0 )
 		{
 			glConfig.vidWidth = desktopMode->w;
 			glConfig.vidHeight = desktopMode->h;
@@ -195,18 +195,18 @@ static int GLimp_SetMode(int mode, bool fullscreen, bool noborder, bool fixedFun
 	}
 
 	// Destroy existing state if it exists
-	if( SDL_glContext != NULL )
+	if( SDL_glContext != nullptr )
 	{
 		SDL_GL_DestroyContext( SDL_glContext );
-		SDL_glContext = NULL;
+		SDL_glContext = nullptr;
 	}
 
-	if( SDL_window != NULL )
+	if( SDL_window != nullptr )
 	{
 		SDL_GetWindowPosition( SDL_window, &x, &y );
 		ri.Printf( PRINT_DEVELOPER, "Existing window at %dx%d before being destroyed\n", x, y );
 		SDL_DestroyWindow( SDL_window );
-		SDL_window = NULL;
+		SDL_window = nullptr;
 	}
 
 	if( fullscreen )
@@ -313,7 +313,7 @@ static int GLimp_SetMode(int mode, bool fullscreen, bool noborder, bool fixedFun
 		SDL_GL_SetAttribute( SDL_GL_DOUBLEBUFFER, 1 );
 
 		if( ( SDL_window = SDL_CreateWindow( "Wolf",
-				glConfig.vidWidth, glConfig.vidHeight, flags ) ) == NULL )
+				glConfig.vidWidth, glConfig.vidHeight, flags ) ) == nullptr )
 		{
 			ri.Printf( PRINT_DEVELOPER, "SDL_CreateWindow failed: %s\n", SDL_GetError( ) );
 			continue;
@@ -355,7 +355,7 @@ static int GLimp_SetMode(int mode, bool fullscreen, bool noborder, bool fixedFun
 			SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
 			SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3);
 			SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 2);
-			if ((SDL_glContext = SDL_GL_CreateContext(SDL_window)) == NULL)
+			if ((SDL_glContext = SDL_GL_CreateContext(SDL_window)) == nullptr)
 			{
 				ri.Printf(PRINT_ALL, "SDL_GL_CreateContext failed: %s\n", SDL_GetError());
 				ri.Printf(PRINT_ALL, "Reverting to default context\n");
@@ -374,16 +374,16 @@ static int GLimp_SetMode(int mode, bool fullscreen, bool noborder, bool fixedFun
 		}
 		else
 		{
-			SDL_glContext = NULL;
+			SDL_glContext = nullptr;
 		}
 
 		if ( !SDL_glContext )
 		{
-			if( ( SDL_glContext = SDL_GL_CreateContext( SDL_window ) ) == NULL )
+			if( ( SDL_glContext = SDL_GL_CreateContext( SDL_window ) ) == nullptr )
 			{
 				ri.Printf( PRINT_DEVELOPER, "SDL_GL_CreateContext failed: %s\n", SDL_GetError( ) );
 				SDL_DestroyWindow( SDL_window );
-				SDL_window = NULL;
+				SDL_window = nullptr;
 				continue;
 			}
 
@@ -501,9 +501,9 @@ static void GLimp_InitExtensions( bool fixedFunction )
 		}
 
 		// GL_ARB_multitexture
-		qglMultiTexCoord2fARB = NULL;
-		qglActiveTextureARB = NULL;
-		qglClientActiveTextureARB = NULL;
+		qglMultiTexCoord2fARB = nullptr;
+		qglActiveTextureARB = nullptr;
+		qglClientActiveTextureARB = nullptr;
 
 		// GL_EXT_compiled_vertex_array
 		if ( SDL_GL_ExtensionSupported( "GL_EXT_compiled_vertex_array" ) )

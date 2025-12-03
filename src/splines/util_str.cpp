@@ -442,7 +442,7 @@ This is a fairly rigorous test of the idStr class's functionality.
 Because of the fairly global and subtle ramifications of a bug occuring
 in this class, it should be run after any changes to the class.
 Add more tests as functionality is changed.  Tests should include
-any possible bounds violation and NULL data tests.
+any possible bounds violation and nullptr data tests.
 =================
 */
 void TestStringClass
@@ -455,7 +455,7 @@ void TestStringClass
 	idStr b;                                // b.len == 0, b.data == "\0"
 	idStr c( "test" );              // c.len == 4, c.data == "test\0"
 	idStr d( c );                       // d.len == 4, d.data == "test\0"
-	idStr e( reinterpret_cast<const char *>( NULL ) );
+	idStr e( nullptr);
 	// e.len == 0, e.data == "\0"					ASSERT!
 	size_t i;                              // i == ?
 
@@ -463,9 +463,9 @@ void TestStringClass
 	i = c.length();                 // i == 4
 
 	const char *s1 = a.c_str(); // s1 == "\0"
-	s1 = NULL;
+	s1 = nullptr;
 	const char *s2 = c.c_str(); // s2 == "test\0"
-	s2 = NULL;
+	s2 = nullptr;
 
 	t = new idStr();                        // t->len == 0, t->data == "\0"
 	delete t;                           // t == ?
@@ -476,17 +476,17 @@ void TestStringClass
 
 	a = c;                              // a.len == 4, a.data == "test\0"
 //   a = "";
-	a = NULL;                           // a.len == 0, a.data == "\0"					ASSERT!
+	a = nullptr;                           // a.len == 0, a.data == "\0"					ASSERT!
 	a = c + d;                          // a.len == 8, a.data == "testtest\0"
 	a = c + "wow";                       // a.len == 7, a.data == "testwow\0"
-	a = c + reinterpret_cast<const char *>( NULL );
+	a = c + nullptr;
 	// a.len == 4, a.data == "test\0"			ASSERT!
 	a = "this" + d;                  // a.len == 8, a.data == "thistest\0"
-	a = reinterpret_cast<const char *>( NULL ) + d;
+	a = nullptr + d;
 	// a.len == 4, a.data == "test\0"			ASSERT!
 	a += c;                             // a.len == 8, a.data == "testtest\0"
 	a += "wow";                          // a.len == 11, a.data == "testtestwow\0"
-	a += reinterpret_cast<const char *>( NULL );
+	a +=  nullptr;
 	// a.len == 11, a.data == "testtestwow\0"	ASSERT!
 
 	a = "test";                          // a.len == 4, a.data == "test\0"
@@ -518,22 +518,22 @@ void TestStringClass
 
 	i = ( a == "blow" );             // i == 0
 	i = ( a == "test" );             // i == 1
-	i = ( a == NULL );              // i == 0											ASSERT!
+	i = ( a == nullptr );              // i == 0											ASSERT!
 
 	i = ( "test" == b );             // i == 0
 	i = ( "test" == a );             // i == 1
-	i = ( NULL == a );              // i == 0											ASSERT!
+	i = ( nullptr == a );              // i == 0											ASSERT!
 
 	i = ( a != b );                 // i == 1
 	i = ( a != c );                 // i == 0
 
 	i = ( a != "blow" );             // i == 1
 	i = ( a != "test" );             // i == 0
-	i = ( a != NULL );              // i == 1											ASSERT!
+	i = ( a != nullptr );              // i == 1											ASSERT!
 
 	i = ( "test" != b );             // i == 1
 	i = ( "test" != a );             // i == 0
-	i = ( NULL != a );              // i == 1											ASSERT!
+	i = ( nullptr != a );              // i == 1											ASSERT!
 
 	a = "test";                 // a.data == "test"
 	b = a;                       // b.data == "test"

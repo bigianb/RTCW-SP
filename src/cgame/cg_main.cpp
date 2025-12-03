@@ -398,8 +398,8 @@ void CG_RegisterCvars( void ) {
 
 	forceModelModificationCount = cg_forceModel.modificationCount;
 
-	Cvar_Register( NULL, "model", DEFAULT_MODEL, CVAR_USERINFO | CVAR_ARCHIVE );
-	Cvar_Register( NULL, "head", DEFAULT_HEAD, CVAR_USERINFO | CVAR_ARCHIVE );
+	Cvar_Register( nullptr, "model", DEFAULT_MODEL, CVAR_USERINFO | CVAR_ARCHIVE );
+	Cvar_Register( nullptr, "head", DEFAULT_HEAD, CVAR_USERINFO | CVAR_ARCHIVE );
 
 
 }
@@ -1300,7 +1300,7 @@ CG_ConfigString
 const char *CG_ConfigString( int index ) {
 	if ( index < 0 || index >= MAX_CONFIGSTRINGS ) {
 		Com_Error( ERR_DROP, "CG_ConfigString: bad index: %i", index );
-        return NULL;  // Keep linter happy. ERR_DROP does not return
+        return nullptr;  // Keep linter happy. ERR_DROP does not return
 	}
 	return cgs.gameState.stringData + cgs.gameState.stringOffsets[ index ];
 }
@@ -1507,7 +1507,7 @@ void CG_Init( int serverMessageNum, int serverCommandSequence ) {
 	CG_InitMarkPolys();
 
 	// RF, init ZombieFX
-	trap_RB_ZombieFXAddNewHit( -1, NULL, NULL );
+	trap_RB_ZombieFXAddNewHit( -1, nullptr, nullptr );
 
 	// remove the last loading update
 	cg.infoScreenText[0] = 0;

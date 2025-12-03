@@ -371,7 +371,7 @@ void idSplineList::setSelectedPoint( idVec3 *p ) {
 			}
 		}
 	} else {
-		selected = NULL;
+		selected = nullptr;
 	}
 }
 
@@ -532,7 +532,7 @@ bool idCameraDef::getCameraInfo( long time, idVec3 &origin, idVec3 &direction, f
 				memset( buff, 0, sizeof( buff ) );
 				strcpy( buff, events[i]->getParam() );
 				const char *param1 = strtok( buff, " \t,\0" );
-				const char *param2 = strtok( NULL, " \t,\0" );
+				const char *param2 = strtok( nullptr, " \t,\0" );
 				float len = ( param2 ) ? atof( param2 ) : 0;
 				float newfov = ( param1 ) ? atof( param1 ) : 90;
 				fov.reset( fov.getFOV( time ), newfov, time, len );
@@ -549,7 +549,7 @@ bool idCameraDef::getCameraInfo( long time, idVec3 &origin, idVec3 &direction, f
 				memset( buff, 0, sizeof( buff ) );
 				strcpy( buff, events[i]->getParam() );
 				const char *param1 = strtok( buff, " \t,\0" );
-				const char *param2 = strtok( NULL, " \t,\0" );
+				const char *param2 = strtok( nullptr, " \t,\0" );
 
 				if ( param2 ) {
 					loadCamera( atoi( param1 ), va( "cameras/%s.camera", param2 ) );
@@ -1302,7 +1302,7 @@ void idSplinePosition::write( fileHandle_t file, const char *p ) {
 
 void idCameraDef::addTarget( const char *name, idCameraPosition::positionType type ) {
 	// TTimo: unused
-	//const char *text = (name == NULL) ? va("target0%d", numTargets()+1) : name;
+	//const char *text = (name == nullptr) ? va("target0%d", numTargets()+1) : name;
 	idCameraPosition *pos = newFromType( type );
 	if ( pos ) {
 		pos->setName( name );

@@ -227,7 +227,7 @@ void AAS_RemoveRoutingCacheInCluster( int clusternum ) {
 			nextcache = cache->next;
 			AAS_FreeRoutingCache( cache );
 		} //end for
-		( *aasworld ).clusterareacache[clusternum][i] = NULL;
+		( *aasworld ).clusterareacache[clusternum][i] = nullptr;
 	} //end for
 } //end of the function AAS_RemoveRoutingCacheInCluster
 //===========================================================================
@@ -261,7 +261,7 @@ void AAS_RemoveRoutingCacheUsingArea( int areanum ) {
 				nextcache = cache->next;
 				AAS_FreeRoutingCache( cache );
 			} //end for
-			( *aasworld ).portalcache[i] = NULL;
+			( *aasworld ).portalcache[i] = nullptr;
 		} //end for
 	}
 } //end of the function AAS_RemoveRoutingCacheUsingArea
@@ -522,8 +522,8 @@ void AAS_UnlinkCache(aas_routingcache_t *cache)
 	else newestcache = cache->time_prev;
 	if (cache->time_prev) cache->time_prev->time_next = cache->time_next;
 	else oldestcache = cache->time_next;
-	cache->time_next = NULL;
-	cache->time_prev = NULL;
+	cache->time_next = nullptr;
+	cache->time_prev = nullptr;
 } //end of the function AAS_UnlinkCache
 //===========================================================================
 //
@@ -541,9 +541,9 @@ void AAS_LinkCache(aas_routingcache_t *cache)
 	else
 	{
 		oldestcache = cache;
-		cache->time_prev = NULL;
+		cache->time_prev = nullptr;
 	} //end else
-	cache->time_next = NULL;
+	cache->time_next = nullptr;
 	newestcache = cache;
 } //end of the function AAS_LinkCache*/
 //===========================================================================
@@ -559,7 +559,7 @@ int AAS_FreeOldestCache( void ) {
 
 	freed = false;
 	besttime = 999999999;
-	bestcache = NULL;
+	bestcache = nullptr;
 	bestcluster = 0;
 	bestarea = 0;
 	//refresh cluster cache
@@ -595,7 +595,7 @@ int AAS_FreeOldestCache( void ) {
 		freed = true;
 	} //end if
 	besttime = 999999999;
-	bestcache = NULL;
+	bestcache = nullptr;
 	bestarea = 0;
 	for ( i = 0; i < ( *aasworld ).numareas; i++ )
 	{
@@ -671,12 +671,12 @@ void AAS_FreeAllClusterAreaCache( void ) {
 				nextcache = cache->next;
 				AAS_FreeRoutingCache( cache );
 			} //end for
-			( *aasworld ).clusterareacache[i][j] = NULL;
+			( *aasworld ).clusterareacache[i][j] = nullptr;
 		} //end for
 	} //end for
 	  //free the cluster cache array
 	AAS_RoutingFreeMemory( ( *aasworld ).clusterareacache );
-	( *aasworld ).clusterareacache = NULL;
+	( *aasworld ).clusterareacache = nullptr;
 } //end of the function AAS_FreeAllClusterAreaCache
 //===========================================================================
 //
@@ -728,10 +728,10 @@ void AAS_FreeAllPortalCache( void ) {
 			nextcache = cache->next;
 			AAS_FreeRoutingCache( cache );
 		} //end for
-		( *aasworld ).portalcache[i] = NULL;
+		( *aasworld ).portalcache[i] = nullptr;
 	} //end for
 	AAS_RoutingFreeMemory( ( *aasworld ).portalcache );
-	( *aasworld ).portalcache = NULL;
+	( *aasworld ).portalcache = nullptr;
 } //end of the function AAS_FreeAllPortalCache
 //===========================================================================
 //
@@ -765,11 +765,11 @@ void AAS_FreeAreaVisibility( void ) {
 	if ( ( *aasworld ).areavisibility ) {
 		FreeMemory( ( *aasworld ).areavisibility );
 	}
-	( *aasworld ).areavisibility = NULL;
+	( *aasworld ).areavisibility = nullptr;
 	if ( ( *aasworld ).decompressedvis ) {
 		FreeMemory( ( *aasworld ).decompressedvis );
 	}
-	( *aasworld ).decompressedvis = NULL;
+	( *aasworld ).decompressedvis = nullptr;
 }
 //===========================================================================
 //
@@ -1125,7 +1125,7 @@ int AAS_ReadRouteCache( void ) {
 	{
 		cache = AAS_ReadCache( fp );
 		cache->next = ( *aasworld ).portalcache[cache->areanum];
-		cache->prev = NULL;
+		cache->prev = nullptr;
 		if ( ( *aasworld ).portalcache[cache->areanum] ) {
 			( *aasworld ).portalcache[cache->areanum]->prev = cache;
 		}
@@ -1137,7 +1137,7 @@ int AAS_ReadRouteCache( void ) {
 		cache = AAS_ReadCache( fp );
 		clusterareanum = AAS_ClusterAreaNum( cache->cluster, cache->areanum );
 		cache->next = ( *aasworld ).clusterareacache[cache->cluster][clusterareanum];
-		cache->prev = NULL;
+		cache->prev = nullptr;
 		if ( ( *aasworld ).clusterareacache[cache->cluster][clusterareanum] ) {
 			( *aasworld ).clusterareacache[cache->cluster][clusterareanum]->prev = cache;
 		}
@@ -1227,31 +1227,31 @@ void AAS_FreeRoutingCaches( void ) {
 	if ( ( *aasworld ).areatraveltimes ) {
 		AAS_RoutingFreeMemory( ( *aasworld ).areatraveltimes );
 	}
-	( *aasworld ).areatraveltimes = NULL;
+	( *aasworld ).areatraveltimes = nullptr;
 	// free cached maximum travel time through cluster portals
 	if ( ( *aasworld ).portalmaxtraveltimes ) {
 		AAS_RoutingFreeMemory( ( *aasworld ).portalmaxtraveltimes );
 	}
-	( *aasworld ).portalmaxtraveltimes = NULL;
+	( *aasworld ).portalmaxtraveltimes = nullptr;
 	// free reversed reachability links
 	if ( ( *aasworld ).reversedreachability ) {
 		AAS_RoutingFreeMemory( ( *aasworld ).reversedreachability );
 	}
-	( *aasworld ).reversedreachability = NULL;
+	( *aasworld ).reversedreachability = nullptr;
 	// free routing algorithm memory
 	if ( ( *aasworld ).areaupdate ) {
 		AAS_RoutingFreeMemory( ( *aasworld ).areaupdate );
 	}
-	( *aasworld ).areaupdate = NULL;
+	( *aasworld ).areaupdate = nullptr;
 	if ( ( *aasworld ).portalupdate ) {
 		AAS_RoutingFreeMemory( ( *aasworld ).portalupdate );
 	}
-	( *aasworld ).portalupdate = NULL;
+	( *aasworld ).portalupdate = nullptr;
 	// free area waypoints
 	if ( ( *aasworld ).areawaypoints ) {
 		FreeMemory( ( *aasworld ).areawaypoints );
 	}
-	( *aasworld ).areawaypoints = NULL;
+	( *aasworld ).areawaypoints = nullptr;
 } //end of the function AAS_FreeRoutingCaches
 //===========================================================================
 // this function could be replaced by a bubble sort or for even faster
@@ -1269,7 +1269,7 @@ __inline void AAS_AddUpdateToList( aas_routingupdate_t **updateliststart,
 			( *updatelistend )->next = update;
 		} else { *updateliststart = update;}
 		update->prev = *updatelistend;
-		update->next = NULL;
+		update->next = nullptr;
 		*updatelistend = update;
 		update->inlist = true;
 	} //end if
@@ -1340,8 +1340,8 @@ void AAS_UpdateAreaRoutingCache( aas_routingcache_t *areacache ) {
 	//
 	areacache->traveltimes[clusterareanum] = areacache->starttraveltime;
 	//put the area to start with in the current read list
-	curupdate->next = NULL;
-	curupdate->prev = NULL;
+	curupdate->next = nullptr;
+	curupdate->prev = nullptr;
 	updateliststart = curupdate;
 	updatelistend = curupdate;
 	//while there are updates in the current list, flip the lists
@@ -1350,8 +1350,8 @@ void AAS_UpdateAreaRoutingCache( aas_routingcache_t *areacache ) {
 		curupdate = updateliststart;
 		//
 		if ( curupdate->next ) {
-			curupdate->next->prev = NULL;
-		} else { updatelistend = NULL;}
+			curupdate->next->prev = nullptr;
+		} else { updatelistend = nullptr;}
 		updateliststart = curupdate->next;
 		//
 		curupdate->inlist = false;
@@ -1407,7 +1407,7 @@ void AAS_UpdateAreaRoutingCache( aas_routingcache_t *areacache ) {
 				nextupdate->areatraveltimes = ( *aasworld ).areatraveltimes[nextareanum][linknum -
 																						 ( *aasworld ).areasettings[nextareanum].firstreachablearea];
 				if ( !nextupdate->inlist ) {
-					nextupdate->next = NULL;
+					nextupdate->next = nullptr;
 					nextupdate->prev = updatelistend;
 					if ( updatelistend ) {
 						updatelistend->next = nextupdate;
@@ -1445,7 +1445,7 @@ aas_routingcache_t *AAS_GetAreaRoutingCache( int clusternum, int areanum, int tr
 	if ( !cache ) {
 		//NOTE: the number of routing updates is limited per frame
 		if ( !forceUpdate && ( ( *aasworld ).frameroutingupdates > MAX_FRAMEROUTINGUPDATES ) ) {
-			return NULL;
+			return nullptr;
 		} //end if
 
 		cache = AAS_AllocRoutingCache( ( *aasworld ).clusters[clusternum].numreachabilityareas );
@@ -1454,7 +1454,7 @@ aas_routingcache_t *AAS_GetAreaRoutingCache( int clusternum, int areanum, int tr
 		VectorCopy( ( *aasworld ).areas[areanum].center, cache->origin );
 		cache->starttraveltime = 1;
 		cache->travelflags = travelflags;
-		cache->prev = NULL;
+		cache->prev = nullptr;
 		cache->next = clustercache;
 		if ( clustercache ) {
 			clustercache->prev = cache;
@@ -1496,8 +1496,8 @@ void AAS_UpdatePortalRoutingCache( aas_routingcache_t *portalcache ) {
 		portalcache->traveltimes[-clusternum] = portalcache->starttraveltime;
 	} //end if
 	  //put the area to start with in the current read list
-	curupdate->next = NULL;
-	curupdate->prev = NULL;
+	curupdate->next = nullptr;
+	curupdate->prev = nullptr;
 	updateliststart = curupdate;
 	updatelistend = curupdate;
 	//while there are updates in the current list, flip the lists
@@ -1506,8 +1506,8 @@ void AAS_UpdatePortalRoutingCache( aas_routingcache_t *portalcache ) {
 		curupdate = updateliststart;
 		//remove the current update from the list
 		if ( curupdate->next ) {
-			curupdate->next->prev = NULL;
-		} else { updatelistend = NULL;}
+			curupdate->next->prev = nullptr;
+		} else { updatelistend = nullptr;}
 		updateliststart = curupdate->next;
 		//current update is removed from the list
 		curupdate->inlist = false;
@@ -1553,7 +1553,7 @@ void AAS_UpdatePortalRoutingCache( aas_routingcache_t *portalcache ) {
 				//add travel time through actual portal area for the next update
 				nextupdate->tmptraveltime = t + ( *aasworld ).portalmaxtraveltimes[portalnum];
 				if ( !nextupdate->inlist ) {
-					nextupdate->next = NULL;
+					nextupdate->next = nullptr;
 					nextupdate->prev = updatelistend;
 					if ( updatelistend ) {
 						updatelistend->next = nextupdate;
@@ -1590,7 +1590,7 @@ aas_routingcache_t *AAS_GetPortalRoutingCache( int clusternum, int areanum, int 
 		cache->starttraveltime = 1;
 		cache->travelflags = travelflags;
 		//add the cache to the cache list
-		cache->prev = NULL;
+		cache->prev = nullptr;
 		cache->next = ( *aasworld ).portalcache[areanum];
 		if ( ( *aasworld ).portalcache[areanum] ) {
 			( *aasworld ).portalcache[areanum]->prev = cache;
@@ -1688,7 +1688,7 @@ int AAS_AreaRouteToGoalArea( int areanum, vec3_t origin, int goalareanum, int tr
 	if ( clusternum > 0 && goalclusternum > 0 && clusternum == goalclusternum ) {
 		//
 		areacache = AAS_GetAreaRoutingCache( clusternum, goalareanum, travelflags, false );
-		// RF, note that the routing cache might be NULL now since we are restricting
+		// RF, note that the routing cache might be nullptr now since we are restricting
 		// the updates per frame, hopefully rejected cache's will be requested again
 		// when things have settled down
 		if ( !areacache ) {
@@ -1765,7 +1765,7 @@ int AAS_AreaRouteToGoalArea( int areanum, vec3_t origin, int goalareanum, int tr
 		}
 		//get the cache of the portal area
 		areacache = AAS_GetAreaRoutingCache( clusternum, portal->areanum, travelflags, false );
-		// RF, this may be NULL if we were unable to calculate the cache this frame
+		// RF, this may be nullptr if we were unable to calculate the cache this frame
 		if ( !areacache ) {
 			return false;
 		}
@@ -2107,7 +2107,7 @@ void AAS_CreateVisibility( void ) {
 	byte *buf;
 	byte *validareas;
 	int numvalid = 0;
-	byte *areaTable = NULL;
+	byte *areaTable = nullptr;
 	int numAreas, numAreaBits;
 
 	numAreas = ( *aasworld ).numareas;
@@ -2175,7 +2175,7 @@ void AAS_CreateVisibility( void ) {
 			if ( !AAS_inPVS( ( *aasworld ).areawaypoints[i], ( *aasworld ).areawaypoints[j] ) ) {
 				continue;
 			}
-			trace = AAS_Trace( ( *aasworld ).areawaypoints[i], NULL, NULL, ( *aasworld ).areawaypoints[j], -1, CONTENTS_SOLID );
+			trace = AAS_Trace( ( *aasworld ).areawaypoints[i], nullptr, nullptr, ( *aasworld ).areawaypoints[j], -1, CONTENTS_SOLID );
 			if ( trace.fraction >= 1 ) {
 				( *aasworld ).decompressedvis[j] = 1;
 			} //end if
@@ -2251,8 +2251,8 @@ int AAS_NearestHideArea( int srcnum, vec3_t origin, int areanum, int enemynum, v
 	curupdate->areatraveltimes = ( *aasworld ).areatraveltimes[areanum][0];
 	curupdate->tmptraveltime = 0;
 	//put the area to start with in the current read list
-	curupdate->next = NULL;
-	curupdate->prev = NULL;
+	curupdate->next = nullptr;
+	curupdate->prev = nullptr;
 	updateliststart = curupdate;
 	updatelistend = curupdate;
 	//while there are updates in the current list, flip the lists
@@ -2261,8 +2261,8 @@ int AAS_NearestHideArea( int srcnum, vec3_t origin, int areanum, int enemynum, v
 		curupdate = updateliststart;
 		//
 		if ( curupdate->next ) {
-			curupdate->next->prev = NULL;
-		} else { updatelistend = NULL;}
+			curupdate->next->prev = nullptr;
+		} else { updatelistend = nullptr;}
 		updateliststart = curupdate->next;
 		//
 		curupdate->inlist = false;
@@ -2398,7 +2398,7 @@ int AAS_NearestHideArea( int srcnum, vec3_t origin, int areanum, int enemynum, v
 				//if this update is not in the list yet
 				if ( !nextupdate->inlist ) {
 					//add the new update to the end of the list
-					nextupdate->next = NULL;
+					nextupdate->next = nullptr;
 					nextupdate->prev = updatelistend;
 					if ( updatelistend ) {
 						updatelistend->next = nextupdate;
@@ -2467,8 +2467,8 @@ int AAS_FindAttackSpotWithinRange( int srcnum, int rangenum, int enemynum, float
 	curupdate->areatraveltimes = ( *aasworld ).areatraveltimes[srcarea][0];
 	curupdate->tmptraveltime = 0;
 	//put the area to start with in the current read list
-	curupdate->next = NULL;
-	curupdate->prev = NULL;
+	curupdate->next = nullptr;
+	curupdate->prev = nullptr;
 	updateliststart = curupdate;
 	updatelistend = curupdate;
 	//while there are updates in the current list, flip the lists
@@ -2477,8 +2477,8 @@ int AAS_FindAttackSpotWithinRange( int srcnum, int rangenum, int enemynum, float
 		curupdate = updateliststart;
 		//
 		if ( curupdate->next ) {
-			curupdate->next->prev = NULL;
-		} else { updatelistend = NULL;}
+			curupdate->next->prev = nullptr;
+		} else { updatelistend = nullptr;}
 		updateliststart = curupdate->next;
 		//
 		curupdate->inlist = false;
@@ -2564,7 +2564,7 @@ int AAS_FindAttackSpotWithinRange( int srcnum, int rangenum, int enemynum, float
 			//if this update is not in the list yet
 			if ( !nextupdate->inlist ) {
 				//add the new update to the end of the list
-				nextupdate->next = NULL;
+				nextupdate->next = nullptr;
 				nextupdate->prev = updatelistend;
 				if ( updatelistend ) {
 					updatelistend->next = nextupdate;

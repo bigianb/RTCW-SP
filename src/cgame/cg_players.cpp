@@ -437,7 +437,7 @@ CG_CheckForExistingModelInfo
 //extern animScriptData_t *globalScriptData;
 bool CG_CheckForExistingModelInfo( clientInfo_t *ci, char *modelName, animModelInfo_t **modelInfo ) {
 	int i;
-	animModelInfo_t *trav; // *firstFree=NULL; // TTimo: unused
+	animModelInfo_t *trav; // *firstFree=nullptr; // TTimo: unused
 
 	//globalScriptData = &cgs.animScriptData;
 
@@ -1671,7 +1671,7 @@ cg.time should be between oldFrameTime and frameTime after exit
 void CG_RunLerpFrameRate( clientInfo_t *ci, lerpFrame_t *lf, int newAnimation, centity_t *cent, int recursion ) {
 	int f;
 	animation_t *anim, *oldAnim;
-	animation_t *otherAnim = NULL; 
+	animation_t *otherAnim = nullptr; 
 	bool isLadderAnim;
 
 #define ANIM_SCALEMAX_LOW   1.1
@@ -2452,7 +2452,7 @@ static void CG_BreathPuffs( centity_t *cent, refEntity_t *head ) {
 
 	CG_GetOriginForTag( cent, head, "tag_mouth", 0, morg, maxis );
 	AxisToAngles( maxis, mang );
-	AngleVectors( mang, forward, NULL, up );
+	AngleVectors( mang, forward, nullptr, up );
 
 	//push the origin out a tad so it's not right in the guys face (tad==4)
 	VectorMA( morg, 4, forward, morg );
@@ -2519,12 +2519,12 @@ static void CG_PlayerPowerups( centity_t *cent ) {
 //		vec3_t orig, forward, li;
 //		trace_t		trace;
 //
-//		AngleVectors(cg.refdefViewAngles, forward, NULL, NULL);
+//		AngleVectors(cg.refdefViewAngles, forward, nullptr, nullptr);
 //		VectorNormalize(forward); // just in case
 //		VectorCopy(cent->lerpOrigin, orig);
 //		orig[2]+=cg.predictedPlayerState.viewheight;
 //		VectorMA(orig, 1000, forward, li);
-//		CG_Trace(&trace, orig, NULL, NULL, li, -1, MASK_SHOT);
+//		CG_Trace(&trace, orig, nullptr, nullptr, li, -1, MASK_SHOT);
 //		VectorMA(trace.endpos, -5, forward, li);
 //		trap_R_AddLightToScene( li, 100 + 100*trace.fraction, 1, 1, 1, 1 );
 //	}
@@ -2651,7 +2651,7 @@ static bool CG_PlayerShadow( centity_t *cent, float *shadowPlane ) {
 		{"tag_footleft", 10, 4,  0.5, 0},
 		{"tag_footright",    10, 4,  0.5, 0},
 		{"tag_torso",        18, 96, 0.4, 0},
-		{NULL, 0}
+		{nullptr, 0}
 	};
 
 	shadowParts[0].shader = cgs.media.shadowFootShader;     //DAJ pulled out of initliization
@@ -2672,7 +2672,7 @@ static bool CG_PlayerShadow( centity_t *cent, float *shadowPlane ) {
 	VectorCopy( cent->lerpOrigin, end );
 	end[2] -= SHADOW_DISTANCE;
 
-	CM_BoxTrace( &trace, cent->lerpOrigin, end, NULL, NULL, 0, MASK_PLAYERSOLID, false );
+	CM_BoxTrace( &trace, cent->lerpOrigin, end, nullptr, nullptr, 0, MASK_PLAYERSOLID, false );
 
 	// no shadow if too high
 	if ( trace.fraction == 1.0 ) {
@@ -2812,7 +2812,7 @@ static void CG_PlayerSplash( centity_t *cent ) {
 	}
 
 	// trace down to find the surface
-	CM_BoxTrace( &trace, start, end, NULL, NULL, 0, ( CONTENTS_WATER | CONTENTS_SLIME | CONTENTS_LAVA ), false );
+	CM_BoxTrace( &trace, start, end, nullptr, nullptr, 0, ( CONTENTS_WATER | CONTENTS_SLIME | CONTENTS_LAVA ), false );
 
 	if ( trace.fraction == 1.0 ) {
 		return;
@@ -3044,7 +3044,7 @@ void CG_AddZombieSpiritEffect( centity_t *cent ) {
 				VectorAdd( cent->lerpOrigin, v, p[i] );
 
 				// check for sinking into geometry
-				CM_BoxTrace( &trace, p[i], p[i], NULL, NULL, 0, MASK_SOLID, false );
+				CM_BoxTrace( &trace, p[i], p[i], nullptr, nullptr, 0, MASK_SOLID, false );
 				// if we hit something, clip the velocity, but maintain speed
 				if ( trace.startsolid ) {
 					cent->pe.zombieSpiritTrailHead[i] = -2; // kill it
@@ -3134,7 +3134,7 @@ void CG_AddZombieSpiritEffect( centity_t *cent ) {
 			VectorNormalize( v );
 			if ( DotProduct( cent->pe.zombieSpiritDir[i], v ) > 0.6 || ( cent->currentState.eFlags & EF_DEAD ) ) {
 				// check for sinking into geometry
-				CM_BoxTrace( &trace, refent.origin, refent.origin, NULL, NULL, 0, MASK_SOLID, false );
+				CM_BoxTrace( &trace, refent.origin, refent.origin, nullptr, nullptr, 0, MASK_SOLID, false );
 				// if we hit something, don't release it yet
 				if ( !trace.startsolid ) {
 					if ( cent->pe.zombieSpiritSpeed[i] < 300 ) {
@@ -3202,7 +3202,7 @@ void CG_SpawnZombieBat( centity_t *cent, refEntity_t *oldrefent ) {
 
 	le->pos.trType = TR_LINEAR;
 	le->pos.trTime = cg.time;
-	CG_PositionEntityOnTag( re, &cent->pe.headRefEnt, "tag_mouth", 0, NULL );
+	CG_PositionEntityOnTag( re, &cent->pe.headRefEnt, "tag_mouth", 0, nullptr );
 	VectorCopy( re->origin, le->pos.trBase );
 	VectorScale( re->axis[0], 150 + 50 * random(), le->pos.trDelta );
 
@@ -3405,7 +3405,7 @@ void CG_AddLoperLightningEffect( centity_t *cent ) {
 		numPoints = MAX_LOPER_LIGHTNING_POINTS / 3;
 	}
 
-	CG_GetOriginForTag( cent, &cent->pe.legsRefEnt, "tag_spinner", 0, tagPos, NULL );
+	CG_GetOriginForTag( cent, &cent->pe.legsRefEnt, "tag_spinner", 0, tagPos, nullptr );
 
 	// show a dlight
 	// color
@@ -3455,7 +3455,7 @@ void CG_AddLoperLightningEffect( centity_t *cent ) {
 						   maxDist * ( crandom() - 0.5 ) );
 				VectorAdd( testPos, cent->lerpOrigin, testPos );
 				// try a trace to find a world collision
-				CG_Trace( &tr, cent->lerpOrigin, NULL, NULL, testPos, cent->currentState.number, MASK_SOLID );
+				CG_Trace( &tr, cent->lerpOrigin, nullptr, nullptr, testPos, cent->currentState.number, MASK_SOLID );
 				if ( tr.fraction < 1 && tr.entityNum == ENTITYNUM_WORLD ) {
 					// found a valid spot!
 					cent->pe.lightningTimes[i] = cg.time - rand() % ( LOPER_LIGHTNING_POINT_TIMEOUT / 2 );
@@ -3789,7 +3789,7 @@ void CG_AddHelgaSpiritEffect( centity_t *cent ) {
 				VectorAdd( cent->lerpOrigin, v, p[i] );
 
 				// check for sinking into geometry
-				CM_BoxTrace( &trace, p[i], p[i], NULL, NULL, 0, MASK_SOLID, false );
+				CM_BoxTrace( &trace, p[i], p[i], nullptr, nullptr, 0, MASK_SOLID, false );
 				// if we hit something, clip the velocity, but maintain speed
 				if ( trace.startsolid ) {
 					cent->pe.zombieSpiritTrailHead[i] = -2; // kill it
@@ -3879,7 +3879,7 @@ void CG_AddHelgaSpiritEffect( centity_t *cent ) {
 			VectorNormalize( v );
 			if ( DotProduct( cent->pe.zombieSpiritDir[i], v ) > 0.4 || ( cent->currentState.eFlags & EF_DEAD ) ) {
 				// check for sinking into geometry
-				CM_BoxTrace( &trace, refent.origin, refent.origin, NULL, NULL, 0, MASK_SOLID, false );
+				CM_BoxTrace( &trace, refent.origin, refent.origin, nullptr, nullptr, 0, MASK_SOLID, false );
 				// if we hit something, don't release it yet
 				if ( !trace.startsolid ) {
 					if ( cent->pe.zombieSpiritSpeed[i] < 300 ) {
@@ -3901,7 +3901,7 @@ void CG_AddHelgaSpiritEffect( centity_t *cent ) {
 	if ( cg.time > cent->pe.nextZombieSpiritSound && cent->pe.cueZombieSpirit ) { //&& (cg.time < cent->pe.zombieSpiritStartTime + sndDuration)) {
 		// spawn a new sound
 		//S_StartSound( cent->lerpOrigin, -1, CHAN_AUTO, cgs.media.helgaSpiritSound );
-		CG_SoundPlayIndexedScript( cgs.media.helgaSpiritSound, NULL, cent->currentState.number );
+		CG_SoundPlayIndexedScript( cgs.media.helgaSpiritSound, nullptr, cent->currentState.number );
 		cent->pe.nextZombieSpiritSound = cg.time + sndIntervalMin + (int)( (float)( sndIntervalMax - sndIntervalMin ) * random() );
 	}
 
@@ -3938,7 +3938,7 @@ Adds a piece with modifications or duplications for powerups
 Also called by CG_Missile for quad rockets, but nobody can tell...
 ===============
 */
-void CG_AddRefEntityWithPowerups( refEntity_t *ent, int powerups, int team, entityState_t *es, const vec3_t fireRiseDir ) {
+void CG_AddRefEntityWithPowerups( refEntity_t *ent, int powerups, int team, EntityState *es, const vec3_t fireRiseDir ) {
 	centity_t *cent;
 	refEntity_t backupRefEnt; //, parentEnt;
 	bool onFire = false;
@@ -4080,7 +4080,7 @@ static void CG_AddFireLight( centity_t *cent ) {
 
 /* OPTIMIZATION, TOO MANY DLIGHTS WHEN FIRE IS AROUND
 
-	entityState_t *es;
+	EntityState *es;
 	float alpha;
 
 	if (CG_EntOnFire(&cg_entities[cent->currentState.number])) {
@@ -4110,7 +4110,7 @@ CG_AnimPlayerConditions
 ===============
 */
 void CG_AnimPlayerConditions( centity_t *cent ) {
-	entityState_t *es;
+	EntityState *es;
 	clientInfo_t *ci;
 //	int	legsAnim;
 
@@ -4384,7 +4384,7 @@ void CG_Player( centity_t *cent ) {
 
 		if (     ( cgsnap == cent && ( cg.snap->ps.pm_flags & PMF_LADDER ) )
 				 ||  ( cent->currentState.aiChar == AICHAR_LOPER ) ) {
-			CG_PositionEntityOnTag( &torso, &legs, "tag_torso", 0, NULL );
+			CG_PositionEntityOnTag( &torso, &legs, "tag_torso", 0, nullptr );
 		} else {
 			CG_PositionRotatedEntityOnTag( &torso,  &legs, "tag_torso" );
 		}
@@ -4572,7 +4572,7 @@ void CG_Player( centity_t *cent ) {
 	//
 	// add the gun / barrel / flash
 	//
-	CG_AddPlayerWeapon( &torso, NULL, cent );
+	CG_AddPlayerWeapon( &torso, nullptr, cent );
 
 	cent->lastWeaponClientFrame = cg.clientFrame;
 
@@ -4583,7 +4583,7 @@ void CG_Player( centity_t *cent ) {
 		 cent->currentState.eFlags & EF_ZOOMING ) {
 
 		acc.hModel = cgs.media.thirdPersonBinocModel;
-		CG_PositionEntityOnTag( &acc, &torso, "tag_weapon", 0, NULL );
+		CG_PositionEntityOnTag( &acc, &torso, "tag_weapon", 0, nullptr );
 		CG_AddRefEntityWithPowerups( &acc, cent->currentState.powerups, ci->team, &cent->currentState, cent->fireRiseDir );
 	}
 
@@ -4591,7 +4591,7 @@ void CG_Player( centity_t *cent ) {
 		 cent->currentState.eFlags & EF_CIG ) {
 
 		acc.hModel = cgs.media.cigModel;
-		CG_PositionEntityOnTag( &acc, &torso, "tag_weapon2", 0, NULL );
+		CG_PositionEntityOnTag( &acc, &torso, "tag_weapon2", 0, nullptr );
 		CG_AddRefEntityWithPowerups( &acc, cent->currentState.powerups, ci->team, &cent->currentState, cent->fireRiseDir );
 
 		// smoke
@@ -4680,8 +4680,8 @@ void CG_Player( centity_t *cent ) {
 
 		// TTimo: init
 		int totalparts = 0, dynamicparts = 0, protoParts = 9, superParts = 16, heinrichParts = 22;
-		const char        **tags = NULL;
-		qhandle_t   *models = NULL;
+		const char        **tags = nullptr;
+		qhandle_t   *models = nullptr;
 		int dmgbits = 16;         // 32/2;
 
 		if ( cent->currentState.aiChar == AICHAR_PROTOSOLDIER ) {
@@ -4719,7 +4719,7 @@ void CG_Player( centity_t *cent ) {
 				continue;
 			}
 
-			CG_PositionEntityOnTag( &acc, &torso, tags[i], 0, NULL );
+			CG_PositionEntityOnTag( &acc, &torso, tags[i], 0, nullptr );
 
 			if ( cent->currentState.aiChar == AICHAR_PROTOSOLDIER && !( cent->currentState.eFlags & EF_DEAD ) ) {
 				if ( acc.hModel != models[i] ) {
@@ -4806,7 +4806,7 @@ int parts[] = { 34,
 /*
 		for(i=0;i<16;i++) {
 			acc.hModel = cgs.media.superArmor[parts[i]];
-			CG_PositionEntityOnTag( &acc, &torso, tags[i], 0, NULL);
+			CG_PositionEntityOnTag( &acc, &torso, tags[i], 0, nullptr);
 			CG_AddRefEntityWithPowerups( &acc, cent->currentState.powerups, ci->team, &cent->currentState, cent->fireRiseDir );
 		}
 */
@@ -4826,8 +4826,8 @@ int parts[] = { 34,
 //		vec4_t	color = {1,1,1,0.1f};
 		vec4_t color = {0.7,0.7,0.7,0.1f};
 
-		CG_GetOriginForTag( cent, &head, "tag_mouth", 0, morg, NULL );
-		AngleVectors( cent->lerpAngles, viewDir, NULL, NULL );
+		CG_GetOriginForTag( cent, &head, "tag_mouth", 0, morg, nullptr );
+		AngleVectors( cent->lerpAngles, viewDir, nullptr, nullptr );
 		CG_Spotlight( cent, color, morg, viewDir, 12, 512, 2, 5, SL_TRACEWORLDONLY | SL_NOCORE | SL_LOCKUV ); // SL_NOTRACE
 //		color[0] = 1;
 //		color[1] = 1;
@@ -4863,17 +4863,17 @@ int parts[] = { 34,
 		}
 		switch ( i ) {
 		case ACC_BELT_LEFT:
-			CG_PositionEntityOnTag( &acc,   &legs,  "tag_bright", 0, NULL );
+			CG_PositionEntityOnTag( &acc,   &legs,  "tag_bright", 0, nullptr );
 			break;
 		case ACC_BELT_RIGHT:
-			CG_PositionEntityOnTag( &acc,   &legs,  "tag_bleft", 0, NULL );
+			CG_PositionEntityOnTag( &acc,   &legs,  "tag_bleft", 0, nullptr );
 			break;
 
 		case ACC_BELT:
-			CG_PositionEntityOnTag( &acc,   &torso, "tag_ubelt", 0, NULL );
+			CG_PositionEntityOnTag( &acc,   &torso, "tag_ubelt", 0, nullptr );
 			break;
 		case ACC_BACK:
-			CG_PositionEntityOnTag( &acc,   &torso, "tag_back", 0, NULL );
+			CG_PositionEntityOnTag( &acc,   &torso, "tag_back", 0, nullptr );
 			break;
 
 		case ACC_HAT:           //hat
@@ -4882,16 +4882,16 @@ int parts[] = { 34,
 			}
 		case ACC_MOUTH2:            // hat2
 		case ACC_MOUTH3:            // hat3
-			CG_PositionEntityOnTag( &acc,   &head,  "tag_mouth", 0, NULL );
+			CG_PositionEntityOnTag( &acc,   &head,  "tag_mouth", 0, nullptr );
 			break;
 
 			// weapon and weapon2
 			// these are used by characters who have permanent weapons attached to their character in the skin
 		case ACC_WEAPON:        // weap
-			CG_PositionEntityOnTag( &acc,   &torso, "tag_weapon", 0, NULL );
+			CG_PositionEntityOnTag( &acc,   &torso, "tag_weapon", 0, nullptr );
 			break;
 		case ACC_WEAPON2:       // weap2
-			CG_PositionEntityOnTag( &acc,   &torso, "tag_weapon2", 0, NULL );
+			CG_PositionEntityOnTag( &acc,   &torso, "tag_weapon2", 0, nullptr );
 			break;
 
 		default:
@@ -4916,7 +4916,7 @@ int parts[] = { 34,
 			acc.customSkin = ci->partSkins[i];  // and the skin if there is one
 
 		}
-		CG_PositionEntityOnTag( &acc, &legs, va( "tag_animscript%s", i ), 0, NULL );
+		CG_PositionEntityOnTag( &acc, &legs, va( "tag_animscript%s", i ), 0, nullptr );
 		CG_AddRefEntityWithPowerups( &acc, cent->currentState.powerups, ci->team, &cent->currentState, cent->fireRiseDir );
 	}
 

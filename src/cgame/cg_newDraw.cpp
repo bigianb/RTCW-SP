@@ -39,9 +39,9 @@ static void CG_DrawPlayerArmorValue( rectDef_t *rect, int font, float scale, vec
 	char num[16];
 	int value;
 	centity_t   *cent;
-	playerState_t   *ps;
+	PlayerState   *ps;
 
-    if (cg.snap == NULL){
+    if (cg.snap == nullptr){
         return;
     }
     
@@ -54,7 +54,7 @@ static void CG_DrawPlayerArmorValue( rectDef_t *rect, int font, float scale, vec
 	if ( shader ) {
 		RE_SetColor( color );
 		CG_DrawPic( rect->x, rect->y, rect->w, rect->h, shader );
-		RE_SetColor( NULL );
+		RE_SetColor( nullptr );
 	} else {
 		snprintf( num, sizeof( num ), "%i", value );
 		value = Text_Width( num, font, scale, 0 );
@@ -200,11 +200,11 @@ CG_DrawPlayerAmmoIcon
 */
 static void CG_DrawPlayerAmmoIcon( rectDef_t *rect, bool draw2D ) {
 	centity_t   *cent;
-	playerState_t   *ps;
+	PlayerState   *ps;
 	vec3_t angles;
 	vec3_t origin;
 
-    if (cg.snap == NULL){
+    if (cg.snap == nullptr){
         return;
     }
     
@@ -311,7 +311,7 @@ static void CG_DrawCursorhint( rectDef_t *rect ) {
 	// color
 	color = CG_FadeColor( cg.cursorHintTime, cg.cursorHintFade );
 	if ( !color ) {
-		RE_SetColor( NULL );
+		RE_SetColor( nullptr );
 		cg.exitStatsTime = 0;   // exit stats will fade up next time they're hit
 		cg.cursorHintIcon = HINT_NONE;  // clear the hint
 		return;
@@ -343,7 +343,7 @@ static void CG_DrawCursorhint( rectDef_t *rect ) {
 		CG_DrawPic( rect->x - halfscale, rect->y - halfscale, rect->w + scale, rect->h + scale, icon2 );
 	}
 
-	RE_SetColor( NULL );
+	RE_SetColor( nullptr );
 
 	// draw status bar under the cursor hint
 	if ( cg.cursorHintValue && ( !( cg.time - cg.cursorHintTime ) ) ) {    // don't fade bar out w/ hint icon
@@ -352,7 +352,7 @@ static void CG_DrawCursorhint( rectDef_t *rect ) {
 		} else {
 			Vector4Set( color, 0, 0, 1, 0.5f );
 		}
-		CG_FilledBar( rect->x, rect->y + rect->h + 4, rect->w, 8, color, NULL, NULL, (float)cg.cursorHintValue / 255.0f, 0 );
+		CG_FilledBar( rect->x, rect->y + rect->h + 4, rect->w, 8, color, nullptr, nullptr, (float)cg.cursorHintValue / 255.0f, 0 );
 	}
 
 }
@@ -395,11 +395,11 @@ static void CG_DrawPlayerAmmoValue( rectDef_t *rect, int font, float scale, vec4
 	char num[16];
 	int value, value2 = 0;
 	centity_t   *cent;
-	playerState_t   *ps;
+	PlayerState   *ps;
 	int weap;
 	bool special = false;
 
-    if (cg.snap == NULL){
+    if (cg.snap == nullptr){
         return;
     }
     
@@ -456,7 +456,7 @@ static void CG_DrawPlayerAmmoValue( rectDef_t *rect, int font, float scale, vec4
 		if ( shader ) {
 			RE_SetColor( color );
 			CG_DrawPic( rect->x, rect->y, rect->w, rect->h, shader );
-			RE_SetColor( NULL );
+			RE_SetColor( nullptr );
 		} else {
 			snprintf( num, sizeof( num ), "%i", value );
 			value = Text_Width( num, font, scale, 0 );
@@ -502,7 +502,7 @@ static void CG_DrawHoldableItem( rectDef_t *rect, int font, float scale, bool dr
 }
 
 static void CG_DrawPlayerHealth( rectDef_t *rect, int font, float scale, vec4_t color, qhandle_t shader, int textStyle ) {
-	playerState_t   *ps;
+	PlayerState   *ps;
 	int value;
 	char num[16];
 
@@ -517,7 +517,7 @@ static void CG_DrawPlayerHealth( rectDef_t *rect, int font, float scale, vec4_t 
 	if ( shader ) {
 		RE_SetColor( color );
 		CG_DrawPic( rect->x, rect->y, rect->w, rect->h, shader );
-		RE_SetColor( NULL );
+		RE_SetColor( nullptr );
 	} else {
 		snprintf( num, sizeof( num ), "%i", value );
 		value = Text_Width( num, font, scale, 0 );
@@ -529,9 +529,9 @@ static void CG_DrawPlayerHealth( rectDef_t *rect, int font, float scale, vec4_t 
 float CG_GetValue( int ownerDraw, int type ) {
 	centity_t   *cent;
 	clientInfo_t *ci;
-	playerState_t   *ps;
+	PlayerState   *ps;
 
-	if (cg.snap == NULL){
+	if (cg.snap == nullptr){
 		return 0.0f;
 	}
 	
@@ -659,7 +659,7 @@ static void CG_Text_Paint_Limit( float *maxX, float x, float y, int font, float 
 				s++;
 			}
 		}
-		RE_SetColor( NULL );
+		RE_SetColor( nullptr );
 	}
 }
 
@@ -688,7 +688,7 @@ void CG_DrawWeapStability( rectDef_t *rect, vec4_t color, int align ) {
 		return;
 	}
 
-	CG_FilledBar( rect->x, rect->y, rect->w, rect->h, goodColor, badColor, NULL, (float)cg.snap->ps.aimSpreadScale / 255.0f, 2 | 4 | 256 ); // flags (BAR_CENTER|BAR_VERT|BAR_LERP_COLOR)
+	CG_FilledBar( rect->x, rect->y, rect->w, rect->h, goodColor, badColor, nullptr, (float)cg.snap->ps.aimSpreadScale / 255.0f, 2 | 4 | 256 ); // flags (BAR_CENTER|BAR_VERT|BAR_LERP_COLOR)
 }
 
 
@@ -701,7 +701,7 @@ void CG_DrawWeapHeat( rectDef_t *rect, int align ) {
 	vec4_t color = {1, 0, 0, 0.2f}, color2 = {1, 0, 0, 0.5f};
 	int flags = 0;
 
-	if ( cg.snap == NULL || !( cg.snap->ps.curWeapHeat ) ) {
+	if ( cg.snap == nullptr || !( cg.snap->ps.curWeapHeat ) ) {
 		return;
 	}
 
@@ -714,7 +714,7 @@ void CG_DrawWeapHeat( rectDef_t *rect, int align ) {
 //	flags|=32;		// BAR_BGSPACING_X0Y5	- different style
 
 	flags |= 256;     // BAR_COLOR_LERP
-	CG_FilledBar( rect->x, rect->y, rect->w, rect->h, color, color2, NULL, (float)cg.snap->ps.curWeapHeat / 255.0f, flags );
+	CG_FilledBar( rect->x, rect->y, rect->w, rect->h, color, color2, nullptr, (float)cg.snap->ps.curWeapHeat / 255.0f, flags );
 }
 
 
@@ -725,7 +725,7 @@ CG_DrawFatigue
 */
 
 static void CG_DrawFatigue( rectDef_t *rect, vec4_t color, int align ) {
-    if (cg.snap == NULL){
+    if (cg.snap == nullptr){
         return;
     }
     
@@ -742,11 +742,11 @@ static void CG_DrawFatigue( rectDef_t *rect, vec4_t color, int align ) {
 		flags |= 1;   // BAR_LEFT (left, when vertical means grow 'up')
 	}
 
-	CG_FilledBar( rect->x, rect->y, rect->w, rect->h, color, NULL, NULL, (float)cg.snap->ps.sprintTime / SPRINTTIME, flags );
+	CG_FilledBar( rect->x, rect->y, rect->w, rect->h, color, nullptr, nullptr, (float)cg.snap->ps.sprintTime / SPRINTTIME, flags );
 
 	// fill in the left side of the bar with the counter for the nofatigue powerup
 	if ( cg.snap->ps.powerups[PW_NOFATIGUE] ) {
-		CG_FilledBar( rect->x, rect->y, rect->w / 2, rect->h, colorBonus, NULL, NULL, cg.snap->ps.powerups[PW_NOFATIGUE] / BONUSTIME, flags );
+		CG_FilledBar( rect->x, rect->y, rect->w / 2, rect->h, colorBonus, nullptr, nullptr, cg.snap->ps.powerups[PW_NOFATIGUE] / BONUSTIME, flags );
 	}
 
 }
@@ -842,7 +842,7 @@ void CG_MouseEvent( int x, int y ) {
 	if ( cgs.capturedItem ) {
 		Display_MouseMove( cgs.capturedItem, x, y );
 	} else {
-		Display_MouseMove( NULL, cgs.cursorX, cgs.cursorY );
+		Display_MouseMove( nullptr, cgs.cursorX, cgs.cursorY );
 	}
 
 }
@@ -861,7 +861,7 @@ void CG_KeyEvent( int key, bool down ) {
 	Display_HandleKey( key, down, cgs.cursorX, cgs.cursorY );
 
 	if ( cgs.capturedItem ) {
-		cgs.capturedItem = NULL;
+		cgs.capturedItem = nullptr;
 	}   else {
 		if ( key == K_MOUSE2 && down ) {
 			cgs.capturedItem = Display_CaptureItem( cgs.cursorX, cgs.cursorY );

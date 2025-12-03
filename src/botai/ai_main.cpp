@@ -136,8 +136,8 @@ void BotAI_Trace( bsp_trace_t *bsptrace, vec3_t start, vec3_t mins, vec3_t maxs,
 BotAI_GetClientState
 ==================
 */
-int BotAI_GetClientState( int clientNum, playerState_t *state ) {
-	gentity_t   *ent;
+int BotAI_GetClientState( int clientNum, PlayerState *state ) {
+	GameEntity   *ent;
 
 	ent = &g_entities[clientNum];
 	if ( !ent->inuse ) {
@@ -147,7 +147,7 @@ int BotAI_GetClientState( int clientNum, playerState_t *state ) {
 		return false;
 	}
 
-	memcpy( state, &ent->client->ps, sizeof( playerState_t ) );
+	memcpy( state, &ent->client->ps, sizeof( PlayerState ) );
 	return true;
 }
 
@@ -156,11 +156,11 @@ int BotAI_GetClientState( int clientNum, playerState_t *state ) {
 BotAI_GetEntityState
 ==================
 */
-int BotAI_GetEntityState( int entityNum, entityState_t *state ) {
-	gentity_t   *ent;
+int BotAI_GetEntityState( int entityNum, EntityState *state ) {
+	GameEntity   *ent;
 
 	ent = &g_entities[entityNum];
-	memset( state, 0, sizeof( entityState_t ) );
+	memset( state, 0, sizeof( EntityState ) );
 	if ( !ent->inuse ) {
 		return false;
 	}
@@ -170,7 +170,7 @@ int BotAI_GetEntityState( int entityNum, entityState_t *state ) {
 	if ( ent->shared.r.svFlags & SVF_NOCLIENT ) {
 		return false;
 	}
-	memcpy( state, &(ent->shared.s), sizeof( entityState_t ) );
+	memcpy( state, &(ent->shared.s), sizeof( EntityState ) );
 	return true;
 }
 
@@ -179,12 +179,12 @@ int BotAI_GetEntityState( int entityNum, entityState_t *state ) {
 BotAI_GetSnapshotEntity
 ==================
 */
-int BotAI_GetSnapshotEntity( int clientNum, int sequence, entityState_t *state ) {
+int BotAI_GetSnapshotEntity( int clientNum, int sequence, EntityState *state ) {
 	int entNum;
 
 	entNum = trap_BotGetSnapshotEntity( clientNum, sequence );
 	if ( entNum == -1 ) {
-		memset( state, 0, sizeof( entityState_t ) );
+		memset( state, 0, sizeof( EntityState ) );
 		return -1;
 	}
 
@@ -340,13 +340,13 @@ void BotChangeViewAngles( bot_state_t *bs, float thinktime ) {
 BotInputToUserCommand
 ==============
 */
-void BotInputToUserCommand( bot_input_t *bi, usercmd_t *ucmd, int delta_angles[3], int time ) {
+void BotInputToUserCommand( bot_input_t *bi, UserCmd *ucmd, int delta_angles[3], int time ) {
 	vec3_t angles, forward, right;
 	short temp;
 	int j;
 
 	//clear the whole structure
-	memset( ucmd, 0, sizeof( usercmd_t ) );
+	memset( ucmd, 0, sizeof( UserCmd ) );
 	//
 	//Com_Printf("dir = %f %f %f speed = %f\n", bi->dir[0], bi->dir[1], bi->dir[2], bi->speed);
 	//the duration for the user command in milli seconds
@@ -401,7 +401,7 @@ void BotInputToUserCommand( bot_input_t *bi, usercmd_t *ucmd, int delta_angles[3
 	} else { angles[PITCH] = 0;}
 	angles[YAW] = bi->viewangles[YAW];
 	angles[ROLL] = 0;
-	AngleVectors( angles, forward, right, NULL );
+	AngleVectors( angles, forward, right, nullptr );
 	//bot input speed is in the range [0, 400]
 	bi->speed = bi->speed * 127 / 400;
 	//set the view independent movement
@@ -487,7 +487,7 @@ int BotAI( int client, float thinktime ) {
 	char buf[1024], *args;
 	int j;
 
-	trap_EA_ResetInput( client, NULL );
+	trap_EA_ResetInput( client, nullptr );
 	//
 	bs = botstates[client];
 	if ( !bs || !bs->inuse ) {
@@ -702,12 +702,12 @@ void BotResetState( bot_state_t *bs ) {
 	int movestate, goalstate, chatstate, weaponstate;
 	bot_settings_t settings;
 	int character;
-	playerState_t ps;                           //current player state
+	PlayerState ps;                           //current player state
 	float entergame_time;
 
 	//save some things that should not be reset here
 	memcpy( &settings, &bs->settings, sizeof( bot_settings_t ) );
-	memcpy( &ps, &bs->cur_ps, sizeof( playerState_t ) );
+	memcpy( &ps, &bs->cur_ps, sizeof( PlayerState ) );
 	inuse = bs->inuse;
 	client = bs->client;
 	entitynum = bs->entitynum;
@@ -727,7 +727,7 @@ void BotResetState( bot_state_t *bs ) {
 	bs->gs = goalstate;
 	bs->cs = chatstate;
 	bs->ws = weaponstate;
-	memcpy( &bs->cur_ps, &ps, sizeof( playerState_t ) );
+	memcpy( &bs->cur_ps, &ps, sizeof( PlayerState ) );
 	memcpy( &bs->settings, &settings, sizeof( bot_settings_t ) );
 	bs->inuse = inuse;
 	bs->client = client;
@@ -785,9 +785,9 @@ BotAIStartFrame
 */
 int BotAIStartFrame( int time ) {
 
-	gentity_t   *ent;
+	GameEntity   *ent;
 	bot_entitystate_t state;
-	//entityState_t entitystate;
+	//EntityState entitystate;
 	//vec3_t mins = {-15, -15, -24}, maxs = {15, 15, 32};
 	int elapsed_time, thinktime;
 	static int local_time;
@@ -1014,7 +1014,7 @@ int BotAISetup( int restart ) {
 	int errnum;
 
 #ifdef RANDOMIZE
-	srand( (unsigned)time( NULL ) );
+	srand( (unsigned)time( nullptr ) );
 #endif //RANDOMIZE
 	
 	Cvar_Register( &bot_thinktime, "bot_thinktime", "100", 0 );

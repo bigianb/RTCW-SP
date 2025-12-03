@@ -273,7 +273,7 @@ funcList_t *G_FindFuncAtAddress( byte *adr )
 			return &funcList[i];
 		}
 	}
-	return NULL;
+	return nullptr;
 }
 
 byte *G_FindFuncByName( char *name )
@@ -283,7 +283,7 @@ byte *G_FindFuncByName( char *name )
 			return funcList[i].funcPtr;
 		}
 	}
-	return NULL;
+	return nullptr;
 }
 
 void WriteField1( saveField_t *field, byte *base )
@@ -305,10 +305,10 @@ void WriteField1( saveField_t *field, byte *base )
 		*(int *)p = len;
 		break;
 	case F_ENTITY:
-		if ( *(gentity_t **)p == NULL ) {
+		if ( *(GameEntity **)p == nullptr ) {
 			index = -1;
 		} else {
-			index = *(gentity_t **)p - g_entities;
+			index = *(GameEntity **)p - g_entities;
 		}
 		if ( index >= MAX_GENTITIES || index < -1 ) {
 			Com_Error( ERR_DROP, "WriteField1: entity out of range (%i)", index );
@@ -317,10 +317,10 @@ void WriteField1( saveField_t *field, byte *base )
 		*(int *)p = index;
 		break;
 	case F_CLIENT:
-		if ( *(gclient_t **)p == NULL ) {
+		if ( *(GameClient **)p == nullptr ) {
 			index = -1;
 		} else {
-			index = *(gclient_t **)p - level.clients;
+			index = *(GameClient **)p - level.clients;
 		}
 		if ( index >= MAX_CLIENTS || index < -1 ) {
 			Com_Error( ERR_DROP, "WriteField1: client out of range (%i)", index );
@@ -329,7 +329,7 @@ void WriteField1( saveField_t *field, byte *base )
 		*(int *)p = index;
 		break;
 	case F_ITEM:
-		if ( *(gitem_t **)p == NULL ) {
+		if ( *(gitem_t **)p == nullptr ) {
 			index = -1;
 		} else {
 			index = *(gitem_t **)p - bg_itemlist;
@@ -341,7 +341,7 @@ void WriteField1( saveField_t *field, byte *base )
 		//	"extractfuncs.bat" in the utils folder. We then save the string equivalent
 		//	of the function. This effectively gives us cross-version save games.
 	case F_FUNCTION:
-		if ( *(byte **)p == NULL ) {
+		if ( *(byte **)p == nullptr ) {
 			len = 0;
 		} else {
 			func = G_FindFuncAtAddress( *(byte **)p );
@@ -406,7 +406,7 @@ void ReadField( fileHandle_t f, saveField_t *field, byte *base )
 	case F_STRING:
 		len = *(int *)p;
 		if ( !len ) {
-			*(char **)p = NULL;
+			*(char **)p = nullptr;
 		} else
 		{
 			*(char **)p = (char *)G_Alloc( len );
@@ -420,9 +420,9 @@ void ReadField( fileHandle_t f, saveField_t *field, byte *base )
             return; // keep the linter happy, ERR_DROP does not return
 		}
 		if ( index == -1 ) {
-			*(gentity_t **)p = NULL;
+			*(GameEntity **)p = nullptr;
 		} else {
-			*(gentity_t **)p = &g_entities[index];
+			*(GameEntity **)p = &g_entities[index];
 		}
 		break;
 	case F_CLIENT:
@@ -432,15 +432,15 @@ void ReadField( fileHandle_t f, saveField_t *field, byte *base )
             return; // keep the linter happy, ERR_DROP does not return
 		}
 		if ( index == -1 ) {
-			*(gclient_t **)p = NULL;
+			*(GameClient **)p = nullptr;
 		} else {
-			*(gclient_t **)p = &level.clients[index];
+			*(GameClient **)p = &level.clients[index];
 		}
 		break;
 	case F_ITEM:
 		index = *(int *)p;
 		if ( index == -1 ) {
-			*(gitem_t **)p = NULL;
+			*(gitem_t **)p = nullptr;
 		} else {
 			*(gitem_t **)p = &bg_itemlist[index];
 		}
@@ -450,7 +450,7 @@ void ReadField( fileHandle_t f, saveField_t *field, byte *base )
 	case F_FUNCTION:
 		len = *(int *)p;
 		if ( !len ) {
-			*(byte **)p = NULL;
+			*(byte **)p = nullptr;
 		} else {
 			if ( len > sizeof( funcStr ) ) {
 				Com_Error( ERR_DROP, "ReadField: function name is greater than buffer (%i chars)", sizeof( funcStr ) );
@@ -546,17 +546,17 @@ void G_Save_Decode( byte *in, int insize, byte *out, int outsize )
 
 //=========================================================
 
-byte clientBuf[ 2 * sizeof( gentity_t ) ];
+byte clientBuf[ 2 * sizeof( GameEntity ) ];
 
 /*
 ===============
 WriteClient
 ===============
 */
-void WriteClient( fileHandle_t f, gclient_t *cl )
+void WriteClient( fileHandle_t f, GameClient *cl )
 {
 	// copy the structure across, then process the fields
-    gclient_t temp = *cl;
+    GameClient temp = *cl;
 
 	// first, kill all events (assume they have been processed)
 	memset( temp.ps.events, 0, sizeof( temp.ps.events ) );
@@ -594,7 +594,7 @@ void WriteClient( fileHandle_t f, gclient_t *cl )
 ReadClient
 ===============
 */
-void ReadClient( fileHandle_t f, gclient_t *client, int size )
+void ReadClient( fileHandle_t f, GameClient *client, int size )
 {
 	int decodedSize;
 
@@ -606,7 +606,7 @@ void ReadClient( fileHandle_t f, gclient_t *client, int size )
     }
     
     FS_Read( clientBuf, decodedSize, f );
-    gclient_t temp;
+    GameClient temp;
     G_Save_Decode( clientBuf, decodedSize, (byte *)&temp, sizeof( temp ) );
 	
 	// convert any feilds back to the correct data
@@ -629,7 +629,7 @@ void ReadClient( fileHandle_t f, gclient_t *client, int size )
 		client->ps.pm_time = 800;
 	}
 
-    gentity_t* ent = &g_entities[client->ps.clientNum];
+    GameEntity* ent = &g_entities[client->ps.clientNum];
 
 	// make sure they face the right way
 	// if it's the player, see if we need to put them at a mission marker
@@ -654,17 +654,17 @@ void ReadClient( fileHandle_t f, gclient_t *client, int size )
 
 //=========================================================
 
-byte entityBuf[ 2 * sizeof( gentity_t ) ];
+byte entityBuf[ 2 * sizeof( GameEntity ) ];
 
 /*
 ===============
 WriteEntity
 ===============
 */
-void WriteEntity( fileHandle_t f, gentity_t *ent )
+void WriteEntity( fileHandle_t f, GameEntity *ent )
 {
 	// copy the structure across, then process the fields
-    gentity_t temp = *ent;
+    GameEntity temp = *ent;
 
 	// first, kill all events (assume they have been processed)
 	memset( temp.shared.s.events, 0, sizeof( temp.shared.s.events ) );
@@ -703,9 +703,9 @@ void WriteEntity( fileHandle_t f, gentity_t *ent )
 ReadEntity
 ===============
 */
-void ReadEntity( fileHandle_t f, gentity_t *ent, int size )
+void ReadEntity( fileHandle_t f, GameEntity *ent, int size )
 {
-    gentity_t backup = *ent;
+    GameEntity backup = *ent;
 
     // read the encoded chunk
     int decodedSize;
@@ -715,7 +715,7 @@ void ReadEntity( fileHandle_t f, gentity_t *ent, int size )
         return; // keep the linter happy, ERR_DROP does not return
     }
     FS_Read( entityBuf, decodedSize, f );
-    gentity_t temp;
+    GameEntity temp;
     G_Save_Decode( entityBuf, decodedSize, (byte *)&temp, sizeof( temp ) );
 	
 
@@ -759,7 +759,7 @@ void ReadEntity( fileHandle_t f, gentity_t *ent, int size )
 			} else {    // must be open
 				// portals are always opened before the mover starts to open, so we must move
 				// it back to the start position, link, set portals, then move it back
-                gentity_t backup2 = *ent;
+                GameEntity backup2 = *ent;
 				*ent = backup;
 				// link it at original position
 				SV_LinkEntity( &ent->shared );
@@ -884,11 +884,11 @@ void ReadCastState( fileHandle_t f, cast_state_t *cs, int size )
 		VectorCopy( cs->ideal_viewangles, cs->viewangles );
 		VectorCopy( cs->ideal_viewangles, g_entities[cs->entityNum].client->ps.viewangles );
 		// copy the ps
-		memcpy( &cs->bs->cur_ps, &g_entities[cs->entityNum].client->ps, sizeof( playerState_t ) );
+		memcpy( &cs->bs->cur_ps, &g_entities[cs->entityNum].client->ps, sizeof( PlayerState ) );
 		// make sure they think right away
 		cs->lastThink = -9999;
 		// reset the input
-		trap_EA_ResetInput( cs->entityNum, NULL );
+		trap_EA_ResetInput( cs->entityNum, nullptr );
 	}
 }
 
@@ -1138,13 +1138,13 @@ bool G_SaveGame( const char *username )
 	}
     
 	// write out the entity structures
-	i = sizeof( gentity_t );
+	i = sizeof( GameEntity );
 	if ( !G_SaveWrite( &i, sizeof( i ), f ) ) {
 		G_SaveWriteError();
 	}
     
 	for ( i = 0 ; i < level.num_entities ; i++ ) {
-        gentity_t *ent = &g_entities[i];
+        GameEntity *ent = &g_entities[i];
 		if ( !ent->inuse || ent->shared.s.number == ENTITYNUM_WORLD ) {
 			continue;
 		}
@@ -1159,13 +1159,13 @@ bool G_SaveGame( const char *username )
 	}
 
 	// write out the client structures
-	i = sizeof( gclient_t );
+	i = sizeof( GameClient );
 	if ( !G_SaveWrite( &i, sizeof( i ), f ) ) {
 		G_SaveWriteError();
 	}
     
 	for ( i = 0 ; i < MAX_CLIENTS ; i++ ) {
-        gclient_t *cl = &level.clients[i];
+        GameClient *cl = &level.clients[i];
 		if ( cl->pers.connected != CON_CONNECTED ) {
 			continue;
 		}
@@ -1242,8 +1242,8 @@ void G_LoadGame( const char *filename )
 	char mapname[MAX_QPATH];
 	fileHandle_t f;
 	int i, leveltime, size, last;
-	gentity_t   *ent;
-	gclient_t   *cl;
+	GameEntity   *ent;
+	GameClient   *cl;
 	cast_state_t    *cs;
 	qtime_t tm;
 	bool serverEntityUpdate = false;
@@ -1430,7 +1430,7 @@ void G_LoadGame( const char *filename )
 	// inform server of entity count if it has increased
 	if ( serverEntityUpdate ) {
 		// let the server system know that there are more entities
-		SV_LocateGameData( &level.gentities[0].shared, level.num_entities, sizeof( gentity_t ),
+		SV_LocateGameData( &level.gentities[0].shared, level.num_entities, sizeof( GameEntity ),
 							 &level.clients[0].ps, sizeof( level.clients[0] ) );
 	}
 
@@ -1476,7 +1476,7 @@ void G_LoadGame( const char *filename )
 PersWriteClient
 ===============
 */
-void PersWriteClient( fileHandle_t f, gclient_t *cl )
+void PersWriteClient( fileHandle_t f, GameClient *cl )
 {
 	for (persField_t *field = gclientPersFields ; field->len ; field++ ) {
 		G_SaveWrite( ( void * )( (byte *)cl + field->ofs ), field->len, f );
@@ -1488,7 +1488,7 @@ void PersWriteClient( fileHandle_t f, gclient_t *cl )
 PersReadClient
 ===============
 */
-void PersReadClient( fileHandle_t f, gclient_t *cl )
+void PersReadClient( fileHandle_t f, GameClient *cl )
 {
 	for (persField_t *field = gclientPersFields ; field->len ; field++ ) {
 		FS_Read( ( void * )( (byte *)cl + field->ofs ), field->len, f );
@@ -1502,7 +1502,7 @@ void PersReadClient( fileHandle_t f, gclient_t *cl )
 PersWriteEntity
 ===============
 */
-void PersWriteEntity( fileHandle_t f, gentity_t *ent )
+void PersWriteEntity( fileHandle_t f, GameEntity *ent )
 {
     for (persField_t *field = gentityPersFields ; field->len ; field++ ) {
 		G_SaveWrite( ( void * )( (byte *)ent + field->ofs ), field->len, f );
@@ -1514,7 +1514,7 @@ void PersWriteEntity( fileHandle_t f, gentity_t *ent )
 PersReadEntity
 ===============
 */
-void PersReadEntity( fileHandle_t f, gentity_t *cl )
+void PersReadEntity( fileHandle_t f, GameEntity *cl )
 {
 	for (persField_t *field = gentityPersFields ; field->len ; field++ ) {
 		FS_Read( ( void * )( (byte *)cl + field->ofs ), field->len, f );

@@ -153,7 +153,7 @@ void UI_FillRect( float x, float y, float width, float height, const float *colo
 	UI_AdjustFrom640( &x, &y, &width, &height );
 	RE_StretchPic( x, y, width, height, 0, 0, 0, 0, uiInfo.uiDC.whiteShader );
 
-	RE_SetColor( NULL );
+	RE_SetColor( nullptr );
 }
 
 void UI_SetColor( const float *rgba ) {

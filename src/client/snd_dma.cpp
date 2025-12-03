@@ -229,7 +229,7 @@ S_ChannelFree
 ================
 */
 void S_ChannelFree( channel_t *v ) {
-	v->thesfx = NULL;
+	v->thesfx = nullptr;
 	v->threadReady = false;
 #ifdef _DEBUG
 	if ( v >  &s_channels[MAX_CHANNELS] || v <  &s_channels[0] ) {
@@ -239,7 +239,7 @@ void S_ChannelFree( channel_t *v ) {
 #endif
 	*(channel_t **)snd.endflist = v;
 	snd.endflist = v;
-	*(channel_t **)v = NULL;
+	*(channel_t **)v = nullptr;
 }
 
 /*
@@ -249,17 +249,17 @@ S_ChannelMalloc
 */
 channel_t*  S_ChannelMalloc() {
 	channel_t *v;
-	if ( snd.freelist == NULL ) {
-		return NULL;
+	if ( snd.freelist == nullptr ) {
+		return nullptr;
 	}
 	// RF, be careful not to lose our freelist
-	if ( *(channel_t **)snd.freelist == NULL ) {
-		return NULL;
+	if ( *(channel_t **)snd.freelist == nullptr ) {
+		return nullptr;
 	}
 #ifdef _DEBUG
 	if ( *(channel_t **)snd.freelist > &s_channels[MAX_CHANNELS] || *(channel_t **)snd.freelist < &s_channels[0] ) {   //DAJ	extra check
 		Com_DPrintf( "s_channel OUT OF BOUNDS\n" );
-		return NULL;
+		return nullptr;
 	}
 #endif
 	v = snd.freelist;
@@ -286,7 +286,7 @@ void S_ChannelSetup() {
 	}
 
 	snd.endflist = q;
-	*(channel_t **)q = NULL;
+	*(channel_t **)q = nullptr;
 	snd.freelist = p + MAX_CHANNELS - 1;
 	Com_DPrintf( "Channel memory manager started\n" );
 }
@@ -358,7 +358,7 @@ static sfx_t *S_FindName( const char *name ) {
 	sfx_t   *sfx;
 
 	if ( !name ) {
-		//Com_Error (ERR_FATAL, "S_FindName: NULL\n");
+		//Com_Error (ERR_FATAL, "S_FindName: nullptr\n");
 		name = "*default*";
 	}
 	if ( !name[0] ) {
@@ -426,7 +426,7 @@ void S_DefaultSound( sfx_t *sfx ) {
 	}
 
 	sfx->soundData = SND_malloc();
-	sfx->soundData->next = NULL;
+	sfx->soundData->next = nullptr;
 
 	if ( s_defaultsound->integer ) {
 		for ( i = 0 ; i < sfx->soundLength ; i++ ) {
@@ -613,7 +613,7 @@ void S_SpatializeOrigin( vec3_t origin, int master_vol, int *left_vol, int *righ
 S_StartSound
 
 Validates the parms and queues the sound up
-if pos is NULL, the sound will be dynamically sourced from the entity
+if pos is nullptr, the sound will be dynamically sourced from the entity
 Entchannel 0 will never override a playing sound
 
   flags:  (currently apply only to non-looping sounds)
@@ -631,7 +631,7 @@ void S_StartSoundEx( vec3_t origin, int entityNum, int entchannel, sfxHandle_t s
 		return;
 	}
 
-	// RF, we have lots of NULL sounds using up valuable channels, so just ignore them
+	// RF, we have lots of nullptr sounds using up valuable channels, so just ignore them
 	if ( !sfxHandle && entchannel != CHAN_WEAPON ) {  // let null weapon sounds try to play.  they kill any weapon sounds playing when a guy dies
 		return;
 	}
@@ -687,7 +687,7 @@ void S_ThreadStartSoundEx( vec3_t origin, int entityNum, int entchannel, sfxHand
 		}
 	}
 
-	ch = NULL;
+	ch = nullptr;
 
 //----(SA)	modified
 
@@ -842,7 +842,7 @@ void S_StartLocalSound( sfxHandle_t sfxHandle, int channelNum ) {
 		return;
 	}
 
-	S_StartSound( NULL, listener_number, channelNum, sfxHandle );
+	S_StartSound( nullptr, listener_number, channelNum, sfxHandle );
 }
 
 
@@ -1557,7 +1557,7 @@ void S_Update_Mix( void ) {
 		if (snd.pushPop[i].fixedOrigin) {
 			S_ThreadStartSoundEx(snd.pushPop[i].origin, snd.pushPop[i].entityNum, snd.pushPop[i].entityChannel, snd.pushPop[i].sfx, snd.pushPop[i].flags );
 		} else {
-			S_ThreadStartSoundEx(NULL, snd.pushPop[i].entityNum, snd.pushPop[i].entityChannel, snd.pushPop[i].sfx, snd.pushPop[i].flags );
+			S_ThreadStartSoundEx(nullptr, snd.pushPop[i].entityNum, snd.pushPop[i].entityChannel, snd.pushPop[i].sfx, snd.pushPop[i].flags );
 		}
 	}
 
@@ -2112,7 +2112,7 @@ void S_StartStreamingSound( const char *intro, const char *loop, int entnum, int
 	Com_DPrintf( "S_StartStreamingSound( %s, %s, %i, %i, %i )\n", intro, loop, entnum, channel, attenuation );
 
 	// look for a free track, but first check for overriding a currently playing sound for this entity
-	ss = NULL;
+	ss = nullptr;
 	if ( entnum >= 0 ) {
 		for ( i = 1; i < MAX_STREAMING_SOUNDS; i++ ) {    // track 0 is music/cinematics
 			if ( !streamingSounds[i].file ) {
@@ -2539,12 +2539,12 @@ void S_FreeOldestSound( void ) {
 	Com_DPrintf( "S_FreeOldestSound: freeing sound %s\n", sfx->soundName );
 
 	buffer = sfx->soundData;
-	while ( buffer != NULL ) {
+	while ( buffer != nullptr ) {
 		nbuffer = buffer->next;
 		SND_free( buffer );
 		buffer = nbuffer;
 	}
 	sfx->inMemory = false;
-	sfx->soundData = NULL;
+	sfx->soundData = nullptr;
 }
 

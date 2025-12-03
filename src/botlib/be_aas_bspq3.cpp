@@ -182,7 +182,7 @@ void AAS_UnlinkFromBSPLeaves( bsp_link_t *leaves ) {
 // Changes Globals:		-
 //===========================================================================
 bsp_link_t *AAS_BSPLinkEntity( vec3_t absmins, vec3_t absmaxs, int entnum, int modelnum ) {
-	return NULL;
+	return nullptr;
 } //end of the function AAS_BSPLinkEntity
 //===========================================================================
 //
@@ -315,7 +315,7 @@ void AAS_ParseBSPEntities( void ) {
 	// RF, modified this, so that it first gathers up memory requirements, then allocates a single chunk,
 	// and places the strings all in there
 
-	bspworld.ebuffer = NULL;
+	bspworld.ebuffer = nullptr;
 
 	script = LoadScriptMemory( bspworld.dentdata, bspworld.entdatasize, "entdata" );
 	SetScriptFlags( script, SCFL_NOSTRINGWHITESPACES | SCFL_NOSTRINGESCAPECHARS ); //SCFL_PRIMITIVE);
@@ -381,7 +381,7 @@ void AAS_ParseBSPEntities( void ) {
 	{
 		ent = &bspworld.entities[bspworld.numentities];
 		bspworld.numentities++;
-		ent->epairs = NULL;
+		ent->epairs = nullptr;
 		while ( PS_ReadToken( script, &token ) )
 		{
 			if ( !strcmp( token.string, "}" ) ) {
@@ -426,7 +426,7 @@ void AAS_DumpBSPData( void ) {
 	if ( bspworld.dentdata ) {
 		FreeMemory( bspworld.dentdata );
 	}
-	bspworld.dentdata = NULL;
+	bspworld.dentdata = nullptr;
 	bspworld.entdatasize = 0;
 	//
 	bspworld.loaded = false;

@@ -112,7 +112,7 @@ int AAS_UpdateEntity( int entnum, bot_entitystate_t *state ) {
 		} //end if
 		  //get the mins and maxs of the model
 		  //FIXME: rotate mins and maxs
-		AAS_BSPModelMinsMaxsOrigin( ent->i.modelindex, ent->i.angles, ent->i.mins, ent->i.maxs, NULL );
+		AAS_BSPModelMinsMaxsOrigin( ent->i.modelindex, ent->i.angles, ent->i.mins, ent->i.maxs, nullptr );
 	} //end if
 	else if ( ent->i.solid == SOLID_BBOX ) {
 		//if the bounding box size changed
@@ -302,8 +302,8 @@ void AAS_ResetEntityLinks( void ) {
 	int i;
 	for ( i = 0; i < ( *defaultaasworld ).maxentities; i++ )
 	{
-		( *defaultaasworld ).entities[i].areas = NULL;
-		( *defaultaasworld ).entities[i].leaves = NULL;
+		( *defaultaasworld ).entities[i].areas = nullptr;
+		( *defaultaasworld ).entities[i].leaves = nullptr;
 	} //end for
 } //end of the function AAS_ResetEntityLinks
 //===========================================================================

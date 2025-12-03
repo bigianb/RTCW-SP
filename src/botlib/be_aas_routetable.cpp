@@ -1029,7 +1029,7 @@ void AAS_RT_ShutdownRouteTable( void ) {
 
 	// kill the table
 	AAS_RT_FreeMemory( aasworld->routetable );
-	aasworld->routetable = NULL;
+	aasworld->routetable = nullptr;
 }
 
 //===========================================================================
@@ -1056,7 +1056,7 @@ aas_rt_child_t *AAS_RT_GetChild( int areanum ) {
 	if ( i >= 0 ) {
 		return &aasworld->routetable->children[i];
 	} else {
-		return NULL;
+		return nullptr;
 	}
 }
 
@@ -1079,11 +1079,11 @@ aas_rt_route_t *AAS_RT_GetRoute( int srcnum, vec3_t origin, int destnum ) {
 //	static int tfl = TFL_DEFAULT & ~(TFL_JUMPPAD|TFL_ROCKETJUMP|TFL_BFGJUMP|TFL_GRAPPLEHOOK|TFL_DOUBLEJUMP|TFL_RAMPJUMP|TFL_STRAFEJUMP|TFL_SLIME|TFL_LAVA);
 
 	if ( !( rt = aasworld->routetable ) ) { // no route table present
-		return NULL;
+		return nullptr;
 	}
 
 	if ( disable_routetable ) {
-		return NULL;
+		return nullptr;
 	}
 
 	if ( ++routeIndex >= GETROUTE_NUMROUTES ) {
@@ -1097,7 +1097,7 @@ aas_rt_route_t *AAS_RT_GetRoute( int srcnum, vec3_t origin, int destnum ) {
 		thisroute->travel_time = traveltime;
 		return thisroute;
 	} else {
-		return NULL;
+		return nullptr;
 	}
 }
 

@@ -224,7 +224,7 @@ cast_script_stack_action_t scriptActions[] =
 	{"pushaway",     AICast_ScriptAction_PushAway},
 	{"catchfire",        AICast_ScriptAction_CatchFire},
 
-	{NULL,              NULL}
+	{nullptr,              nullptr}
 };
 
 /*
@@ -267,8 +267,8 @@ bool AICast_EventMatch_IntInRange( cast_script_event_t *event, const char *event
 // NOTE!!: only append to this list, DO NOT INSERT!!
 cast_script_event_define_t scriptEvents[] =
 {
-	{"spawn",            NULL},          // called as each character is spawned into the game
-	{"playerstart",      NULL},          // called when player hits 'start' button
+	{"spawn",            nullptr},          // called as each character is spawned into the game
+	{"playerstart",      nullptr},          // called when player hits 'start' button
 	{"enemysight",       AICast_EventMatch_StringEqual}, // enemy has been sighted for the first time (once only)
 	{"sight",            AICast_EventMatch_StringEqual}, // non-enemy has been sighted for the first time (once only)
 	{"enemydead",        AICast_EventMatch_StringEqual}, // our enemy is now dead
@@ -277,23 +277,23 @@ cast_script_event_define_t scriptEvents[] =
 	{"death",            AICast_EventMatch_StringEqual}, // RIP
 	{"activate",     AICast_EventMatch_StringEqual}, // "param" has just activated us
 	{"enemysightcorpse",AICast_EventMatch_StringEqual},  // sighted the given enemy as a corpse, for the first time
-	{"friendlysightcorpse", NULL},                       // sighted a friendly as a corpse for the first time
+	{"friendlysightcorpse", nullptr},                       // sighted a friendly as a corpse for the first time
 	{"avoiddanger",      AICast_EventMatch_StringEqual}, // we are avoiding something dangerous
 	{"blocked",          AICast_EventMatch_StringEqual}, // blocked by someone else
 	{"statechange",      AICast_EventMatch_StringEqual}, // changing aistates
-	{"bulletimpact", NULL},
+	{"bulletimpact", nullptr},
 	{"inspectbodystart", AICast_EventMatch_StringEqual}, // starting to travel to body for inspection
 	{"inspectbodyend",   AICast_EventMatch_StringEqual}, // reached body for inspection
 	{"inspectsoundstart",    AICast_EventMatch_StringEqual}, // reached sound for inspection
 	{"inspectsoundend",  AICast_EventMatch_StringEqual}, // reached sound for inspection
 	{"attacksound",      AICast_EventMatch_StringEqual}, // play a custom attack sound, and/or deny playing the default sound
-	{"fakedeath",        NULL},
-	{"bulletimpactsound",    NULL},
-	{"inspectfriendlycombatstart", NULL},
+	{"fakedeath",        nullptr},
+	{"bulletimpactsound",    nullptr},
+	{"inspectfriendlycombatstart", nullptr},
 	{"painenemy",        AICast_EventMatch_StringEqual},
-	{"forced_mg42_unmount",  NULL},
+	{"forced_mg42_unmount",  nullptr},
 
-	{NULL,              NULL}
+	{nullptr,              nullptr}
 };
 
 
@@ -332,7 +332,7 @@ cast_script_stack_action_t *AICast_ActionForString( cast_state_t *cs, char *stri
 		}
 	}
 
-	return NULL;
+	return nullptr;
 }
 
 /*
@@ -348,7 +348,7 @@ void AICast_ScriptLoad( void ) {
 	fileHandle_t f;
 	int len;
 
-	level.scriptAI = NULL;
+	level.scriptAI = nullptr;
 
 	Cvar_VariableStringBuffer( "ai_scriptName", filename, sizeof( filename ) );
 	if ( strlen( filename ) > 0 ) {
@@ -398,7 +398,7 @@ void AICast_ScriptParse( cast_state_t *cs )
 		return;
 	}
 
-    gentity_t *ent = &g_entities[cs->entityNum];
+    GameEntity *ent = &g_entities[cs->entityNum];
 	if ( !ent->aiName ) {
 		return;
 	}

@@ -107,7 +107,7 @@ const char *castAttributeStrings[] =
 	"INNER_DETECTION_RADIUS",
 	"PAIN_THRESHOLD_SCALE",
 
-	NULL
+	nullptr
 };
 
 /*
@@ -144,7 +144,7 @@ AICast_GetCastState
 */
 cast_state_t *AICast_GetCastState( int entitynum ) {
 	if ( entitynum < 0 || entitynum > level.maxclients ) {
-		return NULL;
+		return nullptr;
 	}
 	//
 	return &( caststates[ entitynum ] );
@@ -229,11 +229,11 @@ AICast_AddCastToGame
 ============
 */
 //----(SA) modified this for head separation
-gentity_t *AICast_AddCastToGame( gentity_t *ent, const char *castname, const char *model, const char *head, const char *sex, const char *color, const char *handicap ) {
+GameEntity *AICast_AddCastToGame( GameEntity *ent, const char *castname, const char *model, const char *head, const char *sex, const char *color, const char *handicap ) {
 	int clientNum;
-	gentity_t *bot;
+	GameEntity *bot;
 	char userinfo[MAX_INFO_STRING];
-	usercmd_t cmd;
+	UserCmd cmd;
 
 	// create the bot's userinfo
 	userinfo[0] = '\0';
@@ -250,7 +250,7 @@ gentity_t *AICast_AddCastToGame( gentity_t *ent, const char *castname, const cha
 	clientNum = SV_BotAllocateClient();
 	if ( clientNum == -1 ) {
 		Com_Printf( S_COLOR_RED "BotAllocateClient failed\n" );
-		return NULL;
+		return nullptr;
 	}
 	bot = &g_entities[ clientNum ];
 	bot->shared.r.svFlags |= SVF_BOT;
@@ -282,7 +282,7 @@ gentity_t *AICast_AddCastToGame( gentity_t *ent, const char *castname, const cha
 AICast_CheckLevelAttributes
 ============
 */
-void AICast_CheckLevelAttributes( cast_state_t *cs, gentity_t *ent, const char **ppStr ) {
+void AICast_CheckLevelAttributes( cast_state_t *cs, GameEntity *ent, const char **ppStr ) {
 	char    *s;
 	int i;
 
@@ -340,9 +340,9 @@ AICast_CreateCharacter
   returns 0 if unable to create the character
 ============
 */
-gentity_t *AICast_CreateCharacter( gentity_t *ent, float *attributes, cast_weapon_info_t *weaponInfo, const char *castname, const char *model, const char *head, const char *sex, const char *color, const char *handicap ) {
-	gentity_t       *newent;
-	gclient_t       *client;
+GameEntity *AICast_CreateCharacter( GameEntity *ent, float *attributes, cast_weapon_info_t *weaponInfo, const char *castname, const char *model, const char *head, const char *sex, const char *color, const char *handicap ) {
+	GameEntity       *newent;
+	GameClient       *client;
 	cast_state_t    *cs;
 	char            **ppStr;
 	int j;
@@ -350,14 +350,14 @@ gentity_t *AICast_CreateCharacter( gentity_t *ent, float *attributes, cast_weapo
 	// are bots enabled?
 	if ( !Cvar_VariableIntegerValue( "bot_enable" ) ) {
 		Com_Printf( S_COLOR_RED "ERROR: Unable to spawn %s, 'bot_enable' is not set\n", ent->classname );
-		return NULL;
+		return nullptr;
 	}
 	//
 	// make sure we have a free slot for them
 	//
 	if ( level.numPlayingClients + 1 > aicast_maxclients ) {
 		Com_Error( ERR_DROP, "Exceeded sv_maxclients (%d), unable to create %s\n", aicast_maxclients, ent->classname );
-		return NULL;
+		return nullptr;
 	}
 	//
 	// add it to the list (only do this if everything else passed)
@@ -366,7 +366,7 @@ gentity_t *AICast_CreateCharacter( gentity_t *ent, float *attributes, cast_weapo
 	newent = AICast_AddCastToGame( ent, castname, model, head, sex, color, handicap );
 
 	if ( !newent ) {
-		return NULL;
+		return nullptr;
 	}
 	client = newent->client;
 	//
@@ -505,8 +505,8 @@ void AICast_Init( void ) {
 AICast_FindEntityForName
 ===============
 */
-gentity_t *AICast_FindEntityForName( const char *name ) {
-	gentity_t *trav;
+GameEntity *AICast_FindEntityForName( const char *name ) {
+	GameEntity *trav;
 	int i;
 
 	for ( trav = g_entities, i = 0; i < aicast_maxclients; i++, trav++ ) {
@@ -524,7 +524,7 @@ gentity_t *AICast_FindEntityForName( const char *name ) {
 		}
 		return trav;
 	}
-	return NULL;
+	return nullptr;
 }
 
 /*
@@ -532,8 +532,8 @@ gentity_t *AICast_FindEntityForName( const char *name ) {
 AICast_TravEntityForName
 ===============
 */
-gentity_t *AICast_TravEntityForName( gentity_t *startent, char *name ) {
-	gentity_t *trav;
+GameEntity *AICast_TravEntityForName( GameEntity *startent, char *name ) {
+	GameEntity *trav;
 
 	if ( !startent ) {
 		trav = g_entities;
@@ -556,7 +556,7 @@ gentity_t *AICast_TravEntityForName( gentity_t *startent, char *name ) {
 		}
 		return trav;
 	}
-	return NULL;
+	return nullptr;
 }
 
 /*
@@ -566,7 +566,7 @@ AIChar_AIScript_AlertEntity
   triggered spawning, called from AI scripting
 ============
 */
-void AIChar_AIScript_AlertEntity( gentity_t *ent ) {
+void AIChar_AIScript_AlertEntity( GameEntity *ent ) {
 	vec3_t mins, maxs;
 	int numTouch, touch[10], i;
 	cast_state_t    *cs;
@@ -604,7 +604,7 @@ void AIChar_AIScript_AlertEntity( gentity_t *ent ) {
 	}
 
 	// RF, has to disable this so I could test some maps which have erroneously placed alertentity calls
-	//ent->AIScript_AlertEntity = NULL;
+	//ent->AIScript_AlertEntity = nullptr;
 	cs->aiFlags &= ~AIFL_WAITINGTOSPAWN;
 	ent->aiInactive = false;
 	SV_LinkEntity( &ent->shared );
@@ -624,7 +624,7 @@ void AIChar_AIScript_AlertEntity( gentity_t *ent ) {
 AICast_DelayedSpawnCast
 ================
 */
-void AICast_DelayedSpawnCast( gentity_t *ent, int castType )
+void AICast_DelayedSpawnCast( GameEntity *ent, int castType )
 {
 	// ............................
 	// head separation
@@ -673,7 +673,7 @@ AICast_CastScriptThink
 */
 void AICast_CastScriptThink( void )
 {
-	gentity_t *ent = g_entities;
+	GameEntity *ent = g_entities;
 	cast_state_t *cs = caststates;
 
 	for (int i = 0; i < level.maxclients; i++, ent++, cs++ ) {
@@ -695,7 +695,7 @@ void AICast_CastScriptThink( void )
 AICast_EnableRenderingThink
 ==================
 */
-void AICast_EnableRenderingThink( gentity_t *ent ) {
+void AICast_EnableRenderingThink( GameEntity *ent ) {
 	Cvar_Set( "cg_norender", "0" );
 	G_FreeEntity( ent );
 }
@@ -711,7 +711,7 @@ AICast_CheckLoadGame
 */
 void AICast_CheckLoadGame( void ) {
 	char loading[4];
-	gentity_t *ent = NULL;
+	GameEntity *ent = nullptr;
 	bool ready;
 	cast_state_t *pcs;
 
@@ -748,7 +748,7 @@ void AICast_CheckLoadGame( void ) {
 		if ( ready ) {
 			Cvar_Set( "savegame_loading", "0" ); // in-case it aborts
 			saveGamePending = false;
-			G_LoadGame( NULL );     // always load the "current" savegame
+			G_LoadGame( nullptr );     // always load the "current" savegame
 
 			// RF, spawn a thinker that will enable rendering after the client has had time to process the entities and setup the display
 			ent = G_Spawn();
@@ -879,7 +879,7 @@ G_SetAASBlockingEntity
   Adjusts routing so AI knows it can't move through this entity
 ===============
 */
-void G_SetAASBlockingEntity( gentity_t *ent, bool blocking ) {
+void G_SetAASBlockingEntity( GameEntity *ent, bool blocking ) {
 	ent->AASblocking = blocking;
 	trap_AAS_SetAASBlockingEntity( ent->shared.r.absmin, ent->shared.r.absmax, blocking );
 }
@@ -903,7 +903,7 @@ AICast_AgePlayTime
 void AICast_AgePlayTime( int entnum ) {
 	cast_state_t *cs = AICast_GetCastState( entnum );
 	//
-	if (cs == NULL){
+	if (cs == nullptr){
 		return;
 	}
 	if ( saveGamePending ) {

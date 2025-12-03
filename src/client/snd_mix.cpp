@@ -525,7 +525,7 @@ static void S_PaintChannelFrom16( channel_t *ch, const sfx_t *sc, int count, int
 		for ( i = 0; i < count; i++ ) {
 			if ( sampleOffset >= SND_CHUNK_SIZE ) {
 				chunk = chunk->next;
-				if ( chunk == NULL ) {
+				if ( chunk == nullptr ) {
 					chunk = sc->soundData;
 				}
 				samples = chunk->sndChunk;
@@ -892,7 +892,7 @@ void S_PaintChannels( int endtime ) {
 
 			ltime = s_paintedtime;
 
-			if ( sc->soundData == NULL || sc->soundLength == 0 ) {
+			if ( sc->soundData == nullptr || sc->soundLength == 0 ) {
 				continue;
 			}
 			// we might have to make two passes if it

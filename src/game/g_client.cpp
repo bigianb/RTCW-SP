@@ -47,7 +47,7 @@ Targets will be fired when someone spawns in on them.
 "nohumans" will prevent non-bots from using this spot.
 If the start position is targeting an entity, the players camera will start out facing that ent (like an info_notnull)
 */
-void SP_info_player_deathmatch( gentity_t *ent ) {
+void SP_info_player_deathmatch( GameEntity *ent ) {
 	int i;
 	vec3_t dir;
 
@@ -73,7 +73,7 @@ void SP_info_player_deathmatch( gentity_t *ent ) {
 /*QUAKED info_player_start (1 0 0) (-16 -16 -24) (16 16 32)
 equivelant to info_player_deathmatch
 */
-void SP_info_player_start( gentity_t *ent ) {
+void SP_info_player_start( GameEntity *ent ) {
 	ent->classname = "info_player_deathmatch";
 	SP_info_player_deathmatch( ent );
 }
@@ -81,7 +81,7 @@ void SP_info_player_start( gentity_t *ent ) {
 /*QUAKED info_player_intermission (1 0 1) (-16 -16 -24) (16 16 32)
 The intermission will be viewed from this point.  Target an info_notnull for the view direction.
 */
-void SP_info_player_intermission( gentity_t *ent ) {
+void SP_info_player_intermission( GameEntity *ent ) {
 
 }
 
@@ -101,10 +101,10 @@ SpotWouldTelefrag
 
 ================
 */
-bool SpotWouldTelefrag( gentity_t *spot ) {
+bool SpotWouldTelefrag( GameEntity *spot ) {
 	int i, num;
 	int touch[MAX_GENTITIES];
-	gentity_t   *hit;
+	GameEntity   *hit;
 	vec3_t mins, maxs;
 
 	VectorAdd( spot->shared.s.origin, playerMins, mins );
@@ -130,17 +130,17 @@ Find the spot that we DON'T want to use
 ================
 */
 #define MAX_SPAWN_POINTS    128
-gentity_t *SelectNearestDeathmatchSpawnPoint( vec3_t from ) {
-	gentity_t   *spot;
+GameEntity *SelectNearestDeathmatchSpawnPoint( vec3_t from ) {
+	GameEntity   *spot;
 	vec3_t delta;
 	float dist, nearestDist;
-	gentity_t   *nearestSpot;
+	GameEntity   *nearestSpot;
 
 	nearestDist = 999999;
-	nearestSpot = NULL;
-	spot = NULL;
+	nearestSpot = nullptr;
+	spot = nullptr;
 
-	while ( ( spot = G_Find( spot, FOFS( classname ), "info_player_deathmatch" ) ) != NULL ) {
+	while ( ( spot = G_Find( spot, FOFS( classname ), "info_player_deathmatch" ) ) != nullptr ) {
 
 		VectorSubtract( spot->shared.s.origin, from, delta );
 		dist = VectorLength( delta );
@@ -162,16 +162,16 @@ go to a random point that doesn't telefrag
 ================
 */
 #define MAX_SPAWN_POINTS    128
-gentity_t *SelectRandomDeathmatchSpawnPoint( void ) {
-	gentity_t   *spot;
+GameEntity *SelectRandomDeathmatchSpawnPoint( void ) {
+	GameEntity   *spot;
 	int count;
 	int selection;
-	gentity_t   *spots[MAX_SPAWN_POINTS];
+	GameEntity   *spots[MAX_SPAWN_POINTS];
 
 	count = 0;
-	spot = NULL;
+	spot = nullptr;
 
-	while ( ( spot = G_Find( spot, FOFS( classname ), "info_player_deathmatch" ) ) != NULL ) {
+	while ( ( spot = G_Find( spot, FOFS( classname ), "info_player_deathmatch" ) ) != nullptr ) {
 		if ( SpotWouldTelefrag( spot ) ) {
 			continue;
 		}
@@ -180,7 +180,7 @@ gentity_t *SelectRandomDeathmatchSpawnPoint( void ) {
 	}
 
 	if ( !count ) { // no spots that won't telefrag
-		return G_Find( NULL, FOFS( classname ), "info_player_deathmatch" );
+		return G_Find( nullptr, FOFS( classname ), "info_player_deathmatch" );
 	}
 
 	selection = rand() % count;
@@ -195,9 +195,9 @@ SelectSpawnPoint
 Chooses a player start, deathmatch start, etc
 ============
 */
-gentity_t *SelectSpawnPoint( vec3_t avoidPoint, vec3_t origin, vec3_t angles ) {
-	gentity_t   *spot;
-	gentity_t   *nearestSpot;
+GameEntity *SelectSpawnPoint( vec3_t avoidPoint, vec3_t origin, vec3_t angles ) {
+	GameEntity   *spot;
+	GameEntity   *nearestSpot;
 
 	nearestSpot = SelectNearestDeathmatchSpawnPoint( avoidPoint );
 
@@ -214,7 +214,7 @@ gentity_t *SelectSpawnPoint( vec3_t avoidPoint, vec3_t origin, vec3_t angles ) {
 	// find a single player start spot
 	if ( !spot ) {
 		Com_Error( ERR_DROP, "Couldn't find a spawn point" );
-        return NULL; // keep the linter happy, ERR_DROP does not return
+        return nullptr; // keep the linter happy, ERR_DROP does not return
 	}
 
 	VectorCopy( spot->shared.s.origin, origin );
@@ -232,11 +232,11 @@ Try to find a spawn point marked 'initial', otherwise
 use normal spawn selection.
 ============
 */
-gentity_t *SelectInitialSpawnPoint( vec3_t origin, vec3_t angles ) {
-	gentity_t   *spot;
+GameEntity *SelectInitialSpawnPoint( vec3_t origin, vec3_t angles ) {
+	GameEntity   *spot;
 
-	spot = NULL;
-	while ( ( spot = G_Find( spot, FOFS( classname ), "info_player_deathmatch" ) ) != NULL ) {
+	spot = nullptr;
+	while ( ( spot = G_Find( spot, FOFS( classname ), "info_player_deathmatch" ) ) != nullptr ) {
 		if ( spot->spawnflags & 1 ) {
 			break;
 		}
@@ -259,13 +259,13 @@ SelectSpectatorSpawnPoint
 
 ============
 */
-gentity_t *SelectSpectatorSpawnPoint( vec3_t origin, vec3_t angles ) {
+GameEntity *SelectSpectatorSpawnPoint( vec3_t origin, vec3_t angles ) {
 	FindIntermissionPoint();
 
 	VectorCopy( level.intermission_origin, origin );
 	VectorCopy( level.intermission_angle, angles );
 
-	return NULL;
+	return nullptr;
 }
 
 /*
@@ -283,7 +283,7 @@ InitBodyQue
 */
 void InitBodyQue( void ) {
 	int i;
-	gentity_t   *ent;
+	GameEntity   *ent;
 
 	level.bodyQueIndex = 0;
 	for ( i = 0; i < BODY_QUEUE_SIZE ; i++ ) {
@@ -301,7 +301,7 @@ BodySink
 After sitting around for five seconds, fall into the ground and dissapear
 =============
 */
-void BodySink( gentity_t *ent ) {
+void BodySink( GameEntity *ent ) {
 	if ( level.time - ent->timestamp > 6500 ) {
 		// the body ques are never actually freed, they are just unlinked
 		SV_UnlinkEntity( &ent->shared );
@@ -320,8 +320,8 @@ A player is respawning, so make an entity that looks
 just like the existing corpse to leave behind.
 =============
 */
-void CopyToBodyQue( gentity_t *ent ) {
-	gentity_t       *body;
+void CopyToBodyQue( GameEntity *ent ) {
+	GameEntity       *body;
 	int contents, i;
 
 	SV_UnlinkEntity( &ent->shared );
@@ -402,7 +402,7 @@ SetClientViewAngle
 
 ==================
 */
-void SetClientViewAngle( gentity_t *ent, vec3_t angle ) {
+void SetClientViewAngle( GameEntity *ent, vec3_t angle ) {
 	int i;
 
 	// set the delta angle
@@ -421,8 +421,8 @@ void SetClientViewAngle( gentity_t *ent, vec3_t angle ) {
 respawn
 ================
 */
-void respawn( gentity_t *ent ) {
-	gentity_t   *tent;
+void respawn( GameEntity *ent ) {
+	GameEntity   *tent;
 
     if ( g_reloading.integer || saveGamePending ) {
         return;
@@ -542,7 +542,7 @@ G_CheckForExistingModelInfo
   returns true if existing model found, false otherwise
 ==================
 */
-bool G_CheckForExistingModelInfo( gclient_t *cl, char *modelName, animModelInfo_t **modelInfo ) {
+bool G_CheckForExistingModelInfo( GameClient *cl, char *modelName, animModelInfo_t **modelInfo ) {
 	int i;
 	animModelInfo_t *trav;
 
@@ -575,7 +575,7 @@ bool G_CheckForExistingModelInfo( gclient_t *cl, char *modelName, animModelInfo_
 G_GetModelInfo
 ==============
 */
-bool G_ParseAnimationFiles( char *modelname, gclient_t *cl );
+bool G_ParseAnimationFiles( char *modelname, GameClient *cl );
 bool G_GetModelInfo( int clientNum, char *modelName, animModelInfo_t **modelInfo ) {
 
 	if ( !G_CheckForExistingModelInfo( &level.clients[clientNum], modelName, modelInfo ) ) {
@@ -594,7 +594,7 @@ bool G_GetModelInfo( int clientNum, char *modelName, animModelInfo_t **modelInfo
 G_ParseAnimationFiles
 =============
 */
-bool G_ParseAnimationFiles( char *modelname, gclient_t *cl ) {
+bool G_ParseAnimationFiles( char *modelname, GameClient *cl ) {
 	char text[100000];
 	char filename[MAX_QPATH];
 	fileHandle_t f;
@@ -667,7 +667,7 @@ if desired.
 ============
 */
 void ClientUserinfoChanged( int clientNum ) {
-	gentity_t *ent;
+	GameEntity *ent;
 	const char    *s;
 	char model[MAX_QPATH], modelname[MAX_QPATH];
 
@@ -675,7 +675,7 @@ void ClientUserinfoChanged( int clientNum ) {
 	char head[MAX_QPATH];
 
 	char oldname[MAX_STRING_CHARS];
-	gclient_t   *client;
+	GameClient   *client;
 	
 	char userinfo[MAX_INFO_STRING];
 
@@ -832,7 +832,7 @@ Called again for every map change or tournement restart.
 
 The session information will be valid after exit.
 
-Return NULL if the client should be allowed, otherwise return
+Return nullptr if the client should be allowed, otherwise return
 a string with the reason for denial.
 
 Otherwise, the client will be sent the current gamestate
@@ -845,9 +845,9 @@ restarts.
 */
 const char *ClientConnect( int clientNum, bool firstTime, bool isBot ) {
 
-	gclient_t   *client;
+	GameClient   *client;
 	char userinfo[MAX_INFO_STRING];
-	gentity_t   *ent;
+	GameEntity   *ent;
 
 	ent = &g_entities[ clientNum ];
 
@@ -893,7 +893,7 @@ const char *ClientConnect( int clientNum, bool firstTime, bool isBot ) {
 
 	calcLevelClients();
 	
-	return NULL;
+	return nullptr;
 }
 
 /*
@@ -906,9 +906,9 @@ and on transition between teams, but doesn't happen on respawns
 ============
 */
 void ClientBegin( int clientNum ) {
-	gentity_t   *ent;
-	gclient_t   *client;
-	gentity_t   *tent;
+	GameEntity   *ent;
+	GameClient   *client;
+	GameEntity   *tent;
 	int flags;
 	int spawn_count;                // DHM - Nerve
 
@@ -983,15 +983,15 @@ after the first ClientBegin, and after each respawn
 Initializes all non-persistant parts of playerState
 ============
 */
-void ClientSpawn( gentity_t *ent ) {
+void ClientSpawn( GameEntity *ent ) {
 	int index;
 	vec3_t spawn_origin, spawn_angles;
-	gclient_t   *client;
+	GameClient   *client;
 	int i;
 	clientPersistant_t saved;
 	clientSession_t savedSess;
 	int persistant[MAX_PERSISTANT];
-	gentity_t   *spawnPoint;
+	GameEntity   *spawnPoint;
 	int flags;
 	int savedPing;
 	int savedTeam;
@@ -1195,8 +1195,8 @@ server system housekeeping.
 ============
 */
 void ClientDisconnect( int clientNum ) {
-	gentity_t   *ent;
-	gentity_t   *tent;
+	GameEntity   *ent;
+	GameEntity   *tent;
 	int i;
 
 	ent = g_entities + clientNum;

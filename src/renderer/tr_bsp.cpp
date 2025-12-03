@@ -282,7 +282,7 @@ static shader_t *ShaderForShaderNum( int shaderNum, int lightmapNum ) {
 	shaderNum = LittleLong( shaderNum );
 	if ( shaderNum < 0 || shaderNum >= s_worldData.numShaders ) {
 		ri.Error( ERR_DROP, "ShaderForShaderNum: bad num %i", shaderNum );
-        return NULL; // keep the linter happy, ERR_DROP does not return
+        return nullptr; // keep the linter happy, ERR_DROP does not return
 	}
 	dsh = &s_worldData.shaders[ shaderNum ];
 
@@ -1573,7 +1573,7 @@ static void R_LoadSubmodels( lump_t *l ) {
 
 		model = R_AllocModel();
 
-		assert( model != NULL );            // this should never happen
+		assert( model != nullptr );            // this should never happen
 
 		model->type = MOD_BRUSH;
 		model->bmodel = out;
@@ -1682,7 +1682,7 @@ static void R_LoadNodesAndLeafs( lump_t *nodeLump, lump_t *leafLump ) {
 	}
 
 	// chain decendants
-	R_SetParent( s_worldData.nodes, NULL );
+	R_SetParent( s_worldData.nodes, nullptr );
 }
 
 //=============================================================================
@@ -2014,7 +2014,7 @@ void R_LoadLightGrid( lump_t *l ) {
 
 	if ( l->filelen != numGridPoints * 8 ) {
 		ri.Printf( PRINT_WARNING, "WARNING: light grid mismatch\n" );
-		w->lightGridData = NULL;
+		w->lightGridData = nullptr;
 		return;
 	}
 
@@ -2181,7 +2181,7 @@ void RE_LoadWorldMap( const char *name ) {
 
 	// clear tr.world so if the level fails to load, the next
 	// try will not look at the partially loaded version
-	tr.world = NULL;
+	tr.world = nullptr;
 
 	memset( &s_worldData, 0, sizeof( s_worldData ) );
 	Q_strncpyz( s_worldData.name, name, sizeof( s_worldData.name ) );

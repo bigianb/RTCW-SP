@@ -104,7 +104,7 @@ R_ShutdownCommandBuffers
 void R_ShutdownCommandBuffers( void ) {
 	// kill the rendering thread
 	if ( glConfig.smpActive ) {
-		GLimp_WakeRenderer( NULL );
+		GLimp_WakeRenderer( nullptr );
 		glConfig.smpActive = false;
 	}
 }
@@ -206,7 +206,7 @@ void *R_GetCommandBuffer( int bytes ) {
 			ri.Error( ERR_FATAL, "R_GetCommandBuffer: bad size %i", bytes );
 		}
 		// if we run out of room, just start dropping commands
-		return NULL;
+		return nullptr;
 	}
 
 	cmdList->used += bytes;
@@ -242,7 +242,7 @@ void    R_AddDrawSurfCmd( drawSurf_t *drawSurfs, int numDrawSurfs ) {
 =============
 RE_SetColor
 
-Passing NULL will set the color to white
+Passing nullptr will set the color to white
 =============
 */
 void    RE_SetColor( const float *rgba ) {

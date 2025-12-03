@@ -502,7 +502,7 @@ void CM_TraceThroughBrush( traceWork_t *tw, cbrush_t *brush ) {
 
 	enterFrac = -1.0;
 	leaveFrac = 1.0;
-	clipplane = NULL;
+	clipplane = nullptr;
 
 	if ( !brush->numsides ) {
 		return;
@@ -513,7 +513,7 @@ void CM_TraceThroughBrush( traceWork_t *tw, cbrush_t *brush ) {
 	getout = false;
 	startout = false;
 
-	leadside = NULL;
+	leadside = nullptr;
 
 	if ( tw->sphere.use ) {
 		//
@@ -1177,7 +1177,7 @@ void CM_Trace( trace_t *results, const vec3_t start, const vec3_t end,
 		return; // map not loaded, shouldn't happen
 	}
 
-	// allow NULL to be passed in for 0,0,0
+	// allow nullptr to be passed in for 0,0,0
 	if ( !mins ) {
 		mins = vec3_origin;
 	}
@@ -1334,7 +1334,7 @@ CM_BoxTrace
 void CM_BoxTrace( trace_t *results, const vec3_t start, const vec3_t end,
 				  const vec3_t mins, const vec3_t maxs,
 				  clipHandle_t model, int brushmask, int capsule ) {
-	CM_Trace( results, start, end, mins, maxs, model, vec3_origin, brushmask, capsule, NULL );
+	CM_Trace( results, start, end, mins, maxs, model, vec3_origin, brushmask, capsule, nullptr );
 }
 
 /*

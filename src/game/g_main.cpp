@@ -46,10 +46,10 @@ typedef struct {
 	bool teamShader;      // track and if changed, update shader state
 } cvarTable_t;
 
-gentity_t g_entities[MAX_GENTITIES];
-gclient_t g_clients[MAX_CLIENTS];
+GameEntity g_entities[MAX_GENTITIES];
+GameClient g_clients[MAX_CLIENTS];
 
-gentity_t       *g_camEnt = NULL;   //----(SA)	script camera
+GameEntity       *g_camEnt = nullptr;   //----(SA)	script camera
 
 // Rafael gameskill
 extern int bg_pmove_gameskill_integer;
@@ -137,10 +137,10 @@ cvarTable_t gameCvarTable[] = {
 	{ &g_cheats, "sv_cheats", "", 0, false },
 
 	// noset vars
-	{ NULL, "gamename", GAMEVERSION, CVAR_SERVERINFO | CVAR_ROM, 0, false  },
-	{ NULL, "gamedate", __DATE__, CVAR_ROM, 0, false  },
+	{ nullptr, "gamename", GAMEVERSION, CVAR_SERVERINFO | CVAR_ROM, 0, false  },
+	{ nullptr, "gamedate", __DATE__, CVAR_ROM, 0, false  },
 	{ &g_restarted, "g_restarted", "0", CVAR_ROM, 0, false  },
-	{ NULL, "sv_mapname", "", CVAR_SERVERINFO | CVAR_ROM, 0, false  },
+	{ nullptr, "sv_mapname", "", CVAR_SERVERINFO | CVAR_ROM, 0, false  },
 
 	// latched vars
 
@@ -299,12 +299,12 @@ static int nextCheckTime = 0;
 #define AITEAM_MONSTER  2
 #define AITEAM_NEUTRAL  7   // yes, '7'
 
-void G_CheckForCursorHints( gentity_t *ent ) {
+void G_CheckForCursorHints( GameEntity *ent ) {
 	vec3_t forward, right, up, offset, end;
 	trace_t     *tr;
 	float dist;
-	gentity_t   *checkEnt, *traceEnt = 0;
-	playerState_t *ps;
+	GameEntity   *checkEnt, *traceEnt = 0;
+	PlayerState *ps;
 	int hintType, hintDist, hintVal, oldHintType;
 	bool zooming, indirectHit;      // indirectHit means the checkent was not the ent hit by the trace (checkEnt!=traceEnt)
 	int trace_contents;                 // DHM - Nerve
@@ -357,7 +357,7 @@ void G_CheckForCursorHints( gentity_t *ent ) {
 
 	tr = &ps->serverCursorHintTrace;
 	trace_contents = ( CONTENTS_TRIGGER | CONTENTS_SOLID | CONTENTS_PLAYERCLIP | CONTENTS_BODY | CONTENTS_CORPSE );   // SP fine checking corpses
-	SV_Trace( tr, offset, NULL, NULL, end, ps->clientNum, trace_contents, false );
+	SV_Trace( tr, offset, nullptr, nullptr, end, ps->clientNum, trace_contents, false );
 
 	oldHintType = ps->serverCursorHint; // store the old one so we know when there's a transition
 
@@ -409,8 +409,8 @@ void G_CheckForCursorHints( gentity_t *ent ) {
 			}
 
 			if ( canKnife ) {
-				AngleVectors( ent->client->ps.viewangles,       pforward, NULL, NULL );
-				AngleVectors( traceEnt->client->ps.viewangles,  eforward, NULL, NULL );
+				AngleVectors( ent->client->ps.viewangles,       pforward, nullptr, nullptr );
+				AngleVectors( traceEnt->client->ps.viewangles,  eforward, nullptr, nullptr );
 
 				// (SA) TODO: neutralize pitch (so only yaw is considered)?
 				if ( DotProduct( eforward, pforward ) > 0.9f ) {   // from behind
@@ -448,7 +448,7 @@ void G_CheckForCursorHints( gentity_t *ent ) {
 				indirectHit = true;
 
 				// use target for hint icon
-				checkEnt = G_Find( NULL, FOFS( targetname ), traceEnt->target );
+				checkEnt = G_Find( nullptr, FOFS( targetname ), traceEnt->target );
 				if ( !checkEnt ) {     // no target found
 					hintType = HINT_BAD_USER;
 					hintDist = CH_MAX_DIST_ZOOM;    // show this one from super far for debugging
@@ -684,7 +684,7 @@ All but the last will have the teamchain field set to the next one
 ================
 */
 void G_FindTeams( void ) {
-	gentity_t   *e, *e2;
+	GameEntity   *e, *e2;
 	int i, j;
 	int c, c2;
 
@@ -748,7 +748,7 @@ void G_FindTeams( void ) {
 					// note to self: added this because of problems
 					// pertaining to keys and double doors
 					if ( Q_stricmp( e2->classname, "func_door_rotating" ) ) {
-						e2->targetname = NULL;
+						e2->targetname = nullptr;
 					}
 				}
 			}
@@ -836,7 +836,7 @@ void G_UpdateCvars( void ) {
 
 				// check for changed values for particular cvars
 				if ( !Q_stricmp( cv->cvarName, "g_playerStart" ) ) {
-					gentity_t *player;
+					GameEntity *player;
 					player = AICast_FindEntityForName( "player" );
 					if ( player && cv->vmCvar->integer ) {
 						char filename[MAX_QPATH];
@@ -862,7 +862,7 @@ void G_UpdateCvars( void ) {
 
 						// if we are not watching a cutscene, save the game
 						if ( !g_entities[0].client->cameraPortal ) {
-							G_SaveGame( NULL );
+							G_SaveGame( nullptr );
 						}
 
 						Cvar_Set( "cg_norender", "0" );  // camera has started, render 'on'
@@ -922,7 +922,7 @@ G_SendMissionStats
 */
 int G_SendMissionStats() {
 	char cmd[MAX_QPATH];
-	gentity_t   *player;
+	GameEntity   *player;
 	int i, attempts = 0, playtime = 0, minutes, objs = 0, sec = 0, treas = 0;
 	int canExit = 0;
 
@@ -1026,7 +1026,7 @@ void G_InitGame( int levelTime, int randomSeed, int restart )
 	level.num_entities = MAX_CLIENTS;
 
 	// let the server system know where the entites are
-	SV_LocateGameData( &level.gentities[0].shared, level.num_entities, sizeof( gentity_t ),
+	SV_LocateGameData( &level.gentities[0].shared, level.num_entities, sizeof( GameEntity ),
 						 &level.clients[0].ps, sizeof( level.clients[0] ) );
 
 
@@ -1134,7 +1134,7 @@ When the intermission starts, this will be called for all players.
 If a new client connects, this will be called after the spawn function.
 ========================
 */
-void MoveClientToIntermission( gentity_t *ent ) {
+void MoveClientToIntermission( GameEntity *ent ) {
 	// take out of follow mode if needed
 	if ( ent->client->sess.spectatorState == SPECTATOR_FOLLOW ) {
 		StopFollowing( ent );
@@ -1167,11 +1167,11 @@ This is also used for spectator spawns
 ==================
 */
 void FindIntermissionPoint( void ) {
-	gentity_t   *ent, *target;
+	GameEntity   *ent, *target;
 	vec3_t dir;
 
 	// find the intermission spot
-	ent = G_Find( NULL, FOFS( classname ), "info_player_intermission" );
+	ent = G_Find( nullptr, FOFS( classname ), "info_player_intermission" );
 	if ( !ent ) {   // the map creator forgot to put in an intermission point...
 		SelectSpawnPoint( vec3_origin, level.intermission_origin, level.intermission_angle );
 	} else {
@@ -1202,14 +1202,14 @@ or moved to a new level based on the "nextmap" cvar
 void ExitLevel()
 {
 	Cbuf_ExecuteText( EXEC_APPEND, "vstr nextmap\n" );
-	level.changemap = NULL;
+	level.changemap = nullptr;
 	level.intermissiontime = 0;
 
 	// reset all the scores so we don't enter the intermission again
 	level.teamScores[TEAM_RED] = 0;
 	level.teamScores[TEAM_BLUE] = 0;
 	for (int i = 0 ; i < g_maxclients.integer ; i++ ) {
-		gclient_t* cl = level.clients + i;
+		GameClient* cl = level.clients + i;
 		if ( cl->pers.connected != CON_CONNECTED ) {
 			continue;
 		}
@@ -1278,7 +1278,7 @@ Append information about this game to the log file
 */
 void LogExit( const char *string ) {
 	int i, numSorted;
-	gclient_t       *cl;
+	GameClient       *cl;
 
 
 
@@ -1369,7 +1369,7 @@ G_RunThink
 Runs thinking code for this frame if necessary
 =============
 */
-void G_RunThink( gentity_t *ent ) {
+void G_RunThink( GameEntity *ent ) {
 
 	// RF, run scripting
 	if ( ent->shared.s.number >= MAX_CLIENTS ) {
@@ -1384,7 +1384,7 @@ void G_RunThink( gentity_t *ent ) {
 
 	ent->nextthink = 0;
 	if ( !ent->think ) {
-		Com_Error( ERR_DROP, "NULL ent->think" );
+		Com_Error( ERR_DROP, "nullptr ent->think" );
         return; // keep the linter happy, ERR_DROP does not return
 	}
 	ent->think( ent );
@@ -1420,7 +1420,7 @@ void G_RunFrame( int levelTime )
 	//start = Sys_Milliseconds();
 
 	for (int i = 0 ; i < level.num_entities; i++) {
-		gentity_t* ent = &g_entities[i];
+		GameEntity* ent = &g_entities[i];
 		if ( !ent->inuse ) {
 			continue;
 		}
@@ -1542,7 +1542,7 @@ void G_RunFrame( int levelTime )
 
 	// perform final fixups on the players
 	for (int i = 0; i < level.maxclients; i++ ) {
-		gentity_t* ent = &g_entities[i];
+		GameEntity* ent = &g_entities[i];
 		if ( ent->inuse ) {
 			ClientEndFrame( ent );
 		}

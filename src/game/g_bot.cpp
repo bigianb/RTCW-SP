@@ -56,9 +56,9 @@ static botSpawnQueue_t botSpawnQueue[BOT_SPAWN_QUEUE_DEPTH];
 
 vmCvar_t bot_minplayers;
 
-extern gentity_t    *podium1;
-extern gentity_t    *podium2;
-extern gentity_t    *podium3;
+extern GameEntity    *podium1;
+extern GameEntity    *podium2;
+extern GameEntity    *podium3;
 
 
 /*

@@ -43,35 +43,35 @@ vmCvar_t g_scriptDebug;
 //====================================================================
 //
 // action functions need to be declared here so they can be accessed in the scriptAction table
-bool G_ScriptAction_GotoMarker( gentity_t *ent, char *params );
-bool G_ScriptAction_Wait( gentity_t *ent, char *params );
-bool G_ScriptAction_Trigger( gentity_t *ent, char *params );
-bool G_ScriptAction_PlaySound( gentity_t *ent, char *params );
-bool G_ScriptAction_PlayAnim( gentity_t *ent, char *params );
-bool G_ScriptAction_AlertEntity( gentity_t *ent, char *params );
-bool G_ScriptAction_Accum( gentity_t *ent, char *params );
-bool G_ScriptAction_MissionFailed( gentity_t *ent, char *params );
-bool G_ScriptAction_MissionSuccess( gentity_t *ent, char *params );
-bool G_ScriptAction_Print( gentity_t *ent, char *params );
-bool G_ScriptAction_FaceAngles( gentity_t *ent, char *params );
-bool G_ScriptAction_ResetScript( gentity_t *ent, char *params );
-bool G_ScriptAction_TagConnect( gentity_t *ent, char *params );
-bool G_ScriptAction_Halt( gentity_t *ent, char *params );
-bool G_ScriptAction_StopSound( gentity_t *ent, char *params );
-bool G_ScriptAction_StartCam( gentity_t *ent, char *params );
-bool G_ScriptAction_EntityScriptName( gentity_t *ent, char *params );
-bool G_ScriptAction_AIScriptName( gentity_t *ent, char *params );
+bool G_ScriptAction_GotoMarker( GameEntity *ent, char *params );
+bool G_ScriptAction_Wait( GameEntity *ent, char *params );
+bool G_ScriptAction_Trigger( GameEntity *ent, char *params );
+bool G_ScriptAction_PlaySound( GameEntity *ent, char *params );
+bool G_ScriptAction_PlayAnim( GameEntity *ent, char *params );
+bool G_ScriptAction_AlertEntity( GameEntity *ent, char *params );
+bool G_ScriptAction_Accum( GameEntity *ent, char *params );
+bool G_ScriptAction_MissionFailed( GameEntity *ent, char *params );
+bool G_ScriptAction_MissionSuccess( GameEntity *ent, char *params );
+bool G_ScriptAction_Print( GameEntity *ent, char *params );
+bool G_ScriptAction_FaceAngles( GameEntity *ent, char *params );
+bool G_ScriptAction_ResetScript( GameEntity *ent, char *params );
+bool G_ScriptAction_TagConnect( GameEntity *ent, char *params );
+bool G_ScriptAction_Halt( GameEntity *ent, char *params );
+bool G_ScriptAction_StopSound( GameEntity *ent, char *params );
+bool G_ScriptAction_StartCam( GameEntity *ent, char *params );
+bool G_ScriptAction_EntityScriptName( GameEntity *ent, char *params );
+bool G_ScriptAction_AIScriptName( GameEntity *ent, char *params );
 
-bool G_ScriptAction_BackupScript( gentity_t *ent, char *params );
-bool G_ScriptAction_RestoreScript( gentity_t *ent, char *params );
-bool G_ScriptAction_SetHealth( gentity_t *ent, char *params );
+bool G_ScriptAction_BackupScript( GameEntity *ent, char *params );
+bool G_ScriptAction_RestoreScript( GameEntity *ent, char *params );
+bool G_ScriptAction_SetHealth( GameEntity *ent, char *params );
 
 //----(SA)	added
-bool G_ScriptAction_MusicStart( gentity_t *ent, char *params );
-bool G_ScriptAction_MusicPlay( gentity_t *ent, char *params );
-bool G_ScriptAction_MusicStop( gentity_t *ent, char *params );
-bool G_ScriptAction_MusicFade( gentity_t *ent, char *params );
-bool G_ScriptAction_MusicQueue( gentity_t *ent, char *params );
+bool G_ScriptAction_MusicStart( GameEntity *ent, char *params );
+bool G_ScriptAction_MusicPlay( GameEntity *ent, char *params );
+bool G_ScriptAction_MusicStop( GameEntity *ent, char *params );
+bool G_ScriptAction_MusicFade( GameEntity *ent, char *params );
+bool G_ScriptAction_MusicQueue( GameEntity *ent, char *params );
 //----(SA)	end
 
 // these are the actions that each event can call
@@ -106,7 +106,7 @@ g_script_stack_action_t gScriptActions[] =
 	{"mu_fade",                  G_ScriptAction_MusicFade},  // (float target_volume, int time)	// time to fade to target
 	{"mu_queue",             G_ScriptAction_MusicQueue}, // (char *new_music)				// music that will start when previous fades to 0
 
-	{NULL,                      NULL}
+	{nullptr,                      nullptr}
 };
 
 bool G_Script_EventMatch_StringEqual( g_script_event_t *event, char *eventParm );
@@ -115,14 +115,14 @@ bool G_Script_EventMatch_IntInRange( g_script_event_t *event, char *eventParm );
 // the list of events that can start an action sequence
 g_script_event_define_t gScriptEvents[] =
 {
-	{"spawn",            NULL},          // called as each character is spawned into the game
+	{"spawn",            nullptr},          // called as each character is spawned into the game
 	{"trigger",          G_Script_EventMatch_StringEqual},   // something has triggered us (always followed by an identifier)
 	{"pain",         G_Script_EventMatch_IntInRange},    // we've been hurt
-	{"death",            NULL},          // RIP
+	{"death",            nullptr},          // RIP
 	{"activate",     G_Script_EventMatch_StringEqual},   // something has triggered us (always followed by an identifier)
-	{"stopcam",          NULL},
+	{"stopcam",          nullptr},
 
-	{NULL,              NULL}
+	{nullptr,              nullptr}
 };
 
 
@@ -198,7 +198,7 @@ g_script_stack_action_t *G_Script_ActionForString( const char *string ) {
 		}
 	}
 
-	return NULL;
+	return nullptr;
 }
 
 /*
@@ -216,7 +216,7 @@ void G_Script_ScriptLoad( void ) {
 
 	Cvar_Register( &g_scriptDebug, "g_scriptDebug", "1", 0 );
 
-	level.scriptEntity = NULL;
+	level.scriptEntity = nullptr;
 
 	Cvar_VariableStringBuffer( "g_scriptName", filename, sizeof( filename ) );
 	if ( strlen( filename ) > 0 ) {
@@ -250,7 +250,7 @@ G_Script_ScriptParse
   Parses the script for the given entity
 ==============
 */
-void G_Script_ScriptParse( gentity_t *ent ) {
+void G_Script_ScriptParse( GameEntity *ent ) {
 	#define MAX_SCRIPT_EVENTS   64
 
 	bool wantName;
@@ -444,7 +444,7 @@ void G_Script_ScriptParse( gentity_t *ent ) {
 		}
 	}
 
-	// alloc and copy the events into the gentity_t for this cast
+	// alloc and copy the events into the GameEntity for this cast
 	if ( numEventItems > 0 ) {
 		ent->scriptEvents = (g_script_event_t *)G_Alloc( sizeof( g_script_event_t ) * numEventItems );
 		memcpy( ent->scriptEvents, events, sizeof( g_script_event_t ) * numEventItems );
@@ -457,8 +457,8 @@ void G_Script_ScriptParse( gentity_t *ent ) {
 G_Script_ScriptChange
 ================
 */
-bool G_Script_ScriptRun( gentity_t *ent );
-void G_Script_ScriptChange( gentity_t *ent, int newScriptNum ) {
+bool G_Script_ScriptRun( GameEntity *ent );
+void G_Script_ScriptChange( GameEntity *ent, int newScriptNum ) {
 	g_script_status_t scriptStatusBackup;
 
 	// backup the current scripting
@@ -484,7 +484,7 @@ G_Script_ScriptEvent
   An event has occured, for which a script may exist
 ================
 */
-void G_Script_ScriptEvent( gentity_t *ent, const char *eventStr, const char *params ) {
+void G_Script_ScriptEvent( GameEntity *ent, const char *eventStr, const char *params ) {
 	int i, eventNum;
 
 	eventNum = -1;
@@ -525,7 +525,7 @@ G_Script_ScriptRun
   returns true if the script completed
 =============
 */
-bool G_Script_ScriptRun( gentity_t *ent ) {
+bool G_Script_ScriptRun( GameEntity *ent ) {
 	g_script_stack_t *stack;
 
 	if ( saveGamePending ) {
@@ -548,7 +548,7 @@ bool G_Script_ScriptRun( gentity_t *ent ) {
 
 	// if we are still doing a gotomarker, process the movement
 	if ( ent->scriptStatus.scriptFlags & SCFL_GOING_TO_MARKER ) {
-		G_ScriptAction_GotoMarker( ent, NULL );
+		G_ScriptAction_GotoMarker( ent, nullptr );
 	}
 
 	// if we are animating, do the animation
@@ -600,7 +600,7 @@ bool G_Script_ScriptRun( gentity_t *ent ) {
 //================================================================================
 // Script Entities
 
-void script_linkentity( gentity_t *ent ) {
+void script_linkentity( GameEntity *ent ) {
 
 	// this is required since non-solid brushes need to be linked but not solid
 	SV_LinkEntity( &ent->shared );
@@ -610,7 +610,7 @@ void script_linkentity( gentity_t *ent ) {
 //	}
 }
 
-void script_mover_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int damage, int mod ) {
+void script_mover_die( GameEntity *self, GameEntity *inflictor, GameEntity *attacker, int damage, int mod ) {
 	if ( self->spawnflags & 4 ) {
 		switch ( mod ) {
 		case MOD_GRENADE:
@@ -626,17 +626,17 @@ void script_mover_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacke
 	}
 
 	G_Script_ScriptEvent( self, "death", "" );
-	self->die = NULL;
+	self->die = nullptr;
 
 	SV_UnlinkEntity( &self->shared );
 	G_FreeEntity( self );
 }
 
-void script_mover_pain( gentity_t *self, gentity_t *attacker, int damage, vec3_t point ) {
+void script_mover_pain( GameEntity *self, GameEntity *attacker, int damage, vec3_t point ) {
 	G_Script_ScriptEvent( self, "pain", va( "%d %d", self->health, self->health + damage ) );
 }
 
-void script_mover_spawn( gentity_t *ent ) {
+void script_mover_spawn( GameEntity *ent ) {
 	if ( ent->spawnflags & 2 ) {
 		ent->clipmask = CONTENTS_SOLID;
 		ent->shared.r.contents = CONTENTS_SOLID;
@@ -656,11 +656,11 @@ void script_mover_spawn( gentity_t *ent ) {
 	script_linkentity( ent );
 }
 
-void script_mover_use( gentity_t *ent, gentity_t *other, gentity_t *activator ) {
+void script_mover_use( GameEntity *ent, GameEntity *other, GameEntity *activator ) {
 	script_mover_spawn( ent );
 }
 
-void script_mover_blocked( gentity_t *ent, gentity_t *other ) {
+void script_mover_blocked( GameEntity *ent, GameEntity *other ) {
 	// remove it, we must not stop for anything or it will screw up script timing
 	if ( !other->client ) {
 		G_TempEntity( other->shared.s.origin, EV_ITEM_POP );
@@ -674,7 +674,7 @@ void script_mover_blocked( gentity_t *ent, gentity_t *other ) {
 	// start us on our way again (theoretically speaking).
 
 	// kill them
-	G_Damage( other, ent, ent, NULL, NULL, 9999, 0, MOD_CRUSH );
+	G_Damage( other, ent, ent, nullptr, nullptr, 9999, 0, MOD_CRUSH );
 }
 
 /*QUAKED script_mover (0.5 0.25 1.0) ? TRIGGERSPAWN SOLID EXPLOSIVEDAMAGEONLY
@@ -686,7 +686,7 @@ Scripted brush entity. A simplified means of moving brushes around based on even
 "scriptname" name used for scripting purposes (like aiName in AI scripting)
 "health" optionally make this entity damagable
 */
-void SP_script_mover( gentity_t *ent ) {
+void SP_script_mover( GameEntity *ent ) {
 
 	float scale[3] = {1,1,1};
 	vec3_t scalevec;
@@ -711,7 +711,7 @@ void SP_script_mover( gentity_t *ent ) {
 	SV_SetBrushModel( &ent->shared, ent->model );
 
 	InitMover( ent );
-	ent->reached = NULL;
+	ent->reached = nullptr;
 
 	if ( ent->spawnflags & 1 ) {
 		ent->use = script_mover_use;
@@ -751,7 +751,7 @@ void SP_script_mover( gentity_t *ent ) {
 
 //..............................................................................
 
-void script_model_med_spawn( gentity_t *ent ) {
+void script_model_med_spawn( GameEntity *ent ) {
 	if ( ent->spawnflags & 2 ) {
 		ent->clipmask = CONTENTS_SOLID;
 		ent->shared.r.contents = CONTENTS_SOLID;
@@ -767,7 +767,7 @@ void script_model_med_spawn( gentity_t *ent ) {
 	SV_LinkEntity( &ent->shared );
 }
 
-void script_model_med_use( gentity_t *ent, gentity_t *other, gentity_t *activator ) {
+void script_model_med_use( GameEntity *ent, GameEntity *other, GameEntity *activator ) {
 	script_model_med_spawn( ent );
 }
 
@@ -778,7 +778,7 @@ straight through it
 "model" the full path of the model to use
 "scriptname" name used for scripting purposes (like aiName in AI scripting)
 */
-void SP_script_model_med( gentity_t *ent ) {
+void SP_script_model_med( GameEntity *ent ) {
 	if ( !ent->model ) {
 		Com_Error( ERR_DROP, "script_model_med %s must have a \"model\"\n", ent->scriptName );
         return; // keep the linter happy, ERR_DROP does not return
@@ -813,7 +813,7 @@ void SP_script_model_med( gentity_t *ent ) {
 
 "scriptname" name used for scripting purposes (like aiName in AI scripting)
 */
-void SP_script_camera( gentity_t *ent ) {
+void SP_script_camera( GameEntity *ent ) {
 	if ( !ent->scriptName ) {
 		Com_Error( ERR_DROP, "%s must have a \"scriptname\"\n", ent->classname );
         return; // keep the linter happy, ERR_DROP does not return

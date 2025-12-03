@@ -41,7 +41,7 @@ int snd_chairhitground;
 int chair_metalbreak;
 
 // JOSEPH 1-28-00
-void DropToFloorG( gentity_t *ent ) {
+void DropToFloorG( GameEntity *ent ) {
 	vec3_t dest;
 	trace_t tr;
 
@@ -59,7 +59,7 @@ void DropToFloorG( gentity_t *ent ) {
 	ent->nextthink = level.time + FRAMETIME;
 }
 
-void DropToFloor( gentity_t *ent ) {
+void DropToFloor( GameEntity *ent ) {
 	vec3_t dest;
 	trace_t tr;
 
@@ -82,7 +82,7 @@ void DropToFloor( gentity_t *ent ) {
 	ent->nextthink = level.time + FRAMETIME;
 }
 
-void moveit( gentity_t *ent, float yaw, float dist ) {
+void moveit( GameEntity *ent, float yaw, float dist ) {
 	vec3_t move;
 	vec3_t origin;
 	trace_t tr;
@@ -122,7 +122,7 @@ void moveit( gentity_t *ent, float yaw, float dist ) {
 	SV_LinkEntity( &ent->shared );
 }
 
-void touch_props_box_32( gentity_t *self, gentity_t *other, trace_t *trace ) {
+void touch_props_box_32( GameEntity *self, GameEntity *other, trace_t *trace ) {
 	float ratio;
 	vec3_t v;
 
@@ -138,7 +138,7 @@ void touch_props_box_32( gentity_t *self, gentity_t *other, trace_t *trace ) {
 /*QUAKED props_box_32 (1 0 0) (-16 -16 -16) (16 16 16)
 
 */
-void SP_props_box_32( gentity_t *self ) {
+void SP_props_box_32( GameEntity *self ) {
 	self->shared.s.modelindex = G_ModelIndex( "models/mapobjects/boxes/box32.md3" );
 
 	self->clipmask   = CONTENTS_SOLID;
@@ -155,7 +155,7 @@ void SP_props_box_32( gentity_t *self ) {
 	self->nextthink = level.time + FRAMETIME;
 }
 
-void touch_props_box_48( gentity_t *self, gentity_t *other, trace_t *trace ) {
+void touch_props_box_48( GameEntity *self, GameEntity *other, trace_t *trace ) {
 	float ratio;
 	vec3_t v;
 
@@ -171,7 +171,7 @@ void touch_props_box_48( gentity_t *self, gentity_t *other, trace_t *trace ) {
 /*QUAKED props_box_48 (1 0 0) (-24 -24 -24) (24 24 24)
 
 */
-void SP_props_box_48( gentity_t *self ) {
+void SP_props_box_48( GameEntity *self ) {
 	self->shared.s.modelindex = G_ModelIndex( "models/mapobjects/boxes/box48.md3" );
 
 	self->clipmask   = CONTENTS_SOLID;
@@ -188,7 +188,7 @@ void SP_props_box_48( gentity_t *self ) {
 	self->nextthink = level.time + FRAMETIME;
 }
 
-void touch_props_box_64( gentity_t *self, gentity_t *other, trace_t *trace ) {
+void touch_props_box_64( GameEntity *self, GameEntity *other, trace_t *trace ) {
 	float ratio;
 	vec3_t v;
 
@@ -204,7 +204,7 @@ void touch_props_box_64( gentity_t *self, gentity_t *other, trace_t *trace ) {
 /*QUAKED props_box_64 (1 0 0) (-32 -32 -32) (32 32 32)
 
 */
-void SP_props_box_64( gentity_t *self ) {
+void SP_props_box_64( GameEntity *self ) {
 	self->shared.s.modelindex = G_ModelIndex( "models/mapobjects/boxes/box64.md3" );
 
 	self->clipmask   = CONTENTS_SOLID;
@@ -224,8 +224,8 @@ void SP_props_box_64( gentity_t *self ) {
 
 // Rafael
 
-void Psmoke_think( gentity_t *ent ) {
-	gentity_t *tent;
+void Psmoke_think( GameEntity *ent ) {
+	GameEntity *tent;
 
 	ent->count++;
 
@@ -245,8 +245,8 @@ void Psmoke_think( gentity_t *ent ) {
 	ent->nextthink = level.time + FRAMETIME;
 }
 
-void prop_smoke( gentity_t *ent ) {
-	gentity_t *Psmoke;
+void prop_smoke( GameEntity *ent ) {
+	GameEntity *Psmoke;
 
 	Psmoke = G_Spawn();
 	VectorCopy( ent->shared.r.currentOrigin, Psmoke->shared.s.origin );
@@ -270,8 +270,8 @@ the origin
 speed controls how quickly the sparks will travel default is 2
 */
 
-void PGUNsparks_use( gentity_t *ent, gentity_t *self, gentity_t *activator ) {
-	gentity_t *tent;
+void PGUNsparks_use( GameEntity *ent, GameEntity *self, GameEntity *activator ) {
+	GameEntity *tent;
 
 	tent = G_TempEntity( ent->shared.r.currentOrigin, EV_GUNSPARKS );
 	VectorCopy( ent->shared.r.currentOrigin, tent->shared.s.origin );
@@ -281,8 +281,8 @@ void PGUNsparks_use( gentity_t *ent, gentity_t *self, gentity_t *activator ) {
 
 }
 
-void Psparks_think( gentity_t *ent ) {
-	gentity_t   *tent;
+void Psparks_think( GameEntity *ent ) {
+	GameEntity   *tent;
 
 //(SA) MOVE TO CLIENT!
 	return;
@@ -304,13 +304,13 @@ void Psparks_think( gentity_t *ent ) {
 	ent->nextthink = level.time + FRAMETIME + ent->delay + ( rand() % 600 );
 }
 
-void sparks_angles_think( gentity_t *ent ) {
+void sparks_angles_think( GameEntity *ent ) {
 
-	gentity_t *target = NULL;
+	GameEntity *target = nullptr;
 	vec3_t vec;
 
 	if ( ent->target ) {
-		target = G_Find( NULL, FOFS( targetname ), ent->target );
+		target = G_Find( nullptr, FOFS( targetname ), ent->target );
 	}
 
 	if ( !target ) {
@@ -333,7 +333,7 @@ void sparks_angles_think( gentity_t *ent ) {
 
 }
 
-void SP_props_sparks( gentity_t *ent ) {
+void SP_props_sparks( GameEntity *ent ) {
 
 	G_SetOrigin( ent, ent->shared.s.origin );
 	ent->shared.s.eType = ET_GENERAL;
@@ -376,7 +376,7 @@ this entity must be used to see the effect
 "health" number to spawn default is 4
 */
 
-void SP_props_gunsparks( gentity_t *ent ) {
+void SP_props_gunsparks( GameEntity *ent ) {
 	G_SetOrigin( ent, ent->shared.s.origin );
 	ent->shared.s.eType = ET_GENERAL;
 
@@ -399,12 +399,12 @@ void SP_props_gunsparks( gentity_t *ent ) {
 health = how many pieces 16 is default
 */
 
-void smokedust_use( gentity_t *ent, gentity_t *self, gentity_t *activator ) {
+void smokedust_use( GameEntity *ent, GameEntity *self, GameEntity *activator ) {
 	int i;
-	gentity_t   *tent;
+	GameEntity   *tent;
 	vec3_t forward;
 
-	AngleVectors( ent->shared.r.currentAngles, forward, NULL, NULL );
+	AngleVectors( ent->shared.r.currentAngles, forward, nullptr, nullptr );
 
 	for ( i = 0; i < ent->health; i++ )
 	{
@@ -417,7 +417,7 @@ void smokedust_use( gentity_t *ent, gentity_t *self, gentity_t *activator ) {
 	}
 }
 
-void SP_SmokeDust( gentity_t *ent ) {
+void SP_SmokeDust( GameEntity *ent ) {
 
 	ent->use = smokedust_use;
 
@@ -436,8 +436,8 @@ you should give this ent a target use a not null
 or you could set its angles in the editor
 */
 
-void dust_use( gentity_t *ent, gentity_t *self, gentity_t *activator ) {
-	gentity_t   *tent;
+void dust_use( GameEntity *ent, GameEntity *self, GameEntity *activator ) {
+	GameEntity   *tent;
 	vec3_t forward;
 
 	if ( ent->target ) {
@@ -450,7 +450,7 @@ void dust_use( gentity_t *ent, gentity_t *self, gentity_t *activator ) {
 	} else
 	{
 
-		AngleVectors( ent->shared.r.currentAngles, forward, NULL, NULL );
+		AngleVectors( ent->shared.r.currentAngles, forward, nullptr, nullptr );
 
 		tent = G_TempEntity( ent->shared.r.currentOrigin, EV_DUST );
 		VectorCopy( ent->shared.r.currentOrigin, tent->shared.s.origin );
@@ -461,11 +461,11 @@ void dust_use( gentity_t *ent, gentity_t *self, gentity_t *activator ) {
 	}
 }
 
-void dust_angles_think( gentity_t *ent ) {
-	gentity_t *target;
+void dust_angles_think( GameEntity *ent ) {
+	GameEntity *target;
 	vec3_t vec;
 
-	target = G_Find( NULL, FOFS( targetname ), ent->target );
+	target = G_Find( nullptr, FOFS( targetname ), ent->target );
 
 	if ( !target ) {
 		return;
@@ -477,7 +477,7 @@ void dust_angles_think( gentity_t *ent ) {
 
 }
 
-void SP_Dust( gentity_t *ent ) {
+void SP_Dust( GameEntity *ent ) {
 	ent->use = dust_use;
 	G_SetOrigin( ent, ent->shared.s.origin );
 	ent->shared.s.eType = ET_GENERAL;
@@ -493,10 +493,10 @@ void SP_Dust( gentity_t *ent ) {
 //////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////
 
-extern void G_ExplodeMissile( gentity_t *ent );
+extern void G_ExplodeMissile( GameEntity *ent );
 
-void propExplosionLarge( gentity_t *ent ) {
-	gentity_t *bolt;
+void propExplosionLarge( GameEntity *ent ) {
+	GameEntity *bolt;
 
 	bolt = G_Spawn();
 	bolt->classname = "props_explosion_large";
@@ -520,10 +520,10 @@ void propExplosionLarge( gentity_t *ent ) {
 	VectorCopy( ent->shared.r.currentOrigin, bolt->shared.r.currentOrigin );
 }
 
-void propExplosion( gentity_t *ent ) {
-	gentity_t *bolt;
+void propExplosion( GameEntity *ent ) {
+	GameEntity *bolt;
 
-	extern void G_ExplodeMissile( gentity_t *ent );
+	extern void G_ExplodeMissile( GameEntity *ent );
 	bolt = G_Spawn();
 	bolt->classname = "props_explosion";
 	bolt->nextthink = level.time + FRAMETIME;
@@ -546,7 +546,7 @@ void propExplosion( gentity_t *ent ) {
 	VectorCopy( ent->shared.r.currentOrigin, bolt->shared.r.currentOrigin );
 }
 
-void InitProp( gentity_t *ent ) {
+void InitProp( GameEntity *ent ) {
 	float light;
 	vec3_t color;
 	bool lightSet, colorSet;
@@ -609,7 +609,7 @@ void InitProp( gentity_t *ent ) {
 	G_SetAngle( ent, ent->shared.s.angles );
 }
 
-void props_bench_think( gentity_t *ent ) {
+void props_bench_think( GameEntity *ent ) {
 	ent->shared.s.frame++;
 
 	if ( ent->shared.s.frame < 28 ) {
@@ -620,12 +620,12 @@ void props_bench_think( gentity_t *ent ) {
 		ent->shared.r.contents = 0;
 		ent->takedamage = false;
 
-		G_UseTargets( ent, NULL );
+		G_UseTargets( ent, nullptr );
 	}
 
 }
 
-void props_bench_die( gentity_t *ent, gentity_t *inflictor, gentity_t *attacker, int damage, int mod ) {
+void props_bench_die( GameEntity *ent, GameEntity *inflictor, GameEntity *attacker, int damage, int mod ) {
 	ent->think = props_bench_think;
 	ent->nextthink = level.time + FRAMETIME;
 }
@@ -634,7 +634,7 @@ void props_bench_die( gentity_t *ent, gentity_t *inflictor, gentity_t *attacker,
 requires an origin brush
 health = 10 by default
 */
-void SP_Props_Bench( gentity_t *ent ) {
+void SP_Props_Bench( GameEntity *ent ) {
 
 	SV_SetBrushModel( &ent->shared, ent->model );
 
@@ -653,13 +653,13 @@ void SP_Props_Bench( gentity_t *ent ) {
 	SV_LinkEntity( &ent->shared );
 }
 
-void props_radio_die( gentity_t *ent, gentity_t *inflictor, gentity_t *attacker, int damage, int mod ) {
+void props_radio_die( GameEntity *ent, GameEntity *inflictor, GameEntity *attacker, int damage, int mod ) {
 
 	propExplosion( ent );
 
 	ent->takedamage = false;
 
-	G_UseTargets( ent, NULL );
+	G_UseTargets( ent, nullptr );
 
 	G_FreeEntity( ent );
 }
@@ -668,11 +668,11 @@ void props_radio_die( gentity_t *ent, gentity_t *inflictor, gentity_t *attacker,
 requires an origin brush
 health = defaults to 100
 */
-void SP_Props_Radio( gentity_t *ent ) {
+void SP_Props_Radio( GameEntity *ent ) {
 
 	// Ridah, had to add this so I could load castle18dk7
 	if ( !ent->model ) {
-		Com_Printf( S_COLOR_RED "props_radio with NULL model\n" );
+		Com_Printf( S_COLOR_RED "props_radio with nullptr model\n" );
 		return;
 	}
 
@@ -693,7 +693,7 @@ void SP_Props_Radio( gentity_t *ent ) {
 }
 
 
-void props_radio_dieSEVEN( gentity_t *ent, gentity_t *inflictor, gentity_t *attacker, int damage, int mod ) {
+void props_radio_dieSEVEN( GameEntity *ent, GameEntity *inflictor, GameEntity *attacker, int damage, int mod ) {
 
 	int i;
 
@@ -705,11 +705,11 @@ void props_radio_dieSEVEN( gentity_t *ent, gentity_t *inflictor, gentity_t *atta
 	Prop_Break_Sound( ent );
 
 	ent->takedamage = false;
-	ent->die = NULL;
+	ent->die = nullptr;
 
 	SV_LinkEntity( &ent->shared );
 
-	G_UseTargets( ent, NULL );
+	G_UseTargets( ent, nullptr );
 
 	G_FreeEntity( ent );
 }
@@ -728,10 +728,10 @@ health = defaults to 100
 
   it will fire all its targets upon death
 */
-void SP_Props_RadioSEVEN( gentity_t *ent ) {
+void SP_Props_RadioSEVEN( GameEntity *ent ) {
 
 	if ( !ent->model ) {
-		Com_Printf( S_COLOR_RED "props_radio with NULL model\n" );
+		Com_Printf( S_COLOR_RED "props_radio with nullptr model\n" );
 		return;
 	}
 
@@ -754,9 +754,9 @@ void SP_Props_RadioSEVEN( gentity_t *ent ) {
 }
 
 
-void locker_tall_think( gentity_t *ent ) {
+void locker_tall_think( GameEntity *ent ) {
 	if ( ent->shared.s.frame == 30 ) {
-		G_UseTargets( ent, NULL );
+		G_UseTargets( ent, nullptr );
 
 	} else
 	{
@@ -766,23 +766,23 @@ void locker_tall_think( gentity_t *ent ) {
 
 }
 
-void props_locker_tall_die( gentity_t *ent, gentity_t *inflictor, gentity_t *attacker, int damage, int mod ) {
+void props_locker_tall_die( GameEntity *ent, GameEntity *inflictor, GameEntity *attacker, int damage, int mod ) {
 	ent->think = locker_tall_think;
 	ent->nextthink = level.time + FRAMETIME;
 
 	ent->takedamage = false;
 
-	G_UseTargets( ent, NULL );
+	G_UseTargets( ent, nullptr );
 }
 
 /*QUAKED props_locker_tall (.8 .6 .2) ?
 requires an origin brush
 */
-void SP_Props_Locker_Tall( gentity_t *ent ) {
+void SP_Props_Locker_Tall( GameEntity *ent ) {
 
 	// Ridah, had to add this so I could load castle18dk7
 	if ( !ent->model ) {
-		Com_Printf( S_COLOR_RED "props_locker_tall with NULL model\n" );
+		Com_Printf( S_COLOR_RED "props_locker_tall with nullptr model\n" );
 		return;
 	}
 
@@ -872,11 +872,11 @@ shard =
 	shard_ceramic = 3
 
 */
-void Props_Chair_Think( gentity_t *self );
-void Props_Chair_Touch( gentity_t *self, gentity_t *other, trace_t *trace );
-void Props_Chair_Die( gentity_t *ent, gentity_t *inflictor, gentity_t *attacker, int damage, int mod );
+void Props_Chair_Think( GameEntity *self );
+void Props_Chair_Touch( GameEntity *self, GameEntity *other, trace_t *trace );
+void Props_Chair_Die( GameEntity *ent, GameEntity *inflictor, GameEntity *attacker, int damage, int mod );
 
-void Just_Got_Thrown( gentity_t *self ) {
+void Just_Got_Thrown( GameEntity *self ) {
 	float len;
 	vec3_t vec;
 	bool prop_hits = false;
@@ -887,17 +887,17 @@ void Just_Got_Thrown( gentity_t *self ) {
 		self->nextthink = level.time + FRAMETIME;
 
 		if ( self->enemy ) {
-			gentity_t *player;
+			GameEntity *player;
 
 			player = AICast_FindEntityForName( "player" );
 
 			if ( player && player != self->enemy ) {
 				prop_hits = true;
-				G_Damage( self->enemy, self, player, NULL, NULL, 5, 0, MOD_CRUSH );
+				G_Damage( self->enemy, self, player, nullptr, nullptr, 5, 0, MOD_CRUSH );
 
 				self->die = Props_Chair_Die;
 
-				self->die( self, self, NULL, 10, 0 );
+				self->die( self, self, nullptr, 10, 0 );
 			}
 		}
 
@@ -914,8 +914,8 @@ void Just_Got_Thrown( gentity_t *self ) {
 		{
 			trace_t trace;
 			vec3_t end;
-			gentity_t   *traceEnt;
-			gentity_t   *player;
+			GameEntity   *traceEnt;
+			GameEntity   *player;
 			bool reGrab = true;
 
 			VectorCopy( self->shared.r.currentOrigin, end );
@@ -953,7 +953,7 @@ void Just_Got_Thrown( gentity_t *self ) {
 					self->nextthink = level.time + 50;
 
 					self->think = Props_Chair_Think;
-					self->touch = NULL;
+					self->touch = nullptr;
 					self->die = Props_Chair_Die;
 					self->shared.s.eType = ET_MOVER;
 
@@ -979,30 +979,30 @@ void Just_Got_Thrown( gentity_t *self ) {
 	self->shared.r.ownerNum = self->shared.s.number;
 
 	if ( len > 256 ) {
-		self->die( self, self, NULL, 10, 0 );
+		self->die( self, self, nullptr, 10, 0 );
 	}
 
 }
 
-void Props_TurnLightsOff( gentity_t *self ) {
+void Props_TurnLightsOff( GameEntity *self ) {
 	if ( !Q_stricmp( self->classname, "props_desklamp" ) ) {
 		if ( self->target ) {
-			G_UseTargets( self, NULL );
-			self->target = NULL;
+			G_UseTargets( self, nullptr );
+			self->target = nullptr;
 		}
 	}
 }
 
-void Props_Activated( gentity_t *self ) {
+void Props_Activated( GameEntity *self ) {
 	vec3_t angles;
 	vec3_t dest;
 	vec3_t forward, right;
 	vec3_t velocity;
 	vec3_t prop_ang;
 
-	gentity_t *prop;
+	GameEntity *prop;
 
-	gentity_t   *owner;
+	GameEntity   *owner;
 
 	owner = &g_entities[self->shared.r.ownerNum];
 
@@ -1016,7 +1016,7 @@ void Props_Activated( gentity_t *self ) {
 
 	if ( !owner->active) {
 
-		owner->melee = NULL;
+		owner->melee = nullptr;
 
 		self->physicsObject = true;
 		self->physicsBounce = 0.2;
@@ -1030,12 +1030,12 @@ void Props_Activated( gentity_t *self ) {
 
 		G_AddEvent( owner, EV_GENERAL_SOUND, snd_chairthrow );
 
-		AngleVectors( owner->client->ps.viewangles, velocity, NULL, NULL );
+		AngleVectors( owner->client->ps.viewangles, velocity, nullptr, nullptr );
 		VectorScale( velocity, 250, velocity );
 		velocity[2] += 100 + crandom() * 25;
 		VectorCopy( velocity, self->shared.s.pos.trDelta );
 
-		self->think = NULL;
+		self->think = nullptr;
 		self->nextthink = 0;
 
 		prop = G_Spawn();
@@ -1118,7 +1118,7 @@ void Props_Activated( gentity_t *self ) {
 
 	self->shared.s.apos.trBase[YAW] = owner->client->ps.viewangles[YAW];
 
-	AngleVectors( angles, forward, right, NULL );
+	AngleVectors( angles, forward, right, nullptr );
 	VectorCopy( owner->shared.r.currentOrigin, dest );
 
 	VectorCopy( dest, self->shared.r.currentOrigin );
@@ -1132,9 +1132,9 @@ void Props_Activated( gentity_t *self ) {
 
 }
 
-void Prop_Check_Ground( gentity_t *self );
+void Prop_Check_Ground( GameEntity *self );
 
-void Props_Chair_Think( gentity_t *self ) {
+void Props_Chair_Think( GameEntity *self ) {
 	trace_t tr;
 
 	if ( self->active ) {
@@ -1201,7 +1201,7 @@ void Props_Chair_Think( gentity_t *self ) {
 	SV_LinkEntity( &self->shared );
 }
 
-bool Prop_Touch( gentity_t *self, gentity_t *other, vec3_t v ) {
+bool Prop_Touch( GameEntity *self, GameEntity *other, vec3_t v ) {
 
 	vec3_t forward;
 	vec3_t dest;
@@ -1216,7 +1216,7 @@ bool Prop_Touch( gentity_t *self, gentity_t *other, vec3_t v ) {
 
 	vectoangles( v, angle );
 	angle[0] = 0;
-	AngleVectors( angle, forward, NULL, NULL );
+	AngleVectors( angle, forward, nullptr, nullptr );
 	VectorClear( dest );
 	VectorMA( dest, 128, forward, dest );
 	VectorMA( self->shared.r.currentOrigin, 32, forward, end );
@@ -1248,7 +1248,7 @@ bool Prop_Touch( gentity_t *self, gentity_t *other, vec3_t v ) {
 	return true;
 }
 
-void Prop_Check_Ground( gentity_t *self ) {
+void Prop_Check_Ground( GameEntity *self ) {
 	vec3_t mins, maxs;
 	vec3_t start, end;
 	trace_t tr;
@@ -1272,7 +1272,7 @@ void Prop_Check_Ground( gentity_t *self ) {
 
 }
 
-void Props_Chair_Touch( gentity_t *self, gentity_t *other, trace_t *trace ) {
+void Props_Chair_Touch( GameEntity *self, GameEntity *other, trace_t *trace ) {
 	vec3_t v;
 	bool has_moved;
 
@@ -1314,21 +1314,21 @@ void Props_Chair_Touch( gentity_t *self, gentity_t *other, trace_t *trace ) {
 	if ( !Q_stricmp( self->classname, "props_desklamp" ) ) {
 		// player may have picked it up before
 		if ( self->target ) {
-			G_UseTargets( self, NULL );
-			self->target = NULL;
+			G_UseTargets( self, nullptr );
+			self->target = nullptr;
 		}
 	}
 
 }
 
-void Props_Chair_Animate( gentity_t *ent ) {
+void Props_Chair_Animate( GameEntity *ent ) {
 
-	ent->touch = NULL;
+	ent->touch = nullptr;
 
 	if ( !Q_stricmp( ent->classname, "props_chair" ) ) {
 		if ( ent->shared.s.frame >= 27 ) {
 			ent->shared.s.frame = 27;
-			G_UseTargets( ent, NULL );
+			G_UseTargets( ent, nullptr );
 			ent->think = G_FreeEntity;
 			ent->nextthink = level.time + 2000;
 			ent->shared.s.time = level.time;
@@ -1346,7 +1346,7 @@ void Props_Chair_Animate( gentity_t *ent ) {
 		) {
 		if ( ent->shared.s.frame >= 20 ) {
 			ent->shared.s.frame = 20;
-			G_UseTargets( ent, NULL );
+			G_UseTargets( ent, nullptr );
 			ent->think = G_FreeEntity;
 			ent->nextthink = level.time + 2000;
 			ent->shared.s.time = level.time;
@@ -1360,7 +1360,7 @@ void Props_Chair_Animate( gentity_t *ent ) {
 		if ( ent->shared.s.frame >= 11 ) {
 			// player may have picked it up before
 			if ( ent->target ) {
-				G_UseTargets( ent, NULL );
+				G_UseTargets( ent, nullptr );
 			}
 
 			ent->think = G_FreeEntity;
@@ -1388,8 +1388,8 @@ void Props_Chair_Animate( gentity_t *ent ) {
 
 }
 
-void Spawn_Shard( gentity_t *ent, gentity_t *inflictor, int quantity, int type ) {
-	gentity_t *sfx;
+void Spawn_Shard( GameEntity *ent, GameEntity *inflictor, int quantity, int type ) {
+	GameEntity *sfx;
 	vec3_t dir, start;
 
 	VectorCopy( ent->shared.r.currentOrigin, start );
@@ -1429,7 +1429,7 @@ void Spawn_Shard( gentity_t *ent, gentity_t *inflictor, int quantity, int type )
 	SV_LinkEntity( &sfx->shared );
 }
 
-void Prop_Break_Sound( gentity_t *ent ) {
+void Prop_Break_Sound( GameEntity *ent ) {
 	switch ( ent->count )
 	{
 	case shard_wood:
@@ -1448,25 +1448,25 @@ void Prop_Break_Sound( gentity_t *ent ) {
 }
 
 
-void Props_Chair_Die( gentity_t *ent, gentity_t *inflictor, gentity_t *attacker, int damage, int mod ) {
+void Props_Chair_Die( GameEntity *ent, GameEntity *inflictor, GameEntity *attacker, int damage, int mod ) {
 	int quantity;
 	int type;
 	int deathSound;
 
 	// if (ent->active)
 	{
-		gentity_t *player;
+		GameEntity *player;
 
 		player = AICast_FindEntityForName( "player" );
 
 		if ( player && player->melee == ent ) {
-			player->melee = NULL;
+			player->melee = nullptr;
 			player->active = false;
 			player->client->ps.eFlags &= ~EF_MELEE_ACTIVE;
 
 		} else if ( player && player->shared.s.number == ent->shared.r.ownerNum )     {
 			player->active = false;
-			player->melee = NULL;
+			player->melee = nullptr;
 			player->client->ps.eFlags &= ~EF_MELEE_ACTIVE;
 		}
 	}
@@ -1511,19 +1511,19 @@ void Props_Chair_Die( gentity_t *ent, gentity_t *inflictor, gentity_t *attacker,
 
 }
 
-void Props_Chair_Skyboxtouch( gentity_t *ent ) {
+void Props_Chair_Skyboxtouch( GameEntity *ent ) {
 
-	gentity_t *player;
+	GameEntity *player;
 
 	player = AICast_FindEntityForName( "player" );
 
 	if ( player && player->melee == ent ) {
-		player->melee = NULL;
+		player->melee = nullptr;
 		player->active = false;
 		player->client->ps.eFlags &= ~EF_MELEE_ACTIVE;
 	} else if ( player && player->shared.s.number == ent->shared.r.ownerNum )     {
 		player->active = false;
-		player->melee = NULL;
+		player->melee = nullptr;
 		player->client->ps.eFlags &= ~EF_MELEE_ACTIVE;
 	}
 
@@ -1531,7 +1531,7 @@ void Props_Chair_Skyboxtouch( gentity_t *ent ) {
 
 }
 
-void SP_Props_Chair( gentity_t *ent ) {
+void SP_Props_Chair( GameEntity *ent ) {
 	int mass;
 
 	ent->shared.s.modelindex = G_ModelIndex( "models/furniture/chair/chair_office3.md3" );
@@ -1591,7 +1591,7 @@ void SP_Props_Chair( gentity_t *ent ) {
 SP_Props_GenericChair
 ==============
 */
-void SP_Props_GenericChair( gentity_t *ent ) {
+void SP_Props_GenericChair( GameEntity *ent ) {
 	int mass;
 
 	ent->delay = 0; // inherits damage value
@@ -1651,7 +1651,7 @@ void SP_Props_GenericChair( gentity_t *ent ) {
 SP_Props_ChairChat
 ==============
 */
-void SP_Props_ChairChat( gentity_t *ent ) {
+void SP_Props_ChairChat( GameEntity *ent ) {
 	if ( !ent->model ) {
 		ent->model = "models/furniture/chair/chair_chat.md3";
 	}
@@ -1665,7 +1665,7 @@ void SP_Props_ChairChat( gentity_t *ent ) {
 SP_Props_ChairChatArm
 ==============
 */
-void SP_Props_ChairChatArm( gentity_t *ent ) {
+void SP_Props_ChairChatArm( GameEntity *ent ) {
 	if ( !ent->model ) {
 		ent->model = "models/furniture/chair/chair_chatarm.md3";
 	}
@@ -1679,7 +1679,7 @@ void SP_Props_ChairChatArm( gentity_t *ent ) {
 SP_Props_ChairSide
 ==============
 */
-void SP_Props_ChairSide( gentity_t *ent ) {
+void SP_Props_ChairSide( GameEntity *ent ) {
 	if ( !ent->model ) {
 		ent->model = "models/furniture/chair/sidechair3.md3";
 	}
@@ -1693,7 +1693,7 @@ void SP_Props_ChairSide( gentity_t *ent ) {
 SP_Props_ChairHiback
 ==============
 */
-void SP_Props_ChairHiback( gentity_t *ent ) {
+void SP_Props_ChairHiback( GameEntity *ent ) {
 	if ( !ent->model ) {
 		ent->model = "models/furniture/chair/hiback5.md3";
 	}
@@ -1707,17 +1707,17 @@ void SP_Props_ChairHiback( gentity_t *ent ) {
 
 
 
-void Use_DamageInflictor( gentity_t *ent, gentity_t *other, gentity_t *activator ) {
-	gentity_t *daent;
+void Use_DamageInflictor( GameEntity *ent, GameEntity *other, GameEntity *activator ) {
+	GameEntity *daent;
 
-	daent = NULL;
-	while ( ( daent = G_Find( daent, FOFS( targetname ), daent->target ) ) != NULL )
+	daent = nullptr;
+	while ( ( daent = G_Find( daent, FOFS( targetname ), daent->target ) ) != nullptr )
 	{
 		if ( daent == ent ) {
 			Com_Printf( "Use_DamageInflictor damaging self.\n" );
 		} else
 		{
-			G_Damage( daent, ent, ent, NULL, NULL, 9999, 0, MOD_CRUSH );
+			G_Damage( daent, ent, ent, nullptr, nullptr, 9999, 0, MOD_CRUSH );
 		}
 	}
 
@@ -1728,7 +1728,7 @@ void Use_DamageInflictor( gentity_t *ent, gentity_t *other, gentity_t *activator
 this entity when used will cause 9999 damage to all entities it is targeting
 then it will be removed
 */
-void SP_Props_DamageInflictor( gentity_t *ent ) {
+void SP_Props_DamageInflictor( GameEntity *ent ) {
 	G_SetOrigin( ent, ent->shared.s.origin );
 	ent->shared.s.eType = ET_GENERAL;
 
@@ -1748,15 +1748,15 @@ shard_ceramic = 3
 
 */
 
-void Use_Props_Shard_Generator( gentity_t *ent, gentity_t *other, gentity_t *activator ) {
+void Use_Props_Shard_Generator( GameEntity *ent, GameEntity *other, GameEntity *activator ) {
 	int quantity;
 	int type;
-	gentity_t *inflictor = NULL;
+	GameEntity *inflictor = nullptr;
 
 	type = ent->count;
 	quantity = ent->wait;
 
-	inflictor = G_Find( NULL, FOFS( targetname ), ent->target );
+	inflictor = G_Find( nullptr, FOFS( targetname ), ent->target );
 
 	if ( inflictor ) {
 		Spawn_Shard( ent, inflictor, quantity, type );
@@ -1765,7 +1765,7 @@ void Use_Props_Shard_Generator( gentity_t *ent, gentity_t *other, gentity_t *act
 	G_FreeEntity( ent );
 }
 
-void SP_props_shard_generator( gentity_t *ent ) {
+void SP_props_shard_generator( GameEntity *ent ) {
 	G_SetOrigin( ent, ent->shared.s.origin );
 	ent->shared.s.eType = ET_GENERAL;
 	ent->use = Use_Props_Shard_Generator;
@@ -1794,7 +1794,7 @@ shard =
 	shard_ceramic = 3
 
 */
-void SP_Props_Desklamp( gentity_t *ent ) {
+void SP_Props_Desklamp( GameEntity *ent ) {
 	int mass;
 
 	ent->shared.s.modelindex = G_ModelIndex( "models/furniture/lights/desklamp.md3" );
@@ -1853,7 +1853,7 @@ this will ensure that the oil sprite will show up where you want it
 ( be sure to put it on the floor )
 the default is in the middle of the barrel on the floor
 */
-void Props_Barrel_Touch( gentity_t *self, gentity_t *other, trace_t *trace ) {
+void Props_Barrel_Touch( GameEntity *self, GameEntity *other, trace_t *trace ) {
 	return; // barrels cant move
 
 	if ( !( self->spawnflags & 4 ) ) {
@@ -1861,19 +1861,19 @@ void Props_Barrel_Touch( gentity_t *self, gentity_t *other, trace_t *trace ) {
 	}
 }
 
-void Props_Barrel_Animate( gentity_t *ent ) {
+void Props_Barrel_Animate( GameEntity *ent ) {
 	float ratio;
 	vec3_t v;
 
 	if ( ent->shared.s.frame == 14 ) {
 		if ( ent->spawnflags & 1 ) {
-			//	G_UseTargets (ent, NULL);
+			//	G_UseTargets (ent, nullptr);
 			ent->think = G_FreeEntity;
 			ent->nextthink = level.time + 25000;
 			return;
 		} else
 		{
-			//	G_UseTargets (ent, NULL);
+			//	G_UseTargets (ent, nullptr);
 			ent->think = G_FreeEntity;
 			ent->nextthink = level.time + 25000;
 			//ent->shared.s.time = level.time;
@@ -1895,8 +1895,8 @@ void Props_Barrel_Animate( gentity_t *ent ) {
 
 }
 
-void barrel_smoke( gentity_t *ent ) {
-	gentity_t   *tent;
+void barrel_smoke( GameEntity *ent ) {
+	GameEntity   *tent;
 	vec3_t point;
 
 	VectorCopy( ent->shared.r.currentOrigin, point );
@@ -1912,7 +1912,7 @@ void barrel_smoke( gentity_t *ent ) {
 
 }
 
-void smoker_think( gentity_t *ent ) {
+void smoker_think( GameEntity *ent ) {
 	ent->count--;
 
 	if ( !ent->count ) {
@@ -1925,13 +1925,13 @@ void smoker_think( gentity_t *ent ) {
 
 }
 
-void SP_OilSlick( gentity_t *ent ) {
-	gentity_t *tent;
-	gentity_t   *target = NULL;
+void SP_OilSlick( GameEntity *ent ) {
+	GameEntity *tent;
+	GameEntity   *target = nullptr;
 	vec3_t point;
 
 	if ( ent->target ) {
-		target = G_Find( NULL, FOFS( targetname ), ent->target );
+		target = G_Find( nullptr, FOFS( targetname ), ent->target );
 	}
 
 	if ( target ) {
@@ -1950,9 +1950,9 @@ void SP_OilSlick( gentity_t *ent ) {
 
 }
 
-void OilParticles_think( gentity_t *ent ) {
-	gentity_t *tent;
-	gentity_t   *owner;
+void OilParticles_think( GameEntity *ent ) {
+	GameEntity *tent;
+	GameEntity   *owner;
 
 	owner = &g_entities[ent->shared.s.density];
 
@@ -1969,9 +1969,9 @@ void OilParticles_think( gentity_t *ent ) {
 	}
 }
 
-void Delayed_Leak_Think( gentity_t *ent ) {
+void Delayed_Leak_Think( GameEntity *ent ) {
 	vec3_t point;
-	gentity_t *tent;
+	GameEntity *tent;
 
 	VectorCopy( ent->shared.r.currentOrigin, point );
 
@@ -1984,15 +1984,15 @@ void Delayed_Leak_Think( gentity_t *ent ) {
 	tent->shared.s.density = ent->count;
 }
 
-bool validOilSlickSpawnPoint( vec3_t point, gentity_t *ent ) {
+bool validOilSlickSpawnPoint( vec3_t point, GameEntity *ent ) {
 	trace_t tr;
 	vec3_t end;
-	gentity_t *traceEnt;
+	GameEntity *traceEnt;
 
 	VectorCopy( point, end );
 	end[2] -= 9999;
 
-	SV_Trace( &tr, point, NULL, NULL, end, ent->shared.s.number, MASK_SHOT, false );
+	SV_Trace( &tr, point, nullptr, nullptr, end, ent->shared.s.number, MASK_SHOT, false );
 
 	traceEnt = &g_entities[ tr.entityNum ];
 
@@ -2008,8 +2008,8 @@ bool validOilSlickSpawnPoint( vec3_t point, gentity_t *ent ) {
 
 }
 
-void SP_OilParticles( gentity_t *ent ) {
-	gentity_t *OilLeak;
+void SP_OilParticles( GameEntity *ent ) {
+	GameEntity *OilLeak;
 	vec3_t point;
 	vec3_t vec;
 	vec3_t forward;
@@ -2026,7 +2026,7 @@ void SP_OilParticles( gentity_t *ent ) {
 
 	VectorSubtract( ent->pos3, point, vec );
 	vectoangles( vec, vec );
-	AngleVectors( vec, forward, NULL, NULL );
+	AngleVectors( vec, forward, nullptr, nullptr );
 	VectorMA( point, 12, forward, point );
 
 	G_SetOrigin( OilLeak, point );
@@ -2046,7 +2046,7 @@ void SP_OilParticles( gentity_t *ent ) {
 }
 
 
-void Props_Barrel_Pain( gentity_t *ent, gentity_t *attacker, int damage, vec3_t point ) {
+void Props_Barrel_Pain( GameEntity *ent, GameEntity *attacker, int damage, vec3_t point ) {
 
 	if ( ent->health <= 0 ) {
 		return;
@@ -2065,15 +2065,15 @@ void Props_Barrel_Pain( gentity_t *ent, gentity_t *attacker, int damage, vec3_t 
 
 }
 
-void OilSlick_remove_think( gentity_t *ent ) {
-	gentity_t *tent;
+void OilSlick_remove_think( GameEntity *ent ) {
+	GameEntity *tent;
 
 	tent = G_TempEntity( ent->shared.r.currentOrigin, EV_OILSLICKREMOVE );
 	tent->shared.s.density = ent->shared.s.density;
 }
 
-void OilSlick_remove( gentity_t *ent ) {
-	gentity_t *remove;
+void OilSlick_remove( GameEntity *ent ) {
+	GameEntity *remove;
 
 	remove = G_Spawn();
 	remove->shared.s.density = ent->shared.s.number;
@@ -2083,11 +2083,11 @@ void OilSlick_remove( gentity_t *ent ) {
 	SV_LinkEntity( &remove->shared );
 }
 
-void Props_Barrel_Die( gentity_t *ent, gentity_t *inflictor, gentity_t *attacker, int damage, int mod ) {
+void Props_Barrel_Die( GameEntity *ent, GameEntity *inflictor, GameEntity *attacker, int damage, int mod ) {
 	int quantity;
 	int type;
 	vec3_t dir;
-	gentity_t *smoker;
+	GameEntity *smoker;
 
 	if ( ent->spawnflags & 1 ) {
 		smoker = G_Spawn();
@@ -2098,7 +2098,7 @@ void Props_Barrel_Die( gentity_t *ent, gentity_t *inflictor, gentity_t *attacker
 		SV_LinkEntity( &smoker->shared );
 	}
 
-	G_UseTargets( ent, NULL );
+	G_UseTargets( ent, nullptr );
 
 	if ( ent->spawnflags & 4 ) {
 		OilSlick_remove( ent );
@@ -2110,14 +2110,14 @@ void Props_Barrel_Die( gentity_t *ent, gentity_t *inflictor, gentity_t *attacker
 
 	ent->takedamage = false;
 
-	AngleVectors( ent->shared.r.currentAngles, dir, NULL, NULL );
+	AngleVectors( ent->shared.r.currentAngles, dir, nullptr, nullptr );
 	dir[2] = 1;
 
 	if ( !( ent->spawnflags & 2 ) ) {
 		fire_flamebarrel( ent, ent->shared.r.currentOrigin, dir );
 	}
 
-	ent->touch = NULL;
+	ent->touch = nullptr;
 
 	ent->think = Props_Barrel_Animate;
 	ent->nextthink = level.time + FRAMETIME;
@@ -2144,8 +2144,8 @@ void Props_Barrel_Die( gentity_t *ent, gentity_t *inflictor, gentity_t *attacker
 	SV_LinkEntity( &ent->shared );
 }
 
-void Props_OilSlickSlippery( gentity_t *ent ) {
-	gentity_t *player;
+void Props_OilSlickSlippery( GameEntity *ent ) {
+	GameEntity *player;
 	vec3_t vec, kvel, dir;
 	float len;
 
@@ -2183,7 +2183,7 @@ void Props_OilSlickSlippery( gentity_t *ent ) {
 	}
 }
 
-void Props_Barrel_Think( gentity_t *self ) {
+void Props_Barrel_Think( GameEntity *self ) {
 	self->active = false;
 	Props_Chair_Think( self );
 
@@ -2192,7 +2192,7 @@ void Props_Barrel_Think( gentity_t *self ) {
 	}
 }
 
-void SP_Props_Flamebarrel( gentity_t *ent ) {
+void SP_Props_Flamebarrel( GameEntity *ent ) {
 	int mass;
 
 	if ( ent->spawnflags & 4 ) {
@@ -2293,7 +2293,7 @@ shard =
 
 */
 
-void touch_crate_64( gentity_t *self, gentity_t *other, trace_t *trace ) {
+void touch_crate_64( GameEntity *self, GameEntity *other, trace_t *trace ) {
 	float ratio;
 	vec3_t v;
 
@@ -2306,9 +2306,9 @@ void touch_crate_64( gentity_t *self, gentity_t *other, trace_t *trace ) {
 	moveit( self, vectoyaw( v ), ( 20 * ratio * FRAMETIME ) * .001 );
 }
 
-void crate_animate( gentity_t *ent ) {
+void crate_animate( GameEntity *ent ) {
 	if ( ent->shared.s.frame == 17 ) {
-		G_UseTargets( ent, NULL );
+		G_UseTargets( ent, nullptr );
 		ent->think = G_FreeEntity;
 		ent->nextthink = level.time + 2000;
 		ent->shared.s.time = level.time;
@@ -2320,7 +2320,7 @@ void crate_animate( gentity_t *ent ) {
 	ent->nextthink = level.time + ( FRAMETIME / 2 );
 }
 
-void crate_die( gentity_t *ent, gentity_t *inflictor, gentity_t *attacker, int damage, int mod ) {
+void crate_die( GameEntity *ent, GameEntity *inflictor, GameEntity *attacker, int damage, int mod ) {
 	int quantity;
 	int type;
 
@@ -2332,7 +2332,7 @@ void crate_die( gentity_t *ent, gentity_t *inflictor, gentity_t *attacker, int d
 	ent->takedamage = false;
 	ent->think = crate_animate;
 	ent->nextthink = level.time + FRAMETIME;
-	ent->touch = NULL;
+	ent->touch = nullptr;
 
 	SV_UnlinkEntity( &ent->shared );
 
@@ -2344,7 +2344,7 @@ void crate_die( gentity_t *ent, gentity_t *inflictor, gentity_t *attacker, int d
 
 }
 
-void SP_crate_64( gentity_t *self ) {
+void SP_crate_64( GameEntity *self ) {
 	self->shared.s.modelindex = G_ModelIndex( "models/furniture/crate/crate64.md3" );
 
 	self->clipmask   = CONTENTS_SOLID;
@@ -2386,7 +2386,7 @@ void SP_crate_64( gentity_t *self ) {
 	self->nextthink = level.time + FRAMETIME;
 }
 
-void SP_crate_32( gentity_t *self ) {
+void SP_crate_32( GameEntity *self ) {
 	self->shared.s.modelindex = G_ModelIndex( "models/furniture/crate/crate32.md3" );
 
 	self->clipmask   = CONTENTS_SOLID;
@@ -2430,7 +2430,7 @@ void SP_crate_32( gentity_t *self ) {
 
 //////////////////////////////////////////////
 
-void props_crate32x64_think( gentity_t *ent ) {
+void props_crate32x64_think( GameEntity *ent ) {
 	ent->shared.s.frame++;
 
 	if ( ent->shared.s.frame < 17 ) {
@@ -2441,17 +2441,17 @@ void props_crate32x64_think( gentity_t *ent ) {
 		ent->shared.r.contents = 0;
 		ent->takedamage = false;
 
-		G_UseTargets( ent, NULL );
+		G_UseTargets( ent, nullptr );
 	}
 
 }
 
-void props_crate32x64_die( gentity_t *ent, gentity_t *inflictor, gentity_t *attacker, int damage, int mod ) {
+void props_crate32x64_die( GameEntity *ent, GameEntity *inflictor, GameEntity *attacker, int damage, int mod ) {
 	ent->think = props_crate32x64_think;
 	ent->nextthink = level.time + FRAMETIME;
 }
 
-void SP_Props_Crate32x64( gentity_t *ent ) {
+void SP_Props_Crate32x64( GameEntity *ent ) {
 
 	SV_SetBrushModel( &ent->shared, ent->model );
 
@@ -2477,9 +2477,9 @@ just a reminder to put the origin brush in the proper location for the leader an
 slave so that the table will flip over correctly.
 */
 
-void flippy_table_use( gentity_t *ent, gentity_t *other, gentity_t *activator ) {
+void flippy_table_use( GameEntity *ent, GameEntity *other, GameEntity *activator ) {
 	bool is_infront;
-	gentity_t   *slave;
+	GameEntity   *slave;
 
 	// it would be odd to flip a table if your standing on it
 	if ( other && other->shared.s.groundEntityNum == ent->shared.s.number ) {
@@ -2487,7 +2487,7 @@ void flippy_table_use( gentity_t *ent, gentity_t *other, gentity_t *activator ) 
 		return;
 	}
 
-	ent->use = NULL;
+	ent->use = nullptr;
 
 	is_infront = infront( ent, other );
 
@@ -2533,11 +2533,11 @@ void flippy_table_use( gentity_t *ent, gentity_t *other, gentity_t *activator ) 
 
 }
 
-void flippy_table_animate( gentity_t *ent ) {
+void flippy_table_animate( GameEntity *ent ) {
 	return;
 
 	if ( ent->shared.s.frame == 9 ) {
-		G_UseTargets( ent, NULL );
+		G_UseTargets( ent, nullptr );
 		ent->think = G_FreeEntity;
 		ent->nextthink = level.time + 2000;
 	} else
@@ -2547,16 +2547,16 @@ void flippy_table_animate( gentity_t *ent ) {
 	}
 }
 
-void props_flippy_table_die( gentity_t *ent, gentity_t *inflictor, gentity_t *attacker, int damage, int mod ) {
+void props_flippy_table_die( GameEntity *ent, GameEntity *inflictor, GameEntity *attacker, int damage, int mod ) {
 	ent->think = flippy_table_animate;
 	ent->nextthink = level.time + FRAMETIME;
 
 	ent->takedamage = false;
 
-	G_UseTargets( ent, NULL );
+	G_UseTargets( ent, nullptr );
 }
 
-void props_flippy_blocked( gentity_t *ent, gentity_t *other ) {
+void props_flippy_blocked( GameEntity *ent, GameEntity *other ) {
 	vec3_t velocity;
 	vec3_t angles;
 	vec3_t kvel;
@@ -2570,7 +2570,7 @@ void props_flippy_blocked( gentity_t *ent, gentity_t *other ) {
 		angles[YAW] += angle;
 		angles[PITCH] = 0;  // always forward
 
-		AngleVectors( angles, velocity, NULL, NULL );
+		AngleVectors( angles, velocity, nullptr, nullptr );
 		VectorScale( velocity, 24, velocity );
 		velocity[2] += 100 + crandom() * 50;
 
@@ -2581,7 +2581,7 @@ void props_flippy_blocked( gentity_t *ent, gentity_t *other ) {
 		angles[YAW] += angle;
 		angles[PITCH] = 0;  // always forward
 
-		AngleVectors( angles, velocity, NULL, NULL );
+		AngleVectors( angles, velocity, nullptr, nullptr );
 		VectorScale( velocity, 150, velocity );
 		velocity[2] += 300 + crandom() * 50;
 
@@ -2600,10 +2600,10 @@ void props_flippy_blocked( gentity_t *ent, gentity_t *other ) {
 	}
 }
 
-void SP_Props_Flipping_Table( gentity_t *ent ) {
+void SP_Props_Flipping_Table( GameEntity *ent ) {
 
 	if ( !ent->model ) {
-		Com_Printf( S_COLOR_RED "props_Flipping_Table with NULL model\n" );
+		Com_Printf( S_COLOR_RED "props_Flipping_Table with nullptr model\n" );
 		return;
 	}
 
@@ -2672,7 +2672,7 @@ shard =
 
 */
 
-void props_58x112tablew_think( gentity_t *ent ) {
+void props_58x112tablew_think( GameEntity *ent ) {
 	ent->shared.s.frame++;
 
 	if ( ent->shared.s.frame < 16 ) {
@@ -2683,18 +2683,18 @@ void props_58x112tablew_think( gentity_t *ent ) {
 		ent->clipmask = 0;
 		ent->shared.r.contents = 0;
 
-		G_UseTargets( ent, NULL );
+		G_UseTargets( ent, nullptr );
 	}
 
 }
 
-void props_58x112tablew_die( gentity_t *ent, gentity_t *inflictor, gentity_t *attacker, int damage, int mod ) {
+void props_58x112tablew_die( GameEntity *ent, GameEntity *inflictor, GameEntity *attacker, int damage, int mod ) {
 	ent->think = props_58x112tablew_think;
 	ent->nextthink = level.time + FRAMETIME;
 	ent->takedamage = false;
 }
 
-void SP_Props_58x112tablew( gentity_t *ent ) {
+void SP_Props_58x112tablew( GameEntity *ent ) {
 
 	SV_SetBrushModel( &ent->shared, ent->model );
 
@@ -2733,7 +2733,7 @@ shard =
 
 */
 
-void props_castlebed_touch( gentity_t *ent, gentity_t *other, trace_t *trace ) {
+void props_castlebed_touch( GameEntity *ent, GameEntity *other, trace_t *trace ) {
 	if ( !other->client ) {
 		return;
 	}
@@ -2741,7 +2741,7 @@ void props_castlebed_touch( gentity_t *ent, gentity_t *other, trace_t *trace ) {
 	if ( other->client->ps.pm_flags & PMF_JUMP_HELD
 		 && other->shared.s.groundEntityNum == ent->shared.s.number
 		 && !other->client->ps.pm_time ) {
-		G_Damage( ent, other, other, NULL, NULL, 1, 0, MOD_CRUSH );
+		G_Damage( ent, other, other, nullptr, nullptr, 1, 0, MOD_CRUSH );
 
 		// TDB: need sound of bed springs for this
 		Com_Printf( "SOUND sqweeky\n" );
@@ -2754,7 +2754,7 @@ void props_castlebed_touch( gentity_t *ent, gentity_t *other, trace_t *trace ) {
 
 }
 
-void props_castlebed_animate( gentity_t *ent ) {
+void props_castlebed_animate( GameEntity *ent ) {
 	ent->shared.s.frame++;
 
 	if ( ent->shared.s.frame < 8 ) {
@@ -2763,21 +2763,21 @@ void props_castlebed_animate( gentity_t *ent ) {
 	{
 		ent->clipmask = 0;
 		ent->shared.r.contents = 0;
-		G_UseTargets( ent, NULL );
+		G_UseTargets( ent, nullptr );
 	}
 }
 
-void props_castlebed_die( gentity_t *ent, gentity_t *inflictor, gentity_t *attacker, int damage, int mod ) {
+void props_castlebed_die( GameEntity *ent, GameEntity *inflictor, GameEntity *attacker, int damage, int mod ) {
 	ent->think = props_castlebed_animate;
 	ent->nextthink = level.time + FRAMETIME;
-	ent->touch = NULL;
+	ent->touch = nullptr;
 	ent->takedamage = false;
 
 	ent->count = shard_wood;
 	Prop_Break_Sound( ent );
 }
 
-void SP_props_castlebed( gentity_t *ent ) {
+void SP_props_castlebed( GameEntity *ent ) {
 	SV_SetBrushModel( &ent->shared, ent->model );
 
 	InitProp( ent );
@@ -2809,8 +2809,8 @@ count is the number of snowflurries 3 to 5 would be a good number
 duration is how long the effect will last 1 is 1 second
 */
 
-void props_snowGenerator_think( gentity_t *ent ) {
-	gentity_t   *tent;
+void props_snowGenerator_think( GameEntity *ent ) {
+	GameEntity   *tent;
 	float high, wide, deep;
 	int i;
 	vec3_t point;
@@ -2846,7 +2846,7 @@ void props_snowGenerator_think( gentity_t *ent ) {
 	}
 }
 
-void props_snowGenerator_use( gentity_t *ent, gentity_t *other, gentity_t *activator ) {
+void props_snowGenerator_use( GameEntity *ent, GameEntity *other, GameEntity *activator ) {
 	if ( !( ent->spawnflags & 1 ) ) {
 		ent->spawnflags |= 1;
 		ent->think = props_snowGenerator_think;
@@ -2857,9 +2857,9 @@ void props_snowGenerator_use( gentity_t *ent, gentity_t *other, gentity_t *activ
 	}
 }
 
-void SP_props_snowGenerator( gentity_t *ent ) {
+void SP_props_snowGenerator( GameEntity *ent ) {
 	vec3_t center;
-	gentity_t   *target = NULL;
+	GameEntity   *target = nullptr;
 
 	SV_SetBrushModel( &ent->shared, ent->model );
 
@@ -2940,13 +2940,13 @@ delay before it happens again use trigger_relay for now
 assign a model
 */
 
-void propsFireColumnUse( gentity_t *ent, gentity_t *other, gentity_t *activator ) {
-	gentity_t   *tent;
+void propsFireColumnUse( GameEntity *ent, GameEntity *other, GameEntity *activator ) {
+	GameEntity   *tent;
 	vec3_t start, dir;
 
 	VectorCopy( ent->shared.s.origin, start );
 
-	AngleVectors( ent->shared.r.currentAngles, dir, NULL, NULL );
+	AngleVectors( ent->shared.r.currentAngles, dir, nullptr, nullptr );
 
 	tent = fire_flamebarrel( ent, start, dir );
 
@@ -3004,13 +3004,13 @@ void propsFireColumnUse( gentity_t *ent, gentity_t *other, gentity_t *activator 
 	G_SetAngle( tent, ent->shared.r.currentAngles );
 }
 
-void propsFireColumnInit( gentity_t *ent ) {
-	gentity_t   *target;
+void propsFireColumnInit( GameEntity *ent ) {
+	GameEntity   *target;
 	vec3_t vec;
 	vec3_t angles;
 
 	if ( ent->target ) {
-		target = G_Find( NULL, FOFS( targetname ), ent->target );
+		target = G_Find( nullptr, FOFS( targetname ), ent->target );
 		VectorSubtract( target->shared.s.origin, ent->shared.s.origin, vec );
 		vectoangles( vec, angles );
 		G_SetAngle( ent, angles );
@@ -3029,7 +3029,7 @@ void propsFireColumnInit( gentity_t *ent ) {
 
 }
 
-void SP_propsFireColumn( gentity_t *ent ) {
+void SP_propsFireColumn( GameEntity *ent ) {
 	G_SetOrigin( ent, ent->shared.s.origin );
 	ent->think = propsFireColumnInit;
 	ent->nextthink = level.time + FRAMETIME;
@@ -3052,13 +3052,13 @@ for stone:
 */
 #define EXPLOPARTPIECES 8
 
-void props_ExploPartUse( gentity_t *ent, gentity_t *other, gentity_t *activator ) {
+void props_ExploPartUse( GameEntity *ent, GameEntity *other, GameEntity *activator ) {
 //	int i, numpieces;
-	gentity_t *part;
+	GameEntity *part;
 	vec3_t start, dir;
 
 	VectorCopy( ent->shared.s.origin, start );
-	AngleVectors( ent->shared.r.currentAngles, dir, NULL, NULL );
+	AngleVectors( ent->shared.r.currentAngles, dir, nullptr, nullptr );
 
 	if ( ent->shared.s.modelindex ) {
 		part = fire_flamebarrel( ent, start, dir );
@@ -3083,15 +3083,15 @@ void props_ExploPartUse( gentity_t *ent, gentity_t *other, gentity_t *activator 
 		}
 	}
 
-	G_UseTargets( ent, NULL );
+	G_UseTargets( ent, nullptr );
 }
 
-void props_ExploPartInit( gentity_t *ent ) {
-	gentity_t *target;
+void props_ExploPartInit( GameEntity *ent ) {
+	GameEntity *target;
 	vec3_t vec, angles;
 
 	if ( ent->target ) {
-		target = G_Find( NULL, FOFS( targetname ), ent->target );
+		target = G_Find( nullptr, FOFS( targetname ), ent->target );
 		VectorSubtract( target->shared.s.origin, ent->shared.s.origin, vec );
 		vectoangles( vec, angles );
 		G_SetAngle( ent, angles );
@@ -3104,7 +3104,7 @@ void props_ExploPartInit( gentity_t *ent ) {
 	}
 }
 
-void SP_props_ExploPart( gentity_t *ent ) {
+void SP_props_ExploPart( GameEntity *ent ) {
 	const char *sound;
 	const char *type;
 //	float	bbox;
@@ -3160,7 +3160,7 @@ you will need to specify the bounding box for the entity
 "startonframe" on what frame do you want to start the animation
 */
 
-void props_decoration_animate( gentity_t *ent ) {
+void props_decoration_animate( GameEntity *ent ) {
 
 	ent->shared.s.frame++;
 	ent->shared.s.eType = ET_GENERAL;
@@ -3184,7 +3184,7 @@ void props_decoration_animate( gentity_t *ent ) {
 	ent->nextthink = level.time + 50;
 }
 
-void props_decoration_death( gentity_t *ent, gentity_t *inflictor, gentity_t *attacker, int damage, int mod ) {
+void props_decoration_death( GameEntity *ent, GameEntity *inflictor, GameEntity *attacker, int damage, int mod ) {
 	if ( !( ent->spawnflags & 8 ) ) {
 		ent->clipmask   = 0;
 		ent->shared.r.contents = 0;
@@ -3194,7 +3194,7 @@ void props_decoration_death( gentity_t *ent, gentity_t *inflictor, gentity_t *at
 
 	ent->takedamage = false;
 
-	G_UseTargets( ent, NULL );
+	G_UseTargets( ent, nullptr );
 
 	if ( ent->spawnflags & 2 ) {
 		Spawn_Shard( ent, inflictor, ent->count, ent->key );
@@ -3210,7 +3210,7 @@ void props_decoration_death( gentity_t *ent, gentity_t *inflictor, gentity_t *at
 
 }
 
-void Use_props_decoration( gentity_t *ent, gentity_t *self, gentity_t *activator ) {
+void Use_props_decoration( GameEntity *ent, GameEntity *self, GameEntity *activator ) {
 	if ( ent->spawnflags & 1 ) {
 		SV_LinkEntity( &ent->shared );
 		ent->spawnflags &= ~1;
@@ -3225,13 +3225,13 @@ void Use_props_decoration( gentity_t *ent, gentity_t *self, gentity_t *activator
 
 }
 
-void props_touch( gentity_t *self, gentity_t *other, trace_t *trace ) {
+void props_touch( GameEntity *self, GameEntity *other, trace_t *trace ) {
 	if ( self->spawnflags & 16 ) {
 		props_decoration_death( self, other, other, 9999, MOD_CRUSH );
 	}
 }
 
-void SP_props_decoration( gentity_t *ent ) {
+void SP_props_decoration( GameEntity *ent ) {
 	float light;
 	vec3_t color;
 	bool lightSet, colorSet;
@@ -3385,7 +3385,7 @@ must have an origin brush
 "startonframe" on what frame do you want to start the animation
 */
 
-void SP_props_decorBRUSH( gentity_t *self ) {
+void SP_props_decorBRUSH( GameEntity *self ) {
 
 	SV_SetBrushModel( &self->shared, self->model );
 
@@ -3419,7 +3419,7 @@ you will need to specify the bounding box for the entity
 "startonframe" on what frame do you want to start the animation
 */
 
-void SP_props_decor_Scale( gentity_t *ent ) {
+void SP_props_decor_Scale( GameEntity *ent ) {
 
 	float scale[3] = {1,1,1};
 	vec3_t scalevec;
@@ -3454,7 +3454,7 @@ To have the portal sky fogged, enter any of the following values:
 "fogfar" distance from entity that fog is opaque
 
 */
-void SP_skyportal( gentity_t *ent ) {
+void SP_skyportal( GameEntity *ent ) {
 	const char    *fov;
 	vec3_t fogv;    //----(SA)
 	int fogn;       //----(SA)
@@ -3493,12 +3493,12 @@ you will need to specify the bounding box for the entity
 "damage"	amount of damage to be inflicted
 */
 
-void props_statue_blocked( gentity_t *ent ) {
+void props_statue_blocked( GameEntity *ent ) {
 	trace_t trace;
 	vec3_t start, end, mins, maxs;
 	vec3_t forward;
 	float dist;
-	gentity_t   *traceEnt;
+	GameEntity   *traceEnt;
 	float grav = 128;
 	vec3_t kvel;
 
@@ -3512,7 +3512,7 @@ void props_statue_blocked( gentity_t *ent ) {
 	VectorSet( mins, ent->shared.r.mins[0], ent->shared.r.mins[1], -23 );
 	VectorSet( maxs, ent->shared.r.maxs[0], ent->shared.r.maxs[1], 23 );
 
-	AngleVectors( ent->shared.r.currentAngles, forward, NULL, NULL );
+	AngleVectors( ent->shared.r.currentAngles, forward, nullptr, nullptr );
 
 	VectorCopy( start, end );
 
@@ -3529,7 +3529,7 @@ void props_statue_blocked( gentity_t *ent ) {
 	traceEnt = &g_entities[ trace.entityNum ];
 
 	if ( traceEnt->takedamage && traceEnt->client ) {
-		G_Damage( traceEnt, ent, ent, NULL, trace.endpos, ent->damage, 0, MOD_CRUSH );
+		G_Damage( traceEnt, ent, ent, nullptr, trace.endpos, ent->damage, 0, MOD_CRUSH );
 
 		// TBD: push client back a bit
 		VectorScale( forward, grav, kvel );
@@ -3550,12 +3550,12 @@ void props_statue_blocked( gentity_t *ent ) {
 		}
 
 	} else {
-		G_Damage( traceEnt, ent, ent, NULL, trace.endpos, 9999, 0, MOD_CRUSH );
+		G_Damage( traceEnt, ent, ent, nullptr, trace.endpos, 9999, 0, MOD_CRUSH );
 	}
 
 }
 
-void props_statue_animate( gentity_t *ent ) {
+void props_statue_animate( GameEntity *ent ) {
 
 	bool takeashot = false;
 
@@ -3586,7 +3586,7 @@ void props_statue_animate( gentity_t *ent ) {
 }
 
 
-void props_statue_death( gentity_t *ent, gentity_t *inflictor, gentity_t *attacker, int damage, int mod ) {
+void props_statue_death( GameEntity *ent, GameEntity *inflictor, GameEntity *attacker, int damage, int mod ) {
 
 	ent->timestamp = level.time;
 
@@ -3601,7 +3601,7 @@ void props_statue_death( gentity_t *ent, gentity_t *inflictor, gentity_t *attack
 
 	ent->takedamage = false;
 
-	G_UseTargets( ent, NULL );
+	G_UseTargets( ent, nullptr );
 
 	if ( ent->spawnflags & 2 ) {
 		Spawn_Shard( ent, inflictor, ent->count, ent->key );
@@ -3617,11 +3617,11 @@ void props_statue_death( gentity_t *ent, gentity_t *inflictor, gentity_t *attack
 
 }
 
-void props_statue_touch( gentity_t *self, gentity_t *other, trace_t *trace ) {
+void props_statue_touch( GameEntity *self, GameEntity *other, trace_t *trace ) {
 	props_statue_death( self, other, other, 9999, MOD_CRUSH );
 }
 
-void SP_props_statue( gentity_t *ent ) {
+void SP_props_statue( GameEntity *ent ) {
 	float light;
 	vec3_t color;
 	bool lightSet, colorSet;
@@ -3745,7 +3745,7 @@ THE damage has been disabled at the moment
 
 */
 
-void SP_props_statueBRUSH( gentity_t *self ) {
+void SP_props_statueBRUSH( GameEntity *self ) {
 
 	SV_SetBrushModel( &self->shared, self->model );
 
@@ -3770,16 +3770,16 @@ void SP_props_statueBRUSH( gentity_t *self ) {
 #define LOCKER_ANIM_DEATHEND    11
 
 //////////////////////////////////////////////////
-void init_locker( gentity_t *ent );
-void props_locker_death( gentity_t *ent, gentity_t *inflictor, gentity_t *attacker, int damage, int mod );
+void init_locker( GameEntity *ent );
+void props_locker_death( GameEntity *ent, GameEntity *inflictor, GameEntity *attacker, int damage, int mod );
 //////////////////////////////////////////////////
 #define MAX_LOCKER_DEBRIS       5
 
 int locker_debris_model[MAX_LOCKER_DEBRIS];
 //////////////////////////////////////////////////
 
-void Spawn_Junk( gentity_t *ent ) {
-	gentity_t *sfx;
+void Spawn_Junk( GameEntity *ent ) {
+	GameEntity *sfx;
 	vec3_t dir, start;
 
 	VectorCopy( ent->shared.r.currentOrigin, start );
@@ -3810,7 +3810,7 @@ void Spawn_Junk( gentity_t *ent ) {
 props_locker_endrattle
 ==============
 */
-void props_locker_endrattle( gentity_t *ent ) {
+void props_locker_endrattle( GameEntity *ent ) {
 	ent->shared.s.frame = 0;   // idle
 	ent->think = 0;
 	ent->nextthink = 0;
@@ -3818,7 +3818,7 @@ void props_locker_endrattle( gentity_t *ent ) {
 }
 
 
-void props_locker_use( gentity_t *ent, gentity_t *other, gentity_t *activator ) {
+void props_locker_use( GameEntity *ent, GameEntity *other, GameEntity *activator ) {
 	if ( !ent->delay ) {
 		ent->shared.s.frame = 1;   // rattle when pain starts
 	}
@@ -3827,12 +3827,12 @@ void props_locker_use( gentity_t *ent, gentity_t *other, gentity_t *activator ) 
 	ent->nextthink = level.time + 1000; // rattle a sec
 }
 
-void props_locker_pain( gentity_t *ent, gentity_t *attacker, int damage, vec3_t point ) {
+void props_locker_pain( GameEntity *ent, GameEntity *attacker, int damage, vec3_t point ) {
 	props_locker_use( ent, attacker, attacker );
 }
 
 
-void init_locker( gentity_t *ent ) {
+void init_locker( GameEntity *ent ) {
 	ent->isProp = true;
 	ent->takedamage = true;
 	ent->delay = 0;
@@ -3865,9 +3865,9 @@ void init_locker( gentity_t *ent ) {
 
 }
 
-void props_locker_spawn_item( gentity_t *ent ) {
+void props_locker_spawn_item( GameEntity *ent ) {
 	gitem_t     *item;
-	gentity_t   *drop = NULL;
+	GameEntity   *drop = nullptr;
 
 	item = BG_FindItem( ent->spawnitem );
 
@@ -3887,8 +3887,8 @@ void props_locker_spawn_item( gentity_t *ent ) {
 
 extern qhandle_t    trap_R_GetShaderFromModel( qhandle_t modelid, int surfnum, int withlightmap );
 
-void props_locker_mass( gentity_t *ent ) {
-	gentity_t   *tent;
+void props_locker_mass( GameEntity *ent ) {
+	GameEntity   *tent;
 	vec3_t start;
 	vec3_t dir;
 
@@ -3948,7 +3948,7 @@ model="models/mapobjects/furniture/footlocker.md3"
 props_locker_death
 ==============
 */
-void props_locker_death( gentity_t *ent, gentity_t *inflictor, gentity_t *attacker, int damage, int mod ) {
+void props_locker_death( GameEntity *ent, GameEntity *inflictor, GameEntity *attacker, int damage, int mod ) {
 	ent->takedamage = false;
 	ent->shared.s.frame = 2;   // opening animation
 	ent->think = 0;
@@ -3962,7 +3962,7 @@ void props_locker_death( gentity_t *ent, gentity_t *inflictor, gentity_t *attack
 }
 
 
-void SP_props_footlocker( gentity_t *self ) {
+void SP_props_footlocker( GameEntity *self ) {
 	const char    *type;
 	const char    *sound;
 	const char    *locked;
@@ -4038,13 +4038,13 @@ needs to aim at a info_notnull
 
 NOSOUND - silent (duh)
 */
-void props_flamethrower_think( gentity_t *ent ) {
+void props_flamethrower_think( GameEntity *ent ) {
 	vec3_t vec, angles;
-	gentity_t   *target = NULL;
+	GameEntity   *target = nullptr;
 
 	if ( ent->spawnflags & 1 ) { // tracking
 		if ( ent->target ) {
-			target = G_Find( NULL, FOFS( targetname ), ent->target );
+			target = G_Find( nullptr, FOFS( targetname ), ent->target );
 		}
 
 		if ( !target ) {
@@ -4086,14 +4086,14 @@ void props_flamethrower_think( gentity_t *ent ) {
 
 }
 
-void props_flamethrower_use( gentity_t *ent, gentity_t *other, gentity_t *activator ) {
+void props_flamethrower_use( GameEntity *ent, GameEntity *other, GameEntity *activator ) {
 	int rval;
 	int rnd;
 
 	if ( ent->spawnflags & 2 ) {
 		ent->shared.s.eFlags &= ~EF_FIRING;
 		ent->spawnflags &= ~2;
-		ent->think = NULL;      // (SA) wasn't working
+		ent->think = nullptr;      // (SA) wasn't working
 		ent->nextthink = 0;
 		return;
 	} else
@@ -4115,13 +4115,13 @@ void props_flamethrower_use( gentity_t *ent, gentity_t *other, gentity_t *activa
 
 }
 
-void props_flamethrower_init( gentity_t *ent ) {
-	gentity_t *target = NULL;
+void props_flamethrower_init( GameEntity *ent ) {
+	GameEntity *target = nullptr;
 	vec3_t vec;
 	vec3_t angles;
 
 	if ( ent->target ) {
-		target = G_Find( NULL, FOFS( targetname ), ent->target );
+		target = G_Find( nullptr, FOFS( targetname ), ent->target );
 	}
 
 	if ( !target ) {
@@ -4141,7 +4141,7 @@ void props_flamethrower_init( gentity_t *ent ) {
 
 }
 
-void SP_props_flamethrower( gentity_t *ent ) {
+void SP_props_flamethrower( GameEntity *ent ) {
 	const char *size;
 	float dsize;
 

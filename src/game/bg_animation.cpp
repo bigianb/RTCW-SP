@@ -45,7 +45,7 @@ If you have questions concerning this license or the applicable additional terms
 //#define	DBGANIMEVENTS
 
 // this is used globally within this file to reduce redundant params
-animScriptData_t *globalScriptData = NULL;
+animScriptData_t *globalScriptData = nullptr;
 
 #define MAX_ANIM_DEFINES    16
 
@@ -72,7 +72,7 @@ animStringItem_t animStateStr[] =
 	{"ALERT", -1},
 	{"COMBAT", -1},
 
-	{NULL, -1},
+	{nullptr, -1},
 };
 
 static animStringItem_t animMoveTypesStr[] =
@@ -95,7 +95,7 @@ static animStringItem_t animMoveTypesStr[] =
 	{"CLIMBUP", -1},
 	{"CLIMBDOWN", -1},
 
-	{NULL, -1},
+	{nullptr, -1},
 };
 
 static animStringItem_t animEventTypesStr[] =
@@ -125,7 +125,7 @@ static animStringItem_t animEventTypesStr[] =
 	{"BULLETIMPACT", -1},
 	{"INSPECTSOUND", -1},
 
-	{NULL, -1},
+	{nullptr, -1},
 };
 
 animStringItem_t animBodyPartsStr[] =
@@ -135,7 +135,7 @@ animStringItem_t animBodyPartsStr[] =
 	{"TORSO", -1},
 	{"BOTH", -1},
 
-	{NULL, -1},
+	{nullptr, -1},
 };
 
 //------------------------------------------------------------
@@ -149,7 +149,7 @@ static animStringItem_t animConditionPositionsStr[] =
 	{"RIGHT", -1},
 	{"LEFT", -1},
 
-	{NULL, -1},
+	{nullptr, -1},
 };
 
 static animStringItem_t animConditionMountedStr[] =
@@ -157,7 +157,7 @@ static animStringItem_t animConditionMountedStr[] =
 	{"** UNUSED **", -1},
 	{"MG42", -1},
 
-	{NULL, -1},
+	{nullptr, -1},
 };
 
 static animStringItem_t animConditionLeaningStr[] =
@@ -166,7 +166,7 @@ static animStringItem_t animConditionLeaningStr[] =
 	{"RIGHT", -1},
 	{"LEFT", -1},
 
-	{NULL, -1},
+	{nullptr, -1},
 };
 
 // !!! NOTE: this must be kept in sync with the tag names in ai_cast_characters.c
@@ -182,7 +182,7 @@ static animStringItem_t animConditionImpactPointsStr[] =
 	{"KNEE_RIGHT", -1},
 	{"KNEE_LEFT", -1},
 
-	{NULL, -1},
+	{nullptr, -1},
 };
 
 // !!! NOTE: this must be kept in sync with the teams in ai_cast.h
@@ -212,7 +212,7 @@ static animStringItem_t animConditionSpecialConditionStr[] =
 	{"VILL1_KARL", -1},
 	{"VILL1_KESSLER", -1},
 
-	{NULL, -1},
+	{nullptr, -1},
 };
 
 typedef enum
@@ -252,7 +252,7 @@ static animStringItem_t animConditionsStr[] =
 	{"DEFENSE", -1},
 	{"SPECIAL_CONDITION", -1},
 
-	{NULL, -1},
+	{nullptr, -1},
 };
 
 static animConditionTable_t animConditionsTable[NUM_ANIM_CONDITIONS] =
@@ -260,22 +260,22 @@ static animConditionTable_t animConditionsTable[NUM_ANIM_CONDITIONS] =
 	{ANIM_CONDTYPE_BITFLAGS,        weaponStrings},
 	{ANIM_CONDTYPE_BITFLAGS,        animConditionPositionsStr},
 	{ANIM_CONDTYPE_BITFLAGS,        weaponStrings},
-	{ANIM_CONDTYPE_VALUE,           NULL},
+	{ANIM_CONDTYPE_VALUE,           nullptr},
 	{ANIM_CONDTYPE_VALUE,           animConditionMountedStr},
 	{ANIM_CONDTYPE_BITFLAGS,        animMoveTypesStr},
-	{ANIM_CONDTYPE_VALUE,           NULL},
+	{ANIM_CONDTYPE_VALUE,           nullptr},
 	{ANIM_CONDTYPE_VALUE,           animConditionLeaningStr},
 	{ANIM_CONDTYPE_VALUE,           animConditionImpactPointsStr},
-	{ANIM_CONDTYPE_VALUE,           NULL},
-	{ANIM_CONDTYPE_VALUE,           NULL},
-	{ANIM_CONDTYPE_VALUE,           NULL},
-	{ANIM_CONDTYPE_VALUE,           NULL},
+	{ANIM_CONDTYPE_VALUE,           nullptr},
+	{ANIM_CONDTYPE_VALUE,           nullptr},
+	{ANIM_CONDTYPE_VALUE,           nullptr},
+	{ANIM_CONDTYPE_VALUE,           nullptr},
 	{ANIM_CONDTYPE_VALUE,           animEnemyTeamsStr},
-	{ANIM_CONDTYPE_VALUE,           NULL},
-	{ANIM_CONDTYPE_VALUE,           NULL},
-	{ANIM_CONDTYPE_VALUE,           NULL},
+	{ANIM_CONDTYPE_VALUE,           nullptr},
+	{ANIM_CONDTYPE_VALUE,           nullptr},
+	{ANIM_CONDTYPE_VALUE,           nullptr},
 	{ANIM_CONDTYPE_VALUE,           animHealthLevelStr},
-	{ANIM_CONDTYPE_VALUE,           NULL},
+	{ANIM_CONDTYPE_VALUE,           nullptr},
 	{ANIM_CONDTYPE_VALUE,           animConditionSpecialConditionStr},
 };
 
@@ -331,13 +331,13 @@ BG_ModelInfoForClient
 */
 animModelInfo_t *BG_ModelInfoForClient( int client ) {
 	if ( !globalScriptData ) {
-		BG_AnimParseError( "BG_ModelInfoForClient: NULL globalScriptData" );
-        return NULL; // linter - BG_AnimParseError does not return
+		BG_AnimParseError( "BG_ModelInfoForClient: nullptr globalScriptData" );
+        return nullptr; // linter - BG_AnimParseError does not return
 	}
 	//
 	if ( !globalScriptData->clientModels[client] ) {
 		BG_AnimParseError( "BG_ModelInfoForClient: client %i has no modelinfo", client );
-        return NULL; // linter - BG_AnimParseError does not return
+        return nullptr; // linter - BG_AnimParseError does not return
 	}
 	//
 	return globalScriptData->modelInfo[globalScriptData->clientModels[client] - 1];
@@ -353,13 +353,13 @@ animModelInfo_t *BG_ModelInfoForModelname( const char *modelname ) {
 	animModelInfo_t *modelInfo;
 	//
 	if ( !globalScriptData ) {
-		BG_AnimParseError( "BG_ModelInfoForModelname: NULL globalScriptData" );
-        return NULL; // linter - BG_AnimParseError does not return
+		BG_AnimParseError( "BG_ModelInfoForModelname: nullptr globalScriptData" );
+        return nullptr; // linter - BG_AnimParseError does not return
 	}
 	//
 	for ( i = 0; i < MAX_ANIMSCRIPT_MODELS; i++ ) {
 		modelInfo = globalScriptData->modelInfo[i];
-		if ( modelInfo == NULL ) {
+		if ( modelInfo == nullptr ) {
 			continue;
 		}
 
@@ -371,7 +371,7 @@ animModelInfo_t *BG_ModelInfoForModelname( const char *modelname ) {
 		}
 	}
 	//
-	return NULL;
+	return nullptr;
 }
 
 /*
@@ -418,7 +418,7 @@ animation_t *BG_AnimationForString( const char *string, animModelInfo_t *modelIn
 	}
 	// no match found
 	Com_Error( ERR_DROP, "BG_AnimationForString: unknown animation '%s' for model '%s'", string, modelInfo->modelname );
-	return NULL;    // shutup compiler
+	return nullptr;    // shutup compiler
 }
 
 /*
@@ -462,7 +462,7 @@ char *BG_CopyStringIntoBuffer( const char *string, char *buffer, int bufSize, in
 	// check for overloaded buffer
 	if ( *offset + strlen( string ) + 1 >= bufSize ) {
 		BG_AnimParseError( "BG_CopyStringIntoBuffer: out of buffer space" );
-        return NULL; // linter - BG_AnimParseError does not return
+        return nullptr; // linter - BG_AnimParseError does not return
 	}
 
 	char *pch = &buffer[*offset];
@@ -989,7 +989,7 @@ BG_ParseCommands
 */
 void BG_ParseCommands( const char **input, animScriptItem_t *scriptItem, animModelInfo_t *modelInfo, animScriptData_t *scriptData ) {
 	
-	animScriptCommand_t *command = NULL; // TTimo: init
+	animScriptCommand_t *command = nullptr; // TTimo: init
 	int partIndex = 0;
 
 	globalScriptData = scriptData;
@@ -1145,7 +1145,7 @@ static animStringItem_t animParseModesStr[] =
 	{"statechanges", -1},
 	{"events", -1},
 
-	{NULL, -1},
+	{nullptr, -1},
 };
 
 void BG_AnimParseAnimScript( animModelInfo_t *modelInfo, animScriptData_t *scriptData, int client, char *filename, char *input ) {
@@ -1153,7 +1153,7 @@ void BG_AnimParseAnimScript( animModelInfo_t *modelInfo, animScriptData_t *scrip
 
 	animScriptParseMode_t parseMode;
 	animScript_t        *currentScript;
-	animScriptItem_t tempScriptItem, *currentScriptItem = NULL;    // TTimo: init
+	animScriptItem_t tempScriptItem, *currentScriptItem = nullptr;    // TTimo: init
 	int indexes[MAX_INDENT_LEVELS], indentLevel, oldState, newParseMode;
 	int i, defineType;
 
@@ -1176,7 +1176,7 @@ void BG_AnimParseAnimScript( animModelInfo_t *modelInfo, animScriptData_t *scrip
 	for ( i = 0; i < MAX_INDENT_LEVELS; i++ )
 		indexes[i] = -1;
 	indentLevel = 0;
-	currentScript = NULL;
+	currentScript = nullptr;
 
 	const char *text_p = input;
 	COM_BeginParseSession( "BG_AnimParseAnimScript" );
@@ -1281,7 +1281,7 @@ void BG_AnimParseAnimScript( animModelInfo_t *modelInfo, animScriptData_t *scrip
                     return; // linter - BG_AnimParseError does not return
 				}
 				if ( indentLevel == 1 ) {
-					currentScript = NULL;
+					currentScript = nullptr;
 				}
 				// make sure we read a new index before next indent
 				indexes[indentLevel] = -1;
@@ -1403,7 +1403,7 @@ void BG_AnimParseAnimScript( animModelInfo_t *modelInfo, animScriptData_t *scrip
                     return; // linter - BG_AnimParseError does not return
 				}
 				if ( indentLevel == 0 ) {
-					currentScript = NULL;
+					currentScript = nullptr;
 				}
 				// make sure we read a new index before next indent
 				indexes[indentLevel] = -1;
@@ -1513,7 +1513,7 @@ void BG_AnimParseAnimScript( animModelInfo_t *modelInfo, animScriptData_t *scrip
 
 	}
 
-	globalFilename = NULL;
+	globalFilename = nullptr;
 
 }
 
@@ -1563,7 +1563,7 @@ BG_FirstValidItem
 
   scroll through the script items, returning the first script found to pass all conditions
 
-  returns NULL if no match found
+  returns nullptr if no match found
 ===============
 */
 animScriptItem_t *BG_FirstValidItem( int client, animScript_t *script ) {
@@ -1578,7 +1578,7 @@ animScriptItem_t *BG_FirstValidItem( int client, animScript_t *script ) {
 		}
 	}
 	//
-	return NULL;
+	return nullptr;
 }
 
 /*
@@ -1586,7 +1586,7 @@ animScriptItem_t *BG_FirstValidItem( int client, animScript_t *script ) {
 BG_PlayAnim
 ===============
 */
-int BG_PlayAnim( playerState_t *ps, int animNum, animBodyPart_t bodyPart, int forceDuration, bool setTimer, bool isContinue, bool force ) {
+int BG_PlayAnim( PlayerState *ps, int animNum, animBodyPart_t bodyPart, int forceDuration, bool setTimer, bool isContinue, bool force ) {
 	int duration;
 	bool wasSet = false;
 	animModelInfo_t *modelInfo;
@@ -1657,7 +1657,7 @@ int BG_PlayAnim( playerState_t *ps, int animNum, animBodyPart_t bodyPart, int fo
 BG_PlayAnimName
 ===============
 */
-int BG_PlayAnimName( playerState_t *ps, const char *animName, animBodyPart_t bodyPart, bool setTimer, bool isContinue, bool force ) {
+int BG_PlayAnimName( PlayerState *ps, const char *animName, animBodyPart_t bodyPart, bool setTimer, bool isContinue, bool force ) {
 	return BG_PlayAnim( ps, BG_AnimationIndexForString( animName, ps->clientNum ), bodyPart, 0, setTimer, isContinue, force );
 }
 
@@ -1668,7 +1668,7 @@ BG_ExecuteCommand
   returns the duration of the animation, -1 if no anim was set
 ===============
 */
-int BG_ExecuteCommand( playerState_t *ps, animScriptCommand_t *scriptCommand, bool setTimer, bool isContinue, bool force ) {
+int BG_ExecuteCommand( PlayerState *ps, animScriptCommand_t *scriptCommand, bool setTimer, bool isContinue, bool force ) {
 	int duration = -1;
 	bool playedLegsAnim = false;
 
@@ -1717,12 +1717,12 @@ BG_AnimScriptAnimation
   returns 1 if an animation was set, -1 if no animation was found, 0 otherwise
 ================
 */
-int BG_AnimScriptAnimation( playerState_t *ps, aistateEnum_t estate, scriptAnimMoveTypes_t movetype, bool isContinue ) {
-	animModelInfo_t     *modelInfo = NULL;
-	animScript_t        *script = NULL;
+int BG_AnimScriptAnimation( PlayerState *ps, aistateEnum_t estate, scriptAnimMoveTypes_t movetype, bool isContinue ) {
+	animModelInfo_t     *modelInfo = nullptr;
+	animScript_t        *script = nullptr;
 	int state = estate;                                 // enum types are not always signed
-	animScriptItem_t    *scriptItem = NULL;
-	animScriptCommand_t *scriptCommand = NULL;
+	animScriptItem_t    *scriptItem = nullptr;
+	animScriptCommand_t *scriptCommand = nullptr;
 
 
 	if ( ps->eFlags & EF_DEAD ) {
@@ -1794,7 +1794,7 @@ BG_AnimScriptCannedAnimation
   returns the duration in milliseconds that this model should be paused. -1 if no anim found
 ================
 */
-int BG_AnimScriptCannedAnimation( playerState_t *ps, aistateEnum_t state ) {
+int BG_AnimScriptCannedAnimation( PlayerState *ps, aistateEnum_t state ) {
 	animModelInfo_t     *modelInfo;
 	animScript_t        *script;
 	animScriptItem_t    *scriptItem;
@@ -1833,7 +1833,7 @@ BG_AnimScriptStateChange
   returns the duration in milliseconds that this model should be paused. -1 if no anim found
 ================
 */
-int BG_AnimScriptStateChange( playerState_t *ps, aistateEnum_t newState, aistateEnum_t oldState ) {
+int BG_AnimScriptStateChange( PlayerState *ps, aistateEnum_t newState, aistateEnum_t oldState ) {
 	animModelInfo_t     *modelInfo;
 	animScript_t        *script;
 	animScriptItem_t    *scriptItem;
@@ -1866,7 +1866,7 @@ BG_AnimScriptEvent
   returns the duration in milliseconds that this model should be paused. -1 if no event found
 ================
 */
-int BG_AnimScriptEvent( playerState_t *ps, scriptAnimEventTypes_t event, bool isContinue, bool force ) {
+int BG_AnimScriptEvent( PlayerState *ps, scriptAnimEventTypes_t event, bool isContinue, bool force ) {
 	animModelInfo_t     *modelInfo;
 	animScript_t        *script;
 	animScriptItem_t    *scriptItem;
@@ -1948,7 +1948,7 @@ char *BG_GetAnimString( int client, int anim ) {
 	//
 	if ( anim >= modelinfo->numAnimations ) {
 		BG_AnimParseError( "BG_GetAnimString: anim index is out of range" );
-        return NULL; // linter - BG_AnimParseError does not return
+        return nullptr; // linter - BG_AnimParseError does not return
 	}
 	//
 	return modelinfo->animations[anim].name;
@@ -2030,7 +2030,7 @@ BG_GetAnimScriptAnimation
 int BG_GetAnimScriptAnimation( int client, aistateEnum_t estate, scriptAnimMoveTypes_t movetype ) {
 	animModelInfo_t     *modelInfo;
 	animScript_t        *script;
-	animScriptItem_t    *scriptItem = NULL;
+	animScriptItem_t    *scriptItem = nullptr;
 	animScriptCommand_t *scriptCommand;
 	int state = estate;                                 // enums are not always signed
 
@@ -2070,7 +2070,7 @@ BG_GetAnimScriptEvent
   returns the animation index for this event
 ================
 */
-int BG_GetAnimScriptEvent( playerState_t *ps, scriptAnimEventTypes_t event ) {
+int BG_GetAnimScriptEvent( PlayerState *ps, scriptAnimEventTypes_t event ) {
 	animModelInfo_t     *modelInfo;
 	animScript_t        *script;
 	animScriptItem_t    *scriptItem;
@@ -2110,7 +2110,7 @@ animation_t *BG_GetAnimationForIndex( int client, int index ) {
 	modelInfo = BG_ModelInfoForClient( client );
 	if ( index < 0 || index >= modelInfo->numAnimations ) {
 		Com_Error( ERR_DROP, "BG_GetAnimationForIndex: index out of bounds" );
-        return NULL;  // Keep linter happy. ERR_DROP does not return
+        return nullptr;  // Keep linter happy. ERR_DROP does not return
 	}
 
 	return &modelInfo->animations[index];
@@ -2122,7 +2122,7 @@ BG_AnimUpdatePlayerStateConditions
 =================
 */
 void BG_AnimUpdatePlayerStateConditions( pmove_t *pmove ) {
-	playerState_t *ps = pmove->ps;
+	PlayerState *ps = pmove->ps;
 
 	// WEAPON
 	BG_UpdateConditionValue( ps->clientNum, ANIM_COND_WEAPON, ps->weapon, true );
@@ -2164,7 +2164,7 @@ void BG_AnimUpdatePlayerStateConditions( pmove_t *pmove ) {
 BG_AnimGetFootstepGap
 ===================
 */
-float BG_AnimGetFootstepGap( playerState_t *ps, float xyspeed ) {
+float BG_AnimGetFootstepGap( PlayerState *ps, float xyspeed ) {
 	animModelInfo_t     *modelInfo;
 	int index;
 	animation_t     *anim;

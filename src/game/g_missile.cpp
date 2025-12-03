@@ -32,21 +32,21 @@ If you have questions concerning this license or the applicable additional terms
 #define MISSILE_PRESTEP_TIME    50
 
 
-extern void gas_think( gentity_t *gas );
-extern void gas_touch( gentity_t *gas, gentity_t *other, trace_t *trace );
-extern void SP_target_smoke( gentity_t *ent );
+extern void gas_think( GameEntity *gas );
+extern void gas_touch( GameEntity *gas, GameEntity *other, trace_t *trace );
+extern void SP_target_smoke( GameEntity *ent );
 
 
 
-void G_ExplodeMissilePoisonGas( gentity_t *ent );
-void M_think( gentity_t *ent );
+void G_ExplodeMissilePoisonGas( GameEntity *ent );
+void M_think( GameEntity *ent );
 /*
 ================
 G_BounceMissile
 
 ================
 */
-bool G_BounceMissile( gentity_t *ent, trace_t *trace ) {
+bool G_BounceMissile( GameEntity *ent, trace_t *trace ) {
 	vec3_t velocity;
 	float dot;
 	int hitTime;
@@ -128,8 +128,8 @@ G_MissileImpact
 	impactDamage is how much damage the impact will do to func_explosives
 ================
 */
-void G_MissileImpact( gentity_t *ent, trace_t *trace, int impactDamage, vec3_t dir ) {  //----(SA)	added 'dir'
-	gentity_t       *other;
+void G_MissileImpact( GameEntity *ent, trace_t *trace, int impactDamage, vec3_t dir ) {  //----(SA)	added 'dir'
+	GameEntity       *other;
 	bool hitClient = false;
 	vec3_t velocity;
 	int etype;
@@ -260,7 +260,7 @@ void G_MissileImpact( gentity_t *ent, trace_t *trace, int impactDamage, vec3_t d
 
 
 	if ( strcmp( ent->classname, "zombiespit" ) ) {
-		gentity_t *Msmoke;
+		GameEntity *Msmoke;
 
 		Msmoke = G_Spawn();
 		VectorCopy( ent->shared.r.currentOrigin, Msmoke->shared.s.origin );
@@ -275,8 +275,8 @@ void G_MissileImpact( gentity_t *ent, trace_t *trace, int impactDamage, vec3_t d
 Concussive_think
 ==============
 */
-void Concussive_think( gentity_t *ent ) {
-	gentity_t *player;
+void Concussive_think( GameEntity *ent ) {
+	GameEntity *player;
 	vec3_t dir;
 	vec3_t kvel;
 	float grav = 24;
@@ -331,12 +331,12 @@ Concussive_fx
 	caused by explosives (grenades/dynamite/etc.)
 ==============
 */
-//void Concussive_fx (gentity_t *ent)
+//void Concussive_fx (GameEntity *ent)
 void Concussive_fx( vec3_t origin ) {
-//	gentity_t *tent;
-//	gentity_t *player;
+//	GameEntity *tent;
+//	GameEntity *player;
 
-	gentity_t *concussive;
+	GameEntity *concussive;
 
 	// TODO: use new, good shake effect
 //	return;
@@ -376,8 +376,8 @@ void Concussive_fx( vec3_t origin ) {
 M_think
 ==============
 */
-void M_think( gentity_t *ent ) {
-	gentity_t *tent;
+void M_think( GameEntity *ent ) {
+	GameEntity *tent;
 
 	ent->count++;
 
@@ -421,7 +421,7 @@ G_ExplodeMissile
 Explode a missile without an impact
 ================
 */
-void G_ExplodeMissile( gentity_t *ent ) {
+void G_ExplodeMissile( GameEntity *ent ) {
 	vec3_t dir;
 	vec3_t origin;
 	bool small = false;
@@ -478,7 +478,7 @@ void G_ExplodeMissile( gentity_t *ent ) {
 	SV_LinkEntity( &ent->shared );
 
 	if ( !zombiespit ) {
-		gentity_t *Msmoke;
+		GameEntity *Msmoke;
 
 		Msmoke = G_Spawn();
 		VectorCopy( ent->shared.r.currentOrigin, Msmoke->shared.s.origin );
@@ -503,7 +503,7 @@ void G_ExplodeMissile( gentity_t *ent ) {
 G_MissileDie
 ================
 */
-void G_MissileDie( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int damage, int mod ) {
+void G_MissileDie( GameEntity *self, GameEntity *inflictor, GameEntity *attacker, int damage, int mod ) {
 	if ( inflictor == self ) {
 		return;
 	}
@@ -519,7 +519,7 @@ G_ExplodeMissilePoisonGas
 Explode a missile without an impact
 ================
 */
-void G_ExplodeMissilePoisonGas( gentity_t *ent ) {
+void G_ExplodeMissilePoisonGas( GameEntity *ent ) {
 	vec3_t dir;
 	vec3_t origin;
 
@@ -535,7 +535,7 @@ void G_ExplodeMissilePoisonGas( gentity_t *ent ) {
 
 
 	{
-		gentity_t *gas;
+		GameEntity *gas;
 
 		gas = G_Spawn();
 		gas->think = gas_think;
@@ -556,7 +556,7 @@ G_RunMissile
 
 ================
 */
-void G_RunMissile( gentity_t *ent ) {
+void G_RunMissile( GameEntity *ent ) {
 	vec3_t origin, dir;         // 'dir' is 'deltaMove'
 	trace_t tr;
 	int impactDamage;
@@ -589,7 +589,7 @@ void G_RunMissile( gentity_t *ent ) {
 		if  (   tr.surfaceFlags & SURF_NOIMPACT ) {
 			// If grapple, reset owner
 			if ( ent->parent && ent->parent->client && ent->parent->client->hook == ent ) {
-				ent->parent->client->hook = NULL;
+				ent->parent->client->hook = nullptr;
 			}
 			G_FreeEntity( ent );
 			return;
@@ -620,7 +620,7 @@ G_PredictBounceMissile
 
 ================
 */
-void G_PredictBounceMissile( gentity_t *ent, trajectory_t *pos, trace_t *trace, int time ) {
+void G_PredictBounceMissile( GameEntity *ent, trajectory_t *pos, trace_t *trace, int time ) {
 	vec3_t velocity, origin;
 	float dot;
 	int hitTime;
@@ -660,13 +660,13 @@ G_PredictMissile
   returns false if the missile won't explode, otherwise it'll return the time is it expected to explode
 ================
 */
-int G_PredictMissile( gentity_t *ent, int duration, vec3_t endPos, bool allowBounce ) {
+int G_PredictMissile( GameEntity *ent, int duration, vec3_t endPos, bool allowBounce ) {
 	vec3_t origin;
 	trace_t tr;
 	int time;
 	trajectory_t pos;
 	vec3_t org;
-	gentity_t backupEnt;
+	GameEntity backupEnt;
 
 	pos = ent->shared.s.pos;
 	BG_EvaluateTrajectory( &pos, level.time, org );
@@ -737,11 +737,11 @@ G_RunSpit
 */
 
 
-void G_RunSpit( gentity_t *ent ) {
+void G_RunSpit( GameEntity *ent ) {
 	vec3_t origin;
 	trace_t tr;
 	vec3_t end;
-	gentity_t   *smoke;
+	GameEntity   *smoke;
 
 	// effect when it drips to floor
 	if ( rand() % 100 > 60 ) {
@@ -750,7 +750,7 @@ void G_RunSpit( gentity_t *ent ) {
 		end[1] += crandom() * 8;
 		end[2] -= 8192;
 
-		SV_Trace( &tr, ent->shared.r.currentOrigin, NULL, NULL, end,
+		SV_Trace( &tr, ent->shared.r.currentOrigin, nullptr, nullptr, end,
 					ent->shared.r.ownerNum, MASK_SHOT, false );
 
 		smoke = G_Spawn();
@@ -786,7 +786,7 @@ void G_RunSpit( gentity_t *ent ) {
 		if  (   tr.surfaceFlags & SURF_NOIMPACT ) {
 			// If grapple, reset owner
 			if ( ent->parent && ent->parent->client->hook == ent ) {
-				ent->parent->client->hook = NULL;
+				ent->parent->client->hook = nullptr;
 			}
 			G_FreeEntity( ent );
 			return;
@@ -794,7 +794,7 @@ void G_RunSpit( gentity_t *ent ) {
 
 		// G_MissileImpact( ent, &tr );
 		{
-			gentity_t *gas;
+			GameEntity *gas;
 
 			gas = G_Spawn();
 			gas->think = gas_think;
@@ -823,7 +823,7 @@ void G_RunSpit( gentity_t *ent ) {
 }
 
 
-void G_RunCrowbar( gentity_t *ent ) {
+void G_RunCrowbar( GameEntity *ent ) {
 	vec3_t origin;
 	trace_t tr;
 
@@ -848,7 +848,7 @@ void G_RunCrowbar( gentity_t *ent ) {
 		if  (   tr.surfaceFlags & SURF_NOIMPACT ) {
 			// If grapple, reset owner
 			if ( ent->parent && ent->parent->client->hook == ent ) {
-				ent->parent->client->hook = NULL;
+				ent->parent->client->hook = nullptr;
 			}
 			G_FreeEntity( ent );
 			return;
@@ -880,8 +880,8 @@ fire_grenade
 
 =================
 */
-gentity_t *fire_grenade( gentity_t *self, vec3_t start, vec3_t dir, int grenadeWPID ) {
-	gentity_t   *bolt, *hit; // JPW NERVE
+GameEntity *fire_grenade( GameEntity *self, vec3_t start, vec3_t dir, int grenadeWPID ) {
+	GameEntity   *bolt, *hit; // JPW NERVE
 	bool noExplode = false;
 	vec3_t mins, maxs;      // JPW NERVE
 	static vec3_t range = { 40, 40, 52 };   // JPW NERVE
@@ -1010,8 +1010,8 @@ gentity_t *fire_grenade( gentity_t *self, vec3_t start, vec3_t dir, int grenadeW
 fire_rocket
 =================
 */
-gentity_t *fire_rocket( gentity_t *self, vec3_t start, vec3_t dir ) {
-	gentity_t   *bolt;
+GameEntity *fire_rocket( GameEntity *self, vec3_t start, vec3_t dir ) {
+	GameEntity   *bolt;
 
 	VectorNormalize( dir );
 
@@ -1069,8 +1069,8 @@ gentity_t *fire_rocket( gentity_t *self, vec3_t start, vec3_t dir ) {
 fire_zombiespit
 =====================
 */
-gentity_t *fire_zombiespit( gentity_t *self, vec3_t start, vec3_t dir ) {
-	gentity_t   *bolt;
+GameEntity *fire_zombiespit( GameEntity *self, vec3_t start, vec3_t dir ) {
+	GameEntity   *bolt;
 
 	VectorNormalize( dir );
 
@@ -1115,7 +1115,7 @@ gentity_t *fire_zombiespit( gentity_t *self, vec3_t start, vec3_t dir ) {
 fire_zombiespirit
 =====================
 */
-gentity_t *fire_zombiespirit( gentity_t *self, gentity_t *bolt, vec3_t start, vec3_t dir ) {
+GameEntity *fire_zombiespirit( GameEntity *self, GameEntity *bolt, vec3_t start, vec3_t dir ) {
 
 	VectorNormalize( dir );
 
@@ -1153,8 +1153,8 @@ gentity_t *fire_zombiespirit( gentity_t *self, gentity_t *bolt, vec3_t start, ve
 }
 
 // the crowbar for the mechanic
-gentity_t *fire_crowbar( gentity_t *self, vec3_t start, vec3_t dir ) {
-	gentity_t   *bolt;
+GameEntity *fire_crowbar( GameEntity *self, vec3_t start, vec3_t dir ) {
+	GameEntity   *bolt;
 
 	VectorNormalize( dir );
 
@@ -1196,8 +1196,8 @@ fire_flamebarrel
 ======================
 */
 
-gentity_t *fire_flamebarrel( gentity_t *self, vec3_t start, vec3_t dir ) {
-	gentity_t   *bolt;
+GameEntity *fire_flamebarrel( GameEntity *self, vec3_t start, vec3_t dir ) {
+	GameEntity   *bolt;
 
 	VectorNormalize( dir );
 
@@ -1238,12 +1238,12 @@ fire_lead
 =================
 */
 
-void fire_lead( gentity_t *self, vec3_t start, vec3_t dir, int damage ) {
+void fire_lead( GameEntity *self, vec3_t start, vec3_t dir, int damage ) {
 
 	trace_t tr;
 	vec3_t end;
-	gentity_t       *tent;
-	gentity_t       *traceEnt;
+	GameEntity       *tent;
+	GameEntity       *traceEnt;
 	vec3_t forward, right, up;
 	vec3_t angles;
 	float r, u;
@@ -1259,7 +1259,7 @@ void fire_lead( gentity_t *self, vec3_t start, vec3_t dir, int damage ) {
 	VectorMA( end, r, right, end );
 	VectorMA( end, u, up, end );
 
-	SV_Trace( &tr, start, NULL, NULL, end, self->shared.s.number, MASK_SHOT, false);
+	SV_Trace( &tr, start, nullptr, nullptr, end, self->shared.s.number, MASK_SHOT, false);
 	if ( tr.surfaceFlags & SURF_NOIMPACT ) {
 		return;
 	}
@@ -1321,13 +1321,13 @@ void fire_lead( gentity_t *self, vec3_t start, vec3_t dir, int damage ) {
 visible
 ==============
 */
-bool visible( gentity_t *self, gentity_t *other ) {
+bool visible( GameEntity *self, GameEntity *other ) {
 //	vec3_t		spot1;
 //	vec3_t		spot2;
 	trace_t tr;
-	gentity_t   *traceEnt;
+	GameEntity   *traceEnt;
 
-	SV_Trace( &tr, self->shared.r.currentOrigin, NULL, NULL, other->shared.r.currentOrigin, self->shared.s.number, MASK_SHOT, false );
+	SV_Trace( &tr, self->shared.r.currentOrigin, nullptr, nullptr, other->shared.r.currentOrigin, self->shared.s.number, MASK_SHOT, false );
 
 	traceEnt = &g_entities[ tr.entityNum ];
 
@@ -1347,13 +1347,13 @@ fire_mortar
 	dir is a non-normalized direction/power vector
 ==============
 */
-gentity_t *fire_mortar( gentity_t *self, vec3_t start, vec3_t dir ) {
-	gentity_t   *bolt;
+GameEntity *fire_mortar( GameEntity *self, vec3_t start, vec3_t dir ) {
+	GameEntity   *bolt;
 
 //	VectorNormalize (dir);
 
 	if ( self->spawnflags ) {
-		gentity_t   *tent;
+		GameEntity   *tent;
 		tent = G_TempEntity( self->shared.s.pos.trBase, EV_MORTAREFX );
 		tent->shared.s.density = self->spawnflags; // send smoke and muzzle flash flags
 		VectorCopy( self->shared.s.pos.trBase, tent->shared.s.origin );

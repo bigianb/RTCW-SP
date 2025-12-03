@@ -132,7 +132,7 @@ Svcmd_EntityList_f
 */
 void    Svcmd_EntityList_f( void ) {
 	int e;
-	gentity_t       *check;
+	GameEntity       *check;
 
 	check = g_entities + 1;
 	for ( e = 1; e < level.num_entities ; e++, check++ ) {
@@ -204,8 +204,8 @@ void    Svcmd_EntityList_f( void ) {
 	}
 }
 
-gclient_t   *ClientForString( const char *s ) {
-	gclient_t   *cl;
+GameClient   *ClientForString( const char *s ) {
+	GameClient   *cl;
 	int i;
 	int idnum;
 
@@ -214,13 +214,13 @@ gclient_t   *ClientForString( const char *s ) {
 		idnum = atoi( s );
 		if ( idnum < 0 || idnum >= level.maxclients ) {
 			Com_Printf( "Bad client slot: %i\n", idnum );
-			return NULL;
+			return nullptr;
 		}
 
 		cl = &level.clients[idnum];
 		if ( cl->pers.connected == CON_DISCONNECTED ) {
 			Com_Printf( "Client %i is not connected\n", idnum );
-			return NULL;
+			return nullptr;
 		}
 		return cl;
 	}
@@ -238,7 +238,7 @@ gclient_t   *ClientForString( const char *s ) {
 
 	Com_Printf( "User %s is not on the server\n", s );
 
-	return NULL;
+	return nullptr;
 }
 
 

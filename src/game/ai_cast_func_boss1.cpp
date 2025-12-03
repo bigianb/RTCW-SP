@@ -65,7 +65,7 @@ extern int lastZombieSpiritAttack;
 
 const char *AIFunc_Helga_SpiritAttack( cast_state_t *cs ) {
 	bot_state_t *bs;
-	gentity_t *ent;
+	GameEntity *ent;
 	//
 	cs->aiFlags |= AIFL_SPECIAL_FUNC;
 	ent = &g_entities[cs->entityNum];
@@ -113,11 +113,11 @@ const char *AIFunc_Helga_SpiritAttack( cast_state_t *cs ) {
 	}
 	//
 	//
-	return NULL;
+	return nullptr;
 }
 
 const char *AIFunc_Helga_SpiritAttack_Start( cast_state_t *cs ) {
-	gentity_t *ent;
+	GameEntity *ent;
 	//
 	ent = &g_entities[cs->entityNum];
 	ent->shared.s.otherEntityNum2 = cs->enemyNum;
@@ -159,8 +159,8 @@ AIFunc_Helga_Melee
 ================
 */
 const char *AIFunc_Helga_Melee( cast_state_t *cs ) {
-	gentity_t *ent = &g_entities[cs->entityNum];
-	gentity_t *enemy;
+	GameEntity *ent = &g_entities[cs->entityNum];
+	GameEntity *enemy;
 	cast_state_t *ecs;
 	int hitDelay = -1, anim;
 	trace_t tr;
@@ -215,7 +215,7 @@ const char *AIFunc_Helga_Melee( cast_state_t *cs ) {
 			enemyDist -= g_entities[cs->enemyNum].shared.r.maxs[0];
 			enemyDist -= ent->shared.r.maxs[0];
 			if ( enemyDist < 10 + AICast_WeaponRange( cs, cs->weaponNum ) ) {
-                SV_Trace( &tr, ent->shared.r.currentOrigin, NULL, NULL, enemy->shared.r.currentOrigin, ent->shared.s.number, MASK_SHOT, false );
+                SV_Trace( &tr, ent->shared.r.currentOrigin, nullptr, nullptr, enemy->shared.r.currentOrigin, ent->shared.s.number, MASK_SHOT, false );
 				if ( tr.entityNum == cs->enemyNum ) {
 					G_Damage( &g_entities[tr.entityNum], ent, ent, vec3_origin, tr.endpos,
 							  helgaHitDamage[anim], 0, MOD_GAUNTLET );
@@ -242,7 +242,7 @@ const char *AIFunc_Helga_Melee( cast_state_t *cs ) {
 		//ent->client->ps.legsTimer = 0;		// allow legs us to move
 	}
 
-	return NULL;
+	return nullptr;
 }
 
 /*
@@ -251,7 +251,7 @@ AIFunc_Helga_MeleeStart
 ================
 */
 const char *AIFunc_Helga_MeleeStart( cast_state_t *cs ) {
-	gentity_t *ent;
+	GameEntity *ent;
 
 	ent = &g_entities[cs->entityNum];
 	ent->shared.s.effect1Time = level.time;
@@ -284,7 +284,7 @@ AIFunc_FlameZombie_Portal
 ==============
 */
 const char *AIFunc_FlameZombie_Portal( cast_state_t *cs ) {
-	gentity_t *ent = &g_entities[cs->entityNum];
+	GameEntity *ent = &g_entities[cs->entityNum];
 	//
 	if ( cs->thinkFuncChangeTime < level.time - PORTAL_ZOMBIE_SPAWNTIME ) {
 		// HACK, make them aware of the player
@@ -293,7 +293,7 @@ const char *AIFunc_FlameZombie_Portal( cast_state_t *cs ) {
 		return AIFunc_DefaultStart( cs );
 	}
 	//
-	return NULL;
+	return nullptr;
 }
 
 /*
@@ -302,7 +302,7 @@ AIFunc_FlameZombie_PortalStart
 ==============
 */
 const char *AIFunc_FlameZombie_PortalStart( cast_state_t *cs ) {
-	gentity_t *ent = &g_entities[cs->entityNum];
+	GameEntity *ent = &g_entities[cs->entityNum];
 	//
 	ent->shared.s.time2 = level.time + 200;    // hijacking this for portal spawning effect
 	//
@@ -370,7 +370,7 @@ void AICast_Heinrich_SoundPrecache( void ) {
 }
 
 void AICast_Heinrich_Taunt( cast_state_t *cs ) {
-	gentity_t *ent = &g_entities[cs->entityNum];
+	GameEntity *ent = &g_entities[cs->entityNum];
 	static int lastTaunt;
 	// sound
 	if ( ent->health > cs->attributes[STARTING_HEALTH] * 0.25 ) {
@@ -391,7 +391,7 @@ void AICast_Heinrich_Taunt( cast_state_t *cs ) {
 #define HEINRICH_LUNGE_DAMAGE   ( 50 + rand() % 20 )
 
 const char *AIFunc_Heinrich_SwordLunge( cast_state_t *cs ) {
-	gentity_t *ent = &g_entities[cs->entityNum];
+	GameEntity *ent = &g_entities[cs->entityNum];
 	trace_t *tr;
 	vec3_t left;
 	float enemyDist;
@@ -403,7 +403,7 @@ const char *AIFunc_Heinrich_SwordLunge( cast_state_t *cs ) {
 
 	if ( cs->enemyNum < 0 ) {
 		if ( ent->client->ps.torsoTimer ) {
-			return NULL;
+			return nullptr;
 		}
 		return AIFunc_DefaultStart( cs );
 	}
@@ -457,12 +457,12 @@ const char *AIFunc_Heinrich_SwordLunge( cast_state_t *cs ) {
 		}
 	}
 
-	return NULL;
+	return nullptr;
 }
 
 const char *AIFunc_Heinrich_SwordLungeStart( cast_state_t *cs ) {
-	gentity_t *ent = &g_entities[cs->entityNum];
-//	gentity_t	*enemy = &g_entities[cs->enemyNum];
+	GameEntity *ent = &g_entities[cs->entityNum];
+//	GameEntity	*enemy = &g_entities[cs->enemyNum];
 
 	cs->aiFlags |= AIFL_SPECIAL_FUNC;
 	// sound
@@ -483,7 +483,7 @@ const char *AIFunc_Heinrich_SwordLungeStart( cast_state_t *cs ) {
 #define HEINRICH_KNOCKBACK_DAMAGE   ( 60 + rand() % 20 )
 
 const char *AIFunc_Heinrich_SwordKnockback( cast_state_t *cs ) {
-	gentity_t *ent = &g_entities[cs->entityNum];
+	GameEntity *ent = &g_entities[cs->entityNum];
 	trace_t *tr;
 	vec3_t right, left;
 
@@ -493,7 +493,7 @@ const char *AIFunc_Heinrich_SwordKnockback( cast_state_t *cs ) {
 
 	if ( cs->enemyNum < 0 ) {
 		if ( ent->client->ps.torsoTimer ) {
-			return NULL;
+			return nullptr;
 		}
 		return AIFunc_DefaultStart( cs );
 	}
@@ -522,7 +522,7 @@ const char *AIFunc_Heinrich_SwordKnockback( cast_state_t *cs ) {
 			cs->aiFlags |= AIFL_MISCFLAG1;
 			// do melee damage
 			if ( tr && ( tr->entityNum == cs->enemyNum ) ) {
-				AngleVectors( cs->viewangles, NULL, right, NULL );
+				AngleVectors( cs->viewangles, nullptr, right, nullptr );
 				VectorNegate( right, left );
 				G_Damage( &g_entities[tr->entityNum], ent, ent, left, tr->endpos, HEINRICH_KNOCKBACK_DAMAGE, 0, MOD_GAUNTLET );
 				// sound
@@ -541,12 +541,12 @@ const char *AIFunc_Heinrich_SwordKnockback( cast_state_t *cs ) {
 		}
 	}
 
-	return NULL;
+	return nullptr;
 }
 
 const char *AIFunc_Heinrich_SwordKnockbackStart( cast_state_t *cs ) {
-	gentity_t *ent = &g_entities[cs->entityNum];
-//	gentity_t	*enemy = &g_entities[cs->enemyNum];
+	GameEntity *ent = &g_entities[cs->entityNum];
+//	GameEntity	*enemy = &g_entities[cs->enemyNum];
 
 	cs->aiFlags |= AIFL_SPECIAL_FUNC;
 	// sound
@@ -573,7 +573,7 @@ const char *AIFunc_Heinrich_SwordKnockbackStart( cast_state_t *cs ) {
 #define HEINRICH_SLASH_DAMAGE   ( 30 + rand() % 15 )
 
 const char *AIFunc_Heinrich_SwordSideSlash( cast_state_t *cs ) {
-	gentity_t *ent = &g_entities[cs->entityNum];
+	GameEntity *ent = &g_entities[cs->entityNum];
 	trace_t *tr;
 	vec3_t right, left;
 	float enemyDist;
@@ -585,7 +585,7 @@ const char *AIFunc_Heinrich_SwordSideSlash( cast_state_t *cs ) {
 
 	if ( cs->enemyNum < 0 ) {
 		if ( ent->client->ps.torsoTimer ) {
-			return NULL;
+			return nullptr;
 		}
 		return AIFunc_DefaultStart( cs );
 	}
@@ -614,7 +614,7 @@ const char *AIFunc_Heinrich_SwordSideSlash( cast_state_t *cs ) {
 			cs->aiFlags |= AIFL_MISCFLAG1;
 			// do melee damage
 			if ( tr && ( tr->entityNum == cs->enemyNum ) ) {
-				AngleVectors( cs->viewangles, NULL, right, NULL );
+				AngleVectors( cs->viewangles, nullptr, right, nullptr );
 				VectorNegate( right, left );
 				G_Damage( &g_entities[tr->entityNum], ent, ent, left, tr->endpos, HEINRICH_SLASH_DAMAGE, 0, MOD_GAUNTLET );
 				// sound
@@ -643,11 +643,11 @@ const char *AIFunc_Heinrich_SwordSideSlash( cast_state_t *cs ) {
 		}
 	}
 
-	return NULL;
+	return nullptr;
 }
 
 const char *AIFunc_Heinrich_SwordSideSlashStart( cast_state_t *cs ) {
-	gentity_t *ent = &g_entities[cs->entityNum];
+	GameEntity *ent = &g_entities[cs->entityNum];
 
 	cs->aiFlags |= AIFL_SPECIAL_FUNC;
 	// sound
@@ -671,8 +671,8 @@ const char *AIFunc_Heinrich_SwordSideSlashStart( cast_state_t *cs ) {
 #define HEINRICH_STOMP_DAMAGE       35
 
 const char *AIFunc_Heinrich_Earthquake( cast_state_t *cs ) {
-	gentity_t   *ent = &g_entities[cs->entityNum];
-	gentity_t   *enemy;
+	GameEntity   *ent = &g_entities[cs->entityNum];
+	GameEntity   *enemy;
 	cast_state_t *ecs;
 	vec3_t enemyVec;
 	float enemyDist, scale;
@@ -684,7 +684,7 @@ const char *AIFunc_Heinrich_Earthquake( cast_state_t *cs ) {
 		if ( !ent->client->ps.torsoTimer ) {
 			return AIFunc_DefaultStart( cs );
 		}
-		return NULL;
+		return nullptr;
 	}
 
 	enemy = &g_entities[cs->enemyNum];
@@ -763,17 +763,17 @@ const char *AIFunc_Heinrich_Earthquake( cast_state_t *cs ) {
 		}
 	}
 
-	return NULL;
+	return nullptr;
 }
 
 const char *AIFunc_Heinrich_MeleeStart( cast_state_t *cs ) {
-	gentity_t *ent = &g_entities[cs->entityNum];
-	gentity_t   *enemy = &g_entities[cs->enemyNum];
+	GameEntity *ent = &g_entities[cs->entityNum];
+	GameEntity   *enemy = &g_entities[cs->enemyNum];
 	int rnd;
 	static int lastStomp;
 
 	if ( cs->enemyNum < 0 ) {
-		return NULL;
+		return nullptr;
 	}
 
 	// record weapon fire
@@ -808,7 +808,7 @@ const char *AIFunc_Heinrich_MeleeStart( cast_state_t *cs ) {
 	case 1:
 		// dont do stomp too often
 		if ( lastStomp > level.time - 12000 ) {   // plenty of time to let debris disappear
-			return NULL;
+			return nullptr;
 		}
 		lastStomp = level.time;
 		cs->aiFlags |= AIFL_SPECIAL_FUNC;
@@ -821,7 +821,7 @@ const char *AIFunc_Heinrich_MeleeStart( cast_state_t *cs ) {
 		return "AIFunc_Heinrich_Earthquake";
 	}
 	// shutup compiler
-	return NULL;
+	return nullptr;
 }
 
 #define HEINRICH_RAISEDEAD_DELAY        1200
@@ -830,9 +830,9 @@ int lastRaise;
 
 const char *AIFunc_Heinrich_RaiseDead( cast_state_t *cs ) {
 	int i;
-	gentity_t   *ent = &g_entities[cs->entityNum];
-	gentity_t   *enemy = &g_entities[cs->enemyNum];
-	gentity_t *trav, *closest;
+	GameEntity   *ent = &g_entities[cs->entityNum];
+	GameEntity   *enemy = &g_entities[cs->enemyNum];
+	GameEntity *trav, *closest;
 	float closestDist, dist;
 	//
 	cs->aiFlags |= AIFL_SPECIAL_FUNC;
@@ -840,7 +840,7 @@ const char *AIFunc_Heinrich_RaiseDead( cast_state_t *cs ) {
 		if ( !ent->client->ps.torsoTimer ) {
 			return AIFunc_DefaultStart( cs );
 		}
-		return NULL;
+		return nullptr;
 	}
 	//
 	// record weapon fire
@@ -852,7 +852,7 @@ const char *AIFunc_Heinrich_RaiseDead( cast_state_t *cs ) {
 	if ( ent->count2 && lastRaise < level.time - HEINRICH_RAISEDEAD_DELAY ) {
 		lastRaise = level.time;
 		// summons the closest warrior
-		closest = NULL;
+		closest = nullptr;
 		closestDist = 0;    // shutup the compiler
 		for ( i = 0, trav = g_entities; i < level.maxclients; i++, trav++ ) {
 			if ( !trav->inuse ) {
@@ -880,14 +880,14 @@ const char *AIFunc_Heinrich_RaiseDead( cast_state_t *cs ) {
 		}
 	}
 	//
-	return NULL;
+	return nullptr;
 }
 
 const char *AIFunc_Heinrich_RaiseDeadStart( cast_state_t *cs ) {
 	int i, cnt, free;
-	gentity_t   *ent = &g_entities[cs->entityNum];
-//	gentity_t	*enemy = &g_entities[cs->enemyNum];
-	gentity_t *trav, *spirits;
+	GameEntity   *ent = &g_entities[cs->entityNum];
+//	GameEntity	*enemy = &g_entities[cs->enemyNum];
+	GameEntity *trav, *spirits;
 	float circleDist;
 	//
 	// count the number of active warriors
@@ -924,7 +924,7 @@ const char *AIFunc_Heinrich_RaiseDeadStart( cast_state_t *cs ) {
 		return "AIFunc_Heinrich_RaiseDead";
 	}
 	// enable all the spirit spawners
-	trav = NULL;
+	trav = nullptr;
 	// TTimo: gcc: suggest () around assignment used as truth value
 	while ( ( trav = G_Find( trav, FOFS( classname ), "func_bats" ) ) ) {
 		if ( !trav->active && trav->spawnflags & 4 ) {
@@ -932,13 +932,13 @@ const char *AIFunc_Heinrich_RaiseDeadStart( cast_state_t *cs ) {
 		}
 	}
 	// is the player outside the circle?
-	trav = NULL;
+	trav = nullptr;
 	// TTimo: gcc: suggest () around assignment used as truth value
 	while ( ( trav = G_Find( trav, FOFS( classname ), "func_bats" ) ) ) {
 		if ( trav->spawnflags & 4 ) {
 			spirits = trav;
 			circleDist = trav->radius;
-			trav = G_Find( NULL, FOFS( targetname ), trav->target );
+			trav = G_Find( nullptr, FOFS( targetname ), trav->target );
 			if ( trav ) {
 				if ( VectorDistance( g_entities[0].shared.s.pos.trBase, trav->shared.s.origin ) > circleDist ) {
 					cs->aiFlags &= ~AIFL_MISCFLAG1;
@@ -957,16 +957,16 @@ const char *AIFunc_Heinrich_RaiseDeadStart( cast_state_t *cs ) {
 		}
 	}
 	//
-	return NULL;
+	return nullptr;
 }
 
 const char *AIFunc_Heinrich_SpawnSpiritsStart( cast_state_t *cs ) {
-	gentity_t   *ent = &g_entities[cs->entityNum];
-	gentity_t *trav, *spirits;
+	GameEntity   *ent = &g_entities[cs->entityNum];
+	GameEntity *trav, *spirits;
 	float circleDist;
 	//
 	// enable all the spirit spawners
-	trav = NULL;
+	trav = nullptr;
 	// TTimo: gcc: suggest () around assignment used as truth value
 	while ( ( trav = G_Find( trav, FOFS( classname ), "func_bats" ) ) ) {
 		if ( !trav->active && trav->spawnflags & 4 ) {
@@ -974,13 +974,13 @@ const char *AIFunc_Heinrich_SpawnSpiritsStart( cast_state_t *cs ) {
 		}
 	}
 	// is the player outside the circle?
-	trav = NULL;
+	trav = nullptr;
 	// TTimo: gcc: suggest () around assignment used as truth value
 	while ( ( trav = G_Find( trav, FOFS( classname ), "func_bats" ) ) ) {
 		if ( trav->spawnflags & 4 ) {
 			spirits = trav;
 			circleDist = trav->radius;
-			trav = G_Find( NULL, FOFS( targetname ), trav->target );
+			trav = G_Find( nullptr, FOFS( targetname ), trav->target );
 			if ( trav ) {
 				if ( VectorDistance( g_entities[0].shared.s.pos.trBase, trav->shared.s.origin ) > circleDist ) {
 					cs->aiFlags &= ~AIFL_MISCFLAG1;
@@ -999,5 +999,5 @@ const char *AIFunc_Heinrich_SpawnSpiritsStart( cast_state_t *cs ) {
 		}
 	}
 	//
-	return NULL;
+	return nullptr;
 }

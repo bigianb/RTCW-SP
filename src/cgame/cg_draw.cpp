@@ -240,7 +240,7 @@ static void CG_DrawPickupItem( void ) {
 //			Text_Paint(ICON_SIZE + 16, 398, 2, 0.3f, color, pickupText, 0, 0, ITEM_TEXTSTYLE_SHADOWEDMORE);
 
 
-			RE_SetColor( NULL );
+			RE_SetColor( nullptr );
 		}
 	}
 }
@@ -271,7 +271,7 @@ static void CG_DrawReward( void ) {
 		CG_DrawPic( x, y, ICON_SIZE - 4, ICON_SIZE - 4, cg.rewardShader );
 		x += ICON_SIZE;
 	}
-	RE_SetColor( NULL );
+	RE_SetColor( nullptr );
 }
 
 /*
@@ -284,7 +284,7 @@ Should we draw something differnet for long lag vs no packets?
 static void CG_DrawDisconnect( void ) {
 	float x, y;
 	int cmdNum;
-	usercmd_t cmd;
+	UserCmd cmd;
 	const char      *s;
 	int w;          // bk010215 - FIXME char message[1024];
 
@@ -413,7 +413,7 @@ static void CG_DrawCenterString( void ) {
 		start++;
 	}
 
-	RE_SetColor( NULL );
+	RE_SetColor( nullptr );
 }
 
 
@@ -690,7 +690,7 @@ static void CG_DrawCrosshair( void ) {
 	if ( cg_crosshairHealth.integer ) {
 		RE_SetColor( hcolor );
 	} else {
-		RE_SetColor( NULL );
+		RE_SetColor( nullptr );
 	}
 
 	w = h = cg_crosshairSize.value;
@@ -784,7 +784,7 @@ static void CG_DrawDynamiteStatus( void ) {
 	color[3] *= cg_hudAlpha.value;
 	CG_DrawBigStringColor( 320 - w / 2, 170, name, color );
 
-	RE_SetColor( NULL );
+	RE_SetColor( nullptr );
 }
 
 
@@ -800,7 +800,7 @@ void CG_CheckForCursorHints( void ) {
 		return;
 	}
 
-	if ( cg.snap != NULL && cg.snap->ps.serverCursorHint != HINT_NONE ) { // let the client remember what was last looked at (for fading out)
+	if ( cg.snap != nullptr && cg.snap->ps.serverCursorHint != HINT_NONE ) { // let the client remember what was last looked at (for fading out)
 		cg.cursorHintTime = cg.time;
 		cg.cursorHintFade = cg_hintFadeTime.integer;    // fade out time
 		cg.cursorHintIcon = cg.snap->ps.serverCursorHint;
@@ -1053,7 +1053,7 @@ static void CG_DrawFlashFire( void ) {
 		col[3] = alpha;
 		RE_SetColor( col );
 		CG_DrawPic( -10, -10, 650, 490, cgs.media.viewFlashFire[( cg.time / 50 ) % 16] );
-		RE_SetColor( NULL );
+		RE_SetColor( nullptr );
 
 		trap_S_AddLoopingSound( cg.snap->ps.clientNum, cg.snap->ps.origin, vec3_origin, cgs.media.flameSound, (int)( 255.0 * alpha ) );
 		trap_S_AddLoopingSound( cg.snap->ps.clientNum, cg.snap->ps.origin, vec3_origin, cgs.media.flameCrackSound, (int)( 255.0 * alpha ) );

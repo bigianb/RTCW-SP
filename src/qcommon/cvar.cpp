@@ -107,7 +107,7 @@ static cvar_t *Cvar_FindVar( const char *var_name ) {
 		}
 	}
 
-	return NULL;
+	return nullptr;
 }
 
 /*
@@ -202,7 +202,7 @@ cvar_t *Cvar_Get( const char *var_name, const char *var_value, int flags ) {
 	long hash;
 
 	if ( !var_name || !var_value ) {
-		Com_Error( ERR_FATAL, "Cvar_Get: NULL parameter" );
+		Com_Error( ERR_FATAL, "Cvar_Get: nullptr parameter" );
 	}
 
 	if ( !Cvar_ValidateString( var_name ) ) {
@@ -240,7 +240,7 @@ cvar_t *Cvar_Get( const char *var_name, const char *var_value, int flags ) {
 			char *s;
 
 			s = var->latchedString;
-			var->latchedString = NULL;  // otherwise cvar_set2 would free it
+			var->latchedString = nullptr;  // otherwise cvar_set2 would free it
 			Cvar_Set2( var_name, s, true );
 			free( s );
 		}
@@ -296,7 +296,7 @@ cvar_t *Cvar_Set2( const char *var_name, const char *value, bool force ) {
 	var = Cvar_FindVar( var_name );
 	if ( !var ) {
 		if ( !value ) {
-			return NULL;
+			return nullptr;
 		}
 		// create it
 		if ( !force ) {
@@ -356,7 +356,7 @@ cvar_t *Cvar_Set2( const char *var_name, const char *value, bool force ) {
 	{
 		if ( var->latchedString ) {
 			free( var->latchedString );
-			var->latchedString = NULL;
+			var->latchedString = nullptr;
 		}
 	}
 
@@ -417,7 +417,7 @@ Cvar_Reset
 ============
 */
 void Cvar_Reset( const char *var_name ) {
-	Cvar_Set2( var_name, NULL, false );
+	Cvar_Set2( var_name, nullptr, false );
 }
 
 
@@ -647,7 +647,7 @@ void Cvar_List_f( void ) {
 	if ( Cmd_Argc() > 1 ) {
 		match = Cmd_Argv( 1 );
 	} else {
-		match = NULL;
+		match = nullptr;
 	}
 
 	i = 0;
@@ -848,7 +848,7 @@ updates an interpreted modules' version of a cvar
 =====================
 */
 void    Cvar_Update( vmCvar_t *vmCvar ) {
-	cvar_t  *cv = NULL; // bk001129
+	cvar_t  *cv = nullptr; // bk001129
 	assert( vmCvar ); // bk
 
 	if ( (unsigned)vmCvar->handle >= cvar_numIndexes ) {

@@ -28,7 +28,7 @@ typedef struct {
 #define SET_FLAMING_ZOMBIE( x,y ) ( x.frame = y )
 #define IS_FLAMING_ZOMBIE( x )    ( x.frame == 1 )
 
-// entityState_t is the information conveyed from the server
+// EntityState is the information conveyed from the server
 // in an update message about entities that the client will
 // need to render in some way
 // Different eTypes may use the information in different ways
@@ -37,8 +37,9 @@ typedef struct {
 //
 // NOTE: all fields in here must be 32 bits (or those within sub-structures)
 
-typedef struct entityState_s
+class EntityState
 {
+public:
 	int number;             // entity index
 	int eType;              // entityType_t
 	int eFlags;
@@ -96,4 +97,4 @@ typedef struct entityState_s
 	int animMovetype;       // clients can't derive movetype of other clients for anim scripting system
 
 
-} entityState_t;
+};

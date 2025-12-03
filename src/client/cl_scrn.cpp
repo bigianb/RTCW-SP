@@ -72,7 +72,7 @@ void SCR_FillRect( float x, float y, float width, float height, const float *col
 	SCR_AdjustFrom640( &x, &y, &width, &height );
 	re.DrawStretchPic( x, y, width, height, 0, 0, 0, 0, cls.whiteShader );
 
-	re.SetColor( NULL );
+	re.SetColor( nullptr );
 }
 
 
@@ -202,7 +202,7 @@ void SCR_DrawStringExt( int x, int y, float size, const char *string, float *set
 		xx += size;
 		s++;
 	}
-	re.SetColor( NULL );
+	re.SetColor( nullptr );
 }
 
 
@@ -251,7 +251,7 @@ void SCR_DrawSmallStringExt( int x, int y, const char *string, float *setColor, 
 			s++;
 		}
 	}
-	re.SetColor( NULL );
+	re.SetColor( nullptr );
 }
 
 
@@ -278,7 +278,7 @@ void SCR_DrawScreenField( stereoFrame_t stereoFrame )
 		if ( cls.glconfig.vidWidth * 480 > cls.glconfig.vidHeight * 640 ) {
 			re.SetColor( g_color_table[0] );
 			re.DrawStretchPic( 0, 0, cls.glconfig.vidWidth, cls.glconfig.vidHeight, 0, 0, 0, 0, cls.whiteShader );
-			re.SetColor( NULL );
+			re.SetColor( nullptr );
 		}
 	}
 
@@ -362,7 +362,7 @@ void SCR_UpdateScreen()
 	if ( com_speeds->integer ) {
 		re.EndFrame( &time_frontend, &time_backend );
 	} else {
-		re.EndFrame( NULL, NULL );
+		re.EndFrame( nullptr, nullptr );
 	}
 
 	recursive = 0;

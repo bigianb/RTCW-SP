@@ -913,8 +913,8 @@ static void LerpCMeshVertexes( mdcSurface_t *surf, float backlerp ) {
 	int numVerts;
 
 	int oldBase, newBase;
-	short   *oldComp = NULL, *newComp = NULL; // TTimo: init
-	mdcXyzCompressed_t *oldXyzComp = NULL, *newXyzComp = NULL; // TTimo: init
+	short   *oldComp = nullptr, *newComp = nullptr; // TTimo: init
+	mdcXyzCompressed_t *oldXyzComp = nullptr, *newXyzComp = nullptr; // TTimo: init
 	vec3_t oldOfsVec, newOfsVec;
 
 	bool hasComp;
@@ -1344,7 +1344,7 @@ void RB_SurfaceGrid( srfGridMesh_t *cv ) {
 /*
 ===========================================================================
 
-NULL MODEL
+nullptr MODEL
 
 ===========================================================================
 */

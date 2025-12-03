@@ -39,22 +39,22 @@ sharedEntity_t *SV_GentityNum( size_t num )
 	return ent;
 }
 
-playerState_t *SV_GameClientNum( int num )
+PlayerState *SV_GameClientNum( int num )
 {
-	playerState_t* ps = ( playerState_t * )( (byte *)sv.gameClients + sv.gameClientSize * ( num ) );
+	PlayerState* ps = ( PlayerState * )( (byte *)sv.gameClients + sv.gameClientSize * ( num ) );
 	return ps;
 }
 
-svEntity_t  *SV_SvEntityForGentity( sharedEntity_t *gEnt )
+ServerEntity  *SV_SvEntityForGentity( sharedEntity_t *gEnt )
 {
 	if ( !gEnt || gEnt->s.number < 0 || gEnt->s.number >= MAX_GENTITIES ) {
 		Com_Error( ERR_DROP, "SV_SvEntityForGentity: bad gEnt" );
-		return NULL;	// not required as ERR_DROP will do a longjump
+		return nullptr;	// not required as ERR_DROP will do a longjump
 	}
 	return &sv.svEntities[ gEnt->s.number ];
 }
 
-sharedEntity_t *SV_GEntityForSvEntity( svEntity_t *svEnt )
+sharedEntity_t *SV_GEntityForSvEntity( ServerEntity *svEnt )
 {
 	size_t num = svEnt - sv.svEntities;
 	return SV_GentityNum( num );
@@ -70,7 +70,7 @@ Sends a command string to a client
 void SV_GameSendServerCommand( int clientNum, const char *text )
 {
 	if ( clientNum == -1 ) {
-		SV_SendServerCommand( NULL, "%s", text );
+		SV_SendServerCommand( nullptr, "%s", text );
 	} else {
 		if ( clientNum < 0 || clientNum >= sv_maxclients->integer ) {
 			return;
@@ -106,7 +106,7 @@ sets mins and maxs for inline bmodels
 void SV_SetBrushModel( sharedEntity_t *ent, const char *name )
 {
 	if ( !name ) {
-		Com_Error( ERR_DROP, "SV_SetBrushModel: NULL" );
+		Com_Error( ERR_DROP, "SV_SetBrushModel: nullptr" );
         return; // keep the linter happy, ERR_DROP does not return
 	}
 
@@ -190,7 +190,7 @@ SV_AdjustAreaPortalState
 */
 void SV_AdjustAreaPortalState( sharedEntity_t *ent, bool open )
 {
-	svEntity_t* svEnt = SV_SvEntityForGentity( ent );
+	ServerEntity* svEnt = SV_SvEntityForGentity( ent );
 	if ( svEnt->areanum2 == -1 ) {
 		return;
 	}
@@ -240,7 +240,7 @@ SV_LocateGameData
 ===============
 */
 void SV_LocateGameData( sharedEntity_t *gEnts, int numGEntities, int sizeofGEntity_t,
-						playerState_t *clients, int sizeofGameClient ) {
+						PlayerState *clients, int sizeofGameClient ) {
 	sv.gentities = gEnts;
 	sv.gentitySize = sizeofGEntity_t;
 	sv.num_entities = numGEntities;
@@ -256,7 +256,7 @@ SV_GetUsercmd
 
 ===============
 */
-void SV_GetUsercmd( int clientNum, usercmd_t *cmd )
+void SV_GetUsercmd( int clientNum, UserCmd *cmd )
 {
 	if ( clientNum < 0 || clientNum >= sv_maxclients->integer ) {
 		Com_Error( ERR_DROP, "SV_GetUsercmd: bad clientNum:%i", clientNum );
@@ -296,7 +296,7 @@ static void SV_InitGameVM( bool restart )
 	// clear all gentity pointers that might still be set from
 	// a previous level
 	for (int i = 0 ; i < sv_maxclients->integer ; i++ ) {
-		svs.clients[i].gentity = NULL;
+		svs.clients[i].gentity = nullptr;
 	}
 }
 

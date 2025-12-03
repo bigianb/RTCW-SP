@@ -392,13 +392,13 @@ typedef struct cast_state_s
 	const char    *( *aifuncAttack2 )( struct cast_state_s *cs );     //use this battle aifunc for monster_attack2
 	const char    *( *aifuncAttack3 )( struct cast_state_s *cs );     //use this battle aifunc for monster_attack2
 
-	void ( *painfunc )( gentity_t *ent, gentity_t *attacker, int damage, vec3_t point );
-	void ( *deathfunc )( gentity_t *ent, gentity_t *attacker, int damage, int mod ); //----(SA)	added mod
-	void ( *sightfunc )( gentity_t *ent, gentity_t *other, int lastSight );
+	void ( *painfunc )( GameEntity *ent, GameEntity *attacker, int damage, vec3_t point );
+	void ( *deathfunc )( GameEntity *ent, GameEntity *attacker, int damage, int mod ); //----(SA)	added mod
+	void ( *sightfunc )( GameEntity *ent, GameEntity *other, int lastSight );
 
-	//int		(*getDeathAnim)(gentity_t *ent, gentity_t *attacker, int damage);
-	void ( *sightEnemy )( gentity_t *ent, gentity_t *other );
-	void ( *sightFriend )( gentity_t *ent, gentity_t *other );
+	//int		(*getDeathAnim)(GameEntity *ent, GameEntity *attacker, int damage);
+	void ( *sightEnemy )( GameEntity *ent, GameEntity *other );
+	void ( *sightFriend )( GameEntity *ent, GameEntity *other );
 
 	void ( *activate )( int entNum, int activatorNum );
 
@@ -559,7 +559,7 @@ typedef struct cast_state_s
 	int weaponNum;              // our current weapon
 	int enemyNum;               // our current enemy
 	vec3_t ideal_viewangles, viewangles;
-	usercmd_t lastucmd;
+	UserCmd lastucmd;
 	int attackcrouch_time;
 	int bFlags;
 
@@ -614,20 +614,20 @@ extern vmCvar_t aicast_scripts;
 // procedure defines
 //
 // ai_cast.c
-void    AIChar_SetBBox( gentity_t *ent, cast_state_t *cs, bool useHeadTag );
+void    AIChar_SetBBox( GameEntity *ent, cast_state_t *cs, bool useHeadTag );
 void    AICast_Printf( int type, const char *fmt, ... );
-gentity_t *AICast_CreateCharacter( gentity_t *ent, float *attributes, cast_weapon_info_t *weaponInfo, const char *castname, const char *model, const char *head, const char *sex, const char *color, const char *handicap );
+GameEntity *AICast_CreateCharacter( GameEntity *ent, float *attributes, cast_weapon_info_t *weaponInfo, const char *castname, const char *model, const char *head, const char *sex, const char *color, const char *handicap );
 void    AICast_Init( void );
-void    AICast_DelayedSpawnCast( gentity_t *ent, int castType );
+void    AICast_DelayedSpawnCast( GameEntity *ent, int castType );
 bool AICast_SolidsInBBox( vec3_t pos, vec3_t mins, vec3_t maxs, int entnum, int mask );
-void    AICast_CheckLevelAttributes( cast_state_t *cs, gentity_t *ent, const char **ppStr );
+void    AICast_CheckLevelAttributes( cast_state_t *cs, GameEntity *ent, const char **ppStr );
 //
 // ai_cast_sight.c
 void    AICast_SightUpdate( int numchecks );
 bool AICast_VisibleFromPos( vec3_t srcpos, int srcnum,
 								vec3_t destpos, int destnum, bool updateVisPos );
-void    AICast_UpdateVisibility( gentity_t *srcent, gentity_t *destent, bool shareVis, bool directview );
-bool AICast_CheckVisibility( gentity_t *srcent, gentity_t *destent );
+void    AICast_UpdateVisibility( GameEntity *srcent, GameEntity *destent, bool shareVis, bool directview );
+bool AICast_CheckVisibility( GameEntity *srcent, GameEntity *destent );
 //
 // ai_cast_debug.c
 void    AICast_DBG_InitAIFuncs( void );
@@ -705,7 +705,7 @@ bool AICast_CanMoveWhileFiringWeapon( int weaponnum );
 float   AICast_GetWeaponSoundRange( int weapon );
 bool AICast_StopAndAttack( cast_state_t *cs );
 bool AICast_WantToRetreat( cast_state_t *cs );
-int     AICast_SafeMissileFire( gentity_t *ent, int duration, int enemyNum, vec3_t enemyPos, int selfNum, vec3_t endPos );
+int     AICast_SafeMissileFire( GameEntity *ent, int duration, int enemyNum, vec3_t enemyPos, int selfNum, vec3_t endPos );
 void    AIChar_AttackSound( cast_state_t *cs );
 bool AICast_GotEnoughAmmoForWeapon( cast_state_t *cs, int weapon );
 bool AICast_HostileEnemy( cast_state_t *cs, int enemynum );
@@ -716,17 +716,17 @@ float AICast_WeaponRange( cast_state_t *cs, int weaponnum );
 
 //
 // ai_cast_events.c
-void    AICast_Pain( gentity_t *targ, gentity_t *attacker, int damage, vec3_t point );
-void    AICast_Die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int damage, int meansOfDeath );
-void    AICast_Sight( gentity_t *ent, gentity_t *other, int lastSight );
+void    AICast_Pain( GameEntity *targ, GameEntity *attacker, int damage, vec3_t point );
+void    AICast_Die( GameEntity *self, GameEntity *inflictor, GameEntity *attacker, int damage, int meansOfDeath );
+void    AICast_Sight( GameEntity *ent, GameEntity *other, int lastSight );
 void    AICast_EndChase( cast_state_t *cs );
 void    AICast_ProcessActivate( int entNum, int activatorNum );
 //
 // ai_cast_think.c
 void AICast_Think( int client, float thinktime );
 void AICast_UpdateInput( cast_state_t *cs, int time );
-void AICast_InputToUserCommand( cast_state_t * cs, bot_input_t * bi, usercmd_t * ucmd, int delta_angles[3] );
-void AICast_PredictMovement( cast_state_t *cs, int numframes, float frametime, aicast_predictmove_t *move, usercmd_t *ucmd, int checkHitEnt );
+void AICast_InputToUserCommand( cast_state_t * cs, bot_input_t * bi, UserCmd * ucmd, int delta_angles[3] );
+void AICast_PredictMovement( cast_state_t *cs, int numframes, float frametime, aicast_predictmove_t *move, UserCmd *ucmd, int checkHitEnt );
 void AICast_Blocked( cast_state_t *cs, bot_moveresult_t *moveresult, int activate, bot_goal_t *goal );
 bool AICast_RequestCrouchAttack( cast_state_t *cs, vec3_t org, float time );
 bool AICast_GetAvoid( cast_state_t *cs, bot_goal_t *goal, vec3_t outpos, bool reverse, int blockEnt );
@@ -738,15 +738,15 @@ void AICast_IdleReload( cast_state_t *cs );
 bool AICast_ScriptRun( cast_state_t *cs, bool force );
 //
 // ai_cast_soldier.c
-void    AIChar_spawn( gentity_t *ent );
+void    AIChar_spawn( GameEntity *ent );
 //
 // other/external defines
 void    BotCheckAir( bot_state_t *bs );
 void    BotUpdateInput( bot_state_t *bs, int time );
 float   AngleDifference( float ang1, float ang2 );
 float   BotChangeViewAngle( float angle, float ideal_angle, float speed );
-void BotInputToUserCommand( bot_input_t * bi, usercmd_t * ucmd, int delta_angles[3] );
-void    GibEntity( gentity_t *self, int killer );
-void    GibHead( gentity_t *self, int killer );
+void BotInputToUserCommand( bot_input_t * bi, UserCmd * ucmd, int delta_angles[3] );
+void    GibEntity( GameEntity *self, int killer );
+void    GibHead( GameEntity *self, int killer );
 //
 extern bot_state_t  *botstates[MAX_CLIENTS];

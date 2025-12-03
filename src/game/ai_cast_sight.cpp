@@ -113,7 +113,7 @@ bool AICast_VisibleFromPos( vec3_t srcpos, int srcnum,
 	int i, contents_mask, passent, hitent;
 	trace_t trace;
 	vec3_t start, end, middle, eye;
-	cast_state_t        *cs = NULL;
+	cast_state_t        *cs = nullptr;
 	int srcviewheight;
 	vec3_t destmins, destmaxs;
 	vec3_t right, vec;
@@ -190,14 +190,14 @@ bool AICast_VisibleFromPos( vec3_t srcpos, int srcnum,
 			contents_mask ^= ( CONTENTS_LAVA | CONTENTS_SLIME | CONTENTS_WATER );
 		} //end if
 		  //trace from start to end
-		SV_Trace( &trace, start, NULL, NULL, end, ENTITYNUM_NONE /*passent*/, contents_mask, false );
+		SV_Trace( &trace, start, nullptr, nullptr, end, ENTITYNUM_NONE /*passent*/, contents_mask, false );
 		//if water was hit
 		if ( trace.contents & ( CONTENTS_LAVA | CONTENTS_SLIME | CONTENTS_WATER ) ) {
 
 			{
 				//trace through the water
 				contents_mask &= ~( CONTENTS_LAVA | CONTENTS_SLIME | CONTENTS_WATER );
-				SV_Trace( &trace, trace.endpos, NULL, NULL, end, passent, contents_mask, false );
+				SV_Trace( &trace, trace.endpos, nullptr, nullptr, end, passent, contents_mask, false );
 			} //end if
 		} //end if
 		  //if a full trace or the hitent was hit
@@ -225,7 +225,7 @@ bool AICast_VisibleFromPos( vec3_t srcpos, int srcnum,
 AICast_CheckVisibility
 ==============
 */
-bool AICast_CheckVisibility( gentity_t *srcent, gentity_t *destent ) {
+bool AICast_CheckVisibility( GameEntity *srcent, GameEntity *destent ) {
 	vec3_t dir, entangles, middle, eye, viewangles;
 	cast_state_t        *cs, *ocs;
 	float fov, dist;
@@ -330,7 +330,7 @@ bool AICast_CheckVisibility( gentity_t *srcent, gentity_t *destent ) {
 AICast_UpdateVisibility
 ==============
 */
-void AICast_UpdateVisibility( gentity_t *srcent, gentity_t *destent, bool shareVis, bool directview )
+void AICast_UpdateVisibility( GameEntity *srcent, GameEntity *destent, bool shareVis, bool directview )
 {
 	if ( destent->flags & FL_NOTARGET ) {
 		return;
@@ -523,7 +523,7 @@ void AICast_UpdateVisibility( gentity_t *srcent, gentity_t *destent, bool shareV
 AICast_UpdateNonVisibility
 ==============
 */
-void AICast_UpdateNonVisibility( gentity_t *srcent, gentity_t *destent, bool directview ) {
+void AICast_UpdateNonVisibility( GameEntity *srcent, GameEntity *destent, bool directview ) {
 	cast_visibility_t   *vis;
 	cast_state_t        *cs;
 
@@ -559,7 +559,7 @@ static int lastsrc = 0, lastdest = 0;
 void AICast_SightUpdate( int numchecks ) {
 	int count = 0, destcount, srccount;
 	int src, dest;
-	gentity_t       *srcent, *destent;
+	GameEntity       *srcent, *destent;
 	cast_state_t    *cs, *dcs;
 	//static int	lastNumUpdated; // TTimo: unused
 	cast_visibility_t *vis;

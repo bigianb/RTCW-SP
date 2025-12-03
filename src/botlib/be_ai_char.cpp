@@ -91,11 +91,11 @@ bot_character_t *botcharacters[MAX_CLIENTS + 1];
 bot_character_t *BotCharacterFromHandle( int handle ) {
 	if ( handle <= 0 || handle > MAX_CLIENTS ) {
 		BotImport_Print( PRT_FATAL, "character handle %d out of range\n", handle );
-		return NULL;
+		return nullptr;
 	} //end if
 	if ( !botcharacters[handle] ) {
 		BotImport_Print( PRT_FATAL, "invalid character %d\n", handle );
-		return NULL;
+		return nullptr;
 	} //end if
 	return botcharacters[handle];
 } //end of the function BotCharacterFromHandle
@@ -155,7 +155,7 @@ void BotFreeCharacter2( int handle ) {
 	} //end if
 	BotFreeCharacterStrings( botcharacters[handle] );
 	FreeMemory( botcharacters[handle] );
-	botcharacters[handle] = NULL;
+	botcharacters[handle] = nullptr;
 } //end of the function BotFreeCharacter2
 //========================================================================
 //
@@ -216,7 +216,7 @@ bot_character_t *BotLoadCharacterFromFile( const char *charfile, int skill ) {
 	source = LoadSourceFile( charfile );
 	if ( !source ) {
 		BotImport_Print( PRT_ERROR, "counldn't load %s\n", charfile );
-		return NULL;
+		return nullptr;
 	} //end if
 	ch = (bot_character_t *) GetClearedMemory( sizeof( bot_character_t ) +
 											   MAX_CHARACTERISTICS * sizeof( bot_characteristic_t ) );
@@ -228,13 +228,13 @@ bot_character_t *BotLoadCharacterFromFile( const char *charfile, int skill ) {
 				FreeSource( source );
 				BotFreeCharacterStrings( ch );
 				FreeMemory( ch );
-				return NULL;
+				return nullptr;
 			} //end if
 			if ( !PC_ExpectTokenString( source, "{" ) ) {
 				FreeSource( source );
 				BotFreeCharacterStrings( ch );
 				FreeMemory( ch );
-				return NULL;
+				return nullptr;
 			} //end if
 			  //if it's the correct skill
 			if ( skill < 0 || token.intvalue == skill ) {
@@ -250,7 +250,7 @@ bot_character_t *BotLoadCharacterFromFile( const char *charfile, int skill ) {
 						FreeSource( source );
 						BotFreeCharacterStrings( ch );
 						FreeMemory( ch );
-						return NULL;
+						return nullptr;
 					} //end if
 					index = (int)token.intvalue;
 					if ( index < 0 || index > MAX_CHARACTERISTICS ) {
@@ -258,20 +258,20 @@ bot_character_t *BotLoadCharacterFromFile( const char *charfile, int skill ) {
 						FreeSource( source );
 						BotFreeCharacterStrings( ch );
 						FreeMemory( ch );
-						return NULL;
+						return nullptr;
 					} //end if
 					if ( ch->c[index].type ) {
 						SourceError( source, "characteristic %d already initialized\n", index );
 						FreeSource( source );
 						BotFreeCharacterStrings( ch );
 						FreeMemory( ch );
-						return NULL;
+						return nullptr;
 					} //end if
 					if ( !PC_ExpectAnyToken( source, &token ) ) {
 						FreeSource( source );
 						BotFreeCharacterStrings( ch );
 						FreeMemory( ch );
-						return NULL;
+						return nullptr;
 					} //end if
 					if ( token.type == TT_NUMBER ) {
 						if ( token.subtype & TT_FLOAT ) {
@@ -296,7 +296,7 @@ bot_character_t *BotLoadCharacterFromFile( const char *charfile, int skill ) {
 						FreeSource( source );
 						BotFreeCharacterStrings( ch );
 						FreeMemory( ch );
-						return NULL;
+						return nullptr;
 					} //end else
 				} //end if
 				break;
@@ -310,7 +310,7 @@ bot_character_t *BotLoadCharacterFromFile( const char *charfile, int skill ) {
 						FreeSource( source );
 						BotFreeCharacterStrings( ch );
 						FreeMemory( ch );
-						return NULL;
+						return nullptr;
 					} //end if
 					if ( !strcmp( token.string, "{" ) ) {
 						indent++;
@@ -326,7 +326,7 @@ bot_character_t *BotLoadCharacterFromFile( const char *charfile, int skill ) {
 			FreeSource( source );
 			BotFreeCharacterStrings( ch );
 			FreeMemory( ch );
-			return NULL;
+			return nullptr;
 		} //end else
 	} //end while
 	FreeSource( source );
@@ -334,7 +334,7 @@ bot_character_t *BotLoadCharacterFromFile( const char *charfile, int skill ) {
 	if ( !foundcharacter ) {
 		BotFreeCharacterStrings( ch );
 		FreeMemory( ch );
-		return NULL;
+		return nullptr;
 	} //end if
 	return ch;
 } 
@@ -362,7 +362,7 @@ int BotFindCachedCharacter( const char *charfile, int skill ) {
 //===========================================================================
 int BotLoadCachedCharacter( const char *charfile, int skill, int reload ) {
 	int handle, cachedhandle;
-	bot_character_t *ch = NULL;
+	bot_character_t *ch = nullptr;
 #ifdef DEBUG
 	int starttime;
 

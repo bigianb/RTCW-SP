@@ -166,17 +166,17 @@ AICast_InputToUserCommand
 ==============
 */
 static int serverTime;
-void AICast_InputToUserCommand( cast_state_t *cs, bot_input_t *bi, usercmd_t *ucmd, int delta_angles[3] ) {
+void AICast_InputToUserCommand( cast_state_t *cs, bot_input_t *bi, UserCmd *ucmd, int delta_angles[3] ) {
 	vec3_t angles, forward, right, up;
 	short temp;
 	int j;
 	signed char movechar;
-	gentity_t *ent;
+	GameEntity *ent;
 
 	ent = &g_entities[cs->entityNum];
 
 	//clear the whole structure
-	memset( ucmd, 0, sizeof( usercmd_t ) );
+	memset( ucmd, 0, sizeof( UserCmd ) );
 	//
 
 	ucmd->serverTime = serverTime;
@@ -434,7 +434,7 @@ AICast_Think
 ============
 */
 void AICast_Think( int client, float thinktime ) {
-	gentity_t       *ent;
+	GameEntity       *ent;
 	cast_state_t    *cs;
 	int i;
 	int animIndex;
@@ -459,7 +459,7 @@ void AICast_Think( int client, float thinktime ) {
 		return;
 	}
 	//
-	trap_EA_ResetInput( client, NULL );
+	trap_EA_ResetInput( client, nullptr );
 	cs->aiFlags &= ~AIFL_VIEWLOCKED;
 	cs->aiFlags &= ~AIFL_SPECIAL_FUNC;
 	//cs->weaponNum = ent->client->ps.weapon;
@@ -770,7 +770,7 @@ AICast_StartFrame
   Think any clients that need thinking
 ============
 */
-void CopyToBodyQue( gentity_t *ent );
+void CopyToBodyQue( GameEntity *ent );
 
 void AICast_StartFrame( int time )
 {
@@ -779,7 +779,7 @@ void AICast_StartFrame( int time )
 	int castcount;
 	static int lasttime, lastthink;
 	static vmCvar_t aicast_disable;
-	gentity_t *ent;
+	GameEntity *ent;
 
 	if ( Cvar_VariableIntegerValue( "savegame_loading" ) ) {
 		return;
@@ -929,7 +929,7 @@ void AICast_StartServerFrame( int time ) {
 	int castcount;
 	static int lasttime;
 	static vmCvar_t aicast_disable;
-	gentity_t *ent;
+	GameEntity *ent;
 	cast_state_t *pcs;
 	bool highPriority;
 	int oldLegsTimer;
@@ -1068,14 +1068,14 @@ AICast_PredictMovement
   Simulates movement over a number of frames, returning the end position
 ==============
 */
-void AICast_PredictMovement( cast_state_t *cs, int numframes, float frametime, aicast_predictmove_t *move, usercmd_t *ucmd, int checkHitEnt ) {
+void AICast_PredictMovement( cast_state_t *cs, int numframes, float frametime, aicast_predictmove_t *move, UserCmd *ucmd, int checkHitEnt ) {
 	int frame, i;
-	playerState_t ps;
+	PlayerState ps;
 	pmove_t pm;
 	trace_t tr;
 	vec3_t end, startHitVec, thisHitVec, lastOrg, projPoint;
 	bool checkReachMarker;
-	gentity_t   *ent = &g_entities[cs->entityNum];
+	GameEntity   *ent = &g_entities[cs->entityNum];
 	bot_input_t bi;
 
 //int pretime = Sys_MilliSeconds();
@@ -1205,7 +1205,7 @@ bool AICast_GetAvoid( cast_state_t *cs, bot_goal_t *goal, vec3_t outpos, bool re
 	float yaw, oldyaw, distmoved, bestmoved, bestyaw;
 	vec3_t bestpos;
 	aicast_predictmove_t castmove;
-	usercmd_t ucmd;
+	UserCmd ucmd;
 	bool enemyVisible;
 	float angleDiff;
 	int starttraveltime = 0, besttraveltime, traveltime;         // TTimo: init
@@ -1241,7 +1241,7 @@ bool AICast_GetAvoid( cast_state_t *cs, bot_goal_t *goal, vec3_t outpos, bool re
 	if ( goal ) {
 		starttraveltime = trap_AAS_AreaTravelTimeToGoalArea( cs->bs->areanum, cs->bs->origin, goal->areanum, cs->travelflags );
 	}
-	memcpy( &ucmd, &cs->lastucmd, sizeof( usercmd_t ) );
+	memcpy( &ucmd, &cs->lastucmd, sizeof( UserCmd ) );
 	ucmd.forwardmove = 127;
 	ucmd.rightmove = 0;
 	ucmd.upmove = 0;
@@ -1325,7 +1325,7 @@ AICast_Blocked
 void AICast_Blocked( cast_state_t *cs, bot_moveresult_t *moveresult, int activate, bot_goal_t *goal ) {
 	vec3_t pos, dir;
 	aicast_predictmove_t move;
-	usercmd_t ucmd;
+	UserCmd ucmd;
 	bot_input_t bi;
 	cast_state_t *ocs;
 	int i, blockEnt = -1;
@@ -1424,7 +1424,7 @@ void AICast_Blocked( cast_state_t *cs, bot_moveresult_t *moveresult, int activat
 							blockEnt = move.touchents[i];
 						}
 					} else {
-						if ( AICast_GetAvoid( ocs, NULL, ocs->obstructingPos, false, cs->entityNum ) ) {
+						if ( AICast_GetAvoid( ocs, nullptr, ocs->obstructingPos, false, cs->entityNum ) ) {
 							// give them time to move somewhere else
 							ocs->obstructingTime = level.time + 1000;
 						} else {
@@ -1475,7 +1475,7 @@ void AICast_Blocked( cast_state_t *cs, bot_moveresult_t *moveresult, int activat
 
 	VectorClear( pos );
 	pos[YAW] = cs->blockedAvoidYaw;
-	AngleVectors( pos, dir, NULL, NULL );
+	AngleVectors( pos, dir, nullptr, nullptr );
 
 	if ( moveresult->flags & MOVERESULT_ONTOPOFOBSTACLE ) {
 		trap_EA_Jump( cs->bs->entitynum );
@@ -1559,7 +1559,7 @@ void AICast_EvaluatePmove( int clientnum, pmove_t *pm ) {
 						ocs->obstructingTime = level.time + 1000;
 					}
 				} else {
-					if ( ocs->bs && AICast_GetAvoid( ocs, NULL, ocs->obstructingPos, false, cs->entityNum ) ) { // give them time to move somewhere else
+					if ( ocs->bs && AICast_GetAvoid( ocs, nullptr, ocs->obstructingPos, false, cs->entityNum ) ) { // give them time to move somewhere else
 						ocs->obstructingTime = level.time + 1000;
 					}
 				}
@@ -1605,7 +1605,7 @@ AICast_QueryThink
 ==============
 */
 void AICast_QueryThink( cast_state_t *cs ) {
-	gentity_t *ent;
+	GameEntity *ent;
 	bool visible;
 	cast_state_t *ocs;
 	vec3_t vec;

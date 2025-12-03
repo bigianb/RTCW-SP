@@ -186,7 +186,6 @@ set(GAME_INCLUDES
 	src/game/g_local.h    
 	src/game/g_public.h    
 	src/game/q_shared.h            
-	src/game/g_team.h
 	src/game/surfaceflags.h
 )
 
@@ -229,7 +228,6 @@ set(GAME_SOURCES
 	src/game/g_svcmds.cpp
 	src/game/g_syscalls.cpp
 	src/game/g_target.cpp
-	src/game/g_team.cpp
 	src/game/g_tramcar.cpp
 	src/game/g_trigger.cpp
 	src/game/g_utils.cpp

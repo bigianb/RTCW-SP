@@ -34,7 +34,7 @@ If you have questions concerning this license or the applicable additional terms
 CheatsOk
 ==================
 */
-bool    CheatsOk( gentity_t *ent ) {
+bool    CheatsOk( GameEntity *ent ) {
 	if ( !g_cheats.integer ) {
 		SV_GameSendServerCommand( ent - g_entities, va( "print \"Cheats are not enabled on this server.\n\"" ) );
 		return false;
@@ -110,8 +110,8 @@ Returns a player number for either a number or name string
 Returns -1 if invalid
 ==================
 */
-int ClientNumberFromString( gentity_t *to, char *s ) {
-	gclient_t   *cl;
+int ClientNumberFromString( GameEntity *to, char *s ) {
+	GameClient   *cl;
 	int idnum;
 	char s2[MAX_STRING_CHARS];
 	char n2[MAX_STRING_CHARS];
@@ -178,12 +178,12 @@ Cmd_Give_f
 Give items to a client
 ==================
 */
-void Cmd_Give_f( gentity_t *ent ) {
+void Cmd_Give_f( GameEntity *ent ) {
 	char        *name, *amt;
 	gitem_t     *it;
 	int i;
 	bool give_all;
-	gentity_t       *it_ent;
+	GameEntity       *it_ent;
 	trace_t trace;
 	int amount;
 
@@ -334,7 +334,7 @@ Sets client to godmode
 argv(0) god
 ==================
 */
-void Cmd_God_f( gentity_t *ent ) {
+void Cmd_God_f( GameEntity *ent ) {
 	const char    *msg;
 
 	if ( !CheatsOk( ent ) ) {
@@ -361,7 +361,7 @@ argv(0) nofatigue
 ==================
 */
 
-void Cmd_Nofatigue_f( gentity_t *ent ) {
+void Cmd_Nofatigue_f( GameEntity *ent ) {
 	const char    *msg;
 
 	if ( !CheatsOk( ent ) ) {
@@ -387,7 +387,7 @@ Sets client to notarget
 argv(0) notarget
 ==================
 */
-void Cmd_Notarget_f( gentity_t *ent ) {
+void Cmd_Notarget_f( GameEntity *ent ) {
 	const char    *msg;
 
 	if ( !CheatsOk( ent ) ) {
@@ -412,7 +412,7 @@ Cmd_Noclip_f
 argv(0) noclip
 ==================
 */
-void Cmd_Noclip_f( gentity_t *ent ) {
+void Cmd_Noclip_f( GameEntity *ent ) {
 	const char    *msg;
 
 	if ( !CheatsOk( ent ) ) {
@@ -436,7 +436,7 @@ void Cmd_Noclip_f( gentity_t *ent ) {
 Cmd_Kill_f
 =================
 */
-void Cmd_Kill_f( gentity_t *ent ) {
+void Cmd_Kill_f( GameEntity *ent ) {
 	
 	if ( g_reloading.integer ) {
 		return;
@@ -452,8 +452,8 @@ void Cmd_Kill_f( gentity_t *ent ) {
 SetWolfData
 =================
 */
-void SetWolfData( gentity_t *ent, char *ptype, char *weap, char *pistol, char *grenade, char *skinnum ) {   // DHM - Nerve
-	gclient_t   *client;
+void SetWolfData( GameEntity *ent, char *ptype, char *weap, char *pistol, char *grenade, char *skinnum ) {   // DHM - Nerve
+	GameClient   *client;
 
 	client = ent->client;
 
@@ -473,7 +473,7 @@ If the client being followed leaves the game, or you just want to drop
 to free floating spectator mode
 =================
 */
-void StopFollowing( gentity_t *ent ) {
+void StopFollowing( GameEntity *ent ) {
 	ent->client->ps.persistant[ PERS_TEAM ] = TEAM_SPECTATOR;
 	ent->client->sess.sessionTeam = TEAM_SPECTATOR;
 	
@@ -488,7 +488,7 @@ void StopFollowing( gentity_t *ent ) {
 Cmd_Follow_f
 =================
 */
-void Cmd_Follow_f( gentity_t *ent ) {
+void Cmd_Follow_f( GameEntity *ent ) {
 	int i;
 	char arg[MAX_TOKEN_CHARS];
 
@@ -519,7 +519,7 @@ void Cmd_Follow_f( gentity_t *ent ) {
 Cmd_FollowCycle_f
 =================
 */
-void Cmd_FollowCycle_f( gentity_t *ent, int dir ) {
+void Cmd_FollowCycle_f( GameEntity *ent, int dir ) {
 	int clientnum;
 	int original;
 
@@ -560,13 +560,13 @@ void Cmd_FollowCycle_f( gentity_t *ent, int dir ) {
 Cmd_Where_f
 ==================
 */
-void Cmd_Where_f( gentity_t *ent ) {
+void Cmd_Where_f( GameEntity *ent ) {
 	SV_GameSendServerCommand( ent - g_entities, va( "print \"%s\n\"", vtos( ent->shared.s.origin ) ) );
 }
 
 
 
-bool G_canPickupMelee( gentity_t *ent ) {
+bool G_canPickupMelee( GameEntity *ent ) {
 
 	if ( !( ent->client ) ) {
 		return false;  // hmm, shouldn't be too likely...
@@ -593,7 +593,7 @@ bool G_canPickupMelee( gentity_t *ent ) {
 Cmd_SetViewpos_f
 =================
 */
-void Cmd_SetViewpos_f( gentity_t *ent ) {
+void Cmd_SetViewpos_f( GameEntity *ent ) {
 	vec3_t origin, angles;
 	char buffer[MAX_TOKEN_CHARS];
 	int i;
@@ -624,7 +624,7 @@ void Cmd_SetViewpos_f( gentity_t *ent ) {
 Cmd_StartCamera_f
 =================
 */
-void Cmd_StartCamera_f( gentity_t *ent ) {
+void Cmd_StartCamera_f( GameEntity *ent ) {
 	g_camEnt->shared.r.svFlags |= SVF_PORTAL;
 	g_camEnt->shared.r.svFlags &= ~SVF_NOCLIENT;
 	ent->client->cameraPortal = g_camEnt;
@@ -638,24 +638,24 @@ void Cmd_StartCamera_f( gentity_t *ent ) {
 Cmd_StopCamera_f
 =================
 */
-void Cmd_StopCamera_f( gentity_t *ent ) {
-	gentity_t *sp;
+void Cmd_StopCamera_f( GameEntity *ent ) {
+	GameEntity *sp;
 
 	if ( ent->client->cameraPortal ) {
 		// send a script event
 		G_Script_ScriptEvent( ent->client->cameraPortal, "stopcam", "" );
 		// go back into noclient mode
 		ent->client->cameraPortal->shared.r.svFlags |= SVF_NOCLIENT;
-		ent->client->cameraPortal = NULL;
+		ent->client->cameraPortal = nullptr;
 		ent->shared.s.eFlags &= ~EF_VIEWING_CAMERA;
 		ent->client->ps.eFlags &= ~EF_VIEWING_CAMERA;
 
 		// RF, if we are near the spawn point, save the "current" game, for reloading after death
-		sp = NULL;
+		sp = nullptr;
 		// gcc: suggests () around assignment used as truth value
 		while ( ( sp = G_Find( sp, FOFS( classname ), "info_player_deathmatch" ) ) ) { // info_player_start becomes info_player_deathmatch in it's spawn functon
 			if ( Distance( ent->shared.s.pos.trBase, sp->shared.s.origin ) < 256 && SV_inPVS( ent->shared.s.pos.trBase, sp->shared.s.origin ) ) {
-				G_SaveGame( NULL );
+				G_SaveGame( nullptr );
 				break;
 			}
 		}
@@ -667,7 +667,7 @@ void Cmd_StopCamera_f( gentity_t *ent ) {
 Cmd_SetCameraOrigin_f
 =================
 */
-void Cmd_SetCameraOrigin_f( gentity_t *ent ) {
+void Cmd_SetCameraOrigin_f( GameEntity *ent ) {
 	char buffer[MAX_TOKEN_CHARS];
 	int i;
 
@@ -688,7 +688,7 @@ void Cmd_SetCameraOrigin_f( gentity_t *ent ) {
 Cmd_InterruptCamera_f
 ==============
 */
-void Cmd_InterruptCamera_f( gentity_t *ent ) {
+void Cmd_InterruptCamera_f( GameEntity *ent ) {
 	AICast_ScriptEvent( AICast_GetCastState( ent->shared.s.number ), "trigger", "cameraInterrupt" );
 }
 
@@ -697,13 +697,13 @@ void Cmd_InterruptCamera_f( gentity_t *ent ) {
 G_ThrowChair
 ==============
 */
-bool G_ThrowChair( gentity_t *ent, vec3_t dir, bool force ) {
+bool G_ThrowChair( GameEntity *ent, vec3_t dir, bool force ) {
 	trace_t trace;
 	vec3_t mins, maxs;
 //	vec3_t		forward;
 	vec3_t start, end;
 	bool isthrown = true;
-	gentity_t   *traceEnt;
+	GameEntity   *traceEnt;
 
 	if ( !ent->active || !ent->melee ) {
 		return false;
@@ -712,7 +712,7 @@ bool G_ThrowChair( gentity_t *ent, vec3_t dir, bool force ) {
 	VectorCopy( ent->shared.r.mins, mins );
 	VectorCopy( ent->shared.r.maxs, maxs );
 
-//	AngleVectors (ent->shared.r.currentAngles, forward, NULL, NULL);
+//	AngleVectors (ent->shared.r.currentAngles, forward, nullptr, nullptr);
 	VectorCopy( ent->shared.r.currentOrigin, start );
 
 	start[2] += 24;
@@ -738,14 +738,14 @@ bool G_ThrowChair( gentity_t *ent, vec3_t dir, bool force ) {
 		// successful drop
 		traceEnt->active = false;
 
-		ent->melee = NULL;
+		ent->melee = nullptr;
 		ent->active = false;
 		ent->client->ps.eFlags &= ~EF_MELEE_ACTIVE;
 //		ent->shared.s.eFlags &= ~EF_MELEE_ACTIVE;
 	}
 
 	if ( !isthrown && force ) {    // was not successfully thrown, but you /need/ to drop it.  break it.
-		G_Damage( traceEnt, ent, ent, NULL, NULL, 99999, 0, MOD_CRUSH );    // Die!
+		G_Damage( traceEnt, ent, ent, nullptr, nullptr, 99999, 0, MOD_CRUSH );    // Die!
 	}
 
 	return ( isthrown || force );
@@ -758,10 +758,10 @@ bool G_ThrowChair( gentity_t *ent, vec3_t dir, bool force ) {
 Cmd_Activate_f
 ==================
 */
-void Cmd_Activate_f( gentity_t *ent ) {
+void Cmd_Activate_f( GameEntity *ent ) {
 	trace_t tr;
 	vec3_t end;
-	gentity_t   *traceEnt;
+	GameEntity   *traceEnt;
 	vec3_t forward, right, up, offset;
 	static int oldactivatetime = 0;
 	int activatetime = level.time;
@@ -777,7 +777,7 @@ void Cmd_Activate_f( gentity_t *ent ) {
 
 	VectorMA( offset, 96, forward, end );
 
-	SV_Trace( &tr, offset, NULL, NULL, end, ent->shared.s.number, ( CONTENTS_SOLID | CONTENTS_BODY | CONTENTS_CORPSE | CONTENTS_TRIGGER ), false );
+	SV_Trace( &tr, offset, nullptr, nullptr, end, ent->shared.s.number, ( CONTENTS_SOLID | CONTENTS_BODY | CONTENTS_CORPSE | CONTENTS_TRIGGER ), false );
 
 	//----(SA)	removed erroneous code
 
@@ -844,7 +844,7 @@ void Cmd_Activate_f( gentity_t *ent ) {
 			if ( !ent->active && traceEnt->takedamage ) {  // not a dead gun
 				// RF, dont allow activating MG42 if crouching
 				if ( !( ent->client->ps.pm_flags & PMF_DUCKED ) && !infront( traceEnt, ent ) ) {
-					gclient_t   *cl;
+					GameClient   *cl;
 					cl = &level.clients[ ent->shared.s.clientNum ];
 
 					// no mounting while using a scoped weap
@@ -874,7 +874,7 @@ void Cmd_Activate_f( gentity_t *ent ) {
 			}
 		} else if ( ( Q_stricmp( traceEnt->classname, "misc_flak" ) == 0 ) /*&& activatetime > oldactivatetime + 1000*/ && !traceEnt->active )         {
 			if ( !infront( traceEnt, ent ) ) {     // make sure the client isn't holding a hot potato
-				gclient_t   *cl;
+				GameClient   *cl;
 				cl = &level.clients[ ent->shared.s.clientNum ];
 				if ( !( cl->ps.grenadeTimeLeft ) ) {
 					traceEnt->active = true;
@@ -939,12 +939,12 @@ void Cmd_Activate_f( gentity_t *ent ) {
 //===================
 
 #define WOLFKICKDISTANCE    96
-int Cmd_WolfKick_f( gentity_t *ent ) {
+int Cmd_WolfKick_f( GameEntity *ent ) {
 	trace_t tr;
 	vec3_t end;
-	gentity_t   *traceEnt;
+	GameEntity   *traceEnt;
 	vec3_t forward, right, up, offset;
-	gentity_t   *tent;
+	GameEntity   *tent;
 	static int oldkicktime = 0;
 	int kicktime = level.time;
 	bool solidKick = false;    // don't play "hit" sound on a trigger unless it's an func_invisible_user
@@ -973,7 +973,7 @@ int Cmd_WolfKick_f( gentity_t *ent ) {
 	// note to self: we need to determine the usable distance for wolf
 	VectorMA( offset, WOLFKICKDISTANCE, forward, end );
 
-	SV_Trace( &tr, offset, NULL, NULL, end, ent->shared.s.number, ( CONTENTS_SOLID | CONTENTS_BODY | CONTENTS_CORPSE | CONTENTS_TRIGGER ), false );
+	SV_Trace( &tr, offset, nullptr, nullptr, end, ent->shared.s.number, ( CONTENTS_SOLID | CONTENTS_BODY | CONTENTS_CORPSE | CONTENTS_TRIGGER ), false );
 
 	if ( tr.surfaceFlags & SURF_NOIMPACT || tr.fraction == 1.0 ) {
 		tent = G_TempEntity( tr.endpos, EV_WOLFKICK_MISS );
@@ -1115,8 +1115,8 @@ int Cmd_WolfKick_f( gentity_t *ent ) {
 ClientDamage
 ============
 */
-void ClientDamage( gentity_t *clent, int entnum, int enemynum, int id ) {
-	gentity_t *enemy, *ent;
+void ClientDamage( GameEntity *clent, int entnum, int enemynum, int id ) {
+	GameEntity *enemy, *ent;
 	vec3_t vec;
 
 	ent = &g_entities[entnum];
@@ -1217,7 +1217,7 @@ void ClientDamage( gentity_t *clent, int entnum, int enemynum, int id ) {
 Cmd_ClientDamage_f
 ============
 */
-void Cmd_ClientDamage_f( gentity_t *clent ) {
+void Cmd_ClientDamage_f( GameEntity *clent ) {
 	char s[MAX_STRING_CHARS];
 	int entnum, id, enemynum;
 
@@ -1245,7 +1245,7 @@ Cmd_EntityCount_f
 #define AITEAM_NAZI     0
 #define AITEAM_ALLIES   1
 #define AITEAM_MONSTER  2
-void Cmd_EntityCount_f( gentity_t *ent ) {
+void Cmd_EntityCount_f( GameEntity *ent ) {
 	if ( !g_cheats.integer ) {
 		return;
 	}
@@ -1257,7 +1257,7 @@ void Cmd_EntityCount_f( gentity_t *ent ) {
 		int nazis[2];
 		int monsters[2];
 		int i;
-		gentity_t *ent;
+		GameEntity *ent;
 
 		// count kills
 		kills[0] = kills[1] = 0;
@@ -1307,7 +1307,7 @@ void Cmd_EntityCount_f( gentity_t *ent ) {
 Cmd_SetSpawnPoint_f
 ============
 */
-void Cmd_SetSpawnPoint_f( gentity_t *clent ) {
+void Cmd_SetSpawnPoint_f( GameEntity *clent ) {
 	char arg[MAX_TOKEN_CHARS];
 	int spawnIndex;
 
@@ -1329,7 +1329,7 @@ void ClientCommand( int clientNum )
 {
 	char cmd[MAX_TOKEN_CHARS];
 
-	gentity_t* ent = g_entities + clientNum;
+	GameEntity* ent = g_entities + clientNum;
 	if ( !ent->client ) {
 		return;     // not fully in game yet
 	}

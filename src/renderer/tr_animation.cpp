@@ -695,8 +695,8 @@ void R_CalcBone( mdsHeader_t *header, const refEntity_t *refent, int boneNum ) {
 		parentBone = &bones[ thisBoneInfo->parent ];
 		parentBoneInfo = &boneInfo[ thisBoneInfo->parent ];
 	} else {
-		parentBone = NULL;
-		parentBoneInfo = NULL;
+		parentBone = nullptr;
+		parentBoneInfo = nullptr;
 	}
 
 #ifdef HIGH_PRECISION_BONES
@@ -833,8 +833,8 @@ void R_CalcBoneLerp( mdsHeader_t *header, const refEntity_t *refent, int boneNum
 		parentBone = &bones[ thisBoneInfo->parent ];
 		parentBoneInfo = &boneInfo[ thisBoneInfo->parent ];
 	} else {
-		parentBone = NULL;
-		parentBoneInfo = NULL;
+		parentBone = nullptr;
+		parentBoneInfo = nullptr;
 	}
 
 	if ( thisBoneInfo->torsoWeight ) {

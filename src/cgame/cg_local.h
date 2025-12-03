@@ -263,11 +263,11 @@ typedef struct {
 
 
 
-// centity_t have a direct corespondence with gentity_t in the game, but
-// only the entityState_t is directly communicated to the cgame
+// centity_t have a direct corespondence with GameEntity in the game, but
+// only the EntityState is directly communicated to the cgame
 typedef struct centity_s {
-	entityState_t currentState;     // from cg.frame
-	entityState_t nextState;        // from cg.nextFrame, if available
+	EntityState currentState;     // from cg.frame
+	EntityState nextState;        // from cg.nextFrame, if available
 	bool interpolate;           // true if next is valid to interpolate to
 	bool currentValid;          // true if cg.frame holds this entity
 
@@ -709,7 +709,7 @@ typedef struct {
 	int latestSnapshotTime;         // the time from latestSnapshotNum, so we don't need to read the snapshot yet
 
 	snapshot_t  *snap;              // cg.snap->serverTime <= cg.time
-	snapshot_t  *nextSnap;          // cg.nextSnap->serverTime > cg.time, or NULL
+	snapshot_t  *nextSnap;          // cg.nextSnap->serverTime > cg.time, or nullptr
 	snapshot_t activeSnapshots[2];
 
 	float frameInterpolation;       // (float)( cg.time - cg.frame->serverTime ) / (cg.nextFrame->serverTime - cg.frame->serverTime)
@@ -734,7 +734,7 @@ typedef struct {
 
 	// prediction state
 	bool hyperspace;                // true if prediction has hit a trigger_teleport
-	playerState_t predictedPlayerState;
+	PlayerState predictedPlayerState;
 	centity_t predictedPlayerEntity;
 	bool validPPS;                  // clear until the first call to CG_PredictPlayerState
 	int predictedErrorTime;
@@ -1816,7 +1816,7 @@ void CG_ApplyShakeCamera();
 bool CG_EntOnFire( centity_t *cent );    // Ridah
 void CG_Player( centity_t *cent );
 void CG_ResetPlayerEntity( centity_t *cent );
-void CG_AddRefEntityWithPowerups( refEntity_t *ent, int powerups, int team, entityState_t *es, const vec3_t fireRiseDir );
+void CG_AddRefEntityWithPowerups( refEntity_t *ent, int powerups, int team, EntityState *es, const vec3_t fireRiseDir );
 void CG_NewClientInfo( int clientNum );
 sfxHandle_t CG_CustomSound( int clientNum, const char *soundName );
 
@@ -1903,14 +1903,14 @@ void CG_MissileHitWall2( int weapon, int clientNum, vec3_t origin, vec3_t dir );
 
 void CG_MissileHitPlayer( centity_t *cent, int weapon, vec3_t origin, vec3_t dir, int entityNum );
 //----(SA)
-void CG_VenomFire( entityState_t *es, bool fullmode );
+void CG_VenomFire( EntityState *es, bool fullmode );
 //----(SA)
 void CG_Bullet( vec3_t origin, int sourceEntityNum, vec3_t normal, bool flesh, int fleshEntityNum, bool wolfkick, int otherEntNum2 );
 
 void CG_RailTrail( clientInfo_t *ci, vec3_t start, vec3_t end, int type );   //----(SA)	added 'type'
 void CG_GrappleTrail( centity_t *ent, const weaponInfo_t *wi );
-void CG_AddViewWeapon( playerState_t *ps );
-void CG_AddPlayerWeapon( refEntity_t *parent, playerState_t *ps, centity_t *cent );
+void CG_AddViewWeapon( PlayerState *ps );
+void CG_AddPlayerWeapon( refEntity_t *parent, PlayerState *ps, centity_t *cent );
 void CG_DrawWeaponSelect( void );
 void CG_DrawHoldableSelect( void );
 
@@ -2091,7 +2091,7 @@ void CG_SendMoveSpeed( animation_t *animList, int numAnims, char *modelName );
 // cg_playerstate.c
 //
 void CG_Respawn( void );
-void CG_TransitionPlayerState( playerState_t *ps, playerState_t *ops );
+void CG_TransitionPlayerState( PlayerState *ps, PlayerState *ops );
 void CG_LoadClientInfo( clientInfo_t *ci );
 
 
@@ -2184,7 +2184,7 @@ void        trap_RB_ZombieFXAddNewHit( int entityNum, const vec3_t hitPos, const
 void        trap_R_AddLightToScene( const vec3_t org, float intensity, float r, float g, float b, unsigned int overdraw );
 void        trap_R_AddCoronaToScene( const vec3_t org, float r, float g, float b, float scale, int id, int flags );  //----(SA)	modified
 void        trap_R_RenderScene( const refdef_t *fd );
-void        RE_SetColor( const float *rgba );   // NULL = 1,1,1,1
+void        RE_SetColor( const float *rgba );   // nullptr = 1,1,1,1
 void        trap_R_DrawStretchPic( float x, float y, float w, float h,
 								   float s1, float t1, float s2, float t2, qhandle_t hShader );
 void        trap_R_DrawStretchPicGradient( float x, float y, float w, float h,

@@ -62,7 +62,7 @@ fielddef_t *FindField( fielddef_t *defs, char *name ) {
 			return &defs[i];
 		}
 	} //end for
-	return NULL;
+	return nullptr;
 } 
 
 bool ReadNumber( source_t *source, fielddef_t *fd, void *p ) {

@@ -153,7 +153,7 @@ void encodeWavelet( sfx_t *sfx, short *packets ) {
 		}
 		madeTable = true;
 	}
-	chunk = NULL;
+	chunk = nullptr;
 
 	samples = sfx->soundLength;
 	while ( samples > 0 ) {
@@ -167,7 +167,7 @@ void encodeWavelet( sfx_t *sfx, short *packets ) {
 		}
 
 		newchunk = SND_malloc();
-		if ( sfx->soundData == NULL ) {
+		if ( sfx->soundData == nullptr ) {
 			sfx->soundData = newchunk;
 		} else {
 			chunk->next = newchunk;
@@ -231,7 +231,7 @@ void encodeMuLaw( sfx_t *sfx, short *packets ) {
 		madeTable = true;
 	}
 
-	chunk = NULL;
+	chunk = nullptr;
 	samples = sfx->soundLength;
 	grade = 0;
 
@@ -242,7 +242,7 @@ void encodeMuLaw( sfx_t *sfx, short *packets ) {
 		}
 
 		newchunk = SND_malloc();
-		if ( sfx->soundData == NULL ) {
+		if ( sfx->soundData == nullptr ) {
 			sfx->soundData = newchunk;
 		} else {
 			chunk->next = newchunk;

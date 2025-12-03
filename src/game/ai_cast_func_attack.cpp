@@ -67,7 +67,7 @@ AIFunc_ZombieFlameAttack()
 
 const char *AIFunc_ZombieFlameAttack( cast_state_t *cs ) {
 	bot_state_t *bs;
-	gentity_t *ent;
+	GameEntity *ent;
 	//
 	ent = &g_entities[cs->entityNum];
 	bs = cs->bs;
@@ -116,11 +116,11 @@ const char *AIFunc_ZombieFlameAttack( cast_state_t *cs ) {
 	}
 	//
 	//
-	return NULL;
+	return nullptr;
 }
 
 const char *AIFunc_ZombieFlameAttackStart( cast_state_t *cs ) {
-	gentity_t *ent;
+	GameEntity *ent;
 	//
 	ent = &g_entities[cs->entityNum];
 	ent->shared.s.otherEntityNum2 = cs->enemyNum;
@@ -162,7 +162,7 @@ AIFunc_ZombieAttack2()
   soldier's face (draw skull under head model, then fade head model away over a short period).
 ============
 */
-extern void weapon_zombiespirit( gentity_t *ent, gentity_t *missile );
+extern void weapon_zombiespirit( GameEntity *ent, GameEntity *missile );
 
 #define ZOMBIE_SPIRIT_BUILDUP_TIME      6000    // last for this long
 #define ZOMBIE_SPIRIT_FADEOUT_TIME      1000
@@ -173,7 +173,7 @@ int lastZombieSpiritAttack;
 
 const char *AIFunc_ZombieAttack2( cast_state_t *cs ) {
 	bot_state_t *bs;
-	gentity_t *ent;
+	GameEntity *ent;
 	//
 	ent = &g_entities[cs->entityNum];
 	bs = cs->bs;
@@ -211,15 +211,15 @@ const char *AIFunc_ZombieAttack2( cast_state_t *cs ) {
 	}
 	//
 	//
-	return NULL;
+	return nullptr;
 }
 
 const char *AIFunc_ZombieAttack2Start( cast_state_t *cs ) {
-	gentity_t *ent;
+	GameEntity *ent;
 	//
 	// don't allow 2 consecutive spirit attacks at once
 	if ( lastZombieSpiritAttack <= level.time && lastZombieSpiritAttack > level.time - 1000 ) {
-		return NULL;
+		return nullptr;
 	}
 	lastZombieSpiritAttack = level.time;
 	//
@@ -263,7 +263,7 @@ int zombieHitTimes[NUM_ZOMBIE_ANIMS][3] = { // up to three hits per attack
 };
 
 const char *AIFunc_ZombieMelee( cast_state_t *cs ) {
-	gentity_t *ent = &g_entities[cs->entityNum];
+	GameEntity *ent = &g_entities[cs->entityNum];
 	int hitDelay = -1, anim;
 	trace_t *tr;
 	cast_state_t *ecs = AICast_GetCastState( cs->enemyNum );
@@ -326,7 +326,7 @@ const char *AIFunc_ZombieMelee( cast_state_t *cs ) {
 
 	}
 
-	return NULL;
+	return nullptr;
 }
 
 /*
@@ -335,7 +335,7 @@ AIFunc_ZombieMeleeStart
 ================
 */
 const char *AIFunc_ZombieMeleeStart( cast_state_t *cs ) {
-	gentity_t *ent;
+	GameEntity *ent;
 
 	ent = &g_entities[cs->entityNum];
 	cs->weaponFireTimes[cs->weaponNum] = level.time;
@@ -379,7 +379,7 @@ AIFunc_LoperAttack1()
 */
 const char *AIFunc_LoperAttack1( cast_state_t *cs ) {
 	trace_t *tr;
-	gentity_t *ent;
+	GameEntity *ent;
 	int anim;
 	//
 	ent = &g_entities[cs->entityNum];
@@ -393,7 +393,7 @@ const char *AIFunc_LoperAttack1( cast_state_t *cs ) {
 		if ( !ent->client->ps.legsTimer ) {
 			return AIFunc_DefaultStart( cs );
 		}
-		return NULL;    // just wait for anim to finish
+		return nullptr;    // just wait for anim to finish
 	}
 	// ready to inflict damage?
 	anim = ( ent->client->ps.legsAnim & ~ANIM_TOGGLEBIT ) - BG_AnimationIndexForString( "legs_extra", cs->entityNum );
@@ -413,12 +413,12 @@ const char *AIFunc_LoperAttack1( cast_state_t *cs ) {
 		cs->weaponFireTimes[WP_MONSTER_ATTACK1] = level.time;
 	}
 
-	return NULL;
+	return nullptr;
 }
 
 
 const char *AIFunc_LoperAttack1Start( cast_state_t *cs ) {
-	gentity_t *ent;
+	GameEntity *ent;
 	//
 	ent = &g_entities[cs->entityNum];
 	// face them
@@ -476,7 +476,7 @@ AIFunc_LoperAttack2()
 ===============
 */
 const char *AIFunc_LoperAttack2( cast_state_t *cs ) {
-	gentity_t *ent;
+	GameEntity *ent;
 	vec3_t vec;
 	bool onGround = false;
 	//
@@ -539,17 +539,17 @@ const char *AIFunc_LoperAttack2( cast_state_t *cs ) {
 				return AIFunc_DefaultStart( cs );
 			}
 			// keep moving slightly in our facing direction to simulate landing momentum
-			AngleVectors( cs->viewangles, vec, NULL, NULL );
+			AngleVectors( cs->viewangles, vec, nullptr, nullptr );
 			trap_EA_Move( cs->entityNum, vec, ( (float)ent->client->ps.legsTimer / (float)LOPER_LAND_DURATION ) * (float)LOPER_LEAP_LAND_MOMENTUM );
-			return NULL;
+			return nullptr;
 		}
 	}
 	ent->client->ps.legsTimer = 500;    // stay on this until landing
-	return NULL;
+	return nullptr;
 }
 
 const char *AIFunc_LoperAttack2Start( cast_state_t *cs ) {
-	gentity_t *ent;
+	GameEntity *ent;
 	vec3_t vec, avec;
 	//
 	ent = &g_entities[cs->entityNum];
@@ -562,10 +562,10 @@ const char *AIFunc_LoperAttack2Start( cast_state_t *cs ) {
 	// if not facing them yet, wait
 	VectorSubtract( g_entities[cs->enemyNum].client->ps.origin, cs->bs->origin, vec );
 	VectorNormalize( vec );
-	AngleVectors( cs->viewangles, avec, NULL, NULL );
+	AngleVectors( cs->viewangles, avec, nullptr, nullptr );
 	if ( DotProduct( vec, avec ) < 0.9 ) {
 		//cs->aifunc = AIFunc_LoperAttack2Start;
-		return NULL;
+		return nullptr;
 	}
 	// OK, start the animation
 	BG_PlayAnimName( &ent->client->ps, "legs_extra3", ANIM_BP_LEGS, true, false, true );
@@ -606,7 +606,7 @@ AIFunc_LoperAttack3()
 ===============
 */
 const char *AIFunc_LoperAttack3( cast_state_t *cs ) {
-	gentity_t *ent;
+	GameEntity *ent;
 	bool hitClient = false;
 	//
 	ent = &g_entities[cs->entityNum];
@@ -643,11 +643,11 @@ const char *AIFunc_LoperAttack3( cast_state_t *cs ) {
 		}
 	}
 	//
-	return NULL;
+	return nullptr;
 }
 
 const char *AIFunc_LoperAttack3Start( cast_state_t *cs ) {
-	gentity_t *ent;
+	GameEntity *ent;
 	//
 	ent = &g_entities[cs->entityNum];
 	//
@@ -687,7 +687,7 @@ const char *AIFunc_LoperAttack3Start( cast_state_t *cs ) {
 #define STIMSOLDIER_STARTJUMP_DELAY         ( STIMSOLDIER_FLYJUMP_DURATION*0.5 )
 
 const char *AIFunc_StimSoldierAttack1( cast_state_t *cs ) {
-	gentity_t   *ent;
+	GameEntity   *ent;
 	vec3_t vec;
 	static vec3_t up = {0,0,1};
 	//
@@ -716,7 +716,7 @@ const char *AIFunc_StimSoldierAttack1( cast_state_t *cs ) {
 		} else {
 			// still flying
 		}
-		return NULL;
+		return nullptr;
 	}
 	//
 	// are we ready to start flying?
@@ -751,7 +751,7 @@ const char *AIFunc_StimSoldierAttack1( cast_state_t *cs ) {
 		}
 	} else {
 		// still on ground, so move forward to account for stepping animation
-		AngleVectors( cs->viewangles, vec, NULL, NULL );
+		AngleVectors( cs->viewangles, vec, nullptr, nullptr );
 		trap_EA_Move( cs->entityNum, vec, 300 );
 	}
 	//
@@ -759,11 +759,11 @@ const char *AIFunc_StimSoldierAttack1( cast_state_t *cs ) {
 		ent->client->ps.legsTimer = 1000;   // stay down until effect is done
 	}
 	//
-	return NULL;
+	return nullptr;
 }
 
 const char *AIFunc_StimSoldierAttack1Start( cast_state_t *cs ) {
-	gentity_t   *ent;
+	GameEntity   *ent;
 	//static vec3_t mins={-96,-96,0}, maxs={96,96,72};
 	vec3_t pos, dir;
 	trace_t tr;
@@ -774,12 +774,12 @@ const char *AIFunc_StimSoldierAttack1Start( cast_state_t *cs ) {
 	// face them
 	AICast_AimAtEnemy( cs );
 	// first, check if this is a good place to start the flying attack
-	AngleVectors( cs->ideal_viewangles, dir, NULL, NULL );
+	AngleVectors( cs->ideal_viewangles, dir, nullptr, nullptr );
 	VectorMA( cs->bs->origin, 300, dir, pos );
 	pos[2] += 128;
     SV_Trace( &tr, cs->bs->origin, cs->bs->cur_ps.mins, cs->bs->cur_ps.maxs, pos, cs->entityNum, ent->clipmask, false );
 	if ( tr.startsolid || tr.allsolid ) {
-		return NULL;    // not a good place
+		return nullptr;    // not a good place
 	}
 	// check we can attack them from there
 	// select our special weapon (rocket launcher or tesla)
@@ -789,11 +789,11 @@ const char *AIFunc_StimSoldierAttack1Start( cast_state_t *cs ) {
 		cs->weaponNum = WP_TESLA;
 	} else {    // no weapon?
 		Com_Error( ERR_DROP, "stim soldier tried special jump attack without a tesla or rocket launcher\n" );
-        return NULL;  // Keep linter happy. ERR_DROP does not return
+        return nullptr;  // Keep linter happy. ERR_DROP does not return
 	}
 	if ( !AICast_CheckAttackAtPos( cs->entityNum, cs->enemyNum, pos, false, false ) ) {
 		AICast_ChooseWeapon( cs, false );
-		return NULL;
+		return nullptr;
 	}
 	// play the animation
 	ent->client->ps.legsAnim =
@@ -815,11 +815,11 @@ const char *AIFunc_StimSoldierAttack1Start( cast_state_t *cs ) {
 //=================================================================================
 
 const char *AIFunc_StimSoldierAttack2( cast_state_t *cs ) {
-	return NULL;
+	return nullptr;
 }
 
 const char *AIFunc_StimSoldierAttack2Start( cast_state_t *cs ) {
-	gentity_t   *ent;
+	GameEntity   *ent;
 	//
 	cs->weaponFireTimes[cs->weaponNum] = level.time;
 	ent = &g_entities[cs->entityNum];
@@ -844,7 +844,7 @@ const char *AIFunc_StimSoldierAttack2Start( cast_state_t *cs ) {
 #define BLACKGUARD_KICK_DAMAGE  25
 
 const char *AIFunc_BlackGuardAttack1( cast_state_t *cs ) {
-	gentity_t *ent = &g_entities[cs->entityNum];
+	GameEntity *ent = &g_entities[cs->entityNum];
 	trace_t *tr;
 	vec3_t fwd;
 
@@ -853,7 +853,7 @@ const char *AIFunc_BlackGuardAttack1( cast_state_t *cs ) {
 	}
 	//
 	if ( cs->enemyNum < 0 ) {
-		return NULL;
+		return nullptr;
 	}
 	// time for the melee?
 	if ( !( cs->aiFlags & AIFL_MISCFLAG1 ) ) {
@@ -866,7 +866,7 @@ const char *AIFunc_BlackGuardAttack1( cast_state_t *cs ) {
 			tr = CheckMeleeAttack( ent, BLACKGUARD_KICK_RANGE, false );
 			// do melee damage?
 			if ( tr && ( tr->entityNum == cs->enemyNum ) ) {
-				AngleVectors( cs->viewangles, fwd, NULL, NULL );
+				AngleVectors( cs->viewangles, fwd, nullptr, nullptr );
 				G_Damage( &g_entities[tr->entityNum], ent, ent, fwd, tr->endpos, BLACKGUARD_KICK_DAMAGE, 0, MOD_GAUNTLET );
 				// throw them in direction of impact
 				fwd[2] = 0.5;
@@ -875,11 +875,11 @@ const char *AIFunc_BlackGuardAttack1( cast_state_t *cs ) {
 		}
 	}
 
-	return NULL;
+	return nullptr;
 }
 
 const char *AIFunc_BlackGuardAttack1Start( cast_state_t *cs ) {
-	gentity_t   *ent = &g_entities[cs->entityNum];
+	GameEntity   *ent = &g_entities[cs->entityNum];
 	//
 	cs->weaponFireTimes[cs->weaponNum] = level.time;
 	// face them
@@ -912,7 +912,7 @@ AIFunc_RejectAttack1
 ==============
 */
 const char *AIFunc_RejectAttack1( cast_state_t *cs ) {
-	return NULL;
+	return nullptr;
 }
 
 /*
@@ -921,7 +921,7 @@ AIFunc_RejectAttack1Start
 ==============
 */
 const char *AIFunc_RejectAttack1Start( cast_state_t *cs ) {
-	gentity_t *ent;
+	GameEntity *ent;
 
 	ent = &g_entities[cs->entityNum];
 	ent->shared.s.effect1Time = level.time;
@@ -962,7 +962,7 @@ AIFunc_WarriorZombieMelee
 ================
 */
 const char *AIFunc_WarriorZombieMelee( cast_state_t *cs ) {
-	gentity_t *ent = &g_entities[cs->entityNum];
+	GameEntity *ent = &g_entities[cs->entityNum];
 	int hitDelay = -1, anim;
 	trace_t *tr;
 	cast_state_t *ecs = AICast_GetCastState( cs->enemyNum );
@@ -974,7 +974,7 @@ const char *AIFunc_WarriorZombieMelee( cast_state_t *cs ) {
 	}
 	//
 	if ( cs->enemyNum < 0 ) {
-		return NULL;
+		return nullptr;
 	}
 	if ( ecs ) {
 
@@ -1027,7 +1027,7 @@ const char *AIFunc_WarriorZombieMelee( cast_state_t *cs ) {
 		}
 	}
 
-	return NULL;
+	return nullptr;
 }
 
 /*
@@ -1036,7 +1036,7 @@ AIFunc_WarriorZombieMeleeStart
 ================
 */
 const char *AIFunc_WarriorZombieMeleeStart( cast_state_t *cs ) {
-	gentity_t *ent;
+	GameEntity *ent;
 
 	ent = &g_entities[cs->entityNum];
 	ent->shared.s.effect1Time = level.time;
@@ -1069,12 +1069,12 @@ AIFunc_WarriorZombieSight
 ================
 */
 const char *AIFunc_WarriorZombieSight( cast_state_t *cs ) {
-	gentity_t *ent = &g_entities[cs->entityNum];
+	GameEntity *ent = &g_entities[cs->entityNum];
 
 	if ( !ent->client->ps.torsoTimer ) {
 		return AIFunc_DefaultStart( cs );
 	}
-	return NULL;
+	return nullptr;
 }
 
 /*
@@ -1083,10 +1083,10 @@ AIFunc_WarriorZombieSightStart
 ================
 */
 const char *AIFunc_WarriorZombieSightStart( cast_state_t *cs ) {
-	gentity_t *ent;
+	GameEntity *ent;
 
 // RF, disabled
-	return NULL;
+	return nullptr;
 
 	ent = &g_entities[cs->entityNum];
 	cs->ideal_viewangles[YAW] = cs->viewangles[YAW];
@@ -1109,7 +1109,7 @@ AIFunc_WarriorZombieDefense
 ================
 */
 const char *AIFunc_WarriorZombieDefense( cast_state_t *cs ) {
-	gentity_t *ent, *enemy;
+	GameEntity *ent, *enemy;
 	vec3_t enemyDir, vec;
 	float dist;
 
@@ -1119,14 +1119,14 @@ const char *AIFunc_WarriorZombieDefense( cast_state_t *cs ) {
 		if ( cs->weaponFireTimes[cs->weaponNum] < level.time - 100 ) {
 			return AIFunc_DefaultStart( cs );
 		}
-		return NULL;
+		return nullptr;
 	}
 
 	if ( ( cs->enemyNum < 0 ) || ( cs->dangerEntityValidTime >= level.time ) ) {
 		ent->flags &= ~FL_DEFENSE_GUARD;
 		ent->client->ps.torsoTimer = 0;
 		ent->client->ps.legsTimer = 0;
-		return NULL;
+		return nullptr;
 	}
 
 	enemy = &g_entities[cs->enemyNum];
@@ -1137,7 +1137,7 @@ const char *AIFunc_WarriorZombieDefense( cast_state_t *cs ) {
 			ent->flags &= ~FL_DEFENSE_GUARD;
 			ent->client->ps.torsoTimer = 0;
 			ent->client->ps.legsTimer = 0;
-			return NULL;
+			return nullptr;
 		}
 
 		// if our enemy isn't using a dangerous weapon
@@ -1145,7 +1145,7 @@ const char *AIFunc_WarriorZombieDefense( cast_state_t *cs ) {
 			ent->flags &= ~FL_DEFENSE_GUARD;
 			ent->client->ps.torsoTimer = 0;
 			ent->client->ps.legsTimer = 0;
-			return NULL;
+			return nullptr;
 		}
 
 		// if our enemy isn't looking right at us, abort
@@ -1154,12 +1154,12 @@ const char *AIFunc_WarriorZombieDefense( cast_state_t *cs ) {
 		if ( dist > 512 ) {
 			dist = 512;
 		}
-		AngleVectors( enemy->client->ps.viewangles, enemyDir, NULL, NULL );
+		AngleVectors( enemy->client->ps.viewangles, enemyDir, nullptr, nullptr );
 		if ( DotProduct( vec, enemyDir ) < ( 0.98 - 0.2 * ( dist / 512 ) ) ) {
 			ent->flags &= ~FL_DEFENSE_GUARD;
 			ent->client->ps.torsoTimer = 0;
 			ent->client->ps.legsTimer = 0;
-			return NULL;
+			return nullptr;
 		}
 	}
 
@@ -1169,7 +1169,7 @@ const char *AIFunc_WarriorZombieDefense( cast_state_t *cs ) {
 		ent->flags &= ~FL_DEFENSE_GUARD;
 		ent->client->ps.torsoTimer = 0;
 		ent->client->ps.legsTimer = 0;
-		return NULL;
+		return nullptr;
 	}
 
 	// face them
@@ -1177,7 +1177,7 @@ const char *AIFunc_WarriorZombieDefense( cast_state_t *cs ) {
 	// crouching position, use smaller bounding box
 	trap_EA_Crouch( cs->bs->client );
 
-	return NULL;
+	return nullptr;
 }
 
 /*
@@ -1186,13 +1186,13 @@ AIFunc_WarriorZombieDefenseStart
 ================
 */
 const char *AIFunc_WarriorZombieDefenseStart( cast_state_t *cs ) {
-	gentity_t *ent, *enemy;
+	GameEntity *ent, *enemy;
 	vec3_t enemyDir, vec;
 	float dist;
 	static int lastWarriorDefense;
 
 	if ( lastWarriorDefense <= level.time && lastWarriorDefense > level.time - 3000 ) {
-		return NULL;    // dont all go into defense at once
+		return nullptr;    // dont all go into defense at once
 	}
 	lastWarriorDefense = level.time;
 
@@ -1201,12 +1201,12 @@ const char *AIFunc_WarriorZombieDefenseStart( cast_state_t *cs ) {
 
 	// if our enemy isn't using a dangerous weapon
 	if ( enemy->client->ps.weapon < WP_LUGER || enemy->client->ps.weapon > WP_CLASS_SPECIAL ) {
-		return NULL;
+		return nullptr;
 	}
 
 	// if we are doing a goto
 	if ( cs->followEntity >= 0 ) {
-		return NULL;
+		return nullptr;
 	}
 
 	// if our enemy isn't looking right at us, abort
@@ -1216,11 +1216,11 @@ const char *AIFunc_WarriorZombieDefenseStart( cast_state_t *cs ) {
 		dist = 512;
 	}
 	if ( dist < 128 ) {
-		return NULL;
+		return nullptr;
 	}
-	AngleVectors( enemy->client->ps.viewangles, enemyDir, NULL, NULL );
+	AngleVectors( enemy->client->ps.viewangles, enemyDir, nullptr, nullptr );
 	if ( DotProduct( vec, enemyDir ) < ( 0.98 - 0.2 * ( dist / 512 ) ) ) {
-		return NULL;
+		return nullptr;
 	}
 
 	cs->weaponFireTimes[cs->weaponNum] = level.time;

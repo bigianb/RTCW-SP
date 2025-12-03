@@ -57,7 +57,7 @@ void CG_BuildSolidList( void ) {
 	int i;
 	centity_t   *cent;
 	snapshot_t  *snap;
-	entityState_t   *ent;
+	EntityState   *ent;
 
 	cg_numSolidEntities = 0;
 	cg_numTriggerEntities = 0;
@@ -101,7 +101,7 @@ static void CG_ClipMoveToEntities( const vec3_t start, const vec3_t mins, const 
 								   int skipNumber, int mask, int capsule, trace_t *tr ) {
 	int i, x, zd, zu;
 	trace_t trace;
-	entityState_t   *ent;
+	EntityState   *ent;
 	clipHandle_t cmodel;
 	vec3_t bmins, bmaxs;
 	vec3_t origin, angles;
@@ -207,7 +207,7 @@ CG_PointContents
 */
 int     CG_PointContents( const vec3_t point, int passEntityNum ) {
 	int i;
-	entityState_t   *ent;
+	EntityState   *ent;
 	centity_t   *cent;
 	clipHandle_t cmodel;
 	int contents;
@@ -250,7 +250,7 @@ cg.snap->player_state and cg.nextFrame->player_state
 static void CG_InterpolatePlayerState( bool grabAngles ) {
 	float f;
 	int i;
-	playerState_t   *out;
+	PlayerState   *out;
 	snapshot_t      *prev, *next;
 
 	out = &cg.predictedPlayerState;
@@ -261,7 +261,7 @@ static void CG_InterpolatePlayerState( bool grabAngles ) {
 
 	// if we are still allowing local input, short circuit the view angles
 	if ( grabAngles ) {
-		usercmd_t cmd;
+		UserCmd cmd;
 		int cmdNum;
 
 		cmdNum = trap_GetCurrentCmdNumber();
@@ -403,7 +403,7 @@ Predict push triggers and items
 static void CG_TouchTriggerPrediction( void ) {
 	int i;
 	trace_t trace;
-	entityState_t   *ent;
+	EntityState   *ent;
 	clipHandle_t cmodel;
 	centity_t   *cent;
 	bool spectator;
@@ -481,19 +481,19 @@ Generates cg.predictedPlayerState for the current cg.time
 cg.predictedPlayerState is guaranteed to be valid after exiting.
 
 For demo playback, this will be an interpolation between two valid
-playerState_t.
+PlayerState.
 
-For normal gameplay, it will be the result of predicted usercmd_t on
-top of the most recent playerState_t received from the server.
+For normal gameplay, it will be the result of predicted UserCmd on
+top of the most recent PlayerState received from the server.
 
 Each new snapshot will usually have one or more new usercmd over the last,
 but we simulate all unacknowledged commands each time, not just the new ones.
 This means that on an internet connection, quite a few pmoves may be issued
 each frame.
 
-OPTIMIZE: don't re-simulate unless the newly arrived snapshot playerState_t
+OPTIMIZE: don't re-simulate unless the newly arrived snapshot PlayerState
 differs from the predicted one.  Would require saving all intermediate
-playerState_t during prediction. (this is "dead reckoning" and would definately
+PlayerState during prediction. (this is "dead reckoning" and would definately
 be nice to have in there (SA))
 
 We detect prediction errors and allow them to be decayed off over several frames
@@ -502,10 +502,10 @@ to ease the jerk.
 */
 void CG_PredictPlayerState( void ) {
 	int cmdNum, current;
-	playerState_t oldPlayerState;
+	PlayerState oldPlayerState;
 	bool moved;
-	usercmd_t oldestCmd;
-	usercmd_t latestCmd;
+	UserCmd oldestCmd;
+	UserCmd latestCmd;
 	vec3_t deltaAngles;
 
 	cg.hyperspace = false; // will be set if touching a trigger_teleport

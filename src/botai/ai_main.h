@@ -79,9 +79,9 @@ typedef struct bot_state_s
 	int botthink_residual;                          //residual for the bot thinks
 	int client;                                     //client number of the bot
 	int entitynum;                                  //entity number of the bot
-	playerState_t cur_ps;                           //current player state
+	PlayerState cur_ps;                           //current player state
 	int last_eFlags;                                //last ps flags
-	usercmd_t lastucmd;                             //usercmd from last frame
+	UserCmd lastucmd;                             //usercmd from last frame
 	int entityeventTime[1024];                      //last entity event time
 	//
 	bot_settings_t settings;                        //several bot settings
@@ -220,9 +220,9 @@ void AICast_StartFrame( int time );
 void  BotAI_Print( int type, const char *fmt, ... );
 void   BotAI_BotInitialChat( bot_state_t *bs, char *type, ... );
 void    BotAI_Trace( bsp_trace_t *bsptrace, vec3_t start, vec3_t mins, vec3_t maxs, vec3_t end, int passent, int contentmask );
-int     BotAI_GetClientState( int clientNum, playerState_t *state );
-int     BotAI_GetEntityState( int entityNum, entityState_t *state );
-int     BotAI_GetSnapshotEntity( int clientNum, int sequence, entityState_t *state );
+int     BotAI_GetClientState( int clientNum, PlayerState *state );
+int     BotAI_GetEntityState( int entityNum, EntityState *state );
+int     BotAI_GetSnapshotEntity( int clientNum, int sequence, EntityState *state );
 
 float   BotChangeViewAngle( float angle, float ideal_angle, float speed );
 void    BotCheckAir( bot_state_t *bs );

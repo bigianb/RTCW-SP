@@ -81,7 +81,7 @@ void Log_Close(  ) {
 		BotImport_Print( PRT_ERROR, "can't close log file %s\n", logfile.filename );
 		return;
 	} //end if
-	logfile.fp = NULL;
+	logfile.fp = nullptr;
 	BotImport_Print( PRT_MESSAGE, "Closed log %s\n", logfile.filename );
 } 
 

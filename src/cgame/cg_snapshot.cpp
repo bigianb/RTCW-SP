@@ -123,7 +123,7 @@ void CG_SetInitialSnapshot( snapshot_t *snap ) {
 	char buf[64];
 	int i;
 	centity_t       *cent;
-	entityState_t   *state;
+	EntityState   *state;
 
 	cg.snap = snap;
 
@@ -157,7 +157,7 @@ void CG_SetInitialSnapshot( snapshot_t *snap ) {
 		state = &cg.snap->entities[ i ];
 		cent = &cg_entities[ state->number ];
 
-		memcpy( &cent->currentState, state, sizeof( entityState_t ) );
+		memcpy( &cent->currentState, state, sizeof( EntityState ) );
 		//cent->currentState = *state;
 		cent->interpolate = false;
 		cent->currentValid = true;
@@ -197,11 +197,11 @@ static void CG_TransitionSnapshot( void ) {
 	int i;
 
 	if ( !cg.snap ) {
-		Com_Error( ERR_DROP, "CG_TransitionSnapshot: NULL cg.snap" );
+		Com_Error( ERR_DROP, "CG_TransitionSnapshot: nullptr cg.snap" );
         return;  // Keep linter happy. ERR_DROP does not return
 	}
 	if ( !cg.nextSnap ) {
-		Com_Error( ERR_DROP, "CG_TransitionSnapshot: NULL cg.nextSnap" );
+		Com_Error( ERR_DROP, "CG_TransitionSnapshot: nullptr cg.nextSnap" );
         return;  // Keep linter happy. ERR_DROP does not return
 	}
 
@@ -232,11 +232,11 @@ static void CG_TransitionSnapshot( void ) {
 		CG_TransitionEntity( cent );
 	}
 
-	cg.nextSnap = NULL;
+	cg.nextSnap = nullptr;
 
 	// check for playerstate transition events
 	if ( oldFrame ) {
-		playerState_t   *ops, *ps;
+		PlayerState   *ops, *ps;
 
 		ops = &oldFrame->ps;
 		ps = &cg.snap->ps;
@@ -265,7 +265,7 @@ A new snapshot has just been read in from the client system.
 */
 static void CG_SetNextSnap( snapshot_t *snap ) {
 	int num;
-	entityState_t       *es;
+	EntityState       *es;
 	centity_t           *cent;
 
 	cg.nextSnap = snap;
@@ -278,7 +278,7 @@ static void CG_SetNextSnap( snapshot_t *snap ) {
 		es = &snap->entities[num];
 		cent = &cg_entities[ es->number ];
 
-		memcpy( &cent->nextState, es, sizeof( entityState_t ) );
+		memcpy( &cent->nextState, es, sizeof( EntityState ) );
 		//cent->nextState = *es;
 
 		// if this frame is a teleport, or the entity wasn't in the
@@ -390,7 +390,7 @@ static snapshot_t *CG_ReadNextSnapshot( void ) {
 				cg.predictedPlayerEntity.currentValid = backupCent.currentValid;
 				cg.predictedPlayerEntity.interpolate = backupCent.interpolate;
 
-				return NULL;
+				return nullptr;
 			}
 
 			return dest;
@@ -407,7 +407,7 @@ static snapshot_t *CG_ReadNextSnapshot( void ) {
 	}
 
 	// nothing left to read
-	return NULL;
+	return nullptr;
 }
 
 
@@ -495,15 +495,15 @@ void CG_ProcessSnapshots( void ) {
 	} while ( 1 );
 
 	// assert our valid conditions upon exiting
-	if ( cg.snap == NULL ) {
-		Com_Error( ERR_DROP, "CG_ProcessSnapshots: cg.snap == NULL" );
+	if ( cg.snap == nullptr ) {
+		Com_Error( ERR_DROP, "CG_ProcessSnapshots: cg.snap == nullptr" );
         return;  // Keep linter happy. ERR_DROP does not return
 	}
 	if ( cg.time < cg.snap->serverTime ) {
 		// this can happen right after a vid_restart
 		cg.time = cg.snap->serverTime;
 	}
-	if ( cg.nextSnap != NULL && cg.nextSnap->serverTime <= cg.time ) {
+	if ( cg.nextSnap != nullptr && cg.nextSnap->serverTime <= cg.time ) {
 		Com_Error( ERR_DROP, "CG_ProcessSnapshots: cg.nextSnap->serverTime <= cg.time" );
         return;  // Keep linter happy. ERR_DROP does not return
 	}

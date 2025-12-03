@@ -338,7 +338,7 @@ This allows the clients to use axial -127 to 127 values for all directions
 without getting a sqrt(2) distortion in speed.
 ============
 */
-static float PM_CmdScale( usercmd_t *cmd ) {
+static float PM_CmdScale( UserCmd *cmd ) {
 	int max;
 	float total;
 	float scale;
@@ -678,7 +678,7 @@ static void PM_AirMove( void ) {
 	vec3_t wishdir;
 	float wishspeed;
 	float scale;
-	usercmd_t cmd;
+	UserCmd cmd;
 
 	PM_Friction();
 
@@ -734,7 +734,7 @@ static void PM_WalkMove( void ) {
 	vec3_t wishdir;
 	float wishspeed;
 	float scale;
-	usercmd_t cmd;
+	UserCmd cmd;
 	float accelerate;
 	float vel;
 
@@ -3241,7 +3241,7 @@ PM_CalcLean
 
 ==============
 */
-void PM_UpdateLean( playerState_t *ps, usercmd_t *cmd, pmove_t *tpm ) {
+void PM_UpdateLean( PlayerState *ps, UserCmd *cmd, pmove_t *tpm ) {
 	vec3_t start, end, tmins, tmaxs, right;
 	int leaning = 0;            // -1 left, 1 right
 	float leanofs = 0;
@@ -3316,7 +3316,7 @@ void PM_UpdateLean( playerState_t *ps, usercmd_t *cmd, pmove_t *tpm ) {
 		start[2] += ps->viewheight;
 		VectorCopy( ps->viewangles, viewangles );
 		viewangles[ROLL] = 0;
-		AngleVectors( ps->viewangles, NULL, right, NULL );
+		AngleVectors( ps->viewangles, nullptr, right, nullptr );
 		VectorNormalize( right );
 		right[2] = ( leanofs < 0 ) ? 0.25 : -0.25;
 		VectorMA( start, leanofs, right, end );
@@ -3354,7 +3354,7 @@ This can be used as another entry point when only the viewangles
 are being updated isntead of a full move
 ================
 */
-void PM_UpdateViewAngles( playerState_t *ps, usercmd_t *cmd, void( trace ) ( trace_t *results, const vec3_t start, const vec3_t mins, const vec3_t maxs, const vec3_t end, int passEntityNum, int contentMask ) ) {
+void PM_UpdateViewAngles( PlayerState *ps, UserCmd *cmd, void( trace ) ( trace_t *results, const vec3_t start, const vec3_t mins, const vec3_t maxs, const vec3_t end, int passEntityNum, int contentMask ) ) {
 	short temp;
 	int i;
 	pmove_t tpm;
@@ -3543,7 +3543,7 @@ void PM_LadderMove( void ) {
 		// strafe, so we can jump off ladder
 		vec3_t ladder_right, ang;
 		vectoangles( laddervec, ang );
-		AngleVectors( ang, NULL, ladder_right, NULL );
+		AngleVectors( ang, nullptr, ladder_right, nullptr );
 
 		// if we are looking away from the ladder, reverse the right vector
 		if ( DotProduct( laddervec, pml.forward ) > 0 ) {

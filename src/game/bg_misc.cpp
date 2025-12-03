@@ -457,14 +457,14 @@ An item fires all of its targets when it is picked up.  If the toucher can't car
 gitem_t bg_itemlist[] =
 {
 	{
-		NULL,
-		NULL,
-		{ NULL,
-		  NULL,
+		nullptr,
+		nullptr,
+		{ nullptr,
+		  nullptr,
 		  0, 0, 0},
-		NULL,   // icon
-		NULL,   // ammo icon
-		NULL,   // pickup
+		nullptr,   // icon
+		nullptr,   // ammo icon
+		nullptr,   // pickup
 		0,
 		IT_BAD,
 		0,
@@ -501,7 +501,7 @@ model="models/powerups/clipboard/clipboard.md3"
 			0,
 			0, 0 },
 		"icons/iconh_small",
-		NULL,                   // ammo icon
+		nullptr,                   // ammo icon
 		"",
 		1,
 		IT_CLIPBOARD,
@@ -532,7 +532,7 @@ model="models/powerups/treasure/goldbar.md3"
 			0,
 			0, 0 },
 		"icons/iconh_small", // (SA) placeholder
-		NULL,                   // ammo icon
+		nullptr,                   // ammo icon
 		"Treasure Item",     // (SA) placeholder
 		5,
 		IT_TREASURE,
@@ -561,7 +561,7 @@ model="models/powerups/health/health_s.md3"
 			0,
 			0, 0,  0 },
 		"icons/iconh_small",
-		NULL,   // ammo icon
+		nullptr,   // ammo icon
 		"Small Health",
 		5,
 		IT_HEALTH,
@@ -584,7 +584,7 @@ model="models/powerups/health/health_m.md3"
 			0,
 			0, 0,  0 },
 		"icons/iconh_med",
-		NULL,   // ammo icon
+		nullptr,   // ammo icon
 		"Med Health",
 		25,
 		IT_HEALTH,
@@ -606,7 +606,7 @@ model="models/powerups/health/health_l.md3"
 		{   "models/powerups/health/health_l.md3",
 			0, 0, 0,   0 },
 		"icons/iconh_large",
-		NULL,   // ammo icon
+		nullptr,   // ammo icon
 		"Large Health",
 		50,
 		IT_HEALTH,
@@ -641,7 +641,7 @@ model="models/powerups/health/health_t1.md3"
 			"models/powerups/health/health_t1.md3",  // whole turkey
 			0, 0 },
 		"icons/iconh_turkey",
-		NULL,   // ammo icon
+		nullptr,   // ammo icon
 		"Hot Meal",
 		15,                 // amount given in last stage
 		IT_HEALTH,
@@ -674,7 +674,7 @@ model="models/powerups/health/health_b1.md3"
 			"models/powerups/health/health_b1.md3",  // whole turkey
 			0, 0 },
 		"icons/iconh_breadandmeat",
-		NULL,   // ammo icon
+		nullptr,   // ammo icon
 		"Cold Meal",
 		10,                 // amount given in last stage
 		IT_HEALTH,
@@ -700,7 +700,7 @@ model="models/powerups/health/health_wallbox.md3"
 			"models/powerups/health/health_wallbox1.md3",
 			0, 0, 0},
 		"icons/iconh_wall",
-		NULL,   // ammo icon
+		nullptr,   // ammo icon
 		"Health",
 		25,
 		IT_HEALTH,
@@ -724,7 +724,7 @@ model="models/powerups/health/health_w.md3"
 		{   "models/powerups/health/health_w.md3",
 			0, 0, 0,   0 },
 		"icons/iconh_wall",
-		NULL,   // ammo icon
+		nullptr,   // ammo icon
 		"Health",
 		25,
 		IT_HEALTH,
@@ -753,7 +753,7 @@ model="models/powerups/instant/stamina_stein.md3"
 		{   "models/powerups/instant/stamina_stein.md3",
 			0, 0, 0,   0 },
 		"icons/icons_stein",
-		NULL,   // ammo icon
+		nullptr,   // ammo icon
 		"Stamina",
 		25,
 		IT_POWERUP,
@@ -791,7 +791,7 @@ model="models/powerups/instant/stamina_brandy1.md3"
 			"models/powerups/instant/stamina_brandy1.md3",
 			0, 0,  0 },
 		"icons/icons_brandy",
-		NULL,   // ammo icon
+		nullptr,   // ammo icon
 		"Stamina",
 		25,
 		IT_POWERUP,
@@ -819,7 +819,7 @@ model="models/powerups/armor/armor_body1.md3"
 		{   "models/powerups/armor/armor_body1.md3",
 			0, 0, 0,   0 },
 		"icons/iconr_body",
-		NULL,   // ammo icon
+		nullptr,   // ammo icon
 		"Flak Jacket",
 		75,
 		IT_ARMOR,
@@ -841,7 +841,7 @@ model="models/powerups/armor/armor_body2.md3"
 		{   "models/powerups/armor/armor_body2.md3",
 			0, 0, 0,   0 },
 		"icons/iconr_bodyh",
-		NULL,   // ammo icon
+		nullptr,   // ammo icon
 		"Flak Jacket",
 		75,
 		IT_ARMOR,
@@ -863,7 +863,7 @@ model="models/powerups/armor/armor_head1.md3"
 		{   "models/powerups/armor/armor_head1.md3",
 			0, 0, 0,   0 },
 		"icons/iconr_head",
-		NULL,   // ammo icon
+		nullptr,   // ammo icon
 		"Armored Helmet",
 		25,
 		IT_ARMOR,
@@ -1706,7 +1706,7 @@ weapon_monster_attack1 (.3 .3 1) (-16 -16 -16) (16 16 16) suspended
 			"",
 			0, 0},
 		"",  // icon
-		NULL,   // ammo icon
+		nullptr,   // ammo icon
 		"MonsterAttack1",            // pickup
 		100,
 		IT_WEAPON,
@@ -1727,7 +1727,7 @@ weapon_monster_attack2 (.3 .3 1) (-16 -16 -16) (16 16 16) suspended
 			"",
 			0, 0},
 		"",  // icon
-		NULL,   // ammo icon
+		nullptr,   // ammo icon
 		"MonsterAttack2",            // pickup
 		100,
 		IT_WEAPON,
@@ -1748,7 +1748,7 @@ weapon_monster_attack3 (.3 .3 1) (-16 -16 -16) (16 16 16) suspended
 			"",
 			0, 0},
 		"",  // icon
-		NULL,   // ammo icon
+		nullptr,   // ammo icon
 		"MonsterAttack3",            // pickup
 		100,
 		IT_WEAPON,
@@ -1804,7 +1804,7 @@ model="models/powerups/ammo/am9mm_s.md3"
 		{ "models/powerups/ammo/am9mm_s.md3",
 		  0, 0, 0, 0 },
 		"icons/iconw_luger_1", // icon
-		NULL,               // ammo icon
+		nullptr,               // ammo icon
 		"9mm Rounds",        // pickup
 		30,
 		IT_AMMO,
@@ -1827,7 +1827,7 @@ model="models/powerups/ammo/am9mm_m.md3"
 		{ "models/powerups/ammo/am9mm_m.md3",
 		  0, 0, 0,    0 },
 		"icons/iconw_luger_1", // icon
-		NULL,               // ammo icon
+		nullptr,               // ammo icon
 		"9mm",           // pickup			//----(SA)	changed
 		60,
 		IT_AMMO,
@@ -1850,7 +1850,7 @@ model="models/powerups/ammo/am9mm_l.md3"
 		{ "models/powerups/ammo/am9mm_l.md3",
 		  0, 0, 0,    0 },
 		"icons/iconw_luger_1", // icon
-		NULL,               // ammo icon
+		nullptr,               // ammo icon
 		"9mm Box",           // pickup
 		100,
 		IT_AMMO,
@@ -1875,7 +1875,7 @@ model="models/powerups/ammo/am45cal_s.md3"
 		{ "models/powerups/ammo/am45cal_s.md3",
 		  0, 0, 0,    0 },
 		"icons/iconw_luger_1", // icon
-		NULL,               // ammo icon
+		nullptr,               // ammo icon
 		".45cal Rounds", // pickup
 		20,
 		IT_AMMO,
@@ -1898,7 +1898,7 @@ model="models/powerups/ammo/am45cal_m.md3"
 		{ "models/powerups/ammo/am45cal_m.md3",
 		  0, 0, 0,    0 },
 		"icons/iconw_luger_1", // icon
-		NULL,               // ammo icon
+		nullptr,               // ammo icon
 		".45cal",        // pickup			//----(SA)	changed
 		60,
 		IT_AMMO,
@@ -1921,7 +1921,7 @@ model="models/powerups/ammo/am45cal_l.md3"
 		{ "models/powerups/ammo/am45cal_l.md3",
 		  0, 0, 0,    0 },
 		"icons/iconw_luger_1", // icon
-		NULL,               // ammo icon
+		nullptr,               // ammo icon
 		".45cal Box",        // pickup
 		100,
 		IT_AMMO,
@@ -1948,7 +1948,7 @@ model="models/powerups/ammo/am792mm_s.md3"
 		{ "models/powerups/ammo/am792mm_s.md3",
 		  0, 0, 0,    0 },
 		"icons/icona_machinegun",    // icon
-		NULL,                       // ammo icon
+		nullptr,                       // ammo icon
 		"7.92mm Rounds",         // pickup
 		50,
 		IT_AMMO,
@@ -1971,7 +1971,7 @@ model="models/powerups/ammo/am792mm_m.md3"
 		{ "models/powerups/ammo/am792mm_m.md3",
 		  0, 0, 0,    0 },
 		"icons/icona_machinegun",    // icon
-		NULL,                       // ammo icon
+		nullptr,                       // ammo icon
 		"7.92mm",                // pickup			//----(SA)	changed
 		10,
 		IT_AMMO,
@@ -1994,7 +1994,7 @@ model="models/powerups/ammo/am792mm_l.md3"
 		{ "models/powerups/ammo/am792mm_l.md3",
 		  0, 0, 0,    0 },
 		"icons/icona_machinegun",    // icon
-		NULL,                       // ammo icon
+		nullptr,                       // ammo icon
 		"7.92mm Box",                // pickup
 		50,
 		IT_AMMO,
@@ -2021,7 +2021,7 @@ model="models/powerups/ammo/am30cal_s.md3"
 		{ "models/powerups/ammo/am30cal_s.md3",
 		  0, 0, 0,    0 },
 		"icons/icona_machinegun",    // icon
-		NULL,                       // ammo icon
+		nullptr,                       // ammo icon
 		".30cal Rounds",         // pickup
 		50,
 		IT_AMMO,
@@ -2044,7 +2044,7 @@ model="models/powerups/ammo/am30cal_m.md3"
 		{ "models/powerups/ammo/am30cal_m.md3",
 		  0, 0, 0,    0 },
 		"icons/icona_machinegun",    // icon
-		NULL,                       // ammo icon
+		nullptr,                       // ammo icon
 		".30cal",                // pickup			//----(SA)	changed
 		50,
 		IT_AMMO,
@@ -2067,7 +2067,7 @@ model="models/powerups/ammo/am30cal_l.md3"
 		{ "models/powerups/ammo/am30cal_l.md3",
 		  0, 0, 0,    0 },
 		"icons/icona_machinegun",    // icon
-		NULL,                       // ammo icon
+		nullptr,                       // ammo icon
 		".30cal Box",                // pickup
 		50,
 		IT_AMMO,
@@ -2094,7 +2094,7 @@ model="models/powerups/ammo/am127mm.md3"
 		{ "models/powerups/ammo/am127mm.md3",
 		  0, 0, 0,    0 },
 		"icons/icona_machinegun",    // icon
-		NULL,                       // ammo icon
+		nullptr,                       // ammo icon
 		"12.7mm",                    // pickup
 		100,
 		IT_AMMO,
@@ -2117,7 +2117,7 @@ model="models/powerups/ammo/amgren_bag.md3"
 		{ "models/powerups/ammo/amgren_bag.md3",
 		  0, 0, 0,    0 },
 		"icons/icona_grenade",   // icon
-		NULL,                   // ammo icon
+		nullptr,                   // ammo icon
 		"Grenades",              // pickup
 		5,
 		IT_AMMO,
@@ -2140,7 +2140,7 @@ model="models/powerups/ammo/amgrenus_bag.md3"
 		{ "models/powerups/ammo/amgrenus_bag.md3",
 		  0, 0, 0,    0 },
 		"icons/icona_pineapple", // icon
-		NULL,                   // ammo icon
+		nullptr,                   // ammo icon
 		"Pineapples",            // pickup
 		5,
 		IT_AMMO,
@@ -2163,7 +2163,7 @@ model="models/powerups/ammo/dynamite.md3"
 		{ "models/powerups/ammo/dynamite.md3",
 		  0, 0, 0,    0 },
 		"icons/icona_dynamite",  // icon
-		NULL,                   // ammo icon
+		nullptr,                   // ammo icon
 		"Dynamite",              // pickup
 		1,
 		IT_AMMO,
@@ -2189,7 +2189,7 @@ model="models/powerups/ammo/amcell.md3"
 		{ "models/powerups/ammo/amcell.md3",
 		  0, 0, 0,    0 },
 		"icons/icona_cell",  // icon
-		NULL,               // ammo icon
+		nullptr,               // ammo icon
 		"Cell",              // pickup
 		500,
 		IT_AMMO,
@@ -2215,7 +2215,7 @@ model="models/powerups/ammo/amfuel.md3"
 		{ "models/powerups/ammo/amfuel.md3",
 		  0, 0, 0,    0 },
 		"icons/icona_fuel",  // icon
-		NULL,               // ammo icon
+		nullptr,               // ammo icon
 		"Fuel",              // pickup
 		100,
 		IT_AMMO,
@@ -2241,7 +2241,7 @@ model="models/powerups/ammo/amspear.md3"
 		{ "models/powerups/ammo/amspear.md3",
 		0, 0, 0,	0 },
 		"icons/icona_spear",	// icon
-		NULL,					// ammo icon
+		nullptr,					// ammo icon
 		"Speargun Bolts",			// pickup
 		10,
 		IT_AMMO,
@@ -2270,7 +2270,7 @@ model="models/powerups/ammo/amspear.md3"
 		{ "models/powerups/ammo/amspear.md3",
 		0, 0, 0,	0 },
 		"icons/icona_spear",	// icon
-		NULL,					// ammo icon
+		nullptr,					// ammo icon
 		"C02 Speargun Bolts",	// pickup
 		10,
 		IT_AMMO,
@@ -2301,7 +2301,7 @@ model="models/powerups/ammo/ampf.md3"
 		{ "models/powerups/ammo/ampf.md3",
 		  0, 0, 0,    0 },
 		"icons/icona_panzerfaust",   // icon
-		NULL,                   // ammo icon
+		nullptr,                   // ammo icon
 		"Panzerfaust Rockets",               // pickup
 		5,
 		IT_AMMO,
@@ -2327,7 +2327,7 @@ model="models/powerups/ammo/amrocket.md3"
 		{ "models/powerups/ammo/amrocket.md3",
 		0, 0, 0,	0 },
 		"icons/icona_rocket",	// icon
-		NULL,					// ammo icon
+		nullptr,					// ammo icon
 		"Rockets",				// pickup
 		5,
 		IT_AMMO,
@@ -2353,7 +2353,7 @@ model="models/powerups/ammo/amcharges.md3"
 		{ "models/powerups/ammo/amcharges.md3",
 		0, 0, 0,	0 },
 		"icons/icona_charges",	// icon
-		NULL,					// ammo icon
+		nullptr,					// ammo icon
 		"Charges",				// pickup
 		2,
 		IT_AMMO,
@@ -2378,7 +2378,7 @@ used by: Monster Attack 1 (specific to each monster)
 		{ "",
 		  0, 0, 0},
 		"",                      // icon
-		NULL,                   // ammo icon
+		nullptr,                   // ammo icon
 		"MonsterAttack1",        // pickup
 		60,
 		IT_AMMO,
@@ -2413,7 +2413,7 @@ model="models/powerups/holdable/medkit.md3"
 		"models/powerups/holdable/medkit_sphere.md3",
 		0, 0,	0 },
 		"icons/medkit",	// icon
-		NULL,			// ammo icon
+		nullptr,			// ammo icon
 		"Medkit",		// pickup
 		1,
 		IT_HOLDABLE,
@@ -2441,7 +2441,7 @@ model="models/powerups/holdable/wine.md3"
 			0, 0, 0,    0
 		},
 		"icons/wine",                    // icon
-		NULL,                           // ammo icon
+		nullptr,                           // ammo icon
 		"1921 Chateau Lafite",           // pickup
 		1,
 		IT_HOLDABLE,
@@ -2471,7 +2471,7 @@ model="models/powerups/holdable/stamina.md3"
 			,   0
 		},
 		"icons/stamina",             // icon
-		NULL,                           // ammo icon
+		nullptr,                           // ammo icon
 		"Added Stamina",             // pickup
 		1,
 		IT_HOLDABLE,
@@ -2498,7 +2498,7 @@ model="models/powerups/holdable/venom_book.md3"
 			,   0
 		},
 		"icons/icon_vbook",              // icon
-		NULL,                       // ammo icon
+		nullptr,                       // ammo icon
 		"Venom Tech Manual",     // pickup
 		1,
 		IT_HOLDABLE,
@@ -2524,7 +2524,7 @@ model="models/powerups/holdable/paranormal_book.md3"
 			,   0
 		},
 		"icons/icon_pbook",              // icon
-		NULL,                           // ammo icon
+		nullptr,                           // ammo icon
 		"Project Book",                  // pickup
 		1,
 		IT_HOLDABLE,
@@ -2550,7 +2550,7 @@ model="models/powerups/holdable/zemphr_book.md3"
 			,   0
 		},
 		"icons/icon_zbook",              // icon
-		NULL,                       // ammo icon
+		nullptr,                       // ammo icon
 		"Dr. Zemph's Journal",       // pickup
 		1,
 		IT_HOLDABLE,
@@ -2579,7 +2579,7 @@ model="models/flags/r_flag.md3"
 		{ "models/flags/r_flag.md3",
 		  0, 0, 0,   0 },
 		"icons/iconf_red",   // icon
-		NULL,               // ammo icon
+		nullptr,               // ammo icon
 		"Red Flag",          // pickup
 		0,
 		IT_TEAM,
@@ -2602,7 +2602,7 @@ model="models/flags/b_flag.md3"
 		{ "models/flags/b_flag.md3",
 		  0, 0, 0,   0 },
 		"icons/iconf_blu",   // icon
-		NULL,               // ammo icon
+		nullptr,               // ammo icon
 		"Blue Flag",     // pickup
 		0,
 		IT_TEAM,
@@ -2631,7 +2631,7 @@ model="models/powerups/keys/binoculars.md3"
 			,   0
 		},
 		"icons/binocs",          // icon
-		NULL,                   // ammo icon
+		nullptr,                   // ammo icon
 		"Binoculars",            // pickup
 		0,
 		IT_KEY,
@@ -2645,7 +2645,7 @@ model="models/powerups/keys/binoculars.md3"
 
 
 	// end of list marker
-	{NULL}
+	{nullptr}
 };
 // END JOSEPH
 
@@ -2668,7 +2668,7 @@ gitem_t *BG_FindItemForPowerup( powerup_t pw ) {
 		}
 	}
 
-	return NULL;
+	return nullptr;
 }
 
 
@@ -2686,7 +2686,7 @@ gitem_t *BG_FindItemForHoldable( holdable_t pw ) {
 		}
 	}
 
-	return NULL;
+	return nullptr;
 }
 
 
@@ -2718,12 +2718,12 @@ gitem_t *BG_FindItemForWeapon( weapon_t weapon ) {
 
 	if ( weapon < 0 || weapon >= NUM_TABLE_ELEMENTS ) {
 		Com_Error( ERR_DROP, "BG_FindItemForWeapon: weapon out of range %i", weapon );
-        return NULL;  // Keep linter happy. ERR_DROP does not return
+        return nullptr;  // Keep linter happy. ERR_DROP does not return
 	}
 
 	if ( !lookupTable[weapon] ) {
 		Com_Error( ERR_DROP, "Couldn't find item for weapon %i", weapon );
-        return NULL;  // Keep linter happy. ERR_DROP does not return
+        return nullptr;  // Keep linter happy. ERR_DROP does not return
 	}
 
 	// get the weapon from the lookup table
@@ -2811,7 +2811,7 @@ BG_AkimboFireSequence
 	returns 'true' if it's the left hand's turn to fire, 'false' if it's the right hand's turn
 ==============
 */
-//bool BG_AkimboFireSequence( playerState_t *ps ) {
+//bool BG_AkimboFireSequence( PlayerState *ps ) {
 bool BG_AkimboFireSequence( int weapon, int akimboClip, int coltClip ) {
 	// NOTE: this doesn't work when clips are turned off (dmflags 64)
 
@@ -2861,7 +2861,7 @@ gitem_t *BG_FindItemForKey( wkey_t k, int *indexreturn ) {
 	}
 
 	Com_Error( ERR_DROP, "Key %d not found", k );
-	return NULL;
+	return nullptr;
 }
 //----(SA) end
 
@@ -2882,7 +2882,7 @@ gitem_t *BG_FindItemForAmmo( int ammo ) {
 		}
 	}
 	Com_Error( ERR_DROP, "Item not found for ammo: %d", ammo );
-	return NULL;
+	return nullptr;
 }
 //----(SA) end
 
@@ -2902,7 +2902,7 @@ gitem_t *BG_FindItem( const char *pickupName ) {
 		}
 	}
 
-	return NULL;
+	return nullptr;
 }
 
 /*
@@ -2929,7 +2929,7 @@ gitem_t *BG_FindItem2( const char *name ) {
 
 	Com_Printf( "BG_FindItem2(): unable to locate item '%s'\n", name );
 
-	return NULL;
+	return nullptr;
 }
 
 
@@ -2942,7 +2942,7 @@ grabbing them easier
 ============
 */
 
-bool    BG_PlayerTouchesItem( playerState_t *ps, entityState_t *item, int atTime ) {
+bool    BG_PlayerTouchesItem( PlayerState *ps, EntityState *item, int atTime ) {
 	vec3_t origin;
 
 	BG_EvaluateTrajectory( &item->pos, atTime, origin );
@@ -2985,7 +2985,7 @@ bool isClipOnly( int weap ) {
 }
 
 
-bool    BG_CanItemBeGrabbed( const entityState_t *ent, const playerState_t *ps ) {
+bool    BG_CanItemBeGrabbed( const EntityState *ent, const PlayerState *ps ) {
 	gitem_t *item;
 	int ammoweap;
 	bool multiplayer = false;
@@ -3458,7 +3458,7 @@ Handles the sequence numbers
 ===============
 */
 
-void BG_AddPredictableEventToPlayerstate( int newEvent, int eventParm, playerState_t *ps ) {
+void BG_AddPredictableEventToPlayerstate( int newEvent, int eventParm, PlayerState *ps ) {
 
 	ps->events[ps->eventSequence & ( MAX_EVENTS - 1 )] = newEvent;
 	ps->eventParms[ps->eventSequence & ( MAX_EVENTS - 1 )] = eventParm;
@@ -3470,11 +3470,11 @@ void BG_AddPredictableEventToPlayerstate( int newEvent, int eventParm, playerSta
 ========================
 BG_PlayerStateToEntityState
 
-This is done after each set of usercmd_t on the server,
+This is done after each set of UserCmd on the server,
 and after local prediction on the client
 ========================
 */
-void BG_PlayerStateToEntityState( playerState_t *ps, entityState_t *s, bool snap ) {
+void BG_PlayerStateToEntityState( PlayerState *ps, EntityState *s, bool snap ) {
 	int i;
 
     if ( ps->stats[STAT_HEALTH] <= GIB_HEALTH ) {
@@ -3546,8 +3546,8 @@ void BG_PlayerStateToEntityState( playerState_t *ps, entityState_t *s, bool snap
 	}
 // end
 	// Ridah, now using a circular list of events for all entities
-	// add any new events that have been added to the playerState_t
-	// (possibly overwriting entityState_t events)
+	// add any new events that have been added to the PlayerState
+	// (possibly overwriting EntityState events)
 	for ( i = ps->oldEventSequence; i != ps->eventSequence; i++ ) {
 		s->events[s->eventSequence & ( MAX_EVENTS - 1 )] = ps->events[i & ( MAX_EVENTS - 1 )];
 		s->eventParms[s->eventSequence & ( MAX_EVENTS - 1 )] = ps->eventParms[i & ( MAX_EVENTS - 1 )];
@@ -3575,11 +3575,11 @@ void BG_PlayerStateToEntityState( playerState_t *ps, entityState_t *s, bool snap
 ========================
 BG_PlayerStateToEntityStateExtraPolate
 
-This is done after each set of usercmd_t on the server,
+This is done after each set of UserCmd on the server,
 and after local prediction on the client
 ========================
 */
-void BG_PlayerStateToEntityStateExtraPolate( playerState_t *ps, entityState_t *s, int time, bool snap ) {
+void BG_PlayerStateToEntityStateExtraPolate( PlayerState *ps, EntityState *s, int time, bool snap ) {
 	int i;
 
 	if ( ps->stats[STAT_HEALTH] <= GIB_HEALTH ) {
@@ -3636,8 +3636,8 @@ void BG_PlayerStateToEntityStateExtraPolate( playerState_t *ps, entityState_t *s
 	}
 
 	// Ridah, now using a circular list of events for all entities
-	// add any new events that have been added to the playerState_t
-	// (possibly overwriting entityState_t events)
+	// add any new events that have been added to the PlayerState
+	// (possibly overwriting EntityState events)
 	if ( ps->oldEventSequence > ps->eventSequence ) {
 		ps->oldEventSequence = ps->eventSequence;
 	}

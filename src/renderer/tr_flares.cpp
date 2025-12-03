@@ -106,8 +106,8 @@ void R_ClearFlares( void ) {
 	int i;
 
 	memset( r_flareStructs, 0, sizeof( r_flareStructs ) );
-	r_activeFlares = NULL;
-	r_inactiveFlares = NULL;
+	r_activeFlares = nullptr;
+	r_inactiveFlares = nullptr;
 
 	for ( i = 0 ; i < MAX_FLARES ; i++ ) {
 		r_flareStructs[i].next = r_inactiveFlares;
@@ -250,7 +250,7 @@ void RB_AddDlightFlares( void ) {
 			j = 0;
 		}
 
-		RB_AddFlare( (void *)l, j, l->origin, l->color, 1.0f, NULL, id++, true );  //----(SA)	also set scale
+		RB_AddFlare( (void *)l, j, l->origin, l->color, 1.0f, nullptr, id++, true );  //----(SA)	also set scale
 	}
 }
 
@@ -292,7 +292,7 @@ void RB_AddCoronaFlares( void ) {
 		if ( j == tr.world->numfogs ) {
 			j = 0;
 		}
-		RB_AddFlare( (void *)cor, j, cor->origin, cor->color, cor->scale, NULL, cor->id, cor->flags );
+		RB_AddFlare( (void *)cor, j, cor->origin, cor->color, cor->scale, nullptr, cor->id, cor->flags );
 	}
 }
 
@@ -483,7 +483,7 @@ void RB_RenderFlares( void ) {
 	// perform z buffer readback on each flare in this view
 	draw = false;
 	prev = &r_activeFlares;
-	while ( ( f = *prev ) != NULL ) {
+	while ( ( f = *prev ) != nullptr ) {
 		// throw out any flares that weren't added last frame
 		if ( f->addedFrame < backEnd.viewParms.frameCount - 1 ) {
 			*prev = f->next;

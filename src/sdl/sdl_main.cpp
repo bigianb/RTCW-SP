@@ -115,7 +115,7 @@ Handle new console input
 */
 char *Sys_ConsoleInput(void)
 {
-	return NULL;
+	return nullptr;
 }
 
 /*
@@ -125,7 +125,7 @@ Sys_GetClipboardData
 */
 char *Sys_GetClipboardData(void)
 {
-	return NULL;
+	return nullptr;
 }
 
 #define PID_FILENAME "wolf.pid"
@@ -142,7 +142,7 @@ static char *Sys_PIDFileName( const char *gamedir )
 	if( *homePath != '\0' )
 		return va( "%s/%s/%s", homePath, gamedir, PID_FILENAME );
 
-	return NULL;
+	return nullptr;
 }
 
 /*
@@ -154,7 +154,7 @@ void Sys_RemovePIDFile( const char *gamedir )
 {
 	char *pidFile = Sys_PIDFileName( gamedir );
 
-	if( pidFile != NULL )
+	if( pidFile != nullptr )
 		remove( pidFile );
 }
 
@@ -367,7 +367,7 @@ int main( int argc, char **argv )
 	// Concatenate the command line for passing to Com_Init
 	for( i = 1; i < argc; i++ )
 	{
-		const bool containsSpaces = strchr(argv[i], ' ') != NULL;
+		const bool containsSpaces = strchr(argv[i], ' ') != nullptr;
 		if (containsSpaces){
 			Q_strcat( commandLine, sizeof( commandLine ), "\"" );
 		}

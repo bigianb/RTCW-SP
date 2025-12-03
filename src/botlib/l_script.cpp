@@ -53,78 +53,78 @@ If you have questions concerning this license or the applicable additional terms
 punctuation_t default_punctuations[] =
 {
 	//binary operators
-	{">>=",P_RSHIFT_ASSIGN, NULL},
-	{"<<=",P_LSHIFT_ASSIGN, NULL},
+	{">>=",P_RSHIFT_ASSIGN, nullptr},
+	{"<<=",P_LSHIFT_ASSIGN, nullptr},
 	//
-	{"...",P_PARMS, NULL},
+	{"...",P_PARMS, nullptr},
 	//define merge operator
-	{"##",P_PRECOMPMERGE, NULL},
+	{"##",P_PRECOMPMERGE, nullptr},
 	//logic operators
-	{"&&",P_LOGIC_AND, NULL},
-	{"||",P_LOGIC_OR, NULL},
-	{">=",P_LOGIC_GEQ, NULL},
-	{"<=",P_LOGIC_LEQ, NULL},
-	{"==",P_LOGIC_EQ, NULL},
-	{"!=",P_LOGIC_UNEQ, NULL},
+	{"&&",P_LOGIC_AND, nullptr},
+	{"||",P_LOGIC_OR, nullptr},
+	{">=",P_LOGIC_GEQ, nullptr},
+	{"<=",P_LOGIC_LEQ, nullptr},
+	{"==",P_LOGIC_EQ, nullptr},
+	{"!=",P_LOGIC_UNEQ, nullptr},
 	//arithmatic operators
-	{"*=",P_MUL_ASSIGN, NULL},
-	{"/=",P_DIV_ASSIGN, NULL},
-	{"%=",P_MOD_ASSIGN, NULL},
-	{"+=",P_ADD_ASSIGN, NULL},
-	{"-=",P_SUB_ASSIGN, NULL},
-	{"++",P_INC, NULL},
-	{"--",P_DEC, NULL},
+	{"*=",P_MUL_ASSIGN, nullptr},
+	{"/=",P_DIV_ASSIGN, nullptr},
+	{"%=",P_MOD_ASSIGN, nullptr},
+	{"+=",P_ADD_ASSIGN, nullptr},
+	{"-=",P_SUB_ASSIGN, nullptr},
+	{"++",P_INC, nullptr},
+	{"--",P_DEC, nullptr},
 	//binary operators
-	{"&=",P_BIN_AND_ASSIGN, NULL},
-	{"|=",P_BIN_OR_ASSIGN, NULL},
-	{"^=",P_BIN_XOR_ASSIGN, NULL},
-	{">>",P_RSHIFT, NULL},
-	{"<<",P_LSHIFT, NULL},
+	{"&=",P_BIN_AND_ASSIGN, nullptr},
+	{"|=",P_BIN_OR_ASSIGN, nullptr},
+	{"^=",P_BIN_XOR_ASSIGN, nullptr},
+	{">>",P_RSHIFT, nullptr},
+	{"<<",P_LSHIFT, nullptr},
 	//reference operators
-	{"->",P_POINTERREF, NULL},
+	{"->",P_POINTERREF, nullptr},
 	//C++
-	{"::",P_CPP1, NULL},
-	{".*",P_CPP2, NULL},
+	{"::",P_CPP1, nullptr},
+	{".*",P_CPP2, nullptr},
 	//arithmatic operators
-	{"*",P_MUL, NULL},
-	{"/",P_DIV, NULL},
-	{"%",P_MOD, NULL},
-	{"+",P_ADD, NULL},
-	{"-",P_SUB, NULL},
-	{"=",P_ASSIGN, NULL},
+	{"*",P_MUL, nullptr},
+	{"/",P_DIV, nullptr},
+	{"%",P_MOD, nullptr},
+	{"+",P_ADD, nullptr},
+	{"-",P_SUB, nullptr},
+	{"=",P_ASSIGN, nullptr},
 	//binary operators
-	{"&",P_BIN_AND, NULL},
-	{"|",P_BIN_OR, NULL},
-	{"^",P_BIN_XOR, NULL},
-	{"~",P_BIN_NOT, NULL},
+	{"&",P_BIN_AND, nullptr},
+	{"|",P_BIN_OR, nullptr},
+	{"^",P_BIN_XOR, nullptr},
+	{"~",P_BIN_NOT, nullptr},
 	//logic operators
-	{"!",P_LOGIC_NOT, NULL},
-	{">",P_LOGIC_GREATER, NULL},
-	{"<",P_LOGIC_LESS, NULL},
+	{"!",P_LOGIC_NOT, nullptr},
+	{">",P_LOGIC_GREATER, nullptr},
+	{"<",P_LOGIC_LESS, nullptr},
 	//reference operator
-	{".",P_REF, NULL},
+	{".",P_REF, nullptr},
 	//seperators
-	{",",P_COMMA, NULL},
-	{";",P_SEMICOLON, NULL},
+	{",",P_COMMA, nullptr},
+	{";",P_SEMICOLON, nullptr},
 	//label indication
-	{":",P_COLON, NULL},
+	{":",P_COLON, nullptr},
 	//if statement
-	{"?",P_QUESTIONMARK, NULL},
+	{"?",P_QUESTIONMARK, nullptr},
 	//embracements
-	{"(",P_PARENTHESESOPEN, NULL},
-	{")",P_PARENTHESESCLOSE, NULL},
-	{"{",P_BRACEOPEN, NULL},
-	{"}",P_BRACECLOSE, NULL},
-	{"[",P_SQBRACKETOPEN, NULL},
-	{"]",P_SQBRACKETCLOSE, NULL},
+	{"(",P_PARENTHESESOPEN, nullptr},
+	{")",P_PARENTHESESCLOSE, nullptr},
+	{"{",P_BRACEOPEN, nullptr},
+	{"}",P_BRACECLOSE, nullptr},
+	{"[",P_SQBRACKETOPEN, nullptr},
+	{"]",P_SQBRACKETCLOSE, nullptr},
 	//
-	{"\\",P_BACKSLASH, NULL},
+	{"\\",P_BACKSLASH, nullptr},
 	//precompiler operator
-	{"#",P_PRECOMP, NULL},
+	{"#",P_PRECOMP, nullptr},
 #ifdef DOLLAR
-	{"$",P_DOLLAR, NULL},
+	{"$",P_DOLLAR, nullptr},
 #endif //DOLLAR
-	{NULL, 0}
+	{nullptr, 0}
 };
 
 char basefolder[MAX_QPATH];
@@ -143,7 +143,7 @@ void PS_CreatePunctuationTable( script_t *script, punctuation_t *punctuations ) 
 	for ( i = 0; punctuations[i].p; i++ )
 	{
 		newp = &punctuations[i];
-		lastp = NULL;
+		lastp = nullptr;
 		//sort the punctuations in this table entry on length (longer punctuations first)
 		for ( p = script->punctuationtable[(unsigned int) newp->p[0]]; p; p = p->next )
 		{
@@ -157,7 +157,7 @@ void PS_CreatePunctuationTable( script_t *script, punctuation_t *punctuations ) 
 			lastp = p;
 		} //end for
 		if ( !p ) {
-			newp->next = NULL;
+			newp->next = nullptr;
 			if ( lastp ) {
 				lastp->next = newp;
 			} else { script->punctuationtable[(unsigned int) newp->p[0]] = newp;}
@@ -1046,7 +1046,7 @@ void PS_UnreadToken( script_t *script, token_t *token ) {
 	script->tokenavailable = 1;
 } //end of the function UnreadToken
 //============================================================================
-// returns the next character of the read white space, returns NULL if none
+// returns the next character of the read white space, returns nullptr if none
 //
 // Parameter:				-
 // Returns:					-
@@ -1161,9 +1161,9 @@ void ResetScript( script_t *script ) {
 	//pointer in script buffer before reading token
 	script->lastscript_p = script->buffer;
 	//begin of white space
-	script->whitespace_p = NULL;
+	script->whitespace_p = nullptr;
 	//end of white space
-	script->endwhitespace_p = NULL;
+	script->endwhitespace_p = nullptr;
 	//set if there's a token available in script->token
 	script->tokenavailable = 0;
 	//
@@ -1237,7 +1237,7 @@ script_t *LoadScriptFile( const char *filename ) {
 	}
 	length = FS_FOpenFileByMode( pathname, &fp, FS_READ );
 	if ( !fp ) {
-		return NULL;
+		return nullptr;
 	}
 
 	buffer = GetClearedMemory( sizeof( script_t ) + length + 1 );
@@ -1259,7 +1259,7 @@ script_t *LoadScriptFile( const char *filename ) {
 	script->line = 1;
 	script->lastline = 1;
 	//
-	SetScriptPunctuations( script, NULL );
+	SetScriptPunctuations( script, nullptr );
 	//
 	FS_Read( script->buffer, length, fp );
 	FS_FCloseFile( fp );
@@ -1293,7 +1293,7 @@ script_t *LoadScriptMemory( char *ptr, size_t length, const char *name ) {
 	script->line = 1;
 	script->lastline = 1;
 	//
-	SetScriptPunctuations( script, NULL );
+	SetScriptPunctuations( script, nullptr );
 	//
 	memcpy( script->buffer, ptr, length );
 	//

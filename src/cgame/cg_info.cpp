@@ -180,7 +180,7 @@ static statsItem_t statsItems[] = {
 	{ "end_treasure",    28,     214,        ITEM_TEXTSTYLE_SHADOWEDMORE,    {0.62f, 0.56f,  0.0f,   1.0f},  "%i/%i",         348,    ITEM_TEXTSTYLE_SHADOWEDMORE,    {1.0f,  1.0f,   1.0f,   1.0f},  2 },
 	{ "end_attempts",    28,     214,        ITEM_TEXTSTYLE_SHADOWEDMORE,    {1.0f,  1.0f,   1.0f,   1.0f},  "%i",                348,    ITEM_TEXTSTYLE_SHADOWEDMORE,    {1.0f,  1.0f,   1.0f,   1.0f},  1 },
 
-	{ NULL }
+	{ nullptr }
 };
 
 //	int			numSecrets;
@@ -271,7 +271,7 @@ void CG_DrawExitStats( void ) {
 
 	#define MAX_STATS_VARS  64
 	int vars[MAX_STATS_VARS];
-	char *formatStr = NULL; // TTimo: init
+	char *formatStr = nullptr; // TTimo: init
 	int varIndex = 0;     // TTimo: init
 
 	if ( cg_paused.integer ) {
@@ -302,29 +302,29 @@ void CG_DrawExitStats( void ) {
 
 	// background
 	color2[3] *= 0.6f;
-	CG_FilledBar( 150, 104, 340, 230, color2, NULL, NULL, 1.0f, 0 );
+	CG_FilledBar( 150, 104, 340, 230, color2, nullptr, nullptr, 1.0f, 0 );
 
 	color2[0] = color2[1] = color2[2] = 0.3f;
 	color2[3] *= 0.6f;
 
 	// border
-	CG_FilledBar( 148, 104, 2, 230, color2, NULL, NULL, 1.0f, 0 );    // left
-	CG_FilledBar( 490, 104, 2, 230, color2, NULL, NULL, 1.0f, 0 );    // right
-	CG_FilledBar( 148, 102, 344, 2, color2, NULL, NULL, 1.0f, 0 );    // top
-	CG_FilledBar( 148, 334, 344, 2, color2, NULL, NULL, 1.0f, 0 );    // bot
+	CG_FilledBar( 148, 104, 2, 230, color2, nullptr, nullptr, 1.0f, 0 );    // left
+	CG_FilledBar( 490, 104, 2, 230, color2, nullptr, nullptr, 1.0f, 0 );    // right
+	CG_FilledBar( 148, 102, 344, 2, color2, nullptr, nullptr, 1.0f, 0 );    // top
+	CG_FilledBar( 148, 334, 344, 2, color2, nullptr, nullptr, 1.0f, 0 );    // bot
 
 
 	// text boxes
 	color2[0] = color2[1] = color2[2] = 0.4f;
 	for ( i = 0; i < 5; i++ ) {
-		CG_FilledBar( 170, 154 + ( 28 * i ), 300, 20, color2, NULL, NULL, 1.0f, 0 );
+		CG_FilledBar( 170, 154 + ( 28 * i ), 300, 20, color2, nullptr, nullptr, 1.0f, 0 );
 	}
 
 
 	// green title
 	color2[0] = color2[2] = 0;
 	color2[1] = 0.3f;
-	CG_FilledBar( 150, 104, 340, 20, color2, NULL, NULL, 1.0f, 0 );
+	CG_FilledBar( 150, 104, 340, 20, color2, nullptr, nullptr, 1.0f, 0 );
 
 	color2[0] = color2[1] = color2[2] = 0.2f;
 
@@ -478,7 +478,7 @@ void CG_DrawInformation( void ) {
 		levelshot = RE_RegisterShaderNoMip( "menu/art/unknownmap" );
 	}
 
-	RE_SetColor( NULL );
+	RE_SetColor( nullptr );
 
 	// show the loading progress
 	VectorSet( color, 0.8, 0.8, 0.8 );

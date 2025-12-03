@@ -377,7 +377,7 @@ void SV_FreeAcknowledgedReliableCommands( client_t *cl )
 		// clear the string
 		memset( cl->reliableCommands.commands[ack], 0, cl->reliableCommands.commandLengths[ack] );
 		// clear the pointer
-		cl->reliableCommands.commands[ack] = NULL;
+		cl->reliableCommands.commands[ack] = nullptr;
 		cl->reliableCommands.commandLengths[ack] = 0;
 		// move the the previous command
 		ack--;
@@ -633,7 +633,7 @@ void SV_SpawnServer( char *server, bool killBots )
 	FS_ClearPakReferences( 0 );
 
 	// allocate the snapshot entities on the hunk
-	svs.snapshotEntities = (entityState_t *)Hunk_Alloc( sizeof( entityState_t ) * svs.numSnapshotEntities, h_high );
+	svs.snapshotEntities = (EntityState *)Hunk_Alloc( sizeof( EntityState ) * svs.numSnapshotEntities, h_high );
 	svs.nextSnapshotEntities = 0;
 
 	// toggle the server bit so clients can detect that a

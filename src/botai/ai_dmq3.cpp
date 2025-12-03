@@ -108,7 +108,7 @@ int BotPointAreaNum( vec3_t origin ) {
 	}
 	VectorCopy( origin, end );
 	end[2] += 10;
-	numareas = trap_AAS_TraceAreas( origin, end, areas, NULL, 1 );
+	numareas = trap_AAS_TraceAreas( origin, end, areas, nullptr, 1 );
 	if ( numareas > 0 ) {
 		return areas[0];
 	}
@@ -118,7 +118,7 @@ int BotPointAreaNum( vec3_t origin ) {
 	for ( ofs[0] = -BOTAREA_JIGGLE_DIST; ofs[0] <= BOTAREA_JIGGLE_DIST; ofs[0] += BOTAREA_JIGGLE_DIST * 2 ) {
 		for ( ofs[1] = -BOTAREA_JIGGLE_DIST; ofs[1] <= BOTAREA_JIGGLE_DIST; ofs[1] += BOTAREA_JIGGLE_DIST * 2 ) {
 			VectorAdd( origin, ofs, end );
-			numareas = trap_AAS_TraceAreas( origin, end, areas, NULL, 1 );
+			numareas = trap_AAS_TraceAreas( origin, end, areas, nullptr, 1 );
 			if ( numareas > 0 ) {
 				return areas[0];
 			}
@@ -207,7 +207,7 @@ char *stristr( char *str, char *charset ) {
 		}
 		str++;
 	}
-	return NULL;
+	return nullptr;
 }
 
 /*
@@ -478,7 +478,7 @@ EntityIsDead
 ==================
 */
 bool EntityIsDead( aas_entityinfo_t *entinfo ) {
-	playerState_t ps;
+	PlayerState ps;
 
 	if ( entinfo->number >= 0 && entinfo->number < MAX_CLIENTS ) {
 		//retrieve the current client state
@@ -550,7 +550,7 @@ bot_waypoint_t *BotCreateWayPoint( char *name, vec3_t origin, int areanum ) {
 	wp = botai_freewaypoints;
 	if ( !wp ) {
 		BotAI_Print( PRT_WARNING, "BotCreateWayPoint: Out of waypoints\n" );
-		return NULL;
+		return nullptr;
 	}
 	botai_freewaypoints = botai_freewaypoints->next;
 
@@ -559,8 +559,8 @@ bot_waypoint_t *BotCreateWayPoint( char *name, vec3_t origin, int areanum ) {
 	VectorCopy( waypointmins, wp->goal.mins );
 	VectorCopy( waypointmaxs, wp->goal.maxs );
 	wp->goal.areanum = areanum;
-	wp->next = NULL;
-	wp->prev = NULL;
+	wp->next = nullptr;
+	wp->prev = nullptr;
 	return wp;
 }
 
@@ -577,7 +577,7 @@ bot_waypoint_t *BotFindWayPoint( bot_waypoint_t *waypoints, char *name ) {
 			return wp;
 		}
 	}
-	return NULL;
+	return nullptr;
 }
 
 /*
@@ -603,7 +603,7 @@ BotInitWaypoints
 void BotInitWaypoints( void ) {
 	int i;
 
-	botai_freewaypoints = NULL;
+	botai_freewaypoints = nullptr;
 	for ( i = 0; i < MAX_WAYPOINTS; i++ ) {
 		botai_waypoints[i].next = botai_freewaypoints;
 		botai_freewaypoints = &botai_waypoints[i];
@@ -912,7 +912,7 @@ void BotRoamGoal( bot_state_t *bs, vec3_t goal ) {
 		//add a random value to the z-coordinate (NOTE: 48 = maxjump?)
 		bestorg[2] += 3 * 48 * random() - 2 * 48 - 1;
 		//trace a line from the origin to the roam target
-		BotAI_Trace( &trace, bs->origin, NULL, NULL, bestorg, bs->entitynum, MASK_SOLID );
+		BotAI_Trace( &trace, bs->origin, nullptr, nullptr, bestorg, bs->entitynum, MASK_SOLID );
 		//direction and length towards the roam target
 		VectorSubtract( bestorg, bs->origin, dir );
 		len = VectorNormalize( dir );
@@ -925,7 +925,7 @@ void BotRoamGoal( bot_state_t *bs, vec3_t goal ) {
 			belowbestorg[0] = bestorg[0];
 			belowbestorg[1] = bestorg[1];
 			belowbestorg[2] = bestorg[2] - 800;
-			BotAI_Trace( &trace, bestorg, NULL, NULL, belowbestorg, bs->entitynum, MASK_SOLID );
+			BotAI_Trace( &trace, bestorg, nullptr, nullptr, belowbestorg, bs->entitynum, MASK_SOLID );
 			//
 			if ( !trace.startsolid ) {
 				trace.endpos[2]++;
@@ -1195,7 +1195,7 @@ float BotEntityVisible( int viewer, vec3_t eye, vec3_t viewangles, float fov, in
 			contents_mask ^= ( CONTENTS_LAVA | CONTENTS_SLIME | CONTENTS_WATER );
 		}
 		//trace from start to end
-		BotAI_Trace( &trace, start, NULL, NULL, end, passent, contents_mask );
+		BotAI_Trace( &trace, start, nullptr, nullptr, end, passent, contents_mask );
 		//if water was hit
 		waterfactor = 1.0;
 		if ( trace.contents & ( CONTENTS_LAVA | CONTENTS_SLIME | CONTENTS_WATER ) ) {
@@ -1203,7 +1203,7 @@ float BotEntityVisible( int viewer, vec3_t eye, vec3_t viewangles, float fov, in
 			if ( 1 ) {
 				//trace through the water
 				contents_mask &= ~( CONTENTS_LAVA | CONTENTS_SLIME | CONTENTS_WATER );
-				BotAI_Trace( &trace, trace.endpos, NULL, NULL, end, passent, contents_mask );
+				BotAI_Trace( &trace, trace.endpos, nullptr, nullptr, end, passent, contents_mask );
 				waterfactor = 0.5;
 			}
 		}
@@ -1217,12 +1217,12 @@ float BotEntityVisible( int viewer, vec3_t eye, vec3_t viewangles, float fov, in
 				fogdist = VectorLength( dir );
 			} else if ( infog )     {
 				VectorCopy( trace.endpos, start );
-				BotAI_Trace( &trace, start, NULL, NULL, eye, viewer, CONTENTS_FOG );
+				BotAI_Trace( &trace, start, nullptr, nullptr, eye, viewer, CONTENTS_FOG );
 				VectorSubtract( eye, trace.endpos, dir );
 				fogdist = VectorLength( dir );
 			} else if ( otherinfog )     {
 				VectorCopy( trace.endpos, end );
-				BotAI_Trace( &trace, eye, NULL, NULL, end, viewer, CONTENTS_FOG );
+				BotAI_Trace( &trace, eye, nullptr, nullptr, end, viewer, CONTENTS_FOG );
 				VectorSubtract( end, trace.endpos, dir );
 				fogdist = VectorLength( dir );
 			} else {
@@ -1539,14 +1539,14 @@ void BotAimAtEnemy( bot_state_t *bs ) {
 				//try to aim at the ground in front of the enemy
 				VectorCopy( entinfo.origin, end );
 				end[2] -= 64;
-				BotAI_Trace( &trace, entinfo.origin, NULL, NULL, end, entinfo.number, MASK_SHOT );
+				BotAI_Trace( &trace, entinfo.origin, nullptr, nullptr, end, entinfo.number, MASK_SHOT );
 				//
 				VectorCopy( bestorigin, groundtarget );
 				if ( trace.startsolid ) {
 					groundtarget[2] = entinfo.origin[2] - 16;
 				} else { groundtarget[2] = trace.endpos[2] - 8;}
 				//trace a line from projectile start to ground target
-				BotAI_Trace( &trace, start, NULL, NULL, groundtarget, bs->entitynum, MASK_SHOT );
+				BotAI_Trace( &trace, start, nullptr, nullptr, groundtarget, bs->entitynum, MASK_SHOT );
 				//if hitpoint is not vertically too far from the ground target
 				if ( fabs( trace.endpos[2] - groundtarget[2] ) < 50 ) {
 					VectorSubtract( trace.endpos, groundtarget, dir );
@@ -1557,7 +1557,7 @@ void BotAimAtEnemy( bot_state_t *bs ) {
 						if ( VectorLength( dir ) > 100 ) {
 							//check if the bot is visible from the ground target
 							trace.endpos[2] += 1;
-							BotAI_Trace( &trace, trace.endpos, NULL, NULL, entinfo.origin, entinfo.number, MASK_SHOT );
+							BotAI_Trace( &trace, trace.endpos, nullptr, nullptr, entinfo.origin, entinfo.number, MASK_SHOT );
 							if ( trace.fraction >= 1 ) {
 								//BotImport_Print(PRT_MESSAGE, "%1.1f aiming at ground\n", AAS_Time());
 								VectorCopy( groundtarget, bestorigin );
@@ -1596,7 +1596,7 @@ void BotAimAtEnemy( bot_state_t *bs ) {
 	}
 	//
 	if ( enemyvisible ) {
-		BotAI_Trace( &trace, bs->eye, NULL, NULL, bestorigin, bs->entitynum, MASK_SHOT );
+		BotAI_Trace( &trace, bs->eye, nullptr, nullptr, bestorigin, bs->entitynum, MASK_SHOT );
 		VectorCopy( trace.endpos, bs->aimtarget );
 	} else {
 		VectorCopy( bestorigin, bs->aimtarget );
@@ -1700,7 +1700,7 @@ void BotCheckAttack( bot_state_t *bs ) {
 	if ( !InFieldOfVision( bs->viewangles, fov, angles ) ) {
 		return;
 	}
-	BotAI_Trace( &bsptrace, bs->eye, NULL, NULL, bs->aimtarget, bs->client, CONTENTS_SOLID | CONTENTS_PLAYERCLIP );
+	BotAI_Trace( &bsptrace, bs->eye, nullptr, nullptr, bs->aimtarget, bs->client, CONTENTS_SOLID | CONTENTS_PLAYERCLIP );
 	if ( bsptrace.fraction < 1 && bsptrace.ent != bs->enemy ) {
 		return;
 	}
@@ -1710,7 +1710,7 @@ void BotCheckAttack( bot_state_t *bs ) {
 	//get the start point shooting from
 	VectorCopy( bs->origin, start );
 	start[2] += bs->cur_ps.viewheight;
-	AngleVectors( bs->viewangles, forward, right, NULL );
+	AngleVectors( bs->viewangles, forward, right, nullptr );
 	start[0] += forward[0] * wi.offset[0] + right[0] * wi.offset[1];
 	start[1] += forward[1] * wi.offset[0] + right[1] * wi.offset[1];
 	start[2] += forward[2] * wi.offset[0] + right[2] * wi.offset[1] + wi.offset[2];
@@ -1933,12 +1933,12 @@ void BotSetMovedir( vec3_t angles, vec3_t movedir ) {
 	} else if ( VectorCompare( angles, VEC_DOWN ) )       {
 		VectorCopy( MOVEDIR_DOWN, movedir );
 	} else {
-		AngleVectors( angles, movedir, NULL, NULL );
+		AngleVectors( angles, movedir, nullptr, nullptr );
 	}
 }
 
 void BotModelMinsMaxs( int modelindex, vec3_t mins, vec3_t maxs ) {
-	gentity_t *ent;
+	GameEntity *ent;
 	int i;
 
 	ent = &g_entities[0];
@@ -2073,7 +2073,7 @@ void BotAIBlocked( bot_state_t *bs, bot_moveresult_t *moveresult, int activate )
 				start[2] += 24;
 				VectorCopy( start, end );
 				end[2] -= 100;
-				numareas = trap_AAS_TraceAreas( start, end, areas, NULL, 10 );
+				numareas = trap_AAS_TraceAreas( start, end, areas, nullptr, 10 );
 				//
 				for ( i = 0; i < numareas; i++ ) {
 					if ( trap_AAS_AreaReachability( areas[i] ) ) {
@@ -2129,7 +2129,7 @@ void BotAIBlocked( bot_state_t *bs, bot_moveresult_t *moveresult, int activate )
 	//if no direction just take a random direction
 	if ( VectorNormalize( hordir ) < 0.1 ) {
 		VectorSet( angles, 0, 360 * random(), 0 );
-		AngleVectors( angles, hordir, NULL, NULL );
+		AngleVectors( angles, hordir, nullptr, nullptr );
 	}
 	//
 //	if (moveresult->flags & MOVERESULT_ONTOPOFOBSTACLE) movetype = MOVE_JUMP;
@@ -2186,11 +2186,11 @@ void BotCheckConsoleMessages( bot_state_t *bs ) {
 BotCheckEvents
 ==================
 */
-void BotCheckEvents( bot_state_t *bs, entityState_t *state ) {
+void BotCheckEvents( bot_state_t *bs, EntityState *state ) {
 	int event;
 	char buf[128];
 	//
-	//this sucks, we're accessing the gentity_t directly but there's no other fast way
+	//this sucks, we're accessing the GameEntity directly but there's no other fast way
 	//to do it right now
 	if ( bs->entityeventTime[state->number] == g_entities[state->number].eventTime ) {
 		return;
@@ -2293,7 +2293,7 @@ BotCheckSnapshot
 */
 void BotCheckSnapshot( bot_state_t *bs ) {
 	int ent;
-	entityState_t state;
+	EntityState state;
 
 	//
 	ent = 0;

@@ -376,7 +376,7 @@ void COM_ParseWarning( char *format, ... ) {
 SkipWhitespace
 
 Parse a token out of a string
-Will never return NULL, just empty strings
+Will never return nullptr, just empty strings
 
 If "allowLineBreaks" is true then an empty
 string will be returned if the next token is
@@ -391,7 +391,7 @@ const char *SkipWhitespace( const char *data, bool *hasNewLines ) {
 			com_lines++;
 			*hasNewLines = true;
 		} else if ( !c )   {
-			return NULL;
+			return nullptr;
 		}
 		data++;
 	}
@@ -470,7 +470,7 @@ char *COM_ParseExt( const char **data_p, bool allowLineBreaks ) {
 
 	// make sure incoming data is valid
 	if ( !data ) {
-		*data_p = NULL;
+		*data_p = nullptr;
 		return com_token;
 	}
 
@@ -483,7 +483,7 @@ char *COM_ParseExt( const char **data_p, bool allowLineBreaks ) {
 		// skip whitespace
 		data = SkipWhitespace( data, &hasNewLines );
 		if ( !data ) {
-			*data_p = NULL;
+			*data_p = nullptr;
 			return com_token;
 		}
 		if ( hasNewLines && !allowLineBreaks ) {
@@ -803,7 +803,7 @@ Safe strncpy that ensures a trailing zero
 */
 void Q_strncpyz( char *dest, const char *src, size_t destsize ) {
 	if ( !src ) {
-		Com_Error( ERR_FATAL, "Q_strncpyz: NULL src" );
+		Com_Error( ERR_FATAL, "Q_strncpyz: nullptr src" );
 	}
 	if ( destsize < 1 ) {
 		Com_Error( ERR_FATAL,"Q_strncpyz: destsize < 1" );
@@ -1001,7 +1001,7 @@ char    *  va( const char *format, ... ) {
 
 	if ( ( len = strlen( temp_buffer ) ) >= MAX_VA_STRING ) {
 		Com_Error( ERR_DROP, "Attempted to overrun string in call to va()\n" );
-        return NULL; // keep the linter happy, ERR_DROP does not return
+        return nullptr; // keep the linter happy, ERR_DROP does not return
 	}
 
 	if ( len + index >= MAX_VA_STRING - 1 ) {
@@ -1073,7 +1073,7 @@ const char *Info_ValueForKey( const char *s, const char *key ) {
 
 	if ( strlen( s ) >= BIG_INFO_STRING ) {
 		Com_Error( ERR_DROP, "Info_ValueForKey: oversize infostring" );
-        return NULL; // keep the linter happy, ERR_DROP does not return
+        return nullptr; // keep the linter happy, ERR_DROP does not return
 	}
 
 	valueindex ^= 1;

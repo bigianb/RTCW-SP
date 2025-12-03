@@ -42,7 +42,7 @@ If you have questions concerning this license or the applicable additional terms
 
 //invalidates all entity infos
 void AAS_InvalidateEntities( void );
-//resets the entity AAS and BSP links (sets areas and leaves pointers to NULL)
+//resets the entity AAS and BSP links (sets areas and leaves pointers to nullptr)
 void AAS_ResetEntityLinks( void );
 //updates an entity
 int AAS_UpdateEntity( int ent, bot_entitystate_t *state );

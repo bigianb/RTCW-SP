@@ -112,7 +112,7 @@ void AAS_ClearShownDebugLines( void ) {
 	for ( i = 0; i < MAX_DEBUGLINES; i++ )
 	{
 		if ( debuglines[i] ) {
-			//BotImport_DebugLineShow(debuglines[i], NULL, NULL, LINECOLOR_NONE);
+			//BotImport_DebugLineShow(debuglines[i], nullptr, nullptr, LINECOLOR_NONE);
 			BotImport_DebugLineDelete( debuglines[i] );
 			debuglines[i] = 0;
 			debuglinevisible[i] = false;

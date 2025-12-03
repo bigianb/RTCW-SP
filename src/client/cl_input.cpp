@@ -330,10 +330,10 @@ void CL_AdjustAngles( void ) {
 ================
 CL_KeyMove
 
-Sets the usercmd_t based on key states
+Sets the UserCmd based on key states
 ================
 */
-void CL_KeyMove( usercmd_t *cmd ) {
+void CL_KeyMove( UserCmd *cmd ) {
 	int movespeed;
 	int forward, side, up;
 	// Rafael Kick
@@ -434,7 +434,7 @@ void CL_JoystickEvent( int axis, int value, int time ) {
 CL_JoystickMove
 =================
 */
-void CL_JoystickMove( usercmd_t *cmd ) {
+void CL_JoystickMove( UserCmd *cmd ) {
 	float anglespeed;
 
 	float yaw     = j_yaw->value     * cl.joystickAxis[j_yaw_axis->integer];
@@ -476,7 +476,7 @@ void CL_JoystickMove( usercmd_t *cmd ) {
 CL_MouseMove
 =================
 */
-void CL_MouseMove( usercmd_t *cmd ) {
+void CL_MouseMove( UserCmd *cmd ) {
 	float mx, my;
 
 	// allow mouse smoothing
@@ -569,7 +569,7 @@ void CL_MouseMove( usercmd_t *cmd ) {
 CL_CmdButtons
 ==============
 */
-void CL_CmdButtons( usercmd_t *cmd ) {
+void CL_CmdButtons( UserCmd *cmd ) {
 	int i;
 
 	//
@@ -608,7 +608,7 @@ void CL_CmdButtons( usercmd_t *cmd ) {
 CL_FinishMove
 ==============
 */
-void CL_FinishMove( usercmd_t *cmd ) {
+void CL_FinishMove( UserCmd *cmd ) {
 	int i;
 
 	// copy the state that the cgame is currently sending
@@ -631,8 +631,8 @@ void CL_FinishMove( usercmd_t *cmd ) {
 CL_CreateCmd
 =================
 */
-usercmd_t CL_CreateCmd( void ) {
-	usercmd_t cmd;
+UserCmd CL_CreateCmd( void ) {
+	UserCmd cmd;
 	vec3_t oldAngles;
 	float recoilAdd;
 
@@ -682,11 +682,11 @@ usercmd_t CL_CreateCmd( void ) {
 =================
 CL_CreateNewCommands
 
-Create a new usercmd_t structure for this frame
+Create a new UserCmd structure for this frame
 =================
 */
 void CL_CreateNewCommands( void ) {
-	usercmd_t   *cmd;
+	UserCmd   *cmd;
 	int cmdNum;
 
 	// no need to create usercmds until we have a gamestate
@@ -770,8 +770,8 @@ void CL_WritePacket( void ) {
 	msg_t buf;
 	byte data[MAX_MSGLEN];
 	int i, j;
-	usercmd_t   *cmd, *oldcmd;
-	usercmd_t nullcmd;
+	UserCmd   *cmd, *oldcmd;
+	UserCmd nullcmd;
 	int packetNum;
 	int oldPacketNum;
 	int count, key;

@@ -77,8 +77,8 @@ void CG_ClearTrails( void ) {
 	memset( trailJuncs, 0, sizeof( trailJunc_t ) * MAX_TRAILJUNCS );
 
 	freeTrails = trailJuncs;
-	activeTrails = NULL;
-	headTrails = NULL;
+	activeTrails = nullptr;
+	headTrails = nullptr;
 
 	for ( i = 0 ; i < MAX_TRAILJUNCS ; i++ )
 	{
@@ -87,12 +87,12 @@ void CG_ClearTrails( void ) {
 		if ( i > 0 ) {
 			trailJuncs[i].prevGlobal = &trailJuncs[i - 1];
 		} else {
-			trailJuncs[i].prevGlobal = NULL;
+			trailJuncs[i].prevGlobal = nullptr;
 		}
 
 		trailJuncs[i].inuse = false;
 	}
-	trailJuncs[MAX_TRAILJUNCS - 1].nextGlobal = NULL;
+	trailJuncs[MAX_TRAILJUNCS - 1].nextGlobal = nullptr;
 
 	initTrails = true;
 	numTrailsInuse = 0;
@@ -107,18 +107,18 @@ trailJunc_t *CG_SpawnTrailJunc( trailJunc_t *headJunc ) {
 	trailJunc_t *j;
 
 	if ( !freeTrails ) {
-		return NULL;
+		return nullptr;
 	}
 
 	if ( cg_paused.integer ) {
-		return NULL;
+		return nullptr;
 	}
 
 	// select the first free trail, and remove it from the list
 	j = freeTrails;
 	freeTrails = j->nextGlobal;
 	if ( freeTrails ) {
-		freeTrails->prevGlobal = NULL;
+		freeTrails->prevGlobal = nullptr;
 	}
 
 	j->nextGlobal = activeTrails;
@@ -126,7 +126,7 @@ trailJunc_t *CG_SpawnTrailJunc( trailJunc_t *headJunc ) {
 		activeTrails->prevGlobal = j;
 	}
 	activeTrails = j;
-	j->prevGlobal = NULL;
+	j->prevGlobal = nullptr;
 	j->inuse = true;
 	j->freed = false;
 
@@ -136,7 +136,7 @@ trailJunc_t *CG_SpawnTrailJunc( trailJunc_t *headJunc ) {
 		if ( headJunc == headTrails ) {
 			headTrails = headJunc->nextHead;
 			if ( headTrails ) {
-				headTrails->prevHead = NULL;
+				headTrails->prevHead = nullptr;
 			}
 		} else {
 			if ( headJunc->nextHead ) {
@@ -146,18 +146,18 @@ trailJunc_t *CG_SpawnTrailJunc( trailJunc_t *headJunc ) {
 				headJunc->prevHead->nextHead = headJunc->nextHead;
 			}
 		}
-		headJunc->prevHead = NULL;
-		headJunc->nextHead = NULL;
+		headJunc->prevHead = nullptr;
+		headJunc->nextHead = nullptr;
 	}
 	// make us the headTrail
 	if ( headTrails ) {
 		headTrails->prevHead = j;
 	}
 	j->nextHead = headTrails;
-	j->prevHead = NULL;
+	j->prevHead = nullptr;
 	headTrails = j;
 
-	j->nextJunc = headJunc; // if headJunc is NULL, then we'll just be the end of the list
+	j->nextJunc = headJunc; // if headJunc is nullptr, then we'll just be the end of the list
 
 	numTrailsInuse++;
 
@@ -184,10 +184,10 @@ int CG_AddTrailJunc( int headJuncIndex, qhandle_t shader, int spawnTime, int sTy
 		headJunc = &trailJuncs[headJuncIndex - 1];
 
 		if ( !headJunc->inuse ) {
-			headJunc = NULL;
+			headJunc = nullptr;
 		}
 	} else {
-		headJunc = NULL;
+		headJunc = nullptr;
 	}
 
 	j = CG_SpawnTrailJunc( headJunc );
@@ -254,10 +254,10 @@ int CG_AddSparkJunc( int headJuncIndex, qhandle_t shader, vec3_t pos, int trailL
 		headJunc = &trailJuncs[headJuncIndex - 1];
 
 		if ( !headJunc->inuse ) {
-			headJunc = NULL;
+			headJunc = nullptr;
 		}
 	} else {
-		headJunc = NULL;
+		headJunc = nullptr;
 	}
 
 	j = CG_SpawnTrailJunc( headJunc );
@@ -305,10 +305,10 @@ int CG_AddSmokeJunc( int headJuncIndex, qhandle_t shader, vec3_t pos, int trailL
 		headJunc = &trailJuncs[headJuncIndex - 1];
 
 		if ( !headJunc->inuse ) {
-			headJunc = NULL;
+			headJunc = nullptr;
 		}
 	} else {
-		headJunc = NULL;
+		headJunc = nullptr;
 	}
 
 	j = CG_SpawnTrailJunc( headJunc );
@@ -384,11 +384,11 @@ void CG_FreeTrailJunc( trailJunc_t *junc ) {
 	if ( junc->prevHead ) {
 		junc->prevHead->nextHead = junc->nextHead;
 	}
-	junc->nextHead = NULL;
-	junc->prevHead = NULL;
+	junc->nextHead = nullptr;
+	junc->prevHead = nullptr;
 
 	// stick it in the free list
-	junc->prevGlobal = NULL;
+	junc->prevGlobal = nullptr;
 	junc->nextGlobal = freeTrails;
 	if ( freeTrails ) {
 		freeTrails->prevGlobal = junc;
@@ -409,7 +409,7 @@ void CG_KillTrail( trailJunc_t *t ) {
 	next = t->nextJunc;
 
 	// kill the trail here
-	t->nextJunc = NULL;
+	t->nextJunc = nullptr;
 
 	if ( next ) {
 		CG_FreeTrailJunc( next );
@@ -508,7 +508,7 @@ void CG_AddTrailToScene( trailJunc_t *trail, int iteration, int numJuncs ) {
 				CG_KillTrail( j );
 			} else if ( j->nextJunc && j->nextJunc->freed ) {
 				// not sure how this can happen, but it does, and causes infinite loops
-				j->nextJunc = NULL;
+				j->nextJunc = nullptr;
 			}
 
 			if ( j->nextJunc ) {

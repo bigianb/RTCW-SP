@@ -121,7 +121,7 @@ static void CG_OffsetThirdPersonView( void ) {
 	if ( focusAngles[PITCH] > 45 ) {
 		focusAngles[PITCH] = 45;        // don't go too far overhead
 	}
-	AngleVectors( focusAngles, forward, NULL, NULL );
+	AngleVectors( focusAngles, forward, nullptr, nullptr );
 
 	VectorMA( cg.refdef.vieworg, FOCUS_DISTANCE, forward, focusPoint );
 
@@ -494,7 +494,7 @@ static void CG_OffsetFirstPersonView( void ) {
 		//add leaning offset
 		vec3_t right;
 		cg.refdefViewAngles[2] += cg.predictedPlayerState.leanf / 2.0f;
-		AngleVectors( cg.refdefViewAngles, NULL, right, NULL );
+		AngleVectors( cg.refdefViewAngles, nullptr, right, nullptr );
 		VectorMA( cg.refdef.vieworg, cg.predictedPlayerState.leanf, right, cg.refdef.vieworg );
 	}
 
@@ -825,7 +825,7 @@ Sets cg.refdef view values
 ===============
 */
 static int CG_CalcViewValues( void ) {
-	playerState_t   *ps;
+	PlayerState   *ps;
 	static vec3_t oldOrigin = {0,0,0};
 
 	memset( &cg.refdef, 0, sizeof( cg.refdef ) );
@@ -921,14 +921,14 @@ static int CG_CalcViewValues( void ) {
 		// Ridah, lock the viewangles if the game has told us to
 		if ( ps->viewlocked == 4 ) {
 			vec3_t fwd;
-			AngleVectors( cg.refdefViewAngles, fwd, NULL, NULL );
+			AngleVectors( cg.refdefViewAngles, fwd, nullptr, nullptr );
 			VectorMA( cg_entities[ps->viewlocked_entNum].currentState.pos.trBase, 16, fwd, cg.refdef.vieworg );
 		} else if ( ps->viewlocked )     {
 			vec3_t fwd;
 			float oldZ;
 			// set our position to be behind it
 			oldZ = cg.refdef.vieworg[2];
-			AngleVectors( cg.refdefViewAngles, fwd, NULL, NULL );
+			AngleVectors( cg.refdefViewAngles, fwd, nullptr, nullptr );
 			VectorMA( cg_entities[ps->viewlocked_entNum].currentState.pos.trBase, -34, fwd, cg.refdef.vieworg );
 			cg.refdef.vieworg[2] = oldZ;
 		}
@@ -966,7 +966,7 @@ static void CG_PowerupTimerSounds( void ) {
 			continue;
 		}
 		if ( ( t - cg.time ) / POWERUP_BLINK_TIME != ( t - cg.oldTime ) / POWERUP_BLINK_TIME ) {
-			S_StartSound( NULL, cg.snap->ps.clientNum, CHAN_ITEM, cgs.media.wearOffSound );
+			S_StartSound( nullptr, cg.snap->ps.clientNum, CHAN_ITEM, cgs.media.wearOffSound );
 		}
 	}
 }

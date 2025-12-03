@@ -128,7 +128,7 @@ void SV_DirectConnect( netadr_t from ) {
 			startIndex = sv_privateClients->integer;
 		}
 	}
-	newcl = NULL;
+	newcl = nullptr;
 	for ( i = startIndex; i < sv_maxclients->integer ; i++ ) {
 		cl = &svs.clients[i];
 		if ( cl->state == CS_FREE ) {
@@ -248,7 +248,7 @@ void SV_DropClient( client_t *drop, const char *reason ) {
 	// Ridah, no need to tell the player if an AI drops
 	if ( !( drop->gentity && drop->gentity->r.svFlags & SVF_CASTAI ) ) {
 		// tell everyone why they got dropped
-		SV_SendServerCommand( NULL, "print \"%s" S_COLOR_WHITE " %s\n\"", drop->name, reason );
+		SV_SendServerCommand( nullptr, "print \"%s" S_COLOR_WHITE " %s\n\"", drop->name, reason );
 	}
 
 	Com_DPrintf( "Going to CS_ZOMBIE for %s\n", drop->name );
@@ -302,7 +302,7 @@ the wrong gamestate.
 */
 void SV_SendClientGameState( client_t *client ) {
 	int start;
-	entityState_t   *base, nullstate;
+	EntityState   *base, nullstate;
 	msg_t msg;
 	byte msgBuffer[MAX_MSGLEN];
 
@@ -368,7 +368,7 @@ void SV_SendClientGameState( client_t *client ) {
 SV_ClientEnterWorld
 ==================
 */
-void SV_ClientEnterWorld( client_t *client, usercmd_t *cmd ) {
+void SV_ClientEnterWorld( client_t *client, UserCmd *cmd ) {
 	int clientNum;
 	sharedEntity_t *ent;
 
@@ -477,7 +477,7 @@ static ucmd_t ucmds[] = {
 	{"userinfo", SV_UpdateUserinfo_f},
 	{"disconnect", SV_Disconnect_f},
 
-	{NULL, NULL}
+	{nullptr, nullptr}
 };
 
 /*
@@ -575,7 +575,7 @@ SV_ClientThink
 Also called by bot code
 ==================
 */
-void SV_ClientThink( client_t *cl, usercmd_t *cmd ) {
+void SV_ClientThink( client_t *cl, UserCmd *cmd ) {
 	cl->lastUsercmd = *cmd;
 
 	if ( cl->state != CS_ACTIVE ) {
@@ -600,9 +600,9 @@ each of the backup packets.
 static void SV_UserMove( client_t *cl, msg_t *msg, bool delta ) {
 	int i, key;
 	int cmdCount;
-	usercmd_t nullcmd;
-	usercmd_t cmds[MAX_PACKET_USERCMDS];
-	usercmd_t   *cmd, *oldcmd;
+	UserCmd nullcmd;
+	UserCmd cmds[MAX_PACKET_USERCMDS];
+	UserCmd   *cmd, *oldcmd;
 
 	if ( delta ) {
 		cl->deltaMessage = cl->messageAcknowledge;
@@ -748,7 +748,7 @@ void SV_ExecuteClientMessage( client_t *cl, msg_t *msg ) {
 		}
 	} while ( 1 );
 
-	// read the usercmd_t
+	// read the UserCmd
 	if ( c == clc_move ) {
 		SV_UserMove( cl, msg, true );
 	} else if ( c == clc_moveNoDelta ) {

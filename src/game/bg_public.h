@@ -227,7 +227,7 @@ typedef enum { GENDER_MALE, GENDER_FEMALE, GENDER_NEUTER } gender_t;
 
 PMOVE MODULE
 
-The pmove code takes a player_state_t and a usercmd_t and generates a new player_state_t
+The pmove code takes a player_state_t and a UserCmd and generates a new player_state_t
 and some other output data.  Used for local prediction on the client game and true
 movement on the server game.
 ===================================================================================
@@ -281,10 +281,10 @@ typedef enum {
 #define MAXTOUCH    32
 typedef struct {
 	// state (in / out)
-	playerState_t   *ps;
+	PlayerState   *ps;
 
 	// command (in)
-	usercmd_t cmd, oldcmd;
+	UserCmd cmd, oldcmd;
 	int tracemask;                  // collide against these types of surfaces
 	int debugLevel;                 // if set, diagnostic output will be printed
 	bool noFootsteps;           // if the game is setup for no footsteps by the server
@@ -313,7 +313,7 @@ typedef struct {
 } pmove_t;
 
 // if a full pmove isn't done on the client, you can just update the angles
-void PM_UpdateViewAngles( playerState_t * ps, usercmd_t * cmd, void( trace ) ( trace_t * results, const vec3_t start, const vec3_t mins, const vec3_t maxs, const vec3_t end, int passEntityNum, int contentMask ) );
+void PM_UpdateViewAngles( PlayerState * ps, UserCmd * cmd, void( trace ) ( trace_t * results, const vec3_t start, const vec3_t mins, const vec3_t maxs, const vec3_t end, int passEntityNum, int contentMask ) );
 int Pmove( pmove_t *pmove );
 
 //===================================================================================
@@ -363,7 +363,7 @@ typedef enum {
 } persEnum_t;
 
 
-// entityState_t->eFlags
+// EntityState->eFlags
 #define EF_DEAD             0x00000001      // don't draw a foe marker over players with EF_DEAD
 #define EF_NONSOLID_BMODEL  0x00000002      // bmodel is visible, but not solid
 #define EF_FORCE_END_FRAME  EF_NONSOLID_BMODEL  // force client to end of current animation (after loading a savegame)
@@ -655,7 +655,7 @@ typedef enum {
 } reward_t;
 
 
-// entityState_t->event values
+// EntityState->event values
 // entity events are for effects that take place reletive
 // to an existing entities origin.  Very network efficient.
 
@@ -1249,11 +1249,11 @@ weapon_t BG_FindAmmoForWeapon( weapon_t weapon );
 weapon_t BG_FindClipForWeapon( weapon_t weapon );
 
 bool BG_AkimboFireSequence( int weapon, int akimboClip, int coltClip );
-//bool BG_AkimboFireSequence	( playerState_t *ps );	//----(SA)	added
+//bool BG_AkimboFireSequence	( PlayerState *ps );	//----(SA)	added
 
 #define ITEM_INDEX( x ) ( ( x ) - bg_itemlist )
 
-bool    BG_CanItemBeGrabbed( const entityState_t *ent, const playerState_t *ps );
+bool    BG_CanItemBeGrabbed( const EntityState *ent, const PlayerState *ps );
 
 
 // g_dmflags->integer flags
@@ -1275,7 +1275,7 @@ bool    BG_CanItemBeGrabbed( const entityState_t *ent, const playerState_t *ps )
 #define MASK_AISIGHT            ( CONTENTS_SOLID | CONTENTS_AI_NOSIGHT )
 
 //
-// entityState_t->eType
+// EntityState->eType
 //
 typedef enum {
 	ET_GENERAL,
@@ -1397,15 +1397,15 @@ void    BG_EvaluateTrajectory( const trajectory_t *tr, int atTime, vec3_t result
 void    BG_EvaluateTrajectoryDelta( const trajectory_t *tr, int atTime, vec3_t result );
 void    BG_GetMarkDir( const vec3_t dir, const vec3_t normal, vec3_t out );
 
-void    BG_AddPredictableEventToPlayerstate( int newEvent, int eventParm, playerState_t *ps );
+void    BG_AddPredictableEventToPlayerstate( int newEvent, int eventParm, PlayerState *ps );
 
-//void	BG_TouchJumpPad( playerState_t *ps, entityState_t *jumppad );
+//void	BG_TouchJumpPad( PlayerState *ps, EntityState *jumppad );
 
-void    BG_PlayerStateToEntityState( playerState_t *ps, entityState_t *s, bool snap );
-void    BG_PlayerStateToEntityStateExtraPolate( playerState_t *ps, entityState_t *s, int time, bool snap );
+void    BG_PlayerStateToEntityState( PlayerState *ps, EntityState *s, bool snap );
+void    BG_PlayerStateToEntityStateExtraPolate( PlayerState *ps, EntityState *s, int time, bool snap );
 
-bool    BG_PlayerTouchesItem( playerState_t *ps, entityState_t *item, int atTime );
-bool    BG_PlayerSeesItem( playerState_t *ps, entityState_t *item, int atTime );
+bool    BG_PlayerTouchesItem( PlayerState *ps, EntityState *item, int atTime );
+bool    BG_PlayerSeesItem( PlayerState *ps, EntityState *item, int atTime );
 
 //----(SA)	removed PM_ammoNeeded 11/27/00
 void PM_ClipVelocity( vec3_t in, vec3_t normal, vec3_t out, float overbounce );
@@ -1710,12 +1710,12 @@ typedef enum
 animModelInfo_t *BG_ModelInfoForModelname( const char *modelname );
 bool BG_AnimParseAnimConfig( animModelInfo_t *animModelInfo, const char *filename, const char *input );
 void BG_AnimParseAnimScript( animModelInfo_t *modelInfo, animScriptData_t *scriptData, int client, char *filename, char *input );
-int BG_AnimScriptAnimation( playerState_t *ps, aistateEnum_t state, scriptAnimMoveTypes_t movetype, bool isContinue );
-int BG_AnimScriptCannedAnimation( playerState_t *ps, aistateEnum_t state );
-int BG_AnimScriptStateChange( playerState_t *ps, aistateEnum_t newState, aistateEnum_t oldState );
-int BG_AnimScriptEvent( playerState_t *ps, scriptAnimEventTypes_t event, bool isContinue, bool force );
+int BG_AnimScriptAnimation( PlayerState *ps, aistateEnum_t state, scriptAnimMoveTypes_t movetype, bool isContinue );
+int BG_AnimScriptCannedAnimation( PlayerState *ps, aistateEnum_t state );
+int BG_AnimScriptStateChange( PlayerState *ps, aistateEnum_t newState, aistateEnum_t oldState );
+int BG_AnimScriptEvent( PlayerState *ps, scriptAnimEventTypes_t event, bool isContinue, bool force );
 int BG_IndexForString( const char *token, animStringItem_t *strings, bool allowFail );
-int BG_PlayAnimName( playerState_t *ps, const char *animName, animBodyPart_t bodyPart, bool setTimer, bool isContinue, bool force );
+int BG_PlayAnimName( PlayerState *ps, const char *animName, animBodyPart_t bodyPart, bool setTimer, bool isContinue, bool force );
 bool BG_ValidAnimScript( int clientNum );
 char *BG_GetAnimString( int client, int anim );
 void BG_UpdateConditionValue( int client, int condition, int value, bool checkConversion );
@@ -1725,9 +1725,9 @@ void BG_AnimUpdatePlayerStateConditions( pmove_t *pmove );
 int BG_AnimationIndexForString( const char *string, int client );
 animation_t *BG_AnimationForString( const char *string, animModelInfo_t *modelInfo );
 animation_t *BG_GetAnimationForIndex( int client, int index );
-int BG_GetAnimScriptEvent( playerState_t *ps, scriptAnimEventTypes_t event );
+int BG_GetAnimScriptEvent( PlayerState *ps, scriptAnimEventTypes_t event );
 void BG_UpdateConditionValueStrings( int client, const char *conditionStr, const char *valueStr );
-float BG_AnimGetFootstepGap( playerState_t *ps, float xyspeed );
+float BG_AnimGetFootstepGap( PlayerState *ps, float xyspeed );
 
 extern animStringItem_t animStateStr[];
 extern animStringItem_t animBodyPartsStr[];

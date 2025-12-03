@@ -47,7 +47,7 @@ void *G_Alloc( size_t size ) {
 
 	if ( allocPoint + size > POOLSIZE ) {
 		Com_Error( ERR_DROP, "G_Alloc: failed on allocation of %u bytes\n", size );
-		return NULL;
+		return nullptr;
 	}
 
 	p = &memoryPool[allocPoint];

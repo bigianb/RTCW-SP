@@ -69,7 +69,7 @@ If you have questions concerning this license or the applicable additional terms
 
 
 typedef struct {
-	entityState_t s;                // communicated by server to clients
+	EntityState s;                // communicated by server to clients
 
 	bool linked;                // false if not in any good cluster
 	int linkcount;
@@ -103,9 +103,9 @@ typedef struct {
 
 
 
-// the server looks at a sharedEntity, which is the start of the game's gentity_t structure
+// the server looks at a sharedEntity, which is the start of the game's GameEntity structure
 typedef struct {
-	entityState_t s;                // communicated by server to clients
+	EntityState s;                // communicated by server to clients
 	entityShared_t r;               // shared by both the server system and game
 } sharedEntity_t;
 
@@ -122,7 +122,7 @@ typedef enum {
 	GAME_SHUTDOWN,  // (void);
 
 	GAME_CLIENT_CONNECT,    // ( int clientNum, bool firstTime, bool isBot );
-	// return NULL if the client is allowed to connect, otherwise return
+	// return nullptr if the client is allowed to connect, otherwise return
 	// a text string with the reason for denial
 
 	GAME_CLIENT_BEGIN,              // ( int clientNum );

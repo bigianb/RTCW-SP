@@ -67,17 +67,19 @@ them, which prevents having to deal with multiple fragments of a single entity.
 ===============================================================================
 */
 
-typedef struct worldSector_s {
+class WorldSector
+{
+public:
 	int axis;           // -1 = leaf node
 	float dist;
-	struct worldSector_s    *children[2];
-	svEntity_t  *entities;
-} worldSector_t;
+	WorldSector   *children[2];
+	ServerEntity  *entities;
+};
 
 #define AREA_DEPTH  4
 #define AREA_NODES  64
 
-worldSector_t sv_worldSectors[AREA_NODES];
+WorldSector sv_worldSectors[AREA_NODES];
 int sv_numworldSectors;
 
 
@@ -89,10 +91,10 @@ SV_SectorList_f
 void SV_SectorList_f()
 {
 	for (int i = 0 ; i < AREA_NODES ; i++ ) {
-		worldSector_t* sec = &sv_worldSectors[i];
+		WorldSector* sec = &sv_worldSectors[i];
 
 		int c = 0;
-		for (svEntity_t* ent = sec->entities ; ent ; ent = ent->nextEntityInWorldSector ) {
+		for (ServerEntity* ent = sec->entities ; ent ; ent = ent->nextEntityInWorldSector ) {
 			c++;
 		}
 		Com_Printf( "sector %i: %i entities\n", i, c );
@@ -106,14 +108,14 @@ SV_CreateworldSector
 Builds a uniformly subdivided tree for the given world size
 ===============
 */
-worldSector_t *SV_CreateworldSector( int depth, vec3_t mins, vec3_t maxs )
+WorldSector *SV_CreateworldSector( int depth, vec3_t mins, vec3_t maxs )
 {
-	worldSector_t* anode = &sv_worldSectors[sv_numworldSectors];
+	WorldSector* anode = &sv_worldSectors[sv_numworldSectors];
 	sv_numworldSectors++;
 
 	if ( depth == AREA_DEPTH ) {
 		anode->axis = -1;
-		anode->children[0] = anode->children[1] = NULL;
+		anode->children[0] = anode->children[1] = nullptr;
 		return anode;
 	}
 
@@ -167,22 +169,22 @@ SV_UnlinkEntity
 */
 void SV_UnlinkEntity( sharedEntity_t *gEnt )
 {
-	svEntity_t* ent = SV_SvEntityForGentity( gEnt );
+	ServerEntity* ent = SV_SvEntityForGentity( gEnt );
 
 	gEnt->r.linked = false;
 
-	worldSector_t* ws = ent->worldSector;
+	WorldSector* ws = ent->worldSector;
 	if ( !ws ) {
 		return;     // not linked in anywhere
 	}
-	ent->worldSector = NULL;
+	ent->worldSector = nullptr;
 
 	if ( ws->entities == ent ) {
 		ws->entities = ent->nextEntityInWorldSector;
 		return;
 	}
 
-	for (svEntity_t* scan = ws->entities ; scan ; scan = scan->nextEntityInWorldSector ) {
+	for (ServerEntity* scan = ws->entities ; scan ; scan = scan->nextEntityInWorldSector ) {
 		if ( scan->nextEntityInWorldSector == ent ) {
 			scan->nextEntityInWorldSector = ent->nextEntityInWorldSector;
 			return;
@@ -200,12 +202,12 @@ SV_LinkEntity
 ===============
 */
 #define MAX_TOTAL_ENT_LEAFS     128
-worldSector_t *debugNode;
+WorldSector *debugNode;
 void SV_LinkEntity( sharedEntity_t *gEnt )
 {
 	int leafs[MAX_TOTAL_ENT_LEAFS];
 	
-	svEntity_t* ent = SV_SvEntityForGentity( gEnt );
+	ServerEntity* ent = SV_SvEntityForGentity( gEnt );
 
 	// Ridah, sanity check for possible currentOrigin being reset bug
 	if ( !gEnt->r.bmodel && VectorCompare( gEnt->r.currentOrigin, vec3_origin ) ) {
@@ -216,7 +218,7 @@ void SV_LinkEntity( sharedEntity_t *gEnt )
 		SV_UnlinkEntity( gEnt );    // unlink from old position
 	}
 
-	// encode the size into the entityState_t for client prediction
+	// encode the size into the EntityState for client prediction
 	if ( gEnt->r.bmodel ) {
 		gEnt->s.solid = SOLID_BMODEL;       // a solid_box will never create this value
 	} else if ( gEnt->r.contents & ( CONTENTS_SOLID | CONTENTS_BODY ) ) {
@@ -336,7 +338,7 @@ void SV_LinkEntity( sharedEntity_t *gEnt )
 	gEnt->r.linkcount++;
 
 	// find the first world sector node that the ent's box crosses
-	worldSector_t* node = sv_worldSectors;
+	WorldSector* node = sv_worldSectors;
 	while ( 1 )
 	{
 		if ( node->axis == -1 ) {
@@ -384,12 +386,12 @@ SV_AreaEntities_r
 
 ====================
 */
-void SV_AreaEntities_r( worldSector_t *node, areaParms_t *ap )
+void SV_AreaEntities_r( WorldSector *node, areaParms_t *ap )
 {
 	int count = 0;
 
-	svEntity_t *next;
-	for (svEntity_t  * check = node->entities  ; check ; check = next ) {
+	ServerEntity *next;
+	for (ServerEntity  * check = node->entities  ; check ; check = next ) {
 		next = check->nextEntityInWorldSector;
 
 		sharedEntity_t *gcheck = SV_GEntityForSvEntity( check );

@@ -86,22 +86,22 @@ void R_RemapShader( const char *shaderName, const char *newShaderName, const cha
 	qhandle_t h;
 
 	sh = R_FindShaderByName( shaderName );
-	if ( sh == NULL || sh == tr.defaultShader ) {
+	if ( sh == nullptr || sh == tr.defaultShader ) {
 		h = RE_RegisterShaderLightMap( shaderName, 0 );
 		sh = R_GetShaderByHandle( h );
 	}
-	if ( sh == NULL || sh == tr.defaultShader ) {
+	if ( sh == nullptr || sh == tr.defaultShader ) {
 		ri.Printf( PRINT_WARNING, "WARNING: R_RemapShader: shader %s not found\n", shaderName );
 		return;
 	}
 
 	sh2 = R_FindShaderByName( newShaderName );
-	if ( sh2 == NULL || sh2 == tr.defaultShader ) {
+	if ( sh2 == nullptr || sh2 == tr.defaultShader ) {
 		h = RE_RegisterShaderLightMap( newShaderName, 0 );
 		sh2 = R_GetShaderByHandle( h );
 	}
 
-	if ( sh2 == NULL || sh2 == tr.defaultShader ) {
+	if ( sh2 == nullptr || sh2 == tr.defaultShader ) {
 		ri.Printf( PRINT_WARNING, "WARNING: R_RemapShader: new shader %s not found\n", newShaderName );
 		return;
 	}
@@ -115,7 +115,7 @@ void R_RemapShader( const char *shaderName, const char *newShaderName, const cha
 			if ( sh != sh2 ) {
 				sh->remappedShader = sh2;
 			} else {
-				sh->remappedShader = NULL;
+				sh->remappedShader = nullptr;
 			}
 		}
 	}
@@ -1987,7 +1987,7 @@ static shader_t *GeneratePermanentShader( void ) {
 
 	for ( i = 0 ; i < newShader->numUnfoggedPasses ; i++ ) {
 		if ( !stages[i].active ) {
-			newShader->stages[i] = NULL;    // Ridah, make sure it's null
+			newShader->stages[i] = nullptr;    // Ridah, make sure it's null
 			break;
 		}
 		// Ridah, caching system
@@ -1998,7 +1998,7 @@ static shader_t *GeneratePermanentShader( void ) {
 		for ( b = 0 ; b < NUM_TEXTURE_BUNDLES ; b++ ) {
 			if ( !newShader->stages[i]->bundle[b].numTexMods ) {
 				// make sure unalloc'd texMods aren't pointing to some random point in memory
-				newShader->stages[i]->bundle[b].texMods = NULL;
+				newShader->stages[i]->bundle[b].texMods = nullptr;
 				continue;
 			}
 			size = newShader->stages[i]->bundle[b].numTexMods * sizeof( texModInfo_t );
@@ -2301,7 +2301,7 @@ FindShaderInShaderText
 Scans the combined text description of all the shader files for
 the given shader name.
 
-return NULL if not found
+return nullptr if not found
 
 If found, it will return a valid shader
 =====================
@@ -2311,7 +2311,7 @@ static const char *FindShaderInShaderText( const char *shadername ) {
 	const char *token;
 
 	if ( !p ) {
-		return NULL;
+		return nullptr;
 	}
 
 	// Ridah, optimized shader loading
@@ -2360,7 +2360,7 @@ static const char *FindShaderInShaderText( const char *shadername ) {
 	}
 	*/
 
-	return NULL;
+	return nullptr;
 }
 
 /*
@@ -2376,7 +2376,7 @@ shader_t *R_FindShaderByName( const char *name ) {
 
 	shader_t    *sh;
 
-	if ( ( name == NULL ) || ( name[0] == 0 ) ) {  // bk001205
+	if ( ( name == nullptr ) || ( name[0] == 0 ) ) {  // bk001205
 		return tr.defaultShader;
 	}
 
@@ -3095,7 +3095,7 @@ void R_PurgeShaders( int count ) {
 				R_CacheShaderFree( ( *sh )->stages[j] );
 			}
 			R_CacheShaderFree( *sh );
-			*sh = NULL;
+			*sh = nullptr;
 
 			if ( ++c >= count ) {
 				lastPurged = i;
@@ -3168,25 +3168,25 @@ shader_t *R_FindCachedShader( const char *name, int lightmapIndex, int hash ) {
 	shader_t *sh, *shPrev;
 
 	if ( !r_cacheShaders->integer ) {
-		return NULL;
+		return nullptr;
 	}
 
 	if ( !numBackupShaders ) {
-		return NULL;
+		return nullptr;
 	}
 
 	if ( !name ) {
-		return NULL;
+		return nullptr;
 	}
 
 	sh = backupHashTable[hash];
-	shPrev = NULL;
+	shPrev = nullptr;
 	while ( sh ) {
 		if ( sh->lightmapIndex == lightmapIndex && !Q_stricmp( sh->name, name ) ) {
 
 			// make sure the images stay valid
 			if ( !R_RegisterShaderImages( sh ) ) {
-				return NULL;
+				return nullptr;
 			}
 
 			// this is the one, so move this shader into the current list
@@ -3200,7 +3200,7 @@ shader_t *R_FindCachedShader( const char *name, int lightmapIndex, int hash ) {
 			sh->next = hashTable[hash];
 			hashTable[hash] = sh;
 
-			backupShaders[sh->index] = NULL;    // make sure we don't try and free it
+			backupShaders[sh->index] = nullptr;    // make sure we don't try and free it
 
 			// set the index up, and add it to the current list
 			tr.shaders[ tr.numShaders ] = sh;
@@ -3220,7 +3220,7 @@ shader_t *R_FindCachedShader( const char *name, int lightmapIndex, int hash ) {
 		sh = sh->next;
 	}
 
-	return NULL;
+	return nullptr;
 }
 
 /*
@@ -3243,7 +3243,7 @@ void R_LoadCacheShaders( void ) {
 		return;
 	}
 
-	size_t len = FS_ReadFile( "shader.cache", NULL );
+	size_t len = FS_ReadFile( "shader.cache", nullptr );
 
 	if ( len <= 0 ) {
 		return;
@@ -3253,7 +3253,7 @@ void R_LoadCacheShaders( void ) {
 	FS_ReadFile( "shader.cache", (void **)&buf );
 	pString = (char*)buf;   //DAJ added (char*)
 
-	while ( ( token = COM_ParseExt( &pString, true ) ) != NULL && token[0] ) {
+	while ( ( token = COM_ParseExt( &pString, true ) ) != nullptr && token[0] ) {
 		Q_strncpyz( name, token, sizeof( name ) );
 		RE_RegisterModel( name );
 	}

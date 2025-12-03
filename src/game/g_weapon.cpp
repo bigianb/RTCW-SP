@@ -44,10 +44,10 @@ static vec3_t muzzleTrace;
 
 
 // forward dec
-void weapon_zombiespit( gentity_t *ent );
+void weapon_zombiespit( GameEntity *ent );
 
-void Bullet_Fire( gentity_t *ent, float spread, int damage );
-void Bullet_Fire_Extended( gentity_t *source, gentity_t *attacker, vec3_t start, vec3_t end, float spread, int damage, int recursion );
+void Bullet_Fire( GameEntity *ent, float spread, int damage );
+void Bullet_Fire_Extended( GameEntity *source, GameEntity *attacker, vec3_t start, vec3_t end, float spread, int damage, int recursion );
 
 int G_GetWeaponDamage( int weapon ); // JPW
 
@@ -68,9 +68,9 @@ KNIFE/GAUNTLET (NOTE: gauntlet is now the Zombie melee)
 Weapon_Knife
 ==============
 */
-void Weapon_Knife( gentity_t *ent ) {
+void Weapon_Knife( GameEntity *ent ) {
 	trace_t tr;
-	gentity_t   *traceEnt, *tent;
+	GameEntity   *traceEnt, *tent;
 	int damage, mod;
 //	vec3_t		pforward, eforward;
 
@@ -81,7 +81,7 @@ void Weapon_Knife( gentity_t *ent ) {
 	AngleVectors( ent->client->ps.viewangles, forward, right, up );
 	CalcMuzzlePoint( ent, ent->shared.s.weapon, forward, right, up, muzzleTrace );
 	VectorMA( muzzleTrace, KNIFE_DIST, forward, end );
-	SV_Trace( &tr, muzzleTrace, NULL, NULL, end, ent->shared.s.number, MASK_SHOT, false );
+	SV_Trace( &tr, muzzleTrace, nullptr, nullptr, end, ent->shared.s.number, MASK_SHOT, false );
 
 	if ( tr.surfaceFlags & SURF_NOIMPACT ) {
 		return;
@@ -124,8 +124,8 @@ void Weapon_Knife( gentity_t *ent ) {
 
 	if ( traceEnt->client ) {
 		if ( ent->client->ps.serverCursorHint == HINT_KNIFE ) {
-//		AngleVectors (ent->client->ps.viewangles,		pforward, NULL, NULL);
-//		AngleVectors (traceEnt->client->ps.viewangles,	eforward, NULL, NULL);
+//		AngleVectors (ent->client->ps.viewangles,		pforward, nullptr, nullptr);
+//		AngleVectors (traceEnt->client->ps.viewangles,	eforward, nullptr, nullptr);
 
 			// (SA) TODO: neutralize pitch (so only yaw is considered)
 //		if(DotProduct( eforward, pforward ) > 0.9f)	{	// from behind
@@ -153,7 +153,7 @@ void Weapon_Knife( gentity_t *ent ) {
 Weapon_Gauntlet
 ==============
 */
-void Weapon_Gauntlet( gentity_t *ent ) {
+void Weapon_Gauntlet( GameEntity *ent ) {
 	trace_t *tr;
 	tr = CheckMeleeAttack( ent, 32, false );
 	if ( tr ) {
@@ -168,11 +168,11 @@ CheckMeleeAttack
 	using 'isTest' to return hits to world surfaces
 ===============
 */
-trace_t *CheckMeleeAttack( gentity_t *ent, float dist, bool isTest ) {
+trace_t *CheckMeleeAttack( GameEntity *ent, float dist, bool isTest ) {
 	static trace_t tr;
 	vec3_t end;
-	gentity_t   *tent;
-	gentity_t   *traceEnt;
+	GameEntity   *tent;
+	GameEntity   *traceEnt;
 
 	// set aiming directions
 	AngleVectors( ent->client->ps.viewangles, forward, right, up );
@@ -181,14 +181,14 @@ trace_t *CheckMeleeAttack( gentity_t *ent, float dist, bool isTest ) {
 
 	VectorMA( muzzleTrace, dist, forward, end );
 
-	SV_Trace( &tr, muzzleTrace, NULL, NULL, end, ent->shared.s.number, MASK_SHOT, false );
+	SV_Trace( &tr, muzzleTrace, nullptr, nullptr, end, ent->shared.s.number, MASK_SHOT, false );
 	if ( tr.surfaceFlags & SURF_NOIMPACT ) {
-		return NULL;
+		return nullptr;
 	}
 
 	// no contact
 	if ( tr.fraction == 1.0f ) {
-		return NULL;
+		return nullptr;
 	}
 
 	traceEnt = &g_entities[ tr.entityNum ];
@@ -208,7 +208,7 @@ trace_t *CheckMeleeAttack( gentity_t *ent, float dist, bool isTest ) {
 //----(SA)
 
 	if ( !traceEnt->takedamage ) {
-		return NULL;
+		return nullptr;
 	}
 
 	if ( ent->client->ps.powerups[PW_QUAD] ) {
@@ -394,7 +394,7 @@ SP5_Fire
 Cross_Fire
 ==============
 */
-void Cross_Fire( gentity_t *ent ) {
+void Cross_Fire( GameEntity *ent ) {
 // (SA) temporarily use the zombie spit effect to check working state
 	weapon_zombiespit( ent );
 }
@@ -406,7 +406,7 @@ void Cross_Fire( gentity_t *ent ) {
 Tesla_Fire
 ==============
 */
-void Tesla_Fire( gentity_t *ent ) {
+void Tesla_Fire( GameEntity *ent ) {
 	// TODO: Find all targets in the client's view frame, and lock onto them all, applying damage
 	// and telling all clients to draw the appropriate effects.
 
@@ -415,7 +415,7 @@ void Tesla_Fire( gentity_t *ent ) {
 
 
 
-void RubbleFlagCheck( gentity_t *ent, trace_t tr ) {
+void RubbleFlagCheck( GameEntity *ent, trace_t tr ) {
 	bool is_valid = false;
 	int type = 0;
 
@@ -441,7 +441,7 @@ void RubbleFlagCheck( gentity_t *ent, trace_t tr ) {
 	if ( is_valid && ent->client && ( ent->shared.s.weapon == WP_VENOM
 									  || ent->client->ps.persistant[PERS_HWEAPON_USE] ) ) {
 		if ( rand() % 100 > 75 ) {
-			gentity_t   *sfx;
+			GameEntity   *sfx;
 			vec3_t start;
 			vec3_t dir;
 
@@ -477,8 +477,8 @@ EmitterCheck
 	see if a new particle emitter should be created at the bullet impact point
 ==============
 */
-void EmitterCheck( gentity_t *ent, gentity_t *attacker, trace_t *tr ) {
-	gentity_t *tent;
+void EmitterCheck( GameEntity *ent, GameEntity *attacker, trace_t *tr ) {
+	GameEntity *tent;
 	vec3_t origin;
 
 	if ( !ent->emitNum ) { // no emitters left for this entity.
@@ -506,7 +506,7 @@ void EmitterCheck( gentity_t *ent, gentity_t *attacker, trace_t *tr ) {
 
 
 void SniperSoundEFX( vec3_t pos ) {
-	gentity_t *sniperEnt;
+	GameEntity *sniperEnt;
 	sniperEnt = G_TempEntity( pos, EV_SNIPER_SOUND );
 }
 
@@ -517,7 +517,7 @@ Bullet_Endpos
 	find target end position for bullet trace based on entities weapon and accuracy
 ==============
 */
-void Bullet_Endpos( gentity_t *ent, float spread, vec3_t *end ) {
+void Bullet_Endpos( GameEntity *ent, float spread, vec3_t *end ) {
 	float r, u;
 	bool randSpread = true;
 	int dist = 8192;
@@ -551,7 +551,7 @@ void Bullet_Endpos( gentity_t *ent, float spread, vec3_t *end ) {
 Bullet_Fire
 ==============
 */
-void Bullet_Fire( gentity_t *ent, float spread, int damage ) {
+void Bullet_Fire( GameEntity *ent, float spread, int damage ) {
 	vec3_t end;
 
 	Bullet_Endpos( ent, spread, &end );
@@ -568,10 +568,10 @@ Bullet_Fire_Extended
 	uses for this include shooting through entities (windows, doors, other players, etc.) and reflecting bullets
 ==============
 */
-void Bullet_Fire_Extended( gentity_t *source, gentity_t *attacker, vec3_t start, vec3_t end, float spread, int damage, int recursion ) {
+void Bullet_Fire_Extended( GameEntity *source, GameEntity *attacker, vec3_t start, vec3_t end, float spread, int damage, int recursion ) {
 	trace_t tr;
-	gentity_t   *tent;
-	gentity_t   *traceEnt;
+	GameEntity   *tent;
+	GameEntity   *traceEnt;
 	int dflags = 0;         // flag if source==attacker, meaning it wasn't shot directly, but was reflected went through an entity that allows bullets to pass through
 	bool reflectBullet = false;
 
@@ -587,7 +587,7 @@ void Bullet_Fire_Extended( gentity_t *source, gentity_t *attacker, vec3_t start,
 		dflags = DAMAGE_PASSTHRU;
 	}
 
-	SV_Trace( &tr, start, NULL, NULL, end, source->shared.s.number, MASK_SHOT, false );
+	SV_Trace( &tr, start, nullptr, nullptr, end, source->shared.s.number, MASK_SHOT, false );
 
 	AICast_ProcessBullet( attacker, start, tr.endpos );
 
@@ -627,7 +627,7 @@ void Bullet_Fire_Extended( gentity_t *source, gentity_t *attacker, vec3_t start,
 
 //----(SA)	added
 		if ( g_debugBullets.integer >= 2 ) {   // show hit player bb
-			gentity_t *bboxEnt;
+			GameEntity *bboxEnt;
 			vec3_t b1, b2;
 			VectorCopy( traceEnt->shared.r.currentOrigin, b1 );
 			VectorCopy( traceEnt->shared.r.currentOrigin, b2 );
@@ -648,7 +648,7 @@ void Bullet_Fire_Extended( gentity_t *source, gentity_t *attacker, vec3_t start,
 		float dot;
 
 		if ( g_debugBullets.integer <= -2 ) {  // show hit thing bb
-			gentity_t *bboxEnt;
+			GameEntity *bboxEnt;
 			vec3_t b1, b2;
 			VectorCopy( traceEnt->shared.r.currentOrigin, b1 );
 			VectorCopy( traceEnt->shared.r.currentOrigin, b2 );
@@ -690,7 +690,7 @@ void Bullet_Fire_Extended( gentity_t *source, gentity_t *attacker, vec3_t start,
 
 		if ( reflectBullet ) {
 			// if we are facing the direction the bullet came from, then reflect it
-			AngleVectors( traceEnt->shared.s.apos.trBase, trDir, NULL, NULL );
+			AngleVectors( traceEnt->shared.s.apos.trBase, trDir, nullptr, nullptr );
 			if ( DotProduct( forward, trDir ) < 0.6 ) {
 				reflectBool = true;
 			}
@@ -746,10 +746,10 @@ GRENADE LAUNCHER
 
 ======================================================================
 */
-extern void G_ExplodeMissilePoisonGas( gentity_t *ent );
+extern void G_ExplodeMissilePoisonGas( GameEntity *ent );
 
-gentity_t *weapon_crowbar_throw( gentity_t *ent ) {
-	gentity_t   *m;
+GameEntity *weapon_crowbar_throw( GameEntity *ent ) {
+	GameEntity   *m;
 
 	m = fire_crowbar( ent, muzzleEffect, forward );
 	m->damage *= s_quadFactor;
@@ -758,8 +758,8 @@ gentity_t *weapon_crowbar_throw( gentity_t *ent ) {
 	return m;
 }
 
-gentity_t *weapon_grenadelauncher_fire( gentity_t *ent, int grenType ) {
-	gentity_t   *m, *te; // JPW NERVE
+GameEntity *weapon_grenadelauncher_fire( GameEntity *ent, int grenType ) {
+	GameEntity   *m, *te; // JPW NERVE
 	float upangle = 0;                  //	start with level throwing and adjust based on angle
 	vec3_t tosspos;
 	bool underhand = false;
@@ -816,7 +816,7 @@ gentity_t *weapon_grenadelauncher_fire( gentity_t *ent, int grenType ) {
 	VectorCopy( ent->shared.s.pos.trBase, viewpos );
 	viewpos[2] += ent->client->ps.viewheight;
 
-	SV_Trace( &tr, viewpos, NULL, NULL, tosspos, ent->shared.s.number, MASK_SHOT, false);
+	SV_Trace( &tr, viewpos, nullptr, nullptr, tosspos, ent->shared.s.number, MASK_SHOT, false);
 	if ( tr.fraction < 1 ) {   // oops, bad launch spot
 		VectorCopy( tr.endpos, tosspos );
 	}
@@ -844,8 +844,8 @@ gentity_t *weapon_grenadelauncher_fire( gentity_t *ent, int grenType ) {
 Zombie spit
 =====================
 */
-void weapon_zombiespit( gentity_t *ent ) {
-	gentity_t *m;
+void weapon_zombiespit( GameEntity *ent ) {
+	GameEntity *m;
 
 //RF, HARD disable
 	return;
@@ -866,8 +866,8 @@ void weapon_zombiespit( gentity_t *ent ) {
 Zombie spirit
 =====================
 */
-void weapon_zombiespirit( gentity_t *ent, gentity_t *missile ) {
-	gentity_t *m;
+void weapon_zombiespirit( GameEntity *ent, GameEntity *missile ) {
+	GameEntity *m;
 
 	m = fire_zombiespirit( ent, missile, muzzleTrace, forward );
 	m->damage *= s_quadFactor;
@@ -891,12 +891,12 @@ VENOM GUN TRACING
 #define DEFAULT_VENOM_SPREAD 20
 #define DEFAULT_VENOM_DAMAGE 15
 
-bool VenomPellet( vec3_t start, vec3_t end, gentity_t *ent ) {
+bool VenomPellet( vec3_t start, vec3_t end, GameEntity *ent ) {
 	trace_t tr;
 	int damage;
-	gentity_t       *traceEnt;
+	GameEntity       *traceEnt;
 
-	SV_Trace( &tr, start, NULL, NULL, end, ent->shared.s.number, MASK_SHOT, false );
+	SV_Trace( &tr, start, nullptr, nullptr, end, ent->shared.s.number, MASK_SHOT, false );
 	traceEnt = &g_entities[ tr.entityNum ];
 
 	// send bullet impact
@@ -916,7 +916,7 @@ bool VenomPellet( vec3_t start, vec3_t end, gentity_t *ent ) {
 }
 
 // this should match CG_VenomPattern
-void VenomPattern( vec3_t origin, vec3_t origin2, int seed, gentity_t *ent ) {
+void VenomPattern( vec3_t origin, vec3_t origin2, int seed, GameEntity *ent ) {
 	int i;
 	float r, u;
 	vec3_t end;
@@ -953,8 +953,8 @@ void VenomPattern( vec3_t origin, vec3_t origin2, int seed, gentity_t *ent ) {
 weapon_venom_fire
 ==============
 */
-void weapon_venom_fire( gentity_t *ent, bool fullmode, float aimSpreadScale ) {
-	gentity_t       *tent;
+void weapon_venom_fire( GameEntity *ent, bool fullmode, float aimSpreadScale ) {
+	GameEntity       *tent;
 
 	if ( fullmode ) {
 		tent = G_TempEntity( muzzleTrace, EV_VENOMFULL );
@@ -992,11 +992,11 @@ ROCKET
 ======================================================================
 */
 
-void Weapon_RocketLauncher_Fire( gentity_t *ent, float aimSpreadScale ) {
+void Weapon_RocketLauncher_Fire( GameEntity *ent, float aimSpreadScale ) {
 //	trace_t		tr;
 	float r, u;
 	vec3_t dir, launchpos;     //, viewpos, wallDir;
-	gentity_t   *m;
+	GameEntity   *m;
 
 	// get a little bit of randomness and apply it back to the direction
 	if ( !ent->aiCharacter ) {
@@ -1036,17 +1036,17 @@ LIGHTNING GUN
 */
 
 // RF, not used anymore for Flamethrower (still need it for tesla?)
-void Weapon_LightningFire( gentity_t *ent ) {
+void Weapon_LightningFire( GameEntity *ent ) {
 	trace_t tr;
 	vec3_t end;
-	gentity_t   *traceEnt;
+	GameEntity   *traceEnt;
 	int damage;
 
 	damage = 5 * s_quadFactor;
 
 	VectorMA( muzzleTrace, LIGHTNING_RANGE, forward, end );
 
-	SV_Trace( &tr, muzzleTrace, NULL, NULL, end, ent->shared.s.number, MASK_SHOT, false );
+	SV_Trace( &tr, muzzleTrace, nullptr, nullptr, end, ent->shared.s.number, MASK_SHOT, false );
 
 	if ( tr.entityNum == ENTITYNUM_NONE ) {
 		return;
@@ -1100,11 +1100,11 @@ AddLean
 	add leaning offset
 ==============
 */
-void AddLean( gentity_t *ent, vec3_t point ) {
+void AddLean( GameEntity *ent, vec3_t point ) {
 	if ( ent->client ) {
 		if ( ent->client->ps.leanf ) {
 			vec3_t right;
-			AngleVectors( ent->client->ps.viewangles, NULL, right, NULL );
+			AngleVectors( ent->client->ps.viewangles, nullptr, right, nullptr );
 			VectorMA( point, ent->client->ps.leanf, right, point );
 		}
 	}
@@ -1115,7 +1115,7 @@ void AddLean( gentity_t *ent, vec3_t point ) {
 LogAccuracyHit
 ===============
 */
-bool LogAccuracyHit( gentity_t *target, gentity_t *attacker ) {
+bool LogAccuracyHit( GameEntity *target, GameEntity *attacker ) {
 	if ( !target->takedamage ) {
 		return false;
 	}
@@ -1147,7 +1147,7 @@ CalcMuzzlePoint
 set muzzle location relative to pivoting eye
 ===============
 */
-void CalcMuzzlePoint( gentity_t *ent, int weapon, vec3_t forward, vec3_t right, vec3_t up, vec3_t muzzlePoint ) {
+void CalcMuzzlePoint( GameEntity *ent, int weapon, vec3_t forward, vec3_t right, vec3_t up, vec3_t muzzlePoint ) {
 	VectorCopy( ent->shared.r.currentOrigin, muzzlePoint );
 	muzzlePoint[2] += ent->client->ps.viewheight;
 	// Ridah, this puts the start point outside the bounding box, isn't necessary
@@ -1192,7 +1192,7 @@ void CalcMuzzlePoint( gentity_t *ent, int weapon, vec3_t forward, vec3_t right, 
 }
 
 // Rafael - for activate
-void CalcMuzzlePointForActivate( gentity_t *ent, vec3_t forward, vec3_t right, vec3_t up, vec3_t muzzlePoint ) {
+void CalcMuzzlePointForActivate( GameEntity *ent, vec3_t forward, vec3_t right, vec3_t up, vec3_t muzzlePoint ) {
 
 	VectorCopy( ent->shared.s.pos.trBase, muzzlePoint );
 	muzzlePoint[2] += ent->client->ps.viewheight;
@@ -1207,7 +1207,7 @@ void CalcMuzzlePointForActivate( gentity_t *ent, vec3_t forward, vec3_t right, v
 // done.
 
 // Ridah
-void CalcMuzzlePoints( gentity_t *ent, int weapon ) {
+void CalcMuzzlePoints( GameEntity *ent, int weapon ) {
 	vec3_t viewang;
 
 	VectorCopy( ent->client->ps.viewangles, viewang );
@@ -1244,7 +1244,7 @@ void CalcMuzzlePoints( gentity_t *ent, int weapon ) {
 FireWeapon
 ===============
 */
-void FireWeapon( gentity_t *ent ) {
+void FireWeapon( GameEntity *ent ) {
 	float aimSpreadScale;
 	vec3_t viewang;  // JPW NERVE
 
@@ -1400,7 +1400,7 @@ void FireWeapon( gentity_t *ent ) {
 			vec3_t forward, vangle;
 			VectorCopy( ent->client->ps.viewangles, vangle );
 			vangle[PITCH] = 0;  // nullify pitch so you can't lightning jump
-			AngleVectors( vangle, forward, NULL, NULL );
+			AngleVectors( vangle, forward, nullptr, nullptr );
 			// make it less if in the air
 			if ( ent->shared.s.groundEntityNum == ENTITYNUM_NONE ) {
 				VectorMA( ent->client->ps.velocity, -32, forward, ent->client->ps.velocity );

@@ -35,7 +35,7 @@ alarmExplosion
 	copied from propExplosion
 ==============
 */
-void alarmExplosion( gentity_t *ent ) {
+void alarmExplosion( GameEntity *ent ) {
 
 	// death sound
 	G_AddEvent( ent, EV_GENERAL_SOUND, ent->sound1to2 );
@@ -51,8 +51,8 @@ void alarmExplosion( gentity_t *ent ) {
 alarmbox_updateparts
 ==============
 */
-void alarmbox_updateparts( gentity_t *ent, bool matestoo ) {
-	gentity_t   *t, *mate;
+void alarmbox_updateparts( GameEntity *ent, bool matestoo ) {
+	GameEntity   *t, *mate;
 	bool alarming = ( ent->shared.s.frame == 1 );
 
 	// update teammates
@@ -82,8 +82,8 @@ void alarmbox_updateparts( gentity_t *ent, bool matestoo ) {
 		return;
 	}
 
-	t = NULL;
-	while ( ( t = G_Find( t, FOFS( targetname ), ent->target ) ) != NULL )
+	t = nullptr;
+	while ( ( t = G_Find( t, FOFS( targetname ), ent->target ) ) != nullptr )
 	{
 		if ( t == ent ) {
 			Com_Printf( "WARNING: Entity used itself.\n" );
@@ -121,7 +121,7 @@ void alarmbox_updateparts( gentity_t *ent, bool matestoo ) {
 alarmbox_use
 ==============
 */
-void alarmbox_use( gentity_t *ent, gentity_t *other, gentity_t *foo ) {
+void alarmbox_use( GameEntity *ent, GameEntity *other, GameEntity *foo ) {
 	if ( !( ent->active ) ) {
 		return;
 	}
@@ -145,8 +145,8 @@ void alarmbox_use( gentity_t *ent, gentity_t *other, gentity_t *foo ) {
 alarmbox_die
 ==============
 */
-void alarmbox_die( gentity_t *ent, gentity_t *inflictor, gentity_t *attacker, int damage, int mod ) {
-	gentity_t *t;
+void alarmbox_die( GameEntity *ent, GameEntity *inflictor, GameEntity *attacker, int damage, int mod ) {
+	GameEntity *t;
 
 	alarmExplosion( ent );
 	ent->shared.s.frame    = 2;
@@ -156,8 +156,8 @@ void alarmbox_die( gentity_t *ent, gentity_t *inflictor, gentity_t *attacker, in
 
 	// fire 'death' targets
 	if ( ent->targetdeath ) {
-		t = NULL;
-		while ( ( t = G_Find( t, FOFS( targetname ), ent->targetdeath ) ) != NULL )
+		t = nullptr;
+		while ( ( t = G_Find( t, FOFS( targetname ), ent->targetdeath ) ) != nullptr )
 		{
 			if ( t == ent ) {
 				Com_Printf( "WARNING: Entity used itself.\n" );
@@ -178,8 +178,8 @@ void alarmbox_die( gentity_t *ent, gentity_t *inflictor, gentity_t *attacker, in
 alarmbox_finishspawning
 ==============
 */
-void alarmbox_finishspawning( gentity_t *ent ) {
-	gentity_t *mate;
+void alarmbox_finishspawning( GameEntity *ent ) {
+	GameEntity *mate;
 
 	// make sure they all have the same master (picked arbitrarily.  last spawned)
 	for ( mate = ent; mate; mate = mate->teamchain )
@@ -206,11 +206,11 @@ alarm sound locations are also placed in the dlights, so wherever you place an a
 model: the model used is "models/mapobjects/electronics/alarmbox.md3"
 place the origin at the center of your trigger box
 */
-void SP_alarm_box( gentity_t *ent ) {
+void SP_alarm_box( GameEntity *ent ) {
 	
 
 	if ( !ent->model ) {
-		Com_Printf( S_COLOR_RED "alarm_box with NULL model\n" );
+		Com_Printf( S_COLOR_RED "alarm_box with nullptr model\n" );
 		return;
 	}
 

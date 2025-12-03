@@ -51,20 +51,20 @@ void AICast_ScriptLoad( void );
 void AICast_ScriptEvent( struct cast_state_s *cs, const char *eventStr, const char *params );
 void AICast_ForceScriptEvent( struct cast_state_s *cs, const char *eventStr, const char *params );
 bool AICast_AIDamageOK( struct cast_state_s *cs, struct cast_state_s *ocs );
-gentity_t *AICast_FindEntityForName( const char *name );
-gentity_t *AICast_TravEntityForName( gentity_t *startent, char *name );
+GameEntity *AICast_FindEntityForName( const char *name );
+GameEntity *AICast_TravEntityForName( GameEntity *startent, char *name );
 void AICast_ScriptParse( struct cast_state_s *cs );
 void AICast_StartFrame( int time );
 void AICast_StartServerFrame( int time );
-void AICast_RecordWeaponFire( gentity_t *ent );
-void AICast_AIDoor_Touch( gentity_t *ent, gentity_t *aidoor_trigger, gentity_t *door );
+void AICast_RecordWeaponFire( GameEntity *ent );
+void AICast_AIDoor_Touch( GameEntity *ent, GameEntity *aidoor_trigger, GameEntity *door );
 float AICast_GetAccuracy( int entnum );
 void AICast_Activate( int activatorNum, int entNum );
-void AICast_CheckDangerousEntity( gentity_t *ent, int dangerFlags, float dangerDist, float tacticalLevel, float aggressionLevel, bool hurtFriendly );
+void AICast_CheckDangerousEntity( GameEntity *ent, int dangerFlags, float dangerDist, float tacticalLevel, float aggressionLevel, bool hurtFriendly );
 bool AICast_NoFlameDamage( int entNum );
 void AICast_SetFlameDamage( int entNum, bool status );
 bool AICast_HasFiredWeapon( int entNum, int weapon );
-void G_SetAASBlockingEntity( gentity_t *ent, bool blocking );
+void G_SetAASBlockingEntity( GameEntity *ent, bool blocking );
 bool AICast_InFieldOfVision( vec3_t viewangles, float fov, vec3_t angles );
 bool AICast_VisibleFromPos( vec3_t srcpos, int srcnum,
 								vec3_t destpos, int destnum, bool updateVisPos );
@@ -73,8 +73,8 @@ void AICast_AdjustIdealYawForMover( int entnum, float yaw );
 void AICast_AgePlayTime( int entnum );
 int AICast_NoReload( int entnum );
 void AICast_RecordScriptSound( int client );
-void AICast_UpdateVisibility( gentity_t *srcent, gentity_t *destent, bool shareVis, bool directview );
-void AICast_ProcessBullet( gentity_t *attacker, vec3_t start, vec3_t end );
+void AICast_UpdateVisibility( GameEntity *srcent, GameEntity *destent, bool shareVis, bool directview );
+void AICast_ProcessBullet( GameEntity *attacker, vec3_t start, vec3_t end );
 void AICast_AudibleEvent( int srcnum, vec3_t pos, float range );
 
 //----(SA)	added

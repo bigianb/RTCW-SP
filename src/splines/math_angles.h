@@ -78,7 +78,7 @@ friend int operator==( angles_t &a, angles_t &b );
 
 friend int operator!=( angles_t &a, angles_t &b );
 
-void            toVectors( idVec3 *forward, idVec3 *right = NULL, idVec3 *up = NULL );
+void            toVectors( idVec3 *forward, idVec3 *right = nullptr, idVec3 *up = nullptr );
 idVec3          toForward( void );
 
 angles_t        &Zero( void );

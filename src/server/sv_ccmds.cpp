@@ -70,7 +70,7 @@ static void SV_Map_f( void ) {
 			strcpy( savemap, map );
 		}
 
-		size_t size = FS_ReadFile( savemap, NULL );
+		size_t size = FS_ReadFile( savemap, nullptr );
 		if ( size < 0 ) {
 			Com_Printf( "Can't find savegame %s\n", savemap );
 			return;
@@ -82,7 +82,7 @@ static void SV_Map_f( void ) {
 			// copy it to the current savegame file
 			FS_WriteFile( "save/current.svg", buffer, size );
 			// make sure it is the correct size
-			size_t csize = FS_ReadFile( "save/current.svg", NULL );
+			size_t csize = FS_ReadFile( "save/current.svg", nullptr );
 			if ( csize != size ) {
 				Hunk_FreeTempMemory( buffer );
 				FS_Delete( "save/current.svg" );
@@ -118,7 +118,7 @@ static void SV_Map_f( void ) {
 	// make sure the level exists before trying to change, so that
 	// a typo at the server console won't end the game
 	snprintf( expanded, sizeof( expanded ), "maps/%s.bsp", map );
-	if ( FS_ReadFile( expanded, NULL ) == -1 ) {
+	if ( FS_ReadFile( expanded, nullptr ) == -1 ) {
 		Com_Printf( "Can't find map %s\n", expanded );
 		return;
 	}
@@ -226,7 +226,7 @@ static void SV_MapRestart_f( void ) {
 		byte *buffer;
 		int size, savegameTime;
 
-		size = FS_ReadFile( savemap, NULL );
+		size = FS_ReadFile( savemap, nullptr );
 		if ( size < 0 ) {
 			Com_Printf( "Can't find savegame %s\n", savemap );
 			return;
@@ -345,7 +345,7 @@ void    SV_LoadGame_f( void ) {
 		*(char *)strstr( filename, "\\" ) = '/';
 	}
 
-	size = FS_ReadFile( filename, NULL );
+	size = FS_ReadFile( filename, nullptr );
 	if ( size < 0 ) {
 		Com_Printf( "Can't find savegame %s\n", filename );
 		return;

@@ -207,16 +207,16 @@ int max_polys;
 cvar_t  *r_maxpolyverts;
 int max_polyverts;
 
-void ( APIENTRY * qglMultiTexCoord2fARB )( GLenum texture, GLfloat s, GLfloat t ) = NULL;
-void ( APIENTRY * qglActiveTextureARB )( GLenum texture ) = NULL;
-void ( APIENTRY * qglClientActiveTextureARB )( GLenum texture ) = NULL;
+void ( APIENTRY * qglMultiTexCoord2fARB )( GLenum texture, GLfloat s, GLfloat t ) = nullptr;
+void ( APIENTRY * qglActiveTextureARB )( GLenum texture ) = nullptr;
+void ( APIENTRY * qglClientActiveTextureARB )( GLenum texture ) = nullptr;
 
-void ( APIENTRY * qglLockArraysEXT )( GLint, GLint ) = NULL;
-void ( APIENTRY * qglUnlockArraysEXT )( void ) = NULL;
+void ( APIENTRY * qglLockArraysEXT )( GLint, GLint ) = nullptr;
+void ( APIENTRY * qglUnlockArraysEXT )( void ) = nullptr;
 
 //----(SA)	added
-void ( APIENTRY * qglPNTrianglesiATI )( GLenum pname, GLint param ) = NULL;
-void ( APIENTRY * qglPNTrianglesfATI )( GLenum pname, GLfloat param ) = NULL;
+void ( APIENTRY * qglPNTrianglesiATI )( GLenum pname, GLint param ) = nullptr;
+void ( APIENTRY * qglPNTrianglesfATI )( GLenum pname, GLfloat param ) = nullptr;
 /*
 The tessellation level and normal generation mode are specified with:
 
@@ -653,7 +653,7 @@ void R_ScreenShot_f( void ) {
 		for ( ; lastNumber <= 9999 ; lastNumber++ ) {
 			R_ScreenshotFilename( lastNumber, checkname );
 
-			len = FS_ReadFile( checkname, NULL );
+			len = FS_ReadFile( checkname, nullptr );
 			if ( len <= 0 ) {
 				break;  // file doesn't exist
 			}
@@ -708,7 +708,7 @@ void R_ScreenShotJPEG_f( void ) {
 		for ( ; lastNumber <= 9999 ; lastNumber++ ) {
 			R_ScreenshotFilenameJPEG( lastNumber, checkname );
 
-			len = FS_ReadFile( checkname, NULL );
+			len = FS_ReadFile( checkname, nullptr );
 			if ( len <= 0 ) {
 				break;  // file doesn't exist
 			}
@@ -1211,7 +1211,7 @@ void R_Init( void ) {
 //		backEndData[1] = ri.Hunk_Alloc( sizeof( *backEndData[1] ), h_low );
 		backEndData[1] = (backEndData_t *)ri.Hunk_Alloc( sizeof( *backEndData[1] ) + sizeof( srfPoly_t ) * max_polys + sizeof( polyVert_t ) * max_polyverts, h_low );
 	} else {
-		backEndData[1] = NULL;
+		backEndData[1] = nullptr;
 	}
 	R_ToggleSmpFrame();
 
@@ -1339,7 +1339,7 @@ refexport_t *GetRefAPI( int apiVersion, refimport_t *rimp ) {
 	if ( apiVersion != REF_API_VERSION ) {
 		ri.Printf( PRINT_ALL, "Mismatched REF_API_VERSION: expected %i, got %i\n",
 				   REF_API_VERSION, apiVersion );
-		return NULL;
+		return nullptr;
 	}
 
 	// the RE_ functions are Renderer Entry points

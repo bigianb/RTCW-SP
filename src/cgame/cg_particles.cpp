@@ -103,7 +103,7 @@ static const char *shaderAnimNames[MAX_SHADER_ANIMS] = {
 	"expblue",
 	"blacksmokeanimb",   // uses 'explode1' sequence
 	"blood",
-	NULL
+	nullptr
 };
 static qhandle_t shaderAnims[MAX_SHADER_ANIMS][MAX_SHADER_ANIM_FRAMES];
 static int shaderAnimCounts[MAX_SHADER_ANIMS] = {
@@ -167,7 +167,7 @@ void CG_ClearParticles()
 	memset( particles, 0, sizeof( particles ) );
 
 	free_particles = &particles[0];
-	active_particles = NULL;
+	active_particles = nullptr;
 
 	int i;
 	for (i = 0 ; i < cl_numparticles ; i++ )
@@ -175,7 +175,7 @@ void CG_ClearParticles()
 		particles[i].next = &particles[i + 1];
 		particles[i].type = 0;
 	}
-	particles[cl_numparticles - 1].next = NULL;
+	particles[cl_numparticles - 1].next = nullptr;
 
 	oldtime = cg.time;
 
@@ -360,7 +360,7 @@ void CG_AddParticleToScene( cparticle_t *p, vec3_t org, float alpha ) {
 		if ( p->roll ) {
 			vectoangles( cg.refdef.viewaxis[0], rotate_ang );
 			rotate_ang[ROLL] += p->roll;
-			AngleVectors( rotate_ang, NULL, rr, ru );
+			AngleVectors( rotate_ang, nullptr, rr, ru );
 		}
 
 		if ( p->roll ) {
@@ -503,7 +503,7 @@ void CG_AddParticleToScene( cparticle_t *p, vec3_t org, float alpha ) {
 			vectoangles( rforward, temp );
 			p->accumroll += p->roll;
 			temp[ROLL] += p->accumroll * 0.1;
-			AngleVectors( temp, NULL, rright2, rup2 );
+			AngleVectors( temp, nullptr, rright2, rup2 );
 		}
 
 
@@ -628,7 +628,7 @@ void CG_AddParticleToScene( cparticle_t *p, vec3_t org, float alpha ) {
 		if ( p->roll ) {
 			vectoangles( cg.refdef.viewaxis[0], rotate_ang );
 			rotate_ang[ROLL] += p->roll;
-			AngleVectors( rotate_ang, NULL, rr, ru );
+			AngleVectors( rotate_ang, nullptr, rr, ru );
 		} else
 		{
 			VectorCopy( vup, ru );
@@ -813,7 +813,7 @@ void CG_AddParticleToScene( cparticle_t *p, vec3_t org, float alpha ) {
 		if ( p->roll ) {
 			vectoangles( cg.refdef.viewaxis[0], rotate_ang );
 			rotate_ang[ROLL] += p->roll;
-			AngleVectors( rotate_ang, NULL, rr, ru );
+			AngleVectors( rotate_ang, nullptr, rr, ru );
 		}
 
 		if ( p->roll ) {
@@ -921,8 +921,8 @@ void CG_AddParticles( void ) {
 
 	oldtime = cg.time;
 
-	active = NULL;
-	tail = NULL;
+	active = nullptr;
+	tail = nullptr;
 
 	for ( p = active_particles ; p ; p = next )
 	{
@@ -990,7 +990,7 @@ void CG_AddParticles( void ) {
 			continue;
 		}
 
-		p->next = NULL;
+		p->next = nullptr;
 		if ( !tail ) {
 			active = tail = p;
 		} else
@@ -2030,7 +2030,7 @@ void CG_OilSlickRemove( centity_t *cent ) {
 	id = cent->currentState.density;
 
 	if ( !id ) {
-		Com_Printf( "CG_OilSlickRevove NULL id\n" );
+		Com_Printf( "CG_OilSlickRevove nullptr id\n" );
 	}
 
 	for ( p = active_particles ; p ; p = next )
@@ -2066,7 +2066,7 @@ bool ValidBloodPool( vec3_t start ) {
 	VectorSet( normal, 0, 0, 1 );
 
 	vectoangles( normal, angles );
-	AngleVectors( angles, NULL, right, up );
+	AngleVectors( angles, nullptr, right, up );
 
 	VectorMA( start, EXTRUDE_DIST, normal, center_pos );
 
@@ -2079,7 +2079,7 @@ bool ValidBloodPool( vec3_t start ) {
 			VectorMA( x_pos, y, up, this_pos );
 			VectorMA( this_pos, -EXTRUDE_DIST * 2, normal, end_pos );
 
-			CG_Trace( &trace, this_pos, NULL, NULL, end_pos, -1, CONTENTS_SOLID );
+			CG_Trace( &trace, this_pos, nullptr, nullptr, end_pos, -1, CONTENTS_SOLID );
 
 
 			if ( trace.entityNum < ( MAX_ENTITIES - 1 ) ) { // may only land on world
@@ -2174,7 +2174,7 @@ void CG_ParticleBloodCloud( centity_t *cent, vec3_t origin, vec3_t dir ) {
 
 	length = VectorLength( dir );
 	vectoangles( dir, angles );
-	AngleVectors( angles, forward, NULL, NULL );
+	AngleVectors( angles, forward, nullptr, nullptr );
 
 	if ( cent->currentState.density == 0 ) { // normal ai size
 		crittersize = NORMALSIZE;
@@ -2276,7 +2276,7 @@ void CG_ParticleBloodCloudZombie( centity_t *cent, vec3_t origin, vec3_t dir ) {
 
 	length = VectorLength( dir );
 	vectoangles( dir, angles );
-	AngleVectors( angles, forward, NULL, NULL );
+	AngleVectors( angles, forward, nullptr, nullptr );
 
 	if ( cent->currentState.density == 0 ) { // normal ai size
 		crittersize = NORMALSIZE / 4;
@@ -2441,7 +2441,7 @@ void CG_ParticleDust( centity_t *cent, vec3_t origin, vec3_t dir ) {
 	VectorNegate( dir, dir );
 	length = VectorLength( dir );
 	vectoangles( dir, angles );
-	AngleVectors( angles, forward, NULL, NULL );
+	AngleVectors( angles, forward, nullptr, nullptr );
 
 	if ( cent->currentState.density == 0 ) { // normal ai size
 		crittersize = NORMALSIZE;

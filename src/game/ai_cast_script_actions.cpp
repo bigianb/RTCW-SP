@@ -96,12 +96,12 @@ AICast_ScriptAction_GotoMarker
 bool AICast_ScriptAction_GotoMarker( cast_state_t *cs, char *params ) {
 #define SCRIPT_REACHGOAL_DIST   8
 	char    *token;
-	gentity_t *ent;
+	GameEntity *ent;
 	vec3_t vec, org;
 	int i, diff;
 	bool slowApproach;
 
-	ent = NULL;
+	ent = nullptr;
 
 	// if we are avoiding danger, then wait for the danger to pass
 	if ( cs->castScriptStatus.scriptGotoId < 0 && cs->dangerEntityValidTime > level.time ) {
@@ -142,7 +142,7 @@ bool AICast_ScriptAction_GotoMarker( cast_state_t *cs, char *params ) {
 					AICast_NoAttackIfNotHurtSinceLastScriptAction( cs );
 				} else {    // yes we do
 					// find this targetname
-					ent = G_Find( NULL, FOFS( targetname ), token );
+					ent = G_Find( nullptr, FOFS( targetname ), token );
 					if ( !ent ) {
 						ent = AICast_FindEntityForName( token );
 						if ( !ent ) {
@@ -187,7 +187,7 @@ bool AICast_ScriptAction_GotoMarker( cast_state_t *cs, char *params ) {
 			}
 		} else
 		{
-			ent = NULL;
+			ent = nullptr;
 		}
 	}
 
@@ -291,11 +291,11 @@ AICast_ScriptAction_GotoCast
 bool AICast_ScriptAction_GotoCast( cast_state_t *cs, char *params ) {
 #define SCRIPT_REACHCAST_DIST   64
 	char  *token;
-	gentity_t *ent;
+	GameEntity *ent;
 	vec3_t vec, org;
 	int i, diff;
 
-	ent = NULL;
+	ent = nullptr;
 
 	// if we are avoiding danger, then wait for the danger to pass
 	if ( cs->castScriptStatus.scriptGotoId < 0 && cs->dangerEntityValidTime > level.time ) {
@@ -329,7 +329,7 @@ bool AICast_ScriptAction_GotoCast( cast_state_t *cs, char *params ) {
 					AICast_NoAttackIfNotHurtSinceLastScriptAction( cs );
 				} else {    // yes we do
 					// find this targetname
-					ent = G_Find( NULL, FOFS( targetname ), token );
+					ent = G_Find( nullptr, FOFS( targetname ), token );
 					if ( !ent ) {
 						ent = AICast_FindEntityForName( token );
 						if ( !ent ) {
@@ -375,7 +375,7 @@ bool AICast_ScriptAction_GotoCast( cast_state_t *cs, char *params ) {
 			}
 		} else
 		{
-			ent = NULL;
+			ent = nullptr;
 		}
 	}
 
@@ -493,7 +493,7 @@ bool AICast_ScriptAction_Wait( cast_state_t *cs, char *params ) {
 	int duration;
 	float moverange;
 	float dist;
-	gentity_t *ent;
+	GameEntity *ent;
 	vec3_t org, vec;
 
 	// if we are in a special func, then wait
@@ -532,7 +532,7 @@ bool AICast_ScriptAction_Wait( cast_state_t *cs, char *params ) {
 	token = COM_ParseExt( &pString, false );
 	// if this token is a number, then assume it is the moverange, otherwise we have a default moverange with a facetarget
 	moverange = -999;
-	const char* facetarget = NULL;
+	const char* facetarget = nullptr;
 	if ( token[0] ) {
 		if ( toupper( token[0] ) >= 'A' && toupper( token[0] ) <= 'Z' ) {
 			facetarget = token;
@@ -590,7 +590,7 @@ bool AICast_ScriptAction_Wait( cast_state_t *cs, char *params ) {
 	// do we have a facetarget ?
 	if ( facetarget ) {   // yes we do
 		// find this targetname
-		ent = G_Find( NULL, FOFS( targetname ), facetarget );
+		ent = G_Find( nullptr, FOFS( targetname ), facetarget );
 		if ( !ent ) {
 			ent = AICast_FindEntityForName( facetarget );
 			if ( !ent ) {
@@ -627,7 +627,7 @@ bool AICast_ScriptAction_Trigger( cast_state_t *cs, char *params )
         return false;  // Keep linter happy. ERR_DROP does not return
 	}
 
-	gentity_t *ent = AICast_FindEntityForName( token );
+	GameEntity *ent = AICast_FindEntityForName( token );
 	if ( !ent ) {
 		ent = G_Find( &g_entities[MAX_CLIENTS], FOFS( scriptName ), token );
 		if ( !ent ) {
@@ -663,7 +663,7 @@ AICast_ScriptAction_FollowCast
 ===================
 */
 bool AICast_ScriptAction_FollowCast( cast_state_t *cs, char *params ) {
-	gentity_t *ent;
+	GameEntity *ent;
 
 	// find the cast/player with the given "name"
 	ent = AICast_FindEntityForName( params );
@@ -739,7 +739,7 @@ AICast_ScriptAction_Attack
 =================
 */
 bool AICast_ScriptAction_Attack( cast_state_t *cs, char *params ) {
-	gentity_t *ent;
+	GameEntity *ent;
 
 	cs->castScriptStatus.scriptNoAttackTime = 0;
 
@@ -771,8 +771,8 @@ AICast_ScriptAction_PlayAnim
 bool AICast_ScriptAction_PlayAnim( cast_state_t *cs, char *params ) {
 	char tokens[3][MAX_QPATH];
 	int i, endtime, duration, numLoops;
-	gclient_t *client;
-	gentity_t *ent;
+	GameClient *client;
+	GameEntity *ent;
 	vec3_t org, vec;
 	bool forever = false, setAngles = false;
 	bool holdframe = false;
@@ -827,7 +827,7 @@ bool AICast_ScriptAction_PlayAnim( cast_state_t *cs, char *params ) {
 
 			if ( token && token[0] ) {
 				// find this targetname
-				ent = G_Find( NULL, FOFS( targetname ), token );
+				ent = G_Find( nullptr, FOFS( targetname ), token );
 				if ( !ent ) {
 					ent = AICast_FindEntityForName( token );
 					if ( !ent ) {
@@ -1010,7 +1010,7 @@ AICast_ScriptAction_ClearAnim
 =================
 */
 bool AICast_ScriptAction_ClearAnim( cast_state_t *cs, char *params ) {
-	gclient_t *client;
+	GameClient *client;
 
 	client = &level.clients[cs->entityNum];
 
@@ -1322,7 +1322,7 @@ AICast_ScriptAction_GiveWeapon
 bool AICast_ScriptAction_GiveWeapon( cast_state_t *cs, char *params ) {
 	int weapon;
 	int i;
-	gentity_t   *ent = &g_entities[cs->entityNum];
+	GameEntity   *ent = &g_entities[cs->entityNum];
 
 	weapon = WP_NONE;
 
@@ -1555,7 +1555,7 @@ AICast_ScriptAction_AlertEntity
 =================
 */
 bool AICast_ScriptAction_AlertEntity( cast_state_t *cs, char *params ) {
-	gentity_t   *ent;
+	GameEntity   *ent;
 
 	if ( !params || !params[0] ) {
 		Com_Error( ERR_DROP, "AI Scripting: alertentity without targetname\n" );
@@ -1563,9 +1563,9 @@ bool AICast_ScriptAction_AlertEntity( cast_state_t *cs, char *params ) {
 	}
 
 	// find this targetname
-	ent = G_Find( NULL, FOFS( targetname ), params );
+	ent = G_Find( nullptr, FOFS( targetname ), params );
 	if ( !ent ) {
-		ent = G_Find( NULL, FOFS( aiName ), params ); // look for an AI
+		ent = G_Find( nullptr, FOFS( aiName ), params ); // look for an AI
 		if ( !ent || !ent->client ) { // accept only AI for aiName check
 			Com_Error( ERR_DROP, "AI Scripting: alertentity cannot find targetname \"%s\"\n", params );
             return false;  // Keep linter happy. ERR_DROP does not return
@@ -1575,7 +1575,7 @@ bool AICast_ScriptAction_AlertEntity( cast_state_t *cs, char *params ) {
 	// call this entity's AlertEntity function
 	if ( !ent->AIScript_AlertEntity ) {
 		if ( !ent->client && ent->use && !Q_stricmp( ent->classname, "ai_trigger" ) ) {
-			ent->use( ent, NULL, NULL );
+			ent->use( ent, nullptr, nullptr );
 			return true;
 		}
 
@@ -1610,7 +1610,7 @@ bool AICast_ScriptAction_SaveGame( cast_state_t *cs, char *params ) {
 //----(SA)	check for parameter
 	const char* saveName = COM_ParseExt( &pString, false );
 	if ( !saveName[0] ) {
-		G_SaveGame( NULL ); // save the default "current" savegame
+		G_SaveGame( nullptr ); // save the default "current" savegame
 	} else {
 		G_SaveGame( saveName );
 	}
@@ -1627,7 +1627,7 @@ AICast_ScriptAction_FireAtTarget
 =================
 */
 bool AICast_ScriptAction_FireAtTarget( cast_state_t *cs, char *params ) {
-	gentity_t   *ent;
+	GameEntity   *ent;
 	vec3_t vec, org, src;
 
 	float diff;
@@ -1647,7 +1647,7 @@ bool AICast_ScriptAction_FireAtTarget( cast_state_t *cs, char *params ) {
 	}
 
 	// find this targetname
-	ent = G_Find( NULL, FOFS( targetname ), token );
+	ent = G_Find( nullptr, FOFS( targetname ), token );
 	if ( !ent ) {
 		ent = AICast_FindEntityForName( token );
 		if ( !ent ) {
@@ -1962,7 +1962,7 @@ AICast_ScriptAction_ObjectiveMet
 =================
 */
 bool AICast_ScriptAction_ObjectiveMet( cast_state_t *cs, char *params ) {
-	gentity_t   *player;
+	GameEntity   *player;
 	vmCvar_t cvar;
 	int lvl;
 	const char *pString = params;
@@ -2059,14 +2059,14 @@ AICast_ScriptAction_FaceTargetAngles
 =================
 */
 bool AICast_ScriptAction_FaceTargetAngles( cast_state_t *cs, char *params ) {
-	gentity_t   *targetEnt;
+	GameEntity   *targetEnt;
 
 	if ( !params || !params[0] ) {
 		Com_Error( ERR_DROP, "AI Scripting: facetargetangles requires a targetname\n" );
         return false;  // Keep linter happy. ERR_DROP does not return
 	}
 
-	targetEnt = G_Find( NULL, FOFS( targetname ), params );
+	targetEnt = G_Find( nullptr, FOFS( targetname ), params );
 	if ( !targetEnt ) {
 		Com_Error( ERR_DROP, "AI Scripting: cannot find targetname \"%s\"\n", params );
         return false;  // Keep linter happy. ERR_DROP does not return
@@ -2086,7 +2086,7 @@ AICast_ScriptAction_ResetScript
 */
 bool AICast_ScriptAction_ResetScript( cast_state_t *cs, char *params )
 {
-    gclient_t* client = &level.clients[cs->entityNum];
+    GameClient* client = &level.clients[cs->entityNum];
 
 	// stop any anim from playing
 	if ( client->ps.torsoTimer && ( client->ps.torsoTimer > ( level.time - cs->scriptAnimTime ) ) ) {
@@ -2129,7 +2129,7 @@ AICast_ScriptAction_Mount
 ===================
 */
 bool AICast_ScriptAction_Mount( cast_state_t *cs, char *params ) {
-	gentity_t   *targetEnt, *ent;
+	GameEntity   *targetEnt, *ent;
 	vec3_t vec;
 	float dist;
 
@@ -2138,7 +2138,7 @@ bool AICast_ScriptAction_Mount( cast_state_t *cs, char *params ) {
         return false;  // Keep linter happy. ERR_DROP does not return
 	}
 
-	targetEnt = G_Find( NULL, FOFS( targetname ), params );
+	targetEnt = G_Find( nullptr, FOFS( targetname ), params );
 	if ( !targetEnt ) {
 		Com_Error( ERR_DROP, "AI Scripting: cannot find targetname \"%s\"\n", params );
         return false;  // Keep linter happy. ERR_DROP does not return
@@ -2184,7 +2184,7 @@ AICast_ScriptAction_Unmount
 ===================
 */
 bool AICast_ScriptAction_Unmount( cast_state_t *cs, char *params ) {
-	gentity_t   *ent, *mg42;
+	GameEntity   *ent, *mg42;
 
 	ent = &g_entities[cs->entityNum];
 	mg42 = &g_entities[cs->mountedEntity];
@@ -2230,7 +2230,7 @@ AICast_ScriptAction_Teleport
 ==============
 */
 bool AICast_ScriptAction_Teleport( cast_state_t *cs, char *params ) {
-	gentity_t   *dest;
+	GameEntity   *dest;
 
 	dest =  G_PickTarget( params );
 	if ( !dest ) {
@@ -2276,7 +2276,7 @@ AICast_ScriptAction_ChangeLevel
 bool AICast_ScriptAction_ChangeLevel( cast_state_t *cs, char *params ) {
 	int i;
 	char *pch, *pch2, *newstr;
-	gentity_t   *player;
+	GameEntity   *player;
 	bool silent = false, endgame = false, savepersist = false;
 	int exitTime = 8000;
 
@@ -2377,7 +2377,7 @@ AICast_ScriptAction_FoundSecret
 ==================
 */
 bool AICast_ScriptAction_FoundSecret( cast_state_t *cs, char *params ) {
-	gentity_t *player = AICast_FindEntityForName( "player" );
+	GameEntity *player = AICast_FindEntityForName( "player" );
 //	level.numSecretsFound++;
 	player->numSecretsFound++;
 	SV_GameSendServerCommand( -1, "cp secretarea" );
@@ -2652,7 +2652,7 @@ AICast_ScriptAction_StartCam
 */
 bool ScriptStartCam( cast_state_t *cs, char *params, bool black ) {
 	
-	gentity_t *ent;
+	GameEntity *ent;
 
 	ent = &g_entities[cs->entityNum];
 
@@ -2697,7 +2697,7 @@ bool AICast_ScriptAction_StopCam( cast_state_t *cs, char *params ) {
 bool AICast_ScriptAction_Cigarette( cast_state_t *cs, char *params ) {
 
 	
-	gentity_t *ent;
+	GameEntity *ent;
 
 	ent = &g_entities[cs->entityNum];
 
@@ -2732,7 +2732,7 @@ AICast_ScriptAction_Parachute
 bool AICast_ScriptAction_Parachute( cast_state_t *cs, char *params ) {
 
 
-	gentity_t *ent;
+	GameEntity *ent;
 
 	ent = &g_entities[cs->entityNum];
 
@@ -3022,7 +3022,7 @@ AICast_ScriptAction_LockPlayer
 =================
 */
 bool AICast_ScriptAction_LockPlayer( cast_state_t *cs, char *params ) {
-	gentity_t *ent;
+	GameEntity *ent;
 
 	ent = &g_entities[cs->entityNum];
 
@@ -3081,7 +3081,7 @@ AICast_ScriptAction_PushAway
 ================
 */
 bool AICast_ScriptAction_PushAway( cast_state_t *cs, char *params ) {
-	gentity_t *pushed;
+	GameEntity *pushed;
 	vec3_t v, ang, f, r;
 
 	if ( !params || !params[0] ) {
@@ -3098,7 +3098,7 @@ bool AICast_ScriptAction_PushAway( cast_state_t *cs, char *params ) {
 	VectorSubtract( pushed->shared.s.pos.trBase, cs->bs->origin, v );
 	VectorNormalize( v );
 	vectoangles( v, ang );
-	AngleVectors( ang, f, r, NULL );
+	AngleVectors( ang, f, r, nullptr );
 	// push them away and to the side
 	VectorScale( f, 200, v );
 	VectorMA( v, ( level.time % 5000 < 2500 ? 200 : 200 ), r, v );
@@ -3113,7 +3113,7 @@ AICast_ScriptAction_CatchFire
 ==================
 */
 bool AICast_ScriptAction_CatchFire( cast_state_t *cs, char *params ) {
-	gentity_t *ent = &g_entities[cs->entityNum];
+	GameEntity *ent = &g_entities[cs->entityNum];
 	//
 	ent->shared.s.onFireEnd = level.time + 99999;  // make sure it goes for longer than they need to die
 	ent->flameBurnEnt = ENTITYNUM_WORLD;

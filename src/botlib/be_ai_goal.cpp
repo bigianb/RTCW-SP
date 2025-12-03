@@ -161,16 +161,16 @@ typedef struct bot_goalstate_s
 
 bot_goalstate_t *botgoalstates[MAX_CLIENTS + 1];
 //item configuration
-itemconfig_t *itemconfig = NULL;
+itemconfig_t *itemconfig = nullptr;
 //level items
-levelitem_t *levelitemheap = NULL;
-levelitem_t *freelevelitems = NULL;
-levelitem_t *levelitems = NULL;
+levelitem_t *levelitemheap = nullptr;
+levelitem_t *freelevelitems = nullptr;
+levelitem_t *levelitems = nullptr;
 int numlevelitems = 0;
 //map locations
-maplocation_t *maplocations = NULL;
+maplocation_t *maplocations = nullptr;
 //camp spots
-campspot_t *campspots = NULL;
+campspot_t *campspots = nullptr;
 
 //========================================================================
 //
@@ -181,11 +181,11 @@ campspot_t *campspots = NULL;
 bot_goalstate_t *BotGoalStateFromHandle( int handle ) {
 	if ( handle <= 0 || handle > MAX_CLIENTS ) {
 		BotImport_Print( PRT_FATAL, "goal state handle %d out of range\n", handle );
-		return NULL;
+		return nullptr;
 	} //end if
 	if ( !botgoalstates[handle] ) {
 		BotImport_Print( PRT_FATAL, "invalid goal state %d\n", handle );
-		return NULL;
+		return nullptr;
 	} //end if
 	return botgoalstates[handle];
 } //end of the function BotGoalStateFromHandle
@@ -229,7 +229,7 @@ itemconfig_t *LoadItemConfig( const char *filename ) {
 	source = LoadSourceFile( path );
 	if ( !source ) {
 		BotImport_Print( PRT_ERROR, "counldn't load %s\n", path );
-		return NULL;
+		return nullptr;
 	} //end if
 	  //initialize item config
 	ic = (itemconfig_t *) GetClearedHunkMemory( sizeof( itemconfig_t ) +
@@ -244,21 +244,21 @@ itemconfig_t *LoadItemConfig( const char *filename ) {
 				SourceError( source, "more than %d item info defined\n", max_iteminfo );
 				FreeMemory( ic );
 				FreeSource( source );
-				return NULL;
+				return nullptr;
 			} //end if
 			ii = &ic->iteminfo[ic->numiteminfo];
 			memset( ii, 0, sizeof( iteminfo_t ) );
 			if ( !PC_ExpectTokenType( source, TT_STRING, 0, &token ) ) {
 				FreeMemory( ic );
 				FreeMemory( source );
-				return NULL;
+				return nullptr;
 			} //end if
 			StripDoubleQuotes( token.string );
 			strncpy( ii->classname, token.string, sizeof( ii->classname ) - 1 );
 			if ( !ReadStructure( source, &iteminfo_struct, (char *) ii ) ) {
 				FreeMemory( ic );
 				FreeSource( source );
-				return NULL;
+				return nullptr;
 			} //end if
 			ii->number = ic->numiteminfo;
 			ic->numiteminfo++;
@@ -268,7 +268,7 @@ itemconfig_t *LoadItemConfig( const char *filename ) {
 			SourceError( source, "unknown definition %s\n", token.string );
 			FreeMemory( ic );
 			FreeSource( source );
-			return NULL;
+			return nullptr;
 		} //end else
 	} //end while
 	FreeSource( source );
@@ -321,7 +321,7 @@ void InitLevelItemHeap( void ) {
 	{
 		levelitemheap[i].next = &levelitemheap[i + 1];
 	} //end for
-	levelitemheap[max_levelitems - 1].next = NULL;
+	levelitemheap[max_levelitems - 1].next = nullptr;
 	//
 	freelevelitems = levelitemheap;
 } //end of the function InitLevelItemHeap
@@ -337,7 +337,7 @@ levelitem_t *AllocLevelItem( void ) {
 	li = freelevelitems;
 	if ( !li ) {
 		BotImport_Print( PRT_FATAL, "out of level items\n" );
-		return NULL;
+		return nullptr;
 	} //end if
 	  //
 	freelevelitems = freelevelitems->next;
@@ -364,7 +364,7 @@ void AddLevelItemToList( levelitem_t *li ) {
 	if ( levelitems ) {
 		levelitems->prev = li;
 	}
-	li->prev = NULL;
+	li->prev = nullptr;
 	li->next = levelitems;
 	levelitems = li;
 } //end of the function AddLevelItemToList
@@ -397,13 +397,13 @@ void BotFreeInfoEntities( void ) {
 		nextml = ml->next;
 		FreeMemory( ml );
 	} //end for
-	maplocations = NULL;
+	maplocations = nullptr;
 	for ( cs = campspots; cs; cs = nextcs )
 	{
 		nextcs = cs->next;
 		FreeMemory( cs );
 	} //end for
-	campspots = NULL;
+	campspots = nullptr;
 } //end of the function BotFreeInfoEntities
 //===========================================================================
 //
@@ -483,7 +483,7 @@ void BotInitLevelItems( void ) {
 
 	//initialize the level item heap
 	InitLevelItemHeap();
-	levelitems = NULL;
+	levelitems = nullptr;
 	numlevelitems = 0;
 	//
 	ic = itemconfig;
@@ -1075,7 +1075,7 @@ int BotChooseLTGItem( int goalstate, vec3_t origin, int *inventory, int travelfl
 	}
 	//best weight and item so far
 	bestweight = 0;
-	bestitem = NULL;
+	bestitem = nullptr;
 	memset( &goal, 0, sizeof( bot_goal_t ) );
 	//go through the items in the level
 	for ( li = levelitems; li; li = li->next )
@@ -1207,7 +1207,7 @@ int BotChooseNBGItem( int goalstate, vec3_t origin, int *inventory, int travelfl
 	}
 	//best weight and item so far
 	bestweight = 0;
-	bestitem = NULL;
+	bestitem = nullptr;
 	memset( &goal, 0, sizeof( bot_goal_t ) );
 	//go through the items in the level
 	for ( li = levelitems; li; li = li->next )
@@ -1349,7 +1349,7 @@ int BotItemGoalInVisButNotVisible( int viewer, vec3_t eye, vec3_t viewangles, bo
 	VectorScale( middle, 0.5, middle );
 	VectorAdd( goal->origin, middle, middle );
 	//
-	trace = AAS_Trace( eye, NULL, NULL, middle, viewer, CONTENTS_SOLID );
+	trace = AAS_Trace( eye, nullptr, nullptr, middle, viewer, CONTENTS_SOLID );
 	//if the goal middle point is visible
 	if ( trace.fraction >= 1 ) {
 		//the goal entity number doesn't have to be valid
@@ -1470,7 +1470,7 @@ void BotFreeGoalState( int handle ) {
 	} //end if
 	BotFreeItemWeights( handle );
 	FreeMemory( botgoalstates[handle] );
-	botgoalstates[handle] = NULL;
+	botgoalstates[handle] = nullptr;
 } //end of the function BotFreeGoalState
 //===========================================================================
 //
@@ -1503,13 +1503,13 @@ void BotShutdownGoalAI( void ) {
 	if ( itemconfig ) {
 		FreeMemory( itemconfig );
 	}
-	itemconfig = NULL;
+	itemconfig = nullptr;
 	if ( levelitemheap ) {
 		FreeMemory( levelitemheap );
 	}
-	levelitemheap = NULL;
-	freelevelitems = NULL;
-	levelitems = NULL;
+	levelitemheap = nullptr;
+	freelevelitems = nullptr;
+	levelitems = nullptr;
 	numlevelitems = 0;
 
 	BotFreeInfoEntities();

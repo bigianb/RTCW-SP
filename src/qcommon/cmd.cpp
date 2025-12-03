@@ -524,7 +524,7 @@ void    Cmd_AddCommand( const char *cmd_name, xcommand_t function ) {
 	for ( cmd = cmd_functions ; cmd ; cmd = cmd->next ) {
 		if ( !strcmp( cmd_name, cmd->name ) ) {
 			// allow completion-only commands to be silently doubled
-			if ( function != NULL ) {
+			if ( function != nullptr ) {
 				Com_Printf( "Cmd_AddCommand: %s already defined\n", cmd_name );
 			}
 			return;
@@ -654,7 +654,7 @@ void Cmd_List_f()
 	if ( Cmd_Argc() > 1 ) {
 		match = Cmd_Argv( 1 );
 	} else {
-		match = NULL;
+		match = nullptr;
 	}
 
 	int i = 0;

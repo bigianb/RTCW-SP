@@ -433,7 +433,7 @@ static void CG_MapRestart( void ) {
 	// done.
 
 	// RF, init ZombieFX
-	trap_RB_ZombieFXAddNewHit( -1, NULL, NULL );
+	trap_RB_ZombieFXAddNewHit( -1, nullptr, nullptr );
 
 	// make sure the "3 frags left" warnings play again
 	cg.fraglimitWarnings = 0;

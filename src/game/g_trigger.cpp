@@ -29,7 +29,7 @@ If you have questions concerning this license or the applicable additional terms
 #include "g_local.h"
 #include "../server/server.h"
 
-void InitTrigger( gentity_t *self ) {
+void InitTrigger( GameEntity *self ) {
 	if ( !VectorCompare( self->shared.s.angles, vec3_origin ) ) {
 		G_SetMovedir( self->shared.s.angles, self->movedir );
 	}
@@ -42,7 +42,7 @@ void InitTrigger( gentity_t *self ) {
 
 
 // the wait time has passed, so set back up for another activation
-void multi_wait( gentity_t *ent ) {
+void multi_wait( GameEntity *ent ) {
 	ent->nextthink = 0;
 }
 
@@ -50,7 +50,7 @@ void multi_wait( gentity_t *ent ) {
 // the trigger was just activated
 // ent->activator should be set to the activator so it can be held through a delay
 // so wait for the delay time before firing
-void multi_trigger( gentity_t *ent, gentity_t *activator ) {
+void multi_trigger( GameEntity *ent, GameEntity *activator ) {
 	ent->activator = activator;
 	if ( ent->nextthink ) {
 		return;     // can't retrigger until the wait is over
@@ -70,11 +70,11 @@ void multi_trigger( gentity_t *ent, gentity_t *activator ) {
 	}
 }
 
-void Use_Multi( gentity_t *ent, gentity_t *other, gentity_t *activator ) {
+void Use_Multi( GameEntity *ent, GameEntity *other, GameEntity *activator ) {
 	multi_trigger( ent, activator );
 }
 
-void Touch_Multi( gentity_t *self, gentity_t *other, trace_t *trace ) {
+void Touch_Multi( GameEntity *self, GameEntity *other, trace_t *trace ) {
 	if ( !other->client ) {
 		return;
 	}
@@ -87,9 +87,9 @@ void Touch_Multi( gentity_t *self, gentity_t *other, trace_t *trace ) {
 	multi_trigger( self, other );
 }
 
-void Enable_Trigger_Touch( gentity_t *ent ) {
-	gentity_t *targ;
-	gentity_t *daent;
+void Enable_Trigger_Touch( GameEntity *ent ) {
+	GameEntity *targ;
+	GameEntity *daent;
 	trace_t tr;
 	int mask = MASK_SHOT;
 	int targTemp1, targTemp2;
@@ -163,7 +163,7 @@ void Enable_Trigger_Touch( gentity_t *ent ) {
 			VectorClear( targ->client->ps.velocity );
 
 			dir[YAW] = angle;
-			AngleVectors( dir, forward, NULL, NULL );
+			AngleVectors( dir, forward, nullptr, nullptr );
 
 			VectorScale( forward, 32, kvel );
 			VectorAdd( targ->client->ps.velocity, kvel, targ->client->ps.velocity );
@@ -179,7 +179,7 @@ Variable sized repeatable trigger.  Must be targeted at one or more entities.
 so, the basic time between firing is a random time between
 (wait - random) and (wait + random)
 */
-void SP_trigger_multiple( gentity_t *ent ) {
+void SP_trigger_multiple( GameEntity *ent ) {
 	G_SpawnFloat( "wait", "0.5", &ent->wait );
 	G_SpawnFloat( "random", "0", &ent->random );
 
@@ -205,7 +205,7 @@ trigger_always
 ==============================================================================
 */
 
-void trigger_always_think( gentity_t *ent ) {
+void trigger_always_think( GameEntity *ent ) {
 	G_UseTargets( ent, ent );
 	G_FreeEntity( ent );
 }
@@ -213,7 +213,7 @@ void trigger_always_think( gentity_t *ent ) {
 /*QUAKED trigger_always (.5 .5 .5) (-8 -8 -8) (8 8 8)
 This trigger will always fire.  It is activated by the world.
 */
-void SP_trigger_always( gentity_t *ent ) {
+void SP_trigger_always( GameEntity *ent ) {
 	// we must have some delay to make sure our use targets are present
 	ent->nextthink = level.time + 300;
 	ent->think = trigger_always_think;
@@ -228,7 +228,7 @@ trigger_push
 ==============================================================================
 */
 
-void trigger_push_touch( gentity_t *self, gentity_t *other, trace_t *trace ) {
+void trigger_push_touch( GameEntity *self, GameEntity *other, trace_t *trace ) {
 
 	if ( ( self->spawnflags & 4 ) && other->shared.r.svFlags & SVF_CASTAI ) {
 		return;
@@ -268,8 +268,8 @@ AimAtTarget
 Calculate origin2 so the target apogee will be hit
 =================
 */
-void AimAtTarget( gentity_t *self ) {
-	gentity_t   *ent;
+void AimAtTarget( GameEntity *self ) {
+	GameEntity   *ent;
 	vec3_t origin;
 	float height, gravity, time, forward;
 	float dist;
@@ -302,7 +302,7 @@ void AimAtTarget( gentity_t *self ) {
 	self->shared.s.origin2[2] = time * gravity;
 }
 
-void trigger_push_use( gentity_t *self, gentity_t *other, gentity_t *activator ) {
+void trigger_push_use( GameEntity *self, GameEntity *other, GameEntity *activator ) {
 	self->touch = trigger_push_touch;
 	SV_LinkEntity( &self->shared );
 }
@@ -311,7 +311,7 @@ void trigger_push_use( gentity_t *self, gentity_t *other, gentity_t *activator )
 Must point at a target_position, which will be the apex of the leap.
 This will be client side predicted, unlike target_push
 */
-void SP_trigger_push( gentity_t *self ) {
+void SP_trigger_push( GameEntity *self ) {
 //	InitTrigger (self);
 
 // init trigger
@@ -340,7 +340,7 @@ void SP_trigger_push( gentity_t *self ) {
 
 	if ( self->spawnflags & 1 ) { // toggle
 		self->use = trigger_push_use;
-		self->touch = NULL;
+		self->touch = nullptr;
 		SV_UnlinkEntity( &self->shared );
 	} else {
 		SV_LinkEntity( &self->shared );
@@ -351,7 +351,7 @@ void SP_trigger_push( gentity_t *self ) {
 }
 
 
-void Use_target_push( gentity_t *self, gentity_t *other, gentity_t *activator ) {
+void Use_target_push( GameEntity *self, GameEntity *other, GameEntity *activator ) {
 	if ( !activator->client ) {
 		return;
 	}
@@ -377,7 +377,7 @@ Pushes the activator in the direction.of angle, or towards a target apex.
 "speed"		defaults to 1000
 if "bouncepad", play bounce noise instead of windfly
 */
-void SP_target_push( gentity_t *self ) {
+void SP_target_push( GameEntity *self ) {
 	if ( !self->speed ) {
 		self->speed = 1000;
 	}
@@ -406,8 +406,8 @@ trigger_teleport
 ==============================================================================
 */
 
-void trigger_teleporter_touch( gentity_t *self, gentity_t *other, trace_t *trace ) {
-	gentity_t   *dest;
+void trigger_teleporter_touch( GameEntity *self, GameEntity *other, trace_t *trace ) {
+	GameEntity   *dest;
 
 	if ( !other->client ) {
 		return;
@@ -430,7 +430,7 @@ void trigger_teleporter_touch( gentity_t *self, gentity_t *other, trace_t *trace
 Allows client side prediction of teleportation events.
 Must point at a target_position, which will be the teleport destination.
 */
-void SP_trigger_teleport( gentity_t *self ) {
+void SP_trigger_teleport( GameEntity *self ) {
 	InitTrigger( self );
 
 	// unlike other triggers, we need to send this one to the client
@@ -472,7 +472,7 @@ default is zero
 
 the entity must be used first before it will count down its life
 */
-void hurt_touch( gentity_t *self, gentity_t *other, trace_t *trace ) {
+void hurt_touch( GameEntity *self, GameEntity *other, trace_t *trace ) {
 	int dflags;
 
 	if ( !other->takedamage ) {
@@ -507,14 +507,14 @@ void hurt_touch( gentity_t *self, gentity_t *other, trace_t *trace ) {
 	} else {
 		dflags = 0;
 	}
-	G_Damage( other, self, self, NULL, NULL, self->damage, dflags, MOD_TRIGGER_HURT );
+	G_Damage( other, self, self, nullptr, nullptr, self->damage, dflags, MOD_TRIGGER_HURT );
 
 	if ( self->spawnflags & 32 ) {
-		self->touch = NULL;
+		self->touch = nullptr;
 	}
 }
 
-void hurt_think( gentity_t *ent ) {
+void hurt_think( GameEntity *ent ) {
 	ent->nextthink = level.time + FRAMETIME;
 
 	if ( ent->wait < level.time ) {
@@ -523,9 +523,9 @@ void hurt_think( gentity_t *ent ) {
 
 }
 
-void hurt_use( gentity_t *self, gentity_t *other, gentity_t *activator ) {
+void hurt_use( GameEntity *self, GameEntity *other, GameEntity *activator ) {
 	if ( self->touch ) {
-		self->touch = NULL;
+		self->touch = nullptr;
 	} else {
 		self->touch = hurt_touch;
 	}
@@ -542,7 +542,7 @@ void hurt_use( gentity_t *self, gentity_t *other, gentity_t *activator ) {
 SP_trigger_hurt
 ==============
 */
-void SP_trigger_hurt( gentity_t *self ) {
+void SP_trigger_hurt( GameEntity *self ) {
 
 	const char    *life;
 	float dalife;
@@ -593,13 +593,13 @@ so, the basic time between firing is a random time between
 (wait - random) and (wait + random)
 
 */
-void func_timer_think( gentity_t *self ) {
+void func_timer_think( GameEntity *self ) {
 	G_UseTargets( self, self->activator );
 	// set time before next firing
 	self->nextthink = level.time + 1000 * ( self->wait + crandom() * self->random );
 }
 
-void func_timer_use( gentity_t *self, gentity_t *other, gentity_t *activator ) {
+void func_timer_use( GameEntity *self, GameEntity *other, GameEntity *activator ) {
 	self->activator = activator;
 
 	// if on, turn it off
@@ -612,7 +612,7 @@ void func_timer_use( gentity_t *self, gentity_t *other, gentity_t *activator ) {
 	func_timer_think( self );
 }
 
-void SP_func_timer( gentity_t *self ) {
+void SP_func_timer( GameEntity *self ) {
 	G_SpawnFloat( "random", "1", &self->random );
 	G_SpawnFloat( "wait", "1", &self->wait );
 
@@ -643,7 +643,7 @@ Must be targeted at one or more entities.
 Once triggered, this entity is destroyed
 (you can actually do the same thing with trigger_multiple with a wait of -1)
 */
-void SP_trigger_once( gentity_t *ent ) {
+void SP_trigger_once( GameEntity *ent ) {
 	ent->wait   = -1;           // this will remove itself after one use
 	ent->touch  = Touch_Multi;
 	ent->use    = Use_Multi;
@@ -663,7 +663,7 @@ this entity will test if aiName is in its volume
 Must be targeted at one or more entities.
 Once triggered, this entity is destroyed
 */
-void SP_trigger_deathCheck( gentity_t *ent ) {
+void SP_trigger_deathCheck( GameEntity *ent ) {
 	VectorCopy( ent->shared.s.angles, ent->shared.s.angles2 );
 
 	if ( !( ent->aiName ) ) {
@@ -687,8 +687,8 @@ this will enable ai's to operate the door and help in preventing ai's and
 the player from getting stuck when the door is deciding which way to open
 */
 
-void trigger_aidoor_stayopen( gentity_t * ent, gentity_t * other, trace_t * trace ) {
-	gentity_t *door;
+void trigger_aidoor_stayopen( GameEntity * ent, GameEntity * other, trace_t * trace ) {
+	GameEntity *door;
 
 	if ( other->client && other->health > 0 ) {
 		if ( !ent->target || !( strlen( ent->target ) ) ) {
@@ -697,7 +697,7 @@ void trigger_aidoor_stayopen( gentity_t * ent, gentity_t * other, trace_t * trac
 			return;
 		}
 
-		door = G_Find( NULL, FOFS( targetname ), ent->target );
+		door = G_Find( nullptr, FOFS( targetname ), ent->target );
 
 		if ( !door ) {
 			Com_Printf( "trigger_aidoor at loc %s cannot find target '%s'\n", vtos( ent->shared.s.origin ), ent->target );
@@ -748,7 +748,7 @@ void trigger_aidoor_stayopen( gentity_t * ent, gentity_t * other, trace_t * trac
 
 }
 
-void SP_trigger_aidoor( gentity_t *ent ) {
+void SP_trigger_aidoor( GameEntity *ent ) {
 	if ( !ent->targetname ) {
 		Com_Printf( "trigger_aidoor at loc %s does not have a targetname for ai_marker assignments\n", vtos( ent->shared.s.origin ) );
 	}
@@ -759,8 +759,8 @@ void SP_trigger_aidoor( gentity_t *ent ) {
 }
 
 
-void gas_touch( gentity_t *ent, gentity_t *other, trace_t *trace ) {
-	gentity_t       *traceEnt;
+void gas_touch( GameEntity *ent, GameEntity *other, trace_t *trace ) {
+	GameEntity       *traceEnt;
 	trace_t tr;
 	vec3_t dir;
 	int damage = 1;
@@ -770,11 +770,11 @@ void gas_touch( gentity_t *ent, gentity_t *other, trace_t *trace ) {
 	}
 
 	if ( ent->shared.s.density == 5 ) {
-		ent->touch = NULL;
+		ent->touch = nullptr;
 		damage = 5;
 	}
 
-	SV_Trace( &tr, ent->shared.r.currentOrigin, NULL, NULL, other->shared.r.currentOrigin, ent->shared.s.number, MASK_SHOT, false );
+	SV_Trace( &tr, ent->shared.r.currentOrigin, nullptr, nullptr, other->shared.r.currentOrigin, ent->shared.s.number, MASK_SHOT, false );
 
 	if ( tr.surfaceFlags & SURF_NOIMPACT ) {
 		return;
@@ -795,8 +795,8 @@ void gas_touch( gentity_t *ent, gentity_t *other, trace_t *trace ) {
 	}
 }
 
-void gas_think( gentity_t *ent ) {
-	gentity_t *tent;
+void gas_think( GameEntity *ent ) {
+	GameEntity *tent;
 
 	ent->count++;
 
@@ -840,7 +840,7 @@ void gas_think( gentity_t *ent ) {
 
 /*QUAKED test_gas (0 0.5 0) (-4 -4 -4) (4 4 4)
 */
-void SP_gas( gentity_t *self ) {
+void SP_gas( GameEntity *self ) {
 	self->think = gas_think;
 	self->nextthink = level.time + FRAMETIME;
 	self->shared.r.contents = CONTENTS_TRIGGER;
@@ -862,7 +862,7 @@ You specify which objective it is with a number in "count"
 #define AXIS_OBJECTIVE      1
 #define ALLIED_OBJECTIVE    2
 
-void Touch_objective_info( gentity_t *ent, gentity_t *other, trace_t *trace ) {
+void Touch_objective_info( GameEntity *ent, GameEntity *other, trace_t *trace ) {
 
 	if ( other->timestamp > level.time ) {
 		return;
@@ -890,7 +890,7 @@ void Touch_objective_info( gentity_t *ent, gentity_t *other, trace_t *trace ) {
 
 }
 
-void SP_trigger_objective_info( gentity_t *ent ) {
+void SP_trigger_objective_info( GameEntity *ent ) {
 	ent->touch  = Touch_objective_info;
 
 	InitTrigger( ent );

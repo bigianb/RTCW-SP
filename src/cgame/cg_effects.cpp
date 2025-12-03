@@ -226,7 +226,7 @@ localEntity_t *CG_MakeExplosion( vec3_t origin, vec3_t dir,
 
 	if ( msec <= 0 ) {
 		Com_Error( ERR_DROP, "CG_MakeExplosion: msec = %i", msec );
-        return NULL;  // Keep linter happy. ERR_DROP does not return
+        return nullptr;  // Keep linter happy. ERR_DROP does not return
 	}
 
 	// skew the time a bit so they aren't all in sync
@@ -537,7 +537,7 @@ void CG_LoseHat( centity_t *cent, vec3_t dir ) {
 		return;
 	}
 
-	tagIndex = CG_GetOriginForTag( cent, &cent->pe.headRefEnt, "tag_mouth", 0, origin, NULL );
+	tagIndex = CG_GetOriginForTag( cent, &cent->pe.headRefEnt, "tag_mouth", 0, origin, nullptr );
 
 	velocity[0] = dir[0] * ( 0.75 + random() ) * GIB_VELOCITY;
 	velocity[1] = dir[1] * ( 0.75 + random() ) * GIB_VELOCITY;
@@ -604,13 +604,13 @@ void CG_GibHead( vec3_t headOrigin ) {
 	velocity[0] = crandom() * GIB_VELOCITY;
 	velocity[1] = crandom() * GIB_VELOCITY;
 	velocity[2] = GIB_JUMP + crandom() * GIB_VELOCITY;
-	CG_LaunchGib( NULL, origin, vec3_origin, velocity, cgs.media.gibSkull, 1.0, 0 );
+	CG_LaunchGib( nullptr, origin, vec3_origin, velocity, cgs.media.gibSkull, 1.0, 0 );
 
 	VectorCopy( headOrigin, origin );
 	velocity[0] = crandom() * GIB_VELOCITY;
 	velocity[1] = crandom() * GIB_VELOCITY;
 	velocity[2] = GIB_JUMP + crandom() * GIB_VELOCITY;
-	CG_LaunchGib( NULL, origin, vec3_origin, velocity, cgs.media.gibBrain, 1.0, 0 );
+	CG_LaunchGib( nullptr, origin, vec3_origin, velocity, cgs.media.gibBrain, 1.0, 0 );
 
 }
 
@@ -723,13 +723,13 @@ void CG_GibPlayer( centity_t *cent, vec3_t playerOrigin, vec3_t gdir ) {
 		"tag_armright",
 		"tag_armleft",
 		"tag_head",
-		NULL,
-        NULL,
-        NULL,
-        NULL,
-        NULL,
-        NULL,
-        NULL
+		nullptr,
+        nullptr,
+        nullptr,
+        nullptr,
+        nullptr,
+        nullptr,
+        nullptr
 	};
 
 #define TORSOTAGSSTART 5    // where the 'split' happens in the above table
@@ -966,7 +966,7 @@ void CG_GibPlayer( centity_t *cent, vec3_t playerOrigin, vec3_t gdir ) {
 
 		VectorAdd( playerOrigin, velocity, origin );
 
-		CG_Trace( &trace, playerOrigin, NULL, NULL, origin, -1, CONTENTS_SOLID );
+		CG_Trace( &trace, playerOrigin, nullptr, nullptr, origin, -1, CONTENTS_SOLID );
 		if ( trace.fraction < 1.0 ) {
 			BG_GetMarkDir( velocity, trace.plane.normal, velocity );
 			CG_ImpactMark( cgs.media.bloodDotShaders[rand() % 5], trace.endpos, velocity, random() * 360,
@@ -1275,7 +1275,7 @@ void CG_ProjectedSpotLight( vec3_t start, vec3_t dir ) {
 	float alpha, radius;
 
 	VectorMA( start, 1000, dir, end );
-	CG_Trace( &tr, start, NULL, NULL, end, -1, CONTENTS_SOLID );
+	CG_Trace( &tr, start, nullptr, nullptr, end, -1, CONTENTS_SOLID );
 	if ( tr.fraction == 1.0 ) {
 		return;
 	}
@@ -1385,12 +1385,12 @@ void CG_Spotlight( centity_t *cent, float *color, vec3_t realstart, vec3_t light
 		tr.fraction = 1.0;  // force no hit
 	} else {
 		if ( flags & SL_TRACEWORLDONLY ) {
-			CG_Trace( &tr, start, NULL, NULL, traceEnd, -1, CONTENTS_SOLID );
+			CG_Trace( &tr, start, nullptr, nullptr, traceEnd, -1, CONTENTS_SOLID );
 		} else {
-//			CG_Trace( &tr, start, NULL, NULL, traceEnd, -1, MASK_SHOT);
-			CG_Trace( &tr, start, NULL, NULL, traceEnd, -1, MASK_SHOT & ~CONTENTS_BODY );
+//			CG_Trace( &tr, start, nullptr, nullptr, traceEnd, -1, MASK_SHOT);
+			CG_Trace( &tr, start, nullptr, nullptr, traceEnd, -1, MASK_SHOT & ~CONTENTS_BODY );
 		}
-//		CG_Trace( &tr, start, NULL, NULL, traceEnd, -1, MASK_ALL &~(CONTENTS_MONSTERCLIP|CONTENTS_AREAPORTAL|CONTENTS_CLUSTERPORTAL));
+//		CG_Trace( &tr, start, nullptr, nullptr, traceEnd, -1, MASK_ALL &~(CONTENTS_MONSTERCLIP|CONTENTS_AREAPORTAL|CONTENTS_CLUSTERPORTAL));
 	}
 
 
@@ -1645,8 +1645,8 @@ void CG_Spotlight( centity_t *cent, float *color, vec3_t realstart, vec3_t light
 		}
 
 		if ( lightInEyes ) {   // the dot check succeeded, now do a trace
-//			CG_Trace( &tr, start, NULL, NULL, camloc, -1, MASK_ALL &~(CONTENTS_MONSTERCLIP|CONTENTS_AREAPORTAL|CONTENTS_CLUSTERPORTAL));
-			CG_Trace( &tr, start, NULL, NULL, camloc, -1, MASK_SOLID );
+//			CG_Trace( &tr, start, nullptr, nullptr, camloc, -1, MASK_ALL &~(CONTENTS_MONSTERCLIP|CONTENTS_AREAPORTAL|CONTENTS_CLUSTERPORTAL));
+			CG_Trace( &tr, start, nullptr, nullptr, camloc, -1, MASK_SOLID );
 			if ( tr.fraction != 1 ) {
 				lightInEyes = false;
 			}

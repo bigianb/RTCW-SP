@@ -40,17 +40,21 @@ If you have questions concerning this license or the applicable additional terms
 
 #define MAX_ENT_CLUSTERS    16
 
-typedef struct svEntity_s {
-	struct worldSector_s *worldSector;
-	struct svEntity_s *nextEntityInWorldSector;
+class WorldSector;
 
-	entityState_t baseline;         // for delta compression of initial sighting
+class ServerEntity
+{
+public:
+	WorldSector *worldSector;
+	ServerEntity *nextEntityInWorldSector;
+
+	EntityState baseline;         // for delta compression of initial sighting
 	int numClusters;                // if -1, use headnode instead
 	int clusternums[MAX_ENT_CLUSTERS];
 	int lastCluster;                // if all the clusters don't fit in clusternums
 	int areanum, areanum2;
 	int snapshotCounter;            // used to prevent double adding from portal views
-} svEntity_t;
+};
 
 typedef enum {
 	SS_DEAD,            // no map loaded
@@ -69,7 +73,7 @@ typedef struct {
 	int nextFrameTime;                  // when time > nextFrameTime, process world
 	struct cmodel_s *models[MAX_MODELS];
 	char            *configstrings[MAX_CONFIGSTRINGS];
-	svEntity_t svEntities[MAX_GENTITIES];
+	ServerEntity svEntities[MAX_GENTITIES];
 
 	char            *entityParsePoint;  // used during game VM init
 
@@ -78,8 +82,8 @@ typedef struct {
 	int gentitySize;
 	int num_entities;                   // current number, <= MAX_GENTITIES
 
-	playerState_t   *gameClients;
-	int gameClientSize;                 // will be > sizeof(playerState_t) due to game private data
+	PlayerState   *gameClients;
+	int gameClientSize;                 // will be > sizeof(PlayerState) due to game private data
 
 	int restartTime;
 } server_t;
@@ -91,7 +95,7 @@ typedef struct {
 typedef struct {
 	int areabytes;
 	byte areabits[MAX_MAP_AREA_BYTES];                  // portalarea visibility bits
-	playerState_t ps;
+	PlayerState ps;
 	int num_entities;
 	int first_entity;                   // into the circular sv_packet_entities[]
 										// the entities MUST be in increasing state number
@@ -135,7 +139,7 @@ typedef struct client_s {
 	int gamestateMessageNum;                // netchan->outgoingSequence of gamestate
 	int challenge;
 
-	usercmd_t lastUsercmd;
+	UserCmd lastUsercmd;
 	int lastMessageNum;                 // for delta compression
 	int lastClientCommand;              // reliable client message sequence
 	char lastClientCommandString[MAX_STRING_CHARS];
@@ -169,7 +173,7 @@ typedef struct {
 	client_t    *clients;                   // [sv_maxclients->integer];
 	int numSnapshotEntities;                // sv_maxclients->integer*PACKET_BACKUP*MAX_PACKET_ENTITIES
 	int nextSnapshotEntities;               // next snapshotEntities to use
-	entityState_t   *snapshotEntities;      // [numSnapshotEntities]
+	EntityState   *snapshotEntities;      // [numSnapshotEntities]
 	int nextHeartbeatTime;
 	netadr_t redirectAddress;               // for rcon return messages
 
@@ -254,11 +258,11 @@ void SV_DirectConnect( netadr_t from );
 void SV_ExecuteClientMessage( client_t *cl, msg_t *msg );
 void SV_UserinfoChanged( client_t *cl );
 
-void SV_ClientEnterWorld( client_t *client, usercmd_t *cmd );
+void SV_ClientEnterWorld( client_t *client, UserCmd *cmd );
 void SV_DropClient( client_t *drop, const char *reason );
 
 void SV_ExecuteClientCommand( client_t *cl, const char *s, bool clientOK );
-void SV_ClientThink( client_t *cl, usercmd_t *cmd );
+void SV_ClientThink( client_t *cl, UserCmd *cmd );
 
 //
 // sv_ccmds.c
@@ -280,9 +284,9 @@ void SV_SendClientSnapshot( client_t *client );
 //
 
 sharedEntity_t *SV_GentityNum( size_t num );
-playerState_t *SV_GameClientNum( int num );
-svEntity_t  *SV_SvEntityForGentity( sharedEntity_t *gEnt );
-sharedEntity_t *SV_GEntityForSvEntity( svEntity_t *svEnt );
+PlayerState *SV_GameClientNum( int num );
+ServerEntity  *SV_SvEntityForGentity( sharedEntity_t *gEnt );
+sharedEntity_t *SV_GEntityForSvEntity( ServerEntity *svEnt );
 void        SV_InitGameProgs( void );
 void        SV_ShutdownGameProgs( void );
 void        SV_RestartGameProgs( void );
@@ -296,7 +300,7 @@ void SV_GetServerinfo( char *buffer, int bufferSize );
 bool    SV_EntityContact( const vec3_t mins, const vec3_t maxs, const sharedEntity_t *gEnt, const int capsule );
 void SV_AdjustAreaPortalState( sharedEntity_t *ent, bool open );
 
-void SV_GetUsercmd( int clientNum, usercmd_t *cmd );
+void SV_GetUsercmd( int clientNum, UserCmd *cmd );
 
 //
 // sv_bot.c

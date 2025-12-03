@@ -42,7 +42,7 @@ PARSING
 static const char *punctuation[] = {
 	"+=", "-=",  "*=",  "/=", "&=", "|=", "++", "--",
 	"&&", "||",  "<=",  ">=", "==", "!=",
-	NULL
+	nullptr
 };
 
 typedef struct {
@@ -146,7 +146,7 @@ static const char *SkipWhitespace( const char(*data), bool *hasNewLines ) {
 
 	while ( ( c = *data ) <= ' ' ) {
 		if ( !c ) {
-			return NULL;
+			return nullptr;
 		}
 		if ( c == '\n' ) {
 			pi->lines++;
@@ -163,7 +163,7 @@ static const char *SkipWhitespace( const char(*data), bool *hasNewLines ) {
 Com_ParseExt
 
 Parse a token out of a string
-Will never return NULL, just empty strings.
+Will never return nullptr, just empty strings.
 An empty string will only be returned at end of file.
 
 If "allowLineBreaks" is true then an empty
@@ -178,7 +178,7 @@ static char *Com_ParseExt( const char *( *data_p ), bool allowLineBreaks ) {
 	const char **punc;
 
 	if ( !data_p ) {
-		Com_Error( ERR_FATAL, "Com_ParseExt: NULL data_p" );
+		Com_Error( ERR_FATAL, "Com_ParseExt: nullptr data_p" );
 	}
 
 	data = *data_p;
@@ -187,7 +187,7 @@ static char *Com_ParseExt( const char *( *data_p ), bool allowLineBreaks ) {
 
 	// make sure incoming data is valid
 	if ( !data ) {
-		*data_p = NULL;
+		*data_p = nullptr;
 		return pi->token;
 	}
 
@@ -196,7 +196,7 @@ static char *Com_ParseExt( const char *( *data_p ), bool allowLineBreaks ) {
 		// skip whitespace
 		data = SkipWhitespace( data, &hasNewLines );
 		if ( !data ) {
-			*data_p = NULL;
+			*data_p = nullptr;
 			return pi->token;
 		}
 		if ( hasNewLines && !allowLineBreaks ) {

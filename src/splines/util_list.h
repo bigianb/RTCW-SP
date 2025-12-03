@@ -54,7 +54,7 @@ type operator[]( int index ) const;
 type        &operator[]( int index );
 int         Append( type const & obj );
 int         AddUnique( type const & obj );
-type        *Find( type const & obj, int *index = NULL );
+type        *Find( type const & obj, int *index = nullptr );
 bool        RemoveIndex( int index );
 bool        Remove( type const & obj );
 typedef int cmp_t ( const void *, const void * );
@@ -70,7 +70,7 @@ template< class type >
 inline idList<type>::idList( int granularity ) {
 	assert( granularity > 0 );
 
-	m_list          = NULL;
+	m_list          = nullptr;
 	m_granularity   = granularity;
 	Clear();
 }
@@ -96,7 +96,7 @@ inline void idList<type>::Clear( void ) {
 		delete[] m_list;
 	}
 
-	m_list  = NULL;
+	m_list  = nullptr;
 	m_num   = 0;
 	m_size  = 0;
 }
@@ -288,7 +288,7 @@ inline type *idList<type>::Find( type const & obj, int *index ) {
 		}
 	}
 
-	return NULL;
+	return nullptr;
 }
 
 /*

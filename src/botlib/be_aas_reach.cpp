@@ -273,7 +273,7 @@ void AAS_SetupReachabilityHeap( void ) {
 	{
 		reachabilityheap[i].next = &reachabilityheap[i + 1];
 	} //end for
-	reachabilityheap[AAS_MAX_REACHABILITYSIZE - 1].next = NULL;
+	reachabilityheap[AAS_MAX_REACHABILITYSIZE - 1].next = nullptr;
 	nextreachability = reachabilityheap;
 	numlreachabilities = 0;
 } //end of the function AAS_InitReachabilityHeap
@@ -298,7 +298,7 @@ aas_lreachability_t *AAS_AllocReachability( void ) {
 	aas_lreachability_t *r;
 
 	if ( !nextreachability ) {
-		return NULL;
+		return nullptr;
 	}
 	//make sure the error message only shows up once
 	if ( !nextreachability->next ) {
@@ -2267,8 +2267,8 @@ int AAS_Reachability_Ladder( int area1num, int area2num ) {
 	area1 = &( *aasworld ).areas[area1num];
 	area2 = &( *aasworld ).areas[area2num];
 	//
-	ladderface1 = NULL;
-	ladderface2 = NULL;
+	ladderface1 = nullptr;
+	ladderface2 = nullptr;
 	ladderface1num = 0; //make compiler happy
 	ladderface2num = 0; //make compiler happy
 	bestface1area = -9999;
@@ -3013,9 +3013,9 @@ aas_lreachability_t *AAS_FindFaceReachabilities( vec3_t *facepoints, int numpoin
 	aas_plane_t *faceplane, *bestfaceplane;
 
 	//
-	lreachabilities = NULL;
+	lreachabilities = nullptr;
 	bestfacenum = 0;
-	bestfaceplane = NULL;
+	bestfaceplane = nullptr;
 	//
 	for ( i = 1; i < ( *aasworld ).numareas; i++ )
 	{
@@ -3173,7 +3173,7 @@ void AAS_Reachability_FuncBobbing( void ) {
 			continue;
 		} //end if
 		  //
-		AAS_BSPModelMinsMaxsOrigin( modelnum, angles, mins, maxs, NULL );
+		AAS_BSPModelMinsMaxsOrigin( modelnum, angles, mins, maxs, nullptr );
 		//
 		VectorAdd( mins, maxs, mid );
 		VectorScale( mid, 0.5, mid );
@@ -3263,7 +3263,7 @@ void AAS_Reachability_FuncBobbing( void ) {
 		//
 		for ( i = 0; i < 2; i++ )
 		{
-			firststartreach = firstendreach = NULL;
+			firststartreach = firstendreach = nullptr;
 			//
 			if ( i == 0 ) {
 				firststartreach = AAS_FindFaceReachabilities( start_edgeverts, 4, &start_plane, true );
@@ -3763,7 +3763,7 @@ int AAS_Reachability_Grapple( int area1num, int area2num ) {
 		VectorCopy( facecenter, start );
 		VectorMA( facecenter, -500, ( *aasworld ).planes[face2->planenum].normal, end );
 		//
-		bsptrace = AAS_Trace( start, NULL, NULL, end, 0, CONTENTS_SOLID );
+		bsptrace = AAS_Trace( start, nullptr, nullptr, end, 0, CONTENTS_SOLID );
 		//the grapple won't stick to the sky and the grapple point should be near the AAS wall
 		if ( ( bsptrace.surface.flags & SURF_SKY ) || ( bsptrace.fraction * 500 > 32 ) ) {
 			continue;
@@ -3807,7 +3807,7 @@ int AAS_Reachability_Grapple( int area1num, int area2num ) {
 			continue;
 		}
 		//never go through cluster portals!!
-		numareas = AAS_TraceAreas( areastart, bsptrace.endpos, areas, NULL, 20 );
+		numareas = AAS_TraceAreas( areastart, bsptrace.endpos, areas, nullptr, 20 );
 		if ( numareas >= 20 ) {
 			continue;
 		}

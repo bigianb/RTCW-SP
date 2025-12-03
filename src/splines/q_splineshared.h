@@ -102,10 +102,6 @@ typedef enum {
 	INVALID_JOINT = -1
 } jointHandle_t;
 
-#ifndef NULL
-#define NULL ( (void *)0 )
-#endif
-
 #define MAX_QINT            0x7fffffff
 #define MIN_QINT            ( -MAX_QINT - 1 )
 
@@ -407,7 +403,7 @@ void Com_EndParseSession( void );
 
 int Com_GetCurrentParseLine( void );
 
-// Will never return NULL, just empty strings.
+// Will never return nullptr, just empty strings.
 // An empty string will only be returned at end of file.
 // ParseOnLine will return empty if there isn't another token on this line
 
@@ -516,7 +512,7 @@ typedef struct mapPrimitive_s {
 	int numEpairs;
 	ePair_t         **ePairs;
 
-	// only one of these will be non-NULL
+	// only one of these will be non-nullptr
 	mapBrush_t      *brush;
 	mapPatch_t      *patch;
 	mapModel_t      *model;

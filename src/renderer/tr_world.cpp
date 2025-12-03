@@ -512,7 +512,7 @@ static mnode_t *R_PointInLeaf( vec3_t p ) {
 
 	if ( !tr.world ) {
 		ri.Error( ERR_DROP, "R_PointInLeaf: bad model" );
-        return NULL; // keep the linter happy, ERR_DROP does not return
+        return nullptr; // keep the linter happy, ERR_DROP does not return
 	}
 
 	node = tr.world->nodes;

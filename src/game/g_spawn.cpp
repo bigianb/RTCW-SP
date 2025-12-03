@@ -167,230 +167,230 @@ gentity_field_t fields[] = {
 
 	{"scriptName",       FOFS( scriptName ),           F_LSTRING},
 
-	{NULL}
+	{nullptr}
 };
 
 
 typedef struct {
 	const char    *name;
-	void ( *spawn )( gentity_t *ent );
+	void ( *spawn )( GameEntity *ent );
 } spawn_t;
 
-void SP_info_player_start( gentity_t *ent );
-void SP_info_player_deathmatch( gentity_t *ent );
-void SP_info_player_intermission( gentity_t *ent );
-void SP_info_firstplace( gentity_t *ent );
-void SP_info_secondplace( gentity_t *ent );
-void SP_info_thirdplace( gentity_t *ent );
-void SP_info_podium( gentity_t *ent );
+void SP_info_player_start( GameEntity *ent );
+void SP_info_player_deathmatch( GameEntity *ent );
+void SP_info_player_intermission( GameEntity *ent );
+void SP_info_firstplace( GameEntity *ent );
+void SP_info_secondplace( GameEntity *ent );
+void SP_info_thirdplace( GameEntity *ent );
+void SP_info_podium( GameEntity *ent );
 
-void SP_func_plat( gentity_t *ent );
-void SP_func_static( gentity_t *ent );
-void SP_func_leaky( gentity_t *ent ); //----(SA)	added
-void SP_func_rotating( gentity_t *ent );
-void SP_func_bobbing( gentity_t *ent );
-void SP_func_pendulum( gentity_t *ent );
-void SP_func_button( gentity_t *ent );
-void SP_func_explosive( gentity_t *ent );
-void SP_func_door( gentity_t *ent );
-void SP_func_train( gentity_t *ent );
-void SP_func_timer( gentity_t *self );
+void SP_func_plat( GameEntity *ent );
+void SP_func_static( GameEntity *ent );
+void SP_func_leaky( GameEntity *ent ); //----(SA)	added
+void SP_func_rotating( GameEntity *ent );
+void SP_func_bobbing( GameEntity *ent );
+void SP_func_pendulum( GameEntity *ent );
+void SP_func_button( GameEntity *ent );
+void SP_func_explosive( GameEntity *ent );
+void SP_func_door( GameEntity *ent );
+void SP_func_train( GameEntity *ent );
+void SP_func_timer( GameEntity *self );
 // JOSEPH 1-26-00
-void SP_func_train_rotating( gentity_t *ent );
-void SP_func_secret( gentity_t *ent );
+void SP_func_train_rotating( GameEntity *ent );
+void SP_func_secret( GameEntity *ent );
 // END JOSEPH
 // Rafael
-void SP_func_door_rotating( gentity_t *ent );
+void SP_func_door_rotating( GameEntity *ent );
 // RF
-void SP_func_bats( gentity_t *self );
+void SP_func_bats( GameEntity *self );
 
-void SP_trigger_always( gentity_t *ent );
-void SP_trigger_multiple( gentity_t *ent );
-void SP_trigger_push( gentity_t *ent );
-void SP_trigger_teleport( gentity_t *ent );
-void SP_trigger_hurt( gentity_t *ent );
+void SP_trigger_always( GameEntity *ent );
+void SP_trigger_multiple( GameEntity *ent );
+void SP_trigger_push( GameEntity *ent );
+void SP_trigger_teleport( GameEntity *ent );
+void SP_trigger_hurt( GameEntity *ent );
 
 //---- (SA) Wolf triggers
-void SP_trigger_once( gentity_t *ent );
+void SP_trigger_once( GameEntity *ent );
 //---- done
 
-void SP_target_remove_powerups( gentity_t *ent );
-void SP_target_give( gentity_t *ent );
-void SP_target_delay( gentity_t *ent );
-void SP_target_speaker( gentity_t *ent );
-void SP_target_print( gentity_t *ent );
-void SP_target_laser( gentity_t *self );
-void SP_target_character( gentity_t *ent );
-void SP_target_score( gentity_t *ent );
-void SP_target_teleporter( gentity_t *ent );
-void SP_target_relay( gentity_t *ent );
-void SP_target_kill( gentity_t *ent );
-void SP_target_position( gentity_t *ent );
-void SP_target_location( gentity_t *ent );
-void SP_target_push( gentity_t *ent );
-void SP_target_script_trigger( gentity_t *ent );
+void SP_target_remove_powerups( GameEntity *ent );
+void SP_target_give( GameEntity *ent );
+void SP_target_delay( GameEntity *ent );
+void SP_target_speaker( GameEntity *ent );
+void SP_target_print( GameEntity *ent );
+void SP_target_laser( GameEntity *self );
+void SP_target_character( GameEntity *ent );
+void SP_target_score( GameEntity *ent );
+void SP_target_teleporter( GameEntity *ent );
+void SP_target_relay( GameEntity *ent );
+void SP_target_kill( GameEntity *ent );
+void SP_target_position( GameEntity *ent );
+void SP_target_location( GameEntity *ent );
+void SP_target_push( GameEntity *ent );
+void SP_target_script_trigger( GameEntity *ent );
 
 //---- (SA) Wolf targets
 // targets
-void SP_target_alarm( gentity_t *ent );
-void SP_target_counter( gentity_t *ent );
-void SP_target_lock( gentity_t *ent );
-void SP_target_effect( gentity_t *ent );
-void SP_target_fog( gentity_t *ent );
-void SP_target_autosave( gentity_t *ent );
+void SP_target_alarm( GameEntity *ent );
+void SP_target_counter( GameEntity *ent );
+void SP_target_lock( GameEntity *ent );
+void SP_target_effect( GameEntity *ent );
+void SP_target_fog( GameEntity *ent );
+void SP_target_autosave( GameEntity *ent );
 
 // entity visibility dummy
-void SP_misc_vis_dummy( gentity_t *ent );
-void SP_misc_vis_dummy_multiple( gentity_t *ent );
+void SP_misc_vis_dummy( GameEntity *ent );
+void SP_misc_vis_dummy_multiple( GameEntity *ent );
 
 //----(SA) done
 
-void SP_light( gentity_t *self );
-void SP_info_null( gentity_t *self );
-void SP_info_notnull( gentity_t *self );
-void SP_info_notnull_big( gentity_t *ent );  //----(SA)	added
-void SP_info_camp( gentity_t *self );
-void SP_path_corner( gentity_t *self );
+void SP_light( GameEntity *self );
+void SP_info_null( GameEntity *self );
+void SP_info_notnull( GameEntity *self );
+void SP_info_notnull_big( GameEntity *ent );  //----(SA)	added
+void SP_info_camp( GameEntity *self );
+void SP_path_corner( GameEntity *self );
 
-void SP_misc_teleporter_dest( gentity_t *self );
-void SP_misc_model( gentity_t *ent );
-void SP_misc_gamemodel( gentity_t *ent );
-void SP_misc_portal_camera( gentity_t *ent );
-void SP_misc_portal_surface( gentity_t *ent );
-void SP_misc_light_surface( gentity_t *ent );
-void SP_misc_grabber_trap( gentity_t *ent );
-void SP_misc_spotlight( gentity_t *ent ); //----(SA)	added
+void SP_misc_teleporter_dest( GameEntity *self );
+void SP_misc_model( GameEntity *ent );
+void SP_misc_gamemodel( GameEntity *ent );
+void SP_misc_portal_camera( GameEntity *ent );
+void SP_misc_portal_surface( GameEntity *ent );
+void SP_misc_light_surface( GameEntity *ent );
+void SP_misc_grabber_trap( GameEntity *ent );
+void SP_misc_spotlight( GameEntity *ent ); //----(SA)	added
 
-void SP_shooter_rocket( gentity_t *ent );
-void SP_shooter_grenade( gentity_t *ent );
+void SP_shooter_rocket( GameEntity *ent );
+void SP_shooter_grenade( GameEntity *ent );
 
 // JOSEPH 1-18-00
-void SP_props_box_32( gentity_t *self );
-void SP_props_box_48( gentity_t *self );
-void SP_props_box_64( gentity_t *self );
+void SP_props_box_32( GameEntity *self );
+void SP_props_box_48( GameEntity *self );
+void SP_props_box_64( GameEntity *self );
 // END JOSEPH
 
 // Ridah
-void SP_ai_soldier( gentity_t *ent );
-void SP_ai_american( gentity_t *ent );
-void SP_ai_zombie( gentity_t *ent );
-void SP_ai_warzombie( gentity_t *ent );
-void SP_ai_marker( gentity_t *ent );
-void SP_ai_effect( gentity_t *ent );
-void SP_ai_trigger( gentity_t *ent );
-void SP_ai_venom( gentity_t *ent );
-void SP_ai_loper( gentity_t *ent );
-void SP_ai_boss_helga( gentity_t *ent );
-void SP_ai_boss_heinrich( gentity_t *ent ); //----(SA)	added
-void SP_ai_eliteguard( gentity_t *ent );
-void SP_ai_stimsoldier_dual( gentity_t *ent );
-void SP_ai_stimsoldier_rocket( gentity_t *ent );
-void SP_ai_stimsoldier_tesla( gentity_t *ent );
-void SP_ai_supersoldier( gentity_t *ent );
-void SP_ai_blackguard( gentity_t *ent );
-void SP_ai_protosoldier( gentity_t *ent );
-void SP_ai_frogman( gentity_t *ent );
-void SP_ai_partisan( gentity_t *ent );
-void SP_ai_civilian( gentity_t *ent );
+void SP_ai_soldier( GameEntity *ent );
+void SP_ai_american( GameEntity *ent );
+void SP_ai_zombie( GameEntity *ent );
+void SP_ai_warzombie( GameEntity *ent );
+void SP_ai_marker( GameEntity *ent );
+void SP_ai_effect( GameEntity *ent );
+void SP_ai_trigger( GameEntity *ent );
+void SP_ai_venom( GameEntity *ent );
+void SP_ai_loper( GameEntity *ent );
+void SP_ai_boss_helga( GameEntity *ent );
+void SP_ai_boss_heinrich( GameEntity *ent ); //----(SA)	added
+void SP_ai_eliteguard( GameEntity *ent );
+void SP_ai_stimsoldier_dual( GameEntity *ent );
+void SP_ai_stimsoldier_rocket( GameEntity *ent );
+void SP_ai_stimsoldier_tesla( GameEntity *ent );
+void SP_ai_supersoldier( GameEntity *ent );
+void SP_ai_blackguard( GameEntity *ent );
+void SP_ai_protosoldier( GameEntity *ent );
+void SP_ai_frogman( GameEntity *ent );
+void SP_ai_partisan( GameEntity *ent );
+void SP_ai_civilian( GameEntity *ent );
 // done.
 
 // Rafael particles
-void SP_Snow( gentity_t *ent );
-void SP_target_smoke( gentity_t *ent );
-void SP_Bubbles( gentity_t *ent );
+void SP_Snow( GameEntity *ent );
+void SP_target_smoke( GameEntity *ent );
+void SP_Bubbles( GameEntity *ent );
 // done.
 
 // (SA) dlights
-void SP_dlight( gentity_t *ent );
+void SP_dlight( GameEntity *ent );
 // done
-void SP_corona( gentity_t *ent );
+void SP_corona( GameEntity *ent );
 
 // Rafael mg42
-void SP_mg42( gentity_t *ent );
+void SP_mg42( GameEntity *ent );
 // done.
 
 // Rafael sniper
-void SP_shooter_sniper( gentity_t *ent );
-void SP_sniper_brush( gentity_t *ent );
+void SP_shooter_sniper( GameEntity *ent );
+void SP_sniper_brush( GameEntity *ent );
 // done
 
 //----(SA)
-void SP_shooter_zombiespit( gentity_t *ent );
-void SP_shooter_mortar( gentity_t *ent );
-void SP_shooter_tesla( gentity_t *ent );
+void SP_shooter_zombiespit( GameEntity *ent );
+void SP_shooter_mortar( GameEntity *ent );
+void SP_shooter_tesla( GameEntity *ent );
 
 // alarm
-void SP_alarm_box( gentity_t *ent );
+void SP_alarm_box( GameEntity *ent );
 //----(SA)	end
 
 
-void SP_trigger_objective_info( gentity_t *ent );   // DHM - Nerve
+void SP_trigger_objective_info( GameEntity *ent );   // DHM - Nerve
 
-void SP_gas( gentity_t *ent );
-void SP_target_rumble( gentity_t *ent );
-void SP_func_train_particles( gentity_t *ent );
+void SP_gas( GameEntity *ent );
+void SP_target_rumble( GameEntity *ent );
+void SP_func_train_particles( GameEntity *ent );
 
 
 // Rafael
-void SP_trigger_aidoor( gentity_t *ent );
-void SP_SmokeDust( gentity_t *ent );
-void SP_Dust( gentity_t *ent );
-void SP_props_sparks( gentity_t *ent );
-void SP_props_gunsparks( gentity_t *ent );
+void SP_trigger_aidoor( GameEntity *ent );
+void SP_SmokeDust( GameEntity *ent );
+void SP_Dust( GameEntity *ent );
+void SP_props_sparks( GameEntity *ent );
+void SP_props_gunsparks( GameEntity *ent );
 
 // Props
-void SP_Props_Bench( gentity_t *ent );
-void SP_Props_Radio( gentity_t *ent );
-void SP_Props_Chair( gentity_t *ent );
-void SP_Props_ChairHiback( gentity_t *ent );
-void SP_Props_ChairSide( gentity_t *ent );
-void SP_Props_ChairChat( gentity_t *ent );
-void SP_Props_ChairChatArm( gentity_t *ent );
-void SP_Props_DamageInflictor( gentity_t *ent );
-void SP_Props_Locker_Tall( gentity_t *ent );
-void SP_Props_Desklamp( gentity_t *ent );
-void SP_Props_Flamebarrel( gentity_t *ent );
-void SP_crate_64( gentity_t *ent );
-void SP_Props_Flipping_Table( gentity_t *ent );
-void SP_crate_32( gentity_t *self );
-void SP_Props_Crate32x64( gentity_t *ent );
-void SP_Props_58x112tablew( gentity_t *ent );
-void SP_props_castlebed( gentity_t *ent );
-void SP_Props_RadioSEVEN( gentity_t *ent );
-void SP_propsFireColumn( gentity_t *ent );
-void SP_props_flamethrower( gentity_t *ent );
+void SP_Props_Bench( GameEntity *ent );
+void SP_Props_Radio( GameEntity *ent );
+void SP_Props_Chair( GameEntity *ent );
+void SP_Props_ChairHiback( GameEntity *ent );
+void SP_Props_ChairSide( GameEntity *ent );
+void SP_Props_ChairChat( GameEntity *ent );
+void SP_Props_ChairChatArm( GameEntity *ent );
+void SP_Props_DamageInflictor( GameEntity *ent );
+void SP_Props_Locker_Tall( GameEntity *ent );
+void SP_Props_Desklamp( GameEntity *ent );
+void SP_Props_Flamebarrel( GameEntity *ent );
+void SP_crate_64( GameEntity *ent );
+void SP_Props_Flipping_Table( GameEntity *ent );
+void SP_crate_32( GameEntity *self );
+void SP_Props_Crate32x64( GameEntity *ent );
+void SP_Props_58x112tablew( GameEntity *ent );
+void SP_props_castlebed( GameEntity *ent );
+void SP_Props_RadioSEVEN( GameEntity *ent );
+void SP_propsFireColumn( GameEntity *ent );
+void SP_props_flamethrower( GameEntity *ent );
 
-void SP_func_tramcar( gentity_t *ent );
-void func_invisible_user( gentity_t *ent );
+void SP_func_tramcar( GameEntity *ent );
+void func_invisible_user( GameEntity *ent );
 
-void SP_lightJunior( gentity_t *self );
+void SP_lightJunior( GameEntity *self );
 
-void SP_props_me109( gentity_t *ent );
-void SP_misc_flak( gentity_t *ent );
-void SP_plane_waypoint( gentity_t *self );
+void SP_props_me109( GameEntity *ent );
+void SP_misc_flak( GameEntity *ent );
+void SP_plane_waypoint( GameEntity *self );
 
-void SP_props_snowGenerator( gentity_t *ent );
-void SP_truck_cam( gentity_t *self );
+void SP_props_snowGenerator( GameEntity *ent );
+void SP_truck_cam( GameEntity *self );
 
-void SP_screen_fade( gentity_t *ent );
-void SP_camera_reset_player( gentity_t *ent );
-void SP_camera_cam( gentity_t *ent );
-void SP_props_decoration( gentity_t *ent );
-void SP_props_decorBRUSH( gentity_t *ent );
-void SP_props_statue( gentity_t *ent );
-void SP_props_statueBRUSH( gentity_t *ent );
-void SP_skyportal( gentity_t *ent );
+void SP_screen_fade( GameEntity *ent );
+void SP_camera_reset_player( GameEntity *ent );
+void SP_camera_cam( GameEntity *ent );
+void SP_props_decoration( GameEntity *ent );
+void SP_props_decorBRUSH( GameEntity *ent );
+void SP_props_statue( GameEntity *ent );
+void SP_props_statueBRUSH( GameEntity *ent );
+void SP_skyportal( GameEntity *ent );
 
 // RF, scripting
-void SP_script_model_med( gentity_t *ent );
-void SP_script_mover( gentity_t *ent );
+void SP_script_model_med( GameEntity *ent );
+void SP_script_mover( GameEntity *ent );
 
-void SP_props_footlocker( gentity_t *self );
-void SP_misc_firetrails( gentity_t *ent );
-void SP_misc_tagemitter( gentity_t *ent );   //----(SA)	added
-void SP_trigger_deathCheck( gentity_t *ent );
-void SP_misc_spawner( gentity_t *ent );
-void SP_props_decor_Scale( gentity_t *ent );
+void SP_props_footlocker( GameEntity *self );
+void SP_misc_firetrails( GameEntity *ent );
+void SP_misc_tagemitter( GameEntity *ent );   //----(SA)	added
+void SP_trigger_deathCheck( GameEntity *ent );
+void SP_misc_spawner( GameEntity *ent );
+void SP_props_decor_Scale( GameEntity *ent );
 
 spawn_t spawns[] = {
 	// info entities don't do anything at all, but provide positional
@@ -611,10 +611,10 @@ Finds the spawn function for the entity and calls it,
 returning false if not found
 ===============
 */
-bool G_CallSpawn( gentity_t *ent )
+bool G_CallSpawn( GameEntity *ent )
 {
 	if ( !ent->classname ) {
-		Com_Printf( "G_CallSpawn: NULL classname\n" );
+		Com_Printf( "G_CallSpawn: nullptr classname\n" );
 		return false;
 	}
 
@@ -686,7 +686,7 @@ Takes a key/value pair and sets the binary values
 in a gentity
 ===============
 */
-void G_ParseField( const char *key, const char *value, gentity_t *ent )
+void G_ParseField( const char *key, const char *value, GameEntity *ent )
 {
 	for (gentity_field_t *f = fields; f->name; f++ ) {
 		if ( !Q_stricmp( f->name, key ) ) {
@@ -741,7 +741,7 @@ level.spawnVars[], then call the class specfic spawn function
 void G_SpawnGEntityFromSpawnVars()
 {
 	// get the next free entity
-	gentity_t* ent = G_Spawn();
+	GameEntity* ent = G_Spawn();
 
 	for (int i = 0 ; i < level.numSpawnVars ; i++ ) {
 		G_ParseField( level.spawnVars[i][0], level.spawnVars[i][1], ent );
@@ -768,7 +768,7 @@ char *G_AddSpawnVarToken( const char *string )
 	size_t l = strlen( string );
 	if ( level.numSpawnVarChars + l + 1 > MAX_SPAWN_VARS_CHARS ) {
 		Com_Error( ERR_DROP, "G_AddSpawnVarToken: MAX_SPAWN_VARS" );
-        return NULL; // keep the linter happy, ERR_DROP does not return
+        return nullptr; // keep the linter happy, ERR_DROP does not return
 	}
 
 	char* dest = level.spawnVarChars + level.numSpawnVarChars;

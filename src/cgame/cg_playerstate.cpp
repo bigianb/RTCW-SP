@@ -28,7 +28,7 @@ If you have questions concerning this license or the applicable additional terms
 
 
 
-// cg_playerstate.c -- this file acts on changes in a new playerState_t
+// cg_playerstate.c -- this file acts on changes in a new PlayerState
 // With normal play, this will be done after local prediction, but when
 // following another player or playing back a demo, it will be checked
 // when the snapshot transitions like all the other entities
@@ -166,7 +166,7 @@ void CG_DamageFeedback( int yawByte, int pitchByte, int damage ) {
 		angles[YAW] = yaw;
 		angles[ROLL] = 0;
 
-		AngleVectors( angles, dir, NULL, NULL );
+		AngleVectors( angles, dir, nullptr, nullptr );
 		VectorSubtract( vec3_origin, dir, dir );
 
 		front = DotProduct( dir, cg.refdef.viewaxis[0] );
@@ -278,7 +278,7 @@ extern char *eventnames[];
 CG_CheckPlayerstateEvents
 ==============
 */
-void CG_CheckPlayerstateEvents_wolf( playerState_t *ps, playerState_t *ops ) {
+void CG_CheckPlayerstateEvents_wolf( PlayerState *ps, PlayerState *ops ) {
 	int i;
 	int event;
 	centity_t   *cent;
@@ -304,7 +304,7 @@ void CG_CheckPlayerstateEvents_wolf( playerState_t *ps, playerState_t *ops ) {
 	}
 }
 
-void CG_CheckPlayerstateEvents( playerState_t *ps, playerState_t *ops ) {
+void CG_CheckPlayerstateEvents( PlayerState *ps, PlayerState *ops ) {
 	int i;
 	int event;
 	centity_t   *cent;
@@ -342,7 +342,7 @@ void CG_CheckPlayerstateEvents( playerState_t *ps, playerState_t *ops ) {
 CG_CheckChangedPredictableEvents
 ==================
 */
-void CG_CheckChangedPredictableEvents( playerState_t *ps ) {
+void CG_CheckChangedPredictableEvents( PlayerState *ps ) {
 	int i;
 	int event;
 	centity_t   *cent;
@@ -379,7 +379,7 @@ void CG_CheckChangedPredictableEvents( playerState_t *ps ) {
 CG_CheckLocalSounds
 ==================
 */
-void CG_CheckLocalSounds( playerState_t *ps, playerState_t *ops ) {
+void CG_CheckLocalSounds( PlayerState *ps, PlayerState *ops ) {
 	const char  *s;
 	int highScore;
 
@@ -495,7 +495,7 @@ CG_TransitionPlayerState
 
 ===============
 */
-void CG_TransitionPlayerState( playerState_t *ps, playerState_t *ops ) {
+void CG_TransitionPlayerState( PlayerState *ps, PlayerState *ops ) {
 	// check for changing follow mode
 	if ( ps->clientNum != ops->clientNum ) {
 		cg.thisFrameTeleport = true;

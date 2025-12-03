@@ -115,7 +115,7 @@ void UI_DrawRect( float x, float y, float width, float height, float size, const
 	UI_DrawTopBottom( x, y, width, height, size );
 	UI_DrawSides( x, y, width, height, size );
 
-	RE_SetColor( NULL );
+	RE_SetColor( nullptr );
 }
 
 
@@ -630,7 +630,7 @@ void UI_Load() {
 	if ( menu && menu->window.name ) {
 		strcpy( lastName, menu->window.name );
 	}
-	if ( menuSet == NULL || menuSet[0] == '\0' ) {
+	if ( menuSet == nullptr || menuSet[0] == '\0' ) {
 		menuSet = "ui/menus.txt";
 	}
 
@@ -710,7 +710,7 @@ static void UI_DrawSaveGameShot( rectDef_t *rect, float scale, vec4_t color )
 	}
 
 	UI_DrawHandlePic( rect->x, rect->y, rect->w, rect->h, image );
-	RE_SetColor( NULL );
+	RE_SetColor( nullptr );
 
 }
 
@@ -779,7 +779,7 @@ flags:
 	center		- 2		// direction is 'right' by default and orientation is 'horizontal'
 	vert		- 4
 	nohudalpha	- 8		// don't adjust bar's alpha value by the cg_hudalpha value
-	bg			- 16	// background contrast box (bg set with bgColor of 'NULL' means use default bg color (1,1,1,0.25)
+	bg			- 16	// background contrast box (bg set with bgColor of 'nullptr' means use default bg color (1,1,1,0.25)
 	spacing		- 32	// some bars use different sorts of spacing when drawing both an inner and outer box
 
 	lerp color	- 256	// use an average of the start and end colors to set the fill color
@@ -908,7 +908,7 @@ static void UI_DrawLoadStatus( rectDef_t *rect, vec4_t color, int align )
             percentDone = 0.97;
         }
         
-        UI_FilledBar( rect->x, rect->y, rect->w, rect->h, color, NULL, NULL, percentDone, flags );
+        UI_FilledBar( rect->x, rect->y, rect->w, rect->h, color, nullptr, nullptr, percentDone, flags );
     } else {
         Text_Paint( rect->x, rect->y, UI_FONT_DEFAULT, 0.2f, color, DC->getTranslatedString( "pleasewait" ), 0, 0, 0 );
     }
@@ -916,7 +916,7 @@ static void UI_DrawLoadStatus( rectDef_t *rect, vec4_t color, int align )
 
 static int UI_OwnerDrawWidth( int ownerDraw, int font, float scale )
 {
-	const char *s = NULL;
+	const char *s = nullptr;
 	switch ( ownerDraw ) {
 
 	case UI_SAVEGAMENAME:
@@ -958,7 +958,7 @@ static void UI_DrawCrosshair( rectDef_t *rect, float scale, vec4_t color )
 
 	RE_SetColor( color );
 	UI_DrawHandlePic( rect->x, rect->y - rect->h, rect->w, rect->h, uiInfo.uiDC.Assets.crosshairShader[ch] );
-	RE_SetColor( NULL );
+	RE_SetColor( nullptr );
 }
 
 
@@ -1083,7 +1083,7 @@ static bool UI_SavegameName_HandleKey( int flags, float *special, int key )
 		}
 
 		// set feeder highlight
-		Menu_SetFeederSelection( NULL, FEEDER_SAVEGAMES, i, NULL );
+		Menu_SetFeederSelection( nullptr, FEEDER_SAVEGAMES, i, nullptr );
 
 		Cvar_Set( "ui_savegameName", uiInfo.savegameList[uiInfo.savegameStatus.displaySavegames[i]].savegameName );
 		Cvar_Set( "ui_savegameInfo", uiInfo.savegameList[uiInfo.savegameStatus.displaySavegames[i]].savegameInfoText );
@@ -1229,7 +1229,7 @@ void UI_SavegameSort( int column, bool force )
 		// re-select the one that was selected before sorting
 		int cursel = UI_SavegameIndexFromName( ui_savegameName.string );
         UI_FeederSelection( FEEDER_SAVEGAMES, cursel );
-		Menu_SetFeederSelection( NULL, FEEDER_SAVEGAMES, cursel, NULL );
+		Menu_SetFeederSelection( nullptr, FEEDER_SAVEGAMES, cursel, nullptr );
 
 		// and clear out the text entry
 		Cvar_Set( "ui_savegame", "" );
@@ -1414,7 +1414,7 @@ static void UI_LoadSavegames(const char *dir )
 
 		// set current selection
 //		i = UI_SavegameIndexFromName(ui_savegameName.string);
-//		Menu_SetFeederSelection(NULL, FEEDER_SAVEGAMES, i, NULL);
+//		Menu_SetFeederSelection(nullptr, FEEDER_SAVEGAMES, i, nullptr);
 	}
 }
 
@@ -1551,7 +1551,7 @@ static void UI_Update( const char *name ) {
 
 	} else if ( Q_stricmp( name, "ui_savegameListAutosave" ) == 0 ) {
 		if ( val == 0 ) {
-			UI_LoadSavegames( NULL );
+			UI_LoadSavegames( nullptr );
 		} else {
 
 			UI_LoadSavegames( "autosave" );    // get from default directory 'main/save/autosave/*.svg'
@@ -1616,7 +1616,7 @@ static void UI_RunMenuScript( const char **args ) {
 		} else if ( Q_stricmp( name, "clearError" ) == 0 ) {
 			Cvar_Set( "com_errorMessage", "" );
 		} else if ( Q_stricmp( name, "LoadSaveGames" ) == 0 ) {  // get the list
-			UI_LoadSavegames( NULL );
+			UI_LoadSavegames( nullptr );
 		} else if ( Q_stricmp( name, "Loadgame" ) == 0 ) {
 			int i = UI_SavegameIndexFromName2( ui_savegameName.string );
 			Cbuf_ExecuteText( EXEC_APPEND, va( "loadgame %s\n", uiInfo.savegameList[i].savegameFile ) );
@@ -1691,7 +1691,7 @@ static const char *UI_FileText( char *fileName )
 
 	int len = FS_FOpenFileByMode( fileName, &f, FS_READ );
 	if ( !f ) {
-		return NULL;
+		return nullptr;
 	}
 
 	FS_Read( buf, len, f );
@@ -1878,7 +1878,7 @@ void UI_MouseEvent( int dx, int dy )
 	}
 
 	if ( Menu_Count() > 0 ) {
-		Display_MouseMove( NULL, uiInfo.uiDC.cursorx, uiInfo.uiDC.cursory );
+		Display_MouseMove( nullptr, uiInfo.uiDC.cursorx, uiInfo.uiDC.cursory );
 	}
 
 }
@@ -1886,7 +1886,7 @@ void UI_MouseEvent( int dx, int dy )
 void UI_LoadNonIngame()
 {
 	const char *menuSet = UI_Cvar_VariableString( "ui_menuFiles" );
-	if ( menuSet == NULL || menuSet[0] == '\0' ) {
+	if ( menuSet == nullptr || menuSet[0] == '\0' ) {
 		menuSet = "ui/menus.txt";
 	}
 	LoadMenus( menuSet, false, false );
@@ -2274,7 +2274,7 @@ void UI_Refresh( int realtime ) {
     }
 
     // draw cursor
-    UI_SetColor( NULL );
+    UI_SetColor( nullptr );
     if ( Menu_Count() > 0 ) {
         uiMenuCommand_t mymenu = UI_GetActiveMenu();
         if ( mymenu != UIMENU_BRIEFING ) {
@@ -2370,7 +2370,7 @@ void UI_Init()
     uiInfo.aliasCount = 0;
 
     const char *menuSet = UI_Cvar_VariableString( "ui_menuFiles" );
-    if ( menuSet == NULL || menuSet[0] == '\0' ) {
+    if ( menuSet == nullptr || menuSet[0] == '\0' ) {
         menuSet = "ui/menus.txt";
     }
 
@@ -2393,5 +2393,5 @@ void UI_Init()
         Cvar_Set( "ui_WolfFirstRun", "1" );
     }
 
-    Cvar_Register( NULL, "debug_protocol", "", 0 );
+    Cvar_Register( nullptr, "debug_protocol", "", 0 );
 }

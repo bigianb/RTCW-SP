@@ -123,7 +123,7 @@ typedef struct {
 //----(SA)
 	void ( *RenderScene )( const refdef_t *fd );
 
-	void ( *SetColor )( const float *rgba );    // NULL = 1,1,1,1
+	void ( *SetColor )( const float *rgba );    // nullptr = 1,1,1,1
 	void ( *DrawStretchPic )( float x, float y, float w, float h,
 							  float s1, float t1, float s2, float t2, qhandle_t hShader ); // 0 = white
 	void ( *DrawStretchPicGradient )( float x, float y, float w, float h,
@@ -135,7 +135,7 @@ typedef struct {
 
 	void ( *BeginFrame )( stereoFrame_t stereoFrame );
 
-	// if the pointers are not NULL, timing info will be returned
+	// if the pointers are not nullptr, timing info will be returned
 	void ( *EndFrame )( int *frontEndMsec, int *backEndMsec );
 
 	int ( *LerpTag )( orientation_t *tag,  const refEntity_t *refent, const char *tagName, int startIndex );
@@ -176,7 +176,7 @@ typedef struct {
 	const char    *( *Cmd_Argv )( int i );
 
 	// a -1 return means the file does not exist
-	// NULL can be passed for buf to just determine existance
+	// nullptr can be passed for buf to just determine existance
 	int ( *FS_FileIsInPAK )( const char *name, int *pChecksum );
 	int ( *FS_ReadFile )( const char *name, void **buf );
 	void ( *FS_FreeFile )( void *buf );
@@ -194,7 +194,7 @@ typedef struct {
 
 
 // this is the only function actually exported at the linker level
-// If the module can't init to a valid rendering state, NULL will be
+// If the module can't init to a valid rendering state, nullptr will be
 // returned.
 refexport_t*GetRefAPI( int apiVersion, refimport_t *rimp );
 

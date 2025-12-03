@@ -57,10 +57,10 @@ If you have questions concerning this license or the applicable additional terms
 
 //======================================================================
 
-int Pickup_Powerup( gentity_t *ent, gentity_t *other ) {
+int Pickup_Powerup( GameEntity *ent, GameEntity *other ) {
 	int quantity;
 	int i;
-	gclient_t   *client;
+	GameClient   *client;
 
 	if ( !other->client->ps.powerups[ent->item->giTag] ) {
 
@@ -116,7 +116,7 @@ int Pickup_Powerup( gentity_t *ent, gentity_t *other ) {
 
 //----(SA) Wolf keys
 //======================================================================
-int Pickup_Key( gentity_t *ent, gentity_t *other ) {
+int Pickup_Key( GameEntity *ent, GameEntity *other ) {
 	other->client->ps.stats[STAT_KEYS] |= ( 1 << ent->item->giTag );
 
 	if ( !( ent->spawnflags & 8 ) ) {
@@ -133,7 +133,7 @@ int Pickup_Key( gentity_t *ent, gentity_t *other ) {
 Pickup_Clipboard
 ==============
 */
-int Pickup_Clipboard( gentity_t *ent, gentity_t *other ) {
+int Pickup_Clipboard( GameEntity *ent, GameEntity *other ) {
 
 	if ( ent->spawnflags & 4 ) {
 		return 0;   // leave in world
@@ -148,8 +148,8 @@ int Pickup_Clipboard( gentity_t *ent, gentity_t *other ) {
 Pickup_Treasure
 ==============
 */
-int Pickup_Treasure( gentity_t *ent, gentity_t *other ) {
-	gentity_t *player = AICast_FindEntityForName( "player" );
+int Pickup_Treasure( GameEntity *ent, GameEntity *other ) {
+	GameEntity *player = AICast_FindEntityForName( "player" );
 	player->numTreasureFound++;
 	G_SendMissionStats();
 	return RESPAWN_SP;  // no respawn
@@ -162,7 +162,7 @@ UseHoldableItem
 	server side handling of holdable item use
 ==============
 */
-void UseHoldableItem( gentity_t *ent, int item ) {
+void UseHoldableItem( GameEntity *ent, int item ) {
 	switch ( item ) {
 	case HI_WINE:           // 1921 Chateu Lafite - gives 25 pts health up to max health
 		ent->health += 25;
@@ -189,7 +189,7 @@ void UseHoldableItem( gentity_t *ent, int item ) {
 
 //======================================================================
 
-int Pickup_Holdable( gentity_t *ent, gentity_t *other ) {
+int Pickup_Holdable( GameEntity *ent, GameEntity *other ) {
 	gitem_t *item;
 
 //	item = BG_FindItemForHoldable(ent->item);
@@ -221,7 +221,7 @@ Fill_Clip
 	push reserve ammo into available space in the clip
 ==============
 */
-void Fill_Clip( playerState_t *ps, int weapon ) {
+void Fill_Clip( PlayerState *ps, int weapon ) {
 	int inclip, maxclip, ammomove;
 	int ammoweap = BG_FindAmmoForWeapon( (weapon_t)weapon );
 
@@ -260,7 +260,7 @@ Add_Ammo
 	fillClip will push the ammo straight through into the clip and leave the rest in reserve
 ==============
 */
-void Add_Ammo( gentity_t *ent, int weapon, int count, bool fillClip ) {
+void Add_Ammo( GameEntity *ent, int weapon, int count, bool fillClip ) {
 	int ammoweap = BG_FindAmmoForWeapon( (weapon_t)weapon );
 	bool noPack = false;       // no extra ammo in your 'pack'
 
@@ -315,7 +315,7 @@ void Add_Ammo( gentity_t *ent, int weapon, int count, bool fillClip ) {
 Pickup_Ammo
 ==============
 */
-int Pickup_Ammo( gentity_t *ent, gentity_t *other ) {
+int Pickup_Ammo( GameEntity *ent, GameEntity *other ) {
 	int quantity;
 
 	if ( ent->count ) {
@@ -344,7 +344,7 @@ int Pickup_Ammo( gentity_t *ent, gentity_t *other ) {
 //======================================================================
 
 
-int Pickup_Weapon( gentity_t *ent, gentity_t *other ) {
+int Pickup_Weapon( GameEntity *ent, GameEntity *other ) {
 	int quantity;
 	bool alreadyHave = false;
 	int weapon;
@@ -406,7 +406,7 @@ int Pickup_Weapon( gentity_t *ent, gentity_t *other ) {
 
 //======================================================================
 
-int Pickup_Health( gentity_t *ent, gentity_t *other ) {
+int Pickup_Health( GameEntity *ent, GameEntity *other ) {
 	int max;
 	int quantity = 0;
 
@@ -449,7 +449,7 @@ int Pickup_Health( gentity_t *ent, gentity_t *other ) {
 
 //======================================================================
 
-int Pickup_Armor( gentity_t *ent, gentity_t *other ) {
+int Pickup_Armor( GameEntity *ent, GameEntity *other ) {
 	other->client->ps.stats[STAT_ARMOR] += ent->item->quantity;
 	if ( other->client->ps.stats[STAT_ARMOR] > 100 ) {
 		other->client->ps.stats[STAT_ARMOR] = 100;
@@ -465,10 +465,10 @@ int Pickup_Armor( gentity_t *ent, gentity_t *other ) {
 RespawnItem
 ===============
 */
-void RespawnItem( gentity_t *ent ) {
+void RespawnItem( GameEntity *ent ) {
 	// randomly select from teamed entities
 	if ( ent->team ) {
-		gentity_t   *master;
+		GameEntity   *master;
 		int count;
 		int choice;
 
@@ -508,7 +508,7 @@ Touch_Item
 	if other->client->pers.autoActivate == PICKUP_FORCE		(2), he will pickup the next item when touched (and reset to PICKUP_ACTIVATE when done)
 ==============
 */
-void Touch_Item_Auto( gentity_t *ent, gentity_t *other, trace_t *trace ) {
+void Touch_Item_Auto( GameEntity *ent, GameEntity *other, trace_t *trace ) {
 	if ( other->client->pers.autoActivate == PICKUP_ACTIVATE ) {
 		return;
 	}
@@ -527,7 +527,7 @@ void Touch_Item_Auto( gentity_t *ent, gentity_t *other, trace_t *trace ) {
 Touch_Item
 ===============
 */
-void Touch_Item( gentity_t *ent, gentity_t *other, trace_t *trace ) {
+void Touch_Item( GameEntity *ent, GameEntity *other, trace_t *trace ) {
 	int respawn;
 	int makenoise = EV_ITEM_PICKUP;
 
@@ -617,7 +617,7 @@ void Touch_Item( gentity_t *ent, gentity_t *other, trace_t *trace ) {
 	// powerup pickups are global broadcasts
 	if ( ent->item->giType == IT_POWERUP || ent->item->giType == IT_TEAM ) {
 		// (SA) probably need to check for IT_KEY here too... (coop?)
-		gentity_t   *te;
+		GameEntity   *te;
 
 		te = G_TempEntity( ent->shared.s.pos.trBase, EV_GLOBAL_ITEM_PICKUP );
 		te->shared.s.eventParm = ent->shared.s.modelindex;
@@ -711,8 +711,8 @@ LaunchItem
 Spawns an item and tosses it forward
 ================
 */
-gentity_t *LaunchItem( gitem_t *item, vec3_t origin, vec3_t velocity ) {
-	gentity_t   *dropped;
+GameEntity *LaunchItem( gitem_t *item, vec3_t origin, vec3_t velocity ) {
+	GameEntity   *dropped;
 
 	dropped = G_Spawn();
 
@@ -762,7 +762,7 @@ Drop_Item
 Spawns an item and tosses it forward
 ================
 */
-gentity_t *Drop_Item( gentity_t *ent, gitem_t *item, float angle, bool novelocity ) {
+GameEntity *Drop_Item( GameEntity *ent, gitem_t *item, float angle, bool novelocity ) {
 	vec3_t velocity;
 	vec3_t angles;
 
@@ -774,7 +774,7 @@ gentity_t *Drop_Item( gentity_t *ent, gitem_t *item, float angle, bool novelocit
 		VectorClear( velocity );
 	} else
 	{
-		AngleVectors( angles, velocity, NULL, NULL );
+		AngleVectors( angles, velocity, nullptr, nullptr );
 		VectorScale( velocity, 150, velocity );
 		velocity[2] += 200 + crandom() * 50;
 	}
@@ -790,7 +790,7 @@ Use_Item
 Respawn the item
 ================
 */
-void Use_Item( gentity_t *ent, gentity_t *other, gentity_t *activator ) {
+void Use_Item( GameEntity *ent, GameEntity *other, GameEntity *activator ) {
 	RespawnItem( ent );
 }
 
@@ -804,7 +804,7 @@ Traces down to find where an item should rest, instead of letting them
 free fall from their spawn points
 ================
 */
-void FinishSpawningItem( gentity_t *ent ) {
+void FinishSpawningItem( GameEntity *ent ) {
 	trace_t tr;
 	vec3_t dest;
 	vec3_t maxs;
@@ -957,7 +957,7 @@ The item will be added to the precache list
 */
 void RegisterItem( gitem_t *item ) {
 	if ( !item ) {
-		Com_Error( ERR_DROP, "RegisterItem: NULL" );
+		Com_Error( ERR_DROP, "RegisterItem: nullptr" );
         return; // keep the linter happy, ERR_DROP does not return
 	}
 	itemRegistered[ item - bg_itemlist ] = true;
@@ -1002,7 +1002,7 @@ Items can't be immediately dropped to floor, because they might
 be on an entity that hasn't spawned yet.
 ============
 */
-void G_SpawnItem( gentity_t *ent, gitem_t *item )
+void G_SpawnItem( GameEntity *ent, gitem_t *item )
 {	
 	G_SpawnFloat( "random", "0", &ent->random );
 	G_SpawnFloat( "wait", "0", &ent->wait );
@@ -1049,7 +1049,7 @@ G_BounceItem
 
 ================
 */
-void G_BounceItem( gentity_t *ent, trace_t *trace ) {
+void G_BounceItem( GameEntity *ent, trace_t *trace ) {
 	vec3_t velocity;
 	float dot;
 	int hitTime;
@@ -1083,10 +1083,10 @@ G_RunItemProp
 =================
 */
 
-void G_RunItemProp( gentity_t *ent, vec3_t origin ) {
-	gentity_t   *traceEnt;
+void G_RunItemProp( GameEntity *ent, vec3_t origin ) {
+	GameEntity   *traceEnt;
 	trace_t trace;
-	gentity_t   *owner;
+	GameEntity   *owner;
 	vec3_t start;
 	vec3_t end;
 
@@ -1110,7 +1110,7 @@ void G_RunItemProp( gentity_t *ent, vec3_t origin ) {
 	if ( owner->client && trace.startsolid && traceEnt != owner && traceEnt != ent /* && !traceEnt->active*/ ) {
 
 		ent->takedamage = false;
-		ent->die( ent, ent, NULL, 10, 0 );
+		ent->die( ent, ent, nullptr, 10, 0 );
 		Prop_Break_Sound( ent );
 
 		return;
@@ -1129,7 +1129,7 @@ G_RunItem
 
 ================
 */
-void G_RunItem( gentity_t *ent ) {
+void G_RunItem( GameEntity *ent ) {
 	vec3_t origin;
 	trace_t tr;
 	int contents;

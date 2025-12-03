@@ -57,7 +57,7 @@ void CL_GetGlconfig( glconfig_t *glconfig ) {
 CL_GetUserCmd
 ====================
 */
-bool CL_GetUserCmd( int cmdNumber, usercmd_t *ucmd )
+bool CL_GetUserCmd( int cmdNumber, UserCmd *ucmd )
 {
 	// cmds[cmdNumber] is the last properly generated command
 
@@ -88,7 +88,7 @@ int CL_GetCurrentCmdNumber() {
 CL_GetParseEntityState
 ====================
 */
-bool    CL_GetParseEntityState( int parseEntityNumber, entityState_t *state )
+bool    CL_GetParseEntityState( int parseEntityNumber, EntityState *state )
 {
 	// can't return anything that hasn't been parsed yet
 	if ( parseEntityNumber >= cl.parseEntitiesNum ) {

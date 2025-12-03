@@ -55,9 +55,9 @@ void MSG_WriteData( msg_t *buf, const void *data, size_t length );
 void MSG_Bitstream( msg_t *buf );
 
 
-struct usercmd_s;
-struct entityState_s;
-struct playerState_s;
+class UserCmd;
+class EntityState;
+class PlayerState;
 
 void MSG_WriteBits( msg_t *msg, int value, int bits );
 
@@ -87,19 +87,17 @@ float   MSG_ReadAngle16( msg_t *sb );
 void    MSG_ReadData( msg_t *sb, void *buffer, int size );
 
 
-void MSG_WriteDeltaUsercmd( msg_t *msg, struct usercmd_s *from, struct usercmd_s *to );
-void MSG_ReadDeltaUsercmd( msg_t *msg, struct usercmd_s *from, struct usercmd_s *to );
+void MSG_WriteDeltaUsercmd( msg_t *msg, UserCmd *from, UserCmd *to );
+void MSG_ReadDeltaUsercmd( msg_t *msg, UserCmd *from, UserCmd *to );
 
-void MSG_WriteDeltaUsercmdKey( msg_t *msg, int key, usercmd_t *from, usercmd_t *to );
-void MSG_ReadDeltaUsercmdKey( msg_t *msg, int key, usercmd_t *from, usercmd_t *to );
+void MSG_WriteDeltaUsercmdKey( msg_t *msg, int key, UserCmd *from, UserCmd *to );
+void MSG_ReadDeltaUsercmdKey( msg_t *msg, int key, UserCmd *from, UserCmd *to );
 
-void MSG_WriteDeltaEntity( msg_t *msg, struct entityState_s *from, struct entityState_s *to
-						   , bool force );
-void MSG_ReadDeltaEntity( msg_t *msg, entityState_t *from, entityState_t *to,
-						  int number );
+void MSG_WriteDeltaEntity( msg_t *msg, EntityState *from, EntityState *to, bool force );
+void MSG_ReadDeltaEntity( msg_t *msg, EntityState *from, EntityState *to, int number );
 
-void MSG_WriteDeltaPlayerstate( msg_t *msg, struct playerState_s *from, struct playerState_s *to );
-void MSG_ReadDeltaPlayerstate( msg_t *msg, struct playerState_s *from, struct playerState_s *to );
+void MSG_WriteDeltaPlayerstate( msg_t *msg, PlayerState *from, PlayerState *to );
+void MSG_ReadDeltaPlayerstate( msg_t *msg, PlayerState *from, PlayerState *to );
 
 
 void MSG_ReportChangeVectors_f( void );
@@ -127,7 +125,7 @@ NET
 							// server for delta comrpession and ping estimation
 #define PACKET_MASK     ( PACKET_BACKUP - 1 )
 
-#define MAX_PACKET_USERCMDS     32      // max number of usercmd_t in a packet
+#define MAX_PACKET_USERCMDS     32      // max number of UserCmd in a packet
 
 #define PORT_ANY            -1
 
@@ -274,8 +272,8 @@ enum svc_ops_e {
 enum clc_ops_e {
 	clc_bad,
 	clc_nop,
-	clc_move,               // [[usercmd_t]
-	clc_moveNoDelta,        // [[usercmd_t]
+	clc_move,               // [[UserCmd]
+	clc_moveNoDelta,        // [[UserCmd]
 	clc_clientCommand,      // [string] message
 	clc_EOF
 };
@@ -356,7 +354,7 @@ void    Cmd_AddCommand( const char *cmd_name, xcommand_t function );
 // called by the init functions of other parts of the program to
 // register commands and functions to call for them.
 // The cmd_name is referenced later, so it should not be in temp memory
-// if function is NULL, the command will be forwarded to the server
+// if function is nullptr, the command will be forwarded to the server
 // as a clc_clientCommand instead of executed locally
 
 void    Cmd_RemoveCommand( const char *cmd_name );
@@ -371,7 +369,7 @@ char    *Cmd_Args( void );
 char    *Cmd_ArgsFrom( int arg );
 void    Cmd_ArgsBuffer( char *buffer, int bufferLength );
 // The functions that execute commands get their parameters with these
-// functions. Cmd_Argv () will return an empty string, not a NULL
+// functions. Cmd_Argv () will return an empty string, not a nullptr
 // if arg > argc, so string operations are allways safe.
 
 void    Cmd_TokenizeString( const char *text );
@@ -648,7 +646,7 @@ typedef struct {
 	sysEventType_t	evType;
 	int				evValue, evValue2;
 	int				evPtrLength;	// bytes of data pointed to by evPtr, for journaling
-	void			*evPtr;			// this must be manually freed if not NULL
+	void			*evPtr;			// this must be manually freed if not nullptr
 } sysEvent_t;
 
 void		Com_QueueEvent( int time, sysEventType_t type, int value, int value2, int ptrLength, void *ptr );
@@ -677,7 +675,7 @@ bool    Com_SafeMode( void );
 void        Com_StartupVariable( const char *match );
 void        Com_SetRecommended( bool vid_restart );
 // checks for and removes command line "+set var arg" constructs
-// if match is NULL, all set commands will be executed, otherwise
+// if match is nullptr, all set commands will be executed, otherwise
 // only a set with the exact name.  Only used during startup.
 
 

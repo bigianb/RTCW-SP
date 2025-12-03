@@ -148,7 +148,7 @@ void BotFreeMoveState( int handle ) {
 		return;
 	} //end if
 	FreeMemory( botmovestates[handle] );
-	botmovestates[handle] = NULL;
+	botmovestates[handle] = nullptr;
 } //end of the function BotFreeMoveState
 //========================================================================
 //
@@ -159,11 +159,11 @@ void BotFreeMoveState( int handle ) {
 bot_movestate_t *BotMoveStateFromHandle( int handle ) {
 	if ( handle <= 0 || handle > MAX_CLIENTS ) {
 		BotImport_Print( PRT_FATAL, "move state handle %d out of range\n", handle );
-		return NULL;
+		return nullptr;
 	} //end if
 	if ( !botmovestates[handle] ) {
 		BotImport_Print( PRT_FATAL, "invalid move state %d\n", handle );
-		return NULL;
+		return nullptr;
 	} //end if
 	return botmovestates[handle];
 } //end of the function BotMoveStateFromHandle
@@ -393,7 +393,7 @@ int BotOnMover( vec3_t origin, int entnum, aas_reachability_t *reach ) {
 
 	modelnum = reach->facenum & 0x0000FFFF;
 	//get some bsp model info
-	AAS_BSPModelMinsMaxsOrigin( modelnum, angles, mins, maxs, NULL );
+	AAS_BSPModelMinsMaxsOrigin( modelnum, angles, mins, maxs, nullptr );
 	//
 	if ( !AAS_OriginOfEntityWithModelNum( modelnum, modelorigin ) ) {
 		BotImport_Print( PRT_MESSAGE, "no entity with model %d\n", modelnum );
@@ -737,7 +737,7 @@ int BotMovementViewTarget( int movestate, bot_goal_t *goal, int travelflags, flo
 int BotVisible( int ent, vec3_t eye, vec3_t target ) {
 	bsp_trace_t trace;
 
-	trace = AAS_Trace( eye, NULL, NULL, target, ent, CONTENTS_SOLID | CONTENTS_PLAYERCLIP );
+	trace = AAS_Trace( eye, nullptr, nullptr, target, ent, CONTENTS_SOLID | CONTENTS_PLAYERCLIP );
 	if ( trace.fraction >= 1 ) {
 		return true;
 	}
@@ -1957,7 +1957,7 @@ bot_moveresult_t BotTravel_Ladder( bot_movestate_t *ms, aas_reachability_t *reac
 		ProjectPointOntoVector( p, v1, v2, pos );
 		VectorSubtract( pos, p, vec );
 		if ( VectorLength( vec ) > 2 ) {
-			AngleVectors( result.ideal_viewangles, NULL, right, NULL );
+			AngleVectors( result.ideal_viewangles, nullptr, right, nullptr );
 			if ( DotProduct( vec, right ) > 0 ) {
 				EA_MoveRight( ms->client );
 			} else {
@@ -2267,7 +2267,7 @@ void BotFuncBobStartEnd( aas_reachability_t *reach, vec3_t start, vec3_t end, ve
 		VectorSet( end, 0, 0, 0 );
 		return;
 	} //end if
-	AAS_BSPModelMinsMaxsOrigin( modelnum, angles, mins, maxs, NULL );
+	AAS_BSPModelMinsMaxsOrigin( modelnum, angles, mins, maxs, nullptr );
 	VectorAdd( mins, maxs, mid );
 	VectorScale( mid, 0.5, mid );
 	VectorCopy( mid, start );
@@ -3342,7 +3342,7 @@ void BotMoveToGoal( bot_moveresult_t *result, int movestate, bot_goal_t *goal, i
 		//special handling of jump pads when the bot uses a jump pad without knowing it
 		foundjumppad = false;
 		VectorMA( ms->origin, -2 * ms->thinktime, ms->velocity, end );
-		numareas = AAS_TraceAreas( ms->origin, end, areas, NULL, 16 );
+		numareas = AAS_TraceAreas( ms->origin, end, areas, nullptr, 16 );
 		for ( i = numareas - 1; i >= 0; i-- )
 		{
 			if ( AAS_AreaJumpPad( areas[i] ) ) {
@@ -3575,7 +3575,7 @@ void BotShutdownMoveAI( void ) {
 	{
 		if ( botmovestates[i] ) {
 			FreeMemory( botmovestates[i] );
-			botmovestates[i] = NULL;
+			botmovestates[i] = nullptr;
 		} //end if
 	} //end for
 } //end of the function BotShutdownMoveAI

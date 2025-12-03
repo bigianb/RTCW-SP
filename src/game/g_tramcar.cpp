@@ -38,20 +38,20 @@ If you have questions concerning this license or the applicable additional terms
 #define TRAMCAR_BLOCK_STOPS     4
 #define TRAMCAR_LEADER          8
 
-void props_me109_think( gentity_t *ent );
-void ExplodePlaneSndFx( gentity_t *self );
+void props_me109_think( GameEntity *ent );
+void ExplodePlaneSndFx( GameEntity *self );
 
-void Think_SetupAirplaneWaypoints( gentity_t *ent );
-void truck_cam_think( gentity_t *ent );
+void Think_SetupAirplaneWaypoints( GameEntity *ent );
+void truck_cam_think( GameEntity *ent );
 
 // extern calls
-extern void Think_SetupTrainTargets( gentity_t *ent );
-extern void Reached_BinaryMover( gentity_t *ent );
-extern void MatchTeam( gentity_t *teamLeader, int moverState, int time );
-extern void SetMoverState( gentity_t *ent, moverState_t moverState, int time );
-extern void Blocked_Door( gentity_t *ent, gentity_t *other );
-extern void Think_BeginMoving( gentity_t *ent );
-extern void propExplosionLarge( gentity_t *ent );
+extern void Think_SetupTrainTargets( GameEntity *ent );
+extern void Reached_BinaryMover( GameEntity *ent );
+extern void MatchTeam( GameEntity *teamLeader, int moverState, int time );
+extern void SetMoverState( GameEntity *ent, moverState_t moverState, int time );
+extern void Blocked_Door( GameEntity *ent, GameEntity *other );
+extern void Think_BeginMoving( GameEntity *ent );
+extern void propExplosionLarge( GameEntity *ent );
 ////////////////////////
 // truck states
 ////////////////////////
@@ -125,7 +125,7 @@ int nose_part;
 int crash_part;
 
 // functions to be added
-void InitTramcar( gentity_t *ent ) {
+void InitTramcar( GameEntity *ent ) {
 	vec3_t move;
 	float distance;
 	float light;
@@ -205,8 +205,8 @@ void InitTramcar( gentity_t *ent ) {
 	}
 }
 
-void Calc_Roll( gentity_t *ent ) {
-	gentity_t *target;
+void Calc_Roll( GameEntity *ent ) {
+	GameEntity *target;
 	vec3_t vec;
 	vec3_t forward;
 	vec3_t right;
@@ -219,7 +219,7 @@ void Calc_Roll( gentity_t *ent ) {
 	VectorCopy( ent->shared.r.currentAngles, tang );
 	tang[ROLL] = 0;
 
-	AngleVectors( tang, forward, right, NULL );
+	AngleVectors( tang, forward, right, nullptr );
 	VectorSubtract( target->nextTrain->nextTrain->shared.s.origin, ent->shared.r.currentOrigin, vec );
 	VectorNormalize( vec );
 
@@ -260,17 +260,17 @@ void Calc_Roll( gentity_t *ent ) {
 
 #define MAXCHOICES  8
 
-void GetNextTrack( gentity_t *ent ) {
-	gentity_t   *track = NULL;
-	gentity_t   *next;
-	gentity_t   *choice[MAXCHOICES];
+void GetNextTrack( GameEntity *ent ) {
+	GameEntity   *track = nullptr;
+	GameEntity   *next;
+	GameEntity   *choice[MAXCHOICES];
 	int num_choices = 0;
 	int rval;
 
 	next = ent->nextTrain;
 
 	if ( !( next->track ) ) {
-		Com_Printf( "NULL track name for %s on %s\n", ent->classname, next->targetname );
+		Com_Printf( "nullptr track name for %s on %s\n", ent->classname, next->targetname );
 		return;
 	}
 
@@ -296,13 +296,13 @@ void GetNextTrack( gentity_t *ent ) {
 
 	rval = rand() % num_choices;
 
-	ent->nextTrain = NULL;
+	ent->nextTrain = nullptr;
 	ent->target = choice[rval]->targetname;
 
 }
 
-void Reached_Tramcar( gentity_t *ent ) {
-	gentity_t       *next;
+void Reached_Tramcar( GameEntity *ent ) {
+	GameEntity       *next;
 	float speed;
 	vec3_t move;
 	float length;
@@ -352,8 +352,8 @@ void Reached_Tramcar( gentity_t *ent ) {
 			ent->shared.s.modelindex = crash_part;
 			// spawn the wing at the player effect
 
-			ent->nextTrain = NULL;
-			G_UseTargets( next, NULL );
+			ent->nextTrain = nullptr;
+			G_UseTargets( next, nullptr );
 
 			return;
 		}
@@ -409,7 +409,7 @@ void Reached_Tramcar( gentity_t *ent ) {
 
 		if ( next->spawnflags & 2 ) { // END
 			ent->shared.s.loopSound = 0; // stop sound
-			ent->nextTrain = NULL;
+			ent->nextTrain = nullptr;
 			return;
 		} else
 		{
@@ -485,7 +485,7 @@ void Reached_Tramcar( gentity_t *ent ) {
 	}
 
 	// fire all other targets
-	G_UseTargets( next, NULL );
+	G_UseTargets( next, nullptr );
 
 	// set the new trajectory
 	ent->nextTrain = next->nextTrain;
@@ -536,10 +536,10 @@ void Reached_Tramcar( gentity_t *ent ) {
 	}
 }
 
-extern void func_explosive_explode( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int damage, int mod );
+extern void func_explosive_explode( GameEntity *self, GameEntity *inflictor, GameEntity *attacker, int damage, int mod );
 
-void Tramcar_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int damage, int mod ) {
-	gentity_t       *slave;
+void Tramcar_die( GameEntity *self, GameEntity *inflictor, GameEntity *attacker, int damage, int mod ) {
+	GameEntity       *slave;
 
 	func_explosive_explode( self, self, inflictor, 0, 0 );
 
@@ -584,7 +584,7 @@ void Tramcar_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, in
 		SV_LinkEntity( &slave->shared );
 	}
 
-	self->use = NULL;
+	self->use = nullptr;
 
 	self->is_dead = true;
 
@@ -604,8 +604,8 @@ void Tramcar_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, in
 
 }
 
-void TramCarUse( gentity_t *ent, gentity_t *other, gentity_t *activator ) {
-	gentity_t       *next;
+void TramCarUse( GameEntity *ent, GameEntity *other, GameEntity *activator ) {
+	GameEntity       *next;
 
 	if ( level.time >= ent->shared.s.pos.trTime + ent->shared.s.pos.trDuration ) {
 
@@ -625,7 +625,7 @@ void TramCarUse( gentity_t *ent, gentity_t *other, gentity_t *activator ) {
 }
 
 
-void Blocked_Tramcar( gentity_t *ent, gentity_t *other ) {
+void Blocked_Tramcar( GameEntity *ent, GameEntity *other ) {
 	// remove anything other than a client
 	if ( !other->client ) {
 		
@@ -639,7 +639,7 @@ void Blocked_Tramcar( gentity_t *ent, gentity_t *other ) {
 		other->client->ps.stats[STAT_HEALTH] = other->health = 0;
 	}
 
-	G_Damage( other, ent, ent, NULL, NULL, 99999, 0, MOD_CRUSH );
+	G_Damage( other, ent, ent, nullptr, nullptr, 99999, 0, MOD_CRUSH );
 
 }
 
@@ -669,7 +669,7 @@ position when you bsp the map you can the start it by targeting the desired path
 "type" type of debris ("glass", "wood", "metal", "gibs") default is "wood"
 "mass" defaults to 75.  This determines how much debris is emitted when it explodes.  You get one large chunk per 100 of mass (up to 8) and one small chunk per 25 of mass (up to 16).  So 800 gives the most.
 */
-void SP_func_tramcar( gentity_t *self ) {
+void SP_func_tramcar( GameEntity *self ) {
 
 	int mass;
 	const char    *type;
@@ -770,7 +770,7 @@ void SP_func_tramcar( gentity_t *self ) {
 // me109
 ////////////////////////////
 
-void plane_AIScript_AlertEntity( gentity_t *ent ) {
+void plane_AIScript_AlertEntity( GameEntity *ent ) {
 
 	// when count reaches 0, the marker is active
 	ent->count--;
@@ -787,7 +787,7 @@ the program will pick one randomly there can be a maximum of eight tracks at any
 
 the entity will fire its target when reached
 */
-void SP_plane_waypoint( gentity_t *self ) {
+void SP_plane_waypoint( GameEntity *self ) {
 
 	if ( !self->targetname ) {
 		Com_Printf( "plane_waypoint with no targetname at %s\n", vtos( self->shared.s.origin ) );
@@ -813,10 +813,10 @@ void SP_plane_waypoint( gentity_t *self ) {
 default health = 1000
 */
 
-void ExplodePlaneSndFx( gentity_t *self ) {
-	gentity_t   *temp;
+void ExplodePlaneSndFx( GameEntity *self ) {
+	GameEntity   *temp;
 	vec3_t dir;
-	gentity_t   *part;
+	GameEntity   *part;
 	int i;
 	vec3_t start;
 
@@ -836,7 +836,7 @@ void ExplodePlaneSndFx( gentity_t *self ) {
 	// we may want to add some exotic deaths to parked aircraft
 	if ( self->nextTrain && self->nextTrain->spawnflags & 4 ) { // explode the plane
 		// spawn the wing at the player
-		gentity_t   *player;
+		GameEntity   *player;
 		vec3_t vec, ang;
 
 		player = AICast_FindEntityForName( "player" );
@@ -847,7 +847,7 @@ void ExplodePlaneSndFx( gentity_t *self ) {
 
 		VectorSubtract( player->shared.s.origin, self->shared.r.currentOrigin, vec );
 		vectoangles( vec, ang );
-		AngleVectors( ang, dir, NULL, NULL );
+		AngleVectors( ang, dir, nullptr, nullptr );
 
 		dir[2] = 1;
 
@@ -867,7 +867,7 @@ void ExplodePlaneSndFx( gentity_t *self ) {
 		return;
 	}
 
-	AngleVectors( self->shared.r.currentAngles, dir, NULL, NULL );
+	AngleVectors( self->shared.r.currentAngles, dir, nullptr, nullptr );
 
 	for ( i = 0; i < 4; i++ )
 	{
@@ -897,7 +897,7 @@ void ExplodePlaneSndFx( gentity_t *self ) {
 	}
 }
 
-void props_me109_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int damage, int mod ) {
+void props_me109_die( GameEntity *self, GameEntity *inflictor, GameEntity *attacker, int damage, int mod ) {
 	Com_Printf( "dead\n" );
 
 	VectorClear( self->rotate );
@@ -913,26 +913,26 @@ void props_me109_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker
 	G_FreeEntity( self );
 }
 
-void props_me109_pain( gentity_t *self, gentity_t *attacker, int damage, vec3_t point ) {
+void props_me109_pain( GameEntity *self, GameEntity *attacker, int damage, vec3_t point ) {
 	vec3_t temp;
 
 	Com_Printf( "pain: health = %i\n", self->health );
 
 	VectorCopy( self->shared.r.currentOrigin, temp );
 	VectorCopy( self->pos3, self->shared.r.currentOrigin );
-	Spawn_Shard( self, NULL, 6, 999 );
+	Spawn_Shard( self, nullptr, 6, 999 );
 	VectorCopy( temp, self->shared.r.currentOrigin );
 
 	VectorClear( self->rotate );
 	VectorSet( self->rotate, 0, 1, 0 ); //sigh
 }
 
-void Plane_Fire_Lead( gentity_t *self ) {
+void Plane_Fire_Lead( GameEntity *self ) {
 	vec3_t dir, right;
 	vec3_t pos1, pos2;
 	vec3_t position;
 
-	AngleVectors( self->shared.r.currentAngles, dir, right, NULL );
+	AngleVectors( self->shared.r.currentAngles, dir, right, nullptr );
 	VectorCopy( self->shared.r.currentOrigin, position );
 	VectorMA( position, 64, right, pos1 );
 	VectorMA( position, -64, right, pos2 );
@@ -941,7 +941,7 @@ void Plane_Fire_Lead( gentity_t *self ) {
 	fire_lead( self, pos2, dir, 12 );
 }
 
-void Plane_Attack( gentity_t *self, bool in_PVS ) {
+void Plane_Attack( GameEntity *self, bool in_PVS ) {
 	if ( self->nextTrain->spawnflags & 16 ) {
 		self->count++;
 
@@ -965,12 +965,12 @@ void Plane_Attack( gentity_t *self, bool in_PVS ) {
 	}
 }
 
-void props_me109_think( gentity_t *self ) {
+void props_me109_think( GameEntity *self ) {
 
 	bool in_PVS = false;
 
 	{
-		gentity_t *player;
+		GameEntity *player;
 
 		player = AICast_FindEntityForName( "player" );
 
@@ -991,7 +991,7 @@ void props_me109_think( gentity_t *self ) {
 					VectorSubtract( player->shared.r.currentOrigin, self->shared.r.currentOrigin, vec );
 					len = VectorLength( vec );
 					vectoangles( vec, dir );
-					AngleVectors( dir, forward, NULL, NULL );
+					AngleVectors( dir, forward, nullptr, nullptr );
 					VectorMA( point, len * 0.1, forward, point );
 
 					G_SetOrigin( self->melee, point );
@@ -1010,7 +1010,7 @@ void props_me109_think( gentity_t *self ) {
 	Calc_Roll( self );
 
 	if ( self->health < 250 ) {
-		gentity_t *tent;
+		GameEntity *tent;
 		vec3_t point;
 
 		VectorCopy( self->shared.r.currentOrigin, point );
@@ -1055,17 +1055,17 @@ void props_me109_think( gentity_t *self ) {
 
 }
 
-void Think_SetupAirplaneWaypoints( gentity_t *ent ) {
-	gentity_t       *path, *next, *start;
+void Think_SetupAirplaneWaypoints( GameEntity *ent ) {
+	GameEntity       *path, *next, *start;
 
-	ent->nextTrain = G_Find( NULL, FOFS( targetname ), ent->target );
+	ent->nextTrain = G_Find( nullptr, FOFS( targetname ), ent->target );
 	if ( !ent->nextTrain ) {
 		Com_Printf( "plane at %s with an unfound target\n",
 				  vtos( ent->shared.r.absmin ) );
 		return;
 	}
 
-	start = NULL;
+	start = nullptr;
 	for ( path = ent->nextTrain ; path != start ; path = next ) {
 		if ( !start ) {
 			start = path;
@@ -1080,7 +1080,7 @@ void Think_SetupAirplaneWaypoints( gentity_t *ent ) {
 		// find a path_corner among the targets
 		// there may also be other targets that get fired when the corner
 		// is reached
-		next = NULL;
+		next = nullptr;
 		do {
 			next = G_Find( next, FOFS( targetname ), path->target );
 			if ( !next ) {
@@ -1103,8 +1103,8 @@ void Think_SetupAirplaneWaypoints( gentity_t *ent ) {
 }
 
 
-void PlaneUse( gentity_t *ent, gentity_t *other, gentity_t *activator ) {
-	gentity_t       *next;
+void PlaneUse( GameEntity *ent, GameEntity *other, GameEntity *activator ) {
+	GameEntity       *next;
 
 	if ( level.time >= ent->shared.s.pos.trTime + ent->shared.s.pos.trDuration ) {
 
@@ -1124,8 +1124,8 @@ void PlaneUse( gentity_t *ent, gentity_t *other, gentity_t *activator ) {
 }
 
 
-void InitPlaneSpeaker( gentity_t *ent ) {
-	gentity_t   *snd;
+void InitPlaneSpeaker( GameEntity *ent ) {
+	GameEntity   *snd;
 
 	snd = G_Spawn();
 
@@ -1148,7 +1148,7 @@ void InitPlaneSpeaker( gentity_t *ent ) {
 
 }
 
-void SP_props_me109( gentity_t *ent ) {
+void SP_props_me109( GameEntity *ent ) {
 
 	VectorSet( ent->shared.r.mins, -128, -128, -128 );
 	VectorSet( ent->shared.r.maxs, 128, 128, 128 );
@@ -1221,8 +1221,8 @@ void SP_props_me109( gentity_t *ent ) {
 
 /*QUAKED truck_cam (.7 .3 .1) ? START_ON TOGGLE - -
 */
-void truck_cam_touch( gentity_t *self, gentity_t *other, trace_t *trace ) {
-	gentity_t *player;
+void truck_cam_touch( GameEntity *self, GameEntity *other, trace_t *trace ) {
+	GameEntity *player;
 
 	player = AICast_FindEntityForName( "player" );
 
@@ -1232,7 +1232,7 @@ void truck_cam_touch( gentity_t *self, gentity_t *other, trace_t *trace ) {
 	}
 
 	if ( !self->nextTrain ) {
-		self->touch = NULL;
+		self->touch = nullptr;
 		return;
 	}
 
@@ -1260,11 +1260,11 @@ void truck_cam_touch( gentity_t *self, gentity_t *other, trace_t *trace ) {
 
 }
 
-void truck_cam_think( gentity_t *ent ) {
+void truck_cam_think( GameEntity *ent ) {
 	ent->nextthink = level.time + ( FRAMETIME / 2 );
 }
 
-void SP_truck_cam( gentity_t *self ) {
+void SP_truck_cam( GameEntity *self ) {
 	int mass;
 
 	VectorClear( self->shared.s.angles );
@@ -1331,13 +1331,13 @@ void SP_truck_cam( gentity_t *self ) {
 "track" is the targetname of the entity providing the starting direction use an info_notnull
 */
 
-void delayOnthink( gentity_t *ent ) {
+void delayOnthink( GameEntity *ent ) {
 	if ( ent->melee ) {
-		ent->melee->use( ent->melee, NULL, NULL );
+		ent->melee->use( ent->melee, nullptr, nullptr );
 	}
 }
 
-void Init_Camera( gentity_t *ent ) {
+void Init_Camera( GameEntity *ent ) {
 	vec3_t move;
 	float distance;
 
@@ -1365,8 +1365,8 @@ void Init_Camera( gentity_t *ent ) {
 	}
 }
 
-void camera_cam_think( gentity_t *ent ) {
-	gentity_t *player;
+void camera_cam_think( GameEntity *ent ) {
+	GameEntity *player;
 
 	player = AICast_FindEntityForName( "player" );
 
@@ -1392,12 +1392,12 @@ void camera_cam_think( gentity_t *ent ) {
 
 		// tracking
 		{
-			gentity_t   *target = NULL;
+			GameEntity   *target = nullptr;
 			vec3_t dang;
 			vec3_t vec;
 
 			if ( ent->track ) {
-				target = G_Find( NULL, FOFS( targetname ), ent->track );
+				target = G_Find( nullptr, FOFS( targetname ), ent->track );
 			}
 
 			if ( target ) {
@@ -1418,8 +1418,8 @@ void camera_cam_think( gentity_t *ent ) {
 	ent->nextthink = level.time + ( FRAMETIME / 2 );
 }
 
-void camera_cam_use( gentity_t *ent, gentity_t *other, gentity_t *activator ) {
-	gentity_t *player;
+void camera_cam_use( GameEntity *ent, GameEntity *other, GameEntity *activator ) {
+	GameEntity *player;
 
 	player = AICast_FindEntityForName( "player" );
 
@@ -1439,7 +1439,7 @@ void camera_cam_use( gentity_t *ent, gentity_t *other, gentity_t *activator ) {
 	} else
 	{
 		ent->spawnflags &= ~1;
-		ent->think = NULL;
+		ent->think = nullptr;
 		{
 			player->client->ps.persistant[PERS_HWEAPON_USE] = 0;
 			player->client->ps.viewlocked = 0;
@@ -1449,13 +1449,13 @@ void camera_cam_use( gentity_t *ent, gentity_t *other, gentity_t *activator ) {
 
 }
 
-void camera_cam_firstthink( gentity_t *ent ) {
-	gentity_t   *target = NULL;
+void camera_cam_firstthink( GameEntity *ent ) {
+	GameEntity   *target = nullptr;
 	vec3_t dang;
 	vec3_t vec;
 
 	if ( ent->track ) {
-		target = G_Find( NULL, FOFS( targetname ), ent->track );
+		target = G_Find( nullptr, FOFS( targetname ), ent->track );
 	}
 
 	if ( target ) {
@@ -1470,7 +1470,7 @@ void camera_cam_firstthink( gentity_t *ent ) {
 	}
 }
 
-void SP_camera_cam( gentity_t *ent ) {
+void SP_camera_cam( GameEntity *ent ) {
 	Init_Camera( ent );
 
 	ent->shared.r.svFlags  = SVF_USE_CURRENT_ORIGIN;
@@ -1488,7 +1488,7 @@ void SP_camera_cam( gentity_t *ent ) {
 	ent->use = camera_cam_use;
 
 	if ( ent->spawnflags & 1 ) { // On
-		gentity_t *delayOn;
+		GameEntity *delayOn;
 
 		delayOn = G_Spawn();
 		delayOn->think = delayOnthink;
@@ -1509,7 +1509,7 @@ void SP_camera_cam( gentity_t *ent ) {
 
 defaults are .5 sec
 */
-void screen_fade_use( gentity_t *ent, gentity_t *other, gentity_t *activator ) {
+void screen_fade_use( GameEntity *ent, GameEntity *other, GameEntity *activator ) {
 	if ( ent->spawnflags & 1 ) {
 		// fade out
 		SV_SetConfigstring( CS_SCREENFADE, va( "1 %i %i", level.time + 100, (int) ent->wait ) );
@@ -1523,7 +1523,7 @@ void screen_fade_use( gentity_t *ent, gentity_t *other, gentity_t *activator ) {
 
 }
 
-void SP_screen_fade( gentity_t *ent ) {
+void SP_screen_fade( GameEntity *ent ) {
 	ent->use = screen_fade_use;
 
 	if ( !ent->wait ) {
@@ -1541,8 +1541,8 @@ touched will record the players position and fire off its targets and or cameras
 used will reset the player back to his last position
 */
 
-void mark_players_pos( gentity_t *ent, gentity_t *other, trace_t *trace ) {
-	gentity_t   *player;
+void mark_players_pos( GameEntity *ent, GameEntity *other, trace_t *trace ) {
+	GameEntity   *player;
 
 	player = AICast_FindEntityForName( "player" );
 
@@ -1550,14 +1550,14 @@ void mark_players_pos( gentity_t *ent, gentity_t *other, trace_t *trace ) {
 		VectorCopy( player->shared.r.currentOrigin, ent->shared.s.origin2 );
 		VectorCopy( player->shared.r.currentAngles, ent->shared.s.angles2 );
 
-		G_UseTargets( ent, NULL );
+		G_UseTargets( ent, nullptr );
 	}
 
 }
 
-void reset_players_pos( gentity_t *ent, gentity_t *other, gentity_t *activator ) {
+void reset_players_pos( GameEntity *ent, GameEntity *other, GameEntity *activator ) {
 
-	gentity_t *player;
+	GameEntity *player;
 
 	player = AICast_FindEntityForName( "player" );
 
@@ -1585,9 +1585,9 @@ void reset_players_pos( gentity_t *ent, gentity_t *other, gentity_t *activator )
 
 }
 
-extern void InitTrigger( gentity_t *self );
+extern void InitTrigger( GameEntity *self );
 
-void SP_camera_reset_player( gentity_t *ent ) {
+void SP_camera_reset_player( GameEntity *ent ) {
 	InitTrigger( ent );
 
 	ent->shared.r.contents = CONTENTS_TRIGGER;

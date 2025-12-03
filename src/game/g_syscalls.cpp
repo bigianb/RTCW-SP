@@ -113,7 +113,7 @@ int trap_BotGetServerCommand( int clientNum, char *message, int size ) {
 	return SV_BotGetConsoleMessage(clientNum, message, size );
 }
 
-void trap_BotUserCommand( int clientNum, usercmd_t *ucmd ) {
+void trap_BotUserCommand( int clientNum, UserCmd *ucmd ) {
 	SV_ClientThink( &svs.clients[clientNum], ucmd );
 }
 

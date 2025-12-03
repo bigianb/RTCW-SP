@@ -61,7 +61,7 @@ A normal server packet will look like:
 =============
 SV_EmitPacketEntities
 
-Writes a delta update of an entityState_t list to the message.
+Writes a delta update of an EntityState list to the message.
 =============
 */
 static void SV_EmitPacketEntities(clientSnapshot_t *from, clientSnapshot_t *to,
@@ -75,8 +75,8 @@ static void SV_EmitPacketEntities(clientSnapshot_t *from, clientSnapshot_t *to,
     from_num_entities = from->num_entities;
   }
 
-  entityState_t *newent = NULL;
-  entityState_t *oldent = NULL;
+  EntityState *newent = nullptr;
+  EntityState *oldent = nullptr;
   int newindex = 0;
   int oldindex = 0;
   while (newindex < to->num_entities || oldindex < from_num_entities) {
@@ -117,7 +117,7 @@ static void SV_EmitPacketEntities(clientSnapshot_t *from, clientSnapshot_t *to,
 
     if (newnum > oldnum) {
       // the old entity isn't present in the new message
-      MSG_WriteDeltaEntity(msg, oldent, NULL, true);
+      MSG_WriteDeltaEntity(msg, oldent, nullptr, true);
       oldindex++;
       continue;
     }
@@ -138,18 +138,18 @@ static void SV_WriteSnapshotToClient(client_t *client, msg_t *msg) {
   // this is the snapshot we are creating
   clientSnapshot_t *frame =
       &client->frames[client->netchan.outgoingSequence & PACKET_MASK];
-  clientSnapshot_t *oldframe = NULL;
+  clientSnapshot_t *oldframe = nullptr;
   // try to use a previous frame as the source for delta compressing the
   // snapshot
   if (client->deltaMessage <= 0 || client->state != CS_ACTIVE) {
     // client is asking for a retransmit
-    oldframe = NULL;
+    oldframe = nullptr;
     lastframe = 0;
   } else if (client->netchan.outgoingSequence - client->deltaMessage >=
              (PACKET_BACKUP - 3)) {
     // client hasn't gotten a good message through in a long time
     Com_DPrintf("%s: Delta request from out of date packet.\n", client->name);
-    oldframe = NULL;
+    oldframe = nullptr;
     lastframe = 0;
   } else {
     // we have a valid snapshot to delta from
@@ -161,7 +161,7 @@ static void SV_WriteSnapshotToClient(client_t *client, msg_t *msg) {
         svs.nextSnapshotEntities - svs.numSnapshotEntities) {
       Com_DPrintf("%s: Delta request from out of date entities.\n",
                   client->name);
-      oldframe = NULL;
+      oldframe = nullptr;
       lastframe = 0;
     }
   }
@@ -197,7 +197,7 @@ static void SV_WriteSnapshotToClient(client_t *client, msg_t *msg) {
   if (oldframe) {
     MSG_WriteDeltaPlayerstate(msg, &oldframe->ps, &frame->ps);
   } else {
-    MSG_WriteDeltaPlayerstate(msg, NULL, &frame->ps);
+    MSG_WriteDeltaPlayerstate(msg, nullptr, &frame->ps);
   }
 
   // delta encode the entities
@@ -270,7 +270,7 @@ static int SV_QsortEntityNumbers(const void *a, const void *b) {
 SV_AddEntToSnapshot
 ===============
 */
-static void SV_AddEntToSnapshot(svEntity_t *svEnt, sharedEntity_t *gEnt,
+static void SV_AddEntToSnapshot(ServerEntity *svEnt, sharedEntity_t *gEnt,
                                 snapshotEntityNumbers_t *eNums) {
   // if we have already added this entity to this snapshot, don't add again
   if (svEnt->snapshotCounter == sv.snapshotCounter) {
@@ -347,7 +347,7 @@ static void SV_AddEntitiesVisibleFromPoint(vec3_t origin,
       }
     }
 
-    svEntity_t *svEnt = SV_SvEntityForGentity(ent);
+    ServerEntity *svEnt = SV_SvEntityForGentity(ent);
 
     // don't double add an entity through portals
     if (svEnt->snapshotCounter == sv.snapshotCounter) {
@@ -420,7 +420,7 @@ static void SV_AddEntitiesVisibleFromPoint(vec3_t origin,
       sharedEntity_t *ment = SV_GentityNum(ent->s.otherEntityNum);
 
       if (ment) {
-        svEntity_t *master = 0;
+        ServerEntity *master = 0;
         master = SV_SvEntityForGentity(ment);
 
         if (master->snapshotCounter == sv.snapshotCounter || !ment->r.linked) {
@@ -433,7 +433,7 @@ static void SV_AddEntitiesVisibleFromPoint(vec3_t origin,
       goto notVisible;
     } else if (ent->r.svFlags & SVF_VISDUMMY_MULTIPLE) {
 
-      svEntity_t *master = 0;
+      ServerEntity *master = 0;
 
       for (int h = 0; h < sv.num_entities; h++) {
         sharedEntity_t *ment = SV_GentityNum(h);
@@ -533,8 +533,8 @@ static void SV_BuildClientSnapshot(client_t *client) {
     return;
   }
 
-  // grab the current playerState_t
-  playerState_t *ps = SV_GameClientNum((int)(client - svs.clients));
+  // grab the current PlayerState
+  PlayerState *ps = SV_GameClientNum((int)(client - svs.clients));
   frame->ps = *ps;
 
   // never send client's own entity, because it can
@@ -544,7 +544,7 @@ static void SV_BuildClientSnapshot(client_t *client) {
     Com_Error(ERR_DROP, "SV_SvEntityForGentity: bad gEnt");
     return; // keep the linter happy, ERR_DROP does not return
   }
-  svEntity_t *svEnt = &sv.svEntities[clientNum];
+  ServerEntity *svEnt = &sv.svEntities[clientNum];
 
   svEnt->snapshotCounter = sv.snapshotCounter;
 
@@ -557,7 +557,7 @@ static void SV_BuildClientSnapshot(client_t *client) {
     vec3_t right, v3ViewAngles;
     VectorCopy(ps->viewangles, v3ViewAngles);
     v3ViewAngles[2] += frame->ps.leanf / 2.0f;
-    AngleVectors(v3ViewAngles, NULL, right, NULL);
+    AngleVectors(v3ViewAngles, nullptr, right, nullptr);
     VectorMA(org, frame->ps.leanf, right, org);
   }
 
@@ -583,7 +583,7 @@ static void SV_BuildClientSnapshot(client_t *client) {
   frame->first_entity = svs.nextSnapshotEntities;
   for (int i = 0; i < entityNumbers.numSnapshotEntities; i++) {
     sharedEntity_t *ent = SV_GentityNum(entityNumbers.snapshotEntities[i]);
-    entityState_t *state = &svs.snapshotEntities[svs.nextSnapshotEntities %
+    EntityState *state = &svs.snapshotEntities[svs.nextSnapshotEntities %
                                                  svs.numSnapshotEntities];
     *state = ent->s;
     svs.nextSnapshotEntities++;
@@ -684,8 +684,8 @@ void SV_SendClientSnapshot(client_t *client) {
   // (re)send any reliable server commands
   SV_UpdateServerCommandsToClient(client, &msg);
 
-  // send over all the relevant entityState_t
-  // and the playerState_t
+  // send over all the relevant EntityState
+  // and the PlayerState
   SV_WriteSnapshotToClient(client, &msg);
 
   // check for overflow

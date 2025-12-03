@@ -21,7 +21,7 @@ const char *Sys_DefaultCDPath( void ) {
 }
 
 const char    *Sys_DefaultHomePath( void ) {
-	return NULL;
+	return nullptr;
 }
 
 void *Sys_InitializeCriticalSection() {
@@ -54,11 +54,11 @@ void Sys_ListFilteredFiles( const char *basedir, const char *subdirs, const char
 		snprintf( search, sizeof( search ), "%s", basedir );
 	}
 
-	if ( ( fdir = opendir( search ) ) == NULL ) {
+	if ( ( fdir = opendir( search ) ) == nullptr ) {
 		return;
 	}
 
-	while ( ( d = readdir( fdir ) ) != NULL ) {
+	while ( ( d = readdir( fdir ) ) != nullptr ) {
 		snprintf( filename, sizeof( filename ), "%s/%s", search, d->d_name );
 		if ( stat( filename, &st ) == -1 ) {
 			continue;
@@ -113,14 +113,14 @@ char **Sys_ListFiles( const char *directory, const char *extension, const char *
 		*numfiles = nfiles;
 
 		if ( !nfiles ) {
-			return NULL;
+			return nullptr;
 		}
 
 		listCopy = (char **)calloc(1, ( nfiles + 1 ) * sizeof( *listCopy ) );
 		for ( i = 0 ; i < nfiles ; i++ ) {
 			listCopy[i] = list[i];
 		}
-		listCopy[i] = NULL;
+		listCopy[i] = nullptr;
 
 		return listCopy;
 	}
@@ -139,12 +139,12 @@ char **Sys_ListFiles( const char *directory, const char *extension, const char *
 	// search
 	nfiles = 0;
 
-	if ( ( fdir = opendir( directory ) ) == NULL ) {
+	if ( ( fdir = opendir( directory ) ) == nullptr ) {
 		*numfiles = 0;
-		return NULL;
+		return nullptr;
 	}
 
-	while ( ( d = readdir( fdir ) ) != NULL ) {
+	while ( ( d = readdir( fdir ) ) != nullptr ) {
 		snprintf( search, sizeof( search ), "%s/%s", directory, d->d_name );
 		if ( stat( search, &st ) == -1 ) {
 			continue;
@@ -178,14 +178,14 @@ char **Sys_ListFiles( const char *directory, const char *extension, const char *
 	*numfiles = nfiles;
 
 	if ( !nfiles ) {
-		return NULL;
+		return nullptr;
 	}
 
 	listCopy = (char **)calloc(1, ( nfiles + 1 ) * sizeof( *listCopy ) );
 	for ( i = 0 ; i < nfiles ; i++ ) {
 		listCopy[i] = list[i];
 	}
-	listCopy[i] = NULL;
+	listCopy[i] = nullptr;
 
 	return listCopy;
 }

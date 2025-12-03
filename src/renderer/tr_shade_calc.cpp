@@ -52,7 +52,7 @@ static float *TableForFunc( genFunc_t func ) {
 	}
 
 	ri.Error( ERR_DROP, "TableForFunc called with invalid function '%d' in shader '%s'\n", func, tess.shader->name );
-	return NULL;
+	return nullptr;
 }
 
 /*

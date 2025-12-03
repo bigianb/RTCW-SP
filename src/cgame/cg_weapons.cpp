@@ -341,7 +341,7 @@ CG_SpearTrail
 void CG_SpearTrail( centity_t *ent, const weaponInfo_t *wi ) {
 	int contents, lastContents;
 	vec3_t origin, lastPos;
-	entityState_t   *es;
+	EntityState   *es;
 
 	es = &ent->currentState;
 	BG_EvaluateTrajectory( &es->pos, cg.time, origin );
@@ -371,7 +371,7 @@ void CG_PyroSmokeTrail( centity_t *ent, const weaponInfo_t *wi ) {
 	vec3_t origin, lastPos, dir;
 	int contents;
 	int lastContents, startTime;
-	entityState_t   *es;
+	EntityState   *es;
 	int t;
 	float rnd;
 	static float grounddir = 99;
@@ -407,7 +407,7 @@ void CG_PyroSmokeTrail( centity_t *ent, const weaponInfo_t *wi ) {
 			vec3_t angles;
 			VectorCopy( ent->currentState.apos.trBase, angles );
 			angles[ROLL] += cg.time % 360;
-			AngleVectors( angles, NULL, right, NULL );
+			AngleVectors( angles, nullptr, right, nullptr );
 			VectorMA( lastPos, ent->currentState.density, right, lastPos );
 		}
 
@@ -459,7 +459,7 @@ void CG_RocketTrail( centity_t *ent, const weaponInfo_t *wi ) {
 	vec3_t origin, lastPos;
 	int contents;
 	int lastContents, startTime;
-	entityState_t   *es;
+	EntityState   *es;
 	int t;
 //	localEntity_t	*le;
 
@@ -547,7 +547,7 @@ void CG_RocketTrail( centity_t *ent, const weaponInfo_t *wi ) {
 				vec3_t angles;
 				VectorCopy( ent->currentState.apos.trBase, angles );
 				angles[ROLL] += cg.time % 360;
-				AngleVectors( angles, NULL, right, NULL );
+				AngleVectors( angles, nullptr, right, nullptr );
 				VectorMA( lastPos, ent->currentState.density, right, lastPos );
 			}
 
@@ -603,7 +603,7 @@ static void CG_GrenadeTrail( centity_t *ent, const weaponInfo_t *wi ) {
 	vec3_t origin, lastPos;
 	int contents;
 	int lastContents, startTime;
-	entityState_t   *es;
+	EntityState   *es;
 	int t;
 
 	step = 15;  // nice and smooth curves
@@ -1554,7 +1554,7 @@ CG_WeaponAnimation
 */
 
 //----(SA)	modified.  this is now client-side only (server does not dictate weapon animation info)
-static void CG_WeaponAnimation( playerState_t *ps, weaponInfo_t *weapon, int *weapOld, int *weap, float *weapBackLerp ) {
+static void CG_WeaponAnimation( PlayerState *ps, weaponInfo_t *weapon, int *weapOld, int *weap, float *weapBackLerp ) {
 
 	centity_t *cent = &cg.predictedPlayerEntity;
 	clientInfo_t *ci = &cgs.clientinfo[ ps->clientNum ];
@@ -1627,7 +1627,7 @@ static void CG_CalculateWeaponPosition( vec3_t origin, vec3_t angles ) {
 
 		// reverse the roll on the weapon so it stays relatively level
 		angles[ROLL] -= cg.predictedPlayerState.leanf / ( leanscale * 2.0f );
-		AngleVectors( angles, NULL, right, up );
+		AngleVectors( angles, nullptr, right, up );
 		VectorMA( origin, angles[ROLL], right, origin );
 
 		// pitch the gun down a bit to show that firing is not allowed when leaning
@@ -1635,7 +1635,7 @@ static void CG_CalculateWeaponPosition( vec3_t origin, vec3_t angles ) {
 
 		// this gives you some impression that the weapon stays in relatively the same
 		// position while you lean, so you appear to 'peek' over the weapon
-		AngleVectors( cg.refdefViewAngles, NULL, right, NULL );
+		AngleVectors( cg.refdefViewAngles, nullptr, right, nullptr );
 		VectorMA( origin, -cg.predictedPlayerState.leanf / 4.0f, right, origin );
 	}
 
@@ -1804,11 +1804,11 @@ static float CG_VenomSpinAngle( centity_t *cent ) {
 		// just switching between not spinning and spinning, play the appropriate weapon sound
 		if ( cent->pe.barrelSpinning ) {
 			if ( cg_weapons[WP_VENOM].spinupSound ) {
-				S_StartSoundEx( NULL, cent->currentState.number, CHAN_WEAPON, cg_weapons[WP_VENOM].spinupSound, SND_OKTOCUT );
+				S_StartSoundEx( nullptr, cent->currentState.number, CHAN_WEAPON, cg_weapons[WP_VENOM].spinupSound, SND_OKTOCUT );
 			}
 		} else {
 			if ( cg_weapons[WP_VENOM].spindownSound ) {
-				S_StartSound( NULL, cent->currentState.number, CHAN_WEAPON, cg_weapons[WP_VENOM].spindownSound );
+				S_StartSound( nullptr, cent->currentState.number, CHAN_WEAPON, cg_weapons[WP_VENOM].spindownSound );
 			}
 		}
 
@@ -1844,7 +1844,7 @@ bool CG_DrawRealWeapons( centity_t *cent ) {
 CG_AddWeaponWithPowerups
 ========================
 */
-static void CG_AddWeaponWithPowerups( refEntity_t *gun, int powerups, playerState_t *ps, centity_t *cent ) {
+static void CG_AddWeaponWithPowerups( refEntity_t *gun, int powerups, PlayerState *ps, centity_t *cent ) {
 
 
 	// add powerup effects
@@ -1902,7 +1902,7 @@ void CG_PlayerTeslaCoilFire( centity_t *cent, vec3_t flashorigin ) {
 
 	VectorCopy( cent->lerpAngles, viewAngles );
 
-	AngleVectors( viewAngles, viewDir, NULL, NULL );
+	AngleVectors( viewAngles, viewDir, nullptr, nullptr );
 
 	if ( cent->currentState.number == cg.snap->ps.clientNum ) {
 		VectorCopy( cg.snap->ps.origin, traceOrg );
@@ -1927,20 +1927,20 @@ void CG_PlayerTeslaCoilFire( centity_t *cent, vec3_t flashorigin ) {
 			 ( cg.snap->ps.teamNum != playerTeam ) &&
 			 ( Distance( tagPos, cg.snap->ps.origin ) < TESLA_LIGHTNING_MAX_DIST ) &&
 			 ( DotProduct( viewDir, vec ) > 0.8 ) ) {
-			CG_Trace( &tr, traceOrg, NULL, NULL, cg.snap->ps.origin, cg.snap->ps.clientNum, MASK_SHOT & ~( CONTENTS_BODY ) );
+			CG_Trace( &tr, traceOrg, nullptr, nullptr, cg.snap->ps.origin, cg.snap->ps.clientNum, MASK_SHOT & ~( CONTENTS_BODY ) );
 			if ( tr.fraction == 1 || tr.entityNum == cg.snap->ps.clientNum ) {
 				visDists[numEnemies] = Distance( tagPos, cg.snap->ps.origin );
 				visEnemies[numEnemies++] = cg.snap->ps.clientNum;
 			} else {    // try head
 				VectorCopy( cg.snap->ps.origin, vec );
 				vec[2] += cg.snap->ps.viewheight;
-				CG_Trace( &tr, tagPos, NULL, NULL, vec, cg.snap->ps.clientNum, MASK_SHOT & ~( CONTENTS_BODY ) );
+				CG_Trace( &tr, tagPos, nullptr, nullptr, vec, cg.snap->ps.clientNum, MASK_SHOT & ~( CONTENTS_BODY ) );
 				if ( tr.fraction == 1 || tr.entityNum == cg.snap->ps.clientNum ) {
 					visDists[numEnemies] = Distance( tagPos, cg.snap->ps.origin );
 					visEnemies[numEnemies++] = cg.snap->ps.clientNum;
 				} else {    // try body, from tag
 					VectorCopy( cg.snap->ps.origin, vec );
-					CG_Trace( &tr, tagPos, NULL, NULL, vec, cg.snap->ps.clientNum, MASK_SHOT & ~( CONTENTS_BODY ) );
+					CG_Trace( &tr, tagPos, nullptr, nullptr, vec, cg.snap->ps.clientNum, MASK_SHOT & ~( CONTENTS_BODY ) );
 					if ( tr.fraction == 1 || tr.entityNum == cg.snap->ps.clientNum ) {
 						visDists[numEnemies] = Distance( tagPos, cg.snap->ps.origin );
 						visEnemies[numEnemies++] = cg.snap->ps.clientNum;
@@ -1964,7 +1964,7 @@ void CG_PlayerTeslaCoilFire( centity_t *cent, vec3_t flashorigin ) {
 					VectorNormalize( vec );
 
 					if ( DotProduct( viewDir, vec ) > 0.8 ) {
-						CG_Trace( &tr, traceOrg, NULL, NULL, ctrav->lerpOrigin, ctrav->currentState.number, MASK_SHOT & ~CONTENTS_BODY );
+						CG_Trace( &tr, traceOrg, nullptr, nullptr, ctrav->lerpOrigin, ctrav->currentState.number, MASK_SHOT & ~CONTENTS_BODY );
 						if ( tr.fraction == 1 || tr.entityNum == ctrav->currentState.number ) {
 							visDists[numEnemies] = Distance( tagPos, ctrav->lerpOrigin );
 							visEnemies[numEnemies++] = ctrav->currentState.number;
@@ -2053,10 +2053,10 @@ void CG_PlayerTeslaCoilFire( centity_t *cent, vec3_t flashorigin ) {
 						   cg.refdef.fov_x * crandom() * 0.5,
 						   0 );
 				VectorAdd( viewAngles, testPos, testPos );
-				AngleVectors( testPos, vec, NULL, NULL );
+				AngleVectors( testPos, vec, nullptr, nullptr );
 				VectorMA( tagPos, TESLA_LIGHTNING_NORMAL_DIST, vec, testPos );
 				// try a trace to find a world collision
-				CG_Trace( &tr, tagPos, NULL, NULL, testPos, cent->currentState.number, MASK_SHOT & ~CONTENTS_BODY );
+				CG_Trace( &tr, tagPos, nullptr, nullptr, testPos, cent->currentState.number, MASK_SHOT & ~CONTENTS_BODY );
 				if ( tr.fraction < 1 && tr.entityNum == ENTITYNUM_WORLD && !( tr.surfaceFlags & ( SURF_NOIMPACT | SURF_SKY ) ) ) {
 					// found a valid spot!
 					cent->pe.teslaEndPointTimes[i] = cg.time - rand() % ( TESLA_LIGHTNING_POINT_TIMEOUT / 2 );
@@ -2107,10 +2107,10 @@ void CG_PlayerTeslaCoilFire( centity_t *cent, vec3_t flashorigin ) {
 	}
 
 	// drop a dynamic light out infront of us
-	AngleVectors( viewAngles, vec, NULL, NULL );
+	AngleVectors( viewAngles, vec, nullptr, nullptr );
 	VectorMA( tagPos, 300, vec, testPos );
 	// try a trace to find a world collision
-	CG_Trace( &tr, tagPos, NULL, NULL, testPos, cent->currentState.number, MASK_SOLID );
+	CG_Trace( &tr, tagPos, nullptr, nullptr, testPos, cent->currentState.number, MASK_SOLID );
 
 	if ( ( cg.time / 50 ) % ( 4 + ( cg.time % 4 ) ) == 0 ) {
 		// alt light
@@ -2135,7 +2135,7 @@ void CG_PlayerTeslaCoilFire( centity_t *cent, vec3_t flashorigin ) {
 CG_AddProtoWeapons
 ==============
 */
-void CG_AddProtoWeapons( refEntity_t *parent, playerState_t *ps, centity_t *cent ) {
+void CG_AddProtoWeapons( refEntity_t *parent, PlayerState *ps, centity_t *cent ) {
 	refEntity_t gun;
 
 	return;
@@ -2148,7 +2148,7 @@ void CG_AddProtoWeapons( refEntity_t *parent, playerState_t *ps, centity_t *cent
 //	gun.hModel		= cgs.media.protoWeapon;
 	gun.shadowPlane = parent->shadowPlane;
 	gun.renderfx    = parent->renderfx;
-	CG_PositionEntityOnTag( &gun, parent, "tag_armright", 0, NULL );
+	CG_PositionEntityOnTag( &gun, parent, "tag_armright", 0, nullptr );
 	CG_AddWeaponWithPowerups( &gun, cent->currentState.powerups, ps, cent );
 }
 //----(SA)	end
@@ -2173,14 +2173,14 @@ bool CG_MonsterUsingWeapon( centity_t *cent, int aiChar, int weaponNum ) {
 =============
 CG_AddPlayerWeapon
 
-Used for both the view weapon (ps is valid) and the world modelother character models (ps is NULL)
+Used for both the view weapon (ps is valid) and the world modelother character models (ps is nullptr)
 The main player will have this called for BOTH cases, so effects like light and
 sound should only be done on the world model case.
 =============
 */
 static bool debuggingweapon = false;
 
-void CG_AddPlayerWeapon( refEntity_t *parent, playerState_t *ps, centity_t *cent ) {
+void CG_AddPlayerWeapon( refEntity_t *parent, PlayerState *ps, centity_t *cent ) {
 
 	refEntity_t gun;
 	refEntity_t barrel;
@@ -2306,7 +2306,7 @@ void CG_AddPlayerWeapon( refEntity_t *parent, playerState_t *ps, centity_t *cent
 	// Ridah
 	firing = ( ( cent->currentState.eFlags & EF_FIRING ) != 0 );
 
-	CG_PositionEntityOnTag( &gun, parent, "tag_weapon", 0, NULL );
+	CG_PositionEntityOnTag( &gun, parent, "tag_weapon", 0, nullptr );
 
 	playerScaled = (bool)( cgs.clientinfo[ cent->currentState.clientNum ].playermodelScale[0] != 0 );
 	if ( !ps && playerScaled ) {   // don't "un-scale" weap up in 1st person
@@ -2406,11 +2406,11 @@ void CG_AddPlayerWeapon( refEntity_t *parent, playerState_t *ps, centity_t *cent
 				if ( i == W_PART_1 ) {
 					if ( spunpart ) {
 						CG_PositionRotatedEntityOnTag( &barrel, parent, "tag_barrel" );
-					} else { CG_PositionEntityOnTag( &barrel, parent, "tag_barrel", 0, NULL );}
+					} else { CG_PositionEntityOnTag( &barrel, parent, "tag_barrel", 0, nullptr );}
 				} else {
 					if ( spunpart ) {
 						CG_PositionRotatedEntityOnTag( &barrel, parent, va( "tag_barrel%d", i + 1 ) );
-					} else { CG_PositionEntityOnTag( &barrel, parent, va( "tag_barrel%d", i + 1 ), 0, NULL );}
+					} else { CG_PositionEntityOnTag( &barrel, parent, va( "tag_barrel%d", i + 1 ), 0, nullptr );}
 				}
 
 				drawpart = CG_GetPartFramesFromWeap( cent, &barrel, parent, i, weapon );
@@ -2440,7 +2440,7 @@ void CG_AddPlayerWeapon( refEntity_t *parent, playerState_t *ps, centity_t *cent
 			if ( COM_BitCheck( cg.predictedPlayerState.weapons, WP_SNIPERRIFLE ) ) {
 				barrel.hModel = weapon->modModel[0];
 				if ( barrel.hModel ) {
-					CG_PositionEntityOnTag( &barrel, &gun, "tag_scope", 0, NULL );
+					CG_PositionEntityOnTag( &barrel, &gun, "tag_scope", 0, nullptr );
 					CG_AddWeaponWithPowerups( &barrel, cent->currentState.powerups, ps, cent );
 				}
 			}
@@ -2577,7 +2577,7 @@ void CG_AddPlayerWeapon( refEntity_t *parent, playerState_t *ps, centity_t *cent
 
 	// Ridah, zombie fires from his head
 	//if (CG_MonsterUsingWeapon( cent, AICHAR_ZOMBIE, WP_MONSTER_ATTACK1 )) {
-	//	CG_PositionEntityOnTag( &flash, parent, parent->hModel, "tag_head", NULL);
+	//	CG_PositionEntityOnTag( &flash, parent, parent->hModel, "tag_head", nullptr);
 	//}
 
 	if ( ps || cg.renderingThirdPerson || !isPlayer ) {
@@ -2604,7 +2604,7 @@ void CG_AddPlayerWeapon( refEntity_t *parent, playerState_t *ps, centity_t *cent
 	}
 }
 
-void CG_AddPlayerFoot( refEntity_t *parent, playerState_t *ps, centity_t *cent ) {
+void CG_AddPlayerFoot( refEntity_t *parent, PlayerState *ps, centity_t *cent ) {
 	refEntity_t wolfkick;
 	vec3_t kickangle;
 	weaponInfo_t    *weapon;
@@ -2668,7 +2668,7 @@ CG_AddViewWeapon
 Add the weapon, and flash for the player's view
 ==============
 */
-void CG_AddViewWeapon( playerState_t *ps ) {
+void CG_AddViewWeapon( PlayerState *ps ) {
 	refEntity_t hand;
 	float fovOffset;
 	vec3_t angles;
@@ -3351,7 +3351,7 @@ void CG_PlaySwitchSound( int lastweap, int newweap ) {
 		}
 	}
 
-	S_StartSound( NULL, cg.snap->ps.clientNum, CHAN_WEAPON, switchsound );
+	S_StartSound( nullptr, cg.snap->ps.clientNum, CHAN_WEAPON, switchsound );
 }
 
 
@@ -3367,7 +3367,7 @@ void CG_FinishWeaponChange( int lastweap, int newweap ) {
 
 	// remember which weapon in this bank was last selected so when cycling back
 	// to this bank, that weap will be highlighted first
-	if ( CG_WeaponIndex( newweap, &newbank, NULL ) ) {
+	if ( CG_WeaponIndex( newweap, &newbank, nullptr ) ) {
 		cg.lastWeapSelInBank[newbank] = newweap;
 	}
 
@@ -3505,7 +3505,7 @@ void CG_NextWeap( bool switchBanks ) {
 		for ( i = 0; i < maxWeapsInBank; i++ ) {
 			num = getNextWeapInBankBynum( num );
 
-			CG_WeaponIndex( num, NULL, &newcycle );       // get cycle of new weapon.  if it's lower than the original, then it cycled around
+			CG_WeaponIndex( num, nullptr, &newcycle );       // get cycle of new weapon.  if it's lower than the original, then it cycled around
 
 			if ( switchBanks ) {
 				if ( newcycle <= cycle ) {
@@ -3608,7 +3608,7 @@ void CG_PrevWeap( bool switchBanks ) {
 //				num = getPrevWeapInBank(bank, i);
 			num = getPrevWeapInBankBynum( num );
 
-			CG_WeaponIndex( num, NULL, &newcycle );         // get cycle of new weapon.  if it's greater than the original, then it cycled around
+			CG_WeaponIndex( num, nullptr, &newcycle );         // get cycle of new weapon.  if it's greater than the original, then it cycled around
 
 			if ( switchBanks ) {
 				if ( newcycle > ( cycle - 1 ) ) {
@@ -4067,10 +4067,10 @@ void CG_MG42EFX( centity_t *cent ) {
 	vec3_t point;
 	refEntity_t flash;
 
-//	S_StartSound( NULL, cent->currentState.number, CHAN_WEAPON, hWeaponSnd );
+//	S_StartSound( nullptr, cent->currentState.number, CHAN_WEAPON, hWeaponSnd );
 
 	VectorCopy( cent->currentState.origin, point );
-	AngleVectors( cent->currentState.angles, forward, NULL, NULL );
+	AngleVectors( cent->currentState.angles, forward, nullptr, nullptr );
 	VectorMA( point, 40, forward, point );
 	trap_R_AddLightToScene( point, 200 + ( rand() & 31 ),1.0, 0.6, 0.23, 0 );
 
@@ -4085,7 +4085,7 @@ void CG_MG42EFX( centity_t *cent ) {
 }
 
 void CG_FLAKEFX( centity_t *cent, int whichgun ) {
-	entityState_t *ent;
+	EntityState *ent;
 	vec3_t forward, right, up;
 	vec3_t point;
 	refEntity_t flash;
@@ -4125,7 +4125,7 @@ void CG_FLAKEFX( centity_t *cent, int whichgun ) {
 
 	trap_R_AddRefEntityToScene( &flash );
 
-	S_StartSound( NULL, ent->number, CHAN_WEAPON, hflakWeaponSnd );
+	S_StartSound( nullptr, ent->number, CHAN_WEAPON, hflakWeaponSnd );
 }
 
 
@@ -4252,7 +4252,7 @@ Caused by an EV_FIRE_WEAPON event
 ================
 */
 void CG_FireWeapon( centity_t *cent ) {
-	entityState_t *ent;
+	EntityState *ent;
 	int c;
 	weaponInfo_t    *weap;
 	sfxHandle_t     *firesound;
@@ -4267,8 +4267,8 @@ void CG_FireWeapon( centity_t *cent ) {
 			return;
 		}
 
-		S_StartSound( NULL, cent->currentState.number, CHAN_WEAPON, hWeaponSnd );
-		//S_StartSound( NULL, ent->number, CHAN_WEAPON, hWeaponSnd );
+		S_StartSound( nullptr, cent->currentState.number, CHAN_WEAPON, hWeaponSnd );
+		//S_StartSound( nullptr, ent->number, CHAN_WEAPON, hWeaponSnd );
 		if ( cg_brassTime.integer > 0 ) {
 			CG_MachineGunEjectBrass( cent );
 		}
@@ -4317,7 +4317,7 @@ void CG_FireWeapon( centity_t *cent ) {
 
 	// play quad sound if needed
 	if ( cent->currentState.powerups & ( 1 << PW_QUAD ) ) {
-		S_StartSound( NULL, cent->currentState.number, CHAN_ITEM, cgs.media.quadSound );
+		S_StartSound( nullptr, cent->currentState.number, CHAN_ITEM, cgs.media.quadSound );
 	}
 
 	if ( ( cent->currentState.event & ~EV_EVENT_BITS ) == EV_FIRE_WEAPON_LASTSHOT ) {
@@ -4351,7 +4351,7 @@ void CG_FireWeapon( centity_t *cent ) {
 	if ( c > 0 ) {
 		c = rand() % c;
 		if ( firesound[c] ) {
-			S_StartSound( NULL, ent->number, CHAN_WEAPON, firesound[c] );
+			S_StartSound( nullptr, ent->number, CHAN_WEAPON, firesound[c] );
 
 			if ( fireEchosound && fireEchosound[c] ) { // check for echo
 				centity_t   *cent;
@@ -4794,7 +4794,7 @@ void CG_MissileHitWall( int weapon, int clientNum, vec3_t origin, vec3_t dir, in
 /*
 					if (rand()%100 > 75)
 					{
-						gentity_t	*sfx;
+						GameEntity	*sfx;
 						vec3_t		start;
 						vec3_t		dir;
 
@@ -5271,7 +5271,7 @@ static void CG_VenomPattern( vec3_t origin, vec3_t origin2, int otherEntNum ) {
 CG_VenomFire
 ==============
 */
-void CG_VenomFire( entityState_t *es, bool fullmode ) {
+void CG_VenomFire( EntityState *es, bool fullmode ) {
 	vec3_t v;
 	int contents;
 
@@ -5466,7 +5466,7 @@ static bool CG_CalcMuzzlePoint( int entityNum, vec3_t muzzle ) {
 	if ( entityNum == cg.snap->ps.clientNum ) {
 		VectorCopy( cg.snap->ps.origin, muzzle );
 		muzzle[2] += cg.snap->ps.viewheight;
-		AngleVectors( cg.snap->ps.viewangles, forward, NULL, NULL );
+		AngleVectors( cg.snap->ps.viewangles, forward, nullptr, nullptr );
 		VectorMA( muzzle, 14, forward, muzzle );
 		return true;
 	}
@@ -5525,14 +5525,14 @@ void CG_Bullet( vec3_t end, int sourceEntityNum, vec3_t normal, bool flesh, int 
 			}
 			// bubble trail from water into air
 			else if ( ( sourceContentType & CONTENTS_WATER ) ) {
-				CM_BoxTrace( &trace, end, start, NULL, NULL, 0, CONTENTS_WATER , false);
+				CM_BoxTrace( &trace, end, start, nullptr, nullptr, 0, CONTENTS_WATER , false);
 				CG_BubbleTrail( start, trace.endpos, .5, 8 );
 			}
 			// bubble trail from air into water
 			else if ( ( destContentType & CONTENTS_WATER ) ) {
 				// only add bubbles if effect is close to viewer
 				if ( Distance( cg.snap->ps.origin, end ) < 1024 ) {
-					CM_BoxTrace( &trace, start, end, NULL, NULL, 0, CONTENTS_WATER, false );
+					CM_BoxTrace( &trace, start, end, nullptr, nullptr, 0, CONTENTS_WATER, false );
 					CG_BubbleTrail( end, trace.endpos, .5, 8 );
 				}
 			}
@@ -5571,9 +5571,9 @@ void CG_Bullet( vec3_t end, int sourceEntityNum, vec3_t normal, bool flesh, int 
 			// (SA) TODO: for metal guys, make metal a flag rather than an aitype check?
 			if ( aiType == AICHAR_PROTOSOLDIER ||
 				 aiType == AICHAR_SUPERSOLDIER ) {
-				CG_SoundPlayIndexedScript( cgs.media.bulletHitFleshMetalScript, NULL, fleshEntityNum );
+				CG_SoundPlayIndexedScript( cgs.media.bulletHitFleshMetalScript, nullptr, fleshEntityNum );
 			} else {
-				CG_SoundPlayIndexedScript( cgs.media.bulletHitFleshScript, NULL, fleshEntityNum );
+				CG_SoundPlayIndexedScript( cgs.media.bulletHitFleshScript, nullptr, fleshEntityNum );
 			}
 		} else {
 			VectorSubtract( cg_entities[fleshEntityNum].lerpOrigin, cg.snap->ps.origin, origin );
@@ -5592,7 +5592,7 @@ void CG_Bullet( vec3_t end, int sourceEntityNum, vec3_t normal, bool flesh, int 
 				VectorSubtract( end, start, dir );
 				VectorNormalize( dir );
 				VectorMA( end, 128, dir, trend );
-				CM_BoxTrace( &trace, end, trend, NULL, NULL, 0, MASK_SHOT & ~CONTENTS_BODY, false );
+				CM_BoxTrace( &trace, end, trend, nullptr, nullptr, 0, MASK_SHOT & ~CONTENTS_BODY, false );
 
 				if ( trace.fraction < 1 ) {
 					CG_ImpactMark( cgs.media.bloodDotShaders[rand() % 5], trace.endpos, trace.plane.normal, random() * 360,
@@ -5602,7 +5602,7 @@ void CG_Bullet( vec3_t end, int sourceEntityNum, vec3_t normal, bool flesh, int 
 					// drop one on the ground?
 					VectorCopy( end, trend );
 					trend[2] -= 64;
-					CM_BoxTrace( &trace, end, trend, NULL, NULL, 0, MASK_SHOT & ~CONTENTS_BODY, false );
+					CM_BoxTrace( &trace, end, trend, nullptr, nullptr, 0, MASK_SHOT & ~CONTENTS_BODY, false );
 
 					if ( trace.fraction < 1 ) {
 						CG_ImpactMark( cgs.media.bloodDotShaders[rand() % 5], trace.endpos, trace.plane.normal, random() * 360,
@@ -5634,7 +5634,7 @@ void CG_Bullet( vec3_t end, int sourceEntityNum, vec3_t normal, bool flesh, int 
 			VectorNormalize( dir );
 			VectorMA( end, -4, dir, start2 );   // back off a little so it doesn't start in solid
 			VectorMA( end, 64, dir, dir );
-			CM_BoxTrace( &trace, start2, dir, NULL, NULL, 0, MASK_SHOT, false );
+			CM_BoxTrace( &trace, start2, dir, nullptr, nullptr, 0, MASK_SHOT, false );
 
 			if ( ( trace.surfaceFlags & SURF_METAL ) || !( rand() % 10 ) || ( otherEntNum2 != ENTITYNUM_NONE ) ) {
 				
@@ -5643,7 +5643,7 @@ void CG_Bullet( vec3_t end, int sourceEntityNum, vec3_t normal, bool flesh, int 
 				CG_MissileHitWall( fromweap, 0, end, tmp, trace.surfaceFlags );
 			}
 			if ( !( sourceContentType & CONTENTS_WATER ) && ( destContentType & ( CONTENTS_WATER | CONTENTS_SLIME | CONTENTS_LAVA ) ) ) {   // only when shooting /into/ water
-				CM_BoxTrace( &trace, start, end, NULL, NULL, 0, MASK_WATER, false );
+				CM_BoxTrace( &trace, start, end, nullptr, nullptr, 0, MASK_WATER, false );
 
 				CG_MissileHitWall( fromweap, 2, trace.endpos, trace.plane.normal, trace.surfaceFlags );
 			} else {

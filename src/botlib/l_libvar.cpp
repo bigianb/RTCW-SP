@@ -120,7 +120,7 @@ void LibVarDeAllocAll( void ) {
 		libvarlist = libvarlist->next;
 		LibVarDeAlloc( v );
 	} //end for
-	libvarlist = NULL;
+	libvarlist = nullptr;
 } //end of the function LibVarDeAllocAll
 //===========================================================================
 //
@@ -137,7 +137,7 @@ libvar_t *LibVarGet( const char *var_name ) {
 			return v;
 		} //end if
 	} //end for
-	return NULL;
+	return nullptr;
 } 
 
 const char *LibVarGetString( const char *var_name ) {

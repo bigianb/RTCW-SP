@@ -144,12 +144,12 @@ G_Find
 Searches all active entities for the next one that holds
 the matching string at fieldofs (use the FOFS() macro) in the structure.
 
-Searches beginning at the entity after from, or the beginning if NULL
-NULL will be returned if the end of the list is reached.
+Searches beginning at the entity after from, or the beginning if nullptr
+nullptr will be returned if the end of the list is reached.
 
 =============
 */
-gentity_t *G_Find( gentity_t *from, int fieldofs, const char *match ) {
+GameEntity *G_Find( GameEntity *from, int fieldofs, const char *match ) {
 	char    *s;
 
 	if ( !from ) {
@@ -172,7 +172,7 @@ gentity_t *G_Find( gentity_t *from, int fieldofs, const char *match ) {
 		}
 	}
 
-	return NULL;
+	return nullptr;
 }
 
 
@@ -185,14 +185,14 @@ Selects a random entity from among the targets
 */
 #define MAXCHOICES  32
 
-gentity_t *G_PickTarget( char *targetname ) {
-	gentity_t   *ent = NULL;
+GameEntity *G_PickTarget( char *targetname ) {
+	GameEntity   *ent = nullptr;
 	int num_choices = 0;
-	gentity_t   *choice[MAXCHOICES];
+	GameEntity   *choice[MAXCHOICES];
 
 	if ( !targetname ) {
-		//Com_Printf("G_PickTarget called with NULL targetname\n");
-		return NULL;
+		//Com_Printf("G_PickTarget called with nullptr targetname\n");
+		return nullptr;
 	}
 
 	while ( 1 )
@@ -209,7 +209,7 @@ gentity_t *G_PickTarget( char *targetname ) {
 
 	if ( !num_choices ) {
 		Com_Printf( "G_PickTarget: target %s not found\n", targetname );
-		return NULL;
+		return nullptr;
 	}
 
 	return choice[rand() % num_choices];
@@ -227,8 +227,8 @@ match (string)self.target and call their .use function
 
 ==============================
 */
-void G_UseTargets( gentity_t *ent, gentity_t *activator ) {
-	gentity_t       *t;
+void G_UseTargets( GameEntity *ent, GameEntity *activator ) {
+	GameEntity       *t;
 
 	if ( !ent ) {
 		return;
@@ -244,8 +244,8 @@ void G_UseTargets( gentity_t *ent, gentity_t *activator ) {
 		return;
 	}
 
-	t = NULL;
-	while ( ( t = G_Find( t, FOFS( targetname ), ent->target ) ) != NULL ) {
+	t = nullptr;
+	while ( ( t = G_Find( t, FOFS( targetname ), ent->target ) ) != nullptr ) {
 		if ( t == ent ) {
 			Com_Printf( "WARNING: Entity used itself.\n" );
 		} else {
@@ -363,14 +363,14 @@ void G_SetMovedir( vec3_t angles, vec3_t movedir ) {
 	} else if ( VectorCompare( angles, VEC_DOWN ) ) {
 		VectorCopy( MOVEDIR_DOWN, movedir );
 	} else {
-		AngleVectors( angles, movedir, NULL, NULL );
+		AngleVectors( angles, movedir, nullptr, nullptr );
 	}
 	VectorClear( angles );
 }
 
 
 
-void G_InitGentity( gentity_t *e )
+void G_InitGentity( GameEntity *e )
 {
 	e->inuse = true;
 	e->classname = "noclass";
@@ -400,7 +400,7 @@ instead of being removed and recreated, which can cause interpolated
 angles and bad trails.
 =================
 */
-gentity_t *G_Spawn()
+GameEntity *G_Spawn()
 {
 	int i = 0;
 	for (int force = 0; force < 2 ; force++ ) {
@@ -408,7 +408,7 @@ gentity_t *G_Spawn()
 		// override the normal minimum times before use
 		
 		for ( i = MAX_CLIENTS ; i < level.num_entities ; i++) {
-			gentity_t* e = &g_entities[i];
+			GameEntity* e = &g_entities[i];
 			if ( e->inuse ) {
 				continue;
 			}
@@ -432,14 +432,14 @@ gentity_t *G_Spawn()
 			Com_Printf( "%4i: %s\n", i, g_entities[i].classname );
 		}
 		Com_Error( ERR_DROP, "G_Spawn: no free entities" );
-        return NULL; // keep the linter happy, ERR_DROP does not return
+        return nullptr; // keep the linter happy, ERR_DROP does not return
 	}
 
 	// open up a new slot
-	gentity_t* e = &g_entities[level.num_entities++];
+	GameEntity* e = &g_entities[level.num_entities++];
 	
 	// let the server system know that there are more entities
-	SV_LocateGameData( &level.gentities[0].shared, level.num_entities, sizeof( gentity_t ),
+	SV_LocateGameData( &level.gentities[0].shared, level.num_entities, sizeof( GameEntity ),
 						 &level.clients[0].ps, sizeof( level.clients[0] ) );
 
 	G_InitGentity( e );
@@ -453,7 +453,7 @@ G_EntitiesFree
 */
 bool G_EntitiesFree( void ) {
 	int i;
-	gentity_t   *e;
+	GameEntity   *e;
 
 	e = &g_entities[MAX_CLIENTS];
 	for ( i = MAX_CLIENTS; i < level.num_entities; i++, e++ ) {
@@ -474,7 +474,7 @@ G_FreeEntity
 Marks the entity as free
 =================
 */
-void G_FreeEntity( gentity_t *ed ) {
+void G_FreeEntity( GameEntity *ed ) {
 	SV_UnlinkEntity( &ed->shared );     // unlink from world
 
 	if ( ed->neverFree ) {
@@ -496,8 +496,8 @@ The origin will be snapped to save net bandwidth, so care
 must be taken if the origin is right on a surface (snap towards start vector first)
 =================
 */
-gentity_t *G_TempEntity( vec3_t origin, int event ) {
-	gentity_t       *e;
+GameEntity *G_TempEntity( vec3_t origin, int event ) {
+	GameEntity       *e;
 	vec3_t snapped;
 
 	e = G_Spawn();
@@ -536,10 +536,10 @@ Kills all entities that would touch the proposed new positioning
 of ent.  Ent should be unlinked before calling this!
 =================
 */
-void G_KillBox( gentity_t *ent ) {
+void G_KillBox( GameEntity *ent ) {
 	int i, num;
 	int touch[MAX_GENTITIES];
-	gentity_t   *hit;
+	GameEntity   *hit;
 	vec3_t mins, maxs;
 
 	VectorAdd( ent->client->ps.origin, ent->shared.r.mins, mins );
@@ -556,7 +556,7 @@ void G_KillBox( gentity_t *ent ) {
 		}
 
 		// nail it
-		G_Damage( hit, ent, ent, NULL, NULL,
+		G_Damage( hit, ent, ent, nullptr, nullptr,
 				  100000, DAMAGE_NO_PROTECTION, MOD_TELEFRAG );
 	}
 
@@ -573,7 +573,7 @@ client side: jumppads and item pickups
 Adds an event+parm and twiddles the event counter
 ===============
 */
-void G_AddPredictableEvent( gentity_t *ent, int event, int eventParm ) {
+void G_AddPredictableEvent( GameEntity *ent, int event, int eventParm ) {
 	if ( !ent->client ) {
 		return;
 	}
@@ -588,7 +588,7 @@ G_AddEvent
 Adds an event+parm and twiddles the event counter
 ===============
 */
-void G_AddEvent( gentity_t *ent, int event, int eventParm ) {
+void G_AddEvent( GameEntity *ent, int event, int eventParm ) {
 //	int		bits;
 
 	if ( !event ) {
@@ -618,8 +618,8 @@ G_Sound
   Ridah, removed channel parm, since it wasn't used, and could cause confusion
 =============
 */
-void G_Sound( gentity_t *ent, int soundIndex ) {
-	gentity_t   *te;
+void G_Sound( GameEntity *ent, int soundIndex ) {
+	GameEntity   *te;
 
 	te = G_TempEntity( ent->shared.r.currentOrigin, EV_GENERAL_SOUND );
 	te->shared.s.eventParm = soundIndex;
@@ -631,7 +631,7 @@ G_AnimScriptSound
 =============
 */
 void G_AnimScriptSound( int soundIndex, vec3_t org, int client ) {
-	gentity_t *e;
+	GameEntity *e;
 	e = &g_entities[client];
 	G_AddEvent( e, EV_GENERAL_SOUND, soundIndex );
 	AICast_RecordScriptSound( client );
@@ -647,7 +647,7 @@ G_SetOrigin
 Sets the pos trajectory for a fixed position
 ================
 */
-void G_SetOrigin( gentity_t *ent, vec3_t origin ) {
+void G_SetOrigin( GameEntity *ent, vec3_t origin ) {
 	VectorCopy( origin, ent->shared.s.pos.trBase );
 	ent->shared.s.pos.trType = TR_STATIONARY;
 	ent->shared.s.pos.trTime = 0;
@@ -663,7 +663,7 @@ void G_SetOrigin( gentity_t *ent, vec3_t origin ) {
 G_SetOrigin
 ==============
 */
-void G_SetAngle( gentity_t *ent, vec3_t angle ) {
+void G_SetAngle( GameEntity *ent, vec3_t angle ) {
 
 	VectorCopy( angle, ent->shared.s.apos.trBase );
 	ent->shared.s.apos.trType = TR_STATIONARY;
@@ -680,15 +680,15 @@ infront
 ====================
 */
 
-bool infront( gentity_t *self, gentity_t *other ) {
+bool infront( GameEntity *self, GameEntity *other ) {
 	vec3_t vec;
 	float dot;
 	vec3_t forward, otherOrigin;
 
 	if ( self->client ) {
-		AngleVectors( self->client->ps.viewangles, forward, NULL, NULL );
+		AngleVectors( self->client->ps.viewangles, forward, nullptr, nullptr );
 	} else {
-		AngleVectors( self->shared.s.angles, forward, NULL, NULL );
+		AngleVectors( self->shared.s.angles, forward, nullptr, nullptr );
 	}
 
 
@@ -727,13 +727,13 @@ bool infront( gentity_t *self, gentity_t *other ) {
 G_ProcessTagConnect
 ==================
 */
-void G_ProcessTagConnect( gentity_t *ent, bool clearAngles ) {
+void G_ProcessTagConnect( GameEntity *ent, bool clearAngles ) {
 	if ( !ent->tagName ) {
-		Com_Error( ERR_DROP, "G_ProcessTagConnect: NULL ent->tagName\n" );
+		Com_Error( ERR_DROP, "G_ProcessTagConnect: nullptr ent->tagName\n" );
         return; // keep the linter happy, ERR_DROP does not return
 	}
 	if ( !ent->tagParent ) {
-		Com_Error( ERR_DROP, "G_ProcessTagConnect: NULL ent->tagParent\n" );
+		Com_Error( ERR_DROP, "G_ProcessTagConnect: nullptr ent->tagParent\n" );
         return; // keep the linter happy, ERR_DROP does not return
 	}
 	G_FindConfigstringIndex( va( "%i %i %s", ent->shared.s.number, ent->tagParent->shared.s.number, ent->tagName ), CS_TAGCONNECTS, MAX_TAGCONNECTS, true );

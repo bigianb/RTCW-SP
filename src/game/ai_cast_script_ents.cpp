@@ -61,7 +61,7 @@ SP_ai_marker
 ============
 */
 extern vec3_t playerMins, playerMaxs;
-void SP_ai_marker( gentity_t *ent ) {
+void SP_ai_marker( GameEntity *ent ) {
 	vec3_t dest;
 	trace_t tr;
 	vec3_t checkMins, checkMaxs;
@@ -102,8 +102,8 @@ AI effect entity
 SP_ai_effect
 ============
 */
-void ai_effect_think( gentity_t *ent ) {
-	gentity_t *targ;
+void ai_effect_think( GameEntity *ent ) {
+	GameEntity *targ;
 
 	// find the client number that uses this entity
 	targ = AICast_FindEntityForName( ent->aiName );
@@ -123,7 +123,7 @@ void ai_effect_think( gentity_t *ent ) {
 	ent->shared.r.svFlags |= SVF_BROADCAST;    // make sure all clients are aware of this entity
 }
 
-void SP_ai_effect( gentity_t *ent ) {
+void SP_ai_effect( GameEntity *ent ) {
 	
 	ent->think = ai_effect_think;
 	ent->nextthink = level.time + 500;
@@ -132,7 +132,7 @@ void SP_ai_effect( gentity_t *ent ) {
 //===========================================================
 
 // the wait time has passed, so set back up for another activation
-void AICast_trigger_wait( gentity_t *ent ) {
+void AICast_trigger_wait( GameEntity *ent ) {
 	ent->nextthink = 0;
 }
 
@@ -140,7 +140,7 @@ void AICast_trigger_wait( gentity_t *ent ) {
 // the trigger was just activated
 // ent->activator should be set to the activator so it can be held through a delay
 // so wait for the delay time before firing
-void AICast_trigger_trigger( gentity_t *ent, gentity_t *activator ) {
+void AICast_trigger_trigger( GameEntity *ent, GameEntity *activator ) {
 	if ( ent->nextthink ) {
 		return;     // can't retrigger until the wait is over
 	}
@@ -163,7 +163,7 @@ void AICast_trigger_trigger( gentity_t *ent, gentity_t *activator ) {
 	}
 }
 
-void AICast_Touch_Trigger( gentity_t *self, gentity_t *other, trace_t *trace ) {
+void AICast_Touch_Trigger( GameEntity *self, GameEntity *other, trace_t *trace ) {
 	if ( !other->client || ( other->shared.r.svFlags & SVF_CASTAI ) ) {
 		return;
 	}
@@ -176,15 +176,15 @@ Triggered only by the player touching it
 "ainame" : name of AI to target (use "player" for the.. player)
 "target" : trigger identifier for that AI script
 */
-extern void InitTrigger( gentity_t *self );
+extern void InitTrigger( GameEntity *self );
 
-void ai_trigger_activate( gentity_t *self ) {
+void ai_trigger_activate( GameEntity *self ) {
 	if ( self->shared.r.linked ) {
 		return;
 	}
 
-	self->use = NULL;
-	self->AIScript_AlertEntity = NULL;
+	self->use = nullptr;
+	self->AIScript_AlertEntity = nullptr;
 
 	self->touch = AICast_Touch_Trigger;
 
@@ -192,11 +192,11 @@ void ai_trigger_activate( gentity_t *self ) {
 	SV_LinkEntity( &self->shared );
 }
 
-void ai_trigger_use( gentity_t *self, gentity_t *other, gentity_t *activator ) {
+void ai_trigger_use( GameEntity *self, GameEntity *other, GameEntity *activator ) {
 	ai_trigger_activate( self );
 }
 
-void SP_ai_trigger( gentity_t *ent ) {
+void SP_ai_trigger( GameEntity *ent ) {
 	
 
 	G_SpawnFloat( "wait", "-1", &ent->wait );

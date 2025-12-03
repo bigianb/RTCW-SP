@@ -58,7 +58,7 @@ void CG_FillRect( float x, float y, float width, float height, const float *colo
 	CG_AdjustFrom640( &x, &y, &width, &height );
 	trap_R_DrawStretchPic( x, y, width, height, 0, 0, 0, 1, cgs.media.whiteShader );
 
-	RE_SetColor( NULL );
+	RE_SetColor( nullptr );
 }
 
 /*
@@ -72,7 +72,7 @@ void CG_FillRectGradient( float x, float y, float width, float height, const flo
 	CG_AdjustFrom640( &x, &y, &width, &height );
 	trap_R_DrawStretchPicGradient( x, y, width, height, 0, 0, 0, 0, cgs.media.whiteShader, gradcolor, gradientType );
 
-	RE_SetColor( NULL );
+	RE_SetColor( nullptr );
 }
 
 
@@ -87,7 +87,7 @@ flags:
 	center		- 2		// direction is 'right' by default and orientation is 'horizontal'
 	vert		- 4
 	nohudalpha	- 8		// don't adjust bar's alpha value by the cg_hudalpha value
-	bg			- 16	// background contrast box (bg set with bgColor of 'NULL' means use default bg color (1,1,1,0.25)
+	bg			- 16	// background contrast box (bg set with bgColor of 'nullptr' means use default bg color (1,1,1,0.25)
 	spacing		- 32	// some bars use different sorts of spacing when drawing both an inner and outer box
 
 	lerp color	- 256	// use an average of the start and end colors to set the fill color
@@ -201,7 +201,7 @@ CG_HorizontalPercentBar
 void CG_HorizontalPercentBar( float x, float y, float width, float height, float percent ) {
 	vec4_t bgcolor = {0.5f, 0.5f, 0.5f, 0.3f},
 		   color = {1.0f, 1.0f, 1.0f, 0.3f};
-	CG_FilledBar( x, y, width, height, color, NULL, bgcolor, percent, BAR_BG | BAR_NOHUDALPHA );
+	CG_FilledBar( x, y, width, height, color, nullptr, bgcolor, percent, BAR_BG | BAR_NOHUDALPHA );
 }
 
 
@@ -237,7 +237,7 @@ void CG_DrawRect( float x, float y, float width, float height, float size, const
 	CG_DrawTopBottom( x, y, width, height, size );
 	CG_DrawSides( x, y, width, height, size );
 
-	RE_SetColor( NULL );
+	RE_SetColor( nullptr );
 }
 
 
@@ -394,7 +394,7 @@ void CG_DrawStringExt( int x, int y, const char *string, const float *setColor,
 		cnt++;
 		s++;
 	}
-	RE_SetColor( NULL );
+	RE_SetColor( nullptr );
 }
 
 /*==================
@@ -457,7 +457,7 @@ void CG_DrawStringExt2( int x, int y, const char *string, const float *setColor,
 		cnt++;
 		s++;
 	}
-	RE_SetColor( NULL );
+	RE_SetColor( nullptr );
 }
 
 /*==================
@@ -533,7 +533,7 @@ void CG_DrawStringExt3( int x, int y, const char *string, const float *setColor,
 		cnt++;
 		s++;
 	}
-	RE_SetColor( NULL );
+	RE_SetColor( nullptr );
 }
 
 
@@ -667,13 +667,13 @@ float *CG_FadeColor( int startMsec, int totalMsec ) {
 	int t;
 
 	if ( startMsec == 0 ) {
-		return NULL;
+		return nullptr;
 	}
 
 	t = cg.time - startMsec;
 
 	if ( t >= totalMsec ) {
-		return NULL;
+		return nullptr;
 	}
 
 	// fade out
@@ -973,7 +973,7 @@ static void UI_DrawBannerString2( int x, int y, const char* str, vec4_t color ) 
 		s++;
 	}
 
-	RE_SetColor( NULL );
+	RE_SetColor( nullptr );
 }
 
 void UI_DrawBannerString( int x, int y, const char* str, int style, vec4_t color ) {
@@ -1082,7 +1082,7 @@ static void UI_DrawProportionalString2( int x, int y, const char* str, vec4_t co
 		s++;
 	}
 
-	RE_SetColor( NULL );
+	RE_SetColor( nullptr );
 }
 
 /*

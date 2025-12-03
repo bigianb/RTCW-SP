@@ -222,7 +222,7 @@ winding_t *BaseWindingForPlane( vec3_t normal, vec_t dist ) {
 	}
 	if ( x == -1 ) {
 		Com_Error( ERR_DROP, "BaseWindingForPlane: no axis found" );
-        return NULL; // keep the linter happy, ERR_DROP does not return
+        return nullptr; // keep the linter happy, ERR_DROP does not return
 	}
 
 	VectorCopy( vec3_origin, vup );
@@ -340,7 +340,7 @@ void    ClipWindingEpsilon( winding_t *in, vec3_t normal, vec_t dist,
 	sides[i] = sides[0];
 	dists[i] = dists[0];
 
-	*front = *back = NULL;
+	*front = *back = nullptr;
 
 	if ( !counts[0] ) {
 		*back = CopyWinding( in );
@@ -455,7 +455,7 @@ void ChopWindingInPlace( winding_t **inout, vec3_t normal, vec_t dist, vec_t eps
 
 	if ( !counts[0] ) {
 		FreeWinding( in );
-		*inout = NULL;
+		*inout = nullptr;
 		return;
 	}
 	if ( !counts[1] ) {

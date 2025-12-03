@@ -266,7 +266,7 @@ void trap_SendMoveSpeedsToGame( int entnum, const char *movespeeds ) {
 	G_RetrieveMoveSpeedsFromClient(entnum, movespeeds );
 }
 
-// this returns a handle.  arg0 is the name in the format "idlogo.roq", set arg1 to NULL, alteredstates to false (do not alter gamestate)
+// this returns a handle.  arg0 is the name in the format "idlogo.roq", set arg1 to nullptr, alteredstates to false (do not alter gamestate)
 int trap_CIN_PlayCinematic( const char *arg0, int xpos, int ypos, int width, int height, int bits ) {
 	return CIN_PlayCinematic(arg0, xpos, ypos, width, height, bits );
 }

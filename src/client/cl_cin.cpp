@@ -425,7 +425,7 @@ static void blitVQQuad32fs( byte **status, unsigned char *data )
 			index += 5;
 			break;
 		}
-	} while ( status[index] != NULL );
+	} while ( status[index] != nullptr );
 }
 
 static void ROQ_GenYUVTables()
@@ -855,7 +855,7 @@ static void setupQuad( int xOff, int yOff ) {
 		for ( x = 0; x < cinTable[currentHandle].xsize; x += 16 )
 			recurseQuad( x, y, 16, xOff, yOff );
 
-	temp = NULL;
+	temp = nullptr;
 
 	for ( i = ( numQuadCels - 64 ); i < numQuadCels; i++ ) {
 		cin.qStatus[0][i] = temp;             // eoq
@@ -1267,7 +1267,7 @@ int CIN_PlayCinematic( const char *arg, int x, int y, int w, int h, int systemBi
 	char name[MAX_OSPATH];
 	int i;
 
-	if ( strstr( arg, "/" ) == NULL && strstr( arg, "\\" ) == NULL ) {
+	if ( strstr( arg, "/" ) == nullptr && strstr( arg, "\\" ) == nullptr ) {
 		snprintf( name, sizeof( name ), "video/%s", arg );
 	} else {
 		snprintf( name, sizeof( name ), "%s", arg );
@@ -1496,7 +1496,7 @@ void CL_PlayCinematic_f( void ) {
 	if ( CL_handle >= 0 ) {
 		do {
 			SCR_RunCinematic();
-		} while ( cinTable[currentHandle].buf == NULL && cinTable[currentHandle].status == FMV_PLAY );        // wait for first frame (load codebook and sound)
+		} while ( cinTable[currentHandle].buf == nullptr && cinTable[currentHandle].status == FMV_PLAY );        // wait for first frame (load codebook and sound)
 	}
 }
 

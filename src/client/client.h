@@ -54,7 +54,7 @@ typedef struct {
 	byte areamask[MAX_MAP_AREA_BYTES];                  // portalarea visibility bits
 
 	int cmdNum;                     // the next cmdNum the server is expecting
-	playerState_t ps;                       // complete information about the current player at this time
+	PlayerState ps;                       // complete information about the current player at this time
 
 	int numEntities;                        // all of the entities that need to be presented
 	int parseEntitiesNum;                   // at the time of this snapshot
@@ -112,14 +112,14 @@ typedef struct {
 	int joystickAxis[MAX_JOYSTICK_AXIS];            // set by joystick events
 
 	// cgame communicates a few values to the client system
-	int cgameUserCmdValue;              // current weapon to add to usercmd_t
-	int cgameUserHoldableValue;         // current holdable item to add to usercmd_t	//----(SA)	added
+	int cgameUserCmdValue;              // current weapon to add to UserCmd
+	int cgameUserHoldableValue;         // current holdable item to add to UserCmd	//----(SA)	added
 	float cgameSensitivity;
 	int cgameCld;                       // NERVE - SMF
 
 	// cmds[cmdNumber] is the predicted command, [cmdNumber-1] is the last
 	// properly generated command
-	usercmd_t cmds[CMD_BACKUP];     // each mesage will send several old cmds
+	UserCmd cmds[CMD_BACKUP];     // each mesage will send several old cmds
 	int cmdNumber;                  // incremented each frame, because multiple
 									// frames may need to be packed into a single packet
 
@@ -137,9 +137,9 @@ typedef struct {
 	// big stuff at end of structure so most offsets are 15 bits or less
 	clSnapshot_t snapshots[PACKET_BACKUP];
 
-	entityState_t entityBaselines[MAX_GENTITIES];   // for delta compression when not in previous frame
+	EntityState entityBaselines[MAX_GENTITIES];   // for delta compression when not in previous frame
 
-	entityState_t parseEntities[MAX_PARSE_ENTITIES];
+	EntityState parseEntities[MAX_PARSE_ENTITIES];
 
 	bool cameraMode;    //----(SA)	added for control of input while watching cinematics
 
@@ -532,7 +532,7 @@ void CL_SetCGameTime( void );
 void CL_FirstSnapshot( void );
 void CL_ShaderStateChanged( void );
 
-bool CL_GetUserCmd( int cmdNumber, usercmd_t *ucmd );
+bool CL_GetUserCmd( int cmdNumber, UserCmd *ucmd );
 int CL_GetCurrentCmdNumber(  );
 void   CL_GetCurrentSnapshotNumber( int *snapshotNumber, int *serverTime );
 void CL_GetGameState( gameState_t *gs );

@@ -44,7 +44,7 @@ void TestStringClass();
 class strdata
 {
 public:
-strdata () : len( 0 ), refcount( 0 ), data( NULL ), alloced( 0 ) {
+strdata () : len( 0 ), refcount( 0 ), data( nullptr ), alloced( 0 ) {
 }
 ~strdata () {
 	if ( data ) {
@@ -160,11 +160,11 @@ void     BackSlashesToSlashes();
 inline idStr::~idStr() {
 	if ( m_data ) {
 		m_data->DelRef();
-		m_data = NULL;
+		m_data = nullptr;
 	}
 }
 
-inline idStr::idStr() : m_data( NULL ) {
+inline idStr::idStr() : m_data( nullptr ) {
 	EnsureAlloced( 1 );
 	m_data->data[ 0 ] = 0;
 }
@@ -172,7 +172,7 @@ inline idStr::idStr() : m_data( NULL ) {
 inline idStr::idStr
 (
 	const char *text
-) : m_data( NULL ) {
+) : m_data( nullptr ) {
 
 	assert( text );
 
@@ -192,7 +192,7 @@ inline idStr::idStr
 inline idStr::idStr
 (
 	const idStr& text
-) : m_data( NULL ) {
+) : m_data( nullptr ) {
 	m_data = text.m_data;
 	m_data->AddRef();
 }
@@ -202,7 +202,7 @@ inline idStr::idStr
 	const idStr text,
 	int start,
 	int end
-) : m_data( NULL ) {
+) : m_data( nullptr ) {
 	int i;
 	int len;
 
@@ -233,7 +233,7 @@ inline idStr::idStr
 inline idStr::idStr
 (
 	const char ch
-) : m_data( NULL ) {
+) : m_data( nullptr ) {
 	EnsureAlloced( 2 );
 
 	m_data->data[ 0 ] = ch;
@@ -244,7 +244,7 @@ inline idStr::idStr
 inline idStr::idStr
 (
 	const float num
-) : m_data( NULL ) {
+) : m_data( nullptr ) {
 	char text[ 32 ];
 
 	snprintf( text, 32, "%.3f", num );
@@ -257,7 +257,7 @@ inline idStr::idStr
 inline idStr::idStr
 (
 	const int num
-) : m_data( NULL ) {
+) : m_data( nullptr ) {
 	char text[ 32 ];
 
 	snprintf( text, 32, "%d", num );
@@ -270,7 +270,7 @@ inline idStr::idStr
 inline idStr::idStr
 (
 	const unsigned num
-) : m_data( NULL ) {
+) : m_data( nullptr ) {
 	char text[ 32 ];
 
 	snprintf( text, 32,  "%u", num );
@@ -281,11 +281,11 @@ inline idStr::idStr
 }
 
 inline size_t idStr::length( void ) const {
-	return ( m_data != NULL ) ? m_data->len : 0;
+	return ( m_data != nullptr ) ? m_data->len : 0;
 }
 
 inline int idStr::allocated( void ) const {
-	return ( m_data != NULL ) ? m_data->alloced + sizeof( *m_data ) : 0;
+	return ( m_data != nullptr ) ? m_data->alloced + sizeof( *m_data ) : 0;
 }
 
 inline const char *idStr::c_str( void ) const {
@@ -391,7 +391,7 @@ inline void idStr::operator=
 	assert( text );
 
 	if ( !text ) {
-		// safe behaviour if NULL
+		// safe behaviour if nullptr
 		EnsureAlloced( 1, false );
 		m_data->data[0] = 0;
 		m_data->len = 0;

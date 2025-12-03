@@ -71,7 +71,7 @@ SNDDMA_PrintAudiospec
 static void SNDDMA_PrintAudiospec(const char *str, const SDL_AudioSpec *spec)
 {
 	int		i;
-	const char	*fmt = NULL;
+	const char	*fmt = nullptr;
 
 	Com_Printf("%s:\n", str);
 

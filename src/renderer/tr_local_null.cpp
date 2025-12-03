@@ -5,7 +5,7 @@ bool GLimp_SpawnRenderThread( void ( *function )( void ) ) {
 }
 
 void *GLimp_RendererSleep( void ) {
-	return NULL;
+	return nullptr;
 }
 
 void GLimp_FrontEndSleep( void ) {

@@ -49,7 +49,7 @@ void GL_Bind( image_t *image ) {
 	int texnum;
 
 	if ( !image ) {
-		ri.Printf( PRINT_WARNING, "GL_Bind: NULL image\n" );
+		ri.Printf( PRINT_WARNING, "GL_Bind: nullptr image\n" );
 		texnum = tr.defaultImage->texnum;
 	} else {
 		texnum = image->texnum;
@@ -917,7 +917,7 @@ void RB_RenderDrawSurfList( drawSurf_t *drawSurfs, int numDrawSurfs ) {
 	// draw everything
 	oldEntityNum = -1;
 	backEnd.currentEntity = &tr.worldEntity;
-	oldShader = NULL;
+	oldShader = nullptr;
 	oldFogNum = -1;
 	oldDepthRange = false;
 	oldDlighted = false;
@@ -958,7 +958,7 @@ void RB_RenderDrawSurfList( drawSurf_t *drawSurfs, int numDrawSurfs ) {
 // GR - force draw on tessellation flag change
 			 || ( atiTess != oldAtiTess )
 			 || ( entityNum != oldEntityNum && !shader->entityMergable ) ) {
-			if ( oldShader != NULL ) {
+			if ( oldShader != nullptr ) {
 #ifdef __MACOS__    // crutch up the mac's limited buffer queue size
 				int t;
 
@@ -1054,7 +1054,7 @@ void RB_RenderDrawSurfList( drawSurf_t *drawSurfs, int numDrawSurfs ) {
 	}
 
 	// draw the contents of the last shader batch
-	if ( oldShader != NULL ) {
+	if ( oldShader != nullptr ) {
 // GR - pass tessellation flag to the shader command
 //		make sure to use oldAtiTess!!!
 		tess.ATI_tess = ( oldAtiTess == ATI_TESS_TRUFORM );

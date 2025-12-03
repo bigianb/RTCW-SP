@@ -57,7 +57,7 @@ virtual int numPoints() {
 virtual void addPoint( const float x, const float y, const float z ) {}
 virtual void addPoint( const idVec3 &v ) {}
 virtual void removePoint( int index ) {}
-virtual idVec3 *getPoint( int index ) { return NULL; }
+virtual idVec3 *getPoint( int index ) { return nullptr; }
 
 int selectPointByRay( float ox, float oy, float oz, float dx, float dy, float dz, bool single ) {
 	idVec3 origin( ox, oy, oz );
@@ -201,7 +201,7 @@ void clear() {
 	clearControl();
 	clearSpline();
 	splineTime.Clear();
-	selected = NULL;
+	selected = nullptr;
 	dirty = true;
 	activeSegment = 0;
 	granularity = 0.025;
@@ -371,7 +371,7 @@ virtual void clearVelocities() {
 	int i;
 	for ( i = 0; i < velocities.Num(); i++ ) {
 		delete velocities[i];
-		velocities[i] = NULL;
+		velocities[i] = nullptr;
 	}
 	velocities.Clear();
 }
@@ -442,7 +442,7 @@ void addVelocity( long start, long duration, float speed ) {
 
 virtual const idVec3 *getPosition( long t ) {
 	assert( true );
-	return NULL;
+	return nullptr;
 }
 
 virtual void draw( bool editMode ) {};
@@ -867,7 +867,7 @@ void clear() {
 		delete events[i];
 	}
 	delete cameraPosition;
-	cameraPosition = NULL;
+	cameraPosition = nullptr;
 	events.Clear();
 	targetPositions.Clear();
 }
@@ -885,7 +885,7 @@ idCameraPosition *startNewCamera( idCameraPosition::positionType type ) {
 }
 
 idCameraDef() {
-	cameraPosition = NULL;
+	cameraPosition = nullptr;
 	clear();
 }
 
@@ -922,21 +922,21 @@ static idCameraPosition *newFromType( idCameraPosition::positionType t ) {
 	default:
 		break;
 	};
-	return NULL;
+	return nullptr;
 }
 
 void addTarget( const char *name, idCameraPosition::positionType type );
 
 idCameraPosition *getActiveTarget() {
 	if ( targetPositions.Num() == 0 ) {
-		addTarget( NULL, idCameraPosition::FIXED );
+		addTarget( nullptr, idCameraPosition::FIXED );
 	}
 	return targetPositions[activeTarget];
 }
 
 idCameraPosition *getActiveTarget( int index ) {
 	if ( targetPositions.Num() == 0 ) {
-		addTarget( NULL, idCameraPosition::FIXED );
+		addTarget( nullptr, idCameraPosition::FIXED );
 		return targetPositions[0];
 	}
 	return targetPositions[index];
@@ -1062,7 +1062,7 @@ void setName( const char *p ) {
 }
 
 idCameraPosition *getPositionObj() {
-	if ( cameraPosition == NULL ) {
+	if ( cameraPosition == nullptr ) {
 		cameraPosition = new idFixedPosition();
 	}
 	return cameraPosition;

@@ -86,7 +86,7 @@ void *Com_GrowListElement( const growList_t *list, int index ) {
 	if ( index < 0 || index >= list->currentElements ) {
 		Com_Error( ERR_DROP, "Com_GrowListElement: %i out of range of %i",
 				   index, list->currentElements );
-        return NULL; // keep the linter happy, ERR_DROP does not return
+        return nullptr; // keep the linter happy, ERR_DROP does not return
 	}
 	return list->elements[index];
 }
@@ -203,7 +203,7 @@ int Com_ParseInfos( const char *buf, int max, char infos[][MAX_INFO_STRING] ) {
 
 			token = Com_ParseOnLine( &buf );
 			if ( !token[0] ) {
-				token = "<NULL>";
+				token = "<nullptr>";
 			}
 			Info_SetValueForKey( infos[count], key, token );
 		}

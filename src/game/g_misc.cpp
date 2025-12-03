@@ -37,7 +37,7 @@ If you have questions concerning this license or the applicable additional terms
 #include "g_local.h"
 #include "../server/server.h"
 
-extern void AimAtTarget( gentity_t * self );
+extern void AimAtTarget( GameEntity * self );
 
 int sniper_sound;
 int snd_noammo;
@@ -50,7 +50,7 @@ Used to group brushes together just for editor convenience.  They are turned int
 /*QUAKED info_camp (0 0.5 0) (-4 -4 -4) (4 4 4)
 Used as a positional target for calculations in the utilities (spotlights, etc), but removed during gameplay.
 */
-void SP_info_camp( gentity_t *self ) {
+void SP_info_camp( GameEntity *self ) {
 	G_SetOrigin( self, self->shared.s.origin );
 }
 
@@ -58,7 +58,7 @@ void SP_info_camp( gentity_t *self ) {
 /*QUAKED info_null (0 0.5 0) (-4 -4 -4) (4 4 4)
 Used as a positional target for calculations in the utilities (spotlights, etc), but removed during gameplay.
 */
-void SP_info_null( gentity_t *self ) {
+void SP_info_null( GameEntity *self ) {
 	G_FreeEntity( self );
 }
 
@@ -67,7 +67,7 @@ void SP_info_null( gentity_t *self ) {
 Used as a positional target for in-game calculation, like jumppad targets.
 target_position does the same thing
 */
-void SP_info_notnull( gentity_t *self ) {
+void SP_info_notnull( GameEntity *self ) {
 	G_SetOrigin( self, self->shared.s.origin );
 }
 
@@ -75,7 +75,7 @@ void SP_info_notnull( gentity_t *self ) {
 /*QUAKED info_notnull_big (1 0 0) (-16 -16 -24) (16 16 32)
 info_notnull with a bigger box for ease of positioning
 */
-void SP_info_notnull_big( gentity_t *self ) {
+void SP_info_notnull_big( GameEntity *self ) {
 	G_SetOrigin( self, self->shared.s.origin );
 }
 
@@ -91,7 +91,7 @@ Lights pointed at a target will be spotlights.
 "fade" falloff/radius adjustment value. multiply the run of the slope by "fade" (1.0f default) (only valid for "Linear" lights) (wolf)
 "q3map_non-dynamic" specifies that this light should not contribute to the world's 'light grid' and therefore will not light dynamic models in the game.(wolf)
 */
-void SP_light( gentity_t *self ) {
+void SP_light( GameEntity *self ) {
 	G_FreeEntity( self );
 }
 
@@ -104,7 +104,7 @@ Lights pointed at a target will be spotlights.
 "radius" overrides the default 64 unit radius of a spotlight at the target point.
 "fade" falloff/radius adjustment value. multiply the run of the slope by "fade" (1.0f default) (only valid for "Linear" lights) (wolf)
 */
-void SP_lightJunior( gentity_t *self ) {
+void SP_lightJunior( GameEntity *self ) {
 	G_FreeEntity( self );
 }
 
@@ -117,8 +117,8 @@ TELEPORTERS
 
 =================================================================================
 */
-void TeleportPlayer( gentity_t *player, vec3_t origin, vec3_t angles ) {
-	gentity_t   *tent;
+void TeleportPlayer( GameEntity *player, vec3_t origin, vec3_t angles ) {
+	GameEntity   *tent;
 
 	// use temp events at source and destination to prevent the effect
 	// from getting dropped by a second player event
@@ -135,7 +135,7 @@ void TeleportPlayer( gentity_t *player, vec3_t origin, vec3_t angles ) {
 	player->client->ps.origin[2] += 1;
 
 	// spit the player out
-//	AngleVectors( angles, player->client->ps.velocity, NULL, NULL );
+//	AngleVectors( angles, player->client->ps.velocity, nullptr, nullptr );
 //	VectorScale( player->client->ps.velocity, 400, player->client->ps.velocity );
 //	player->client->ps.pm_time = 160;		// hold time
 //	player->client->ps.pm_flags |= PMF_TIME_KNOCKBACK;
@@ -165,7 +165,7 @@ Point teleporters at these.
 Now that we don't have teleport destination pads, this is just
 an info_notnull
 */
-void SP_misc_teleporter_dest( gentity_t *ent ) {
+void SP_misc_teleporter_dest( GameEntity *ent ) {
 }
 
 
@@ -191,7 +191,7 @@ grabber_think_idle
 	think func for the grabber ent to reset to idle if not attacking
 ==============
 */
-void grabber_think_idle( gentity_t *ent ) {
+void grabber_think_idle( GameEntity *ent ) {
 	if ( ent->shared.s.frame > 1 ) {  // non-idle status
 		ent->shared.s.frame = rand() % 2;
 	}
@@ -203,7 +203,7 @@ grabber_think_hit
 	think func for grabber ent following an attack command
 ==============
 */
-void grabber_think_hit( gentity_t *ent ) {
+void grabber_think_hit( GameEntity *ent ) {
 	G_RadiusDamage( ent->shared.s.pos.trBase, ent, ent->damage, ent->duration, ent, MOD_GRABBER );
 	G_AddEvent( ent, EV_GENERAL_SOUND, ent->sound2to1 ); // sound2to1 is the 'pain' sound
 
@@ -217,9 +217,9 @@ void grabber_think_hit( gentity_t *ent ) {
 grabber_die
 ==============
 */
-extern void GibEntity( gentity_t * self, int killer ) ;
+extern void GibEntity( GameEntity * self, int killer ) ;
 
-void grabber_die( gentity_t *ent, gentity_t *inflictor, gentity_t *attacker, int damage, int mod ) {
+void grabber_die( GameEntity *ent, GameEntity *inflictor, GameEntity *attacker, int damage, int mod ) {
 
 	// FIXME FIXME
 	// this is buggy.  the trigger brush entity (ent->enemy) does not free.
@@ -249,7 +249,7 @@ grabber_attack
 	direct call to the grabber entity (not a trigger) to call the attack
 ==============
 */
-void grabber_attack( gentity_t *ent ) {
+void grabber_attack( GameEntity *ent ) {
 	ent->shared.s.frame    = ( rand() % 3 ) + 2;   // randomly choose an attack sequence
 
 	ent->nextthink  = level.time + attackHittimes[( ent->shared.s.frame ) - 2];
@@ -262,7 +262,7 @@ grabber_close
 	touch func for attack distance trigger entity
 ==============
 */
-void grabber_close( gentity_t *ent, gentity_t *other, trace_t *trace ) {
+void grabber_close( GameEntity *ent, GameEntity *other, trace_t *trace ) {
 	if ( ent->parent->nextthink > level.time ) {
 		return;
 	}
@@ -278,7 +278,7 @@ grabber_pain
 	pain func for the grabber entity (not triggers)
 ==============
 */
-void grabber_pain( gentity_t *ent, gentity_t *attacker, int damage, vec3_t point ) {
+void grabber_pain( GameEntity *ent, GameEntity *attacker, int damage, vec3_t point ) {
 	G_AddEvent( ent, EV_GENERAL_SOUND, ent->sound2to1 ); // sound2to1 is the 'pain' sound
 }
 
@@ -290,8 +290,8 @@ grabber_wake
 	the grabber ent is 'ent->parent'
 ==============
 */
-void grabber_wake( gentity_t *ent ) {
-	gentity_t *parent;
+void grabber_wake( GameEntity *ent ) {
+	GameEntity *parent;
 
 	parent = ent->parent;
 
@@ -335,7 +335,7 @@ grabber_use
 	if awake, allow attacking by trigger
 ==============
 */
-void grabber_use( gentity_t *ent, gentity_t *other, gentity_t *activator ) {
+void grabber_use( GameEntity *ent, GameEntity *other, GameEntity *activator ) {
 	Com_Printf( "grabber_use: %d\n", level.time );
 
 	if ( !ent->active ) {
@@ -351,7 +351,7 @@ grabber_wake_touch
 	touch func for the first 'wake' trigger entity
 ==============
 */
-void grabber_wake_touch( gentity_t *ent, gentity_t *other, trace_t *trace ) {
+void grabber_wake_touch( GameEntity *ent, GameEntity *other, trace_t *trace ) {
 	grabber_wake( ent );
 }
 
@@ -388,9 +388,9 @@ first frame
 66  1   1   15  0  (starting position)
 
 */
-void SP_misc_grabber_trap( gentity_t *ent ) {
+void SP_misc_grabber_trap( GameEntity *ent ) {
 	int adist, bdist, range;
-	gentity_t   *trig;
+	GameEntity   *trig;
 
 	// TODO: change from 'trap' to something else.  'trap' is a misnomer.  it's actually used for other stuff too
 	ent->shared.s.eType        = ET_TRAP;
@@ -451,8 +451,8 @@ void SP_misc_grabber_trap( gentity_t *ent ) {
 
 }
 
-void use_spotlight( gentity_t *ent, gentity_t *other, gentity_t *activator ) {
-	gentity_t   *tent;
+void use_spotlight( GameEntity *ent, GameEntity *other, GameEntity *activator ) {
+	GameEntity   *tent;
 
 	if ( ent->shared.r.linked ) {
 		SV_UnlinkEntity( &ent->shared );
@@ -467,7 +467,7 @@ void use_spotlight( gentity_t *ent, gentity_t *other, gentity_t *activator ) {
 }
 
 
-void spotlight_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int damage, int mod ) {
+void spotlight_die( GameEntity *self, GameEntity *inflictor, GameEntity *attacker, int damage, int mod ) {
 
 	AICast_AudibleEvent( attacker->shared.s.number, self->shared.r.currentOrigin, 1024 ); // loud audible event
 
@@ -478,7 +478,7 @@ void spotlight_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, 
 //	G_AddEvent( self, EV_ENTDEATH, 0 );
 }
 
-void spotlight_finish_spawning( gentity_t *ent ) {
+void spotlight_finish_spawning( GameEntity *ent ) {
 	if ( ent->spawnflags & 1 ) {   // START_ON
 //		ent->active = 0;
 		SV_LinkEntity( &ent->shared );
@@ -510,7 +510,7 @@ BACK_AND_FORTH - when end of target spline is hit, reverse direction rather than
 ( /\ not active yet /\ )
 */
 //"model" - 'base' model that moves with the light.  Default: "models/mapobjects/light/searchlight_pivot.md3"
-void SP_misc_spotlight( gentity_t *ent ) {
+void SP_misc_spotlight( GameEntity *ent ) {
 
 	ent->shared.s.eType        = ET_SPOTLIGHT_EF;
 
@@ -541,7 +541,7 @@ void SP_misc_spotlight( gentity_t *ent ) {
 
 "modelscale_vec" - Set scale per-axis.  Overrides "modelscale", so if you have both, the "modelscale" is ignored
 */
-void SP_misc_model( gentity_t *ent ) {
+void SP_misc_model( GameEntity *ent ) {
 	G_FreeEntity( ent );
 }
 
@@ -559,7 +559,7 @@ ORIENT_LOD - if flagged, the entity will yaw towards the player when the LOD swi
 "modelscale_vec" - Set scale per-axis.  Overrides "modelscale", so if you have both, the "modelscale" is ignored
 
 */
-void SP_misc_gamemodel( gentity_t *ent ) {
+void SP_misc_gamemodel( GameEntity *ent ) {
 
 	float scale[3] = {1,1,1};
 	vec3_t scalevec;
@@ -616,8 +616,8 @@ void SP_misc_gamemodel( gentity_t *ent ) {
 
 //----(SA)
 
-void locateMaster( gentity_t *ent ) {
-	ent->target_ent = G_Find( NULL, FOFS( targetname ), ent->target );
+void locateMaster( GameEntity *ent ) {
+	ent->target_ent = G_Find( nullptr, FOFS( targetname ), ent->target );
 	if ( ent->target_ent ) {
 		ent->shared.s.otherEntityNum = ent->target_ent->shared.s.number;
 	}
@@ -628,7 +628,7 @@ If this entity is "visible" (in player's PVS) then it's target is forced to be a
 This entity itself is never visible or transmitted to clients.
 For safety, you should have each dummy only point at one entity (however, it's okay to have many dummies pointing at one entity)
 */
-void SP_misc_vis_dummy( gentity_t *ent ) {
+void SP_misc_vis_dummy( GameEntity *ent ) {
 
 	if ( !ent->target ) { //----(SA)	added safety check
 		Com_Printf( "Couldn't find target for misc_vis_dummy at %s\n", vtos( ent->shared.r.currentOrigin ) );
@@ -652,7 +652,7 @@ If this entity is "visible" (in player's PVS) then it's target is forced to be a
 This entity itself is never visible or transmitted to clients.
 This entity was created to have multiple speakers targeting it
 */
-void SP_misc_vis_dummy_multiple( gentity_t *ent ) {
+void SP_misc_vis_dummy_multiple( GameEntity *ent ) {
 	if ( !ent->targetname ) {
 		Com_Printf( "misc_vis_dummy_multiple needs a targetname at %s\n", vtos( ent->shared.r.currentOrigin ) );
 		G_FreeEntity( ent );
@@ -673,7 +673,7 @@ void SP_misc_vis_dummy_multiple( gentity_t *ent ) {
 The surfaces nearest these entities will be the only surfaces lit by the targeting light
 This must be within 64 world units of the surface to be lit!
 */
-void SP_misc_light_surface( gentity_t *ent ) {
+void SP_misc_light_surface( GameEntity *ent ) {
 	G_FreeEntity( ent );
 }
 
@@ -681,10 +681,10 @@ void SP_misc_light_surface( gentity_t *ent ) {
 
 //===========================================================
 
-void locateCamera( gentity_t *ent ) {
+void locateCamera( GameEntity *ent ) {
 	vec3_t dir;
-	gentity_t   *target;
-	gentity_t   *owner;
+	GameEntity   *target;
+	GameEntity   *owner;
 
 	owner = G_PickTarget( ent->target );
 	if ( !owner ) {
@@ -722,7 +722,7 @@ void locateCamera( gentity_t *ent ) {
 The portal surface nearest this entity will show a view from the targeted misc_portal_camera, or a mirror view if untargeted.
 This must be within 64 world units of the surface!
 */
-void SP_misc_portal_surface( gentity_t *ent ) {
+void SP_misc_portal_surface( GameEntity *ent ) {
 	VectorClear( ent->shared.r.mins );
 	VectorClear( ent->shared.r.maxs );
 	SV_LinkEntity( &ent->shared );
@@ -742,7 +742,7 @@ void SP_misc_portal_surface( gentity_t *ent ) {
 The target for a misc_portal_director.  You can set either angles or target another entity to determine the direction of view.
 "roll" an angle modifier to orient the camera around the target vector;
 */
-void SP_misc_portal_camera( gentity_t *ent ) {
+void SP_misc_portal_camera( GameEntity *ent ) {
 	float roll;
 
 	VectorClear( ent->shared.r.mins );
@@ -762,7 +762,7 @@ void SP_misc_portal_camera( gentity_t *ent ) {
 ======================================================================
 */
 
-void Use_Shooter( gentity_t *ent, gentity_t *other, gentity_t *activator ) {
+void Use_Shooter( GameEntity *ent, GameEntity *other, GameEntity *activator ) {
 	vec3_t dir;
 	float deg;
 	vec3_t up, right;
@@ -826,13 +826,13 @@ void Use_Shooter( gentity_t *ent, gentity_t *other, gentity_t *activator ) {
 	G_AddEvent( ent, EV_FIRE_WEAPON, 0 );
 }
 
-static void InitShooter_Finish( gentity_t *ent ) {
+static void InitShooter_Finish( GameEntity *ent ) {
 	ent->enemy = G_PickTarget( ent->target );
 	ent->think = 0;
 	ent->nextthink = 0;
 }
 
-void InitShooter( gentity_t *ent, int weapon ) {
+void InitShooter( GameEntity *ent, int weapon ) {
 	ent->use = Use_Shooter;
 	ent->shared.s.weapon = weapon;
 
@@ -866,7 +866,7 @@ Lobs a mortar so that it will pass through the info_notnull targeted by this ent
 if LAUNCH_FX is checked a smoke effect will play at the origin of this entity.
 if FLASH_FX is checked a muzzle flash effect will play at the origin of this entity.
 */
-void SP_shooter_mortar( gentity_t *ent ) {
+void SP_shooter_mortar( GameEntity *ent ) {
 	// (SA) TODO: must have a self->target.  Do a check/print if this is not the case.
 	InitShooter( ent, WP_MORTAR );
 
@@ -880,7 +880,7 @@ void SP_shooter_mortar( gentity_t *ent ) {
 Fires at either the target or the current direction.
 "random" the number of degrees of deviance from the taget. (1.0 default)
 */
-void SP_shooter_rocket( gentity_t *ent ) {
+void SP_shooter_rocket( GameEntity *ent ) {
 	InitShooter( ent, WP_PANZERFAUST );
 }
 
@@ -888,7 +888,7 @@ void SP_shooter_rocket( gentity_t *ent ) {
 Fires at either the target or the current direction.
 "random" the number of degrees of deviance from the taget. (1.0 default)
 */
-void SP_shooter_zombiespit( gentity_t *ent ) {
+void SP_shooter_zombiespit( GameEntity *ent ) {
 	InitShooter( ent, WP_MONSTER_ATTACK1 );
 }
 
@@ -898,8 +898,8 @@ void SP_shooter_zombiespit( gentity_t *ent ) {
 use_shooter_tesla
 ==============
 */
-void use_shooter_tesla( gentity_t *ent, gentity_t *other, gentity_t *activator ) {
-	gentity_t   *tent;
+void use_shooter_tesla( GameEntity *ent, GameEntity *other, GameEntity *activator ) {
+	GameEntity   *tent;
 
 	if ( ent->shared.r.linked ) {
 		SV_UnlinkEntity( &ent->shared );
@@ -925,8 +925,8 @@ DLIGHT will have a built-in dlight flashing too (use color picker to set color o
 "dlightsize" - how big to make the attached light.  (def: 500)
 */
 
-void shooter_tesla_finish_spawning( gentity_t *ent ) {
-	gentity_t   *tent;  // target ent
+void shooter_tesla_finish_spawning( GameEntity *ent ) {
+	GameEntity   *tent;  // target ent
 
 	ent->think = 0;
 	ent->nextthink = 0;
@@ -946,7 +946,7 @@ void shooter_tesla_finish_spawning( gentity_t *ent ) {
 	}
 }
 
-void SP_shooter_tesla( gentity_t *ent ) {
+void SP_shooter_tesla( GameEntity *ent ) {
 
 	float tempf;
 
@@ -1032,7 +1032,7 @@ void SP_shooter_tesla( gentity_t *ent ) {
 Fires at either the target or the current direction.
 "random" is the number of degrees of deviance from the taget. (1.0 default)
 */
-void SP_shooter_grenade( gentity_t *ent ) {
+void SP_shooter_grenade( GameEntity *ent ) {
 	InitShooter( ent, WP_GRENADE_LAUNCHER );
 }
 
@@ -1044,7 +1044,7 @@ Fires at either the target or the current direction.
 "radius" is the dist the target would need to travel before sniper lost his beat default 256
 "delay"	 is the rate of fire defaults to 1 sec
 */
-void SP_shooter_sniper( gentity_t *ent ) {
+void SP_shooter_sniper( GameEntity *ent ) {
 
 	const char        *damage;
 
@@ -1069,11 +1069,11 @@ void SP_shooter_sniper( gentity_t *ent ) {
 	ent->wait = level.time + ent->delay;
 }
 
-void brush_activate_sniper( gentity_t *ent, gentity_t *other, trace_t *trace ) {
-	gentity_t *sniper;
+void brush_activate_sniper( GameEntity *ent, GameEntity *other, trace_t *trace ) {
+	GameEntity *sniper;
 	float dist;
 	vec3_t vec;
-	gentity_t *player;
+	GameEntity *player;
 
 	player = AICast_FindEntityForName( "player" );
 
@@ -1086,7 +1086,7 @@ void brush_activate_sniper( gentity_t *ent, gentity_t *other, trace_t *trace ) {
 		ent->enemy = other;
 	}
 
-	sniper = G_Find( NULL, FOFS( targetname ), ent->target );
+	sniper = G_Find( nullptr, FOFS( targetname ), ent->target );
 
 	if ( !sniper ) {
 		Com_Printf( "sniper not found: %s\n" );
@@ -1128,7 +1128,7 @@ void brush_activate_sniper( gentity_t *ent, gentity_t *other, trace_t *trace ) {
 
 }
 
-void sniper_brush_init( gentity_t *ent ) {
+void sniper_brush_init( GameEntity *ent ) {
 	vec3_t center;
 
 	if ( !ent->target ) {
@@ -1139,13 +1139,13 @@ void sniper_brush_init( gentity_t *ent ) {
 	}
 }
 
-extern void InitTrigger( gentity_t *self );
+extern void InitTrigger( GameEntity *self );
 
 /*QUAKED sniper_brush (1 0 0) ?
 this should be a volume that will encompase the area where the sniper target assigned to the
 brush would fire at the player
 */
-void SP_sniper_brush( gentity_t *ent ) {
+void SP_sniper_brush( GameEntity *ent ) {
 	ent->nextthink = level.time + FRAMETIME;
 	ent->think = sniper_brush_init;
 	ent->touch = brush_activate_sniper;
@@ -1169,7 +1169,7 @@ use_corona
 	so level designers can toggle them on/off
 ==============
 */
-void use_corona( gentity_t *ent, gentity_t *other, gentity_t *activator ) {
+void use_corona( GameEntity *ent, GameEntity *other, GameEntity *activator ) {
 	if ( ent->shared.r.linked ) {
 		SV_UnlinkEntity( &ent->shared );
 	} else
@@ -1185,7 +1185,7 @@ void use_corona( gentity_t *ent, gentity_t *other, gentity_t *activator ) {
 SP_corona
 ==============
 */
-void SP_corona( gentity_t *ent ) {
+void SP_corona( GameEntity *ent ) {
 	float scale;
 
 	ent->shared.s.eType        = ET_CORONA;
@@ -1245,7 +1245,7 @@ dlight_finish_spawning
 	being synched, starting	their sequences all at the same time.
 ==============
 */
-void dlight_finish_spawning( gentity_t *ent ) {
+void dlight_finish_spawning( GameEntity *ent ) {
 	G_FindConfigstringIndex( va( "%i %s %i %i %i", ent->shared.s.number, ent->dl_stylestring, ent->health, ent->soundLoop, ent->dl_atten ), CS_DLIGHTS, MAX_DLIGHT_CONFIGSTRINGS, true );
 }
 
@@ -1294,7 +1294,7 @@ shutoff_dlight
 	the dlight knew when it was triggered to unlink after going through it's cycle once
 ==============
 */
-void shutoff_dlight( gentity_t *ent ) {
+void shutoff_dlight( GameEntity *ent ) {
 	if ( !( ent->shared.r.linked ) ) {
 		return;
 	}
@@ -1310,7 +1310,7 @@ void shutoff_dlight( gentity_t *ent ) {
 use_dlight
 ==============
 */
-void use_dlight( gentity_t *ent, gentity_t *other, gentity_t *activator ) {
+void use_dlight( GameEntity *ent, GameEntity *other, GameEntity *activator ) {
 	if ( ent->shared.r.linked ) {
 		SV_UnlinkEntity( &ent->shared );
 	} else
@@ -1335,7 +1335,7 @@ SP_dlight
 	ent->count tracks length of style string
 ==============
 */
-void SP_dlight( gentity_t *ent ) {
+void SP_dlight( GameEntity *ent ) {
 	const char    *snd;
 	const char *shader;
 	int i;
@@ -1429,9 +1429,9 @@ health = density defaults to 32
 */
 
 
-void snowInPVS( gentity_t *ent ) {
-	gentity_t *tent;
-	gentity_t *player;
+void snowInPVS( GameEntity *ent ) {
+	GameEntity *tent;
+	GameEntity *player;
 	bool inPVS = false;
 	int oldactive;
 
@@ -1471,7 +1471,7 @@ void snowInPVS( gentity_t *ent ) {
 	SV_LinkEntity( &ent->shared );
 }
 
-void snow_think( gentity_t *ent ) {
+void snow_think( GameEntity *ent ) {
 	trace_t tr;
 	vec3_t dest;
 	int turb;
@@ -1484,7 +1484,7 @@ void snow_think( gentity_t *ent ) {
 		dest[2] -= 8192;
 	}
 
-	SV_Trace( &tr, ent->shared.s.origin, NULL, NULL, dest, ent->shared.s.number, MASK_SHOT, false );
+	SV_Trace( &tr, ent->shared.s.origin, nullptr, nullptr, dest, ent->shared.s.number, MASK_SHOT, false );
 
 	if ( ent->spawnflags & 1 ) {
 		turb = 1;
@@ -1515,7 +1515,7 @@ void snow_think( gentity_t *ent ) {
 
 }
 
-void SP_Snow( gentity_t *ent ) {
+void SP_Snow( GameEntity *ent ) {
 	ent->think = snow_think;
 	ent->nextthink = level.time + FRAMETIME;
 
@@ -1535,7 +1535,7 @@ void SP_Snow( gentity_t *ent ) {
 // done.
 
 
-void SP_Bubbles( gentity_t *ent ) {
+void SP_Bubbles( GameEntity *ent ) {
 	ent->think = snow_think;
 	ent->nextthink = level.time + FRAMETIME;
 
@@ -1559,7 +1559,7 @@ static vec3_t forward, right, up;
 static vec3_t muzzle;
 
 void flakPuff( vec3_t origin, bool sky ) {
-	gentity_t *tent;
+	GameEntity *tent;
 	vec3_t point;
 
 	VectorCopy( origin, point );
@@ -1580,11 +1580,11 @@ void flakPuff( vec3_t origin, bool sky ) {
 
 int muzzleflashmodel;
 
-void mg42_muzzleflash( gentity_t *ent, vec3_t muzzlepos ) {  // cheezy, but lets me use this routine for finding the muzzle point for firing the actual bullet
+void mg42_muzzleflash( GameEntity *ent, vec3_t muzzlepos ) {  // cheezy, but lets me use this routine for finding the muzzle point for firing the actual bullet
 
 	vec3_t forward;
 	vec3_t point;
-	gentity_t   *flash;
+	GameEntity   *flash;
 
 	flash = G_Spawn();
 
@@ -1595,7 +1595,7 @@ void mg42_muzzleflash( gentity_t *ent, vec3_t muzzlepos ) {  // cheezy, but lets
 		G_SetOrigin( flash, ent->shared.s.pos.trBase );
 
 		VectorCopy( flash->shared.s.origin, point );
-		AngleVectors( flash->shared.s.angles, forward, NULL, NULL );
+		AngleVectors( flash->shared.s.angles, forward, nullptr, nullptr );
 		VectorMA( point, 40, forward, point );
 
 		if ( muzzlepos ) {
@@ -1624,13 +1624,13 @@ Fire_Lead
 ==============
 */
 //----(SA)	added 'activator' so the bits that used to expect 'ent' to be the gun still work
-void Fire_Lead( gentity_t *ent, gentity_t *activator, float spread, int damage ) {
+void Fire_Lead( GameEntity *ent, GameEntity *activator, float spread, int damage ) {
 	trace_t tr;
 	vec3_t end, lead_muzzle, mg42_muzzle;
 	float r;
 	float u;
-	gentity_t       *tent;
-	gentity_t       *traceEnt;
+	GameEntity       *tent;
+	GameEntity       *traceEnt;
 
 	//bool	isflak = false;
 
@@ -1648,7 +1648,7 @@ void Fire_Lead( gentity_t *ent, gentity_t *activator, float spread, int damage )
 	VectorMA( end, r, right, end );
 	VectorMA( end, u, up, end );
 
-	SV_Trace( &tr, lead_muzzle, NULL, NULL, end, ent->shared.s.number, MASK_SHOT, false );
+	SV_Trace( &tr, lead_muzzle, nullptr, nullptr, end, ent->shared.s.number, MASK_SHOT, false );
 
 	AICast_ProcessBullet( activator, lead_muzzle, tr.endpos );
 
@@ -1731,7 +1731,7 @@ void Fire_Lead( gentity_t *ent, gentity_t *activator, float spread, int damage )
 
 float AngleDifference( float ang1, float ang2 );
 
-void clamp_hweapontofirearc( gentity_t *self, gentity_t *other, vec3_t dang ) {
+void clamp_hweapontofirearc( GameEntity *self, GameEntity *other, vec3_t dang ) {
 
 // NOTE: use this value, and THEN the cl_input.c scales to tweak the feel
 #define MG42_YAWSPEED       300.0   // degrees per second
@@ -1858,7 +1858,7 @@ void clamp_hweapontofirearc( gentity_t *self, gentity_t *other, vec3_t dang ) {
 // NOTE: this only effects the external view of the user, when using the mg42, the
 // view position is set on the client-side to keep it firm behind the gun with
 // interpolation
-void clamp_playerbehindgun( gentity_t *self, gentity_t *other, vec3_t dang ) {
+void clamp_playerbehindgun( GameEntity *self, GameEntity *other, vec3_t dang ) {
 	vec3_t forward, right, up;
 	vec3_t point;
 
@@ -1887,7 +1887,7 @@ void clamp_playerbehindgun( gentity_t *self, gentity_t *other, vec3_t dang ) {
 #define FLAK_SPREAD 100
 #define FLAK_DAMAGE 36
 
-void mg42_touch( gentity_t *self, gentity_t *other, trace_t *trace ) {
+void mg42_touch( GameEntity *self, GameEntity *other, trace_t *trace ) {
 	vec3_t dang;
 	int i;
 
@@ -1927,7 +1927,7 @@ void mg42_touch( gentity_t *self, gentity_t *other, trace_t *trace ) {
 	}
 }
 
-void mg42_track( gentity_t *self, gentity_t *other ) {
+void mg42_track( GameEntity *self, GameEntity *other ) {
 	vec3_t dang;
 	int i;
 	bool validshot = false;
@@ -2042,7 +2042,7 @@ void mg42_track( gentity_t *self, gentity_t *other ) {
 #define GUN3_LASTFIRE   11
 #define GUN4_LASTFIRE   15
 
-void Flak_Animate( gentity_t *ent ) {
+void Flak_Animate( GameEntity *ent ) {
 	//Com_Printf ("frame %i\n", ent->shared.s.frame);
 
 	if ( ent->shared.s.frame == GUN1_IDLE
@@ -2080,9 +2080,9 @@ void Flak_Animate( gentity_t *ent ) {
 }
 
 #define USEMG42_DISTANCE 46
-void mg42_think( gentity_t *self ) {
+void mg42_think( GameEntity *self ) {
 	vec3_t vec;
-	gentity_t   *owner;
+	GameEntity   *owner;
 	int i;
 	float len;
 	float usedist;
@@ -2131,7 +2131,7 @@ void mg42_think( gentity_t *self ) {
 /*
 			if (owner->shared.r.svFlags & SVF_CASTAI)
 			{
-				gentity_t *player;
+				GameEntity *player;
 				vec3_t	temp;
 
 				player = AICast_FindEntityForName ("player");
@@ -2145,7 +2145,7 @@ void mg42_think( gentity_t *self ) {
 
 						if (visible (player, self))
 						{
-							self->use (self, NULL, NULL);
+							self->use (self, nullptr, nullptr);
 							// Com_Printf ("force use dismount cause not infront\n");
 						}
 
@@ -2166,7 +2166,7 @@ void mg42_think( gentity_t *self ) {
 	}
 
 	// slowly rotate back to position
-	//clamp_hweapontofirearc( self, NULL, vec );
+	//clamp_hweapontofirearc( self, nullptr, vec );
 	// move to the position over the next frame
 	VectorSubtract( self->shared.s.angles, self->shared.s.apos.trBase, self->shared.s.apos.trDelta );
 	for ( i = 0; i < 3; i++ ) {
@@ -2201,9 +2201,9 @@ void mg42_think( gentity_t *self ) {
 
 }
 
-void mg42_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int damage, int mod ) {
-	gentity_t   *gun;
-	gentity_t   *owner;
+void mg42_die( GameEntity *self, GameEntity *inflictor, GameEntity *attacker, int damage, int mod ) {
+	GameEntity   *gun;
+	GameEntity   *owner;
 
 	// owner = &g_entities[self->shared.r.ownerNum];
 
@@ -2242,8 +2242,8 @@ void mg42_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int d
 	SV_LinkEntity( &self->shared );
 }
 
-void mg42_use( gentity_t *ent, gentity_t *other, gentity_t *activator ) {
-	gentity_t *owner;
+void mg42_use( GameEntity *ent, GameEntity *other, GameEntity *activator ) {
+	GameEntity *owner;
 
 	owner = &g_entities[ent->shared.r.ownerNum];
 
@@ -2265,8 +2265,8 @@ void mg42_use( gentity_t *ent, gentity_t *other, gentity_t *activator ) {
 mg42_spawn
 ==============
 */
-void mg42_spawn( gentity_t *ent ) {
-	gentity_t *base, *gun;
+void mg42_spawn( GameEntity *ent ) {
+	GameEntity *base, *gun;
 	vec3_t offset;
 
 	ent->soundPos3 = G_SoundIndex( "sound/weapons/mg42/mg42_death.wav" );   // die sound
@@ -2377,7 +2377,7 @@ health - how much damage can it take. Default is 50
 damage - determines how much the weapon will inflict if a non player uses it
 accuracy - all guns are 100% accurate a value of 0.5 would make it 50%
 */
-void SP_mg42( gentity_t *self ) {
+void SP_mg42( GameEntity *self ) {
 	const char        *damage;
 	const char        *accuracy;
 	float grabarc;
@@ -2422,8 +2422,8 @@ void SP_mg42( gentity_t *self ) {
 }
 
 
-void flak_spawn( gentity_t *ent ) {
-	gentity_t *gun;
+void flak_spawn( GameEntity *ent ) {
+	GameEntity *gun;
 	vec3_t offset;
 
 	gun = G_Spawn();
@@ -2459,7 +2459,7 @@ void flak_spawn( gentity_t *ent ) {
 
 /*QUAKED misc_flak (1 0 0) (-32 -32 0) (32 32 100)
 */
-void SP_misc_flak( gentity_t *self ) {
+void SP_misc_flak( GameEntity *self ) {
 
 	if ( !self->harc ) {
 		self->harc = 180;
@@ -2493,10 +2493,10 @@ spawnitem
 9mm
 */
 
-void misc_spawner_think( gentity_t *ent ) {
+void misc_spawner_think( GameEntity *ent ) {
 
 	gitem_t     *item;
-	gentity_t   *drop = NULL;
+	GameEntity   *drop = nullptr;
 
 	item = BG_FindItem( ent->spawnitem );
 
@@ -2509,7 +2509,7 @@ void misc_spawner_think( gentity_t *ent ) {
 
 }
 
-void misc_spawner_use( gentity_t *ent, gentity_t *other, gentity_t *activator ) {
+void misc_spawner_use( GameEntity *ent, GameEntity *other, GameEntity *activator ) {
 
 	ent->think = misc_spawner_think;
 	ent->nextthink = level.time + FRAMETIME;
@@ -2522,7 +2522,7 @@ void misc_spawner_use( gentity_t *ent, gentity_t *other, gentity_t *activator ) 
 	SV_LinkEntity( &ent->shared );
 }
 
-void SP_misc_spawner( gentity_t *ent ) {
+void SP_misc_spawner( GameEntity *ent ) {
 	if ( !ent->spawnitem ) {
 		Com_Printf( "-----> WARNING <-------\n" );
 		Com_Printf( "misc_spawner at loc %s has no spawnitem!\n", vtos( ent->shared.s.origin ) );
@@ -2537,11 +2537,11 @@ void SP_misc_spawner( gentity_t *ent ) {
 
 // (SA) removed dead code 9/7/01
 
-void firetrail_die( gentity_t *ent ) {
+void firetrail_die( GameEntity *ent ) {
 	G_FreeEntity( ent );
 }
 
-void firetrail_use( gentity_t *ent, gentity_t *other, gentity_t *activator ) {
+void firetrail_use( GameEntity *ent, GameEntity *other, GameEntity *activator ) {
 	if ( ent->shared.s.eType == ET_RAMJET ) {
 		ent->shared.s.eType = ET_GENERAL;
 	} else {
@@ -2558,11 +2558,11 @@ This entity must target the script mover it will attach to
 alert entity call to kill it
 */
 
-void tagemitter_die( gentity_t *ent ) {
+void tagemitter_die( GameEntity *ent ) {
 	G_FreeEntity( ent );
 }
 
-void tagemitter_use( gentity_t *ent, gentity_t *other, gentity_t *activator ) {
+void tagemitter_use( GameEntity *ent, GameEntity *other, GameEntity *activator ) {
 	if ( ent->shared.s.eType == ET_EFFECT3 ) {
 		ent->shared.s.eType = ET_GENERAL;
 	} else {
@@ -2573,10 +2573,10 @@ void tagemitter_use( gentity_t *ent, gentity_t *other, gentity_t *activator ) {
 
 }
 
-void misc_tagemitter_finishspawning( gentity_t *ent ) {
-	gentity_t *emitter, *parent;
+void misc_tagemitter_finishspawning( GameEntity *ent ) {
+	GameEntity *emitter, *parent;
 
-	parent = G_Find( NULL, FOFS( targetname ), ent->target );
+	parent = G_Find( nullptr, FOFS( targetname ), ent->target );
 	if ( !parent ) {
 		Com_Error( ERR_DROP, "misc_tagemitter: can't find parent script mover with targetname \"%s\"\n", ent->target );
         return; // keep the linter happy, ERR_DROP does not return
@@ -2595,17 +2595,17 @@ void misc_tagemitter_finishspawning( gentity_t *ent ) {
 	G_ProcessTagConnect( emitter, true );
 //	SV_LinkEntity( emitter );
 
-	ent->target_ent = NULL;
+	ent->target_ent = nullptr;
 }
 
 
-void SP_misc_tagemitter( gentity_t *ent ) {
+void SP_misc_tagemitter( GameEntity *ent ) {
 	const char *tagName;
 
 	ent->think = misc_tagemitter_finishspawning;    // so it can find it's target
 	ent->nextthink = level.time + 100;
 
-	if ( !G_SpawnString( "tag", NULL, &tagName ) ) {
+	if ( !G_SpawnString( "tag", nullptr, &tagName ) ) {
 		Com_Error( ERR_DROP, "misc_tagemitter: no 'tag' specified\n" );
         return; // keep the linter happy, ERR_DROP does not return
 	}
@@ -2628,10 +2628,10 @@ This entity must target the plane its going to be attached to
   an alert entity call will kill it
 */
 
-void misc_firetrails_finishspawning( gentity_t *ent ) {
-	gentity_t *left, *right, *airplane;
+void misc_firetrails_finishspawning( GameEntity *ent ) {
+	GameEntity *left, *right, *airplane;
 
-	airplane = G_Find( NULL, FOFS( targetname ), ent->target );
+	airplane = G_Find( nullptr, FOFS( targetname ), ent->target );
 	if ( !airplane ) {
 		Com_Error( ERR_DROP, "can't find airplane with targetname \"%s\" for firetrails", ent->target );
         return; // keep the linter happy, ERR_DROP does not return
@@ -2667,7 +2667,7 @@ void misc_firetrails_finishspawning( gentity_t *ent ) {
 
 }
 
-void SP_misc_firetrails( gentity_t *ent ) {
+void SP_misc_firetrails( GameEntity *ent ) {
 	ent->think = misc_firetrails_finishspawning;
 	ent->nextthink = level.time + 100;
 

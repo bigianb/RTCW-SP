@@ -44,14 +44,14 @@ AddScore
 Adds score to both the client and his team
 ============
 */
-void AddScore( gentity_t *ent, int score ) {
+void AddScore( GameEntity *ent, int score ) {
 
 	return;
 }
 
 
 
-extern bool G_ThrowChair( gentity_t *ent, vec3_t dir, bool force );
+extern bool G_ThrowChair( GameEntity *ent, vec3_t dir, bool force );
 
 /*
 =================
@@ -60,13 +60,13 @@ TossClientItems
 Toss the weapon and powerups for the killed player
 =================
 */
-void TossClientItems( gentity_t *self ) {
+void TossClientItems( GameEntity *self ) {
 	gitem_t     *item;
 	vec3_t forward;
 	int weapon;
 	float angle;
 	int i;
-	gentity_t   *drop = 0;
+	GameEntity   *drop = 0;
 
 	// drop the weapon if not a gauntlet or machinegun
 	weapon = self->shared.s.weapon;
@@ -80,7 +80,7 @@ void TossClientItems( gentity_t *self ) {
 		break;
 	}
 
-	AngleVectors( self->shared.r.currentAngles, forward, NULL, NULL );
+	AngleVectors( self->shared.r.currentAngles, forward, nullptr, nullptr );
 
 	G_ThrowChair( self, forward, true ); // drop chair if you're holding one  //----(SA)	added
 
@@ -154,7 +154,7 @@ void TossClientItems( gentity_t *self ) {
 LookAtKiller
 ==================
 */
-void LookAtKiller( gentity_t *self, gentity_t *inflictor, gentity_t *attacker ) {
+void LookAtKiller( GameEntity *self, GameEntity *inflictor, GameEntity *attacker ) {
 	vec3_t dir;
 	vec3_t angles;
 
@@ -180,7 +180,7 @@ void LookAtKiller( gentity_t *self, gentity_t *inflictor, gentity_t *attacker ) 
 GibHead
 ==============
 */
-void GibHead( gentity_t *self, int killer ) {
+void GibHead( GameEntity *self, int killer ) {
 	G_AddEvent( self, EV_GIB_HEAD, killer );
 }
 
@@ -189,8 +189,8 @@ void GibHead( gentity_t *self, int killer ) {
 GibEntity
 ==================
 */
-void GibEntity( gentity_t *self, int killer ) {
-	gentity_t *other = &g_entities[killer];
+void GibEntity( GameEntity *self, int killer ) {
+	GameEntity *other = &g_entities[killer];
 	vec3_t dir;
 
 	VectorClear( dir );
@@ -214,7 +214,7 @@ void GibEntity( gentity_t *self, int killer ) {
 body_die
 ==================
 */
-void body_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int damage, int meansOfDeath ) {
+void body_die( GameEntity *self, GameEntity *inflictor, GameEntity *attacker, int damage, int meansOfDeath ) {
 	if ( self->health > GIB_HEALTH ) {
 		return;
 	}
@@ -310,8 +310,8 @@ const char    *modNames[] = {
 player_die
 ==================
 */
-void player_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int damage, int meansOfDeath ) {
-	gentity_t   *ent;
+void player_die( GameEntity *self, GameEntity *inflictor, GameEntity *attacker, int damage, int meansOfDeath ) {
+	GameEntity   *ent;
 	int anim;
 	int contents = 0;
 	int killer;
@@ -319,9 +319,9 @@ void player_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
 	const char        *killerName;
 	const char	*obit;
 	bool nogib = true;
-	gitem_t     *item = NULL; // JPW NERVE for flag drop
+	gitem_t     *item = nullptr; // JPW NERVE for flag drop
 	vec3_t launchvel;      // JPW NERVE
-	gentity_t   *flag; // JPW NERVE
+	GameEntity   *flag; // JPW NERVE
 
 	if ( self->client->ps.pm_type == PM_DEAD ) {
 		return;
@@ -479,8 +479,8 @@ void player_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
 CheckArmor
 ================
 */
-int CheckArmor( gentity_t *ent, int damage, int dflags ) {
-	gclient_t   *client;
+int CheckArmor( GameEntity *ent, int damage, int dflags ) {
+	GameClient   *client;
 	int save;
 	int count;
 
@@ -520,7 +520,7 @@ int CheckArmor( gentity_t *ent, int damage, int dflags ) {
 IsHeadShotWeapon
 ==============
 */
-bool IsHeadShotWeapon( int mod, gentity_t *targ, gentity_t *attacker ) {
+bool IsHeadShotWeapon( int mod, GameEntity *targ, GameEntity *attacker ) {
 	// distance rejection
 	if ( DistanceSquared( targ->shared.r.currentOrigin, attacker->shared.r.currentOrigin )  >  ( g_headshotMaxDist.integer * g_headshotMaxDist.integer ) ) {
 		return false;
@@ -579,11 +579,11 @@ bool IsHeadShotWeapon( int mod, gentity_t *targ, gentity_t *attacker ) {
 IsHeadShot
 ==============
 */
-bool IsHeadShot( gentity_t *targ, gentity_t *attacker, vec3_t dir, vec3_t point, int mod ) {
-	gentity_t   *head;
+bool IsHeadShot( GameEntity *targ, GameEntity *attacker, vec3_t dir, vec3_t point, int mod ) {
+	GameEntity   *head;
 	trace_t tr;
 	vec3_t start, end;
-	gentity_t   *traceEnt;
+	GameEntity   *traceEnt;
 	orientation_t orientation;
 
 	bool head_shot_weapon = false;
@@ -631,12 +631,12 @@ bool IsHeadShot( gentity_t *targ, gentity_t *attacker, vec3_t dir, vec3_t point,
 		// trace another shot see if we hit the head
 		VectorCopy( point, start );
 		VectorMA( start, 64, dir, end );
-		SV_Trace( &tr, start, NULL, NULL, end, targ->shared.s.number, MASK_SHOT, false );
+		SV_Trace( &tr, start, nullptr, nullptr, end, targ->shared.s.number, MASK_SHOT, false );
 
 		traceEnt = &g_entities[ tr.entityNum ];
 
 		if ( g_debugBullets.integer >= 3 ) {   // show hit player head bb
-			gentity_t *tent;
+			GameEntity *tent;
 			vec3_t b1, b2;
 			VectorCopy( head->shared.r.currentOrigin, b1 );
 			VectorCopy( head->shared.r.currentOrigin, b2 );
@@ -678,7 +678,7 @@ G_ArmorDamage
 	the difference is how many to pop off this time
 ==============
 */
-void G_ArmorDamage( gentity_t *targ ) {
+void G_ArmorDamage( GameEntity *targ ) {
 	int brokeparts, curbroke;
 	int numParts;
 	int dmgbits = 16;   // 32/2;
@@ -766,7 +766,7 @@ point		point at which the damage is being inflicted, used for headshots
 damage		amount of damage being inflicted
 knockback	force to be applied against targ as a result of the damage
 
-inflictor, attacker, dir, and point can be NULL for environmental effects
+inflictor, attacker, dir, and point can be nullptr for environmental effects
 
 dflags		these flags are used to control how T_Damage works
 	DAMAGE_RADIUS			damage was indirect (from a nearby explosion)
@@ -776,9 +776,9 @@ dflags		these flags are used to control how T_Damage works
 ============
 */
 
-void G_Damage( gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
+void G_Damage( GameEntity *targ, GameEntity *inflictor, GameEntity *attacker,
 			   vec3_t dir, vec3_t point, int damage, int dflags, int mod ) {
-	gclient_t   *client;
+	GameClient   *client;
 	int take;
 	int save;
 	int asave;
@@ -1169,7 +1169,7 @@ void G_Damage( gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
 			}
 
 		} else if ( targ->pain ) {
-			if ( dir ) {  // Ridah, had to add this to fix NULL dir crash
+			if ( dir ) {  // Ridah, had to add this to fix nullptr dir crash
 				VectorCopy( dir, targ->rotate );
 				VectorCopy( point, targ->pos3 ); // this will pass loc of hit
 			} else {
@@ -1199,7 +1199,7 @@ Returns true if the inflictor can directly damage the target.  Used for
 explosions and melee attacks.
 ============
 */
-bool CanDamage( gentity_t *targ, vec3_t origin ) {
+bool CanDamage( GameEntity *targ, vec3_t origin ) {
 	vec3_t dest;
 	trace_t tr;
 	vec3_t midpoint;
@@ -1265,10 +1265,10 @@ bool CanDamage( gentity_t *targ, vec3_t origin ) {
 G_RadiusDamage
 ============
 */
-bool G_RadiusDamage( vec3_t origin, gentity_t *attacker, float damage, float radius,
-						 gentity_t *ignore, int mod ) {
+bool G_RadiusDamage( vec3_t origin, GameEntity *attacker, float damage, float radius,
+						 GameEntity *ignore, int mod ) {
 	float points, dist;
-	gentity_t   *ent;
+	GameEntity   *ent;
 	int entityList[MAX_GENTITIES];
 	int numListedEntities;
 	vec3_t mins, maxs;
@@ -1338,7 +1338,7 @@ bool G_RadiusDamage( vec3_t origin, gentity_t *attacker, float damage, float rad
 			// get knocked into the air more
 			dir[2] += 24;
 
-			G_Damage( ent, NULL, attacker, dir, origin, (int)points, DAMAGE_RADIUS, mod );
+			G_Damage( ent, nullptr, attacker, dir, origin, (int)points, DAMAGE_RADIUS, mod );
 		}
 	}
 	return hitClient;

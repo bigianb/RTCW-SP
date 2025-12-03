@@ -110,8 +110,8 @@ typedef enum {
 
 //============================================================================
 
-typedef struct gentity_s gentity_t;
-typedef struct gclient_s gclient_t;
+class GameEntity;
+class GameClient;
 
 //====================================================================
 //
@@ -119,7 +119,7 @@ typedef struct gclient_s gclient_t;
 typedef struct
 {
 	const char    *actionString;
-	bool ( *actionFunc )( gentity_t *ent, char *params );
+	bool ( *actionFunc )( GameEntity *ent, char *params );
 } g_script_stack_action_t;
 //
 typedef struct
@@ -169,22 +169,22 @@ typedef struct
 //
 #define G_MAX_SCRIPT_ACCUM_BUFFERS  8
 //
-void G_Script_ScriptEvent( gentity_t *ent, const char *eventStr, const char *params );
+void G_Script_ScriptEvent( GameEntity *ent, const char *eventStr, const char *params );
 //====================================================================
 
 
-#define CFOFS( x ) ( (intptr_t)&( ( (gclient_t *)0 )->x ) )
+#define CFOFS( x ) ( (intptr_t)&( ( (GameClient *)0 )->x ) )
 
-struct gentity_s {
+class GameEntity
+{
+public:
 	sharedEntity_t shared;
-	//entityState_t s;                // communicated by server to clients
-	//entityShared_t r;               // shared by both the server system and game
 
 	// DO NOT MODIFY ANYTHING ABOVE THIS, THE SERVER
 	// EXPECTS THE FIELDS IN THAT ORDER!
 	//================================
 
-	struct gclient_s    *client;            // NULL if not a client
+	GameClient    *client;            // nullptr if not a client
 
 	bool inuse;
 
@@ -231,9 +231,9 @@ struct gentity_s {
 	int soundSoftclose;
 	int soundSoftendc;
 
-	gentity_t   *parent;
-	gentity_t   *nextTrain;
-	gentity_t   *prevTrain;
+	GameEntity   *parent;
+	GameEntity   *nextTrain;
+	GameEntity   *prevTrain;
 	vec3_t pos1, pos2, pos3;
 
 	char        *message;
@@ -247,7 +247,7 @@ struct gentity_s {
 	char        *team;
 	char        *targetShaderName;
 	char        *targetShaderNewName;
-	gentity_t   *target_ent;
+	GameEntity   *target_ent;
 
 	float speed;
 	float closespeed;           // for movers that close at a different speed than they open
@@ -259,13 +259,13 @@ struct gentity_s {
 	vec3_t gDeltaBack;
 
 	int nextthink;
-	void ( *think )( gentity_t *self );
-	void ( *reached )( gentity_t *self );       // movers call this when hitting endpoint
-	void ( *blocked )( gentity_t *self, gentity_t *other );
-	void ( *touch )( gentity_t *self, gentity_t *other, trace_t *trace );
-	void ( *use )( gentity_t *self, gentity_t *other, gentity_t *activator );
-	void ( *pain )( gentity_t *self, gentity_t *attacker, int damage, vec3_t point );
-	void ( *die )( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int damage, int mod );
+	void ( *think )( GameEntity *self );
+	void ( *reached )( GameEntity *self );       // movers call this when hitting endpoint
+	void ( *blocked )( GameEntity *self, GameEntity *other );
+	void ( *touch )( GameEntity *self, GameEntity *other, trace_t *trace );
+	void ( *use )( GameEntity *self, GameEntity *other, GameEntity *activator );
+	void ( *pain )( GameEntity *self, GameEntity *attacker, int damage, vec3_t point );
+	void ( *die )( GameEntity *self, GameEntity *inflictor, GameEntity *attacker, int damage, int mod );
 
 	int pain_debounce_time;
 	int fly_sound_debounce_time;            // wind tunnel
@@ -283,11 +283,11 @@ struct gentity_s {
 
 	int count;
 
-	gentity_t   *chain;
-	gentity_t   *enemy;
-	gentity_t   *activator;
-	gentity_t   *teamchain;     // next entity in team
-	gentity_t   *teammaster;    // master of the team
+	GameEntity   *chain;
+	GameEntity   *enemy;
+	GameEntity   *activator;
+	GameEntity   *teamchain;     // next entity in team
+	GameEntity   *teammaster;    // master of the team
 
 	int watertype;
 	int waterlevel;
@@ -316,7 +316,7 @@ struct gentity_s {
 	char        *aiAttributes;
 	const char        *aiName;
 	int aiTeam;
-	void ( *AIScript_AlertEntity )( gentity_t *ent );
+	void ( *AIScript_AlertEntity )( GameEntity *ent );
 	bool aiInactive;
 	int aiCharacter;            // the index of the type of character we are (from aicast_soldier.c)
 	// done.
@@ -367,7 +367,7 @@ struct gentity_s {
 
 	int mg42BaseEnt;
 
-	gentity_t   *melee;
+	GameEntity   *melee;
 
 	char        *spawnitem;
 
@@ -398,19 +398,16 @@ struct gentity_s {
 	float accuracy;
 
 	const char        *tagName;       // name of the tag we are attached to
-	gentity_t   *tagParent;
+	GameEntity   *tagParent;
 
 	float headshotDamageScale;
 
 	g_script_status_t scriptStatusCurrent;      // had to go down here to keep savegames compatible
 
-	int emitID;                 //----(SA)	added
-	int emitNum;                //----(SA)	added
-	int emitPressure;           //----(SA)	added
-	int emitTime;               //----(SA)	added
-
-	// -------------------------------------------------------------------------------------------
-	// if working on a post release patch, new variables should ONLY be inserted after this point
+	int emitID;
+	int emitNum;
+	int emitPressure;  
+	int emitTime;     
 };
 
 // Ridah
@@ -487,8 +484,8 @@ typedef struct {
 // on each level change or team change at ClientBegin()
 typedef struct {
 	clientConnected_t connected;
-	usercmd_t cmd;                  // we would lose angles if not persistant
-	usercmd_t oldcmd;               // previous command processed by pmove()
+	UserCmd cmd;                  // we would lose angles if not persistant
+	UserCmd oldcmd;               // previous command processed by pmove()
 
 	bool initialSpawn;          // the first spawn should be at a cool location
 	bool predictItemPickup;     // based on cg_predictItems userinfo
@@ -508,9 +505,11 @@ typedef struct {
 
 // this structure is cleared on each ClientSpawn(),
 // except for 'client->pers' and 'client->sess'
-struct gclient_s {
+class GameClient
+{
+public:
 	// ps MUST be the first element, because the server expects it
-	playerState_t ps;               // communicated by server to clients
+	PlayerState ps;               // communicated by server to clients
 
 	// the rest of the structure is private to game
 	clientPersistant_t pers;
@@ -520,7 +519,7 @@ struct gclient_s {
 
 	bool noclip;
 
-	int lastCmdTime;                // level.time of last usercmd_t, for EF_CONNECTION
+	int lastCmdTime;                // level.time of last UserCmd, for EF_CONNECTION
 									// we can't just use pers.lastCommand.time, because
 									// of the g_sycronousclients case
 	int buttons;
@@ -561,7 +560,7 @@ struct gclient_s {
 	int lastKillTime;               // for multiple kill rewards
 
 	bool fireHeld;              // used for hook
-	gentity_t   *hook;              // grapple hook if out
+	GameEntity   *hook;              // grapple hook if out
 
 	int switchTeamTime;             // time the player switched teams
 
@@ -579,12 +578,12 @@ struct gclient_s {
 	// -------------------------------------------------------------------------------------------
 	// if working on a post release patch, new variables should ONLY be inserted after this point
 
-	gentity_t   *persistantPowerup;
+	GameEntity   *persistantPowerup;
 	int portalID;
 	int ammoTimes[WP_NUM_WEAPONS];
 	int invulnerabilityTime;
 
-	gentity_t   *cameraPortal;              // grapple hook if out
+	GameEntity   *cameraPortal;              // grapple hook if out
 	vec3_t cameraOrigin;
 
 
@@ -605,9 +604,9 @@ struct gclient_s {
 #define MAX_SPAWN_VARS_CHARS    2048
 
 typedef struct {
-	struct gclient_s    *clients;       // [maxclients]
+	GameClient    *clients;       // [maxclients]
 
-	struct gentity_s    *gentities;
+	GameEntity    *gentities;
 	int gentitySize;
 	int num_entities;               // current number, <= MAX_GENTITIES
 
@@ -676,9 +675,9 @@ typedef struct {
 	vec3_t intermission_angle;
 
 	bool locationLinked;            // target_locations get linked
-	gentity_t   *locationHead;          // head of the location list
+	GameEntity   *locationHead;          // head of the location list
 	int bodyQueIndex;                   // dead bodies
-	gentity_t   *bodyQue[BODY_QUEUE_SIZE];
+	GameEntity   *bodyQue[BODY_QUEUE_SIZE];
 
 	int portalSequence;
 	// Ridah
@@ -738,46 +737,46 @@ bool    G_SpawnVector( const char *key, const char *defaultString, float *out );
 void        G_SpawnEntitiesFromString( void );
 char *G_NewString( const char *string );
 // Ridah
-bool G_CallSpawn( gentity_t *ent );
+bool G_CallSpawn( GameEntity *ent );
 // done.
 
 //
 // g_cmds.c
 //
 
-void StopFollowing( gentity_t *ent );
+void StopFollowing( GameEntity *ent );
 
-void SetWolfData( gentity_t *ent, char *ptype, char *weap, char *pistol, char *grenade, char *skinnum );    // DHM - Nerve
-void Cmd_FollowCycle_f( gentity_t *ent, int dir );
+void SetWolfData( GameEntity *ent, char *ptype, char *weap, char *pistol, char *grenade, char *skinnum );    // DHM - Nerve
+void Cmd_FollowCycle_f( GameEntity *ent, int dir );
 
 //
 // g_items.c
 //
 void G_CheckTeamItems( void );
-void G_RunItem( gentity_t *ent );
-void RespawnItem( gentity_t *ent );
+void G_RunItem( GameEntity *ent );
+void RespawnItem( GameEntity *ent );
 
-void UseHoldableItem( gentity_t *ent, int item );
+void UseHoldableItem( GameEntity *ent, int item );
 void PrecacheItem( gitem_t *it );
-gentity_t *Drop_Item( gentity_t *ent, gitem_t *item, float angle, bool novelocity );
-gentity_t *LaunchItem( gitem_t *item, vec3_t origin, vec3_t velocity );
-void SetRespawn( gentity_t *ent, float delay );
-void G_SpawnItem( gentity_t *ent, gitem_t *item );
-void FinishSpawningItem( gentity_t *ent );
-void Think_Weapon( gentity_t *ent );
-int ArmorIndex( gentity_t *ent );
-void Fill_Clip( playerState_t *ps, int weapon );
-void    Add_Ammo( gentity_t *ent, int weapon, int count, bool fillClip );
-void Touch_Item( gentity_t *ent, gentity_t *other, trace_t *trace );
+GameEntity *Drop_Item( GameEntity *ent, gitem_t *item, float angle, bool novelocity );
+GameEntity *LaunchItem( gitem_t *item, vec3_t origin, vec3_t velocity );
+void SetRespawn( GameEntity *ent, float delay );
+void G_SpawnItem( GameEntity *ent, gitem_t *item );
+void FinishSpawningItem( GameEntity *ent );
+void Think_Weapon( GameEntity *ent );
+int ArmorIndex( GameEntity *ent );
+void Fill_Clip( PlayerState *ps, int weapon );
+void    Add_Ammo( GameEntity *ent, int weapon, int count, bool fillClip );
+void Touch_Item( GameEntity *ent, GameEntity *other, trace_t *trace );
 
 // Touch_Item_Auto is bound by the rules of autoactivation (if cg_autoactivate is 0, only touch on "activate")
-void Touch_Item_Auto( gentity_t *ent, gentity_t *other, trace_t *trace );
+void Touch_Item_Auto( GameEntity *ent, GameEntity *other, trace_t *trace );
 
 void ClearRegisteredItems( void );
 void RegisterItem( gitem_t *item );
 void SaveRegisteredItems( void );
-void Prop_Break_Sound( gentity_t *ent );
-void Spawn_Shard( gentity_t *ent, gentity_t *inflictor, int quantity, int type );
+void Prop_Break_Sound( GameEntity *ent );
+void Spawn_Shard( GameEntity *ent, GameEntity *inflictor, int quantity, int type );
 
 //
 // g_utils.c
@@ -788,45 +787,45 @@ int G_FindConfigstringIndex( const char *name, int start, int max, bool create )
 int G_ModelIndex( const char *name );
 int     G_SoundIndex( const char *name );
 
-void    G_KillBox( gentity_t *ent );
-gentity_t *G_Find( gentity_t *from, int fieldofs, const char *match );
-gentity_t *G_PickTarget( char *targetname );
-void    G_UseTargets( gentity_t *ent, gentity_t *activator );
+void    G_KillBox( GameEntity *ent );
+GameEntity *G_Find( GameEntity *from, int fieldofs, const char *match );
+GameEntity *G_PickTarget( char *targetname );
+void    G_UseTargets( GameEntity *ent, GameEntity *activator );
 void    G_SetMovedir( vec3_t angles, vec3_t movedir );
 
-void    G_InitGentity( gentity_t *e );
-gentity_t   *G_Spawn( void );
-gentity_t *G_TempEntity( vec3_t origin, int event );
-void    G_Sound( gentity_t *ent, int soundIndex );
+void    G_InitGentity( GameEntity *e );
+GameEntity   *G_Spawn( void );
+GameEntity *G_TempEntity( vec3_t origin, int event );
+void    G_Sound( GameEntity *ent, int soundIndex );
 void    G_AnimScriptSound( int soundIndex, vec3_t org, int client );
-void    G_FreeEntity( gentity_t *e );
+void    G_FreeEntity( GameEntity *e );
 //bool	G_EntitiesFree( void );
 
-void    G_TouchTriggers( gentity_t *ent );
-void    G_TouchSolids( gentity_t *ent );
+void    G_TouchTriggers( GameEntity *ent );
+void    G_TouchSolids( GameEntity *ent );
 
 float   *tv( float x, float y, float z );
 char    *vtos( const vec3_t v );
 
-void G_AddPredictableEvent( gentity_t *ent, int event, int eventParm );
-void G_AddEvent( gentity_t *ent, int event, int eventParm );
-void G_SetOrigin( gentity_t *ent, vec3_t origin );
+void G_AddPredictableEvent( GameEntity *ent, int event, int eventParm );
+void G_AddEvent( GameEntity *ent, int event, int eventParm );
+void G_SetOrigin( GameEntity *ent, vec3_t origin );
 void AddRemap( const char *oldShader, const char *newShader, float timeOffset );
 const char *BuildShaderStateConfig();
-void G_SetAngle( gentity_t *ent, vec3_t angle );
+void G_SetAngle( GameEntity *ent, vec3_t angle );
 
-bool infront( gentity_t *self, gentity_t *other );
+bool infront( GameEntity *self, GameEntity *other );
 
-void G_ProcessTagConnect( gentity_t *ent, bool clearAngles );
+void G_ProcessTagConnect( GameEntity *ent, bool clearAngles );
 
 //
 // g_combat.c
 //
-bool CanDamage( gentity_t *targ, vec3_t origin );
-void G_Damage( gentity_t *targ, gentity_t *inflictor, gentity_t *attacker, vec3_t dir, vec3_t point, int damage, int dflags, int mod );
-bool G_RadiusDamage( vec3_t origin, gentity_t *attacker, float damage, float radius, gentity_t *ignore, int mod );
-void body_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int damage, int meansOfDeath );
-void TossClientItems( gentity_t *self );
+bool CanDamage( GameEntity *targ, vec3_t origin );
+void G_Damage( GameEntity *targ, GameEntity *inflictor, GameEntity *attacker, vec3_t dir, vec3_t point, int damage, int dflags, int mod );
+bool G_RadiusDamage( vec3_t origin, GameEntity *attacker, float damage, float radius, GameEntity *ignore, int mod );
+void body_die( GameEntity *self, GameEntity *inflictor, GameEntity *attacker, int damage, int meansOfDeath );
+void TossClientItems( GameEntity *self );
 
 // damage flags
 #define DAMAGE_RADIUS               0x00000001  // damage was indirect
@@ -839,93 +838,93 @@ void TossClientItems( gentity_t *self );
 //
 // g_missile.c
 //
-void G_RunMissile( gentity_t *ent );
-int G_PredictMissile( gentity_t *ent, int duration, vec3_t endPos, bool allowBounce );
+void G_RunMissile( GameEntity *ent );
+int G_PredictMissile( GameEntity *ent, int duration, vec3_t endPos, bool allowBounce );
 
 // Rafael zombiespit
-void G_RunSpit( gentity_t *ent );
-void G_RunDebris( gentity_t *ent );
+void G_RunSpit( GameEntity *ent );
+void G_RunDebris( GameEntity *ent );
 
-void G_RunCrowbar( gentity_t *ent );
+void G_RunCrowbar( GameEntity *ent );
 
 //----(SA) removed unused q3a weapon firing
-gentity_t *fire_grenade( gentity_t *self, vec3_t start, vec3_t aimdir, int grenadeWPID );
-gentity_t *fire_rocket( gentity_t *self, vec3_t start, vec3_t dir );
+GameEntity *fire_grenade( GameEntity *self, vec3_t start, vec3_t aimdir, int grenadeWPID );
+GameEntity *fire_rocket( GameEntity *self, vec3_t start, vec3_t dir );
 
 
 // Rafael sniper
-void fire_lead( gentity_t *self,  vec3_t start, vec3_t dir, int damage );
-bool visible( gentity_t *self, gentity_t *other );
+void fire_lead( GameEntity *self,  vec3_t start, vec3_t dir, int damage );
+bool visible( GameEntity *self, GameEntity *other );
 
-gentity_t *fire_mortar( gentity_t *self, vec3_t start, vec3_t dir );
+GameEntity *fire_mortar( GameEntity *self, vec3_t start, vec3_t dir );
 
-gentity_t *fire_zombiespit( gentity_t *self, vec3_t start, vec3_t dir );
-gentity_t *fire_zombiespirit( gentity_t *self, gentity_t *bolt, vec3_t start, vec3_t dir );
-gentity_t *fire_crowbar( gentity_t *self, vec3_t start, vec3_t dir );
-gentity_t *fire_flamebarrel( gentity_t *self, vec3_t start, vec3_t dir );
+GameEntity *fire_zombiespit( GameEntity *self, vec3_t start, vec3_t dir );
+GameEntity *fire_zombiespirit( GameEntity *self, GameEntity *bolt, vec3_t start, vec3_t dir );
+GameEntity *fire_crowbar( GameEntity *self, vec3_t start, vec3_t dir );
+GameEntity *fire_flamebarrel( GameEntity *self, vec3_t start, vec3_t dir );
 // done
 
 //
 // g_mover.c
 //
-void G_RunMover( gentity_t *ent );
-void Use_BinaryMover( gentity_t *ent, gentity_t *other, gentity_t *activator );
-void G_Activate( gentity_t *ent, gentity_t *activator );
+void G_RunMover( GameEntity *ent );
+void Use_BinaryMover( GameEntity *ent, GameEntity *other, GameEntity *activator );
+void G_Activate( GameEntity *ent, GameEntity *activator );
 
-void G_TryDoor( gentity_t *ent, gentity_t *other, gentity_t *activator ); //----(SA)	added
+void G_TryDoor( GameEntity *ent, GameEntity *other, GameEntity *activator ); //----(SA)	added
 
-void InitMoverRotate( gentity_t *ent );
+void InitMoverRotate( GameEntity *ent );
 
-void InitMover( gentity_t *ent );
-void SetMoverState( gentity_t *ent, moverState_t moverState, int time );
+void InitMover( GameEntity *ent );
+void SetMoverState( GameEntity *ent, moverState_t moverState, int time );
 
 //
 // g_tramcar.c
 //
-void Reached_Tramcar( gentity_t *ent );
+void Reached_Tramcar( GameEntity *ent );
 
 
 //
 // g_misc.c
 //
-void TeleportPlayer( gentity_t *player, vec3_t origin, vec3_t angles );
+void TeleportPlayer( GameEntity *player, vec3_t origin, vec3_t angles );
 
 
 //
 // g_weapon.c
 //
-bool LogAccuracyHit( gentity_t *target, gentity_t *attacker );
-void CalcMuzzlePoint( gentity_t *ent, int weapon, vec3_t forward, vec3_t right, vec3_t up, vec3_t muzzlePoint );
+bool LogAccuracyHit( GameEntity *target, GameEntity *attacker );
+void CalcMuzzlePoint( GameEntity *ent, int weapon, vec3_t forward, vec3_t right, vec3_t up, vec3_t muzzlePoint );
 void SnapVectorTowards( vec3_t v, vec3_t to );
-trace_t *CheckMeleeAttack( gentity_t *ent, float dist, bool isTest );
-gentity_t *weapon_grenadelauncher_fire( gentity_t *ent, int grenadeWPID );
+trace_t *CheckMeleeAttack( GameEntity *ent, float dist, bool isTest );
+GameEntity *weapon_grenadelauncher_fire( GameEntity *ent, int grenadeWPID );
 // Rafael
-gentity_t *weapon_crowbar_throw( gentity_t *ent );
+GameEntity *weapon_crowbar_throw( GameEntity *ent );
 
-void CalcMuzzlePoints( gentity_t *ent, int weapon );
+void CalcMuzzlePoints( GameEntity *ent, int weapon );
 //----(SA) commented out as we have no hook
-//void Weapon_HookFree (gentity_t *ent);
-//void Weapon_HookThink (gentity_t *ent);
+//void Weapon_HookFree (GameEntity *ent);
+//void Weapon_HookThink (GameEntity *ent);
 
 // Rafael - for activate
-void CalcMuzzlePointForActivate( gentity_t *ent, vec3_t forward, vec3_t right, vec3_t up, vec3_t muzzlePoint );
+void CalcMuzzlePointForActivate( GameEntity *ent, vec3_t forward, vec3_t right, vec3_t up, vec3_t muzzlePoint );
 // done.
 
 //
 // g_client.c
 //
 
-void SetClientViewAngle( gentity_t *ent, vec3_t angle );
-gentity_t *SelectSpawnPoint( vec3_t avoidPoint, vec3_t origin, vec3_t angles );
-void respawn( gentity_t *ent );
+void SetClientViewAngle( GameEntity *ent, vec3_t angle );
+GameEntity *SelectSpawnPoint( vec3_t avoidPoint, vec3_t origin, vec3_t angles );
+void respawn( GameEntity *ent );
 
-void InitClientPersistant( gclient_t *client );
-void InitClientResp( gclient_t *client );
+void InitClientPersistant( GameClient *client );
+void InitClientResp( GameClient *client );
 void InitBodyQue( void );
-void ClientSpawn( gentity_t *ent );
-void player_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int damage, int mod );
-void AddScore( gentity_t *ent, int score );
-bool SpotWouldTelefrag( gentity_t *spot );
+void ClientSpawn( GameEntity *ent );
+void player_die( GameEntity *self, GameEntity *inflictor, GameEntity *attacker, int damage, int mod );
+void AddScore( GameEntity *ent, int score );
+bool SpotWouldTelefrag( GameEntity *spot );
 bool G_GetModelInfo( int clientNum, char *modelName, animModelInfo_t **modelInfo );
 
 //
@@ -937,13 +936,13 @@ bool    ConsoleCommand( void );
 //
 // g_weapon.c
 //
-void FireWeapon( gentity_t *ent );
+void FireWeapon( GameEntity *ent );
 
 //
 // p_hud.c
 //
-void MoveClientToIntermission( gentity_t *client );
-void G_SetStats( gentity_t *ent );
+void MoveClientToIntermission( GameEntity *client );
+void G_SetStats( GameEntity *ent );
 
 
 //
@@ -959,7 +958,7 @@ void G_SetStats( gentity_t *ent );
 // g_main.c
 //
 void FindIntermissionPoint( void );
-void G_RunThink( gentity_t *ent );
+void G_RunThink( GameEntity *ent );
 void  G_LogPrintf( const char *fmt, ... );
 
 void  Com_Printf( const char *fmt, ... );
@@ -983,8 +982,8 @@ void ClientCommand( int clientNum );
 // g_active.c
 //
 void ClientThink( int clientNum );
-void ClientEndFrame( gentity_t *ent );
-void G_RunClient( gentity_t *ent );
+void ClientEndFrame( GameEntity *ent );
+void G_RunClient( GameEntity *ent );
 
 //
 // g_mem.c
@@ -996,8 +995,8 @@ void Svcmd_GameMem_f( void );
 //
 // g_session.c
 //
-void G_ReadSessionData( gclient_t *client );
-void G_InitSessionData( gclient_t *client, char *userinfo );
+void G_ReadSessionData( GameClient *client );
+void G_InitSessionData( GameClient *client, char *userinfo );
 
 void G_WriteSessionData( void );
 
@@ -1032,8 +1031,8 @@ void BotTestAAS( vec3_t origin );
 
 
 // g_cmd.c
-void Cmd_Activate_f( gentity_t *ent );
-int Cmd_WolfKick_f( gentity_t *ent );
+void Cmd_Activate_f( GameEntity *ent );
+int Cmd_WolfKick_f( GameEntity *ent );
 // Ridah
 
 // g_save.c
@@ -1043,24 +1042,21 @@ bool G_SavePersistant( char *nextmap );
 void G_LoadPersistant( void );
 
 // g_script.c
-void G_Script_ScriptParse( gentity_t *ent );
-bool G_Script_ScriptRun( gentity_t *ent );
+void G_Script_ScriptParse( GameEntity *ent );
+bool G_Script_ScriptRun( GameEntity *ent );
 
 void G_Script_ScriptLoad( void );
 
 float AngleDifference( float ang1, float ang2 );
 
 // g_props.c
-void Props_Chair_Skyboxtouch( gentity_t *ent );
-
-#include "g_team.h" // teamplay specific stuff
-
+void Props_Chair_Skyboxtouch( GameEntity *ent );
 
 extern level_locals_t level;
-extern gentity_t g_entities[MAX_GENTITIES];
-extern gentity_t       *g_camEnt;
+extern GameEntity g_entities[MAX_GENTITIES];
+extern GameEntity       *g_camEnt;
 
-#define FOFS( x ) ( (intptr_t)&( ( (gentity_t *)0 )->x ) )
+#define FOFS( x ) ( (intptr_t)&( ( (GameEntity *)0 )->x ) )
 
 // Rafael gameskill
 extern vmCvar_t g_gameskill;
@@ -1158,7 +1154,7 @@ int     trap_BotLibUpdateEntity( int ent, void /* struct bot_updateentity_s */ *
 int     trap_BotGetSnapshotEntity( int clientNum, int sequence );
 int     trap_BotGetServerCommand( int clientNum, char *message, int size );
 //int		trap_BotGetConsoleMessage(int clientNum, char *message, int size);
-void    trap_BotUserCommand( int client, usercmd_t *ucmd );
+void    trap_BotUserCommand( int client, UserCmd *ucmd );
 
 void        trap_AAS_EntityInfo( int entnum, void /* struct aas_entityinfo_s */ *info );
 
@@ -1293,6 +1289,6 @@ typedef enum
 } shards_t;
 
 // sv_game.c
-void SV_LocateGameData( sharedEntity_t *gEnts, int numGEntities, int sizeofGEntity_t, playerState_t *clients, int sizeofGameClient );
+void SV_LocateGameData( sharedEntity_t *gEnts, int numGEntities, int sizeofGEntity_t, PlayerState *clients, int sizeofGameClient );
 void SV_GameDropClient( int clientNum, const char *reason );
 

@@ -34,7 +34,7 @@ If you have questions concerning this license or the applicable additional terms
 #include "g_func_decs.h"
 
 
-extern void G_CheckForCursorHints( gentity_t *ent );
+extern void G_CheckForCursorHints( GameEntity *ent );
 
 
 
@@ -48,8 +48,8 @@ damage values to that client for pain blends and kicks, and
 global pain sound events for all clients.
 ===============
 */
-void P_DamageFeedback( gentity_t *player ) {
-	gclient_t   *client;
+void P_DamageFeedback( GameEntity *player ) {
+	GameClient   *client;
 	float count;
 	vec3_t angles;
 
@@ -111,7 +111,7 @@ P_WorldEffects
 Check for lava / slime contents and drowning
 =============
 */
-void P_WorldEffects( gentity_t *ent ) {
+void P_WorldEffects( GameEntity *ent ) {
 	bool envirosuit;
 	int waterlevel;
 
@@ -162,7 +162,7 @@ void P_WorldEffects( gentity_t *ent ) {
                 // don't play a normal pain sound
                 ent->pain_debounce_time = level.time + 200;
 
-                G_Damage( ent, NULL, NULL, NULL, NULL,
+                G_Damage( ent, nullptr, nullptr, nullptr, nullptr,
                           ent->damage, DAMAGE_NO_ARMOR, MOD_WATER );
             }
         
@@ -184,7 +184,7 @@ void P_WorldEffects( gentity_t *ent ) {
 				G_AddEvent( ent, EV_POWERUP_BATTLESUIT, 0 );
 			} else {
 				if ( ent->watertype & CONTENTS_LAVA ) {
-					G_Damage( ent, NULL, NULL, NULL, NULL,
+					G_Damage( ent, nullptr, nullptr, nullptr, nullptr,
 							  30 * waterlevel, 0, MOD_LAVA );
 					// play the lava sizzle
 					G_Sound( ent, G_SoundIndex( "sound/world/hurt_me.wav" ) );   // sound gets cached by target_speaker... last minute hack.
@@ -199,15 +199,15 @@ void P_WorldEffects( gentity_t *ent ) {
 	// check for burning from flamethrower
 	//
 	if ( ent->shared.s.onFireEnd > level.time && ( AICast_AllowFlameDamage( ent->shared.s.number ) ) ) {
-		gentity_t *attacker;
+		GameEntity *attacker;
 
 		if ( ent->health > 0 ) {
 			attacker = g_entities + ent->flameBurnEnt;
 
 			if ( ent->shared.r.svFlags & SVF_CASTAI ) {
-				G_Damage( ent, attacker, attacker, NULL, NULL, 2, DAMAGE_NO_KNOCKBACK, MOD_FLAMETHROWER );
+				G_Damage( ent, attacker, attacker, nullptr, nullptr, 2, DAMAGE_NO_KNOCKBACK, MOD_FLAMETHROWER );
 			} else if ( ( ent->shared.s.onFireEnd - level.time ) > FIRE_FLASH_TIME / 2 && rand() % 5000 < ( ent->shared.s.onFireEnd - level.time ) ) { // as it fades out, also fade out damage rate
-				G_Damage( ent, attacker, attacker, NULL, NULL, 1, DAMAGE_NO_KNOCKBACK, MOD_FLAMETHROWER );
+				G_Damage( ent, attacker, attacker, nullptr, nullptr, 1, DAMAGE_NO_KNOCKBACK, MOD_FLAMETHROWER );
 			}
 		} else if ( ent->shared.s.onFireEnd > level.time + 4000 ) {  // dead, so sto pthe flames soon
 			ent->shared.s.onFireEnd = level.time + 4000;   // stop burning soon
@@ -222,7 +222,7 @@ void P_WorldEffects( gentity_t *ent ) {
 G_SetClientSound
 ===============
 */
-void G_SetClientSound( gentity_t *ent ) {
+void G_SetClientSound( GameEntity *ent ) {
 	if ( ent->aiCharacter ) {
 		return;
 	}
@@ -243,10 +243,10 @@ void G_SetClientSound( gentity_t *ent ) {
 ClientImpacts
 ==============
 */
-void ClientImpacts( gentity_t *ent, pmove_t *pm ) {
+void ClientImpacts( GameEntity *ent, pmove_t *pm ) {
 	int i, j;
 	trace_t trace;
-	gentity_t   *other;
+	GameEntity   *other;
 
 	memset( &trace, 0, sizeof( trace ) );
 	for ( i = 0 ; i < pm->numtouch ; i++ ) {
@@ -281,10 +281,10 @@ Find all trigger entities that ent's current position touches.
 Spectators will only interact with teleporters.
 ============
 */
-void    G_TouchTriggers( gentity_t *ent ) {
+void    G_TouchTriggers( GameEntity *ent ) {
 	int i, num;
 	int touch[MAX_GENTITIES];
-	gentity_t   *hit;
+	GameEntity   *hit;
 	trace_t trace;
 	vec3_t mins, maxs;
 	static vec3_t range = { 40, 40, 52 };
@@ -349,8 +349,8 @@ ClientTimerActions
 Actions that happen once a second
 ==================
 */
-void ClientTimerActions( gentity_t *ent, int msec ) {
-	gclient_t *client;
+void ClientTimerActions( GameEntity *ent, int msec ) {
+	GameClient *client;
 
 	client = ent->client;
 	client->timeResidual += msec;
@@ -391,7 +391,7 @@ void ClientTimerActions( gentity_t *ent, int msec ) {
 ClientIntermissionThink
 ====================
 */
-void ClientIntermissionThink( gclient_t *client ) {
+void ClientIntermissionThink( GameClient *client ) {
 	client->ps.eFlags &= ~EF_TALK;
 	client->ps.eFlags &= ~EF_FIRING;
 
@@ -420,10 +420,10 @@ Events will be passed on to the clients for presentation,
 but any server game effects are handled here
 ================
 */
-void ClientEvents( gentity_t *ent, int oldEventSequence ) {
+void ClientEvents( GameEntity *ent, int oldEventSequence ) {
 	int i;
 	int event, eventParm;
-	gclient_t   *client;
+	GameClient   *client;
 	int damage;
 	vec3_t dir;
 	int stunTime;           //----(SA)	added
@@ -491,7 +491,7 @@ void ClientEvents( gentity_t *ent, int oldEventSequence ) {
 
 			VectorSet( dir, 0, 0, 1 );
 			ent->pain_debounce_time = level.time + 200; // no normal pain sound
-			G_Damage( ent, NULL, NULL, NULL, NULL, damage, 0, MOD_FALLING );
+			G_Damage( ent, nullptr, nullptr, nullptr, nullptr, damage, 0, MOD_FALLING );
 			// falls through to FALL_SHORT
 
 //----(SA)	added the audible events for jumping/falling
@@ -575,12 +575,12 @@ void ClientEvents( gentity_t *ent, int oldEventSequence ) {
 SendPendingPredictableEvents
 ==============
 */
-void SendPendingPredictableEvents( playerState_t *ps ) {
+void SendPendingPredictableEvents( PlayerState *ps ) {
 	
 }
 
 
-void ClientDamage( gentity_t *clent, int entnum, int enemynum, int id );        // NERVE - SMF
+void ClientDamage( GameEntity *clent, int entnum, int enemynum, int id );        // NERVE - SMF
 
 /*
 ==============
@@ -593,11 +593,11 @@ If "g_synchronousClients 1" is set, this will be called exactly
 once for each server frame, which makes for smooth demo recording.
 ==============
 */
-void ClientThink_real( gentity_t *ent ) {
-	gclient_t   *client;
+void ClientThink_real( GameEntity *ent ) {
+	GameClient   *client;
 	
 
-	usercmd_t   *ucmd;
+	UserCmd   *ucmd;
 	//int i;
 	int monsterslick = 0;
 	vec3_t muzzlebounce;      // JPW NERVE
@@ -855,7 +855,7 @@ void ClientThink_real( gentity_t *ent ) {
 						VectorCopy( start, end );
 						end[2] += 1.0;
 
-						SV_Trace( &tr, start, NULL, NULL, end, ent->shared.s.number, ( CONTENTS_SOLID | CONTENTS_BODY | CONTENTS_CORPSE | CONTENTS_TRIGGER ), false );
+						SV_Trace( &tr, start, nullptr, nullptr, end, ent->shared.s.number, ( CONTENTS_SOLID | CONTENTS_BODY | CONTENTS_CORPSE | CONTENTS_TRIGGER ), false );
 
 						if ( tr.contents & CONTENTS_SOLID ) {
 							//VectorClear (pm.ps->velocity);
@@ -867,7 +867,7 @@ void ClientThink_real( gentity_t *ent ) {
 						if ( slide ) {
 							VectorClear( dir );
 							dir[YAW] = angle;
-							AngleVectors( dir, forward, NULL, NULL );
+							AngleVectors( dir, forward, nullptr, nullptr );
 
 							VectorScale( forward, 32, kvel );
 							VectorAdd( pm.ps->velocity, kvel, pm.ps->velocity );
@@ -934,13 +934,13 @@ void ClientThink_real( gentity_t *ent ) {
 
 	// RF, prevent player from standing on a chair which is on a script_mover
 	if ( ent->client->ps.groundEntityNum >= MAX_CLIENTS && ent->client->ps.groundEntityNum < ENTITYNUM_WORLD ) {
-		gentity_t *groundEnt = &g_entities[ent->client->ps.groundEntityNum];
+		GameEntity *groundEnt = &g_entities[ent->client->ps.groundEntityNum];
 		if ( groundEnt->isProp && groundEnt->takedamage && !groundEnt->nopickup ) {
 			// it's a chair, is it on a mover?
 			if ( groundEnt->shared.s.groundEntityNum >= MAX_CLIENTS && groundEnt->shared.s.groundEntityNum < ENTITYNUM_WORLD ) {
 				if ( !Q_stricmp( g_entities[groundEnt->shared.s.groundEntityNum].classname, "script_mover" ) ) {
 					// break it
-					G_Damage( groundEnt, ent, ent, NULL, NULL, 9999, 0, MOD_CRUSH );
+					G_Damage( groundEnt, ent, ent, nullptr, nullptr, 9999, 0, MOD_CRUSH );
 				}
 			}
 		}
@@ -983,7 +983,7 @@ void ClientThink_real( gentity_t *ent ) {
 		if ( wolfkicktimer > level.time ) {
 			ent->client->ps.persistant[PERS_WOLFKICK] = 0;
 			if ( ent->health <= 0 ) {
-				ent->melee = NULL;
+				ent->melee = nullptr;
 				ent->client->ps.eFlags &= ~EF_MELEE_ACTIVE;
 			} else {
 
@@ -1100,7 +1100,7 @@ A new command has arrived from the client
 ==================
 */
 void ClientThink( int clientNum ) {
-	gentity_t *ent;
+	GameEntity *ent;
 
 	ent = g_entities + clientNum;
 	ent->client->pers.oldcmd = ent->client->pers.cmd;
@@ -1122,7 +1122,7 @@ void ClientThink( int clientNum ) {
 }
 
 
-void G_RunClient( gentity_t *ent ) {
+void G_RunClient( GameEntity *ent ) {
 	if ( !g_syncronousClients.integer ) {
 		return;
 	}
@@ -1140,7 +1140,7 @@ A fast client will have multiple ClientThink for each ClientEdFrame,
 while a slow client may have multiple ClientEndFrame between ClientThink.
 ==============
 */
-void ClientEndFrame( gentity_t *ent ) {
+void ClientEndFrame( GameEntity *ent ) {
 	int i;
 	clientPersistant_t  *pers;
 

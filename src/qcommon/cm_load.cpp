@@ -553,7 +553,7 @@ void CM_LoadMap( const char *name, bool clientload, int *checksum )
 	static int last_checksum;
 
 	if ( !name || !name[0] ) {
-		Com_Error( ERR_DROP, "CM_LoadMap: NULL name" );
+		Com_Error( ERR_DROP, "CM_LoadMap: nullptr name" );
         return; // keep the linter happy, ERR_DROP does not return
 	}
 
@@ -648,7 +648,7 @@ CM_ClipHandleToModel
 cmodel_t    *CM_ClipHandleToModel( clipHandle_t handle ) {
 	if ( handle < 0 ) {
 		Com_Error( ERR_DROP, "CM_ClipHandleToModel: bad handle %i", handle );
-        return NULL; // keep the linter happy, ERR_DROP does not return
+        return nullptr; // keep the linter happy, ERR_DROP does not return
 	}
 	if ( handle < cm.numSubModels ) {
 		return &cm.cmodels[handle];
@@ -659,11 +659,11 @@ cmodel_t    *CM_ClipHandleToModel( clipHandle_t handle ) {
 	if ( handle < MAX_SUBMODELS ) {
 		Com_Error( ERR_DROP, "CM_ClipHandleToModel: bad handle %i < %i < %i",
 				   cm.numSubModels, handle, MAX_SUBMODELS );
-        return NULL; // keep the linter happy, ERR_DROP does not return
+        return nullptr; // keep the linter happy, ERR_DROP does not return
 	}
 	Com_Error( ERR_DROP, "CM_ClipHandleToModel: bad handle %i", handle + MAX_SUBMODELS );
 
-	return NULL;
+	return nullptr;
 
 }
 

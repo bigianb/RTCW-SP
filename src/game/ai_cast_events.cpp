@@ -58,7 +58,7 @@ for Cast AI's.
 AICast_Sight
 ============
 */
-void AICast_Sight( gentity_t *ent, gentity_t *other, int lastSight ) {
+void AICast_Sight( GameEntity *ent, GameEntity *other, int lastSight ) {
 	cast_state_t    *cs, *ocs;
 
 	cs = AICast_GetCastState( ent->shared.s.number );
@@ -102,7 +102,7 @@ void AICast_Sight( gentity_t *ent, gentity_t *other, int lastSight ) {
 AICast_Pain
 ============
 */
-void AICast_Pain( gentity_t *targ, gentity_t *attacker, int damage, vec3_t point ) {
+void AICast_Pain( GameEntity *targ, GameEntity *attacker, int damage, vec3_t point ) {
 	cast_state_t    *cs;
 
 	cs = AICast_GetCastState( targ->shared.s.number );
@@ -157,7 +157,7 @@ void AICast_Pain( gentity_t *targ, gentity_t *attacker, int damage, vec3_t point
 AICast_Die
 ============
 */
-void AICast_Die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int damage, int meansOfDeath ) {
+void AICast_Die( GameEntity *self, GameEntity *inflictor, GameEntity *attacker, int damage, int meansOfDeath ) {
 	int contents;
 	int killer;
 	cast_state_t    *cs;
@@ -398,9 +398,9 @@ void AICast_EndChase( cast_state_t *cs ) {
 AICast_AIDoor_Touch
 ===============
 */
-void AICast_AIDoor_Touch( gentity_t *ent, gentity_t *aidoor_trigger, gentity_t *door ) {
+void AICast_AIDoor_Touch( GameEntity *ent, GameEntity *aidoor_trigger, GameEntity *door ) {
 	cast_state_t *cs, *ocs;
-	gentity_t *trav;
+	GameEntity *trav;
 	int i;
 	trace_t tr;
 	vec3_t mins, pos, dir;
@@ -433,7 +433,7 @@ void AICast_AIDoor_Touch( gentity_t *ent, gentity_t *aidoor_trigger, gentity_t *
 	}
 
 	// TTimo: gcc: suggest () around assignment used as truth value
-	for ( trav = NULL; ( trav = G_Find( trav, FOFS( target ), aidoor_trigger->targetname ) ); ) {
+	for ( trav = nullptr; ( trav = G_Find( trav, FOFS( target ), aidoor_trigger->targetname ) ); ) {
 		// make sure the marker is vacant
         SV_Trace( &tr, trav->shared.r.currentOrigin, ent->shared.r.mins, ent->shared.r.maxs, trav->shared.r.currentOrigin, ent->shared.s.number, ent->clipmask, false );
 		if ( tr.startsolid ) {
@@ -478,8 +478,8 @@ AICast_ProcessActivate
 */
 void AICast_ProcessActivate( int entNum, int activatorNum ) {
 	cast_state_t *cs;
-	gentity_t *newent, *ent, *activator;
-	gclient_t *client;
+	GameEntity *newent, *ent, *activator;
+	GameClient *client;
 
 	cs = AICast_GetCastState( entNum );
 	client = &level.clients[entNum];

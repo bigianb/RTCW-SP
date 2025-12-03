@@ -97,8 +97,8 @@ AICharacterDefaults_t aiDefaults[NUM_CHARACTERS] = {
 		{WP_MP40,WP_GRENADE_LAUNCHER},      // starting weapons
 		BBOX_SMALL, {32,48},                // bbox, crouch/stand height
 		AIFL_CATCH_GRENADE | AIFL_STAND_IDLE2, // flags
-		NULL, NULL, NULL,                   // special attack routine
-		NULL,                               // looping sound
+		nullptr, nullptr, nullptr,                   // special attack routine
+		nullptr,                               // looping sound
 		AISTATE_RELAXED
 	},
 
@@ -145,8 +145,8 @@ AICharacterDefaults_t aiDefaults[NUM_CHARACTERS] = {
 		{WP_THOMPSON,WP_GRENADE_PINEAPPLE},
 		BBOX_SMALL, {32,48},
 		AIFL_CATCH_GRENADE | AIFL_STAND_IDLE2,
-		NULL, NULL, NULL,
-		NULL,
+		nullptr, nullptr, nullptr,
+		nullptr,
 		AISTATE_RELAXED
 	},
 
@@ -194,7 +194,7 @@ AICharacterDefaults_t aiDefaults[NUM_CHARACTERS] = {
 		BBOX_SMALL, {32,48},
 		/*AIFL_NOPAIN|AIFL_WALKFORWARD|*/ AIFL_NO_RELOAD,
 		AIFunc_ZombieFlameAttackStart, AIFunc_ZombieAttack2Start, AIFunc_ZombieMeleeStart,
-		NULL,
+		nullptr,
 		AISTATE_ALERT
 	},
 
@@ -244,8 +244,8 @@ AICharacterDefaults_t aiDefaults[NUM_CHARACTERS] = {
 		{WP_MONSTER_ATTACK1,WP_MONSTER_ATTACK2,WP_MONSTER_ATTACK3},
 		BBOX_SMALL, {10,48},    // very low defense position
 		AIFL_NO_RELOAD,
-		AIFunc_WarriorZombieMeleeStart, /*AIFunc_WarriorZombieSightStart*/ NULL, AIFunc_WarriorZombieDefenseStart,
-		NULL,
+		AIFunc_WarriorZombieMeleeStart, /*AIFunc_WarriorZombieSightStart*/ nullptr, AIFunc_WarriorZombieDefenseStart,
+		nullptr,
 		AISTATE_ALERT
 	},
 
@@ -292,8 +292,8 @@ AICharacterDefaults_t aiDefaults[NUM_CHARACTERS] = {
 		{WP_FLAMETHROWER},
 		BBOX_SMALL, {32,48},
 		AIFL_NO_FLAME_DAMAGE | AIFL_WALKFORWARD | AIFL_NO_RELOAD,   // |AIFL_NO_HEADSHOT_DMG,
-		NULL, NULL, NULL,
-		NULL,
+		nullptr, nullptr, nullptr,
+		nullptr,
 		AISTATE_RELAXED
 	},
 
@@ -341,7 +341,7 @@ AICharacterDefaults_t aiDefaults[NUM_CHARACTERS] = {
 		{ /*WP_MONSTER_ATTACK1,*/ WP_MONSTER_ATTACK2,WP_MONSTER_ATTACK3},
 		BBOX_LARGE, {32,32},        // large is for wide characters
 		AIFL_NO_RELOAD,
-		NULL /*AIFunc_LoperAttack1Start*/, AIFunc_LoperAttack2Start, AIFunc_LoperAttack3Start,
+		nullptr /*AIFunc_LoperAttack1Start*/, AIFunc_LoperAttack2Start, AIFunc_LoperAttack3Start,
 		"sound/world/electloop.wav",
 		AISTATE_ALERT
 	},
@@ -389,8 +389,8 @@ AICharacterDefaults_t aiDefaults[NUM_CHARACTERS] = {
 		{WP_SILENCER},      //----(SA)	TODO: replace w/ "silenced luger"
 		BBOX_SMALL, {32,48},
 		AIFL_CATCH_GRENADE | AIFL_STAND_IDLE2,
-		NULL, NULL, NULL,
-		NULL,
+		nullptr, nullptr, nullptr,
+		nullptr,
 		AISTATE_RELAXED
 	},
 
@@ -437,8 +437,8 @@ AICharacterDefaults_t aiDefaults[NUM_CHARACTERS] = {
 		{WP_MONSTER_ATTACK2},   // TODO: dual machinegun attack
 		BBOX_LARGE, {48,64},
 		AIFL_NO_RELOAD,
-		NULL, AIFunc_StimSoldierAttack2Start, NULL,
-		NULL,
+		nullptr, AIFunc_StimSoldierAttack2Start, nullptr,
+		nullptr,
 		AISTATE_ALERT
 	},
 
@@ -485,8 +485,8 @@ AICharacterDefaults_t aiDefaults[NUM_CHARACTERS] = {
 		{WP_MP40, WP_MONSTER_ATTACK1},  // attack1 is leaping rocket attack
 		BBOX_LARGE, {48,64},
 		AIFL_NO_RELOAD,
-		AIFunc_StimSoldierAttack1Start, NULL, NULL,
-		NULL,
+		AIFunc_StimSoldierAttack1Start, nullptr, nullptr,
+		nullptr,
 		AISTATE_ALERT
 	},
 
@@ -533,8 +533,8 @@ AICharacterDefaults_t aiDefaults[NUM_CHARACTERS] = {
 		{WP_MP40, WP_TESLA},    // no monster_attack1, since that's only used for the jumping rocket attack
 		BBOX_LARGE, {48,64},
 		AIFL_NO_RELOAD,
-		AIFunc_StimSoldierAttack1Start, NULL, NULL,
-		NULL,
+		AIFunc_StimSoldierAttack1Start, nullptr, nullptr,
+		nullptr,
 		AISTATE_ALERT
 	},
 
@@ -581,8 +581,8 @@ AICharacterDefaults_t aiDefaults[NUM_CHARACTERS] = {
 		{WP_VENOM},
 		BBOX_LARGE, {48,64},
 		AIFL_NO_RELOAD | AIFL_NO_FLAME_DAMAGE | AIFL_NO_TESLA_DAMAGE,
-		NULL, NULL, NULL,
-		NULL,
+		nullptr, nullptr, nullptr,
+		nullptr,
 		AISTATE_ALERT
 	},
 
@@ -630,8 +630,8 @@ AICharacterDefaults_t aiDefaults[NUM_CHARACTERS] = {
 		{WP_FG42, WP_FG42SCOPE, WP_GRENADE_LAUNCHER, WP_MONSTER_ATTACK1},   // attack1 is melee kick
 		BBOX_SMALL, {32,48},
 		AIFL_CATCH_GRENADE | AIFL_FLIP_ANIM | AIFL_STAND_IDLE2,
-		AIFunc_BlackGuardAttack1Start, NULL, NULL,
-		NULL,
+		AIFunc_BlackGuardAttack1Start, nullptr, nullptr,
+		nullptr,
 		AISTATE_RELAXED
 	},
 
@@ -678,8 +678,8 @@ AICharacterDefaults_t aiDefaults[NUM_CHARACTERS] = {
 		{WP_VENOM},
 		BBOX_LARGE, {48,64},
 		AIFL_NO_TESLA_DAMAGE | AIFL_NO_FLAME_DAMAGE | AIFL_WALKFORWARD | AIFL_NO_RELOAD,
-		NULL, NULL, NULL,
-		NULL,
+		nullptr, nullptr, nullptr,
+		nullptr,
 		AISTATE_ALERT
 	},
 
@@ -726,8 +726,8 @@ AICharacterDefaults_t aiDefaults[NUM_CHARACTERS] = {
 		{0},
 		BBOX_SMALL, {32,48},    // bbox, crouch/stand height
 		0,
-		NULL, NULL, NULL,
-		NULL,
+		nullptr, nullptr, nullptr,
+		nullptr,
 		AISTATE_RELAXED
 	},
 
@@ -774,8 +774,8 @@ AICharacterDefaults_t aiDefaults[NUM_CHARACTERS] = {
 		{WP_MONSTER_ATTACK1,WP_MONSTER_ATTACK2 /*,WP_MONSTER_ATTACK3*/}, // starting weapons
 		BBOX_LARGE, {90,90},                // bbox, crouch/stand height
 		AIFL_WALKFORWARD | AIFL_NO_RELOAD,
-		AIFunc_Helga_MeleeStart, AIFunc_Helga_SpiritAttack_Start, NULL,                     // special attack routine
-		NULL,
+		AIFunc_Helga_MeleeStart, AIFunc_Helga_SpiritAttack_Start, nullptr,                     // special attack routine
+		nullptr,
 		AISTATE_ALERT
 	},
 
@@ -823,7 +823,7 @@ AICharacterDefaults_t aiDefaults[NUM_CHARACTERS] = {
 		BBOX_LARGE, {72,72},    // (SA) height is not exact.  just eyeballed.
 		AIFL_NO_FLAME_DAMAGE | AIFL_WALKFORWARD | AIFL_NO_RELOAD,
 		AIFunc_Heinrich_MeleeStart, AIFunc_Heinrich_RaiseDeadStart, AIFunc_Heinrich_SpawnSpiritsStart,
-		NULL,
+		nullptr,
 		AISTATE_ALERT
 	},
 
@@ -870,8 +870,8 @@ AICharacterDefaults_t aiDefaults[NUM_CHARACTERS] = {
 		{WP_THOMPSON},
 		BBOX_SMALL, {32,48},
 		AIFL_CATCH_GRENADE | AIFL_STAND_IDLE2,
-		NULL, NULL, NULL,
-		NULL,
+		nullptr, nullptr, nullptr,
+		nullptr,
 		AISTATE_RELAXED
 	},
 
@@ -918,8 +918,8 @@ AICharacterDefaults_t aiDefaults[NUM_CHARACTERS] = {
 		{0},
 		BBOX_SMALL, {32,48},
 		AIFL_CATCH_GRENADE | AIFL_STAND_IDLE2,
-		NULL, NULL, NULL,
-		NULL,
+		nullptr, nullptr, nullptr,
+		nullptr,
 		AISTATE_RELAXED
 	},
 
@@ -946,7 +946,7 @@ AIChar_SetBBox
   since height isn't important for the AAS routing (whereas width is very important)
 ============
 */
-void AIChar_SetBBox( gentity_t *ent, cast_state_t *cs, bool useHeadTag ) {
+void AIChar_SetBBox( GameEntity *ent, cast_state_t *cs, bool useHeadTag ) {
 	vec3_t bbox[2];
 	trace_t tr;
 	orientation_t orientation;
@@ -1003,7 +1003,7 @@ void AIChar_SetBBox( gentity_t *ent, cast_state_t *cs, bool useHeadTag ) {
 AIChar_Death
 ============
 */
-void AIChar_Death( gentity_t *ent, gentity_t *attacker, int damage, int mod ) { //----(SA)	added mod
+void AIChar_Death( GameEntity *ent, GameEntity *attacker, int damage, int mod ) { //----(SA)	added mod
 	// need this check otherwise sound will overwrite gib message
 	if ( ent->health > GIB_HEALTH  ) {
 		if ( ent->client->ps.eFlags & EF_HEADSHOT ) {
@@ -1031,7 +1031,7 @@ void AIChar_Death( gentity_t *ent, gentity_t *attacker, int damage, int mod ) { 
 AIChar_GetPainLocation
 =============
 */
-int AIChar_GetPainLocation( gentity_t *ent, vec3_t point ) {
+int AIChar_GetPainLocation( GameEntity *ent, vec3_t point ) {
 	static const char *painTagNames[] = {
 		"tag_head",
 		"tag_chest",
@@ -1041,7 +1041,7 @@ int AIChar_GetPainLocation( gentity_t *ent, vec3_t point ) {
 		"tag_armleft",
 		"tag_legright",
 		"tag_legleft",
-		NULL,
+		nullptr,
 	};
 
 	int tagIndex, bestTag;
@@ -1077,7 +1077,7 @@ int AIChar_GetPainLocation( gentity_t *ent, vec3_t point ) {
 AIChar_Pain
 ============
 */
-void AIChar_Pain( gentity_t *ent, gentity_t *attacker, int damage, vec3_t point ) {
+void AIChar_Pain( GameEntity *ent, GameEntity *attacker, int damage, vec3_t point ) {
 	#define PAIN_THRESHOLD      25
 	#define STUNNED_THRESHOLD   30
 	cast_state_t    *cs;
@@ -1230,7 +1230,7 @@ void AIChar_Pain( gentity_t *ent, gentity_t *attacker, int damage, vec3_t point 
 AIChar_Sight
 ============
 */
-void AIChar_Sight( gentity_t *ent, gentity_t *other, int lastSight ) {
+void AIChar_Sight( GameEntity *ent, GameEntity *other, int lastSight ) {
 	cast_state_t    *cs;
 
 	cs = AICast_GetCastState( ent->shared.s.number );
@@ -1266,7 +1266,7 @@ AIChar_AttackSND
 */
 void AIChar_AttackSound( cast_state_t *cs ) {
 
-	gentity_t *ent;
+	GameEntity *ent;
 
 	ent = &g_entities [cs->entityNum];
 
@@ -1307,8 +1307,8 @@ void AIChar_AttackSound( cast_state_t *cs ) {
 AIChar_spawn
 ============
 */
-void AIChar_spawn( gentity_t *ent ) {
-	gentity_t       *newent;
+void AIChar_spawn( GameEntity *ent ) {
+	GameEntity       *newent;
 	cast_state_t    *cs;
 	AICharacterDefaults_t *aiCharDefaults;
 	int i;
@@ -1426,7 +1426,7 @@ void AIChar_spawn( gentity_t *ent ) {
 	if ( ent->aiTeam == AITEAM_ALLIES || ent->aiTeam == AITEAM_NEUTRAL ) { // friendly
 		cs->activate = AICast_ProcessActivate;
 	} else {
-		cs->activate = NULL;
+		cs->activate = nullptr;
 	}
 	cs->aifuncAttack1 = aiCharDefaults->aifuncAttack1;
 	cs->aifuncAttack2 = aiCharDefaults->aifuncAttack2;
@@ -1512,7 +1512,7 @@ model="models\mapobjects\characters\test\nazi.md3"
 SP_ai_soldier
 ============
 */
-void SP_ai_soldier( gentity_t *ent ) {
+void SP_ai_soldier( GameEntity *ent ) {
 	AICast_DelayedSpawnCast( ent, AICHAR_SOLDIER );
 }
 
@@ -1529,7 +1529,7 @@ american entity
 SP_ai_american
 ============
 */
-void SP_ai_american( gentity_t *ent ) {
+void SP_ai_american( GameEntity *ent ) {
 	AICast_DelayedSpawnCast( ent, AICHAR_AMERICAN );
 }
 
@@ -1546,7 +1546,7 @@ zombie entity
 SP_ai_zombie
 ============
 */
-void SP_ai_zombie( gentity_t *ent ) {
+void SP_ai_zombie( GameEntity *ent ) {
 	ent->shared.r.svFlags |= SVF_NOFOOTSTEPS;
 	AICast_DelayedSpawnCast( ent, AICHAR_ZOMBIE );
 }
@@ -1565,7 +1565,7 @@ warrior zombie entity
 SP_ai_warzombie
 ============
 */
-void SP_ai_warzombie( gentity_t *ent ) {
+void SP_ai_warzombie( GameEntity *ent ) {
 	AICast_DelayedSpawnCast( ent, AICHAR_WARZOMBIE );
 }
 
@@ -1583,7 +1583,7 @@ venom entity
 SP_ai_venom
 ============
 */
-void SP_ai_venom( gentity_t *ent ) {
+void SP_ai_venom( GameEntity *ent ) {
 	ent->shared.r.svFlags |= SVF_NOFOOTSTEPS;
 	AICast_DelayedSpawnCast( ent, AICHAR_VENOM );
 }
@@ -1602,7 +1602,7 @@ loper entity
 SP_ai_loper
 ============
 */
-void SP_ai_loper( gentity_t *ent ) {
+void SP_ai_loper( GameEntity *ent ) {
 	ent->shared.r.svFlags |= SVF_NOFOOTSTEPS;
 	AICast_DelayedSpawnCast( ent, AICHAR_LOPER );
 	//
@@ -1622,7 +1622,7 @@ helga entity
 SP_ai_boss_helga
 ============
 */
-void SP_ai_boss_helga( gentity_t *ent ) {
+void SP_ai_boss_helga( GameEntity *ent ) {
 	AICast_DelayedSpawnCast( ent, AICHAR_HELGA );
 }
 
@@ -1639,7 +1639,7 @@ heinrich entity
 SP_ai_boss_heinrich
 ============
 */
-void SP_ai_boss_heinrich( gentity_t *ent ) {
+void SP_ai_boss_heinrich( GameEntity *ent ) {
 	AICast_DelayedSpawnCast( ent, AICHAR_HEINRICH );
 }
 
@@ -1655,7 +1655,7 @@ void SP_ai_boss_heinrich( gentity_t *ent ) {
 SP_ai_partisan
 ============
 */
-void SP_ai_partisan( gentity_t *ent ) {
+void SP_ai_partisan( GameEntity *ent ) {
 	AICast_DelayedSpawnCast( ent, AICHAR_PARTISAN );
 }
 
@@ -1665,7 +1665,7 @@ void SP_ai_partisan( gentity_t *ent ) {
 "ainame" name of AI
 */
 
-void SP_ai_civilian( gentity_t *ent ) {
+void SP_ai_civilian( GameEntity *ent ) {
 	AICast_DelayedSpawnCast( ent, AICHAR_CIVILIAN );
 }
 
@@ -1676,7 +1676,7 @@ elite guard entity
 "ainame" name of AI
 */
 
-void SP_ai_eliteguard( gentity_t *ent ) {
+void SP_ai_eliteguard( GameEntity *ent ) {
 	AICast_DelayedSpawnCast( ent, AICHAR_ELITEGUARD );
 }
 
@@ -1694,7 +1694,7 @@ elite guard entity
 SP_ai_frogman
 ============
 */
-void SP_ai_frogman( gentity_t *ent ) {
+void SP_ai_frogman( GameEntity *ent ) {
 	ent->shared.r.svFlags |= SVF_NOFOOTSTEPS;
 	AICast_DelayedSpawnCast( ent, AICHAR_FROGMAN );
 }
@@ -1713,7 +1713,7 @@ stim soldier entity
 SP_ai_stimsoldier_dual
 ============
 */
-void SP_ai_stimsoldier_dual( gentity_t *ent ) {
+void SP_ai_stimsoldier_dual( GameEntity *ent ) {
 	AICast_DelayedSpawnCast( ent, AICHAR_STIMSOLDIER1 );
 	//
 	level.stimSoldierFlySound = G_SoundIndex( "sound/stimsoldier/flyloop.wav" );
@@ -1732,7 +1732,7 @@ stim soldier entity
 SP_ai_stimsoldier_rocket
 ============
 */
-void SP_ai_stimsoldier_rocket( gentity_t *ent ) {
+void SP_ai_stimsoldier_rocket( GameEntity *ent ) {
 	AICast_DelayedSpawnCast( ent, AICHAR_STIMSOLDIER2 );
 	//
 	level.stimSoldierFlySound = G_SoundIndex( "sound/stimsoldier/flyloop.wav" );
@@ -1751,7 +1751,7 @@ stim soldier entity
 SP_ai_stimsoldier_tesla
 ============
 */
-void SP_ai_stimsoldier_tesla( gentity_t *ent ) {
+void SP_ai_stimsoldier_tesla( GameEntity *ent ) {
 	AICast_DelayedSpawnCast( ent, AICHAR_STIMSOLDIER3 );
 	//
 	level.stimSoldierFlySound = G_SoundIndex( "sound/stimsoldier/flyloop.wav" );
@@ -1770,7 +1770,7 @@ supersoldier entity
 SP_ai_supersoldier
 ============
 */
-void SP_ai_supersoldier( gentity_t *ent ) {
+void SP_ai_supersoldier( GameEntity *ent ) {
 	AICast_DelayedSpawnCast( ent, AICHAR_SUPERSOLDIER );
 }
 
@@ -1787,7 +1787,7 @@ protosoldier entity
 SP_ai_protosoldier
 ============
 */
-void SP_ai_protosoldier( gentity_t *ent ) {
+void SP_ai_protosoldier( GameEntity *ent ) {
 	AICast_DelayedSpawnCast( ent, AICHAR_PROTOSOLDIER );
 }
 
@@ -1804,6 +1804,6 @@ black guard entity
 SP_ai_blackguard
 ============
 */
-void SP_ai_blackguard( gentity_t *ent ) {
+void SP_ai_blackguard( GameEntity *ent ) {
 	AICast_DelayedSpawnCast( ent, AICHAR_BLACKGUARD );
 }

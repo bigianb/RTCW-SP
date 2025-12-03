@@ -124,9 +124,9 @@ void Com_EndRedirect( void ) {
 		rd_flush( rd_buffer );
 	}
 
-	rd_buffer = NULL;
+	rd_buffer = nullptr;
 	rd_buffersize = 0;
-	rd_flush = NULL;
+	rd_flush = nullptr;
 }
 
 /*
@@ -396,7 +396,7 @@ bool Com_SafeMode( void ) {
 Com_StartupVariable
 
 Searches for command line parameters that are set commands.
-If match is not NULL, only that cvar will be looked for.
+If match is not nullptr, only that cvar will be looked for.
 That is necessary because cddir and basedir need to be set
 before the filesystem is started, but all other sets shouls
 be after execing the config and default.
@@ -525,7 +525,7 @@ char *Com_StringContains( char *str1, char *str2, int casesensitive ) {
 			return str1;
 		}
 	}
-	return NULL;
+	return nullptr;
 }
 
 /*
@@ -674,7 +674,7 @@ time_t Com_RealTime( qtime_t *qtime ) {
 	time_t t;
 	struct tm *tms;
 
-	t = time( NULL );
+	t = time( nullptr );
 	if ( !qtime ) {
 		return t;
 	}
@@ -773,7 +773,7 @@ static hunkblock_t *hunkblocks;
 static hunkUsed_t hunk_low, hunk_high;
 static hunkUsed_t  *hunk_permanent, *hunk_temp;
 
-static byte    *s_hunkData = NULL;
+static byte    *s_hunkData = nullptr;
 static int s_hunkTotal;
 
 static int s_zoneTotal;
@@ -1337,7 +1337,7 @@ void Com_Init( char *commandLine ) {
 	Cmd_Init();
 
 	// override anything from the config files with command line args
-	Com_StartupVariable( NULL );
+	Com_StartupVariable( nullptr );
 
 	// get the developer cvar set as early as possible
 	Com_StartupVariable( "developer" );
@@ -1364,7 +1364,7 @@ void Com_Init( char *commandLine ) {
 	Cbuf_Execute();
 
 	// override anything from the config files with command line args
-	Com_StartupVariable( NULL );
+	Com_StartupVariable( nullptr );
 
 	// allocate the stack based hunk allocator
 	Com_InitHunkMemory();

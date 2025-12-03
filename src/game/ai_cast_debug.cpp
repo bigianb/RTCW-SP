@@ -94,7 +94,7 @@ AICast_DebugFrame
 ==========
 */
 void AICast_DebugFrame( cast_state_t *cs ) {
-	gentity_t *ent;
+	GameEntity *ent;
 
 	if ( aicast_debug.integer ) {
 		ent = &g_entities[cs->entityNum];
@@ -147,15 +147,15 @@ void AICast_DBG_RouteTable_f( vec3_t org, char *param ) {
 AICast_DBG_Spawn_f
 ===============
 */
-void AICast_DBG_Spawn_f( gclient_t *client, char *cmd ) {
-	extern bool G_CallSpawn( gentity_t *ent );
-	gentity_t   *ent;
+void AICast_DBG_Spawn_f( GameClient *client, char *cmd ) {
+	extern bool G_CallSpawn( GameEntity *ent );
+	GameEntity   *ent;
 	vec3_t dir;
 
 	ent = G_Spawn();
 	ent->classname = (char *)G_Alloc( strlen( cmd ) + 1 );
 	strcpy( (char *)ent->classname, cmd );
-	AngleVectors( client->ps.viewangles, dir, NULL, NULL );
+	AngleVectors( client->ps.viewangles, dir, nullptr, nullptr );
 	VectorMA( client->ps.origin, 96, dir, ent->shared.s.origin );
 
 	if ( !G_CallSpawn( ent ) ) {
@@ -171,7 +171,7 @@ AICast_DBG_Cmd_f
 ===============
 */
 void AICast_DBG_Cmd_f( int clientNum ) {
-	gentity_t *ent;
+	GameEntity *ent;
 	char cmd[MAX_TOKEN_CHARS];
 
 	ent = g_entities + clientNum;

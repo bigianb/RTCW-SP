@@ -58,11 +58,11 @@ Parses deltas from the given base and adds the resulting entity
 to the current frame
 ==================
 */
-void CL_DeltaEntity( msg_t *msg, clSnapshot_t *frame, int newnum, entityState_t *old, bool unchanged )
+void CL_DeltaEntity( msg_t *msg, clSnapshot_t *frame, int newnum, EntityState *old, bool unchanged )
 {
 	// save the parsed entity state into the big circular buffer so
 	// it can be used as the source for a later delta
-	entityState_t* state = &cl.parseEntities[cl.parseEntitiesNum & ( MAX_PARSE_ENTITIES - 1 )];
+	EntityState* state = &cl.parseEntities[cl.parseEntitiesNum & ( MAX_PARSE_ENTITIES - 1 )];
 
 	if ( unchanged ) {
 		*state = *old;
@@ -92,7 +92,7 @@ void CL_ParsePacketEntities( msg_t *msg, clSnapshot_t *oldframe, clSnapshot_t *n
 
 	// delta from the entities present in oldframe
 	int oldindex = 0;
-	entityState_t* oldstate = NULL;
+	EntityState* oldstate = nullptr;
 	if ( !oldframe ) {
 		oldnum = 99999;
 	} else {
@@ -213,7 +213,7 @@ void CL_ParseSnapshot( msg_t *msg )
 	clSnapshot_t    *old;
 	if ( newSnap.deltaNum <= 0 ) {
 		newSnap.valid = true;      // uncompressed frame
-		old = NULL;
+		old = nullptr;
 
 	} else {
 		old = &cl.snapshots[newSnap.deltaNum & PACKET_MASK];
@@ -239,7 +239,7 @@ void CL_ParseSnapshot( msg_t *msg )
 	if ( old ) {
 		MSG_ReadDeltaPlayerstate( msg, &old->ps, &newSnap.ps );
 	} else {
-		MSG_ReadDeltaPlayerstate( msg, NULL, &newSnap.ps );
+		MSG_ReadDeltaPlayerstate( msg, nullptr, &newSnap.ps );
 	}
 
 	// read packet entities
@@ -358,9 +358,9 @@ void CL_ParseGamestate( msg_t *msg )
 				Com_Error( ERR_DROP, "Baseline number out of range: %i", newnum );
                 return;  // Keep linter happy. ERR_DROP does not return
 			}
-			entityState_t nullstate;
+			EntityState nullstate;
 			memset( &nullstate, 0, sizeof( nullstate ) );
-			entityState_t* es = &cl.entityBaselines[ newnum ];
+			EntityState* es = &cl.entityBaselines[ newnum ];
 			MSG_ReadDeltaEntity( msg, &nullstate, es, newnum );
 		} else {
 			Com_Error( ERR_DROP, "CL_ParseGamestate: bad command byte" );

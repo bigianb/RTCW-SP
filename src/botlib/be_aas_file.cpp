@@ -200,72 +200,72 @@ void AAS_DumpAASData( void ) {
 	if ( ( *aasworld ).bboxes ) {
 		FreeMemory( ( *aasworld ).bboxes );
 	}
-	( *aasworld ).bboxes = NULL;
+	( *aasworld ).bboxes = nullptr;
 	( *aasworld ).numvertexes = 0;
 	if ( ( *aasworld ).vertexes ) {
 		FreeMemory( ( *aasworld ).vertexes );
 	}
-	( *aasworld ).vertexes = NULL;
+	( *aasworld ).vertexes = nullptr;
 	( *aasworld ).numplanes = 0;
 	if ( ( *aasworld ).planes ) {
 		FreeMemory( ( *aasworld ).planes );
 	}
-	( *aasworld ).planes = NULL;
+	( *aasworld ).planes = nullptr;
 	( *aasworld ).numedges = 0;
 	if ( ( *aasworld ).edges ) {
 		FreeMemory( ( *aasworld ).edges );
 	}
-	( *aasworld ).edges = NULL;
+	( *aasworld ).edges = nullptr;
 	( *aasworld ).edgeindexsize = 0;
 	if ( ( *aasworld ).edgeindex ) {
 		FreeMemory( ( *aasworld ).edgeindex );
 	}
-	( *aasworld ).edgeindex = NULL;
+	( *aasworld ).edgeindex = nullptr;
 	( *aasworld ).numfaces = 0;
 	if ( ( *aasworld ).faces ) {
 		FreeMemory( ( *aasworld ).faces );
 	}
-	( *aasworld ).faces = NULL;
+	( *aasworld ).faces = nullptr;
 	( *aasworld ).faceindexsize = 0;
 	if ( ( *aasworld ).faceindex ) {
 		FreeMemory( ( *aasworld ).faceindex );
 	}
-	( *aasworld ).faceindex = NULL;
+	( *aasworld ).faceindex = nullptr;
 	( *aasworld ).numareas = 0;
 	if ( ( *aasworld ).areas ) {
 		FreeMemory( ( *aasworld ).areas );
 	}
-	( *aasworld ).areas = NULL;
+	( *aasworld ).areas = nullptr;
 	( *aasworld ).numareasettings = 0;
 	if ( ( *aasworld ).areasettings ) {
 		FreeMemory( ( *aasworld ).areasettings );
 	}
-	( *aasworld ).areasettings = NULL;
+	( *aasworld ).areasettings = nullptr;
 	( *aasworld ).reachabilitysize = 0;
 	if ( ( *aasworld ).reachability ) {
 		FreeMemory( ( *aasworld ).reachability );
 	}
-	( *aasworld ).reachability = NULL;
+	( *aasworld ).reachability = nullptr;
 	( *aasworld ).numnodes = 0;
 	if ( ( *aasworld ).nodes ) {
 		FreeMemory( ( *aasworld ).nodes );
 	}
-	( *aasworld ).nodes = NULL;
+	( *aasworld ).nodes = nullptr;
 	( *aasworld ).numportals = 0;
 	if ( ( *aasworld ).portals ) {
 		FreeMemory( ( *aasworld ).portals );
 	}
-	( *aasworld ).portals = NULL;
+	( *aasworld ).portals = nullptr;
 	( *aasworld ).numportals = 0;
 	if ( ( *aasworld ).portalindex ) {
 		FreeMemory( ( *aasworld ).portalindex );
 	}
-	( *aasworld ).portalindex = NULL;
+	( *aasworld ).portalindex = nullptr;
 	( *aasworld ).portalindexsize = 0;
 	if ( ( *aasworld ).clusters ) {
 		FreeMemory( ( *aasworld ).clusters );
 	}
-	( *aasworld ).clusters = NULL;
+	( *aasworld ).clusters = nullptr;
 	( *aasworld ).numclusters = 0;
 	//
 	( *aasworld ).loaded = false;
@@ -334,7 +334,7 @@ char *AAS_LoadAASLump( fileHandle_t fp, int offset, int length, int *lastoffset 
 	char *buf;
 	//
 	if ( !length ) {
-		return NULL;
+		return nullptr;
 	}
 	//seek to the data
 	if ( offset != *lastoffset ) {

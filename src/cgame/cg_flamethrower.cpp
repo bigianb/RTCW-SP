@@ -245,12 +245,12 @@ void CG_FireFlameChunks( centity_t *cent, vec3_t origin, vec3_t angles, float sp
 	// for any other character or in 3rd person view, use entity angles for friction
 	if ( cent->currentState.number != cg.snap->ps.clientNum || cg_thirdPerson.integer ) {
 		if ( flags & 1 ) { // use 'angles'
-			AngleVectors( angles, parentFwd, NULL, NULL );
+			AngleVectors( angles, parentFwd, nullptr, nullptr );
 		} else {
-			AngleVectors( cent->currentState.angles, parentFwd, NULL, NULL );
+			AngleVectors( cent->currentState.angles, parentFwd, nullptr, nullptr );
 		}
 	} else {
-		AngleVectors( angles, parentFwd, NULL, NULL );
+		AngleVectors( angles, parentFwd, nullptr, nullptr );
 	}
 
 	// tweak the speed of the flame
@@ -288,7 +288,7 @@ void CG_FireFlameChunks( centity_t *cent, vec3_t origin, vec3_t angles, float sp
 
 			CG_Trace( &trace, org, flameChunkMins, flameChunkMaxs, org, cent->currentState.number, MASK_SHOT );
 			if ( trace.startsolid && trace.entityNum >= cgs.maxclients ) {
-				centInfo->lastFlameChunk = NULL;
+				centInfo->lastFlameChunk = nullptr;
 				return;     // don't spawn inside a wall
 			}
 
@@ -377,12 +377,12 @@ void CG_FireFlameChunks( centity_t *cent, vec3_t origin, vec3_t angles, float sp
 
 		CG_Trace( &trace, org, flameChunkMins, flameChunkMaxs, org, cent->currentState.number, MASK_SHOT );
 		if ( trace.startsolid && trace.entityNum >= cgs.maxclients ) {
-			centInfo->lastFlameChunk = NULL;
+			centInfo->lastFlameChunk = nullptr;
 			return;     // don't spawn inside a wall
 		}
 
 		// just fire a single chunk to get us started
-		f = CG_SpawnFlameChunk( NULL );
+		f = CG_SpawnFlameChunk( nullptr );
 
 		if ( !f ) {
 			Com_Printf( "Out of flame chunks\n" );
@@ -471,8 +471,8 @@ void CG_ClearFlameChunks( void ) {
 	memset( centFlameInfo, 0, sizeof( centFlameInfo ) );
 
 	freeFlameChunks = flameChunks;
-	activeFlameChunks = NULL;
-	headFlameChunks = NULL;
+	activeFlameChunks = nullptr;
+	headFlameChunks = nullptr;
 
 	for ( i = 0 ; i < MAX_FLAME_CHUNKS ; i++ )
 	{
@@ -481,12 +481,12 @@ void CG_ClearFlameChunks( void ) {
 		if ( i > 0 ) {
 			flameChunks[i].prevGlobal = &flameChunks[i - 1];
 		} else {
-			flameChunks[i].prevGlobal = NULL;
+			flameChunks[i].prevGlobal = nullptr;
 		}
 
 		flameChunks[i].inuse = false;
 	}
-	flameChunks[MAX_FLAME_CHUNKS - 1].nextGlobal = NULL;
+	flameChunks[MAX_FLAME_CHUNKS - 1].nextGlobal = nullptr;
 
 	initFlameChunks = true;
 	numFlameChunksInuse = 0;
@@ -502,18 +502,18 @@ flameChunk_t *CG_SpawnFlameChunk( flameChunk_t *headFlameChunk ) {
 
 	if ( !freeFlameChunks ) {
 		//CG_ClearFlameChunks();
-		return NULL;
+		return nullptr;
 	}
 
 	if ( headFlameChunks && headFlameChunks->dead ) {
-		headFlameChunks = NULL;
+		headFlameChunks = nullptr;
 	}
 
 	// select the first free trail, and remove it from the list
 	f = freeFlameChunks;
 	freeFlameChunks = f->nextGlobal;
 	if ( freeFlameChunks ) {
-		freeFlameChunks->prevGlobal = NULL;
+		freeFlameChunks->prevGlobal = nullptr;
 	}
 
 	f->nextGlobal = activeFlameChunks;
@@ -521,7 +521,7 @@ flameChunk_t *CG_SpawnFlameChunk( flameChunk_t *headFlameChunk ) {
 		activeFlameChunks->prevGlobal = f;
 	}
 	activeFlameChunks = f;
-	f->prevGlobal = NULL;
+	f->prevGlobal = nullptr;
 	f->inuse = true;
 	f->dead = false;
 
@@ -531,7 +531,7 @@ flameChunk_t *CG_SpawnFlameChunk( flameChunk_t *headFlameChunk ) {
 		if ( headFlameChunk == headFlameChunks ) {
 			headFlameChunks = headFlameChunks->nextHead;
 			if ( headFlameChunks ) {
-				headFlameChunks->prevHead = NULL;
+				headFlameChunks->prevHead = nullptr;
 			}
 		} else {
 			if ( headFlameChunk->nextHead ) {
@@ -541,18 +541,18 @@ flameChunk_t *CG_SpawnFlameChunk( flameChunk_t *headFlameChunk ) {
 				headFlameChunk->prevHead->nextHead = headFlameChunk->nextHead;
 			}
 		}
-		headFlameChunk->prevHead = NULL;
-		headFlameChunk->nextHead = NULL;
+		headFlameChunk->prevHead = nullptr;
+		headFlameChunk->nextHead = nullptr;
 	}
 	// make us the headTrail
 	if ( headFlameChunks ) {
 		headFlameChunks->prevHead = f;
 	}
 	f->nextHead = headFlameChunks;
-	f->prevHead = NULL;
+	f->prevHead = nullptr;
 	headFlameChunks = f;
 
-	f->nextFlameChunk = headFlameChunk; // if headJunc is NULL, then we'll just be the end of the list
+	f->nextFlameChunk = headFlameChunk; // if headJunc is nullptr, then we'll just be the end of the list
 
 	numFlameChunksInuse++;
 
@@ -576,7 +576,7 @@ void CG_FreeFlameChunk( flameChunk_t *f ) {
 	// kill any juncs after us, so they aren't left hanging
 	if ( f->nextFlameChunk ) {
 		CG_FreeFlameChunk( f->nextFlameChunk );
-		f->nextFlameChunk = NULL;
+		f->nextFlameChunk = nullptr;
 	}
 
 	// make it non-active
@@ -602,11 +602,11 @@ void CG_FreeFlameChunk( flameChunk_t *f ) {
 	if ( f->prevHead ) {
 		f->prevHead->nextHead = f->nextHead;
 	}
-	f->nextHead = NULL;
-	f->prevHead = NULL;
+	f->nextHead = nullptr;
+	f->prevHead = nullptr;
 
 	// stick it in the free list
-	f->prevGlobal = NULL;
+	f->prevGlobal = nullptr;
 	f->nextGlobal = freeFlameChunks;
 	if ( freeFlameChunks ) {
 		freeFlameChunks->prevGlobal = f;
@@ -630,7 +630,7 @@ void CG_MergeFlameChunks( flameChunk_t *f1, flameChunk_t *f2 ) {
 	}
 
 	f1->nextFlameChunk = f2->nextFlameChunk;
-	f2->nextFlameChunk = NULL;
+	f2->nextFlameChunk = nullptr;
 
 	//VectorAdd( f1->velDir, f2->velDir, f1->velDir );
 	//VectorScale( f1->velDir, 0.5, f1->velDir );
@@ -830,7 +830,7 @@ void CG_FlameDamage( int owner, vec3_t org, float radius ) {
 	if ( ( centFlameInfo[cg.snap->ps.clientNum].lastDmgCheck < cg.time - 100 ) &&
 		 ( Distance( org, cg.snap->ps.origin ) < radius * ( cg.snap->ps.clientNum == owner ? 0.1 : 1.0 ) ) ) {
 		// trace to make sure it's not going through geometry
-		CG_Trace( &tr, org, NULL, NULL, cg.snap->ps.origin, -1, MASK_SHOT );
+		CG_Trace( &tr, org, nullptr, nullptr, cg.snap->ps.origin, -1, MASK_SHOT );
 		//
 		if ( tr.fraction == 1.0 || tr.entityNum == cg.snap->ps.clientNum ) {
 			centFlameInfo[cg.snap->ps.clientNum].lastDmgCheck = cg.time;
@@ -852,7 +852,7 @@ void CG_FlameDamage( int owner, vec3_t org, float radius ) {
 				 cent->currentValid &&  // is in the visible frame
 				 ( Distance( org, cent->lerpOrigin ) < radius ) ) {
 				// trace to make sure it's not going through geometry
-				CG_Trace( &tr, org, NULL, NULL, cent->lerpOrigin, -1, MASK_SHOT );
+				CG_Trace( &tr, org, nullptr, nullptr, cent->lerpOrigin, -1, MASK_SHOT );
 				//
 				if ( tr.fraction == 1.0 || tr.entityNum == cent->currentState.number ) {
 					centFlameInfo[i].lastDmgCheck = cg.time;
@@ -927,7 +927,7 @@ void CG_AddFlameSpriteToScene( flameChunk_t *f, float lifeFrac, float alpha ) {
 		if ( rotatingFlames ) {
 			vectoangles( cg.refdef.viewaxis[0], rotate_ang );
 			rotate_ang[ROLL] += ( rollAngleClamped = ( (int)( f->rollAngle ) / 90 ) * 90 );
-			AngleVectors( rotate_ang, NULL, rright, rup );
+			AngleVectors( rotate_ang, nullptr, rright, rup );
 		} else {
 			VectorCopy( vright, rright );
 			VectorCopy( vup, rup );
@@ -1028,7 +1028,7 @@ void CG_AddFlameSpriteToScene( flameChunk_t *f, float lifeFrac, float alpha ) {
 		if ( rotatingFlames ) {
 			vectoangles( cg.refdef.viewaxis[0], rotate_ang );
 			rotate_ang[ROLL] += f->rollAngle;
-			AngleVectors( rotate_ang, NULL, rright, rup );
+			AngleVectors( rotate_ang, nullptr, rright, rup );
 		} else {
 			VectorCopy( vright, rright );
 			VectorCopy( vup, rup );
@@ -1084,12 +1084,12 @@ void CG_AddFlameToScene( flameChunk_t *fHead ) {
 	float vdist, bdot;
 #define FLAME_SOUND_RANGE   1024.0
 
-	flameChunk_t *lastBlowChunk = NULL;
+	flameChunk_t *lastBlowChunk = nullptr;
 	bool isClientFlame;
 	bool firing;
 	int shader;
 
-	flameChunk_t *lastBlueChunk = NULL;
+	flameChunk_t *lastBlueChunk = nullptr;
 	bool skip = false, droppedTrail;
 	vec3_t v, lastDrawPos;
 
@@ -1130,7 +1130,7 @@ void CG_AddFlameToScene( flameChunk_t *fHead ) {
 		if ( f->nextFlameChunk && f->nextFlameChunk->dead ) {
 			// kill it
 			CG_FreeFlameChunk( f->nextFlameChunk );
-			f->nextFlameChunk = NULL;
+			f->nextFlameChunk = nullptr;
 		}
 
 		// draw this chunk
@@ -1516,7 +1516,7 @@ void CG_AddFlameChunks( void ) {
 	flameChunk_t *f, *fNext;
 	//int moveStep = 100; // TTimo: unused
 
-	//AngleVectors( cg.refdef.viewangles, NULL, vright, vup );
+	//AngleVectors( cg.refdef.viewangles, nullptr, vright, vup );
 	VectorCopy( cg.refdef.viewaxis[1], vright );
 	VectorCopy( cg.refdef.viewaxis[2], vup );
 
@@ -1555,7 +1555,7 @@ void CG_AddFlameChunks( void ) {
 		fNext = f->nextHead;        // in case it gets removed
 		if ( f->dead ) {
 			if ( centFlameInfo[f->ownerCent].lastFlameChunk == f ) {
-				centFlameInfo[f->ownerCent].lastFlameChunk = NULL;
+				centFlameInfo[f->ownerCent].lastFlameChunk = nullptr;
 				centFlameInfo[f->ownerCent].lastClientFrame = 0;
 			}
 			CG_FreeFlameChunk( f );
@@ -1573,7 +1573,7 @@ CG_UpdateFlamethrowerSounds
 */
 void CG_UpdateFlamethrowerSounds( void ) {
 	flameChunk_t *f, *trav;
-	//flameChunk_t *lastSoundFlameChunk=NULL; // TTimo: unused
+	//flameChunk_t *lastSoundFlameChunk=nullptr; // TTimo: unused
 	int i;
 	centity_t *cent;
 	#define MIN_BLOW_VOLUME     30

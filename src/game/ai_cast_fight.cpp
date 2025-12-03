@@ -63,7 +63,7 @@ AICast_StateChange
 =================
 */
 bool AICast_StateChange( cast_state_t *cs, aistateEnum_t newaistate ) {
-	gentity_t *ent;
+	GameEntity *ent;
 	int result, scriptIndex;
 	aistateEnum_t oldstate;
 
@@ -569,7 +569,7 @@ bool AICast_CheckAttack_real( cast_state_t *cs, int enemy, bool allowHitWorld ) 
 	float halfHeight;
 	int traceMask;
 	int fuzzyCount, i;
-	gentity_t *ent, *enemyEnt;
+	GameEntity *ent, *enemyEnt;
 	float dist;
 	int passEnt;
 	int weapnum;
@@ -636,8 +636,8 @@ bool AICast_CheckAttack_real( cast_state_t *cs, int enemy, bool allowHitWorld ) 
 		traceDist = AICast_WeaponRange( cs, weapnum );
 		switch ( weapnum ) {
 		case WP_GAUNTLET:
-			mins = NULL;
-			maxs = NULL;
+			mins = nullptr;
+			maxs = nullptr;
 			break;
 		case WP_DYNAMITE:
 		case WP_PANZERFAUST:
@@ -670,7 +670,7 @@ bool AICast_CheckAttack_real( cast_state_t *cs, int enemy, bool allowHitWorld ) 
 			}
 		}
 	} else {
-		gentity_t *mg42;
+		GameEntity *mg42;
 		// we are mounted on a weapon
 		mg42 = &g_entities[cs->mountedEntity];
 		VectorCopy( enemyEnt->shared.r.currentOrigin, start );
@@ -687,8 +687,8 @@ bool AICast_CheckAttack_real( cast_state_t *cs, int enemy, bool allowHitWorld ) 
 		SnapVector( start );
 
 		traceDist = 8192;
-		mins = NULL;
-		maxs = NULL;
+		mins = nullptr;
+		maxs = nullptr;
 		if ( mg42->mg42BaseEnt >= 0 ) {
 			passEnt = mg42->mg42BaseEnt;
 		} else {
@@ -778,7 +778,7 @@ AICast_CheckAttackAtPos
 ==================
 */
 bool AICast_CheckAttackAtPos( int entnum, int enemy, vec3_t pos, bool ducking, bool allowHitWorld ) {
-	gentity_t   *ent;
+	GameEntity   *ent;
 	vec3_t savepos;
 	int saveview;
 	bool rval;
@@ -884,7 +884,7 @@ AICast_GotEnoughAmmoForWeapon
 ==============
 */
 bool AICast_GotEnoughAmmoForWeapon( cast_state_t *cs, int weapon ) {
-	gentity_t *ent;
+	GameEntity *ent;
 	int ammo, clip;
 
 	ent = &g_entities[cs->entityNum];
@@ -915,7 +915,7 @@ AICast_WeaponUsable
 bool AICast_WeaponUsable( cast_state_t *cs, int weaponNum ) {
 	int delay, oldweap, hitclient;
 	float dist = -1;
-	gentity_t *ent, *grenade;
+	GameEntity *ent, *grenade;
 
 	if ( cs->enemyNum >= 0 ) {
 		dist = Distance( cs->bs->origin, g_entities[cs->enemyNum].shared.s.pos.trBase );
@@ -943,7 +943,7 @@ bool AICast_WeaponUsable( cast_state_t *cs, int weaponNum ) {
 			// make sure it's safe
 			CalcMuzzlePoints( ent, weaponNum );
 			grenade = weapon_grenadelauncher_fire( ent, weaponNum );
-			hitclient = AICast_SafeMissileFire( grenade, grenade->nextthink - level.time, cs->enemyNum, g_entities[cs->enemyNum].shared.s.pos.trBase, cs->entityNum, NULL );
+			hitclient = AICast_SafeMissileFire( grenade, grenade->nextthink - level.time, cs->enemyNum, g_entities[cs->enemyNum].shared.s.pos.trBase, cs->entityNum, nullptr );
 			G_FreeEntity( grenade );
 			if ( hitclient > -1 ) {
 				return true;
@@ -1339,7 +1339,7 @@ int AICast_WantsToTakeCover( cast_state_t *cs, bool attacking ) {
 	if ( cs->attributes[AGGRESSION] < 1.0 && attacking && ( cs->enemyNum >= 0 ) && ( g_entities[cs->enemyNum].client->ps.weapon ) && ( cs->attributes[TACTICAL] > 0.5 ) && ( cs->aiFlags & AIFL_ROLL_ANIM ) && ( VectorLength( cs->bs->cur_ps.velocity ) < 1 ) ) {
 		vec3_t aim, enemyVec;
 		// are they aiming at us?
-		AngleVectors( g_entities[cs->enemyNum].client->ps.viewangles, aim, NULL, NULL );
+		AngleVectors( g_entities[cs->enemyNum].client->ps.viewangles, aim, nullptr, nullptr );
 		VectorSubtract( cs->bs->origin, g_entities[cs->enemyNum].shared.r.currentOrigin, enemyVec );
 		VectorNormalize( enemyVec );
 		// if they are looking at us, we should avoid them
@@ -1749,7 +1749,7 @@ bool AICast_GetTakeCoverPos( cast_state_t *cs, int enemyNum, vec3_t enemyPos, ve
 
 		// do a more thorough check to see if the enemy can see us if we crouch
 		vec3_t omaxs;
-		gentity_t *ent;
+		GameEntity *ent;
 		bool visible;
 
 		ent = &g_entities[cs->entityNum];
@@ -1776,7 +1776,7 @@ bool AICast_GetTakeCoverPos( cast_state_t *cs, int enemyNum, vec3_t enemyPos, ve
 	if ( cs->dangerEntity == enemyNum && cs->dangerEntityValidTime > level.time ) {
 		if ( cs->dangerLastGetAvoid > level.time - 750 ) {
 			return true;
-		} else if ( AICast_GetAvoid( cs, NULL, cs->takeCoverPos, true, cs->dangerEntity ) ) {
+		} else if ( AICast_GetAvoid( cs, nullptr, cs->takeCoverPos, true, cs->dangerEntity ) ) {
 			cs->dangerLastGetAvoid = level.time;
 			return true;
 		}
@@ -1810,7 +1810,7 @@ AICast_RecordWeaponFire
   used for scripting, so we know when the weapon has been fired
 ===============
 */
-void AICast_RecordWeaponFire( gentity_t *ent ) {
+void AICast_RecordWeaponFire( GameEntity *ent ) {
 	cast_state_t *cs;
 	float range;
 
@@ -2042,10 +2042,10 @@ AICast_SafeMissileFire
   checks to see if firing the missile will be successful, neutral, or dangerous to us or a friendly
 ==============
 */
-int AICast_SafeMissileFire( gentity_t *ent, int duration, int enemyNum, vec3_t enemyPos, int selfNum, vec3_t endPos ) {
+int AICast_SafeMissileFire( GameEntity *ent, int duration, int enemyNum, vec3_t enemyPos, int selfNum, vec3_t endPos ) {
 	int rval;
 	vec3_t org;
-	gentity_t   *trav;
+	GameEntity   *trav;
 
 	if ( !G_PredictMissile( ent, duration, org, true ) ) {
 		// not point firing, since it won't explode
@@ -2100,10 +2100,10 @@ AICast_CheckDangerousEntity
   appropriately
 =============
 */
-void AICast_CheckDangerousEntity( gentity_t *ent, int dangerFlags, float dangerDist, float tacticalLevel, float aggressionLevel, bool hurtFriendly ) {
+void AICast_CheckDangerousEntity( GameEntity *ent, int dangerFlags, float dangerDist, float tacticalLevel, float aggressionLevel, bool hurtFriendly ) {
 	vec3_t org, fwd, vec;
 	cast_state_t *cs, *dcs;
-	gentity_t *trav;
+	GameEntity *trav;
 	int i, endTime;
 	float dist;
 	//
@@ -2119,13 +2119,13 @@ void AICast_CheckDangerousEntity( gentity_t *ent, int dangerFlags, float dangerD
 		VectorCopy( ent->shared.r.currentOrigin, org );
 	}
 	if ( dangerFlags & DANGER_CLIENTAIM ) {
-		AngleVectors( ent->client->ps.viewangles, fwd, NULL, NULL );
+		AngleVectors( ent->client->ps.viewangles, fwd, nullptr, nullptr );
 	}
 	//
 	if ( ent->client ) {
 		dcs = AICast_GetCastState( ent->shared.s.number );
 	} else {
-		dcs = NULL;
+		dcs = nullptr;
 	}
 	//
 	// see if this will hurt anyone
@@ -2224,8 +2224,8 @@ bool AICast_AllowFlameDamage( int entNum ) {
 AICast_ProcessBullet
 =============
 */
-void AICast_ProcessBullet( gentity_t *attacker, vec3_t start, vec3_t end ) {
-	gentity_t   *tent;
+void AICast_ProcessBullet( GameEntity *attacker, vec3_t start, vec3_t end ) {
+	GameEntity   *tent;
 	int i;
 	float dist;
 	vec3_t vProj, vDir, dir;
@@ -2300,7 +2300,7 @@ AICast_AudibleEvent
 void AICast_AudibleEvent( int srcnum, vec3_t pos, float range ) {
 	int i;
 	cast_state_t *cs, *scs = 0;
-	gentity_t *ent, *sent;
+	GameEntity *ent, *sent;
 	float adjustedRange, localDist;
 
 	if ( g_debugAudibleEvents.integer ) {

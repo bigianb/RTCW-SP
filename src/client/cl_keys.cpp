@@ -235,7 +235,7 @@ keyname_t keynames[] =
     {"PAD0_PADDLE4", K_PAD0_PADDLE4 },
     {"PAD0_TOUCHPAD", K_PAD0_TOUCHPAD },
 
-	{NULL,0}
+	{nullptr,0}
 };
 
 keyname_t keynames_f[] =    //french
@@ -358,7 +358,7 @@ keyname_t keynames_f[] =    //french
 
 	{"COMMAND", K_COMMAND},  //mac
 
-	{NULL,0}
+	{nullptr,0}
 };  //end french
 
 /*

@@ -293,38 +293,38 @@ so it can perform tab completion
 void CG_InitConsoleCommands()
 {
 	for (int i = 0 ; i < sizeof( commands ) / sizeof( commands[0] ) ; i++ ) {
-		Cmd_AddCommand( commands[i].cmd, NULL );
+		Cmd_AddCommand( commands[i].cmd, nullptr );
 	}
 
 	//
 	// the game server will interpret these commands, which will be automatically
 	// forwarded to the server after they are not recognized locally
 	//
-	Cmd_AddCommand( "kill", NULL );
-	Cmd_AddCommand( "say", NULL );
-	Cmd_AddCommand( "say_team", NULL );
+	Cmd_AddCommand( "kill", nullptr );
+	Cmd_AddCommand( "say", nullptr );
+	Cmd_AddCommand( "say_team", nullptr );
 
-	Cmd_AddCommand( "tell", NULL );
-	Cmd_AddCommand( "give", NULL );
-	Cmd_AddCommand( "god", NULL );
-	Cmd_AddCommand( "notarget", NULL );
-	Cmd_AddCommand( "noclip", NULL );
-	Cmd_AddCommand( "team", NULL );
-	Cmd_AddCommand( "follow", NULL );
-	Cmd_AddCommand( "levelshot", NULL );
-	Cmd_AddCommand( "addbot", NULL );
-	Cmd_AddCommand( "setviewpos", NULL );
-	Cmd_AddCommand( "callvote", NULL );
-	Cmd_AddCommand( "vote", NULL );
-	Cmd_AddCommand( "stats", NULL );
-	Cmd_AddCommand( "loaddeferred", NULL );        // spelling fixed (SA)
+	Cmd_AddCommand( "tell", nullptr );
+	Cmd_AddCommand( "give", nullptr );
+	Cmd_AddCommand( "god", nullptr );
+	Cmd_AddCommand( "notarget", nullptr );
+	Cmd_AddCommand( "noclip", nullptr );
+	Cmd_AddCommand( "team", nullptr );
+	Cmd_AddCommand( "follow", nullptr );
+	Cmd_AddCommand( "levelshot", nullptr );
+	Cmd_AddCommand( "addbot", nullptr );
+	Cmd_AddCommand( "setviewpos", nullptr );
+	Cmd_AddCommand( "callvote", nullptr );
+	Cmd_AddCommand( "vote", nullptr );
+	Cmd_AddCommand( "stats", nullptr );
+	Cmd_AddCommand( "loaddeferred", nullptr );        // spelling fixed (SA)
 
-	Cmd_AddCommand( "startCamera", NULL );
-	Cmd_AddCommand( "stopCamera", NULL );
-	Cmd_AddCommand( "setCameraOrigin", NULL );
+	Cmd_AddCommand( "startCamera", nullptr );
+	Cmd_AddCommand( "stopCamera", nullptr );
+	Cmd_AddCommand( "setCameraOrigin", nullptr );
 
 	// Rafael
-	Cmd_AddCommand( "nofatigue", NULL );
+	Cmd_AddCommand( "nofatigue", nullptr );
 
-	Cmd_AddCommand( "setspawnpt", NULL );          // NERVE - SMF
+	Cmd_AddCommand( "setspawnpt", nullptr );          // NERVE - SMF
 }

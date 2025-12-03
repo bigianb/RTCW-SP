@@ -92,15 +92,15 @@ PUSHMOVE
 ===============================================================================
 */
 
-void MatchTeam( gentity_t *teamLeader, int moverState, int time );
-void Reached_Train( gentity_t *ent );
-void Think_BeginMoving( gentity_t *ent );
-void Use_Func_Rotate( gentity_t * ent, gentity_t * other, gentity_t * activator );
-void Blocked_Door( gentity_t *ent, gentity_t *other );
-void Blocked_DoorRotate( gentity_t *ent, gentity_t *other );
+void MatchTeam( GameEntity *teamLeader, int moverState, int time );
+void Reached_Train( GameEntity *ent );
+void Think_BeginMoving( GameEntity *ent );
+void Use_Func_Rotate( GameEntity * ent, GameEntity * other, GameEntity * activator );
+void Blocked_Door( GameEntity *ent, GameEntity *other );
+void Blocked_DoorRotate( GameEntity *ent, GameEntity *other );
 
 typedef struct {
-	gentity_t   *ent;
+	GameEntity   *ent;
 	vec3_t origin;
 	vec3_t angles;
 	float deltayaw;
@@ -114,14 +114,14 @@ G_TestEntityPosition
 
 ============
 */
-gentity_t   *G_TestEntityPosition( gentity_t *ent ) {
+GameEntity   *G_TestEntityPosition( GameEntity *ent ) {
 	trace_t tr;
 	int mask;
 
 	if ( ent->clipmask ) {
 		if ( ent->shared.r.contents == CONTENTS_CORPSE ) {
 			// corpse aren't important
-			return NULL;
+			return nullptr;
 		} else {
 			mask = ent->clipmask;
 		}
@@ -140,7 +140,7 @@ gentity_t   *G_TestEntityPosition( gentity_t *ent ) {
 		return &g_entities[ tr.entityNum ];
 	}
 
-	return NULL;
+	return nullptr;
 }
 
 /*
@@ -149,7 +149,7 @@ G_TestEntityDropToFloor
 
 ============
 */
-void G_TestEntityDropToFloor( gentity_t *ent, float maxdrop ) {
+void G_TestEntityDropToFloor( GameEntity *ent, float maxdrop ) {
 	trace_t tr;
 	int mask;
 	vec3_t endpos;
@@ -184,7 +184,7 @@ G_TestEntityMoveTowardsPos
 
 ============
 */
-void G_TestEntityMoveTowardsPos( gentity_t *ent, vec3_t pos ) {
+void G_TestEntityMoveTowardsPos( GameEntity *ent, vec3_t pos ) {
 	trace_t tr;
 	int mask;
 
@@ -255,9 +255,9 @@ G_TryPushingEntity
 Returns false if the move is blocked
 ==================
 */
-bool    G_TryPushingEntity( gentity_t *check, gentity_t *pusher, vec3_t move, vec3_t amove ) {
+bool    G_TryPushingEntity( GameEntity *check, GameEntity *pusher, vec3_t move, vec3_t amove ) {
 	vec3_t org, org2, move2;
-	gentity_t   *block;
+	GameEntity   *block;
 	vec3_t matrix[3], transpose[3];
 	float x, fx, y, fy, z, fz;
 #define JITTER_INC  4
@@ -402,9 +402,9 @@ otherwise riders would continue to slide.
 If false is returned, *obstacle will be the blocking entity
 ============
 */
-bool G_MoverPush( gentity_t *pusher, vec3_t move, vec3_t amove, gentity_t **obstacle ) {
+bool G_MoverPush( GameEntity *pusher, vec3_t move, vec3_t amove, GameEntity **obstacle ) {
 	int i, e;
-	gentity_t   *check;
+	GameEntity   *check;
 	vec3_t mins, maxs;
 	pushed_t    *p;
 	int entityList[MAX_GENTITIES];
@@ -412,7 +412,7 @@ bool G_MoverPush( gentity_t *pusher, vec3_t move, vec3_t amove, gentity_t **obst
 	int listedEntities, moveEntities;
 	vec3_t totalMins, totalMaxs;
 
-	*obstacle = NULL;
+	*obstacle = nullptr;
 
 
 	// mins/maxs are the bounds at the destination
@@ -522,7 +522,7 @@ bool G_MoverPush( gentity_t *pusher, vec3_t move, vec3_t amove, gentity_t **obst
 
 		// bobbing entities are instant-kill and never get blocked
 		if ( pusher->shared.s.pos.trType == TR_SINE || pusher->shared.s.apos.trType == TR_SINE ) {
-			G_Damage( check, pusher, pusher, NULL, NULL, 99999, 0, MOD_CRUSH );
+			G_Damage( check, pusher, pusher, nullptr, nullptr, 99999, 0, MOD_CRUSH );
 			continue;
 		}
 
@@ -566,12 +566,12 @@ bool G_MoverPush( gentity_t *pusher, vec3_t move, vec3_t amove, gentity_t **obst
 G_MoverTeam
 =================
 */
-void G_MoverTeam( gentity_t *ent ) {
+void G_MoverTeam( GameEntity *ent ) {
 	vec3_t move, amove;
-	gentity_t   *part, *obstacle;
+	GameEntity   *part, *obstacle;
 	vec3_t origin, angles;
 
-	obstacle = NULL;
+	obstacle = nullptr;
 
 	// make sure all team slaves can move before commiting
 	// any moves or calling any think functions
@@ -641,7 +641,7 @@ G_RunMover
 
 ================
 */
-void G_RunMover( gentity_t *ent ) {
+void G_RunMover( GameEntity *ent ) {
 	// if not a team captain, don't do anything, because
 	// the captain will handle everything
 	if ( ent->flags & FL_TEAMSLAVE ) {
@@ -682,7 +682,7 @@ Pos1 is "at rest", pos2 is "activated"
 SetMoverState
 ===============
 */
-void SetMoverState( gentity_t *ent, moverState_t moverState, int time ) {
+void SetMoverState( GameEntity *ent, moverState_t moverState, int time ) {
 	vec3_t delta;
 	float f;
 	bool kicked = false, soft = false;
@@ -818,8 +818,8 @@ All entities in a mover team will move from pos1 to pos2
 in the same amount of time
 ================
 */
-void MatchTeam( gentity_t *teamLeader, int moverState, int time ) {
-	gentity_t       *slave;
+void MatchTeam( GameEntity *teamLeader, int moverState, int time ) {
+	GameEntity       *slave;
 
 	for ( slave = teamLeader ; slave ; slave = slave->teamchain ) {
 
@@ -840,8 +840,8 @@ MatchTeamReverseAngleOnSlaves
 
 the activator was blocking the door so reverse its direction
 */
-void MatchTeamReverseAngleOnSlaves( gentity_t *teamLeader, int moverState, int time ) {
-	gentity_t       *slave;
+void MatchTeamReverseAngleOnSlaves( GameEntity *teamLeader, int moverState, int time ) {
+	GameEntity       *slave;
 
 	for ( slave = teamLeader ; slave ; slave = slave->teamchain ) {
 		// reverse open dir for teamLeader and all slaves
@@ -864,7 +864,7 @@ void MatchTeamReverseAngleOnSlaves( gentity_t *teamLeader, int moverState, int t
 ReturnToPos1
 ================
 */
-void ReturnToPos1( gentity_t *ent ) {
+void ReturnToPos1( GameEntity *ent ) {
 	MatchTeam( ent, MOVER_2TO1, level.time );
 
 	// play starting sound
@@ -882,7 +882,7 @@ void ReturnToPos1( gentity_t *ent ) {
 ReturnToPos2
 ================
 */
-void ReturnToPos2( gentity_t *ent ) {
+void ReturnToPos2( GameEntity *ent ) {
 	MatchTeam( ent, MOVER_3TO2, level.time );
 
 	ent->shared.s.loopSound = 0;
@@ -898,7 +898,7 @@ void ReturnToPos2( gentity_t *ent ) {
 GotoPos3
 ================
 */
-void GotoPos3( gentity_t *ent ) {
+void GotoPos3( GameEntity *ent ) {
 	MatchTeam( ent, MOVER_2TO3, level.time );
 
 	ent->shared.s.loopSound = 0;
@@ -916,9 +916,9 @@ ReturnToPos1Rotate
 	closing
 ================
 */
-void ReturnToPos1Rotate( gentity_t *ent ) {
+void ReturnToPos1Rotate( GameEntity *ent ) {
 	bool inPVS = false;
-	gentity_t   *player;
+	GameEntity   *player;
 
 	MatchTeam( ent, MOVER_2TO1ROTATE, level.time );
 
@@ -946,7 +946,7 @@ void ReturnToPos1Rotate( gentity_t *ent ) {
 Reached_BinaryMover
 ================
 */
-void Reached_BinaryMover( gentity_t *ent ) {
+void Reached_BinaryMover( GameEntity *ent ) {
 	bool kicked = false, soft = false;
 	// stop the looping sound
 	ent->shared.s.loopSound = 0;
@@ -1048,7 +1048,7 @@ void Reached_BinaryMover( gentity_t *ent ) {
 		// to stop sound from being requested if not in pvs anoying bug
 		{
 			bool inPVS = false;
-			gentity_t *player;
+			GameEntity *player;
 
 			player = AICast_FindEntityForName( "player" );
 
@@ -1088,7 +1088,7 @@ void Reached_BinaryMover( gentity_t *ent ) {
 IsBinaryMoverBlocked
 ================
 */
-bool IsBinaryMoverBlocked( gentity_t *ent, gentity_t *other, gentity_t *activator ) {
+bool IsBinaryMoverBlocked( GameEntity *ent, GameEntity *other, GameEntity *activator ) {
 
 	vec3_t dir, angles;
 	vec3_t pos;
@@ -1126,7 +1126,7 @@ bool IsBinaryMoverBlocked( gentity_t *ent, gentity_t *other, gentity_t *activato
 			angles[ROLL] += ent->angle;
 		}
 
-		AngleVectors( angles, forward, NULL, NULL );
+		AngleVectors( angles, forward, nullptr, nullptr );
 		// VectorSubtract (other->shared.r.currentOrigin, pos, vec);
 
 		if ( is_relay ) {
@@ -1156,7 +1156,7 @@ bool IsBinaryMoverBlocked( gentity_t *ent, gentity_t *other, gentity_t *activato
 Reached_TrinaryMover
 ================
 */
-void Reached_TrinaryMover( gentity_t *ent ) {
+void Reached_TrinaryMover( GameEntity *ent ) {
 
 	// stop the looping sound
 	ent->shared.s.loopSound = ent->soundLoop;
@@ -1223,7 +1223,7 @@ void Reached_TrinaryMover( gentity_t *ent ) {
 Use_TrinaryMover
 ================
 */
-void Use_TrinaryMover( gentity_t *ent, gentity_t *other, gentity_t *activator ) {
+void Use_TrinaryMover( GameEntity *ent, GameEntity *other, GameEntity *activator ) {
 	int total;
 	int partial;
 	bool isblocked = false;
@@ -1361,7 +1361,7 @@ void Use_TrinaryMover( gentity_t *ent, gentity_t *other, gentity_t *activator ) 
 Use_BinaryMover
 ================
 */
-void Use_BinaryMover( gentity_t *ent, gentity_t *other, gentity_t *activator ) {
+void Use_BinaryMover( GameEntity *ent, GameEntity *other, GameEntity *activator ) {
 //	int		total;
 //	int		partial;
 	bool kicked = false, soft = false;
@@ -1539,7 +1539,7 @@ void Use_BinaryMover( gentity_t *ent, gentity_t *other, gentity_t *activator ) {
 
 	// only partway down before reversing
 	if ( ent->moverState == MOVER_2TO1 ) {
-		Blocked_Door( ent, NULL );
+		Blocked_Door( ent, nullptr );
 
 		if ( !nosound ) {
 			G_AddEvent( ent, EV_GENERAL_SOUND, ent->sound1to2 );
@@ -1549,7 +1549,7 @@ void Use_BinaryMover( gentity_t *ent, gentity_t *other, gentity_t *activator ) {
 
 	// only partway up before reversing
 	if ( ent->moverState == MOVER_1TO2 ) {
-		Blocked_Door( ent, NULL );
+		Blocked_Door( ent, nullptr );
 
 		if ( !nosound ) {
 			G_AddEvent( ent, EV_GENERAL_SOUND, ent->sound2to1 );
@@ -1559,7 +1559,7 @@ void Use_BinaryMover( gentity_t *ent, gentity_t *other, gentity_t *activator ) {
 
 	// only partway closed before reversing
 	if ( ent->moverState == MOVER_2TO1ROTATE ) {
-		Blocked_DoorRotate( ent, NULL );
+		Blocked_DoorRotate( ent, nullptr );
 
 		if ( !nosound ) {
 			G_AddEvent( ent, EV_GENERAL_SOUND, ent->sound1to2 );
@@ -1569,7 +1569,7 @@ void Use_BinaryMover( gentity_t *ent, gentity_t *other, gentity_t *activator ) {
 
 	// only partway open before reversing
 	if ( ent->moverState == MOVER_1TO2ROTATE ) {
-		Blocked_DoorRotate( ent, NULL );
+		Blocked_DoorRotate( ent, nullptr );
 
 		if ( !nosound ) {
 			if ( soft ) {
@@ -1592,7 +1592,7 @@ InitMover
 so the movement delta can be calculated
 ================
 */
-void InitMover( gentity_t *ent ) {
+void InitMover( GameEntity *ent ) {
 	vec3_t move;
 	float distance;
 	float light;
@@ -1642,7 +1642,7 @@ void InitMover( gentity_t *ent ) {
 		ent->reached = Reached_TrinaryMover;
 	} else if ( !Q_stricmp( ent->classname, "func_rotating" ) )       {
 		ent->use = Use_Func_Rotate;
-		ent->reached = NULL; // rotating can never reach
+		ent->reached = nullptr; // rotating can never reach
 	} else
 	{
 		ent->use = Use_BinaryMover;
@@ -1696,7 +1696,7 @@ InitMoverRotate
 so the movement delta can be calculated
 ================
 */
-void InitMoverRotate( gentity_t *ent ) {
+void InitMoverRotate( GameEntity *ent ) {
 	vec3_t move;
 	float distance;
 	float light;
@@ -1786,8 +1786,8 @@ targeted by another entity.
 Blocked_Door
 ================
 */
-void Blocked_Door( gentity_t *ent, gentity_t *other ) {
-	gentity_t *slave;
+void Blocked_Door( GameEntity *ent, GameEntity *other ) {
+	GameEntity *slave;
 	int time;
 
 	// remove anything other than a client
@@ -1797,7 +1797,7 @@ void Blocked_Door( gentity_t *ent, gentity_t *other ) {
 			if ( other->shared.s.eType == ET_MOVER ) {
 				if ( strstr( other->classname, "chair" ) ) {
 					// break crushed chairs
-					G_Damage( other, ent, ent, NULL, NULL, 99999, 0, MOD_CRUSH );   // Die!
+					G_Damage( other, ent, ent, nullptr, nullptr, 99999, 0, MOD_CRUSH );   // Die!
 					return;
 				}
 			}
@@ -1806,7 +1806,7 @@ void Blocked_Door( gentity_t *ent, gentity_t *other ) {
 		}
 
 		if ( ent->damage ) {
-			G_Damage( other, ent, ent, NULL, NULL, ent->damage, 0, MOD_CRUSH );
+			G_Damage( other, ent, ent, nullptr, nullptr, ent->damage, 0, MOD_CRUSH );
 		}
 	}
 
@@ -1836,7 +1836,7 @@ void Blocked_Door( gentity_t *ent, gentity_t *other ) {
 Touch_DoorTriggerSpectator
 ================
 */
-static void Touch_DoorTriggerSpectator( gentity_t *ent, gentity_t *other, trace_t *trace ) {
+static void Touch_DoorTriggerSpectator( GameEntity *ent, GameEntity *other, trace_t *trace ) {
 	int i, axis;
 	vec3_t origin, dir, angles;
 
@@ -1868,9 +1868,9 @@ Blocked_DoorRotate
 
 #define DOORPUSHBACK    16
 
-void Blocked_DoorRotate( gentity_t *ent, gentity_t *other ) {
+void Blocked_DoorRotate( GameEntity *ent, GameEntity *other ) {
 
-	gentity_t       *slave;
+	GameEntity       *slave;
 	int time;
 
 	// remove anything other than a client
@@ -1882,11 +1882,11 @@ void Blocked_DoorRotate( gentity_t *ent, gentity_t *other ) {
 		}
 
 		if ( other->health <= 0 ) {
-			G_Damage( other, ent, ent, NULL, NULL, 99999, 0, MOD_CRUSH );
+			G_Damage( other, ent, ent, nullptr, nullptr, 99999, 0, MOD_CRUSH );
 		}
 
 		if ( ent->damage ) {
-			G_Damage( other, ent, ent, NULL, NULL, ent->damage, 0, MOD_CRUSH );
+			G_Damage( other, ent, ent, nullptr, nullptr, ent->damage, 0, MOD_CRUSH );
 		}
 	}
 
@@ -1920,7 +1920,7 @@ void Blocked_DoorRotate( gentity_t *ent, gentity_t *other ) {
 Touch_DoorTrigger
 ================
 */
-void Touch_DoorTrigger( gentity_t *ent, gentity_t *other, trace_t *trace ) {
+void Touch_DoorTrigger( GameEntity *ent, GameEntity *other, trace_t *trace ) {
 	if ( ent->parent->moverState != MOVER_1TO2 )   {
 		Use_BinaryMover( ent->parent, ent, other );
 	}
@@ -1934,8 +1934,8 @@ All of the parts of a door have been spawned, so create
 a trigger that encloses all of them
 ======================
 */
-void Think_SpawnNewDoorTrigger( gentity_t *ent ) {
-	gentity_t       *other;
+void Think_SpawnNewDoorTrigger( GameEntity *ent ) {
+	GameEntity       *other;
 	vec3_t mins, maxs;
 	int i, best;
 
@@ -1975,7 +1975,7 @@ void Think_SpawnNewDoorTrigger( gentity_t *ent ) {
 	MatchTeam( ent, ent->moverState, level.time );
 }
 
-void Think_MatchTeam( gentity_t *ent ) {
+void Think_MatchTeam( GameEntity *ent ) {
 	MatchTeam( ent, ent->moverState, level.time );
 }
 
@@ -1989,14 +1989,14 @@ findNonAIBrushTargeter
 	(used now for checking which key to set for a door)
 ==============
 */
-bool findNonAIBrushTargeter( gentity_t *ent ) {
-	gentity_t *targeter = NULL;
+bool findNonAIBrushTargeter( GameEntity *ent ) {
+	GameEntity *targeter = nullptr;
 
 	if ( !( ent->targetname ) ) {
 		return false;
 	}
 
-	while ( ( targeter = G_Find( targeter, FOFS( target ), ent->targetname ) ) != NULL )
+	while ( ( targeter = G_Find( targeter, FOFS( target ), ent->targetname ) ) != nullptr )
 	{
 		if ( strcmp( targeter->classname,"trigger_aidoor" ) &&
 			 Q_stricmp( targeter->classname, "func_invisible_user" ) ) {
@@ -2013,8 +2013,8 @@ bool findNonAIBrushTargeter( gentity_t *ent ) {
 finishSpawningKeyedMover
 ==============
 */
-void finishSpawningKeyedMover( gentity_t *ent ) {
-	gentity_t       *slave;
+void finishSpawningKeyedMover( GameEntity *ent ) {
+	GameEntity       *slave;
 
 	// all ents should be spawned, so it's okay to check for special door triggers now
 
@@ -2074,7 +2074,7 @@ Door_reverse_sounds
 	This swaps the sounds around as well
 ==============
 */
-void Door_reverse_sounds( gentity_t *ent ) {
+void Door_reverse_sounds( GameEntity *ent ) {
 	int stemp;
 
 	stemp = ent->sound1to2;
@@ -2108,7 +2108,7 @@ DoorSetSounds
 	(used by SP_func_door() and SP_func_door_rotating() )
 ==============
 */
-void DoorSetSounds( gentity_t *ent, int doortype, bool isRotating ) {
+void DoorSetSounds( GameEntity *ent, int doortype, bool isRotating ) {
 	ent->sound1to2 = G_SoundIndex( va( "door%i_open", doortype ) );      // opening
 	ent->soundPos2 = G_SoundIndex( va( "door%i_endo", doortype ) );      // open
 	ent->sound2to1 = G_SoundIndex( va( "door%i_close", doortype ) ); // closing
@@ -2138,7 +2138,7 @@ G_TryDoor
 	regular rules of doors.
 ==============
 */
-void G_TryDoor( gentity_t *ent, gentity_t *other, gentity_t *activator ) {
+void G_TryDoor( GameEntity *ent, GameEntity *other, GameEntity *activator ) {
 	int soundrange = 0;
 	bool walking = false, locked = false;
 
@@ -2268,7 +2268,7 @@ and for rotating doors:
 	_kickedend.wav
 
 */
-void SP_func_door( gentity_t *ent ) {
+void SP_func_door( GameEntity *ent ) {
 	vec3_t abs_movedir;
 	float distance;
 	vec3_t size;
@@ -2385,7 +2385,7 @@ NOMONSTER   monsters will not trigger this door
 "light"     constantLight radius
 "health"    if set, the door must be shot open
 */
-void SP_func_secret( gentity_t *ent ) {
+void SP_func_secret( GameEntity *ent ) {
 	vec3_t abs_movedir;
 	vec3_t angles2;
 	float distance;
@@ -2499,7 +2499,7 @@ Touch_Plat
 Don't allow decent if a living player is on it
 ===============
 */
-void Touch_Plat( gentity_t *ent, gentity_t *other, trace_t *trace ) {
+void Touch_Plat( GameEntity *ent, GameEntity *other, trace_t *trace ) {
 	if ( !other->client || other->client->ps.stats[STAT_HEALTH] <= 0 ) {
 		return;
 	}
@@ -2517,7 +2517,7 @@ Touch_PlatCenterTrigger
 If the plat is at the bottom position, start it going up
 ===============
 */
-void Touch_PlatCenterTrigger( gentity_t *ent, gentity_t *other, trace_t *trace ) {
+void Touch_PlatCenterTrigger( GameEntity *ent, GameEntity *other, trace_t *trace ) {
 	if ( !other->client ) {
 		return;
 	}
@@ -2537,8 +2537,8 @@ Elevator cars require that the trigger extend through the entire low position,
 not just sit on top of it.
 ================
 */
-void SpawnPlatTrigger( gentity_t *ent ) {
-	gentity_t   *trigger;
+void SpawnPlatTrigger( GameEntity *ent ) {
+	GameEntity   *trigger;
 	vec3_t tmin, tmax;
 
 	// the middle trigger will be a thin trigger just
@@ -2583,7 +2583,7 @@ Plats are always drawn in the extended position so they will light correctly.
 "color"		constantLight color
 "light"		constantLight radius
 */
-void SP_func_plat( gentity_t *ent ) {
+void SP_func_plat( GameEntity *ent ) {
 	float lip, height;
 
 	ent->sound1to2 = ent->sound2to1 = G_SoundIndex( "sound/movers/plats/pt1_strt.wav" );
@@ -2641,7 +2641,7 @@ Touch_Button
 
 ===============
 */
-void Touch_Button( gentity_t *ent, gentity_t *other, trace_t *trace ) {
+void Touch_Button( GameEntity *ent, GameEntity *other, trace_t *trace ) {
 	if ( !other->client ) {
 		return;
 	}
@@ -2665,7 +2665,7 @@ When a button is touched, it moves some distance in the direction of it's angle,
 "color"		constantLight color
 "light"		constantLight radius
 */
-void SP_func_button( gentity_t *ent ) {
+void SP_func_button( GameEntity *ent ) {
 	vec3_t abs_movedir;
 	float distance;
 	vec3_t size;
@@ -2731,7 +2731,7 @@ Think_BeginMoving
 The wait time at a corner has completed, so start moving again
 ===============
 */
-void Think_BeginMoving( gentity_t *ent ) {
+void Think_BeginMoving( GameEntity *ent ) {
 	ent->shared.s.pos.trTime = level.time;
 	ent->shared.s.pos.trType = TR_LINEAR_STOP;
 }
@@ -2741,8 +2741,8 @@ void Think_BeginMoving( gentity_t *ent ) {
 Reached_Train
 ===============
 */
-void Reached_Train( gentity_t *ent ) {
-	gentity_t       *next;
+void Reached_Train( GameEntity *ent ) {
+	GameEntity       *next;
 	float speed;
 	vec3_t move;
 	float length;
@@ -2759,7 +2759,7 @@ void Reached_Train( gentity_t *ent ) {
 	}
 
 	// fire all other targets
-	G_UseTargets( next, NULL );
+	G_UseTargets( next, nullptr );
 
 	// set the new trajectory
 	ent->nextTrain = next->nextTrain;
@@ -2815,17 +2815,17 @@ Think_SetupTrainTargets
 Link all the corners together
 ===============
 */
-void Think_SetupTrainTargets( gentity_t *ent ) {
-	gentity_t       *path, *next, *start;
+void Think_SetupTrainTargets( GameEntity *ent ) {
+	GameEntity       *path, *next, *start;
 
-	ent->nextTrain = G_Find( NULL, FOFS( targetname ), ent->target );
+	ent->nextTrain = G_Find( nullptr, FOFS( targetname ), ent->target );
 	if ( !ent->nextTrain ) {
 		Com_Printf( "func_train at %s with an unfound target\n",
 				  vtos( ent->shared.r.absmin ) );
 		return;
 	}
 
-	start = NULL;
+	start = nullptr;
 
 	if ( ent->shared.s.eType == ET_BAT ) { // NOTE: this is odd.  it will never get hit.  remove?  what did it do?
 		for ( path = ent->nextTrain ; path != start ; path = next ) {
@@ -2843,7 +2843,7 @@ void Think_SetupTrainTargets( gentity_t *ent ) {
 			// find a path_corner among the targets
 			// there may also be other targets that get fired when the corner
 			// is reached
-			next = NULL;
+			next = nullptr;
 			do {
 				next = G_Find( next, FOFS( targetname ), path->target );
 				if ( !next ) {
@@ -2872,7 +2872,7 @@ void Think_SetupTrainTargets( gentity_t *ent ) {
 			// find a path_corner among the targets
 			// there may also be other targets that get fired when the corner
 			// is reached
-			next = NULL;
+			next = nullptr;
 			do {
 				next = G_Find( next, FOFS( targetname ), path->target );
 				if ( !next ) {
@@ -2933,7 +2933,7 @@ Target: next path corner and other targets to fire
 
 "count2" used only in conjunction with the truck_cam to control playing of gear changes
 */
-void SP_path_corner( gentity_t *self ) {
+void SP_path_corner( GameEntity *self ) {
 	if ( !self->targetname ) {
 		Com_Printf( "path_corner with no targetname at %s\n", vtos( self->shared.s.origin ) );
 		G_FreeEntity( self );
@@ -2960,7 +2960,7 @@ The train spawns at the first target it is pointing at.
 "color"		constantLight color
 "light"		constantLight radius
 */
-void SP_func_train( gentity_t *self ) {
+void SP_func_train( GameEntity *self ) {
 	VectorClear( self->shared.s.angles );
 
 	if ( self->spawnflags & TRAIN_BLOCK_STOPS ) {
@@ -3000,8 +3000,8 @@ void SP_func_train( gentity_t *self ) {
 /*QUAKED func_train_particles ( 0.3 0.1 0.8) ? START_ON TOGGLE
 health = default 16 bats
 */
-void Func_train_particles_reached( gentity_t *self ) {
-	gentity_t *tent;
+void Func_train_particles_reached( GameEntity *self ) {
+	GameEntity *tent;
 	vec3_t vec, ang;
 	vec3_t forward;
 
@@ -3018,7 +3018,7 @@ void Func_train_particles_reached( gentity_t *self ) {
 		VectorCopy( self->shared.r.currentOrigin, tent->shared.s.origin );
 		VectorSubtract( self->nextTrain->shared.s.origin, self->shared.r.currentOrigin, vec );
 		vectoangles( vec, ang );
-		AngleVectors( ang, forward, NULL, NULL );
+		AngleVectors( ang, forward, nullptr, nullptr );
 		VectorCopy( forward, tent->shared.s.angles );
 		self->count = 1;
 	} else
@@ -3028,7 +3028,7 @@ void Func_train_particles_reached( gentity_t *self ) {
 		VectorCopy( self->shared.r.currentOrigin, tent->shared.s.origin );
 		VectorSubtract( self->nextTrain->shared.s.origin, self->shared.r.currentOrigin, vec );
 		vectoangles( vec, ang );
-		AngleVectors( ang, forward, NULL, NULL );
+		AngleVectors( ang, forward, nullptr, nullptr );
 		VectorCopy( forward, tent->shared.s.angles );
 	}
 
@@ -3037,10 +3037,10 @@ void Func_train_particles_reached( gentity_t *self ) {
 
 }
 
-void SP_func_train_particles( gentity_t *self ) {
+void SP_func_train_particles( GameEntity *self ) {
 	SP_func_train( self );
 	self->reached = Func_train_particles_reached;
-	self->blocked = NULL;
+	self->blocked = nullptr;
 
 	self->damage = 0;
 
@@ -3063,10 +3063,10 @@ target = (used for end map) distance check from this entity to enable spawning i
 	"radius" distance from the target
 delay = (end map) wait in seconds this long after player steps outside, before spawning spirits
 */
-void FuncBatsReached( gentity_t *self ) {
+void FuncBatsReached( GameEntity *self ) {
 	if ( self->active == 2 ) {
 		self->nextthink = -1;
-		self->think = NULL;
+		self->think = nullptr;
 		return;
 	}
 
@@ -3086,8 +3086,8 @@ void FuncBatsReached( gentity_t *self ) {
 }
 
 // each bat calls this every server frame, so it moves towards it's ideal position
-void BatMoveThink( gentity_t *bat ) {
-	gentity_t *owner;
+void BatMoveThink( GameEntity *bat ) {
+	GameEntity *owner;
 	vec3_t goalpos, vec;
 	float speed, dist;
 	int i;
@@ -3119,7 +3119,7 @@ void BatMoveThink( gentity_t *bat ) {
 /*
 		// check for hurting someone
 		if (bat->damage < level.time) {
-			SV_Trace( &tr, bat->shared.r.currentOrigin, NULL, NULL, bat->shared.r.currentOrigin, bat->shared.s.number, CONTENTS_BODY );
+			SV_Trace( &tr, bat->shared.r.currentOrigin, nullptr, nullptr, bat->shared.r.currentOrigin, bat->shared.s.number, CONTENTS_BODY );
 			if (tr.startsolid && tr.entityNum < MAX_CLIENTS && !g_entities[tr.entityNum].aiCharacter) {
 				G_Damage( &g_entities[tr.entityNum], bat, bat, vec3_origin, bat->shared.r.currentOrigin, 1+rand()%3, DAMAGE_NO_KNOCKBACK, MOD_BAT );
 
@@ -3138,15 +3138,15 @@ void BatMoveThink( gentity_t *bat ) {
 	bat->nextthink = level.time + 50;
 }
 
-void BatDie( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int damage, int meansOfDeath ) {
+void BatDie( GameEntity *self, GameEntity *inflictor, GameEntity *attacker, int damage, int meansOfDeath ) {
 	G_AddEvent( self, EV_BATS_DEATH, 0 );
 	self->think = G_FreeEntity;
 	self->nextthink = level.time + 100;
 }
 
-void FuncBatsActivate( gentity_t *self, gentity_t * other, gentity_t * activator ) {
+void FuncBatsActivate( GameEntity *self, GameEntity * other, GameEntity * activator ) {
 	int i;
-	gentity_t *bat;
+	GameEntity *bat;
 	vec3_t vec;
 
 	if ( !self->active ) {
@@ -3170,8 +3170,8 @@ void FuncBatsActivate( gentity_t *self, gentity_t * other, gentity_t * activator
 			bat->shared.r.contents = 0; //CONTENTS_CORPSE;
 			bat->takedamage = false;
 			bat->health = 1;
-			bat->pain = NULL;
-			bat->die = NULL; //BatDie;
+			bat->pain = nullptr;
+			bat->die = nullptr; //BatDie;
 			//VectorSet( bat->shared.r.mins, -18, -18, -18 );
 			//VectorSet( bat->shared.r.maxs,  18,  18,  18 );
 
@@ -3187,7 +3187,7 @@ void FuncBatsActivate( gentity_t *self, gentity_t * other, gentity_t * activator
 		InitMover( self );  // start moving
 		FuncBatsReached( self );
 		self->reached = FuncBatsReached;
-		self->blocked = NULL;
+		self->blocked = nullptr;
 
 		// disable this to debug path
 		self->shared.r.svFlags |= SVF_NOCLIENT;
@@ -3200,9 +3200,9 @@ void FuncBatsActivate( gentity_t *self, gentity_t * other, gentity_t * activator
 	}
 }
 
-void FuncEndSpiritsThink( gentity_t *self ) {
+void FuncEndSpiritsThink( GameEntity *self ) {
 	vec3_t enemyPos;
-	gentity_t *cEnt, *heinrich;
+	GameEntity *cEnt, *heinrich;
 	//
 	self->nextthink = level.time + (int)( ( 1.5 + 2.0 * random() ) * ( self->wait * 1000 ) );
 	//
@@ -3231,7 +3231,7 @@ void FuncEndSpiritsThink( gentity_t *self ) {
 	//
 	// if the player is close enough, and outside arena, spawn a spirit
 	VectorCopy( g_entities[0].shared.s.pos.trBase, enemyPos );
-	cEnt = G_Find( NULL, FOFS( targetname ), self->target );
+	cEnt = G_Find( nullptr, FOFS( targetname ), self->target );
 	if ( !cEnt ) {
 		Com_Error( ERR_DROP, "couldnt find center marker for spirit spawner" );
         return; // keep the linter happy, ERR_DROP does not return
@@ -3255,7 +3255,7 @@ void FuncEndSpiritsThink( gentity_t *self ) {
 	}
 }
 
-void SP_func_bats( gentity_t *self ) {
+void SP_func_bats( GameEntity *self ) {
 	if ( !self->count ) {
 		self->count = 10;
 	}
@@ -3288,7 +3288,7 @@ void SP_func_bats( gentity_t *self ) {
 		self->shared.s.eType = ET_SPIRIT_SPAWNER;
 		self->shared.s.otherEntityNum2 = 0;    // HACK: point to the player
 		self->shared.s.time = (int)( self->delay * 1000 );
-		self->use = NULL;
+		self->use = nullptr;
 		self->botDelayBegin = false;
 		//
 		self->think = FuncEndSpiritsThink;
@@ -3307,7 +3307,7 @@ Think_BeginMoving_rotating
 The wait time at a corner has completed, so start moving again
 ===============
 */
-void Think_BeginMoving_rotating( gentity_t *ent ) {
+void Think_BeginMoving_rotating( GameEntity *ent ) {
 	ent->shared.s.pos.trTime = level.time;
 	ent->shared.s.pos.trType = TR_LINEAR_STOP;
 }
@@ -3317,8 +3317,8 @@ void Think_BeginMoving_rotating( gentity_t *ent ) {
 Reached_Train_rotating
 ===============
 */
-void Reached_Train_rotating( gentity_t *ent ) {
-	gentity_t       *next;
+void Reached_Train_rotating( GameEntity *ent ) {
+	GameEntity       *next;
 	float speed;
 	vec3_t move;
 	float length;
@@ -3331,7 +3331,7 @@ void Reached_Train_rotating( gentity_t *ent ) {
 	}
 
 	// fire all other targets
-	G_UseTargets( next, NULL );
+	G_UseTargets( next, nullptr );
 
 	// set the new trajectory
 	ent->nextTrain = next->nextTrain;
@@ -3433,11 +3433,11 @@ Think_SetupTrainTargets_rotating
 Link all the corners together
 ===============
 */
-void Think_SetupTrainTargets_rotating( gentity_t *ent ) {
-	gentity_t       *path, *next, *start;
+void Think_SetupTrainTargets_rotating( GameEntity *ent ) {
+	GameEntity       *path, *next, *start;
 
 
-	ent->nextTrain = G_Find( NULL, FOFS( targetname ), ent->target );
+	ent->nextTrain = G_Find( nullptr, FOFS( targetname ), ent->target );
 	if ( !ent->nextTrain ) {
 		Com_Printf( "func_train at %s with an unfound target\n",
 				  vtos( ent->shared.r.absmin ) );
@@ -3448,7 +3448,7 @@ void Think_SetupTrainTargets_rotating( gentity_t *ent ) {
 	VectorCopy( ent->shared.s.angles, ent->TargetAngles );
 	ent->TargetFlag = 1;
 
-	start = NULL;
+	start = nullptr;
 	for ( path = ent->nextTrain ; path != start ; path = next ) {
 		if ( !start ) {
 			start = path;
@@ -3463,7 +3463,7 @@ void Think_SetupTrainTargets_rotating( gentity_t *ent ) {
 		// find a path_corner among the targets
 		// there may also be other targets that get fired when the corner
 		// is reached
-		next = NULL;
+		next = nullptr;
 		do {
 			next = G_Find( next, FOFS( targetname ), path->target );
 			if ( !next ) {
@@ -3500,7 +3500,7 @@ rotate   angle change for X Y Z to next corner
 duration duration for angle change (overrides speed)
 */
 
-void SP_func_train_rotating( gentity_t *self ) {
+void SP_func_train_rotating( GameEntity *self ) {
 	VectorClear( self->shared.s.angles );
 
 	if ( self->spawnflags & TRAIN_BLOCK_STOPS ) {
@@ -3547,7 +3547,7 @@ Use_Static
 	toggle hide or show (including collisions) this entity
 ==============
 */
-void Use_Static( gentity_t *ent, gentity_t *other, gentity_t *activator ) {
+void Use_Static( GameEntity *ent, GameEntity *other, GameEntity *activator ) {
 	if ( ent->shared.r.linked ) {
 		SV_UnlinkEntity( &ent->shared );
 		// DISABLED since func_static will carve up AAS anyway, so blocking makes no sense
@@ -3563,7 +3563,7 @@ void Use_Static( gentity_t *ent, gentity_t *other, gentity_t *activator ) {
 	}
 }
 
-void Static_Pain( gentity_t *ent, gentity_t *attacker, int damage, vec3_t point ) {
+void Static_Pain( GameEntity *ent, GameEntity *attacker, int damage, vec3_t point ) {
 	vec3_t temp;
 
 	if ( ent->spawnflags & 4 ) {
@@ -3588,13 +3588,13 @@ void Static_Pain( gentity_t *ent, gentity_t *attacker, int damage, vec3_t point 
 	}
 
 	if ( level.time > ent->wait + ent->delay + rand() % 1000 + 500 ) {
-		G_UseTargets( ent, NULL );
+		G_UseTargets( ent, nullptr );
 		ent->wait = level.time;
 	}
 
 }
 
-void G_BlockThink( gentity_t *ent ) {
+void G_BlockThink( GameEntity *ent ) {
 	if ( ent->shared.r.linked ) {
 		G_SetAASBlockingEntity( ent, true );
 	} else {
@@ -3619,7 +3619,7 @@ void G_BlockThink( gentity_t *ent ) {
 
 */
 
-void SP_func_leaky( gentity_t *ent ) {
+void SP_func_leaky( GameEntity *ent ) {
 
 	if ( ent->model2 ) {
 		ent->shared.s.modelindex2 = G_ModelIndex( ent->model2 );
@@ -3688,7 +3688,7 @@ shard_metal = 2,
 shard_ceramic = 3,
 shard_pebbles = 4
 */
-void SP_func_static( gentity_t *ent ) {
+void SP_func_static( GameEntity *ent ) {
 	if ( ent->model2 ) {
 		ent->shared.s.modelindex2 = G_ModelIndex( ent->model2 );
 	}
@@ -3753,7 +3753,7 @@ The center of that brush will be the point around which it is rotated. It will r
 "light"		constantLight radius
 */
 
-void Use_Func_Rotate( gentity_t *ent, gentity_t *other, gentity_t *activator ) {
+void Use_Func_Rotate( GameEntity *ent, GameEntity *other, GameEntity *activator ) {
 	if ( ent->spawnflags & 4 ) {
 		ent->shared.s.apos.trDelta[2] = ent->speed;
 	} else if ( ent->spawnflags & 8 )   {
@@ -3769,7 +3769,7 @@ void Use_Func_Rotate( gentity_t *ent, gentity_t *other, gentity_t *activator ) {
 	SV_LinkEntity( &ent->shared );
 }
 
-void SP_func_rotating( gentity_t *ent ) {
+void SP_func_rotating( GameEntity *ent ) {
 	if ( !ent->speed ) {
 		ent->speed = 100;
 	}
@@ -3827,7 +3827,7 @@ Normally bobs on the Z axis
 "color"		constantLight color
 "light"		constantLight radius
 */
-void SP_func_bobbing( gentity_t *ent ) {
+void SP_func_bobbing( GameEntity *ent ) {
 	float height;
 	float phase;
 
@@ -3876,7 +3876,7 @@ Pendulum frequency is a physical constant based on the length of the beam and gr
 "color"		constantLight color
 "light"		constantLight radius
 */
-void SP_func_pendulum( gentity_t *ent ) {
+void SP_func_pendulum( GameEntity *ent ) {
 	float freq;
 	float length;
 	float phase;
@@ -3942,7 +3942,7 @@ FORCE		door opens even if blocked
 
 //
 //
-void SP_func_door_rotating( gentity_t *ent ) {
+void SP_func_door_rotating( GameEntity *ent ) {
 	int key, doortype;
 
 	G_SpawnInt( "type", "0", &doortype );
@@ -4055,8 +4055,8 @@ EFFECTS
 use_target_effect
 ==============
 */
-void use_target_effect( gentity_t *self, gentity_t *other, gentity_t *activator ) {
-	gentity_t   *tent;
+void use_target_effect( GameEntity *self, GameEntity *other, GameEntity *activator ) {
+	GameEntity   *tent;
 
 	tent = G_TempEntity( self->shared.r.currentOrigin, EV_EFFECT );
 	VectorCopy( self->shared.r.currentOrigin, tent->shared.s.origin );
@@ -4096,7 +4096,7 @@ void use_target_effect( gentity_t *self, gentity_t *other, gentity_t *activator 
 "dmg" defaults to 0.  damage radius blast when triggered
 "type" - if 'rubble' is specified, this is the model type ("glass", "wood", "metal", "gibs", "brick", "rock", "fabric") default is "wood"
 */
-void SP_target_effect( gentity_t *ent ) {
+void SP_target_effect( GameEntity *ent ) {
 	int mass;
 	const char    *type;
 
@@ -4148,7 +4148,7 @@ EXPLOSIVE
 ThrowDebris
 ==============
 */
-void ThrowDebris( gentity_t *self, char *modelname, float speed, vec3_t origin ) {
+void ThrowDebris( GameEntity *self, char *modelname, float speed, vec3_t origin ) {
 	// probably use le->leType = LE_FRAGMENT like brass and gibs
 }
 
@@ -4158,16 +4158,16 @@ ClearExplosive
 	nuke the original entity
 ==============
 */
-void ClearExplosive( gentity_t *self ) {
+void ClearExplosive( GameEntity *self ) {
 	// RF, AAS areas are now free
 	if ( !( self->spawnflags & 16 ) ) {
 		G_SetAASBlockingEntity( self, false );
 	}
 
-	self->die   = NULL;
-	self->pain  = NULL;
-	self->touch = NULL;
-	self->use   = NULL;
+	self->die   = nullptr;
+	self->pain  = nullptr;
+	self->touch = nullptr;
+	self->use   = nullptr;
 	self->nextthink = level.time + FRAMETIME;
 	self->think = G_FreeEntity;
 
@@ -4183,16 +4183,16 @@ func_explosive_explode
 	NOTE: the 'damage' passed in is ignored completely
 ==============
 */
-void func_explosive_explode( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int damage, int mod ) {
+void func_explosive_explode( GameEntity *self, GameEntity *inflictor, GameEntity *attacker, int damage, int mod ) {
 	vec3_t origin;
 	vec3_t size;
 	vec3_t dir = {0, 0, 1};
-	gentity_t   *tent = 0;
+	GameEntity   *tent = 0;
 	int timeToDeath;            //----(SA)	added
 
 	self->takedamage = false;          // don't allow anything try to hurt me now that i'm exploding
 
-	self->touch = NULL; //----(SA)	added
+	self->touch = nullptr; //----(SA)	added
 
 	if ( self->wait >= 0 ) {
 
@@ -4275,7 +4275,7 @@ void func_explosive_explode( gentity_t *self, gentity_t *inflictor, gentity_t *a
 func_explosive_touch
 ==============
 */
-void func_explosive_touch( gentity_t *self, gentity_t *other, trace_t *trace ) {
+void func_explosive_touch( GameEntity *self, GameEntity *other, trace_t *trace ) {
 //	func_explosive_explode(self, self, other, self->health, 0);
 	func_explosive_explode( self, self, other, self->damage, 0 );
 }
@@ -4286,7 +4286,7 @@ void func_explosive_touch( gentity_t *self, gentity_t *other, trace_t *trace ) {
 func_explosive_use
 ==============
 */
-void func_explosive_use( gentity_t *self, gentity_t *other, gentity_t *activator ) {
+void func_explosive_use( GameEntity *self, GameEntity *other, GameEntity *activator ) {
 //	func_explosive_explode (self, self, other, self->health, 0);
 	func_explosive_explode( self, self, other, self->damage, 0 );
 }
@@ -4296,7 +4296,7 @@ void func_explosive_use( gentity_t *self, gentity_t *other, gentity_t *activator
 func_explosive_alert
 ==============
 */
-void func_explosive_alert( gentity_t *self ) {
+void func_explosive_alert( GameEntity *self ) {
 	func_explosive_explode( self, self, self, self->damage, 0 );
 }
 
@@ -4305,7 +4305,7 @@ void func_explosive_alert( gentity_t *self ) {
 func_explosive_spawn
 ==============
 */
-void func_explosive_spawn( gentity_t *self, gentity_t *other, gentity_t *activator ) {
+void func_explosive_spawn( GameEntity *self, GameEntity *other, GameEntity *activator ) {
 	SV_LinkEntity( &self->shared );
 	self->use = func_explosive_use;
 	// turn the brush to visible
@@ -4325,7 +4325,7 @@ void func_explosive_spawn( gentity_t *self, gentity_t *other, gentity_t *activat
 InitExplosive
 ==============
 */
-void InitExplosive( gentity_t *ent ) {
+void InitExplosive( GameEntity *ent ) {
 	const char        *damage;
 
 	// if the "model2" key is set, use a seperate model
@@ -4406,7 +4406,7 @@ the default sounds are:
 /*
 "fxdensity" size of explosion 1 - 100 (default is 10)
 */
-void SP_func_explosive( gentity_t *ent ) {
+void SP_func_explosive( GameEntity *ent ) {
 	int health, mass, dam, i;
 	char buffer[MAX_QPATH];
 	const char    *s;
@@ -4428,7 +4428,7 @@ void SP_func_explosive( gentity_t *ent ) {
 	if ( ent->spawnflags & 2 ) {  // touchable
 		ent->touch = func_explosive_touch;
 	} else {
-		ent->touch = NULL;
+		ent->touch = nullptr;
 	}
 
 	if ( ( ent->spawnflags & 4 ) && ent->model && strlen( ent->model ) ) {   // use shader
@@ -4580,8 +4580,8 @@ they /don't/ need to be all uppercase
 	HINT_PLYR_UNKNOWN
 */
 
-void use_invisible_user( gentity_t *ent, gentity_t *other, gentity_t *activator ) {
-	gentity_t *player;
+void use_invisible_user( GameEntity *ent, GameEntity *other, GameEntity *activator ) {
+	GameEntity *player;
 
 	if ( ent->wait < level.time ) {
 		ent->wait = level.time + ent->delay;
@@ -4633,7 +4633,7 @@ void use_invisible_user( gentity_t *ent, gentity_t *other, gentity_t *activator 
 }
 
 
-void func_invisible_user( gentity_t *ent ) {
+void func_invisible_user( GameEntity *ent ) {
 	int i;
 	const char    *sound;
 	const char    *cursorhint;
@@ -4688,7 +4688,7 @@ G_Activate
   Generic activation routine for doors
 ==========
 */
-void G_Activate( gentity_t *ent, gentity_t *activator ) {
+void G_Activate( GameEntity *ent, GameEntity *activator ) {
 	if ( ( ent->shared.s.apos.trType == TR_STATIONARY && ent->shared.s.pos.trType == TR_STATIONARY )
 		 && !ent->active ) {
 		// trigger the ent if possible, if not, then we'll just wait at the marker until it opens, which could be never(!?)

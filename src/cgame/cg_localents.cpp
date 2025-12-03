@@ -459,7 +459,7 @@ void CG_AddFragment( localEntity_t *le ) {
 				alpha = 1.0 - ( (float)( cg.time - le->startTime ) / (float)( le->endTime - le->startTime ) );
 				alpha *= 0.25f;
 				memset( &flash, 0, sizeof( flash ) );
-				CG_PositionEntityOnTag( &flash, &le->refEntity, "tag_flash", 0, NULL );
+				CG_PositionEntityOnTag( &flash, &le->refEntity, "tag_flash", 0, nullptr );
 				CG_ParticleImpactSmokePuffExtended( cgs.media.smokeParticleShader, flash.origin, tv( 0,0,1 ), 8, 1000, 8, 20, 20, alpha );
 			}
 		}
@@ -523,7 +523,7 @@ void CG_AddFragment( localEntity_t *le ) {
 
 		VectorCopy( le->refEntity.origin, newOrigin );
 		newOrigin [2] -= 5;
-		CG_Trace( &trace, le->refEntity.origin, NULL, NULL, newOrigin, -1, CONTENTS_SOLID | CONTENTS_PLAYERCLIP | CONTENTS_MISSILECLIP );
+		CG_Trace( &trace, le->refEntity.origin, nullptr, nullptr, newOrigin, -1, CONTENTS_SOLID | CONTENTS_PLAYERCLIP | CONTENTS_MISSILECLIP );
 
 		if ( trace.fraction == 1.0 ) { // it's clear, start moving again
 			VectorClear( le->pos.trDelta );
@@ -555,9 +555,9 @@ void CG_AddFragment( localEntity_t *le ) {
 
 	// trace a line from previous position to new position
 	if ( ( le->leFlags & LEF_NOTOUCHPARENT ) && le->ownerNum ) {
-		CG_Trace( &trace, le->refEntity.origin, NULL, NULL, newOrigin, le->ownerNum, contents );
+		CG_Trace( &trace, le->refEntity.origin, nullptr, nullptr, newOrigin, le->ownerNum, contents );
 	} else {
-		CG_Trace( &trace, le->refEntity.origin, NULL, NULL, newOrigin, -1, contents );
+		CG_Trace( &trace, le->refEntity.origin, nullptr, nullptr, newOrigin, -1, contents );
 	}
 
 	// did we hit someone?
@@ -758,7 +758,7 @@ void CG_AddSparkElements( localEntity_t *le ) {
 //		if ((le->endTime - le->startTime) > 500) {
 
 		// trace a line from previous position to new position
-		CG_Trace( &trace, le->refEntity.origin, NULL, NULL, newOrigin, -1, MASK_SHOT );
+		CG_Trace( &trace, le->refEntity.origin, nullptr, nullptr, newOrigin, -1, MASK_SHOT );
 
 		// if stuck, kill it
 		if ( trace.startsolid ) {
@@ -874,7 +874,7 @@ void CG_AddBloodElements( localEntity_t *le ) {
 		BG_EvaluateTrajectory( &le->pos, cg.time, newOrigin );
 
 		// trace a line from previous position to new position
-		CG_Trace( &trace, le->refEntity.origin, NULL, NULL, newOrigin, -1, MASK_SHOT );
+		CG_Trace( &trace, le->refEntity.origin, nullptr, nullptr, newOrigin, -1, MASK_SHOT );
 
 		// if stuck, kill it
 		if ( trace.startsolid ) {
@@ -1010,7 +1010,7 @@ void CG_AddClientCritter( localEntity_t *le ) {
 		enemyDist = VectorNormalize( v );
 
 		// trace a line from previous position to new position
-		CG_Trace( &trace, le->refEntity.origin, NULL, NULL, newOrigin, le->ownerNum, MASK_SHOT );
+		CG_Trace( &trace, le->refEntity.origin, nullptr, nullptr, newOrigin, le->ownerNum, MASK_SHOT );
 
 		// if stuck, kill it
 		if ( trace.startsolid || ( trace.fraction < 1.0 ) ) {
@@ -1097,7 +1097,7 @@ void CG_AddClientCritter( localEntity_t *le ) {
 					fb->startTime = cg.time + 50;
 					fb->endTime = fb->startTime + SPIRIT_FLASH_FADEIN + SPIRIT_FLASH_DURATION + SPIRIT_FLASH_FADEOUT;
 					// gasp!
-					CG_SoundPlayIndexedScript( cgs.media.helgaGaspSound, NULL, cg_entities[le->ownerNum].currentState.otherEntityNum2 );
+					CG_SoundPlayIndexedScript( cgs.media.helgaGaspSound, nullptr, cg_entities[le->ownerNum].currentState.otherEntityNum2 );
 				}
 			}
 		}
@@ -1119,14 +1119,14 @@ void CG_AddClientCritter( localEntity_t *le ) {
 
 		// now trace ahead of time, if we're going to hit something, then avoid it
 		// only avoid dangers if we don't have direct sight to the enemy
-		CM_BoxTrace( &trace, le->refEntity.origin, enemyPos, NULL, NULL, 0, MASK_SOLID, false );
+		CM_BoxTrace( &trace, le->refEntity.origin, enemyPos, nullptr, nullptr, 0, MASK_SOLID, false );
 		if ( trace.fraction < 1.0 ) {
 			BG_EvaluateTrajectory( &le->pos, time + 1000, newOrigin );
 
 			// if we would go passed the enemy, don't bother
 			if ( VectorDistance( le->refEntity.origin, enemyPos ) > VectorDistance( le->refEntity.origin, newOrigin ) ) {
 
-				CM_BoxTrace( &trace, le->refEntity.origin, newOrigin, NULL, NULL, 0, MASK_SOLID, false );
+				CM_BoxTrace( &trace, le->refEntity.origin, newOrigin, nullptr, nullptr, 0, MASK_SOLID, false );
 
 				if ( trace.fraction < 1.0 ) {
 					// make sure we are not heading away from the enemy too much
@@ -1277,7 +1277,7 @@ void CG_AddDebrisElements( localEntity_t *le ) {
 		BG_EvaluateTrajectory( &le->pos, t, newOrigin );
 
 		// trace a line from previous position to new position
-		CG_Trace( &trace, le->refEntity.origin, NULL, NULL, newOrigin, -1, MASK_SHOT );
+		CG_Trace( &trace, le->refEntity.origin, nullptr, nullptr, newOrigin, -1, MASK_SHOT );
 
 		// if stuck, kill it
 		if ( trace.startsolid ) {
@@ -1391,7 +1391,7 @@ void CG_AddShrapnel( localEntity_t *le ) {
 	BG_EvaluateTrajectory( &le->pos, cg.time, newOrigin );
 
 	// trace a line from previous position to new position
-	CG_Trace( &trace, le->refEntity.origin, NULL, NULL, newOrigin, -1, CONTENTS_SOLID );
+	CG_Trace( &trace, le->refEntity.origin, nullptr, nullptr, newOrigin, -1, CONTENTS_SOLID );
 	if ( trace.fraction == 1.0 ) {
 		// still in free fall
 		VectorCopy( newOrigin, le->refEntity.origin );

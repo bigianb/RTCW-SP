@@ -74,7 +74,7 @@ typedef enum {
 } bufferMemType_t;
 
 int imageBufferSize[BUFFER_MAX_TYPES] = {0,0,0};
-void        *imageBufferPtr[BUFFER_MAX_TYPES] = {NULL,NULL,NULL};
+void        *imageBufferPtr[BUFFER_MAX_TYPES] = {nullptr,nullptr,nullptr};
 
 void *R_GetImageBuffer( int size, bufferMemType_t bufferType ) {
 	if ( imageBufferSize[bufferType] < R_IMAGE_BUFFER_SIZE && size <= imageBufferSize[bufferType] ) {
@@ -100,7 +100,7 @@ void R_FreeImageBuffer( void ) {
 		}
 		free( imageBufferPtr[bufferType] );
 		imageBufferSize[bufferType] = 0;
-		imageBufferPtr[bufferType] = NULL;
+		imageBufferPtr[bufferType] = nullptr;
 	}
 }
 
@@ -611,8 +611,8 @@ static void Upload32(   unsigned *data,
 						bool noCompress ) {
 	int samples;
 	int scaled_width, scaled_height;
-	unsigned    *scaledBuffer = NULL;
-	unsigned    *resampledBuffer = NULL;
+	unsigned    *scaledBuffer = nullptr;
+	unsigned    *resampledBuffer = nullptr;
 	int i, c;
 	byte        *scan;
 	GLenum internalFormat = GL_RGB;
@@ -881,7 +881,7 @@ image_t *R_CreateImageExt( const char *name, const byte *pic, int width, int hei
 
 	if ( strlen( name ) >= MAX_QPATH ) {
 		ri.Error( ERR_DROP, "R_CreateImage: \"%s\" is too long\n", name );
-        return NULL; // keep the linter happy, ERR_DROP does not return
+        return nullptr; // keep the linter happy, ERR_DROP does not return
 	}
 	if ( !strncmp( name, "*lightmap", 9 ) ) {
 		isLightmap = true;
@@ -902,7 +902,7 @@ image_t *R_CreateImageExt( const char *name, const byte *pic, int width, int hei
 
 	if ( tr.numImages == MAX_DRAWIMAGES ) {
 		ri.Error( ERR_DROP, "R_CreateImage: MAX_DRAWIMAGES hit\n" );
-        return NULL; // keep the linter happy, ERR_DROP does not return
+        return nullptr; // keep the linter happy, ERR_DROP does not return
 	}
 
 	// Ridah
@@ -1014,7 +1014,7 @@ static void LoadBMP( const char *name, byte **pic, int *width, int *height ) {
 	BMPHeader_t bmpHeader;
 	byte        *bmpRGBA;
 
-	*pic = NULL;
+	*pic = nullptr;
 
 	//
 	// load the file
@@ -1182,8 +1182,8 @@ static void LoadPCX( const char *filename, byte **pic, byte **palette, int *widt
 	byte    *out, *pix;
 	int xmax, ymax;
 
-	*pic = NULL;
-	*palette = NULL;
+	*pic = nullptr;
+	*palette = nullptr;
 
 	//
 	// load the file
@@ -1253,7 +1253,7 @@ static void LoadPCX( const char *filename, byte **pic, byte **palette, int *widt
 	if ( raw - (byte *)pcx > len ) {
 		ri.Printf( PRINT_DEVELOPER, "PCX file %s was malformed", filename );
 		free( *pic );
-		*pic = NULL;
+		*pic = nullptr;
 	}
 
 	ri.FS_FreeFile( pcx );
@@ -1273,7 +1273,7 @@ static void LoadPCX32( const char *filename, byte **pic, int *width, int *height
 
 	LoadPCX( filename, &pic8, &palette, width, height );
 	if ( !pic8 ) {
-		*pic = NULL;
+		*pic = nullptr;
 		return;
 	}
 
@@ -1314,7 +1314,7 @@ void LoadTGA( const char *name, byte **pic, int *width, int *height ) {
 	TargaHeader targa_header;
 	byte        *targa_rgba;
 
-	*pic = NULL;
+	*pic = nullptr;
 
 	//
 	// load the file
@@ -1628,7 +1628,7 @@ Loads any of the supported image types into a cannonical
 void R_LoadImage( const char *name, byte **pic, int *width, int *height ) {
 	int len;
 
-	*pic = NULL;
+	*pic = nullptr;
 	*width = 0;
 	*height = 0;
 
@@ -1664,7 +1664,7 @@ void R_LoadImage( const char *name, byte **pic, int *width, int *height ) {
 R_FindImageFile
 
 Finds or loads the given image.
-Returns NULL if it fails, not a default image.
+Returns nullptr if it fails, not a default image.
 ==============
 */
 
@@ -1676,7 +1676,7 @@ image_t *R_FindImageFileExt( const char *name, bool mipmap, bool allowPicmip, bo
 	long hash;
 
 	if ( !name ) {
-		return NULL;
+		return nullptr;
 	}
 
 	hash = generateHashValue( name );
@@ -1721,7 +1721,7 @@ image_t *R_FindImageFileExt( const char *name, bool mipmap, bool allowPicmip, bo
 	// load the pic from disk
 	//
 	R_LoadImage( name, &pic, &width, &height );
-	if ( pic == NULL ) {                                    // if we dont get a successful load
+	if ( pic == nullptr ) {                                    // if we dont get a successful load
 // RF, no need to check uppercase on win32 systems
 // TTimo: Duane changed to _DEBUG in all cases
 // I'd still want that code in the release builds on linux
@@ -1737,13 +1737,13 @@ image_t *R_FindImageFileExt( const char *name, bool mipmap, bool allowPicmip, bo
 		altname[len - 1] = toupper( altname[len - 1] );   //
 		ri.Printf( PRINT_DEVELOPER, "trying %s...", altname );
 		R_LoadImage( altname, &pic, &width, &height );      //
-		if ( pic == NULL ) {                              // if that fails
+		if ( pic == nullptr ) {                              // if that fails
 			ri.Printf( PRINT_DEVELOPER, "no\n" );
-			return NULL;                                  // bail
+			return nullptr;                                  // bail
 		}
 		ri.Printf( PRINT_DEVELOPER, "yes\n" );
 #else
-		return NULL;
+		return nullptr;
 #endif
 	}
 
@@ -2127,7 +2127,7 @@ static const char *CommaParse( char **data_p ) {
 
 	// make sure incoming data is valid
 	if ( !data ) {
-		*data_p = NULL;
+		*data_p = nullptr;
 		return com_token;
 	}
 
@@ -3124,7 +3124,7 @@ bool R_TouchImage( image_t *inImage ) {
 	name = inImage->imgName;
 
 	bImage = backupHashTable[hash];
-	bImagePrev = NULL;
+	bImagePrev = nullptr;
 	while ( bImage ) {
 
 		if ( bImage == inImage ) {
@@ -3167,7 +3167,7 @@ R_PurgeImage
 */
 void R_PurgeImage( image_t *image ) {
 
-	texnumImages[image->texnum - 1024] = NULL;
+	texnumImages[image->texnum - 1024] = nullptr;
 
 	qglDeleteTextures( 1, &image->texnum );
 
@@ -3273,22 +3273,22 @@ image_t *R_FindCachedImage( const char *name, int hash ) {
 	image_t *bImage, *bImagePrev;
 
 	if ( !r_cacheShaders->integer ) {
-		return NULL;
+		return nullptr;
 	}
 
 	if ( !numBackupImages ) {
-		return NULL;
+		return nullptr;
 	}
 
 	bImage = backupHashTable[hash];
-	bImagePrev = NULL;
+	bImagePrev = nullptr;
 	while ( bImage ) {
 
 		if ( !Q_stricmp( name, bImage->imgName ) ) {
 			// add it to the current images
 			if ( tr.numImages == MAX_DRAWIMAGES ) {
 				ri.Error( ERR_DROP, "R_CreateImage: MAX_DRAWIMAGES hit\n" );
-                return NULL; // keep the linter happy, ERR_DROP does not return
+                return nullptr; // keep the linter happy, ERR_DROP does not return
 			}
 
 			R_TouchImage( bImage );
@@ -3299,7 +3299,7 @@ image_t *R_FindCachedImage( const char *name, int hash ) {
 		bImage = bImage->next;
 	}
 
-	return NULL;
+	return nullptr;
 }
 
 /*
@@ -3365,7 +3365,7 @@ void R_LoadCacheImages( void ) {
 		return;
 	}
 
-	len = FS_ReadFile( "image.cache", NULL );
+	len = FS_ReadFile( "image.cache", nullptr );
 
 	if ( len <= 0 ) {
 		return;

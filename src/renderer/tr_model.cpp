@@ -69,7 +69,7 @@ model_t *R_AllocModel( void ) {
 	model_t     *mod;
 
 	if ( tr.numModels == MAX_MOD_KNOWN ) {
-		return NULL;
+		return nullptr;
 	}
 
 	mod = (model_t *)ri.Hunk_Alloc( sizeof( *tr.models[tr.numModels] ), h_low );
@@ -103,7 +103,7 @@ qhandle_t RE_RegisterModel( const char *name ) {
 
 	if ( !name || !name[0] ) {
 		// Ridah, disabled this, we can see models that can't be found because they won't be there
-		//ri.Printf( PRINT_ALL, "RE_RegisterModel: NULL name\n" );
+		//ri.Printf( PRINT_ALL, "RE_RegisterModel: nullptr name\n" );
 		return 0;
 	}
 
@@ -132,7 +132,7 @@ qhandle_t RE_RegisterModel( const char *name ) {
 
 	// allocate a new model_t
 
-	if ( ( mod = R_AllocModel() ) == NULL ) {
+	if ( ( mod = R_AllocModel() ) == nullptr ) {
 		ri.Printf( PRINT_WARNING, "RE_RegisterModel: R_AllocModel() failed for '%s'\n", name );
 		return 0;
 	}
@@ -234,7 +234,7 @@ qhandle_t RE_RegisterModel( const char *name ) {
 				FS_WriteFile( filename, mod->mdc[lod], mod->mdc[lod]->ofsEnd );
 				// if building, open the file so it gets copied
 				if ( r_buildScript->integer ) {
-					FS_ReadFile( filename, NULL );
+					FS_ReadFile( filename, nullptr );
 				}
 			}
 		} else {
@@ -684,7 +684,7 @@ static bool R_MDC_ConvertMD3( model_t *mod, int lod, const char *mod_name ) {
 
 	// kill the md3 memory
 	ri.Hunk_FreeTempMemory( md3 );
-	mod->md3[lod] = NULL;
+	mod->md3[lod] = nullptr;
 
 	return true;
 }
@@ -1315,7 +1315,7 @@ R_ModelInit
 void R_ModelInit( void ) {
 	model_t     *mod;
 
-	// leave a space for NULL model
+	// leave a space for nullptr model
 	tr.numModels = 0;
 
 	mod = R_AllocModel();
@@ -1382,7 +1382,7 @@ static int R_GetTag( byte *mod, int frame, const char *tagName, int startTagInde
 	}
 
 	if ( startTagIndex > md3->numTags ) {
-		*outTag = NULL;
+		*outTag = nullptr;
 		return -1;
 	}
 
@@ -1401,7 +1401,7 @@ static int R_GetTag( byte *mod, int frame, const char *tagName, int startTagInde
 		}
 	}
 
-	*outTag = NULL;
+	*outTag = nullptr;
 	return -1;
 }
 
@@ -1424,7 +1424,7 @@ static int R_GetMDCTag( byte *mod, int frame, const char *tagName, int startTagI
 	}
 
 	if ( startTagIndex > mdc->numTags ) {
-		*outTag = NULL;
+		*outTag = nullptr;
 		return -1;
 	}
 
@@ -1436,7 +1436,7 @@ static int R_GetMDCTag( byte *mod, int frame, const char *tagName, int startTagI
 	}
 
 	if ( i >= mdc->numTags ) {
-		*outTag = NULL;
+		*outTag = nullptr;
 		return -1;
 	}
 
@@ -1460,7 +1460,7 @@ static int R_GetMDSTag( byte *mod, const char *tagName, int startTagIndex, mdsTa
 	mds = (mdsHeader_t *) mod;
 
 	if (startTagIndex > mds->numTags) {
-		*outTag = NULL;
+		*outTag = nullptr;
 		return -1;
 	}
 
@@ -1474,7 +1474,7 @@ static int R_GetMDSTag( byte *mod, const char *tagName, int startTagIndex, mdsTa
 	}
 
 	if (i >= mds->numTags) {
-		*outTag = NULL;
+		*outTag = nullptr;
 		return -1;
 	}
 
@@ -1565,8 +1565,8 @@ int R_LerpTag( orientation_t *tag, const refEntity_t *refent, const char *tagNam
 			start = &ustart;
 			end = &uend;
 		} else {
-			start = NULL;
-			end = NULL;
+			start = nullptr;
+			end = nullptr;
 		}
 
 	}
@@ -1685,7 +1685,7 @@ void R_ModelBounds( qhandle_t handle, vec3_t mins, vec3_t maxs ) {
 // GOAL: reserve a big chunk of virtual memory for the media cache, and only
 // use it when we actually need it. This will make sure the swap file grows
 // at startup if needed, rather than each allocation we make.
-byte    *membase = NULL;
+byte    *membase = nullptr;
 int hunkmaxsize;
 int hunkcursize;        //DAJ renamed from cursize
 
@@ -1698,7 +1698,7 @@ void *R_Hunk_Begin( void ) {
 	//Com_Printf("R_Hunk_Begin\n");
 
 	if ( !r_cache->integer ) {
-		return NULL;
+		return nullptr;
 	}
 
 	// reserve a huge chunk of memory, but don't commit any yet
@@ -1710,7 +1710,7 @@ void *R_Hunk_Begin( void ) {
 	// this will "reserve" a chunk of memory for use by this application
 	// it will not be "committed" just yet, but the swap file will grow
 	// now if needed
-	membase = VirtualAlloc( NULL, maxsize, MEM_RESERVE, PAGE_NOACCESS );
+	membase = VirtualAlloc( nullptr, maxsize, MEM_RESERVE, PAGE_NOACCESS );
 
 #elif defined( __MACOS__ )
 
@@ -1735,7 +1735,7 @@ void *R_Hunk_Begin( void ) {
 
 	if ( !membase ) {
 		ri.Error( ERR_DROP, "R_Hunk_Begin: reserve failed" );
-        return NULL; // keep the linter happy, ERR_DROP does not return
+        return nullptr; // keep the linter happy, ERR_DROP does not return
 	}
 
 	return (void *)membase;
@@ -1757,20 +1757,20 @@ void *R_Hunk_Alloc( int size ) {
 	buf = VirtualAlloc( membase, hunkcursize + size, MEM_COMMIT, PAGE_READWRITE );
 
 	if ( !buf ) {
-		FormatMessage( FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM, NULL, GetLastError(), MAKELANGID( LANG_NEUTRAL, SUBLANG_DEFAULT ), (LPTSTR) &buf, 0, NULL );
+		FormatMessage( FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM, nullptr, GetLastError(), MAKELANGID( LANG_NEUTRAL, SUBLANG_DEFAULT ), (LPTSTR) &buf, 0, nullptr );
 		ri.Error( ERR_DROP, "VirtualAlloc commit failed.\n%s", buf );
 	}
 
 #elif defined( __MACOS__ )
 
-	return NULL;    //DAJ
+	return nullptr;    //DAJ
 
 #endif
 
 	hunkcursize += size;
 	if ( hunkcursize > hunkmaxsize ) {
 		ri.Error( ERR_DROP, "R_Hunk_Alloc overflow" );
-        return NULL; // keep the linter happy, ERR_DROP does not return
+        return nullptr; // keep the linter happy, ERR_DROP does not return
 	}
 
 	return ( void * )( membase + hunkcursize - size );
@@ -1794,7 +1794,7 @@ void R_Hunk_End( void ) {
 #endif
 	}
 
-	membase = NULL;
+	membase = nullptr;
 }
 
 void R_Hunk_Reset( void ) {
@@ -2107,7 +2107,7 @@ void R_LoadCacheModels( void ) {
 		return;
 	}
 
-	len = FS_ReadFile( "model.cache", NULL );
+	len = FS_ReadFile( "model.cache", nullptr );
 
 	if ( len <= 0 ) {
 		return;
