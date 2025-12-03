@@ -89,7 +89,7 @@ If you have questions concerning this license or the applicable additional terms
 //=============================================================
 
 
-typedef unsigned char byte;
+typedef unsigned char uint8_t;
 
 #define EQUAL_EPSILON   0.001
 
@@ -549,7 +549,7 @@ typedef struct {
 	idVec2 st;
 	idVec3 normal;
 	idVec3 tangents[2];
-	byte smoothing[4];              // colors for silhouette smoothing
+	uint8_t smoothing[4];              // colors for silhouette smoothing
 } iddrawVert_t;
 
 typedef struct {

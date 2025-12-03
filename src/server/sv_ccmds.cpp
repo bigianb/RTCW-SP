@@ -62,7 +62,7 @@ static void SV_Map_f( void ) {
 	if ( strstr( map, ".svg" ) ) {
 		// open the savegame, read the mapname, and copy it to the map string
 		char savemap[MAX_QPATH];
-		byte *buffer;
+		uint8_t *buffer;
 
 		if ( !( strstr( map, "save/" ) == map ) ) {
 			snprintf( savemap, sizeof( savemap ), "save/%s", map );
@@ -223,7 +223,7 @@ static void SV_MapRestart_f( void ) {
 	if ( Cvar_VariableIntegerValue( "savegame_loading" ) ) {
 		// open the current savegame, and find out what the time is, everything else we can ignore
 		const char *savemap = "save/current.svg";
-		byte *buffer;
+		uint8_t *buffer;
 		int size, savegameTime;
 
 		size = FS_ReadFile( savemap, nullptr );
@@ -317,7 +317,7 @@ SV_LoadGame_f
 */
 void    SV_LoadGame_f( void ) {
 	char filename[MAX_QPATH], mapname[MAX_QPATH];
-	byte *buffer;
+	uint8_t *buffer;
 	int size;
 
 	// dont allow command if another loadgame is pending
@@ -457,7 +457,7 @@ void SV_AddOperatorCommands( void ) {
 	Cmd_AddCommand( "systeminfo", SV_Systeminfo_f );
 
 	Cmd_AddCommand( "map_restart", SV_MapRestart_f );
-	Cmd_AddCommand( "sectorlist", SV_SectorList_f );
+
 	Cmd_AddCommand( "spmap", SV_Map_f );
 
 	Cmd_AddCommand( "map", SV_Map_f );

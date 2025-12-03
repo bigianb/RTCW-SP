@@ -3230,7 +3230,7 @@ R_LoadCacheShaders
 */
 void R_LoadCacheShaders( void ) {
 
-	byte *buf;
+	uint8_t *buf;
 	const char    *token, *pString;
 	char name[MAX_QPATH];
 
@@ -3249,7 +3249,7 @@ void R_LoadCacheShaders( void ) {
 		return;
 	}
 
-	buf = (byte *)Hunk_AllocateTempMemory( len );
+	buf = (uint8_t *)Hunk_AllocateTempMemory( len );
 	FS_ReadFile( "shader.cache", (void **)&buf );
 	pString = (char*)buf;   //DAJ added (char*)
 

@@ -35,13 +35,13 @@ botlib_export_t *botlib_export;
 
 sharedEntity_t *SV_GentityNum( size_t num )
 {
-	sharedEntity_t* ent = ( sharedEntity_t * )( (byte *)sv.gentities + sv.gentitySize * ( num ) );
+	sharedEntity_t* ent = ( sharedEntity_t * )( (uint8_t *)sv.gentities + sv.gentitySize * ( num ) );
 	return ent;
 }
 
 PlayerState *SV_GameClientNum( int num )
 {
-	PlayerState* ps = ( PlayerState * )( (byte *)sv.gameClients + sv.gameClientSize * ( num ) );
+	PlayerState* ps = ( PlayerState * )( (uint8_t *)sv.gameClients + sv.gameClientSize * ( num ) );
 	return ps;
 }
 
@@ -142,7 +142,7 @@ bool SV_inPVS( const vec3_t p1, const vec3_t p2 )
 	int leafnum = CM_PointLeafnum( p1 );
 	int cluster = CM_LeafCluster( leafnum );
 	int area1 = CM_LeafArea( leafnum );
-	byte* mask = CM_ClusterPVS( cluster );
+	uint8_t* mask = CM_ClusterPVS( cluster );
 
 	leafnum = CM_PointLeafnum( p2 );
 	cluster = CM_LeafCluster( leafnum );
@@ -169,7 +169,7 @@ bool SV_inPVSIgnorePortals( const vec3_t p1, const vec3_t p2 )
 	int leafnum = CM_PointLeafnum( p1 );
 	int cluster = CM_LeafCluster( leafnum );
 	int area1 = CM_LeafArea( leafnum );
-	byte* mask = CM_ClusterPVS( cluster );
+	uint8_t* mask = CM_ClusterPVS( cluster );
 
 	leafnum = CM_PointLeafnum( p2 );
 	cluster = CM_LeafCluster( leafnum );

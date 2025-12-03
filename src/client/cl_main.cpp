@@ -845,8 +845,8 @@ void CL_ServersResponsePacket( netadr_t from, msg_t *msg )
 
 	// parse through server response string
 	int numservers = 0;
-	byte* buffptr    = msg->data;
-	byte* buffend    = buffptr + msg->cursize;
+	uint8_t* buffptr    = msg->data;
+	uint8_t* buffend    = buffptr + msg->cursize;
 	while ( buffptr + 1 < buffend ) {
 		// advance to initial token
 		do {

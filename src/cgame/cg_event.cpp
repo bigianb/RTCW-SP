@@ -286,7 +286,7 @@ void CG_PainEvent( centity_t *cent, int health, bool crouching ) {
 					continue;
 				}
 				// grab the tag with this name
-				if ( CG_GetOriginForTag( cent, ( refEntity_t * )( ( (byte *)&cent->pe ) + tagAnims[tagIndex].refEntOfs ), tagAnims[tagIndex].tag, 0, tagOrg, nullptr ) >= 0 ) {
+				if ( CG_GetOriginForTag( cent, ( refEntity_t * )( ( (uint8_t *)&cent->pe ) + tagAnims[tagIndex].refEntOfs ), tagAnims[tagIndex].tag, 0, tagOrg, nullptr ) >= 0 ) {
 					dist = VectorDistance( tagOrg, cent->currentState.origin2 );
 					if ( !bestDist || dist < bestDist ) {
 						bestTag = tagIndex;

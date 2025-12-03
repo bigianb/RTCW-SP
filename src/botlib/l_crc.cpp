@@ -44,7 +44,7 @@ If you have questions concerning this license or the applicable additional terms
 #include "be_interface.h"            //for BotImport_Print
 
 
-// FIXME: byte swap?
+// FIXME: uint8_t swap?
 
 // this is a 16 bit, non-reflected CRC using the polynomial 0x1021
 // and the initial and final xor values shown below...  in other words, the
@@ -105,7 +105,7 @@ void CRC_Init( unsigned short *crcvalue ) {
 // Returns:					-
 // Changes Globals:		-
 //===========================================================================
-void CRC_ProcessByte( unsigned short *crcvalue, byte data ) {
+void CRC_ProcessByte( unsigned short *crcvalue, uint8_t data ) {
 	*crcvalue = ( *crcvalue << 8 ) ^ crctable[( *crcvalue >> 8 ) ^ data];
 } //end of the function CRC_ProcessByte
 //===========================================================================

@@ -691,7 +691,7 @@ void G_ParseField( const char *key, const char *value, GameEntity *ent )
 	for (gentity_field_t *f = fields; f->name; f++ ) {
 		if ( !Q_stricmp( f->name, key ) ) {
 			// found it
-			byte* b = (byte *)ent;
+			uint8_t* b = (uint8_t *)ent;
 
 			switch ( f->type ) {
 			case F_LSTRING:

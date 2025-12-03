@@ -79,7 +79,7 @@ int CG_SoundScriptPrecache( const char *name ) {
 	long hash;
 	char *s;
 	soundScript_t   *sound;
-	byte buf[1024];
+	uint8_t buf[1024];
 
 	if ( !name || !name[0] ) {
 		return 0;

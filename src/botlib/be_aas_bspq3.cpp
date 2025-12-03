@@ -87,7 +87,7 @@ typedef struct bsp_s
 	int numentities;
 	bsp_entity_t entities[MAX_BSPENTITIES];
 	//memory used for strings and epairs
-	byte *ebuffer;
+	uint8_t *ebuffer;
 } bsp_t;
 
 //global bsp
@@ -309,7 +309,7 @@ void AAS_ParseBSPEntities( void ) {
 	token_t token;
 	bsp_entity_t *ent;
 	bsp_epair_t *epair;
-	byte *buffer, *buftrav;
+	uint8_t *buffer, *buftrav;
 	int bufsize;
 
 	// RF, modified this, so that it first gathers up memory requirements, then allocates a single chunk,
@@ -365,7 +365,7 @@ void AAS_ParseBSPEntities( void ) {
 	} //end while
 	FreeScript( script );
 
-	buffer = (byte *)GetClearedHunkMemory( bufsize );
+	buffer = (uint8_t *)GetClearedHunkMemory( bufsize );
 	buftrav = buffer;
 	bspworld.ebuffer = buffer;
 

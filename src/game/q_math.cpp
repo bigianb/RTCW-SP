@@ -220,9 +220,9 @@ void ByteToDir( int b, vec3_t dir ) {
 unsigned ColorBytes3( float r, float g, float b ) {
 	unsigned i;
 
-	( (byte *)&i )[0] = r * 255;
-	( (byte *)&i )[1] = g * 255;
-	( (byte *)&i )[2] = b * 255;
+	( (uint8_t *)&i )[0] = r * 255;
+	( (uint8_t *)&i )[1] = g * 255;
+	( (uint8_t *)&i )[2] = b * 255;
 
 	return i;
 }
@@ -230,10 +230,10 @@ unsigned ColorBytes3( float r, float g, float b ) {
 unsigned ColorBytes4( float r, float g, float b, float a ) {
 	unsigned i;
 
-	( (byte *)&i )[0] = r * 255;
-	( (byte *)&i )[1] = g * 255;
-	( (byte *)&i )[2] = b * 255;
-	( (byte *)&i )[3] = a * 255;
+	( (uint8_t *)&i )[0] = r * 255;
+	( (uint8_t *)&i )[1] = g * 255;
+	( (uint8_t *)&i )[2] = b * 255;
+	( (uint8_t *)&i )[3] = a * 255;
 
 	return i;
 }
@@ -763,197 +763,197 @@ __declspec( naked ) int BoxOnPlaneSide( vec3_t emins, vec3_t emaxs, struct cplan
 
 initialized:
 
-		mov edx,dword ptr[4 + 12 + esp]
-		mov ecx,dword ptr[4 + 4 + esp]
+		mov edx,uint32_t ptr[4 + 12 + esp]
+		mov ecx,uint32_t ptr[4 + 4 + esp]
 		xor eax,eax
-		mov ebx,dword ptr[4 + 8 + esp]
-		mov al,byte ptr[17 + edx]
+		mov ebx,uint32_t ptr[4 + 8 + esp]
+		mov al,uint8_t ptr[17 + edx]
 		cmp al,8
 		jge Lerror
-		fld dword ptr[0 + edx]
+		fld uint32_t ptr[0 + edx]
 		fld st( 0 )
-		jmp dword ptr[Ljmptab + eax * 4]
+		jmp uint32_t ptr[Ljmptab + eax * 4]
 		Lcase0 :
-			fmul dword ptr[ebx]
-			fld dword ptr[0 + 4 + edx]
+			fmul uint32_t ptr[ebx]
+			fld uint32_t ptr[0 + 4 + edx]
 			fxch st( 2 )
-			fmul dword ptr[ecx]
-			fxch st( 2 )
-			fld st( 0 )
-			fmul dword ptr[4 + ebx]
-			fld dword ptr[0 + 8 + edx]
-			fxch st( 2 )
-			fmul dword ptr[4 + ecx]
+			fmul uint32_t ptr[ecx]
 			fxch st( 2 )
 			fld st( 0 )
-			fmul dword ptr[8 + ebx]
+			fmul uint32_t ptr[4 + ebx]
+			fld uint32_t ptr[0 + 8 + edx]
+			fxch st( 2 )
+			fmul uint32_t ptr[4 + ecx]
+			fxch st( 2 )
+			fld st( 0 )
+			fmul uint32_t ptr[8 + ebx]
 			fxch st( 5 )
 			faddp st( 3 ),st( 0 )
-			fmul dword ptr[8 + ecx]
+			fmul uint32_t ptr[8 + ecx]
 			fxch st( 1 )
 			faddp st( 3 ),st( 0 )
 			fxch st( 3 )
 			faddp st( 2 ),st( 0 )
 			jmp LSetSides
 			Lcase1 :
-				fmul dword ptr[ecx]
-				fld dword ptr[0 + 4 + edx]
+				fmul uint32_t ptr[ecx]
+				fld uint32_t ptr[0 + 4 + edx]
 				fxch st( 2 )
-				fmul dword ptr[ebx]
-				fxch st( 2 )
-				fld st( 0 )
-				fmul dword ptr[4 + ebx]
-				fld dword ptr[0 + 8 + edx]
-				fxch st( 2 )
-				fmul dword ptr[4 + ecx]
+				fmul uint32_t ptr[ebx]
 				fxch st( 2 )
 				fld st( 0 )
-				fmul dword ptr[8 + ebx]
+				fmul uint32_t ptr[4 + ebx]
+				fld uint32_t ptr[0 + 8 + edx]
+				fxch st( 2 )
+				fmul uint32_t ptr[4 + ecx]
+				fxch st( 2 )
+				fld st( 0 )
+				fmul uint32_t ptr[8 + ebx]
 				fxch st( 5 )
 				faddp st( 3 ),st( 0 )
-				fmul dword ptr[8 + ecx]
+				fmul uint32_t ptr[8 + ecx]
 				fxch st( 1 )
 				faddp st( 3 ),st( 0 )
 				fxch st( 3 )
 				faddp st( 2 ),st( 0 )
 				jmp LSetSides
 				Lcase2 :
-					fmul dword ptr[ebx]
-					fld dword ptr[0 + 4 + edx]
+					fmul uint32_t ptr[ebx]
+					fld uint32_t ptr[0 + 4 + edx]
 					fxch st( 2 )
-					fmul dword ptr[ecx]
-					fxch st( 2 )
-					fld st( 0 )
-					fmul dword ptr[4 + ecx]
-					fld dword ptr[0 + 8 + edx]
-					fxch st( 2 )
-					fmul dword ptr[4 + ebx]
+					fmul uint32_t ptr[ecx]
 					fxch st( 2 )
 					fld st( 0 )
-					fmul dword ptr[8 + ebx]
+					fmul uint32_t ptr[4 + ecx]
+					fld uint32_t ptr[0 + 8 + edx]
+					fxch st( 2 )
+					fmul uint32_t ptr[4 + ebx]
+					fxch st( 2 )
+					fld st( 0 )
+					fmul uint32_t ptr[8 + ebx]
 					fxch st( 5 )
 					faddp st( 3 ),st( 0 )
-					fmul dword ptr[8 + ecx]
+					fmul uint32_t ptr[8 + ecx]
 					fxch st( 1 )
 					faddp st( 3 ),st( 0 )
 					fxch st( 3 )
 					faddp st( 2 ),st( 0 )
 					jmp LSetSides
 					Lcase3 :
-						fmul dword ptr[ecx]
-						fld dword ptr[0 + 4 + edx]
+						fmul uint32_t ptr[ecx]
+						fld uint32_t ptr[0 + 4 + edx]
 						fxch st( 2 )
-						fmul dword ptr[ebx]
-						fxch st( 2 )
-						fld st( 0 )
-						fmul dword ptr[4 + ecx]
-						fld dword ptr[0 + 8 + edx]
-						fxch st( 2 )
-						fmul dword ptr[4 + ebx]
+						fmul uint32_t ptr[ebx]
 						fxch st( 2 )
 						fld st( 0 )
-						fmul dword ptr[8 + ebx]
+						fmul uint32_t ptr[4 + ecx]
+						fld uint32_t ptr[0 + 8 + edx]
+						fxch st( 2 )
+						fmul uint32_t ptr[4 + ebx]
+						fxch st( 2 )
+						fld st( 0 )
+						fmul uint32_t ptr[8 + ebx]
 						fxch st( 5 )
 						faddp st( 3 ),st( 0 )
-						fmul dword ptr[8 + ecx]
+						fmul uint32_t ptr[8 + ecx]
 						fxch st( 1 )
 						faddp st( 3 ),st( 0 )
 						fxch st( 3 )
 						faddp st( 2 ),st( 0 )
 						jmp LSetSides
 						Lcase4 :
-							fmul dword ptr[ebx]
-							fld dword ptr[0 + 4 + edx]
+							fmul uint32_t ptr[ebx]
+							fld uint32_t ptr[0 + 4 + edx]
 							fxch st( 2 )
-							fmul dword ptr[ecx]
-							fxch st( 2 )
-							fld st( 0 )
-							fmul dword ptr[4 + ebx]
-							fld dword ptr[0 + 8 + edx]
-							fxch st( 2 )
-							fmul dword ptr[4 + ecx]
+							fmul uint32_t ptr[ecx]
 							fxch st( 2 )
 							fld st( 0 )
-							fmul dword ptr[8 + ecx]
+							fmul uint32_t ptr[4 + ebx]
+							fld uint32_t ptr[0 + 8 + edx]
+							fxch st( 2 )
+							fmul uint32_t ptr[4 + ecx]
+							fxch st( 2 )
+							fld st( 0 )
+							fmul uint32_t ptr[8 + ecx]
 							fxch st( 5 )
 							faddp st( 3 ),st( 0 )
-							fmul dword ptr[8 + ebx]
+							fmul uint32_t ptr[8 + ebx]
 							fxch st( 1 )
 							faddp st( 3 ),st( 0 )
 							fxch st( 3 )
 							faddp st( 2 ),st( 0 )
 							jmp LSetSides
 							Lcase5 :
-								fmul dword ptr[ecx]
-								fld dword ptr[0 + 4 + edx]
+								fmul uint32_t ptr[ecx]
+								fld uint32_t ptr[0 + 4 + edx]
 								fxch st( 2 )
-								fmul dword ptr[ebx]
-								fxch st( 2 )
-								fld st( 0 )
-								fmul dword ptr[4 + ebx]
-								fld dword ptr[0 + 8 + edx]
-								fxch st( 2 )
-								fmul dword ptr[4 + ecx]
+								fmul uint32_t ptr[ebx]
 								fxch st( 2 )
 								fld st( 0 )
-								fmul dword ptr[8 + ecx]
+								fmul uint32_t ptr[4 + ebx]
+								fld uint32_t ptr[0 + 8 + edx]
+								fxch st( 2 )
+								fmul uint32_t ptr[4 + ecx]
+								fxch st( 2 )
+								fld st( 0 )
+								fmul uint32_t ptr[8 + ecx]
 								fxch st( 5 )
 								faddp st( 3 ),st( 0 )
-								fmul dword ptr[8 + ebx]
+								fmul uint32_t ptr[8 + ebx]
 								fxch st( 1 )
 								faddp st( 3 ),st( 0 )
 								fxch st( 3 )
 								faddp st( 2 ),st( 0 )
 								jmp LSetSides
 								Lcase6 :
-									fmul dword ptr[ebx]
-									fld dword ptr[0 + 4 + edx]
+									fmul uint32_t ptr[ebx]
+									fld uint32_t ptr[0 + 4 + edx]
 									fxch st( 2 )
-									fmul dword ptr[ecx]
-									fxch st( 2 )
-									fld st( 0 )
-									fmul dword ptr[4 + ecx]
-									fld dword ptr[0 + 8 + edx]
-									fxch st( 2 )
-									fmul dword ptr[4 + ebx]
+									fmul uint32_t ptr[ecx]
 									fxch st( 2 )
 									fld st( 0 )
-									fmul dword ptr[8 + ecx]
+									fmul uint32_t ptr[4 + ecx]
+									fld uint32_t ptr[0 + 8 + edx]
+									fxch st( 2 )
+									fmul uint32_t ptr[4 + ebx]
+									fxch st( 2 )
+									fld st( 0 )
+									fmul uint32_t ptr[8 + ecx]
 									fxch st( 5 )
 									faddp st( 3 ),st( 0 )
-									fmul dword ptr[8 + ebx]
+									fmul uint32_t ptr[8 + ebx]
 									fxch st( 1 )
 									faddp st( 3 ),st( 0 )
 									fxch st( 3 )
 									faddp st( 2 ),st( 0 )
 									jmp LSetSides
 									Lcase7 :
-										fmul dword ptr[ecx]
-										fld dword ptr[0 + 4 + edx]
+										fmul uint32_t ptr[ecx]
+										fld uint32_t ptr[0 + 4 + edx]
 										fxch st( 2 )
-										fmul dword ptr[ebx]
-										fxch st( 2 )
-										fld st( 0 )
-										fmul dword ptr[4 + ecx]
-										fld dword ptr[0 + 8 + edx]
-										fxch st( 2 )
-										fmul dword ptr[4 + ebx]
+										fmul uint32_t ptr[ebx]
 										fxch st( 2 )
 										fld st( 0 )
-										fmul dword ptr[8 + ecx]
+										fmul uint32_t ptr[4 + ecx]
+										fld uint32_t ptr[0 + 8 + edx]
+										fxch st( 2 )
+										fmul uint32_t ptr[4 + ebx]
+										fxch st( 2 )
+										fld st( 0 )
+										fmul uint32_t ptr[8 + ecx]
 										fxch st( 5 )
 										faddp st( 3 ),st( 0 )
-										fmul dword ptr[8 + ebx]
+										fmul uint32_t ptr[8 + ebx]
 										fxch st( 1 )
 										faddp st( 3 ),st( 0 )
 										fxch st( 3 )
 										faddp st( 2 ),st( 0 )
 										LSetSides :
 											faddp st( 2 ),st( 0 )
-											fcomp dword ptr[12 + edx]
+											fcomp uint32_t ptr[12 + edx]
 											xor ecx,ecx
 											fnstsw ax
-											fcomp dword ptr[12 + edx]
+											fcomp uint32_t ptr[12 + edx]
 											and ah,1
 											xor ah,1
 											add cl,ah

@@ -314,7 +314,24 @@ set(SERVER_SOURCES
 	src/server/sv_snapshot.cpp
 	src/server/sv_world.cpp
 )
-	
+
+set(IDLIB_INCLUDES
+	src/idlib/math/Angles.h
+	src/idlib/math/Math.h
+	src/idlib/math/Matrix.h
+	src/idlib/math/Rotation.h
+	src/idlib/math/Quat.h
+	src/idlib/math/Vector.h
+)
+
+set(IDLIB_SOURCES
+	src/idlib/math/Angles.cpp
+	src/idlib/math/Math.cpp
+	src/idlib/math/Matrix.cpp
+	src/idlib/math/Rotation.cpp
+	src/idlib/math/Quat.cpp
+	src/idlib/math/Vector.cpp
+)
 
 file(GLOB SPLINES_INCLUDES src/splines/*.h)
 file(GLOB SPLINES_SOURCES src/splines/*.cpp)
@@ -393,6 +410,7 @@ set(WOLF_INCLUDES
 	${SPLINES_INCLUDES}
 	${UI_INCLUDES}
 	${SDL_INCLUDES}
+	${IDLIB_INCLUDES}
 )
 
 set(WOLF_SOURCES 
@@ -407,6 +425,7 @@ set(WOLF_SOURCES
     ${SPLINES_SOURCES}
     ${UI_SOURCES}
     ${SDL_SOURCES}
+	${IDLIB_SOURCES}
 )
 
 add_executable(wolf WIN32 MACOSX_BUNDLE ${WOLF_INCLUDES} ${WOLF_SOURCES})

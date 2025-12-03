@@ -451,10 +451,10 @@ R_TakeScreenshot
 ==================
 */
 void R_TakeScreenshot( int x, int y, int width, int height, char *fileName ) {
-	byte        *buffer;
+	uint8_t        *buffer;
 	int i, c, temp;
 
-	buffer = (byte *)Hunk_AllocateTempMemory( glConfig.vidWidth * glConfig.vidHeight * 3 + 18 );
+	buffer = (uint8_t *)Hunk_AllocateTempMemory( glConfig.vidWidth * glConfig.vidHeight * 3 + 18 );
 
 	memset( buffer, 0, 18 );
 	buffer[2] = 2;      // uncompressed type
@@ -553,9 +553,9 @@ the menu system, sampled down from full screen distorted images
 */
 void R_LevelShot( void ) {
 	char checkname[MAX_OSPATH];
-	byte        *buffer;
-	byte        *source;
-	byte        *src, *dst;
+	uint8_t        *buffer;
+	uint8_t        *source;
+	uint8_t        *src, *dst;
 	int x, y;
 	int r, g, b;
 	float xScale, yScale;
@@ -563,9 +563,9 @@ void R_LevelShot( void ) {
 
 	snprintf( checkname, MAX_OSPATH, "levelshots/%s.tga", tr.world->baseName );
 
-	source = (byte *)Hunk_AllocateTempMemory( glConfig.vidWidth * glConfig.vidHeight * 3 );
+	source = (uint8_t *)Hunk_AllocateTempMemory( glConfig.vidWidth * glConfig.vidHeight * 3 );
 
-	buffer = (byte *)Hunk_AllocateTempMemory( 128 * 128 * 3 + 18 );
+	buffer = (uint8_t *)Hunk_AllocateTempMemory( 128 * 128 * 3 + 18 );
 	memset( buffer, 0, 18 );
 	buffer[2] = 2;      // uncompressed type
 	buffer[12] = 128;
@@ -1158,7 +1158,7 @@ void R_Init( void ) {
 	Swap_Init();
 
 	if ( (intptr_t)tess.xyz & 15 ) {
-		Com_Printf( "WARNING: tess.xyz not 16 byte aligned\n" );
+		Com_Printf( "WARNING: tess.xyz not 16 uint8_t aligned\n" );
 	}
 	memset( tess.constantColor255, 255, sizeof( tess.constantColor255 ) );
 

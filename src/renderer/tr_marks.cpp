@@ -440,7 +440,7 @@ int R_OldMarkFragments( int numPoints, const vec3_t *points, const vec3_t projec
 			VectorNormalize(normal);
 			if (DotProduct(normal, projectionDir) > -0.5) continue;
 			*/
-			indexes = ( int * )( (byte *)surf + surf->ofsIndices );
+			indexes = ( int * )( (uint8_t *)surf + surf->ofsIndices );
 			for ( k = 0 ; k < surf->numIndices ; k += 3 ) {
 				for ( j = 0 ; j < 3 ; j++ ) {
 					v = surf->points[0] + VERTEXSIZE * indexes[k + j];;
@@ -749,7 +749,7 @@ Com_Printf("bestnormal: %1.1f %1.1f %1.1f \n", bestnormal[0], bestnormal[1], bes
 
 				// done.
 
-				indexes = ( int * )( (byte *)surf + surf->ofsIndices );
+				indexes = ( int * )( (uint8_t *)surf + surf->ofsIndices );
 				for ( k = 0 ; k < surf->numIndices ; k += 3 ) {
 					for ( j = 0 ; j < 3 ; j++ ) {
 						v = surf->points[0] + VERTEXSIZE * indexes[k + j];
@@ -789,7 +789,7 @@ Com_Printf("bestnormal: %1.1f %1.1f %1.1f \n", bestnormal[0], bestnormal[1], bes
 				//	continue;
 				//}
 
-				indexes = ( int * )( (byte *)surf + surf->ofsIndices );
+				indexes = ( int * )( (uint8_t *)surf + surf->ofsIndices );
 				for ( k = 0 ; k < surf->numIndices ; k += 3 ) {
 					for ( j = 0 ; j < 3 ; j++ ) {
 						v = surf->points[0] + VERTEXSIZE * indexes[k + j];;

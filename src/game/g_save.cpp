@@ -266,7 +266,7 @@ int G_SaveWrite( const void *buffer, int len, fileHandle_t f )
 
 //=========================================================
 
-funcList_t *G_FindFuncAtAddress( byte *adr )
+funcList_t *G_FindFuncAtAddress( uint8_t *adr )
 {
 	for (int i = 0; funcList[i].funcStr; i++ ) {
 		if ( funcList[i].funcPtr == adr ) {
@@ -276,7 +276,7 @@ funcList_t *G_FindFuncAtAddress( byte *adr )
 	return nullptr;
 }
 
-byte *G_FindFuncByName( char *name )
+uint8_t *G_FindFuncByName( char *name )
 {
 	for (int i = 0; funcList[i].funcStr; i++ ) {
 		if ( !strcmp( name, funcList[i].funcStr ) ) {
@@ -286,7 +286,7 @@ byte *G_FindFuncByName( char *name )
 	return nullptr;
 }
 
-void WriteField1( saveField_t *field, byte *base )
+void WriteField1( saveField_t *field, uint8_t *base )
 {
 
 	int len;
@@ -341,10 +341,10 @@ void WriteField1( saveField_t *field, byte *base )
 		//	"extractfuncs.bat" in the utils folder. We then save the string equivalent
 		//	of the function. This effectively gives us cross-version save games.
 	case F_FUNCTION:
-		if ( *(byte **)p == nullptr ) {
+		if ( *(uint8_t **)p == nullptr ) {
 			len = 0;
 		} else {
-			func = G_FindFuncAtAddress( *(byte **)p );
+			func = G_FindFuncAtAddress( *(uint8_t **)p );
 			if ( !func ) {
 				Com_Error( ERR_DROP, "WriteField1: unknown function, cannot save game" );
                 return; // keep the linter happy, ERR_DROP does not return
@@ -360,7 +360,7 @@ void WriteField1( saveField_t *field, byte *base )
 }
 
 
-void WriteField2( fileHandle_t f, saveField_t *field, byte *base )
+void WriteField2( fileHandle_t f, saveField_t *field, uint8_t *base )
 {
 	size_t len;
 	funcList_t  *func;
@@ -377,8 +377,8 @@ void WriteField2( fileHandle_t f, saveField_t *field, byte *base )
 		}
 		break;
 	case F_FUNCTION:
-		if ( *(byte **)p ) {
-			func = G_FindFuncAtAddress( *(byte **)p );
+		if ( *(uint8_t **)p ) {
+			func = G_FindFuncAtAddress( *(uint8_t **)p );
 			if ( !func ) {
 				Com_Error( ERR_DROP, "WriteField1: unknown function, cannot save game" );
                 return; // keep the linter happy, ERR_DROP does not return
@@ -394,7 +394,7 @@ void WriteField2( fileHandle_t f, saveField_t *field, byte *base )
 	}
 }
 
-void ReadField( fileHandle_t f, saveField_t *field, byte *base )
+void ReadField( fileHandle_t f, saveField_t *field, uint8_t *base )
 {
 	int len;
 	int index;
@@ -450,14 +450,14 @@ void ReadField( fileHandle_t f, saveField_t *field, byte *base )
 	case F_FUNCTION:
 		len = *(int *)p;
 		if ( !len ) {
-			*(byte **)p = nullptr;
+			*(uint8_t **)p = nullptr;
 		} else {
 			if ( len > sizeof( funcStr ) ) {
 				Com_Error( ERR_DROP, "ReadField: function name is greater than buffer (%i chars)", sizeof( funcStr ) );
                 return; // keep the linter happy, ERR_DROP does not return
 			}
 			FS_Read( funcStr, len, f );
-			if ( !( *(byte **)p = G_FindFuncByName( funcStr ) ) ) {
+			if ( !( *(uint8_t **)p = G_FindFuncByName( funcStr ) ) ) {
 				Com_Error( ERR_DROP, "ReadField: unknown function '%s'\ncannot load game", funcStr );
                 return; // keep the linter happy, ERR_DROP does not return
 			}
@@ -480,7 +480,7 @@ G_Save_Encode
   returns the number of bytes written to "out"
 ===============
 */
-int G_Save_Encode( byte *raw, byte *out, int rawsize, int outsize )
+int G_Save_Encode( uint8_t *raw, uint8_t *out, int rawsize, int outsize )
 {
 	int rawcount = 0;
 	int outcount = 0;
@@ -494,7 +494,7 @@ int G_Save_Encode( byte *raw, byte *out, int rawsize, int outsize )
 			mode = 0;
 		}
 		// calc the count
-		byte count = 0;
+		uint8_t count = 0;
 		while ( rawcount < rawsize && ( raw[rawcount] != 0 ) == mode && count < ( ( ( 1 << ( SAVE_ENCODE_COUNT_BYTES * 8 - 1 ) ) - 1 ) ) ) {
 			rawcount++;
 			count++;
@@ -521,13 +521,13 @@ int G_Save_Encode( byte *raw, byte *out, int rawsize, int outsize )
 G_Save_Decode
 ===============
 */
-void G_Save_Decode( byte *in, int insize, byte *out, int outsize )
+void G_Save_Decode( uint8_t *in, int insize, uint8_t *out, int outsize )
 {
 	int incount = 0;
 	int outcount = 0;
 	while ( incount < insize ) {
 		// read the count
-		byte count = 0;
+		uint8_t count = 0;
 		memcpy( &count, in + incount, SAVE_ENCODE_COUNT_BYTES );
 		incount += SAVE_ENCODE_COUNT_BYTES;
 		// if it's negative, zero it out
@@ -546,7 +546,7 @@ void G_Save_Decode( byte *in, int insize, byte *out, int outsize )
 
 //=========================================================
 
-byte clientBuf[ 2 * sizeof( GameEntity ) ];
+uint8_t clientBuf[ 2 * sizeof( GameEntity ) ];
 
 /*
 ===============
@@ -568,12 +568,12 @@ void WriteClient( fileHandle_t f, GameClient *cl )
 	// change the pointers to lengths or indexes
 	for (saveField_t * field = gclientFields ; field->type ; field++ )
 	{
-		WriteField1( field, (byte *)&temp );
+		WriteField1( field, (uint8_t *)&temp );
 	}
 
 	// write the block
 	//if (!G_SaveWrite (&temp, sizeof(temp), f)) G_SaveWriteError();
-	int length = G_Save_Encode( (byte *)&temp, clientBuf, sizeof( temp ), sizeof( clientBuf ) );
+	int length = G_Save_Encode( (uint8_t *)&temp, clientBuf, sizeof( temp ), sizeof( clientBuf ) );
 	if ( !G_SaveWrite( &length, sizeof( length ), f ) ) {
 		G_SaveWriteError();
 	}
@@ -584,7 +584,7 @@ void WriteClient( fileHandle_t f, GameClient *cl )
 	// now write any allocated data following the edict
 	for (saveField_t * field = gclientFields ; field->type ; field++ )
 	{
-		WriteField2( f, field, (byte *)cl );
+		WriteField2( f, field, (uint8_t *)cl );
 	}
 
 }
@@ -607,16 +607,16 @@ void ReadClient( fileHandle_t f, GameClient *client, int size )
     
     FS_Read( clientBuf, decodedSize, f );
     GameClient temp;
-    G_Save_Decode( clientBuf, decodedSize, (byte *)&temp, sizeof( temp ) );
+    G_Save_Decode( clientBuf, decodedSize, (uint8_t *)&temp, sizeof( temp ) );
 	
 	// convert any feilds back to the correct data
 	for (saveField_t *field = gclientFields ; field->type ; field++ ) {
-		ReadField( f, field, (byte *)&temp );
+		ReadField( f, field, (uint8_t *)&temp );
 	}
 
 	// backup any fields that we don't want to read in
 	for (ignoreField_t *ifield = gclientIgnoreFields ; ifield->len ; ifield++ ) {
-		memcpy( ( (byte *)&temp ) + ifield->ofs, ( (byte *)client ) + ifield->ofs, ifield->len );
+		memcpy( ( (uint8_t *)&temp ) + ifield->ofs, ( (uint8_t *)client ) + ifield->ofs, ifield->len );
 	}
 
 	// now copy the temp structure into the existing structure
@@ -654,7 +654,7 @@ void ReadClient( fileHandle_t f, GameClient *client, int size )
 
 //=========================================================
 
-byte entityBuf[ 2 * sizeof( GameEntity ) ];
+uint8_t entityBuf[ 2 * sizeof( GameEntity ) ];
 
 /*
 ===============
@@ -674,15 +674,15 @@ void WriteEntity( fileHandle_t f, GameEntity *ent )
 	// change the pointers to lengths or indexes
 	for (saveField_t *field = gentityFields_17 ; field->type ; field++ )
 	{
-		WriteField1( field, (byte *)&temp );
+		WriteField1( field, (uint8_t *)&temp );
 	}
 	// TTimo
 	// show_bug.cgi?id=434
-	WriteField1( gentityFields_18, (byte *)&temp );
+	WriteField1( gentityFields_18, (uint8_t *)&temp );
 
 	// write the block
 	//if (!G_SaveWrite (&temp, sizeof(temp), f)) G_SaveWriteError();
-	int length = G_Save_Encode( (byte *)&temp, entityBuf, sizeof( temp ), sizeof( entityBuf ) );
+	int length = G_Save_Encode( (uint8_t *)&temp, entityBuf, sizeof( temp ), sizeof( entityBuf ) );
 	if ( !G_SaveWrite( &length, sizeof( length ), f ) ) {
 		G_SaveWriteError();
 	}
@@ -692,10 +692,10 @@ void WriteEntity( fileHandle_t f, GameEntity *ent )
 
 	// now write any allocated data following the edict
 	for (saveField_t *field = gentityFields_17 ; field->type ; field++ ) {
-		WriteField2( f, field, (byte *)ent );
+		WriteField2( f, field, (uint8_t *)ent );
 	}
 
-	WriteField2( f, gentityFields_18, (byte *)ent );
+	WriteField2( f, gentityFields_18, (uint8_t *)ent );
 }
 
 /*
@@ -716,19 +716,19 @@ void ReadEntity( fileHandle_t f, GameEntity *ent, int size )
     }
     FS_Read( entityBuf, decodedSize, f );
     GameEntity temp;
-    G_Save_Decode( entityBuf, decodedSize, (byte *)&temp, sizeof( temp ) );
+    G_Save_Decode( entityBuf, decodedSize, (uint8_t *)&temp, sizeof( temp ) );
 	
 
 	// convert any fields back to the correct data
 	for (saveField_t *field = gentityFields_17 ; field->type ; field++ ) {
-		ReadField( f, field, (byte *)&temp );
+		ReadField( f, field, (uint8_t *)&temp );
 	}
 
-    ReadField( f, gentityFields_18, (byte *)&temp );
+    ReadField( f, gentityFields_18, (uint8_t *)&temp );
 	
 	// backup any fields that we don't want to read in
 	for (ignoreField_t *ifield = gentityIgnoreFields ; ifield->len ; ifield++ ) {
-		memcpy( ( (byte *)&temp ) + ifield->ofs, ( (byte *)ent ) + ifield->ofs, ifield->len );
+		memcpy( ( (uint8_t *)&temp ) + ifield->ofs, ( (uint8_t *)ent ) + ifield->ofs, ifield->len );
 	}
 
 	// kill all events (assume they have been processed)
@@ -813,7 +813,7 @@ void ReadEntity( fileHandle_t f, GameEntity *ent, int size )
 
 //=========================================================
 
-byte castStateBuf[ 2 * sizeof( cast_state_t ) ];
+uint8_t castStateBuf[ 2 * sizeof( cast_state_t ) ];
 
 /*
 ===============
@@ -827,11 +827,11 @@ void WriteCastState( fileHandle_t f, cast_state_t *cs )
 
 	// change the pointers to lengths or indexes
 	for (saveField_t *field = castStateFields ; field->type ; field++ ) {
-		WriteField1( field, (byte *)&temp );
+		WriteField1( field, (uint8_t *)&temp );
 	}
 
 	// write the block
-	int length = G_Save_Encode( (byte *)&temp, castStateBuf, sizeof( temp ), sizeof( castStateBuf ) );
+	int length = G_Save_Encode( (uint8_t *)&temp, castStateBuf, sizeof( temp ), sizeof( castStateBuf ) );
 	if ( !G_SaveWrite( &length, sizeof( length ), f ) ) {
 		G_SaveWriteError();
 	}
@@ -841,7 +841,7 @@ void WriteCastState( fileHandle_t f, cast_state_t *cs )
 
 	// now write any allocated data following the edict
 	for (saveField_t *field = castStateFields; field->type; field++ ) {
-		WriteField2( f, field, (byte *)cs );
+		WriteField2( f, field, (uint8_t *)cs );
 	}
 }
 
@@ -861,17 +861,17 @@ void ReadCastState( fileHandle_t f, cast_state_t *cs, int size )
     }
     FS_Read( castStateBuf, decodedSize, f );
     cast_state_t temp;
-    G_Save_Decode( castStateBuf, decodedSize, (byte *)&temp, sizeof( temp ) );
+    G_Save_Decode( castStateBuf, decodedSize, (uint8_t *)&temp, sizeof( temp ) );
 	
 
 	// convert any feilds back to the correct data
 	for (saveField_t *field = castStateFields ; field->type ; field++ ) {
-		ReadField( f, field, (byte *)&temp );
+		ReadField( f, field, (uint8_t *)&temp );
 	}
 
 	// backup any fields that we don't want to read in
 	for (ignoreField_t *ifield = castStateIgnoreFields ; ifield->len ; ifield++ ) {
-		memcpy( ( (byte *)&temp ) + ifield->ofs, ( (byte *)cs ) + ifield->ofs, ifield->len );
+		memcpy( ( (uint8_t *)&temp ) + ifield->ofs, ( (uint8_t *)cs ) + ifield->ofs, ifield->len );
 	}
 
 	// now copy the temp structure into the existing structure
@@ -988,7 +988,7 @@ G_SaveGame
 
   returns true if successful
 
-  TODO: have G_SaveWrite return the number of byte's written, so if it doesn't
+  TODO: have G_SaveWrite return the number of uint8_t's written, so if it doesn't
   succeed, we can abort the save, and not save the file. This means we should
   save to a temporary name, then copy it across to the real name after success,
   so full disks don't result in lost saved games.
@@ -1204,7 +1204,7 @@ bool G_SaveGame( const char *username )
 
 	FS_FCloseFile( f );
 
-	// check the byte count
+	// check the uint8_t count
     int len;
 	if ( ( len = FS_FOpenFileByMode( filename, &f, FS_READ ) ) != saveByteCount ) {
 		FS_FCloseFile( f );
@@ -1479,7 +1479,7 @@ PersWriteClient
 void PersWriteClient( fileHandle_t f, GameClient *cl )
 {
 	for (persField_t *field = gclientPersFields ; field->len ; field++ ) {
-		G_SaveWrite( ( void * )( (byte *)cl + field->ofs ), field->len, f );
+		G_SaveWrite( ( void * )( (uint8_t *)cl + field->ofs ), field->len, f );
 	}
 }
 
@@ -1491,7 +1491,7 @@ PersReadClient
 void PersReadClient( fileHandle_t f, GameClient *cl )
 {
 	for (persField_t *field = gclientPersFields ; field->len ; field++ ) {
-		FS_Read( ( void * )( (byte *)cl + field->ofs ), field->len, f );
+		FS_Read( ( void * )( (uint8_t *)cl + field->ofs ), field->len, f );
 	}
 }
 
@@ -1505,7 +1505,7 @@ PersWriteEntity
 void PersWriteEntity( fileHandle_t f, GameEntity *ent )
 {
     for (persField_t *field = gentityPersFields ; field->len ; field++ ) {
-		G_SaveWrite( ( void * )( (byte *)ent + field->ofs ), field->len, f );
+		G_SaveWrite( ( void * )( (uint8_t *)ent + field->ofs ), field->len, f );
 	}
 }
 
@@ -1517,7 +1517,7 @@ PersReadEntity
 void PersReadEntity( fileHandle_t f, GameEntity *cl )
 {
 	for (persField_t *field = gentityPersFields ; field->len ; field++ ) {
-		FS_Read( ( void * )( (byte *)cl + field->ofs ), field->len, f );
+		FS_Read( ( void * )( (uint8_t *)cl + field->ofs ), field->len, f );
 	}
 }
 
@@ -1528,7 +1528,7 @@ void PersReadEntity( fileHandle_t f, GameEntity *cl )
 void PersWriteCastState( fileHandle_t f, cast_state_t *cs )
 {
 	for (persField_t *field = castStatePersFields ; field->len ; field++ ) {
-		G_SaveWrite( ( void * )( (byte *)cs + field->ofs ), field->len, f );
+		G_SaveWrite( ( void * )( (uint8_t *)cs + field->ofs ), field->len, f );
 	}
 }
 
@@ -1536,7 +1536,7 @@ void PersWriteCastState( fileHandle_t f, cast_state_t *cs )
 void PersReadCastState( fileHandle_t f, cast_state_t *cs )
 {
 	for (persField_t *field = castStatePersFields ; field->len ; field++ ) {
-		FS_Read( ( void * )( (byte *)cs + field->ofs ), field->len, f );
+		FS_Read( ( void * )( (uint8_t *)cs + field->ofs ), field->len, f );
 	}
 }
 
@@ -1550,7 +1550,7 @@ G_SavePersistant
 
   NOTE: only saves the local player's data, doesn't support AI characters
 
-  TODO: have G_SaveWrite return the number of byte's written, so if it doesn't
+  TODO: have G_SaveWrite return the number of uint8_t's written, so if it doesn't
   succeed, we can abort the save, and not save the file. This means we should
   save to a temporary name, then copy it across to the real name after success,
   so full disks don't result in lost saved games.

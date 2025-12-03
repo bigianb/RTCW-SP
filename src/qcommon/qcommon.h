@@ -40,15 +40,15 @@ typedef struct {
 	bool allowoverflow;     // if false, do a Com_Error
 	bool overflowed;        // set to true if the buffer size failed (with allowoverflow set)
 	bool oob;               // set to true if the buffer size failed (with allowoverflow set)
-	byte    *data;
+	uint8_t    *data;
 	int maxsize;
 	int cursize;
 	int readcount;
 	int bit;                    // for bitwise reads and writes
 } msg_t;
 
-void MSG_Init( msg_t *buf, byte *data, int length );
-void MSG_InitOOB( msg_t *buf, byte *data, int length );
+void MSG_Init( msg_t *buf, uint8_t *data, int length );
+void MSG_InitOOB( msg_t *buf, uint8_t *data, int length );
 void MSG_Clear( msg_t *buf );
 void *MSG_GetSpace( msg_t *buf, int length );
 void MSG_WriteData( msg_t *buf, const void *data, size_t length );
@@ -154,8 +154,8 @@ typedef enum {
 typedef struct {
 	netadrtype_t type;
 
-	byte ip[4];
-	byte ipx[10];
+	uint8_t ip[4];
+	uint8_t ipx[10];
 
 	unsigned short port;
 } netadr_t;
@@ -199,20 +199,20 @@ typedef struct {
 	// incoming fragment assembly buffer
 	int fragmentSequence;
 	int fragmentLength;
-	byte fragmentBuffer[MAX_MSGLEN];
+	uint8_t fragmentBuffer[MAX_MSGLEN];
 
 	// outgoing fragment buffer
 	// we need to space out the sending of large fragmented messages
 	bool unsentFragments;
 	int unsentFragmentStart;
 	int unsentLength;
-	byte unsentBuffer[MAX_MSGLEN];
+	uint8_t unsentBuffer[MAX_MSGLEN];
 } netchan_t;
 
 void Netchan_Init( int qport );
 void Netchan_Setup( netsrc_t sock, netchan_t *chan, netadr_t adr, int qport );
 
-void Netchan_Transmit( netchan_t *chan, int length, const byte *data );
+void Netchan_Transmit( netchan_t *chan, int length, const uint8_t *data );
 void Netchan_TransmitNextFragment( netchan_t *chan );
 
 bool Netchan_Process( netchan_t *chan, msg_t *msg );
@@ -548,7 +548,7 @@ size_t     FS_ReadFile( const char *qpath, void **buffer );
 // returns the length of the file
 // a null buffer will just return the file length without loading
 // as a quick check for existance. -1 length == not present
-// A 0 byte will always be appended at the end, so string ops are safe.
+// A 0 uint8_t will always be appended at the end, so string ops are safe.
 // the buffer should be considered read-only, because it may be cached
 // for other uses.
 
@@ -933,13 +933,13 @@ typedef struct {
 void    Huff_Compress( msg_t *buf, int offset );
 void    Huff_Decompress( msg_t *buf, int offset );
 void    Huff_Init( huffman_t *huff );
-void    Huff_addRef( huff_t* huff, byte ch );
-int     Huff_Receive( node_t *node, int *ch, byte *fin );
-void    Huff_transmit( huff_t *huff, int ch, byte *fout, int maxoffset );
-void    Huff_offsetReceive( node_t *node, int *ch, byte *fin, int *offset, int maxoffset );
-void    Huff_offsetTransmit( huff_t *huff, int ch, byte *fout, int *offset, int maxoffset );
-void    Huff_putBit( int bit, byte *fout, int *offset );
-int     Huff_getBit( byte *fout, int *offset );
+void    Huff_addRef( huff_t* huff, uint8_t ch );
+int     Huff_Receive( node_t *node, int *ch, uint8_t *fin );
+void    Huff_transmit( huff_t *huff, int ch, uint8_t *fout, int maxoffset );
+void    Huff_offsetReceive( node_t *node, int *ch, uint8_t *fin, int *offset, int maxoffset );
+void    Huff_offsetTransmit( huff_t *huff, int ch, uint8_t *fout, int *offset, int maxoffset );
+void    Huff_putBit( int bit, uint8_t *fout, int *offset );
+int     Huff_getBit( uint8_t *fout, int *offset );
 
 extern huffman_t clientHuffTables;
 

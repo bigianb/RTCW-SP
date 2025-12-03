@@ -1051,7 +1051,7 @@ static void IN_ProcessEvents( void )
 						}
 						else
 						{
-							Com_DPrintf( "Unrecognised UTF-8 lead byte: 0x%x\n", (unsigned int)*c );
+							Com_DPrintf( "Unrecognised UTF-8 lead uint8_t: 0x%x\n", (unsigned int)*c );
 							c++;
 						}
 

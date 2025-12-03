@@ -81,7 +81,7 @@ typedef struct {
 	int samplebits;
 	int speed;
 	int samplepos;
-	byte        *buffer;
+	uint8_t        *buffer;
 } dma_t;
 
 #define START_SAMPLE_IMMEDIATE  0x7fffffff
@@ -299,7 +299,7 @@ void S_AdpcmGetSamples( sndBuffer *chunk, short *to );
 
 void S_FreeOldestSound();
 
-#define NXStream byte
+#define NXStream uint8_t
 
 void encodeWavelet( sfx_t *sfx, short *packets );
 void decodeWavelet( sndBuffer *stream, short *packets );

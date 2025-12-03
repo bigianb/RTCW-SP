@@ -3110,7 +3110,7 @@ void CG_AddZombieSpiritEffect( centity_t *cent ) {
 			}
 		}
 
-		refent.shaderRGBA[3] = (byte)( 0.5 * alpha * 255.0 );
+		refent.shaderRGBA[3] = (uint8_t)( 0.5 * alpha * 255.0 );
 		VectorCopy( cent->pe.zombieSpiritPos[i], refent.origin );
 
 		// HACK!!! skull model is back-to-front, need to fix
@@ -3855,7 +3855,7 @@ void CG_AddHelgaSpiritEffect( centity_t *cent ) {
 			}
 		}
 
-		refent.shaderRGBA[3] = (byte)( 0.5 * alpha * 255.0 );
+		refent.shaderRGBA[3] = (uint8_t)( 0.5 * alpha * 255.0 );
 		VectorCopy( cent->pe.zombieSpiritPos[i], refent.origin );
 
 		// HACK!!! skull model is back-to-front, need to fix

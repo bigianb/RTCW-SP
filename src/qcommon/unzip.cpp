@@ -330,7 +330,7 @@ int deflateInit OF((z_streamp strm, int level));
   output buffer because there might be more output pending.
 
     If the parameter flush is set to Z_SYNC_FLUSH, all pending output is
-  flushed to the output buffer and the output is aligned on a byte boundary, so
+  flushed to the output buffer and the output is aligned on a uint8_t boundary, so
   that the decompressor can get all input data available so far. (In particular
   avail_in is zero after the call if enough output space has been provided
   before the call.)  Flushing may degrade compression for some compression
@@ -548,13 +548,13 @@ static int deflateSetDictionary OF((z_streamp strm,
                                              uInt  dictLength));
 */
 /*
-     Initializes the compression dictionary from the given byte sequence
+     Initializes the compression dictionary from the given uint8_t sequence
    without producing any compressed output. This function must be called
    immediately after deflateInit, deflateInit2 or deflateReset, before any
    call of deflate. The compressor and decompressor must use exactly the same
    dictionary (see inflateSetDictionary).
 
-     The dictionary should consist of strings (byte sequences) that are likely
+     The dictionary should consist of strings (uint8_t sequences) that are likely
    to be encountered later in the data to be compressed, with the most commonly
    used strings preferably put towards the end of the dictionary. Using a
    dictionary is most useful when the data to be compressed is short and can be
@@ -663,7 +663,7 @@ static int inflateSetDictionary OF((z_streamp strm,
                                              uInt  dictLength));
 */
 /*
-     Initializes the decompression dictionary from the given uncompressed byte
+     Initializes the decompression dictionary from the given uncompressed uint8_t
    sequence. This function must be called immediately after a call of inflate
    if this call returned Z_NEED_DICT. The dictionary chosen by the compressor
    can be determined from the Adler32 value returned by this call of
@@ -720,7 +720,7 @@ static int compress OF((Byte *dest,   uLong *destLen,
 */
 /*
      Compresses the source buffer into the destination buffer.  sourceLen is
-   the byte length of the source buffer. Upon entry, destLen is the total
+   the uint8_t length of the source buffer. Upon entry, destLen is the total
    size of the destination buffer, which must be at least 0.1% larger than
    sourceLen plus 12 bytes. Upon exit, destLen is the actual size of the
    compressed buffer.
@@ -738,7 +738,7 @@ static int compress2 OF((Byte *dest,   uLong *destLen,
 */
 /*
      Compresses the source buffer into the destination buffer. The level
-   parameter has the same meaning as in deflateInit.  sourceLen is the byte
+   parameter has the same meaning as in deflateInit.  sourceLen is the uint8_t
    length of the source buffer. Upon entry, destLen is the total size of the
    destination buffer, which must be at least 0.1% larger than sourceLen plus
    12 bytes. Upon exit, destLen is the actual size of the compressed buffer.
@@ -754,7 +754,7 @@ static int uncompress OF((Byte *dest,   uLong *destLen,
 */                                   
 /*
      Decompresses the source buffer into the destination buffer.  sourceLen is
-   the byte length of the source buffer. Upon entry, destLen is the total
+   the uint8_t length of the source buffer. Upon entry, destLen is the total
    size of the destination buffer, which must be large enough to hold the
    entire uncompressed data. (The size of the uncompressed data must have
    been saved previously by the compressor and transmitted to the decompressor
@@ -855,7 +855,7 @@ int    gzputc OF((gzFile file, int c));
 
 int    gzgetc OF((gzFile file));
 /*
-      Reads one byte from the compressed file. gzgetc returns this byte
+      Reads one uint8_t from the compressed file. gzgetc returns this uint8_t
    or -1 in case of end of file or error.
 */
 
@@ -1102,7 +1102,7 @@ static void   zcfree  OF((voidp opaque, voidp ptr));
 
 
 /* ===========================================================================
-     Read a byte from a gz_stream; update next_in and avail_in. Return EOF
+     Read a uint8_t from a gz_stream; update next_in and avail_in. Return EOF
    for end of file.
    IN assertion: the stream s has been sucessfully opened for reading.
 */
@@ -1952,7 +1952,7 @@ extern int unzOpenCurrentFile (unzFile file)
 	  if (err == Z_OK)
 	    pfile_in_zip_read_info->stream_initialised=1;
         /* windowBits is passed < 0 to tell that there is no zlib header.
-         * Note that in this case inflate *requires* an extra "dummy" byte
+         * Note that in this case inflate *requires* an extra "dummy" uint8_t
          * after the compressed stream in order to complete decompression and
          * return Z_STREAM_END. 
          * In unzip, i don't wait absolutely Z_STREAM_END because I known the 
@@ -1982,7 +1982,7 @@ extern int unzOpenCurrentFile (unzFile file)
   buf contain buffer where data must be copied
   len the size of buf.
 
-  return the number of byte copied if somes bytes are copied
+  return the number of uint8_t copied if somes bytes are copied
   return 0 if the end of file was reached
   return <0 with error code if there is an error
     (UNZ_ERRNO for IO error, or zLib error for uncompress error)
@@ -2246,7 +2246,7 @@ extern int unzCloseCurrentFile (unzFile file)
 /*
   Get the global comment string of the ZipFile, in the szComment buffer.
   uSizeBuf is the size of the szComment buffer.
-  return the number of byte copied or an error code <0
+  return the number of uint8_t copied or an error code <0
 */
 extern int unzGetGlobalComment (unzFile file, char *szComment, uLong uSizeBuf)
 {
@@ -2466,7 +2466,7 @@ struct inflate_blocks_state {
   uLong bitb;           /* bit buffer */
   inflate_huft *hufts;  /* single malloc for tree space */
   Byte *window;        /* sliding window */
-  Byte *end;           /* one byte after sliding window */
+  Byte *end;           /* one uint8_t after sliding window */
   Byte *read;          /* window read pointer */
   Byte *write;         /* window write pointer */
   check_func checkfn;   /* check function */
@@ -2633,7 +2633,7 @@ int inflate_blocks(inflate_blocks_statef *s, z_streamp z, int r)
           Tracev(("inflate:     stored block%s\n",
                  s->last ? " (last)" : ""));
           DUMPBITS(3)
-          t = k & 7;                    /* go to byte boundary */
+          t = k & 7;                    /* go to uint8_t boundary */
           DUMPBITS(t)
           s->mode = LENS;               /* get length of stored block */
           break;
@@ -3827,7 +3827,7 @@ int inflate_codes(inflate_blocks_statef *s, z_streamp z, int r)
       c->mode = START;
       break;
     case WASH:          /* o: got eob, possibly more output */
-      if (k > 7)        /* return unused byte, if any */
+      if (k > 7)        /* return unused uint8_t, if any */
       {
         Assert(k < 16, "inflate_codes grabbed too many bytes")
         k -= 8;
@@ -3948,18 +3948,18 @@ static int inflate_blocks_sync_point OF((
 #endif
 
 typedef enum {
-      imMETHOD,   /* waiting for method byte */
-      imFLAG,     /* waiting for flag byte */
+      imMETHOD,   /* waiting for method uint8_t */
+      imFLAG,     /* waiting for flag uint8_t */
       imDICT4,    /* four dictionary check bytes to go */
       imDICT3,    /* three dictionary check bytes to go */
       imDICT2,    /* two dictionary check bytes to go */
-      imDICT1,    /* one dictionary check byte to go */
+      imDICT1,    /* one dictionary check uint8_t to go */
       imDICT0,    /* waiting for inflateSetDictionary */
       imBLOCKS,   /* decompressing blocks */
       imCHECK4,   /* four check bytes to go */
       imCHECK3,   /* three check bytes to go */
       imCHECK2,   /* two check bytes to go */
-      imCHECK1,   /* one check byte to go */
+      imCHECK1,   /* one check uint8_t to go */
       imDONE,     /* finished check, done */
       imBAD}      /* got an error--stay here */
 inflate_mode;
@@ -3972,7 +3972,7 @@ struct internal_state {
 
   /* mode dependent information */
   union {
-    uInt method;        /* if FLAGS, method byte */
+    uInt method;        /* if FLAGS, method uint8_t */
     struct {
       uLong was;                /* computed check value */
       uLong need;               /* stream check value */

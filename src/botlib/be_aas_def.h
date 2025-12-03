@@ -272,14 +272,14 @@ typedef struct aas_s
 	//hide travel times
 	unsigned short int *hidetraveltimes;
 	//vis data
-	byte *decompressedvis;
+	uint8_t *decompressedvis;
 	int decompressedvisarea;
-	byte **areavisibility;
+	uint8_t **areavisibility;
 	// done.
 	// Ridah, store the area's waypoint for hidepos calculations (center traced downwards)
 	vec3_t *areawaypoints;
 	// Ridah, so we can cache the areas that have already been tested for visibility/attackability
-	byte *visCache;
+	uint8_t *visCache;
 } aas_t;
 
 

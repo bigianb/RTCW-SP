@@ -363,7 +363,7 @@ void CL_ParseGamestate( msg_t *msg )
 			EntityState* es = &cl.entityBaselines[ newnum ];
 			MSG_ReadDeltaEntity( msg, &nullstate, es, newnum );
 		} else {
-			Com_Error( ERR_DROP, "CL_ParseGamestate: bad command byte" );
+			Com_Error( ERR_DROP, "CL_ParseGamestate: bad command uint8_t" );
             return;  // Keep linter happy. ERR_DROP does not return
 		}
 	}

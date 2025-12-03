@@ -304,7 +304,7 @@ void SV_SendClientGameState( client_t *client ) {
 	int start;
 	EntityState   *base, nullstate;
 	msg_t msg;
-	byte msgBuffer[MAX_MSGLEN];
+	uint8_t msgBuffer[MAX_MSGLEN];
 
 	Com_DPrintf( "SV_SendClientGameState() for %s\n", client->name );
 	Com_DPrintf( "Going from CS_CONNECTED to CS_PRIMED for %s\n", client->name );
@@ -754,7 +754,7 @@ void SV_ExecuteClientMessage( client_t *cl, msg_t *msg ) {
 	} else if ( c == clc_moveNoDelta ) {
 		SV_UserMove( cl, msg, false );
 	} else if ( c != clc_EOF ) {
-		Com_Printf( "WARNING: bad command byte for client %i\n", cl - svs.clients );
+		Com_Printf( "WARNING: bad command uint8_t for client %i\n", cl - svs.clients );
 	}
 //	if ( msg->readcount != msg->cursize ) {
 //		Com_Printf( "WARNING: Junk at end of packet for client %i\n", cl - svs.clients );

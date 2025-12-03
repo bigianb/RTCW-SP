@@ -163,7 +163,7 @@ GameEntity *G_Find( GameEntity *from, int fieldofs, const char *match ) {
 		if ( !from->inuse ) {
 			continue;
 		}
-		s = *( char ** )( (byte *)from + fieldofs );
+		s = *( char ** )( (uint8_t *)from + fieldofs );
 		if ( !s ) {
 			continue;
 		}

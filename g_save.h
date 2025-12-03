@@ -18,5 +18,5 @@ typedef struct {
 // this stores all functions in the game code
 typedef struct {
 	const char *funcStr;
-	byte *funcPtr;
+	uint8_t *funcPtr;
 } funcList_t;

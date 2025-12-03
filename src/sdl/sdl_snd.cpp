@@ -130,7 +130,7 @@ bool SNDDMA_Init(void)
 	dma.samples = s_sdlDevSamps->integer;
 	//dma.submission_chunk = submissionChunk;
 	dma.samplebits = 16;
-	//dma.buffer = (byte *)s_mixedSamples;
+	//dma.buffer = (uint8_t *)s_mixedSamples;
 	dma.channels = s_sdlChannels->integer;
 	dma.speed = 22050;
 

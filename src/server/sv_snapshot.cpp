@@ -310,7 +310,7 @@ static void SV_AddEntitiesVisibleFromPoint(vec3_t origin,
   // calculate the visible areas
   frame->areabytes = CM_WriteAreaBits(frame->areabits, clientarea);
 
-  byte *clientpvs = CM_ClusterPVS(clientcluster);
+  uint8_t *clientpvs = CM_ClusterPVS(clientcluster);
 
   int c_fullsend = 0;
 
@@ -370,7 +370,7 @@ static void SV_AddEntitiesVisibleFromPoint(vec3_t origin,
       continue;
     }
 
-	byte *bitvector = clientpvs;
+	uint8_t *bitvector = clientpvs;
 	
     // ignore if not touching a PV leaf
     // check area
@@ -672,7 +672,7 @@ void SV_SendClientSnapshot(client_t *client) {
     return;
   }
 
-  byte msg_buf[MAX_MSGLEN];
+  uint8_t msg_buf[MAX_MSGLEN];
   msg_t msg;
   MSG_Init(&msg, msg_buf, sizeof(msg_buf));
   msg.allowoverflow = true;

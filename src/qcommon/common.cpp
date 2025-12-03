@@ -761,7 +761,7 @@ typedef struct {
 
 typedef struct hunkblock_s {
 	int size;
-	byte printed;
+	uint8_t printed;
 	struct hunkblock_s *next;
 	char *label;
 	char *file;
@@ -773,7 +773,7 @@ static hunkblock_t *hunkblocks;
 static hunkUsed_t hunk_low, hunk_high;
 static hunkUsed_t  *hunk_permanent, *hunk_temp;
 
-static byte    *s_hunkData = nullptr;
+static uint8_t    *s_hunkData = nullptr;
 static int s_hunkTotal;
 
 static int s_zoneTotal;
@@ -1125,7 +1125,7 @@ Returns last event time
 int Com_EventLoop( void ) {
 	sysEvent_t ev;
 	netadr_t evFrom;
-	byte bufData[MAX_MSGLEN];
+	uint8_t bufData[MAX_MSGLEN];
 	msg_t buf;
 
 	MSG_Init( &buf, bufData, sizeof( bufData ) );

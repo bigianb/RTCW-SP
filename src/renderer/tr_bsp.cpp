@@ -42,7 +42,7 @@ void RE_LoadWorldMap( const char *name );
 */
 
 static world_t s_worldData;
-static byte        *fileBase;
+static uint8_t        *fileBase;
 
 int c_subdivisions;
 int c_gridVerts;
@@ -104,7 +104,7 @@ R_ColorShiftLightingBytes
 
 ===============
 */
-static void R_ColorShiftLightingBytes( byte in[4], byte out[4] ) {
+static void R_ColorShiftLightingBytes( uint8_t in[4], uint8_t out[4] ) {
 	int shift, r, g, b;
 
 	// shift the color data based on overbright range
@@ -140,9 +140,9 @@ R_LoadLightmaps
 */
 #define LIGHTMAP_SIZE   128
 static void R_LoadLightmaps( lump_t *l ) {
-	byte        *buf, *buf_p;
+	uint8_t        *buf, *buf_p;
 	int len;
-    byte image[LIGHTMAP_SIZE * LIGHTMAP_SIZE * 4];
+    uint8_t image[LIGHTMAP_SIZE * LIGHTMAP_SIZE * 4];
 	int i, j;
 	float maxIntensity = 0;
 	double sumIntensity = 0;
@@ -227,7 +227,7 @@ This is called by the clipmodel subsystem so we can share the 1.8 megs of
 space in big maps...
 =================
 */
-void        RE_SetWorldVisData( const byte *vis ) {
+void        RE_SetWorldVisData( const uint8_t *vis ) {
 	tr.externalVisData = vis;
 }
 
@@ -239,10 +239,10 @@ R_LoadVisibility
 */
 static void R_LoadVisibility( lump_t *l ) {
 	int len;
-	byte    *buf;
+	uint8_t    *buf;
 
 	len = ( s_worldData.numClusters + 63 ) & ~63;
-	s_worldData.novis = (byte*)ri.Hunk_Alloc( len, h_low );
+	s_worldData.novis = (uint8_t*)ri.Hunk_Alloc( len, h_low );
 	memset( s_worldData.novis, 0xff, len );
 
 	len = l->filelen;
@@ -259,9 +259,9 @@ static void R_LoadVisibility( lump_t *l ) {
 	if ( tr.externalVisData ) {
 		s_worldData.vis = tr.externalVisData;
 	} else {
-		byte    *dest;
+		uint8_t    *dest;
 
-		dest = (byte*)ri.Hunk_Alloc( len - 8, h_low );
+		dest = (uint8_t*)ri.Hunk_Alloc( len - 8, h_low );
 		memcpy( dest, buf + 8, len - 8 );
 		s_worldData.vis = dest;
 	}
@@ -306,7 +306,7 @@ static shader_t *ShaderForShaderNum( int shaderNum, int lightmapNum ) {
 
 // Ridah, optimizations here
 // memory block for use by surfaces
-static byte *surfHunkPtr;
+static uint8_t *surfHunkPtr;
 static int surfHunkSize;
 #define SURF_HUNK_MAXSIZE 0x40000
 #define LL( x ) LittleLong( x )
@@ -318,7 +318,7 @@ R_InitSurfMemory
 */
 void R_InitSurfMemory( void ) {
 	// allocate a new chunk
-	surfHunkPtr = (byte*)ri.Hunk_Alloc( SURF_HUNK_MAXSIZE, h_low );
+	surfHunkPtr = (uint8_t*)ri.Hunk_Alloc( SURF_HUNK_MAXSIZE, h_low );
 	surfHunkSize = 0;
 }
 
@@ -328,7 +328,7 @@ R_GetSurfMemory
 ==============
 */
 void *R_GetSurfMemory( int size ) {
-	byte *retval;
+	uint8_t *retval;
 
 	// round to cacheline
 	size = ( size + 31 ) & ~31;
@@ -399,12 +399,12 @@ static void ParseFace( dsurface_t *ds, drawVert_t *verts, msurface_t *surf, int 
 			cv->points[i][3 + j] = LittleFloat( verts[i].st[j] );
 			cv->points[i][5 + j] = LittleFloat( verts[i].lightmap[j] );
 		}
-		R_ColorShiftLightingBytes( verts[i].color, (byte *)&cv->points[i][7] );
+		R_ColorShiftLightingBytes( verts[i].color, (uint8_t *)&cv->points[i][7] );
 	}
 
 	indexes += LittleLong( ds->firstIndex );
 	for ( i = 0 ; i < numIndexes ; i++ ) {
-		( ( int * )( (byte *)cv + cv->ofsIndices ) )[i] = LittleLong( indexes[ i ] );
+		( ( int * )( (uint8_t *)cv + cv->ofsIndices ) )[i] = LittleLong( indexes[ i ] );
 	}
 
 	// take the plane information from the lightmap vector
@@ -2018,7 +2018,7 @@ void R_LoadLightGrid( lump_t *l ) {
 		return;
 	}
 
-	w->lightGridData = (byte *)ri.Hunk_Alloc( l->filelen, h_low );
+	w->lightGridData = (uint8_t *)ri.Hunk_Alloc( l->filelen, h_low );
 	memcpy( w->lightGridData, ( void * )( fileBase + l->fileofs ), l->filelen );
 
 	// deal with overbright bits
@@ -2137,8 +2137,8 @@ Called directly from cgame
 void RE_LoadWorldMap( const char *name ) {
 	int i;
 	dheader_t   *header;
-	byte        *buffer;
-	byte        *startMarker;
+	uint8_t        *buffer;
+	uint8_t        *startMarker;
 
 	skyboxportal = 0;
 
@@ -2189,11 +2189,11 @@ void RE_LoadWorldMap( const char *name ) {
 	Q_strncpyz( s_worldData.baseName, COM_SkipPath( s_worldData.name ), sizeof( s_worldData.name ) );
 	COM_StripExtension( s_worldData.baseName, s_worldData.baseName );
 
-	startMarker = (byte *)ri.Hunk_Alloc( 0, h_low );
+	startMarker = (uint8_t *)ri.Hunk_Alloc( 0, h_low );
 	c_gridVerts = 0;
 
 	header = (dheader_t *)buffer;
-	fileBase = (byte *)header;
+	fileBase = (uint8_t *)header;
 
 	i = LittleLong( header->version );
 
@@ -2233,7 +2233,7 @@ void RE_LoadWorldMap( const char *name ) {
 	R_LoadLightGrid( &header->lumps[LUMP_LIGHTGRID] );
 	Cbuf_ExecuteText( EXEC_NOW, "updatescreen\n" );
 
-	s_worldData.dataSize = (byte *)ri.Hunk_Alloc( 0, h_low ) - startMarker;
+	s_worldData.dataSize = (uint8_t *)ri.Hunk_Alloc( 0, h_low ) - startMarker;
 
 	// only set tr.world now that we know the entire level has loaded properly
 	tr.world = &s_worldData;

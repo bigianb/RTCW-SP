@@ -149,8 +149,8 @@ static int R_CullModel( mdsHeader_t *header, trRefEntity_t *ent ) {
 	frameSize = (int) ( sizeof( mdsFrame_t ) - sizeof( mdsBoneFrameCompressed_t ) + header->numBones * sizeof( mdsBoneFrameCompressed_t ) );
 
 	// compute frame pointers
-	newFrame = ( mdsFrame_t * )( ( byte * ) header + header->ofsFrames + ent->e.frame * frameSize );
-	oldFrame = ( mdsFrame_t * )( ( byte * ) header + header->ofsFrames + ent->e.oldframe * frameSize );
+	newFrame = ( mdsFrame_t * )( ( uint8_t * ) header + header->ofsFrames + ent->e.frame * frameSize );
+	oldFrame = ( mdsFrame_t * )( ( uint8_t * ) header + header->ofsFrames + ent->e.oldframe * frameSize );
 
 	radScale = 1.0f;
 
@@ -295,7 +295,7 @@ static int R_ComputeFogNum( mdsHeader_t *header, trRefEntity_t *ent ) {
 	}
 
 	// FIXME: non-normalized axis issues
-	mdsFrame = ( mdsFrame_t * )( ( byte * ) header + header->ofsFrames + ( sizeof( mdsFrame_t ) + sizeof( mdsBoneFrameCompressed_t ) * ( header->numBones - 1 ) ) * ent->e.frame );
+	mdsFrame = ( mdsFrame_t * )( ( uint8_t * ) header + header->ofsFrames + ( sizeof( mdsFrame_t ) + sizeof( mdsBoneFrameCompressed_t ) * ( header->numBones - 1 ) ) * ent->e.frame );
 	VectorAdd( ent->e.origin, mdsFrame->localOrigin, localOrigin );
 	for ( i = 1 ; i < tr.world->numfogs ; i++ ) {
 		fog = &tr.world->fogs[i];
@@ -353,7 +353,7 @@ void R_AddAnimSurfaces( trRefEntity_t *ent ) {
 	//
 	fogNum = R_ComputeFogNum( header, ent );
 
-	surface = ( mdsSurface_t * )( (byte *)header + header->ofsSurfaces );
+	surface = ( mdsSurface_t * )( (uint8_t *)header + header->ofsSurfaces );
 	for ( i = 0 ; i < header->numSurfaces ; i++ ) {
 		int j;
 
@@ -363,7 +363,7 @@ void R_AddAnimSurfaces( trRefEntity_t *ent ) {
 //		minimal overdraw/alpha blending/texture use without breaking the model and causing seams
 		if ( !Q_stricmp( surface->name, "h_blink" ) ) {
 			if ( !( ent->e.renderfx & RF_BLINK ) ) {
-				surface = ( mdsSurface_t * )( (byte *)surface + surface->ofsEnd );
+				surface = ( mdsSurface_t * )( (uint8_t *)surface + surface->ofsEnd );
 				continue;
 			}
 		}
@@ -402,7 +402,7 @@ void R_AddAnimSurfaces( trRefEntity_t *ent ) {
 			R_AddDrawSurf( (surfaceType_t *)surface, shader, fogNum, 0, ATI_TESS_TRUFORM );
 		}
 
-		surface = ( mdsSurface_t * )( (byte *)surface + surface->ofsEnd );
+		surface = ( mdsSurface_t * )( (uint8_t *)surface + surface->ofsEnd );
 	}
 }
 
@@ -1041,13 +1041,13 @@ void R_CalcBones( mdsHeader_t *header, const refEntity_t *refent, int *boneList,
 
 	frameSize = (int) ( sizeof( mdsFrame_t ) + ( header->numBones - 1 ) * sizeof( mdsBoneFrameCompressed_t ) );
 
-	frame = ( mdsFrame_t * )( (byte *)header + header->ofsFrames +
+	frame = ( mdsFrame_t * )( (uint8_t *)header + header->ofsFrames +
 							  refent->frame * frameSize );
-	torsoFrame = ( mdsFrame_t * )( (byte *)header + header->ofsFrames +
+	torsoFrame = ( mdsFrame_t * )( (uint8_t *)header + header->ofsFrames +
 								   refent->torsoFrame * frameSize );
-	oldFrame = ( mdsFrame_t * )( (byte *)header + header->ofsFrames +
+	oldFrame = ( mdsFrame_t * )( (uint8_t *)header + header->ofsFrames +
 								 refent->oldframe * frameSize );
-	oldTorsoFrame = ( mdsFrame_t * )( (byte *)header + header->ofsFrames +
+	oldTorsoFrame = ( mdsFrame_t * )( (uint8_t *)header + header->ofsFrames +
 									  refent->oldTorsoFrame * frameSize );
 
 	//
@@ -1056,7 +1056,7 @@ void R_CalcBones( mdsHeader_t *header, const refEntity_t *refent, int *boneList,
 	cBoneList = frame->bones;
 	cBoneListTorso = torsoFrame->bones;
 
-	boneInfo = ( mdsBoneInfo_t * )( (byte *)header + header->ofsBones );
+	boneInfo = ( mdsBoneInfo_t * )( (uint8_t *)header + header->ofsBones );
 	boneRefs = boneList;
 	//
 	Matrix3Transpose( refent->torsoAxis, torsoAxis );
@@ -1186,8 +1186,8 @@ void RB_SurfaceAnim( mdsSurface_t *surface ) {
 #endif
 
 	refent = &backEnd.currentEntity->e;
-	boneList = ( int * )( (byte *)surface + surface->ofsBoneReferences );
-	header = ( mdsHeader_t * )( (byte *)surface + surface->ofsHeader );
+	boneList = ( int * )( (uint8_t *)surface + surface->ofsBoneReferences );
+	header = ( mdsHeader_t * )( (uint8_t *)surface + surface->ofsHeader );
 
 	R_CalcBones( header, (const refEntity_t *)refent, boneList, surface->numBoneReferences );
 
@@ -1237,8 +1237,8 @@ void RB_SurfaceAnim( mdsSurface_t *surface ) {
 
 //DBG_SHOWTIME
 
-	collapse_map   = ( int * )( ( byte * )surface + surface->ofsCollapseMap );
-	triangles = ( int * )( (byte *)surface + surface->ofsTriangles );
+	collapse_map   = ( int * )( ( uint8_t * )surface + surface->ofsCollapseMap );
+	triangles = ( int * )( (uint8_t *)surface + surface->ofsTriangles );
 	indexes = surface->numTriangles * 3;
 	baseIndex = tess.numIndexes;
 	baseVertex = tess.numVertexes;
@@ -1304,7 +1304,7 @@ void RB_SurfaceAnim( mdsSurface_t *surface ) {
 	// deform the vertexes by the lerped bones
 	//
 	numVerts = surface->numVerts;
-	v = ( mdsVertex_t * )( (byte *)surface + surface->ofsVerts );
+	v = ( mdsVertex_t * )( (uint8_t *)surface + surface->ofsVerts );
 	tempVert = ( float * )( tess.xyz + baseVertex );
 	tempNormal = ( float * )( tess.normal + baseVertex );
 	for ( j = 0; j < render_count; j++, tempVert += 4, tempNormal += 4 ) {
@@ -1330,7 +1330,7 @@ void RB_SurfaceAnim( mdsSurface_t *surface ) {
 	if ( r_bonesDebug->integer ) {
 		if ( r_bonesDebug->integer < 3 ) {
 			// DEBUG: show the bones as a stick figure with axis at each bone
-			boneRefs = ( int * )( (byte *)surface + surface->ofsBoneReferences );
+			boneRefs = ( int * )( (uint8_t *)surface + surface->ofsBoneReferences );
 			for ( i = 0; i < surface->numBoneReferences; i++, boneRefs++ ) {
 				bonePtr = &bones[*boneRefs];
 
@@ -1453,7 +1453,7 @@ int R_GetBoneTag( orientation_t *outTag, mdsHeader_t *mds, int startTagIndex, co
 
 	// find the correct tag
 
-	pTag = ( mdsTag_t * )( (byte *)mds + mds->ofsTags );
+	pTag = ( mdsTag_t * )( (uint8_t *)mds + mds->ofsTags );
 
 	pTag += startTagIndex;
 
@@ -1470,7 +1470,7 @@ int R_GetBoneTag( orientation_t *outTag, mdsHeader_t *mds, int startTagIndex, co
 
 	// now build the list of bones we need to calc to get this tag's bone information
 
-	boneInfoList = ( mdsBoneInfo_t * )( (byte *)mds + mds->ofsBones );
+	boneInfoList = ( mdsBoneInfo_t * )( (uint8_t *)mds + mds->ofsBones );
 	numBones = 0;
 
 	R_RecursiveBoneListAdd( pTag->boneIndex, boneList, &numBones, boneInfoList );

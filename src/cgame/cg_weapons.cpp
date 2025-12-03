@@ -863,7 +863,7 @@ static bool CG_ParseWeaponConfig( const char *filename, weaponInfo_t *wi )
 			if ( !token ) {
 				break;
 			}
-			wi->weapAnimations[i].moveSpeed |= ( ( atoi( token ) ) << 8 ); // use 2nd byte for draw bits
+			wi->weapAnimations[i].moveSpeed |= ( ( atoi( token ) ) << 8 ); // use 2nd uint8_t for draw bits
 		}
 
 	}
@@ -1391,7 +1391,7 @@ bool CG_GetPartFramesFromWeap( centity_t *cent, refEntity_t *part, refEntity_t *
 	}
 
 	// check draw bit
-	if ( anim->moveSpeed & ( 1 << ( partid + 8 ) ) ) {    // hide bits are in high byte
+	if ( anim->moveSpeed & ( 1 << ( partid + 8 ) ) ) {    // hide bits are in high uint8_t
 		return false;  // not drawn for current sequence
 	}
 

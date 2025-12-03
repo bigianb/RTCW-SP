@@ -226,7 +226,7 @@ typedef struct {
 
 	// loper effects
 	int loperLastGroundChargeTime;
-	byte loperGroundChargeToggle;
+	uint8_t loperGroundChargeToggle;
 	int loperGroundValidTime;
 
 	vec3_t headLookIdeal;

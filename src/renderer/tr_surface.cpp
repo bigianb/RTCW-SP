@@ -79,10 +79,10 @@ RB_AddQuadStampFadingCornersExt
   Creates a sprite with the center at colors[3] alpha, and the corners all 0 alpha
 ==============
 */
-void RB_AddQuadStampFadingCornersExt( vec3_t origin, vec3_t left, vec3_t up, byte *color, float s1, float t1, float s2, float t2 ) {
+void RB_AddQuadStampFadingCornersExt( vec3_t origin, vec3_t left, vec3_t up, uint8_t *color, float s1, float t1, float s2, float t2 ) {
 	vec3_t normal;
 	int ndx;
-	byte lColor[4];
+	uint8_t lColor[4];
 
 	RB_CHECKOVERFLOW( 5, 12 );
 
@@ -154,7 +154,7 @@ void RB_AddQuadStampFadingCornersExt( vec3_t origin, vec3_t left, vec3_t up, byt
 		*( unsigned int * )color;
 
 	// fade around edges
-	memcpy( lColor, color, sizeof( byte ) * 4 );
+	memcpy( lColor, color, sizeof( uint8_t ) * 4 );
 	lColor[3] = 0;
 	*( unsigned int * ) &tess.vertexColors[ndx] =
 		*( unsigned int * ) &tess.vertexColors[ndx + 1] =
@@ -172,7 +172,7 @@ void RB_AddQuadStampFadingCornersExt( vec3_t origin, vec3_t left, vec3_t up, byt
 RB_AddQuadStampExt
 ==============
 */
-void RB_AddQuadStampExt( vec3_t origin, vec3_t left, vec3_t up, byte *color, float s1, float t1, float s2, float t2 ) {
+void RB_AddQuadStampExt( vec3_t origin, vec3_t left, vec3_t up, uint8_t *color, float s1, float t1, float s2, float t2 ) {
 	vec3_t normal;
 	int ndx;
 
@@ -244,7 +244,7 @@ void RB_AddQuadStampExt( vec3_t origin, vec3_t left, vec3_t up, byte *color, flo
 RB_AddQuadStamp
 ==============
 */
-void RB_AddQuadStamp( vec3_t origin, vec3_t left, vec3_t up, byte *color ) {
+void RB_AddQuadStamp( vec3_t origin, vec3_t left, vec3_t up, uint8_t *color ) {
 	RB_AddQuadStampExt( origin, left, up, color, 0, 0, 1, 1 );
 }
 
@@ -348,7 +348,7 @@ void RB_SurfaceTriangles( srfTriangles_t *srf ) {
 	int i;
 	drawVert_t  *dv;
 	float       *xyz, *normal, *texCoords;
-	byte        *color;
+	uint8_t        *color;
 	int dlightBits;
 	bool needsNormal;
 
@@ -741,7 +741,7 @@ static void LerpMeshVertexes( md3Surface_t *surf, float backlerp ) {
 	outXyz = tess.xyz[tess.numVertexes];
 	outNormal = tess.normal[tess.numVertexes];
 
-	newXyz = ( short * )( (byte *)surf + surf->ofsXyzNormals )
+	newXyz = ( short * )( (uint8_t *)surf + surf->ofsXyzNormals )
 			 + ( backEnd.currentEntity->e.frame * surf->numVerts * 4 );
 	newNormals = newXyz + 3;
 
@@ -780,7 +780,7 @@ static void LerpMeshVertexes( md3Surface_t *surf, float backlerp ) {
 		//
 		// interpolate and copy the vertex and normal
 		//
-		oldXyz = ( short * )( (byte *)surf + surf->ofsXyzNormals )
+		oldXyz = ( short * )( (uint8_t *)surf + surf->ofsXyzNormals )
 				 + ( backEnd.currentEntity->e.oldframe * surf->numVerts * 4 );
 		oldNormals = oldXyz + 3;
 
@@ -857,7 +857,7 @@ void RB_SurfaceMesh( md3Surface_t *surface ) {
 
 	LerpMeshVertexes( surface, backlerp );
 
-	triangles = ( int * )( (byte *)surface + surface->ofsTriangles );
+	triangles = ( int * )( (uint8_t *)surface + surface->ofsTriangles );
 	indexes = surface->numTriangles * 3;
 	Bob = tess.numIndexes;
 	Doug = tess.numVertexes;
@@ -866,7 +866,7 @@ void RB_SurfaceMesh( md3Surface_t *surface ) {
 	}
 	tess.numIndexes += indexes;
 
-	texCoords = ( float * )( (byte *)surface + surface->ofsSt );
+	texCoords = ( float * )( (uint8_t *)surface + surface->ofsSt );
 
 	numVerts = surface->numVerts;
 	for ( j = 0; j < numVerts; j++ ) {
@@ -922,16 +922,16 @@ static void LerpCMeshVertexes( mdcSurface_t *surf, float backlerp ) {
 	outXyz = tess.xyz[tess.numVertexes];
 	outNormal = tess.normal[tess.numVertexes];
 
-	newBase = (int)*( ( short * )( (byte *)surf + surf->ofsFrameBaseFrames ) + backEnd.currentEntity->e.frame );
-	newXyz = ( short * )( (byte *)surf + surf->ofsXyzNormals )
+	newBase = (int)*( ( short * )( (uint8_t *)surf + surf->ofsFrameBaseFrames ) + backEnd.currentEntity->e.frame );
+	newXyz = ( short * )( (uint8_t *)surf + surf->ofsXyzNormals )
 			 + ( newBase * surf->numVerts * 4 );
 	newNormals = newXyz + 3;
 
 	hasComp = ( surf->numCompFrames > 0 );
 	if ( hasComp ) {
-		newComp = ( ( short * )( (byte *)surf + surf->ofsFrameCompFrames ) + backEnd.currentEntity->e.frame );
+		newComp = ( ( short * )( (uint8_t *)surf + surf->ofsFrameCompFrames ) + backEnd.currentEntity->e.frame );
 		if ( *newComp >= 0 ) {
-			newXyzComp = ( mdcXyzCompressed_t * )( (byte *)surf + surf->ofsXyzCompressed )
+			newXyzComp = ( mdcXyzCompressed_t * )( (uint8_t *)surf + surf->ofsXyzCompressed )
 						 + ( *newComp * surf->numVerts );
 		}
 	}
@@ -974,15 +974,15 @@ static void LerpCMeshVertexes( mdcSurface_t *surf, float backlerp ) {
 		//
 		// interpolate and copy the vertex and normal
 		//
-		oldBase = (int)*( ( short * )( (byte *)surf + surf->ofsFrameBaseFrames ) + backEnd.currentEntity->e.oldframe );
-		oldXyz = ( short * )( (byte *)surf + surf->ofsXyzNormals )
+		oldBase = (int)*( ( short * )( (uint8_t *)surf + surf->ofsFrameBaseFrames ) + backEnd.currentEntity->e.oldframe );
+		oldXyz = ( short * )( (uint8_t *)surf + surf->ofsXyzNormals )
 				 + ( oldBase * surf->numVerts * 4 );
 		oldNormals = oldXyz + 3;
 
 		if ( hasComp ) {
-			oldComp = ( ( short * )( (byte *)surf + surf->ofsFrameCompFrames ) + backEnd.currentEntity->e.oldframe );
+			oldComp = ( ( short * )( (uint8_t *)surf + surf->ofsFrameCompFrames ) + backEnd.currentEntity->e.oldframe );
 			if ( *oldComp >= 0 ) {
-				oldXyzComp = ( mdcXyzCompressed_t * )( (byte *)surf + surf->ofsXyzCompressed )
+				oldXyzComp = ( mdcXyzCompressed_t * )( (uint8_t *)surf + surf->ofsXyzCompressed )
 							 + ( *oldComp * surf->numVerts );
 			}
 		}
@@ -1072,7 +1072,7 @@ void RB_SurfaceCMesh( mdcSurface_t *surface ) {
 
 	LerpCMeshVertexes( surface, backlerp );
 
-	triangles = ( int * )( (byte *)surface + surface->ofsTriangles );
+	triangles = ( int * )( (uint8_t *)surface + surface->ofsTriangles );
 	indexes = surface->numTriangles * 3;
 	Bob = tess.numIndexes;
 	Doug = tess.numVertexes;
@@ -1081,7 +1081,7 @@ void RB_SurfaceCMesh( mdcSurface_t *surface ) {
 	}
 	tess.numIndexes += indexes;
 
-	texCoords = ( float * )( (byte *)surface + surface->ofsSt );
+	texCoords = ( float * )( (uint8_t *)surface + surface->ofsSt );
 
 	numVerts = surface->numVerts;
 	for ( j = 0; j < numVerts; j++ ) {

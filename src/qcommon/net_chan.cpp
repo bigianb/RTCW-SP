@@ -36,7 +36,7 @@ packet header
 -------------
 4	outgoing sequence.  high bit will be set if this is a fragmented message
 [2	qport (only for client to server)]
-[2	fragment start byte]
+[2	fragment start uint8_t]
 [2	fragment length. if < FRAGMENT_SIZE, this is the last fragment]
 
 if the sequence number is -1, the packet should be handled as an out-of-band
@@ -109,7 +109,7 @@ Send one fragment of the current message
 */
 void Netchan_TransmitNextFragment( netchan_t *chan ) {
 	msg_t send;
-	byte send_buf[MAX_PACKETLEN];
+	uint8_t send_buf[MAX_PACKETLEN];
 	int fragmentLength;
 
 	// write the packet header
@@ -164,9 +164,9 @@ Sends a message to a connection, fragmenting if necessary
 A 0 length will still generate a packet.
 ================
 */
-void Netchan_Transmit( netchan_t *chan, int length, const byte *data ) {
+void Netchan_Transmit( netchan_t *chan, int length, const uint8_t *data ) {
 	msg_t send;
-	byte send_buf[MAX_PACKETLEN];
+	uint8_t send_buf[MAX_PACKETLEN];
 
 	if ( length > MAX_MSGLEN ) {
 		Com_Error( ERR_DROP, "Netchan_Transmit: length = %i", length );
@@ -425,7 +425,7 @@ LOOPBACK BUFFERS FOR LOCAL PLAYER
 #define MAX_LOOPBACK    16
 
 typedef struct {
-	byte data[MAX_PACKETLEN];
+	uint8_t data[MAX_PACKETLEN];
 	int datalen;
 } loopmsg_t;
 

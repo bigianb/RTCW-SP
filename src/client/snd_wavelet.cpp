@@ -100,9 +100,9 @@ static unsigned char numBits[] = {
 	8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,
 };
 
-byte MuLawEncode( short s ) {
+uint8_t MuLawEncode( short s ) {
 	unsigned long adjusted;
-	byte sign, exponent, mantissa;
+	uint8_t sign, exponent, mantissa;
 
 	sign = ( s < 0 ) ? 0 : 0x80;
 
@@ -119,9 +119,9 @@ byte MuLawEncode( short s ) {
 	return ~( sign | ( exponent << 4 ) | mantissa );
 }
 
-short MuLawDecode( byte uLaw ) {
+short MuLawDecode( uint8_t uLaw ) {
 	signed long adjusted;
-	byte exponent, mantissa;
+	uint8_t exponent, mantissa;
 
 	uLaw = ~uLaw;
 	exponent = ( uLaw >> 4 ) & 0x7;
@@ -145,11 +145,11 @@ void encodeWavelet( sfx_t *sfx, short *packets ) {
 	float wksp[4097], temp;
 	int i, samples, size;
 	sndBuffer       *newchunk, *chunk;
-	byte            *out;
+	uint8_t            *out;
 
 	if ( !madeTable ) {
 		for ( i = 0; i < 256; i++ ) {
-			mulawToShort[i] = (float)MuLawDecode( (byte)i );
+			mulawToShort[i] = (float)MuLawDecode( (uint8_t)i );
 		}
 		madeTable = true;
 	}
@@ -178,7 +178,7 @@ void encodeWavelet( sfx_t *sfx, short *packets ) {
 			packets++;
 		}
 		wt1( wksp, size, 1 );
-		out = (byte *)chunk->sndChunk;
+		out = (uint8_t *)chunk->sndChunk;
 
 		for ( i = 0; i < size; i++ ) {
 			temp = wksp[i];
@@ -198,11 +198,11 @@ void encodeWavelet( sfx_t *sfx, short *packets ) {
 void decodeWavelet( sndBuffer *chunk, short *to ) {
 	float wksp[4097];
 	int i;
-	byte            *out;
+	uint8_t            *out;
 
 	int size = chunk->size;
 
-	out = (byte *)chunk->sndChunk;
+	out = (uint8_t *)chunk->sndChunk;
 	for ( i = 0; i < size; i++ ) {
 		wksp[i] = mulawToShort[out[i]];
 	}
@@ -222,11 +222,11 @@ void decodeWavelet( sndBuffer *chunk, short *to ) {
 void encodeMuLaw( sfx_t *sfx, short *packets ) {
 	int i, samples, size, grade, poop;
 	sndBuffer       *newchunk, *chunk;
-	byte            *out;
+	uint8_t            *out;
 
 	if ( !madeTable ) {
 		for ( i = 0; i < 256; i++ ) {
-			mulawToShort[i] = (float)MuLawDecode( (byte)i );
+			mulawToShort[i] = (float)MuLawDecode( (uint8_t)i );
 		}
 		madeTable = true;
 	}
@@ -248,7 +248,7 @@ void encodeMuLaw( sfx_t *sfx, short *packets ) {
 			chunk->next = newchunk;
 		}
 		chunk = newchunk;
-		out = (byte *)chunk->sndChunk;
+		out = (uint8_t *)chunk->sndChunk;
 		for ( i = 0; i < size; i++ ) {
 			poop = packets[0] + grade;
 			if ( poop > 32767 ) {
@@ -267,11 +267,11 @@ void encodeMuLaw( sfx_t *sfx, short *packets ) {
 
 void decodeMuLaw( sndBuffer *chunk, short *to ) {
 	int i;
-	byte            *out;
+	uint8_t            *out;
 
 	int size = chunk->size;
 
-	out = (byte *)chunk->sndChunk;
+	out = (uint8_t *)chunk->sndChunk;
 	for ( i = 0; i < size; i++ ) {
 		to[i] = mulawToShort[out[i]];
 	}

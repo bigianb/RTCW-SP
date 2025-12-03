@@ -768,7 +768,7 @@ During normal gameplay, a client packet will contain something like:
 */
 void CL_WritePacket( void ) {
 	msg_t buf;
-	byte data[MAX_MSGLEN];
+	uint8_t data[MAX_MSGLEN];
 	int i, j;
 	UserCmd   *cmd, *oldcmd;
 	UserCmd nullcmd;

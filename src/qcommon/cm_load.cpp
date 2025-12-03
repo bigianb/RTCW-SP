@@ -46,7 +46,7 @@ int c_pointcontents;
 int c_traces, c_brush_traces, c_patch_traces;
 
 
-byte        *cmod_base;
+uint8_t        *cmod_base;
 
 cvar_t      *cm_noAreas;
 cvar_t      *cm_noCurves;
@@ -445,19 +445,19 @@ CMod_LoadVisibility
 #define VIS_HEADER  8
 void CMod_LoadVisibility( lump_t *l ) {
 	int len;
-	byte    *buf;
+	uint8_t    *buf;
 
 	len = l->filelen;
 	if ( !len ) {
 		cm.clusterBytes = ( cm.numClusters + 31 ) & ~31;
-		cm.visibility = (byte *)Hunk_Alloc( cm.clusterBytes, h_high );
+		cm.visibility = (uint8_t *)Hunk_Alloc( cm.clusterBytes, h_high );
 		Com_Memset( cm.visibility, 255, cm.clusterBytes );
 		return;
 	}
 	buf = cmod_base + l->fileofs;
 
 	cm.vised = true;
-	cm.visibility = (byte *)Hunk_Alloc( len, h_high );
+	cm.visibility = (uint8_t *)Hunk_Alloc( len, h_high );
 	cm.numClusters = LittleLong( ( (int *)buf )[0] );
 	cm.clusterBytes = LittleLong( ( (int *)buf )[1] );
 	Com_Memcpy( cm.visibility, buf + VIS_HEADER, len - VIS_HEADER );
@@ -606,7 +606,7 @@ void CM_LoadMap( const char *name, bool clientload, int *checksum )
         return; // keep the linter happy, ERR_DROP does not return
 	}
 
-	cmod_base = (byte *)buf;
+	cmod_base = (uint8_t *)buf;
 
 	// load into heap
 	CMod_LoadShaders( &header.lumps[LUMP_SHADERS] );

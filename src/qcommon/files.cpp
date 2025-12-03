@@ -472,7 +472,7 @@ static void FS_CopyFile( char *fromOSPath, char *toOSPath ) {
 
 	// we are using direct malloc instead of calloc here, so it
 	// probably won't work on a mac... Its only for developers anyway...
-	byte* buf = (byte *)malloc( len );
+	uint8_t* buf = (uint8_t *)malloc( len );
 	if ( fread( buf, 1, len, f ) != len ) {
 		Com_Error( ERR_FATAL, "Short read in FS_Copyfiles()\n" );
 	}
@@ -515,7 +515,7 @@ void FS_CopyFileOS( char *from, char *to ) {
 
 	// we are using direct malloc instead of calloc here, so it
 	// probably won't work on a mac... Its only for developers anyway...
-	byte* buf = (byte *)malloc( len );
+	uint8_t* buf = (uint8_t *)malloc( len );
 	if ( fread( buf, 1, len, f ) != len ) {
 		Com_Error( ERR_FATAL, "Short read in FS_Copyfiles()\n" );
 	}
@@ -939,20 +939,20 @@ bool FS_FileCompare( const char *s1, const char *s2 ) {
 	}
 
 	// now do a binary compare
-	byte* b1 = (byte *)malloc( len1 );
+	uint8_t* b1 = (uint8_t *)malloc( len1 );
 	if ( fread( b1, 1, len1, f1 ) != len1 ) {
 		Com_Error( ERR_FATAL, "Short read in FS_FileCompare()\n" );
 	}
 	fclose( f1 );
 
-	byte* b2 = (byte *)malloc( len2 );
+	uint8_t* b2 = (uint8_t *)malloc( len2 );
 	if ( fread( b2, 1, len2, f2 ) != len2 ) {
 		Com_Error( ERR_FATAL, "Short read in FS_FileCompare()\n" );
 	}
 	fclose( f2 );
 
-	byte* p1 = b1;
-	byte* p2 = b2;
+	uint8_t* p1 = b1;
+	uint8_t* p2 = b2;
 	for ( pos = 0; pos < len1; pos++, p1++, p2++ )
 	{
 		if ( *p1 != *p2 ) {
@@ -1256,7 +1256,7 @@ size_t FS_Read( void *buffer, size_t len, fileHandle_t f ) {
 		return 0;
 	}
 
-	byte* buf = (byte *)buffer;
+	uint8_t* buf = (uint8_t *)buffer;
 	fs_readCount += len;
 
 	if ( !fsh[f].zipFile) {
@@ -1306,7 +1306,7 @@ size_t FS_Write( const void *buffer, size_t len, fileHandle_t h ) {
 	}
 
 	FILE* f = FS_FileForHandle( h );
-	byte* buf = (byte *)buffer;
+	uint8_t* buf = (uint8_t *)buffer;
 
 	size_t remaining = len;
 	int tries = 0;
@@ -1489,7 +1489,7 @@ size_t FS_ReadFile( const char *qpath, void **buffer ) {
 		Com_Error( ERR_FATAL, "FS_ReadFile with empty name\n" );
 	}
 
-	byte* buf = nullptr; // quiet compiler warning
+	uint8_t* buf = nullptr; // quiet compiler warning
 	size_t len = 0;
 	// if this is a .cfg file and we are playing back a journal, read
 	// it from the journal file
@@ -1518,7 +1518,7 @@ size_t FS_ReadFile( const char *qpath, void **buffer ) {
 				return len;
 			}
 
-			buf = (byte *)Hunk_AllocateTempMemory( len + 1 );
+			buf = (uint8_t *)Hunk_AllocateTempMemory( len + 1 );
 			*buffer = buf;
 
 			r = FS_Read( buf, len, com_journalDataFile );
@@ -1567,7 +1567,7 @@ size_t FS_ReadFile( const char *qpath, void **buffer ) {
 	fs_loadCount++;
 	fs_loadStack++;
 
-	buf = (byte *)Hunk_AllocateTempMemory( len + 1 );
+	buf = (uint8_t *)Hunk_AllocateTempMemory( len + 1 );
 	*buffer = buf;
 
 	FS_Read( buf, len, h );

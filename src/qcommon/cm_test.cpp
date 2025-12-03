@@ -303,7 +303,7 @@ PVS
 ===============================================================================
 */
 
-byte    *CM_ClusterPVS( int cluster ) {
+uint8_t    *CM_ClusterPVS( int cluster ) {
 	if ( cluster < 0 || cluster >= cm.numClusters || !cm.vised ) {
 		return cm.visibility;
 	}
@@ -446,7 +446,7 @@ viewpoints and get the union of all visible areas.
 This is used to cull non-visible entities from snapshots
 =================
 */
-int CM_WriteAreaBits( byte *buffer, int area ) {
+int CM_WriteAreaBits( uint8_t *buffer, int area ) {
 	int i;
 	int floodnum;
 	int bytes;

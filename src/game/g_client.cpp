@@ -463,7 +463,7 @@ static void ClientCleanName( const char *in, char *out, int outSize ) {
 	char    *p;
 	int spaces;
 
-	//save room for trailing null byte
+	//save room for trailing null uint8_t
 	outSize--;
 
 	len = 0;

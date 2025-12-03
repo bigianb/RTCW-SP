@@ -429,10 +429,10 @@ static void ProjectDlightTexture( void ) {
 	int i, l;
 	vec3_t origin;
 	float   *texCoords;
-	byte    *colors;
-	byte clipBits[SHADER_MAX_VERTEXES];
+	uint8_t    *colors;
+	uint8_t clipBits[SHADER_MAX_VERTEXES];
     float texCoordsArray[SHADER_MAX_VERTEXES][2];
-	byte colorArray[SHADER_MAX_VERTEXES][4];
+	uint8_t colorArray[SHADER_MAX_VERTEXES][4];
 	unsigned hitIndexes[SHADER_MAX_INDEXES];
 	int numIndexes;
 	float scale;
@@ -787,7 +787,7 @@ static void ComputeColors( shaderStage_t *pStage ) {
 				} else if ( alpha < 0.0 ) {
 					alpha = 0.0;
 				}
-				tess.svars.colors[i][3] = (byte)( alpha );
+				tess.svars.colors[i][3] = (uint8_t)( alpha );
 				continue;
 			}
 
@@ -809,7 +809,7 @@ static void ComputeColors( shaderStage_t *pStage ) {
 						alpha *= (float)backEnd.currentEntity->e.shaderRGBA[3] / 255.0;
 					}
 
-					tess.svars.colors[i][3] = (byte)( alpha );
+					tess.svars.colors[i][3] = (uint8_t)( alpha );
 				} else {
 					tess.svars.colors[i][3] = 0;
 				}

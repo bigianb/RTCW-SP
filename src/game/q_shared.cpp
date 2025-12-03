@@ -203,7 +203,7 @@ float   BigFloat( float l ) {return _BigFloat( l );}
 float   LittleFloat( float l ) {return _LittleFloat( l );}
 
 short   ShortSwap( short l ) {
-	byte b1,b2;
+	uint8_t b1,b2;
 
 	b1 = l & 255;
 	b2 = ( l >> 8 ) & 255;
@@ -216,7 +216,7 @@ short   ShortNoSwap( short l ) {
 }
 
 int    LongSwap( int l ) {
-	byte b1,b2,b3,b4;
+	uint8_t b1,b2,b3,b4;
 
 	b1 = l & 255;
 	b2 = ( l >> 8 ) & 255;
@@ -253,7 +253,7 @@ float FloatSwap( float f ) {
 	union
 	{
 		float f;
-		byte b[4];
+		uint8_t b[4];
 	} dat1, dat2;
 
 
@@ -275,9 +275,9 @@ Swap_Init
 ================
 */
 void Swap_Init( void ) {
-	byte swaptest[2] = {1,0};
+	uint8_t swaptest[2] = {1,0};
 
-// set the byte swapping variables in a portable manner
+// set the uint8_t swapping variables in a portable manner
 	if ( *(short *)swaptest == 1 ) {
 		_BigShort = ShortSwap;
 		_LittleShort = ShortNoSwap;

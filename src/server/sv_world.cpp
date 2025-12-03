@@ -85,24 +85,6 @@ int sv_numworldSectors;
 
 /*
 ===============
-SV_SectorList_f
-===============
-*/
-void SV_SectorList_f()
-{
-	for (int i = 0 ; i < AREA_NODES ; i++ ) {
-		WorldSector* sec = &sv_worldSectors[i];
-
-		int c = 0;
-		for (ServerEntity* ent = sec->entities ; ent ; ent = ent->nextEntityInWorldSector ) {
-			c++;
-		}
-		Com_Printf( "sector %i: %i entities\n", i, c );
-	}
-}
-
-/*
-===============
 SV_CreateworldSector
 
 Builds a uniformly subdivided tree for the given world size
@@ -148,6 +130,7 @@ SV_ClearWorld
 
 ===============
 */
+// public, called by SV_SpawnServer
 void SV_ClearWorld()
 {
 	memset( sv_worldSectors, 0, sizeof( sv_worldSectors ) );
@@ -167,6 +150,7 @@ SV_UnlinkEntity
 
 ===============
 */
+// public, called by lots of things.
 void SV_UnlinkEntity( sharedEntity_t *gEnt )
 {
 	ServerEntity* ent = SV_SvEntityForGentity( gEnt );
@@ -203,6 +187,7 @@ SV_LinkEntity
 */
 #define MAX_TOTAL_ENT_LEAFS     128
 WorldSector *debugNode;
+// public, called by lots of things.
 void SV_LinkEntity( sharedEntity_t *gEnt )
 {
 	int leafs[MAX_TOTAL_ENT_LEAFS];
@@ -386,6 +371,7 @@ SV_AreaEntities_r
 
 ====================
 */
+// helper function for SV_AreaEntities
 void SV_AreaEntities_r( WorldSector *node, areaParms_t *ap )
 {
 	int count = 0;
@@ -432,6 +418,7 @@ void SV_AreaEntities_r( WorldSector *node, areaParms_t *ap )
 SV_AreaEntities
 ================
 */
+// public
 int SV_AreaEntities( const vec3_t mins, const vec3_t maxs, int *entityList, int maxcount )
 {
 	areaParms_t ap;
@@ -471,6 +458,7 @@ SV_ClipToEntity
 
 ====================
 */
+// public, called eventually by AAS_AreaEntityCollision
 void SV_ClipToEntity( trace_t *trace, const vec3_t start,
 					 const vec3_t mins, const vec3_t maxs, const vec3_t end,
 					 int entityNum, int contentmask, int capsule )
@@ -511,6 +499,7 @@ SV_ClipMoveToEntities
 
 ====================
 */
+// private, called by SV_Trace
 void SV_ClipMoveToEntities( moveclip_t *clip )
 {
 	int touchlist[MAX_GENTITIES];
@@ -592,7 +581,7 @@ void SV_ClipMoveToEntities( moveclip_t *clip )
 }
 
 
-
+// public
 void SV_TraceCapsule( trace_t *results, const vec3_t start,
 					 const vec3_t mins, const vec3_t maxs, const vec3_t end,
 					 int passEntityNum, int contentmask )
@@ -608,6 +597,7 @@ Moves the given mins/maxs volume through the world from start to end.
 passEntityNum and entities owned by passEntityNum are explicitly not checked.
 ==================
 */
+// public
 void SV_Trace( trace_t *results, const vec3_t start,
 			  const vec3_t mins, const vec3_t maxs, const vec3_t end,
 			  int passEntityNum, int contentmask, int capsule )
@@ -665,6 +655,7 @@ void SV_Trace( trace_t *results, const vec3_t start,
 SV_PointContents
 =============
 */
+// public
 int SV_PointContents( const vec3_t p, int passEntityNum )
 {
 	// get base contents from world

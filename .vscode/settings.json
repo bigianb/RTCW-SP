@@ -10,7 +10,8 @@
         "botlib.h": "c",
         "cg_local.h": "c",
         "g_func_decs.h": "c",
-        "be_interface.h": "c"
+        "be_interface.h": "c",
+        "cassert": "cpp"
     },
     "cmake.debugConfig": {
         "args": ["+set", "fs_basepath", "/Users/ian/.wine/drive_c/GOG Games/Return to Castle Wolfenstein"]

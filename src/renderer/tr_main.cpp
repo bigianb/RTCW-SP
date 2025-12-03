@@ -1362,7 +1362,7 @@ DRAWSURF SORTING
 R_Radix
 ===============
 */
-static inline void R_Radix( int byte, int size, drawSurf_t *source, drawSurf_t *dest )
+static inline void R_Radix( int uint8_t, int size, drawSurf_t *source, drawSurf_t *dest )
 {
   int           count[ 256 ] = { 0 };
   int           index[ 256 ];
@@ -1370,7 +1370,7 @@ static inline void R_Radix( int byte, int size, drawSurf_t *source, drawSurf_t *
   unsigned char *sortKey = nullptr;
   unsigned char *end = nullptr;
 
-  sortKey = ( (unsigned char *)&source[ 0 ].sort ) + byte;
+  sortKey = ( (unsigned char *)&source[ 0 ].sort ) + uint8_t;
   end = sortKey + ( size * sizeof( drawSurf_t ) );
   for( ; sortKey < end; sortKey += sizeof( drawSurf_t ) )
     ++count[ *sortKey ];
@@ -1380,7 +1380,7 @@ static inline void R_Radix( int byte, int size, drawSurf_t *source, drawSurf_t *
   for( i = 1; i < 256; ++i )
     index[ i ] = index[ i - 1 ] + count[ i - 1 ];
 
-  sortKey = ( (unsigned char *)&source[ 0 ].sort ) + byte;
+  sortKey = ( (unsigned char *)&source[ 0 ].sort ) + uint8_t;
   for( i = 0; i < size; ++i, sortKey += sizeof( drawSurf_t ) )
     dest[ index[ *sortKey ]++ ] = source[ i ];
 }
@@ -1389,7 +1389,7 @@ static inline void R_Radix( int byte, int size, drawSurf_t *source, drawSurf_t *
 ===============
 R_RadixSort
 
-Radix sort with 4 byte size buckets
+Radix sort with 4 uint8_t size buckets
 ===============
 */
 static void R_RadixSort( drawSurf_t *source, int size )

@@ -810,7 +810,7 @@ void RB_DrawSun( void ) {
 	float dist;
 	vec3_t origin, vec1, vec2;
 	vec3_t temp;
-	byte color[4];
+	uint8_t color[4];
 
 	if ( !tr.sunShader ) {
 		return;

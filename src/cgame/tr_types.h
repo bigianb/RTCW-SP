@@ -70,7 +70,7 @@ If you have questions concerning this license or the applicable additional terms
 typedef struct {
 	vec3_t xyz;
 	float st[2];
-	byte modulate[4];
+	uint8_t modulate[4];
 } polyVert_t;
 
 typedef struct poly_s {
@@ -137,7 +137,7 @@ typedef struct {
 	qhandle_t customShader;         // use one image for the entire thing
 
 	// misc
-	byte shaderRGBA[4];             // colors used by rgbgen entity shaders
+	uint8_t shaderRGBA[4];             // colors used by rgbgen entity shaders
 	float shaderTexCoord[2];        // texture coordinates used by tcMod entity modifiers
 	float shaderTime;               // subtracted from refdef time to control effect start times
 
@@ -220,7 +220,7 @@ typedef struct {
 	int rdflags;                    // RDF_NOWORLDMODEL, etc
 
 	// 1 bits will prevent the associated area from rendering at all
-	byte areamask[MAX_MAP_AREA_BYTES];
+	uint8_t areamask[MAX_MAP_AREA_BYTES];
 
 
 

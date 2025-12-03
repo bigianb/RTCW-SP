@@ -1087,7 +1087,7 @@ If raw data has been loaded in little endien binary form, this must be done.
 If raw data was calculated, as with ADPCM, this should not be called.
 =================
 */
-//DAJ  void S_ByteSwapRawSamples( int samples, int width, int s_channels, const byte *data ) {
+//DAJ  void S_ByteSwapRawSamples( int samples, int width, int s_channels, const uint8_t *data ) {
 void S_ByteSwapRawSamples( int samples, int width, int s_channels, short *data ) {
 	int i;
 
@@ -1129,7 +1129,7 @@ S_RawSamples
 Music streaming
 ============
 */
-void S_RawSamples( int samples, int rate, int width, int s_channels, const byte *data, float lvol, float rvol, int streamingIndex ) {
+void S_RawSamples( int samples, int rate, int width, int s_channels, const uint8_t *data, float lvol, float rvol, int streamingIndex ) {
 	int i;
 	int src, dst;
 	float scale;
@@ -1215,8 +1215,8 @@ void S_RawSamples( int samples, int rate, int width, int s_channels, const byte 
 			}
 			dst = s_rawend[streamingIndex] & ( MAX_RAW_SAMPLES - 1 );
 			s_rawend[streamingIndex]++;
-			s_rawsamples[streamingIndex][dst].left = ( ( (byte *)data )[src] - 128 ) * intVolumeL;
-			s_rawsamples[streamingIndex][dst].right = ( ( (byte *)data )[src] - 128 ) * intVolumeR;
+			s_rawsamples[streamingIndex][dst].left = ( ( (uint8_t *)data )[src] - 128 ) * intVolumeL;
+			s_rawsamples[streamingIndex][dst].right = ( ( (uint8_t *)data )[src] - 128 ) * intVolumeR;
 		}
 	}
 
@@ -2295,7 +2295,7 @@ S_UpdateStreamingSounds
 void S_UpdateStreamingSounds( void ) {
 	int bufferSamples;
 	int fileSamples;
-	byte raw[30000];        // just enough to fit in a mac stack frame
+	uint8_t raw[30000];        // just enough to fit in a mac stack frame
 	int fileBytes;
 	int r, i;
 	streamingSound_t *ss;
@@ -2394,7 +2394,7 @@ void S_UpdateStreamingSounds( void ) {
 				break;
 			}
 
-			// byte swap if needed
+			// uint8_t swap if needed
 			S_ByteSwapRawSamples( fileSamples, ss->info.width, ss->info.channels, (short*)raw );
 
 			// calculate the volume

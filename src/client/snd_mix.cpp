@@ -86,11 +86,11 @@ __declspec( naked ) void S_WriteLinearBlastStereo16( void ) {
 
 		push edi
 		push ebx
-		mov ecx,ds : dword ptr[snd_linear_count]
-		mov ebx,ds : dword ptr[snd_p]
-		mov edi,ds : dword ptr[snd_out]
+		mov ecx,ds : uint32_t ptr[snd_linear_count]
+		mov ebx,ds : uint32_t ptr[snd_p]
+		mov edi,ds : uint32_t ptr[snd_out]
 LWLBLoopTop:
-		mov eax,ds : dword ptr[-8 + ebx + ecx * 4]
+		mov eax,ds : uint32_t ptr[-8 + ebx + ecx * 4]
 		sar eax,8
 		cmp eax,07FFFh
 		jg LClampHigh
@@ -101,7 +101,7 @@ LWLBLoopTop:
 LClampHigh:
 		mov eax,07FFFh
 LClampDone:
-		mov edx,ds : dword ptr[-4 + ebx + ecx * 4]
+		mov edx,ds : uint32_t ptr[-4 + ebx + ecx * 4]
 		sar edx,8
 		cmp edx,07FFFh
 		jg LClampHigh2
@@ -115,7 +115,7 @@ LClampDone2:
 		shl edx,16
 		and eax,0FFFFh
 		or edx,eax
-		mov ds : dword ptr[-4 + edi + ecx * 2],edx
+		mov ds : uint32_t ptr[-4 + edi + ecx * 2],edx
 		sub ecx,2
 		jnz LWLBLoopTop
 		pop ebx
@@ -424,7 +424,7 @@ S_SetVoiceAmplitudeFromMuLaw
 void S_SetVoiceAmplitudeFromMuLaw( const sfx_t *sc, int sampleOffset, int count, int entnum ) {
 	int data, i, sfx_count;
 	sndBuffer *chunk;
-	byte *samples;
+	uint8_t *samples;
 
 	if ( count <= 0 ) {
 		return; // must have gone ahead of the end of the sound
@@ -438,11 +438,11 @@ void S_SetVoiceAmplitudeFromMuLaw( const sfx_t *sc, int sampleOffset, int count,
 		}
 	}
 	sfx_count = 0;
-	samples = (byte *)chunk->sndChunk + sampleOffset;
+	samples = (uint8_t *)chunk->sndChunk + sampleOffset;
 	for ( i = 0; i < count; i++ ) {
-		if ( samples >= (byte *)chunk->sndChunk + ( SND_CHUNK_SIZE * 2 ) ) {
+		if ( samples >= (uint8_t *)chunk->sndChunk + ( SND_CHUNK_SIZE * 2 ) ) {
 			chunk = chunk->next;
-			samples = (byte *)chunk->sndChunk;
+			samples = (uint8_t *)chunk->sndChunk;
 		}
 		data  = mulawToShort[*samples];
 		if ( abs( data ) > 5000 ) {
@@ -677,7 +677,7 @@ void S_PaintChannelFromMuLaw( channel_t *ch, sfx_t *sc, int count, int sampleOff
 	int i;
 	portable_samplepair_t   *samp;
 	sndBuffer               *chunk;
-	byte                    *samples;
+	uint8_t                    *samples;
 	float ooff;
 
 	leftvol = ch->leftvol * snd_vol;
@@ -694,11 +694,11 @@ void S_PaintChannelFromMuLaw( channel_t *ch, sfx_t *sc, int count, int sampleOff
 	}
 
 	if ( !ch->doppler ) {
-		samples = (byte *)chunk->sndChunk + sampleOffset;
+		samples = (uint8_t *)chunk->sndChunk + sampleOffset;
 		for ( i = 0; i < count; i++ ) {
-			if ( samples >= (byte *)chunk->sndChunk + ( SND_CHUNK_SIZE * 2 ) ) {
+			if ( samples >= (uint8_t *)chunk->sndChunk + ( SND_CHUNK_SIZE * 2 ) ) {
 				chunk = chunk->next;
-				samples = (byte *)chunk->sndChunk;
+				samples = (uint8_t *)chunk->sndChunk;
 			}
 			data  = mulawToShort[*samples];
 			samp[i].left += ( data * leftvol ) >> 8;
@@ -707,14 +707,14 @@ void S_PaintChannelFromMuLaw( channel_t *ch, sfx_t *sc, int count, int sampleOff
 		}
 	} else {
 		ooff = sampleOffset;
-		samples = (byte *)chunk->sndChunk;
+		samples = (uint8_t *)chunk->sndChunk;
 		for ( i = 0; i < count; i++ ) {
 			if ( ooff >= SND_CHUNK_SIZE * 2 ) {
 				chunk = chunk->next;
 				if ( !chunk ) {
 					chunk = sc->soundData;
 				}
-				samples = (byte *)chunk->sndChunk;
+				samples = (uint8_t *)chunk->sndChunk;
 				ooff = 0.0;
 			}
 			data  = mulawToShort[samples[(int)( ooff )]];

@@ -112,7 +112,7 @@ A nullptr client will broadcast to all clients
 void  SV_SendServerCommand( client_t *cl, const char *fmt, ... )
 {
 	va_list argptr;
-	byte message[MAX_MSGLEN];
+	uint8_t message[MAX_MSGLEN];
 	
 	va_start( argptr,fmt );
 	vsnprintf( (char *)message, MAX_MSGLEN, fmt,argptr );

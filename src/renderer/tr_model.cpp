@@ -454,7 +454,7 @@ static bool R_MDC_CompressSurfaceFrame( md3Header_t *md3, md3Surface_t *surf, in
 	md3XyzNormal_t  *xyz, *baseXyz;
 	vec3_t oldPos;
 
-	xyz = ( md3XyzNormal_t * )( (byte *)surf + surf->ofsXyzNormals );
+	xyz = ( md3XyzNormal_t * )( (uint8_t *)surf + surf->ofsXyzNormals );
 	baseXyz = xyz + ( lastBaseFrame * surf->numVerts );
 	xyz += ( frame * surf->numVerts );
 
@@ -481,7 +481,7 @@ static bool R_MDC_CanCompressSurfaceFrame( md3Header_t *md3, md3Surface_t *surf,
 	mdcXyzCompressed_t xyzComp;
 	vec3_t oldPos;
 
-	xyz = ( md3XyzNormal_t * )( (byte *)surf + surf->ofsXyzNormals );
+	xyz = ( md3XyzNormal_t * )( (uint8_t *)surf + surf->ofsXyzNormals );
 	baseXyz = xyz + ( lastBaseFrame * surf->numVerts );
 	xyz += ( frame * surf->numVerts );
 
@@ -538,7 +538,7 @@ static bool R_MDC_ConvertMD3( model_t *mod, int lod, const char *mod_name ) {
 
 	for ( f = 1; f < md3->numFrames; f++ ) {
 
-		surf = ( md3Surface_t * )( (byte *)md3 + md3->ofsSurfaces );
+		surf = ( md3Surface_t * )( (uint8_t *)md3 + md3->ofsSurfaces );
 		foundBase = false;
 		for ( i = 0 ; i < md3->numSurfaces ; i++ ) {
 
@@ -550,7 +550,7 @@ static bool R_MDC_ConvertMD3( model_t *mod, int lod, const char *mod_name ) {
 			}
 
 			// find the next surface
-			surf = ( md3Surface_t * )( (byte *)surf + surf->ofsEnd );
+			surf = ( md3Surface_t * )( (uint8_t *)surf + surf->ofsEnd );
 		}
 
 	}
@@ -570,7 +570,7 @@ static bool R_MDC_ConvertMD3( model_t *mod, int lod, const char *mod_name ) {
 	mdcHeader.ofsSurfaces = mdcHeader.ofsTags + mdcHeader.numTags * mdcHeader.numFrames * sizeof( mdcTag_t );
 	mdcHeader.ofsEnd = mdcHeader.ofsSurfaces;
 
-	surf = ( md3Surface_t * )( (byte *)md3 + md3->ofsSurfaces );
+	surf = ( md3Surface_t * )( (uint8_t *)md3 + md3->ofsSurfaces );
 	for ( f = 0; f < md3->numSurfaces; f++ ) {
 		mdcHeader.ofsEnd += sizeof( mdcSurface_t )
 							+ surf->numShaders * sizeof( md3Shader_t )
@@ -581,7 +581,7 @@ static bool R_MDC_ConvertMD3( model_t *mod, int lod, const char *mod_name ) {
 							+ sizeof( short ) * md3->numFrames
 							+ sizeof( short ) * md3->numFrames;
 
-		surf = ( md3Surface_t * )( (byte *)surf + surf->ofsEnd );
+		surf = ( md3Surface_t * )( (uint8_t *)surf + surf->ofsEnd );
 	}
 
 	// report the memory differences
@@ -595,14 +595,14 @@ static bool R_MDC_ConvertMD3( model_t *mod, int lod, const char *mod_name ) {
 	// header info
 	*mdc = mdcHeader;
 	// frames
-	memcpy( ( md3Frame_t * )( (byte *)mdc + mdc->ofsFrames ), ( md3Frame_t * )( (byte *)md3 + md3->ofsFrames ), mdcHeader.numFrames * sizeof( md3Frame_t ) );
+	memcpy( ( md3Frame_t * )( (uint8_t *)mdc + mdc->ofsFrames ), ( md3Frame_t * )( (uint8_t *)md3 + md3->ofsFrames ), mdcHeader.numFrames * sizeof( md3Frame_t ) );
 	// tag names
 	for ( j = 0; j < md3->numTags; j++ ) {
-		memcpy( ( mdcTagName_t * )( (byte *)mdc + mdc->ofsTagNames ) + j, ( ( md3Tag_t * )( (byte *)md3 + md3->ofsTags ) + j )->name, sizeof( mdcTagName_t ) );
+		memcpy( ( mdcTagName_t * )( (uint8_t *)mdc + mdc->ofsTagNames ) + j, ( ( md3Tag_t * )( (uint8_t *)md3 + md3->ofsTags ) + j )->name, sizeof( mdcTagName_t ) );
 	}
 	// tags
-	mdcTag = ( ( mdcTag_t * )( (byte *)mdc + mdc->ofsTags ) );
-	md3Tag = ( ( md3Tag_t * )( (byte *)md3 + md3->ofsTags ) );
+	mdcTag = ( ( mdcTag_t * )( (uint8_t *)mdc + mdc->ofsTags ) );
+	md3Tag = ( ( md3Tag_t * )( (uint8_t *)md3 + md3->ofsTags ) );
 	for ( f = 0; f < md3->numFrames; f++ ) {
 		for ( j = 0; j < md3->numTags; j++, mdcTag++, md3Tag++ ) {
 			for ( k = 0; k < 3; k++ ) {
@@ -621,8 +621,8 @@ static bool R_MDC_ConvertMD3( model_t *mod, int lod, const char *mod_name ) {
 		}
 	}
 	// surfaces
-	surf = ( md3Surface_t * )( (byte *)md3 + md3->ofsSurfaces );
-	cSurf = ( mdcSurface_t * )( (byte *)mdc + mdc->ofsSurfaces );
+	surf = ( md3Surface_t * )( (uint8_t *)md3 + md3->ofsSurfaces );
+	cSurf = ( mdcSurface_t * )( (uint8_t *)mdc + mdc->ofsSurfaces );
 	for ( j = 0 ; j < md3->numSurfaces ; j++ ) {
 
 		cSurf->ident = SF_MDC;
@@ -643,26 +643,26 @@ static bool R_MDC_ConvertMD3( model_t *mod, int lod, const char *mod_name ) {
 		cSurf->ofsEnd = cSurf->ofsFrameCompFrames + mdc->numFrames * sizeof( short );
 
 		// triangles
-		memcpy( (byte *)cSurf + cSurf->ofsTriangles, (byte *)surf + surf->ofsTriangles, cSurf->numTriangles * sizeof( md3Triangle_t ) );
+		memcpy( (uint8_t *)cSurf + cSurf->ofsTriangles, (uint8_t *)surf + surf->ofsTriangles, cSurf->numTriangles * sizeof( md3Triangle_t ) );
 		// shaders
-		memcpy( (byte *)cSurf + cSurf->ofsShaders, (byte *)surf + surf->ofsShaders, cSurf->numShaders * sizeof( md3Shader_t ) );
+		memcpy( (uint8_t *)cSurf + cSurf->ofsShaders, (uint8_t *)surf + surf->ofsShaders, cSurf->numShaders * sizeof( md3Shader_t ) );
 		// st
-		memcpy( (byte *)cSurf + cSurf->ofsSt, (byte *)surf + surf->ofsSt, cSurf->numVerts * sizeof( md3St_t ) );
+		memcpy( (uint8_t *)cSurf + cSurf->ofsSt, (uint8_t *)surf + surf->ofsSt, cSurf->numVerts * sizeof( md3St_t ) );
 
 		// rest
-		frameBaseFrames = ( short * )( (byte *)cSurf + cSurf->ofsFrameBaseFrames );
-		frameCompFrames = ( short * )( (byte *)cSurf + cSurf->ofsFrameCompFrames );
+		frameBaseFrames = ( short * )( (uint8_t *)cSurf + cSurf->ofsFrameBaseFrames );
+		frameCompFrames = ( short * )( (uint8_t *)cSurf + cSurf->ofsFrameCompFrames );
 		for ( f = 0, i = 0, c = 0; f < md3->numFrames; f++ ) {
 			if ( i < numBaseFrames && f == baseFrames[i] ) {
 				// copy this baseFrame from the md3
-				memcpy( (byte *)cSurf + cSurf->ofsXyzNormals + ( sizeof( md3XyzNormal_t ) * cSurf->numVerts * i ),
-						(byte *)surf + surf->ofsXyzNormals + ( sizeof( md3XyzNormal_t ) * cSurf->numVerts * f ),
+				memcpy( (uint8_t *)cSurf + cSurf->ofsXyzNormals + ( sizeof( md3XyzNormal_t ) * cSurf->numVerts * i ),
+						(uint8_t *)surf + surf->ofsXyzNormals + ( sizeof( md3XyzNormal_t ) * cSurf->numVerts * f ),
 						sizeof( md3XyzNormal_t ) * cSurf->numVerts );
 				i++;
 				frameCompFrames[f] = -1;
 				frameBaseFrames[f] = i - 1;
 			} else {
-				if ( !R_MDC_CompressSurfaceFrame( md3, surf, f, baseFrames[i - 1], ( mdcXyzCompressed_t * )( (byte *)cSurf + cSurf->ofsXyzCompressed + sizeof( mdcXyzCompressed_t ) * cSurf->numVerts * c ) ) ) {
+				if ( !R_MDC_CompressSurfaceFrame( md3, surf, f, baseFrames[i - 1], ( mdcXyzCompressed_t * )( (uint8_t *)cSurf + cSurf->ofsXyzCompressed + sizeof( mdcXyzCompressed_t ) * cSurf->numVerts * c ) ) ) {
 					ri.Error( ERR_DROP, "R_MDC_ConvertMD3: tried to compress an unsuitable frame\n" );
                     return false; // keep the linter happy, ERR_DROP does not return
 				}
@@ -673,8 +673,8 @@ static bool R_MDC_ConvertMD3( model_t *mod, int lod, const char *mod_name ) {
 		}
 
 		// find the next surface
-		surf = ( md3Surface_t * )( (byte *)surf + surf->ofsEnd );
-		cSurf = ( mdcSurface_t * )( (byte *)cSurf + cSurf->ofsEnd );
+		surf = ( md3Surface_t * )( (uint8_t *)surf + surf->ofsEnd );
+		cSurf = ( mdcSurface_t * )( (uint8_t *)cSurf + cSurf->ofsEnd );
 	}
 
 	mod->type = MOD_MDC;
@@ -745,7 +745,7 @@ static bool R_LoadMDC( model_t *mod, int lod, void *buffer, const char *mod_name
 	}
 
 	// swap all the frames
-	frame = ( md3Frame_t * )( (byte *)mod->mdc[lod] + mod->mdc[lod]->ofsFrames );
+	frame = ( md3Frame_t * )( (uint8_t *)mod->mdc[lod] + mod->mdc[lod]->ofsFrames );
 	for ( i = 0 ; i < mod->mdc[lod]->numFrames ; i++, frame++ ) {
 		frame->radius = LittleFloat( frame->radius );
 		if ( strstr( mod->name,"sherman" ) || strstr( mod->name, "mg42" ) ) {
@@ -766,7 +766,7 @@ static bool R_LoadMDC( model_t *mod, int lod, void *buffer, const char *mod_name
 	}
 
 	// swap all the tags
-	tag = ( mdcTag_t * )( (byte *)mod->mdc[lod] + mod->mdc[lod]->ofsTags );
+	tag = ( mdcTag_t * )( (uint8_t *)mod->mdc[lod] + mod->mdc[lod]->ofsTags );
 	if ( LittleLong( 1 ) != 1 ) {
 		for ( i = 0 ; i < mod->mdc[lod]->numTags * mod->mdc[lod]->numFrames ; i++, tag++ ) {
 			for ( j = 0 ; j < 3 ; j++ ) {
@@ -777,7 +777,7 @@ static bool R_LoadMDC( model_t *mod, int lod, void *buffer, const char *mod_name
 	}
 
 	// swap all the surfaces
-	surf = ( mdcSurface_t * )( (byte *)mod->mdc[lod] + mod->mdc[lod]->ofsSurfaces );
+	surf = ( mdcSurface_t * )( (uint8_t *)mod->mdc[lod] + mod->mdc[lod]->ofsSurfaces );
 	for ( i = 0 ; i < mod->mdc[lod]->numSurfaces ; i++ ) {
 
 		LL( surf->ident );
@@ -821,7 +821,7 @@ static bool R_LoadMDC( model_t *mod, int lod, void *buffer, const char *mod_name
 		}
 
 		// register the shaders
-		shader = ( md3Shader_t * )( (byte *)surf + surf->ofsShaders );
+		shader = ( md3Shader_t * )( (uint8_t *)surf + surf->ofsShaders );
 		for ( j = 0 ; j < surf->numShaders ; j++, shader++ ) {
 			shader_t    *sh;
 
@@ -837,7 +837,7 @@ static bool R_LoadMDC( model_t *mod, int lod, void *buffer, const char *mod_name
 		if ( LittleShort( 1 ) != 1 ) {
 
 			// swap all the triangles
-			tri = ( md3Triangle_t * )( (byte *)surf + surf->ofsTriangles );
+			tri = ( md3Triangle_t * )( (uint8_t *)surf + surf->ofsTriangles );
 			for ( j = 0 ; j < surf->numTriangles ; j++, tri++ ) {
 				LL( tri->indexes[0] );
 				LL( tri->indexes[1] );
@@ -845,14 +845,14 @@ static bool R_LoadMDC( model_t *mod, int lod, void *buffer, const char *mod_name
 			}
 
 			// swap all the ST
-			st = ( md3St_t * )( (byte *)surf + surf->ofsSt );
+			st = ( md3St_t * )( (uint8_t *)surf + surf->ofsSt );
 			for ( j = 0 ; j < surf->numVerts ; j++, st++ ) {
 				st->st[0] = LittleFloat( st->st[0] );
 				st->st[1] = LittleFloat( st->st[1] );
 			}
 
 			// swap all the XyzNormals
-			xyz = ( md3XyzNormal_t * )( (byte *)surf + surf->ofsXyzNormals );
+			xyz = ( md3XyzNormal_t * )( (uint8_t *)surf + surf->ofsXyzNormals );
 			for ( j = 0 ; j < surf->numVerts * surf->numBaseFrames ; j++, xyz++ )
 			{
 				xyz->xyz[0] = LittleShort( xyz->xyz[0] );
@@ -863,21 +863,21 @@ static bool R_LoadMDC( model_t *mod, int lod, void *buffer, const char *mod_name
 			}
 
 			// swap all the XyzCompressed
-			xyzComp = ( mdcXyzCompressed_t * )( (byte *)surf + surf->ofsXyzCompressed );
+			xyzComp = ( mdcXyzCompressed_t * )( (uint8_t *)surf + surf->ofsXyzCompressed );
 			for ( j = 0 ; j < surf->numVerts * surf->numCompFrames ; j++, xyzComp++ )
 			{
 				LL( xyzComp->ofsVec );
 			}
 
 			// swap the frameBaseFrames
-			ps = ( short * )( (byte *)surf + surf->ofsFrameBaseFrames );
+			ps = ( short * )( (uint8_t *)surf + surf->ofsFrameBaseFrames );
 			for ( j = 0; j < mod->mdc[lod]->numFrames; j++, ps++ )
 			{
 				*ps = LittleShort( *ps );
 			}
 
 			// swap the frameCompFrames
-			ps = ( short * )( (byte *)surf + surf->ofsFrameCompFrames );
+			ps = ( short * )( (uint8_t *)surf + surf->ofsFrameCompFrames );
 			for ( j = 0; j < mod->mdc[lod]->numFrames; j++, ps++ )
 			{
 				*ps = LittleShort( *ps );
@@ -886,7 +886,7 @@ static bool R_LoadMDC( model_t *mod, int lod, void *buffer, const char *mod_name
 		// done.
 
 		// find the next surface
-		surf = ( mdcSurface_t * )( (byte *)surf + surf->ofsEnd );
+		surf = ( mdcSurface_t * )( (uint8_t *)surf + surf->ofsEnd );
 	}
 
 	return true;
@@ -956,7 +956,7 @@ static bool R_LoadMD3( model_t *mod, int lod, void *buffer, const char *mod_name
 	}
 
 	// swap all the frames
-	frame = ( md3Frame_t * )( (byte *)mod->md3[lod] + mod->md3[lod]->ofsFrames );
+	frame = ( md3Frame_t * )( (uint8_t *)mod->md3[lod] + mod->md3[lod]->ofsFrames );
 	for ( i = 0 ; i < mod->md3[lod]->numFrames ; i++, frame++ ) {
 		frame->radius = LittleFloat( frame->radius );
 		if ( fixRadius ) {
@@ -986,7 +986,7 @@ static bool R_LoadMD3( model_t *mod, int lod, void *buffer, const char *mod_name
 	}
 
 	// swap all the tags
-	tag = ( md3Tag_t * )( (byte *)mod->md3[lod] + mod->md3[lod]->ofsTags );
+	tag = ( md3Tag_t * )( (uint8_t *)mod->md3[lod] + mod->md3[lod]->ofsTags );
 	for ( i = 0 ; i < mod->md3[lod]->numTags * mod->md3[lod]->numFrames ; i++, tag++ ) {
 		for ( j = 0 ; j < 3 ; j++ ) {
 			tag->origin[j] = LittleFloat( tag->origin[j] );
@@ -997,7 +997,7 @@ static bool R_LoadMD3( model_t *mod, int lod, void *buffer, const char *mod_name
 	}
 
 	// swap all the surfaces
-	surf = ( md3Surface_t * )( (byte *)mod->md3[lod] + mod->md3[lod]->ofsSurfaces );
+	surf = ( md3Surface_t * )( (uint8_t *)mod->md3[lod] + mod->md3[lod]->ofsSurfaces );
 	for ( i = 0 ; i < mod->md3[lod]->numSurfaces ; i++ ) {
 
 		LL( surf->ident );
@@ -1037,7 +1037,7 @@ static bool R_LoadMD3( model_t *mod, int lod, void *buffer, const char *mod_name
 		}
 
 		// register the shaders
-		shader = ( md3Shader_t * )( (byte *)surf + surf->ofsShaders );
+		shader = ( md3Shader_t * )( (uint8_t *)surf + surf->ofsShaders );
 		for ( j = 0 ; j < surf->numShaders ; j++, shader++ ) {
 			shader_t    *sh;
 
@@ -1053,7 +1053,7 @@ static bool R_LoadMD3( model_t *mod, int lod, void *buffer, const char *mod_name
 		if ( LittleShort( 1 ) != 1 ) {
 
 			// swap all the triangles
-			tri = ( md3Triangle_t * )( (byte *)surf + surf->ofsTriangles );
+			tri = ( md3Triangle_t * )( (uint8_t *)surf + surf->ofsTriangles );
 			for ( j = 0 ; j < surf->numTriangles ; j++, tri++ ) {
 				LL( tri->indexes[0] );
 				LL( tri->indexes[1] );
@@ -1061,14 +1061,14 @@ static bool R_LoadMD3( model_t *mod, int lod, void *buffer, const char *mod_name
 			}
 
 			// swap all the ST
-			st = ( md3St_t * )( (byte *)surf + surf->ofsSt );
+			st = ( md3St_t * )( (uint8_t *)surf + surf->ofsSt );
 			for ( j = 0 ; j < surf->numVerts ; j++, st++ ) {
 				st->st[0] = LittleFloat( st->st[0] );
 				st->st[1] = LittleFloat( st->st[1] );
 			}
 
 			// swap all the XyzNormals
-			xyz = ( md3XyzNormal_t * )( (byte *)surf + surf->ofsXyzNormals );
+			xyz = ( md3XyzNormal_t * )( (uint8_t *)surf + surf->ofsXyzNormals );
 			for ( j = 0 ; j < surf->numVerts * surf->numFrames ; j++, xyz++ )
 			{
 				xyz->xyz[0] = LittleShort( xyz->xyz[0] );
@@ -1082,7 +1082,7 @@ static bool R_LoadMD3( model_t *mod, int lod, void *buffer, const char *mod_name
 		// done.
 
 		// find the next surface
-		surf = ( md3Surface_t * )( (byte *)surf + surf->ofsEnd );
+		surf = ( md3Surface_t * )( (uint8_t *)surf + surf->ofsEnd );
 	}
 
 	// Ridah, convert to compressed format
@@ -1157,7 +1157,7 @@ static bool R_LoadMDS( model_t *mod, void *buffer, const char *mod_name ) {
 		//frameSize = (int)( &((mdsFrame_t *)0)->bones[ mds->numBones ] );
 		frameSize = (int) ( sizeof( mdsFrame_t ) - sizeof( mdsBoneFrameCompressed_t ) + mds->numBones * sizeof( mdsBoneFrameCompressed_t ) );
 		for ( i = 0 ; i < mds->numFrames ; i++, frame++ ) {
-			frame = ( mdsFrame_t * )( (byte *)mds + mds->ofsFrames + i * frameSize );
+			frame = ( mdsFrame_t * )( (uint8_t *)mds + mds->ofsFrames + i * frameSize );
 			frame->radius = LittleFloat( frame->radius );
 			for ( j = 0 ; j < 3 ; j++ ) {
 				frame->bounds[0][j] = LittleFloat( frame->bounds[0][j] );
@@ -1171,7 +1171,7 @@ static bool R_LoadMDS( model_t *mod, void *buffer, const char *mod_name ) {
 		}
 
 		// swap all the tags
-		tag = ( mdsTag_t * )( (byte *)mds + mds->ofsTags );
+		tag = ( mdsTag_t * )( (uint8_t *)mds + mds->ofsTags );
 		for ( i = 0 ; i < mds->numTags ; i++, tag++ ) {
 			LL( tag->boneIndex );
 			tag->torsoWeight = LittleFloat( tag->torsoWeight );
@@ -1179,7 +1179,7 @@ static bool R_LoadMDS( model_t *mod, void *buffer, const char *mod_name ) {
 
 		// swap all the bones
 		for ( i = 0 ; i < mds->numBones ; i++, bi++ ) {
-			bi = ( mdsBoneInfo_t * )( (byte *)mds + mds->ofsBones + i * sizeof( mdsBoneInfo_t ) );
+			bi = ( mdsBoneInfo_t * )( (uint8_t *)mds + mds->ofsBones + i * sizeof( mdsBoneInfo_t ) );
 			LL( bi->parent );
 			bi->torsoWeight = LittleFloat( bi->torsoWeight );
 			bi->parentDist = LittleFloat( bi->parentDist );
@@ -1188,7 +1188,7 @@ static bool R_LoadMDS( model_t *mod, void *buffer, const char *mod_name ) {
 	}
 
 	// swap all the surfaces
-	surf = ( mdsSurface_t * )( (byte *)mds + mds->ofsSurfaces );
+	surf = ( mdsSurface_t * )( (uint8_t *)mds + mds->ofsSurfaces );
 	for ( i = 0 ; i < mds->numSurfaces ; i++ ) {
 		if ( LittleLong( 1 ) != 1 ) {
 			LL( surf->ident );
@@ -1230,7 +1230,7 @@ static bool R_LoadMDS( model_t *mod, void *buffer, const char *mod_name ) {
 
 		if ( LittleLong( 1 ) != 1 ) {
 			// swap all the triangles
-			tri = ( mdsTriangle_t * )( (byte *)surf + surf->ofsTriangles );
+			tri = ( mdsTriangle_t * )( (uint8_t *)surf + surf->ofsTriangles );
 			for ( j = 0 ; j < surf->numTriangles ; j++, tri++ ) {
 				LL( tri->indexes[0] );
 				LL( tri->indexes[1] );
@@ -1238,7 +1238,7 @@ static bool R_LoadMDS( model_t *mod, void *buffer, const char *mod_name ) {
 			}
 
 			// swap all the vertexes
-			v = ( mdsVertex_t * )( (byte *)surf + surf->ofsVerts );
+			v = ( mdsVertex_t * )( (uint8_t *)surf + surf->ofsVerts );
 			for ( j = 0 ; j < surf->numVerts ; j++ ) {
 				v->normal[0] = LittleFloat( v->normal[0] );
 				v->normal[1] = LittleFloat( v->normal[1] );
@@ -1261,20 +1261,20 @@ static bool R_LoadMDS( model_t *mod, void *buffer, const char *mod_name ) {
 			}
 
 			// swap the collapse map
-			collapseMap = ( int * )( (byte *)surf + surf->ofsCollapseMap );
+			collapseMap = ( int * )( (uint8_t *)surf + surf->ofsCollapseMap );
 			for ( j = 0; j < surf->numVerts; j++, collapseMap++ ) {
 				*collapseMap = LittleLong( *collapseMap );
 			}
 
 			// swap the bone references
-			boneref = ( int * )( ( byte *)surf + surf->ofsBoneReferences );
+			boneref = ( int * )( ( uint8_t *)surf + surf->ofsBoneReferences );
 			for ( j = 0; j < surf->numBoneReferences; j++, boneref++ ) {
 				*boneref = LittleLong( *boneref );
 			}
 		}
 
 		// find the next surface
-		surf = ( mdsSurface_t * )( (byte *)surf + surf->ofsEnd );
+		surf = ( mdsSurface_t * )( (uint8_t *)surf + surf->ofsEnd );
 	}
 
 	return true;
@@ -1369,7 +1369,7 @@ void R_Modellist_f( void ) {
 R_GetTag
 ================
 */
-static int R_GetTag( byte *mod, int frame, const char *tagName, int startTagIndex, md3Tag_t **outTag ) {
+static int R_GetTag( uint8_t *mod, int frame, const char *tagName, int startTagIndex, md3Tag_t **outTag ) {
 	md3Tag_t        *tag;
 	int i;
 	md3Header_t     *md3;
@@ -1386,7 +1386,7 @@ static int R_GetTag( byte *mod, int frame, const char *tagName, int startTagInde
 		return -1;
 	}
 
-	tag = ( md3Tag_t * )( (byte *)mod + md3->ofsTags ) + frame * md3->numTags;
+	tag = ( md3Tag_t * )( (uint8_t *)mod + md3->ofsTags ) + frame * md3->numTags;
 	for ( i = 0 ; i < md3->numTags ; i++, tag++ ) {
 		if ( ( i >= startTagIndex ) && !strcmp( tag->name, tagName ) ) {
 
@@ -1410,7 +1410,7 @@ static int R_GetTag( byte *mod, int frame, const char *tagName, int startTagInde
 R_GetMDCTag
 ================
 */
-static int R_GetMDCTag( byte *mod, int frame, const char *tagName, int startTagIndex, mdcTag_t **outTag ) {
+static int R_GetMDCTag( uint8_t *mod, int frame, const char *tagName, int startTagIndex, mdcTag_t **outTag ) {
 	mdcTag_t        *tag;
 	mdcTagName_t    *pTagName;
 	int i;
@@ -1428,7 +1428,7 @@ static int R_GetMDCTag( byte *mod, int frame, const char *tagName, int startTagI
 		return -1;
 	}
 
-	pTagName = ( mdcTagName_t * )( (byte *)mod + mdc->ofsTagNames );
+	pTagName = ( mdcTagName_t * )( (uint8_t *)mod + mdc->ofsTagNames );
 	for ( i = 0 ; i < mdc->numTags ; i++, pTagName++ ) {
 		if ( ( i >= startTagIndex ) && !strcmp( pTagName->name, tagName ) ) {
 			break;  // found it
@@ -1440,7 +1440,7 @@ static int R_GetMDCTag( byte *mod, int frame, const char *tagName, int startTagI
 		return -1;
 	}
 
-	tag = ( mdcTag_t * )( (byte *)mod + mdc->ofsTags ) + frame * mdc->numTags + i;
+	tag = ( mdcTag_t * )( (uint8_t *)mod + mdc->ofsTags ) + frame * mdc->numTags + i;
 	*outTag = tag;
 	return i;
 }
@@ -1452,7 +1452,7 @@ R_GetMDSTag
 */
 // TTimo: unused
 /*
-static int R_GetMDSTag( byte *mod, const char *tagName, int startTagIndex, mdsTag_t **outTag ) {
+static int R_GetMDSTag( uint8_t *mod, const char *tagName, int startTagIndex, mdsTag_t **outTag ) {
 	mdsTag_t		*tag;
 	int				i;
 	mdsHeader_t		*mds;
@@ -1464,13 +1464,13 @@ static int R_GetMDSTag( byte *mod, const char *tagName, int startTagIndex, mdsTa
 		return -1;
 	}
 
-	tag = (mdsTag_t *)((byte *)mod + mds->ofsTags);
+	tag = (mdsTag_t *)((uint8_t *)mod + mds->ofsTags);
 	for ( i = 0 ; i < mds->numTags ; i++ ) {
 		if ( (i >= startTagIndex) && !strcmp( tag->name, tagName ) ) {
 			break;	// found it
 		}
 
-		tag = (mdsTag_t *) ((byte *)tag + sizeof(mdsTag_t) - sizeof(mdsBoneFrameCompressed_t) + mds->numFrames * sizeof(mdsBoneFrameCompressed_t) );
+		tag = (mdsTag_t *) ((uint8_t *)tag + sizeof(mdsTag_t) - sizeof(mdsBoneFrameCompressed_t) + mds->numFrames * sizeof(mdsBoneFrameCompressed_t) );
 	}
 
 	if (i >= mds->numTags) {
@@ -1529,8 +1529,8 @@ int R_LerpTag( orientation_t *tag, const refEntity_t *refent, const char *tagNam
 
 	if ( model->type == MOD_MESH ) {
 		// old MD3 style
-		retval = R_GetTag( (byte *)model->md3[0], startFrame, tagName, startIndex, &start );
-		retval = R_GetTag( (byte *)model->md3[0], endFrame, tagName, startIndex, &end );
+		retval = R_GetTag( (uint8_t *)model->md3[0], startFrame, tagName, startIndex, &start );
+		retval = R_GetTag( (uint8_t *)model->md3[0], endFrame, tagName, startIndex, &end );
 
 	} else if ( model->type == MOD_MDS ) {    // use bone lerping
 
@@ -1547,8 +1547,8 @@ int R_LerpTag( orientation_t *tag, const refEntity_t *refent, const char *tagNam
 		// psuedo-compressed MDC tags
 		mdcTag_t    *cstart, *cend;
 
-		retval = R_GetMDCTag( (byte *)model->mdc[0], startFrame, tagName, startIndex, &cstart );
-		retval = R_GetMDCTag( (byte *)model->mdc[0], endFrame, tagName, startIndex, &cend );
+		retval = R_GetMDCTag( (uint8_t *)model->mdc[0], startFrame, tagName, startIndex, &cstart );
+		retval = R_GetMDCTag( (uint8_t *)model->mdc[0], endFrame, tagName, startIndex, &cend );
 
 		// uncompress the MDC tags into MD3 style tags
 		if ( cstart && cend ) {
@@ -1655,13 +1655,13 @@ void R_ModelBounds( qhandle_t handle, vec3_t mins, vec3_t maxs ) {
 	if ( model->md3[0] ) {
 		header = model->md3[0];
 
-		frame = ( md3Frame_t * )( (byte *)header + header->ofsFrames );
+		frame = ( md3Frame_t * )( (uint8_t *)header + header->ofsFrames );
 
 		VectorCopy( frame->bounds[0], mins );
 		VectorCopy( frame->bounds[1], maxs );
 		return;
 	} else if ( model->mdc[0] ) {
-		frame = ( md3Frame_t * )( (byte *)model->mdc[0] + model->mdc[0]->ofsFrames );
+		frame = ( md3Frame_t * )( (uint8_t *)model->mdc[0] + model->mdc[0]->ofsFrames );
 
 		VectorCopy( frame->bounds[0], mins );
 		VectorCopy( frame->bounds[1], maxs );
@@ -1685,7 +1685,7 @@ void R_ModelBounds( qhandle_t handle, vec3_t mins, vec3_t maxs ) {
 // GOAL: reserve a big chunk of virtual memory for the media cache, and only
 // use it when we actually need it. This will make sure the swap file grows
 // at startup if needed, rather than each allocation we make.
-byte    *membase = nullptr;
+uint8_t    *membase = nullptr;
 int hunkmaxsize;
 int hunkcursize;        //DAJ renamed from cursize
 
@@ -1723,7 +1723,7 @@ void *R_Hunk_Begin( void ) {
 	// NOTE: in SP we currently default to r_cache 0, meaning this code is not used at all
 	//   I am merging the MP way of doing things though, just in case (since we have r_cache 1 on linux MP)
 	if ( !membase ) {
-		membase = (byte *)malloc( maxsize );
+		membase = (uint8_t *)malloc( maxsize );
 		// TTimo NOTE: initially, I was doing the memset even if we had an existing membase
 		// but this breaks some shaders (i.e. /map mp_beach, then go back to the main menu .. some shaders are missing)
 		// I assume the shader missing is because we don't clear memory either on win32
@@ -1963,10 +1963,10 @@ static void R_RegisterMDCShaders( model_t *mod, int lod ) {
 	int i, j;
 
 	// swap all the surfaces
-	surf = ( mdcSurface_t * )( (byte *)mod->mdc[lod] + mod->mdc[lod]->ofsSurfaces );
+	surf = ( mdcSurface_t * )( (uint8_t *)mod->mdc[lod] + mod->mdc[lod]->ofsSurfaces );
 	for ( i = 0 ; i < mod->mdc[lod]->numSurfaces ; i++ ) {
 		// register the shaders
-		shader = ( md3Shader_t * )( (byte *)surf + surf->ofsShaders );
+		shader = ( md3Shader_t * )( (uint8_t *)surf + surf->ofsShaders );
 		for ( j = 0 ; j < surf->numShaders ; j++, shader++ ) {
 			shader_t    *sh;
 
@@ -1978,7 +1978,7 @@ static void R_RegisterMDCShaders( model_t *mod, int lod ) {
 			}
 		}
 		// find the next surface
-		surf = ( mdcSurface_t * )( (byte *)surf + surf->ofsEnd );
+		surf = ( mdcSurface_t * )( (uint8_t *)surf + surf->ofsEnd );
 	}
 }
 
@@ -1993,10 +1993,10 @@ static void R_RegisterMD3Shaders( model_t *mod, int lod ) {
 	int i, j;
 
 	// swap all the surfaces
-	surf = ( md3Surface_t * )( (byte *)mod->md3[lod] + mod->md3[lod]->ofsSurfaces );
+	surf = ( md3Surface_t * )( (uint8_t *)mod->md3[lod] + mod->md3[lod]->ofsSurfaces );
 	for ( i = 0 ; i < mod->md3[lod]->numSurfaces ; i++ ) {
 		// register the shaders
-		shader = ( md3Shader_t * )( (byte *)surf + surf->ofsShaders );
+		shader = ( md3Shader_t * )( (uint8_t *)surf + surf->ofsShaders );
 		for ( j = 0 ; j < surf->numShaders ; j++, shader++ ) {
 			shader_t    *sh;
 
@@ -2008,7 +2008,7 @@ static void R_RegisterMD3Shaders( model_t *mod, int lod ) {
 			}
 		}
 		// find the next surface
-		surf = ( md3Surface_t * )( (byte *)surf + surf->ofsEnd );
+		surf = ( md3Surface_t * )( (uint8_t *)surf + surf->ofsEnd );
 	}
 }
 
@@ -2092,7 +2092,7 @@ R_LoadCacheModels
 */
 void R_LoadCacheModels( void ) {
 	int len;
-	byte *buf;
+	uint8_t *buf;
 	char    *token;
 	char name[MAX_QPATH];
 
@@ -2113,7 +2113,7 @@ void R_LoadCacheModels( void ) {
 		return;
 	}
 
-	buf = (byte *)Hunk_AllocateTempMemory( len );
+	buf = (uint8_t *)Hunk_AllocateTempMemory( len );
 	FS_ReadFile( "model.cache", (void **)&buf );
 	const char* pString = (const char*)buf;       //DAJ added (char*)
 

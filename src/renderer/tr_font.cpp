@@ -87,7 +87,7 @@ static int registeredFontCount = 0;
 static fontInfo_t registeredFont[MAX_FONTS];
 
 static int fdOffset;
-static byte *fdFile;
+static uint8_t *fdFile;
 
 int readInt() {
 	int i = fdFile[fdOffset] + ( fdFile[fdOffset + 1] << 8 ) + ( fdFile[fdOffset + 2] << 16 ) + ( fdFile[fdOffset + 3] << 24 );
@@ -96,7 +96,7 @@ int readInt() {
 }
 
 typedef union {
-	byte fred[4];
+	uint8_t fred[4];
 	float ffred;
 } poor;
 
@@ -151,7 +151,7 @@ void RE_RegisterFont( const char *fontName, int pointSize, fontInfo_t *font ) {
 	if ( len == sizeof( fontInfo_t ) ) {
 		FS_ReadFile( name, &faceData );
 		fdOffset = 0;
-		fdFile = (byte *)faceData;
+		fdFile = (uint8_t *)faceData;
 		for ( i = 0; i < GLYPHS_PER_FONT; i++ ) {
 			font->glyphs[i].height      = readInt();
 			font->glyphs[i].top         = readInt();

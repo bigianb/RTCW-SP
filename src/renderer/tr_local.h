@@ -307,7 +307,7 @@ typedef struct {
 	waveForm_t alphaWave;
 	alphaGen_t alphaGen;
 
-	byte constantColor[4];                      // for CGEN_CONST and AGEN_CONST
+	uint8_t constantColor[4];                      // for CGEN_CONST and AGEN_CONST
 
 	unsigned stateBits;                         // GLS_xxxx mask
 
@@ -460,7 +460,7 @@ typedef struct {
 	int rdflags;                    // RDF_NOWORLDMODEL, etc
 
 	// 1 bits will prevent the associated area from rendering at all
-	byte areamask[MAX_MAP_AREA_BYTES];
+	uint8_t areamask[MAX_MAP_AREA_BYTES];
 	bool areamaskModified;      // true if areamask changed since last scene
 
 	float floatTime;                // tr.refdef.time / 1000.0
@@ -515,7 +515,7 @@ typedef struct {
 	int originalBrushNumber;
 	vec3_t bounds[2];
 
-	unsigned colorInt;                  // in packed byte format
+	unsigned colorInt;                  // in packed uint8_t format
 	float tcScale;                      // texture coordinate vector scales
 	fogParms_t parms;
 
@@ -760,13 +760,13 @@ typedef struct {
 	vec3_t lightGridSize;
 	vec3_t lightGridInverseSize;
 	int lightGridBounds[3];
-	byte        *lightGridData;
+	uint8_t        *lightGridData;
 
 	int numClusters;
 	int clusterBytes;
-	const byte  *vis;           // may be passed in by CM_LoadMap to save space
+	const uint8_t  *vis;           // may be passed in by CM_LoadMap to save space
 
-	byte        *novis;         // clusterBytes of 0xff
+	uint8_t        *novis;         // clusterBytes of 0xff
 
 	char        *entityString;
 	char        *entityParsePoint;
@@ -919,7 +919,7 @@ typedef struct {
 	bool skyRenderedThisView;       // flag for drawing sun
 
 	bool projection2D;      // if true, drawstretchpic doesn't need to change modes
-	byte color2D[4];
+	uint8_t color2D[4];
 	bool vertexes2D;        // shader needs to be finished
 	trRefEntity_t entity2D;     // currentEntity will point at this when doing 2D rendering
 } backEndState_t;
@@ -948,7 +948,7 @@ typedef struct {
 	bool worldMapLoaded;
 	world_t                 *world;
 
-	const byte              *externalVisData;   // from RE_SetWorldVisData, shared with CM_Load
+	const uint8_t              *externalVisData;   // from RE_SetWorldVisData, shared with CM_Load
 
 	image_t                 *defaultImage;
 	image_t                 *scratchImage[32];
@@ -1290,13 +1290,13 @@ void    GL_Cull( int cullType );
 
 #define GLS_DEFAULT         GLS_DEPTHMASK_TRUE
 
-void    RE_StretchRaw( int x, int y, int w, int h, int cols, int rows, const byte *data, int client, bool dirty );
-void    RE_UploadCinematic( int w, int h, int cols, int rows, const byte *data, int client, bool dirty );
+void    RE_StretchRaw( int x, int y, int w, int h, int cols, int rows, const uint8_t *data, int client, bool dirty );
+void    RE_UploadCinematic( int w, int h, int cols, int rows, const uint8_t *data, int client, bool dirty );
 
 void        RE_BeginFrame( stereoFrame_t stereoFrame );
 void        RE_BeginRegistration( glconfig_t *glconfig );
 
-void        RE_SetWorldVisData( const byte *vis );
+void        RE_SetWorldVisData( const uint8_t *vis );
 
 
 void        RE_Shutdown( bool destroyWindow );
@@ -1311,16 +1311,16 @@ void        R_Init( void );
 image_t     *R_FindImageFile( const char *name, bool mipmap, bool allowPicmip, int glWrapClampMode );
 image_t     *R_FindImageFileExt( const char *name, bool mipmap, bool allowPicmip, bool characterMip, int glWrapClampMode ); //----(SA)	added
 
-image_t     *R_CreateImage( const char *name, const byte *pic, int width, int height, bool mipmap
+image_t     *R_CreateImage( const char *name, const uint8_t *pic, int width, int height, bool mipmap
 							, bool allowPicmip, int wrapClampMode );
 //----(SA)	added (didn't want to modify all instances of R_CreateImage()
-image_t     *R_CreateImageExt( const char *name, const byte *pic, int width, int height, bool mipmap
+image_t     *R_CreateImageExt( const char *name, const uint8_t *pic, int width, int height, bool mipmap
 							   , bool allowPicmip, bool characterMip, int wrapClampMode );
 //----(SA)	end
 bool    R_GetModeInfo( int *width, int *height, float *windowAspect, int mode );
 
 void        R_SetColorMappings( void );
-void        R_GammaCorrect( byte *buffer, int bufSize );
+void        R_GammaCorrect( uint8_t *buffer, int bufSize );
 
 void    R_ImageList_f( void );
 void    R_SkinList_f( void );
@@ -1388,7 +1388,7 @@ TESSELATOR/SHADER DECLARATIONS
 
 ====================================================================
 */
-typedef byte color4ub_t[4];
+typedef uint8_t color4ub_t[4];
 
 typedef struct stageVars
 {
@@ -1438,9 +1438,9 @@ void RB_StageIteratorSky( void );
 void RB_StageIteratorVertexLitTexture( void );
 void RB_StageIteratorLightmappedMultitexture( void );
 
-void RB_AddQuadStamp( vec3_t origin, vec3_t left, vec3_t up, byte *color );
-void RB_AddQuadStampExt( vec3_t origin, vec3_t left, vec3_t up, byte *color, float s1, float t1, float s2, float t2 );
-void RB_AddQuadStampFadingCornersExt( vec3_t origin, vec3_t left, vec3_t up, byte *color, float s1, float t1, float s2, float t2 );
+void RB_AddQuadStamp( vec3_t origin, vec3_t left, vec3_t up, uint8_t *color );
+void RB_AddQuadStampExt( vec3_t origin, vec3_t left, vec3_t up, uint8_t *color, float s1, float t1, float s2, float t2 );
+void RB_AddQuadStampFadingCornersExt( vec3_t origin, vec3_t left, vec3_t up, uint8_t *color, float s1, float t1, float s2, float t2 );
 
 void RB_ShowImages( void );
 
@@ -1611,7 +1611,7 @@ RENDERER BACK END COMMAND QUEUE
 #define MAX_RENDER_COMMANDS 0x40000
 
 typedef struct {
-	byte cmds[MAX_RENDER_COMMANDS];
+	uint8_t cmds[MAX_RENDER_COMMANDS];
 	int used;
 } renderCommandList_t;
 
@@ -1650,7 +1650,7 @@ typedef struct {
 	float s1, t1;
 	float s2, t2;
 
-	byte gradientColor[4];      // color values 0-255
+	uint8_t gradientColor[4];      // color values 0-255
 	int gradientType; 
 } stretchPicCommand_t;
 
@@ -1768,7 +1768,7 @@ extern float r_anormals[NUMMDCVERTEXNORMALS][3];
 
 #define MDC_DIST_SCALE      0.05    // lower for more accuracy, but less range
 
-// note: we are locked in at 8 or less bits since changing to byte-encoded normals
+// note: we are locked in at 8 or less bits since changing to uint8_t-encoded normals
 #define MDC_BITS_PER_AXIS   8
 #define MDC_MAX_OFS         127.0   // to be safe
 

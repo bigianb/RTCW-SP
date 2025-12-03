@@ -94,7 +94,7 @@ typedef struct {
 
 typedef struct {
 	int areabytes;
-	byte areabits[MAX_MAP_AREA_BYTES];                  // portalarea visibility bits
+	uint8_t areabits[MAX_MAP_AREA_BYTES];                  // portalarea visibility bits
 	PlayerState ps;
 	int num_entities;
 	int first_entity;                   // into the circular sv_packet_entities[]
@@ -341,9 +341,6 @@ void SV_LinkEntity( sharedEntity_t *ent );
 clipHandle_t SV_ClipHandleForEntity( const sharedEntity_t *ent );
 
 
-void SV_SectorList_f( void );
-
-
 int SV_AreaEntities( const vec3_t mins, const vec3_t maxs, int *entityList, int maxcount );
 // fills in a table of entity numbers with entities that have bounding boxes
 // that intersect the given area.  It is possible for a non-axial bmodel
@@ -377,7 +374,7 @@ void SV_ClipToEntity( trace_t *trace, const vec3_t start, const vec3_t mins, con
 //
 // sv_net_chan.c
 //
-void SV_Netchan_Transmit( client_t *client, msg_t *msg );    //int length, const byte *data );
+void SV_Netchan_Transmit( client_t *client, msg_t *msg );    //int length, const uint8_t *data );
 void SV_Netchan_TransmitNextFragment( netchan_t *chan );
 bool SV_Netchan_Process( client_t *client, msg_t *msg );
 

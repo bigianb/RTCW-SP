@@ -35,14 +35,14 @@ If you have questions concerning this license or the applicable additional terms
 #define MAX_CMD_LINE    1024
 
 typedef struct {
-	byte    *data;
+	uint8_t    *data;
 	int maxsize;
 	int cmdsize;
 } cmd_t;
 
 int cmd_wait;
 cmd_t cmd_text;
-byte cmd_text_buf[MAX_CMD_BUFFER];
+uint8_t cmd_text_buf[MAX_CMD_BUFFER];
 
 
 //=============================================================================

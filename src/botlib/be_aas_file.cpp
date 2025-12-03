@@ -62,7 +62,7 @@ If you have questions concerning this license or the applicable additional terms
 void AAS_SwapAASData( void ) {
 	int i, j;
 
-	// Ridah, no need to do anything if this OS doesn't need byte swapping
+	// Ridah, no need to do anything if this OS doesn't need uint8_t swapping
 	if ( LittleLong( 1 ) == 1 ) {
 		return;
 	}
@@ -570,7 +570,7 @@ int AAS_WriteAASLump( fileHandle_t fp, aas_header_t *h, int lumpnum, void *data,
 	return true;
 } //end of the function AAS_WriteAASLump
 //===========================================================================
-// aas data is useless after writing to file because it is byte swapped
+// aas data is useless after writing to file because it is uint8_t swapped
 //
 // Parameter:				-
 // Returns:					-

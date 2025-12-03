@@ -46,7 +46,7 @@ If you have questions concerning this license or the applicable additional terms
 #include <ctype.h>
 #include <limits.h>
 
-typedef unsigned char byte;
+typedef unsigned char uint8_t;
 
 typedef int qhandle_t;
 typedef int sfxHandle_t;
@@ -518,14 +518,14 @@ int Q_strcasecmp( const char *s1, const char *s2 );
 // implemented as a struct for qvm compatibility
 typedef struct
 {
-	byte b0;
-	byte b1;
-	byte b2;
-	byte b3;
-	byte b4;
-	byte b5;
-	byte b6;
-	byte b7;
+	uint8_t b0;
+	uint8_t b1;
+	uint8_t b2;
+	uint8_t b3;
+	uint8_t b4;
+	uint8_t b5;
+	uint8_t b6;
+	uint8_t b7;
 } qint64;
 
 //=============================================
@@ -673,9 +673,9 @@ PlaneTypeForNormal
 typedef struct cplane_s {
 	vec3_t normal;
 	float dist;
-	byte type;              // for fast side tests: 0,1,2 = axial, 3 = nonaxial
-	byte signbits;          // signx + (signy<<1) + (signz<<2), used as lookup during collision
-	byte pad[2];
+	uint8_t type;              // for fast side tests: 0,1,2 = axial, 3 = nonaxial
+	uint8_t signbits;          // signx + (signy<<1) + (signz<<2), used as lookup during collision
+	uint8_t pad[2];
 } cplane_t;
 
 
@@ -1070,10 +1070,10 @@ public:
 class UserCmd {
 public:
 	int serverTime;
-	byte buttons;
-	byte wbuttons;
-	byte weapon;
-	byte holdable;
+	uint8_t buttons;
+	uint8_t wbuttons;
+	uint8_t weapon;
+	uint8_t holdable;
 	int angles[3];
 
 

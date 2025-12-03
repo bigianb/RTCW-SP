@@ -646,7 +646,7 @@ void RB_ZombieFXProcessNewHits( trZombieFleshHitverts_t *fleshHitVerts, int oldN
 	bool foundHit;
 	int i, j, bestHit;
 	unsigned short *hitTrav;
-	byte hitCounts[ZOMBIEFX_MAX_VERTS];     // so we can quickly tell if a particular vert has been hit enough times already
+	uint8_t hitCounts[ZOMBIEFX_MAX_VERTS];     // so we can quickly tell if a particular vert has been hit enough times already
 
 // disabled for E3, are we still going to use this?
 	return;
@@ -743,7 +743,7 @@ hitCheckDone:
 }
 
 void RB_ZombieFXShowFleshHits( trZombieFleshHitverts_t *fleshHitVerts, int oldNumVerts, int numSurfVerts ) {
-	byte *vertColors;
+	uint8_t *vertColors;
 	unsigned short *vertHits;
 	int i;
 
@@ -764,7 +764,7 @@ void RB_ZombieFXShowFleshHits( trZombieFleshHitverts_t *fleshHitVerts, int oldNu
 }
 
 void RB_ZombieFXDecompose( int oldNumVerts, int numSurfVerts, float deltaTimeScale ) {
-	byte *vertColors;
+	uint8_t *vertColors;
 	float   *xyz, *norm;
 	int i;
 	float alpha;
@@ -784,7 +784,7 @@ void RB_ZombieFXDecompose( int oldNumVerts, int numSurfVerts, float deltaTimeSca
 		if ( (float)vertColors[3] - alpha < 0 ) {
 			vertColors[3] = 0;
 		} else {
-			vertColors[3] -= (byte)alpha;
+			vertColors[3] -= (uint8_t)alpha;
 		}
 
 		// skin shrinks with age
@@ -793,7 +793,7 @@ void RB_ZombieFXDecompose( int oldNumVerts, int numSurfVerts, float deltaTimeSca
 }
 
 void RB_ZombieFXFullAlpha( int oldNumVerts, int numSurfVerts ) {
-	byte *vertColors;
+	uint8_t *vertColors;
 	int i;
 
 	vertColors = tess.vertexColors[oldNumVerts];
@@ -1139,7 +1139,7 @@ Stretches a raw 32 bit power of 2 bitmap image over the given screen rectangle.
 Used for cinematics.
 =============
 */
-void RE_StretchRaw( int x, int y, int w, int h, int cols, int rows, const byte *data, int client, bool dirty ) {
+void RE_StretchRaw( int x, int y, int w, int h, int cols, int rows, const uint8_t *data, int client, bool dirty ) {
 	int i, j;
 	int start, end;
 
@@ -1207,7 +1207,7 @@ void RE_StretchRaw( int x, int y, int w, int h, int cols, int rows, const byte *
 }
 
 
-void RE_UploadCinematic( int w, int h, int cols, int rows, const byte *data, int client, bool dirty ) {
+void RE_UploadCinematic( int w, int h, int cols, int rows, const uint8_t *data, int client, bool dirty ) {
 
 	GL_Bind( tr.scratchImage[client] );
 

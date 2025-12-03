@@ -537,7 +537,7 @@ static mnode_t *R_PointInLeaf( vec3_t p ) {
 R_ClusterPVS
 ==============
 */
-static const byte *R_ClusterPVS( int cluster ) {
+static const uint8_t *R_ClusterPVS( int cluster ) {
 	if ( !tr.world || !tr.world->vis || cluster < 0 || cluster >= tr.world->numClusters ) {
 		return tr.world->novis;
 	}
@@ -556,7 +556,7 @@ cluster
 ===============
 */
 static void R_MarkLeaves( void ) {
-	const byte  *vis;
+	const uint8_t  *vis;
 	mnode_t *leaf, *parent;
 	int i;
 	int cluster;

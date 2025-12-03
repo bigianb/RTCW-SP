@@ -86,8 +86,8 @@ StringToFilter
 static bool StringToFilter( char *s, ipFilter_t *f ) {
 	char num[128];
 	int i, j;
-	byte b[4];
-	byte m[4];
+	uint8_t b[4];
+	uint8_t m[4];
 
 	for ( i = 0 ; i < 4 ; i++ )
 	{

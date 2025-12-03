@@ -892,8 +892,8 @@ typedef struct routecacheheader_s
 #define RCID                        ( ( 'C' << 24 ) + ( 'R' << 16 ) + ( 'E' << 8 ) + 'M' )
 #define RCVERSION                   15
 
-void AAS_DecompressVis( byte *in, int numareas, byte *decompressed );
-size_t AAS_CompressVis( byte *vis, int numareas, byte *dest );
+void AAS_DecompressVis( uint8_t *in, int numareas, uint8_t *decompressed );
+size_t AAS_CompressVis( uint8_t *vis, int numareas, uint8_t *dest );
 
 void AAS_WriteRouteCache()
 {
@@ -903,9 +903,9 @@ void AAS_WriteRouteCache()
 	fileHandle_t fp;
 	char filename[MAX_QPATH];
 	routecacheheader_t routecacheheader;
-	byte *buf;
+	uint8_t *buf;
 
-	buf = (byte *) GetClearedMemory( ( *aasworld ).numareas * 2 * sizeof( byte ) );   // in case it ends up bigger than the decompressedvis, which is rare but possible
+	buf = (uint8_t *) GetClearedMemory( ( *aasworld ).numareas * 2 * sizeof( uint8_t ) );   // in case it ends up bigger than the decompressedvis, which is rare but possible
 
 	numportalcache = 0;
 	for ( i = 0; i < ( *aasworld ).numareas; i++ )
@@ -1144,14 +1144,14 @@ int AAS_ReadRouteCache( void ) {
 		( *aasworld ).clusterareacache[cache->cluster][clusterareanum] = cache;
 	} //end for
 	  // read the visareas
-	( *aasworld ).areavisibility = (byte **) GetClearedMemory( ( *aasworld ).numareas * sizeof( byte * ) );
-	( *aasworld ).decompressedvis = (byte *) GetClearedMemory( ( *aasworld ).numareas * sizeof( byte ) );
+	( *aasworld ).areavisibility = (uint8_t **) GetClearedMemory( ( *aasworld ).numareas * sizeof( uint8_t * ) );
+	( *aasworld ).decompressedvis = (uint8_t *) GetClearedMemory( ( *aasworld ).numareas * sizeof( uint8_t ) );
 	for ( i = 0; i < ( *aasworld ).numareas; i++ )
 	{
 		FS_Read( &size, sizeof( size ), fp );
 		size = LittleLong( size );
 		if ( size ) {
-			( *aasworld ).areavisibility[i] = (byte *) GetMemory( size );
+			( *aasworld ).areavisibility[i] = (uint8_t *) GetMemory( size );
 			FS_Read( ( *aasworld ).areavisibility[i], size, fp );
 		}
 	}
@@ -1997,12 +1997,12 @@ int AAS_RandomGoalArea( int areanum, int travelflags, int *goalareanum, vec3_t g
 // Returns:				-
 // Changes Globals:		-
 //===========================================================================
-size_t AAS_CompressVis( byte *vis, int numareas, byte *dest ) {
+size_t AAS_CompressVis( uint8_t *vis, int numareas, uint8_t *dest ) {
 	int j;
 	int rep;
 	//int		visrow;
-	byte    *dest_p;
-	byte check;
+	uint8_t    *dest_p;
+	uint8_t check;
 
 	//
 	dest_p = dest;
@@ -2033,11 +2033,11 @@ size_t AAS_CompressVis( byte *vis, int numareas, byte *dest ) {
 // Returns:				-
 // Changes Globals:		-
 //===========================================================================
-void AAS_DecompressVis( byte *in, int numareas, byte *decompressed ) {
-	byte c;
-	byte    *out;
+void AAS_DecompressVis( uint8_t *in, int numareas, uint8_t *decompressed ) {
+	uint8_t c;
+	uint8_t    *out;
 	//int		row;
-	byte    *end;
+	uint8_t    *end;
 
 	// initialize the vis data, only set those that are visible
 	memset( decompressed, 0, numareas );
@@ -2104,23 +2104,23 @@ void AAS_CreateVisibility( void ) {
 	int i, j;
 	vec3_t endpos, mins, maxs;
 	bsp_trace_t trace;
-	byte *buf;
-	byte *validareas;
+	uint8_t *buf;
+	uint8_t *validareas;
 	int numvalid = 0;
-	byte *areaTable = nullptr;
+	uint8_t *areaTable = nullptr;
 	int numAreas, numAreaBits;
 
 	numAreas = ( *aasworld ).numareas;
 	numAreaBits = ( ( numAreas + 8 ) >> 3 );
-	areaTable = (byte *) GetClearedMemory( numAreas * numAreaBits * sizeof( byte ) );
+	areaTable = (uint8_t *) GetClearedMemory( numAreas * numAreaBits * sizeof( uint8_t ) );
 
-	buf = (byte *) GetClearedMemory( numAreas * 2 * sizeof( byte ) );   // in case it ends up bigger than the decompressedvis, which is rare but possible
-	validareas = (byte *) GetClearedMemory( numAreas * sizeof( byte ) );
+	buf = (uint8_t *) GetClearedMemory( numAreas * 2 * sizeof( uint8_t ) );   // in case it ends up bigger than the decompressedvis, which is rare but possible
+	validareas = (uint8_t *) GetClearedMemory( numAreas * sizeof( uint8_t ) );
 
-	( *aasworld ).areavisibility = (byte **) GetClearedMemory( numAreas * sizeof( byte * ) );
-	( *aasworld ).decompressedvis = (byte *) GetClearedMemory( numAreas * sizeof( byte ) );
+	( *aasworld ).areavisibility = (uint8_t **) GetClearedMemory( numAreas * sizeof( uint8_t * ) );
+	( *aasworld ).decompressedvis = (uint8_t *) GetClearedMemory( numAreas * sizeof( uint8_t ) );
 	( *aasworld ).areawaypoints = (vec3_t *) GetClearedMemory( numAreas * sizeof( vec3_t ) );
-	size_t totalsize = numAreas * sizeof( byte * );
+	size_t totalsize = numAreas * sizeof( uint8_t * );
 	for ( i = 1; i < numAreas; i++ )
 	{
 		if ( !AAS_AreaReachability( i ) ) {
@@ -2181,7 +2181,7 @@ void AAS_CreateVisibility( void ) {
 			} //end if
 		} //end for
 		size_t size = AAS_CompressVis( ( *aasworld ).decompressedvis, numAreas, buf );
-		( *aasworld ).areavisibility[i] = (byte *) GetMemory( size );
+		( *aasworld ).areavisibility[i] = (uint8_t *) GetMemory( size );
 		memcpy( ( *aasworld ).areavisibility[i], buf, size );
 		totalsize += size;
 	} //end for
@@ -2230,9 +2230,9 @@ int AAS_NearestHideArea( int srcnum, vec3_t origin, int areanum, int enemynum, v
 	} //end else
 	  //
 	if ( !( *aasworld ).visCache ) {
-		( *aasworld ).visCache = (byte *) GetClearedMemory( ( *aasworld ).numareas * sizeof( byte ) );
+		( *aasworld ).visCache = (uint8_t *) GetClearedMemory( ( *aasworld ).numareas * sizeof( uint8_t ) );
 	} else {
-		memset( ( *aasworld ).visCache, 0, ( *aasworld ).numareas * sizeof( byte ) );
+		memset( ( *aasworld ).visCache, 0, ( *aasworld ).numareas * sizeof( uint8_t ) );
 	} //end else
 	besttraveltime = 0;
 	bestarea = 0;
@@ -2442,9 +2442,9 @@ int AAS_FindAttackSpotWithinRange( int srcnum, int rangenum, int enemynum, float
 	} //end else
 	  //
 	if ( !( *aasworld ).visCache ) {
-		( *aasworld ).visCache = (byte *) GetClearedMemory( ( *aasworld ).numareas * sizeof( byte ) );
+		( *aasworld ).visCache = (uint8_t *) GetClearedMemory( ( *aasworld ).numareas * sizeof( uint8_t ) );
 	} else {
-		memset( ( *aasworld ).visCache, 0, ( *aasworld ).numareas * sizeof( byte ) );
+		memset( ( *aasworld ).visCache, 0, ( *aasworld ).numareas * sizeof( uint8_t ) );
 	} //end else
 	  //
 	AAS_EntityOrigin( srcnum, srcorg );
