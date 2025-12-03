@@ -814,11 +814,11 @@ void CG_GibPlayer( centity_t *cent, vec3_t playerOrigin, vec3_t gdir ) {
 
 	for ( i = 0; i < MAXJUNCTIONS; i++ )
 	{
-		if ( newjunction[i] == true ) {
+		if ( newjunction[i]) {
 			for ( j = 0; j < MAXJUNCTIONS; j++ )
 			{
 				if ( !Q_stricmp( JunctiongibTags[j], ConnectTags[i] ) ) {
-					if ( newjunction[j] == true ) {
+					if ( newjunction[j]) {
 						// spawn a blood cloud somewhere on the vec from
 						VectorSubtract( junctionOrigin[i], junctionOrigin[j], dir );
 

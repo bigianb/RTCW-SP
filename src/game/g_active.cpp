@@ -407,7 +407,7 @@ void ClientIntermissionThink( gclient_t *client ) {
 
 	if ( ( client->buttons & ( BUTTON_ATTACK | BUTTON_USE_HOLDABLE ) & ( client->oldbuttons ^ client->buttons ) ) ||
 		 ( client->wbuttons & WBUTTON_ATTACK2 & ( client->oldwbuttons ^ client->wbuttons ) ) ) {
-		client->readyToExit = client->readyToExit == true ? false : true;
+		client->readyToExit = !client->readyToExit;
 	}
 }
 

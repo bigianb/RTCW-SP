@@ -2299,7 +2299,7 @@ bool Item_TextField_HandleKey( itemDef_t *item, int key ) {
 			}
 
 			if ( key == K_INS || key == K_KP_INS ) {
-                Key_SetOverstrikeMode( Key_GetOverstrikeMode() == true ? false : true );
+                Key_SetOverstrikeMode( !Key_GetOverstrikeMode());
 				return true;
 			}
 		}
@@ -2843,11 +2843,7 @@ void Menu_HandleKey( menuDef_t *menu, int key, bool down ) {
 	case K_F10:
 	case K_F11:
 		if ( Cvar_VariableValue( "developer" ) ) {
-			if (debugMode == false) {
-				debugMode = true;
-			} else {
-				debugMode = false;
-			}
+			debugMode = !debugMode;
 		}
 		break;
 

@@ -340,7 +340,7 @@ static FILE *FS_FileForHandle( fileHandle_t f ) {
 		Com_Error( ERR_DROP, "FS_FileForHandle: out of reange" );
         return NULL; // keep the linter happy, ERR_DROP does not return
 	}
-	if ( fsh[f].zipFile == true ) {
+	if ( fsh[f].zipFile) {
 		Com_Error( ERR_DROP, "FS_FileForHandle: can't get FILE on zip file" );
         return NULL; // keep the linter happy, ERR_DROP does not return
 	}
@@ -778,7 +778,7 @@ void FS_FCloseFile( fileHandle_t f ) {
 	if ( fsh[f].streamed ) {
 		Sys_EndStreamedFile( f );
 	}
-	if ( fsh[f].zipFile == true ) {
+	if ( fsh[f].zipFile) {
 		unzCloseCurrentFile( fsh[f].handleFiles.file.z );
 		if ( fsh[f].handleFiles.unique ) {
 			unzClose( fsh[f].handleFiles.file.z );
@@ -1259,7 +1259,7 @@ size_t FS_Read( void *buffer, size_t len, fileHandle_t f ) {
 	byte* buf = (byte *)buffer;
 	fs_readCount += len;
 
-	if ( fsh[f].zipFile == false ) {
+	if ( !fsh[f].zipFile) {
 		size_t remaining = len;
 		int tries = 0;
 		while ( remaining ) {
@@ -1369,7 +1369,7 @@ size_t FS_Seek( fileHandle_t f, size_t offset, int origin ) {
 		fsh[f].streamed = true;
 	}
 
-	if ( fsh[f].zipFile == true ) {
+	if ( fsh[f].zipFile) {
 		if ( offset == 0 && origin == FS_SEEK_SET ) {
 			// set the file position in the zip file (also sets the current file info)
 			unzSetCurrentFileInfoPosition( fsh[f].handleFiles.file.z, fsh[f].zipFilePos );
@@ -2849,7 +2849,7 @@ int     FS_FOpenFileByMode( const char *qpath, fileHandle_t *f, fsMode_t mode ) 
 	}
 
 	if ( *f ) {
-		if ( fsh[*f].zipFile == true ) {
+		if ( fsh[*f].zipFile) {
 			fsh[*f].baseOffset = unztell( fsh[*f].handleFiles.file.z );
 		} else {
 			fsh[*f].baseOffset = ftell( fsh[*f].handleFiles.file.o );
@@ -2864,7 +2864,7 @@ int     FS_FOpenFileByMode( const char *qpath, fileHandle_t *f, fsMode_t mode ) 
 
 size_t     FS_FTell( fileHandle_t f ) {
 	size_t pos;
-	if ( fsh[f].zipFile == true ) {
+	if ( fsh[f].zipFile) {
 		pos = unztell( fsh[f].handleFiles.file.z );
 	} else {
 		pos = ftell( fsh[f].handleFiles.file.o );

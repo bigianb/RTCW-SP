@@ -871,7 +871,7 @@ void AICast_StartFrame( int time )
 		cs = AICast_GetCastState( i );
 		// is this a cast AI?
 		if ( cs->bs ) {
-			if ( ent->aiInactive == false ) {
+			if ( !ent->aiInactive) {
 				//
 				elapsed = time - cs->lastThink;
 				//
@@ -1000,7 +1000,7 @@ void AICast_StartServerFrame( int time ) {
 		cs = AICast_GetCastState( i );
 		// is this a cast AI?
 		if ( cs->bs ) {
-			if ( ent->aiInactive == false && ent->inuse ) {
+			if ( !ent->aiInactive && ent->inuse ) {
 				//
 				elapsed = level.time - cs->lastMoveThink;
 				if ( cs->lastThink && elapsed > 0 ) {

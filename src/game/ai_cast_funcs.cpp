@@ -4315,7 +4315,7 @@ const char *AIFunc_GrenadeKick( cast_state_t *cs ) {
 		//
 
 		// play the kick anim
-		if ( cs->grenadeGrabFlag == true ) {
+		if ( cs->grenadeGrabFlag) {
 			AICast_AimAtEnemy( cs );
 			// play the kick anim
 			BG_AnimScriptEvent( &ent->client->ps, ANIM_ET_KICKGRENADE, false, true );

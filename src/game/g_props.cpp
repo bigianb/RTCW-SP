@@ -1014,7 +1014,7 @@ void Props_Activated( gentity_t *self ) {
 
 	Props_TurnLightsOff( self );
 
-	if ( owner->active == false ) {
+	if ( !owner->active) {
 
 		owner->melee = NULL;
 

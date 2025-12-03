@@ -2146,7 +2146,7 @@ void G_TryDoor( gentity_t *ent, gentity_t *other, gentity_t *activator ) {
 
 
 	if ( ( ent->shared.s.apos.trType == TR_STATIONARY && ent->shared.s.pos.trType == TR_STATIONARY ) ) {
-		if ( ent->active == false ) {
+		if ( !ent->active) {
 			if ( ent->key >= KEY_LOCKED_ENT ) {    // door force locked
 				locked = true;
 			} else if ( ent->key == KEY_LOCKED_TARGET ) {
@@ -3094,7 +3094,7 @@ void BatMoveThink( gentity_t *bat ) {
 //	trace_t		tr;
 
 	owner = &g_entities[bat->shared.r.ownerNum];
-	if ( owner->active == true && owner->inuse ) { // move towards the owner
+	if ( owner->active && owner->inuse ) { // move towards the owner
 		BG_EvaluateTrajectory( &owner->shared.s.pos, level.time, goalpos );
 
 		// randomize ther movedir as we go
@@ -4690,7 +4690,7 @@ G_Activate
 */
 void G_Activate( gentity_t *ent, gentity_t *activator ) {
 	if ( ( ent->shared.s.apos.trType == TR_STATIONARY && ent->shared.s.pos.trType == TR_STATIONARY )
-		 && ent->active == false ) {
+		 && !ent->active ) {
 		// trigger the ent if possible, if not, then we'll just wait at the marker until it opens, which could be never(!?)
 		if ( ent->key >= KEY_LOCKED_TARGET ) { // ent force locked
 			return;

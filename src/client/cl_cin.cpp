@@ -945,7 +945,7 @@ static void RoQInterrupt( void ) {
 	}
 	FS_Read( cin.file, cinTable[currentHandle].RoQFrameSize + 8, cinTable[currentHandle].iFile );
 	if ( cinTable[currentHandle].RoQPlayed >= cinTable[currentHandle].ROQSize ) {
-		if ( cinTable[currentHandle].holdAtEnd == false ) {
+		if ( !cinTable[currentHandle].holdAtEnd) {
 			if ( cinTable[currentHandle].looping ) {
 				RoQReset();
 			} else {
@@ -1032,7 +1032,7 @@ redump:
 // read in next frame data
 //
 	if ( cinTable[currentHandle].RoQPlayed >= cinTable[currentHandle].ROQSize ) {
-		if ( cinTable[currentHandle].holdAtEnd == false ) {
+		if ( !cinTable[currentHandle].holdAtEnd ) {
 			if ( cinTable[currentHandle].looping ) {
 				RoQReset();
 			} else {

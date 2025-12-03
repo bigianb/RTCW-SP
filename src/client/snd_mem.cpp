@@ -407,7 +407,7 @@ bool S_LoadSound( sfx_t *sfx ) {
 		sfx->soundLength = info.samples;
 		sfx->soundData = NULL;
 		ResampleSfx( sfx, info.rate, info.width, data + info.dataofs, false );
-	} else if ( sfx->soundCompressed == true )     {
+	} else if ( sfx->soundCompressed )     {
 		sfx->soundCompressionMethod = 1;
 		sfx->soundData = NULL;
 		sfx->soundLength = ResampleSfxRaw( samples, info.rate, info.width, info.samples, ( data + info.dataofs ) );

@@ -807,7 +807,7 @@ void Cmd_Activate_f( gentity_t *ent ) {
 //----(SA)	end
 		} else if ( ( Q_stricmp( traceEnt->classname, "func_button" ) == 0 )
 					&& ( traceEnt->shared.s.apos.trType == TR_STATIONARY && traceEnt->shared.s.pos.trType == TR_STATIONARY )
-					&& traceEnt->active == false ) {
+					&& !traceEnt->active) {
 			G_TryDoor( traceEnt, ent, ent );      // (door,other,activator)
 //			Use_BinaryMover (traceEnt, ent, ent);
 //			traceEnt->active = true;
@@ -840,7 +840,7 @@ void Cmd_Activate_f( gentity_t *ent ) {
 				traceEnt->touch( traceEnt, ent, &trace );
 			}
 
-		} else if ( ( Q_stricmp( traceEnt->classname, "misc_mg42" ) == 0 ) /*&& activatetime > oldactivatetime + 1000*/ && traceEnt->active == false )         {
+		} else if ( ( Q_stricmp( traceEnt->classname, "misc_mg42" ) == 0 ) /*&& activatetime > oldactivatetime + 1000*/ && !traceEnt->active )         {
 			if ( !ent->active && traceEnt->takedamage ) {  // not a dead gun
 				// RF, dont allow activating MG42 if crouching
 				if ( !( ent->client->ps.pm_flags & PMF_DUCKED ) && !infront( traceEnt, ent ) ) {
@@ -872,7 +872,7 @@ void Cmd_Activate_f( gentity_t *ent ) {
 					}
 				}
 			}
-		} else if ( ( Q_stricmp( traceEnt->classname, "misc_flak" ) == 0 ) /*&& activatetime > oldactivatetime + 1000*/ && traceEnt->active == false )         {
+		} else if ( ( Q_stricmp( traceEnt->classname, "misc_flak" ) == 0 ) /*&& activatetime > oldactivatetime + 1000*/ && !traceEnt->active )         {
 			if ( !infront( traceEnt, ent ) ) {     // make sure the client isn't holding a hot potato
 				gclient_t   *cl;
 				cl = &level.clients[ ent->shared.s.clientNum ];
@@ -986,7 +986,7 @@ int Cmd_WolfKick_f( gentity_t *ent ) {
 	if ( !ent->melee ) { // because we dont want you to open a door with a prop
 		if ( ( Q_stricmp( traceEnt->classname, "func_door_rotating" ) == 0 )
 			 && ( traceEnt->shared.s.apos.trType == TR_STATIONARY && traceEnt->shared.s.pos.trType == TR_STATIONARY )
-			 && traceEnt->active == false ) {
+			 && !traceEnt->active ) {
 //			if(traceEnt->key < 0) {	// door force locked
 			if ( traceEnt->key >= KEY_LOCKED_TARGET ) {    // door force locked
 
@@ -1034,7 +1034,7 @@ int Cmd_WolfKick_f( gentity_t *ent ) {
 			}
 		} else if ( ( Q_stricmp( traceEnt->classname, "func_button" ) == 0 )
 					&& ( traceEnt->shared.s.apos.trType == TR_STATIONARY && traceEnt->shared.s.pos.trType == TR_STATIONARY )
-					&& traceEnt->active == false ) {
+					&& !traceEnt->active ) {
 			Use_BinaryMover( traceEnt, ent, ent );
 			traceEnt->active = true;
 

@@ -638,28 +638,7 @@ void S_StartSoundEx( vec3_t origin, int entityNum, int entchannel, sfxHandle_t s
 
 	// RF, make the call now, or else we could override following streaming sounds in the same frame, due to the delay
 	S_ThreadStartSoundEx( origin, entityNum, entchannel, sfxHandle, flags );
-/*
-	if (snd.tart < MAX_PUSHSTACK) {
-		sfx_t		*sfx;
-		if (origin) {
-			VectorCopy( origin, snd.pushPop[snd.tart].origin );
-			snd.pushPop[snd.tart].fixedOrigin = true;
-		} else {
-			snd.pushPop[snd.tart].fixedOrigin = false;
-		}
-		snd.pushPop[snd.tart].entityNum = entityNum;
-		snd.pushPop[snd.tart].entityChannel = entchannel;
-		snd.pushPop[snd.tart].sfx = sfxHandle;
-		snd.pushPop[snd.tart].flags = flags;
-		sfx = &s_knownSfx[ sfxHandle ];
 
-		if (sfx->inMemory == false) {
-			S_memoryLoad(sfx);
-		}
-
-		snd.tart++;
-	}
-*/
 }
 
 void S_ThreadStartSoundEx( vec3_t origin, int entityNum, int entchannel, sfxHandle_t sfxHandle, int flags ) {
@@ -973,7 +952,7 @@ void S_AddLoopingSound( int entityNum, const vec3_t origin, const vec3_t velocit
 
 	sfx = &s_knownSfx[ sfxHandle ];
 
-	if ( sfx->inMemory == false ) {
+	if ( !sfx->inMemory) {
 		S_memoryLoad( sfx );
 	}
 
@@ -1332,7 +1311,7 @@ bool S_ScanChannelStarts( void ) {
 		// if this channel was just started this frame,
 		// set the sample count to it begins mixing
 		// into the very first sample
-		if ( ch->startSample == START_SAMPLE_IMMEDIATE && ch->threadReady == true ) {
+		if ( ch->startSample == START_SAMPLE_IMMEDIATE && ch->threadReady) {
 			ch->startSample = s_paintedtime;
 			newSamples = true;
 			continue;
