@@ -26,14 +26,8 @@ If you have questions concerning this license or the applicable additional terms
 ===========================================================================
 */
 
-/*
- * name:		g_misc.c
- *
- * desc:
- *
-*/
-
-
+#include <algorithm>
+#include "../idlib/math/Math.h"
 #include "g_local.h"
 #include "../server/server.h"
 
@@ -1353,8 +1347,8 @@ void SP_dlight( GameEntity *ent ) {
 
 	if ( ent->dl_stylestring && strlen( ent->dl_stylestring ) ) {    // if they're specified in a string, use em
 	} else if ( style )       {
-		style = max( 1, style );                                  // clamp to predefined range
-		style = min( 19, style );
+		style = std::max( 1, style );                                  // clamp to predefined range
+		style = std::min( 19, style );
 		ent->dl_stylestring = predef_lightstyles[style - 1];    // these are input as 1-20
 	} else {
 		ent->dl_stylestring = "mmmaaa";                          // default to a strobe to call attention to this not being set

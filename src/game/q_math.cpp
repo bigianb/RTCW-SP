@@ -26,9 +26,8 @@ If you have questions concerning this license or the applicable additional terms
 ===========================================================================
 */
 
-// Copyright (C) 1999-2000 Id Software, Inc.
-//
-// q_math.c -- stateless support routines that are included in each code module
+
+#include "../idlib/math/Math.h"
 #include "q_shared.h"
 
 

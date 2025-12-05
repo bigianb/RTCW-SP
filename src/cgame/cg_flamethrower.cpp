@@ -34,6 +34,7 @@ If you have questions concerning this license or the applicable additional terms
 //
 // NOTE: some AI's are treated different, mostly for aesthetical reasons.
 
+#include "../idlib/math/Math.h"
 #include "cg_local.h"
 #include "../qcommon/qcommon.h"
 

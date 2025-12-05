@@ -29,6 +29,7 @@ If you have questions concerning this license or the applicable additional terms
 // cg_effects.c -- these functions generate localentities, usually as a result
 // of event processing
 
+#include "../idlib/math/Math.h"
 #include "cg_local.h"
 
 

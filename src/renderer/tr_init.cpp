@@ -27,7 +27,7 @@ If you have questions concerning this license or the applicable additional terms
 */
 
 // tr_init.c -- functions that are not called every frame
-
+#include "../idlib/math/Math.h"
 #include "tr_local.h"
 
 

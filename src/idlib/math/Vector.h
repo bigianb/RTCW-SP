@@ -1770,13 +1770,3 @@ inline uint32_t Vec4ToColorInt( const idVec4& vec )
 	return ( ( uint32_t )vecCopy[0] << 28 ) | ( ( uint32_t )vecCopy[1] << 20 ) | ( ( uint32_t )vecCopy[2] << 12 ) | ( uint32_t )vecCopy[3];
 }
 }
-
-/*
-===============================================================================
-
-	Old 3D vector macros, should no longer be used.
-
-===============================================================================
-*/
-
-#define	VectorMA( v, s, b, o )		((o)[0]=(v)[0]+(b)[0]*(s),(o)[1]=(v)[1]+(b)[1]*(s),(o)[2]=(v)[2]+(b)[2]*(s))

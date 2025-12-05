@@ -33,7 +33,7 @@ If you have questions concerning this license or the applicable additional terms
  * desc:
  *
 */
-
+#include "../idlib/math/Math.h"
 #include "g_local.h"
 #include "../server/server.h"
 

@@ -26,6 +26,7 @@ If you have questions concerning this license or the applicable additional terms
 ===========================================================================
 */
 
+#include "../idlib/math/Math.h"
 #include "../game/q_shared.h"
 #include "qcommon.h"
 

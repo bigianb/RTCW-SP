@@ -45,8 +45,8 @@ bool loadCamera( int camNum, const char *name ) {
 		return false;
 	}
 	camera[camNum].clear();
-	// TTimo static_cast confused gcc, went for C-style casting
-	return (bool)( camera[camNum].load( name ) );
+
+	return camera[camNum].load( name );
 }
 
 bool getCameraInfo( int camNum, int time, float *origin, float *angles, float *fov ) {
@@ -81,17 +81,17 @@ idCameraDef *g_splineList = &splineList;
 
 idVec3 idSplineList::zero( 0,0,0 );
 
-void glLabeledPoint( idVec3 &color, idVec3 &point, float size, const char *label ) {
-	qglColor3fv( color );
+void glLabeledPoint( idVec4 &color, idVec3 &point, float size, const char *label ) {
+	qglColor3fv( color.ToFloatPtr() );
 	qglPointSize( size );
 	qglBegin( GL_POINTS );
-	qglVertex3fv( point );
+	qglVertex3fv( point.ToFloatPtr() );
 	qglEnd();
 	idVec3 v = point;
 	v.x += 1;
 	v.y += 1;
 	v.z += 1;
-	qglRasterPos3fv( v );
+	qglRasterPos3fv( v.ToFloatPtr() );
 	qglCallLists( strlen( label ), GL_UNSIGNED_BYTE, label );
 }
 
@@ -105,7 +105,7 @@ void glBox( idVec3 &color, idVec3 &point, float size ) {
 	maxs[0] += size;
 	maxs[1] -= size;
 	maxs[2] += size;
-	qglColor3fv( color );
+	qglColor3fv( color.ToFloatPtr() );
 	qglBegin( GL_LINE_LOOP );
 	qglVertex3f( mins[0],mins[1],mins[2] );
 	qglVertex3f( maxs[0],mins[1],mins[2] );
@@ -230,7 +230,7 @@ void idSplineList::buildSpline() {
 
 void idSplineList::draw( bool editMode ) {
 	int i;
-	idVec4 yellow( 1, 1, 0, 1 );
+	idVec3 yellow( 1, 1, 0 );
 
 	if ( controlPoints.Num() == 0 ) {
 		return;
@@ -241,12 +241,12 @@ void idSplineList::draw( bool editMode ) {
 	}
 
 
-	qglColor3fv( controlColor );
+	qglColor3fv( controlColor.ToFloatPtr() );
 	qglPointSize( 5 );
 
 	qglBegin( GL_POINTS );
 	for ( i = 0; i < controlPoints.Num(); i++ ) {
-		qglVertex3fv( *controlPoints[i] );
+		qglVertex3fv( controlPoints[i]->ToFloatPtr() );
 	}
 	qglEnd();
 
@@ -257,20 +257,20 @@ void idSplineList::draw( bool editMode ) {
 	}
 
 	//Draw the curve
-	qglColor3fv( pathColor );
+	qglColor3fv( pathColor.ToFloatPtr() );
 	qglBegin( GL_LINE_STRIP );
 	int count = splinePoints.Num();
 	for ( i = 0; i < count; i++ ) {
-		qglVertex3fv( *splinePoints[i] );
+		qglVertex3fv( splinePoints[i]->ToFloatPtr() );
 	}
 	qglEnd();
 
 	if ( editMode ) {
-		qglColor3fv( segmentColor );
+		qglColor3fv( segmentColor.ToFloatPtr() );
 		qglPointSize( 3 );
 		qglBegin( GL_POINTS );
 		for ( i = 0; i < count; i++ ) {
-			qglVertex3fv( *splinePoints[i] );
+			qglVertex3fv( splinePoints[i]->ToFloatPtr() );
 		}
 		qglEnd();
 	}
@@ -448,7 +448,7 @@ void idSplineList::parse( const char *( *text )  ) {
 		Com_UngetToken();
 		// read the control point
 		idVec3 point;
-		Com_Parse1DMatrix( text, 3, point );
+		Com_Parse1DMatrix( text, 3, point.ToFloatPtr() );
 		addPoint( point.x, point.y, point.z );
 	} while ( 1 );
 
@@ -1113,7 +1113,7 @@ void idFixedPosition::parse( const char *( *text )  ) {
 			const char *token = Com_Parse( text );
 			if ( Q_stricmp( key.c_str(), "pos" ) == 0 ) {
 				Com_UngetToken();
-				Com_Parse1DMatrix( text, 3, pos );
+				Com_Parse1DMatrix( text, 3, pos.ToFloatPtr() );
 			} else {
 				Com_UngetToken();
 				idCameraPosition::parseToken( key.c_str(), text );
@@ -1158,10 +1158,10 @@ void idInterpolatedPosition::parse( const char *( *text )  ) {
 			const char *token = Com_Parse( text );
 			if ( Q_stricmp( key.c_str(), "startPos" ) == 0 ) {
 				Com_UngetToken();
-				Com_Parse1DMatrix( text, 3, startPos );
+				Com_Parse1DMatrix( text, 3, startPos.ToFloatPtr() );
 			} else if ( Q_stricmp( key.c_str(), "endPos" ) == 0 ) {
 				Com_UngetToken();
-				Com_Parse1DMatrix( text, 3, endPos );
+				Com_Parse1DMatrix( text, 3, endPos.ToFloatPtr() );
 			} else {
 				Com_UngetToken();
 				idCameraPosition::parseToken( key.c_str(), text );

@@ -105,11 +105,6 @@ typedef enum {
 #define MAX_QINT            0x7fffffff
 #define MIN_QINT            ( -MAX_QINT - 1 )
 
-#ifndef max
-#define max( x, y ) ( ( ( x ) > ( y ) ) ? ( x ) : ( y ) )
-#define min( x, y ) ( ( ( x ) < ( y ) ) ? ( x ) : ( y ) )
-#endif
-
 #ifndef sign
 #define sign( f )   ( ( f > 0 ) ? 1 : ( ( f < 0 ) ? -1 : 0 ) )
 #endif
@@ -183,10 +178,10 @@ MATHLIB
 #define M_PI        3.14159265358979323846  // matches value in gcc v2 math.h
 #endif
 
-#include "math_vector.h"
-#include "math_angles.h"
-#include "math_matrix.h"
-#include "math_quaternion.h"
+#include "../idlib/math/Vector.h"
+#include "../idlib/math/Angles.h"
+#include "../idlib/math/Matrix.h"
+#include "../idlib/math/Quat.h"
 
 class idVec3;                       // for defining vectors
 typedef idVec3 &vec3_p;             // for passing vectors as function arguments
@@ -246,9 +241,6 @@ typedef const mat3_t &mat3_c;       // for passing matrices as const function ar
 #define MAKERGB( v, r, g, b ) v[0] = r; v[1] = g; v[2] = b
 #define MAKERGBA( v, r, g, b, a ) v[0] = r; v[1] = g; v[2] = b; v[3] = a
 
-#define DEG2RAD( a ) ( ( ( a ) * M_PI ) / 180.0F )
-#define RAD2DEG( a ) ( ( ( a ) * 180.0f ) / M_PI )
-
 struct cplane_s;
 
 extern idVec4 vec4_origin;
@@ -278,6 +270,7 @@ signed short ClampShort( int i );
 // this isn't a real cheap function to call!
 int DirToByte( const idVec3 &dir );
 void ByteToDir( int b, vec3_p dir );
+
 /*
 #define DotProduct( a,b )         ( ( a )[0] * ( b )[0] + ( a )[1] * ( b )[1] + ( a )[2] * ( b )[2] )
 #define VectorSubtract( a,b,c )   ( ( c )[0] = ( a )[0] - ( b )[0],( c )[1] = ( a )[1] - ( b )[1],( c )[2] = ( a )[2] - ( b )[2] )
@@ -318,9 +311,9 @@ void VectorInverse( vec3_p v );
 void VectorRotate( vec3_c inp, mat3_c matrix, vec3_p out );
 void VectorPolar( vec3_p v, float radius, float theta, float phi );
 void VectorSnap( vec3_p v );
-void Vector53Copy( const idVec5_t &in, vec3_p out );
-void Vector5Scale( const idVec5_t &v, float scale, idVec5_t &out );
-void Vector5Add( const idVec5_t &va, const idVec5_t &vb, idVec5_t &out );
+//void Vector53Copy( const idVec5_t &in, vec3_p out );
+//void Vector5Scale( const idVec5_t &v, float scale, idVec5_t &out );
+//void Vector5Add( const idVec5_t &va, const idVec5_t &vb, idVec5_t &out );
 void VectorRotate3( vec3_c vIn, vec3_c vRotation, vec3_p out );
 void VectorRotate3Origin( vec3_c vIn, vec3_c vRotation, vec3_c vOrigin, vec3_p out );
 
@@ -343,7 +336,6 @@ void AxisCopy( mat3_c in, mat3_p out );
 bool AxisRotated( mat3_c in );          // assumes a non-degenerate axis
 
 int SignbitsForNormal( vec3_c normal );
-int BoxOnPlaneSide( const Bounds &b, struct cplane_s *p );
 
 float   AngleMod( float a );
 float   LerpAngle( float from, float to, float frac );

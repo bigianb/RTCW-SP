@@ -32,7 +32,7 @@ If you have questions concerning this license or the applicable additional terms
  * desc:	misc utility functions for game module
  *
 */
-
+#include "../idlib/math/Math.h"
 #include "g_local.h"
 #include "../server/server.h"
 

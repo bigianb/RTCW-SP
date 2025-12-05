@@ -26,18 +26,17 @@ If you have questions concerning this license or the applicable additional terms
 ===========================================================================
 */
 
-#ifndef __SPLINES_H
-#define __SPLINES_H
+#pragma once
 
- #include "../renderer/qgl.h"
+#include "../renderer/qgl.h"
 #include "util_list.h"
 #include "util_str.h"
-#include "math_vector.h"
+#include "../idlib/math/Vector.h"
 
 typedef int fileHandle_t;
 
 extern void glBox( idVec3 &color, idVec3 &point, float size );
-extern void glLabeledPoint( idVec3 &color, idVec3 &point, float size, const char *label );
+extern void glLabeledPoint( idVec4 &color, idVec3 &point, float size, const char *label );
 
 static idVec4 blue( 0, 0, 1, 1 );
 static idVec4 red( 1, 0, 0, 1 );
@@ -59,77 +58,6 @@ virtual void addPoint( const idVec3 &v ) {}
 virtual void removePoint( int index ) {}
 virtual idVec3 *getPoint( int index ) { return nullptr; }
 
-int selectPointByRay( float ox, float oy, float oz, float dx, float dy, float dz, bool single ) {
-	idVec3 origin( ox, oy, oz );
-	idVec3 dir( dx, dy, dz );
-	return selectPointByRay( origin, dir, single );
-}
-
-int selectPointByRay( const idVec3 origin, const idVec3 direction, bool single ) {
-	int i, besti, count;
-	float d, bestd;
-	idVec3 temp, temp2;
-
-	// find the point closest to the ray
-	besti = -1;
-	bestd = 8;
-	count = numPoints();
-
-	for ( i = 0; i < count; i++ ) {
-		temp = *getPoint( i );
-		temp2 = temp;
-		temp -= origin;
-		d = DotProduct( temp, direction );
-		__VectorMA( origin, d, direction, temp );
-		temp2 -= temp;
-		d = temp2.Length();
-		if ( d <= bestd ) {
-			bestd = d;
-			besti = i;
-		}
-	}
-
-	if ( besti >= 0 ) {
-		selectPoint( besti, single );
-	}
-
-	return besti;
-}
-
-int isPointSelected( int index ) {
-	int count = selectedPoints.Num();
-	for ( int i = 0; i < count; i++ ) {
-		if ( selectedPoints[i] == index ) {
-			return i;
-		}
-	}
-	return -1;
-}
-
-int selectPoint( int index, bool single ) {
-	if ( index >= 0 && index < numPoints() ) {
-		if ( single ) {
-			deselectAll();
-		} else {
-			if ( isPointSelected( index ) >= 0 ) {
-				selectedPoints.Remove( index );
-			}
-		}
-		return selectedPoints.Append( index );
-	}
-	return -1;
-}
-
-void selectAll() {
-	selectedPoints.Clear();
-	for ( int i = 0; i < numPoints(); i++ ) {
-		selectedPoints.Append( i );
-	}
-}
-
-void deselectAll() {
-	selectedPoints.Clear();
-}
 
 int numSelectedPoints();
 
@@ -147,13 +75,6 @@ virtual void updateSelection( const idVec3 &move ) {
 	int count = selectedPoints.Num();
 	for ( int i = 0; i < count; i++ ) {
 		*getPoint( selectedPoints[i] ) += move;
-	}
-}
-
-void drawSelection() {
-	int count = selectedPoints.Num();
-	for ( int i = 0; i < count; i++ ) {
-		glBox( red, *getPoint( selectedPoints[i] ), 4 );
 	}
 }
 
@@ -205,10 +126,10 @@ void clear() {
 	dirty = true;
 	activeSegment = 0;
 	granularity = 0.025;
-	pathColor.set( 1.0, 0.5, 0.0 );
-	controlColor.set( 0.7, 0.0, 1.0 );
-	segmentColor.set( 0.0, 0.0, 1.0 );
-	activeColor.set( 1.0, 0.0, 0.0 );
+	pathColor.Set( 1.0, 0.5, 0.0 );
+	controlColor.Set( 0.7, 0.0, 1.0 );
+	segmentColor.Set( 0.0, 0.0, 1.0 );
+	activeColor.Set( 1.0, 0.0, 0.0 );
 }
 
 void initPosition( long startTime, long totalTime );
@@ -513,7 +434,7 @@ virtual void addPoint( const idVec3 &v ) {
 }
 
 virtual void addPoint( const float x, const float y, const float z ) {
-	pos.set( x, y, z );
+	pos.Set( x, y, z );
 }
 
 
@@ -588,10 +509,10 @@ virtual idVec3 *getPoint( int index ) {
 
 virtual void addPoint( const float x, const float y, const float z ) {
 	if ( first ) {
-		startPos.set( x, y, z );
+		startPos.Set( x, y, z );
 		first = false;
 	} else {
-		endPos.set( x, y, z );
+		endPos.Set( x, y, z );
 		first = true;
 	}
 }
@@ -610,8 +531,8 @@ virtual void draw( bool editMode ) {
 	glLabeledPoint( blue, startPos, ( editMode ) ? 5 : 3, "Start interpolated" );
 	glLabeledPoint( blue, endPos, ( editMode ) ? 5 : 3, "End interpolated" );
 	qglBegin( GL_LINES );
-	qglVertex3fv( startPos );
-	qglVertex3fv( endPos );
+	qglVertex3fv( startPos.ToFloatPtr() );
+	qglVertex3fv( endPos.ToFloatPtr() );
 	qglEnd();
 }
 
@@ -1089,6 +1010,3 @@ bool editMode;
 extern bool g_splineMode;
 
 extern idCameraDef *g_splineList;
-
-
-#endif

@@ -69,11 +69,6 @@ typedef int clipHandle_t;
 #define MIN_QINT            ( -MAX_QINT - 1 )
 
 
-#ifndef max
-#define max( x, y ) ( ( ( x ) > ( y ) ) ? ( x ) : ( y ) )
-#define min( x, y ) ( ( ( x ) < ( y ) ) ? ( x ) : ( y ) )
-#endif
-
 // angle indexes
 #define PITCH               0       // up / down
 #define YAW                 1       // left / right
@@ -273,9 +268,6 @@ extern vec4_t g_color_table[8];
 #define MAKERGB( v, r, g, b ) v[0] = r; v[1] = g; v[2] = b
 #define MAKERGBA( v, r, g, b, a ) v[0] = r; v[1] = g; v[2] = b; v[3] = a
 
-#define DEG2RAD( a ) ( ( ( a ) * M_PI ) / 180.0F )
-#define RAD2DEG( a ) ( ( ( a ) * 180.0f ) / M_PI )
-
 struct cplane_s;
 
 extern vec3_t vec3_origin;
@@ -305,6 +297,7 @@ signed short ClampShort( int i );
 // this isn't a real cheap function to call!
 int DirToByte( vec3_t dir );
 void ByteToDir( int b, vec3_t dir );
+
 
 #define DotProduct( x,y )         ( ( x )[0] * ( y )[0] + ( x )[1] * ( y )[1] + ( x )[2] * ( y )[2] )
 #define VectorSubtract( a,b,c )   ( ( c )[0] = ( a )[0] - ( b )[0],( c )[1] = ( a )[1] - ( b )[1],( c )[2] = ( a )[2] - ( b )[2] )
@@ -743,9 +736,6 @@ typedef enum {
 */
 #define ANIM_BITS       10
 
-#define ANGLE2SHORT( x )  ( (int)( ( x ) * 65536 / 360 ) & 65535 )
-#define SHORT2ANGLE( x )  ( ( x ) * ( 360.0 / 65536 ) )
-
 #define SNAPFLAG_RATE_DELAYED   1
 #define SNAPFLAG_NOT_ACTIVE     2   // snapshot used during connection and for zombies
 #define SNAPFLAG_SERVERCOUNT    4   // toggled every map_restart so transitions can be detected
@@ -1131,7 +1121,6 @@ typedef struct {
 	char name[MAX_QPATH];
 } fontInfo_t;
 
-#define Square( x ) ( ( x ) * ( x ) )
 
 // real time
 //=============================================

@@ -28,6 +28,7 @@ If you have questions concerning this license or the applicable additional terms
 
 // cl.input.c  -- builds an intended movement command to send to the server
 
+#include "../idlib/math/Math.h"
 #include "client.h"
 #include "cgame/cg_local.h"
 

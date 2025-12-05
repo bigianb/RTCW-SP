@@ -34,6 +34,7 @@ If you have questions concerning this license or the applicable additional terms
 // Tab Size:		4 (real tabs)
 //===========================================================================
 
+#include "../idlib/math/Math.h"
 #include "../game/g_local.h"
 #include "../game/q_shared.h"
 #include "../game/botlib.h"      //bot lib interface

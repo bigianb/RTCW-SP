@@ -32,7 +32,7 @@ If you have questions concerning this license or the applicable additional terms
  * desc:		handle the media and animation for player entities
  *
 */
-
+#include <algorithm>
 #include "cg_local.h"
 #include "../client/snd_public.h"
 #include "../qcommon/qcommon.h"
@@ -4551,7 +4551,7 @@ void CG_Player( centity_t *cent ) {
 
 			// blink more often when talking
 			if ( gumsflappin >= 0 ) {
-				ci->blinkTime = max( cg.time, ci->blinkTime - 1000 );
+				ci->blinkTime = std::max( cg.time, ci->blinkTime - 1000 );
 			}
 		}
 	}

@@ -33,7 +33,7 @@ If you have questions concerning this license or the applicable additional terms
  *
 */
 
-
+#include <algorithm>
 #include "cg_local.h"
 #include "../client/snd_public.h"
 
@@ -456,8 +456,8 @@ void CG_AddLightstyle( centity_t *cent ) {
 
 	lightval = ( lightval * ( 1000.0f / 24.0f ) ) - 200.0f;  // they want 'm' as the "middle" value as 300
 
-	lightval = max( 0.0f,    lightval );
-	lightval = min( 1000.0f, lightval );
+	lightval = std::max( 0.0f,    lightval );
+	lightval = std::min( 1000.0f, lightval );
 
 	cl = cent->currentState.constantLight;
 	r = cl & 255;

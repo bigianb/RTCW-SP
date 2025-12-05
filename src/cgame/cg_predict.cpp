@@ -33,6 +33,7 @@ If you have questions concerning this license or the applicable additional terms
 // ahead the client's movement.
 // It also handles local physics interaction, like fragments bouncing off walls
 
+#include "../idlib/math/Math.h"
 #include "cg_local.h"
 #include "../qcommon/cm_public.h"
 #include "../client/client.h"
