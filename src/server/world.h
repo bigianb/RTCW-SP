@@ -1,6 +1,7 @@
 #pragma once
 
 #include <list>
+#include "../idlib/math/Vector.h"
 
 class ServerEntity;
 
@@ -8,16 +9,23 @@ class World
 {
 public:
     World(int areaDepth, int areaNodes){
-
+        this->areaDepth = areaDepth;
+        this->areaNodes = areaNodes;
     }
 
     void reset(){
+        for (Sector* sector : sectors) {
+            delete sector;
+        }
         sectors.clear();
     }
 
-    void createSector(int depth, float min[3], float max[3]);
+    
 
 private:
+    int areaDepth;
+    int areaNodes;
+
     class Sector
     {
     public:
@@ -27,7 +35,9 @@ private:
         ServerEntity  *entities;
     };
 
-    std::list<Sector> sectors;
+    Sector* createSector(int depth, const idVec3& min, const idVec3& max);
+
+    std::list<Sector*> sectors;
 
 };
 
