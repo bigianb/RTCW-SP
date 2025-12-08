@@ -1,7 +1,9 @@
 cmake_minimum_required(VERSION 3.15)
+option(ENABLE_TESTS "Enables building the unit tests" ON)
 
 project(WolfSP)
 set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 set(CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake)
 set_property(GLOBAL PROPERTY USE_FOLDERS ON)
@@ -9,7 +11,9 @@ set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 find_package(OpenGL REQUIRED COMPONENTS OpenGL)
 find_package(JPEG)
 find_package(SDL3 REQUIRED)
-
+if(ENABLE_TESTS)
+	find_package(Catch2 REQUIRED)
+endif()
 
 # Enforced colored output
 if (CMAKE_COMPILER_IS_GNUCC)
@@ -430,3 +434,10 @@ set(WOLF_SOURCES
 
 add_executable(wolf WIN32 MACOSX_BUNDLE ${WOLF_INCLUDES} ${WOLF_SOURCES})
 target_link_libraries(wolf SDL3::SDL3 OpenGL::GL JPEG::JPEG)
+
+if(ENABLE_TESTS)
+	enable_testing()
+	include(CTest)
+	include(Catch)
+	add_subdirectory(tests)
+endif()
