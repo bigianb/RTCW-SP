@@ -29,7 +29,7 @@ endif()
 if(APPLE)
 	set(CMAKE_FIND_FRAMEWORK LAST)
 	add_definitions(-DMACOS_X=1)
-	set(CMAKE_OSX_DEPLOYMENT_TARGET 11.0)
+	#set(CMAKE_OSX_DEPLOYMENT_TARGET 11.0)
 endif()
 
 
@@ -306,6 +306,7 @@ set(RENDERER_SOURCES
 
 set(SERVER_INCLUDES 
 	src/server/server.h
+	src/server/world.h
 )
 set(SERVER_SOURCES 
 	src/server/sv_bot.cpp
@@ -317,6 +318,7 @@ set(SERVER_SOURCES
 	src/server/sv_net_chan.cpp
 	src/server/sv_snapshot.cpp
 	src/server/sv_world.cpp
+	src/server/world.cpp
 )
 
 set(IDLIB_INCLUDES
@@ -410,11 +412,9 @@ set(WOLF_INCLUDES
 	${GAME_INCLUDES}
 	${QCOMMON_INCLUDES}
 	${RENDERER_INCLUDES}
-	${SERVER_INCLUDES}
 	${SPLINES_INCLUDES}
 	${UI_INCLUDES}
 	${SDL_INCLUDES}
-	${IDLIB_INCLUDES}
 )
 
 set(WOLF_SOURCES 
@@ -425,15 +425,16 @@ set(WOLF_SOURCES
     ${GAME_SOURCES}
     ${QCOMMON_SOURCES}
     ${RENDERER_SOURCES}
-    ${SERVER_SOURCES}
     ${SPLINES_SOURCES}
     ${UI_SOURCES}
     ${SDL_SOURCES}
-	${IDLIB_SOURCES}
 )
 
+add_library(idlib STATIC ${IDLIB_SOURCES} ${IDLIB_INCLUDES})
+add_library(server STATIC ${SERVER_SOURCES} ${SERVER_INCLUDES})
+
 add_executable(wolf WIN32 MACOSX_BUNDLE ${WOLF_INCLUDES} ${WOLF_SOURCES})
-target_link_libraries(wolf SDL3::SDL3 OpenGL::GL JPEG::JPEG)
+target_link_libraries(wolf idlib server SDL3::SDL3 OpenGL::GL JPEG::JPEG)
 
 if(ENABLE_TESTS)
 	enable_testing()

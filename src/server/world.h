@@ -13,14 +13,17 @@ public:
         this->areaNodes = areaNodes;
     }
 
-    void reset(){
+    void reset(const idVec3& min, const idVec3& max){
         for (Sector* sector : sectors) {
             delete sector;
         }
         sectors.clear();
+        createSector(0, min, max);
     }
 
-    
+    int debug_getSectorCount() const {
+        return sectors.size();
+    }
 
 private:
     int areaDepth;
@@ -55,7 +58,7 @@ public:
         return instance;
     }
 
-    static void clear() {
-        getInstance().reset();
+    static void clear(const idVec3& min, const idVec3& max) {
+        getInstance().reset(min, max);
     }
 };
