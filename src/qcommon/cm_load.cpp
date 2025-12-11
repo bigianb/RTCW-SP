@@ -41,7 +41,7 @@ If you have questions concerning this license or the applicable additional terms
 #define LL( x ) x = LittleLong( x )
 
 
-clipMap_t cm;
+ClipMap cm;
 int c_pointcontents;
 int c_traces, c_brush_traces, c_patch_traces;
 
@@ -680,9 +680,6 @@ clipHandle_t    CM_InlineModel( int index ) {
 	return index;
 }
 
-int     CM_NumClusters( void ) {
-	return cm.numClusters;
-}
 
 int     CM_NumInlineModels( void ) {
 	return cm.numSubModels;

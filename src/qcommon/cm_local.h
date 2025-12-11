@@ -89,7 +89,9 @@ typedef struct {
 	int floodvalid;
 } cArea_t;
 
-typedef struct {
+class ClipMap
+{
+public:
 	char name[MAX_QPATH];
 
 	int numShaders;
@@ -136,14 +138,14 @@ typedef struct {
 
 	int floodvalid;
 	int checkcount;                         // incremented on each trace
-} clipMap_t;
+};
 
 
 // keep 1/8 unit away to keep the position valid before network snapping
 // and to avoid various numeric issues
 #define SURFACE_CLIP_EPSILON    ( 0.125 )
 
-extern clipMap_t cm;
+extern ClipMap cm;
 extern int c_pointcontents;
 extern int c_traces, c_brush_traces, c_patch_traces;
 extern cvar_t      *cm_noAreas;
