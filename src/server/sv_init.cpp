@@ -745,14 +745,6 @@ void SV_SpawnServer( char *server, bool killBots )
 	SV_BotFrame( svs.time );
 	svs.time += 100;
 
-	Cvar_Set( "sv_paks", "" );
-	Cvar_Set( "sv_pakNames", "" );
-	
-	// the server sends these to the clients so they can figure
-	// out which pk3s should be auto-downloaded
-	Cvar_Set( "sv_referencedPaks", FS_ReferencedPakChecksums());
-	Cvar_Set( "sv_referencedPakNames", FS_ReferencedPakNames());
-
 	// save systeminfo and serverinfo strings
 	char systemInfo[MAX_INFO_STRING];
 	Q_strncpyz( systemInfo, Cvar_InfoString_Big( CVAR_SYSTEMINFO ), sizeof( systemInfo ) );
@@ -810,11 +802,6 @@ void SV_Init()
 	// systeminfo
 	Cvar_Get( "sv_cheats", "0", CVAR_SYSTEMINFO | CVAR_ROM );
 	sv_serverid = Cvar_Get( "sv_serverid", "0", CVAR_SYSTEMINFO | CVAR_ROM );
-
-	Cvar_Get( "sv_paks", "", CVAR_SYSTEMINFO | CVAR_ROM );
-	Cvar_Get( "sv_pakNames", "", CVAR_SYSTEMINFO | CVAR_ROM );
-	Cvar_Get( "sv_referencedPaks", "", CVAR_SYSTEMINFO | CVAR_ROM );
-	Cvar_Get( "sv_referencedPakNames", "", CVAR_SYSTEMINFO | CVAR_ROM );
 
 	// server vars
 	sv_rconPassword = Cvar_Get( "rconPassword", "", CVAR_TEMP );

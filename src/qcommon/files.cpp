@@ -48,15 +48,6 @@ command line to allow code debugging in a different directory.  Basepath cannot
 be modified at all after startup.  Any files that are created (demos, screenshots,
 etc) will be created reletive to the base path, so base path should usually be writable.
 
-The "cd path" is the path to an alternate hierarchy that will be searched if a file
-is not located in the base path.  A user can do a partial install that copies some
-data to a base path created on their hard drive and leave the rest on the cd.  Files
-are never writen to the cd path.  It defaults to a value set by the installer, like
-"e:\quake3", but it can be overridden with "+set ds_cdpath g:\quake3".
-
-If a user runs the game directly from a CD, the base path would be on the CD.  This
-should still function correctly, but all file writes will fail (harmlessly).
-
 The "home path" is the path used for all write access. On win32 systems we have "base path"
 == "home path", but on *nix systems the base installation is usually readonly, and
 "home path" points to ~/.q3a or similar
@@ -65,8 +56,7 @@ The user can also install custom mods and content in "home path", so it should b
 along with "home path" and "cd path" for game content.
 
 
-The "base game" is the directory under the paths where data comes from by default, and
-can be either "baseq3" or "demoq3".
+The "base game" is the directory under the paths where data comes from by default.
 
 The "current game" may be the same as the base game, or it may be the name of another
 directory under the paths that should be searched for files before looking in the base game.
@@ -85,18 +75,6 @@ zip files of the form "pak0.pk3", "pak1.pk3", etc.  Zip files are searched in de
 from the highest number to the lowest, and will always take precedence over the filesystem.
 This allows a pk3 distributed as a patch to override all existing data.
 
-Because we will have updated executables freely available online, there is no point to
-trying to restrict demo / oem versions of the game with code changes.  Demo / oem versions
-should be exactly the same executables as release versions, but with different data that
-automatically restricts where game media can come from to prevent add-ons from working.
-
-If not running in restricted mode, and a file is not found in any local filesystem,
-an attempt will be made to download it and save it under the base path.
-
-If the "fs_copyfiles" cvar is set to 1, then every time a file is sourced from the cd
-path, it will be copied over to the base path.  This is a development aid to help build
-test releases and to copy working sets over slow network links.
-
 File search order: when FS_FOpenFileRead gets called it will go through the fs_searchpaths
 structure and stop on the first successful hit. fs_searchpaths is built with successive
 calls to FS_AddGameDirectory
@@ -113,28 +91,20 @@ home path + current game's zip files
 home path + current game's directory
 base path + current game's zip files
 base path + current game's directory
-cd path + current game's zip files
-cd path + current game's directory
 
 home path + base game's zip file
 home path + base game's directory
 base path + base game's zip file
 base path + base game's directory
-cd path + base game's zip file
-cd path + base game's directory
 
 home path + BASEGAME's zip file
 home path + BASEGAME's directory
 base path + BASEGAME's zip file
 base path + BASEGAME's directory
-cd path + BASEGAME's zip file
-cd path + BASEGAME's directory
-
-server download, to be written to home path + current game's directory
 
 
 The filesystem can be safely shutdown and reinitialized with different
-basedir / cddir / game combinations, but all other subsystems that rely on it
+basedir / game combinations, but all other subsystems that rely on it
 (sound, video) must also be forced to restart.
 
 Because the same files are loaded by both the clip model (CM_) and renderer (TR_)
@@ -147,39 +117,8 @@ TODO: A qpath that starts with a leading slash will always refer to the base gam
 game is currently active.  This allows character models, skins, and sounds to be downloaded
 to a common directory no matter which game is active.
 
-How to prevent downloading zip files?
-Pass pk3 file names in systeminfo, and download before FS_Restart()?
-
-Aborting a download disconnects the client from the server.
-
-How to mark files as downloadable?  Commercial add-ons won't be downloadable.
-
-Non-commercial downloads will want to download the entire zip file.
-the game would have to be reset to actually read the zip in
-
-Auto-update information
-
-Path separators
-
-Casing
-
-  separate server gamedir and client gamedir, so if the user starts
-  a local game after having connected to a network game, it won't stick
-  with the network game.
-
-  allow menu options for game selection?
-
-Read / write config to floppy option.
-
-Different version coexistance?
-
 When building a pak file, make sure a wolfconfig.cfg isn't present in it,
 or configs will never get loaded from disk!
-
-  todo:
-
-  downloading (outside fs?)
-  game directory passing and restarting
 
 =============================================================================
 
@@ -231,8 +170,7 @@ static cvar_t      *fs_debug;
 static cvar_t      *fs_homepath;
 static cvar_t      *fs_basepath;
 static cvar_t      *fs_basegame;
-static cvar_t      *fs_cdpath;
-static cvar_t      *fs_copyfiles;
+
 static cvar_t      *fs_gamedirvar;
 
 static searchpath_t    *fs_searchpaths;
@@ -675,60 +613,12 @@ size_t FS_SV_FOpenFileRead( const char *filename, fileHandle_t *fp ) {
 		}
 	}
 
-	if ( !fsh[f].handleFiles.file.o ) {
-		// search cd path
-		ospath = FS_BuildOSPath( fs_cdpath->string, filename, "" );
-		ospath[strlen( ospath ) - 1] = '\0';
-
-		if ( fs_debug->integer ) {
-			Com_Printf( "FS_SV_FOpenFileRead (fs_cdpath) : %s\n", ospath );
-		}
-
-		fsh[f].handleFiles.file.o = fopen( ospath, "rb" );
-		fsh[f].handleSync = false;
-
-		if ( !fsh[f].handleFiles.file.o ) {
-			f = 0;
-		}
-	}
-
 	*fp = f;
 	if ( f ) {
 		return FS_filelength( f );
 	}
 	return 0;
 }
-
-
-/*
-===========
-FS_SV_Rename
-
-===========
-*/
-void FS_SV_Rename( const char *from, const char *to ) {
-
-	if ( !fs_searchpaths ) {
-		Com_Error( ERR_FATAL, "Filesystem call made without initialization\n" );
-	}
-
-	char* from_ospath = FS_BuildOSPath( fs_homepath->string, from, "" );
-	char* to_ospath = FS_BuildOSPath( fs_homepath->string, to, "" );
-	from_ospath[strlen( from_ospath ) - 1] = '\0';
-	to_ospath[strlen( to_ospath ) - 1] = '\0';
-
-	if ( fs_debug->integer ) {
-		Com_Printf( "FS_SV_Rename: %s --> %s\n", from_ospath, to_ospath );
-	}
-
-	if ( rename( from_ospath, to_ospath ) ) {
-		// Failed, try copying it and deleting the original
-		FS_CopyFile( from_ospath, to_ospath );
-		FS_Remove( from_ospath );
-	}
-}
-
-
 
 /*
 ===========
@@ -1189,25 +1079,10 @@ size_t FS_FOpenFileRead( const char *filename, fileHandle_t *file, bool uniqueFI
 							dir->path, dir->gamedir );
 			}
 
-			// if we are getting it from the cdpath, optionally copy it
-			//  to the basepath
-			if ( fs_copyfiles->integer && !Q_stricmp( dir->path, fs_cdpath->string ) ) {
-				char    *copypath;
-
-				copypath = FS_BuildOSPath( fs_basepath->string, dir->gamedir, filename );
-				FS_CopyFile( netpath, copypath );
-			}
-
 			return FS_filelength( *file );
 		}
 	}
 
-	// IJB Com_DPrintf( "Can't find %s\n", filename );
-#ifdef FS_MISSING
-	if ( missingFiles ) {
-		fprintf( missingFiles, "%s\n", filename );
-	}
-#endif
 	*file = 0;
 	return -1;
 }
@@ -2084,10 +1959,8 @@ int FS_GetModList( char *listbuf, int bufsize ) {
 
 	pFiles0 = Sys_ListFiles( fs_homepath->string, nullptr, nullptr, &dummy, true );
 	pFiles1 = Sys_ListFiles( fs_basepath->string, nullptr, nullptr, &dummy, true );
-	if ( fs_cdpath->string && strlen( fs_cdpath->string ) ) {
-		pFiles2 = Sys_ListFiles( fs_cdpath->string, nullptr, nullptr, &dummy, true );
-	}
-	// we searched for mods in the three paths
+
+	// we searched for mods in the two paths
 	// it is likely that we have duplicate names now, which we will cleanup below
 	pFiles = Sys_ConcatenateFileLists( pFiles0, pFiles1, pFiles2 );
 	nPotential = Sys_CountFileList( pFiles );
@@ -2121,14 +1994,6 @@ int FS_GetModList( char *listbuf, int bufsize ) {
 			nPaks = 0;
 			pPaks = Sys_ListFiles( path, ".pk3", nullptr, &nPaks, false );
 			Sys_FreeFileList( pPaks ); // we only use Sys_ListFiles to check wether .pk3 files are present
-
-			/* Try on cd path */
-			if ( nPaks <= 0 ) {
-				path = FS_BuildOSPath( fs_cdpath->string, name, "" );
-				nPaks = 0;
-				pPaks = Sys_ListFiles( path, ".pk3", nullptr, &nPaks, false );
-				Sys_FreeFileList( pPaks );
-			}
 
 			/* try on home path */
 			if ( nPaks <= 0 ) {
@@ -2361,27 +2226,6 @@ void FS_Path_f( void ) {
 	}
 }
 
-/*
-============
-FS_TouchFile_f
-
-The only purpose of this function is to allow game script files to copy
-arbitrary files furing an "fs_copyfiles 1" run.
-============
-*/
-void FS_TouchFile_f( void ) {
-	fileHandle_t f;
-
-	if ( Cmd_Argc() != 2 ) {
-		Com_Printf( "Usage: touchFile <file>\n" );
-		return;
-	}
-
-	FS_FOpenFileRead( Cmd_Argv( 1 ), &f, false );
-	if ( f ) {
-		FS_FCloseFile( f );
-	}
-}
 
 //===========================================================================
 
@@ -2414,8 +2258,7 @@ static void FS_AddGameDirectory( const char *path, const char *dir ) {
 	char            **pakfiles;
 	char            *sorted[MAX_PAKFILES];
 
-	// this fixes the case where fs_basepath is the same as fs_cdpath
-	// which happens on full installs
+
 	for ( sp = fs_searchpaths ; sp ; sp = sp->next ) {
 		if ( sp->dir && !Q_stricmp( sp->dir->path, path ) && !Q_stricmp( sp->dir->gamedir, dir ) ) {
 			return;         // we've already got this one
@@ -2485,34 +2328,6 @@ static void FS_AddGameDirectory( const char *path, const char *dir ) {
 
 /*
 ================
-FS_idPak
-================
-*/
-bool FS_idPak( char *pak, char *base ) {
-	int i;
-
-	for ( i = 0; i < NUM_ID_PAKS; i++ ) {
-		if ( !FS_FilenameCompare( pak, va( "%s/pak%d", base, i ) ) ) {
-			break;
-		}
-// JPW NERVE -- this fn prevents external sources from downloading/overwriting official files, so exclude both SP and MP files from this list as well
-		if ( !FS_FilenameCompare( pak, va( "%s/mp_pak%d",base,i ) ) ) {
-			break;
-		}
-		if ( !FS_FilenameCompare( pak, va( "%s/sp_pak%d",base,i ) ) ) {
-			break;
-		}
-// jpw
-	}
-	if ( i < NUM_ID_PAKS ) {
-		return true;
-	}
-	return false;
-}
-
-
-/*
-================
 FS_Shutdown
 
 Frees all resources and closes all files
@@ -2550,12 +2365,6 @@ void FS_Shutdown( bool closemfp ) {
 	Cmd_RemoveCommand( "dir" );
 	Cmd_RemoveCommand( "fdir" );
 	Cmd_RemoveCommand( "touchFile" );
-
-#ifdef FS_MISSING
-	if ( closemfp ) {
-		fclose( missingFiles );
-	}
-#endif
 }
 
 /*
@@ -2570,8 +2379,7 @@ static void FS_Startup( const char *gameName ) {
 	Com_Printf( "----- FS_Startup -----\n" );
 
 	fs_debug = Cvar_Get( "fs_debug", "0", 0 );
-	fs_copyfiles = Cvar_Get( "fs_copyfiles", "0", CVAR_INIT );
-	fs_cdpath = Cvar_Get( "fs_cdpath", Sys_DefaultCDPath(), CVAR_INIT );
+
 	fs_basepath = Cvar_Get( "fs_basepath", Sys_DefaultInstallPath(), CVAR_INIT );
 	fs_basegame = Cvar_Get( "fs_basegame", "", CVAR_INIT );
 	homePath = Sys_DefaultHomePath();
@@ -2582,9 +2390,6 @@ static void FS_Startup( const char *gameName ) {
 	fs_gamedirvar = Cvar_Get( "fs_game", "", CVAR_INIT | CVAR_SYSTEMINFO );
 
 	// add search path elements in reverse priority order
-	if ( fs_cdpath->string[0] ) {
-		FS_AddGameDirectory( fs_cdpath->string, gameName );
-	}
 	if ( fs_basepath->string[0] ) {
 		FS_AddGameDirectory( fs_basepath->string, gameName );
 	}
@@ -2596,9 +2401,6 @@ static void FS_Startup( const char *gameName ) {
 
 	// check for additional base game so mods can be based upon other mods
 	if ( fs_basegame->string[0] && !Q_stricmp( gameName, BASEGAME ) && Q_stricmp( fs_basegame->string, gameName ) ) {
-		if ( fs_cdpath->string[0] ) {
-			FS_AddGameDirectory( fs_cdpath->string, fs_basegame->string );
-		}
 		if ( fs_basepath->string[0] ) {
 			FS_AddGameDirectory( fs_basepath->string, fs_basegame->string );
 		}
@@ -2609,9 +2411,6 @@ static void FS_Startup( const char *gameName ) {
 
 	// check for additional game folder for mods
 	if ( fs_gamedirvar->string[0] && !Q_stricmp( gameName, BASEGAME ) && Q_stricmp( fs_gamedirvar->string, gameName ) ) {
-		if ( fs_cdpath->string[0] ) {
-			FS_AddGameDirectory( fs_cdpath->string, fs_gamedirvar->string );
-		}
 		if ( fs_basepath->string[0] ) {
 			FS_AddGameDirectory( fs_basepath->string, fs_gamedirvar->string );
 		}
@@ -2624,7 +2423,6 @@ static void FS_Startup( const char *gameName ) {
 	Cmd_AddCommand( "path", FS_Path_f );
 	Cmd_AddCommand( "dir", FS_Dir_f );
 	Cmd_AddCommand( "fdir", FS_NewDir_f );
-	Cmd_AddCommand( "touchFile", FS_TouchFile_f );
 
 	// print the current search paths
 	FS_Path_f();
@@ -2634,65 +2432,6 @@ static void FS_Startup( const char *gameName ) {
 	Com_Printf( "----------------------\n" );
 
 	Com_Printf( "%d files in pk3 files\n", fs_packFiles );
-}
-
-/*
-=====================
-FS_ReferencedPakChecksums
-
-Returns a space separated string containing the checksums of all referenced pk3 files.
-The server will send this to the clients so they can check which files should be auto-downloaded.
-=====================
-*/
-const char *FS_ReferencedPakChecksums( void ) {
-	static char info[BIG_INFO_STRING];
-	searchpath_t *search;
-
-	info[0] = 0;
-
-	for ( search = fs_searchpaths ; search ; search = search->next ) {
-		// is the element a pak file?
-		if ( search->pack ) {
-			if ( search->pack->referenced || Q_stricmpn( search->pack->pakGamename, BASEGAME, strlen( BASEGAME ) ) ) {
-				Q_strcat( info, sizeof( info ), va( "%i ", search->pack->checksum ) );
-			}
-		}
-	}
-
-	return info;
-}
-
-/*
-=====================
-FS_ReferencedPakNames
-
-Returns a space separated string containing the names of all referenced pk3 files.
-The server will send this to the clients so they can check which files should be auto-downloaded.
-=====================
-*/
-const char *FS_ReferencedPakNames( void ) {
-	static char info[BIG_INFO_STRING];
-	searchpath_t    *search;
-
-	info[0] = 0;
-
-	// we want to return ALL pk3's from the fs_game path
-	// and referenced one's from baseq3
-	for ( search = fs_searchpaths ; search ; search = search->next ) {
-		// is the element a pak file?
-		if ( search->pack ) {
-			if ( *info ) {
-				Q_strcat( info, sizeof( info ), " " );
-			}
-			if ( search->pack->referenced || Q_stricmpn( search->pack->pakGamename, BASEGAME, strlen( BASEGAME ) ) ) {
-				Q_strcat( info, sizeof( info ), search->pack->pakGamename );
-				Q_strcat( info, sizeof( info ), "/" );
-				Q_strcat( info, sizeof( info ), search->pack->pakBasename );
-			}
-		}
-	}
-
-	return info;
 }
 
 /*
@@ -2727,11 +2466,9 @@ void FS_InitFilesystem( void ) {
 	// we have to specially handle this, because normal command
 	// line variable sets don't happen until after the filesystem
 	// has already been initialized
-	Com_StartupVariable( "fs_cdpath" );
 	Com_StartupVariable( "fs_basepath" );
 	Com_StartupVariable( "fs_homepath" );
 	Com_StartupVariable( "fs_game" );
-	Com_StartupVariable( "fs_copyfiles" );
 
 	// try to start up normally
 	FS_Startup( BASEGAME );

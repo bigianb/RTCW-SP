@@ -998,11 +998,7 @@ int BotInitLibrary( void ) {
 	if ( strlen( buf ) ) {
 		trap_BotLibVarSet( "gamedir", buf );
 	}
-	//cd directory
-	Cvar_VariableStringBuffer( "fs_cdpath", buf, sizeof( buf ) );
-	if ( strlen( buf ) ) {
-		trap_BotLibVarSet( "cddir", buf );
-	}
+
 	//setup the bot library
 	return SV_BotLibSetup();
 }

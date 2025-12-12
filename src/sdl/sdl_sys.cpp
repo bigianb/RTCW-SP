@@ -16,10 +16,6 @@ char *Sys_Cwd( void )
 	return SDL_GetCurrentDirectory();
 }
 
-const char *Sys_DefaultCDPath( void ) {
-	return "";
-}
-
 const char    *Sys_DefaultHomePath( void ) {
 	return nullptr;
 }

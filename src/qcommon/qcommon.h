@@ -525,7 +525,7 @@ fileHandle_t    FS_FOpenFileWrite( const char *qpath );
 size_t     FS_filelength( fileHandle_t f );
 fileHandle_t FS_SV_FOpenFileWrite( const char *filename );
 size_t     FS_SV_FOpenFileRead( const char *filename, fileHandle_t *fp );
-void    FS_SV_Rename( const char *from, const char *to );
+
 size_t  FS_FOpenFileRead( const char *qpath, fileHandle_t *file, bool uniqueFILE );
 // if uniqueFILE is true, then a new FILE will be fopened even if the file
 // is found in an already open pak file.  If uniqueFILE is false, you must call
@@ -578,15 +578,7 @@ size_t     FS_Seek( fileHandle_t f, size_t offset, int origin );
 
 int FS_FilenameCompare( const char *s1, const char *s2 );
 
-const char *FS_ReferencedPakNames( void );
-const char *FS_ReferencedPakChecksums( void );
-
 void FS_ClearPakReferences( int flags );
-// clears referenced booleans on loaded pk3s
-
-
-bool FS_idPak( char *pak, char *base );
-
 
 void FS_Rename( const char *from, const char *to );
 
@@ -878,7 +870,7 @@ bool    Sys_CheckCD( void );
 
 void    Sys_Mkdir( const char *path );
 char    *Sys_Cwd( void );
-const char    *Sys_DefaultCDPath( void );
+
 char    *Sys_DefaultBasePath( void );
 char    *Sys_DefaultInstallPath( void );
 const char    *Sys_DefaultHomePath( void );
