@@ -555,7 +555,7 @@ size_t     FS_ReadFile( const char *qpath, void **buffer );
 void    FS_ForceFlush( fileHandle_t f );
 // forces flush on files we're writing to.
 
-void    FS_FreeFile( void *buffer );
+void    FS_FreeFile( const void *buffer );
 // frees the memory returned by FS_ReadFile
 
 void    FS_WriteFile( const char *qpath, const void *buffer, size_t size );
@@ -652,7 +652,7 @@ void Com_BeginRedirect( char *buffer, int buffersize, void ( *flush )( char * ) 
 void        Com_EndRedirect( void );
 void  Com_Printf( const char *fmt, ... );
 void  Com_DPrintf( const char *fmt, ... );
-void  Com_Error( int code, const char *fmt, ... );
+[[noreturn]] void  Com_Error( int code, const char *fmt, ... );
 void        Com_Quit_f( void );
 
 int         Com_Milliseconds( void );   // will be journaled properly
@@ -840,7 +840,7 @@ void    *Sys_GetBotLibAPI( void *parms );
 
 const char    *Sys_GetCurrentUser( void );
 
-void  Sys_Error( const char *error, ... );
+[[noreturn]] void  Sys_Error( const char *error, ... );
 void    Sys_Quit( void );
 char    *Sys_GetClipboardData( void );  // note that this isn't journaled...
 

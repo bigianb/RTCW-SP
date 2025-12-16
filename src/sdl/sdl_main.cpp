@@ -278,6 +278,7 @@ void Sys_Print( const char *msg )
 Sys_Error
 =================
 */
+[[noreturn]]
 void Sys_Error( const char *error, ... )
 {
 	va_list argptr;

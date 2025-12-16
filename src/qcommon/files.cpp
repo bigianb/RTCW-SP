@@ -29,6 +29,7 @@ If you have questions concerning this license or the applicable additional terms
 #include "../game/q_shared.h"
 #include "qcommon.h"
 #include "unzip.h"
+#include <cstdlib>
 
 /*
 =============================================================================
@@ -1393,7 +1394,7 @@ size_t FS_ReadFile( const char *qpath, void **buffer ) {
 				return len;
 			}
 
-			buf = (uint8_t *)Hunk_AllocateTempMemory( len + 1 );
+			buf = (uint8_t *)malloc( len + 1 );
 			*buffer = buf;
 
 			r = FS_Read( buf, len, com_journalDataFile );
@@ -1442,7 +1443,7 @@ size_t FS_ReadFile( const char *qpath, void **buffer ) {
 	fs_loadCount++;
 	fs_loadStack++;
 
-	buf = (uint8_t *)Hunk_AllocateTempMemory( len + 1 );
+	buf = (uint8_t *)malloc( len + 1 );
 	*buffer = buf;
 
 	FS_Read( buf, len, h );
@@ -1466,7 +1467,7 @@ size_t FS_ReadFile( const char *qpath, void **buffer ) {
 FS_FreeFile
 =============
 */
-void FS_FreeFile( void *buffer ) {
+void FS_FreeFile( const void *buffer ) {
 	if ( !fs_searchpaths ) {
 		Com_Error( ERR_FATAL, "Filesystem call made without initialization\n" );
 	}
@@ -1475,8 +1476,7 @@ void FS_FreeFile( void *buffer ) {
 	}
 	fs_loadStack--;
 
-	Hunk_FreeTempMemory( buffer );
-
+	free( (void *)buffer );
 }
 
 /*

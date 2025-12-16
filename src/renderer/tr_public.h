@@ -179,7 +179,7 @@ typedef struct {
 	// nullptr can be passed for buf to just determine existance
 	int ( *FS_FileIsInPAK )( const char *name, int *pChecksum );
 	int ( *FS_ReadFile )( const char *name, void **buf );
-	void ( *FS_FreeFile )( void *buf );
+	void ( *FS_FreeFile )( const void *buf );
 	char ** ( *FS_ListFiles )( const char *name, const char *extension, int *numfilesfound );
 	void ( *FS_FreeFileList )( char **filelist );
 	void ( *FS_WriteFile )( const char *qpath, const void *buffer, size_t size );

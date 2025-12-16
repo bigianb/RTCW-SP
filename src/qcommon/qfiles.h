@@ -26,8 +26,7 @@ If you have questions concerning this license or the applicable additional terms
 ===========================================================================
 */
 
-#ifndef __QFILES_H__
-#define __QFILES_H__
+#pragma once
 
 #include "../game/q_shared.h"
 
@@ -575,9 +574,10 @@ typedef struct {
 //=============================================================================
 
 
-typedef struct {
+struct lump_t
+{
 	int fileofs, filelen;
-} lump_t;
+};
 
 #define LUMP_ENTITIES       0
 #define LUMP_SHADERS        1
@@ -598,40 +598,40 @@ typedef struct {
 #define LUMP_VISIBILITY     16
 #define HEADER_LUMPS        17
 
-typedef struct {
+struct dheader_t {
 	int ident;
 	int version;
 
 	lump_t lumps[HEADER_LUMPS];
-} dheader_t;
+};
 
-typedef struct {
+struct dmodel_t {
 	float mins[3], maxs[3];
 	int firstSurface, numSurfaces;
 	int firstBrush, numBrushes;
-} dmodel_t;
+};
 
-typedef struct {
+struct dshader_t {
 	char shader[MAX_QPATH];
 	int surfaceFlags;
 	int contentFlags;
-} dshader_t;
+};
 
 // planes x^1 is allways the opposite of plane x
 
-typedef struct {
+struct dplane_t {
 	float normal[3];
 	float dist;
-} dplane_t;
+};
 
-typedef struct {
+struct dnode_t {
 	int planeNum;
 	int children[2];            // negative numbers are -(leafs+1), not nodes
 	int mins[3];                // for frustom culling
 	int maxs[3];
-} dnode_t;
+};
 
-typedef struct {
+struct dleaf_t {
 	int cluster;                    // -1 = opaque cluster (do I still store these?)
 	int area;
 
@@ -643,42 +643,42 @@ typedef struct {
 
 	int firstLeafBrush;
 	int numLeafBrushes;
-} dleaf_t;
+};
 
-typedef struct {
+struct dbrushside_t {
 	int planeNum;                   // positive plane side faces out of the leaf
 	int shaderNum;
-} dbrushside_t;
+};
 
-typedef struct {
+struct dbrush_t {
 	int firstSide;
 	int numSides;
 	int shaderNum;              // the shader that determines the contents flags
-} dbrush_t;
+};
 
-typedef struct {
+struct dfog_t {
 	char shader[MAX_QPATH];
 	int brushNum;
 	int visibleSide;            // the brush side that ray tests need to clip against (-1 == none)
-} dfog_t;
+};
 
-typedef struct {
+struct drawVert_t {
 	vec3_t xyz;
 	float st[2];
 	float lightmap[2];
 	vec3_t normal;
 	uint8_t color[4];
-} drawVert_t;
+};
 
-typedef enum {
+enum mapSurfaceType_t {
 	MST_BAD,
 	MST_PLANAR,
 	MST_PATCH,
 	MST_TRIANGLE_SOUP,
 	MST_FLARE
-} mapSurfaceType_t;
+};
 
-typedef struct {
+struct dsurface_t {
 	int shaderNum;
 	int fogNum;
 	int surfaceType;
@@ -698,12 +698,10 @@ typedef struct {
 
 	int patchWidth;
 	int patchHeight;
-} dsurface_t;
+};
 
-//----(SA) added so I didn't change the dsurface_t struct (and thereby the bsp format) for something that doesn't need to be stored in the bsp
-typedef struct {
+// Added so not to change the dsurface_t struct (and thereby the bsp format)
+// for something that doesn't need to be stored in the bsp
+struct drsurfaceInternal_t {
 	char        *lighttarg;
-} drsurfaceInternal_t;
-//----(SA) end
-
-#endif
+};
