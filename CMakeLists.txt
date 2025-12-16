@@ -241,6 +241,7 @@ set(GAME_SOURCES
 )
 
 set(QCOMMON_INCLUDES
+	src/qcommon/clip_model.h
 	src/qcommon/cm_local.h
 	src/qcommon/cm_patch.h
 	src/qcommon/cm_polylib.h
@@ -252,6 +253,7 @@ set(QCOMMON_INCLUDES
 )
 
 set(QCOMMON_SOURCES
+	src/qcommon/clip_model.cpp
 	src/qcommon/cm_load.cpp
 	src/qcommon/cm_patch.cpp
 	src/qcommon/cm_polylib.cpp
