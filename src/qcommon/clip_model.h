@@ -1,6 +1,7 @@
 #pragma once
 
 #include <cstdint>
+#include "../idlib/math/Vector.h"
 
 struct lump_t;
 struct dshader_t;
@@ -27,6 +28,25 @@ struct cArea_t
 	int floodvalid;
 };
 
+struct cplane_t;
+
+struct cBrushSide_t
+{
+	cplane_t *plane;
+	int surfaceFlags;
+	int shaderNum;
+};
+
+struct cBrush_t
+{
+	int shaderNum;    // the shader that determined the contents
+	int contents;
+	idVec3 bounds[2];
+	int numsides;
+	cBrushSide_t    *sides;
+	int checkcount;  // to avoid repeated testings
+};
+
 class ClipModel
 {
 public:
@@ -38,6 +58,13 @@ public:
 private:
     void loadShaders(const lump_t* l, const uint8_t* offsetBase);
     void loadLeaves(const lump_t* l, const uint8_t* offsetBase);
+    void loadLeafBrushes(const lump_t* l, const uint8_t* offsetBase);
+    void loadLeafSurfaces(const lump_t* l, const uint8_t* offsetBase);
+    void loadPlanes(const lump_t* l, const uint8_t* offsetBase);
+    void loadBrushSides(const lump_t* l, const uint8_t* offsetBase);
+    void loadBrushes(const lump_t* l, const uint8_t* offsetBase);
+
+    void boundBrush( cBrush_t *b );
 
     dshader_t* shaders;
     int numShaders;
@@ -51,6 +78,21 @@ private:
     int numAreas;
 
     int** areaPortals;
+
+    int* leafBrushes;
+    int numLeafBrushes;
+
+    int* leafsurfaces;
+    int numLeafSurfaces;
+
+    cplane_t* planes;
+    int numPlanes;
+
+    cBrushSide_t* brushsides;
+    int numBrushSides;
+
+    cBrush_t* brushes;
+    int numBrushes;
 };
 
 class TheClipModel

@@ -241,7 +241,7 @@ typedef const mat3_t &mat3_c;       // for passing matrices as const function ar
 #define MAKERGB( v, r, g, b ) v[0] = r; v[1] = g; v[2] = b
 #define MAKERGBA( v, r, g, b, a ) v[0] = r; v[1] = g; v[2] = b; v[3] = a
 
-struct cplane_s;
+struct cplane_t;
 
 extern idVec4 vec4_origin;
 

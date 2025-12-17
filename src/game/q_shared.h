@@ -268,7 +268,7 @@ extern vec4_t g_color_table[8];
 #define MAKERGB( v, r, g, b ) v[0] = r; v[1] = g; v[2] = b
 #define MAKERGBA( v, r, g, b, a ) v[0] = r; v[1] = g; v[2] = b; v[3] = a
 
-struct cplane_s;
+struct cplane_t;
 
 extern vec3_t vec3_origin;
 extern vec3_t axisDefault[3];
@@ -369,8 +369,8 @@ float VectorDistance( vec3_t v1, vec3_t v2 );
 void AxisClear( vec3_t axis[3] );
 void AxisCopy( vec3_t in[3], vec3_t out[3] );
 
-void SetPlaneSignbits( struct cplane_s *out );
-int BoxOnPlaneSide( vec3_t emins, vec3_t emaxs, struct cplane_s *plane );
+void SetPlaneSignbits( cplane_t *out );
+int BoxOnPlaneSide( vec3_t emins, vec3_t emaxs, cplane_t *plane );
 
 float   AngleMod( float a );
 float   LerpAngle( float from, float to, float frac );
@@ -662,14 +662,13 @@ PlaneTypeForNormal
 #define PlaneTypeForNormal( x ) ( x[0] == 1.0 ? PLANE_X : ( x[1] == 1.0 ? PLANE_Y : ( x[2] == 1.0 ? PLANE_Z : PLANE_NON_AXIAL ) ) )
 
 // plane_t structure
-// !!! if this is changed, it must be changed in asm code too !!!
-typedef struct cplane_s {
+struct cplane_t {
 	vec3_t normal;
 	float dist;
 	uint8_t type;              // for fast side tests: 0,1,2 = axial, 3 = nonaxial
 	uint8_t signbits;          // signx + (signy<<1) + (signz<<2), used as lookup during collision
 	uint8_t pad[2];
-} cplane_t;
+};
 
 
 // a trace is returned when a box is swept through the world

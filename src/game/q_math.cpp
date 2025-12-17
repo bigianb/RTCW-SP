@@ -635,7 +635,7 @@ BoxOnPlaneSide
 Returns 1, 2, or 1 + 2
 
 // this is the slow, general version
-int BoxOnPlaneSide2 (vec3_t emins, vec3_t emaxs, struct cplane_s *p)
+int BoxOnPlaneSide2 (vec3_t emins, vec3_t emaxs, cplane_t *p)
 {
 	int		i;
 	float	dist1, dist2;
@@ -671,7 +671,7 @@ int BoxOnPlaneSide2 (vec3_t emins, vec3_t emaxs, struct cplane_s *p)
 #if !( defined __linux__ && defined __i386__ && !defined C_ONLY )
 #if defined __LCC__ || defined C_ONLY || !id386
 
-int BoxOnPlaneSide( vec3_t emins, vec3_t emaxs, struct cplane_s *p ) {
+int BoxOnPlaneSide( vec3_t emins, vec3_t emaxs, cplane_t *p ) {
 	float dist1, dist2;
 	int sides;
 
@@ -739,7 +739,7 @@ int BoxOnPlaneSide( vec3_t emins, vec3_t emaxs, struct cplane_s *p ) {
 #else
 #pragma warning( disable: 4035 )
 
-__declspec( naked ) int BoxOnPlaneSide( vec3_t emins, vec3_t emaxs, struct cplane_s *p ) {
+__declspec( naked ) int BoxOnPlaneSide( vec3_t emins, vec3_t emaxs, cplane_t *p ) {
 	static int bops_initialized;
 	static int Ljmptab[8];
 

@@ -1127,7 +1127,7 @@ extern int VectorCompare ( const vec3_t v1 , const vec3_t v2 ) ;
 extern void AddPointToBounds ( const vec3_t v , vec3_t mins , vec3_t maxs ) ;
 extern void ClearBounds ( vec3_t mins , vec3_t maxs ) ;
 extern float RadiusFromBounds ( const vec3_t mins , const vec3_t maxs ) ;
-extern int BoxOnPlaneSide ( vec3_t emins , vec3_t emaxs , struct cplane_s * p ) ;
+extern int BoxOnPlaneSide ( vec3_t emins , vec3_t emaxs , cplane_t * p ) ;
 extern void SetPlaneSignbits ( cplane_t * out ) ;
 extern float AngleDelta ( float angle1 , float angle2 ) ;
 extern float AngleNormalize180 ( float angle ) ;
