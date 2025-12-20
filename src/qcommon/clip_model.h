@@ -22,6 +22,12 @@ struct cLeaf_t
 	int fromSubmodel;
 };
 
+struct cModel_t
+{
+	idVec3 mins, maxs;
+	cLeaf_t leaf;               // submodels don't reference the main tree
+};
+
 struct cArea_t
 {
 	int floodnum;
@@ -47,6 +53,12 @@ struct cBrush_t
 	int checkcount;  // to avoid repeated testings
 };
 
+struct cNode_t
+{
+	cplane_t *plane;
+	int children[2];                // negative numbers are leafs
+};
+
 class ClipModel
 {
 public:
@@ -63,6 +75,9 @@ private:
     void loadPlanes(const lump_t* l, const uint8_t* offsetBase);
     void loadBrushSides(const lump_t* l, const uint8_t* offsetBase);
     void loadBrushes(const lump_t* l, const uint8_t* offsetBase);
+    void loadSubmodels(const lump_t* l, const uint8_t* offsetBase);
+    void loadNodes(const lump_t* l, const uint8_t* offsetBase);
+    void loadEntityString(const lump_t* l, const uint8_t* offsetBase);
 
     void boundBrush( cBrush_t *b );
 
@@ -93,6 +108,15 @@ private:
 
     cBrush_t* brushes;
     int numBrushes;
+
+    cModel_t* cmodels;
+    int numSubModels;
+
+    cNode_t* nodes;
+    int numNodes;
+
+    char* entityString;
+    int numEntityChars;
 };
 
 class TheClipModel

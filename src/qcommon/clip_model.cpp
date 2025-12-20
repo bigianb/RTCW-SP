@@ -35,9 +35,9 @@ void ClipModel::loadMap(const char *name)
 	loadPlanes( &header.lumps[LUMP_PLANES], buf );
 	loadBrushSides( &header.lumps[LUMP_BRUSHSIDES], buf );
 	loadBrushes( &header.lumps[LUMP_BRUSHES], buf );
-	//CMod_LoadSubmodels( &header.lumps[LUMP_MODELS] );
-	//CMod_LoadNodes( &header.lumps[LUMP_NODES] );
-	//CMod_LoadEntityString( &header.lumps[LUMP_ENTITIES] );
+	loadSubmodels( &header.lumps[LUMP_MODELS], buf );
+	loadNodes( &header.lumps[LUMP_NODES], buf );
+	loadEntityString( &header.lumps[LUMP_ENTITIES], buf );
 	//CMod_LoadVisibility( &header.lumps[LUMP_VISIBILITY] );
 	//CMod_LoadPatches( &header.lumps[LUMP_SURFACES], &header.lumps[LUMP_DRAWVERTS] );
 
@@ -77,6 +77,15 @@ ClipModel::ClipModel()
 
 	brushes = nullptr;
 	numBrushes = 0;
+
+	cmodels = nullptr;
+	numSubModels = 0;
+
+	nodes = nullptr;
+	numNodes = 0;
+
+	entityString = nullptr;
+	numEntityChars = 0;
 }
 
 ClipModel::~ClipModel()
@@ -119,6 +128,18 @@ void ClipModel::clearMap() {
 	delete[] brushes;
 	brushes = nullptr;
 	numBrushes = 0;
+
+	delete [] cmodels;
+	cmodels = nullptr;
+	numSubModels = 0;
+
+	delete[] nodes;
+	nodes = nullptr;
+	numNodes = 0;
+
+	delete[] entityString;
+	entityString = nullptr;
+	numEntityChars = 0;
 }
 
 void ClipModel::loadShaders(const lump_t* l, const uint8_t* offsetBase)
@@ -306,4 +327,68 @@ void ClipModel::boundBrush( cBrush_t *b )
 
 	b->bounds[0][2] = -b->sides[4].plane->dist;
 	b->bounds[1][2] = b->sides[5].plane->dist;
+}
+
+void ClipModel::loadSubmodels(const lump_t* l, const uint8_t* offsetBase)
+{
+	dmodel_t    *in = ( dmodel_t * )( offsetBase + l->fileofs );
+	if ( l->filelen % sizeof( *in ) ) {
+		Com_Error( ERR_DROP, "CMod_LoadSubmodels: funny lump size" );
+	}
+	int count = l->filelen / sizeof( *in );
+
+	if ( count < 1 ) {
+		Com_Error( ERR_DROP, "Map with no models" );
+	}
+	cmodels = new cModel_t[count];
+	numSubModels = count;
+
+	for (int i = 0 ; i < count ; i++, in++ ) {
+		cModel_t *out = &cmodels[i];
+
+		for (int j = 0 ; j < 3 ; j++ )
+		{   // spread the mins / maxs by a pixel
+			out->mins[j] = in->mins[j] - 1;
+			out->maxs[j] = in->maxs[j] + 1;
+		}
+
+		out->leaf.fromSubmodel = 1;
+		
+		out->leaf.numLeafBrushes = in->numBrushes;
+		out->leaf.firstLeafBrush = in->firstBrush;
+
+		out->leaf.numLeafSurfaces = in->numSurfaces;
+		out->leaf.firstLeafSurface = in->firstSurface;
+	}
+}
+
+void ClipModel::loadNodes(const lump_t* l, const uint8_t* offsetBase)
+{
+	dnode_t *in = ( dnode_t * )( offsetBase + l->fileofs );
+	if ( l->filelen % sizeof( *in ) ) {
+		Com_Error( ERR_DROP, "MOD_LoadBmodel: funny lump size" );
+	}
+	int count = l->filelen / sizeof( *in );
+
+	if ( count < 1 ) {
+		Com_Error( ERR_DROP, "Map has no nodes" );
+	}
+	nodes = new cNode_t[count];
+	numNodes = count;
+
+	cNode_t *out = nodes;
+
+	for (int i = 0 ; i < count ; i++, out++, in++ ) {
+		out->plane = planes + in->planeNum;
+		for (int j = 0 ; j < 2 ; j++ ) {
+			out->children[j] = in->children[j];
+		}
+	}
+}
+
+void ClipModel::loadEntityString(const lump_t* l, const uint8_t* offsetBase)
+{
+	entityString = new char[l->filelen];
+	numEntityChars = l->filelen;
+	memcpy( entityString, offsetBase + l->fileofs, l->filelen );
 }
