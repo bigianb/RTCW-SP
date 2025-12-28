@@ -2,6 +2,7 @@
 
 #include <cstdint>
 #include "../idlib/math/Vector.h"
+#include "cm_patch.h"
 
 struct lump_t;
 struct dshader_t;
@@ -59,6 +60,14 @@ struct cNode_t
 	int children[2];                // negative numbers are leafs
 };
 
+struct cPatch_t
+{
+	int checkcount;                     // to avoid repeated testings
+	int surfaceFlags;
+	int contents;
+	struct patchCollide_s   *pc;
+};
+
 class ClipModel
 {
 public:
@@ -78,6 +87,8 @@ private:
     void loadSubmodels(const lump_t* l, const uint8_t* offsetBase);
     void loadNodes(const lump_t* l, const uint8_t* offsetBase);
     void loadEntityString(const lump_t* l, const uint8_t* offsetBase);
+    void loadVisibility(const lump_t* l, const uint8_t* offsetBase);
+    void loadPatches(const lump_t* surfaceLump, const lump_t* drawVertLump, const uint8_t* offsetBase);
 
     void boundBrush( cBrush_t *b );
 
@@ -117,6 +128,13 @@ private:
 
     char* entityString;
     int numEntityChars;
+
+    int clusterBytes;
+    uint8_t* visibility;
+    bool vised;
+
+    int numSurfaces;
+    cPatch_t** surfaces;
 };
 
 class TheClipModel

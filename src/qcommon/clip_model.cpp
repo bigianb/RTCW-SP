@@ -38,8 +38,8 @@ void ClipModel::loadMap(const char *name)
 	loadSubmodels( &header.lumps[LUMP_MODELS], buf );
 	loadNodes( &header.lumps[LUMP_NODES], buf );
 	loadEntityString( &header.lumps[LUMP_ENTITIES], buf );
-	//CMod_LoadVisibility( &header.lumps[LUMP_VISIBILITY] );
-	//CMod_LoadPatches( &header.lumps[LUMP_SURFACES], &header.lumps[LUMP_DRAWVERTS] );
+	loadVisibility( &header.lumps[LUMP_VISIBILITY], buf );
+	loadPatches( &header.lumps[LUMP_SURFACES], &header.lumps[LUMP_DRAWVERTS], buf );
 
 	// we are NOT freeing the file, because it is cached for the ref
 	FS_FreeFile( buf );
@@ -86,6 +86,10 @@ ClipModel::ClipModel()
 
 	entityString = nullptr;
 	numEntityChars = 0;
+
+	clusterBytes = 0;
+	visibility = nullptr;
+	vised = false;
 }
 
 ClipModel::~ClipModel()
@@ -140,6 +144,11 @@ void ClipModel::clearMap() {
 	delete[] entityString;
 	entityString = nullptr;
 	numEntityChars = 0;
+
+	delete[] visibility;
+	clusterBytes = 0;
+	visibility = nullptr;
+	vised = false;
 }
 
 void ClipModel::loadShaders(const lump_t* l, const uint8_t* offsetBase)
@@ -391,4 +400,77 @@ void ClipModel::loadEntityString(const lump_t* l, const uint8_t* offsetBase)
 	entityString = new char[l->filelen];
 	numEntityChars = l->filelen;
 	memcpy( entityString, offsetBase + l->fileofs, l->filelen );
+}
+
+#define VIS_HEADER  8
+void ClipModel::loadVisibility(const lump_t* l, const uint8_t* offsetBase)
+{
+	int len = l->filelen;
+	if ( !len ) {
+		clusterBytes = ( numClusters + 31 ) & ~31;
+		visibility = new uint8_t[clusterBytes];
+		memset( visibility, 255, clusterBytes );
+		return;
+	}
+	const uint8_t* buf = offsetBase + l->fileofs;
+
+	vised = true;
+	visibility = new uint8_t[len];
+	numClusters =  ( (const int *)buf )[0];
+	clusterBytes = ( (const int *)buf )[1];
+	memcpy( visibility, buf + VIS_HEADER, len - VIS_HEADER );
+}
+
+#define MAX_PATCH_VERTS     1024
+void ClipModel::loadPatches(const lump_t* surfaceLump, const lump_t* drawVertLump, const uint8_t* offsetBase)
+{
+	cPatch_t    *patch;
+	vec3_t points[MAX_PATCH_VERTS];
+
+	dsurface_t* in = ( dsurface_t * )( offsetBase + surfaceLump->fileofs );
+	if ( surfaceLump->filelen % sizeof( *in ) ) {
+		Com_Error( ERR_DROP, "MOD_LoadBmodel: funny lump size" );
+	}
+	numSurfaces = surfaceLump->filelen / sizeof( *in );
+	surfaces = (cPatch_t **)Hunk_Alloc( numSurfaces * sizeof( surfaces[0] ), h_high );
+
+	drawVert_t* dv = ( drawVert_t * )( offsetBase + drawVertLump->fileofs );
+	if ( drawVertLump->filelen % sizeof( *dv ) ) {
+		Com_Error( ERR_DROP, "MOD_LoadBmodel: funny lump size" );
+	}
+
+	// scan through all the surfaces, but only load patches,
+	// not planar faces
+	for (int i = 0 ; i < numSurfaces ; i++, in++ ) {
+		if ( in->surfaceType != MST_PATCH ) {
+			continue;       // ignore other surfaces
+		}
+		// FIXME: check for non-colliding patches
+
+		cPatch_t* patch = (cPatch_t *)Hunk_Alloc( sizeof( *patch ), h_high );
+		surfaces[ i ] = patch;
+
+		// load the full drawverts onto the stack
+		int width = in->patchWidth;
+		int height = in->patchHeight;
+		int c = width * height;
+		if ( c > MAX_PATCH_VERTS ) {
+			Com_Error( ERR_DROP, "ParseMesh: MAX_PATCH_VERTS" );
+		}
+
+		drawVert_t* dv_p = dv + in->firstVert;
+		for (int j = 0 ; j < c ; j++, dv_p++ ) {
+			points[j][0] = dv_p->xyz[0];
+			points[j][1] = dv_p->xyz[1];
+			points[j][2] = dv_p->xyz[2];
+		}
+
+		int shaderNum = in->shaderNum;
+		patch->contents = shaders[shaderNum].contentFlags;
+		patch->surfaceFlags = shaders[shaderNum].surfaceFlags;
+
+		// create the internal facet structure
+		patch->pc = CM_GeneratePatchCollide( width, height, points );
+	}
+
 }

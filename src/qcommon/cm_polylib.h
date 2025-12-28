@@ -26,14 +26,16 @@ If you have questions concerning this license or the applicable additional terms
 ===========================================================================
 */
 
+#pragma once
+#include "../idlib/math/Vector.h"
 
 // this is only used for visualization tools in cm_ debug functions
 
-typedef struct
+struct winding_t
 {
 	int numpoints;
-	vec3_t p[4];        // variable sized
-} winding_t;
+	idVec3 *p;
+};
 
 #define MAX_POINTS_ON_WINDING   64
 
@@ -44,8 +46,7 @@ typedef struct
 
 #define CLIP_EPSILON    0.1f
 
-//#define MAX_MAP_BOUNDS			65535
-#define MAX_MAP_BOUNDS      ( 128*1024 )    // (SA) (9/19/01) new map dimensions (from Q3TA)
+#define MAX_MAP_BOUNDS      ( 128*1024 ) 
 
 // you can define on_epsilon in the makefile as tighter
 #ifndef ON_EPSILON
@@ -53,23 +54,23 @@ typedef struct
 #endif
 
 winding_t   *AllocWinding( int points );
-vec_t   WindingArea( winding_t *w );
-void    WindingCenter( winding_t *w, vec3_t center );
-void    ClipWindingEpsilon( winding_t *in, vec3_t normal, vec_t dist,
-							vec_t epsilon, winding_t **front, winding_t **back );
-winding_t   *ChopWinding( winding_t *in, vec3_t normal, vec_t dist );
+float   WindingArea( winding_t *w );
+void    WindingCenter( winding_t *w, idVec3& center );
+void    ClipWindingEpsilon( winding_t *in, idVec3& normal, float dist,
+							float epsilon, winding_t **front, winding_t **back );
+winding_t   *ChopWinding( winding_t *in, idVec3& normal, float dist );
 winding_t   *CopyWinding( winding_t *w );
 winding_t   *ReverseWinding( winding_t *w );
-winding_t   *BaseWindingForPlane( vec3_t normal, vec_t dist );
+winding_t   *BaseWindingForPlane( const idVec3& normal, float dist );
 void    CheckWinding( winding_t *w );
-void    WindingPlane( winding_t *w, vec3_t normal, vec_t *dist );
+void    WindingPlane( winding_t *w, idVec3& normal, float *dist );
 void    RemoveColinearPoints( winding_t *w );
-int     WindingOnPlaneSide( winding_t *w, vec3_t normal, vec_t dist );
+int     WindingOnPlaneSide( winding_t *w, idVec3& normal, float dist );
 void    FreeWinding( winding_t *w );
-void    WindingBounds( winding_t *w, vec3_t mins, vec3_t maxs );
+void    WindingBounds( winding_t *w, idVec3& mins, idVec3& maxs );
 
-void    AddWindingToConvexHull( winding_t *w, winding_t **hull, vec3_t normal );
+void    AddWindingToConvexHull( winding_t *w, winding_t **hull, idVec3 normal );
 
-void    ChopWindingInPlace( winding_t **w, vec3_t normal, vec_t dist, vec_t epsilon );
+void    ChopWindingInPlace( winding_t **w, idVec3& normal, float dist, float epsilon );
 // frees the original if clipped
 

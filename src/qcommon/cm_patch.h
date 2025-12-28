@@ -63,6 +63,8 @@ degenerate a few triangles.  Completely degenerate rows and columns are handled
 properly.
 */
 
+#include "../idlib/math/Vector.h"
+
 
 #define MAX_FACETS          1024
 #define MAX_PATCH_PLANES    2048
@@ -81,7 +83,7 @@ typedef struct {
 } facet_t;
 
 typedef struct patchCollide_s {
-	vec3_t bounds[2];
+	idVec3 bounds[2];
 	int numPlanes;              // surface planes plus edge planes
 	patchPlane_t    *planes;
 	int numFacets;
@@ -96,7 +98,7 @@ typedef struct {
 	int height;
 	bool wrapWidth;
 	bool wrapHeight;
-	vec3_t points[MAX_GRID_SIZE][MAX_GRID_SIZE];    // [width][height]
+	idVec3 points[MAX_GRID_SIZE][MAX_GRID_SIZE];    // [width][height]
 } cGrid_t;
 
 #define SUBDIVIDE_DISTANCE  16  //4	// never more than this units away from curve
@@ -104,4 +106,4 @@ typedef struct {
 #define WRAP_POINT_EPSILON  0.1
 
 
-struct patchCollide_s   *CM_GeneratePatchCollide( int width, int height, vec3_t *points );
+struct patchCollide_s   *CM_GeneratePatchCollide( int width, int height, idVec3 *points );

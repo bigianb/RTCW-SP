@@ -68,11 +68,10 @@ void CM_ClearLevelPatches( void ) {
 CM_SignbitsForNormal
 =================
 */
-static int CM_SignbitsForNormal( vec3_t normal ) {
-	int bits, j;
-
-	bits = 0;
-	for ( j = 0 ; j < 3 ; j++ ) {
+static int CM_SignbitsForNormal( const idVec3&  normal )
+{
+	int bits = 0;
+	for (int j = 0 ; j < 3 ; j++ ) {
 		if ( normal[j] < 0 ) {
 			bits |= 1 << j;
 		}
@@ -88,17 +87,20 @@ Returns false if the triangle is degenrate.
 The normal will point out of the clock for clockwise ordered points
 =====================
 */
-static bool CM_PlaneFromPoints( vec4_t plane, vec3_t a, vec3_t b, vec3_t c ) {
-	vec3_t d1, d2;
+static bool CM_PlaneFromPoints( idVec4& plane, const idVec3& a, const idVec3& b, const idVec3& c )
+{
+	idVec3 d1 = b - a;
+	idVec3 d2 = c - a;
+	idVec3 plane3 = d2.Cross( d1 );
 
-	VectorSubtract( b, a, d1 );
-	VectorSubtract( c, a, d2 );
-	CrossProduct( d2, d1, plane );
-	if ( VectorNormalize( plane ) == 0 ) {
+	if ( plane3.Normalize() == 0 ) {
 		return false;
 	}
 
-	plane[3] = DotProduct( a, plane );
+	plane.x = plane3.x;
+	plane.y = plane3.y;
+	plane.z = plane3.z;
+	plane.w = a * plane3;
 	return true;
 }
 
@@ -119,26 +121,25 @@ Returns true if the given quadratic curve is not flat enough for our
 collision detection purposes
 =================
 */
-static bool CM_NeedsSubdivision( vec3_t a, vec3_t b, vec3_t c ) {
-	vec3_t cmid;
-	vec3_t lmid;
-	vec3_t delta;
-	float dist;
-	int i;
+static bool CM_NeedsSubdivision( const idVec3& a, const idVec3& b, const idVec3& c )
+{
+	idVec3 cmid;
+	idVec3 lmid;
+	idVec3 delta;
 
 	// calculate the linear midpoint
-	for ( i = 0 ; i < 3 ; i++ ) {
+	for (int i = 0 ; i < 3 ; i++ ) {
 		lmid[i] = 0.5 * ( a[i] + c[i] );
 	}
 
 	// calculate the exact curve midpoint
-	for ( i = 0 ; i < 3 ; i++ ) {
+	for ( int i = 0 ; i < 3 ; i++ ) {
 		cmid[i] = 0.5 * ( 0.5 * ( a[i] + b[i] ) + 0.5 * ( b[i] + c[i] ) );
 	}
 
 	// see if the curve is far enough away from the linear mid
 	VectorSubtract( cmid, lmid, delta );
-	dist = VectorLength( delta );
+	float dist = delta.Length();
 
 	return dist >= SUBDIVIDE_DISTANCE;
 }
@@ -151,10 +152,9 @@ a, b, and c are control points.
 the subdivided sequence will be: a, out1, out2, out3, c
 ===============
 */
-static void CM_Subdivide( vec3_t a, vec3_t b, vec3_t c, vec3_t out1, vec3_t out2, vec3_t out3 ) {
-	int i;
-
-	for ( i = 0 ; i < 3 ; i++ ) {
+static void CM_Subdivide( const idVec3& a, const idVec3& b, const idVec3& c, idVec3& out1, idVec3& out2, idVec3& out3 )
+{
+	for (int i = 0 ; i < 3 ; i++ ) {
 		out1[i] = 0.5 * ( a[i] + b[i] );
 		out3[i] = 0.5 * ( b[i] + c[i] );
 		out2[i] = 0.5 * ( out1[i] + out3[i] );
@@ -250,10 +250,9 @@ all the aproximating points are within SUBDIVIDE_DISTANCE
 from the true curve
 =================
 */
-static void CM_SubdivideGridColumns( cGrid_t *grid ) {
-	int i, j, k;
-
-	for ( i = 0 ; i < grid->width - 2 ;  ) {
+static void CM_SubdivideGridColumns( cGrid_t *grid )
+{
+	for (int i = 0 ; i < grid->width - 2 ;  ) {
 		// grid->points[i][x] is an interpolating control point
 		// grid->points[i+1][x] is an aproximating control point
 		// grid->points[i+2][x] is an interpolating control point
@@ -261,7 +260,8 @@ static void CM_SubdivideGridColumns( cGrid_t *grid ) {
 		//
 		// first see if we can collapse the aproximating collumn away
 		//
-		for ( j = 0 ; j < grid->height ; j++ ) {
+		int j;
+		for (j = 0 ; j < grid->height ; j++ ) {
 			if ( CM_NeedsSubdivision( grid->points[i][j], grid->points[i + 1][j], grid->points[i + 2][j] ) ) {
 				break;
 			}
@@ -271,7 +271,7 @@ static void CM_SubdivideGridColumns( cGrid_t *grid ) {
 			// that we can collapse the entire column away
 			for ( j = 0 ; j < grid->height ; j++ ) {
 				// remove the column
-				for ( k = i + 2 ; k < grid->width ; k++ ) {
+				for (int k = i + 2 ; k < grid->width ; k++ ) {
 					VectorCopy( grid->points[k][j], grid->points[k - 1][j] );
 				}
 			}
@@ -287,7 +287,7 @@ static void CM_SubdivideGridColumns( cGrid_t *grid ) {
 		// we need to subdivide the curve
 		//
 		for ( j = 0 ; j < grid->height ; j++ ) {
-			vec3_t prev, mid, next;
+			idVec3 prev, mid, next;
 
 			// save the control points now
 			VectorCopy( grid->points[i][j], prev );
@@ -297,7 +297,7 @@ static void CM_SubdivideGridColumns( cGrid_t *grid ) {
 			// make room for two additional columns in the grid
 			// columns i+1 will be replaced, column i+2 will become i+4
 			// i+1, i+2, and i+3 will be generated
-			for ( k = grid->width - 1 ; k > i + 1 ; k-- ) {
+			for (int k = grid->width - 1 ; k > i + 1 ; k-- ) {
 				VectorCopy( grid->points[k][j], grid->points[k + 2][j] );
 			}
 
@@ -318,10 +318,9 @@ CM_ComparePoints
 ======================
 */
 #define POINT_EPSILON   0.1
-static bool CM_ComparePoints( float *a, float *b ) {
-	float d;
-
-	d = a[0] - b[0];
+static bool CM_ComparePoints( const idVec3& a, const idVec3& b )
+{
+	float d = a[0] - b[0];
 	if ( d < -POINT_EPSILON || d > POINT_EPSILON ) {
 		return false;
 	}
@@ -343,10 +342,10 @@ CM_RemoveDegenerateColumns
 If there are any identical columns, remove them
 =================
 */
-static void CM_RemoveDegenerateColumns( cGrid_t *grid ) {
-	int i, j, k;
-
-	for ( i = 0 ; i < grid->width - 1 ; i++ ) {
+static void CM_RemoveDegenerateColumns( cGrid_t *grid )
+{
+	int j;
+	for (int i = 0 ; i < grid->width - 1 ; i++ ) {
 		for ( j = 0 ; j < grid->height ; j++ ) {
 			if ( !CM_ComparePoints( grid->points[i][j], grid->points[i + 1][j] ) ) {
 				break;
@@ -359,7 +358,7 @@ static void CM_RemoveDegenerateColumns( cGrid_t *grid ) {
 
 		for ( j = 0 ; j < grid->height ; j++ ) {
 			// remove the column
-			for ( k = i + 2 ; k < grid->width ; k++ ) {
+			for (int k = i + 2 ; k < grid->width ; k++ ) {
 				VectorCopy( grid->points[k][j], grid->points[k - 1][j] );
 			}
 		}
@@ -478,22 +477,21 @@ int CM_FindPlane2( float plane[4], int *flipped ) {
 CM_FindPlane
 ==================
 */
-static int CM_FindPlane( float *p1, float *p2, float *p3 ) {
-	float plane[4];
-	int i;
-	float d;
+static int CM_FindPlane( const idVec3& p1, const idVec3& p2, const idVec3& p3 )
+{
+	idVec4 plane;
 
 	if ( !CM_PlaneFromPoints( plane, p1, p2, p3 ) ) {
 		return -1;
 	}
 
 	// see if the points are close enough to an existing plane
-	for ( i = 0 ; i < numPlanes ; i++ ) {
-		if ( DotProduct( plane, planes[i].plane ) < 0 ) {
+	for (int i = 0 ; i < numPlanes ; i++ ) {
+		if ( plane * planes[i].plane < 0 ) {
 			continue;   // allow backwards planes?
 		}
 
-		d = DotProduct( p1, planes[i].plane ) - planes[i].plane[3];
+		float d = DotProduct( p1, planes[i].plane ) - planes[i].plane[3];
 		if ( d < -PLANE_TRI_EPSILON || d > PLANE_TRI_EPSILON ) {
 			continue;
 		}
@@ -515,7 +513,6 @@ static int CM_FindPlane( float *p1, float *p2, float *p3 ) {
 	// add a new plane
 	if ( numPlanes == MAX_PATCH_PLANES ) {
 		Com_Error( ERR_DROP, "MAX_PATCH_PLANES" );
-        return 0; // keep the linter happy, ERR_DROP does not return
 	}
 
 	Vector4Copy( plane, planes[numPlanes].plane );
@@ -773,7 +770,8 @@ void CM_AddFacetBevels( facet_t *facet ) {
 
 	int i, j, k, l;
 	int axis, dir, order, flipped;
-	float plane[4], d, newplane[4];
+	idVec4 plane;
+	float d, newplane[4];
 	winding_t *w, *w2;
 	vec3_t mins, maxs, vec, vec2;
 
@@ -1124,7 +1122,7 @@ collision detection with a patch mesh.
 Points is packed as concatenated rows.
 ===================
 */
-struct patchCollide_s   *CM_GeneratePatchCollide( int width, int height, vec3_t *points ) {
+struct patchCollide_s   *CM_GeneratePatchCollide( int width, int height, idVec3 *points ) {
 	patchCollide_t  *pf;
     cGrid_t grid;
 	int i, j;
