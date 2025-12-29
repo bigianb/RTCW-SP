@@ -34,6 +34,7 @@ If you have questions concerning this license or the applicable additional terms
 struct winding_t
 {
 	int numpoints;
+	int allocatedPoints;
 	idVec3 *p;
 };
 
