@@ -70,7 +70,7 @@ properly.
 #define MAX_PATCH_PLANES    2048
 
 typedef struct {
-	float plane[4];
+	idVec4 plane;
 	int signbits;           // signx + (signy<<1) + (signz<<2), used as lookup during collision
 } patchPlane_t;
 

@@ -51,7 +51,7 @@ int c_totalPatchEdges;
 static const patchCollide_t *debugPatchCollide;
 static const facet_t        *debugFacet;
 static bool debugBlock;
-static vec3_t debugBlockPoints[4];
+static idVec3 debugBlockPoints[4];
 
 /*
 =================
@@ -68,7 +68,7 @@ void CM_ClearLevelPatches( void ) {
 CM_SignbitsForNormal
 =================
 */
-static int CM_SignbitsForNormal( const idVec3&  normal )
+static int CM_SignbitsForNormal( const idVec4&  normal )
 {
 	int bits = 0;
 	for (int j = 0 ; j < 3 ; j++ ) {
@@ -168,46 +168,43 @@ CM_TransposeGrid
 Swaps the rows and columns in place
 =================
 */
-static void CM_TransposeGrid( cGrid_t *grid ) {
-	int i, j, l;
-	vec3_t temp;
-	bool tempWrap;
-
+static void CM_TransposeGrid( cGrid_t *grid )
+{
 	if ( grid->width > grid->height ) {
-		for ( i = 0 ; i < grid->height ; i++ ) {
-			for ( j = i + 1 ; j < grid->width ; j++ ) {
+		for (int i = 0 ; i < grid->height ; i++ ) {
+			for (int j = i + 1 ; j < grid->width ; j++ ) {
 				if ( j < grid->height ) {
 					// swap the value
-					VectorCopy( grid->points[i][j], temp );
-					VectorCopy( grid->points[j][i], grid->points[i][j] );
-					VectorCopy( temp, grid->points[j][i] );
+					idVec3 temp = grid->points[i][j];
+					grid->points[i][j] = grid->points[j][i];
+					grid->points[j][i] = temp;
 				} else {
 					// just copy
-					VectorCopy( grid->points[j][i], grid->points[i][j] );
+					grid->points[i][j] = grid->points[j][i];
 				}
 			}
 		}
 	} else {
-		for ( i = 0 ; i < grid->width ; i++ ) {
-			for ( j = i + 1 ; j < grid->height ; j++ ) {
+		for (int i = 0 ; i < grid->width ; i++ ) {
+			for (int j = i + 1 ; j < grid->height ; j++ ) {
 				if ( j < grid->width ) {
 					// swap the value
-					VectorCopy( grid->points[j][i], temp );
-					VectorCopy( grid->points[i][j], grid->points[j][i] );
-					VectorCopy( temp, grid->points[i][j] );
+					idVec3 temp = grid->points[i][j];
+					grid->points[i][j] = grid->points[j][i];
+					grid->points[j][i] = temp;
 				} else {
 					// just copy
-					VectorCopy( grid->points[i][j], grid->points[j][i] );
+					grid->points[j][i] = grid->points[i][j];
 				}
 			}
 		}
 	}
 
-	l = grid->width;
+	int l = grid->width;
 	grid->width = grid->height;
 	grid->height = l;
 
-	tempWrap = grid->wrapWidth;
+	bool tempWrap = grid->wrapWidth;
 	grid->wrapWidth = grid->wrapHeight;
 	grid->wrapHeight = tempWrap;
 }
@@ -219,13 +216,13 @@ CM_SetGridWrapWidth
 If the left and right columns are exactly equal, set grid->wrapWidth true
 ===================
 */
-static void CM_SetGridWrapWidth( cGrid_t *grid ) {
-	int i, j;
-	float d;
-
+static void CM_SetGridWrapWidth( cGrid_t *grid )
+{
+	int i;
 	for ( i = 0 ; i < grid->height ; i++ ) {
+		int j;
 		for ( j = 0 ; j < 3 ; j++ ) {
-			d = grid->points[0][i][j] - grid->points[grid->width - 1][i][j];
+			float d = grid->points[0][i][j] - grid->points[grid->width - 1][i][j];
 			if ( d < -WRAP_POINT_EPSILON || d > WRAP_POINT_EPSILON ) {
 				break;
 			}
@@ -272,7 +269,7 @@ static void CM_SubdivideGridColumns( cGrid_t *grid )
 			for ( j = 0 ; j < grid->height ; j++ ) {
 				// remove the column
 				for (int k = i + 2 ; k < grid->width ; k++ ) {
-					VectorCopy( grid->points[k][j], grid->points[k - 1][j] );
+					grid->points[k - 1][j] = grid->points[k][j];
 				}
 			}
 
@@ -287,18 +284,17 @@ static void CM_SubdivideGridColumns( cGrid_t *grid )
 		// we need to subdivide the curve
 		//
 		for ( j = 0 ; j < grid->height ; j++ ) {
-			idVec3 prev, mid, next;
-
+			
 			// save the control points now
-			VectorCopy( grid->points[i][j], prev );
-			VectorCopy( grid->points[i + 1][j], mid );
-			VectorCopy( grid->points[i + 2][j], next );
-
+			idVec3 prev = grid->points[i][j];
+			idVec3 mid = grid->points[i + 1][j];
+			idVec3 next = grid->points[i + 2][j];
+			
 			// make room for two additional columns in the grid
 			// columns i+1 will be replaced, column i+2 will become i+4
 			// i+1, i+2, and i+3 will be generated
 			for (int k = grid->width - 1 ; k > i + 1 ; k-- ) {
-				VectorCopy( grid->points[k][j], grid->points[k + 2][j] );
+				grid->points[k + 2][j] = grid->points[k][j];
 			}
 
 			// generate the subdivided points
@@ -359,7 +355,7 @@ static void CM_RemoveDegenerateColumns( cGrid_t *grid )
 		for ( j = 0 ; j < grid->height ; j++ ) {
 			// remove the column
 			for (int k = i + 2 ; k < grid->width ; k++ ) {
-				VectorCopy( grid->points[k][j], grid->points[k - 1][j] );
+				grid->points[k - 1][j] = grid->points[k][j];
 			}
 		}
 		grid->width--;
@@ -386,14 +382,10 @@ static facet_t facets[MAX_PATCH_PLANES];          //maybe MAX_FACETS ??
 #define NORMAL_EPSILON  0.0001
 #define DIST_EPSILON    0.02
 
-/*
-==================
-CM_PlaneEqual
-==================
-*/
-int CM_PlaneEqual( patchPlane_t *p, float plane[4], int *flipped ) {
-	float invplane[4];
 
+int CM_PlaneEqual( patchPlane_t *p, const idVec4& plane, int *flipped )
+{
+	
 	if (
 		fabs( p->plane[0] - plane[0] ) < NORMAL_EPSILON
 		&& fabs( p->plane[1] - plane[1] ) < NORMAL_EPSILON
@@ -403,14 +395,13 @@ int CM_PlaneEqual( patchPlane_t *p, float plane[4], int *flipped ) {
 		return true;
 	}
 
-	VectorNegate( plane, invplane );
-	invplane[3] = -plane[3];
+	idVec4 invPlane = -plane;
 
 	if (
-		fabs( p->plane[0] - invplane[0] ) < NORMAL_EPSILON
-		&& fabs( p->plane[1] - invplane[1] ) < NORMAL_EPSILON
-		&& fabs( p->plane[2] - invplane[2] ) < NORMAL_EPSILON
-		&& fabs( p->plane[3] - invplane[3] ) < DIST_EPSILON ) {
+		fabs( p->plane[0] - invPlane[0] ) < NORMAL_EPSILON
+		&& fabs( p->plane[1] - invPlane[1] ) < NORMAL_EPSILON
+		&& fabs( p->plane[2] - invPlane[2] ) < NORMAL_EPSILON
+		&& fabs( p->plane[3] - invPlane[3] ) < DIST_EPSILON ) {
 		*flipped = true;
 		return true;
 	}
@@ -418,23 +409,16 @@ int CM_PlaneEqual( patchPlane_t *p, float plane[4], int *flipped ) {
 	return false;
 }
 
-/*
-==================
-CM_SnapVector
-==================
-*/
-void CM_SnapVector( vec3_t normal ) {
-	int i;
-
-	for ( i = 0 ; i < 3 ; i++ )
-	{
+void CM_SnapVector( idVec3& normal )
+{
+	for (int i = 0 ; i < 3 ; i++ ) {
 		if ( fabs( normal[i] - 1 ) < NORMAL_EPSILON ) {
-			VectorClear( normal );
+			normal.Zero();
 			normal[i] = 1;
 			break;
 		}
 		if ( fabs( normal[i] - -1 ) < NORMAL_EPSILON ) {
-			VectorClear( normal );
+			normal.Zero();
 			normal[i] = -1;
 			break;
 		}
@@ -446,11 +430,10 @@ void CM_SnapVector( vec3_t normal ) {
 CM_FindPlane2
 ==================
 */
-int CM_FindPlane2( float plane[4], int *flipped ) {
-	int i;
-
+int CM_FindPlane2( const idVec4& plane, int *flipped )
+{
 	// see if the points are close enough to an existing plane
-	for ( i = 0 ; i < numPlanes ; i++ ) {
+	for (int i = 0 ; i < numPlanes ; i++ ) {
 		if ( CM_PlaneEqual( &planes[i], plane, flipped ) ) {
 			return i;
 		}
@@ -459,10 +442,9 @@ int CM_FindPlane2( float plane[4], int *flipped ) {
 	// add a new plane
 	if ( numPlanes == MAX_PATCH_PLANES ) {
 		Com_Error( ERR_DROP, "MAX_PATCH_PLANES" );
-        return 0; // keep the linter happy, ERR_DROP does not return
 	}
 
-	Vector4Copy( plane, planes[numPlanes].plane );
+	planes[numPlanes].plane = plane;
 	planes[numPlanes].signbits = CM_SignbitsForNormal( plane );
 
 	numPlanes++;
@@ -491,17 +473,17 @@ static int CM_FindPlane( const idVec3& p1, const idVec3& p2, const idVec3& p3 )
 			continue;   // allow backwards planes?
 		}
 
-		float d = DotProduct( p1, planes[i].plane ) - planes[i].plane[3];
+		float d = p1 * planes[i].plane - planes[i].plane[3];
 		if ( d < -PLANE_TRI_EPSILON || d > PLANE_TRI_EPSILON ) {
 			continue;
 		}
 
-		d = DotProduct( p2, planes[i].plane ) - planes[i].plane[3];
+		d = p2 * planes[i].plane - planes[i].plane[3];
 		if ( d < -PLANE_TRI_EPSILON || d > PLANE_TRI_EPSILON ) {
 			continue;
 		}
 
-		d = DotProduct( p3, planes[i].plane ) - planes[i].plane[3];
+		d = p3 * planes[i].plane - planes[i].plane[3];
 		if ( d < -PLANE_TRI_EPSILON || d > PLANE_TRI_EPSILON ) {
 			continue;
 		}
@@ -523,21 +505,14 @@ static int CM_FindPlane( const idVec3& p1, const idVec3& p2, const idVec3& p3 )
 	return numPlanes - 1;
 }
 
-/*
-==================
-CM_PointOnPlaneSide
-==================
-*/
-static int CM_PointOnPlaneSide( float *p, int planeNum ) {
-	float   *plane;
-	float d;
-
+static int CM_PointOnPlaneSide( const idVec3& p, int planeNum )
+{
 	if ( planeNum == -1 ) {
 		return SIDE_ON;
 	}
-	plane = planes[ planeNum ].plane;
+	const idVec4& plane = planes[ planeNum ].plane;
 
-	d = DotProduct( p, plane ) - plane[3];
+	float d = p * plane - plane[3];
 
 	if ( d > PLANE_TRI_EPSILON ) {
 		return SIDE_FRONT;
@@ -550,15 +525,10 @@ static int CM_PointOnPlaneSide( float *p, int planeNum ) {
 	return SIDE_ON;
 }
 
-/*
-==================
-CM_GridPlane
-==================
-*/
-static int  CM_GridPlane( int gridPlanes[MAX_GRID_SIZE][MAX_GRID_SIZE][2], int i, int j, int tri ) {
-	int p;
 
-	p = gridPlanes[i][j][tri];
+static int  CM_GridPlane( int gridPlanes[MAX_GRID_SIZE][MAX_GRID_SIZE][2], int i, int j, int tri )
+{
+	int p = gridPlanes[i][j][tri];
 	if ( p != -1 ) {
 		return p;
 	}
@@ -572,59 +542,57 @@ static int  CM_GridPlane( int gridPlanes[MAX_GRID_SIZE][MAX_GRID_SIZE][2], int i
 	return -1;
 }
 
-/*
-==================
-CM_EdgePlaneNum
-==================
-*/
-static int CM_EdgePlaneNum( cGrid_t *grid, int gridPlanes[MAX_GRID_SIZE][MAX_GRID_SIZE][2], int i, int j, int k ) {
-	float   *p1, *p2;
-	vec3_t up;
-	int p;
-
+static int CM_EdgePlaneNum( cGrid_t *grid, int gridPlanes[MAX_GRID_SIZE][MAX_GRID_SIZE][2], int i, int j, int k )
+{
 	switch ( k ) {
 	case 0: // top border
-		p1 = grid->points[i][j];
-		p2 = grid->points[i + 1][j];
-		p = CM_GridPlane( gridPlanes, i, j, 0 );
-		VectorMA( p1, 4, planes[ p ].plane, up );
+	{
+		const idVec3& p1 = grid->points[i][j];
+		const idVec3& p2 = grid->points[i + 1][j];
+		int p = CM_GridPlane( gridPlanes, i, j, 0 );
+		idVec3 up = p1 + planes[p].plane * 4;
 		return CM_FindPlane( p1, p2, up );
-
+	}
 	case 2: // bottom border
-		p1 = grid->points[i][j + 1];
-		p2 = grid->points[i + 1][j + 1];
-		p = CM_GridPlane( gridPlanes, i, j, 1 );
-		VectorMA( p1, 4, planes[ p ].plane, up );
+	{
+		const idVec3& p1 = grid->points[i][j + 1];
+		const idVec3& p2 = grid->points[i + 1][j + 1];
+		int p = CM_GridPlane( gridPlanes, i, j, 1 );
+		idVec3 up = p1 + planes[p].plane * 4;
 		return CM_FindPlane( p2, p1, up );
-
+	}
 	case 3: // left border
-		p1 = grid->points[i][j];
-		p2 = grid->points[i][j + 1];
-		p = CM_GridPlane( gridPlanes, i, j, 1 );
-		VectorMA( p1, 4, planes[ p ].plane, up );
+	{
+		const idVec3& p1 = grid->points[i][j];
+		const idVec3& p2 = grid->points[i][j + 1];
+		int p = CM_GridPlane( gridPlanes, i, j, 1 );
+		idVec3 up = p1 + planes[p].plane * 4;
 		return CM_FindPlane( p2, p1, up );
-
+	}
 	case 1: // right border
-		p1 = grid->points[i + 1][j];
-		p2 = grid->points[i + 1][j + 1];
-		p = CM_GridPlane( gridPlanes, i, j, 0 );
-		VectorMA( p1, 4, planes[ p ].plane, up );
+	{
+		const idVec3& p1 = grid->points[i + 1][j];
+		const idVec3& p2 = grid->points[i + 1][j + 1];
+		int p = CM_GridPlane( gridPlanes, i, j, 0 );
+		idVec3 up = p1 + planes[p].plane * 4;
 		return CM_FindPlane( p1, p2, up );
-
+	}
 	case 4: // diagonal out of triangle 0
-		p1 = grid->points[i + 1][j + 1];
-		p2 = grid->points[i][j];
-		p = CM_GridPlane( gridPlanes, i, j, 0 );
-		VectorMA( p1, 4, planes[ p ].plane, up );
+	{
+		const idVec3& p1 = grid->points[i + 1][j + 1];
+		const idVec3& p2 = grid->points[i][j];
+		int p = CM_GridPlane( gridPlanes, i, j, 0 );
+		idVec3 up = p1 + planes[p].plane * 4;
 		return CM_FindPlane( p1, p2, up );
-
+	}
 	case 5: // diagonal out of triangle 1
-		p1 = grid->points[i][j];
-		p2 = grid->points[i + 1][j + 1];
-		p = CM_GridPlane( gridPlanes, i, j, 1 );
-		VectorMA( p1, 4, planes[ p ].plane, up );
+	{
+		const idVec3& p1 = grid->points[i][j];
+		const idVec3& p2 = grid->points[i + 1][j + 1];
+		int p = CM_GridPlane( gridPlanes, i, j, 1 );
+		idVec3 up = p1 + planes[p].plane * 4;
 		return CM_FindPlane( p1, p2, up );
-
+	}
 	}
 
 	Com_Error( ERR_DROP, "CM_EdgePlaneNum: bad k" );
@@ -637,29 +605,29 @@ CM_SetBorderInward
 ===================
 */
 static void CM_SetBorderInward( facet_t *facet, cGrid_t *grid, int gridPlanes[MAX_GRID_SIZE][MAX_GRID_SIZE][2],
-								int i, int j, int which ) {
-	int k, l;
-	float   *points[4];
+								int i, int j, int which )
+{
+	idVec3* points[4];
 	int numPoints;
 
 	switch ( which ) {
 	case - 1:
-		points[0] = grid->points[i][j];
-		points[1] = grid->points[i + 1][j];
-		points[2] = grid->points[i + 1][j + 1];
-		points[3] = grid->points[i][j + 1];
+		points[0] = &grid->points[i][j];
+		points[1] = &grid->points[i + 1][j];
+		points[2] = &grid->points[i + 1][j + 1];
+		points[3] = &grid->points[i][j + 1];
 		numPoints = 4;
 		break;
 	case 0:
-		points[0] = grid->points[i][j];
-		points[1] = grid->points[i + 1][j];
-		points[2] = grid->points[i + 1][j + 1];
+		points[0] = &grid->points[i][j];
+		points[1] = &grid->points[i + 1][j];
+		points[2] = &grid->points[i + 1][j + 1];
 		numPoints = 3;
 		break;
 	case 1:
-		points[0] = grid->points[i + 1][j + 1];
-		points[1] = grid->points[i][j + 1];
-		points[2] = grid->points[i][j];
+		points[0] = &grid->points[i + 1][j + 1];
+		points[1] = &grid->points[i][j + 1];
+		points[2] = &grid->points[i][j];
 		numPoints = 3;
 		break;
 	default:
@@ -668,16 +636,13 @@ static void CM_SetBorderInward( facet_t *facet, cGrid_t *grid, int gridPlanes[MA
 		break;
 	}
 
-	for ( k = 0 ; k < facet->numBorders ; k++ ) {
-		int front, back;
+	for (int k = 0 ; k < facet->numBorders ; k++ ) {
+		int front = 0;
+		int back = 0;
 
-		front = 0;
-		back = 0;
+		for (int l = 0 ; l < numPoints ; l++ ) {
 
-		for ( l = 0 ; l < numPoints ; l++ ) {
-			int side;
-
-			side = CM_PointOnPlaneSide( points[l], facet->borderPlanes[k] );
+			int side = CM_PointOnPlaneSide( *points[l], facet->borderPlanes[k] );
 			if ( side == SIDE_FRONT ) {
 				front++;
 			}
@@ -699,10 +664,10 @@ static void CM_SetBorderInward( facet_t *facet, cGrid_t *grid, int gridPlanes[MA
 			facet->borderInward[k] = false;
 			if ( !debugBlock ) {
 				debugBlock = true;
-				VectorCopy( grid->points[i][j], debugBlockPoints[0] );
-				VectorCopy( grid->points[i + 1][j], debugBlockPoints[1] );
-				VectorCopy( grid->points[i + 1][j + 1], debugBlockPoints[2] );
-				VectorCopy( grid->points[i][j + 1], debugBlockPoints[3] );
+				debugBlockPoints[0] = grid->points[i][j];
+				debugBlockPoints[1] = grid->points[i + 1][j];
+				debugBlockPoints[2] = grid->points[i + 1][j + 1];
+				debugBlockPoints[3] = grid->points[i][j + 1];
 			}
 		}
 	}
