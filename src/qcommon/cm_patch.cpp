@@ -58,7 +58,8 @@ static idVec3 debugBlockPoints[4];
 CM_ClearLevelPatches
 =================
 */
-void CM_ClearLevelPatches( void ) {
+void CM_ClearLevelPatches(  )
+{
 	debugPatchCollide = nullptr;
 	debugFacet = nullptr;
 }
@@ -680,18 +681,16 @@ CM_ValidateFacet
 If the facet isn't bounded by its borders, we screwed up.
 ==================
 */
-static bool CM_ValidateFacet( facet_t *facet ) {
-	float plane[4];
+static bool CM_ValidateFacet( facet_t *facet )
+{
 	int j;
-	winding_t   *w;
-	vec3_t bounds[2];
 
 	if ( facet->surfacePlane == -1 ) {
 		return false;
 	}
 
-	Vector4Copy( planes[ facet->surfacePlane ].plane, plane );
-	w = BaseWindingForPlane( plane,  plane[3] );
+	idVec4 plane = planes[ facet->surfacePlane ].plane;
+	winding_t *w = BaseWindingForPlane( idVec3(plane),  plane[3] );
 	for ( j = 0 ; j < facet->numBorders && w ; j++ ) {
 		if ( facet->borderPlanes[j] == -1 ) {
 			return false;
@@ -701,7 +700,8 @@ static bool CM_ValidateFacet( facet_t *facet ) {
 			VectorSubtract( vec3_origin, plane, plane );
 			plane[3] = -plane[3];
 		}
-		ChopWindingInPlace( &w, plane, plane[3], 0.1f );
+		idVec3 normal = idVec3( plane.x, plane.y, plane.z );
+		ChopWindingInPlace( &w, normal, plane[3], 0.1f );
 	}
 
 	if ( !w ) {
@@ -709,6 +709,7 @@ static bool CM_ValidateFacet( facet_t *facet ) {
 	}
 
 	// see if the facet is unreasonably large
+	idVec3 bounds[2];
 	WindingBounds( w, bounds[0], bounds[1] );
 	FreeWinding( w );
 
@@ -726,49 +727,42 @@ static bool CM_ValidateFacet( facet_t *facet ) {
 	return true;       // winding is fine
 }
 
-/*
-==================
-CM_AddFacetBevels
-==================
-*/
-void CM_AddFacetBevels( facet_t *facet ) {
 
-	int i, j, k, l;
-	int axis, dir, order, flipped;
-	idVec4 plane;
-	float d, newplane[4];
-	winding_t *w, *w2;
-	vec3_t mins, maxs, vec, vec2;
+void CM_AddFacetBevels( facet_t *facet )
+{
+	int i, j;
 
-	Vector4Copy( planes[ facet->surfacePlane ].plane, plane );
+	winding_t *w2;
 
-	w = BaseWindingForPlane( plane,  plane[3] );
+	idVec4 plane = planes[ facet->surfacePlane ].plane;
+
+	winding_t *w = BaseWindingForPlane( idVec3(plane),  plane[3] );
 	for ( j = 0 ; j < facet->numBorders && w ; j++ ) {
 		if ( facet->borderPlanes[j] == facet->surfacePlane ) {
 			continue;
 		}
-		Vector4Copy( planes[ facet->borderPlanes[j] ].plane, plane );
-
+		plane = planes[ facet->borderPlanes[j] ].plane;
+		
 		if ( !facet->borderInward[j] ) {
-			VectorSubtract( vec3_origin, plane, plane );
-			plane[3] = -plane[3];
+			plane = -plane;
 		}
 
-		ChopWindingInPlace( &w, plane, plane[3], 0.1f );
+		idVec3 normal = idVec3( plane.x, plane.y, plane.z );
+		ChopWindingInPlace( &w, normal, plane[3], 0.1f );
 	}
 	if ( !w ) {
 		return;
 	}
 
+	idVec3 mins, maxs;
 	WindingBounds( w, mins, maxs );
 
 	// add the axial planes
-	order = 0;
-	for ( axis = 0 ; axis < 3 ; axis++ )
-	{
-		for ( dir = -1 ; dir <= 1 ; dir += 2, order++ )
-		{
-			VectorClear( plane );
+	int order = 0;
+	int flipped = 0;
+	for (int axis = 0 ; axis < 3 ; axis++ ){
+		for (int dir = -1 ; dir <= 1 ; dir += 2, order++ ){
+			plane.Zero();
 			plane[axis] = dir;
 			if ( dir == 1 ) {
 				plane[3] = maxs[axis];
@@ -803,10 +797,10 @@ void CM_AddFacetBevels( facet_t *facet ) {
 	// test the non-axial plane edges
 	for ( j = 0 ; j < w->numpoints ; j++ )
 	{
-		k = ( j + 1 ) % w->numpoints;
-		VectorSubtract( w->p[j], w->p[k], vec );
+		int k = ( j + 1 ) % w->numpoints;
+		idVec3 vec = w->p[j] - w->p[k];
 		//if it's a degenerate edge
-		if ( VectorNormalize( vec ) < 0.5 ) {
+		if ( vec.Normalize() < 0.5 ) {
 			continue;
 		}
 		CM_SnapVector( vec );
@@ -819,24 +813,25 @@ void CM_AddFacetBevels( facet_t *facet ) {
 
 		}
 		// try the six possible slanted axials from this edge
-		for ( axis = 0 ; axis < 3 ; axis++ )
-		{
-			for ( dir = -1 ; dir <= 1 ; dir += 2 )
-			{
+		for (int axis = 0 ; axis < 3 ; axis++ ) {
+			for (int dir = -1 ; dir <= 1 ; dir += 2 ) {
 				// construct a plane
-				VectorClear( vec2 );
+				idVec3 vec2;
+				vec2.Zero();
 				vec2[axis] = dir;
-				CrossProduct( vec, vec2, plane );
-				if ( VectorNormalize( plane ) < 0.5 ) {
+				idVec3 plane3 = vec.Cross( vec2 );
+				if ( plane3.Normalize() < 0.5 ) {
 					continue;
 				}
-				plane[3] = DotProduct( w->p[j], plane );
+				float dp = w->p[j] * plane3;
+				plane = idVec4( plane3.x, plane3.y, plane3.z, dp );
 
 				// if all the points of the facet winding are
 				// behind this plane, it is a proper edge bevel
-				for ( l = 0 ; l < w->numpoints ; l++ )
+				int l;
+				for (l = 0 ; l < w->numpoints ; l++ )
 				{
-					d = DotProduct( w->p[l], plane ) - plane[3];
+					float d = w->p[l] * plane3 - plane[3];
 					if ( d > 0.1 ) {
 						break;  // point in front
 					}
@@ -872,13 +867,13 @@ void CM_AddFacetBevels( facet_t *facet ) {
 					facet->borderNoAdjust[facet->numBorders] = 0;
 					facet->borderInward[facet->numBorders] = flipped;
 					//
-					w2 = CopyWinding( w );
-					Vector4Copy( planes[facet->borderPlanes[facet->numBorders]].plane, newplane );
+					winding_t *w2 = CopyWinding( w );
+					idVec4 newplane = planes[facet->borderPlanes[facet->numBorders]].plane;
 					if ( !facet->borderInward[facet->numBorders] ) {
-						VectorNegate( newplane, newplane );
-						newplane[3] = -newplane[3];
-					} //end if
-					ChopWindingInPlace( &w2, newplane, newplane[3], 0.1f );
+						newplane = -newplane;
+					}
+					idVec3 normal = idVec3( newplane.x, newplane.y, newplane.z );
+					ChopWindingInPlace( &w2, normal, newplane[3], 0.1f );
 					if ( !w2 ) {
 						Com_DPrintf( "WARNING: CM_AddFacetBevels... invalid bevel\n" );
 						continue;
@@ -895,13 +890,13 @@ void CM_AddFacetBevels( facet_t *facet ) {
 	}
 	FreeWinding( w );
 
-#ifndef BSPC
+//#ifndef BSPC
 	//add opposite plane
 	facet->borderPlanes[facet->numBorders] = facet->surfacePlane;
 	facet->borderNoAdjust[facet->numBorders] = 0;
 	facet->borderInward[facet->numBorders] = true;
 	facet->numBorders++;
-#endif //BSPC
+//#endif //BSPC
 
 }
 
@@ -912,11 +907,7 @@ typedef enum {
 	EN_LEFT
 } edgeName_t;
 
-/*
-==================
-CM_PatchCollideFromGrid
-==================
-*/
+
 static void CM_PatchCollideFromGrid( cGrid_t *grid, patchCollide_t *pf ) {
 	int i, j;
 	float           *p1, *p2, *p3;

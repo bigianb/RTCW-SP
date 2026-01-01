@@ -388,6 +388,8 @@ public:
 	}
 	explicit idVec3( const float x, const float y, const float z );
 
+	explicit idVec3( const idVec4& a);
+
 	void 			Set( const float x, const float y, const float z );
 	void			Zero();
 
@@ -1292,6 +1294,13 @@ inline float* idVec4::ToFloatPtr()
 	return &x;
 }
 
+inline
+idVec3::idVec3( const idVec4& a)
+{
+	x = a.x;
+	y = a.y;
+	z = a.z;
+}
 
 //===============================================================
 //
