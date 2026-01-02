@@ -39,6 +39,8 @@ If you have questions concerning this license or the applicable additional terms
 #include "../qcommon/cm_public.h"
 #include "../client/snd_public.h"
 #include "../qcommon/qcommon.h"
+#include "../qcommon/clip_model.h"
+
 
 int forceModelModificationCount = -1;
 
@@ -1477,8 +1479,7 @@ void CG_Init( int serverMessageNum, int serverCommandSequence ) {
 	// load the new map
 	CG_LoadingString( "collision map" );
 
-	int checksum;
-	CM_LoadMap( cgs.mapname, true, &checksum );
+	TheClipModel::get().loadMap( cgs.mapname );
 
 	cg.loading = true;     // force players to load instead of defer
 

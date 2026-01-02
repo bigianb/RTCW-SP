@@ -27,6 +27,7 @@ If you have questions concerning this license or the applicable additional terms
 */
 
 #include "server.h"
+#include "../qcommon/clip_model.h"
 
 /*
 ================
@@ -41,7 +42,7 @@ clipHandle_t SV_ClipHandleForEntity( const sharedEntity_t *ent )
 {
 	if ( ent->r.bmodel ) {
 		// explicit hulls in the BSP model
-		return CM_InlineModel( ent->s.modelindex );
+		return TheClipModel::get().inlineModel( ent->s.modelindex );
 	}
 	if ( ent->r.svFlags & SVF_CAPSULE ) {
 		// create a temp capsule from bounding box sizes
@@ -137,7 +138,7 @@ void SV_ClearWorld()
 	sv_numworldSectors = 0;
 
 	// get world map bounds
-	clipHandle_t h = CM_InlineModel( 0 );
+	clipHandle_t h = TheClipModel::get().inlineModel( 0 );
 	vec3_t mins, maxs;
 	CM_ModelBounds( h, mins, maxs );
 	SV_CreateworldSector( 0, mins, maxs );
@@ -272,6 +273,8 @@ void SV_LinkEntity( sharedEntity_t *gEnt )
 	ent->areanum = -1;
 	ent->areanum2 = -1;
 
+	ClipModel& clipModel = TheClipModel::get();
+
 	//get all leafs, including solids
 	int lastLeaf;
 	int num_leafs = CM_BoxLeafnums( gEnt->r.absmin, gEnt->r.absmax,
@@ -285,7 +288,7 @@ void SV_LinkEntity( sharedEntity_t *gEnt )
 
 	// set areas, even from clusters that don't fit in the entity array
 	for (int i = 0 ; i < num_leafs ; i++ ) {
-		int area = CM_LeafArea( leafs[i] );
+		int area = clipModel.leafArea( leafs[i] );
 		if ( area != -1 ) {
 			// doors may legally straggle two areas,
 			// but nothing should evern need more than that
@@ -306,7 +309,7 @@ void SV_LinkEntity( sharedEntity_t *gEnt )
 	ent->numClusters = 0;
 	int leaf;
 	for (int leaf = 0 ; leaf < num_leafs ; leaf++ ) {
-		int cluster = CM_LeafCluster( leafs[leaf] );
+		int cluster = clipModel.leafCluster( leafs[leaf] );
 		if ( cluster != -1 ) {
 			ent->clusternums[ent->numClusters++] = cluster;
 			if ( ent->numClusters == MAX_ENT_CLUSTERS ) {
@@ -317,7 +320,7 @@ void SV_LinkEntity( sharedEntity_t *gEnt )
 
 	// store off a last cluster if we need to
 	if ( leaf != num_leafs ) {
-		ent->lastCluster = CM_LeafCluster( lastLeaf );
+		ent->lastCluster = clipModel.leafCluster( lastLeaf );
 	}
 
 	gEnt->r.linkcount++;

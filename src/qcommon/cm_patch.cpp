@@ -1119,10 +1119,10 @@ patchCollide_t *CM_GeneratePatchCollide( int width, int height, idVec3 *points )
 	// the aproximate surface defined by these points will be
 	// collided against
 	pf = (patchCollide_t *)Hunk_Alloc( sizeof( *pf ), h_high );
-	ClearBounds( pf->bounds[0], pf->bounds[1] );
+	pf->bounds.Clear();
 	for (int i = 0 ; i < grid.width ; i++ ) {
 		for (int j = 0 ; j < grid.height ; j++ ) {
-			AddPointToBounds( grid.points[i][j], pf->bounds[0], pf->bounds[1] );
+			pf->bounds.AddPoint( grid.points[i][j] );
 		}
 	}
 

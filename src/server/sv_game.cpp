@@ -30,6 +30,7 @@ If you have questions concerning this license or the applicable additional terms
 
 #include "../botlib/botlib.h"
 #include "../game/g_func_decs.h"
+#include "../qcommon/clip_model.h"
 
 botlib_export_t *botlib_export;
 
@@ -107,18 +108,16 @@ void SV_SetBrushModel( sharedEntity_t *ent, const char *name )
 {
 	if ( !name ) {
 		Com_Error( ERR_DROP, "SV_SetBrushModel: nullptr" );
-        return; // keep the linter happy, ERR_DROP does not return
 	}
 
 	if ( name[0] != '*' ) {
 		Com_Error( ERR_DROP, "SV_SetBrushModel: %s isn't a brush model", name );
-        return; // keep the linter happy, ERR_DROP does not return
 	}
 
 
 	ent->s.modelindex = atoi( name + 1 );
 
-	clipHandle_t h = CM_InlineModel( ent->s.modelindex );
+	clipHandle_t h = TheClipModel::get().inlineModel( ent->s.modelindex );
 	vec3_t mins, maxs;
 	CM_ModelBounds( h, mins, maxs );
 	VectorCopy( mins, ent->r.mins );
@@ -139,14 +138,15 @@ Also checks portalareas so that doors block sight
 */
 bool SV_inPVS( const vec3_t p1, const vec3_t p2 )
 {
+	ClipModel& clipModel = TheClipModel::get();
 	int leafnum = CM_PointLeafnum( p1 );
-	int cluster = CM_LeafCluster( leafnum );
-	int area1 = CM_LeafArea( leafnum );
+	int cluster = clipModel.leafCluster( leafnum );
+	int area1 = clipModel.leafArea( leafnum );
 	uint8_t* mask = CM_ClusterPVS( cluster );
 
 	leafnum = CM_PointLeafnum( p2 );
-	cluster = CM_LeafCluster( leafnum );
-	int area2 = CM_LeafArea( leafnum );
+	cluster = clipModel.leafCluster( leafnum );
+	int area2 = clipModel.leafArea( leafnum );
 	if ( mask && ( !( mask[cluster >> 3] & ( 1 << ( cluster & 7 ) ) ) ) ) {
 		return false;
 	}
@@ -166,14 +166,15 @@ Does NOT check portalareas
 */
 bool SV_inPVSIgnorePortals( const vec3_t p1, const vec3_t p2 )
 {
+	ClipModel& clipModel = TheClipModel::get();
 	int leafnum = CM_PointLeafnum( p1 );
-	int cluster = CM_LeafCluster( leafnum );
-	int area1 = CM_LeafArea( leafnum );
+	int cluster = clipModel.leafCluster( leafnum );
+	int area1 = clipModel.leafArea( leafnum );
 	uint8_t* mask = CM_ClusterPVS( cluster );
 
 	leafnum = CM_PointLeafnum( p2 );
-	cluster = CM_LeafCluster( leafnum );
-	int area2 = CM_LeafArea( leafnum );
+	cluster = clipModel.leafCluster( leafnum );
+	int area2 = clipModel.leafArea( leafnum );
 
 	if ( mask && ( !( mask[cluster >> 3] & ( 1 << ( cluster & 7 ) ) ) ) ) {
 		return false;

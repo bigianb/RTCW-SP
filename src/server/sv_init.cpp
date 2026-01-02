@@ -29,6 +29,7 @@ If you have questions concerning this license or the applicable additional terms
 #include "server.h"
 #include "../game/g_local.h"
 #include "../game/g_func_decs.h"
+#include "../qcommon/clip_model.h"
 
 /*
 ===============
@@ -617,7 +618,7 @@ void SV_SpawnServer( char *server, bool killBots )
 	// IJB: shared hunk so need to free the AAS first.
 	Export_BotLibShutdown();
 
-	CM_ClearMap();
+	TheClipModel::get().clearMap();
 
 	// init client structures and svs.numSnapshotEntities
 	if ( !Cvar_VariableValue( "sv_running" ) ) {
@@ -662,13 +663,10 @@ void SV_SpawnServer( char *server, bool killBots )
 	sv.checksumFeed = ( ( (int) rand() << 16 ) ^ rand() ) ^ Sys_Milliseconds();
 	FS_Restart( sv.checksumFeed );
 
-	int checksum;
-	CM_LoadMap( va( "maps/%s.bsp", server ), false, &checksum );
+	TheClipModel::get().loadMap( va( "maps/%s.bsp", server ) );
 
 	// set serverinfo visible name
 	Cvar_Set( "mapname", server );
-
-	Cvar_Set( "sv_mapChecksum", va( "%i",checksum ) );
 
 	// serverid should be different each time
 	sv.serverId = com_frameTime;

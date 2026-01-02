@@ -64,7 +64,7 @@ properly.
 */
 
 #include "../idlib/math/Vector.h"
-
+#include "../idlib/bv/Bounds.h"
 
 #define MAX_FACETS          1024
 #define MAX_PATCH_PLANES    2048
@@ -82,8 +82,9 @@ typedef struct {
 	bool borderNoAdjust[4 + 6 + 16];
 } facet_t;
 
-struct patchCollide_t {
-	idVec3 bounds[2];
+struct patchCollide_t
+{
+	idBounds bounds;
 	int numPlanes;              // surface planes plus edge planes
 	patchPlane_t    *planes;
 	int numFacets;

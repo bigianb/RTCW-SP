@@ -76,6 +76,10 @@ public:
     void loadMap(const char *name);
     void clearMap();
 
+    int leafArea(int leafnum);
+    int leafCluster(int leafnum);
+    int inlineModel(int index);     // index 0 = world, 1 + are bmodels
+
 private:
     void loadShaders(const lump_t* l, const uint8_t* offsetBase);
     void loadLeaves(const lump_t* l, const uint8_t* offsetBase);
@@ -140,7 +144,7 @@ private:
 class TheClipModel
 {
 public:
-    ClipModel& get() { return clipModel; }
+    static ClipModel& get() { return clipModel; }
 private:
-    ClipModel clipModel;
+    static ClipModel clipModel;
 };

@@ -31,6 +31,8 @@ If you have questions concerning this license or the applicable additional terms
 #include "client.h"
 #include <limits.h>
 
+#include "../qcommon/clip_model.h"
+
 cvar_t  *cl_nodelta;
 cvar_t  *cl_debugMove;
 
@@ -216,7 +218,7 @@ void CL_FlushMemory()
 	// if not running a server clear the whole hunk
 	if ( !com_sv_running->integer ) {
 		// clear collision map data
-		CM_ClearMap();
+		TheClipModel::get().clearMap();
 	}
 
 	CL_StartHunkUsers();

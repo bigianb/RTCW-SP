@@ -2,6 +2,30 @@
 
 #include "./qcommon.h"
 
+int ClipModel::leafArea(int leafnum)
+{
+	if ( leafnum < 0 || leafnum >= numLeaves ) {
+		Com_Error( ERR_DROP, "CM_LeafArea: bad number" );
+	}
+	return leaves[leafnum].area;
+}
+
+int ClipModel::leafCluster(int leafnum)
+{
+	if ( leafnum < 0 || leafnum >= numLeaves ) {
+		Com_Error( ERR_DROP, "CM_LeafCluster: bad number" );
+	}
+	return leaves[leafnum].cluster;
+}
+
+int ClipModel::inlineModel(int index)
+{
+	if ( index < 0 || index >= numSubModels ) {
+		Com_Error( ERR_DROP, "CM_InlineModel: bad number" );
+	}
+	return index;
+}
+
 void ClipModel::loadMap(const char *name)
 {
 	if ( !name || !name[0] ) {

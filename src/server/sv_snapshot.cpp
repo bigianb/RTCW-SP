@@ -34,6 +34,7 @@ terms, you may contact in writing id Software LLC, c/o ZeniMax Media Inc., Suite
 */
 
 #include "server.h"
+#include "../qcommon/clip_model.h"
 
 /*
 =============================================================================
@@ -303,9 +304,10 @@ static void SV_AddEntitiesVisibleFromPoint(vec3_t origin,
     return;
   }
 
+  ClipModel& clipModel = TheClipModel::get();
   int leafnum = CM_PointLeafnum(origin);
-  int clientarea = CM_LeafArea(leafnum);
-  int clientcluster = CM_LeafCluster(leafnum);
+  int clientarea = clipModel.leafArea(leafnum);
+  int clientcluster = clipModel.leafCluster(leafnum);
 
   // calculate the visible areas
   frame->areabytes = CM_WriteAreaBits(frame->areabits, clientarea);
