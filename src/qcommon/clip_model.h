@@ -65,7 +65,7 @@ struct cPatch_t
 	int checkcount;                     // to avoid repeated testings
 	int surfaceFlags;
 	int contents;
-	struct patchCollide_s   *pc;
+	patchCollide_t   *pc;
 };
 
 class ClipModel

@@ -254,7 +254,6 @@ set(QCOMMON_INCLUDES
 
 set(QCOMMON_SOURCES
 	src/qcommon/clip_model.cpp
-	src/qcommon/cm_load.cpp
 	src/qcommon/cm_patch.cpp
 	src/qcommon/cm_polylib.cpp
 	src/qcommon/cm_test.cpp
@@ -324,19 +323,31 @@ set(SERVER_SOURCES
 )
 
 set(IDLIB_INCLUDES
+	src/idlib/bv/Bounds.h
+	src/idlib/bv/Sphere.h
 	src/idlib/math/Angles.h
 	src/idlib/math/Math.h
 	src/idlib/math/Matrix.h
+	src/idlib/math/Plane.h
 	src/idlib/math/Rotation.h
+	src/idlib/math/Simd_Generic.h
+	src/idlib/math/Simd_SSE.h
+	src/idlib/math/Simd.h
 	src/idlib/math/Quat.h
 	src/idlib/math/Vector.h
 )
 
 set(IDLIB_SOURCES
+	src/idlib/bv/Bounds.cpp
+	src/idlib/bv/Sphere.cpp
 	src/idlib/math/Angles.cpp
 	src/idlib/math/Math.cpp
 	src/idlib/math/Matrix.cpp
+	src/idlib/math/Plane.cpp
 	src/idlib/math/Rotation.cpp
+	src/idlib/math/Simd_Generic.cpp
+	src/idlib/math/Simd_SSE.cpp
+	src/idlib/math/Simd.cpp
 	src/idlib/math/Quat.cpp
 	src/idlib/math/Vector.cpp
 )

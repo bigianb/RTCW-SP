@@ -90,6 +90,9 @@ ClipModel::ClipModel()
 	clusterBytes = 0;
 	visibility = nullptr;
 	vised = false;
+
+	numSurfaces = 0;
+	surfaces = nullptr;
 }
 
 ClipModel::~ClipModel()
@@ -149,6 +152,13 @@ void ClipModel::clearMap() {
 	clusterBytes = 0;
 	visibility = nullptr;
 	vised = false;
+
+	for ( int i = 0; i <  numSurfaces; i++ ) {
+		delete surfaces[i];
+	}
+	numSurfaces = 0;
+	delete[] surfaces;
+	surfaces = nullptr;
 }
 
 void ClipModel::loadShaders(const lump_t* l, const uint8_t* offsetBase)
@@ -425,29 +435,27 @@ void ClipModel::loadVisibility(const lump_t* l, const uint8_t* offsetBase)
 void ClipModel::loadPatches(const lump_t* surfaceLump, const lump_t* drawVertLump, const uint8_t* offsetBase)
 {
 	cPatch_t    *patch;
-	vec3_t points[MAX_PATCH_VERTS];
+	idVec3 points[MAX_PATCH_VERTS];
 
 	dsurface_t* in = ( dsurface_t * )( offsetBase + surfaceLump->fileofs );
 	if ( surfaceLump->filelen % sizeof( *in ) ) {
 		Com_Error( ERR_DROP, "MOD_LoadBmodel: funny lump size" );
 	}
 	numSurfaces = surfaceLump->filelen / sizeof( *in );
-	surfaces = (cPatch_t **)Hunk_Alloc( numSurfaces * sizeof( surfaces[0] ), h_high );
-
+	surfaces = new cPatch_t*[numSurfaces];
 	drawVert_t* dv = ( drawVert_t * )( offsetBase + drawVertLump->fileofs );
 	if ( drawVertLump->filelen % sizeof( *dv ) ) {
 		Com_Error( ERR_DROP, "MOD_LoadBmodel: funny lump size" );
 	}
 
-	// scan through all the surfaces, but only load patches,
-	// not planar faces
+	// scan through all the surfaces, but only load patches, not planar faces
 	for (int i = 0 ; i < numSurfaces ; i++, in++ ) {
 		if ( in->surfaceType != MST_PATCH ) {
 			continue;       // ignore other surfaces
 		}
 		// FIXME: check for non-colliding patches
 
-		cPatch_t* patch = (cPatch_t *)Hunk_Alloc( sizeof( *patch ), h_high );
+		cPatch_t* patch = new cPatch_t;
 		surfaces[ i ] = patch;
 
 		// load the full drawverts onto the stack

@@ -35,9 +35,9 @@ If you have questions concerning this license or the applicable additional terms
 This file does not reference any globals, and has these entry points:
 
 void CM_ClearLevelPatches( void );
-struct patchCollide_s	*CM_GeneratePatchCollide( int width, int height, const vec3_t *points );
-void CM_TraceThroughPatchCollide( traceWork_t *tw, const struct patchCollide_s *pc );
-bool CM_PositionTestInPatchCollide( traceWork_t *tw, const struct patchCollide_s *pc );
+struct patchCollide_t	*CM_GeneratePatchCollide( int width, int height, const vec3_t *points );
+void CM_TraceThroughPatchCollide( traceWork_t *tw, const patchCollide_t *pc );
+bool CM_PositionTestInPatchCollide( traceWork_t *tw, const patchCollide_t *pc );
 
 WARNING: this may misbehave with meshes that have rows or columns that only
 degenerate a few triangles.  Completely degenerate rows and columns are handled
@@ -908,35 +908,33 @@ typedef enum {
 } edgeName_t;
 
 
-static void CM_PatchCollideFromGrid( cGrid_t *grid, patchCollide_t *pf ) {
-	int i, j;
-	float           *p1, *p2, *p3;
+static void CM_PatchCollideFromGrid( cGrid_t *grid, patchCollide_t *pf )
+{
     int gridPlanes[MAX_GRID_SIZE][MAX_GRID_SIZE][2];
-	facet_t         *facet;
-	int borders[4];
-	int noAdjust[4];
-
+	
 	numPlanes = 0;
 	numFacets = 0;
 
 	// find the planes for each triangle of the grid
-	for ( i = 0 ; i < grid->width - 1 ; i++ ) {
-		for ( j = 0 ; j < grid->height - 1 ; j++ ) {
-			p1 = grid->points[i][j];
-			p2 = grid->points[i + 1][j];
-			p3 = grid->points[i + 1][j + 1];
+	for (int i = 0 ; i < grid->width - 1 ; i++ ) {
+		for (int j = 0 ; j < grid->height - 1 ; j++ ) {
+			const idVec3& p1 = grid->points[i][j];
+			const idVec3& p2 = grid->points[i + 1][j];
+			const idVec3& p3 = grid->points[i + 1][j + 1];
 			gridPlanes[i][j][0] = CM_FindPlane( p1, p2, p3 );
 
-			p1 = grid->points[i + 1][j + 1];
-			p2 = grid->points[i][j + 1];
-			p3 = grid->points[i][j];
-			gridPlanes[i][j][1] = CM_FindPlane( p1, p2, p3 );
+			const idVec3& p4 = grid->points[i + 1][j + 1];
+			const idVec3& p5 = grid->points[i][j + 1];
+			const idVec3& p6 = grid->points[i][j];
+			gridPlanes[i][j][1] = CM_FindPlane( p4, p5, p6 );
 		}
 	}
 
 	// create the borders for each facet
-	for ( i = 0 ; i < grid->width - 1 ; i++ ) {
-		for ( j = 0 ; j < grid->height - 1 ; j++ ) {
+	for (int i = 0 ; i < grid->width - 1 ; i++ ) {
+		for (int j = 0 ; j < grid->height - 1 ; j++ ) {
+			int borders[4];
+			int noAdjust[4];
 
 			borders[EN_TOP] = -1;
 			if ( j > 0 ) {
@@ -986,8 +984,8 @@ static void CM_PatchCollideFromGrid( cGrid_t *grid, patchCollide_t *pf ) {
 				Com_Error( ERR_DROP, "MAX_FACETS" );
                 return; // keep the linter happy, ERR_DROP does not return
 			}
-			facet = &facets[numFacets];
-			Com_Memset( facet, 0, sizeof( *facet ) );
+			facet_t* facet = &facets[numFacets];
+			memset( facet, 0, sizeof( *facet ) );
 
 			if ( gridPlanes[i][j][0] == gridPlanes[i][j][1] ) {
 				if ( gridPlanes[i][j][0] == -1 ) {
@@ -1031,10 +1029,9 @@ static void CM_PatchCollideFromGrid( cGrid_t *grid, patchCollide_t *pf ) {
 
 				if ( numFacets == MAX_FACETS ) {
 					Com_Error( ERR_DROP, "MAX_FACETS" );
-                    return; // keep the linter happy, ERR_DROP does not return
 				}
 				facet = &facets[numFacets];
-				Com_Memset( facet, 0, sizeof( *facet ) );
+				memset( facet, 0, sizeof( *facet ) );
 
 				facet->surfacePlane = gridPlanes[i][j][1];
 				facet->numBorders = 3;
@@ -1061,10 +1058,10 @@ static void CM_PatchCollideFromGrid( cGrid_t *grid, patchCollide_t *pf ) {
 	// copy the results out
 	pf->numPlanes = numPlanes;
 	pf->numFacets = numFacets;
-	pf->facets = (facet_t *)Hunk_Alloc( numFacets * sizeof( *pf->facets ), h_high );
-	Com_Memcpy( pf->facets, facets, numFacets * sizeof( *pf->facets ) );
-	pf->planes = (patchPlane_t *)Hunk_Alloc( numPlanes * sizeof( *pf->planes ), h_high );
-	Com_Memcpy( pf->planes, planes, numPlanes * sizeof( *pf->planes ) );
+	pf->facets = (facet_t *)malloc( numFacets * sizeof( *pf->facets ) );
+	memcpy( pf->facets, facets, numFacets * sizeof( *pf->facets ) );
+	pf->planes = (patchPlane_t *)malloc( numPlanes * sizeof( *pf->planes ) );
+	memcpy( pf->planes, planes, numPlanes * sizeof( *pf->planes ) );
 }
 
 
@@ -1078,25 +1075,22 @@ collision detection with a patch mesh.
 Points is packed as concatenated rows.
 ===================
 */
-struct patchCollide_s   *CM_GeneratePatchCollide( int width, int height, idVec3 *points ) {
+patchCollide_t *CM_GeneratePatchCollide( int width, int height, idVec3 *points )
+{
 	patchCollide_t  *pf;
     cGrid_t grid;
-	int i, j;
 
 	if ( width <= 2 || height <= 2 || !points ) {
 		Com_Error( ERR_DROP, "CM_GeneratePatchFacets: bad parameters: (%i, %i, %p)",
 				   width, height, points );
-        return nullptr; // keep the linter happy, ERR_DROP does not return
 	}
 
 	if ( !( width & 1 ) || !( height & 1 ) ) {
 		Com_Error( ERR_DROP, "CM_GeneratePatchFacets: even sizes are invalid for quadratic meshes" );
-        return nullptr; // keep the linter happy, ERR_DROP does not return
 	}
 
 	if ( width > MAX_GRID_SIZE || height > MAX_GRID_SIZE ) {
 		Com_Error( ERR_DROP, "CM_GeneratePatchFacets: source is > MAX_GRID_SIZE" );
-        return nullptr; // keep the linter happy, ERR_DROP does not return
 	}
 
 	// build a grid
@@ -1104,8 +1098,8 @@ struct patchCollide_s   *CM_GeneratePatchCollide( int width, int height, idVec3 
 	grid.height = height;
 	grid.wrapWidth = false;
 	grid.wrapHeight = false;
-	for ( i = 0 ; i < width ; i++ ) {
-		for ( j = 0 ; j < height ; j++ ) {
+	for (int i = 0 ; i < width ; i++ ) {
+		for (int j = 0 ; j < height ; j++ ) {
 			VectorCopy( points[j * width + i], grid.points[i][j] );
 		}
 	}
@@ -1126,8 +1120,8 @@ struct patchCollide_s   *CM_GeneratePatchCollide( int width, int height, idVec3 
 	// collided against
 	pf = (patchCollide_t *)Hunk_Alloc( sizeof( *pf ), h_high );
 	ClearBounds( pf->bounds[0], pf->bounds[1] );
-	for ( i = 0 ; i < grid.width ; i++ ) {
-		for ( j = 0 ; j < grid.height ; j++ ) {
+	for (int i = 0 ; i < grid.width ; i++ ) {
+		for (int j = 0 ; j < grid.height ; j++ ) {
 			AddPointToBounds( grid.points[i][j], pf->bounds[0], pf->bounds[1] );
 		}
 	}
@@ -1164,7 +1158,7 @@ CM_TracePointThroughPatchCollide
   special case for point traces because the patch collide "brushes" have no volume
 ====================
 */
-void CM_TracePointThroughPatchCollide( traceWork_t *tw, const struct patchCollide_s *pc ) {
+void CM_TracePointThroughPatchCollide( traceWork_t *tw, const patchCollide_t *pc ) {
 	bool frontFacing[MAX_PATCH_PLANES];
 	float intersection[MAX_PATCH_PLANES];
 	float intersect;
@@ -1310,7 +1304,7 @@ int CM_CheckFacetPlane( float *plane, vec3_t start, vec3_t end, float *enterFrac
 CM_TraceThroughPatchCollide
 ====================
 */
-void CM_TraceThroughPatchCollide( traceWork_t *tw, const struct patchCollide_s *pc ) {
+void CM_TraceThroughPatchCollide( traceWork_t *tw, const patchCollide_t *pc ) {
 	int i, j, hit, hitnum;
 	float offset, enterFrac, leaveFrac, t;
 	patchPlane_t *planes;
@@ -1445,7 +1439,7 @@ POSITION TEST
 CM_PositionTestInPatchCollide
 ====================
 */
-bool CM_PositionTestInPatchCollide( traceWork_t *tw, const struct patchCollide_s *pc ) {
+bool CM_PositionTestInPatchCollide( traceWork_t *tw, const patchCollide_t *pc ) {
 	int i, j;
 	float offset, t;
 	patchPlane_t *planes;
