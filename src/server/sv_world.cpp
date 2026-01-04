@@ -91,7 +91,7 @@ SV_CreateworldSector
 Builds a uniformly subdivided tree for the given world size
 ===============
 */
-WorldSector *SV_CreateworldSector( int depth, vec3_t mins, vec3_t maxs )
+WorldSector *SV_CreateworldSector( int depth, idVec3 mins, idVec3 maxs )
 {
 	WorldSector* anode = &sv_worldSectors[sv_numworldSectors];
 	sv_numworldSectors++;
@@ -102,8 +102,7 @@ WorldSector *SV_CreateworldSector( int depth, vec3_t mins, vec3_t maxs )
 		return anode;
 	}
 
-	vec3_t size;
-	VectorSubtract( maxs, mins, size );
+	idVec3 size = maxs - mins;
 	if ( size[0] > size[1] ) {
 		anode->axis = 0;
 	} else {
@@ -111,11 +110,11 @@ WorldSector *SV_CreateworldSector( int depth, vec3_t mins, vec3_t maxs )
 	}
 
 	anode->dist = 0.5 * ( maxs[anode->axis] + mins[anode->axis] );
-	vec3_t mins1, maxs1, mins2, maxs2;
-	VectorCopy( mins, mins1 );
-	VectorCopy( mins, mins2 );
-	VectorCopy( maxs, maxs1 );
-	VectorCopy( maxs, maxs2 );
+	idVec3 mins1 = mins;
+	idVec3 mins2 = mins;
+	idVec3 maxs1 = maxs;
+	idVec3 maxs2 = maxs;
+
 
 	maxs1[anode->axis] = mins2[anode->axis] = anode->dist;
 
@@ -139,8 +138,8 @@ void SV_ClearWorld()
 
 	// get world map bounds
 	clipHandle_t h = TheClipModel::get().inlineModel( 0 );
-	vec3_t mins, maxs;
-	CM_ModelBounds( h, mins, maxs );
+	idVec3 mins, maxs;
+	TheClipModel::get().modelBounds( h, mins, maxs );
 	SV_CreateworldSector( 0, mins, maxs );
 }
 

@@ -256,7 +256,6 @@ set(QCOMMON_SOURCES
 	src/qcommon/clip_model.cpp
 	src/qcommon/cm_patch.cpp
 	src/qcommon/cm_polylib.cpp
-	src/qcommon/cm_test.cpp
 	src/qcommon/cm_trace.cpp
 	src/qcommon/cmd.cpp
 	src/qcommon/common.cpp

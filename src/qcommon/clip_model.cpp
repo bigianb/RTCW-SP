@@ -26,6 +26,13 @@ int ClipModel::inlineModel(int index)
 	return index;
 }
 
+void ClipModel::modelBounds(int modelIndex, idVec3 &mins, idVec3 &maxs)
+{
+	cModel_t *cmod = &cmodels[modelIndex];
+	mins = cmod->mins;
+	maxs = cmod->maxs;
+}
+
 void ClipModel::loadMap(const char *name)
 {
 	if ( !name || !name[0] ) {
@@ -76,6 +83,8 @@ void ClipModel::loadMap(const char *name)
 
 ClipModel::ClipModel()
 {
+	checkcount = 0;
+
 	shaders = nullptr;
 	numShaders = 0;
 
@@ -124,8 +133,11 @@ ClipModel::~ClipModel()
 	clearMap();
 }
 
-void ClipModel::clearMap() {
-    delete[] shaders;
+void ClipModel::clearMap()
+{
+	checkcount = 0;
+ 
+	delete[] shaders;
 	shaders = nullptr;
 	numShaders = 0;
 

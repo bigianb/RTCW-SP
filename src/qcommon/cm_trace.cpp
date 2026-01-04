@@ -28,6 +28,7 @@ If you have questions concerning this license or the applicable additional terms
 
 #include "../idlib/math/Math.h"
 #include "cm_local.h"
+#include "clip_model.h"
 
 /*
 ===============================================================================
@@ -162,15 +163,9 @@ POSITION TESTING
 CM_TestBoxInBrush
 ================
 */
-void CM_TestBoxInBrush( traceWork_t *tw, cbrush_t *brush ) {
-	int i;
-	cplane_t    *plane;
-	float dist;
-	float d1;
-	cbrushside_t    *side;
-	float t;
-	vec3_t startp;
-
+static
+void CM_TestBoxInBrush( traceWork_t *tw, cBrush_t *brush )
+{	
 	if ( !brush->numsides ) {
 		return;
 	}
@@ -190,21 +185,21 @@ void CM_TestBoxInBrush( traceWork_t *tw, cbrush_t *brush ) {
 	if ( tw->sphere.use ) {
 		// the first six planes are the axial planes, so we only
 		// need to test the remainder
-		for ( i = 6 ; i < brush->numsides ; i++ ) {
-			side = brush->sides + i;
-			plane = side->plane;
+		for (int i = 6 ; i < brush->numsides ; i++ ) {
+			cBrushSide_t *side = brush->sides + i;
+			cplane_t* plane = side->plane;
 
 			// adjust the plane distance apropriately for radius
-			dist = plane->dist + tw->sphere.radius;
+			float dist = plane->dist + tw->sphere.radius;
 			// find the closest point on the capsule to the plane
-			t = DotProduct( plane->normal, tw->sphere.offset );
+			float t = DotProduct( plane->normal, tw->sphere.offset );
+			vec3_t startp;
 			if ( t > 0 ) {
 				VectorSubtract( tw->start, tw->sphere.offset, startp );
-			} else
-			{
+			} else {
 				VectorAdd( tw->start, tw->sphere.offset, startp );
 			}
-			d1 = DotProduct( startp, plane->normal ) - dist;
+			float d1 = DotProduct( startp, plane->normal ) - dist;
 			// if completely in front of face, no intersection
 			if ( d1 > 0 ) {
 				return;
@@ -213,14 +208,14 @@ void CM_TestBoxInBrush( traceWork_t *tw, cbrush_t *brush ) {
 	} else {
 		// the first six planes are the axial planes, so we only
 		// need to test the remainder
-		for ( i = 6 ; i < brush->numsides ; i++ ) {
-			side = brush->sides + i;
-			plane = side->plane;
+		for (int i = 6 ; i < brush->numsides ; i++ ) {
+			cBrushSide_t *side = brush->sides + i;
+			cplane_t* plane = side->plane;
 
 			// adjust the plane distance apropriately for mins/maxs
-			dist = plane->dist - DotProduct( tw->offsets[ plane->signbits ], plane->normal );
+			float dist = plane->dist - DotProduct( tw->offsets[ plane->signbits ], plane->normal );
 
-			d1 = DotProduct( tw->start, plane->normal ) - dist;
+			float d1 = DotProduct( tw->start, plane->normal ) - dist;
 
 			// if completely in front of face, no intersection
 			if ( d1 > 0 ) {
@@ -242,19 +237,19 @@ void CM_TestBoxInBrush( traceWork_t *tw, cbrush_t *brush ) {
 CM_TestInLeaf
 ================
 */
-void CM_TestInLeaf( traceWork_t *tw, cLeaf_t *leaf ) {
-	int k;
-	int brushnum;
-	cbrush_t    *b;
+static
+void CM_TestInLeaf( traceWork_t *tw, cLeaf_t *leaf )
+{
 	cPatch_t    *patch;
 
+	ClipModel& cm = TheClipModel::get();
 	// test box position against all brushes in the leaf
-	for ( k = 0 ; k < leaf->numLeafBrushes ; k++ ) {
-		brushnum = leaf->firstLeafBrush + k;
+	for (int k = 0 ; k < leaf->numLeafBrushes ; k++ ) {
+		int brushnum = leaf->firstLeafBrush + k;
 		if (leaf->fromSubmodel == 0){
-			brushnum = cm.leafbrushes[brushnum];
+			brushnum = cm.leafBrushes[brushnum];
 		}
-		b = &cm.brushes[brushnum];
+		cBrush_t* b = &cm.brushes[brushnum];
 		if ( b->checkcount == cm.checkcount ) {
 			continue;   // already checked this brush in another leaf
 		}
@@ -276,12 +271,12 @@ void CM_TestInLeaf( traceWork_t *tw, cLeaf_t *leaf ) {
 #else
 	if ( !cm_noCurves->integer ) {
 #endif //BSPC
-		for ( k = 0 ; k < leaf->numLeafSurfaces ; k++ ) {
+		for (int k = 0 ; k < leaf->numLeafSurfaces ; k++ ) {
 			int surfaceNum =leaf->firstLeafSurface + k;
 			if (leaf->fromSubmodel == 0){
 				surfaceNum = cm.leafsurfaces[surfaceNum];
 			}
-			patch = cm.surfaces[ surfaceNum ];
+			cPatch_t* patch = cm.surfaces[ surfaceNum ];
 			if ( !patch ) {
 				continue;
 			}
@@ -312,13 +307,14 @@ capsule inside capsule check
 */
 void CM_TestCapsuleInCapsule( traceWork_t *tw, clipHandle_t model ) {
 	int i;
-	vec3_t mins, maxs;
+	
 	vec3_t top, bottom;
 	vec3_t p1, p2, tmp;
 	vec3_t offset, symetricSize[2];
 	float radius, halfwidth, halfheight, offs, r;
 
-	CM_ModelBounds( model, mins, maxs );
+	idVec3 mins, maxs;
+	TheClipModel::get().modelBounds( model, mins, maxs );
 
 	VectorAdd( tw->start, tw->sphere.offset, top );
 	VectorSubtract( tw->start, tw->sphere.offset, bottom );
@@ -374,58 +370,22 @@ void CM_TestCapsuleInCapsule( traceWork_t *tw, clipHandle_t model ) {
 
 /*
 ==================
-CM_TestBoundingBoxInCapsule
-
-bounding box inside capsule check
-==================
-*/
-void CM_TestBoundingBoxInCapsule( traceWork_t *tw, clipHandle_t model ) {
-	vec3_t mins, maxs, offset, size[2];
-	clipHandle_t h;
-	cmodel_t *cmod;
-	int i;
-
-	// mins maxs of the capsule
-	CM_ModelBounds( model, mins, maxs );
-
-	// offset for capsule center
-	for ( i = 0 ; i < 3 ; i++ ) {
-		offset[i] = ( mins[i] + maxs[i] ) * 0.5;
-		size[0][i] = mins[i] - offset[i];
-		size[1][i] = maxs[i] - offset[i];
-		tw->start[i] -= offset[i];
-		tw->end[i] -= offset[i];
-	}
-
-	// replace the bounding box with the capsule
-	tw->sphere.use = true;
-	tw->sphere.radius = ( size[1][0] > size[1][2] ) ? size[1][2] : size[1][0];
-	tw->sphere.halfheight = size[1][2];
-	VectorSet( tw->sphere.offset, 0, 0, size[1][2] - tw->sphere.radius );
-
-	// replace the capsule with the bounding box
-	h = CM_TempBoxModel( tw->size[0], tw->size[1], false );
-	// calculate collision
-	cmod = CM_ClipHandleToModel( h );
-	CM_TestInLeaf( tw, &cmod->leaf );
-}
-
-/*
-==================
 CM_PositionTest
 ==================
 */
 #define MAX_POSITION_LEAFS  1024
-void CM_PositionTest( traceWork_t *tw ) {
+void CM_PositionTest( traceWork_t *tw )
+{
 	int leafs[MAX_POSITION_LEAFS];
-	int i;
 	leafList_t ll;
+
+	ClipModel& cm = TheClipModel::get();
 
 	// identify the leafs we are touching
 	VectorAdd( tw->start, tw->size[0], ll.bounds[0] );
 	VectorAdd( tw->start, tw->size[1], ll.bounds[1] );
 
-	for ( i = 0 ; i < 3 ; i++ ) {
+	for (int i = 0 ; i < 3 ; i++ ) {
 		ll.bounds[0][i] -= 1;
 		ll.bounds[1][i] += 1;
 	}
@@ -441,12 +401,11 @@ void CM_PositionTest( traceWork_t *tw ) {
 
 	CM_BoxLeafnums_r( &ll, 0 );
 
-
 	cm.checkcount++;
 
 	// test the contents of the leafs
-	for ( i = 0 ; i < ll.count ; i++ ) {
-		CM_TestInLeaf( tw, &cm.leafs[leafs[i]] );
+	for (int i = 0 ; i < ll.count ; i++ ) {
+		CM_TestInLeaf( tw, &cm.leaves[leafs[i]] );
 		if ( tw->trace.allsolid ) {
 			break;
 		}
@@ -469,11 +428,10 @@ CM_TraceThroughPatch
 */
 
 void CM_TraceThroughPatch( traceWork_t *tw, cPatch_t *patch ) {
-	float oldFrac;
-
+	
 	c_patch_traces++;
 
-	oldFrac = tw->trace.fraction;
+	float oldFrac = tw->trace.fraction;
 
 	CM_TraceThroughPatchCollide( tw, patch->pc );
 
@@ -488,15 +446,16 @@ void CM_TraceThroughPatch( traceWork_t *tw, cPatch_t *patch ) {
 CM_TraceThroughBrush
 ================
 */
-void CM_TraceThroughBrush( traceWork_t *tw, cbrush_t *brush ) {
-	int i;
+static
+void CM_TraceThroughBrush( traceWork_t *tw, cBrush_t *brush )
+{
 	cplane_t    *plane, *clipplane;
 	float dist;
 	float enterFrac, leaveFrac;
 	float d1, d2;
 	bool getout, startout;
 	float f;
-	cbrushside_t    *side, *leadside;
+	cBrushSide_t    *side, *leadside;
 	float t;
 	vec3_t startp;
 	vec3_t endp;
@@ -522,7 +481,7 @@ void CM_TraceThroughBrush( traceWork_t *tw, cbrush_t *brush ) {
 		// find the latest time the trace crosses a plane towards the interior
 		// and the earliest time the trace crosses a plane towards the exterior
 		//
-		for ( i = 0; i < brush->numsides; i++ ) {
+		for (int i = 0; i < brush->numsides; i++ ) {
 			side = brush->sides + i;
 			plane = side->plane;
 
@@ -587,7 +546,7 @@ void CM_TraceThroughBrush( traceWork_t *tw, cbrush_t *brush ) {
 		// find the latest time the trace crosses a plane towards the interior
 		// and the earliest time the trace crosses a plane towards the exterior
 		//
-		for ( i = 0; i < brush->numsides; i++ ) {
+		for (int i = 0; i < brush->numsides; i++ ) {
 			side = brush->sides + i;
 			plane = side->plane;
 
@@ -668,19 +627,17 @@ void CM_TraceThroughBrush( traceWork_t *tw, cbrush_t *brush ) {
 CM_TraceThroughLeaf
 ================
 */
-void CM_TraceThroughLeaf( traceWork_t *tw, cLeaf_t *leaf ) {
-	int k;
-	int brushnum;
-	cbrush_t    *b;
-	cPatch_t    *patch;
+void CM_TraceThroughLeaf( traceWork_t *tw, cLeaf_t *leaf )
+{
+	ClipModel& cm = TheClipModel::get();
 
 	// trace line against all brushes in the leaf
-	for ( k = 0 ; k < leaf->numLeafBrushes ; k++ ) {
-		brushnum = leaf->firstLeafBrush + k;
+	for (int k = 0 ; k < leaf->numLeafBrushes ; k++ ) {
+		int brushnum = leaf->firstLeafBrush + k;
 		if (leaf->fromSubmodel == 0){
-			brushnum = cm.leafbrushes[brushnum];
+			brushnum = cm.leafBrushes[brushnum];
 		}
-		b = &cm.brushes[brushnum];
+		cBrush_t*b = &cm.brushes[brushnum];
 		if ( b->checkcount == cm.checkcount ) {
 			continue;   // already checked this brush in another leaf
 		}
@@ -702,12 +659,12 @@ void CM_TraceThroughLeaf( traceWork_t *tw, cLeaf_t *leaf ) {
 #else
 	if ( !cm_noCurves->integer ) {
 #endif
-		for ( k = 0 ; k < leaf->numLeafSurfaces ; k++ ) {
+		for (int k = 0 ; k < leaf->numLeafSurfaces ; k++ ) {
 			int surfaceNum =leaf->firstLeafSurface + k;
 			if (leaf->fromSubmodel == 0){
 				surfaceNum = cm.leafsurfaces[surfaceNum];
 			}
-			patch = cm.surfaces[ surfaceNum ];
+			cPatch_t* patch = cm.surfaces[ surfaceNum ];
 			if ( !patch ) {
 				continue;
 			}
@@ -926,12 +883,13 @@ capsule vs. capsule collision (not rotated)
 */
 void CM_TraceCapsuleThroughCapsule( traceWork_t *tw, clipHandle_t model ) {
 	int i;
-	vec3_t mins, maxs;
+
 	vec3_t top, bottom, starttop, startbottom, endtop, endbottom;
 	vec3_t offset, symetricSize[2];
 	float radius, halfwidth, halfheight, offs, h;
 
-	CM_ModelBounds( model, mins, maxs );
+	idVec3 mins, maxs;
+	TheClipModel::get().modelBounds( model, mins, maxs );
 	// test trace bounds vs. capsule bounds
 	if ( tw->bounds[0][0] > maxs[0] + RADIUS_EPSILON
 		 || tw->bounds[0][1] > maxs[1] + RADIUS_EPSILON
@@ -979,44 +937,6 @@ void CM_TraceCapsuleThroughCapsule( traceWork_t *tw, clipHandle_t model ) {
 	CM_TraceThroughSphere( tw, bottom, radius, starttop, endtop );
 }
 
-/*
-================
-CM_TraceBoundingBoxThroughCapsule
-
-bounding box vs. capsule collision
-================
-*/
-void CM_TraceBoundingBoxThroughCapsule( traceWork_t *tw, clipHandle_t model ) {
-	vec3_t mins, maxs, offset, size[2];
-	clipHandle_t h;
-	cmodel_t *cmod;
-	int i;
-
-	// mins maxs of the capsule
-	CM_ModelBounds( model, mins, maxs );
-
-	// offset for capsule center
-	for ( i = 0 ; i < 3 ; i++ ) {
-		offset[i] = ( mins[i] + maxs[i] ) * 0.5;
-		size[0][i] = mins[i] - offset[i];
-		size[1][i] = maxs[i] - offset[i];
-		tw->start[i] -= offset[i];
-		tw->end[i] -= offset[i];
-	}
-
-	// replace the bounding box with the capsule
-	tw->sphere.use = true;
-	tw->sphere.radius = ( size[1][0] > size[1][2] ) ? size[1][2] : size[1][0];
-	tw->sphere.halfheight = size[1][2];
-	VectorSet( tw->sphere.offset, 0, 0, size[1][2] - tw->sphere.radius );
-
-	// replace the capsule with the bounding box
-	h = CM_TempBoxModel( tw->size[0], tw->size[1], false );
-	// calculate collision
-	cmod = CM_ClipHandleToModel( h );
-	CM_TraceThroughLeaf( tw, &cmod->leaf );
-}
-
 //=========================================================================================
 
 /*
@@ -1029,6 +949,7 @@ trace volumes it is possible to hit something in a later leaf with
 a smaller intercept fraction.
 ==================
 */
+static
 void CM_TraceThroughTree( traceWork_t *tw, int num, float p1f, float p2f, vec3_t p1, vec3_t p2 ) {
 	cNode_t     *node;
 	cplane_t    *plane;
@@ -1043,9 +964,11 @@ void CM_TraceThroughTree( traceWork_t *tw, int num, float p1f, float p2f, vec3_t
 		return;     // already hit something nearer
 	}
 
+	ClipModel& cm = TheClipModel::get();
+
 	// if < 0, we are in a leaf node
 	if ( num < 0 ) {
-		CM_TraceThroughLeaf( tw, &cm.leafs[-1 - num] );
+		CM_TraceThroughLeaf( tw, &cm.leaves[-1 - num] );
 		return;
 	}
 
@@ -1153,16 +1076,18 @@ void CM_TraceThroughTree( traceWork_t *tw, int num, float p1f, float p2f, vec3_t
 CM_Trace
 ==================
 */
+static
 void CM_Trace( trace_t *results, const vec3_t start, const vec3_t end,
 			   const vec3_t mins, const vec3_t maxs,
 			   clipHandle_t model, const vec3_t origin, int brushmask, int capsule, sphere_t *sphere ) {
 	int i;
 	traceWork_t tw;
 	vec3_t offset;
-	cmodel_t    *cmod;
+	cModel_t    *cmod;
 
 	cmod = CM_ClipHandleToModel( model );
 
+	ClipModel& cm = TheClipModel::get();
 	cm.checkcount++;        // for multi-check avoidance
 
 	c_traces++;             // for statistics, may be zeroed

@@ -80,6 +80,10 @@ public:
     int leafCluster(int leafnum);
     int inlineModel(int index);     // index 0 = world, 1 + are bmodels
 
+    void modelBounds(int modelIndex, idVec3 &mins, idVec3 &maxs);
+
+    int checkcount;
+
 private:
     void loadShaders(const lump_t* l, const uint8_t* offsetBase);
     void loadLeaves(const lump_t* l, const uint8_t* offsetBase);
@@ -96,6 +100,8 @@ private:
 
     void boundBrush( cBrush_t *b );
 
+// TODO: fix up this visibility later.
+public:
     dshader_t* shaders;
     int numShaders;
 

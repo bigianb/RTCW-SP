@@ -118,8 +118,8 @@ void SV_SetBrushModel( sharedEntity_t *ent, const char *name )
 	ent->s.modelindex = atoi( name + 1 );
 
 	clipHandle_t h = TheClipModel::get().inlineModel( ent->s.modelindex );
-	vec3_t mins, maxs;
-	CM_ModelBounds( h, mins, maxs );
+	idVec3 mins, maxs;
+	TheClipModel::get().modelBounds( h, mins, maxs );
 	VectorCopy( mins, ent->r.mins );
 	VectorCopy( maxs, ent->r.maxs );
 	ent->r.bmodel = true;

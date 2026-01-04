@@ -34,9 +34,6 @@ If you have questions concerning this license or the applicable additional terms
 
 clipHandle_t CM_TempBoxModel( const vec3_t mins, const vec3_t maxs, int capsule );
 
-void        CM_ModelBounds( clipHandle_t model, vec3_t mins, vec3_t maxs );
-
-
 int         CM_NumInlineModels( void );
 char        *CM_EntityString( void );
 
