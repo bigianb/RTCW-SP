@@ -7,6 +7,12 @@
 struct lump_t;
 struct dshader_t;
 
+typedef int clipHandle_t;
+
+#define MAX_SUBMODELS           512
+#define BOX_MODEL_HANDLE        511
+#define CAPSULE_MODEL_HANDLE    510
+
 // Note this is the file format, so don't change it.
 struct cLeaf_t
 {
@@ -82,7 +88,22 @@ public:
 
     void modelBounds(int modelIndex, idVec3 &mins, idVec3 &maxs);
 
+    cModel_t* clipHandleToModel(clipHandle_t handle);
+
     int checkcount;
+
+    /*
+        To keep everything totally uniform, bounding boxes are turned into small
+        BSP trees instead of being compared directly.
+        Capsules are handled differently though.
+    */
+    clipHandle_t tempBoxModel( const float mins[3], const float maxs[3], int capsule );
+
+    // used by the temp box model
+private:
+    cModel_t    box_model;
+    cplane_t    *box_planes;
+    cBrush_t    *box_brush;
 
 private:
     void loadShaders(const lump_t* l, const uint8_t* offsetBase);
@@ -102,6 +123,8 @@ private:
 
 // TODO: fix up this visibility later.
 public:
+    int floodvalid;
+
     dshader_t* shaders;
     int numShaders;
 
@@ -113,7 +136,7 @@ public:
     cArea_t* areas;
     int numAreas;
 
-    int** areaPortals;
+    int* areaPortals;
 
     int* leafBrushes;
     int numLeafBrushes;

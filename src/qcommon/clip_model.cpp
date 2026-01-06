@@ -2,6 +2,8 @@
 
 #include "./qcommon.h"
 
+ClipModel TheClipModel::clipModel;
+
 int ClipModel::leafArea(int leafnum)
 {
 	if ( leafnum < 0 || leafnum >= numLeaves ) {
@@ -31,6 +33,25 @@ void ClipModel::modelBounds(int modelIndex, idVec3 &mins, idVec3 &maxs)
 	cModel_t *cmod = &cmodels[modelIndex];
 	mins = cmod->mins;
 	maxs = cmod->maxs;
+}
+
+cModel_t *ClipModel::clipHandleToModel(clipHandle_t handle)
+{
+	if ( handle < 0 ) {
+		Com_Error( ERR_DROP, "CM_ClipHandleToModel: bad handle %i", handle );
+	}
+	if ( handle < numSubModels ) {
+		return &cmodels[handle];
+	}
+	if ( handle == BOX_MODEL_HANDLE || handle == CAPSULE_MODEL_HANDLE ) {
+		return &box_model;
+	}
+	if ( handle < MAX_SUBMODELS ) {
+		Com_Error( ERR_DROP, "CM_ClipHandleToModel: bad handle %i < %i < %i",
+				   numSubModels, handle, MAX_SUBMODELS );
+	}
+	Com_Error( ERR_DROP, "CM_ClipHandleToModel: bad handle %i", handle + MAX_SUBMODELS );
+	return nullptr;
 }
 
 void ClipModel::loadMap(const char *name)
@@ -84,6 +105,7 @@ void ClipModel::loadMap(const char *name)
 ClipModel::ClipModel()
 {
 	checkcount = 0;
+	floodvalid = 0;
 
 	shaders = nullptr;
 	numShaders = 0;
@@ -136,7 +158,8 @@ ClipModel::~ClipModel()
 void ClipModel::clearMap()
 {
 	checkcount = 0;
- 
+	floodvalid = 0;
+
 	delete[] shaders;
 	shaders = nullptr;
 	numShaders = 0;
@@ -256,7 +279,7 @@ void ClipModel::loadLeaves(const lump_t* l, const uint8_t* offsetBase)
 
 	areas = new cArea_t[numAreas];
 	memset(areas, 0, numAreas * sizeof(areas[0]));
-	areaPortals = new int*[numAreas * numAreas];
+	areaPortals = new int[numAreas * numAreas];
 	memset(areaPortals, 0, numAreas * numAreas * sizeof(areaPortals[0]));
 }
 
@@ -517,4 +540,32 @@ void ClipModel::loadPatches(const lump_t* surfaceLump, const lump_t* drawVertLum
 		patch->pc = CM_GeneratePatchCollide( width, height, points );
 	}
 
+}
+
+clipHandle_t ClipModel::tempBoxModel( const vec3_t mins, const vec3_t maxs, int capsule )
+{
+	VectorCopy( mins, box_model.mins );
+	VectorCopy( maxs, box_model.maxs );
+
+	box_planes[0].dist = maxs[0];
+	box_planes[1].dist = -maxs[0];
+	box_planes[2].dist = mins[0];
+	box_planes[3].dist = -mins[0];
+	box_planes[4].dist = maxs[1];
+	box_planes[5].dist = -maxs[1];
+	box_planes[6].dist = mins[1];
+	box_planes[7].dist = -mins[1];
+	box_planes[8].dist = maxs[2];
+	box_planes[9].dist = -maxs[2];
+	box_planes[10].dist = mins[2];
+	box_planes[11].dist = -mins[2];
+
+	VectorCopy( mins, box_brush->bounds[0] );
+	VectorCopy( maxs, box_brush->bounds[1] );
+
+	if ( capsule ) {
+		return CAPSULE_MODEL_HANDLE;
+	}
+
+	return BOX_MODEL_HANDLE;
 }

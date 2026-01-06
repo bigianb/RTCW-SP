@@ -72,6 +72,6 @@ void    WindingBounds( winding_t *w, idVec3& mins, idVec3& maxs );
 
 void    AddWindingToConvexHull( winding_t *w, winding_t **hull, idVec3 normal );
 
-void    ChopWindingInPlace( winding_t **w, idVec3& normal, float dist, float epsilon );
+void    ChopWindingInPlace( winding_t **w, const idVec3& normal, float dist, float epsilon );
 // frees the original if clipped
 

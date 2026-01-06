@@ -288,7 +288,7 @@ Called for both a full init and a restart
 static void SV_InitGameVM( bool restart )
 {
 	// start the entity parsing at the beginning
-	sv.entityParsePoint = CM_EntityString();
+	sv.entityParsePoint = TheClipModel::get().entityString;
 
 	// use the current msec count for a random seed
 	// init for this gamestate

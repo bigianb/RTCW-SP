@@ -32,10 +32,6 @@ If you have questions concerning this license or the applicable additional terms
 
 #include "../cgame/tr_types.h"
 
-clipHandle_t CM_TempBoxModel( const vec3_t mins, const vec3_t maxs, int capsule );
-
-int         CM_NumInlineModels( void );
-char        *CM_EntityString( void );
 
 // returns an ORed contents mask
 int         CM_PointContents( const vec3_t p, clipHandle_t model );

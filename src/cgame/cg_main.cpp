@@ -1222,7 +1222,7 @@ static void CG_RegisterGraphics( void ) {
 	CG_LoadingString( " - inline models" );
 
 	// register the inline models
-	cgs.numInlineModels = CM_NumInlineModels();
+	cgs.numInlineModels = TheClipModel::get().numSubModels;
 	for ( i = 1 ; i < cgs.numInlineModels ; i++ ) {
 		char name[10];
 		vec3_t mins, maxs;

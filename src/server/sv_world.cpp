@@ -46,11 +46,11 @@ clipHandle_t SV_ClipHandleForEntity( const sharedEntity_t *ent )
 	}
 	if ( ent->r.svFlags & SVF_CAPSULE ) {
 		// create a temp capsule from bounding box sizes
-		return CM_TempBoxModel( ent->r.mins, ent->r.maxs, true );
+		return TheClipModel::get().tempBoxModel( ent->r.mins, ent->r.maxs, true );
 	}
 
 	// create a temp tree from bounding box sizes
-	return CM_TempBoxModel( ent->r.mins, ent->r.maxs, false );
+	return TheClipModel::get().tempBoxModel( ent->r.mins, ent->r.maxs, false );
 }
 
 

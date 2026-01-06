@@ -32,9 +32,7 @@ If you have questions concerning this license or the applicable additional terms
 #include "cm_polylib.h"
 #include "cm_patch.h"
 
-#define MAX_SUBMODELS           512
-#define BOX_MODEL_HANDLE        511
-#define CAPSULE_MODEL_HANDLE    510
+
 
 /*
 typedef struct cmodel_s {
@@ -114,12 +112,6 @@ public:
 // and to avoid various numeric issues
 #define SURFACE_CLIP_EPSILON    ( 0.125 )
 
-extern int c_pointcontents;
-extern int c_traces, c_brush_traces, c_patch_traces;
-extern cvar_t      *cm_noAreas;
-extern cvar_t      *cm_noCurves;
-extern cvar_t      *cm_playerCurveClip;
-
 // cm_test.c
 
 // Used for oriented capsule collision detection
@@ -163,9 +155,6 @@ void CM_StoreLeafs( leafList_t *ll, int nodenum );
 void CM_StoreBrushes( leafList_t *ll, int nodenum );
 
 void CM_BoxLeafnums_r( leafList_t *ll, int nodenum );
-
-struct cModel_t;
-cModel_t    *CM_ClipHandleToModel( clipHandle_t handle );
 
 // cm_patch.c
 

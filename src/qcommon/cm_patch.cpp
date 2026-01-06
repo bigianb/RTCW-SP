@@ -1172,7 +1172,7 @@ void CM_TracePointThroughPatchCollide( traceWork_t *tw, const patchCollide_t *pc
 #endif //BSPC
 
 #ifndef BSPC
-	if ( !cm_playerCurveClip->integer || !tw->isPoint ) {
+	if ( !tw->isPoint ) {
 		return;
 	}
 #endif

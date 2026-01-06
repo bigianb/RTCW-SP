@@ -27,7 +27,7 @@ If you have questions concerning this license or the applicable additional terms
 */
 
 #include "cm_local.h"
-
+#include "clip_model.h"
 
 /*
 ==================
@@ -37,6 +37,7 @@ CM_PointLeafnum_r
 */
 int CM_PointLeafnum_r( const vec3_t p, int num )
 {
+	const ClipModel& cm = TheClipModel::get();
 	while ( num >= 0 )
 	{
 		cNode_t     *node = cm.nodes + num;
@@ -55,13 +56,12 @@ int CM_PointLeafnum_r( const vec3_t p, int num )
 		}
 	}
 
-	c_pointcontents++;      // optimize counter
-
 	return -1 - num;
 }
 
 int CM_PointLeafnum( const vec3_t p )
 {
+	const ClipModel& cm = TheClipModel::get();
 	if ( !cm.numNodes ) {   // map not loaded
 		return 0;
 	}
@@ -79,8 +79,9 @@ void CM_StoreLeafs( leafList_t *ll, int nodenum )
 {
 	int leafNum = -1 - nodenum;
 
+	const ClipModel& cm = TheClipModel::get();
 	// store the lastLeaf even if the list is overflowed
-	if ( cm.leafs[ leafNum ].cluster != -1 ) {
+	if ( cm.leaves[ leafNum ].cluster != -1 ) {
 		ll->lastLeaf = leafNum;
 	}
 
@@ -93,15 +94,16 @@ void CM_StoreLeafs( leafList_t *ll, int nodenum )
 
 void CM_StoreBrushes( leafList_t *ll, int nodenum )
 {
+	const ClipModel& cm = TheClipModel::get();
 	int leafnum = -1 - nodenum;
-	cLeaf_t *leaf = &cm.leafs[leafnum];
+	cLeaf_t *leaf = &cm.leaves[leafnum];
 
 	for (int k = 0 ; k < leaf->numLeafBrushes ; k++ ) {
 		int brushnum = leaf->firstLeafBrush + k;
 		if (leaf->fromSubmodel == 0){
-			brushnum = cm.leafbrushes[brushnum];
+			brushnum = cm.leafBrushes[brushnum];
 		}
-		cbrush_t *b = &cm.brushes[brushnum];
+		cBrush_t *b = &cm.brushes[brushnum];
 		if ( b->checkcount == cm.checkcount ) {
 			continue;   // already checked this brush in another leaf
 		}
@@ -119,7 +121,7 @@ void CM_StoreBrushes( leafList_t *ll, int nodenum )
 			ll->overflowed = true;
 			return;
 		}
-		( (cbrush_t **)ll->list )[ ll->count++ ] = b;
+		( (cBrush_t **)ll->list )[ ll->count++ ] = b;
 	}
 }
 
@@ -134,7 +136,7 @@ void CM_BoxLeafnums_r( leafList_t *ll, int nodenum ) {
 	cplane_t    *plane;
 	cNode_t     *node;
 	int s;
-
+	const ClipModel& cm = TheClipModel::get();
 	while ( 1 ) {
 		if ( nodenum < 0 ) {
 			ll->storeLeafs( ll, nodenum );
@@ -163,7 +165,7 @@ CM_BoxLeafnums
 */
 int CM_BoxLeafnums( const vec3_t mins, const vec3_t maxs, int *list, int listsize, int *lastLeaf ) {
 	leafList_t ll;
-
+	ClipModel& cm = TheClipModel::get();
 	cm.checkcount++;
 
 	VectorCopy( mins, ll.bounds[0] );
@@ -186,9 +188,10 @@ int CM_BoxLeafnums( const vec3_t mins, const vec3_t maxs, int *list, int listsiz
 CM_BoxBrushes
 ==================
 */
-int CM_BoxBrushes( const vec3_t mins, const vec3_t maxs, cbrush_t **list, int listsize ) {
+int CM_BoxBrushes( const vec3_t mins, const vec3_t maxs, cBrush_t **list, int listsize ) {
 	leafList_t ll;
 
+	ClipModel& cm = TheClipModel::get();
 	cm.checkcount++;
 
 	VectorCopy( mins, ll.bounds[0] );
@@ -220,36 +223,35 @@ int CM_PointContents( const vec3_t p, clipHandle_t model ) {
 	int i, k;
 	int brushnum;
 	cLeaf_t     *leaf;
-	cbrush_t    *b;
+	cBrush_t    *b;
 	int contents;
 	float d;
-	cmodel_t    *clipm;
+	cModel_t    *clipm;
 
+	ClipModel& cm = TheClipModel::get();
 	if ( !cm.numNodes ) { // map not loaded
 		return 0;
 	}
 
 	if ( model ) {
-		clipm = CM_ClipHandleToModel( model );
+		clipm = cm.clipHandleToModel( model );
 		leaf = &clipm->leaf;
 	} else {
 		leafnum = CM_PointLeafnum_r( p, 0 );
-		leaf = &cm.leafs[leafnum];
+		leaf = &cm.leaves[leafnum];
 	}
 
 	contents = 0;
 	for ( k = 0 ; k < leaf->numLeafBrushes ; k++ ) {
 		brushnum = leaf->firstLeafBrush + k;
 		if (leaf->fromSubmodel == 0){
-			brushnum = cm.leafbrushes[brushnum];
+			brushnum = cm.leafBrushes[brushnum];
 		}
 		b = &cm.brushes[brushnum];
 
 		// see if the point is in the brush
 		for ( i = 0 ; i < b->numsides ; i++ ) {
 			d = DotProduct( p, b->sides[i].plane->normal );
-// FIXME test for Cash
-//			if ( d >= b->sides[i].plane->dist ) {
 			if ( d > b->sides[i].plane->dist ) {
 				break;
 			}
@@ -303,7 +305,9 @@ PVS
 ===============================================================================
 */
 
-uint8_t    *CM_ClusterPVS( int cluster ) {
+uint8_t *CM_ClusterPVS( int cluster )
+{
+	const ClipModel& cm = TheClipModel::get();
 	if ( cluster < 0 || cluster >= cm.numClusters || !cm.vised ) {
 		return cm.visibility;
 	}
@@ -322,10 +326,11 @@ AREAPORTALS
 */
 
 void CM_FloodArea_r( int areaNum, int floodnum ) {
-	int i;
-	cArea_t *area;
-	int     *con;
 
+	cArea_t *area;
+
+
+	ClipModel& cm = TheClipModel::get();
 	area = &cm.areas[ areaNum ];
 
 	if ( area->floodvalid == cm.floodvalid ) {
@@ -338,8 +343,8 @@ void CM_FloodArea_r( int areaNum, int floodnum ) {
 
 	area->floodnum = floodnum;
 	area->floodvalid = cm.floodvalid;
-	con = cm.areaPortals + areaNum * cm.numAreas;
-	for ( i = 0 ; i < cm.numAreas  ; i++ ) {
+	int *con = cm.areaPortals + areaNum * cm.numAreas;
+	for (int i = 0 ; i < cm.numAreas  ; i++ ) {
 		if ( con[i] > 0 ) {
 			CM_FloodArea_r( i, floodnum );
 		}
@@ -357,6 +362,7 @@ void    CM_FloodAreaConnections( void ) {
 	cArea_t *area;
 	int floodnum;
 
+	ClipModel& cm = TheClipModel::get();
 	// all current floods are now invalid
 	cm.floodvalid++;
 	floodnum = 0;
@@ -383,6 +389,7 @@ void    CM_AdjustAreaPortalState( int area1, int area2, bool open ) {
 		return;
 	}
 
+	ClipModel& cm = TheClipModel::get();
 	if ( area1 >= cm.numAreas || area2 >= cm.numAreas ) {
 		Com_Error( ERR_DROP, "CM_ChangeAreaPortalState: bad area number" );
         return; // keep the linter happy, ERR_DROP does not return
@@ -409,17 +416,13 @@ CM_AreasConnected
 
 ====================
 */
-bool    CM_AreasConnected( int area1, int area2 ) {
-#ifndef BSPC
-	if ( cm_noAreas->integer ) {
-		return true;
-	}
-#endif
-
+bool    CM_AreasConnected( int area1, int area2 )
+{
 	if ( area1 < 0 || area2 < 0 ) {
 		return false;
 	}
 
+	ClipModel& cm = TheClipModel::get();
 	if ( area1 >= cm.numAreas || area2 >= cm.numAreas ) {
 		Com_Error( ERR_DROP, "area >= cm.numAreas" );
         return false; // keep the linter happy, ERR_DROP does not return
@@ -451,15 +454,13 @@ int CM_WriteAreaBits( uint8_t *buffer, int area ) {
 	int floodnum;
 	int bytes;
 
+	const ClipModel& cm = TheClipModel::get();
 	bytes = ( cm.numAreas + 7 ) >> 3;
 
-#ifndef BSPC
-	if ( cm_noAreas->integer || area == -1 )
-#else
+
 	if ( area == -1 )
-#endif
 	{   // for debugging, send everything
-		Com_Memset( buffer, 255, bytes );
+		memset( buffer, 255, bytes );
 	} else
 	{
 		floodnum = cm.areas[area].floodnum;

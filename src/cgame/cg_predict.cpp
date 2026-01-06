@@ -140,9 +140,9 @@ static void CG_ClipMoveToEntities( const vec3_t start, const vec3_t mins, const 
 
 			// MrE: use bbox or capsule
 			if ( ent->eFlags & EF_CAPSULE ) {
-				cmodel = CM_TempBoxModel( bmins, bmaxs, true );
+				cmodel = TheClipModel::get().tempBoxModel( bmins, bmaxs, true );
 			} else {
-				cmodel = CM_TempBoxModel( bmins, bmaxs, false );
+				cmodel = TheClipModel::get().tempBoxModel( bmins, bmaxs, false );
 			}
 			VectorCopy( vec3_origin, angles );
 			VectorCopy( cent->lerpOrigin, origin );

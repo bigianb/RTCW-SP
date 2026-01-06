@@ -266,36 +266,31 @@ void CM_TestInLeaf( traceWork_t *tw, cLeaf_t *leaf )
 	}
 
 	// test against all patches
-#ifdef BSPC
-	if ( 1 ) {
-#else
-	if ( !cm_noCurves->integer ) {
-#endif //BSPC
-		for (int k = 0 ; k < leaf->numLeafSurfaces ; k++ ) {
-			int surfaceNum =leaf->firstLeafSurface + k;
-			if (leaf->fromSubmodel == 0){
-				surfaceNum = cm.leafsurfaces[surfaceNum];
-			}
-			cPatch_t* patch = cm.surfaces[ surfaceNum ];
-			if ( !patch ) {
-				continue;
-			}
-			if ( patch->checkcount == cm.checkcount ) {
-				continue;   // already checked this brush in another leaf
-			}
-			patch->checkcount = cm.checkcount;
+	for (int k = 0 ; k < leaf->numLeafSurfaces ; k++ ) {
+		int surfaceNum =leaf->firstLeafSurface + k;
+		if (leaf->fromSubmodel == 0){
+			surfaceNum = cm.leafsurfaces[surfaceNum];
+		}
+		cPatch_t* patch = cm.surfaces[ surfaceNum ];
+		if ( !patch ) {
+			continue;
+		}
+		if ( patch->checkcount == cm.checkcount ) {
+			continue;   // already checked this brush in another leaf
+		}
+		patch->checkcount = cm.checkcount;
 
-			if ( !( patch->contents & tw->contents ) ) {
-				continue;
-			}
+		if ( !( patch->contents & tw->contents ) ) {
+			continue;
+		}
 
-			if ( CM_PositionTestInPatchCollide( tw, patch->pc ) ) {
-				tw->trace.startsolid = tw->trace.allsolid = true;
-				tw->trace.fraction = 0;
-				return;
-			}
+		if ( CM_PositionTestInPatchCollide( tw, patch->pc ) ) {
+			tw->trace.startsolid = tw->trace.allsolid = true;
+			tw->trace.fraction = 0;
+			return;
 		}
 	}
+	
 }
 
 /*
@@ -427,10 +422,8 @@ CM_TraceThroughPatch
 ================
 */
 
-void CM_TraceThroughPatch( traceWork_t *tw, cPatch_t *patch ) {
-	
-	c_patch_traces++;
-
+void CM_TraceThroughPatch( traceWork_t *tw, cPatch_t *patch )
+{
 	float oldFrac = tw->trace.fraction;
 
 	CM_TraceThroughPatchCollide( tw, patch->pc );
@@ -467,8 +460,6 @@ void CM_TraceThroughBrush( traceWork_t *tw, cBrush_t *brush )
 	if ( !brush->numsides ) {
 		return;
 	}
-
-	c_brush_traces++;
 
 	getout = false;
 	startout = false;
@@ -654,33 +645,27 @@ void CM_TraceThroughLeaf( traceWork_t *tw, cLeaf_t *leaf )
 	}
 
 	// trace line against all patches in the leaf
-#ifdef BSPC
-	if ( 1 ) {
-#else
-	if ( !cm_noCurves->integer ) {
-#endif
-		for (int k = 0 ; k < leaf->numLeafSurfaces ; k++ ) {
-			int surfaceNum =leaf->firstLeafSurface + k;
-			if (leaf->fromSubmodel == 0){
-				surfaceNum = cm.leafsurfaces[surfaceNum];
-			}
-			cPatch_t* patch = cm.surfaces[ surfaceNum ];
-			if ( !patch ) {
-				continue;
-			}
-			if ( patch->checkcount == cm.checkcount ) {
-				continue;   // already checked this patch in another leaf
-			}
-			patch->checkcount = cm.checkcount;
+	for (int k = 0 ; k < leaf->numLeafSurfaces ; k++ ) {
+		int surfaceNum =leaf->firstLeafSurface + k;
+		if (leaf->fromSubmodel == 0){
+			surfaceNum = cm.leafsurfaces[surfaceNum];
+		}
+		cPatch_t* patch = cm.surfaces[ surfaceNum ];
+		if ( !patch ) {
+			continue;
+		}
+		if ( patch->checkcount == cm.checkcount ) {
+			continue;   // already checked this patch in another leaf
+		}
+		patch->checkcount = cm.checkcount;
 
-			if ( !( patch->contents & tw->contents ) ) {
-				continue;
-			}
+		if ( !( patch->contents & tw->contents ) ) {
+			continue;
+		}
 
-			CM_TraceThroughPatch( tw, patch );
-			if ( !tw->trace.fraction ) {
-				return;
-			}
+		CM_TraceThroughPatch( tw, patch );
+		if ( !tw->trace.fraction ) {
+			return;
 		}
 	}
 }
@@ -1085,12 +1070,14 @@ void CM_Trace( trace_t *results, const vec3_t start, const vec3_t end,
 	vec3_t offset;
 	cModel_t    *cmod;
 
-	cmod = CM_ClipHandleToModel( model );
+	
 
 	ClipModel& cm = TheClipModel::get();
-	cm.checkcount++;        // for multi-check avoidance
 
-	c_traces++;             // for statistics, may be zeroed
+	// Will longjump on error.
+	cmod = cm.clipHandleToModel( model );
+
+	cm.checkcount++;        // for multi-check avoidance
 
 	// fill in a default trace
 	Com_Memset( &tw, 0, sizeof( tw ) );
