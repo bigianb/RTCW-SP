@@ -96,10 +96,9 @@ void ClipModel::loadMap(const char *name)
 	// we are NOT freeing the file, because it is cached for the ref
 	FS_FreeFile( buf );
 
-	//CM_InitBoxHull();
+	initBoxHull();
 
-	//CM_FloodAreaConnections();
-
+	floodAreaConnections();
 }
 
 ClipModel::ClipModel()
@@ -510,6 +509,7 @@ void ClipModel::loadPatches(const lump_t* surfaceLump, const lump_t* drawVertLum
 	// scan through all the surfaces, but only load patches, not planar faces
 	for (int i = 0 ; i < numSurfaces ; i++, in++ ) {
 		if ( in->surfaceType != MST_PATCH ) {
+			surfaces[ i ] = nullptr;
 			continue;       // ignore other surfaces
 		}
 		// FIXME: check for non-colliding patches
@@ -542,6 +542,47 @@ void ClipModel::loadPatches(const lump_t* surfaceLump, const lump_t* drawVertLum
 
 }
 
+void ClipModel::initBoxHull()
+{
+	// create the planes for the axial box
+	box_planes = &planes[numPlanes];
+	for ( int i = 0 ; i < 6 ; i++ ) {
+		int side = i & 1;
+
+		cplane_t* p = &box_planes[i * 2];
+		p->type = i >> 1;
+		p->signbits = 0;
+		VectorClear( p->normal );
+		p->normal[i >> 1] = 1;
+
+		p = &box_planes[i * 2 + 1];
+		p->type = 3 + ( i >> 1 );
+		p->signbits = 0;
+		VectorClear( p->normal );
+		p->normal[i >> 1] = -1;
+
+		SetPlaneSignbits( p );
+	}
+
+	numPlanes += BOX_PLANES;
+
+	// create the single brush that is the box
+	box_brush = &brushes[numBrushes];
+	box_brush->sides = &brushsides[numBrushSides];
+	box_brush->numsides = BOX_SIDES;
+	box_brush->shaderNum = 0; // default shader
+	box_brush->contents = CONTENTS_BODY;
+
+	for ( int i = 0 ; i < BOX_SIDES ; i++ ) {
+		brushsides[numBrushSides + i].plane = &box_planes[i];
+		brushsides[numBrushSides + i].shaderNum = 0; // default shader
+		brushsides[numBrushSides + i].surfaceFlags = 0;
+	}
+
+	numBrushSides += BOX_SIDES;
+	numBrushes += BOX_BRUSHES;
+}
+
 clipHandle_t ClipModel::tempBoxModel( const vec3_t mins, const vec3_t maxs, int capsule )
 {
 	VectorCopy( mins, box_model.mins );
@@ -568,4 +609,41 @@ clipHandle_t ClipModel::tempBoxModel( const vec3_t mins, const vec3_t maxs, int 
 	}
 
 	return BOX_MODEL_HANDLE;
+}
+void ClipModel::floodArea_r( int areaNum, int floodnum )
+{
+	cArea_t * area = &areas[ areaNum ];
+
+	if ( area->floodvalid == floodvalid ) {
+		if ( area->floodnum == floodnum ) {
+			return;
+		}
+		Com_Error( ERR_DROP, "FloodArea_r: reflooded" );
+	}
+
+	area->floodnum = floodnum;
+	area->floodvalid = floodvalid;
+	int *con = areaPortals + areaNum * numAreas;
+	for (int i = 0; i < numAreas; i++ ) {
+		if ( con[i] > 0 ) {
+			floodArea_r( i, floodnum );
+		}
+	}
+}
+
+void ClipModel::floodAreaConnections()
+{
+	// all current floods are now invalid
+	floodvalid++;
+	int floodnum = 0;
+
+	cArea_t *area = areas;    // Ridah, optimization
+	for (int i = 0 ; i < numAreas ; i++, area++ ) {
+		if ( area->floodvalid == floodvalid ) {
+			continue;       // already flooded into
+		}
+		floodnum++;
+		floodArea_r( i, floodnum );
+	}
+
 }

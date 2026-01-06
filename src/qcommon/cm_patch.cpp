@@ -732,10 +732,7 @@ void CM_AddFacetBevels( facet_t *facet )
 {
 	int i, j;
 
-	winding_t *w2;
-
 	idVec4 plane = planes[ facet->surfacePlane ].plane;
-
 	winding_t *w = BaseWindingForPlane( idVec3(plane),  plane[3] );
 	for ( j = 0 ; j < facet->numBorders && w ; j++ ) {
 		if ( facet->borderPlanes[j] == facet->surfacePlane ) {
@@ -748,7 +745,7 @@ void CM_AddFacetBevels( facet_t *facet )
 		}
 
 		idVec3 normal = idVec3( plane.x, plane.y, plane.z );
-		ChopWindingInPlace( &w, normal, plane[3], 0.1f );
+		ChopWindingInPlace( &w, normal, plane.w, 0.1f );
 	}
 	if ( !w ) {
 		return;
@@ -873,7 +870,7 @@ void CM_AddFacetBevels( facet_t *facet )
 						newplane = -newplane;
 					}
 					idVec3 normal = idVec3( newplane.x, newplane.y, newplane.z );
-					ChopWindingInPlace( &w2, normal, newplane[3], 0.1f );
+					ChopWindingInPlace( &w2, normal, newplane.w, 0.1f );
 					if ( !w2 ) {
 						Com_DPrintf( "WARNING: CM_AddFacetBevels... invalid bevel\n" );
 						continue;

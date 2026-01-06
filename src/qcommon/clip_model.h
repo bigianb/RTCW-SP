@@ -68,6 +68,13 @@ struct cNode_t
 
 struct cPatch_t
 {
+    cPatch_t() {
+        checkcount = 0;
+        surfaceFlags = 0;
+        contents = 0;
+        pc = nullptr;
+    }
+
 	int checkcount;                     // to avoid repeated testings
 	int surfaceFlags;
 	int contents;
@@ -120,6 +127,9 @@ private:
     void loadPatches(const lump_t* surfaceLump, const lump_t* drawVertLump, const uint8_t* offsetBase);
 
     void boundBrush( cBrush_t *b );
+    void initBoxHull();
+    void floodAreaConnections();
+    void floodArea_r( int areaNum, int floodnum );
 
 // TODO: fix up this visibility later.
 public:
