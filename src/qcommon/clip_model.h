@@ -52,6 +52,14 @@ struct cBrushSide_t
 
 struct cBrush_t
 {
+	cBrush_t() {
+        checkcount = 0;
+        shaderNum = 0;
+        contents = 0;
+        numsides = 0;
+        sides = nullptr;
+    }
+
 	int shaderNum;    // the shader that determined the contents
 	int contents;
 	idVec3 bounds[2];

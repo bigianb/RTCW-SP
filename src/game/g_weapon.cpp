@@ -413,64 +413,6 @@ void Tesla_Fire( GameEntity *ent ) {
 	//Com_Printf("TODO: Tesla damage/effects\n" );
 }
 
-
-
-void RubbleFlagCheck( GameEntity *ent, trace_t tr ) {
-	bool is_valid = false;
-	int type = 0;
-
-	// (SA) moving client-side
-
-	return;
-
-
-
-
-	if ( tr.surfaceFlags & SURF_RUBBLE || tr.surfaceFlags & SURF_GRAVEL ) {
-		is_valid = true;
-		type = 4;
-	} else if ( tr.surfaceFlags & SURF_METAL )     {
-//----(SA)	removed
-//		is_valid = true;
-//		type = 2;
-	} else if ( tr.surfaceFlags & SURF_WOOD )     {
-		is_valid = true;
-		type = 1;
-	}
-
-	if ( is_valid && ent->client && ( ent->shared.s.weapon == WP_VENOM
-									  || ent->client->ps.persistant[PERS_HWEAPON_USE] ) ) {
-		if ( rand() % 100 > 75 ) {
-			GameEntity   *sfx;
-			vec3_t start;
-			vec3_t dir;
-
-			sfx = G_Spawn();
-
-			sfx->shared.s.density = type;
-
-			VectorCopy( tr.endpos, start );
-
-			VectorCopy( muzzleTrace, dir );
-			VectorNegate( dir, dir );
-
-			G_SetOrigin( sfx, start );
-			G_SetAngle( sfx, dir );
-
-			G_AddEvent( sfx, EV_SHARD, DirToByte( dir ) );
-
-			sfx->think = G_FreeEntity;
-			sfx->nextthink = level.time + 1000;
-
-			sfx->shared.s.frame = 3 + ( rand() % 3 ) ;
-
-			SV_LinkEntity( &sfx->shared );
-
-		}
-	}
-
-}
-
 /*
 ==============
 EmitterCheck
@@ -597,9 +539,6 @@ void Bullet_Fire_Extended( GameEntity *source, GameEntity *attacker, vec3_t star
 		VectorCopy( tr.endpos, tent->shared.s.origin2 );
 		tent->shared.s.otherEntityNum2 = attacker->shared.s.number;
 	}
-
-
-	RubbleFlagCheck( attacker, tr );
 
 	traceEnt = &g_entities[ tr.entityNum ];
 

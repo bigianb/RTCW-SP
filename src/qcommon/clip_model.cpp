@@ -30,7 +30,7 @@ int ClipModel::inlineModel(int index)
 
 void ClipModel::modelBounds(int modelIndex, idVec3 &mins, idVec3 &maxs)
 {
-	cModel_t *cmod = &cmodels[modelIndex];
+	cModel_t *cmod = clipHandleToModel(modelIndex);
 	mins = cmod->mins;
 	maxs = cmod->maxs;
 }
@@ -544,6 +544,11 @@ void ClipModel::loadPatches(const lump_t* surfaceLump, const lump_t* drawVertLum
 
 void ClipModel::initBoxHull()
 {
+	box_model.leaf.numLeafBrushes = 1;
+	box_model.leaf.firstLeafBrush = numLeafBrushes;
+	leafBrushes[numLeafBrushes] = numBrushes;
+	numLeafBrushes += BOX_LEAF_BRUSHES;
+
 	// create the planes for the axial box
 	box_planes = &planes[numPlanes];
 	for ( int i = 0 ; i < 6 ; i++ ) {
