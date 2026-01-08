@@ -552,8 +552,6 @@ void ClipModel::initBoxHull()
 	// create the planes for the axial box
 	box_planes = &planes[numPlanes];
 	for ( int i = 0 ; i < 6 ; i++ ) {
-		int side = i & 1;
-
 		cplane_t* p = &box_planes[i * 2];
 		p->type = i >> 1;
 		p->signbits = 0;
@@ -579,7 +577,8 @@ void ClipModel::initBoxHull()
 	box_brush->contents = CONTENTS_BODY;
 
 	for ( int i = 0 ; i < BOX_SIDES ; i++ ) {
-		brushsides[numBrushSides + i].plane = &box_planes[i];
+		int side = i & 1;
+		brushsides[numBrushSides + i].plane = &box_planes[i*2 + side];
 		brushsides[numBrushSides + i].shaderNum = 0; // default shader
 		brushsides[numBrushSides + i].surfaceFlags = 0;
 	}
