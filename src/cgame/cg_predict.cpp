@@ -37,6 +37,7 @@ If you have questions concerning this license or the applicable additional terms
 #include "cg_local.h"
 #include "../qcommon/cm_public.h"
 #include "../client/client.h"
+#include "../qcommon/clip_model.h"
 
 static pmove_t cg_pmove;
 
@@ -123,7 +124,7 @@ static void CG_ClipMoveToEntities( const vec3_t start, const vec3_t mins, const 
 
 		if ( ent->solid == SOLID_BMODEL ) {
 			// special value for bmodel
-			cmodel = CM_InlineModel( ent->modelindex );
+			cmodel = TheClipModel::get().inlineModel( ent->modelindex );
 			BG_EvaluateTrajectory( &cent->currentState.apos, cg.physicsTime, angles );
 			BG_EvaluateTrajectory( &cent->currentState.pos, cg.physicsTime, origin );
 		} else {
@@ -139,9 +140,9 @@ static void CG_ClipMoveToEntities( const vec3_t start, const vec3_t mins, const 
 
 			// MrE: use bbox or capsule
 			if ( ent->eFlags & EF_CAPSULE ) {
-				cmodel = CM_TempBoxModel( bmins, bmaxs, true );
+				cmodel = TheClipModel::get().tempBoxModel( bmins, bmaxs, true );
 			} else {
-				cmodel = CM_TempBoxModel( bmins, bmaxs, false );
+				cmodel = TheClipModel::get().tempBoxModel( bmins, bmaxs, false );
 			}
 			VectorCopy( vec3_origin, angles );
 			VectorCopy( cent->lerpOrigin, origin );
@@ -213,6 +214,8 @@ int     CG_PointContents( const vec3_t point, int passEntityNum ) {
 	clipHandle_t cmodel;
 	int contents;
 
+	ClipModel& clipModel = TheClipModel::get();
+
 	contents = CM_PointContents( point, 0 );
 
 	for ( i = 0 ; i < cg_numSolidEntities ; i++ ) {
@@ -228,7 +231,7 @@ int     CG_PointContents( const vec3_t point, int passEntityNum ) {
 			continue;
 		}
 
-		cmodel = CM_InlineModel( ent->modelindex );
+		cmodel = clipModel.inlineModel( ent->modelindex );
 		if ( !cmodel ) {
 			continue;
 		}
@@ -401,27 +404,22 @@ CG_TouchTriggerPrediction
 Predict push triggers and items
 =========================
 */
-static void CG_TouchTriggerPrediction( void ) {
-	int i;
-	trace_t trace;
-	EntityState   *ent;
-	clipHandle_t cmodel;
-	centity_t   *cent;
-	bool spectator;
-
+static void CG_TouchTriggerPrediction()
+{
 	// dead clients don't activate triggers
 	if ( cg.predictedPlayerState.stats[STAT_HEALTH] <= 0 ) {
 		return;
 	}
-
 	
 	if ( cg.predictedPlayerState.pm_type != PM_NORMAL ) {
 		return;
 	}
 
-	for ( i = 0 ; i < cg_numTriggerEntities ; i++ ) {
-		cent = cg_triggerEntities[ i ];
-		ent = &cent->currentState;
+	ClipModel& clipModel = TheClipModel::get();
+
+	for (int i = 0 ; i < cg_numTriggerEntities ; i++ ) {
+		centity_t* cent = cg_triggerEntities[ i ];
+		EntityState* ent = &cent->currentState;
 
 		if ( ent->eType == ET_ITEM ) {
 			CG_TouchItem( cent );
@@ -432,11 +430,12 @@ static void CG_TouchTriggerPrediction( void ) {
 			continue;
 		}
 
-		cmodel = CM_InlineModel( ent->modelindex );
+		int cmodel = clipModel.inlineModel( ent->modelindex );
 		if ( !cmodel ) {
 			continue;
 		}
 
+		trace_t trace;
 		CM_BoxTrace( &trace, cg.predictedPlayerState.origin, cg.predictedPlayerState.origin,
 						  cg_pmove.mins, cg_pmove.maxs, cmodel, -1, false );
 
@@ -450,10 +449,6 @@ static void CG_TouchTriggerPrediction( void ) {
 			float s;
 			vec3_t dir;
 
-			// we hit this push trigger
-			if ( spectator ) {
-				continue;
-			}
 
 			// flying characters don't hit bounce pads
 			if ( cg.predictedPlayerState.powerups[PW_FLIGHT] ) {

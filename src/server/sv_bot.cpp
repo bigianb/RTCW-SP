@@ -33,6 +33,8 @@ If you have questions concerning this license or the applicable additional terms
 #include "../botai/botai.h"
 #include "../game/g_local.h"
 #include "../game/g_func_decs.h"
+#include "../qcommon/clip_model.h"
+#include "../idlib/bv/Bounds.h"
 
 #define MAX_DEBUGPOLYS      128
 
@@ -204,17 +206,17 @@ BotImport_BSPModelMinsMaxsOrigin
 */
 void BotImport_BSPModelMinsMaxsOrigin( int modelnum, vec3_t angles, vec3_t outmins, vec3_t outmaxs, vec3_t origin ) {
 	clipHandle_t h;
-	vec3_t mins, maxs;
+	idVec3 mins, maxs;
 	float max;
 	int i;
 
-	h = CM_InlineModel( modelnum );
-	CM_ModelBounds( h, mins, maxs );
+	h = TheClipModel::get().inlineModel( modelnum );
+	TheClipModel::get().modelBounds( h, mins, maxs );
 	//if the model is rotated
 	if ( ( angles[0] || angles[1] || angles[2] ) ) {
 		// expand for rotation
 
-		max = RadiusFromBounds( mins, maxs );
+		max = idBounds( mins, maxs ).GetRadius();
 		for ( i = 0; i < 3; i++ ) {
 			mins[i] = -max;
 			maxs[i] = max;

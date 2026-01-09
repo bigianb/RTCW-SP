@@ -548,7 +548,6 @@ extern void Bullet_Fire ( GameEntity * ent , float spread , int damage ) ;
 extern void Bullet_Endpos ( GameEntity * ent , float spread , vec3_t * end ) ;
 extern void SniperSoundEFX ( vec3_t pos ) ;
 extern void EmitterCheck ( GameEntity * ent , GameEntity * attacker , trace_t * tr ) ;
-extern void RubbleFlagCheck ( GameEntity * ent , trace_t tr ) ;
 extern void Tesla_Fire ( GameEntity * ent ) ;
 extern void Cross_Fire ( GameEntity * ent ) ;
 extern float G_GetWeaponSpread ( int weapon ) ;

@@ -30,31 +30,11 @@ If you have questions concerning this license or the applicable additional terms
 #include "../game/q_shared.h"
 #include "qcommon.h"
 #include "cm_polylib.h"
-
-#define MAX_SUBMODELS           512
-#define BOX_MODEL_HANDLE        511
-#define CAPSULE_MODEL_HANDLE    510
+#include "cm_patch.h"
 
 
-typedef struct {
-	cplane_t    *plane;
-	int children[2];                // negative numbers are leafs
-} cNode_t;
 
-typedef struct {
-	int cluster;
-	int area;
-
-	int firstLeafBrush;
-	int numLeafBrushes;
-
-	int firstLeafSurface;
-	int numLeafSurfaces;
-	
-	// If this leaf is part of a sub-model then don't index via leaf brushed
-	int fromSubmodel;
-} cLeaf_t;
-
+/*
 typedef struct cmodel_s {
 	vec3_t mins, maxs;
 	cLeaf_t leaf;               // submodels don't reference the main tree
@@ -75,19 +55,6 @@ typedef struct {
 	int checkcount;             // to avoid repeated testings
 } cbrush_t;
 
-
-typedef struct {
-	int checkcount;                     // to avoid repeated testings
-	int surfaceFlags;
-	int contents;
-	struct patchCollide_s   *pc;
-} cPatch_t;
-
-
-typedef struct {
-	int floodnum;
-	int floodvalid;
-} cArea_t;
 
 class ClipMap
 {
@@ -139,18 +106,11 @@ public:
 	int floodvalid;
 	int checkcount;                         // incremented on each trace
 };
-
+*/
 
 // keep 1/8 unit away to keep the position valid before network snapping
 // and to avoid various numeric issues
 #define SURFACE_CLIP_EPSILON    ( 0.125 )
-
-extern ClipMap cm;
-extern int c_pointcontents;
-extern int c_traces, c_brush_traces, c_patch_traces;
-extern cvar_t      *cm_noAreas;
-extern cvar_t      *cm_noCurves;
-extern cvar_t      *cm_playerCurveClip;
 
 // cm_test.c
 
@@ -188,19 +148,19 @@ typedef struct leafList_s {
 	void ( *storeLeafs )( struct leafList_s *ll, int nodenum );
 } leafList_t;
 
-
-int CM_BoxBrushes( const vec3_t mins, const vec3_t maxs, cbrush_t **list, int listsize );
+struct cBrush_t;
+int CM_BoxBrushes( const vec3_t mins, const vec3_t maxs, cBrush_t **list, int listsize );
 
 void CM_StoreLeafs( leafList_t *ll, int nodenum );
 void CM_StoreBrushes( leafList_t *ll, int nodenum );
 
 void CM_BoxLeafnums_r( leafList_t *ll, int nodenum );
 
-cmodel_t    *CM_ClipHandleToModel( clipHandle_t handle );
-
 // cm_patch.c
 
-struct patchCollide_s   *CM_GeneratePatchCollide( int width, int height, vec3_t *points );
-void CM_TraceThroughPatchCollide( traceWork_t *tw, const struct patchCollide_s *pc );
-bool CM_PositionTestInPatchCollide( traceWork_t *tw, const struct patchCollide_s *pc );
+patchCollide_t   *CM_GeneratePatchCollide( int width, int height, idVec3 *points );
+void CM_TraceThroughPatchCollide( traceWork_t *tw, const patchCollide_t *pc );
+bool CM_PositionTestInPatchCollide( traceWork_t *tw, const patchCollide_t *pc );
 void CM_ClearLevelPatches( void );
+
+

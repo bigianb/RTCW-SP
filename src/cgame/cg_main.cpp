@@ -39,6 +39,8 @@ If you have questions concerning this license or the applicable additional terms
 #include "../qcommon/cm_public.h"
 #include "../client/snd_public.h"
 #include "../qcommon/qcommon.h"
+#include "../qcommon/clip_model.h"
+
 
 int forceModelModificationCount = -1;
 
@@ -1220,7 +1222,7 @@ static void CG_RegisterGraphics( void ) {
 	CG_LoadingString( " - inline models" );
 
 	// register the inline models
-	cgs.numInlineModels = CM_NumInlineModels();
+	cgs.numInlineModels = TheClipModel::get().numSubModels;
 	for ( i = 1 ; i < cgs.numInlineModels ; i++ ) {
 		char name[10];
 		vec3_t mins, maxs;
@@ -1477,8 +1479,7 @@ void CG_Init( int serverMessageNum, int serverCommandSequence ) {
 	// load the new map
 	CG_LoadingString( "collision map" );
 
-	int checksum;
-	CM_LoadMap( cgs.mapname, true, &checksum );
+	TheClipModel::get().loadMap( cgs.mapname );
 
 	cg.loading = true;     // force players to load instead of defer
 

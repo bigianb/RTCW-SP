@@ -372,6 +372,8 @@ inline idVec2& operator/( float lhs, idVec2& rhs )
 //
 //===============================================================
 
+class idVec4;
+
 class idVec3
 {
 public:
@@ -386,6 +388,8 @@ public:
 	}
 	explicit idVec3( const float x, const float y, const float z );
 
+	explicit idVec3( const idVec4& a);
+
 	void 			Set( const float x, const float y, const float z );
 	void			Zero();
 
@@ -394,9 +398,11 @@ public:
 	idVec3			operator-() const;
 	idVec3& 		operator=( const idVec3& a );		// required because of a msvc 6 & 7 bug
 	float			operator*( const idVec3& a ) const;
+	float			operator*( const idVec4& a ) const;
 	idVec3			operator*( const float a ) const;
 	idVec3			operator/( const float a ) const;
 	idVec3			operator+( const idVec3& a ) const;
+	idVec3			operator+( const idVec4& a ) const;
 	idVec3			operator-( const idVec3& a ) const;
 	idVec3& 		operator+=( const idVec3& a );
 	idVec3& 		operator-=( const idVec3& a );
@@ -1095,6 +1101,11 @@ inline idVec4 idVec4::operator*( const float a ) const
 	return idVec4( x * a, y * a, z * a, w * a );
 }
 
+inline float idVec3::operator*( const idVec4& a ) const
+{
+	return x * a.x + y * a.y + z * a.z;
+}
+
 inline idVec4 idVec4::operator/( const float a ) const
 {
 	float inva = 1.0f / a;
@@ -1109,6 +1120,11 @@ inline idVec4 operator*( const float a, const idVec4 b )
 inline idVec4 idVec4::operator+( const idVec4& a ) const
 {
 	return idVec4( x + a.x, y + a.y, z + a.z, w + a.w );
+}
+
+inline idVec3 idVec3::operator+( const idVec4& a ) const
+{
+	return idVec3( x + a.x, y + a.y, z + a.z );
 }
 
 inline idVec4& idVec4::operator+=( const idVec4& a )
@@ -1278,6 +1294,13 @@ inline float* idVec4::ToFloatPtr()
 	return &x;
 }
 
+inline
+idVec3::idVec3( const idVec4& a)
+{
+	x = a.x;
+	y = a.y;
+	z = a.z;
+}
 
 //===============================================================
 //

@@ -33,9 +33,9 @@ If you have questions concerning this license or the applicable additional terms
 This file does not reference any globals, and has these entry points:
 
 void CM_ClearLevelPatches( void );
-struct patchCollide_s	*CM_GeneratePatchCollide( int width, int height, const vec3_t *points );
-void CM_TraceThroughPatchCollide( traceWork_t *tw, const struct patchCollide_s *pc );
-bool CM_PositionTestInPatchCollide( traceWork_t *tw, const struct patchCollide_s *pc );
+patchCollide_t	*CM_GeneratePatchCollide( int width, int height, const vec3_t *points );
+void CM_TraceThroughPatchCollide( traceWork_t *tw, const patchCollide_t *pc );
+bool CM_PositionTestInPatchCollide( traceWork_t *tw, const patchCollide_t *pc );
 
 Issues for collision against curved surfaces:
 
@@ -63,12 +63,14 @@ degenerate a few triangles.  Completely degenerate rows and columns are handled
 properly.
 */
 
+#include "../idlib/math/Vector.h"
+#include "../idlib/bv/Bounds.h"
 
 #define MAX_FACETS          1024
 #define MAX_PATCH_PLANES    2048
 
 typedef struct {
-	float plane[4];
+	idVec4 plane;
 	int signbits;           // signx + (signy<<1) + (signz<<2), used as lookup during collision
 } patchPlane_t;
 
@@ -80,28 +82,30 @@ typedef struct {
 	bool borderNoAdjust[4 + 6 + 16];
 } facet_t;
 
-typedef struct patchCollide_s {
-	vec3_t bounds[2];
+struct patchCollide_t
+{
+	idBounds bounds;
 	int numPlanes;              // surface planes plus edge planes
 	patchPlane_t    *planes;
 	int numFacets;
 	facet_t *facets;
-} patchCollide_t;
+};
 
 
 #define MAX_GRID_SIZE   129
 
-typedef struct {
+struct cGrid_t
+{
 	int width;
 	int height;
 	bool wrapWidth;
 	bool wrapHeight;
-	vec3_t points[MAX_GRID_SIZE][MAX_GRID_SIZE];    // [width][height]
-} cGrid_t;
+	idVec3 points[MAX_GRID_SIZE][MAX_GRID_SIZE];    // [width][height]
+};
 
 #define SUBDIVIDE_DISTANCE  16  //4	// never more than this units away from curve
 #define PLANE_TRI_EPSILON   0.1
 #define WRAP_POINT_EPSILON  0.1
 
 
-struct patchCollide_s   *CM_GeneratePatchCollide( int width, int height, vec3_t *points );
+patchCollide_t  *CM_GeneratePatchCollide( int width, int height, idVec3 *points );

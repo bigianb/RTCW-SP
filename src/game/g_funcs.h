@@ -541,7 +541,6 @@ If you have questions concerning this license or the applicable additional terms
 {"Bullet_Endpos", (uint8_t *)Bullet_Endpos},
 {"SniperSoundEFX", (uint8_t *)SniperSoundEFX},
 {"EmitterCheck", (uint8_t *)EmitterCheck},
-{"RubbleFlagCheck", (uint8_t *)RubbleFlagCheck},
 {"Tesla_Fire", (uint8_t *)Tesla_Fire},
 {"Cross_Fire", (uint8_t *)Cross_Fire},
 {"G_GetWeaponSpread", (uint8_t *)G_GetWeaponSpread},

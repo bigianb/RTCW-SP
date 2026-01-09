@@ -27,6 +27,7 @@ If you have questions concerning this license or the applicable additional terms
 */
 
 #include "server.h"
+#include "../qcommon/clip_model.h"
 
 /*
 ================
@@ -41,15 +42,15 @@ clipHandle_t SV_ClipHandleForEntity( const sharedEntity_t *ent )
 {
 	if ( ent->r.bmodel ) {
 		// explicit hulls in the BSP model
-		return CM_InlineModel( ent->s.modelindex );
+		return TheClipModel::get().inlineModel( ent->s.modelindex );
 	}
 	if ( ent->r.svFlags & SVF_CAPSULE ) {
 		// create a temp capsule from bounding box sizes
-		return CM_TempBoxModel( ent->r.mins, ent->r.maxs, true );
+		return TheClipModel::get().tempBoxModel( ent->r.mins, ent->r.maxs, true );
 	}
 
 	// create a temp tree from bounding box sizes
-	return CM_TempBoxModel( ent->r.mins, ent->r.maxs, false );
+	return TheClipModel::get().tempBoxModel( ent->r.mins, ent->r.maxs, false );
 }
 
 
@@ -90,7 +91,7 @@ SV_CreateworldSector
 Builds a uniformly subdivided tree for the given world size
 ===============
 */
-WorldSector *SV_CreateworldSector( int depth, vec3_t mins, vec3_t maxs )
+WorldSector *SV_CreateworldSector( int depth, idVec3 mins, idVec3 maxs )
 {
 	WorldSector* anode = &sv_worldSectors[sv_numworldSectors];
 	sv_numworldSectors++;
@@ -101,8 +102,7 @@ WorldSector *SV_CreateworldSector( int depth, vec3_t mins, vec3_t maxs )
 		return anode;
 	}
 
-	vec3_t size;
-	VectorSubtract( maxs, mins, size );
+	idVec3 size = maxs - mins;
 	if ( size[0] > size[1] ) {
 		anode->axis = 0;
 	} else {
@@ -110,11 +110,11 @@ WorldSector *SV_CreateworldSector( int depth, vec3_t mins, vec3_t maxs )
 	}
 
 	anode->dist = 0.5 * ( maxs[anode->axis] + mins[anode->axis] );
-	vec3_t mins1, maxs1, mins2, maxs2;
-	VectorCopy( mins, mins1 );
-	VectorCopy( mins, mins2 );
-	VectorCopy( maxs, maxs1 );
-	VectorCopy( maxs, maxs2 );
+	idVec3 mins1 = mins;
+	idVec3 mins2 = mins;
+	idVec3 maxs1 = maxs;
+	idVec3 maxs2 = maxs;
+
 
 	maxs1[anode->axis] = mins2[anode->axis] = anode->dist;
 
@@ -137,9 +137,9 @@ void SV_ClearWorld()
 	sv_numworldSectors = 0;
 
 	// get world map bounds
-	clipHandle_t h = CM_InlineModel( 0 );
-	vec3_t mins, maxs;
-	CM_ModelBounds( h, mins, maxs );
+	clipHandle_t h = TheClipModel::get().inlineModel( 0 );
+	idVec3 mins, maxs;
+	TheClipModel::get().modelBounds( h, mins, maxs );
 	SV_CreateworldSector( 0, mins, maxs );
 }
 
@@ -272,6 +272,8 @@ void SV_LinkEntity( sharedEntity_t *gEnt )
 	ent->areanum = -1;
 	ent->areanum2 = -1;
 
+	ClipModel& clipModel = TheClipModel::get();
+
 	//get all leafs, including solids
 	int lastLeaf;
 	int num_leafs = CM_BoxLeafnums( gEnt->r.absmin, gEnt->r.absmax,
@@ -285,7 +287,7 @@ void SV_LinkEntity( sharedEntity_t *gEnt )
 
 	// set areas, even from clusters that don't fit in the entity array
 	for (int i = 0 ; i < num_leafs ; i++ ) {
-		int area = CM_LeafArea( leafs[i] );
+		int area = clipModel.leafArea( leafs[i] );
 		if ( area != -1 ) {
 			// doors may legally straggle two areas,
 			// but nothing should evern need more than that
@@ -306,7 +308,7 @@ void SV_LinkEntity( sharedEntity_t *gEnt )
 	ent->numClusters = 0;
 	int leaf;
 	for (int leaf = 0 ; leaf < num_leafs ; leaf++ ) {
-		int cluster = CM_LeafCluster( leafs[leaf] );
+		int cluster = clipModel.leafCluster( leafs[leaf] );
 		if ( cluster != -1 ) {
 			ent->clusternums[ent->numClusters++] = cluster;
 			if ( ent->numClusters == MAX_ENT_CLUSTERS ) {
@@ -317,7 +319,7 @@ void SV_LinkEntity( sharedEntity_t *gEnt )
 
 	// store off a last cluster if we need to
 	if ( leaf != num_leafs ) {
-		ent->lastCluster = CM_LeafCluster( lastLeaf );
+		ent->lastCluster = clipModel.leafCluster( lastLeaf );
 	}
 
 	gEnt->r.linkcount++;

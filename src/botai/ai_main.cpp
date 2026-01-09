@@ -910,11 +910,7 @@ int BotInitLibrary( void ) {
 	trap_BotLibVarSet( "maxclients", buf );
 	snprintf( buf, sizeof( buf ), "%d", MAX_GENTITIES );
 	trap_BotLibVarSet( "maxentities", buf );
-	//bsp checksum
-	Cvar_VariableStringBuffer( "sv_mapChecksum", buf, sizeof( buf ) );
-	if ( strlen( buf ) ) {
-		trap_BotLibVarSet( "sv_mapChecksum", buf );
-	}
+	
 	//maximum number of aas links
 	Cvar_VariableStringBuffer( "max_aaslinks", buf, sizeof( buf ) );
 	if ( strlen( buf ) ) {

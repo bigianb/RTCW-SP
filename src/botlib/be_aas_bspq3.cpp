@@ -46,11 +46,9 @@ If you have questions concerning this license or the applicable additional terms
 #include "be_aas_funcs.h"
 #include "be_aas_def.h"
 #include "../qcommon/cm_public.h"
+#include "../qcommon/clip_model.h"
 
 //#define TRACE_DEBUG
-
-#define ON_EPSILON      0.005
-//#define DEG2RAD( a ) (( a * M_PI ) / 180.0F)
 
 #define MAX_BSPENTITIES     2048
 
@@ -432,19 +430,14 @@ void AAS_DumpBSPData( void ) {
 	bspworld.loaded = false;
 	memset( &bspworld, 0, sizeof( bspworld ) );
 } //end of the function AAS_DumpBSPData
-//===========================================================================
-// load an bsp file
-//
-// Parameter:				-
-// Returns:					-
-// Changes Globals:		-
-//===========================================================================
+
 int AAS_LoadBSPFile( void ) {
 	AAS_DumpBSPData();
-	bspworld.entdatasize = strlen( CM_EntityString() ) + 1;
+	const char* es = TheClipModel::get().entityString;
+	bspworld.entdatasize = strlen( es ) + 1;
 	bspworld.dentdata = (char *) GetClearedHunkMemory( bspworld.entdatasize );
-	memcpy( bspworld.dentdata, CM_EntityString(), bspworld.entdatasize );
+	memcpy( bspworld.dentdata, es, bspworld.entdatasize );
 	AAS_ParseBSPEntities();
 	bspworld.loaded = true;
 	return BLERR_NOERROR;
-} //end of the function AAS_LoadBSPFile
+} 

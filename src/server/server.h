@@ -202,7 +202,7 @@ extern cvar_t  *sv_showloss;
 extern cvar_t  *sv_padPackets;
 extern cvar_t  *sv_killserver;
 extern cvar_t  *sv_mapname;
-extern cvar_t  *sv_mapChecksum;
+
 extern cvar_t  *sv_serverid;
 extern cvar_t  *sv_maxRate;
 extern cvar_t  *sv_minPing;

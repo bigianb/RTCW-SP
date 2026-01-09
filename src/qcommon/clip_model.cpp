@@ -2,6 +2,58 @@
 
 #include "./qcommon.h"
 
+ClipModel TheClipModel::clipModel;
+
+int ClipModel::leafArea(int leafnum)
+{
+	if ( leafnum < 0 || leafnum >= numLeaves ) {
+		Com_Error( ERR_DROP, "CM_LeafArea: bad number" );
+	}
+	return leaves[leafnum].area;
+}
+
+int ClipModel::leafCluster(int leafnum)
+{
+	if ( leafnum < 0 || leafnum >= numLeaves ) {
+		Com_Error( ERR_DROP, "CM_LeafCluster: bad number" );
+	}
+	return leaves[leafnum].cluster;
+}
+
+int ClipModel::inlineModel(int index)
+{
+	if ( index < 0 || index >= numSubModels ) {
+		Com_Error( ERR_DROP, "CM_InlineModel: bad number" );
+	}
+	return index;
+}
+
+void ClipModel::modelBounds(int modelIndex, idVec3 &mins, idVec3 &maxs)
+{
+	cModel_t *cmod = clipHandleToModel(modelIndex);
+	mins = cmod->mins;
+	maxs = cmod->maxs;
+}
+
+cModel_t *ClipModel::clipHandleToModel(clipHandle_t handle)
+{
+	if ( handle < 0 ) {
+		Com_Error( ERR_DROP, "CM_ClipHandleToModel: bad handle %i", handle );
+	}
+	if ( handle < numSubModels ) {
+		return &cmodels[handle];
+	}
+	if ( handle == BOX_MODEL_HANDLE || handle == CAPSULE_MODEL_HANDLE ) {
+		return &box_model;
+	}
+	if ( handle < MAX_SUBMODELS ) {
+		Com_Error( ERR_DROP, "CM_ClipHandleToModel: bad handle %i < %i < %i",
+				   numSubModels, handle, MAX_SUBMODELS );
+	}
+	Com_Error( ERR_DROP, "CM_ClipHandleToModel: bad handle %i", handle + MAX_SUBMODELS );
+	return nullptr;
+}
+
 void ClipModel::loadMap(const char *name)
 {
 	if ( !name || !name[0] ) {
@@ -38,20 +90,22 @@ void ClipModel::loadMap(const char *name)
 	loadSubmodels( &header.lumps[LUMP_MODELS], buf );
 	loadNodes( &header.lumps[LUMP_NODES], buf );
 	loadEntityString( &header.lumps[LUMP_ENTITIES], buf );
-	//CMod_LoadVisibility( &header.lumps[LUMP_VISIBILITY] );
-	//CMod_LoadPatches( &header.lumps[LUMP_SURFACES], &header.lumps[LUMP_DRAWVERTS] );
+	loadVisibility( &header.lumps[LUMP_VISIBILITY], buf );
+	loadPatches( &header.lumps[LUMP_SURFACES], &header.lumps[LUMP_DRAWVERTS], buf );
 
 	// we are NOT freeing the file, because it is cached for the ref
 	FS_FreeFile( buf );
 
-	//CM_InitBoxHull();
+	initBoxHull();
 
-	//CM_FloodAreaConnections();
-
+	floodAreaConnections();
 }
 
 ClipModel::ClipModel()
 {
+	checkcount = 0;
+	floodvalid = 0;
+
 	shaders = nullptr;
 	numShaders = 0;
 
@@ -86,6 +140,13 @@ ClipModel::ClipModel()
 
 	entityString = nullptr;
 	numEntityChars = 0;
+
+	clusterBytes = 0;
+	visibility = nullptr;
+	vised = false;
+
+	numSurfaces = 0;
+	surfaces = nullptr;
 }
 
 ClipModel::~ClipModel()
@@ -93,8 +154,12 @@ ClipModel::~ClipModel()
 	clearMap();
 }
 
-void ClipModel::clearMap() {
-    delete[] shaders;
+void ClipModel::clearMap()
+{
+	checkcount = 0;
+	floodvalid = 0;
+
+	delete[] shaders;
 	shaders = nullptr;
 	numShaders = 0;
 
@@ -140,6 +205,18 @@ void ClipModel::clearMap() {
 	delete[] entityString;
 	entityString = nullptr;
 	numEntityChars = 0;
+
+	delete[] visibility;
+	clusterBytes = 0;
+	visibility = nullptr;
+	vised = false;
+
+	for ( int i = 0; i <  numSurfaces; i++ ) {
+		delete surfaces[i];
+	}
+	numSurfaces = 0;
+	delete[] surfaces;
+	surfaces = nullptr;
 }
 
 void ClipModel::loadShaders(const lump_t* l, const uint8_t* offsetBase)
@@ -201,7 +278,7 @@ void ClipModel::loadLeaves(const lump_t* l, const uint8_t* offsetBase)
 
 	areas = new cArea_t[numAreas];
 	memset(areas, 0, numAreas * sizeof(areas[0]));
-	areaPortals = new int*[numAreas * numAreas];
+	areaPortals = new int[numAreas * numAreas];
 	memset(areaPortals, 0, numAreas * numAreas * sizeof(areaPortals[0]));
 }
 
@@ -391,4 +468,186 @@ void ClipModel::loadEntityString(const lump_t* l, const uint8_t* offsetBase)
 	entityString = new char[l->filelen];
 	numEntityChars = l->filelen;
 	memcpy( entityString, offsetBase + l->fileofs, l->filelen );
+}
+
+#define VIS_HEADER  8
+void ClipModel::loadVisibility(const lump_t* l, const uint8_t* offsetBase)
+{
+	int len = l->filelen;
+	if ( !len ) {
+		clusterBytes = ( numClusters + 31 ) & ~31;
+		visibility = new uint8_t[clusterBytes];
+		memset( visibility, 255, clusterBytes );
+		return;
+	}
+	const uint8_t* buf = offsetBase + l->fileofs;
+
+	vised = true;
+	visibility = new uint8_t[len];
+	numClusters =  ( (const int *)buf )[0];
+	clusterBytes = ( (const int *)buf )[1];
+	memcpy( visibility, buf + VIS_HEADER, len - VIS_HEADER );
+}
+
+#define MAX_PATCH_VERTS     1024
+void ClipModel::loadPatches(const lump_t* surfaceLump, const lump_t* drawVertLump, const uint8_t* offsetBase)
+{
+	cPatch_t    *patch;
+	idVec3 points[MAX_PATCH_VERTS];
+
+	dsurface_t* in = ( dsurface_t * )( offsetBase + surfaceLump->fileofs );
+	if ( surfaceLump->filelen % sizeof( *in ) ) {
+		Com_Error( ERR_DROP, "MOD_LoadBmodel: funny lump size" );
+	}
+	numSurfaces = surfaceLump->filelen / sizeof( *in );
+	surfaces = new cPatch_t*[numSurfaces];
+	drawVert_t* dv = ( drawVert_t * )( offsetBase + drawVertLump->fileofs );
+	if ( drawVertLump->filelen % sizeof( *dv ) ) {
+		Com_Error( ERR_DROP, "MOD_LoadBmodel: funny lump size" );
+	}
+
+	// scan through all the surfaces, but only load patches, not planar faces
+	for (int i = 0 ; i < numSurfaces ; i++, in++ ) {
+		if ( in->surfaceType != MST_PATCH ) {
+			surfaces[ i ] = nullptr;
+			continue;       // ignore other surfaces
+		}
+		// FIXME: check for non-colliding patches
+
+		cPatch_t* patch = new cPatch_t;
+		surfaces[ i ] = patch;
+
+		// load the full drawverts onto the stack
+		int width = in->patchWidth;
+		int height = in->patchHeight;
+		int c = width * height;
+		if ( c > MAX_PATCH_VERTS ) {
+			Com_Error( ERR_DROP, "ParseMesh: MAX_PATCH_VERTS" );
+		}
+
+		drawVert_t* dv_p = dv + in->firstVert;
+		for (int j = 0 ; j < c ; j++, dv_p++ ) {
+			points[j][0] = dv_p->xyz[0];
+			points[j][1] = dv_p->xyz[1];
+			points[j][2] = dv_p->xyz[2];
+		}
+
+		int shaderNum = in->shaderNum;
+		patch->contents = shaders[shaderNum].contentFlags;
+		patch->surfaceFlags = shaders[shaderNum].surfaceFlags;
+
+		// create the internal facet structure
+		patch->pc = CM_GeneratePatchCollide( width, height, points );
+	}
+
+}
+
+void ClipModel::initBoxHull()
+{
+	box_model.leaf.numLeafBrushes = 1;
+	box_model.leaf.firstLeafBrush = numLeafBrushes;
+	leafBrushes[numLeafBrushes] = numBrushes;
+	numLeafBrushes += BOX_LEAF_BRUSHES;
+
+	// create the planes for the axial box
+	box_planes = &planes[numPlanes];
+	for ( int i = 0 ; i < 6 ; i++ ) {
+		cplane_t* p = &box_planes[i * 2];
+		p->type = i >> 1;
+		p->signbits = 0;
+		VectorClear( p->normal );
+		p->normal[i >> 1] = 1;
+
+		p = &box_planes[i * 2 + 1];
+		p->type = 3 + ( i >> 1 );
+		p->signbits = 0;
+		VectorClear( p->normal );
+		p->normal[i >> 1] = -1;
+
+		SetPlaneSignbits( p );
+	}
+
+	numPlanes += BOX_PLANES;
+
+	// create the single brush that is the box
+	box_brush = &brushes[numBrushes];
+	box_brush->sides = &brushsides[numBrushSides];
+	box_brush->numsides = BOX_SIDES;
+	box_brush->shaderNum = 0; // default shader
+	box_brush->contents = CONTENTS_BODY;
+
+	for ( int i = 0 ; i < BOX_SIDES ; i++ ) {
+		int side = i & 1;
+		brushsides[numBrushSides + i].plane = &box_planes[i*2 + side];
+		brushsides[numBrushSides + i].shaderNum = 0; // default shader
+		brushsides[numBrushSides + i].surfaceFlags = 0;
+	}
+
+	numBrushSides += BOX_SIDES;
+	numBrushes += BOX_BRUSHES;
+}
+
+clipHandle_t ClipModel::tempBoxModel( const vec3_t mins, const vec3_t maxs, int capsule )
+{
+	VectorCopy( mins, box_model.mins );
+	VectorCopy( maxs, box_model.maxs );
+
+	box_planes[0].dist = maxs[0];
+	box_planes[1].dist = -maxs[0];
+	box_planes[2].dist = mins[0];
+	box_planes[3].dist = -mins[0];
+	box_planes[4].dist = maxs[1];
+	box_planes[5].dist = -maxs[1];
+	box_planes[6].dist = mins[1];
+	box_planes[7].dist = -mins[1];
+	box_planes[8].dist = maxs[2];
+	box_planes[9].dist = -maxs[2];
+	box_planes[10].dist = mins[2];
+	box_planes[11].dist = -mins[2];
+
+	VectorCopy( mins, box_brush->bounds[0] );
+	VectorCopy( maxs, box_brush->bounds[1] );
+
+	if ( capsule ) {
+		return CAPSULE_MODEL_HANDLE;
+	}
+
+	return BOX_MODEL_HANDLE;
+}
+void ClipModel::floodArea_r( int areaNum, int floodnum )
+{
+	cArea_t * area = &areas[ areaNum ];
+
+	if ( area->floodvalid == floodvalid ) {
+		if ( area->floodnum == floodnum ) {
+			return;
+		}
+		Com_Error( ERR_DROP, "FloodArea_r: reflooded" );
+	}
+
+	area->floodnum = floodnum;
+	area->floodvalid = floodvalid;
+	int *con = areaPortals + areaNum * numAreas;
+	for (int i = 0; i < numAreas; i++ ) {
+		if ( con[i] > 0 ) {
+			floodArea_r( i, floodnum );
+		}
+	}
+}
+
+void ClipModel::floodAreaConnections()
+{
+	// all current floods are now invalid
+	floodvalid++;
+	int floodnum = 0;
+
+	cArea_t *area = areas;    // Ridah, optimization
+	for (int i = 0 ; i < numAreas ; i++, area++ ) {
+		if ( area->floodvalid == floodvalid ) {
+			continue;       // already flooded into
+		}
+		floodnum++;
+		floodArea_r( i, floodnum );
+	}
+
 }
