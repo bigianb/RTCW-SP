@@ -38,7 +38,7 @@ If you have questions concerning this license or the applicable additional terms
 #define MAX_NODESWITCHES    50
 
 void AIEnter_Intermission( bot_state_t *bs );
-void AIEnter_Observer( bot_state_t *bs );
+
 void AIEnter_Respawn( bot_state_t *bs );
 void AIEnter_Stand( bot_state_t *bs );
 void AIEnter_Seek_ActivateEntity( bot_state_t *bs );

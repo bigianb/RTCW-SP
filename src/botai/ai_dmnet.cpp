@@ -743,18 +743,6 @@ int AINode_Intermission( bot_state_t *bs ) {
 
 /*
 ==================
-AIEnter_Observer
-==================
-*/
-void AIEnter_Observer( bot_state_t *bs ) {
-	BotRecordNodeSwitch( bs, "observer", "" );
-	//reset the bot state
-	BotResetState( bs );
-	bs->ainode = AINode_Observer;
-}
-
-/*
-==================
 AINode_Observer
 ==================
 */
@@ -873,10 +861,7 @@ int AINode_Seek_ActivateEntity( bot_state_t *bs ) {
 	vec3_t target, dir;
 	bot_moveresult_t moveresult;
 
-	if ( BotIsObserver( bs ) ) {
-		AIEnter_Observer( bs );
-		return false;
-	}
+
 	//if in the intermission
 	if ( BotIntermission( bs ) ) {
 		AIEnter_Intermission( bs );
@@ -1000,10 +985,7 @@ int AINode_Seek_NBG( bot_state_t *bs ) {
 	vec3_t target, dir;
 	bot_moveresult_t moveresult;
 
-	if ( BotIsObserver( bs ) ) {
-		AIEnter_Observer( bs );
-		return false;
-	}
+
 	//if in the intermission
 	if ( BotIntermission( bs ) ) {
 		AIEnter_Intermission( bs );
@@ -1141,10 +1123,7 @@ int AINode_Seek_LTG( bot_state_t *bs ) {
 	//char buf[128];
 	//bot_goal_t tmpgoal;
 
-	if ( BotIsObserver( bs ) ) {
-		AIEnter_Observer( bs );
-		return false;
-	}
+
 	//if in the intermission
 	if ( BotIntermission( bs ) ) {
 		AIEnter_Intermission( bs );
@@ -1295,10 +1274,6 @@ int AINode_Battle_Fight( bot_state_t *bs ) {
 	aas_entityinfo_t entinfo;
 	bot_moveresult_t moveresult;
 
-	if ( BotIsObserver( bs ) ) {
-		AIEnter_Observer( bs );
-		return false;
-	}
 	//if in the intermission
 	if ( BotIntermission( bs ) ) {
 		AIEnter_Intermission( bs );
@@ -1421,10 +1396,7 @@ int AINode_Battle_Chase( bot_state_t *bs ) {
 	bot_moveresult_t moveresult;
 	float range;
 
-	if ( BotIsObserver( bs ) ) {
-		AIEnter_Observer( bs );
-		return false;
-	}
+
 	//if in the intermission
 	if ( BotIntermission( bs ) ) {
 		AIEnter_Intermission( bs );
@@ -1571,10 +1543,7 @@ int AINode_Battle_Retreat( bot_state_t *bs ) {
 	float attack_skill, range;
 	int areanum;
 
-	if ( BotIsObserver( bs ) ) {
-		AIEnter_Observer( bs );
-		return false;
-	}
+
 	//if in the intermission
 	if ( BotIntermission( bs ) ) {
 		AIEnter_Intermission( bs );
@@ -1732,10 +1701,7 @@ int AINode_Battle_NBG( bot_state_t *bs ) {
 	float attack_skill;
 	vec3_t target, dir;
 
-	if ( BotIsObserver( bs ) ) {
-		AIEnter_Observer( bs );
-		return false;
-	}
+
 	//if in the intermission
 	if ( BotIntermission( bs ) ) {
 		AIEnter_Intermission( bs );
