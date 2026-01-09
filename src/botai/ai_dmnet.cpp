@@ -54,7 +54,7 @@ If you have questions concerning this license or the applicable additional terms
 //data file headers
 #include "chars.h"           //characteristics
 #include "inv.h"         //indexes into the inventory
-#include "syn.h"         //synonyms
+
 #include "match.h"           //string matching types and vars
 
 #include "../server/server.h"

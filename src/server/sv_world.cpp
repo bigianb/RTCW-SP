@@ -358,48 +358,35 @@ bounds.  This does NOT mean that they actually touch in the case of bmodels.
 ============================================================================
 */
 
-typedef struct
+struct AreaParms
 {
-	const float *mins;
-	const float *maxs;
+	idVec3 mins;
+	idVec3 maxs;
 	int *list;
 	int count, maxcount;
-} areaParms_t;
+};
 
-
-/*
-====================
-SV_AreaEntities_r
-
-====================
-*/
 // helper function for SV_AreaEntities
-void SV_AreaEntities_r( WorldSector *node, areaParms_t *ap )
+void SV_AreaEntities_r( WorldSector *node, AreaParms& ap )
 {
-	int count = 0;
-
-	ServerEntity *next;
-	for (ServerEntity  * check = node->entities  ; check ; check = next ) {
-		next = check->nextEntityInWorldSector;
-
+	for (ServerEntity * check = node->entities; check; check = check->nextEntityInWorldSector ) {
 		sharedEntity_t *gcheck = SV_GEntityForSvEntity( check );
 
-		if ( gcheck->r.absmin[0] > ap->maxs[0]
-			 || gcheck->r.absmin[1] > ap->maxs[1]
-			 || gcheck->r.absmin[2] > ap->maxs[2]
-			 || gcheck->r.absmax[0] < ap->mins[0]
-			 || gcheck->r.absmax[1] < ap->mins[1]
-			 || gcheck->r.absmax[2] < ap->mins[2] ) {
+		if ( gcheck->r.absmin[0] > ap.maxs.x
+			 || gcheck->r.absmin[1] > ap.maxs.y
+			 || gcheck->r.absmin[2] > ap.maxs.z
+			 || gcheck->r.absmax[0] < ap.mins.x
+			 || gcheck->r.absmax[1] < ap.mins.y
+			 || gcheck->r.absmax[2] < ap.mins.z ) {
 			continue;
 		}
 
-		if ( ap->count == ap->maxcount ) {
+		if ( ap.count == ap.maxcount ) {
 			Com_DPrintf( "SV_AreaEntities: MAXCOUNT\n" );
 			return;
 		}
 
-		ap->list[ap->count] = (int)(check - sv.svEntities);
-		ap->count++;
+		ap.list[ap.count++] = (int)(check - sv.svEntities);
 	}
 
 	if ( node->axis == -1 ) {
@@ -407,31 +394,26 @@ void SV_AreaEntities_r( WorldSector *node, areaParms_t *ap )
 	}
 
 	// recurse down both sides
-	if ( ap->maxs[node->axis] > node->dist ) {
+	if ( ap.maxs[node->axis] > node->dist ) {
 		SV_AreaEntities_r( node->children[0], ap );
 	}
-	if ( ap->mins[node->axis] < node->dist ) {
+	if ( ap.mins[node->axis] < node->dist ) {
 		SV_AreaEntities_r( node->children[1], ap );
 	}
 }
 
-/*
-================
-SV_AreaEntities
-================
-*/
 // public
 int SV_AreaEntities( const vec3_t mins, const vec3_t maxs, int *entityList, int maxcount )
 {
-	areaParms_t ap;
+	AreaParms ap;
 
-	ap.mins = mins;
-	ap.maxs = maxs;
+	ap.mins = idVec3( mins[0], mins[1], mins[2] );
+	ap.maxs = idVec3( maxs[0], maxs[1], maxs[2] );
 	ap.list = entityList;
 	ap.count = 0;
 	ap.maxcount = maxcount;
 
-	SV_AreaEntities_r( sv_worldSectors, &ap );
+	SV_AreaEntities_r( sv_worldSectors, ap );
 
 	return ap.count;
 }

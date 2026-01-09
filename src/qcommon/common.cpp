@@ -154,10 +154,6 @@ void  Com_Printf( const char *fmt, ... ) {
 			*rd_buffer = 0;
 		}
 		Q_strcat( rd_buffer, rd_buffersize, msg );
-		// show_bug.cgi?id=51
-		// only flush the rcon buffer when it's necessary, avoid fragmenting
-		//rd_flush(rd_buffer);
-		//*rd_buffer = 0;
 		return;
 	}
 

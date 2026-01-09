@@ -41,7 +41,6 @@ set(BOTAI_INCLUDES
 	src/botai/chars.h
 	src/botai/inv.h
 	src/botai/match.h
-	src/botai/syn.h
 )
 
 set(BOTAI_SOURCES 

@@ -175,9 +175,6 @@ typedef struct {
 	int nextSnapshotEntities;               // next snapshotEntities to use
 	EntityState   *snapshotEntities;      // [numSnapshotEntities]
 	int nextHeartbeatTime;
-	netadr_t redirectAddress;               // for rcon return messages
-
-	netadr_t authorizeAddress;              // for rcon return messages
 } serverStatic_t;
 
 //=============================================================================

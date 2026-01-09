@@ -58,7 +58,7 @@ If you have questions concerning this license or the applicable additional terms
 //
 #include "chars.h"               //characteristics
 #include "inv.h"             //indexes into the inventory
-#include "syn.h"             //synonyms
+
 #include "match.h"               //string matching types and vars
 
 #define IDEAL_ATTACKDIST            140

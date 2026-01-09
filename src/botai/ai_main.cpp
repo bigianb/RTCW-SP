@@ -52,7 +52,7 @@ If you have questions concerning this license or the applicable additional terms
 //
 #include "chars.h"
 #include "inv.h"
-#include "syn.h"
+
 
 #define MAX_AIPATH 144
 
@@ -195,34 +195,6 @@ int BotAI_GetSnapshotEntity( int clientNum, int sequence, EntityState *state ) {
 	return sequence + 1;
 }
 
-/*
-==================
-BotAI_BotInitialChat
-==================
-*/
-void BotAI_BotInitialChat( bot_state_t *bs, char *type, ... ) {
-	int i, mcontext;
-	va_list ap;
-	char    *p;
-	char    *vars[MAX_MATCHVARIABLES];
-
-	memset( vars, 0, sizeof( vars ) );
-	va_start( ap, type );
-	p = va_arg( ap, char * );
-	for ( i = 0; i < MAX_MATCHVARIABLES; i++ ) {
-		if ( !p ) {
-			break;
-		}
-		vars[i] = p;
-		p = va_arg( ap, char * );
-	}
-	va_end( ap );
-
-	mcontext = CONTEXT_NORMAL | CONTEXT_NEARBYITEM | CONTEXT_NAMES;
-
-
-}
-
 
 /*
 ==============
@@ -231,15 +203,6 @@ BotEntityInfo
 */
 void BotEntityInfo( int entnum, aas_entityinfo_t *info ) {
 	trap_AAS_EntityInfo( entnum, info );
-}
-
-/*
-==============
-NumBots
-==============
-*/
-int NumBots( void ) {
-	return numbots;
 }
 
 /*

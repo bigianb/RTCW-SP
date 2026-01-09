@@ -548,61 +548,6 @@ void CL_Connect_f()
 	Cvar_Set( "cl_currentServerAddress", server );
 }
 
-
-/*
-=====================
-CL_Rcon_f
-
-  Send the rest of the command line over as
-  an unconnected command.
-=====================
-*/
-void CL_Rcon_f()
-{
-	char message[1024];
-	netadr_t to;
-
-	if ( !rcon_client_password->string ) {
-		Com_Printf( "You must set 'rcon_password' before\n"
-					"issuing an rcon command.\n" );
-		return;
-	}
-
-	message[0] = -1;
-	message[1] = -1;
-	message[2] = -1;
-	message[3] = -1;
-	message[4] = 0;
-
-	strcat( message, "rcon " );
-
-	strcat( message, rcon_client_password->string );
-	strcat( message, " " );
-
-	for (int i = 1 ; i < Cmd_Argc() ; i++ ) {
-		strcat( message, Cmd_Argv( i ) );
-		strcat( message, " " );
-	}
-
-	if ( cls.state >= CA_CONNECTED ) {
-		to = clc.netchan.remoteAddress;
-	} else {
-		if ( !strlen( rconAddress->string ) ) {
-			Com_Printf( "You must either be connected,\n"
-						"or set the 'rconAddress' cvar\n"
-						"to issue rcon commands\n" );
-
-			return;
-		}
-		NET_StringToAdr( rconAddress->string, &to );
-		if ( to.port == 0 ) {
-			to.port = BigShort( PORT_SERVER );
-		}
-	}
-
-	NET_SendPacket( NS_CLIENT, (int)strlen( message ) + 1, message, to );
-}
-
 /*
 =================
 CL_Vid_Restart_f
@@ -1684,7 +1629,7 @@ void CL_Init()
 	Cmd_AddCommand( "connect", CL_Connect_f );
 	Cmd_AddCommand( "reconnect", CL_Reconnect_f );
 
-	Cmd_AddCommand( "rcon", CL_Rcon_f );
+
 	Cmd_AddCommand( "setenv", CL_Setenv_f );
 
 	// Ridah, startup-caching system
@@ -1752,7 +1697,7 @@ void CL_Shutdown()
 	Cmd_RemoveCommand( "cinematic" );
 	Cmd_RemoveCommand( "stoprecord" );
 	Cmd_RemoveCommand( "connect" );
-	Cmd_RemoveCommand( "rcon" );
+
 	Cmd_RemoveCommand( "setenv" );
 
 	Cmd_RemoveCommand( "model" );

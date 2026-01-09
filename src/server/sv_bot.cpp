@@ -51,11 +51,6 @@ static bot_debugpoly_t debugpolygons[MAX_DEBUGPOLYS];
 extern botlib_export_t  *botlib_export;
 int bot_enable;
 
-/*
-==================
-SV_BotAllocateClient
-==================
-*/
 int SV_BotAllocateClient()
 {
 	int i;

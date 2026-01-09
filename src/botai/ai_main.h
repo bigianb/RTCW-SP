@@ -205,8 +205,7 @@ typedef struct bot_state_s
 
 //resets the whole bot state
 void BotResetState( bot_state_t *bs );
-//returns the number of bots in the game
-int NumBots( void );
+
 //returns info about the entity
 void BotEntityInfo( int entnum, aas_entityinfo_t *info );
 
@@ -218,7 +217,6 @@ void AICast_StartFrame( int time );
 
 // from the game source
 void  BotAI_Print( int type, const char *fmt, ... );
-void   BotAI_BotInitialChat( bot_state_t *bs, char *type, ... );
 void    BotAI_Trace( bsp_trace_t *bsptrace, vec3_t start, vec3_t mins, vec3_t maxs, vec3_t end, int passent, int contentmask );
 int     BotAI_GetClientState( int clientNum, PlayerState *state );
 int     BotAI_GetEntityState( int entityNum, EntityState *state );

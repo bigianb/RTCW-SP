@@ -58,11 +58,8 @@ cvar_t  *sv_maxPing;
 cvar_t  *sv_floodProtect;
 cvar_t  *sv_allowAnonymous;
 
-// Rafael gameskill
 cvar_t  *sv_gameskill;
-// done
-
-cvar_t  *sv_reloading;  //----(SA)	added
+cvar_t  *sv_reloading;
 
 /*
 =============================================================================
@@ -174,63 +171,6 @@ void SVC_Info( netadr_t from ) {
 }
 
 /*
-==============
-SV_FlushRedirect
-
-==============
-*/
-void SV_FlushRedirect( char *outputbuf ) {
-	NET_OutOfBandPrint( NS_SERVER, svs.redirectAddress, "print\n%s", outputbuf );
-}
-
-/*
-===============
-SVC_RemoteCommand
-
-An rcon packet arrived from the network.
-Shift down the remaining args
-Redirect all printfs
-===============
-*/
-void SVC_RemoteCommand( netadr_t from, msg_t *msg )
-{
-	bool valid;
-
-	char remaining[1024];
-#define SV_OUTPUTBUF_LENGTH ( MAX_MSGLEN - 16 )
-	char sv_outputbuf[SV_OUTPUTBUF_LENGTH];
-
-	if ( !strlen( sv_rconPassword->string ) || strcmp( Cmd_Argv( 1 ), sv_rconPassword->string ) ) {
-		valid = false;
-		Com_DPrintf( "Bad rcon from %s:\n%s\n", NET_AdrToString( from ), Cmd_Argv( 2 ) );
-	} else {
-		valid = true;
-		Com_DPrintf( "Rcon from %s:\n%s\n", NET_AdrToString( from ), Cmd_Argv( 2 ) );
-	}
-
-	// start redirecting all print outputs to the packet
-	svs.redirectAddress = from;
-	Com_BeginRedirect( sv_outputbuf, SV_OUTPUTBUF_LENGTH, SV_FlushRedirect );
-
-	if ( !strlen( sv_rconPassword->string ) ) {
-		Com_Printf( "No rconpassword set.\n" );
-	} else if ( !valid ) {
-		Com_Printf( "Bad rconpassword.\n" );
-	} else {
-		remaining[0] = 0;
-
-		for (int i = 2 ; i < Cmd_Argc() ; i++ ) {
-			strcat( remaining, Cmd_Argv( i ) );
-			strcat( remaining, " " );
-		}
-
-		Cmd_ExecuteString( remaining );
-	}
-
-	Com_EndRedirect();
-}
-
-/*
 =================
 SV_ConnectionlessPacket
 
@@ -252,14 +192,8 @@ void SV_ConnectionlessPacket( netadr_t from, msg_t *msg )
 	const char* c = Cmd_Argv( 0 );
 	Com_DPrintf( "SV packet %s : %s\n", NET_AdrToString( from ), c );
 
-	if ( !Q_stricmp( c,"getstatus" ) ) {
-		SVC_Status( from  );
-	} else if ( !Q_stricmp( c,"getinfo" ) ) {
-		SVC_Info( from );
-	} else if ( !Q_stricmp( c,"connect" ) ) {
+	if ( !Q_stricmp( c,"connect" ) ) {
 		SV_DirectConnect( from );
-	} else if ( !Q_stricmp( c, "rcon" ) ) {
-		SVC_RemoteCommand( from, msg );
 	} else if ( !Q_stricmp( c,"disconnect" ) ) {
 		// if a client starts up a local server, we may see some spurious
 		// server disconnect messages when their new server sees our final
@@ -503,5 +437,4 @@ void SV_Frame( int msec )
 
 	// send messages back to the clients
 	SV_SendClientMessages();
-
 }

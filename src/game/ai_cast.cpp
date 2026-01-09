@@ -224,12 +224,6 @@ int AICast_ShutdownClient( int client ) {
 	return BLERR_NOERROR;
 }
 
-/*
-============
-AICast_AddCastToGame
-============
-*/
-//----(SA) modified this for head separation
 GameEntity *AICast_AddCastToGame( GameEntity *ent, const char *castname, const char *model, const char *head, const char *sex, const char *color, const char *handicap ) {
 	int clientNum;
 	GameEntity *bot;
