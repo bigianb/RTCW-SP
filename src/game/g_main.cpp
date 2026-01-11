@@ -232,7 +232,7 @@ static int gameCvarTableSize = sizeof( gameCvarTable ) / sizeof( gameCvarTable[0
 
 
 void G_InitGame( int levelTime, int randomSeed, int restart );
-void G_RunFrame( int levelTime );
+
 void G_ShutdownGame( int restart );
 
 // Ridah, Cast AI
@@ -976,13 +976,6 @@ int G_SendMissionStats() {
 	return canExit;
 }
 
-/*
-============
-G_InitGame
-
-============
-*/
-
 void G_InitGame( int levelTime, int randomSeed, int restart )
 {
 	srand( randomSeed );
@@ -1076,13 +1069,6 @@ void G_InitGame( int levelTime, int randomSeed, int restart )
 	G_RemapTeamShaders();
 }
 
-
-
-/*
-=================
-G_ShutdownGame
-=================
-*/
 void G_ShutdownGame( int restart ) {
 
 	if ( level.logFile ) {
@@ -1095,17 +1081,13 @@ void G_ShutdownGame( int restart ) {
 
 	// Ridah, shutdown the Botlib, so weapons and things get reset upon doing a "map xxx" command
 	if ( Cvar_VariableIntegerValue( "bot_enable" ) ) {
-		int i;
-
 		// Ridah, kill AI cast's
-		for ( i = 0 ; i < g_maxclients.integer ; i++ ) {
+		for (int i = 0 ; i < g_maxclients.integer ; i++ ) {
 			if ( g_entities[i].shared.r.svFlags & SVF_CASTAI ) {
 				SV_GameDropClient( i, "Drop Cast AI" );
 			}
 		}
-		// done.
 	}
-	// done.
 
 	// write all the client session data so we can get it back
 	G_WriteSessionData();

@@ -161,10 +161,6 @@ vmCvar_t cg_blinktime;
 
 vmCvar_t cg_smoothClients;
 
-// Rafael - particle switch
-vmCvar_t cg_wolfparticles;
-// done
-
 // Ridah
 vmCvar_t cg_gameType;
 vmCvar_t cg_bloodTime;
@@ -348,10 +344,6 @@ static cvarTable_t cvarTable[] = {
 	{ &cg_synchronousClients, "g_syncronousClients", "0", 0 },    // communicated by systeminfo
 	{ &cg_currentSelectedPlayer, "cg_currentSelectedPlayer", "0", CVAR_ARCHIVE},
 	{ &cg_currentSelectedPlayerName, "cg_currentSelectedPlayerName", "", CVAR_ARCHIVE},
-
-	// Rafael - particle switch
-	{ &cg_wolfparticles, "cg_wolfparticles", "1", CVAR_ARCHIVE },
-	// done
 
 	// Ridah
 	{ &cg_norender, "cg_norender", "0", 0 },  // only used during single player, to suppress rendering until the server is ready

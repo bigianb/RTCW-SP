@@ -1669,9 +1669,6 @@ extern vmCvar_t cg_blinktime;           //----(SA)	added
 extern vmCvar_t cg_currentSelectedPlayer;
 extern vmCvar_t cg_currentSelectedPlayerName;
 
-// Rafael - particle switch
-extern vmCvar_t cg_wolfparticles;
-// done
 
 // Ridah
 extern vmCvar_t cg_gameType;

@@ -60,16 +60,9 @@ extern GameEntity    *podium1;
 extern GameEntity    *podium2;
 extern GameEntity    *podium3;
 
-
-/*
-===============
-AddBotToSpawnQueue
-===============
-*/
-static void AddBotToSpawnQueue( int clientNum, int delay ) {
-	int n;
-
-	for ( n = 0; n < BOT_SPAWN_QUEUE_DEPTH; n++ ) {
+static void AddBotToSpawnQueue( int clientNum, int delay )
+{
+	for (int n = 0; n < BOT_SPAWN_QUEUE_DEPTH; n++ ) {
 		if ( !botSpawnQueue[n].spawnTime ) {
 			botSpawnQueue[n].spawnTime = level.time + delay;
 			botSpawnQueue[n].clientNum = clientNum;

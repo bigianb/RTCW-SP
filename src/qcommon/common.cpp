@@ -1553,34 +1553,22 @@ int Com_ModifyMsec( int msec ) {
 	return msec;
 }
 
-/*
-=================
-Com_Frame
-=================
-*/
-void Com_Frame( void ) {
 
-	int msec, minMsec;
+void Com_Frame()
+{
+	int minMsec;
 	static int lastTime = 0;
 	int key;
-
-	int timeBeforeFirstEvents;
-	int timeBeforeServer;
-	int timeBeforeEvents;
-	int timeBeforeClient;
-	int timeAfter;
 
 	if ( setjmp( abortframe ) ) {
 		return;         // an ERR_DROP was thrown
 	}
 
-	// bk001204 - init to zero.
-	//  also:  might be clobbered by `longjmp' or `vfork'
-	timeBeforeFirstEvents = 0;
-	timeBeforeServer = 0;
-	timeBeforeEvents = 0;
-	timeBeforeClient = 0;
-	timeAfter = 0;
+	int timeBeforeFirstEvents = 0;
+	int timeBeforeServer = 0;
+	int timeBeforeEvents = 0;
+	int timeBeforeClient = 0;
+	int timeAfter = 0;
 
 	// write config file if anything changed
 	Com_WriteConfiguration();
@@ -1603,7 +1591,7 @@ void Com_Frame( void ) {
 
 	lastTime = com_frameTime;
 	com_frameTime = Com_EventLoop();
-	msec = com_frameTime - lastTime;
+	int msec = com_frameTime - lastTime;
 
 	Cbuf_Execute();
 
@@ -1655,12 +1643,10 @@ void Com_Frame( void ) {
 	// report timing information
 	//
 	if ( com_speeds->integer ) {
-		int all, sv, ev, cl;
-
-		all = timeAfter - timeBeforeServer;
-		sv = timeBeforeEvents - timeBeforeServer;
-		ev = timeBeforeServer - timeBeforeFirstEvents + timeBeforeClient - timeBeforeEvents;
-		cl = timeAfter - timeBeforeClient;
+		int all = timeAfter - timeBeforeServer;
+		int sv = timeBeforeEvents - timeBeforeServer;
+		int ev = timeBeforeServer - timeBeforeFirstEvents + timeBeforeClient - timeBeforeEvents;
+		int cl = timeAfter - timeBeforeClient;
 		sv -= time_game;
 		cl -= time_frontend + time_backend;
 

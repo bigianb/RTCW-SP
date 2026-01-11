@@ -37,10 +37,6 @@ cvar_t  *cl_nodelta;
 cvar_t  *cl_debugMove;
 
 cvar_t  *cl_noprint;
-cvar_t  *cl_motd;
-
-cvar_t  *rcon_client_password;
-cvar_t  *rconAddress;
 
 cvar_t  *cl_timeout;
 cvar_t  *cl_maxpackets;
@@ -161,29 +157,6 @@ void CL_AddReliableCommand( const char *cmd )
 	Q_strncpyz( clc.reliableCommands[ index ], cmd, sizeof( clc.reliableCommands[ index ] ) );
 }
 
-/*
-======================
-CL_ChangeReliableCommand
-======================
-*/
-void CL_ChangeReliableCommand()
-{
-	int r = clc.reliableSequence - ( random() * 5 );
-	int index = clc.reliableSequence & ( MAX_RELIABLE_COMMANDS - 1 );
-	size_t l = strlen( clc.reliableCommands[ index ] );
-	if ( l >= MAX_STRING_CHARS - 1 ) {
-		l = MAX_STRING_CHARS - 2;
-	}
-	clc.reliableCommands[ index ][ l ] = '\n';
-	clc.reliableCommands[ index ][ l + 1 ] = '\0';
-}
-
-
-/*
-=====================
-CL_ShutdownAll
-=====================
-*/
 void CL_ShutdownAll()
 {
 	S_DisableSounds();
@@ -364,11 +337,7 @@ CONSOLE COMMANDS
 ======================================================================
 */
 
-/*
-==================
-CL_ForwardToServer_f
-==================
-*/
+
 void CL_ForwardToServer_f()
 {
 	if ( cls.state != CA_ACTIVE) {
@@ -382,47 +351,6 @@ void CL_ForwardToServer_f()
 	}
 }
 
-/*
-==================
-CL_Setenv_f
-
-Mostly for controlling voodoo environment variables
-==================
-*/
-void CL_Setenv_f()
-{
-	int argc = Cmd_Argc();
-
-	if ( argc > 2 ) {
-		char buffer[1024];
-		int i;
-
-		strcpy( buffer, Cmd_Argv( 1 ) );
-		strcat( buffer, "=" );
-
-		for ( i = 2; i < argc; i++ ) {
-			strcat( buffer, Cmd_Argv( i ) );
-			strcat( buffer, " " );
-		}
-
-		Q_putenv( buffer );
-	} else if ( argc == 2 ) {
-		char *env = getenv( Cmd_Argv( 1 ) );
-
-		if ( env ) {
-			Com_Printf( "%s=%s\n", Cmd_Argv( 1 ), env );
-		} else {
-			Com_Printf( "%s undefined\n", Cmd_Argv( 1 ), env );
-		}
-	}
-}
-
-
-/*
-==================
-CL_Disconnect_f
-==================
-*/
 void CL_Disconnect_f()
 {
 	SCR_StopCinematic();
@@ -435,23 +363,11 @@ void CL_Disconnect_f()
 }
 
 
-/*
-================
-CL_Reconnect_f
-
-================
-*/
 void CL_Reconnect_f()
 {
 	Com_Printf( "Can't reconnect to localhost.\n" );
 }
 
-/*
-================
-CL_Connect_f
-
-================
-*/
 void CL_Connect_f()
 {
 	if ( Cmd_Argc() != 2 ) {
@@ -573,11 +489,7 @@ void CL_Snd_Restart_f()
 	CL_Vid_Restart_f();
 }
 
-/*
-==================
-CL_Configstrings_f
-==================
-*/
+
 void CL_Configstrings_f()
 {
 	if ( cls.state != CA_ACTIVE ) {
@@ -594,11 +506,7 @@ void CL_Configstrings_f()
 	}
 }
 
-/*
-==============
-CL_Clientinfo_f
-==============
-*/
+
 void CL_Clientinfo_f()
 {
 	Com_Printf( "--------- Client Information ---------\n" );
@@ -690,11 +598,6 @@ void CL_DisconnectPacket( netadr_t from )
 	CL_Disconnect( true );
 }
 
-/*
-===================
-CL_InitServerInfo
-===================
-*/
 void CL_InitServerInfo( serverInfo_t *server, serverAddress_t *address ) {
 	server->adr.type  = NA_IP;
 	server->adr.ip[0] = address->ip[0];
@@ -715,11 +618,6 @@ void CL_InitServerInfo( serverInfo_t *server, serverAddress_t *address ) {
 
 #define MAX_SERVERSPERPACKET    256
 
-/*
-===================
-CL_ServersResponsePacket
-===================
-*/
 void CL_ServersResponsePacket( netadr_t from, msg_t *msg )
 {
 	serverAddress_t addresses[MAX_SERVERSPERPACKET];
@@ -976,12 +874,7 @@ void CL_PacketEvent( netadr_t from, msg_t *msg )
 	CL_ParseServerMessage( msg );
 }
 
-/*
-==================
-CL_CheckTimeout
 
-==================
-*/
 void CL_CheckTimeout()
 {
 	//
@@ -1000,12 +893,6 @@ void CL_CheckTimeout()
 	}
 }
 
-/*
-==================
-CL_CheckUserinfo
-
-==================
-*/
 void CL_CheckUserinfo()
 {
 	// don't add reliable commands when not yet connected
@@ -1024,12 +911,6 @@ void CL_CheckUserinfo()
 
 }
 
-/*
-==================
-CL_Frame
-
-==================
-*/
 void CL_Frame( int msec )
 {
 	if ( !com_cl_running->integer ) {
@@ -1443,7 +1324,6 @@ void CL_Init()
 	// register our variables
 	//
 	cl_noprint = Cvar_Get( "cl_noprint", "0", 0 );
-	cl_motd = Cvar_Get( "cl_motd", "1", 0 );
 
 	cl_timeout = Cvar_Get( "cl_timeout", "200", 0 );
 
@@ -1451,10 +1331,7 @@ void CL_Init()
 
 	cl_showSend = Cvar_Get( "cl_showSend", "0", CVAR_TEMP );
 	cl_showTimeDelta = Cvar_Get( "cl_showTimeDelta", "0", CVAR_TEMP );
-	rcon_client_password = Cvar_Get( "rconPassword", "", CVAR_TEMP );
 	cl_activeAction = Cvar_Get( "activeAction", "", CVAR_TEMP );
-
-	rconAddress = Cvar_Get( "rconAddress", "", 0 );
 
 	cl_yawspeed = Cvar_Get( "cl_yawspeed", "140", CVAR_ARCHIVE );
 	cl_pitchspeed = Cvar_Get( "cl_pitchspeed", "140", CVAR_ARCHIVE );
@@ -1483,10 +1360,6 @@ void CL_Init()
 	// init autoswitch so the ui will have it correctly even
 	// if the cgame hasn't been started
 	Cvar_Get( "cg_autoswitch", "2", CVAR_ARCHIVE );
-
-	// Rafael - particle switch
-	Cvar_Get( "cg_wolfparticles", "1", CVAR_ARCHIVE );
-	// done
 
 	cl_conXOffset = Cvar_Get( "cl_conXOffset", "0", 0 );
 	cl_inGameVideo = Cvar_Get( "r_inGameVideo", "1", CVAR_ARCHIVE );
@@ -1570,9 +1443,6 @@ void CL_Init()
 
 	Cmd_AddCommand( "reconnect", CL_Reconnect_f );
 
-
-	Cmd_AddCommand( "setenv", CL_Setenv_f );
-
 	// Ridah, startup-caching system
 	Cmd_AddCommand( "cache_startgather", CL_Cache_StartGather_f );
 	Cmd_AddCommand( "cache_usedfile", CL_Cache_UsedFile_f );
@@ -1603,12 +1473,6 @@ void CL_Init()
 }
 
 
-/*
-===============
-CL_Shutdown
-
-===============
-*/
 void CL_Shutdown()
 {
 	static bool recursive = false;
@@ -1638,8 +1502,6 @@ void CL_Shutdown()
 	Cmd_RemoveCommand( "cinematic" );
 	Cmd_RemoveCommand( "stoprecord" );
 	Cmd_RemoveCommand( "connect" );
-
-	Cmd_RemoveCommand( "setenv" );
 
 	Cmd_RemoveCommand( "model" );
 

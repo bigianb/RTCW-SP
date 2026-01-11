@@ -873,10 +873,6 @@ void CG_AddParticleToScene( cparticle_t *p, vec3_t org, float alpha ) {
 	}
 	// done.
 
-	if ( !cg_wolfparticles.integer ) {
-		return;
-	}
-
 	if ( !p->pshader ) {
 		return;
 	}
