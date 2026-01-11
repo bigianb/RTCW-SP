@@ -31,41 +31,18 @@ If you have questions concerning this license or the applicable additional terms
 #include "../qcommon/qcommon.h"
 #include "server.h"
 
-/*
-=================
-SV_Netchan_TransmitNextFragment
-=================
-*/
 void SV_Netchan_TransmitNextFragment( netchan_t *chan ) {
 	Netchan_TransmitNextFragment( chan );
 }
 
-
-/*
-===============
-SV_Netchan_Transmit
-================
-*/
-
-void SV_Netchan_Transmit( client_t *client, msg_t *msg ) {
-
+void SV_Netchan_Transmit( client_t *client, msg_t *msg )
+{
 	MSG_WriteByte( msg, svc_EOF );
 	Netchan_Transmit( &client->netchan, msg->cursize, msg->data );
 }
 
-/*
-=================
-Netchan_SV_Process
-=================
-*/
-bool SV_Netchan_Process( client_t *client, msg_t *msg ) {
-	int ret;
-
-	ret = Netchan_Process( &client->netchan, msg );
-	if ( !ret ) {
-		return false;
-	}
-
-	return true;
+bool SV_Netchan_Process( client_t *client, msg_t *msg )
+{	
+	return Netchan_Process( &client->netchan, msg );
 }
 

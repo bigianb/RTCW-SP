@@ -999,12 +999,3 @@ void CL_InitInput( void ) {
 	cl_debugMove = Cvar_Get( "cl_debugMove", "0", 0 );
 }
 
-
-/*
-============
-CL_ClearKeys
-============
-*/
-void CL_ClearKeys( void ) {
-	memset( kb, 0, sizeof( kb ) );
-}

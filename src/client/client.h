@@ -240,8 +240,6 @@ typedef struct {
 
 	bool endgamemenu;           // bring up the end game credits menu next frame
 
-	char servername[MAX_OSPATH];            // name of server from original connect (used by reconnect)
-
 	// when the server clears the hunk, all of these must be restarted
 	bool rendererStarted;
 	bool soundStarted;
@@ -432,8 +430,6 @@ typedef enum {
 
 void Key_KeynumToStringBuf( int keynum, char *buf, int buflen );
 
-void CL_ClearKeys( void );
-
 void CL_InitInput( void );
 void CL_SendCmd( void );
 void CL_ClearState( void );
@@ -443,12 +439,6 @@ void CL_WritePacket( void );
 void IN_CenterView( void );
 void IN_Notebook( void );
 void IN_Help( void );
-
-//----(SA) salute
-void IN_Salute( void );
-//----(SA)
-
-void CL_VerifyCode( void );
 
 float CL_KeyState( kbutton_t *key );
 const char *Key_KeynumToString( int keynum, bool bTranslate );

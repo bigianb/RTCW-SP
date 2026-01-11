@@ -380,29 +380,20 @@ NET_CompareBaseAdr
 Compares without the port
 ===================
 */
-bool    NET_CompareBaseAdr( netadr_t a, netadr_t b ) {
-	if ( a.type != b.type ) {
-		return false;
-	}
-
-	return true;
+bool    NET_CompareBaseAdr( netadr_t a, netadr_t b )
+{
+	return a.type == b.type;
 }
 
-const char  *NET_AdrToString( netadr_t a ) {
-	static char s[64];
-
-	snprintf( s, sizeof( s ), "loopback" );
-
-	return s;
+const char  *NET_AdrToString( netadr_t a )
+{
+	return "loopback";
 }
 
 
-bool    NET_CompareAdr( netadr_t a, netadr_t b ) {
-	if ( a.type != b.type ) {
-		return false;
-	}
-
-	return true;
+bool NET_CompareAdr( netadr_t a, netadr_t b )
+{
+	return a.type == b.type;
 }
 
 
@@ -436,7 +427,7 @@ typedef struct {
 
 loopback_t loopbacks[2];
 
-
+// Called from the common event loop
 bool    NET_GetLoopPacket( netsrc_t sock, netadr_t *net_from, msg_t *net_message )
 {
 	loopback_t* loop = &loopbacks[sock];
@@ -460,6 +451,7 @@ bool    NET_GetLoopPacket( netsrc_t sock, netadr_t *net_from, msg_t *net_message
 
 }
 
+static
 void NET_SendLoopPacket( netsrc_t sock, size_t length, const void *data, netadr_t to )
 {
 	loopback_t* loop = &loopbacks[sock ^ 1];
@@ -470,9 +462,6 @@ void NET_SendLoopPacket( netsrc_t sock, size_t length, const void *data, netadr_
 	memcpy( loop->msgs[i].data, data, length );
 	loop->msgs[i].datalen = length;
 }
-
-//=============================================================================
-
 
 void NET_SendPacket( netsrc_t sock, size_t length, const void *data, netadr_t to )
 {
@@ -516,8 +505,8 @@ Traps "localhost" for loopback, passes everything else to system
 */
 bool NET_StringToAdr( const char *s, netadr_t *a )
 {
-		memset( a, 0, sizeof( *a ) );
-		a->type = NA_LOOPBACK;
-		return true;
+	memset( a, 0, sizeof( *a ) );
+	a->type = NA_LOOPBACK;
+	return true;
 }
 

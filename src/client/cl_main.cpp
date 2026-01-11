@@ -205,7 +205,7 @@ void CL_ShutdownAll()
 =================
 CL_FlushMemory
 
-Called by CL_MapLoading, CL_Connect_f, and CL_ParseGamestate the only
+Called by CL_MapLoading, and CL_ParseGamestate the only
 ways a client gets into a game
 Also called by Com_Error
 =================
@@ -254,13 +254,11 @@ void CL_MapLoading()
 		// clear nextmap so the cinematic shutdown doesn't execute it
 		Cvar_Set( "nextmap", "" );
 		CL_Disconnect( true );
-		Q_strncpyz( cls.servername, "localhost", sizeof( cls.servername ) );
+
 		cls.state = CA_CHALLENGING;     // so the connect screen is drawn
 		Key_SetCatcher( 0 );
 		SCR_UpdateScreen();
 		clc.connectTime = -RETRANSMIT_TIMEOUT;
-		NET_StringToAdr( cls.servername, &clc.serverAddress );
-		// we don't need a challenge on the localhost
 
 		CL_CheckForResend();
 	}
@@ -357,39 +355,6 @@ void CL_ForwardCommandToServer( const char *string )
 	}
 }
 
-/*
-===================
-CL_RequestMotd
-
-===================
-*/
-void CL_RequestMotd()
-{
-	char info[MAX_INFO_STRING];
-
-	if ( !cl_motd->integer ) {
-		return;
-	}
-	Com_Printf( "Resolving %s\n", UPDATE_SERVER_NAME );
-	if ( !NET_StringToAdr( UPDATE_SERVER_NAME, &cls.updateServer  ) ) {
-		Com_Printf( "Couldn't resolve address\n" );
-		return;
-	}
-	cls.updateServer.port = BigShort( PORT_UPDATE );
-	Com_Printf( "%s resolved to %i.%i.%i.%i:%i\n", UPDATE_SERVER_NAME,
-				cls.updateServer.ip[0], cls.updateServer.ip[1],
-				cls.updateServer.ip[2], cls.updateServer.ip[3],
-				BigShort( cls.updateServer.port ) );
-
-	info[0] = 0;
-	snprintf( cls.updateChallenge, sizeof( cls.updateChallenge ), "%i", rand() );
-
-	Info_SetValueForKey( info, "challenge", cls.updateChallenge );
-	Info_SetValueForKey( info, "renderer", cls.glconfig.renderer_string );
-	Info_SetValueForKey( info, "version", com_version->string );
-
-	NET_OutOfBandPrint( NS_CLIENT, cls.updateServer, "getmotd \"%s\"\n", info );
-}
 
 /*
 ======================================================================
@@ -497,9 +462,6 @@ void CL_Connect_f()
 	// starting to load a map so we get out of full screen ui mode
 	Cvar_Set( "r_uiFullScreen", "0" );
 
-	// fire a message off to the motd server
-	CL_RequestMotd();
-
 	// clear any previous "server full" type messages
 	clc.serverMessage[0] = 0;
 
@@ -517,28 +479,12 @@ void CL_Connect_f()
 	CL_Disconnect( true );
 	Con_Close();
 
-	Q_strncpyz( cls.servername, server, sizeof( cls.servername ) );
-
-	if ( !NET_StringToAdr( cls.servername, &clc.serverAddress ) ) {
-		Com_Printf( "Bad server address\n" );
-		cls.state = CA_DISCONNECTED;
-		return;
-	}
 	if ( clc.serverAddress.port == 0 ) {
 		clc.serverAddress.port = BigShort( PORT_SERVER );
 	}
-	Com_Printf( "%s resolved to %i.%i.%i.%i:%i\n", cls.servername,
-				clc.serverAddress.ip[0], clc.serverAddress.ip[1],
-				clc.serverAddress.ip[2], clc.serverAddress.ip[3],
-				BigShort( clc.serverAddress.port ) );
 
-	// if we aren't playing on a lan, we need to authenticate
-	// with the cd key
-	if ( NET_IsLocalAddress( clc.serverAddress ) ) {
-		cls.state = CA_CHALLENGING;
-	} else {
-		cls.state = CA_CONNECTING;
-	}
+
+	cls.state = CA_CHALLENGING;
 
 	cls.keyCatchers = 0;
 	clc.connectTime = -99999;   // CL_CheckForResend() will fire immediately
@@ -547,6 +493,7 @@ void CL_Connect_f()
 	// server connection string
 	Cvar_Set( "cl_currentServerAddress", server );
 }
+
 
 /*
 =================
@@ -656,7 +603,6 @@ void CL_Clientinfo_f()
 {
 	Com_Printf( "--------- Client Information ---------\n" );
 	Com_Printf( "state: %i\n", cls.state );
-	Com_Printf( "Server: %s\n", cls.servername );
 	Com_Printf( "User info settings:\n" );
 	Info_Print( Cvar_InfoString( CVAR_USERINFO ) );
 	Com_Printf( "--------------------------------------\n" );
@@ -934,12 +880,7 @@ void CL_ConnectionlessPacket( netadr_t from, msg_t *msg )
 			Com_Printf( "connectResponse packet while not connecting.  Ignored.\n" );
 			return;
 		}
-		if ( !NET_CompareBaseAdr( from, clc.serverAddress ) ) {
-			Com_Printf( "connectResponse from a different address.  Ignored.\n" );
-			Com_Printf( "%s should have been %s\n", NET_AdrToString( from ),
-						NET_AdrToString( clc.serverAddress ) );
-			return;
-		}
+
 		Netchan_Setup( NS_CLIENT, &clc.netchan, from, Cvar_VariableValue( "net_qport" ) );
 		cls.state = CA_CONNECTED;
 		clc.lastPacketSentTime = -9999;     // send first packet immediately
@@ -1626,7 +1567,7 @@ void CL_Init()
 	Cmd_AddCommand( "vid_restart", CL_Vid_Restart_f );
 	Cmd_AddCommand( "disconnect", CL_Disconnect_f );
 	Cmd_AddCommand( "cinematic", CL_PlayCinematic_f );
-	Cmd_AddCommand( "connect", CL_Connect_f );
+
 	Cmd_AddCommand( "reconnect", CL_Reconnect_f );
 
 

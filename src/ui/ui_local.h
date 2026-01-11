@@ -815,7 +815,6 @@ void            trap_Key_SetOverstrikeMode( bool state );
 int             trap_Key_GetCatcher( void );
 void            trap_Key_SetCatcher( int catcher );
 
-void            GetClientState( uiClientState_t *state );
 int             GetConfigString( int index, char* buff, int buffsize );
 
 void            trap_R_RegisterFont( const char *pFontname, int pointSize, fontInfo_t *font );

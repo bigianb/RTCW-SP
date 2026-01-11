@@ -31,21 +31,6 @@ If you have questions concerning this license or the applicable additional terms
 #include "../botlib/botlib.h"
 
 extern botlib_export_t *botlib_export;
-extern char cl_cdkey[34];
-
-/*
-====================
-GetClientState
-====================
-*/
-void GetClientState( uiClientState_t *state ) {
-	state->connectPacketCount = clc.connectPacketCount;
-	state->connState = cls.state;
-	Q_strncpyz( state->servername, cls.servername, sizeof( state->servername ) );
-	Q_strncpyz( state->updateInfoString, cls.updateInfoString, sizeof( state->updateInfoString ) );
-	Q_strncpyz( state->messageString, clc.serverMessage, sizeof( state->messageString ) );
-	state->clientNum = cl.snap.ps.clientNum;
-}
 
 /*
 ====================

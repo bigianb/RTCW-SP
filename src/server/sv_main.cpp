@@ -232,22 +232,13 @@ void SV_PacketEvent( netadr_t from, msg_t *msg )
 		if ( cl->state == CS_FREE ) {
 			continue;
 		}
-		if ( !NET_CompareBaseAdr( from, cl->netchan.remoteAddress ) ) {
-			continue;
-		}
+
 		// it is possible to have multiple clients from a single IP
 		// address, so they are differentiated by the qport variable
 		if ( cl->netchan.qport != qport ) {
 			continue;
 		}
 
-		// the IP port can't be used to differentiate them, because
-		// some address translating routers periodically change UDP
-		// port assignments
-		if ( cl->netchan.remoteAddress.port != from.port ) {
-			Com_Printf( "SV_ReadPackets: fixing up a translated port\n" );
-			cl->netchan.remoteAddress.port = from.port;
-		}
 
 		// make sure it is a valid, in sequence packet
 		if ( SV_Netchan_Process( cl, msg ) ) {
@@ -265,52 +256,6 @@ void SV_PacketEvent( netadr_t from, msg_t *msg )
 	// if we received a sequenced packet from an address we don't reckognize,
 	// send an out of band disconnect packet to it
 	NET_OutOfBandPrint( NS_SERVER, from, "disconnect" );
-}
-
-/*
-==================
-SV_CheckTimeouts
-
-If a packet has not been received from a client for timeout->integer
-seconds, drop the conneciton.  Server time is used instead of
-realtime to avoid dropping the local client while debugging.
-
-When a client is normally dropped, the client_t goes into a zombie state
-for a few seconds to make sure any final reliable message gets resent
-if necessary
-==================
-*/
-void SV_CheckTimeouts()
-{
-	int droppoint = svs.time - 1000 * sv_timeout->integer;
-	int zombiepoint = svs.time - 1000 * sv_zombietime->integer;
-
-	for (int i = 0; i < sv_maxclients->integer; i++ ) {
-		client_t *cl = &svs.clients[i];
-		// message times may be wrong across a changelevel
-		if ( cl->lastPacketTime > svs.time ) {
-			cl->lastPacketTime = svs.time;
-		}
-
-		if ( cl->state == CS_ZOMBIE && cl->lastPacketTime < zombiepoint ) {
-			Com_DPrintf( "Going from CS_ZOMBIE to CS_FREE for %s\n", cl->name );
-			cl->state = CS_FREE;    // can now be reused
-			continue;
-		}
-		// Ridah, AI's don't time out
-		if ( cl->gentity && !( cl->gentity->r.svFlags & SVF_CASTAI ) ) {
-			if ( cl->state >= CS_CONNECTED && cl->lastPacketTime < droppoint ) {
-				// wait several frames so a debugger session doesn't
-				// cause a timeout
-				if ( ++cl->timeoutCount > 5 ) {
-					SV_DropClient( cl, "timed out" );
-					cl->state = CS_FREE;    // don't bother with zombie state
-				}
-			} else {
-				cl->timeoutCount = 0;
-			}
-		}
-	}
 }
 
 
@@ -431,9 +376,6 @@ void SV_Frame( int msec )
 	if ( com_speeds->integer ) {
 		time_game = Sys_Milliseconds() - startTime;
 	}
-
-	// check timeouts
-	SV_CheckTimeouts();
 
 	// send messages back to the clients
 	SV_SendClientMessages();

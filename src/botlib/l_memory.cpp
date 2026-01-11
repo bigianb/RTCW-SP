@@ -39,10 +39,6 @@ int totalmemorysize;
 int numblocks;
 
 
-void *BotImport_HunkAlloc( int size ) {
-    return malloc(size);
-}
-
 void *GetMemory( unsigned long size )
 {
     return malloc(size);
@@ -75,10 +71,4 @@ void FreeMemory( void *ptr ) {
     free( ptr );
 }
 
-
-void PrintUsedMemorySize( void ) {
-}
-
-void PrintMemoryLabels( void ) {
-}
 

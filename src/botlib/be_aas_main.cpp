@@ -218,6 +218,7 @@ int AAS_StartFrame( float time ) {
 float AAS_Time( void ) {
 	return ( *aasworld ).time;
 } //end of the function AAS_Time
+
 //===========================================================================
 // basedir	= Quake2 console basedir
 // gamedir	= Quake2 console gamedir
