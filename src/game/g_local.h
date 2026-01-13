@@ -1117,8 +1117,6 @@ extern vmCvar_t g_missionStats;
 extern vmCvar_t ai_scriptName;          // name of AI script file to run (instead of default for that map)
 extern vmCvar_t g_scriptName;           // name of script file to run (instead of default for that map)
 
-extern vmCvar_t g_scriptDebug;
-
 extern vmCvar_t g_userAim;
 
 extern vmCvar_t g_forceModel;

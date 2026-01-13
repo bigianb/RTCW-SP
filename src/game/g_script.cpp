@@ -208,13 +208,14 @@ G_Script_ScriptLoad
   Loads the script for the current level into the buffer
 =============
 */
-void G_Script_ScriptLoad( void ) {
+void G_Script_ScriptLoad()
+{
 	char filename[MAX_QPATH];
 	vmCvar_t mapname;
 	fileHandle_t f;
 	int len;
 
-	Cvar_Register( &g_scriptDebug, "g_scriptDebug", "1", 0 );
+	Cvar_Register( &g_scriptDebug, "g_scriptDebug", "0", 0 );
 
 	level.scriptEntity = nullptr;
 

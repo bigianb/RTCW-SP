@@ -351,6 +351,14 @@ set(IDLIB_SOURCES
 	src/idlib/math/Vector.cpp
 )
 
+set(SCRIPTING_INCLUDES
+	src/scripting/ScriptParser.h
+)
+
+set(SCRIPTING_SOURCES
+	src/scripting/ScriptParser.cpp
+)
+
 file(GLOB SPLINES_INCLUDES src/splines/*.h)
 file(GLOB SPLINES_SOURCES src/splines/*.cpp)
 
@@ -441,12 +449,12 @@ set(WOLF_SOURCES
     ${UI_SOURCES}
     ${SDL_SOURCES}
 )
-
+add_library(scriptlib STATIC ${SCRIPTING_SOURCES} ${SCRIPTING_INCLUDES})
 add_library(idlib STATIC ${IDLIB_SOURCES} ${IDLIB_INCLUDES})
 add_library(server STATIC ${SERVER_SOURCES} ${SERVER_INCLUDES})
 
 add_executable(wolf WIN32 MACOSX_BUNDLE ${WOLF_INCLUDES} ${WOLF_SOURCES})
-target_link_libraries(wolf idlib server SDL3::SDL3 OpenGL::GL JPEG::JPEG)
+target_link_libraries(wolf idlib server scriptlib SDL3::SDL3 OpenGL::GL JPEG::JPEG)
 
 if(ENABLE_TESTS)
 	enable_testing()
