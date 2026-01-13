@@ -20,6 +20,7 @@ const char* scriptText = R"(
             playsound sound/deathsound.wav
         }
     }
+}
 )";
 
     ScriptParser parser;
