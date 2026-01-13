@@ -363,54 +363,6 @@ void CL_Disconnect_f()
 }
 
 
-void CL_Reconnect_f()
-{
-	Com_Printf( "Can't reconnect to localhost.\n" );
-}
-
-void CL_Connect_f()
-{
-	if ( Cmd_Argc() != 2 ) {
-		Com_Printf( "usage: connect [server]\n" );
-		return;
-	}
-
-	// starting to load a map so we get out of full screen ui mode
-	Cvar_Set( "r_uiFullScreen", "0" );
-
-	// clear any previous "server full" type messages
-	clc.serverMessage[0] = 0;
-
-	const char* server = Cmd_Argv( 1 );
-
-	if ( com_sv_running->integer) {
-		// if running a local server, kill it
-		SV_Shutdown( "Server quit\n" );
-	}
-
-	// make sure a local server is killed
-	Cvar_Set( "sv_killserver", "1" );
-	SV_Frame( 0 );
-
-	CL_Disconnect( true );
-	Con_Close();
-
-	if ( clc.serverAddress.port == 0 ) {
-		clc.serverAddress.port = BigShort( PORT_SERVER );
-	}
-
-
-	cls.state = CA_CHALLENGING;
-
-	cls.keyCatchers = 0;
-	clc.connectTime = -99999;   // CL_CheckForResend() will fire immediately
-	clc.connectPacketCount = 0;
-
-	// server connection string
-	Cvar_Set( "cl_currentServerAddress", server );
-}
-
-
 /*
 =================
 CL_Vid_Restart_f
@@ -1440,8 +1392,6 @@ void CL_Init()
 	Cmd_AddCommand( "vid_restart", CL_Vid_Restart_f );
 	Cmd_AddCommand( "disconnect", CL_Disconnect_f );
 	Cmd_AddCommand( "cinematic", CL_PlayCinematic_f );
-
-	Cmd_AddCommand( "reconnect", CL_Reconnect_f );
 
 	// Ridah, startup-caching system
 	Cmd_AddCommand( "cache_startgather", CL_Cache_StartGather_f );

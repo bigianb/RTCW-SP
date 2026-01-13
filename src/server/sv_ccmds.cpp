@@ -427,14 +427,6 @@ static void SV_Systeminfo_f( void ) {
 	Info_Print( Cvar_InfoString( CVAR_SYSTEMINFO ) );
 }
 
-/*
-=================
-SV_KillServer
-=================
-*/
-static void SV_KillServer_f( void ) {
-	SV_Shutdown( "killserver" );
-}
 
 //===========================================================
 
@@ -465,7 +457,6 @@ void SV_AddOperatorCommands( void ) {
 	Cmd_AddCommand( "spdevmap", SV_Map_f );
 
 	Cmd_AddCommand( "loadgame", SV_LoadGame_f );
-	Cmd_AddCommand( "killserver", SV_KillServer_f );
 
 }
 

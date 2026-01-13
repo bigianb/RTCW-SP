@@ -47,7 +47,6 @@ cvar_t  *sv_master[MAX_MASTER_SERVERS];     // master server ip address
 cvar_t  *sv_reconnectlimit;     // minimum seconds between connect messages
 cvar_t  *sv_showloss;           // report when usercmds are lost
 cvar_t  *sv_padPackets;         // add nop bytes to messages
-cvar_t  *sv_killserver;         // menu system can set to 1 to shut server down
 cvar_t  *sv_mapname;
 
 cvar_t  *sv_serverid;
@@ -299,13 +298,6 @@ happen before SV_Frame is called
 */
 void SV_Frame( int msec )
 {
-	// the menu kills the server with this cvar
-	if ( sv_killserver->integer ) {
-		SV_Shutdown( "Server was killed.\n" );
-		Cvar_Set( "sv_killserver", "0" );
-		return;
-	}
-
 	if ( !com_sv_running->integer ) {
 		return;
 	}
@@ -322,7 +314,6 @@ void SV_Frame( int msec )
 	int frameMsec = 1000 / sv_fps->integer ;
 
 	sv.timeResidual += msec;
-
 
 	SV_BotFrame( svs.time + sv.timeResidual );
 
