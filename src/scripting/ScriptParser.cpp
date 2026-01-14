@@ -12,15 +12,89 @@ ScriptParser::~ScriptParser()
     
 }
 
-void ScriptParser::parse(const char* scriptText)
+std::vector<ScriptParser::EntityScript> ScriptParser::parse(const char* scriptText)
 {
+    std::vector<EntityScript> scripts;
     inputText = scriptText;
     currentIndex = 0;
 
     while (!isEndOfInput()) {
         std::string token = nextToken();
-//        std::cout << "Token: " << token << std::endl;
+        if (isEndOfInput()) {
+            break;
+        }
+        if (!token.empty()) {
+            scripts.push_back(readEntityScript(token));
+        }
     }
+    return scripts;
+}
+
+ScriptParser::EntityScript ScriptParser::readEntityScript(std::string scriptName)
+{
+    /*
+        Format is as follows:
+
+        {
+            eventName
+            eventParam1 eventParam2 ...
+            {
+                actionName param1 param2 ...
+                actionName param1 param2 ...
+            }
+        }
+    */
+    EntityScript entityScript;
+    entityScript.name = scriptName;
+
+    std::string token = nextToken();
+    if (token != "{") {
+        return entityScript;    // TODO: throw error
+    }
+
+    while (true) {
+        token = nextToken();
+        if (token == "}") {
+            break;
+        }
+
+        std::string eventName = token;
+        std::vector<std::string> eventParams;
+
+        // Read event parameters
+        while (true) {
+            token = nextToken();
+            if (token == "{") {
+                break;
+            }
+            eventParams.push_back(token);
+        }
+
+        // Read actions
+        std::vector<EventActions> actions;
+        while (true) {
+            token = nextToken();
+            if (token == "}") {
+                break;
+            }
+            EventActions action;
+            action.name = token;
+
+            // Read action parameters
+            while (true) {
+                token = nextToken();
+                if (token == "}") {
+                    break;
+                }
+                action.parameters.push_back(token);
+            }
+            actions.push_back(action);
+        }
+
+        entityScript.events[eventName] = actions;
+    }
+
+    return entityScript;
 }
 
 void ScriptParser::skipWhitespace()
