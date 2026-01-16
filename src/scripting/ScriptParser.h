@@ -31,8 +31,8 @@ private:
     int currentIndex;
     const char* inputText;
 
-    std::string nextToken();
-    void skipWhitespace();
+    std::string nextToken(bool skipLinefeed = true);
+    void skipWhitespace(bool skipLinefeed = true);
     char peekNextChar();
     char readNextChar();
     void unreadChar();

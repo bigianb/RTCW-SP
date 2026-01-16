@@ -54,7 +54,7 @@ ScriptParser::EntityScript ScriptParser::readEntityScript(std::string scriptName
 
     while (true) {
         token = nextToken();
-        if (token == "}") {
+        if (token == "}" || isEndOfInput()) {
             break;
         }
 
@@ -64,7 +64,7 @@ ScriptParser::EntityScript ScriptParser::readEntityScript(std::string scriptName
         // Read event parameters
         while (true) {
             token = nextToken();
-            if (token == "{") {
+            if (token == "{" || isEndOfInput()) {
                 break;
             }
             eventParams.push_back(token);
@@ -80,10 +80,10 @@ ScriptParser::EntityScript ScriptParser::readEntityScript(std::string scriptName
             EventActions action;
             action.name = token;
 
-            // Read action parameters
+            // Read action parameters up to the end of a line
             while (true) {
-                token = nextToken();
-                if (token == "}") {
+                token = nextToken(false);
+                if (token == "\n" || isEndOfInput()) {
                     break;
                 }
                 action.parameters.push_back(token);
@@ -97,10 +97,16 @@ ScriptParser::EntityScript ScriptParser::readEntityScript(std::string scriptName
     return entityScript;
 }
 
-void ScriptParser::skipWhitespace()
+void ScriptParser::skipWhitespace(bool skipLinefeed)
 {
-    while (inputText[currentIndex] == ' ' || inputText[currentIndex] == '\n' || inputText[currentIndex] == '\r' || inputText[currentIndex] == '\t') {
-        currentIndex++;
+    if (skipLinefeed) {
+        while (inputText[currentIndex] == ' ' || inputText[currentIndex] == '\n' || inputText[currentIndex] == '\r' || inputText[currentIndex] == '\t') {
+            currentIndex++;
+        }
+    } else {
+        while (inputText[currentIndex] == ' ' || inputText[currentIndex] == '\r' || inputText[currentIndex] == '\t') {
+            currentIndex++;
+        }
     }
 }
 
@@ -130,10 +136,10 @@ bool ScriptParser::isEndOfInput()
     return inputText[currentIndex] == '\0';
 }
 
-std::string ScriptParser::nextToken()
+std::string ScriptParser::nextToken(bool skipLinefeed)
 {
     while (true) {
-        skipWhitespace();
+        skipWhitespace(skipLinefeed);
         if (isEndOfInput()) {
             // if we don't trap this here, we will put pack the last character.
             break;
@@ -168,6 +174,10 @@ std::string ScriptParser::nextToken()
     char ch = readNextChar();
     if (ch == '\0') {
         return "";
+    }
+
+    if (ch == '\n') {
+        return "\n";
     }
 
     std::string token;
