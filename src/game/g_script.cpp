@@ -31,6 +31,7 @@ If you have questions concerning this license or the applicable additional terms
 #include "../game/q_shared.h"
 #include "../qcommon/qcommon.h"
 #include "../server/server.h"
+#include "../scripting/ScriptParser.h"
 
 /*
 Scripting that allows the designers to control the behaviour of entities
@@ -217,8 +218,6 @@ void G_Script_ScriptLoad()
 
 	Cvar_Register( &g_scriptDebug, "g_scriptDebug", "0", 0 );
 
-	level.scriptEntity = nullptr;
-
 	Cvar_VariableStringBuffer( "g_scriptName", filename, sizeof( filename ) );
 	if ( strlen( filename ) > 0 ) {
 		Cvar_Register( &mapname, "g_scriptName", "", CVAR_ROM );
@@ -238,9 +237,14 @@ void G_Script_ScriptLoad()
 		return;
 	}
 
-	level.scriptEntity = (char *)G_Alloc( len );
-	FS_Read( level.scriptEntity, len, f );
+	char* scriptText = new char[len + 1];
+	FS_Read( scriptText, len, f );
+	scriptText[len] = '\0';
 
+	ScriptParser scriptParser;
+	level.scriptEntity = scriptParser.parse( scriptText );
+
+	delete[] scriptText;
 	FS_FCloseFile( f );
 }
 
@@ -251,198 +255,115 @@ G_Script_ScriptParse
   Parses the script for the given entity
 ==============
 */
-void G_Script_ScriptParse( GameEntity *ent ) {
+void G_Script_ScriptParse( GameEntity *ent )
+{
 	#define MAX_SCRIPT_EVENTS   64
 
-	bool wantName;
-	bool inScript;
-	int eventNum;
 	g_script_event_t events[MAX_SCRIPT_EVENTS];
-	int numEventItems;
-	g_script_event_t *curEvent;
-
 	char params[MAX_INFO_STRING];
-	g_script_stack_action_t *action;
-	int i;
-	int bracketLevel;
-	bool buildScript;       //----(SA)	added
 
 	if ( !ent->scriptName ) {
 		return;
 	}
-	if ( !level.scriptEntity ) {
+	if ( level.scriptEntity.empty() ) {
 		return;
 	}
 
-	// FIXME buildScript = Cvar_VariableIntegerValue( "com_buildScript" );
-	buildScript = true;
-
-	const char* pScript = level.scriptEntity;
-	wantName = true;
-	inScript = false;
-	COM_BeginParseSession( "G_Script_ScriptParse" );
-	bracketLevel = 0;
-	numEventItems = 0;
-
-	memset( events, 0, sizeof( events ) );
-
-	while ( 1 )
-	{
-		const char* token = COM_Parse( &pScript );
-
-		if ( !token[0] ) {
-			if ( !wantName ) {
-				Com_Error( ERR_DROP, "G_Script_ScriptParse(), Error (line %d): '}' expected, end of script found.\n", COM_GetCurrentParseLine() );
-                return; // keep the linter happy, ERR_DROP does not return
-			}
+	const ScriptParser::EntityScript* scriptEntity = nullptr;
+	for( const auto& scriptEntityRef : level.scriptEntity ) {
+		if ( scriptEntityRef.name == ent->scriptName ) {
+			scriptEntity = &scriptEntityRef;
 			break;
 		}
+	}
 
-		// end of script
-		if ( token[0] == '}' ) {
-			if ( inScript ) {
-				break;
-			}
-			if ( wantName ) {
-				Com_Error( ERR_DROP, "G_Script_ScriptParse(), Error (line %d): '}' found, but not expected.\n", COM_GetCurrentParseLine() );
-                return; // keep the linter happy, ERR_DROP does not return
-			}
-			wantName = true;
-		} else if ( token[0] == '{' )    {
-			if ( wantName ) {
-				Com_Error( ERR_DROP, "G_Script_ScriptParse(), Error (line %d): '{' found, NAME expected.\n", COM_GetCurrentParseLine() );
-                return; // keep the linter happy, ERR_DROP does not return
-			}
-		} else if ( wantName )   {
-			if ( !Q_strcasecmp( ent->scriptName, token ) ) {
-				inScript = true;
-				numEventItems = 0;
-			}
-			wantName = false;
-		} else if ( inScript )   {
+	int numEventItems = 0;
+	memset( events, 0, sizeof( events ) );
 
-			eventNum = G_Script_EventForString( token );
-			if ( eventNum < 0 ) {
-				Com_Error( ERR_DROP, "G_Script_ScriptParse(), Error (line %d): unknown event: %s.\n", COM_GetCurrentParseLine(), token );
-                return; // keep the linter happy, ERR_DROP does not return
-			}
-			if ( numEventItems >= MAX_SCRIPT_EVENTS ) {
-				Com_Error( ERR_DROP, "G_Script_ScriptParse(), Error (line %d): MAX_SCRIPT_EVENTS reached (%d)\n", COM_GetCurrentParseLine(), MAX_SCRIPT_EVENTS );
-                return; // keep the linter happy, ERR_DROP does not return
+	for( const auto& eventPair : scriptEntity->events ) {
+		const char* eventName = eventPair.first.c_str();
+		int eventNum = G_Script_EventForString( eventName );
+		if ( eventNum < 0 ) {
+			Com_Error( ERR_DROP, "G_Script_ScriptParse(), Error unknown event: %s.\n", eventName );
+		}
+		if ( numEventItems >= MAX_SCRIPT_EVENTS ) {
+			Com_Error( ERR_DROP, "G_Script_ScriptParse(), Error: MAX_SCRIPT_EVENTS reached (%d)\n", MAX_SCRIPT_EVENTS );
+		}
+
+		g_script_event_t* curEvent = &events[numEventItems];
+		curEvent->eventNum = eventNum;
+		memset( params, 0, sizeof( params ) );
+
+		// TODO: event parameters
+		/*
+		// parse any event params before the start of this event's actions
+		while ( ( token = COM_Parse( &pScript ) ) && ( token[0] != '{' ) )
+		{
+			if ( !token[0] ) {
+				Com_Error( ERR_DROP, "G_Script_ScriptParse(), Error (line %d): '}' expected, end of script found.\n", COM_GetCurrentParseLine() );
+				return; // keep the linter happy, ERR_DROP does not return
 			}
 
-			curEvent = &events[numEventItems];
-			curEvent->eventNum = eventNum;
+			if ( strlen( params ) ) { // add a space between each param
+				Q_strcat( params, sizeof( params ), " " );
+			}
+			Q_strcat( params, sizeof( params ), token );
+		}
+
+		if ( strlen( params ) ) { // copy the params into the event
+			curEvent->params = (char*)G_Alloc( strlen( params ) + 1 );
+			Q_strncpyz( curEvent->params, params, strlen( params ) + 1 );
+		}
+		*/
+		for (const auto& eventAction : eventPair.second ) {
+			const char* actionName = eventAction.name.c_str();
+
+
+			g_script_stack_action_t* action = G_Script_ActionForString( actionName );
+			if ( !action ) {
+				Com_Error( ERR_DROP, "G_Script_ScriptParse(), Error: unknown action: %s.\n", actionName );
+			}
+
+			curEvent->stack.items[curEvent->stack.numItems].action = action;
+
 			memset( params, 0, sizeof( params ) );
-
-			// parse any event params before the start of this event's actions
-			while ( ( token = COM_Parse( &pScript ) ) && ( token[0] != '{' ) )
-			{
-				if ( !token[0] ) {
-					Com_Error( ERR_DROP, "G_Script_ScriptParse(), Error (line %d): '}' expected, end of script found.\n", COM_GetCurrentParseLine() );
-                    return; // keep the linter happy, ERR_DROP does not return
-				}
-
+			for( size_t p = 0; p < eventAction.parameters.size(); p++ ) {
+				const char* param = eventAction.parameters[p].c_str();
 				if ( strlen( params ) ) { // add a space between each param
 					Q_strcat( params, sizeof( params ), " " );
 				}
-				Q_strcat( params, sizeof( params ), token );
+
+				if ( p == 0 ) {
+					// Special case: playsound's need to be cached on startup to prevent in-game pauses
+					if ( !Q_stricmp( action->actionString, "playsound" ) ) {
+						G_SoundIndex( param );
+					}
+				}
+
+				if ( strrchr( param,' ' ) ) { // need to wrap this param in quotes since it has more than one word
+					Q_strcat( params, sizeof( params ), "\"" );
+				}
+
+				Q_strcat( params, sizeof( params ), param );
+
+				if ( strrchr( param,' ' ) ) { // need to wrap this param in quotes since it has more than one word
+					Q_strcat( params, sizeof( params ), "\"" );
+				}
 			}
 
 			if ( strlen( params ) ) { // copy the params into the event
-				curEvent->params = (char*)G_Alloc( strlen( params ) + 1 );
-				Q_strncpyz( curEvent->params, params, strlen( params ) + 1 );
+				curEvent->stack.items[curEvent->stack.numItems].params = (char *)G_Alloc( strlen( params ) + 1 );
+				Q_strncpyz( curEvent->stack.items[curEvent->stack.numItems].params, params, strlen( params ) + 1 );
 			}
 
-			// parse the actions for this event
-			while ( ( token = COM_Parse( &pScript ) ) && ( token[0] != '}' ) )
-			{
-				if ( !token[0] ) {
-					Com_Error( ERR_DROP, "G_Script_ScriptParse(), Error (line %d): '}' expected, end of script found.\n", COM_GetCurrentParseLine() );
-                    return; // keep the linter happy, ERR_DROP does not return
-				}
+			curEvent->stack.numItems++;
 
-				action = G_Script_ActionForString( token );
-				if ( !action ) {
-					Com_Error( ERR_DROP, "G_Script_ScriptParse(), Error (line %d): unknown action: %s.\n", COM_GetCurrentParseLine(), token );
-                    return; // keep the linter happy, ERR_DROP does not return
-				}
-
-				curEvent->stack.items[curEvent->stack.numItems].action = action;
-
-				memset( params, 0, sizeof( params ) );
-				token = COM_ParseExt( &pScript, false );
-				for ( i = 0; token[0]; i++ )
-				{
-					if ( strlen( params ) ) { // add a space between each param
-						Q_strcat( params, sizeof( params ), " " );
-					}
-
-					if ( i == 0 ) {
-						// Special case: playsound's need to be cached on startup to prevent in-game pauses
-						if ( !Q_stricmp( action->actionString, "playsound" ) ) {
-							G_SoundIndex( token );
-						}
-
-//----(SA)	added a bit more
-						if (    buildScript && (
-									!Q_stricmp( action->actionString, "mu_start" ) ||
-									!Q_stricmp( action->actionString, "mu_play" ) ||
-									!Q_stricmp( action->actionString, "mu_queue" ) ||
-									!Q_stricmp( action->actionString, "startcam" ) ||
-									!Q_stricmp( action->actionString, "startcamblack" ) )
-								) {
-							if ( strlen( token ) ) { // we know there's a [0], but don't know if it's '0'
-								SV_GameSendServerCommand( ent->shared.s.number, va( "addToBuild %s\n", token ) );
-							}
-						}
-					}
-//----(SA)	end
-
-					if ( strrchr( token,' ' ) ) { // need to wrap this param in quotes since it has more than one word
-						Q_strcat( params, sizeof( params ), "\"" );
-					}
-
-					Q_strcat( params, sizeof( params ), token );
-
-					if ( strrchr( token,' ' ) ) { // need to wrap this param in quotes since it has more than one word
-						Q_strcat( params, sizeof( params ), "\"" );
-					}
-
-					token = COM_ParseExt( &pScript, false );
-				}
-
-				if ( strlen( params ) ) { // copy the params into the event
-					curEvent->stack.items[curEvent->stack.numItems].params = (char *)G_Alloc( strlen( params ) + 1 );
-					Q_strncpyz( curEvent->stack.items[curEvent->stack.numItems].params, params, strlen( params ) + 1 );
-				}
-
-				curEvent->stack.numItems++;
-
-				if ( curEvent->stack.numItems >= G_MAX_SCRIPT_STACK_ITEMS ) {
-					Com_Error( ERR_DROP, "G_Script_ScriptParse(): script exceeded MAX_SCRIPT_ITEMS (%d), line %d\n", G_MAX_SCRIPT_STACK_ITEMS, COM_GetCurrentParseLine() );
-                    return; // keep the linter happy, ERR_DROP does not return
-				}
-			}
-
-			numEventItems++;
-		} else    // skip this character completely
-		{
-			// TTimo: gcc: suggest parentheses around assignment used as truth value
-			while ( ( token = COM_Parse( &pScript ) ) )
-			{
-				if ( !token[0] ) {
-					Com_Error( ERR_DROP, "G_Script_ScriptParse(), Error (line %d): '}' expected, end of script found.\n", COM_GetCurrentParseLine() );
-                    return; // keep the linter happy, ERR_DROP does not return
-				} else if ( token[0] == '{' ) {
-					bracketLevel++;
-				} else if ( token[0] == '}' ) {
-					if ( !--bracketLevel ) {
-						break;
-					}
-				}
+			if ( curEvent->stack.numItems >= G_MAX_SCRIPT_STACK_ITEMS ) {
+				Com_Error( ERR_DROP, "G_Script_ScriptParse(): script exceeded MAX_SCRIPT_ITEMS (%d)\n", G_MAX_SCRIPT_STACK_ITEMS );
 			}
 		}
+
+		numEventItems++;
 	}
 
 	// alloc and copy the events into the GameEntity for this cast

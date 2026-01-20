@@ -9,7 +9,7 @@ const char* scriptText = R"(
 
 myScript
 {
-    spawn
+    spawn spawnparam1
     {
         playsound sound/mysound.wav
         wait 1000

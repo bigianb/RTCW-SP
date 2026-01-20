@@ -686,24 +686,6 @@ static void CG_ServerCommand( void ) {
 		return;
 	}
 
-
-
-	// ensure a file gets into a build (mainly for scripted music calls)
-	if ( !strcmp( cmd, "addToBuild" ) ) {
-		fileHandle_t f;
-
-		if ( !cg_buildScript.integer ) {
-			return;
-		}
-
-		// just open the file so it gets copied to the build dir
-		//CG_FileTouchForBuild(CG_Argv(1));
-		FS_FOpenFileByMode( CG_Argv( 1 ), &f, FS_READ );
-		FS_FCloseFile( f );
-		return;
-	}
-
-
 	Com_Printf( "Unknown client game command: %s\n", cmd );
 }
 

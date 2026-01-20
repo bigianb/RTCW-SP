@@ -28,6 +28,9 @@ If you have questions concerning this license or the applicable additional terms
 
 #pragma once
 
+#include <vector>
+#include "../scripting/ScriptParser.h"
+
 // g_local.h -- local definitions for game module
 
 #include "q_shared.h"
@@ -680,7 +683,7 @@ typedef struct {
 	GameEntity   *bodyQue[BODY_QUEUE_SIZE];
 
 	int portalSequence;
-	// Ridah
+
 	char        *scriptAI;
 	int reloadPauseTime;                // don't think AI/client's until this time has elapsed
 	int reloadDelayTime;                // don't start loading the savegame until this has expired
@@ -690,16 +693,13 @@ typedef struct {
 	int loperZapSound;
 	int stimSoldierFlySound;
 	int bulletRicochetSound;
-	// done.
 
 	int snipersound;
 
-//----(SA)	added
 	int numSecrets;
 	int numTreasure;
 	int numArtifacts;
 	int numObjectives;
-//----(SA)	end
 
 	int knifeSound[4];
 
@@ -710,8 +710,7 @@ typedef struct {
 	int numspawntargets;         // # spawntargets in this map
 // jpw
 
-	// RF, entity scripting
-	char        *scriptEntity;
+	std::vector<ScriptParser::EntityScript> scriptEntity;
 
 	// player/AI model scripting (server repository)
 	animScriptData_t animScriptData;
