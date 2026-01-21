@@ -403,9 +403,6 @@ void AICast_ScriptParse( cast_state_t *cs )
 		return;
 	}
 
-    //bool buildScript = Cvar_VariableIntegerValue( "com_buildScript" );
-	bool buildScript = true;
-
 	const char* pScript = level.scriptAI;
     bool wantName = true;
     bool inScript = false;
@@ -530,18 +527,6 @@ void AICast_ScriptParse( cast_state_t *cs )
 						// Special case: playsound's need to be cached on startup to prevent in-game pauses
 						if ( !Q_stricmp( action->actionString, "playsound" ) ) {
 							G_SoundIndex( token );
-						}
-
-						if (    buildScript && (
-									!Q_stricmp( action->actionString, "mu_start" ) ||
-									!Q_stricmp( action->actionString, "mu_play" ) ||
-									!Q_stricmp( action->actionString, "mu_queue" ) ||
-									!Q_stricmp( action->actionString, "startcam" ) ||
-									!Q_stricmp( action->actionString, "startcamblack" ) )
-								) {
-							if ( strlen( token ) ) { // we know there's a [0], but don't know if it's '0'
-								SV_GameSendServerCommand( cs->entityNum, va( "addToBuild %s\n", token ) );
-							}
 						}
 
 						if ( !Q_stricmp( action->actionString, "giveweapon" ) ) { // register weapon for client pre-loading

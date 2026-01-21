@@ -228,6 +228,7 @@ void G_Script_ScriptLoad()
 	Q_strcat( filename, sizeof( filename ), mapname.string );
 	Q_strcat( filename, sizeof( filename ), ".script" );
 
+	printf( "Loading script file: %s\n", filename );
 	len = FS_FOpenFileByMode( filename, &f, FS_READ );
 
 	// make sure we clear out the temporary scriptname
@@ -277,11 +278,15 @@ void G_Script_ScriptParse( GameEntity *ent )
 		}
 	}
 
+	if (!scriptEntity){
+		// No script defined for this entity.
+		return;
+	}
 	int numEventItems = 0;
 	memset( events, 0, sizeof( events ) );
 
-	for( const auto& eventPair : scriptEntity->events ) {
-		const char* eventName = eventPair.first.c_str();
+	for( const auto& event : scriptEntity->events ) {
+		const char* eventName = event.name.c_str();
 		int eventNum = G_Script_EventForString( eventName );
 		if ( eventNum < 0 ) {
 			Com_Error( ERR_DROP, "G_Script_ScriptParse(), Error unknown event: %s.\n", eventName );
@@ -294,15 +299,10 @@ void G_Script_ScriptParse( GameEntity *ent )
 		curEvent->eventNum = eventNum;
 		memset( params, 0, sizeof( params ) );
 
-		// TODO: event parameters
-		/*
+
 		// parse any event params before the start of this event's actions
-		while ( ( token = COM_Parse( &pScript ) ) && ( token[0] != '{' ) )
-		{
-			if ( !token[0] ) {
-				Com_Error( ERR_DROP, "G_Script_ScriptParse(), Error (line %d): '}' expected, end of script found.\n", COM_GetCurrentParseLine() );
-				return; // keep the linter happy, ERR_DROP does not return
-			}
+		for (const auto& param : event.parameters ) {
+			const char* token = param.c_str();
 
 			if ( strlen( params ) ) { // add a space between each param
 				Q_strcat( params, sizeof( params ), " " );
@@ -314,8 +314,8 @@ void G_Script_ScriptParse( GameEntity *ent )
 			curEvent->params = (char*)G_Alloc( strlen( params ) + 1 );
 			Q_strncpyz( curEvent->params, params, strlen( params ) + 1 );
 		}
-		*/
-		for (const auto& eventAction : eventPair.second ) {
+		
+		for (const auto& eventAction : event.actions ) {
 			const char* actionName = eventAction.name.c_str();
 
 

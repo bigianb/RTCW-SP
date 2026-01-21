@@ -18,11 +18,19 @@ public:
         std::vector<std::string> parameters;
     };
 
+    class Event
+    {
+    public:
+        std::string name;
+        std::vector<std::string> parameters;
+        std::vector<EventActions> actions;
+    };
+
     class EntityScript
     {
     public:
         std::string name;
-        std::map<std::string, std::vector<ScriptParser::EventActions>> events;
+        std::vector<Event> events;
     };
 
     std::vector<EntityScript> parse(const char* scriptText);

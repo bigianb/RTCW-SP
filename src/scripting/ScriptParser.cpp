@@ -58,8 +58,9 @@ ScriptParser::EntityScript ScriptParser::readEntityScript(std::string scriptName
             break;
         }
 
-        std::string eventName = token;
-        std::vector<std::string> eventParams;
+        Event event;
+
+        event.name = token;
 
         // Read event parameters
         while (true) {
@@ -67,11 +68,10 @@ ScriptParser::EntityScript ScriptParser::readEntityScript(std::string scriptName
             if (token == "{" || isEndOfInput()) {
                 break;
             }
-            eventParams.push_back(token);
+            event.parameters.push_back(token);
         }
 
         // Read actions
-        std::vector<EventActions> actions;
         while (true) {
             token = nextToken();
             if (token == "}") {
@@ -88,10 +88,10 @@ ScriptParser::EntityScript ScriptParser::readEntityScript(std::string scriptName
                 }
                 action.parameters.push_back(token);
             }
-            actions.push_back(action);
+            event.actions.push_back(action);
         }
 
-        entityScript.events[eventName] = actions;
+        entityScript.events.push_back(event);
     }
 
     return entityScript;
@@ -150,6 +150,9 @@ std::string ScriptParser::nextToken(bool skipLinefeed)
             // skip single line comment
             while (ch != '\n' && ch != '\0') {
                 ch = readNextChar();
+            }
+            if (!skipLinefeed && ch == '\n') {
+                unreadChar(); // put back the newline for linefeed handling
             }
         } else if (ch == '/' && nextCh == '*') {
             // skip multi-line comment
