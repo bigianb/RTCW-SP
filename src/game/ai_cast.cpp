@@ -272,36 +272,29 @@ GameEntity *AICast_AddCastToGame( GameEntity *ent, const char *castname, const c
 	return bot;
 }
 
-/*
-============
-AICast_CheckLevelAttributes
-============
-*/
-void AICast_CheckLevelAttributes( cast_state_t *cs, GameEntity *ent, const char **ppStr ) {
-	char    *s;
-	int i;
-
+void AICast_CheckLevelAttributes( cast_state_t *cs, GameEntity *ent, const char **ppStr )
+{
 	if ( !*ppStr ) {
 		return;
 	}
 
 	while ( 1 ) {
-		s = COM_Parse( ppStr );
+		const char* s = COM_Parse( ppStr );
 		if ( !s[0] || !Q_strncmp( s, "}", 2 ) ) {    // end of attributes
 			break;
 		}
-		//
-		for ( i = 0; i < AICAST_MAX_ATTRIBUTES; i++ ) {
-			if ( !Q_strcasecmp( s, castAttributeStrings[i] ) ) {
-				// found a match, read in the value
-				s = COM_Parse( ppStr );
-				if ( !s[0] ) {    // end of attributes
-					break;
-				}
-				// set the attribute
-				cs->attributes[i] = atof( s );
-				break;
-			}
+		const char* sVal = COM_Parse( ppStr );
+		AICast_SetLevelAttribute( cs, s, atof( sVal ) );
+	}
+}
+
+void AICast_SetLevelAttribute( cast_state_t *cs, const char *attribute, float value )
+{
+	for (int i = 0; i < AICAST_MAX_ATTRIBUTES; i++ ) {
+		if ( !Q_strcasecmp( attribute, castAttributeStrings[i] ) ) {
+			// set the attribute
+			cs->attributes[i] = value;
+			return;
 		}
 	}
 }

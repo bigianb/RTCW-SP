@@ -296,16 +296,10 @@ cast_script_event_define_t scriptEvents[] =
 	{nullptr,              nullptr}
 };
 
-
-/*
-===============
-AICast_EventForString
-===============
-*/
-int AICast_EventForString( char *string )
+static
+int AICast_EventForString( const char *string )
 {
-	for (int i = 0; scriptEvents[i].eventStr; i++ )
-	{
+	for (int i = 0; scriptEvents[i].eventStr; i++ ) {
 		if ( !Q_strcasecmp( string, scriptEvents[i].eventStr ) ) {
 			return i;
 		}
@@ -314,12 +308,8 @@ int AICast_EventForString( char *string )
 	return -1;
 }
 
-/*
-===============
-AICast_ActionForString
-===============
-*/
-cast_script_stack_action_t *AICast_ActionForString( cast_state_t *cs, char *string )
+static
+cast_script_stack_action_t *AICast_ActionForString( cast_state_t *cs, const char *string )
 {
 	for (int i = 0; scriptActions[i].actionString; i++ )
 	{
@@ -348,8 +338,6 @@ void AICast_ScriptLoad( void ) {
 	fileHandle_t f;
 	int len;
 
-	level.scriptAI = nullptr;
-
 	Cvar_VariableStringBuffer( "ai_scriptName", filename, sizeof( filename ) );
 	if ( strlen( filename ) > 0 ) {
 		Cvar_Register( &mapname, "ai_scriptName", "", CVAR_ROM );
@@ -360,6 +348,7 @@ void AICast_ScriptLoad( void ) {
 	Q_strcat( filename, sizeof( filename ), mapname.string );
 	Q_strcat( filename, sizeof( filename ), ".ai" );
 
+	printf( "Loading ai script file: %s\n", filename );
 	len = FS_FOpenFileByMode( filename, &f, FS_READ );
 
 	// make sure we clear out the temporary scriptname
@@ -369,12 +358,15 @@ void AICast_ScriptLoad( void ) {
 		return;
 	}
 
-	level.scriptAI = (char *)G_Alloc( len );
-	FS_Read( level.scriptAI, len, f );
+	char* scriptText = new char[len + 1];
+	FS_Read( scriptText, len, f );
+	scriptText[len] = '\0';
 
+	ScriptParser scriptParser;
+	level.scriptAI = scriptParser.parse( scriptText );
+
+	delete[] scriptText;
 	FS_FCloseFile( f );
-
-	return;
 }
 
 /*
@@ -388,13 +380,9 @@ void AICast_ScriptParse( cast_state_t *cs )
 {
 	#define MAX_SCRIPT_EVENTS   64
 
-	int eventNum;
-
-	cast_script_event_t *curEvent;
 	char params[MAX_QPATH];
-	cast_script_stack_action_t  *action;
 
-	if ( !level.scriptAI ) {
+	if ( level.scriptAI.empty() ) {
 		return;
 	}
 
@@ -403,184 +391,125 @@ void AICast_ScriptParse( cast_state_t *cs )
 		return;
 	}
 
-	const char* pScript = level.scriptAI;
-    bool wantName = true;
-    bool inScript = false;
-	COM_BeginParseSession( "AICast_ScriptParse" );
-	int bracketLevel = 0;
-	int numEventItems = 0;
-
-    cast_script_event_t events[MAX_SCRIPT_EVENTS];
-	memset( events, 0, sizeof( events ) );
-
-	while ( 1 )
-	{
-		char* token = COM_Parse( &pScript );
-
-		if ( !token[0] ) {
-			if ( !wantName ) {
-				Com_Error( ERR_DROP, "AICast_ScriptParse(), Error (line %d): '}' expected, end of script found.\n", COM_GetCurrentParseLine() );
-                return;  // Keep linter happy. ERR_DROP does not return
-			}
+    const ScriptParser::EntityScript* scriptEntity = nullptr;
+	for( const auto& scriptEntityRef : level.scriptAI ) {
+		if ( scriptEntityRef.name == ent->aiName ) {
+			scriptEntity = &scriptEntityRef;
 			break;
 		}
+	}
 
-		// end of script
-		if ( token[0] == '}' ) {
-			if ( inScript ) {
-				break;
+	if (!scriptEntity){
+		// No script defined for this entity.
+		return;
+	}
+
+    cast_script_event_t events[MAX_SCRIPT_EVENTS];
+	int numEventItems = 0;
+	memset( events, 0, sizeof( events ) );
+
+	for( const auto& event : scriptEntity->events ) {
+		if (event.name == "attributes") {
+			// read in all the attributes
+			for (const auto& eventAction : event.actions ) {
+				if ( eventAction.parameters.size() > 0) {
+					float fVal = atof( eventAction.parameters[0].c_str() );
+					AICast_SetLevelAttribute( cs, eventAction.name.c_str(), fVal );
+				}
 			}
-			if ( wantName ) {
-				Com_Error( ERR_DROP, "AICast_ScriptParse(), Error (line %d): '}' found, but not expected.\n", COM_GetCurrentParseLine() );
-                return;  // Keep linter happy. ERR_DROP does not return
-			}
-			wantName = true;
-		} else if ( token[0] == '{' )    {
-			if ( wantName ) {
-				Com_Error( ERR_DROP, "AICast_ScriptParse(), Error (line %d): '{' found, NAME expected.\n", COM_GetCurrentParseLine() );
-                return;  // Keep linter happy. ERR_DROP does not return
-			}
-		} else if ( wantName )   {
-			if ( !Q_strcasecmp( ent->aiName, token ) ) {
-				inScript = true;
-				numEventItems = 0;
-			}
-			wantName = false;
-		} else if ( inScript )   {
-			if ( !Q_strcasecmp( token, "attributes" ) ) {
-				// read in all the attributes
-				AICast_CheckLevelAttributes( cs, ent, &pScript );
-				continue;
-			}
-			eventNum = AICast_EventForString( token );
-			if ( eventNum < 0 ) {
-				Com_Error( ERR_DROP, "AICast_ScriptParse(), Error (line %d): unknown event: %s.\n", COM_GetCurrentParseLine(), token );
-                return;  // Keep linter happy. ERR_DROP does not return
-			}
-			if ( numEventItems >= MAX_SCRIPT_EVENTS ) {
-				Com_Error( ERR_DROP, "AICast_ScriptParse(), Error (line %d): MAX_SCRIPT_EVENTS reached (%d)\n", COM_GetCurrentParseLine(), MAX_SCRIPT_EVENTS );
-                return;  // Keep linter happy. ERR_DROP does not return
+			continue;
+		}
+		const char* eventName = event.name.c_str();
+		int eventNum = AICast_EventForString( eventName );
+		if ( eventNum < 0 ) {
+			Com_Error( ERR_DROP, "AICast_ScriptParse(), Error unknown event: %s.\n", eventName );
+		}
+		if ( numEventItems >= MAX_SCRIPT_EVENTS ) {
+			Com_Error( ERR_DROP, "AICast_ScriptParse(), Error: MAX_SCRIPT_EVENTS reached (%d)\n", MAX_SCRIPT_EVENTS );
+		}
+
+		// if this is a "friendlysightcorpse" event, then disable corpse vis sharing
+		if ( event.name ==  "friendlysightcorpse" ) {
+			cs->aiFlags &= ~AIFL_CORPSESIGHTING;
+		}
+
+		cast_script_event_t* curEvent = &events[numEventItems];
+		curEvent->eventNum = eventNum;
+		memset( params, 0, sizeof( params ) );
+
+		// parse any event params before the start of this event's actions
+		for (const auto& param : event.parameters ) {
+			const char* token = param.c_str();
+
+			if (eventNum == 13 ) {   // statechange event, check params
+				if ( BG_IndexForString( token, animStateStr, true ) < 0 ) {
+					Com_Error( ERR_DROP, "AICast_ScriptParse(), Error : unknown state type '%s'.\n", token );
+				}
 			}
 
-			// if this is a "friendlysightcorpse" event, then disable corpse vis sharing
-			if ( !Q_stricmp( token, "friendlysightcorpse" ) ) {
-				cs->aiFlags &= ~AIFL_CORPSESIGHTING;
+			if ( strlen( params ) ) { // add a space between each param
+				Q_strcat( params, sizeof( params ), " " );
+			}
+			Q_strcat( params, sizeof( params ), token );
+		}
+
+		if ( strlen( params ) ) { // copy the params into the event
+			curEvent->params = (char *)G_Alloc( strlen( params ) + 1 );
+			Q_strncpyz( curEvent->params, params, strlen( params ) + 1 );
+		}
+
+		for (const auto& eventAction : event.actions ) {
+			const char* actionName = eventAction.name.c_str();
+
+			cast_script_stack_action_t* action = AICast_ActionForString( cs, actionName );
+			if ( !action ) {
+				Com_Error( ERR_DROP, "AICast_ScriptParse(), Error : unknown action: %s.\n", actionName );
 			}
 
-			curEvent = &events[numEventItems];
-			curEvent->eventNum = eventNum;
+			curEvent->stack.items[curEvent->stack.numItems].action = action;
 			memset( params, 0, sizeof( params ) );
 
-			// parse any event params before the start of this event's actions
-			while ( ( token = COM_Parse( &pScript ) ) && ( token[0] != '{' ) )
-			{
-				if ( !token[0] ) {
-					Com_Error( ERR_DROP, "AICast_ScriptParse(), Error (line %d): '}' expected, end of script found.\n", COM_GetCurrentParseLine() );
-                    return;  // Keep linter happy. ERR_DROP does not return
-				}
-
-				if ( eventNum == 13 ) {   // statechange event, check params
-					if ( strlen( token ) > 1 ) {
-						if ( BG_IndexForString( token, animStateStr, true ) < 0 ) {
-							Com_Error( ERR_DROP, "AICast_ScriptParse(), Error (line %d): unknown state type '%s'.\n", COM_GetCurrentParseLine(), token );
-                            return;  // Keep linter happy. ERR_DROP does not return
-						}
-					}
-				}
-
+			for( size_t p = 0; p < eventAction.parameters.size(); p++ ) {
+				const char* param = eventAction.parameters[p].c_str();
 				if ( strlen( params ) ) { // add a space between each param
 					Q_strcat( params, sizeof( params ), " " );
 				}
-				Q_strcat( params, sizeof( params ), token );
+
+				if ( p == 0 ) {
+					// Special case: playsound's need to be cached on startup to prevent in-game pauses
+					if ( !Q_stricmp( action->actionString, "playsound" ) ) {
+						G_SoundIndex( param );
+					}
+					else if ( !Q_stricmp( action->actionString, "playsound" ) ) {
+						gitem_t *weap = BG_FindItem2( param );    // (SA) FIXME: rats, need to fix this for weapon names with spaces: 'mauser rifle'
+						RegisterItem( weap );
+					}
+				}
+
+			    if ( strrchr( param,' ' ) ) { // need to wrap this param in quotes since it has more than one word
+					Q_strcat( params, sizeof( params ), "\"" );
+				}
+
+				Q_strcat( params, sizeof( params ), param );
+
+				if ( strrchr( param,' ' ) ) { // need to wrap this param in quotes since it has more than one word
+					Q_strcat( params, sizeof( params ), "\"" );
+				}
 			}
 
 			if ( strlen( params ) ) { // copy the params into the event
-				curEvent->params = (char *)G_Alloc( strlen( params ) + 1 );
-				Q_strncpyz( curEvent->params, params, strlen( params ) + 1 );
+				curEvent->stack.items[curEvent->stack.numItems].params = (char *)G_Alloc( strlen( params ) + 1 );
+				Q_strncpyz( curEvent->stack.items[curEvent->stack.numItems].params, params, strlen( params ) + 1 );
 			}
 
-			// parse the actions for this event
-			while ( ( token = COM_Parse( &pScript ) ) && ( token[0] != '}' ) )
-			{
-				if ( !token[0] ) {
-					Com_Error( ERR_DROP, "AICast_ScriptParse(), Error (line %d): '}' expected, end of script found.\n", COM_GetCurrentParseLine() );
-                    return;  // Keep linter happy. ERR_DROP does not return
-				}
+			curEvent->stack.numItems++;
 
-				action = AICast_ActionForString( cs, token );
-				if ( !action ) {
-					Com_Error( ERR_DROP, "AICast_ScriptParse(), Error (line %d): unknown action: %s.\n", COM_GetCurrentParseLine(), token );
-                    return;  // Keep linter happy. ERR_DROP does not return
-				}
-
-				curEvent->stack.items[curEvent->stack.numItems].action = action;
-
-				memset( params, 0, sizeof( params ) );
-				token = COM_ParseExt( &pScript, false );
-				for (int i = 0; token[0]; i++ )
-				{
-					if ( strlen( params ) ) { // add a space between each param
-						Q_strcat( params, sizeof( params ), " " );
-					}
-
-					if ( i == 0 ) {
-						// Special case: playsound's need to be cached on startup to prevent in-game pauses
-						if ( !Q_stricmp( action->actionString, "playsound" ) ) {
-							G_SoundIndex( token );
-						}
-
-						if ( !Q_stricmp( action->actionString, "giveweapon" ) ) { // register weapon for client pre-loading
-							gitem_t *weap = BG_FindItem2( token );    // (SA) FIXME: rats, need to fix this for weapon names with spaces: 'mauser rifle'
-							RegisterItem( weap );   // don't be nice, just do it.  if it can't find it, you'll bomb out to the error menu
-						}
-
-					}
-
-					if ( strrchr( token,' ' ) ) {
-                        // need to wrap this param in quotes since it has more than one word
-						Q_strcat( params, sizeof( params ), "\"" );
-					}
-
-					Q_strcat( params, sizeof( params ), token );
-
-					if ( strrchr( token,' ' ) ) {
-                        // need to wrap this param in quotes since it has more than one word
-						Q_strcat( params, sizeof( params ), "\"" );
-					}
-
-					token = COM_ParseExt( &pScript, false );
-				}
-
-				if ( strlen( params ) ) { // copy the params into the event
-					curEvent->stack.items[curEvent->stack.numItems].params = (char *)G_Alloc( strlen( params ) + 1 );
-					Q_strncpyz( curEvent->stack.items[curEvent->stack.numItems].params, params, strlen( params ) + 1 );
-				}
-
-				curEvent->stack.numItems++;
-
-				if ( curEvent->stack.numItems >= AICAST_MAX_SCRIPT_STACK_ITEMS ) {
-					Com_Error( ERR_DROP, "AICast_ScriptParse(): script exceeded MAX_SCRIPT_ITEMS (%d), line %d\n", AICAST_MAX_SCRIPT_STACK_ITEMS, COM_GetCurrentParseLine() );
-                    return;  // Keep linter happy. ERR_DROP does not return
-				}
-			}
-
-			numEventItems++;
-		} else    // skip this character completely
-		{
-			while ( ( token = COM_Parse( &pScript ) ) )
-			{
-				if ( !token[0] ) {
-					Com_Error( ERR_DROP, "AICast_ScriptParse(), Error (line %d): '}' expected, end of script found.\n", COM_GetCurrentParseLine() );
-                    return;  // Keep linter happy. ERR_DROP does not return
-				} else if ( token[0] == '{' ) {
-					bracketLevel++;
-				} else if ( token[0] == '}' ) {
-					if ( !--bracketLevel ) {
-						break;
-					}
-				}
+			if ( curEvent->stack.numItems >= AICAST_MAX_SCRIPT_STACK_ITEMS ) {
+				Com_Error( ERR_DROP, "AICast_ScriptParse(): script exceeded MAX_SCRIPT_ITEMS (%d)\n", AICAST_MAX_SCRIPT_STACK_ITEMS );
 			}
 		}
+
+		numEventItems++;
 	}
 
 	// alloc and copy the events into the cast_state_t for this cast

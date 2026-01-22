@@ -556,8 +556,7 @@ If you have questions concerning this license or the applicable additional terms
 {"AICast_ScriptChange", (uint8_t *)AICast_ScriptChange},
 {"AICast_ScriptParse", (uint8_t *)AICast_ScriptParse},
 {"AICast_ScriptLoad", (uint8_t *)AICast_ScriptLoad},
-{"AICast_ActionForString", (uint8_t *)AICast_ActionForString},
-{"AICast_EventForString", (uint8_t *)AICast_EventForString},
+
 {"AICast_EventMatch_IntInRange", (uint8_t *)AICast_EventMatch_IntInRange},
 {"AICast_EventMatch_StringEqual", (uint8_t *)AICast_EventMatch_StringEqual},
 {"AIFunc_Heinrich_SpawnSpiritsStart", (uint8_t *)AIFunc_Heinrich_SpawnSpiritsStart},

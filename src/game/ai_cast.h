@@ -621,6 +621,7 @@ void    AICast_Init( void );
 void    AICast_DelayedSpawnCast( GameEntity *ent, int castType );
 bool AICast_SolidsInBBox( vec3_t pos, vec3_t mins, vec3_t maxs, int entnum, int mask );
 void    AICast_CheckLevelAttributes( cast_state_t *cs, GameEntity *ent, const char **ppStr );
+void AICast_SetLevelAttribute( cast_state_t *cs, const char *attribute, float value );
 //
 // ai_cast_sight.c
 void    AICast_SightUpdate( int numchecks );

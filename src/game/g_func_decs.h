@@ -564,8 +564,6 @@ extern void AICast_ScriptEvent ( struct cast_state_s * cs , const char * eventSt
 extern void AICast_ScriptChange ( cast_state_t * cs , int newScriptNum ) ;
 extern void AICast_ScriptParse ( cast_state_t * cs ) ;
 extern void AICast_ScriptLoad ( void ) ;
-extern cast_script_stack_action_t * AICast_ActionForString ( cast_state_t * cs , char * string ) ;
-extern int AICast_EventForString ( char * string ) ;
 extern bool AICast_EventMatch_IntInRange ( cast_script_event_t * event , const char * eventParm ) ;
 extern bool AICast_EventMatch_StringEqual ( cast_script_event_t * event , const char * eventParm ) ;
 extern const char * AIFunc_Heinrich_SpawnSpiritsStart ( cast_state_t * cs ) ;

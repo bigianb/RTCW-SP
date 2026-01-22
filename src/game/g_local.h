@@ -684,7 +684,7 @@ typedef struct {
 
 	int portalSequence;
 
-	char        *scriptAI;
+	std::vector<ScriptParser::EntityScript> scriptAI;
 	int reloadPauseTime;                // don't think AI/client's until this time has elapsed
 	int reloadDelayTime;                // don't start loading the savegame until this has expired
 
