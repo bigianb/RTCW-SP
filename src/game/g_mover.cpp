@@ -4705,7 +4705,7 @@ void G_Activate( GameEntity *ent, GameEntity *activator ) {
 
 		if ( !Q_stricmp( ent->classname, "script_mover" ) ) { // RF, dont activate script_mover's
 			if ( activator->aiName ) {
-				G_Script_ScriptEvent( ent, "activate", activator->aiName );
+				G_Script_ScriptEvent( ent, "activate", activator->aiName, "" );
 			}
 			return;
 		}

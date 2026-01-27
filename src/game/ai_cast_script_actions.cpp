@@ -648,7 +648,7 @@ bool AICast_ScriptAction_Trigger( cast_state_t *cs, char *params )
 	if ( ent->client ) {
 		AICast_ScriptEvent( AICast_GetCastState( ent->shared.s.number ), "trigger", token );
 	} else {
-		G_Script_ScriptEvent( ent, "trigger", token );
+		G_Script_ScriptEvent( ent, "trigger", token, "" );
 	}
 
 	// if the script changed, return false so we don't muck with it's variables

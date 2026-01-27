@@ -122,37 +122,38 @@ class GameClient;
 typedef struct
 {
 	const char    *actionString;
-	bool ( *actionFunc )( GameEntity *ent, char *params );
+	bool ( *actionFunc )( GameEntity *ent, const std::vector<std::string>& params );
 } g_script_stack_action_t;
-//
+
 typedef struct
 {
 	//
 	// set during script parsing
 	g_script_stack_action_t     *action;            // points to an action to perform
-	char                        *params;
+	std::vector<std::string> params;
 } g_script_stack_item_t;
-//
+
 #define G_MAX_SCRIPT_STACK_ITEMS    64
-//
+
 typedef struct
 {
 	g_script_stack_item_t items[G_MAX_SCRIPT_STACK_ITEMS];
 	int numItems;
 } g_script_stack_t;
-//
+
 typedef struct
 {
 	int eventNum;                           // index in scriptEvents[]
-	char                *params;            // trigger targetname, etc
+	std::vector<std::string> params;            // trigger targetname, etc
 	g_script_stack_t stack;
 } g_script_event_t;
-//
+
 typedef struct
 {
 	const char        *eventStr;
-	bool ( *eventMatch )( g_script_event_t *event, char *eventParm );
+	bool ( *eventMatch )( g_script_event_t *event, const char *eventParm, const char* eventParm2 );
 } g_script_event_define_t;
+
 //
 // Script Flags
 #define SCFL_GOING_TO_MARKER    0x1
@@ -172,7 +173,7 @@ typedef struct
 //
 #define G_MAX_SCRIPT_ACCUM_BUFFERS  8
 //
-void G_Script_ScriptEvent( GameEntity *ent, const char *eventStr, const char *params );
+void G_Script_ScriptEvent( GameEntity *ent, const char *eventStr, const char *params, const char *params2 );
 //====================================================================
 
 

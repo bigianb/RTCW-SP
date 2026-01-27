@@ -57,23 +57,22 @@ G_ScriptAction_GotoMarker
   transitions
 ===============
 */
-bool G_ScriptAction_GotoMarker( GameEntity *ent, char *params ) {
-
-	GameEntity *target;
+bool G_ScriptAction_GotoMarker( GameEntity *ent, const std::vector<std::string>& params )
+{
 	vec3_t vec;
-	float speed, dist;
-	bool wait = false, turntotarget = false;
-	int trType;
+	float  dist;
+	
+
 	int duration, i;
 	vec3_t diff;
 	vec3_t angles;
 
-	if ( params && ( ent->scriptStatus.scriptFlags & SCFL_GOING_TO_MARKER ) ) {
+	if ( !params.empty() && ( ent->scriptStatus.scriptFlags & SCFL_GOING_TO_MARKER ) ) {
 		// we can't process a new movement until the last one has finished
 		return false;
 	}
 
-	if ( !params || ent->scriptStatus.scriptStackChangeTime < level.time ) {          // we are waiting for it to reach destination
+	if ( params.empty() || ent->scriptStatus.scriptStackChangeTime < level.time ) {          // we are waiting for it to reach destination
 		if ( ent->shared.s.pos.trTime + ent->shared.s.pos.trDuration <= level.time ) {  // we made it
 			ent->scriptStatus.scriptFlags &= ~SCFL_GOING_TO_MARKER;
 
@@ -101,44 +100,33 @@ bool G_ScriptAction_GotoMarker( GameEntity *ent, char *params ) {
 		}
 	} else {    // we have just started this command
 
-		const char* pString = params;
-		const char* token = COM_ParseExt( &pString, false );
-		if ( !token[0] ) {
-			Com_Error( ERR_DROP, "G_Scripting: gotomarker must have an targetname\n" );
-            return false; // keep the linter happy, ERR_DROP does not return
-		}
-
 		// find the entity with the given "targetname"
-		target = G_Find( nullptr, FOFS( targetname ), token );
+		GameEntity *target = G_Find( nullptr, FOFS( targetname ), params[0].c_str() );
 
 		if ( !target ) {
-			Com_Error( ERR_DROP, "G_Scripting: can't find entity with \"targetname\" = \"%s\"\n", token );
-            return false; // keep the linter happy, ERR_DROP does not return
+			Com_Error( ERR_DROP, "G_Scripting: can't find entity with \"targetname\" = \"%s\"\n", params[0].c_str() );
 		}
 
 		VectorSubtract( target->shared.r.currentOrigin, ent->shared.r.currentOrigin, vec );
 
-		token = COM_ParseExt( &pString, false );
-		if ( !token[0] ) {
+		if ( params.size() < 2 ) {
 			Com_Error( ERR_DROP, "G_Scripting: gotomarker must have a speed\n" );
-            return false; // keep the linter happy, ERR_DROP does not return
 		}
 
-		speed = atof( token );
-		trType = TR_LINEAR_STOP;
+		float speed = atof( params[1].c_str() );
+		int trType = TR_LINEAR_STOP;
 
-		while ( token[0] ) {
-			token = COM_ParseExt( &pString, false );
-			if ( token[0] ) {
-				if ( !Q_stricmp( token, "accel" ) ) {
-					trType = TR_ACCELERATE;
-				} else if ( !Q_stricmp( token, "deccel" ) )      {
-					trType = TR_DECCELERATE;
-				} else if ( !Q_stricmp( token, "wait" ) )      {
-					wait = true;
-				} else if ( !Q_stricmp( token, "turntotarget" ) )      {
-					turntotarget = true;
-				}
+		bool wait = false;
+		bool turntotarget = false;
+		for ( size_t i = 2; i < params.size(); i++ ) {
+			if ( params[i] == "accel" ) {
+				trType = TR_ACCELERATE;
+			} else if ( params[i] == "deccel" ) {
+				trType = TR_DECCELERATE;
+			} else if ( params[i] == "wait" ) {
+				wait = true;
+			} else if ( params[i] == "turntotarget" ) {
+				turntotarget = true;
 			}
 		}
 
@@ -254,18 +242,12 @@ G_ScriptAction_Wait
   syntax: wait <duration>
 =================
 */
-bool G_ScriptAction_Wait( GameEntity *ent, char *params ) {
-	
-	int duration;
-
-	// get the duration
-	const char* pString = params;
-	const char* token = COM_ParseExt( &pString, false );
-	if ( !token[0] ) {
+bool G_ScriptAction_Wait( GameEntity *ent, const std::vector<std::string>& params )
+{	
+	if ( params.empty() ) {
 		Com_Error( ERR_DROP, "G_Scripting: wait must have a duration\n" );
-        return false; // keep the linter happy, ERR_DROP does not return
 	}
-	duration = atoi( token );
+	int duration = atoi( params[0].c_str() );
 
 	return ( ent->scriptStatus.scriptStackChangeTime + duration < level.time );
 }
@@ -279,45 +261,31 @@ G_ScriptAction_Trigger
   Calls the specified trigger for the given ai character or script entity
 =================
 */
-bool G_ScriptAction_Trigger( GameEntity *ent, char *params ) {
-	GameEntity *trent;
-	char name[MAX_QPATH], trigger[MAX_QPATH];
-	int oldId;
-
-	// get the cast name
-	const char* pString = params;
-	const char* token = COM_ParseExt( &pString, false );
-	Q_strncpyz( name, token, sizeof( name ) );
-	if ( !name[0] ) {
+bool G_ScriptAction_Trigger( GameEntity *ent, const std::vector<std::string>& params )
+{
+	if ( params.size() < 2 ) {
 		Com_Error( ERR_DROP, "G_Scripting: trigger must have a name and an identifier\n" );
-        return false; // keep the linter happy, ERR_DROP does not return
 	}
 
-	token = COM_ParseExt( &pString, false );
-	Q_strncpyz( trigger, token, sizeof( trigger ) );
-	if ( !trigger[0] ) {
-		Com_Error( ERR_DROP, "G_Scripting: trigger must have a name and an identifier\n" );
-        return false; // keep the linter happy, ERR_DROP does not return
-	}
+	const auto& name = params[0];
+	const auto& trigger = params[1];
 
-	trent = AICast_FindEntityForName( name );
+	GameEntity *trent = AICast_FindEntityForName( name.c_str() );
 	if ( trent ) { // we are triggering an AI
-				  //oldId = trent->scriptStatus.scriptId;
-		AICast_ScriptEvent( AICast_GetCastState( trent->shared.s.number ), "trigger", trigger );
+		AICast_ScriptEvent( AICast_GetCastState( trent->shared.s.number ), "trigger", trigger.c_str() );
 		return true;
 	}
 
 	// look for an entity
-	trent = G_Find( &g_entities[MAX_CLIENTS], FOFS( scriptName ), name );
-	if ( trent ) {
-		oldId = trent->scriptStatus.scriptId;
-		G_Script_ScriptEvent( trent, "trigger", trigger );
-		// if the script changed, return false so we don't muck with it's variables
-		return ( ( trent != ent ) || ( oldId == trent->scriptStatus.scriptId ) );
+	trent = G_Find( &g_entities[MAX_CLIENTS], FOFS( scriptName ), name.c_str() );
+	if (!trent){
+		Com_Error( ERR_DROP, "G_Scripting: trigger has unknown name: %s\n", name.c_str() );
 	}
 
-	Com_Error( ERR_DROP, "G_Scripting: trigger has unknown name: %s\n", name );
-	return false;  // shutup the compiler
+	int oldId = trent->scriptStatus.scriptId;
+	G_Script_ScriptEvent( trent, "trigger", trigger.c_str(), "" );
+	// if the script changed, return false so we don't muck with it's variables
+	return ( ( trent != ent ) || ( oldId == trent->scriptStatus.scriptId ) );
 }
 
 /*
@@ -331,95 +299,60 @@ G_ScriptAction_PlaySound
   Use the optional LOOPING paramater to attach the sound to the entities looping channel.
 ================
 */
-bool G_ScriptAction_PlaySound( GameEntity *ent, char *params ) {
-	char sound[MAX_QPATH];
-
-	if ( !params ) {
+bool G_ScriptAction_PlaySound( GameEntity *ent, const std::vector<std::string>& params )
+{
+	if ( params.empty() ) {
 		Com_Error( ERR_DROP, "G_Scripting: syntax error\n\nplaysound <soundname OR scriptname>\n" );
-        return false; // keep the linter happy, ERR_DROP does not return
 	}
 
-	const char* pString = params;
-	const char* token = COM_ParseExt( &pString, false );
-	Q_strncpyz( sound, token, sizeof( sound ) );
+	const char* sound = params[0].c_str();
 
-	token = COM_ParseExt( &pString, false );
-	if ( !token[0] || Q_strcasecmp( token, "looping" ) ) {
+	if ( params.size() > 1 && Q_strcasecmp( params[1].c_str(), "looping" ) ) {
 		G_AddEvent( ent, EV_GENERAL_SOUND, G_SoundIndex( sound ) );
-	} else {    // looping channel
+	} else {
+		// looping channel
 		ent->shared.s.loopSound = G_SoundIndex( sound );
 	}
 
 	return true;
 }
 
-//----(SA)	added
-/*
-==================
-AICast_ScriptAction_MusicStart
-
-==================
-*/
-bool G_ScriptAction_MusicStart( GameEntity *ent, char *params ) {
-	
-	char cvarName[MAX_QPATH];
-	int fadeupTime = 0;
-
-	const char* pString = params;
-	const char* token = COM_ParseExt( &pString, false );
-	if ( !token[0] ) {
+bool G_ScriptAction_MusicStart( GameEntity *ent, const std::vector<std::string>& params)
+{
+	if ( params.size() < 2 ) {
 		Com_Error( ERR_DROP, "G_Scripting: syntax: mu_start <musicfile> <fadeuptime>" );
-        return false; // keep the linter happy, ERR_DROP does not return
-	}
-	Q_strncpyz( cvarName, token, sizeof( cvarName ) );
-
-	token = COM_ParseExt( &pString, false );
-	if ( token[0] ) {
-		fadeupTime = atoi( token );
 	}
 
-	SV_GameSendServerCommand( -1, va( "mu_start %s %d", cvarName, fadeupTime ) );
+	int fadeupTime = atoi( params[1].c_str() );
+
+	SV_GameSendServerCommand( -1, va( "mu_start %s %d", params[0].c_str(), fadeupTime ) );
 
 	return true;
 }
 
-/*
-==================
-AICast_ScriptAction_MusicPlay
 
-==================
-*/
-bool G_ScriptAction_MusicPlay( GameEntity *ent, char *params ) {
+bool G_ScriptAction_MusicPlay( GameEntity *ent, const std::vector<std::string>& params )
+{
 	
-	char cvarName[MAX_QPATH];
-	int fadeupTime = 0;
-
-	const char* pString = params;
-	const char* token = COM_ParseExt( &pString, false );
-	if ( !token[0] ) {
+	if ( params.size() < 1 ) {
 		Com_Error( ERR_DROP, "G_Scripting: syntax: mu_play <musicfile> [fadeup time]" );
-        return false; // keep the linter happy, ERR_DROP does not return
 	}
-	Q_strncpyz( cvarName, token, sizeof( cvarName ) );
 
-	SV_GameSendServerCommand( -1, va( "mu_play %s %d", cvarName, fadeupTime ) );
+	int fadeupTime = 0;
+	if ( params.size() > 1 ) {
+		fadeupTime = atoi( params[1].c_str() );
+	}
+
+	SV_GameSendServerCommand( -1, va( "mu_play %s %d", params[0].c_str(), fadeupTime ) );
 
 	return true;
 }
 
-
-/*
-==================
-AICast_ScriptAction_MusicStop
-==================
-*/
-bool G_ScriptAction_MusicStop( GameEntity *ent, char *params ) {
+bool G_ScriptAction_MusicStop( GameEntity *ent, const std::vector<std::string>& params )
+{
 	int fadeoutTime = 0;
-
-	const char* pString = params;
-	const char* token = COM_ParseExt( &pString, false );
-	if ( token[0] ) {
-		fadeoutTime = atoi( token );
+	if ( params.size() > 0 ) {
+		fadeoutTime = atoi( params[0].c_str() );
 	}
 
 	SV_GameSendServerCommand( -1, va( "mu_stop %i\n", fadeoutTime ) );
@@ -428,30 +361,14 @@ bool G_ScriptAction_MusicStop( GameEntity *ent, char *params ) {
 }
 
 
-/*
-==================
-AICast_ScriptAction_MusicFade
-==================
-*/
-bool G_ScriptAction_MusicFade( GameEntity *ent, char *params ) {
-	
-	float targetvol;
-	int fadetime;
-
-	const char* pString = params;
-	const char* token = COM_ParseExt( &pString, false );
-	if ( !token[0] ) {
+bool G_ScriptAction_MusicFade( GameEntity *ent, const std::vector<std::string>& params )
+{
+	if ( params.size() < 2 ) {
 		Com_Error( ERR_DROP, "G_Scripting: syntax: mu_fade <targetvol> <fadetime>" );
-        return false; // keep the linter happy, ERR_DROP does not return
 	}
-	targetvol = atof( token );
 
-	token = COM_ParseExt( &pString, false );
-	if ( !token[0] ) {
-		Com_Error( ERR_DROP, "G_Scripting: syntax: mu_fade <targetvol> <fadetime>" );
-        return false; // keep the linter happy, ERR_DROP does not return
-	}
-	fadetime = atoi( token );
+	float targetvol = atof( params[0].c_str() );
+	int fadetime = atoi( params[1].c_str() );
 
 	SV_GameSendServerCommand( -1, va( "mu_fade %f %i\n", targetvol, fadetime ) );
 
@@ -464,7 +381,7 @@ bool G_ScriptAction_MusicFade( GameEntity *ent, char *params ) {
 AICast_ScriptAction_MusicQueue
 ==================
 */
-bool G_ScriptAction_MusicQueue( GameEntity *ent, char *params ) {
+bool G_ScriptAction_MusicQueue( GameEntity *ent, const std::vector<std::string>& params ) {
 	
 	char cvarName[MAX_QPATH];
 
@@ -492,7 +409,7 @@ G_ScriptAction_PlayAnim
   NOTE: all source animations must be at 20fps
 =================
 */
-bool G_ScriptAction_PlayAnim( GameEntity *ent, char *params ) {
+bool G_ScriptAction_PlayAnim( GameEntity *ent, const std::vector<std::string>& params ) {
 	char tokens[2][MAX_QPATH];
 	int i, endtime = 0; // TTimo: init
 	bool looping = false, forever = false;
@@ -596,7 +513,7 @@ G_ScriptAction_AlertEntity
   syntax: alertentity <targetname>
 =================
 */
-bool G_ScriptAction_AlertEntity( GameEntity *ent, char *params ) {
+bool G_ScriptAction_AlertEntity( GameEntity *ent, const std::vector<std::string>& params ) {
 	GameEntity   *alertent;
 
 	if ( !params || !params[0] ) {
@@ -651,7 +568,7 @@ G_ScriptAction_Accum
 	accum <n> abort_if_not_bitset <m>
 =================
 */
-bool G_ScriptAction_Accum( GameEntity *ent, char *params ) {
+bool G_ScriptAction_Accum( GameEntity *ent, const std::vector<std::string>& params ) {
 	char *token, lastToken[MAX_QPATH];
 	int bufferIndex;
 
@@ -777,7 +694,7 @@ G_ScriptAction_MissionFailed
   syntax: missionfailed
 =================
 */
-bool G_ScriptAction_MissionFailed( GameEntity *ent, char *params ) {
+bool G_ScriptAction_MissionFailed( GameEntity *ent, const std::vector<std::string>& params ) {
 	char   *token;
 	int time = 6, mof = 0;
 
@@ -821,7 +738,7 @@ G_ScriptAction_MissionSuccess
   syntax: missionsuccess <mission_level>
 =================
 */
-bool G_ScriptAction_MissionSuccess( GameEntity *ent, char *params ) {
+bool G_ScriptAction_MissionSuccess( GameEntity *ent, const std::vector<std::string>& params) {
 	GameEntity   *player;
 	vmCvar_t cvar;
 	int lvl;
@@ -878,7 +795,7 @@ G_ScriptAction_Print
   Mostly for debugging purposes
 =================
 */
-bool G_ScriptAction_Print( GameEntity *ent, char *params ) {
+bool G_ScriptAction_Print( GameEntity *ent, const std::vector<std::string>& params ) {
 	if ( !params || !params[0] ) {
 		Com_Error( ERR_DROP, "G_Scripting: print requires some text\n" );
         return false; // keep the linter happy, ERR_DROP does not return
@@ -899,7 +816,7 @@ G_ScriptAction_FaceAngles
   last gotomarker command will be used instead.
 =================
 */
-bool G_ScriptAction_FaceAngles( GameEntity *ent, char *params ) {
+bool G_ScriptAction_FaceAngles( GameEntity *ent, const std::vector<std::string>& params ) {
 	char  *token;
 	int duration, i;
 	vec3_t diff;
@@ -997,7 +914,7 @@ G_ScriptAction_ResetScript
 	causes any currently running scripts to abort, in favour of the current script
 ===================
 */
-bool G_ScriptAction_ResetScript( GameEntity *ent, char *params )
+bool G_ScriptAction_ResetScript( GameEntity *ent, const std::vector<std::string>& params )
 {
 	if ( level.time == ent->scriptStatus.scriptStackChangeTime ) {
 		return false;
@@ -1015,7 +932,7 @@ G_ScriptAction_TagConnect
 	connect this entity onto the tag of another entity
 ===================
 */
-bool G_ScriptAction_TagConnect( GameEntity *ent, char *params ) {
+bool G_ScriptAction_TagConnect( GameEntity *ent, const std::vector<std::string>& params ) {
 	char *token;
 	GameEntity *parent;
 
@@ -1059,7 +976,7 @@ G_ScriptAction_Halt
   Stop moving.
 ====================
 */
-bool G_ScriptAction_Halt( GameEntity *ent, char *params ) {
+bool G_ScriptAction_Halt( GameEntity *ent, const std::vector<std::string>& params ) {
 	if ( level.time == ent->scriptStatus.scriptStackChangeTime ) {
 		ent->scriptStatus.scriptFlags &= ~SCFL_GOING_TO_MARKER;
 
@@ -1098,7 +1015,7 @@ G_ScriptAction_StopSound
   Stops any looping sounds for this entity.
 ===================
 */
-bool G_ScriptAction_StopSound( GameEntity *ent, char *params ) {
+bool G_ScriptAction_StopSound( GameEntity *ent, const std::vector<std::string>& params ) {
 	ent->shared.s.loopSound = 0;
 	return true;
 }
@@ -1110,7 +1027,7 @@ G_ScriptAction_StartCam
   syntax: startcam <camera filename>
 ===================
 */
-bool G_ScriptAction_StartCam( GameEntity *ent, char *params ) {
+bool G_ScriptAction_StartCam( GameEntity *ent, const std::vector<std::string>& params ) {
 	char *token;
 	GameEntity *player;
 
@@ -1140,8 +1057,8 @@ bool G_ScriptAction_StartCam( GameEntity *ent, char *params ) {
 G_ScriptAction_EntityScriptName
 =================
 */
-bool G_ScriptAction_EntityScriptName( GameEntity *ent, char *params ) {
-	Cvar_Set( "g_scriptName", params );
+bool G_ScriptAction_EntityScriptName( GameEntity *ent, const std::vector<std::string>& params ) {
+	Cvar_Set( "g_scriptName", params[0].c_str() );
 	return true;
 }
 
@@ -1151,8 +1068,8 @@ bool G_ScriptAction_EntityScriptName( GameEntity *ent, char *params ) {
 G_ScriptAction_AIScriptName
 =================
 */
-bool G_ScriptAction_AIScriptName( GameEntity *ent, char *params ) {
-	Cvar_Set( "ai_scriptName", params );
+bool G_ScriptAction_AIScriptName( GameEntity *ent, const std::vector<std::string>& params ) {
+	Cvar_Set( "ai_scriptName", params[0].c_str() );
 	return true;
 }
 
@@ -1164,7 +1081,7 @@ G_ScriptAction_BackupScript
   were we left off (useful if player gets in our way)
 =================
 */
-bool G_ScriptAction_BackupScript( GameEntity *ent, char *params ) {
+bool G_ScriptAction_BackupScript( GameEntity *ent, const std::vector<std::string>& params ) {
 
 	// if we're not at the top of an event, then something is _probably_ wrong with the script
 //	if (ent->scriptStatus.scriptStackHead > 0) {
@@ -1212,7 +1129,7 @@ G_ScriptAction_RestoreScript
   restores the state of the scripting to the previous backup
 =================
 */
-bool G_ScriptAction_RestoreScript( GameEntity *ent, char *params ) {
+bool G_ScriptAction_RestoreScript( GameEntity *ent, const std::vector<std::string>& params ) {
 
 	ent->scriptStatus = ent->scriptStatusBackup;
 	ent->scriptStatus.scriptStackChangeTime = level.time;       // start moves again
@@ -1225,11 +1142,10 @@ bool G_ScriptAction_RestoreScript( GameEntity *ent, char *params ) {
 G_ScriptAction_SetHealth
 ==================
 */
-bool G_ScriptAction_SetHealth( GameEntity *ent, char *params ) {
-	if ( !params || !params[0] ) {
+bool G_ScriptAction_SetHealth( GameEntity *ent, const std::vector<std::string>& params ) {
+	if ( params.empty() || params[0].empty() ) {
 		Com_Error( ERR_DROP, "G_ScriptAction_SetHealth: sethealth requires a health value\n" );
-        return false; // keep the linter happy, ERR_DROP does not return
 	}
-	ent->health = atoi( params );
+	ent->health = atoi( params[0].c_str() );
 	return true;
 }

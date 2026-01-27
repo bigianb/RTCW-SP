@@ -643,7 +643,7 @@ void Cmd_StopCamera_f( GameEntity *ent ) {
 
 	if ( ent->client->cameraPortal ) {
 		// send a script event
-		G_Script_ScriptEvent( ent->client->cameraPortal, "stopcam", "" );
+		G_Script_ScriptEvent( ent->client->cameraPortal, "stopcam", "", "" );
 		// go back into noclient mode
 		ent->client->cameraPortal->shared.r.svFlags |= SVF_NOCLIENT;
 		ent->client->cameraPortal = nullptr;
@@ -819,7 +819,7 @@ void Cmd_Activate_f( GameEntity *ent ) {
 		} else if ( !Q_stricmp( traceEnt->classname, "props_footlocker" ) )     {
 			traceEnt->use( traceEnt, ent, ent );
 		} else if ( !Q_stricmp( traceEnt->classname, "script_mover" ) )     {
-			G_Script_ScriptEvent( traceEnt, "activate", ent->aiName );
+			G_Script_ScriptEvent( traceEnt, "activate", ent->aiName, "" );
 		} else if ( traceEnt->shared.s.eType == ET_ALARMBOX )     {
 			trace_t trace;
 			memset( &trace, 0, sizeof( trace ) );

@@ -908,7 +908,7 @@ void G_SpawnScriptCamera( void ) {
 
 	if ( g_camEnt->shared.s.number >= MAX_CLIENTS && g_camEnt->scriptName ) {
 		G_Script_ScriptParse( g_camEnt );
-		G_Script_ScriptEvent( g_camEnt, "spawn", "" );
+		G_Script_ScriptEvent( g_camEnt, "spawn", "", "" );
 	}
 
 }

@@ -44,35 +44,35 @@ vmCvar_t g_scriptDebug;
 //====================================================================
 //
 // action functions need to be declared here so they can be accessed in the scriptAction table
-bool G_ScriptAction_GotoMarker( GameEntity *ent, char *params );
-bool G_ScriptAction_Wait( GameEntity *ent, char *params );
-bool G_ScriptAction_Trigger( GameEntity *ent, char *params );
-bool G_ScriptAction_PlaySound( GameEntity *ent, char *params );
-bool G_ScriptAction_PlayAnim( GameEntity *ent, char *params );
-bool G_ScriptAction_AlertEntity( GameEntity *ent, char *params );
-bool G_ScriptAction_Accum( GameEntity *ent, char *params );
-bool G_ScriptAction_MissionFailed( GameEntity *ent, char *params );
-bool G_ScriptAction_MissionSuccess( GameEntity *ent, char *params );
-bool G_ScriptAction_Print( GameEntity *ent, char *params );
-bool G_ScriptAction_FaceAngles( GameEntity *ent, char *params );
-bool G_ScriptAction_ResetScript( GameEntity *ent, char *params );
-bool G_ScriptAction_TagConnect( GameEntity *ent, char *params );
-bool G_ScriptAction_Halt( GameEntity *ent, char *params );
-bool G_ScriptAction_StopSound( GameEntity *ent, char *params );
-bool G_ScriptAction_StartCam( GameEntity *ent, char *params );
-bool G_ScriptAction_EntityScriptName( GameEntity *ent, char *params );
-bool G_ScriptAction_AIScriptName( GameEntity *ent, char *params );
+bool G_ScriptAction_GotoMarker( GameEntity *ent, const std::vector<std::string>& params );
+bool G_ScriptAction_Wait( GameEntity *ent, const std::vector<std::string>& params );
+bool G_ScriptAction_Trigger( GameEntity *ent, const std::vector<std::string>& params );
+bool G_ScriptAction_PlaySound( GameEntity *ent, const std::vector<std::string>& params );
+bool G_ScriptAction_PlayAnim( GameEntity *ent, const std::vector<std::string>& params );
+bool G_ScriptAction_AlertEntity( GameEntity *ent, const std::vector<std::string>& params );
+bool G_ScriptAction_Accum( GameEntity *ent, const std::vector<std::string>& params );
+bool G_ScriptAction_MissionFailed( GameEntity *ent, const std::vector<std::string>& params );
+bool G_ScriptAction_MissionSuccess( GameEntity *ent, const std::vector<std::string>& params );
+bool G_ScriptAction_Print( GameEntity *ent, const std::vector<std::string>& params );
+bool G_ScriptAction_FaceAngles( GameEntity *ent, const std::vector<std::string>& params );
+bool G_ScriptAction_ResetScript( GameEntity *ent, const std::vector<std::string>& params );
+bool G_ScriptAction_TagConnect( GameEntity *ent, const std::vector<std::string>& params );
+bool G_ScriptAction_Halt( GameEntity *ent, const std::vector<std::string>& params );
+bool G_ScriptAction_StopSound( GameEntity *ent, const std::vector<std::string>& params );
+bool G_ScriptAction_StartCam( GameEntity *ent, const std::vector<std::string>& params );
+bool G_ScriptAction_EntityScriptName( GameEntity *ent, const std::vector<std::string>& params );
+bool G_ScriptAction_AIScriptName( GameEntity *ent, const std::vector<std::string>& params );
 
-bool G_ScriptAction_BackupScript( GameEntity *ent, char *params );
-bool G_ScriptAction_RestoreScript( GameEntity *ent, char *params );
-bool G_ScriptAction_SetHealth( GameEntity *ent, char *params );
+bool G_ScriptAction_BackupScript( GameEntity *ent, const std::vector<std::string>& params );
+bool G_ScriptAction_RestoreScript( GameEntity *ent, const std::vector<std::string>& params );
+bool G_ScriptAction_SetHealth( GameEntity *ent, const std::vector<std::string>& params );
 
 //----(SA)	added
-bool G_ScriptAction_MusicStart( GameEntity *ent, char *params );
-bool G_ScriptAction_MusicPlay( GameEntity *ent, char *params );
-bool G_ScriptAction_MusicStop( GameEntity *ent, char *params );
-bool G_ScriptAction_MusicFade( GameEntity *ent, char *params );
-bool G_ScriptAction_MusicQueue( GameEntity *ent, char *params );
+bool G_ScriptAction_MusicStart( GameEntity *ent, const std::vector<std::string>& params );
+bool G_ScriptAction_MusicPlay( GameEntity *ent, const std::vector<std::string>& params );
+bool G_ScriptAction_MusicStop( GameEntity *ent, const std::vector<std::string>& params );
+bool G_ScriptAction_MusicFade( GameEntity *ent, const std::vector<std::string>& params );
+bool G_ScriptAction_MusicQueue( GameEntity *ent, const std::vector<std::string>& params );
 //----(SA)	end
 
 // these are the actions that each event can call
@@ -110,8 +110,32 @@ g_script_stack_action_t gScriptActions[] =
 	{nullptr,                      nullptr}
 };
 
-bool G_Script_EventMatch_StringEqual( g_script_event_t *event, char *eventParm );
-bool G_Script_EventMatch_IntInRange( g_script_event_t *event, char *eventParm );
+
+/*
+===============
+G_Script_EventMatch_StringEqual
+===============
+*/
+bool G_Script_EventMatch_StringEqual( g_script_event_t *event, const char *eventParm, const char* eventParm2 )
+{
+	return !event->params.empty() && !Q_strcasecmp( event->params[0].c_str(), eventParm );
+}
+
+/*
+===============
+G_Script_EventMatch_IntInRange
+===============
+*/
+bool G_Script_EventMatch_IntInRange( g_script_event_t *event, const char *eventParm1, const char *eventParm2 ) {
+	
+
+	int int1 = atoi( eventParm1 );
+	int int2 = atoi( eventParm2 );
+
+	int eInt = atoi( event->params[0].c_str() );
+
+	return (eInt > int1 && eInt <= int2 );
+}
 
 // the list of events that can start an action sequence
 g_script_event_define_t gScriptEvents[] =
@@ -125,43 +149,6 @@ g_script_event_define_t gScriptEvents[] =
 
 	{nullptr,              nullptr}
 };
-
-
-/*
-===============
-G_Script_EventMatch_StringEqual
-===============
-*/
-bool G_Script_EventMatch_StringEqual( g_script_event_t *event, char *eventParm ) {
-	if ( eventParm && !Q_strcasecmp( event->params, eventParm ) ) {
-		return true;
-	} else {
-		return false;
-	}
-}
-
-/*
-===============
-G_Script_EventMatch_IntInRange
-===============
-*/
-bool G_Script_EventMatch_IntInRange( g_script_event_t *event, char *eventParm ) {
-	
-	// get the cast name
-	const char* pString = eventParm;
-	const char* token = COM_ParseExt( &pString, false );
-	int int1 = atoi( token );
-	token = COM_ParseExt( &pString, false );
-	int int2 = atoi( token );
-
-	int eInt = atoi( event->params );
-
-	if ( eventParm && eInt > int1 && eInt <= int2 ) {
-		return true;
-	} else {
-		return false;
-	}
-}
 
 /*
 ===============
@@ -259,9 +246,7 @@ G_Script_ScriptParse
 void G_Script_ScriptParse( GameEntity *ent )
 {
 	#define MAX_SCRIPT_EVENTS   64
-
 	g_script_event_t events[MAX_SCRIPT_EVENTS];
-	char params[MAX_INFO_STRING];
 
 	if ( !ent->scriptName ) {
 		return;
@@ -297,23 +282,8 @@ void G_Script_ScriptParse( GameEntity *ent )
 
 		g_script_event_t* curEvent = &events[numEventItems];
 		curEvent->eventNum = eventNum;
-		memset( params, 0, sizeof( params ) );
 
-
-		// parse any event params before the start of this event's actions
-		for (const auto& param : event.parameters ) {
-			const char* token = param.c_str();
-
-			if ( strlen( params ) ) { // add a space between each param
-				Q_strcat( params, sizeof( params ), " " );
-			}
-			Q_strcat( params, sizeof( params ), token );
-		}
-
-		if ( strlen( params ) ) { // copy the params into the event
-			curEvent->params = (char*)G_Alloc( strlen( params ) + 1 );
-			Q_strncpyz( curEvent->params, params, strlen( params ) + 1 );
-		}
+		curEvent->params = event.parameters;
 		
 		for (const auto& eventAction : event.actions ) {
 			const char* actionName = eventAction.name.c_str();
@@ -326,36 +296,13 @@ void G_Script_ScriptParse( GameEntity *ent )
 
 			curEvent->stack.items[curEvent->stack.numItems].action = action;
 
-			memset( params, 0, sizeof( params ) );
-			for( size_t p = 0; p < eventAction.parameters.size(); p++ ) {
-				const char* param = eventAction.parameters[p].c_str();
-				if ( strlen( params ) ) { // add a space between each param
-					Q_strcat( params, sizeof( params ), " " );
-				}
-
-				if ( p == 0 ) {
-					// Special case: playsound's need to be cached on startup to prevent in-game pauses
-					if ( !Q_stricmp( action->actionString, "playsound" ) ) {
-						G_SoundIndex( param );
-					}
-				}
-
-				if ( strrchr( param,' ' ) ) { // need to wrap this param in quotes since it has more than one word
-					Q_strcat( params, sizeof( params ), "\"" );
-				}
-
-				Q_strcat( params, sizeof( params ), param );
-
-				if ( strrchr( param,' ' ) ) { // need to wrap this param in quotes since it has more than one word
-					Q_strcat( params, sizeof( params ), "\"" );
-				}
+			if (!Q_stricmp( action->actionString, "playsound" ) &&!eventAction.parameters.empty()){
+				// Special case: playsound's need to be cached on startup to prevent in-game pauses
+				const char* param = eventAction.parameters[0].c_str();
+				G_SoundIndex( param );
 			}
 
-			if ( strlen( params ) ) { // copy the params into the event
-				curEvent->stack.items[curEvent->stack.numItems].params = (char *)G_Alloc( strlen( params ) + 1 );
-				Q_strncpyz( curEvent->stack.items[curEvent->stack.numItems].params, params, strlen( params ) + 1 );
-			}
-
+			curEvent->stack.items[curEvent->stack.numItems].params = eventAction.parameters;
 			curEvent->stack.numItems++;
 
 			if ( curEvent->stack.numItems >= G_MAX_SCRIPT_STACK_ITEMS ) {
@@ -406,7 +353,7 @@ G_Script_ScriptEvent
   An event has occured, for which a script may exist
 ================
 */
-void G_Script_ScriptEvent( GameEntity *ent, const char *eventStr, const char *params ) {
+void G_Script_ScriptEvent( GameEntity *ent, const char *eventStr, const char *params, const char *params2 ) {
 	int i, eventNum;
 
 	eventNum = -1;
@@ -431,8 +378,8 @@ void G_Script_ScriptEvent( GameEntity *ent, const char *eventStr, const char *pa
 	for ( i = 0; i < ent->numScriptEvents; i++ )
 	{
 		if ( ent->scriptEvents[i].eventNum == eventNum ) {
-			if (    ( !ent->scriptEvents[i].params )
-					||  ( !gScriptEvents[eventNum].eventMatch || gScriptEvents[eventNum].eventMatch( &ent->scriptEvents[i], (char *)params ) ) ) {
+			if (    ( ent->scriptEvents[i].params.empty() )
+					||  ( !gScriptEvents[eventNum].eventMatch || gScriptEvents[eventNum].eventMatch( &ent->scriptEvents[i], params, params2 ) ) ) {
 				G_Script_ScriptChange( ent, i );
 				break;
 			}
@@ -470,12 +417,14 @@ bool G_Script_ScriptRun( GameEntity *ent ) {
 
 	// if we are still doing a gotomarker, process the movement
 	if ( ent->scriptStatus.scriptFlags & SCFL_GOING_TO_MARKER ) {
-		G_ScriptAction_GotoMarker( ent, nullptr );
+		G_ScriptAction_GotoMarker( ent, std::vector<std::string>() );
 	}
 
 	// if we are animating, do the animation
 	if ( ent->scriptStatus.scriptFlags & SCFL_ANIMATING ) {
-		G_ScriptAction_PlayAnim( ent, ent->scriptStatus.animatingParams );
+		std::vector<std::string> p;
+		p.push_back( ent->scriptStatus.animatingParams );
+		G_ScriptAction_PlayAnim( ent, p );
 	}
 
 	if ( ent->scriptStatus.scriptEventIndex < 0 ) {
@@ -490,11 +439,13 @@ bool G_Script_ScriptRun( GameEntity *ent ) {
 	}
 	//
 	// show debugging info
+	/*
 	if ( g_scriptDebug.integer && ent->scriptStatus.scriptStackChangeTime == level.time ) {
 		if ( ent->scriptStatus.scriptStackHead < stack->numItems ) {
 			Com_Printf( "%i : (%s) GScript command: %s %s\n", level.time, ent->scriptName, stack->items[ent->scriptStatus.scriptStackHead].action->actionString, ( stack->items[ent->scriptStatus.scriptStackHead].params ? stack->items[ent->scriptStatus.scriptStackHead].params : "" ) );
 		}
 	}
+	*/
 	//
 	while ( ent->scriptStatus.scriptStackHead < stack->numItems )
 	{
@@ -507,11 +458,13 @@ bool G_Script_ScriptRun( GameEntity *ent ) {
 		ent->scriptStatus.scriptStackChangeTime = level.time;
 		//
 		// show debugging info
+		/*
 		if ( g_scriptDebug.integer ) {
 			if ( ent->scriptStatus.scriptStackHead < stack->numItems ) {
 				Com_Printf( "%i : (%s) GScript command: %s %s\n", level.time, ent->scriptName, stack->items[ent->scriptStatus.scriptStackHead].action->actionString, ( stack->items[ent->scriptStatus.scriptStackHead].params ? stack->items[ent->scriptStatus.scriptStackHead].params : "" ) );
 			}
 		}
+			*/
 	}
 
 	ent->scriptStatus.scriptEventIndex = -1;
@@ -547,15 +500,20 @@ void script_mover_die( GameEntity *self, GameEntity *inflictor, GameEntity *atta
 		}
 	}
 
-	G_Script_ScriptEvent( self, "death", "" );
+	G_Script_ScriptEvent( self, "death", "", "" );
 	self->die = nullptr;
 
 	SV_UnlinkEntity( &self->shared );
 	G_FreeEntity( self );
 }
 
-void script_mover_pain( GameEntity *self, GameEntity *attacker, int damage, vec3_t point ) {
-	G_Script_ScriptEvent( self, "pain", va( "%d %d", self->health, self->health + damage ) );
+void script_mover_pain( GameEntity *self, GameEntity *attacker, int damage, vec3_t point )
+{
+	char param1[32];
+	char param2[32];
+	snprintf( param1, sizeof( param1 ), "%d", self->health );
+	snprintf( param2, sizeof( param2 ), "%d", self->health + damage );
+	G_Script_ScriptEvent( self, "pain", param1, param2 );
 }
 
 void script_mover_spawn( GameEntity *ent ) {

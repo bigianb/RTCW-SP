@@ -635,7 +635,7 @@ bool G_CallSpawn( GameEntity *ent )
 			// RF, entity scripting
 			if ( ent->shared.s.number >= MAX_CLIENTS && ent->scriptName ) {
 				G_Script_ScriptParse( ent );
-				G_Script_ScriptEvent( ent, "spawn", "" );
+				G_Script_ScriptEvent( ent, "spawn", "", "" );
 			}
 
 			return true;

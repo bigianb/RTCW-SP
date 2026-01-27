@@ -1165,7 +1165,7 @@ void G_Damage( GameEntity *targ, GameEntity *inflictor, GameEntity *attacker,
 
 			// RF, entity scripting
 			if ( targ->shared.s.number >= MAX_CLIENTS && targ->health <= 0 ) { // might have revived itself in death function
-				G_Script_ScriptEvent( targ, "death", "" );
+				G_Script_ScriptEvent( targ, "death", "", "" );
 			}
 
 		} else if ( targ->pain ) {
