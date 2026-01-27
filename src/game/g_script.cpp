@@ -167,11 +167,7 @@ int G_Script_EventForString( const char *string ) {
 	return -1;
 }
 
-/*
-===============
-G_Script_ActionForString
-===============
-*/
+static
 g_script_stack_action_t *G_Script_ActionForString( const char *string ) {
 	
 
@@ -245,9 +241,6 @@ G_Script_ScriptParse
 */
 void G_Script_ScriptParse( GameEntity *ent )
 {
-	#define MAX_SCRIPT_EVENTS   64
-	g_script_event_t events[MAX_SCRIPT_EVENTS];
-
 	if ( !ent->scriptName ) {
 		return;
 	}
@@ -267,8 +260,9 @@ void G_Script_ScriptParse( GameEntity *ent )
 		// No script defined for this entity.
 		return;
 	}
-	int numEventItems = 0;
-	memset( events, 0, sizeof( events ) );
+	
+	ent->scriptEvents.clear();
+	ent->numScriptEvents = 0;
 
 	for( const auto& event : scriptEntity->events ) {
 		const char* eventName = event.name.c_str();
@@ -276,14 +270,10 @@ void G_Script_ScriptParse( GameEntity *ent )
 		if ( eventNum < 0 ) {
 			Com_Error( ERR_DROP, "G_Script_ScriptParse(), Error unknown event: %s.\n", eventName );
 		}
-		if ( numEventItems >= MAX_SCRIPT_EVENTS ) {
-			Com_Error( ERR_DROP, "G_Script_ScriptParse(), Error: MAX_SCRIPT_EVENTS reached (%d)\n", MAX_SCRIPT_EVENTS );
-		}
 
-		g_script_event_t* curEvent = &events[numEventItems];
-		curEvent->eventNum = eventNum;
-
-		curEvent->params = event.parameters;
+		g_script_event_t curEvent;
+		curEvent.eventNum = eventNum;
+		curEvent.params = event.parameters;
 		
 		for (const auto& eventAction : event.actions ) {
 			const char* actionName = eventAction.name.c_str();
@@ -294,7 +284,7 @@ void G_Script_ScriptParse( GameEntity *ent )
 				Com_Error( ERR_DROP, "G_Script_ScriptParse(), Error: unknown action: %s.\n", actionName );
 			}
 
-			curEvent->stack.items[curEvent->stack.numItems].action = action;
+			curEvent.stack.items[curEvent.stack.numItems].action = action;
 
 			if (!Q_stricmp( action->actionString, "playsound" ) &&!eventAction.parameters.empty()){
 				// Special case: playsound's need to be cached on startup to prevent in-game pauses
@@ -302,23 +292,17 @@ void G_Script_ScriptParse( GameEntity *ent )
 				G_SoundIndex( param );
 			}
 
-			curEvent->stack.items[curEvent->stack.numItems].params = eventAction.parameters;
-			curEvent->stack.numItems++;
+			curEvent.stack.items[curEvent.stack.numItems].params = eventAction.parameters;
+			curEvent.stack.numItems++;
 
-			if ( curEvent->stack.numItems >= G_MAX_SCRIPT_STACK_ITEMS ) {
+			if ( curEvent.stack.numItems >= G_MAX_SCRIPT_STACK_ITEMS ) {
 				Com_Error( ERR_DROP, "G_Script_ScriptParse(): script exceeded MAX_SCRIPT_ITEMS (%d)\n", G_MAX_SCRIPT_STACK_ITEMS );
 			}
 		}
-
-		numEventItems++;
+		ent->scriptEvents.push_back( curEvent );
 	}
 
-	// alloc and copy the events into the GameEntity for this cast
-	if ( numEventItems > 0 ) {
-		ent->scriptEvents = (g_script_event_t *)G_Alloc( sizeof( g_script_event_t ) * numEventItems );
-		memcpy( ent->scriptEvents, events, sizeof( g_script_event_t ) * numEventItems );
-		ent->numScriptEvents = numEventItems;
-	}
+	ent->numScriptEvents = static_cast<int>( ent->scriptEvents.size() );
 }
 
 /*
@@ -410,7 +394,7 @@ bool G_Script_ScriptRun( GameEntity *ent ) {
 
 	Cvar_Update( &g_scriptDebug );
 
-	if ( !ent->scriptEvents ) {
+	if ( ent->scriptEvents.empty() ) {
 		ent->scriptStatus.scriptEventIndex = -1;
 		return true;
 	}

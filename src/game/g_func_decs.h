@@ -616,7 +616,7 @@ extern void G_Script_ScriptEvent ( GameEntity * ent , const char * eventStr , co
 extern void G_Script_ScriptChange ( GameEntity * ent , int newScriptNum ) ;
 extern void G_Script_ScriptParse ( GameEntity * ent ) ;
 extern void G_Script_ScriptLoad ( void ) ;
-extern g_script_stack_action_t * G_Script_ActionForString ( const char * string ) ;
+
 extern int G_Script_EventForString ( const char * string ) ;
 
 extern void SP_props_flamethrower ( GameEntity * ent ) ;

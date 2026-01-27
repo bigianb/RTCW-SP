@@ -608,7 +608,7 @@ If you have questions concerning this license or the applicable additional terms
 {"G_Script_ScriptChange", (uint8_t *)G_Script_ScriptChange},
 {"G_Script_ScriptParse", (uint8_t *)G_Script_ScriptParse},
 {"G_Script_ScriptLoad", (uint8_t *)G_Script_ScriptLoad},
-{"G_Script_ActionForString", (uint8_t *)G_Script_ActionForString},
+
 {"G_Script_EventForString", (uint8_t *)G_Script_EventForString},
 {"SP_props_flamethrower", (uint8_t *)SP_props_flamethrower},
 {"props_flamethrower_init", (uint8_t *)props_flamethrower_init},

@@ -105,7 +105,7 @@ static saveField_t gentityFields_17[] = {
 	{FOFS( spawnitem ),   F_STRING},
 	{FOFS( track ),       F_STRING},
 	{FOFS( scriptName ),  F_STRING},
-	{FOFS( scriptStatus.animatingParams ),    F_STRING},
+	{FOFS( scriptStatus.animatingParams ),    F_STRINGVECTOR},
 	{FOFS( tagName ),     F_STRING},
 	{FOFS( tagParent ),   F_ENTITY},
 
@@ -154,7 +154,7 @@ typedef struct {
 static ignoreField_t gentityIgnoreFields[] =
 {
 	{FOFS( numScriptEvents ), sizeof( int )},
-	{FOFS( scriptEvents ),    sizeof( g_script_event_t * ) },   // gets created upon parsing the script file, this is static while playing
+	{FOFS( scriptEvents ),    sizeof( std::vector<g_script_event_t> ) },   // gets created upon parsing the script file, this is static while playing
 
 	{0, 0}
 };
@@ -304,6 +304,31 @@ void WriteField1( saveField_t *field, uint8_t *base )
 		}
 		*(int *)p = len;
 		break;
+	case F_STRINGVECTOR:
+		{
+			// serialisation format is:
+			// int number of strings
+			// for each string:
+			//   int string length
+			//   char data[length]
+			//  padding to 4 byte boundary
+			std::vector<std::string>& vec = *(std::vector<std::string> *)p;
+			if ( vec.empty() ) {
+				len = 0;
+			} else {
+				// we save the number of strings in the vector
+				len = static_cast<int>( vec.size() );
+				for ( const std::string& s : vec ) {
+					// for each string, we save the length +1 for null terminator
+					len += sizeof( int ); // length field
+					len += s.length() + 1; // string data + null terminator
+					// padding to 4 byte boundary
+					len = ( len + 3 ) & ~3;
+				}
+			}
+			*(int *)p = len;
+		}
+		break;
 	case F_ENTITY:
 		if ( *(GameEntity **)p == nullptr ) {
 			index = -1;
@@ -376,6 +401,38 @@ void WriteField2( fileHandle_t f, saveField_t *field, uint8_t *base )
 			}
 		}
 		break;
+	case F_STRINGVECTOR:
+		{
+			std::vector<std::string>& vec = *(std::vector<std::string> *)p;
+
+			// write the number of strings in the vector
+			int numStrings = static_cast<int>( vec.size() );
+			if ( !G_SaveWrite( &numStrings, sizeof( int ), f ) ) {
+				G_SaveWriteError();
+			}
+			// for each string, write length + data + padding
+			for ( const std::string& s : vec ) {
+				int strLen = static_cast<int>( s.length() ) + 1; // +1 for null terminator
+				// write length
+				if ( !G_SaveWrite( &strLen, sizeof( int ), f ) ) {
+					G_SaveWriteError();
+				}
+				// write string data
+				if ( !G_SaveWrite( s.c_str(), strLen, f ) ) {
+					G_SaveWriteError();
+				}
+				// write padding to 4 byte boundary
+				int padding = ( 4 - ( strLen % 4 ) ) % 4;
+				if ( padding > 0 ) {
+					char pad[4] = {0, 0, 0, 0};
+					if ( !G_SaveWrite( pad, padding, f ) ) {
+						G_SaveWriteError();
+					}
+				}
+			}
+			
+		}
+		break;
 	case F_FUNCTION:
 		if ( *(uint8_t **)p ) {
 			func = G_FindFuncAtAddress( *(uint8_t **)p );
@@ -413,6 +470,31 @@ void ReadField( fileHandle_t f, saveField_t *field, uint8_t *base )
 			FS_Read( *(char **)p, len, f );
 		}
 		break;
+	case F_STRINGVECTOR:
+		{
+			// read number of strings
+			int numStrings;
+			FS_Read( &numStrings, sizeof( int ), f );
+			std::vector<std::string>& vec = *(std::vector<std::string> *)p;
+			vec.clear();
+			// read each string
+			for ( int i = 0; i < numStrings; i++ ) {
+				int strLen;
+				// read length
+				FS_Read( &strLen, sizeof( int ), f );
+				// read string data
+				char *strData = new char[strLen];
+				FS_Read( strData, strLen, f );
+				vec.emplace_back( strData );
+				delete[] strData;
+				// read padding to 4 byte boundary
+				int padding = ( 4 - ( strLen % 4 ) ) % 4;
+				if ( padding > 0 ) {
+					char pad[4];
+					FS_Read( pad, padding, f );
+				}
+			}
+		}
 	case F_ENTITY:
 		index = *(int *)p;
 		if ( index >= MAX_GENTITIES || index < -1 ) {

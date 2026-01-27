@@ -6,7 +6,8 @@ typedef enum {
 	F_ENTITY,           // index on disk, pointer in memory
 	F_ITEM,             // index on disk, pointer in memory
 	F_CLIENT,           // index on disk, pointer in memory
-	F_FUNCTION
+	F_FUNCTION,
+	F_STRINGVECTOR		// std::vector<std::string>
 } saveFieldtype_t;
 
 typedef struct {

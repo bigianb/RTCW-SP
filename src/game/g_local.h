@@ -135,18 +135,25 @@ typedef struct
 
 #define G_MAX_SCRIPT_STACK_ITEMS    64
 
-typedef struct
+struct g_script_stack_t
 {
+	g_script_stack_t() : numItems( 0 )
+	{}
+
 	g_script_stack_item_t items[G_MAX_SCRIPT_STACK_ITEMS];
 	int numItems;
-} g_script_stack_t;
-
-typedef struct
+};
+struct g_script_event_t
 {
+	g_script_event_t()
+		: eventNum( 0 )
+		, stack()
+	{}
+
 	int eventNum;                           // index in scriptEvents[]
-	std::vector<std::string> params;            // trigger targetname, etc
+	std::vector<std::string> params;        // trigger targetname, etc
 	g_script_stack_t stack;
-} g_script_event_t;
+};
 
 typedef struct
 {
@@ -392,7 +399,7 @@ public:
 	const char                *scriptName;
 
 	int numScriptEvents;
-	g_script_event_t    *scriptEvents;  // contains a list of actions to perform for each event type
+	std::vector<g_script_event_t> scriptEvents;  // contains a list of actions to perform for each event type
 	g_script_status_t scriptStatus;     // current status of scripting
 	g_script_status_t scriptStatusBackup;
 	// the accumulation buffer
