@@ -618,8 +618,7 @@ extern void G_Script_ScriptParse ( GameEntity * ent ) ;
 extern void G_Script_ScriptLoad ( void ) ;
 extern g_script_stack_action_t * G_Script_ActionForString ( const char * string ) ;
 extern int G_Script_EventForString ( const char * string ) ;
-extern bool G_Script_EventMatch_IntInRange ( g_script_event_t * event , char * eventParm ) ;
-extern bool G_Script_EventMatch_StringEqual ( g_script_event_t * event , char * eventParm ) ;
+
 extern void SP_props_flamethrower ( GameEntity * ent ) ;
 extern void props_flamethrower_init ( GameEntity * ent ) ;
 extern void props_flamethrower_use ( GameEntity * ent , GameEntity * other , GameEntity * activator ) ;

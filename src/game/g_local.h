@@ -168,7 +168,7 @@ typedef struct
 	// scripting system variables
 	int scriptId;                   // incremented each time the script changes
 	int scriptFlags;
-	char    *animatingParams;
+	std::vector<std::string> animatingParams;
 } g_script_status_t;
 //
 #define G_MAX_SCRIPT_ACCUM_BUFFERS  8

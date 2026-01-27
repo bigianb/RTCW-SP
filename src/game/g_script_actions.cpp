@@ -376,29 +376,14 @@ bool G_ScriptAction_MusicFade( GameEntity *ent, const std::vector<std::string>& 
 }
 
 
-/*
-==================
-AICast_ScriptAction_MusicQueue
-==================
-*/
-bool G_ScriptAction_MusicQueue( GameEntity *ent, const std::vector<std::string>& params ) {
-	
-	char cvarName[MAX_QPATH];
-
-	const char *pString = params;
-	const char *token = COM_ParseExt( &pString, false );
-	if ( !token[0] ) {
+bool G_ScriptAction_MusicQueue( GameEntity *ent, const std::vector<std::string>& params )
+{
+	if ( params.size() != 1 ) {
 		Com_Error( ERR_DROP, "G_Scripting: syntax: mu_queue <musicfile>" );
-        return false; // keep the linter happy, ERR_DROP does not return
 	}
-	Q_strncpyz( cvarName, token, sizeof( cvarName ) );
-
-	SV_SetConfigstring( CS_MUSIC_QUEUE, cvarName );
-
+	SV_SetConfigstring( CS_MUSIC_QUEUE, params[0].c_str() );
 	return true;
 }
-
-//----(SA)	end
 
 /*
 =================
@@ -413,7 +398,7 @@ bool G_ScriptAction_PlayAnim( GameEntity *ent, const std::vector<std::string>& p
 	char tokens[2][MAX_QPATH];
 	int i, endtime = 0; // TTimo: init
 	bool looping = false, forever = false;
-	int startframe, endframe, idealframe;
+	int idealframe;
 	int rate = 20;
 
 	if ( ( ent->scriptStatus.scriptFlags & SCFL_ANIMATING ) && ( ent->scriptStatus.scriptStackChangeTime == level.time ) ) {
@@ -421,57 +406,49 @@ bool G_ScriptAction_PlayAnim( GameEntity *ent, const std::vector<std::string>& p
 		ent->scriptStatus.scriptFlags &= ~SCFL_ANIMATING;
 	}
 
-	const char* pString = params;
-
-	for ( i = 0; i < 2; i++ ) {
-		const char* token = COM_ParseExt( &pString, false );
-		if ( !token || !token[0] ) {
-			Com_Printf( "G_Scripting: syntax error\n\nplayanim <startframe> <endframe> [LOOPING <duration>]\n" );
-			return true;
-		} else {
-			Q_strncpyz( tokens[i], token, sizeof( tokens[i] ) );
-		}
+	if (params.size() < 2 ) {
+		Com_Printf( "G_Scripting: syntax error\n\nplayanim <startframe> <endframe> [LOOPING <duration>]\n" );
+		return true;
 	}
 
-	startframe = atoi( tokens[0] );
-	endframe = atoi( tokens[1] );
+	int startframe = atoi( params[0].c_str() );
+	int endframe = atoi( params[1].c_str() );
 
 	// check for optional parameters
-	const char* token = COM_ParseExt( &pString, false );
-	if ( token[0] ) {
-		if ( !Q_strcasecmp( token, "looping" ) ) {
-			looping = true;
 
-			token = COM_ParseExt( &pString, false );
-			if ( !token || !token[0] ) {
+	if (params.size() > 2 ) {
+		int pIndex = 2;
+		if ( !Q_strcasecmp( params[pIndex].c_str(), "looping" ) ) {
+			looping = true;
+			++pIndex;
+
+			if ( params.size() < 4 ) {
 				Com_Printf( "G_Scripting: syntax error\n\nplayanim <startframe> <endframe> [LOOPING <duration>]\n" );
 				return true;
 			}
-			if ( !Q_strcasecmp( token, "untilreachmarker" ) ) {
+			if ( !Q_strcasecmp( params[pIndex].c_str(), "untilreachmarker" ) ) {
 				if ( level.time < ent->shared.s.pos.trTime + ent->shared.s.pos.trDuration ) {
 					endtime = level.time + 100;
 				} else {
 					endtime = 0;
 				}
-			} else if ( !Q_strcasecmp( token, "forever" ) ) {
+			} else if ( !Q_strcasecmp( params[pIndex].c_str(), "forever" ) ) {
 				ent->scriptStatus.animatingParams = params;
 				ent->scriptStatus.scriptFlags |= SCFL_ANIMATING;
 				endtime = level.time + 100;     // we don't care when it ends, since we are going forever!
 				forever = true;
 			} else {
-				endtime = ent->scriptStatus.scriptStackChangeTime + atoi( token );
+				endtime = ent->scriptStatus.scriptStackChangeTime + atoi( params[pIndex].c_str() );
 			}
-
-			token = COM_ParseExt( &pString, false );
+			++pIndex;
 		}
 
-		if ( token[0] && !Q_strcasecmp( token, "rate" ) ) {
-			token = COM_ParseExt( &pString, false );
-			if ( !token[0] ) {
+		if ( params.size() > pIndex && !Q_strcasecmp( params[pIndex].c_str(), "rate" ) ) {
+			++pIndex;
+			if ( params.size() < pIndex + 1 ) {
 				Com_Error( ERR_DROP, "G_Scripting: playanim has RATE parameter without an actual rate specified" );
-                return false; // keep the linter happy, ERR_DROP does not return
 			}
-			rate = atoi( token );
+			rate = atoi( params[pIndex].c_str() );
 		}
 
 		if ( !looping ) {
@@ -516,28 +493,29 @@ G_ScriptAction_AlertEntity
 bool G_ScriptAction_AlertEntity( GameEntity *ent, const std::vector<std::string>& params ) {
 	GameEntity   *alertent;
 
-	if ( !params || !params[0] ) {
+	if ( params.empty() ) {
 		Com_Error( ERR_DROP, "G_Scripting: alertentity without targetname\n" );
-        return false; // keep the linter happy, ERR_DROP does not return
 	}
 
+	const char* targetNameParam = params[0].c_str();
+
 	// find this targetname
-	alertent = G_Find( nullptr, FOFS( targetname ), params );
+	alertent = G_Find( nullptr, FOFS( targetname ), targetNameParam );
 	if ( !alertent ) {
-		Com_Error( ERR_DROP, "G_Scripting: alertentity cannot find targetname \"%s\"\n", params );
+		Com_Error( ERR_DROP, "G_Scripting: alertentity cannot find targetname \"%s\"\n", targetNameParam );
         return false; // keep the linter happy, ERR_DROP does not return
 	}
 
 	if ( alertent->client ) {
 		// call this entity's AlertEntity function
 		if ( !alertent->AIScript_AlertEntity ) {
-			Com_Error( ERR_DROP, "G_Scripting: alertentity \"%s\" (classname = %s) doesn't have an \"AIScript_AlertEntity\" function\n", params, alertent->classname );
+			Com_Error( ERR_DROP, "G_Scripting: alertentity \"%s\" (classname = %s) doesn't have an \"AIScript_AlertEntity\" function\n", targetNameParam, alertent->classname );
             return false; // keep the linter happy, ERR_DROP does not return
 		}
 		alertent->AIScript_AlertEntity( alertent );
 	} else {
 		if ( !alertent->use ) {
-			Com_Error( ERR_DROP, "G_Scripting: alertentity \"%s\" (classname = %s) doesn't have a \"use\" function\n", params, alertent->classname );
+			Com_Error( ERR_DROP, "G_Scripting: alertentity \"%s\" (classname = %s) doesn't have a \"use\" function\n", targetNameParam, alertent->classname );
             return false; // keep the linter happy, ERR_DROP does not return
             
 		}
@@ -568,120 +546,67 @@ G_ScriptAction_Accum
 	accum <n> abort_if_not_bitset <m>
 =================
 */
-bool G_ScriptAction_Accum( GameEntity *ent, const std::vector<std::string>& params ) {
-	char *token, lastToken[MAX_QPATH];
-	int bufferIndex;
-
-	const char *pString = params;
-
-	token = COM_ParseExt( &pString, false );
-	if ( !token[0] ) {
+bool G_ScriptAction_Accum( GameEntity *ent, const std::vector<std::string>& params )
+{
+	if ( params.empty() ) {
 		Com_Error( ERR_DROP, "G_Scripting: accum without a buffer index\n" );
-        return false; // keep the linter happy, ERR_DROP does not return
 	}
 
-	bufferIndex = atoi( token );
+	int bufferIndex = atoi( params[0].c_str() );
 	if ( bufferIndex >= G_MAX_SCRIPT_ACCUM_BUFFERS ) {
 		Com_Error( ERR_DROP, "G_Scripting: accum buffer is outside range (0 - %i)\n", G_MAX_SCRIPT_ACCUM_BUFFERS );
-        return false; // keep the linter happy, ERR_DROP does not return
 	}
 
-	token = COM_ParseExt( &pString, false );
-	if ( !token[0] ) {
+	if ( params.size() < 2 ) {
 		Com_Error( ERR_DROP, "G_Scripting: accum without a command\n" );
-        return false; // keep the linter happy, ERR_DROP does not return
 	}
 
-	Q_strncpyz( lastToken, token, sizeof( lastToken ) );
-	token = COM_ParseExt( &pString, false );
-
+	const char* lastToken = params[1].c_str();
+	if ( params.size() < 3 ) {
+		Com_Error( ERR_DROP, "Scripting: accum %s requires a parameter\n", lastToken );
+	}
 	if ( !Q_stricmp( lastToken, "inc" ) ) {
-		if ( !token[0] ) {
-			Com_Error( ERR_DROP, "Scripting: accum %s requires a parameter\n", lastToken );
-            return false; // keep the linter happy, ERR_DROP does not return
-		}
-		ent->scriptAccumBuffer[bufferIndex] += atoi( token );
+		ent->scriptAccumBuffer[bufferIndex] += atoi( params[2].c_str() );
 	} else if ( !Q_stricmp( lastToken, "abort_if_less_than" ) ) {
-		if ( !token[0] ) {
-			Com_Error( ERR_DROP, "Scripting: accum %s requires a parameter\n", lastToken );
-            return false; // keep the linter happy, ERR_DROP does not return
-		}
-		if ( ent->scriptAccumBuffer[bufferIndex] < atoi( token ) ) {
+		if ( ent->scriptAccumBuffer[bufferIndex] < atoi( params[2].c_str() ) ) {
 			// abort the current script
 			ent->scriptStatus.scriptStackHead = ent->scriptEvents[ent->scriptStatus.scriptEventIndex].stack.numItems;
 		}
 	} else if ( !Q_stricmp( lastToken, "abort_if_greater_than" ) ) {
-		if ( !token[0] ) {
-			Com_Error( ERR_DROP, "Scripting: accum %s requires a parameter\n", lastToken );
-            return false; // keep the linter happy, ERR_DROP does not return
-		}
-		if ( ent->scriptAccumBuffer[bufferIndex] > atoi( token ) ) {
+		if ( ent->scriptAccumBuffer[bufferIndex] > atoi( params[2].c_str() ) ) {
 			// abort the current script
 			ent->scriptStatus.scriptStackHead = ent->scriptEvents[ent->scriptStatus.scriptEventIndex].stack.numItems;
 		}
 	} else if ( !Q_stricmp( lastToken, "abort_if_not_equal" ) ) {
-		if ( !token[0] ) {
-			Com_Error( ERR_DROP, "Scripting: accum %s requires a parameter\n", lastToken );
-            return false; // keep the linter happy, ERR_DROP does not return
-		}
-		if ( ent->scriptAccumBuffer[bufferIndex] != atoi( token ) ) {
+		if ( ent->scriptAccumBuffer[bufferIndex] != atoi( params[2].c_str() ) ) {
 			// abort the current script
 			ent->scriptStatus.scriptStackHead = ent->scriptEvents[ent->scriptStatus.scriptEventIndex].stack.numItems;
 		}
 	} else if ( !Q_stricmp( lastToken, "abort_if_equal" ) ) {
-		if ( !token[0] ) {
-			Com_Error( ERR_DROP, "Scripting: accum %s requires a parameter\n", lastToken );
-            return false; // keep the linter happy, ERR_DROP does not return
-		}
-		if ( ent->scriptAccumBuffer[bufferIndex] == atoi( token ) ) {
+		if ( ent->scriptAccumBuffer[bufferIndex] == atoi( params[2].c_str() ) ) {
 			// abort the current script
 			ent->scriptStatus.scriptStackHead = ent->scriptEvents[ent->scriptStatus.scriptEventIndex].stack.numItems;
 		}
 	} else if ( !Q_stricmp( lastToken, "bitset" ) ) {
-		if ( !token[0] ) {
-			Com_Error( ERR_DROP, "Scripting: accum %s requires a parameter\n", lastToken );
-            return false; // keep the linter happy, ERR_DROP does not return
-		}
-		ent->scriptAccumBuffer[bufferIndex] |= ( 1 << atoi( token ) );
+		ent->scriptAccumBuffer[bufferIndex] |= ( 1 << atoi( params[2].c_str() ) );
 	} else if ( !Q_stricmp( lastToken, "bitreset" ) ) {
-		if ( !token[0] ) {
-			Com_Error( ERR_DROP, "Scripting: accum %s requires a parameter\n", lastToken );
-            return false; // keep the linter happy, ERR_DROP does not return
-		}
-		ent->scriptAccumBuffer[bufferIndex] &= ~( 1 << atoi( token ) );
+		ent->scriptAccumBuffer[bufferIndex] &= ~( 1 << atoi( params[2].c_str() ) );
 	} else if ( !Q_stricmp( lastToken, "abort_if_bitset" ) ) {
-		if ( !token[0] ) {
-			Com_Error( ERR_DROP, "Scripting: accum %s requires a parameter\n", lastToken );
-            return false; // keep the linter happy, ERR_DROP does not return
-		}
-		if ( ent->scriptAccumBuffer[bufferIndex] & ( 1 << atoi( token ) ) ) {
+		if ( ent->scriptAccumBuffer[bufferIndex] & ( 1 << atoi( params[2].c_str() ) ) ) {
 			// abort the current script
 			ent->scriptStatus.scriptStackHead = ent->scriptEvents[ent->scriptStatus.scriptEventIndex].stack.numItems;
 		}
 	} else if ( !Q_stricmp( lastToken, "abort_if_not_bitset" ) ) {
-		if ( !token[0] ) {
-			Com_Error( ERR_DROP, "Scripting: accum %s requires a parameter\n", lastToken );
-            return false; // keep the linter happy, ERR_DROP does not return
-		}
-		if ( !( ent->scriptAccumBuffer[bufferIndex] & ( 1 << atoi( token ) ) ) ) {
+		if ( !( ent->scriptAccumBuffer[bufferIndex] & ( 1 << atoi( params[2].c_str() ) ) ) ) {
 			// abort the current script
 			ent->scriptStatus.scriptStackHead = ent->scriptEvents[ent->scriptStatus.scriptEventIndex].stack.numItems;
 		}
 	} else if ( !Q_stricmp( lastToken, "set" ) ) {
-		if ( !token[0] ) {
-			Com_Error( ERR_DROP, "Scripting: accum %s requires a parameter\n", lastToken );
-            return false; // keep the linter happy, ERR_DROP does not return
-		}
-		ent->scriptAccumBuffer[bufferIndex] = atoi( token );
+		ent->scriptAccumBuffer[bufferIndex] = atoi( params[2].c_str() );
 	} else if ( !Q_stricmp( lastToken, "random" ) ) {
-		if ( !token[0] ) {
-			Com_Error( ERR_DROP, "Scripting: accum %s requires a parameter\n", lastToken );
-            return false; // keep the linter happy, ERR_DROP does not return
-		}
-		ent->scriptAccumBuffer[bufferIndex] = rand() % atoi( token );
+		ent->scriptAccumBuffer[bufferIndex] = rand() % atoi( params[2].c_str() );
 	} else {
-		Com_Error( ERR_DROP, "Scripting: accum: \"%s\": unknown command\n", params );
-        return false; // keep the linter happy, ERR_DROP does not return
+		Com_Error( ERR_DROP, "Scripting: accum: \"%s\": unknown command\n", lastToken );
 	}
 
 	return true;
@@ -691,30 +616,27 @@ bool G_ScriptAction_Accum( GameEntity *ent, const std::vector<std::string>& para
 =================
 G_ScriptAction_MissionFailed
 
-  syntax: missionfailed
+  syntax: missionfailed [time] [mof]
 =================
 */
-bool G_ScriptAction_MissionFailed( GameEntity *ent, const std::vector<std::string>& params ) {
-	char   *token;
-	int time = 6, mof = 0;
+bool G_ScriptAction_MissionFailed( GameEntity *ent, const std::vector<std::string>& params )
+{
+	int time = 6;
+	int mof = 0;
 
-	const char* pString = params;
-
-	token = COM_ParseExt( &pString, false );   // time
-	if ( token && token[0] ) {
-		time = atoi( token );
+	if ( params.size() > 0 ) {
+		time = atoi( params[0].c_str() );
 	}
 
-	token = COM_ParseExt( &pString, false );   // mof (means of failure)
-	if ( token && token[0] ) {
-		mof = atoi( token );
+	if ( params.size() > 1 ) {
+		mof = atoi( params[1].c_str() );
 	}
 
 	// play mission fail music
 	SV_GameSendServerCommand( -1, "mu_play sound/music/l_failed_1.wav 0\n" );
 	SV_SetConfigstring( CS_MUSIC_QUEUE, "" );  // clear queue so it'll be quiet after hit
 
-	SV_GameSendServerCommand( -1, va( "snd_fade 0 %d", time * 1000 ) );   //----(SA)	added
+	SV_GameSendServerCommand( -1, va( "snd_fade 0 %d", time * 1000 ) );
 
 	if ( mof < 0 ) {
 		mof = 0;
@@ -735,32 +657,25 @@ bool G_ScriptAction_MissionFailed( GameEntity *ent, const std::vector<std::strin
 =================
 G_ScriptAction_MissionSuccess
 
-  syntax: missionsuccess <mission_level>
+  syntax: missionsuccess <mission_level> [nodisplay]
 =================
 */
-bool G_ScriptAction_MissionSuccess( GameEntity *ent, const std::vector<std::string>& params) {
-	GameEntity   *player;
-	vmCvar_t cvar;
-	int lvl;
-	char *token;
+bool G_ScriptAction_MissionSuccess( GameEntity *ent, const std::vector<std::string>& params)
+{
 
-	const char* pString = params;
-
-	token = COM_ParseExt( &pString, false );
-	if ( !token[0] ) {
+	if ( params.empty() ) {
 		Com_Error( ERR_DROP, "AI Scripting: missionsuccess requires a mission_level identifier\n" );
-        return false; // keep the linter happy, ERR_DROP does not return
 	}
 
-	player = AICast_FindEntityForName( "player" );
+	GameEntity   *player = AICast_FindEntityForName( "player" );
 	// double check that they are still alive
 	if ( player->health <= 0 ) {
 		return false;  // hold the script here
 
 	}
-	lvl = atoi( token );
+	int lvl = atoi( params[0].c_str() );
 
-// if you've already got it, just return.  don't need to set 'yougotmail'
+	// if you've already got it, just return.  don't need to set 'yougotmail'
 	if ( player->missionObjectives & ( 1 << ( lvl - 1 ) ) ) {
 		return true;
 	}
@@ -768,18 +683,19 @@ bool G_ScriptAction_MissionSuccess( GameEntity *ent, const std::vector<std::stri
 	player->missionObjectives |= ( 1 << ( lvl - 1 ) );  // make this bitwise
 
 	//set g_objective<n> cvar
+	vmCvar_t cvar;
 	Cvar_Register( &cvar, va( "g_objective%i", lvl ), "1", CVAR_ROM );
 	// set it to make sure
 	Cvar_Set( va( "g_objective%i", lvl ), "1" );
 
-	token = COM_ParseExt( &pString, false );
-	if ( token[0] ) {
-		if ( Q_strcasecmp( token,"nodisplay" ) ) {   // unknown command
+	if ( params.size() > 1 ) {
+		const char* token = params[1].c_str();
+		if ( Q_strcasecmp( token,"nodisplay" ) ) {
 			Com_Error( ERR_DROP, "AI Scripting: missionsuccess with unknown parameter: %s\n", token );
-            return false; // keep the linter happy, ERR_DROP does not return
 		}
-	} else {    // show on-screen information
-		Cvar_Set( "cg_youGotMail", "2" ); // set flag to draw icon
+	} else {    
+		// show on-screen information
+		Cvar_Set( "cg_youGotMail", "2" );
 	}
 
 	return true;
@@ -795,13 +711,13 @@ G_ScriptAction_Print
   Mostly for debugging purposes
 =================
 */
-bool G_ScriptAction_Print( GameEntity *ent, const std::vector<std::string>& params ) {
-	if ( !params || !params[0] ) {
+bool G_ScriptAction_Print( GameEntity *ent, const std::vector<std::string>& params )
+{
+	if ( params.empty() ) {
 		Com_Error( ERR_DROP, "G_Scripting: print requires some text\n" );
-        return false; // keep the linter happy, ERR_DROP does not return
 	}
 
-	Com_Printf( "(G_Script) %s-> %s\n", ent->scriptName, params );
+	Com_Printf( "(G_Script) %s-> %s\n", ent->scriptName, params[0].c_str() );
 	return true;
 }
 
@@ -816,51 +732,42 @@ G_ScriptAction_FaceAngles
   last gotomarker command will be used instead.
 =================
 */
-bool G_ScriptAction_FaceAngles( GameEntity *ent, const std::vector<std::string>& params ) {
-	char  *token;
-	int duration, i;
-	vec3_t diff;
-	vec3_t angles;
-	int trType = TR_LINEAR_STOP;
-
-	if ( !params || !params[0] ) {
+bool G_ScriptAction_FaceAngles( GameEntity *ent, const std::vector<std::string>& params )
+{
+	if ( params.empty() ) {
 		Com_Error( ERR_DROP, "G_Scripting: syntax: faceangles <pitch> <yaw> <roll> <duration/GOTOTIME>\n" );
-        return false; // keep the linter happy, ERR_DROP does not return
 	}
 
 	if ( ent->scriptStatus.scriptStackChangeTime == level.time ) {
-		const char* pString = params;
-		for ( i = 0; i < 3; i++ ) {
-			token = COM_Parse( &pString );
-			if ( !token || !token[0] ) {
-				Com_Error( ERR_DROP, "G_Scripting: syntax: faceangles <pitch> <yaw> <roll> <duration/GOTOTIME>\n" );
-                return false; // keep the linter happy, ERR_DROP does not return
-			}
-			angles[i] = atoi( token );
-		}
-
-		token = COM_Parse( &pString );
-		if ( !token || !token[0] ) {
+		if (params.size() < 4 ) {
 			Com_Error( ERR_DROP, "G_Scripting: faceangles requires a <pitch> <yaw> <roll> <duration/GOTOTIME>\n" );
-            return false; // keep the linter happy, ERR_DROP does not return
 		}
+		vec3_t angles;
+		angles[0] = atoi(params[0].c_str());
+		angles[1] = atoi(params[1].c_str());
+		angles[2] = atoi(params[2].c_str());
+
+		const char* token = params[3].c_str();
+
+		int duration;
 		if ( !Q_strcasecmp( token, "gototime" ) ) {
 			duration = ent->shared.s.pos.trDuration;
 		} else {
 			duration = atoi( token );
 		}
 
-		token = COM_Parse( &pString );
-		if ( token && token[0] ) {
-			if ( !Q_strcasecmp( token, "accel" ) ) {
+		int trType = TR_LINEAR_STOP;
+		if ( params.size() > 4 ) {
+			if ( !Q_strcasecmp( params[4].c_str(), "accel" ) ) {
 				trType = TR_ACCELERATE;
 			}
-			if ( !Q_strcasecmp( token, "deccel" ) ) {
+			if ( !Q_strcasecmp( params[4].c_str(), "deccel" ) ) {
 				trType = TR_DECCELERATE;
 			}
 		}
 
-		for ( i = 0; i < 3; i++ ) {
+		vec3_t diff;
+		for (int i = 0; i < 3; i++ ) {
 			diff[i] = AngleDifference( angles[i], ent->shared.s.angles[i] );
 			while ( diff[i] > 180 )
 				diff[i] -= 360;
@@ -880,7 +787,7 @@ bool G_ScriptAction_FaceAngles( GameEntity *ent, const std::vector<std::string>&
 
 		if ( trType != TR_LINEAR_STOP ) { // accel / deccel logic
 			// calc the speed from duration and start/end delta
-			for ( i = 0; i < 3; i++ ) {
+			for (int i = 0; i < 3; i++ ) {
 				ent->shared.s.apos.trDelta[i] = 2.0 * 1000.0 * diff[i] / (float)duration;
 			}
 			ent->shared.s.apos.trType = (trType_t)trType;
@@ -932,36 +839,23 @@ G_ScriptAction_TagConnect
 	connect this entity onto the tag of another entity
 ===================
 */
-bool G_ScriptAction_TagConnect( GameEntity *ent, const std::vector<std::string>& params ) {
-	char *token;
-	GameEntity *parent;
-
-	const char* pString = params;
-	token = COM_Parse( &pString );
-	if ( !token[0] ) {
+bool G_ScriptAction_TagConnect( GameEntity *ent, const std::vector<std::string>& params )
+{
+	if ( params.size() < 2 ) {
 		Com_Error( ERR_DROP, "G_ScriptAction_TagConnect: syntax: attachtotag <targetname> <tagname>\n" );
-        return false; // keep the linter happy, ERR_DROP does not return
 	}
 
-	parent = G_Find( nullptr, FOFS( targetname ), token );
+	GameEntity *parent = G_Find( nullptr, FOFS( targetname ), params[0].c_str() );
 	if ( !parent ) {
-		parent = G_Find( nullptr, FOFS( scriptName ), token );
+		parent = G_Find( nullptr, FOFS( scriptName ), params[0].c_str() );
 		if ( !parent ) {
-			Com_Error( ERR_DROP, "G_ScriptAction_TagConnect: unable to find entity with targetname \"%s\"", token );
-            return false; // keep the linter happy, ERR_DROP does not return
+			Com_Error( ERR_DROP, "G_ScriptAction_TagConnect: unable to find entity with targetname \"%s\"", params[0].c_str() );
 		}
 	}
 
-	token = COM_Parse( &pString );
-	if ( !token[0] ) {
-		Com_Error( ERR_DROP, "G_ScriptAction_TagConnect: syntax: attachtotag <targetname> <tagname>\n" );
-        return false; // keep the linter happy, ERR_DROP does not return
-	}
-
 	ent->tagParent = parent;
-	ent->tagName = (char *)G_Alloc( strlen( token ) + 1 );
-	Q_strncpyz( (char *)ent->tagName, token, strlen( token ) + 1 );
-
+	ent->tagName = (char *)G_Alloc( strlen( params[1].c_str() ) + 1 );
+	Q_strncpyz( (char *)ent->tagName, params[1].c_str(), strlen( params[1].c_str() ) + 1 );
 	G_ProcessTagConnect( ent, true );
 
 	return true;
@@ -1027,36 +921,25 @@ G_ScriptAction_StartCam
   syntax: startcam <camera filename>
 ===================
 */
-bool G_ScriptAction_StartCam( GameEntity *ent, const std::vector<std::string>& params ) {
-	char *token;
-	GameEntity *player;
-
-	const char* pString = params;
-	token = COM_Parse( &pString );
-	if ( !token[0] ) {
+bool G_ScriptAction_StartCam( GameEntity *ent, const std::vector<std::string>& params )
+{
+	if ( params.empty() ) {
 		Com_Error( ERR_DROP, "G_ScriptAction_Cam: filename parameter required\n" );
-        return false; // keep the linter happy, ERR_DROP does not return
 	}
 
 	// turn off noclient flag
 	ent->shared.r.svFlags &= ~SVF_NOCLIENT;
 
 	// issue a start camera command to the client
-	player = AICast_FindEntityForName( "player" );
+	GameEntity *player = AICast_FindEntityForName( "player" );
 	if ( !player ) {
 		Com_Error( ERR_DROP, "player not found, perhaps you should give them more time to spawn in" );
-        return false; // keep the linter happy, ERR_DROP does not return
 	}
-	SV_GameSendServerCommand( player->shared.s.number, va( "startCam %s", token ) );
+	SV_GameSendServerCommand( player->shared.s.number, va( "startCam %s", params[0].c_str() ) );
 
 	return true;
 }
 
-/*
-=================
-G_ScriptAction_EntityScriptName
-=================
-*/
 bool G_ScriptAction_EntityScriptName( GameEntity *ent, const std::vector<std::string>& params ) {
 	Cvar_Set( "g_scriptName", params[0].c_str() );
 	return true;

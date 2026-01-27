@@ -422,9 +422,7 @@ bool G_Script_ScriptRun( GameEntity *ent ) {
 
 	// if we are animating, do the animation
 	if ( ent->scriptStatus.scriptFlags & SCFL_ANIMATING ) {
-		std::vector<std::string> p;
-		p.push_back( ent->scriptStatus.animatingParams );
-		G_ScriptAction_PlayAnim( ent, p );
+		G_ScriptAction_PlayAnim( ent, ent->scriptStatus.animatingParams );
 	}
 
 	if ( ent->scriptStatus.scriptEventIndex < 0 ) {

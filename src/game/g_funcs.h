@@ -610,8 +610,6 @@ If you have questions concerning this license or the applicable additional terms
 {"G_Script_ScriptLoad", (uint8_t *)G_Script_ScriptLoad},
 {"G_Script_ActionForString", (uint8_t *)G_Script_ActionForString},
 {"G_Script_EventForString", (uint8_t *)G_Script_EventForString},
-{"G_Script_EventMatch_IntInRange", (uint8_t *)G_Script_EventMatch_IntInRange},
-{"G_Script_EventMatch_StringEqual", (uint8_t *)G_Script_EventMatch_StringEqual},
 {"SP_props_flamethrower", (uint8_t *)SP_props_flamethrower},
 {"props_flamethrower_init", (uint8_t *)props_flamethrower_init},
 {"props_flamethrower_use", (uint8_t *)props_flamethrower_use},
