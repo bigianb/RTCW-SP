@@ -719,7 +719,7 @@ void AICast_CheckLoadGame( void ) {
 		// screen should be black if we are at this stage
 		SV_SetConfigstring( CS_SCREENFADE, va( "1 %i 1", level.time - 10 ) );
 
-		if ( !( g_reloading.integer ) && atoi( loading ) == 2 ) {
+		if ( !( g_reloading.integer ) && atoi( loading ) == RELOAD_NEXTMAP ) {
 			// (SA) hmm, this seems redundant when it sets it above...
 			Cvar_Set( "g_reloading", "1" );
 		}

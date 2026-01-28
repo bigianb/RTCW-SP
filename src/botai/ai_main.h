@@ -64,16 +64,16 @@ If you have questions concerning this license or the applicable additional terms
 #define PRESENCE_CROUCH             4
 
 //check points
-typedef struct bot_waypoint_s
+struct bot_waypoint_t
 {
 	int inuse;
 	char name[32];
 	bot_goal_t goal;
-	struct      bot_waypoint_s *next, *prev;
-} bot_waypoint_t;
+	bot_waypoint_t *next, *prev;
+};
 
 //bot state
-typedef struct bot_state_s
+struct bot_state_t
 {
 	int inuse;                                      //true if this state is used by a bot client
 	int botthink_residual;                          //residual for the bot thinks
@@ -85,7 +85,7 @@ typedef struct bot_state_s
 	int entityeventTime[1024];                      //last entity event time
 	//
 	bot_settings_t settings;                        //several bot settings
-	int ( *ainode )( struct bot_state_s *bs );          //current AI node
+	int ( *ainode )( bot_state_t *bs );          //current AI node
 	float thinktime;                                //time the bot thinks this frame
 	vec3_t origin;                                  //origin of the bot
 	vec3_t velocity;                                //velocity of the bot
@@ -137,7 +137,7 @@ typedef struct bot_state_s
 	float defendaway_time;                          //time away while defending
 	float defendaway_range;                         //max travel time away from defend area
 	float rushbaseaway_time;                        //time away from rushing to the base
-	float ctfroam_time;                             //time the bot is roaming in ctf
+
 	float killedenemy_time;                         //time the bot killed the enemy
 	float arrive_time;                              //time arrived (at companion)
 	float lastair_time;                             //last time the bot had air
@@ -179,17 +179,7 @@ typedef struct bot_state_s
 	float leadmessage_time;                         //last time a messaged was sent to the team mate
 	float leadbackup_time;                          //time backing up towards team mate
 	//
-	char teamleader[32];                            //netname of the team leader
-	float askteamleader_time;                       //time asked for team leader
-	float becometeamleader_time;                    //time the bot will become the team leader
-	float teamgiveorders_time;                      //time to give team orders
-	int numteammates;                               //number of team mates
-	int redflagstatus;                              //0 = at base, 1 = not at base
-	int blueflagstatus;                             //0 = at base, 1 = not at base
-	int flagstatuschanged;                          //flag status changed
-	int forceorders;                                //true if forced to give orders
-	int flagcarrier;                                //team mate carrying the enemy flag
-	char subteam[32];                               //sub team name
+
 	float formation_dist;                           //formation team mate intervening space
 	char formation_teammate[16];                    //netname of the team mate the bot uses for relative positioning
 	float formation_angle;                          //angle relative to the formation team mate
@@ -201,7 +191,7 @@ typedef struct bot_state_s
 	bot_waypoint_t *patrolpoints;                   //patrol points
 	bot_waypoint_t *curpatrolpoint;                 //current patrol point the bot is going for
 	int patrolflags;                                //patrol flags
-} bot_state_t;
+};
 
 //resets the whole bot state
 void BotResetState( bot_state_t *bs );

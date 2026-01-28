@@ -603,6 +603,7 @@ void SV_SpawnServer( char *server, bool killBots )
 
 	// shut down the existing game if it is running
 	SV_ShutdownGameProgs();
+    AICast_Init();
 
 	Com_Printf( "------ Server Initialization ------\n" );
 	Com_Printf( "Server: %s\n",server );

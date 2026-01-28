@@ -42,7 +42,7 @@ struct aas_clientmove_s;
 struct aas_entityinfo_s;
 struct bot_consolemessage_s;
 struct bot_match_s;
-struct bot_goal_s;
+struct bot_goal_t;
 struct bot_moveresult_s;
 struct bot_initmove_s;
 struct weaponinfo_s;

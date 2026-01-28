@@ -722,16 +722,15 @@ void BotResetState( bot_state_t *bs ) {
 BotAILoadMap
 ==============
 */
-int BotAILoadMap( int restart ) {
-	int i;
-	vmCvar_t mapname;
-
+int BotAILoadMap( int restart )
+{
 	if ( !restart ) {
+		vmCvar_t mapname;
 		Cvar_Register( &mapname, "mapname", "", CVAR_SERVERINFO | CVAR_ROM );
 		trap_BotLibLoadMap( mapname.string );
 	}
 
-	for ( i = 0; i < MAX_CLIENTS; i++ ) {
+	for (int i = 0; i < MAX_CLIENTS; i++ ) {
 		if ( botstates[i] && botstates[i]->inuse ) {
 			BotResetState( botstates[i] );
 			botstates[i]->setupcount = 4;

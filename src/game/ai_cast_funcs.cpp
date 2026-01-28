@@ -4496,6 +4496,11 @@ const char *AIFunc_Battle( cast_state_t *cs ) {
 	bot_state_t *bs;
 	GameEntity *ent, *enemy;
 
+    if (cs->enemyNum < 0){
+        // Should not happen. enemyNum is initialised to -1 though.
+        return nullptr;
+    }
+    
 	ent = &g_entities[cs->entityNum];
 	enemy = &g_entities[cs->enemyNum];
 

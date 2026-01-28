@@ -41,7 +41,7 @@ If you have questions concerning this license or the applicable additional terms
 #define GFL_NOSLOWAPPROACH      4
 
 //a bot goal
-typedef struct bot_goal_s
+struct bot_goal_t
 {
 	vec3_t origin;              //origin of the goal
 	int areanum;                //area number of the goal
@@ -50,7 +50,7 @@ typedef struct bot_goal_s
 	int number;                 //goal number
 	int flags;                  //goal flags
 	int iteminfo;               //item information
-} bot_goal_t;
+};
 
 //reset the whole goal state, but keep the item weights
 void BotResetGoalState( int goalstate );
