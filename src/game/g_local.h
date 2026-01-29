@@ -189,7 +189,7 @@ void G_Script_ScriptEvent( GameEntity *ent, const char *eventStr, const char *pa
 class GameEntity
 {
 public:
-	sharedEntity_t shared;
+	SharedEntity shared;
 
 	// DO NOT MODIFY ANYTHING ABOVE THIS, THE SERVER
 	// EXPECTS THE FIELDS IN THAT ORDER!
@@ -1294,6 +1294,6 @@ typedef enum
 } shards_t;
 
 // sv_game.c
-void SV_LocateGameData( sharedEntity_t *gEnts, int numGEntities, int sizeofGEntity_t, PlayerState *clients, int sizeofGameClient );
+void SV_LocateGameData( SharedEntity *gEnts, int numGEntities, int sizeofGEntity_t, PlayerState *clients, int sizeofGameClient );
 void SV_GameDropClient( int clientNum, const char *reason );
 

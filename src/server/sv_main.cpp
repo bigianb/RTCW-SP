@@ -31,8 +31,8 @@ If you have questions concerning this license or the applicable additional terms
 #include "../game/g_local.h"
 #include "../game/g_func_decs.h"
 
-serverStatic_t svs;                 // persistant server info
-server_t sv;                        // local server
+ServerStatic svs;                 // persistant server info
+Server sv;                        // local server
 
 cvar_t  *sv_fps;                // time rate for running non-clients
 cvar_t  *sv_timeout;            // seconds without any message
@@ -76,7 +76,7 @@ The given command will be transmitted to the client, and is guaranteed to
 not have future snapshot_t executed before it is executed
 ======================
 */
-void SV_AddServerCommand( client_t *client, const char *cmd )
+void SV_AddServerCommand( Client *client, const char *cmd )
 {
 	client->reliableSequence++;
 	// if we would be losing an old command that hasn't been acknowledged,
@@ -105,7 +105,7 @@ the client game module: "cp", "print", "chat", etc
 A nullptr client will broadcast to all clients
 =================
 */
-void  SV_SendServerCommand( client_t *cl, const char *fmt, ... )
+void  SV_SendServerCommand( Client *cl, const char *fmt, ... )
 {
 	va_list argptr;
 	uint8_t message[MAX_MSGLEN];
@@ -121,7 +121,7 @@ void  SV_SendServerCommand( client_t *cl, const char *fmt, ... )
 
 	// send the data to all relevent clients
 	for (int j = 0; j < sv_maxclients->integer; j++ ) {
-		client_t *client = &svs.clients[j];
+		Client *client = &svs.clients[j];
 		if ( client->state < CS_PRIMED ) {
 			continue;
 		}
@@ -227,7 +227,7 @@ void SV_PacketEvent( netadr_t from, msg_t *msg )
 
 	// find which client the message is from
 	for (int i = 0; i < sv_maxclients->integer; i++ ) {
-		client_t *cl = &svs.clients[i];
+		Client *cl = &svs.clients[i];
 		if ( cl->state == CS_FREE ) {
 			continue;
 		}
@@ -272,7 +272,7 @@ bool SV_CheckPaused()
 	// only pause if there is just a single client connected
 	int count = 0;
 	for (int i = 0; i < sv_maxclients->integer; i++ ) {
-		client_t *cl = &svs.clients[i];
+		Client *cl = &svs.clients[i];
 		if ( cl->state >= CS_CONNECTED && cl->netchan.remoteAddress.type != NA_BOT ) {
 			count++;
 		}

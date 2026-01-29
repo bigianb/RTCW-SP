@@ -1158,26 +1158,13 @@ void CG_LoadClientInfo( clientInfo_t *ci ) {
 	//
 
 	if ( !CG_RegisterClientHeadname( ci, ci->modelName, ci->hSkinName ) ) {
-		if ( cg_buildScript.integer ) {
-			Com_Error( ERR_DROP, "CG_RegisterClientHeadname( %s, %s ) failed.  setting default", ci->modelName, ci->hSkinName );
-            return;  // Keep linter happy. ERR_DROP does not return
-		}
-
 		// fall back to default head
 		if ( !CG_RegisterClientHeadname( ci, ci->modelName, "default" ) ) {
 			headfail = 1;
-			if ( cg_buildScript.integer ) {
-				Com_Error( ERR_DROP, "head model/skin (%s/default) failed to register", ci->modelName );    //----(SA)
-                return;  // Keep linter happy. ERR_DROP does not return
-			}
 		}
 	}
 
 	if ( headfail || !CG_RegisterClientModelname( ci, ci->modelName, ci->skinName ) ) {
-		if ( cg_buildScript.integer ) {
-			Com_Error( ERR_DROP, "CG_RegisterClientModelname( %s, %s ) failed", ci->modelName, ci->skinName );
-            return;  // Keep linter happy. ERR_DROP does not return
-		}
 
 		// fall back
 		if ( !headfail ) {

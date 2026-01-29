@@ -142,7 +142,7 @@ vmCvar_t cg_synchronousClients;
 vmCvar_t cg_teamChatTime;
 vmCvar_t cg_teamChatHeight;
 vmCvar_t cg_stats;
-vmCvar_t cg_buildScript;
+
 vmCvar_t cg_forceModel;
 vmCvar_t cg_coronafardist;
 vmCvar_t cg_coronas;
@@ -337,7 +337,6 @@ static cvarTable_t cvarTable[] = {
 	// the following variables are created in other parts of the system,
 	// but we also reference them here
 
-	{ &cg_buildScript, "com_buildScript", "0", 0 },   // force loading of all possible data amd error on failures
 	{ &cg_paused, "cl_paused", "0", CVAR_ROM },
 
 	{ &cg_blood, "com_blood", "1", CVAR_ARCHIVE },
@@ -758,7 +757,7 @@ static void CG_RegisterSounds( void ) {
 	strcpy( items, CG_ConfigString( CS_ITEMS ) );
 
 	for ( i = 1 ; i < bg_numItems ; i++ ) {
-		if ( items[ i ] == '1' || cg_buildScript.integer ) {
+		if ( items[ i ] == '1') {
 			CG_RegisterItemSounds( i );
 		}
 	}
@@ -1180,7 +1179,7 @@ static void CG_RegisterGraphics( void ) {
 	CG_LoadingString( " - items" );
 
 	for ( i = 1 ; i < bg_numItems ; i++ ) {
-		if ( items[ i ] == '1' || cg_buildScript.integer ) {
+		if ( items[ i ] == '1' ) {
 
 // TODO: get weapons added to the list that are 'set' from a script
 			CG_LoadingItem( i );

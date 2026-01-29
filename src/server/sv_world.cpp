@@ -38,7 +38,7 @@ given entity.  If the entity is a bsp model, the headnode will
 be returned, otherwise a custom box tree will be constructed.
 ================
 */
-clipHandle_t SV_ClipHandleForEntity( const sharedEntity_t *ent )
+clipHandle_t SV_ClipHandleForEntity( const SharedEntity *ent )
 {
 	if ( ent->r.bmodel ) {
 		// explicit hulls in the BSP model
@@ -151,7 +151,7 @@ SV_UnlinkEntity
 ===============
 */
 // public, called by lots of things.
-void SV_UnlinkEntity( sharedEntity_t *gEnt )
+void SV_UnlinkEntity( SharedEntity *gEnt )
 {
 	ServerEntity* ent = SV_SvEntityForGentity( gEnt );
 
@@ -188,7 +188,7 @@ SV_LinkEntity
 #define MAX_TOTAL_ENT_LEAFS     128
 WorldSector *debugNode;
 // public, called by lots of things.
-void SV_LinkEntity( sharedEntity_t *gEnt )
+void SV_LinkEntity( SharedEntity *gEnt )
 {
 	int leafs[MAX_TOTAL_ENT_LEAFS];
 	
@@ -370,7 +370,7 @@ struct AreaParms
 void SV_AreaEntities_r( WorldSector *node, AreaParms& ap )
 {
 	for (ServerEntity * check = node->entities; check; check = check->nextEntityInWorldSector ) {
-		sharedEntity_t *gcheck = SV_GEntityForSvEntity( check );
+		SharedEntity *gcheck = SV_GEntityForSvEntity( check );
 
 		if ( gcheck->r.absmin[0] > ap.maxs.x
 			 || gcheck->r.absmin[1] > ap.maxs.y
@@ -447,7 +447,7 @@ void SV_ClipToEntity( trace_t *trace, const vec3_t start,
 					 const vec3_t mins, const vec3_t maxs, const vec3_t end,
 					 int entityNum, int contentmask, int capsule )
 {
-	sharedEntity_t* touch = SV_GentityNum( entityNum );
+	SharedEntity* touch = SV_GentityNum( entityNum );
 
 	memset( trace, 0, sizeof( trace_t ) );
 
@@ -501,7 +501,7 @@ void SV_ClipMoveToEntities( moveclip_t *clip )
 		if ( clip->trace.allsolid ) {
 			return;
 		}
-		sharedEntity_t* touch = SV_GentityNum( touchlist[i] );
+		SharedEntity* touch = SV_GentityNum( touchlist[i] );
 
 		// see if we should ignore this entity
 		if ( clip->passEntityNum != ENTITYNUM_NONE ) {
@@ -653,7 +653,7 @@ int SV_PointContents( const vec3_t p, int passEntityNum )
 		if ( touch[i] == passEntityNum ) {
 			continue;
 		}
-		sharedEntity_t* hit = SV_GentityNum( touch[i] );
+		SharedEntity* hit = SV_GentityNum( touch[i] );
 		// might intersect, so do an exact clip
 		clipHandle_t clipHandle = SV_ClipHandleForEntity( hit );
 		float* angles = hit->s.angles;

@@ -70,7 +70,7 @@ cvar_t  *com_logfile;       // 1 = buffer log, 2 = flush after each print
 cvar_t  *com_showtrace;
 cvar_t  *com_version;
 cvar_t  *com_blood;
-cvar_t  *com_buildScript;   // for automated data building scripts
+
 cvar_t  *com_introPlayed;
 cvar_t  *cl_paused;
 cvar_t  *sv_paused;
@@ -228,16 +228,6 @@ void  Com_Error( int code, const char *fmt, ... ) {
 	static int lastErrorTime;
 	static int errorCount;
 	int currentTime;
-
-	// when we are running automated scripts, make sure we
-	// know if anything failed
-	if ( com_buildScript && com_buildScript->integer ) {
-
-		// ERR_ENDGAME is not really an error, don't die if building a script
-		if ( code != ERR_ENDGAME ) {
-			code = ERR_FATAL;
-		}
-	}
 
 	// if we are getting a solid stream of ERR_DROP, do an ERR_FATAL
 	currentTime = Sys_Milliseconds();
@@ -1392,7 +1382,6 @@ void Com_Init( char *commandLine ) {
 	sv_paused = Cvar_Get( "sv_paused", "0", CVAR_ROM );
 	com_sv_running = Cvar_Get( "sv_running", "0", CVAR_ROM );
 	com_cl_running = Cvar_Get( "cl_running", "0", CVAR_ROM );
-	com_buildScript = Cvar_Get( "com_buildScript", "0", 0 );
 
 	com_introPlayed = Cvar_Get( "com_introplayed", "0", CVAR_ARCHIVE );
 	com_recommendedSet = Cvar_Get( "com_recommendedSet", "0", CVAR_ARCHIVE );

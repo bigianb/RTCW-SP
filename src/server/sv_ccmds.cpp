@@ -43,7 +43,7 @@ static void SV_Map_f( void ) {
 
 	char smapname[MAX_QPATH];
 	char mapname[MAX_QPATH];
-	bool killBots, cheat, buildScript;
+
 	char expanded[MAX_QPATH];
 	int savegameTime = -1;
 
@@ -52,9 +52,10 @@ static void SV_Map_f( void ) {
 		return;
 	}
 
-	buildScript = Cvar_VariableIntegerValue( "com_buildScript" ) != 0;
 
-	if ( !buildScript && sv_reloading->integer && sv_reloading->integer != RELOAD_NEXTMAP ) {  // game is in 'reload' mode, don't allow starting new maps yet.
+
+	if ( sv_reloading->integer && sv_reloading->integer != RELOAD_NEXTMAP ) { 
+		// game is in 'reload' mode, don't allow starting new maps yet.
 		return;
 	}
 
@@ -139,24 +140,20 @@ static void SV_Map_f( void ) {
 	// may not set sv_maxclients directly, always set latched
 	Cvar_SetLatched( "sv_maxclients", "32" ); // Ridah, modified this
 	cmd += 2;
-	killBots = true;
-	if ( !Q_stricmp( cmd, "devmap" ) ) {
-		cheat = true;
-	} else {
-		cheat = false;
-	}
-
+	
 	// save the map name here cause on a map restart we reload the q3config.cfg
 	// and thus nuke the arguments of the map command
 	Q_strncpyz( mapname, map, sizeof( mapname ) );
 
 	// start up the map
+	bool killBots = true;
 	SV_SpawnServer( mapname, killBots );
 
 	// set the cheat value
 	// if the level was started with "map <levelname>", then
 	// cheats will not be allowed.  If started with "devmap <levelname>"
 	// then cheats will be allowed
+	bool cheat = 0 == Q_stricmp( cmd, "devmap" );
 	if ( cheat ) {
 		Cvar_Set( "sv_cheats", "1" );
 	} else {
@@ -175,7 +172,7 @@ This allows fair starts with variable load times.
 */
 static void SV_MapRestart_f( void ) {
 	int i;
-	client_t    *client;
+	Client    *client;
 	
 	bool isBot;
 	int delay;

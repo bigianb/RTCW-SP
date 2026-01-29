@@ -34,9 +34,9 @@ If you have questions concerning this license or the applicable additional terms
 
 botlib_export_t *botlib_export;
 
-sharedEntity_t *SV_GentityNum( size_t num )
+SharedEntity *SV_GentityNum( size_t num )
 {
-	sharedEntity_t* ent = ( sharedEntity_t * )( (uint8_t *)sv.gentities + sv.gentitySize * ( num ) );
+	SharedEntity* ent = ( SharedEntity * )( (uint8_t *)sv.gentities + sv.gentitySize * ( num ) );
 	return ent;
 }
 
@@ -46,7 +46,7 @@ PlayerState *SV_GameClientNum( int num )
 	return ps;
 }
 
-ServerEntity  *SV_SvEntityForGentity( sharedEntity_t *gEnt )
+ServerEntity  *SV_SvEntityForGentity( SharedEntity *gEnt )
 {
 	if ( !gEnt || gEnt->s.number < 0 || gEnt->s.number >= MAX_GENTITIES ) {
 		Com_Error( ERR_DROP, "SV_SvEntityForGentity: bad gEnt" );
@@ -55,7 +55,7 @@ ServerEntity  *SV_SvEntityForGentity( sharedEntity_t *gEnt )
 	return &sv.svEntities[ gEnt->s.number ];
 }
 
-sharedEntity_t *SV_GEntityForSvEntity( ServerEntity *svEnt )
+SharedEntity *SV_GEntityForSvEntity( ServerEntity *svEnt )
 {
 	size_t num = svEnt - sv.svEntities;
 	return SV_GentityNum( num );
@@ -104,7 +104,7 @@ SV_SetBrushModel
 sets mins and maxs for inline bmodels
 =================
 */
-void SV_SetBrushModel( sharedEntity_t *ent, const char *name )
+void SV_SetBrushModel( SharedEntity *ent, const char *name )
 {
 	if ( !name ) {
 		Com_Error( ERR_DROP, "SV_SetBrushModel: nullptr" );
@@ -189,7 +189,7 @@ bool SV_inPVSIgnorePortals( const vec3_t p1, const vec3_t p2 )
 SV_AdjustAreaPortalState
 ========================
 */
-void SV_AdjustAreaPortalState( sharedEntity_t *ent, bool open )
+void SV_AdjustAreaPortalState( SharedEntity *ent, bool open )
 {
 	ServerEntity* svEnt = SV_SvEntityForGentity( ent );
 	if ( svEnt->areanum2 == -1 ) {
@@ -204,7 +204,7 @@ void SV_AdjustAreaPortalState( sharedEntity_t *ent, bool open )
 SV_GameAreaEntities
 ==================
 */
-bool    SV_EntityContact( const vec3_t mins, const vec3_t maxs, const sharedEntity_t *gEnt, const int capsule )
+bool    SV_EntityContact( const vec3_t mins, const vec3_t maxs, const SharedEntity *gEnt, const int capsule )
 {
 	// check for exact collision
 	const float* origin = gEnt->r.currentOrigin;
@@ -240,7 +240,7 @@ SV_LocateGameData
 
 ===============
 */
-void SV_LocateGameData( sharedEntity_t *gEnts, int numGEntities, int sizeofGEntity_t,
+void SV_LocateGameData( SharedEntity *gEnts, int numGEntities, int sizeofGEntity_t,
 						PlayerState *clients, int sizeofGameClient ) {
 	sv.gentities = gEnts;
 	sv.gentitySize = sizeofGEntity_t;
@@ -261,7 +261,6 @@ void SV_GetUsercmd( int clientNum, UserCmd *cmd )
 {
 	if ( clientNum < 0 || clientNum >= sv_maxclients->integer ) {
 		Com_Error( ERR_DROP, "SV_GetUsercmd: bad clientNum:%i", clientNum );
-        return; // keep the linter happy, ERR_DROP does not return
 	}
 	*cmd = svs.clients[clientNum].lastUsercmd;
 }
@@ -273,7 +272,7 @@ SV_ShutdownGameProgs
 Called every time a map changes
 ===============
 */
-void SV_ShutdownGameProgs( void )
+void SV_ShutdownGameProgs()
 {
 	G_ShutdownGame(false);
 }

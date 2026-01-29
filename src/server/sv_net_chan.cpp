@@ -35,13 +35,13 @@ void SV_Netchan_TransmitNextFragment( netchan_t *chan ) {
 	Netchan_TransmitNextFragment( chan );
 }
 
-void SV_Netchan_Transmit( client_t *client, msg_t *msg )
+void SV_Netchan_Transmit( Client *client, msg_t *msg )
 {
 	MSG_WriteByte( msg, svc_EOF );
 	Netchan_Transmit( &client->netchan, msg->cursize, msg->data );
 }
 
-bool SV_Netchan_Process( client_t *client, msg_t *msg )
+bool SV_Netchan_Process( Client *client, msg_t *msg )
 {	
 	return Netchan_Process( &client->netchan, msg );
 }

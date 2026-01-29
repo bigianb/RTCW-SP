@@ -42,7 +42,7 @@ model_t *loadmodel;
 
 extern cvar_t *r_compressModels;
 extern cvar_t *r_exportCompressedModels;
-extern cvar_t *r_buildScript;
+
 
 /*
 ** R_GetModelByHandle
@@ -232,10 +232,6 @@ qhandle_t RE_RegisterModel( const char *name ) {
 				// save it out
 				filename[strlen( filename ) - 1] = 'c';
 				FS_WriteFile( filename, mod->mdc[lod], mod->mdc[lod]->ofsEnd );
-				// if building, open the file so it gets copied
-				if ( r_buildScript->integer ) {
-					FS_ReadFile( filename, nullptr );
-				}
 			}
 		} else {
 			loaded = R_LoadMDC( mod, lod, buf, name );

@@ -42,9 +42,9 @@ A "connect" OOB command has been received
 void SV_DirectConnect( netadr_t from ) {
 	char userinfo[MAX_INFO_STRING];
 	int i;
-	client_t    *cl, *newcl;
-    client_t temp;
-	sharedEntity_t *ent;
+	Client    *cl, *newcl;
+    Client temp;
+	SharedEntity *ent;
 	int clientNum;
 	int version;
 	int qport;
@@ -88,7 +88,7 @@ void SV_DirectConnect( netadr_t from ) {
 	Info_SetValueForKey( userinfo, "ip", "localhost" );
 
 	newcl = &temp;
-	memset( newcl, 0, sizeof( client_t ) );
+	memset( newcl, 0, sizeof( Client ) );
 
 	// if there is already a slot for this ip, reuse it
 	for ( i = 0,cl = svs.clients ; i < sv_maxclients->integer ; i++,cl++ ) {
@@ -168,7 +168,7 @@ void SV_DirectConnect( netadr_t from ) {
 gotnewcl:
 	// build a new connection
 	// accept the new client
-	// this is the only place a client_t is ever initialized
+	// this is the only place a Client is ever initialized
 	*newcl = temp;
 	clientNum = newcl - svs.clients;
 	ent = SV_GentityNum( clientNum );
@@ -238,7 +238,7 @@ or unwillingly.  This is NOT called if the entire server is quiting
 or crashing -- SV_FinalMessage() will handle that
 =====================
 */
-void SV_DropClient( client_t *drop, const char *reason ) {
+void SV_DropClient( Client *drop, const char *reason ) {
 	int i;
 
 	if ( drop->state == CS_ZOMBIE ) {
@@ -300,7 +300,7 @@ It will be resent if the client acknowledges a later message but has
 the wrong gamestate.
 ================
 */
-void SV_SendClientGameState( client_t *client ) {
+void SV_SendClientGameState( Client *client ) {
 	int start;
 	EntityState   *base, nullstate;
 	msg_t msg;
@@ -368,9 +368,9 @@ void SV_SendClientGameState( client_t *client ) {
 SV_ClientEnterWorld
 ==================
 */
-void SV_ClientEnterWorld( client_t *client, UserCmd *cmd ) {
+void SV_ClientEnterWorld( Client *client, UserCmd *cmd ) {
 	int clientNum;
-	sharedEntity_t *ent;
+	SharedEntity *ent;
 
 	Com_DPrintf( "Going from CS_PRIMED to CS_ACTIVE for %s\n", client->name );
 	client->state = CS_ACTIVE;
@@ -405,7 +405,7 @@ SV_Disconnect_f
 The client is going to disconnect, so remove the connection immediately  FIXME: move to game?
 =================
 */
-static void SV_Disconnect_f( client_t *cl ) {
+static void SV_Disconnect_f( Client *cl ) {
 	SV_DropClient( cl, "disconnected" );
 }
 
@@ -417,7 +417,7 @@ Pull specific info from a newly changed userinfo string
 into a more C friendly form.
 =================
 */
-void SV_UserinfoChanged( client_t *cl )
+void SV_UserinfoChanged( Client *cl )
 {
 	// name for C code
 	Q_strncpyz( cl->name, Info_ValueForKey( cl->userinfo, "name" ), sizeof( cl->name ) );
@@ -458,7 +458,7 @@ void SV_UserinfoChanged( client_t *cl )
 SV_UpdateUserinfo_f
 ==================
 */
-static void SV_UpdateUserinfo_f( client_t *cl ) {
+static void SV_UpdateUserinfo_f( Client *cl ) {
 	Q_strncpyz( cl->userinfo, Cmd_Argv( 1 ), sizeof( cl->userinfo ) );
 
 	SV_UserinfoChanged( cl );
@@ -470,7 +470,7 @@ static void SV_UpdateUserinfo_f( client_t *cl ) {
 
 typedef struct {
 	const char    *name;
-	void ( *func )( client_t *cl );
+	void ( *func )( Client *cl );
 } ucmd_t;
 
 static ucmd_t ucmds[] = {
@@ -487,7 +487,7 @@ SV_ExecuteClientCommand
 Also called by bot code
 ==================
 */
-void SV_ExecuteClientCommand( client_t *cl, const char *s, bool clientOK ) {
+void SV_ExecuteClientCommand( Client *cl, const char *s, bool clientOK ) {
 	ucmd_t  *u;
 
 	Cmd_TokenizeString( s );
@@ -513,7 +513,7 @@ void SV_ExecuteClientCommand( client_t *cl, const char *s, bool clientOK ) {
 SV_ClientCommand
 ===============
 */
-static bool SV_ClientCommand( client_t *cl, msg_t *msg ) {
+static bool SV_ClientCommand( Client *cl, msg_t *msg ) {
 	int seq;
 	const char  *s;
 	bool clientOk = true;
@@ -575,7 +575,7 @@ SV_ClientThink
 Also called by bot code
 ==================
 */
-void SV_ClientThink( client_t *cl, UserCmd *cmd ) {
+void SV_ClientThink( Client *cl, UserCmd *cmd ) {
 	cl->lastUsercmd = *cmd;
 
 	if ( cl->state != CS_ACTIVE ) {
@@ -597,7 +597,7 @@ On very fast clients, there may be multiple usercmd packed into
 each of the backup packets.
 ==================
 */
-static void SV_UserMove( client_t *cl, msg_t *msg, bool delta ) {
+static void SV_UserMove( Client *cl, msg_t *msg, bool delta ) {
 	int i, key;
 	int cmdCount;
 	UserCmd nullcmd;
@@ -682,7 +682,7 @@ SV_ExecuteClientMessage
 Parse a client packet
 ===================
 */
-void SV_ExecuteClientMessage( client_t *cl, msg_t *msg ) {
+void SV_ExecuteClientMessage( Client *cl, msg_t *msg ) {
 	int c;
 	int serverId;
 

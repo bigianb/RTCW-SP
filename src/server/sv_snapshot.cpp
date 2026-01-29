@@ -65,7 +65,7 @@ SV_EmitPacketEntities
 Writes a delta update of an EntityState list to the message.
 =============
 */
-static void SV_EmitPacketEntities(clientSnapshot_t *from, clientSnapshot_t *to,
+static void SV_EmitPacketEntities(ClientSnapshot *from, ClientSnapshot *to,
                                   msg_t *msg) {
   int from_num_entities;
 
@@ -133,13 +133,13 @@ static void SV_EmitPacketEntities(clientSnapshot_t *from, clientSnapshot_t *to,
 SV_WriteSnapshotToClient
 ==================
 */
-static void SV_WriteSnapshotToClient(client_t *client, msg_t *msg) {
+static void SV_WriteSnapshotToClient(Client *client, msg_t *msg) {
   int lastframe;
 
   // this is the snapshot we are creating
-  clientSnapshot_t *frame =
+  ClientSnapshot *frame =
       &client->frames[client->netchan.outgoingSequence & PACKET_MASK];
-  clientSnapshot_t *oldframe = nullptr;
+  ClientSnapshot *oldframe = nullptr;
   // try to use a previous frame as the source for delta compressing the
   // snapshot
   if (client->deltaMessage <= 0 || client->state != CS_ACTIVE) {
@@ -219,7 +219,7 @@ SV_UpdateServerCommandsToClient
 (re)send all server commands the client hasn't acknowledged yet
 ==================
 */
-void SV_UpdateServerCommandsToClient(client_t *client, msg_t *msg) {
+void SV_UpdateServerCommandsToClient(Client *client, msg_t *msg) {
   // write any unacknowledged serverCommands
   for (int i = client->reliableAcknowledge + 1; i <= client->reliableSequence;
        i++) {
@@ -271,7 +271,7 @@ static int SV_QsortEntityNumbers(const void *a, const void *b) {
 SV_AddEntToSnapshot
 ===============
 */
-static void SV_AddEntToSnapshot(ServerEntity *svEnt, sharedEntity_t *gEnt,
+static void SV_AddEntToSnapshot(ServerEntity *svEnt, SharedEntity *gEnt,
                                 snapshotEntityNumbers_t *eNums) {
   // if we have already added this entity to this snapshot, don't add again
   if (svEnt->snapshotCounter == sv.snapshotCounter) {
@@ -294,7 +294,7 @@ SV_AddEntitiesVisibleFromPoint
 ===============
 */
 static void SV_AddEntitiesVisibleFromPoint(vec3_t origin,
-                                           clientSnapshot_t *frame,
+                                           ClientSnapshot *frame,
                                            snapshotEntityNumbers_t *eNums,
                                            bool portal) {
   // during an error shutdown message we may need to transmit
@@ -316,10 +316,10 @@ static void SV_AddEntitiesVisibleFromPoint(vec3_t origin,
 
   int c_fullsend = 0;
 
-  sharedEntity_t *playerEnt = SV_GentityNum(frame->ps.clientNum);
+  SharedEntity *playerEnt = SV_GentityNum(frame->ps.clientNum);
 
   for (int e = 0; e < sv.num_entities; e++) {
-    sharedEntity_t *ent = SV_GentityNum(e);
+    SharedEntity *ent = SV_GentityNum(e);
 
     // never send entities that aren't linked in
     if (!ent->r.linked) {
@@ -419,7 +419,7 @@ static void SV_AddEntitiesVisibleFromPoint(vec3_t origin,
     }
     if (ent->r.svFlags & SVF_VISDUMMY) {
       // find master;
-      sharedEntity_t *ment = SV_GentityNum(ent->s.otherEntityNum);
+      SharedEntity *ment = SV_GentityNum(ent->s.otherEntityNum);
 
       if (ment) {
         ServerEntity *master = 0;
@@ -438,7 +438,7 @@ static void SV_AddEntitiesVisibleFromPoint(vec3_t origin,
       ServerEntity *master = 0;
 
       for (int h = 0; h < sv.num_entities; h++) {
-        sharedEntity_t *ment = SV_GentityNum(h);
+        SharedEntity *ment = SV_GentityNum(h);
 
         if (ment == ent) {
           continue;
@@ -517,12 +517,12 @@ For viewing through other player's eyes, clent can be something other than
 client->gentity
 =============
 */
-static void SV_BuildClientSnapshot(client_t *client) {
+static void SV_BuildClientSnapshot(Client *client) {
   // bump the counter used to prevent double adding
   sv.snapshotCounter++;
 
   // this is the frame we are creating
-  clientSnapshot_t *frame =
+  ClientSnapshot *frame =
       &client->frames[client->netchan.outgoingSequence & PACKET_MASK];
 
   // clear everything in this snapshot
@@ -530,7 +530,7 @@ static void SV_BuildClientSnapshot(client_t *client) {
   entityNumbers.numSnapshotEntities = 0;
   memset(frame->areabits, 0, sizeof(frame->areabits));
 
-  sharedEntity_t *clent = client->gentity;
+  SharedEntity *clent = client->gentity;
   if (!clent || client->state == CS_ZOMBIE) {
     return;
   }
@@ -584,7 +584,7 @@ static void SV_BuildClientSnapshot(client_t *client) {
   frame->num_entities = 0;
   frame->first_entity = svs.nextSnapshotEntities;
   for (int i = 0; i < entityNumbers.numSnapshotEntities; i++) {
-    sharedEntity_t *ent = SV_GentityNum(entityNumbers.snapshotEntities[i]);
+    SharedEntity *ent = SV_GentityNum(entityNumbers.snapshotEntities[i]);
     EntityState *state = &svs.snapshotEntities[svs.nextSnapshotEntities %
                                                  svs.numSnapshotEntities];
     *state = ent->s;
@@ -606,7 +606,7 @@ to take to clear, based on the current rate
 ====================
 */
 #define HEADER_RATE_BYTES 48 // include our header, IP header, and some overhead
-static int SV_RateMsec(client_t *client, int messageSize) {
+static int SV_RateMsec(Client *client, int messageSize) {
   // individual messages will never be larger than fragment size
   if (messageSize > 1500) {
     messageSize = 1500;
@@ -632,7 +632,7 @@ SV_SendMessageToClient
 Called by SV_SendClientSnapshot and SV_SendClientGameState
 =======================
 */
-void SV_SendMessageToClient(msg_t *msg, client_t *client) {
+void SV_SendMessageToClient(msg_t *msg, Client *client) {
   // record information about the message
   client->frames[client->netchan.outgoingSequence & PACKET_MASK].messageSize =
       msg->cursize;
@@ -659,7 +659,7 @@ Also called by SV_FinalMessage
 
 =======================
 */
-void SV_SendClientSnapshot(client_t *client) {
+void SV_SendClientSnapshot(Client *client) {
   // RF, AI don't need snapshots built
   if (client->gentity && client->gentity->r.svFlags & SVF_CASTAI) {
     return;
@@ -707,7 +707,7 @@ SV_SendClientMessages
 void SV_SendClientMessages() {
   // send a message to each connected client
   for (int i = 0; i < sv_maxclients->integer; i++) {
-    client_t *c = &svs.clients[i];
+    Client *c = &svs.clients[i];
     if (!c->state) {
       continue; // not connected
     }

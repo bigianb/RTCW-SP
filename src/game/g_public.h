@@ -68,7 +68,8 @@ If you have questions concerning this license or the applicable additional terms
 //===============================================================
 
 
-typedef struct {
+struct entityShared_t
+{
 	EntityState s;                // communicated by server to clients
 
 	bool linked;                // false if not in any good cluster
@@ -99,59 +100,11 @@ typedef struct {
 	// entity[ent->s.ownerNum].ownerNum = passEntityNum	(don't interact with other missiles from owner)
 	int ownerNum;
 	int eventTime;
-} entityShared_t;
-
-
+};
 
 // the server looks at a sharedEntity, which is the start of the game's GameEntity structure
-typedef struct {
+struct SharedEntity
+{
 	EntityState s;                // communicated by server to clients
-	entityShared_t r;               // shared by both the server system and game
-} sharedEntity_t;
-
-
-//
-// functions exported by the game subsystem
-//
-typedef enum {
-	GAME_INIT,  // ( int levelTime, int randomSeed, int restart );
-	// init and shutdown will be called every single level
-	// The game should call G_GET_ENTITY_TOKEN to parse through all the
-	// entity configuration text and spawn gentities.
-
-	GAME_SHUTDOWN,  // (void);
-
-	GAME_CLIENT_CONNECT,    // ( int clientNum, bool firstTime, bool isBot );
-	// return nullptr if the client is allowed to connect, otherwise return
-	// a text string with the reason for denial
-
-	GAME_CLIENT_BEGIN,              // ( int clientNum );
-
-	GAME_CLIENT_USERINFO_CHANGED,   // ( int clientNum );
-
-	GAME_CLIENT_DISCONNECT,         // ( int clientNum );
-
-	GAME_CLIENT_COMMAND,            // ( int clientNum );
-
-	GAME_CLIENT_THINK,              // ( int clientNum );
-
-	GAME_RUN_FRAME,                 // ( int levelTime );
-
-	GAME_CONSOLE_COMMAND,           // ( void );
-	// ConsoleCommand will be called when a command has been issued
-	// that is not recognized as a builtin function.
-	// The game can issue trap_argc() / trap_argv() commands to get the command
-	// and parameters.  Return false if the game doesn't recognize it as a command.
-
-	BOTAI_START_FRAME,              // ( int time );
-
-	// Ridah, Cast AI
-	AICAST_VISIBLEFROMPOS,
-	AICAST_CHECKATTACKATPOS,
-	// done.
-
-	GAME_RETRIEVE_MOVESPEEDS_FROM_CLIENT,
-	GAME_GETMODELINFO
-
-} gameExport_t;
-
+	entityShared_t r;             // shared by both the server system and game
+};

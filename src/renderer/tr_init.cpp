@@ -190,8 +190,6 @@ cvar_t  *r_exportCompressedModels;
 
 cvar_t  *r_cacheGathering;
 
-cvar_t  *r_buildScript;
-
 cvar_t  *r_bonesDebug;
 // done.
 
@@ -1073,7 +1071,7 @@ void R_Register( void ) {
 	r_compressModels = ri.Cvar_Get( "r_compressModels", "0", 0 );     // converts MD3 -> MDC at run-time
 	r_exportCompressedModels = ri.Cvar_Get( "r_exportCompressedModels", "0", 0 ); // saves compressed models
 	r_cacheGathering = ri.Cvar_Get( "cl_cacheGathering", "0", 0 );
-	r_buildScript = ri.Cvar_Get( "com_buildscript", "0", 0 );
+
 	r_bonesDebug = ri.Cvar_Get( "r_bonesDebug", "0", CVAR_CHEAT );
 	// done.
 

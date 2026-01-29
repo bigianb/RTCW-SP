@@ -98,7 +98,7 @@ int CG_SoundScriptPrecache( const char *name ) {
 					scriptSound->sfxHandle = S_RegisterSound( scriptSound->filename );
 					scriptSound = scriptSound->next;
 				}
-			} else /*if (cg_buildScript.integer)*/ {    // RF, 11/6/01 enabled this permanently so that streaming sounds get touched within file system on startup
+			} else {    
 				while ( scriptSound ) {
 					// just open the file so it gets copied to the build dir
 					fileHandle_t f;

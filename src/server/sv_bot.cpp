@@ -54,7 +54,7 @@ int bot_enable;
 int SV_BotAllocateClient()
 {
 	int i;
-	client_t    *cl;
+	Client    *cl;
 
 	// find a client slot
 	for ( i = 0, cl = svs.clients; i < sv_maxclients->integer; i++, cl++ ) {
@@ -93,7 +93,7 @@ void SV_BotFreeClient( int clientNum )
 		Com_Error( ERR_DROP, "SV_BotFreeClient: bad clientNum: %i", clientNum );
         return; // keep the linter happy, ERR_DROP does not return
 	}
-	client_t* cl = &svs.clients[clientNum];
+	Client* cl = &svs.clients[clientNum];
 	cl->state = CS_FREE;
 	cl->name[0] = 0;
 	if ( cl->gentity ) {
@@ -435,7 +435,7 @@ int SV_BotGetConsoleMessage( int client, char *buf, int size )
 {
 	const char        *msg;
 
-	client_t* cl = &svs.clients[client];
+	Client* cl = &svs.clients[client];
 	cl->lastPacketTime = svs.time;
 
 	if ( cl->reliableAcknowledge == cl->reliableSequence ) {
@@ -463,8 +463,8 @@ SV_BotGetSnapshotEntity
 */
 int SV_BotGetSnapshotEntity( int client, int sequence )
 {
-	client_t* cl = &svs.clients[client];
-	clientSnapshot_t* frame = &cl->frames[cl->netchan.outgoingSequence & PACKET_MASK];
+	Client* cl = &svs.clients[client];
+	ClientSnapshot* frame = &cl->frames[cl->netchan.outgoingSequence & PACKET_MASK];
 	if ( sequence < 0 || sequence >= frame->num_entities ) {
 		return -1;
 	}

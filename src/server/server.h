@@ -56,14 +56,15 @@ public:
 	int snapshotCounter;            // used to prevent double adding from portal views
 };
 
-typedef enum {
+enum ServerState {
 	SS_DEAD,            // no map loaded
 	SS_LOADING,         // spawning level entities
 	SS_GAME             // actively running
-} serverState_t;
+};
 
-typedef struct {
-	serverState_t state;
+struct Server
+{
+	ServerState state;
 	bool restarting;                // if true, send configstring changes during SS_LOADING
 	int serverId;                       // changes each server start
 	int restartedServerId;              // serverId before a map_restart
@@ -71,14 +72,14 @@ typedef struct {
 	int snapshotCounter;                // incremented for each snapshot built
 	int timeResidual;                   // <= 1000 / sv_frame->value
 	int nextFrameTime;                  // when time > nextFrameTime, process world
-	struct cmodel_s *models[MAX_MODELS];
+
 	char            *configstrings[MAX_CONFIGSTRINGS];
 	ServerEntity svEntities[MAX_GENTITIES];
 
 	char            *entityParsePoint;  // used during game VM init
 
 	// the game virtual machine will update these on init and changes
-	sharedEntity_t  *gentities;
+	SharedEntity  *gentities;
 	int gentitySize;
 	int num_entities;                   // current number, <= MAX_GENTITIES
 
@@ -86,13 +87,10 @@ typedef struct {
 	int gameClientSize;                 // will be > sizeof(PlayerState) due to game private data
 
 	int restartTime;
-} server_t;
+};
 
-
-
-
-
-typedef struct {
+struct ClientSnapshot
+{
 	int areabytes;
 	uint8_t areabits[MAX_MAP_AREA_BYTES];                  // portalarea visibility bits
 	PlayerState ps;
@@ -103,34 +101,37 @@ typedef struct {
 	int messageSent;                    // time the message was transmitted
 	int messageAcked;                   // time the message was acked
 	int messageSize;                    // used to rate drop packets
-} clientSnapshot_t;
+};
 
-typedef enum {
+enum ClientState
+{
 	CS_FREE,        // can be reused for a new connection
 	CS_ZOMBIE,      // client has been disconnected, but don't reuse
 					// connection for a couple seconds
-	CS_CONNECTED,   // has been assigned to a client_t, but no gamestate yet
+	CS_CONNECTED,   // has been assigned to a Client, but no gamestate yet
 	CS_PRIMED,      // gamestate has been sent, but client hasn't sent a usercmd
 	CS_ACTIVE       // client is fully in game
-} clientState_t;
+};
 
 
 #define RELIABLE_COMMANDS_CHARS     384     // we can scale this down from the max of 1024, since not all commands are going to use that many chars
 
-typedef struct {
+struct ReliableCommands
+{
 	int bufSize;
 	char    *buf;               // actual strings
 	char    **commands;         // pointers to actual strings
 	int     *commandLengths;    // lengths of actual strings
 	//
 	char    *rover;
-} reliableCommands_t;
+};
 
-typedef struct client_s {
-	clientState_t state;
+struct Client
+{
+	ClientState state;
 	char userinfo[MAX_INFO_STRING];                 // name, etc
 
-	reliableCommands_t reliableCommands;
+	ReliableCommands reliableCommands;
 	int reliableSequence;                   // last added reliable message, not necesarily sent or acknowledged yet
 	int reliableAcknowledge;                // last acknowledged reliable message
 	int reliableSent;                       // last sent reliable message, not necesarily acknowledged yet
@@ -143,7 +144,7 @@ typedef struct client_s {
 	int lastMessageNum;                 // for delta compression
 	int lastClientCommand;              // reliable client message sequence
 	char lastClientCommandString[MAX_STRING_CHARS];
-	sharedEntity_t  *gentity;           // SV_GentityNum(clientnum)
+	SharedEntity  *gentity;           // SV_GentityNum(clientnum)
 	char name[MAX_NAME_LENGTH];                     // extracted from userinfo, high bits masked
 
 	int deltaMessage;                   // frame last client usercmd message
@@ -153,34 +154,35 @@ typedef struct client_s {
 	int nextSnapshotTime;               // send another snapshot when svs.time >= nextSnapshotTime
 	bool rateDelayed;               // true if nextSnapshotTime was set based on rate instead of snapshotMsec
 	int timeoutCount;                   // must timeout a few frames in a row so debugging doesn't break
-	clientSnapshot_t frames[PACKET_BACKUP];     // updates can be delta'd from here
+	ClientSnapshot frames[PACKET_BACKUP];     // updates can be delta'd from here
 
 	int rate;                           // bytes / second
 	int snapshotMsec;                   // requests a snapshot every snapshotMsec unless rate choked
 	netchan_t netchan;
-} client_t;
+};
 
 //=============================================================================
 
-// this structure will be cleared only when the game dll changes
-typedef struct {
+// This structure is persistant through an entire server run
+struct ServerStatic
+{
 	bool initialized;                   // sv_init has completed
 
 	int time;                               // will be strictly increasing across level changes
 
 	int snapFlagServerBit;                  // ^= SNAPFLAG_SERVERCOUNT every SV_SpawnServer()
 
-	client_t    *clients;                   // [sv_maxclients->integer];
+	Client    *clients;                   // [sv_maxclients->integer];
 	int numSnapshotEntities;                // sv_maxclients->integer*PACKET_BACKUP*MAX_PACKET_ENTITIES
 	int nextSnapshotEntities;               // next snapshotEntities to use
 	EntityState   *snapshotEntities;      // [numSnapshotEntities]
 	int nextHeartbeatTime;
-} serverStatic_t;
+};
 
 //=============================================================================
 
-extern serverStatic_t svs;                  // persistant server info across maps
-extern server_t sv;                         // cleared each map
+extern ServerStatic svs;                  // persistant server info across maps
+extern Server sv;                         // cleared each map
 
 #define MAX_MASTER_SERVERS  5
 
@@ -220,7 +222,7 @@ extern cvar_t  *sv_reloading;   //----(SA)	added
 // sv_main.c
 //
 void SV_FinalMessage(const char *message );
-void  SV_SendServerCommand( client_t *cl, const char *fmt, ... );
+void  SV_SendServerCommand( Client *cl, const char *fmt, ... );
 
 
 void SV_AddOperatorCommands( void );
@@ -238,11 +240,11 @@ void SV_ChangeMaxClients( void );
 void SV_SpawnServer( char *server, bool killBots );
 
 //RF, reliable commands
-const char *SV_GetReliableCommand( client_t *cl, int index );
-void SV_FreeAcknowledgedReliableCommands( client_t *cl );
-bool SV_AddReliableCommand( client_t *cl, int index, const char *cmd );
-void SV_InitReliableCommandsForClient( client_t *cl, int commands );
-void SV_FreeReliableCommandsForClient( client_t *cl );
+const char *SV_GetReliableCommand( Client *cl, int index );
+void SV_FreeAcknowledgedReliableCommands( Client *cl );
+bool SV_AddReliableCommand( Client *cl, int index, const char *cmd );
+void SV_InitReliableCommandsForClient( Client *cl, int commands );
+void SV_FreeReliableCommandsForClient( Client *cl );
 
 
 //
@@ -252,14 +254,14 @@ void SV_DirectConnect( netadr_t from );
 
 
 
-void SV_ExecuteClientMessage( client_t *cl, msg_t *msg );
-void SV_UserinfoChanged( client_t *cl );
+void SV_ExecuteClientMessage( Client *cl, msg_t *msg );
+void SV_UserinfoChanged( Client *cl );
 
-void SV_ClientEnterWorld( client_t *client, UserCmd *cmd );
-void SV_DropClient( client_t *drop, const char *reason );
+void SV_ClientEnterWorld( Client *client, UserCmd *cmd );
+void SV_DropClient( Client *drop, const char *reason );
 
-void SV_ExecuteClientCommand( client_t *cl, const char *s, bool clientOK );
-void SV_ClientThink( client_t *cl, UserCmd *cmd );
+void SV_ExecuteClientCommand( Client *cl, const char *s, bool clientOK );
+void SV_ClientThink( Client *cl, UserCmd *cmd );
 
 //
 // sv_ccmds.c
@@ -269,33 +271,33 @@ void SV_Heartbeat_f( void );
 //
 // sv_snapshot.c
 //
-void SV_AddServerCommand( client_t *client, const char *cmd );
-void SV_UpdateServerCommandsToClient( client_t *client, msg_t *msg );
-void SV_WriteFrameToClient( client_t *client, msg_t *msg );
-void SV_SendMessageToClient( msg_t *msg, client_t *client );
+void SV_AddServerCommand( Client *client, const char *cmd );
+void SV_UpdateServerCommandsToClient( Client *client, msg_t *msg );
+void SV_WriteFrameToClient( Client *client, msg_t *msg );
+void SV_SendMessageToClient( msg_t *msg, Client *client );
 void SV_SendClientMessages( void );
-void SV_SendClientSnapshot( client_t *client );
+void SV_SendClientSnapshot( Client *client );
 
 //
 // sv_game.c
 //
 
-sharedEntity_t *SV_GentityNum( size_t num );
+SharedEntity *SV_GentityNum( size_t num );
 PlayerState *SV_GameClientNum( int num );
-ServerEntity  *SV_SvEntityForGentity( sharedEntity_t *gEnt );
-sharedEntity_t *SV_GEntityForSvEntity( ServerEntity *svEnt );
+ServerEntity  *SV_SvEntityForGentity( SharedEntity *gEnt );
+SharedEntity *SV_GEntityForSvEntity( ServerEntity *svEnt );
 void        SV_InitGameProgs( void );
 void        SV_ShutdownGameProgs( void );
 void        SV_RestartGameProgs( void );
 bool    SV_inPVS( const vec3_t p1, const vec3_t p2 );
 
-void SV_SetBrushModel( sharedEntity_t *ent, const char *name );
+void SV_SetBrushModel( SharedEntity *ent, const char *name );
 
 void SV_GameSendServerCommand( int clientNum, const char *text );
 void SV_GetServerinfo( char *buffer, int bufferSize );
 
-bool    SV_EntityContact( const vec3_t mins, const vec3_t maxs, const sharedEntity_t *gEnt, const int capsule );
-void SV_AdjustAreaPortalState( sharedEntity_t *ent, bool open );
+bool    SV_EntityContact( const vec3_t mins, const vec3_t maxs, const SharedEntity *gEnt, const int capsule );
+void SV_AdjustAreaPortalState( SharedEntity *ent, bool open );
 
 void SV_GetUsercmd( int clientNum, UserCmd *cmd );
 
@@ -323,11 +325,11 @@ void BotImport_DebugPolygonDelete( int id );
 void SV_ClearWorld( void );
 // called after the world model has been loaded, before linking any entities
 
-void SV_UnlinkEntity( sharedEntity_t *ent );
+void SV_UnlinkEntity( SharedEntity *ent );
 // call before removing an entity, and before trying to move one,
 // so it doesn't clip against itself
 
-void SV_LinkEntity( sharedEntity_t *ent );
+void SV_LinkEntity( SharedEntity *ent );
 // Needs to be called any time an entity changes origin, mins, maxs,
 // or solid.  Automatically unlinks if needed.
 // sets ent->v.absmin and ent->v.absmax
@@ -335,7 +337,7 @@ void SV_LinkEntity( sharedEntity_t *ent );
 // is not solid
 
 
-clipHandle_t SV_ClipHandleForEntity( const sharedEntity_t *ent );
+clipHandle_t SV_ClipHandleForEntity( const SharedEntity *ent );
 
 
 int SV_AreaEntities( const vec3_t mins, const vec3_t maxs, int *entityList, int maxcount );
@@ -371,7 +373,7 @@ void SV_ClipToEntity( trace_t *trace, const vec3_t start, const vec3_t mins, con
 //
 // sv_net_chan.c
 //
-void SV_Netchan_Transmit( client_t *client, msg_t *msg );    //int length, const uint8_t *data );
+void SV_Netchan_Transmit( Client *client, msg_t *msg );    //int length, const uint8_t *data );
 void SV_Netchan_TransmitNextFragment( netchan_t *chan );
-bool SV_Netchan_Process( client_t *client, msg_t *msg );
+bool SV_Netchan_Process( Client *client, msg_t *msg );
 

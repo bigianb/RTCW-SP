@@ -64,7 +64,7 @@ void SV_SetConfigstring( int index, const char *val )
 	if ( sv.state == SS_GAME || sv.restarting ) {
 
 		// send the data to all relevent clients
-        client_t    *client = svs.clients;
+        Client    *client = svs.clients;
 		for (int i = 0; i < sv_maxclients->integer ; i++, client++ ) {
 			if ( client->state < CS_PRIMED ) {
 				continue;
@@ -191,7 +191,7 @@ baseline will be transmitted
 void SV_CreateBaseline()
 {
 	for (int entnum = 1; entnum < sv.num_entities ; entnum++ ) {
-		sharedEntity_t* svent = SV_GentityNum( entnum );
+		SharedEntity* svent = SV_GentityNum( entnum );
 		if ( !svent->r.linked ) {
 			continue;
 		}
@@ -230,7 +230,7 @@ void SV_BoundMaxClients( int minimum )
 SV_InitReliableCommandsForClient
 ===============
 */
-void SV_InitReliableCommandsForClient( client_t *cl, int commands )
+void SV_InitReliableCommandsForClient( Client *cl, int commands )
 {
 	if ( !commands ) {
 		Com_Memset( &cl->reliableCommands, 0, sizeof( cl->reliableCommands ) );
@@ -249,7 +249,7 @@ void SV_InitReliableCommandsForClient( client_t *cl, int commands )
 SV_InitReliableCommands
 ===============
 */
-void SV_InitReliableCommands( client_t *clients )
+void SV_InitReliableCommands( Client *clients )
 {
     for (int i = 0; i < sv_maxclients->integer; i++ ) {
         SV_InitReliableCommandsForClient( &clients[i], MAX_RELIABLE_COMMANDS );
@@ -261,7 +261,7 @@ void SV_InitReliableCommands( client_t *clients )
 SV_FreeReliableCommandsForClient
 ===============
 */
-void SV_FreeReliableCommandsForClient( client_t *cl )
+void SV_FreeReliableCommandsForClient( Client *cl )
 {
 	if ( !cl->reliableCommands.bufSize ) {
 		return;
@@ -278,7 +278,7 @@ void SV_FreeReliableCommandsForClient( client_t *cl )
 SV_GetReliableCommand
 ===============
 */
-const char *SV_GetReliableCommand( client_t *cl, int index )
+const char *SV_GetReliableCommand( Client *cl, int index )
 {
 	if ( !cl->reliableCommands.bufSize ) {
 		return "";
@@ -296,7 +296,7 @@ const char *SV_GetReliableCommand( client_t *cl, int index )
 SV_AddReliableCommand
 ===============
 */
-bool SV_AddReliableCommand( client_t *cl, int index, const char *cmd )
+bool SV_AddReliableCommand( Client *cl, int index, const char *cmd )
 {
 	size_t i, j;
 	char    *ch, *ch2;
@@ -359,7 +359,7 @@ bool SV_AddReliableCommand( client_t *cl, int index, const char *cmd )
 SV_FreeAcknowledgedReliableCommands
 ===============
 */
-void SV_FreeAcknowledgedReliableCommands( client_t *cl )
+void SV_FreeAcknowledgedReliableCommands( Client *cl )
 {
 	if ( !cl->reliableCommands.bufSize ) {
 		return;
@@ -409,7 +409,7 @@ void SV_Startup()
 	}
 	SV_BoundMaxClients( 1 );
 
-	svs.clients = (client_t *)calloc( sizeof( client_t ) * sv_maxclients->integer, 1 );
+	svs.clients = (Client *)calloc( sizeof( Client ) * sv_maxclients->integer, 1 );
 	if ( !svs.clients ) {
 		Com_Error( ERR_FATAL, "SV_Startup: unable to allocate svs.clients" );
 	}
@@ -456,13 +456,13 @@ void SV_ChangeMaxClients()
 		}
 	}
 
-	client_t* oldClients = (client_t *)Hunk_AllocateTempMemory( count * sizeof( client_t ) );
+	Client* oldClients = (Client *)Hunk_AllocateTempMemory( count * sizeof( Client ) );
 	// copy the clients to hunk memory
 	for (int i = 0 ; i < count ; i++ ) {
 		if ( svs.clients[i].state >= CS_CONNECTED ) {
 			oldClients[i] = svs.clients[i];
 		} else {
-			Com_Memset( &oldClients[i], 0, sizeof( client_t ) );
+			Com_Memset( &oldClients[i], 0, sizeof( Client ) );
 		}
 	}
 
@@ -474,13 +474,13 @@ void SV_ChangeMaxClients()
 	// allocate new clients
 
 	// RF, avoid trying to allocate large chunk on a fragmented zone
-	svs.clients = (client_t *)calloc( sizeof( client_t ) * sv_maxclients->integer, 1 );
+	svs.clients = (Client *)calloc( sizeof( Client ) * sv_maxclients->integer, 1 );
 	if ( !svs.clients ) {
 		Com_Error( ERR_FATAL, "SV_Startup: unable to allocate svs.clients" );
 	}
 
 
-	Com_Memset( svs.clients, 0, sv_maxclients->integer * sizeof( client_t ) );
+	Com_Memset( svs.clients, 0, sv_maxclients->integer * sizeof( Client ) );
 
 	// copy the clients over
 	for (int i = 0 ; i < count ; i++ ) {
@@ -721,8 +721,8 @@ void SV_SpawnServer( char *server, bool killBots )
 					// the new gamestate will be sent
 					svs.clients[i].state = CS_CONNECTED;
 				} else {
-					client_t        *client;
-					sharedEntity_t  *ent;
+					Client        *client;
+					SharedEntity  *ent;
 
 					client = &svs.clients[i];
 					client->state = CS_ACTIVE;
@@ -841,7 +841,7 @@ void SV_FinalMessage( const char *message )
 	// send it twice, ignoring rate
 	for (int j = 0 ; j < 2 ; j++ ) {
 		for (int i = 0; i < sv_maxclients->integer ; i++ ) {
-			client_t    *cl = &svs.clients[i];
+			Client    *cl = &svs.clients[i];
 			if ( cl->state >= CS_CONNECTED ) {
 				// force a snapshot to be sent
 				cl->nextSnapshotTime = -1;
