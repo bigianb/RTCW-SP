@@ -51,7 +51,6 @@ jmp_buf abortframe;     // an ERR_DROP occured, exit the entire frame
 
 FILE *debuglogfile;
 static fileHandle_t logfile;
-fileHandle_t com_journalFile;               // events are written here
 fileHandle_t com_journalDataFile;           // config files are written here
 
 cvar_t  *com_viewlog;
@@ -61,14 +60,13 @@ cvar_t  *com_developer;
 cvar_t  *com_timescale;
 cvar_t  *com_fixedtime;
 cvar_t  *com_dropsim;       // 0.0 to 1.0, simulated packet drops
-cvar_t  *com_journal;
 cvar_t  *com_maxfps;
 
 cvar_t  *com_sv_running;
 cvar_t  *com_cl_running;
 cvar_t  *com_logfile;       // 1 = buffer log, 2 = flush after each print
 cvar_t  *com_showtrace;
-cvar_t  *com_version;
+
 cvar_t  *com_blood;
 
 cvar_t  *com_introPlayed;
@@ -102,33 +100,6 @@ char com_errorMessage[MAXPRINTMSG];
 void Com_WriteConfig_f( void );
 void CIN_CloseAllVideos();
 
-//============================================================================
-
-static char *rd_buffer;
-static int rd_buffersize;
-static void ( *rd_flush )( char *buffer );
-
-void Com_BeginRedirect( char *buffer, int buffersize, void ( *flush )( char *) ) {
-	if ( !buffer || !buffersize || !flush ) {
-		return;
-	}
-	rd_buffer = buffer;
-	rd_buffersize = buffersize;
-	rd_flush = flush;
-
-	*rd_buffer = 0;
-}
-
-void Com_EndRedirect( void ) {
-	if ( rd_flush ) {
-		rd_flush( rd_buffer );
-	}
-
-	rd_buffer = nullptr;
-	rd_buffersize = 0;
-	rd_flush = nullptr;
-}
-
 /*
 =============
 Com_Printf
@@ -147,15 +118,6 @@ void  Com_Printf( const char *fmt, ... ) {
 	va_start( argptr,fmt );
 	vsnprintf( msg, MAXPRINTMSG, fmt,argptr );
 	va_end( argptr );
-
-	if ( rd_buffer ) {
-		if ( ( strlen( msg ) + strlen( rd_buffer ) ) > ( rd_buffersize - 1 ) ) {
-			rd_flush( rd_buffer );
-			*rd_buffer = 0;
-		}
-		Q_strcat( rd_buffer, rd_buffersize, msg );
-		return;
-	}
 
 	CL_ConsolePrint( msg );
 
@@ -335,7 +297,8 @@ Com_ParseCommandLine
 Break it up into multiple console lines
 ==================
 */
-void Com_ParseCommandLine( char *commandLine ) {
+void Com_ParseCommandLine( char *commandLine )
+{
 	com_consoleLines[0] = commandLine;
 	com_numConsoleLines = 1;
 
@@ -353,30 +316,6 @@ void Com_ParseCommandLine( char *commandLine ) {
 		commandLine++;
 	}
 }
-
-
-/*
-===================
-Com_SafeMode
-
-Check for "safe" on the command line, which will
-skip loading of wolfconfig.cfg
-===================
-*/
-bool Com_SafeMode( void ) {
-	int i;
-
-	for ( i = 0 ; i < com_numConsoleLines ; i++ ) {
-		Cmd_TokenizeString( com_consoleLines[i] );
-		if ( !Q_stricmp( Cmd_Argv( 0 ), "safe" )
-			 || !Q_stricmp( Cmd_Argv( 0 ), "cvar_restart" ) ) {
-			com_consoleLines[i][0] = 0;
-			return true;
-		}
-	}
-	return false;
-}
-
 
 /*
 ===============
@@ -422,13 +361,11 @@ Returns true if any late commands were added, which
 will keep the demoloop from immediately starting
 =================
 */
-bool Com_AddStartupCommands( void ) {
-	int i;
-	bool added;
-
-	added = false;
+bool Com_AddStartupCommands( )
+{
+	bool added = false;
 	// quote every token, so args with semicolons can work
-	for ( i = 0 ; i < com_numConsoleLines ; i++ ) {
+	for (int i = 0 ; i < com_numConsoleLines ; i++ ) {
 		if ( !com_consoleLines[i] || !com_consoleLines[i][0] ) {
 			continue;
 		}
@@ -515,11 +452,7 @@ char *Com_StringContains( char *str1, char *str2, int casesensitive ) {
 	return nullptr;
 }
 
-/*
-============
-Com_Filter
-============
-*/
+
 int Com_Filter( const char *filter, char *name, int casesensitive ) {
 	char buf[MAX_TOKEN_CHARS];
 	char *ptr;
@@ -608,11 +541,6 @@ int Com_Filter( const char *filter, char *name, int casesensitive ) {
 	return true;
 }
 
-/*
-============
-Com_FilterPath
-============
-*/
 int Com_FilterPath(const char *filter,const char *name, int casesensitive ) {
 	int i;
 	char new_filter[MAX_QPATH];
@@ -637,11 +565,6 @@ int Com_FilterPath(const char *filter,const char *name, int casesensitive ) {
 	return Com_Filter( new_filter, new_name, casesensitive );
 }
 
-/*
-============
-Com_HashKey
-============
-*/
 int Com_HashKey( const char *string, int maxlen )
 {
 	int hash = 0;
@@ -652,11 +575,6 @@ int Com_HashKey( const char *string, int maxlen )
 	return hash;
 }
 
-/*
-================
-Com_RealTime
-================
-*/
 time_t Com_RealTime( qtime_t *qtime ) {
 	time_t t;
 	struct tm *tms;
@@ -688,48 +606,12 @@ CopyString
 		memory from a memstatic_t might be returned
 ========================
 */
-char *CopyString( const char *in ) {
-	char    *out;
-
-	out = (char *)calloc(1,  strlen( in ) + 1 );
+char *CopyString( const char *in )
+{
+	char* out = (char *)calloc(1,  strlen( in ) + 1 );
 	strcpy( out, in );
 	return out;
 }
-
-/*
-==============================================================================
-
-Goals:
-	reproducable without history effects -- no out of memory errors on weird map to map changes
-	allow restarting of the client without fragmentation
-	minimize total pages in use at run time
-	minimize total pages needed during load time
-
-  Single block of memory with stack allocators coming from both ends towards the middle.
-
-  One side is designated the temporary memory allocator.
-
-  Temporary memory can be allocated and freed in any order.
-
-  A highwater mark is kept of the most in use at any time.
-
-  When there is no temporary memory allocated, the permanent and temp sides
-  can be switched, allowing the already touched temp memory to be used for
-  permanent storage.
-
-  Temp memory must never be allocated on two ends at once, or fragmentation
-  could occur.
-
-  If we have any in-use temp memory, additional temp allocations must come from
-  that side.
-
-  If not, we can choose to make either side the new temp side and push future
-  permanent allocations to the other side.  Permanent allocations should be
-  kept on the side that has the current greatest wasted highwater mark.
-
-==============================================================================
-*/
-
 
 #define HUNK_MAGIC  0x89537892
 #define HUNK_FREE_MAGIC 0x89537893
@@ -809,74 +691,10 @@ void *Hunk_AllocateTempMemory( size_t size ) {
     return malloc(size);
 }
 
-
-/*
-==================
-Hunk_FreeTempMemory
-==================
-*/
 void Hunk_FreeTempMemory( void *buf ) {
     free(buf);
 }
 
-
-
-/*
-===================================================================
-
-EVENTS AND JOURNALING
-
-In addition to these events, .cfg files are also copied to the
-journaled file
-===================================================================
-*/
-
-// bk001129 - here we go again: upped from 64
-#define MAX_PUSHED_EVENTS               256
-// bk001129 - init, also static
-static int com_pushedEventsHead = 0;
-static int com_pushedEventsTail = 0;
-// bk001129 - static
-static SysEvent com_pushedEvents[MAX_PUSHED_EVENTS];
-
-/*
-=================
-Com_InitJournaling
-=================
-*/
-void Com_InitJournaling( void ) {
-	Com_StartupVariable( "journal" );
-	com_journal = Cvar_Get( "journal", "0", CVAR_INIT );
-	if ( !com_journal->integer ) {
-		return;
-	}
-
-	if ( com_journal->integer == 1 ) {
-		Com_Printf( "Journaling events\n" );
-
-		com_journalFile = FS_FOpenFileWrite( "journal.dat" );
-		com_journalDataFile = FS_FOpenFileWrite( "journaldata.dat" );
-	} else if ( com_journal->integer == 2 ) {
-		Com_Printf( "Replaying journaled events\n" );
-		FS_FOpenFileRead( "journal.dat", &com_journalFile, true );
-		FS_FOpenFileRead( "journaldata.dat", &com_journalDataFile, true );
-	}
-
-	if ( !com_journalFile || !com_journalDataFile ) {
-		Cvar_Set( "com_journal", "0" );
-		com_journalFile = 0;
-		com_journalDataFile = 0;
-		Com_Printf( "Couldn't open journal files\n" );
-	}
-}
-
-/*
-========================================================================
-
-EVENT LOOP
-
-========================================================================
-*/
 
 #define MAX_QUEUED_EVENTS  256
 #define MASK_QUEUED_EVENTS ( MAX_QUEUED_EVENTS - 1 )
@@ -917,8 +735,7 @@ void Com_QueueEvent( int time, SysEventType type, int value, int value2, int ptr
 	{
 		Com_Printf("Com_QueueEvent: overflow\n");
 		// we are discarding an event, but don't leak memory
-		if ( ev->evPtr )
-		{
+		if ( ev->evPtr ) {
 			free( ev->evPtr );
 		}
 		eventTail++;
@@ -926,8 +743,7 @@ void Com_QueueEvent( int time, SysEventType type, int value, int value2, int ptr
 
 	eventHead++;
 
-	if ( time == 0 )
-	{
+	if ( time == 0 ){
 		time = Sys_Milliseconds();
 	}
 
@@ -939,167 +755,32 @@ void Com_QueueEvent( int time, SysEventType type, int value, int value2, int ptr
 	ev->evPtr = ptr;
 }
 
-/*
-================
-Com_GetSystemEvent
-
-================
-*/
-SysEvent Com_GetSystemEvent( void )
+static
+SysEvent Com_GetSystemEvent()
 {
-	SysEvent  ev;
-	char        *s;
-
 	// return if we have data
-	if ( eventHead > eventTail )
-	{
+	if ( eventHead > eventTail ) {
 		eventTail++;
 		return eventQueue[ ( eventTail - 1 ) & MASK_QUEUED_EVENTS ];
 	}
 
-
 	// return if we have data
-	if ( eventHead > eventTail )
-	{
+	if ( eventHead > eventTail ) {
 		eventTail++;
 		return eventQueue[ ( eventTail - 1 ) & MASK_QUEUED_EVENTS ];
 	}
 
 	// create an empty event to return
+	SysEvent  ev;
 	memset( &ev, 0, sizeof( ev ) );
 	ev.evTime = Sys_Milliseconds();
 
 	return ev;
 }
 
-/*
-=================
-Com_GetRealEvent
-=================
-*/
-SysEvent  Com_GetRealEvent( void ) {
-	size_t r;
-	SysEvent ev;
-
-	// either get an event from the system or the journal file
-	if ( com_journal->integer == 2 ) {
-		r = FS_Read( &ev, sizeof( ev ), com_journalFile );
-		if ( r != sizeof( ev ) ) {
-			Com_Error( ERR_FATAL, "Error reading from journal file" );
-		}
-		if ( ev.evPtrLength ) {
-			ev.evPtr = calloc(1,  ev.evPtrLength );
-			r = FS_Read( ev.evPtr, ev.evPtrLength, com_journalFile );
-			if ( r != ev.evPtrLength ) {
-				Com_Error( ERR_FATAL, "Error reading from journal file" );
-			}
-		}
-	} else {
-		ev = Com_GetSystemEvent();
-
-		// write the journal value out if needed
-		if ( com_journal->integer == 1 ) {
-			r = FS_Write( &ev, sizeof( ev ), com_journalFile );
-			if ( r != sizeof( ev ) ) {
-				Com_Error( ERR_FATAL, "Error writing to journal file" );
-			}
-			if ( ev.evPtrLength ) {
-				r = FS_Write( ev.evPtr, ev.evPtrLength, com_journalFile );
-				if ( r != ev.evPtrLength ) {
-					Com_Error( ERR_FATAL, "Error writing to journal file" );
-				}
-			}
-		}
-	}
-
-	return ev;
-}
-
-
-/*
-=================
-Com_InitPushEvent
-=================
-*/
-// bk001129 - added
-void Com_InitPushEvent( void ) {
-	// clear the static buffer array
-	// this requires EVT_NONE to be accepted as a valid but NOP event
-	memset( com_pushedEvents, 0, sizeof( com_pushedEvents ) );
-	// reset counters while we are at it
-	// beware: GetEvent might still return an EVT_NONE from the buffer
-	com_pushedEventsHead = 0;
-	com_pushedEventsTail = 0;
-}
-
-
-/*
-=================
-Com_PushEvent
-=================
-*/
-void Com_PushEvent( SysEvent *event ) {
-	SysEvent      *ev;
-	static int printedWarning = 0; // bk001129 - init, bk001204 - explicit int
-
-	ev = &com_pushedEvents[ com_pushedEventsHead & ( MAX_PUSHED_EVENTS - 1 ) ];
-
-	if ( com_pushedEventsHead - com_pushedEventsTail >= MAX_PUSHED_EVENTS ) {
-
-		// don't print the warning constantly, or it can give time for more...
-		if ( !printedWarning ) {
-			printedWarning = true;
-			Com_Printf( "WARNING: Com_PushEvent overflow\n" );
-		}
-
-		if ( ev->evPtr ) {
-			free( ev->evPtr );
-		}
-		com_pushedEventsTail++;
-	} else {
-		printedWarning = false;
-	}
-
-	*ev = *event;
-	com_pushedEventsHead++;
-}
-
-/*
-=================
-Com_GetEvent
-=================
-*/
-SysEvent  Com_GetEvent( void ) {
-	if ( com_pushedEventsHead > com_pushedEventsTail ) {
-		com_pushedEventsTail++;
-		return com_pushedEvents[ ( com_pushedEventsTail - 1 ) & ( MAX_PUSHED_EVENTS - 1 ) ];
-	}
-	return Com_GetRealEvent();
-}
-
-/*
-=================
-Com_RunAndTimeServerPacket
-=================
-*/
-void Com_RunAndTimeServerPacket( NetAddress *evFrom, msg_t *buf ) {
-	int t1, t2, msec;
-
-	t1 = 0;
-
-	if ( com_speeds->integer ) {
-		t1 = Sys_Milliseconds();
-	}
-
-	SV_PacketEvent( *evFrom, buf );
-
-	if ( com_speeds->integer ) {
-		t2 = Sys_Milliseconds();
-		msec = t2 - t1;
-		if ( com_speeds->integer == 3 ) {
-			Com_Printf( "SV_PacketEvent time: %i\n", msec );
-		}
-	}
+SysEvent  Com_GetEvent()
+{
+	return Com_GetSystemEvent();
 }
 
 /*
@@ -1109,19 +790,19 @@ Com_EventLoop
 Returns last event time
 =================
 */
-int Com_EventLoop( void ) {
-	SysEvent ev;
-	NetAddress evFrom;
+int Com_EventLoop()
+{
 	uint8_t bufData[MAX_MSGLEN];
 	msg_t buf;
 
 	MSG_Init( &buf, bufData, sizeof( bufData ) );
 
 	while ( 1 ) {
-		ev = Com_GetEvent();
+		SysEvent ev = Com_GetEvent();
 
 		// if no more events are available
 		if ( ev.evType == EVT_NONE ) {
+			NetAddress evFrom;
 			// manually send packet events for the loopback channel
 			while ( NET_GetLoopPacket( NS_CLIENT, &evFrom, &buf ) ) {
 				CL_PacketEvent( evFrom, &buf );
@@ -1130,7 +811,7 @@ int Com_EventLoop( void ) {
 			while ( NET_GetLoopPacket( NS_SERVER, &evFrom, &buf ) ) {
 				// if the server just shut down, flush the events
 				if ( com_sv_running->integer ) {
-					Com_RunAndTimeServerPacket( &evFrom, &buf );
+					SV_PacketEvent( evFrom, &buf );
 				}
 			}
 
@@ -1140,7 +821,6 @@ int Com_EventLoop( void ) {
 
 		switch ( ev.evType ) {
 		default:
-			// bk001129 - was ev.evTime
 			Com_Error( ERR_FATAL, "Com_EventLoop: bad event type %i", ev.evType );
 			break;
 		case EVT_NONE:
@@ -1161,7 +841,6 @@ int Com_EventLoop( void ) {
 			Cbuf_AddText( (char *)ev.evPtr );
 			Cbuf_AddText( "\n" );
 			break;
-
 		}
 
 		// free any block data
@@ -1173,96 +852,13 @@ int Com_EventLoop( void ) {
 	return 0;   // never reached
 }
 
-/*
-================
-Com_Milliseconds
-
-Can be used for profiling, but will be journaled accurately
-================
-*/
-int Com_Milliseconds( void ) {
-	SysEvent ev;
-
-	// get events and push them until we get a null event with the current time
-	do {
-
-		ev = Com_GetRealEvent();
-		if ( ev.evType != EVT_NONE ) {
-			Com_PushEvent( &ev );
-		}
-	} while ( ev.evType != EVT_NONE );
-
-	return ev.evTime;
-}
-
-//============================================================================
-
-/*
-=============
-Com_Error_f
-
-Just throw a fatal error to
-test error shutdown procedures
-=============
-*/
-static void Com_Error_f( void ) {
-	if ( Cmd_Argc() > 1 ) {
-		Com_Error( ERR_DROP, "Testing drop error" );
-	} else {
-		Com_Error( ERR_FATAL, "Testing fatal error" );
-	}
-}
-
-
-/*
-=============
-Com_Freeze_f
-
-Just freeze in place for a given number of seconds to test
-error recovery
-=============
-*/
-static void Com_Freeze_f( void ) {
-	float s;
-	int start, now;
-
-	if ( Cmd_Argc() != 2 ) {
-		Com_Printf( "freeze <seconds>\n" );
-		return;
-	}
-	s = atof( Cmd_Argv( 1 ) );
-
-	start = Com_Milliseconds();
-
-	while ( 1 ) {
-		now = Com_Milliseconds();
-		if ( ( now - start ) * 0.001 > s ) {
-			break;
-		}
-	}
-}
-
-/*
-=================
-Com_Crash_f
-
-A way to force a bus error for development reasons
-=================
-*/
-static void Com_Crash_f( void ) {
-	__builtin_trap();
-}
-
-void Com_SetRecommended( bool vidrestart ) {
-	cvar_t *cv;
-	bool goodVideo;
-	bool goodCPU;
-	bool lowMemory;
+void Com_SetRecommended( bool vidrestart )
+{
 	// will use this for recommended settings as well.. do i outside the lower check so it gets done even with command line stuff
-	cv = Cvar_Get( "r_highQualityVideo", "1", CVAR_ARCHIVE );
-	goodVideo = ( cv && cv->integer );
-	goodCPU = Sys_GetHighQualityCPU();
-	lowMemory = Sys_LowPhysicalMemory();
+	cvar_t *cv = Cvar_Get( "r_highQualityVideo", "1", CVAR_ARCHIVE );
+	bool goodVideo = ( cv && cv->integer );
+	bool goodCPU = Sys_GetHighQualityCPU();
+	bool lowMemory = Sys_LowPhysicalMemory();
 
 	if ( goodVideo && goodCPU ) {
 		Com_Printf( "Found high quality video and CPU\n" );
@@ -1277,10 +873,9 @@ void Com_SetRecommended( bool vidrestart ) {
 		Cbuf_AddText( "exec lowVidlowCPU.cfg\n" );
 		Com_Printf( "Found low quality video and low quality CPU\n" );
 	}
-
-// (SA) set the cvar so the menu will reflect this on first run
+	
+	// set the cvar so the menu will reflect this on first run
 	Cvar_Set( "ui_glCustom", "999" );   // 'recommended'
-
 
 	if ( lowMemory ) {
 		Com_Printf( "Found minimum memory requirement\n" );
@@ -1294,22 +889,14 @@ void Com_SetRecommended( bool vidrestart ) {
 		Cbuf_AddText( "vid_restart\n" );
 	}
 }
-/*
-=================
-Com_Init
-=================
-*/
-void Com_Init( char *commandLine ) {
-	char    *s;
 
+void Com_Init( char *commandLine )
+{
 	Com_Printf( "%s %s\n", Q3_VERSION, __DATE__ );
 
 	if ( setjmp( abortframe ) ) {
 		Sys_Error( "Error during initialization" );
 	}
-
-	// bk001129 - do this before anything else decides to push events
-	Com_InitPushEvent();
 
 	Cvar_Init();
 
@@ -1335,19 +922,10 @@ void Com_Init( char *commandLine ) {
 
 	FS_InitFilesystem();
 
-	Com_InitJournaling();
-
 	Cbuf_AddText( "exec default.cfg\n" );
-
-	Cbuf_AddText( "exec language.cfg\n" ); //----(SA)	added
-
-	// skip the q3config.cfg if "safe" is on the command line
-	if ( !Com_SafeMode() ) {
-		Cbuf_AddText( "exec wolfconfig.cfg\n" );
-	}
-
+	Cbuf_AddText( "exec language.cfg\n" );
+	Cbuf_AddText( "exec wolfconfig.cfg\n" );
 	Cbuf_AddText( "exec autoexec.cfg\n" );
-
 	Cbuf_Execute();
 
 	// override anything from the config files with command line args
@@ -1390,31 +968,21 @@ void Com_Init( char *commandLine ) {
 
 	com_hunkused = Cvar_Get( "com_hunkused", "0", 0 );
 
-	if ( com_developer && com_developer->integer ) {
-		Cmd_AddCommand( "error", Com_Error_f );
-		Cmd_AddCommand( "crash", Com_Crash_f );
-		Cmd_AddCommand( "freeze", Com_Freeze_f );
-	}
 	Cmd_AddCommand( "quit", Com_Quit_f );
 	Cmd_AddCommand( "changeVectors", MSG_ReportChangeVectors_f );
 	Cmd_AddCommand( "writeconfig", Com_WriteConfig_f );
 
-	s = va( "%s %s", Q3_VERSION, __DATE__ );
-	com_version = Cvar_Get( "version", s, CVAR_ROM | CVAR_SERVERINFO );
-
 	Sys_Init();
-	Netchan_Init( Com_Milliseconds() & 0xffff );    // pick a port value that should be nice and random
+	Netchan_Init( Sys_Milliseconds() & 0xffff );    // pick a port value that should be nice and random
 
 	SV_Init();
-
-
 	CL_Init();
 	Sys_ShowConsole( com_viewlog->integer, false );
 
 	// set com_frameTime so that if a map is started on the
 	// command line it will still be able to count on com_frameTime
 	// being random enough for a serverid
-	com_frameTime = Com_Milliseconds();
+	com_frameTime = Sys_Milliseconds();
 
 	// add + commands from command line
 	if ( !Com_AddStartupCommands() ) {
@@ -1435,21 +1003,14 @@ void Com_Init( char *commandLine ) {
 
 
     if ( !com_introPlayed->integer ) {
-    #ifdef __MACOS__
-        extern void PlayIntroMovies( void );
-        PlayIntroMovies();
-    #endif
         Cbuf_AddText( "cinematic wolfintro.RoQ 3\n" );
     }
 
 	com_fullyInitialized = true;
 	Com_Printf( "--- Common Initialization Complete ---\n" );
 }
-
-//==================================================================
-
-void Com_WriteConfigToFile( const char *filename ) {
-
+void Com_WriteConfigToFile( const char *filename )
+{
     fileHandle_t f = FS_FOpenFileWrite( filename );
 	if ( !f ) {
 		Com_Printf( "Couldn't write %s.\n", filename );
@@ -1470,8 +1031,8 @@ Com_WriteConfiguration
 Writes key bindings and archived cvars to config file if modified
 ===============
 */
-void Com_WriteConfiguration( void ) {
-
+void Com_WriteConfiguration()
+{
 	// if we are quiting without fully initializing, make sure
 	// we don't write out anything
 	if ( !com_fullyInitialized ) {
@@ -1508,14 +1069,9 @@ void Com_WriteConfig_f( void ) {
 	Com_WriteConfigToFile( filename );
 }
 
-/*
-================
-Com_ModifyMsec
-================
-*/
-int Com_ModifyMsec( int msec ) {
-	int clampTime;
 
+int Com_ModifyMsec( int msec )
+{
 	//
 	// modify time for debugging values
 	//
@@ -1533,7 +1089,7 @@ int Com_ModifyMsec( int msec ) {
 	// for local single player gaming
 	// we may want to clamp the time to prevent players from
 	// flying off edges when something hitches.
-	clampTime = 200;
+	int clampTime = 200;
 
 	if ( msec > clampTime ) {
 		msec = clampTime;
@@ -1613,7 +1169,6 @@ void Com_Frame()
 	Com_EventLoop();
 	Cbuf_Execute();
 
-
 	//
 	// client side
 	//
@@ -1627,7 +1182,6 @@ void Com_Frame()
 		timeAfter = Sys_Milliseconds();
 	}
 	
-
 	//
 	// report timing information
 	//
@@ -1646,22 +1200,12 @@ void Com_Frame()
 	com_frameNumber++;
 }
 
-/*
-=================
-Com_Shutdown
-=================
-*/
-void Com_Shutdown( void ) {
+void Com_Shutdown()
+{
 	if ( logfile ) {
 		FS_FCloseFile( logfile );
 		logfile = 0;
 	}
-
-	if ( com_journalFile ) {
-		FS_FCloseFile( com_journalFile );
-		com_journalFile = 0;
-	}
-
 }
 
 void Com_Memcpy( void* dest, const void* src, const size_t count ) {
@@ -1686,10 +1230,9 @@ acos(*(float*) &i) == -1.#IND0
 	to game and ui
 =====================
 */
-float Q_acos( float c ) {
-	float angle;
-
-	angle = acos( c );
+float Q_acos( float c )
+{
+	float angle = acos( c );
 
 	if ( angle > M_PI ) {
 		return (float)M_PI;
@@ -1706,12 +1249,9 @@ command line completion
 ===========================================
 */
 
-/*
-==================
-Field_Clear
-==================
-*/
-void Field_Clear( field_t *edit ) {
+
+void Field_Clear( field_t *edit )
+{
 	memset( edit->buffer, 0, MAX_EDIT_LINE );
 	edit->cursor = 0;
 	edit->scroll = 0;
@@ -1723,15 +1263,8 @@ static int matchCount;
 // field we are working on, passed to Field_CompleteCommand (&g_consoleCommand for instance)
 static field_t *completionField;
 
-/*
-===============
-FindMatches
-
-===============
-*/
-static void FindMatches( const char *s ) {
-	int i;
-
+static void FindMatches( const char *s )
+{
 	if ( Q_stricmpn( s, completionString, strlen( completionString ) ) ) {
 		return;
 	}
@@ -1742,27 +1275,21 @@ static void FindMatches( const char *s ) {
 	}
 
 	// cut shortestMatch to the amount common with s
-	for ( i = 0 ; s[i] ; i++ ) {
+	for (int i = 0 ; s[i] ; i++ ) {
 		if ( tolower( shortestMatch[i] ) != tolower( s[i] ) ) {
 			shortestMatch[i] = 0;
 		}
 	}
 }
 
-/*
-===============
-PrintMatches
-
-===============
-*/
 static void PrintMatches( const char *s ) {
 	if ( !Q_stricmpn( s, shortestMatch, strlen( shortestMatch ) ) ) {
 		Com_Printf( "    %s\n", s );
 	}
 }
 
-static void keyConcatArgs( void ) {
-
+static void keyConcatArgs()
+{
 	for (int i = 1 ; i < Cmd_Argc() ; i++ ) {
 		Q_strcat( completionField->buffer, sizeof( completionField->buffer ), " " );
 		const char* arg = Cmd_Argv( i );
@@ -1780,9 +1307,8 @@ static void keyConcatArgs( void ) {
 	}
 }
 
-static void ConcatRemaining( const char *src, const char *start ) {
-	
-
+static void ConcatRemaining( const char *src, const char *start )
+{
 	const char *str = strstr( src, start );
 	if ( !str ) {
 		keyConcatArgs();
@@ -1802,8 +1328,8 @@ NOTE TTimo this was originally client code only
   moved to common code when writing tty console for *nix dedicated server
 ===============
 */
-void Field_CompleteCommand( field_t *field ) {
-	field_t temp;
+void Field_CompleteCommand( field_t *field )
+{
 	completionField = field;
 
 	// only look at the first token for completion purposes
@@ -1827,6 +1353,7 @@ void Field_CompleteCommand( field_t *field ) {
 		return; // no matches
 	}
 
+	field_t temp;
 	Com_Memcpy( &temp, completionField, sizeof( field_t ) );
 
 	if ( matchCount == 1 ) {

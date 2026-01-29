@@ -577,26 +577,22 @@ struct SysEvent
 
 void		Com_QueueEvent( int time, SysEventType type, int value, int value2, int ptrLength, void *ptr );
 int			Com_EventLoop( void );
-SysEvent	Com_GetSystemEvent( void );
 
 char        *CopyString( const char *in );
 void        Info_Print( const char *s );
 
-void Com_BeginRedirect( char *buffer, int buffersize, void ( *flush )( char * ) );
-void        Com_EndRedirect( void );
 void  Com_Printf( const char *fmt, ... );
 void  Com_DPrintf( const char *fmt, ... );
 [[noreturn]] void  Com_Error( int code, const char *fmt, ... );
 void        Com_Quit_f( void );
 
-int         Com_Milliseconds( void );   // will be journaled properly
+
 unsigned    int Com_BlockChecksum( const void *buffer, size_t length );
 unsigned    Com_BlockChecksumKey( void *buffer, int length, int key );
 int         Com_HashKey( const char *string, int maxlen );
 int         Com_Filter( const char *filter, char *name, int casesensitive );
 int         Com_FilterPath(const char *filter, const char *name, int casesensitive );
 time_t         Com_RealTime( qtime_t *qtime );
-bool    Com_SafeMode( void );
 
 void        Com_StartupVariable( const char *match );
 void        Com_SetRecommended( bool vid_restart );
@@ -612,9 +608,7 @@ extern cvar_t  *com_timescale;
 extern cvar_t  *com_sv_running;
 extern cvar_t  *com_cl_running;
 extern cvar_t  *com_viewlog;            // 0 = hidden, 1 = visible, 2 = minimized
-extern cvar_t  *com_version;
 extern cvar_t  *com_blood;
-extern cvar_t  *com_journal;
 extern cvar_t  *com_cameraMode;
 
 // both client and server must agree to pause
@@ -631,9 +625,7 @@ extern int com_frameMsec;
 
 extern bool com_errorEntered;
 
-extern fileHandle_t com_journalFile;
 extern fileHandle_t com_journalDataFile;
-
 
 void *Hunk_AllocateTempMemory( size_t size );
 void Hunk_FreeTempMemory( void *buf );

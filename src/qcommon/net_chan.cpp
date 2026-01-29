@@ -61,8 +61,6 @@ to the new value before sending out any replies.
 
 #define FRAGMENT_BIT    ( 1LL << 31 )
 
-cvar_t      *showpackets;
-cvar_t      *showdrop;
 cvar_t      *qport;
 
 static const char *netsrcString[2] = {
@@ -78,8 +76,7 @@ Netchan_Init
 */
 void Netchan_Init( int port ) {
 	port &= 0xffff;
-	showpackets = Cvar_Get( "showpackets", "0", CVAR_TEMP );
-	showdrop = Cvar_Get( "showdrop", "0", CVAR_TEMP );
+
 	qport = Cvar_Get( "net_qport", va( "%i", port ), CVAR_INIT );
 }
 
@@ -134,14 +131,6 @@ void Netchan_TransmitNextFragment( NetChannel *chan ) {
 
 	// send the datagram
 	NET_SendPacket( chan->sock, send.cursize, send.data, chan->remoteAddress );
-
-	if ( showpackets->integer ) {
-		Com_Printf( "%s send %4i : s=%i fragment=%i,%i\n"
-					, netsrcString[ chan->sock ]
-					, send.cursize
-					, chan->outgoingSequence - 1
-					, chan->unsentFragmentStart, fragmentLength );
-	}
 
 	chan->unsentFragmentStart += fragmentLength;
 
@@ -199,17 +188,8 @@ void Netchan_Transmit( NetChannel *chan, int length, const uint8_t *data ) {
 
 	MSG_WriteData( &send, data, length );
 
-
 	// send the datagram
 	NET_SendPacket( chan->sock, send.cursize, send.data, chan->remoteAddress );
-
-	if ( showpackets->integer ) {
-		Com_Printf( "%s send %4i : s=%i ack=%i\n"
-					, netsrcString[ chan->sock ]
-					, send.cursize
-					, chan->outgoingSequence - 1
-					, chan->incomingSequence );
-	}
 }
 
 /*
@@ -256,31 +236,11 @@ bool Netchan_Process( NetChannel *chan, msg_t *msg ) {
 		fragmentLength = 0;
 	}
 
-	if ( showpackets->integer ) {
-		if ( fragmented ) {
-			Com_Printf( "%s recv %4i : s=%i fragment=%i,%i\n"
-						, netsrcString[ chan->sock ]
-						, msg->cursize
-						, sequence
-						, fragmentStart, fragmentLength );
-		} else {
-			Com_Printf( "%s recv %4i : s=%i\n"
-						, netsrcString[ chan->sock ]
-						, msg->cursize
-						, sequence );
-		}
-	}
-
 	//
 	// discard out of order or duplicated packets
 	//
 	if ( sequence <= chan->incomingSequence ) {
-		if ( showdrop->integer || showpackets->integer ) {
-			Com_Printf( "%s:Out of order packet %i at %i\n"
-						, NET_AdrToString( chan->remoteAddress )
-						,  sequence
-						, chan->incomingSequence );
-		}
+
 		return false;
 	}
 
@@ -288,14 +248,6 @@ bool Netchan_Process( NetChannel *chan, msg_t *msg ) {
 	// dropped packets don't keep the message from being used
 	//
 	chan->dropped = sequence - ( chan->incomingSequence + 1 );
-	if ( chan->dropped > 0 ) {
-		if ( showdrop->integer || showpackets->integer ) {
-			Com_Printf( "%s:Dropped %i packets at %i\n"
-						, NET_AdrToString( chan->remoteAddress )
-						, chan->dropped
-						, sequence );
-		}
-	}
 
 
 	//
@@ -311,11 +263,7 @@ bool Netchan_Process( NetChannel *chan, msg_t *msg ) {
 
 		// if we missed a fragment, dump the message
 		if ( fragmentStart != chan->fragmentLength ) {
-			if ( showdrop->integer || showpackets->integer ) {
-				Com_Printf( "%s:Dropped a message fragment\n"
-							, NET_AdrToString( chan->remoteAddress )
-							, sequence );
-			}
+
 			// we can still keep the part that we have so far,
 			// so we don't need to clear chan->fragmentLength
 			return false;
@@ -324,10 +272,6 @@ bool Netchan_Process( NetChannel *chan, msg_t *msg ) {
 		// copy the fragment to the fragment buffer
 		if ( fragmentLength < 0 || msg->readcount + fragmentLength > msg->cursize ||
 			 chan->fragmentLength + fragmentLength > sizeof( chan->fragmentBuffer ) ) {
-			if ( showdrop->integer || showpackets->integer ) {
-				Com_Printf( "%s:illegal fragment length\n"
-							, NET_AdrToString( chan->remoteAddress ) );
-			}
 			return false;
 		}
 

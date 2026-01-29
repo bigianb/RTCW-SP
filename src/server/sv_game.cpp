@@ -291,7 +291,7 @@ static void SV_InitGameVM( bool restart )
 
 	// use the current msec count for a random seed
 	// init for this gamestate
-	G_InitGame( svs.time, Com_Milliseconds(), restart );
+	G_InitGame( svs.time, Sys_Milliseconds(), restart );
 
 	// clear all gentity pointers that might still be set from
 	// a previous level

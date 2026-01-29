@@ -395,10 +395,6 @@ Copy a fully specified file from one place to another
 */
 static void FS_CopyFile( char *fromOSPath, char *toOSPath ) {
 	
-	if ( strstr( fromOSPath, "journal.dat" ) || strstr( fromOSPath, "journaldata.dat" ) ) {
-		Com_Printf( "Ignoring journal files\n" );
-		return;
-	}
 
 	FILE* f = fopen( fromOSPath, "rb" );
 	if ( !f ) {
@@ -437,11 +433,6 @@ void FS_CopyFileOS( char *from, char *to ) {
 		
 	const char* fromOSPath = FS_BuildOSPath( fs_homepath->string, fs_gamedir, from );
 	const char* toOSPath = FS_BuildOSPath( fs_homepath->string, fs_gamedir, to );
-
-	if ( strstr( fromOSPath, "journal.dat" ) || strstr( fromOSPath, "journaldata.dat" ) ) {
-		Com_Printf( "Ignoring journal files\n" );
-		return;
-	}
 
 	FILE* f = fopen( fromOSPath, "rb" );
 	if ( !f ) {
@@ -1031,10 +1022,10 @@ size_t FS_FOpenFileRead( const char *filename, fileHandle_t *file, bool uniqueFI
 				continue;
 			}
 
-			if ( Q_stricmp( filename + l - 4, ".cfg" )       // for config files
-				 && Q_stricmp( filename + l - 5, ".menu" )  // menu files
-				 && Q_stricmp( filename + l - 5, ".game" )  // menu files
-				 && Q_stricmp( filename + l - 4, ".dat" ) ) { // for journal files
+			if ( Q_stricmp( filename + l - 4, ".cfg" )        // for config files
+				 && Q_stricmp( filename + l - 5, ".menu" )    // menu files
+				 && Q_stricmp( filename + l - 5, ".game" ))   // menu files
+			{
 				fs_fakeChkSum = random();
 			}
 
@@ -1320,8 +1311,6 @@ a null buffer will just return the file length without loading
 size_t FS_ReadFile( const char *qpath, void **buffer ) {
 	fileHandle_t h;
 
-	bool isConfig;
-
 	if ( !fs_searchpaths ) {
 		Com_Error( ERR_FATAL, "Filesystem call made without initialization\n" );
 	}
@@ -1332,52 +1321,6 @@ size_t FS_ReadFile( const char *qpath, void **buffer ) {
 
 	uint8_t* buf = nullptr; // quiet compiler warning
 	size_t len = 0;
-	// if this is a .cfg file and we are playing back a journal, read
-	// it from the journal file
-	if ( strstr( qpath, ".cfg" ) ) {
-		isConfig = true;
-		if ( com_journal && com_journal->integer == 2 ) {
-			size_t r;
-
-			Com_DPrintf( "Loading %s from journal file.\n", qpath );
-			r = FS_Read( &len, sizeof( len ), com_journalDataFile );
-			if ( r != sizeof( len ) ) {
-				if ( buffer != nullptr ) {
-					*buffer = nullptr;
-				}
-				return -1;
-			}
-			// if the file didn't exist when the journal was created
-			if ( !len ) {
-				if ( buffer == nullptr ) {
-					return 1;           // hack for old journal files
-				}
-				*buffer = nullptr;
-				return -1;
-			}
-			if ( buffer == nullptr ) {
-				return len;
-			}
-
-			buf = (uint8_t *)malloc( len + 1 );
-			*buffer = buf;
-
-			r = FS_Read( buf, len, com_journalDataFile );
-			if ( r != len ) {
-				Com_Error( ERR_FATAL, "Read from journalDataFile failed" );
-			}
-
-			fs_loadCount++;
-			fs_loadStack++;
-
-			// guarantee that it will have a trailing 0 for string operations
-			buf[len] = 0;
-
-			return len;
-		}
-	} else {
-		isConfig = false;
-	}
 
 	// look for it in the filesystem or pack files
 	len = FS_FOpenFileRead( qpath, &h, false );
@@ -1385,22 +1328,12 @@ size_t FS_ReadFile( const char *qpath, void **buffer ) {
 		if ( buffer ) {
 			*buffer = nullptr;
 		}
-		// if we are journalling and it is a config file, write a zero to the journal file
-		if ( isConfig && com_journal && com_journal->integer == 1 ) {
-			Com_DPrintf( "Writing zero for %s to journal file.\n", qpath );
-			len = 0;
-			FS_Write( &len, sizeof( len ), com_journalDataFile );
-			FS_Flush( com_journalDataFile );
-		}
+
 		return -1;
 	}
 
 	if ( !buffer ) {
-		if ( isConfig && com_journal && com_journal->integer == 1 ) {
-			Com_DPrintf( "Writing len for %s to journal file.\n", qpath );
-			FS_Write( &len, sizeof( len ), com_journalDataFile );
-			FS_Flush( com_journalDataFile );
-		}
+
 		FS_FCloseFile( h );
 		return len;
 	}
@@ -1417,13 +1350,6 @@ size_t FS_ReadFile( const char *qpath, void **buffer ) {
 	buf[len] = 0;
 	FS_FCloseFile( h );
 
-	// if we are journalling and it is a config file, write it to the journal file
-	if ( isConfig && com_journal && com_journal->integer == 1 ) {
-		Com_DPrintf( "Writing %s to journal file.\n", qpath );
-		FS_Write( &len, sizeof( len ), com_journalDataFile );
-		FS_Write( buf, len, com_journalDataFile );
-		FS_Flush( com_journalDataFile );
-	}
 	return len;
 }
 
@@ -2421,9 +2347,7 @@ void FS_Restart( int checksumFeed ) {
 	// bk010116 - new check before safeMode
 	if ( Q_stricmp( fs_gamedirvar->string, lastValidGame ) ) {
 		// skip the wolfconfig.cfg if "safe" is on the command line
-		if ( !Com_SafeMode() ) {
-			Cbuf_AddText( "exec wolfconfig.cfg\n" );
-		}
+		Cbuf_AddText( "exec wolfconfig.cfg\n" );
 	}
 
 	Q_strncpyz( lastValidBase, fs_basepath->string, sizeof( lastValidBase ) );
