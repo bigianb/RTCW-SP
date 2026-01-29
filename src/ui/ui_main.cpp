@@ -1139,11 +1139,6 @@ static float UI_GetValue( int ownerDraw, int type ) {
 }
 
 
-/*
-==============
-UI_SavegamesQsortCompare
-==============
-*/
 static int  UI_SavegamesQsortCompare( const void *arg1, const void *arg2 )
 {
 	int *ea = (int *)arg1;
@@ -1153,8 +1148,8 @@ static int  UI_SavegamesQsortCompare( const void *arg1, const void *arg2 )
 		return 0;
 	}
 
-    savegameInfo *sg = &uiInfo.savegameList[*eb];
-    savegameInfo *sg2 = &uiInfo.savegameList[*ea];
+    SavegameInfo *sg = &uiInfo.savegameList[*eb];
+    SavegameInfo *sg2 = &uiInfo.savegameList[*ea];
 
     int ret = 0;
 	if ( uiInfo.savegameStatus.sortKey == SORT_SAVENAME ) {
@@ -1241,11 +1236,6 @@ void UI_SavegameSort( int column, bool force )
 
 }
 
-/*
-==============
-UI_DelSavegame
-==============
-*/
 static void UI_DelSavegame()
 {
 	int i = UI_SavegameIndexFromName2( ui_savegameName.string );
@@ -1265,22 +1255,12 @@ static void UI_DelSavegame()
 #define SAVE_INFOSTRING_LENGTH  256     // defined in g_save.c
 
 
-/*
-==============
-UI_ParseSavegame
-==============
-*/
-
 static const char *monthStr[12] =
 {
 	"JAN", "FEB", "MAR", "APR", "MAY", "JUN", "JUL", "AUG", "SEP", "OCT", "NOV", "DEC"
 };
 
-/*
-==============
-UI_ParseSavegame
-==============
-*/
+
 void UI_ParseSavegame( int index )
 {
     fileHandle_t f;
@@ -1349,11 +1329,6 @@ void UI_ParseSavegame( int index )
 	FS_FCloseFile( f );
 }
 
-/*
-==============
-UI_LoadSavegames
-==============
-*/
 static void UI_LoadSavegames(const char *dir )
 {
 	char sglist[4096];
@@ -1418,11 +1393,7 @@ static void UI_LoadSavegames(const char *dir )
 	}
 }
 
-/*
-==============
-UI_Update
-==============
-*/
+
 static void UI_Update( const char *name ) {
 	int val = Cvar_VariableValue( name );
 
@@ -2092,13 +2063,13 @@ vmCvar_t ui_master;
 vmCvar_t ui_brassTime;
 vmCvar_t ui_drawCrosshair;
 vmCvar_t ui_drawCrosshairNames;
-vmCvar_t ui_drawCrosshairPickups;       //----(SA) added
-vmCvar_t ui_useSuggestedWeapons;    //----(SA)	added
+vmCvar_t ui_drawCrosshairPickups;
+vmCvar_t ui_useSuggestedWeapons; 
 vmCvar_t ui_marks;
-// JOSEPH 12-3-99
+
 vmCvar_t ui_autoactivate;
-vmCvar_t ui_emptyswitch;        //----(SA)	added
-// END JOSEPH
+vmCvar_t ui_emptyswitch; 
+
 
 vmCvar_t ui_server1;
 vmCvar_t ui_server2;
@@ -2131,12 +2102,12 @@ vmCvar_t ui_actualNetGameType;
 vmCvar_t ui_joinGameType;
 vmCvar_t ui_dedicated;
 
-vmCvar_t ui_notebookCurrentPage;        //----(SA)	added
-vmCvar_t ui_clipboardName;          // the name of the group for the current clipboard item //----(SA)	added
+vmCvar_t ui_notebookCurrentPage;
+vmCvar_t ui_clipboardName;          // the name of the group for the current clipboard item 
 vmCvar_t ui_hudAlpha;
-vmCvar_t ui_hunkUsed;       //----(SA)	added
-vmCvar_t ui_cameraMode;     //----(SA)	added
-vmCvar_t ui_savegameListAutosave;       //----(SA)	added
+vmCvar_t ui_hunkUsed;
+vmCvar_t ui_cameraMode;
+vmCvar_t ui_savegameListAutosave;
 vmCvar_t ui_savegameName;
 
 static cvarTable_t cvarTable[] = {
@@ -2158,11 +2129,11 @@ static cvarTable_t cvarTable[] = {
 	{ &ui_brassTime, "cg_brassTime", "1250", CVAR_ARCHIVE },
 	{ &ui_drawCrosshair, "cg_drawCrosshair", "4", CVAR_ARCHIVE },
 	{ &ui_drawCrosshairNames, "cg_drawCrosshairNames", "1", CVAR_ARCHIVE },
-	{ &ui_drawCrosshairPickups, "cg_drawCrosshairPickups", "1", CVAR_ARCHIVE },   //----(SA) added
+	{ &ui_drawCrosshairPickups, "cg_drawCrosshairPickups", "1", CVAR_ARCHIVE }, 
 	{ &ui_marks, "cg_marktime", "20000", CVAR_ARCHIVE },
 	{ &ui_autoactivate, "cg_autoactivate", "1", CVAR_ARCHIVE },
-	{ &ui_useSuggestedWeapons, "cg_useSuggestedWeapons", "1", CVAR_ARCHIVE }, //----(SA)	added
-	{ &ui_emptyswitch, "cg_emptyswitch", "0", CVAR_ARCHIVE }, //----(SA)	added
+	{ &ui_useSuggestedWeapons, "cg_useSuggestedWeapons", "1", CVAR_ARCHIVE }, 
+	{ &ui_emptyswitch, "cg_emptyswitch", "0", CVAR_ARCHIVE },
 	{ &ui_server1, "server1", "", CVAR_ARCHIVE },
 	{ &ui_server2, "server2", "", CVAR_ARCHIVE },
 	{ &ui_server3, "server3", "", CVAR_ARCHIVE },
@@ -2195,8 +2166,8 @@ static cvarTable_t cvarTable[] = {
 	{ &ui_clipboardName, "cg_clipboardName", "", CVAR_ROM },
 
 	{ &ui_hudAlpha, "cg_hudAlpha", "0.8", CVAR_ARCHIVE },
-	{ &ui_hunkUsed, "com_hunkused", "0", 0 },     //----(SA)	added
-	{ &ui_cameraMode, "com_cameraMode", "0", 0},  //----(SA)	added
+	{ &ui_hunkUsed, "com_hunkused", "0", 0 },
+	{ &ui_cameraMode, "com_cameraMode", "0", 0}, 
 
 	{ &ui_savegameName, "ui_savegameName", "", CVAR_ROM}
 
@@ -2283,11 +2254,6 @@ void UI_Refresh( int realtime ) {
     }
 }
 
-/*
-=================
-UI_Init
-=================
-*/
 void UI_Init()
 {
     UI_RegisterCvars();
@@ -2366,9 +2332,6 @@ void UI_Init()
 
     AssetCache();
 
-    uiInfo.characterCount = 0;
-    uiInfo.aliasCount = 0;
-
     const char *menuSet = UI_Cvar_VariableString( "ui_menuFiles" );
     if ( menuSet == nullptr || menuSet[0] == '\0' ) {
         menuSet = "ui/menus.txt";
@@ -2380,11 +2343,9 @@ void UI_Init()
     Menus_CloseAll();
 
     // sets defaults for ui temp cvars
-    uiInfo.effectsColor = gamecodetoui[(int)Cvar_VariableValue( "color" ) - 1];
     uiInfo.currentCrosshair = (int)Cvar_VariableValue( "cg_drawCrosshair" );
     Cvar_Set( "ui_mousePitch", ( Cvar_VariableValue( "m_pitch" ) >= 0 ) ? "0" : "1" );
 
-    uiInfo.serverStatus.currentServerCinematic = -1;
     uiInfo.previewMovie = -1;
 
     if ( Cvar_VariableValue( "ui_WolfFirstRun" ) == 0 ) {

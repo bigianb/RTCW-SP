@@ -551,15 +551,8 @@ typedef struct {
 #define MAX_SPAWNPOINTS 128     // NERVE - SMF
 #define MAX_SPAWNDESC   128     // NERVE - SMF
 
-typedef struct {
-	const char *name;
-	const char *imageName;
-	qhandle_t headImage;
-	bool female;
-} characterInfo;
-
-//----(SA)	added
-typedef struct {
+struct SavegameInfo
+{
 	const char *savegameFile;       // mysave[.svg]
 	const char *savegameName;       // "beginning of game (SA)"
 	const char *imageName;          //
@@ -573,182 +566,34 @@ typedef struct {
 	const char *date;
 
 	qtime_t tm;
+};
 
-} savegameInfo;
-//----(SA)	end
-
-typedef struct {
-	const char *name;
-	const char *ai;
-	const char *action;
-} aliasInfo;
-
-typedef struct {
-	const char *gameType;
-	int gtEnum;
-} gameTypeInfo;
-
-typedef struct serverFilter_s {
-	const char *description;
-	const char *basedir;
-} serverFilter_t;
-
-typedef struct {
-	char adrstr[MAX_ADDRESSLENGTH];
-	int start;
-} pinglist_t;
-
-
-typedef struct serverStatus_s {
-	pinglist_t pingList[MAX_PINGREQUESTS];
-	int numqueriedservers;
-	int currentping;
-	int nextpingtime;
-	int maxservers;
-	int refreshtime;
-	int numServers;
-	int sortKey;
-	int sortDir;
-	int lastCount;
-	bool refreshActive;
-	int currentServer;
-	int displayServers[MAX_DISPLAY_SERVERS];
-	int numDisplayServers;
-	int numPlayersOnServers;
-	int nextDisplayRefresh;
-	int nextSortTime;
-	qhandle_t currentServerPreview;
-	int currentServerCinematic;
-	int motdLen;
-	int motdWidth;
-	int motdPaintX;
-	int motdPaintX2;
-	int motdOffset;
-	int motdTime;
-	char motd[MAX_STRING_CHARS];
-} ServerStatus;
-
-
-typedef struct savegameStatus_s {
-
+struct SavegameStatus
+{
 	int sortKey;
 	int sortDir;
 	int displaySavegames[MAX_DISPLAY_SAVEGAMES];
-//	int				numDisplaySavegames;
+};
 
-} savegameStatus_t;
-
-
-typedef struct {
-	char adrstr[MAX_ADDRESSLENGTH];
-	char name[MAX_ADDRESSLENGTH];
-	int startTime;
-	int serverNum;
-	bool valid;
-} pendingServer_t;
-
-typedef struct {
-	int num;
-	pendingServer_t server[MAX_SERVERSTATUSREQUESTS];
-} pendingServerStatus_t;
-
-typedef struct {
-	char address[MAX_ADDRESSLENGTH];
-	char *lines[MAX_SERVERSTATUS_LINES][4];
-	char text[MAX_SERVERSTATUS_TEXT];
-	char pings[MAX_CLIENTS * 3];
-	int numLines;
-} serverStatusInfo_t;
-
-typedef struct {
-	const char *modName;
-	const char *modDescr;
-} modInfo_t;
-
-typedef struct {
+struct uiInfo_t
+{
 	displayContextDef_t uiDC;
-	int newHighScoreTime;
-	int newBestTime;
-	int showPostGameTime;
-	bool newHighScore;
-	bool soundHighScore;
-
-	int characterCount;
-	int botIndex;
-	characterInfo characterList[MAX_HEADS];
-
-	int aliasCount;
-	aliasInfo aliasList[MAX_ALIASES];
-
-	int redBlue;
-	int playerCount;
-	int myTeamCount;
-	int teamIndex;
-	int playerRefresh;
-	int playerIndex;
-	int playerNumber;
-	bool teamLeader;
-	char playerNames[MAX_CLIENTS][MAX_NAME_LENGTH];
-	char teamNames[MAX_CLIENTS][MAX_NAME_LENGTH];
-	int teamClientNums[MAX_CLIENTS];
-
-	int skillIndex;
-
-	modInfo_t modList[MAX_MODS];
-	int modCount;
-	int modIndex;
 
 	const char *movieList[MAX_MOVIES];
 	int movieCount;
 	int movieIndex;
 	int previewMovie;
 
-//----(SA)	added
-//	const char			*savegameList[MAX_SAVEGAMES];
-	savegameInfo savegameList[MAX_SAVEGAMES];
+	SavegameInfo savegameList[MAX_SAVEGAMES];
 	int savegameCount;
-//	int					savegameIndex;
-	savegameStatus_t savegameStatus;
-//----(SA)	end
-
-	ServerStatus serverStatus;
-
-	// for the showing the status of a server
-	char serverStatusAddress[MAX_ADDRESSLENGTH];
-	serverStatusInfo_t serverStatusInfo;
-	int nextServerStatusRefresh;
-
-	// to retrieve the status of server to find a player
-	pendingServerStatus_t pendingServerStatus;
-	char findPlayerName[MAX_STRING_CHARS];
-	char foundPlayerServerAddresses[MAX_FOUNDPLAYER_SERVERS][MAX_ADDRESSLENGTH];
-	char foundPlayerServerNames[MAX_FOUNDPLAYER_SERVERS][MAX_ADDRESSLENGTH];
-	int currentFoundPlayerServer;
-	int numFoundPlayerServers;
-	int nextFindPlayerRefresh;
+	SavegameStatus savegameStatus;
 
 	int currentCrosshair;
-	int startPostGameTime;
-	sfxHandle_t newHighScoreSound;
-
-	int q3HeadCount;
-	char q3HeadNames[MAX_PLAYERMODELS][64];
-	qhandle_t q3HeadIcons[MAX_PLAYERMODELS];
-	int q3SelectedHead;
-
-	int effectsColor;
 
 	bool inGameLoad;
-
-	// NERVE - SMF
-	char spawnPoints[MAX_SPAWNPOINTS][MAX_SPAWNDESC];
-	int spawnCount;
-	// -NERVE - SMF
-
-}   uiInfo_t;
+};
 
 extern uiInfo_t uiInfo;
-
 
 extern void         UI_Init( void );
 extern void         UI_Shutdown( void );
