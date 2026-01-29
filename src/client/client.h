@@ -167,7 +167,7 @@ typedef struct {
 	int lastPacketSentTime;                 // for retransmits during connection
 	int lastPacketTime;                     // for timeouts
 
-	netadr_t serverAddress;
+	NetAddress serverAddress;
 	int connectTime;                        // for connection retransmits
 	int connectPacketCount;                 // for display on connection dialog
 	char serverMessage[MAX_STRING_TOKENS];          // for display on connection dialog
@@ -194,7 +194,7 @@ typedef struct {
 	char serverCommands[MAX_RELIABLE_COMMANDS][MAX_TOKEN_CHARS];
 
 	// big stuff at end of structure so most offsets are 15 bits or less
-	netchan_t netchan;
+	NetChannel netchan;
 } clientConnection_t;
 
 extern clientConnection_t clc;
@@ -209,14 +209,14 @@ no client connection is active at all
 */
 
 typedef struct {
-	netadr_t adr;
+	NetAddress adr;
 	int start;
 	int time;
 	char info[MAX_INFO_STRING];
 } ping_t;
 
 typedef struct {
-	netadr_t adr;
+	NetAddress adr;
 	char hostName[MAX_NAME_LENGTH];
 	char mapName[MAX_NAME_LENGTH];
 	char game[MAX_NAME_LENGTH];
@@ -273,11 +273,11 @@ typedef struct {
 	int masterNum;
 
 	// update server info
-	netadr_t updateServer;
+	NetAddress updateServer;
 	char updateChallenge[MAX_TOKEN_CHARS];
 	char updateInfoString[MAX_INFO_STRING];
 
-	netadr_t authorizeServer;
+	NetAddress authorizeServer;
 
 	// rendering info
 	glconfig_t glconfig;
@@ -542,7 +542,7 @@ void Key_SetCatcher( int catcher );
 //
 // cl_net_chan.c
 //
-void CL_Netchan_Transmit( netchan_t *chan, msg_t* msg ); //int length, const uint8_t *data );
-void CL_Netchan_TransmitNextFragment( netchan_t *chan );
-bool CL_Netchan_Process( netchan_t *chan, msg_t *msg );
+void CL_Netchan_Transmit( NetChannel *chan, msg_t* msg ); //int length, const uint8_t *data );
+void CL_Netchan_TransmitNextFragment( NetChannel *chan );
+bool CL_Netchan_Process( NetChannel *chan, msg_t *msg );
 

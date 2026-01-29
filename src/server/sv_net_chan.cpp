@@ -31,7 +31,7 @@ If you have questions concerning this license or the applicable additional terms
 #include "../qcommon/qcommon.h"
 #include "server.h"
 
-void SV_Netchan_TransmitNextFragment( netchan_t *chan ) {
+void SV_Netchan_TransmitNextFragment( NetChannel *chan ) {
 	Netchan_TransmitNextFragment( chan );
 }
 

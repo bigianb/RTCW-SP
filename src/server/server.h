@@ -158,7 +158,7 @@ struct Client
 
 	int rate;                           // bytes / second
 	int snapshotMsec;                   // requests a snapshot every snapshotMsec unless rate choked
-	netchan_t netchan;
+	NetChannel netchan;
 };
 
 //=============================================================================
@@ -250,7 +250,7 @@ void SV_FreeReliableCommandsForClient( Client *cl );
 //
 // sv_client.c
 //
-void SV_DirectConnect( netadr_t from );
+void SV_DirectConnect( NetAddress from );
 
 
 
@@ -374,6 +374,6 @@ void SV_ClipToEntity( trace_t *trace, const vec3_t start, const vec3_t mins, con
 // sv_net_chan.c
 //
 void SV_Netchan_Transmit( Client *client, msg_t *msg );    //int length, const uint8_t *data );
-void SV_Netchan_TransmitNextFragment( netchan_t *chan );
+void SV_Netchan_TransmitNextFragment( NetChannel *chan );
 bool SV_Netchan_Process( Client *client, msg_t *msg );
 

@@ -39,7 +39,7 @@ SV_DirectConnect
 A "connect" OOB command has been received
 ==================
 */
-void SV_DirectConnect( netadr_t from ) {
+void SV_DirectConnect( NetAddress from ) {
 	char userinfo[MAX_INFO_STRING];
 	int i;
 	Client    *cl, *newcl;

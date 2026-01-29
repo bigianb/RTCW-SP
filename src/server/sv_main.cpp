@@ -151,7 +151,7 @@ and all connected players.  Used for getting detailed information after
 the simple info query.
 ================
 */
-void SVC_Status( netadr_t from ) {
+void SVC_Status( NetAddress from ) {
 	
 	return;
 }
@@ -164,7 +164,7 @@ Responds with a short info message that should be enough to determine
 if a user is interested in a server to do a full status
 ================
 */
-void SVC_Info( netadr_t from ) {
+void SVC_Info( NetAddress from ) {
 	
 	return;
 }
@@ -179,7 +179,7 @@ Clients that are in the game can still send
 connectionless packets.
 =================
 */
-void SV_ConnectionlessPacket( netadr_t from, msg_t *msg )
+void SV_ConnectionlessPacket( NetAddress from, msg_t *msg )
 {
 	MSG_BeginReadingOOB( msg );
 	MSG_ReadLong( msg );        // skip the -1 marker
@@ -211,7 +211,7 @@ void SV_ConnectionlessPacket( netadr_t from, msg_t *msg )
 SV_ReadPackets
 =================
 */
-void SV_PacketEvent( netadr_t from, msg_t *msg )
+void SV_PacketEvent( NetAddress from, msg_t *msg )
 {
 	// check for connectionless packet (0xffffffff) first
 	if ( msg->cursize >= 4 && *(int *)msg->data == -1 ) {

@@ -90,7 +90,7 @@ Netchan_Setup
 called to open a channel to a remote system
 ==============
 */
-void Netchan_Setup( netsrc_t sock, netchan_t *chan, netadr_t adr, int qport ) {
+void Netchan_Setup( NetSourceType sock, NetChannel *chan, NetAddress adr, int qport ) {
 	memset( chan, 0, sizeof( *chan ) );
 
 	chan->sock = sock;
@@ -107,7 +107,7 @@ Netchan_TransmitNextFragment
 Send one fragment of the current message
 =================
 */
-void Netchan_TransmitNextFragment( netchan_t *chan ) {
+void Netchan_TransmitNextFragment( NetChannel *chan ) {
 	msg_t send;
 	uint8_t send_buf[MAX_PACKETLEN];
 	int fragmentLength;
@@ -164,7 +164,7 @@ Sends a message to a connection, fragmenting if necessary
 A 0 length will still generate a packet.
 ================
 */
-void Netchan_Transmit( netchan_t *chan, int length, const uint8_t *data ) {
+void Netchan_Transmit( NetChannel *chan, int length, const uint8_t *data ) {
 	msg_t send;
 	uint8_t send_buf[MAX_PACKETLEN];
 
@@ -224,7 +224,7 @@ final fragment of a multi-part message, the entire thing will be
 copied out.
 =================
 */
-bool Netchan_Process( netchan_t *chan, msg_t *msg ) {
+bool Netchan_Process( NetChannel *chan, msg_t *msg ) {
 	int sequence;
 	int qport;
 	int fragmentStart, fragmentLength;
@@ -380,24 +380,24 @@ NET_CompareBaseAdr
 Compares without the port
 ===================
 */
-bool    NET_CompareBaseAdr( netadr_t a, netadr_t b )
+bool    NET_CompareBaseAdr( NetAddress a, NetAddress b )
 {
 	return a.type == b.type;
 }
 
-const char  *NET_AdrToString( netadr_t a )
+const char  *NET_AdrToString( NetAddress a )
 {
 	return "loopback";
 }
 
 
-bool NET_CompareAdr( netadr_t a, netadr_t b )
+bool NET_CompareAdr( NetAddress a, NetAddress b )
 {
 	return a.type == b.type;
 }
 
 
-bool    NET_IsLocalAddress( netadr_t adr ) {
+bool    NET_IsLocalAddress( NetAddress adr ) {
 	return true;
 }
 
@@ -428,7 +428,7 @@ typedef struct {
 loopback_t loopbacks[2];
 
 // Called from the common event loop
-bool    NET_GetLoopPacket( netsrc_t sock, netadr_t *net_from, msg_t *net_message )
+bool    NET_GetLoopPacket( NetSourceType sock, NetAddress *net_from, msg_t *net_message )
 {
 	loopback_t* loop = &loopbacks[sock];
 
@@ -452,7 +452,7 @@ bool    NET_GetLoopPacket( netsrc_t sock, netadr_t *net_from, msg_t *net_message
 }
 
 static
-void NET_SendLoopPacket( netsrc_t sock, size_t length, const void *data, netadr_t to )
+void NET_SendLoopPacket( NetSourceType sock, size_t length, const void *data, NetAddress to )
 {
 	loopback_t* loop = &loopbacks[sock ^ 1];
 
@@ -463,7 +463,7 @@ void NET_SendLoopPacket( netsrc_t sock, size_t length, const void *data, netadr_
 	loop->msgs[i].datalen = length;
 }
 
-void NET_SendPacket( netsrc_t sock, size_t length, const void *data, netadr_t to )
+void NET_SendPacket( NetSourceType sock, size_t length, const void *data, NetAddress to )
 {
 	NET_SendLoopPacket( sock, length, data, to );
 }
@@ -475,7 +475,7 @@ NET_OutOfBandPrint
 Sends a text message in an out-of-band datagram
 ================
 */
-void  NET_OutOfBandPrint( netsrc_t sock, netadr_t adr, const char *format, ... )
+void  NET_OutOfBandPrint( NetSourceType sock, NetAddress adr, const char *format, ... )
 {
 	va_list argptr;
 	char string[MAX_MSGLEN];
@@ -503,7 +503,7 @@ NET_StringToAdr
 Traps "localhost" for loopback, passes everything else to system
 =============
 */
-bool NET_StringToAdr( const char *s, netadr_t *a )
+bool NET_StringToAdr( const char *s, NetAddress *a )
 {
 	memset( a, 0, sizeof( *a ) );
 	a->type = NA_LOOPBACK;

@@ -631,9 +631,6 @@ void SV_SpawnServer( char *server, bool killBots )
 		}
 	}
 
-	// clear pak references
-	FS_ClearPakReferences( 0 );
-
 	// allocate the snapshot entities on the hunk
 	svs.snapshotEntities = (EntityState *)Hunk_Alloc( sizeof( EntityState ) * svs.numSnapshotEntities, h_high );
 	svs.nextSnapshotEntities = 0;

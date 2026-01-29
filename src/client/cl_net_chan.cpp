@@ -32,16 +32,16 @@ If you have questions concerning this license or the applicable additional terms
 #include "client.h"
 
 
-void CL_Netchan_TransmitNextFragment( netchan_t *chan ) {
+void CL_Netchan_TransmitNextFragment( NetChannel *chan ) {
 	Netchan_TransmitNextFragment( chan );
 }
 
-void CL_Netchan_Transmit( netchan_t *chan, msg_t* msg ) {
+void CL_Netchan_Transmit( NetChannel *chan, msg_t* msg ) {
 	MSG_WriteByte( msg, clc_EOF );
 	Netchan_Transmit( chan, msg->cursize, msg->data );
 }
 
-bool CL_Netchan_Process( netchan_t *chan, msg_t *msg )
+bool CL_Netchan_Process( NetChannel *chan, msg_t *msg )
 {
 	return Netchan_Process( chan, msg );
 }

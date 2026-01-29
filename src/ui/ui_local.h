@@ -626,7 +626,7 @@ typedef struct serverStatus_s {
 	int motdOffset;
 	int motdTime;
 	char motd[MAX_STRING_CHARS];
-} serverStatus_t;
+} ServerStatus;
 
 
 typedef struct savegameStatus_s {
@@ -711,7 +711,7 @@ typedef struct {
 	savegameStatus_t savegameStatus;
 //----(SA)	end
 
-	serverStatus_t serverStatus;
+	ServerStatus serverStatus;
 
 	// for the showing the status of a server
 	char serverStatusAddress[MAX_ADDRESSLENGTH];

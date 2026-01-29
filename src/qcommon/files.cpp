@@ -148,7 +148,6 @@ typedef struct {
 	unzFile handle;                             // handle to zip file
 	int checksum;                               // regular checksum
 	int numfiles;                               // number of files in pk3
-	int referenced;                             // referenced file flags
 	int hashSize;                               // hash table size (power of 2)
 	fileInPack_t*   *hashTable;                 // hash table
 	fileInPack_t*   buildBuffer;                // buffer with the filenames etc.
@@ -985,40 +984,6 @@ size_t FS_FOpenFileRead( const char *filename, fileHandle_t *file, bool uniqueFI
 				if ( !FS_FilenameCompare( pakFile->name, filename ) ) {
 					// found it!
 
-					// mark the pak as having been referenced and mark specifics on cgame and ui
-					// shaders, txt, arena files  by themselves do not count as a reference as
-					// these are loaded from all pk3s
-					// from every pk3 file..
-					l = strlen( filename );
-					if ( !( pak->referenced & FS_GENERAL_REF ) ) {
-						if ( Q_stricmp( filename + l - 7, ".shader" ) != 0 &&
-							 Q_stricmp( filename + l - 4, ".txt" ) != 0 &&
-							 Q_stricmp( filename + l - 4, ".cfg" ) != 0 &&
-							 Q_stricmp( filename + l - 7, ".config" ) != 0 &&
-							 strstr( filename, "levelshots" ) == nullptr &&
-							 Q_stricmp( filename + l - 4, ".bot" ) != 0 &&
-							 Q_stricmp( filename + l - 6, ".arena" ) != 0 &&
-							 Q_stricmp( filename + l - 5, ".menu" ) != 0 ) {
-							pak->referenced |= FS_GENERAL_REF;
-						}
-					}
-
-					// qagame.qvm	- 13
-					// dTZT`X!di`
-					if ( !( pak->referenced & FS_QAGAME_REF ) && FS_ShiftedStrStr( filename, "dTZT`X!di`", 13 ) ) {
-						pak->referenced |= FS_QAGAME_REF;
-					}
-					// cgame.qvm	- 7
-					// \`Zf^'jof
-					if ( !( pak->referenced & FS_CGAME_REF ) && FS_ShiftedStrStr( filename, "\\`Zf^'jof", 7 ) ) {
-						pak->referenced |= FS_CGAME_REF;
-					}
-					// ui.qvm		- 5
-					// pd)lqh
-					if ( !( pak->referenced & FS_UI_REF ) && FS_ShiftedStrStr( filename, "pd)lqh", 5 ) ) {
-						pak->referenced |= FS_UI_REF;
-					}
-
 					if ( uniqueFILE ) {
 						// open a new file on the pakfile
 						fsh[*file].handleFiles.file.z = unzReOpen( pak->pakFilename, pak->handle );
@@ -1462,11 +1427,7 @@ size_t FS_ReadFile( const char *qpath, void **buffer ) {
 	return len;
 }
 
-/*
-=============
-FS_FreeFile
-=============
-*/
+
 void FS_FreeFile( const void *buffer ) {
 	if ( !fs_searchpaths ) {
 		Com_Error( ERR_FATAL, "Filesystem call made without initialization\n" );
@@ -1635,13 +1596,12 @@ DIRECTORY SCANNING FUNCTIONS
 
 #define MAX_FOUND_FILES 0x1000
 
-static int FS_ReturnPath( const char *zname, char *zpath, int *depth ) {
-	int len, at, newdep;
-
-	newdep = 0;
+static int FS_ReturnPath( const char *zname, char *zpath, int *depth )
+{
+	int newdep = 0;
 	zpath[0] = 0;
-	len = 0;
-	at = 0;
+	int len = 0;
+	int at = 0;
 
 	while ( zname[at] != 0 )
 	{
@@ -1663,13 +1623,12 @@ static int FS_ReturnPath( const char *zname, char *zpath, int *depth ) {
 FS_AddFileToList
 ==================
 */
-static int FS_AddFileToList( char *name, char *list[MAX_FOUND_FILES], int nfiles ) {
-	int i;
-
+static int FS_AddFileToList( char *name, char *list[MAX_FOUND_FILES], int nfiles )
+{
 	if ( nfiles == MAX_FOUND_FILES - 1 ) {
 		return nfiles;
 	}
-	for ( i = 0 ; i < nfiles ; i++ ) {
+	for (int i = 0 ; i < nfiles ; i++ ) {
 		if ( !Q_stricmp( name, list[i] ) ) {
 			return nfiles;      // allready in list
 		}
@@ -1797,23 +1756,12 @@ char **FS_ListFilteredFiles( const char *path, const char *extension, const char
 	return listCopy;
 }
 
-/*
-=================
-FS_ListFiles
-=================
-*/
 char **FS_ListFiles( const char *path, const char *extension, int *numfiles ) {
 	return FS_ListFilteredFiles( path, extension, nullptr, numfiles );
 }
 
-/*
-=================
-FS_FreeFileList
-=================
-*/
-void FS_FreeFileList( char **list ) {
-	int i;
-
+void FS_FreeFileList( char **list )
+{
 	if ( !fs_searchpaths ) {
 		Com_Error( ERR_FATAL, "Filesystem call made without initialization\n" );
 	}
@@ -1822,7 +1770,7 @@ void FS_FreeFileList( char **list ) {
 		return;
 	}
 
-	for ( i = 0 ; list[i] ; i++ ) {
+	for (int i = 0 ; list[i] ; i++ ) {
 		free( list[i] );
 	}
 
@@ -2044,52 +1992,35 @@ int FS_GetModList( char *listbuf, int bufsize ) {
 }
 
 
-
-
-//============================================================================
-
-/*
-================
-FS_Dir_f
-================
-*/
-void FS_Dir_f( void ) {
-	const char    *path;
-	const char    *extension;
-	char    **dirnames;
-	int ndirs;
-	int i;
-
+void FS_Dir_f()
+{
 	if ( Cmd_Argc() < 2 || Cmd_Argc() > 3 ) {
 		Com_Printf( "usage: dir <directory> [extension]\n" );
 		return;
 	}
 
+	const char   *path = Cmd_Argv( 1 );
+	const char    *extension;
 	if ( Cmd_Argc() == 2 ) {
-		path = Cmd_Argv( 1 );
 		extension = "";
 	} else {
-		path = Cmd_Argv( 1 );
 		extension = Cmd_Argv( 2 );
 	}
 
 	Com_Printf( "Directory of %s %s\n", path, extension );
 	Com_Printf( "---------------\n" );
 
-	dirnames = FS_ListFiles( path, extension, &ndirs );
+	int ndirs;
+	char** dirnames = FS_ListFiles( path, extension, &ndirs );
 
-	for ( i = 0; i < ndirs; i++ ) {
+	for (int i = 0; i < ndirs; i++ ) {
 		Com_Printf( "%s\n", dirnames[i] );
 	}
 	FS_FreeFileList( dirnames );
 }
 
-/*
-===========
-FS_ConvertPath
-===========
-*/
-void FS_ConvertPath( char *s ) {
+void FS_ConvertPath( char *s )
+{
 	while ( *s ) {
 		if ( *s == '\\' || *s == ':' ) {
 			*s = '/';
@@ -2198,18 +2129,10 @@ void FS_NewDir_f( void ) {
 	FS_FreeFileList( dirnames );
 }
 
-/*
-============
-FS_Path_f
-
-============
-*/
-void FS_Path_f( void ) {
-	searchpath_t    *s;
-	int i;
-
+void FS_Path_f()
+{
 	Com_Printf( "Current search path:\n" );
-	for ( s = fs_searchpaths; s; s = s->next ) {
+	for (searchpath_t* s = fs_searchpaths; s; s = s->next ) {
 		if ( s->pack ) {
 			Com_Printf( "%s (%i files)\n", s->pack->pakFilename, s->pack->numfiles );
 		} else {
@@ -2217,9 +2140,8 @@ void FS_Path_f( void ) {
 		}
 	}
 
-
 	Com_Printf( "\n" );
-	for ( i = 1 ; i < MAX_FILE_HANDLES ; i++ ) {
+	for (int i = 1 ; i < MAX_FILE_HANDLES ; i++ ) {
 		if ( fsh[i].handleFiles.file.o ) {
 			Com_Printf( "handle %i: %s\n", i, fsh[i].name );
 		}
@@ -2367,11 +2289,6 @@ void FS_Shutdown( bool closemfp ) {
 	Cmd_RemoveCommand( "touchFile" );
 }
 
-/*
-================
-FS_Startup
-================
-*/
 static void FS_Startup( const char *gameName ) {
 	const char *homePath;
 	cvar_t  *fs;
@@ -2435,25 +2352,6 @@ static void FS_Startup( const char *gameName ) {
 }
 
 /*
-=====================
-FS_ClearPakReferences
-=====================
-*/
-void FS_ClearPakReferences( int flags ) {
-	searchpath_t *search;
-
-	if ( !flags ) {
-		flags = -1;
-	}
-	for ( search = fs_searchpaths; search; search = search->next ) {
-		// is the element a pak file and has it been referenced?
-		if ( search->pack ) {
-			search->pack->referenced &= ~flags;
-		}
-	}
-}
-
-/*
 ================
 FS_InitFilesystem
 
@@ -2497,9 +2395,6 @@ void FS_Restart( int checksumFeed ) {
 
 	// set the checksum feed
 	fs_checksumFeed = checksumFeed;
-
-	// clear pak references
-	FS_ClearPakReferences( 0 );
 
 	// try to start up normally
 	FS_Startup( BASEGAME );

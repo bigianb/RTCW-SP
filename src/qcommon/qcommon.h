@@ -111,32 +111,20 @@ extern int     LittleLong( int l );
 extern float   BigFloat( float l );
 extern float   LittleFloat( float l );
 
-
-/*
-==============================================================
-
-NET
-
-==============================================================
-*/
-
-
-#define PACKET_BACKUP   32  // number of old messages that must be kept on client and
-							// server for delta comrpession and ping estimation
+// number of old messages that must be kept on client and
+// server for delta comrpession and ping estimation
+#define PACKET_BACKUP   32  
 #define PACKET_MASK     ( PACKET_BACKUP - 1 )
 
-#define MAX_PACKET_USERCMDS     32      // max number of UserCmd in a packet
+// max number of UserCmd in a packet
+#define MAX_PACKET_USERCMDS     32
 
 #define PORT_ANY            -1
 
-// RF, increased this, seems to keep causing problems when set to 64, especially when loading
-// a savegame, which is hard to fix on that side, since we can't really spread out a loadgame
-// among several frames
-//#define	MAX_RELIABLE_COMMANDS	64			// max string commands buffered for restransmit
-//#define	MAX_RELIABLE_COMMANDS	128			// max string commands buffered for restransmit
-#define MAX_RELIABLE_COMMANDS   256 // bigger!
+#define MAX_RELIABLE_COMMANDS   256 
 
-typedef enum {
+enum NetAddressType
+{
 	NA_BOT,
 	NA_BAD,                 // an address lookup failed
 	NA_LOOPBACK,
@@ -144,36 +132,38 @@ typedef enum {
 	NA_IP,
 	NA_IPX,
 	NA_BROADCAST_IPX
-} netadrtype_t;
+};
 
-typedef enum {
+enum NetSourceType
+{
 	NS_CLIENT,
 	NS_SERVER
-} netsrc_t;
+};
 
-typedef struct {
-	netadrtype_t type;
+struct NetAddress
+{
+	NetAddressType type;
 
 	uint8_t ip[4];
 	uint8_t ipx[10];
 
 	unsigned short port;
-} netadr_t;
+};
 
 void        NET_Init( void );
 void        NET_Shutdown( void );
 void        NET_Restart( void );
 void        NET_Config( bool enableNetworking );
 
-void        NET_SendPacket( netsrc_t sock, size_t length, const void *data, netadr_t to );
-void  NET_OutOfBandPrint( netsrc_t net_socket, netadr_t adr, const char *format, ... );
+void        NET_SendPacket( NetSourceType sock, size_t length, const void *data, NetAddress to );
+void  NET_OutOfBandPrint( NetSourceType net_socket, NetAddress adr, const char *format, ... );
 
-bool    NET_CompareAdr( netadr_t a, netadr_t b );
-bool    NET_CompareBaseAdr( netadr_t a, netadr_t b );
-bool    NET_IsLocalAddress( netadr_t adr );
-const char  *NET_AdrToString( netadr_t a );
-bool    NET_StringToAdr( const char *s, netadr_t *a );
-bool    NET_GetLoopPacket( netsrc_t sock, netadr_t *net_from, msg_t *net_message );
+bool    NET_CompareAdr( NetAddress a, NetAddress b );
+bool    NET_CompareBaseAdr( NetAddress a, NetAddress b );
+bool    NET_IsLocalAddress( NetAddress adr );
+const char  *NET_AdrToString( NetAddress a );
+bool    NET_StringToAdr( const char *s, NetAddress *a );
+bool    NET_GetLoopPacket( NetSourceType sock, NetAddress *net_from, msg_t *net_message );
 void        NET_Sleep( int msec );
 
 
@@ -184,12 +174,13 @@ void        NET_Sleep( int msec );
 Netchan handles packet fragmentation and out of order / duplicate suppression
 */
 
-typedef struct {
-	netsrc_t sock;
+struct NetChannel
+{
+	NetSourceType sock;
 
 	int dropped;                    // between last packet and previous
 
-	netadr_t remoteAddress;
+	NetAddress remoteAddress;
 	int qport;                      // qport value to write when transmitting
 
 	// sequencing variables
@@ -207,18 +198,15 @@ typedef struct {
 	int unsentFragmentStart;
 	int unsentLength;
 	uint8_t unsentBuffer[MAX_MSGLEN];
-} netchan_t;
+};
 
 void Netchan_Init( int qport );
-void Netchan_Setup( netsrc_t sock, netchan_t *chan, netadr_t adr, int qport );
+void Netchan_Setup( NetSourceType sock, NetChannel *chan, NetAddress adr, int qport );
 
-void Netchan_Transmit( netchan_t *chan, int length, const uint8_t *data );
-void Netchan_TransmitNextFragment( netchan_t *chan );
+void Netchan_Transmit( NetChannel *chan, int length, const uint8_t *data );
+void Netchan_TransmitNextFragment( NetChannel *chan );
 
-bool Netchan_Process( netchan_t *chan, msg_t *msg );
-
-
-
+bool Netchan_Process( NetChannel *chan, msg_t *msg );
 
 /*
 ==============================================================
@@ -228,26 +216,7 @@ PROTOCOL
 ==============================================================
 */
 
-#define PROTOCOL_VERSION    49  // TA value
-//#define	PROTOCOL_VERSION	43	// (SA) bump this up
-
-
-//----(SA)	heh, whoops.  we've been talking to id servers since we got a connection...
-//#define	UPDATE_SERVER_NAME	"update.quake3arena.com"
-//#define MASTER_SERVER_NAME	"master.quake3arena.com"
-//#define	AUTHORIZE_SERVER_NAME	"authorize.quake3arena.com"
-//----(SA)	yes, these are bogus addresses.  I'm guessing these will be set to a machine at Activision or id eventually
-#define UPDATE_SERVER_NAME      "update.gmistudios.com"
-#define MASTER_SERVER_NAME      "master.gmistudios.com"
-#define AUTHORIZE_SERVER_NAME   "authorize.gmistudios.com"
-
-#define PORT_MASTER         27950
-#define PORT_UPDATE         27951
-#define PORT_AUTHORIZE      27952
-#define PORT_SERVER         27960
-#define NUM_SERVER_PORTS    4       // broadcast scan this many ports after
-									// PORT_SERVER so a single machine can
-									// run multiple servers
+#define PROTOCOL_VERSION    49  
 
 
 // the svc_strings[] array in cl_parse.c should mirror this
@@ -277,32 +246,6 @@ enum clc_ops_e {
 	clc_clientCommand,      // [string] message
 	clc_EOF
 };
-
-/*
-==============================================================
-
-VIRTUAL MACHINE
-
-==============================================================
-*/
-
-typedef struct vm_s vm_t;
-
-typedef enum {
-	TRAP_MEMSET = 100,
-	TRAP_MEMCPY,
-	TRAP_STRNCPY,
-	TRAP_SIN,
-	TRAP_COS,
-	TRAP_ATAN2,
-	TRAP_SQRT,
-	TRAP_MATRIXMULTIPLY,
-	TRAP_ANGLEVECTORS,
-	TRAP_PERPENDICULARVECTOR,
-	TRAP_FLOOR,
-	TRAP_CEIL,
-
-} sharedTraps_t;
 
 /*
 ==============================================================
@@ -485,15 +428,6 @@ issues.
 // GOG installer makes it upper case
 #define BASEGAME "Main"
 
-// referenced flags
-// these are in loop specific order so don't change the order
-#define FS_GENERAL_REF  0x01
-#define FS_UI_REF       0x02
-#define FS_CGAME_REF    0x04
-#define FS_QAGAME_REF   0x08
-// number of id paks that will never be autodownloaded from baseq3
-#define NUM_ID_PAKS     9
-
 #define MAX_FILE_HANDLES    64
 
 bool FS_Initialized();
@@ -578,8 +512,6 @@ size_t     FS_Seek( fileHandle_t f, size_t offset, int origin );
 
 int FS_FilenameCompare( const char *s1, const char *s2 );
 
-void FS_ClearPakReferences( int flags );
-
 void FS_Rename( const char *from, const char *to );
 
 void    FS_CopyFileOS(  char *from, char *to ); //DAJ
@@ -623,7 +555,8 @@ MISC
 
 #define CPUID_AMD_3DNOW         0x30            // AMD K6 3DNOW!
 
-typedef enum {
+enum SysEventType
+{
 	// EVT_NONE must be zero
 	EVT_NONE = 0,		// evTime is still valid
 	SE_KEY,			// evValue is a key code, evValue2 is the down flag
@@ -631,19 +564,20 @@ typedef enum {
 	SE_MOUSE,		// evValue and evValue2 are relative signed x / y moves
 	SE_JOYSTICK_AXIS,	// evValue is an axis number and evValue2 is the current state (-127 to 127)
 	SE_CONSOLE		// evPtr is a char*
-} sysEventType_t;
+};
 
-typedef struct {
+struct SysEvent
+{
 	int				evTime;
-	sysEventType_t	evType;
+	SysEventType	evType;
 	int				evValue, evValue2;
 	int				evPtrLength;	// bytes of data pointed to by evPtr, for journaling
 	void			*evPtr;			// this must be manually freed if not nullptr
-} sysEvent_t;
+};
 
-void		Com_QueueEvent( int time, sysEventType_t type, int value, int value2, int ptrLength, void *ptr );
+void		Com_QueueEvent( int time, SysEventType type, int value, int value2, int ptrLength, void *ptr );
 int			Com_EventLoop( void );
-sysEvent_t	Com_GetSystemEvent( void );
+SysEvent	Com_GetSystemEvent( void );
 
 char        *CopyString( const char *in );
 void        Info_Print( const char *s );
@@ -740,7 +674,7 @@ void CL_MouseEvent( int dx, int dy, int time );
 
 void CL_JoystickEvent( int axis, int value, int time );
 
-void CL_PacketEvent( netadr_t from, msg_t *msg );
+void CL_PacketEvent( NetAddress from, msg_t *msg );
 
 void CL_ConsolePrint( char *text );
 
@@ -786,7 +720,7 @@ void S_ClearSoundBuffer( bool killStreaming );  //----(SA)	modified
 void SV_Init( void );
 void SV_Shutdown( const char *finalmsg );
 void SV_Frame( int msec );
-void SV_PacketEvent( netadr_t from, msg_t *msg );
+void SV_PacketEvent( NetAddress from, msg_t *msg );
 bool SV_GameCommand( void );
 
 
@@ -921,18 +855,12 @@ typedef struct {
 	huff_t decompressor;
 } huffman_t;
 
-void    Huff_Compress( msg_t *buf, int offset );
-void    Huff_Decompress( msg_t *buf, int offset );
 void    Huff_Init( huffman_t *huff );
 void    Huff_addRef( huff_t* huff, uint8_t ch );
-int     Huff_Receive( node_t *node, int *ch, uint8_t *fin );
-void    Huff_transmit( huff_t *huff, int ch, uint8_t *fout, int maxoffset );
 void    Huff_offsetReceive( node_t *node, int *ch, uint8_t *fin, int *offset, int maxoffset );
 void    Huff_offsetTransmit( huff_t *huff, int ch, uint8_t *fout, int *offset, int maxoffset );
 void    Huff_putBit( int bit, uint8_t *fout, int *offset );
 int     Huff_getBit( uint8_t *fout, int *offset );
-
-extern huffman_t clientHuffTables;
 
 #define SV_ENCODE_START     4
 #define SV_DECODE_START     12

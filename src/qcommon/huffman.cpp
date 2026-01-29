@@ -46,14 +46,6 @@ void Huff_putBit( int bit, uint8_t *fout, int *offset ) {
     *offset = bloc;
 }
 
-int Huff_getBloc( void ) {
-    return bloc;
-}
-
-void Huff_setBloc( int _bloc ) {
-    bloc = _bloc;
-}
-
 int Huff_getBit( uint8_t *fin, int *offset ) {
     int t;
     bloc = *offset;
@@ -268,21 +260,6 @@ void Huff_addRef( huff_t* huff, uint8_t ch ) {
 }
 
 /* Get a symbol */
-int Huff_Receive( node_t *node, int *ch, uint8_t *fin ) {
-    while ( node && node->symbol == INTERNAL_NODE ) {
-        if ( get_bit( fin ) ) {
-            node = node->right;
-        } else {
-            node = node->left;
-        }
-    }
-    if ( !node ) {
-        return 0;
-    }
-    return ( *ch = node->symbol );
-}
-
-/* Get a symbol */
 void Huff_offsetReceive( node_t *node, int *ch, uint8_t *fin, int *offset, int maxoffset ) {
     bloc = *offset;
     while ( node && node->symbol == INTERNAL_NODE ) {
@@ -323,117 +300,13 @@ static void send( node_t *node, node_t *child, uint8_t *fout, int maxoffset ) {
     }
 }
 
-/* Send a symbol */
-void Huff_transmit( huff_t *huff, int ch, uint8_t *fout, int maxoffset ) {
-    int i;
-    if ( huff->loc[ch] == nullptr ) {
-        /* node_t hasn't been transmitted, send a NYT, then the symbol */
-        Huff_transmit( huff, NYT, fout, maxoffset );
-        for ( i = 7; i >= 0; i-- ) {
-            add_bit( (char)( ( ch >> i ) & 0x1 ), fout );
-        }
-    } else {
-        send( huff->loc[ch], nullptr, fout, maxoffset );
-    }
-}
-
 void Huff_offsetTransmit( huff_t *huff, int ch, uint8_t *fout, int *offset, int maxoffset ) {
     bloc = *offset;
     send( huff->loc[ch], nullptr, fout, maxoffset );
     *offset = bloc;
 }
 
-void Huff_Decompress( msg_t *mbuf, int offset ) {
-    int ch, cch, i, j, size;
-    uint8_t seq[65536];
-    uint8_t*       buffer;
-    huff_t huff;
-
-    size = mbuf->cursize - offset;
-    buffer = mbuf->data + offset;
-
-    if ( size <= 0 ) {
-        return;
-    }
-
-    Com_Memset( &huff, 0, sizeof( huff_t ) );
-    // Initialize the tree & list with the NYT node
-    huff.tree = huff.lhead = huff.ltail = huff.loc[NYT] = &( huff.nodeList[huff.blocNode++] );
-    huff.tree->symbol = NYT;
-    huff.tree->weight = 0;
-    huff.lhead->next = huff.lhead->prev = nullptr;
-    huff.tree->parent = huff.tree->left = huff.tree->right = nullptr;
-
-    cch = buffer[0] * 256 + buffer[1];
-    // don't overflow with bad messages
-    if ( cch > mbuf->maxsize - offset ) {
-        cch = mbuf->maxsize - offset;
-    }
-    bloc = 16;
-
-    for ( j = 0; j < cch; j++ ) {
-        ch = 0;
-        // don't overflow reading from the messages
-        // FIXME: would it be better to have an overflow check in get_bit ?
-        if ( ( bloc >> 3 ) > size ) {
-            seq[j] = 0;
-            break;
-        }
-        Huff_Receive( huff.tree, &ch, buffer );                /* Get a character */
-        if ( ch == NYT ) {                        /* We got a NYT, get the symbol associated with it */
-            ch = 0;
-            for ( i = 0; i < 8; i++ ) {
-                ch = ( ch << 1 ) + get_bit( buffer );
-            }
-        }
-
-        seq[j] = ch;                            /* Write symbol */
-
-        Huff_addRef( &huff, (uint8_t)ch );                    /* Increment node */
-    }
-    mbuf->cursize = cch + offset;
-    Com_Memcpy( mbuf->data + offset, seq, cch );
-}
-
 extern int oldsize;
-
-void Huff_Compress( msg_t *mbuf, int offset ) {
-    int i, ch, size;
-    uint8_t seq[65536];
-    uint8_t*       buffer;
-    huff_t huff;
-
-    size = mbuf->cursize - offset;
-    buffer = mbuf->data + offset;
-
-    if ( size <= 0 ) {
-        return;
-    }
-
-    Com_Memset( &huff, 0, sizeof( huff_t ) );
-    // Add the NYT (not yet transmitted) node into the tree/list */
-    huff.tree = huff.lhead = huff.loc[NYT] =  &( huff.nodeList[huff.blocNode++] );
-    huff.tree->symbol = NYT;
-    huff.tree->weight = 0;
-    huff.lhead->next = huff.lhead->prev = nullptr;
-    huff.tree->parent = huff.tree->left = huff.tree->right = nullptr;
-
-    seq[0] = ( size >> 8 );
-    seq[1] = size & 0xff;
-
-    bloc = 16;
-
-    for ( i = 0; i < size; i++ ) {
-        ch = buffer[i];
-        Huff_transmit( &huff, ch, seq, size << 3 );            /* Transmit symbol */
-        Huff_addRef( &huff, (uint8_t)ch );                    /* Do update */
-    }
-
-    bloc += 8;                                // next uint8_t
-
-    mbuf->cursize = ( bloc >> 3 ) + offset;
-    Com_Memcpy( mbuf->data + offset, seq, ( bloc >> 3 ) );
-}
 
 void Huff_Init( huffman_t *huff ) {
 

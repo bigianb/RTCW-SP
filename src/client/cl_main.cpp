@@ -100,17 +100,17 @@ refexport_t re;
 
 ping_t cl_pinglist[MAX_PINGREQUESTS];
 
-typedef struct serverStatus_s
+struct ServerStatus
 {
 	char string[BIG_INFO_STRING];
-	netadr_t address;
+	NetAddress address;
 	int time, startTime;
 	bool pending;
 	bool print;
 	bool retrieved;
-} serverStatus_t;
+};
 
-serverStatus_t cl_serverStatusList[MAX_SERVERSTATUSREQUESTS];
+ServerStatus cl_serverStatusList[MAX_SERVERSTATUSREQUESTS];
 int serverStatusCount;
 
 extern void SV_BotFrame( int time );
@@ -386,8 +386,6 @@ void CL_Vid_Restart_f()
 	CL_ShutdownCGame();
 	CL_ShutdownRef();
 
-	// clear pak references
-	FS_ClearPakReferences( FS_UI_REF | FS_CGAME_REF );
 	// reinitialize the filesystem if the game directory or checksum has changed
 	FS_ConditionalRestart( clc.checksumFeed );
 
@@ -528,7 +526,7 @@ to the server, the server will send out of band disconnect packets
 to the client so it doesn't have to wait for the full timeout period.
 ===================
 */
-void CL_DisconnectPacket( netadr_t from )
+void CL_DisconnectPacket( NetAddress from )
 {
 	if ( cls.state < CA_AUTHORIZING ) {
 		return;
@@ -570,7 +568,7 @@ void CL_InitServerInfo( serverInfo_t *server, serverAddress_t *address ) {
 
 #define MAX_SERVERSPERPACKET    256
 
-void CL_ServersResponsePacket( netadr_t from, msg_t *msg )
+void CL_ServersResponsePacket( NetAddress from, msg_t *msg )
 {
 	serverAddress_t addresses[MAX_SERVERSPERPACKET];
 
@@ -689,7 +687,7 @@ CL_ConnectionlessPacket
 Responses to broadcasts, etc
 =================
 */
-void CL_ConnectionlessPacket( netadr_t from, msg_t *msg )
+void CL_ConnectionlessPacket( NetAddress from, msg_t *msg )
 {
 	MSG_BeginReadingOOB( msg );
 	MSG_ReadLong( msg );    // skip the -1
@@ -782,7 +780,7 @@ CL_PacketEvent
 A packet has arrived from the main event loop
 =================
 */
-void CL_PacketEvent( netadr_t from, msg_t *msg )
+void CL_PacketEvent( NetAddress from, msg_t *msg )
 {
 	clc.lastPacketTime = cls.realtime;
 
