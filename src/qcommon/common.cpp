@@ -1100,32 +1100,18 @@ int Com_ModifyMsec( int msec )
 
 
 void Com_Frame()
-{
-	int minMsec;
+{	
 	static int lastTime = 0;
-	int key;
 
 	if ( setjmp( abortframe ) ) {
 		return;         // an ERR_DROP was thrown
 	}
 
-	int timeBeforeFirstEvents = 0;
-	int timeBeforeServer = 0;
-	int timeBeforeEvents = 0;
-	int timeBeforeClient = 0;
-	int timeAfter = 0;
-
 	// write config file if anything changed
 	Com_WriteConfiguration();
 
-	//
-	// main event loop
-	//
-	if ( com_speeds->integer ) {
-		timeBeforeFirstEvents = Sys_Milliseconds();
-	}
-
 	// we may want to spin here if things are going too fast
+	int minMsec;
 	if ( com_maxfps->integer > 0) {
 		minMsec = 1000 / com_maxfps->integer;
 	} else {
@@ -1146,56 +1132,16 @@ void Com_Frame()
 	com_frameMsec = msec;
 	msec = Com_ModifyMsec( msec );
 
-	//
-	// server side
-	//
-	if ( com_speeds->integer ) {
-		timeBeforeServer = Sys_Milliseconds();
-	}
-
 	SV_Frame( msec );
-
-	//
-	// client system
-	//
 
 	//
 	// run event loop a second time to get server to client packets
 	// without a frame of latency
-	//
-	if ( com_speeds->integer ) {
-		timeBeforeEvents = Sys_Milliseconds();
-	}
+	
 	Com_EventLoop();
 	Cbuf_Execute();
 
-	//
-	// client side
-	//
-	if ( com_speeds->integer ) {
-		timeBeforeClient = Sys_Milliseconds();
-	}
-
 	CL_Frame( msec );
-
-	if ( com_speeds->integer ) {
-		timeAfter = Sys_Milliseconds();
-	}
-	
-	//
-	// report timing information
-	//
-	if ( com_speeds->integer ) {
-		int all = timeAfter - timeBeforeServer;
-		int sv = timeBeforeEvents - timeBeforeServer;
-		int ev = timeBeforeServer - timeBeforeFirstEvents + timeBeforeClient - timeBeforeEvents;
-		int cl = timeAfter - timeBeforeClient;
-		sv -= time_game;
-		cl -= time_frontend + time_backend;
-
-		Com_Printf( "frame:%i all:%3i sv:%3i ev:%3i cl:%3i gm:%3i rf:%3i bk:%3i\n",
-					com_frameNumber, all, sv, ev, cl, time_game, time_frontend, time_backend );
-	}
 
 	com_frameNumber++;
 }

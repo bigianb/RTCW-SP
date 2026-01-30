@@ -825,24 +825,6 @@ void CL_PacketEvent( NetAddress from, msg_t *msg )
 }
 
 
-void CL_CheckTimeout()
-{
-	//
-	// check timeout
-	//
-	if ( ( !cl_paused->integer || !sv_paused->integer )
-		 && cls.state >= CA_CONNECTED && cls.state != CA_CINEMATIC
-		 && cls.realtime - clc.lastPacketTime > cl_timeout->value * 1000 ) {
-		if ( ++cl.timeoutcount > 5 ) {    // timeoutcount saves debugger
-			Com_Printf( "\nServer connection timed out.\n" );
-			CL_Disconnect( true );
-			return;
-		}
-	} else {
-		cl.timeoutcount = 0;
-	}
-}
-
 void CL_CheckUserinfo()
 {
 	// don't add reliable commands when not yet connected
@@ -887,10 +869,6 @@ void CL_Frame( int msec )
 	// see if we need to update any userinfo
 	CL_CheckUserinfo();
 
-	// if we haven't gotten a packet in a long time,
-	// drop the connection
-	CL_CheckTimeout();
-
 	// send intentions now
 	CL_SendCmd();
 
@@ -900,7 +878,7 @@ void CL_Frame( int msec )
 	// decide on the serverTime to render
 	CL_SetCGameTime();
 
-	// update the screen
+	// update the screen - this draws the menu
 	SCR_UpdateScreen();
 
 	// update audio
@@ -1044,30 +1022,7 @@ static void CL_Cache_EndGather_f( void ) {
 	Cvar_Set( "cl_cacheGathering", "0" );
 }
 
-// done.
-//============================================================================
 
-/*
-================
-CL_MapRestart_f
-================
-*/
-void CL_MapRestart_f()
-{
-	if ( !com_cl_running ) {
-		return;
-	}
-	if ( !com_cl_running->integer ) {
-		return;
-	}
-	Com_Printf( "This command is no longer functional.\nUse \"loadgame current\" to load the current map." );
-}
-
-/*
-================
-CL_SetRecommended_f
-================
-*/
 void CL_SetRecommended_f()
 {
 	if ( Cmd_Argc() > 1 ) {
@@ -1106,13 +1061,6 @@ void  CL_RefPrintf( int print_level, const char *fmt, ... )
 		*/
 }
 
-
-
-/*
-============
-CL_ShutdownRef
-============
-*/
 void CL_ShutdownRef()
 {
 	if ( !re.Shutdown ) {
@@ -1122,11 +1070,6 @@ void CL_ShutdownRef()
 	memset( &re, 0, sizeof( re ) );
 }
 
-/*
-============
-CL_InitRenderer
-============
-*/
 void CL_InitRenderer()
 {
 	// this sets up the renderer and calls R_Init
@@ -1186,11 +1129,7 @@ int CL_ScaledMilliseconds()
 	return Sys_Milliseconds() * com_timescale->value;
 }
 
-/*
-============
-CL_InitRef
-============
-*/
+
 void CL_InitRef()
 {
 	refimport_t ri;
@@ -1243,19 +1182,9 @@ void CL_InitRef()
 	Cvar_Set( "cl_paused", "0" );
 }
 
-// RF, trap manual client damage commands so users can't issue them manually
-void CL_ClientDamageCommand( void ) {
-	// do nothing
-}
-
-
 //===========================================================================================
 
-/*
-====================
-CL_Init
-====================
-*/
+
 void CL_Init()
 {
 	Com_Printf( "----- Client Initialization -----\n" );
@@ -1364,10 +1293,8 @@ void CL_Init()
 	Cvar_Get( "password", "", CVAR_USERINFO );
 	Cvar_Get( "cg_predictItems", "1", CVAR_USERINFO | CVAR_ARCHIVE );
 
-//----(SA) added
 	Cvar_Get( "cg_autoactivate", "1", CVAR_USERINFO | CVAR_ARCHIVE );
 	Cvar_Get( "cg_emptyswitch", "0", CVAR_USERINFO | CVAR_ARCHIVE );
-//----(SA) end
 
 	// cgame might not be initialized before menu is used
 	Cvar_Get( "cg_viewsize", "100", CVAR_ARCHIVE );
@@ -1400,12 +1327,6 @@ void CL_Init()
 
 	Cmd_AddCommand( "updatescreen", SCR_UpdateScreen );
 	// done.
-
-	// RF, add this command so clients can't bind a key to send client damage commands to the server
-	Cmd_AddCommand( "cld", CL_ClientDamageCommand );
-
-	// RF, prevent users from issuing a map_restart manually
-	Cmd_AddCommand( "map_restart", CL_MapRestart_f );
 
 	Cmd_AddCommand( "setRecommended", CL_SetRecommended_f );
 

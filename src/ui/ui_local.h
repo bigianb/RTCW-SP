@@ -598,7 +598,6 @@ extern uiInfo_t uiInfo;
 extern void         UI_Init( void );
 extern void         UI_Shutdown( void );
 extern void         UI_MouseEvent( int dx, int dy );
-extern void         UI_Refresh( int realtime );
 extern bool     UI_ConsoleCommand( int realTime );
 extern float        UI_ClampCvar( float min, float max, float value );
 extern void         UI_DrawNamedPic( float x, float y, float width, float height, const char *picname );

@@ -353,7 +353,6 @@ main
 */
 int main( int argc, char **argv )
 {
-	int   i;
 	char  commandLine[ MAX_STRING_CHARS ] = { 0 };
 
 	//Sys_PlatformInit( );
@@ -366,7 +365,7 @@ int main( int argc, char **argv )
 	//Sys_SetDefaultInstallPath( DEFAULT_BASEDIR );
 
 	// Concatenate the command line for passing to Com_Init
-	for( i = 1; i < argc; i++ )
+	for(int i = 1; i < argc; i++ )
 	{
 		const bool containsSpaces = strchr(argv[i], ' ') != nullptr;
 		if (containsSpaces){

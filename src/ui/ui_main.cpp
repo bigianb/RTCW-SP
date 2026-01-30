@@ -1864,11 +1864,6 @@ void UI_LoadNonIngame()
 	uiInfo.inGameLoad = false;
 }
 
-/*
-==============
-UI_GetActiveMenu
-==============
-*/
 uiMenuCommand_t UI_GetActiveMenu( void ) {
 	return menutype;
 }
@@ -1881,11 +1876,12 @@ void UI_SetActiveMenu( uiMenuCommand_t menu )
 		vec3_t v;
 		v[0] = v[1] = v[2] = 0;
 
-		if ( menu == UIMENU_BRIEFING && menutype == menu ) { // don't let briefing be set multiple times
+		if ( menu == UIMENU_BRIEFING && menutype == menu ) {
+			// don't let briefing be set multiple times
 			return;
 		}
 
-		menutype = menu;    //----(SA)	added
+		menutype = menu;
 
 		switch ( menu ) {
 		case UIMENU_NONE:
@@ -2183,26 +2179,20 @@ UI_RegisterCvars
 =================
 */
 static
-void UI_RegisterCvars( void ) {
-	int i;
-	cvarTable_t *cv;
-
-	for ( i = 0, cv = cvarTable ; i < cvarTableSize ; i++, cv++ ) {
+void UI_RegisterCvars( void )
+{
+	for (int i = 0; i < cvarTableSize; i++ ) {
+		cvarTable_t *cv = &cvarTable[i];
 		Cvar_Register( cv->vmCvar, cv->cvarName, cv->defaultString, cv->cvarFlags );
 	}
 }
 
-/*
-=================
-UI_UpdateCvars
-=================
-*/
-static
-void UI_UpdateCvars( void ) {
-	int i;
-	cvarTable_t *cv;
 
-	for ( i = 0, cv = cvarTable ; i < cvarTableSize ; i++, cv++ ) {
+static
+void UI_UpdateCvars()
+{
+	for (int i = 0; i < cvarTableSize; i++ ) {
+		cvarTable_t *cv = &cvarTable[i];
 		Cvar_Update( cv->vmCvar );
 	}
 }
@@ -2211,13 +2201,11 @@ int frameCount = 0;
 int startTime;
 
 #define UI_FPS_FRAMES   4
-void UI_Refresh( int realtime ) {
+void UI_Refresh( int realtime )
+{
     static int index;
     static int previousTimes[UI_FPS_FRAMES];
 
-    //if ( !( trap_Key_GetCatcher() & KEYCATCH_UI ) ) {
-    //    return;
-    //}
 
     uiInfo.uiDC.frameTime = realtime - uiInfo.uiDC.realTime;
     uiInfo.uiDC.realTime = realtime;
@@ -2225,10 +2213,9 @@ void UI_Refresh( int realtime ) {
     previousTimes[index % UI_FPS_FRAMES] = uiInfo.uiDC.frameTime;
     index++;
     if ( index > UI_FPS_FRAMES ) {
-        int i, total;
         // average multiple frames together to smooth changes out a bit
-        total = 0;
-        for ( i = 0 ; i < UI_FPS_FRAMES ; i++ ) {
+        int total = 0;
+        for (int i = 0 ; i < UI_FPS_FRAMES ; i++ ) {
             total += previousTimes[i];
         }
         if ( !total ) {
