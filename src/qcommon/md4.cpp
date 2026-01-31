@@ -29,6 +29,7 @@
 
 //#include "q_shared.h"
 #include "qcommon.h"
+#include <cstdint>  // for uint32_t, etc.
 
 struct mdfour {
 	uint32_t A, B, C, D;

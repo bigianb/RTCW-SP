@@ -32,7 +32,7 @@ If you have questions concerning this license or the applicable additional terms
 #include "../scripting/ScriptParser.h"
 
 // g_local.h -- local definitions for game module
-
+#include <cstdint>  // for uint32_t, etc.
 #include "q_shared.h"
 #include "bg_public.h"
 #include "g_public.h"

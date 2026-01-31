@@ -454,7 +454,7 @@ add_library(idlib STATIC ${IDLIB_SOURCES} ${IDLIB_INCLUDES})
 add_library(server STATIC ${SERVER_SOURCES} ${SERVER_INCLUDES})
 
 add_executable(wolf WIN32 MACOSX_BUNDLE ${WOLF_INCLUDES} ${WOLF_SOURCES})
-target_link_libraries(wolf idlib server scriptlib SDL3::SDL3 OpenGL::GL JPEG::JPEG)
+target_link_libraries(wolf server idlib scriptlib SDL3::SDL3 OpenGL::GL JPEG::JPEG)
 
 if(ENABLE_TESTS)
 	enable_testing()

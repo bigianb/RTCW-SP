@@ -126,11 +126,13 @@ static int GLimp_SetMode(int mode, bool fullscreen, bool noborder, bool fixedFun
 	const char *glstring;
 	int perChannelColorBits;
 	int colorBits, depthBits, stencilBits;
-	int samples;
+	int samples = 0;
 	int i = 0;
 	SDL_Surface *icon = nullptr;
 	Uint32 flags = SDL_WINDOW_OPENGL;
 	
+	fullscreen = false;
+
 	int display = 0;
 	int x = SDL_WINDOWPOS_UNDEFINED, y = SDL_WINDOWPOS_UNDEFINED;
 
@@ -209,27 +211,26 @@ static int GLimp_SetMode(int mode, bool fullscreen, bool noborder, bool fixedFun
 		SDL_window = nullptr;
 	}
 
-	if( fullscreen )
-	{
+	if( fullscreen ) {
 		flags |= SDL_WINDOW_FULLSCREEN;
 		glConfig.isFullscreen = true;
-	}
-	else
-	{
-		if( noborder )
+	} else {
+		if( noborder ){
 			flags |= SDL_WINDOW_BORDERLESS;
-
+		}
 		glConfig.isFullscreen = false;
 	}
 
 	colorBits = r_colorbits->value;
-	if ((!colorBits) || (colorBits >= 32))
+	if ((!colorBits) || (colorBits >= 32)) {
 		colorBits = 24;
+	}
 
-	if (!r_depthbits->value)
+	if (!r_depthbits->value) {
 		depthBits = 24;
-	else
+	} else {
 		depthBits = r_depthbits->value;
+	}
 
 	stencilBits = r_stencilbits->value;
 	//samples = r_ext_multisample->value;
@@ -315,9 +316,11 @@ static int GLimp_SetMode(int mode, bool fullscreen, bool noborder, bool fixedFun
 		if( ( SDL_window = SDL_CreateWindow( "Wolf",
 				glConfig.vidWidth, glConfig.vidHeight, flags ) ) == nullptr )
 		{
-			ri.Printf( PRINT_DEVELOPER, "SDL_CreateWindow failed: %s\n", SDL_GetError( ) );
+			ri.Printf( PRINT_DEVELOPER, "SDL_CreateWindow(%d, %d, %d) failed: %s\n", glConfig.vidWidth, glConfig.vidHeight, flags, SDL_GetError( ) );
+			ri.Printf( PRINT_DEVELOPER, "Failed to create window with %d color bits, %d depth, %d stencil display, %d samples.\n", perChannelColorBits, testDepthBits, testStencilBits, samples );
 			continue;
 		}
+		ri.Printf( PRINT_DEVELOPER, "Created window with %d color bits, %d depth, %d stencil display, %d samples.\n", perChannelColorBits, testDepthBits, testStencilBits, samples );
 
 		if( fullscreen )
 		{

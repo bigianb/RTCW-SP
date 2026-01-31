@@ -29,4 +29,9 @@ By defult this will install to `~/.wine/drive_c/GOG Games/Return to Castle Wolfe
 
 You can use shift+command+period to toggle showing hidden files in finder (.wine is a hidden directory)
 
+### Linux build
 
+For Ubuntu 25.10
+```
+sudo apt-get install build-essential g++ cmake git libsdl3-dev catch2 libjpeg-dev
+```

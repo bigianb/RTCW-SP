@@ -39,7 +39,7 @@ If you have questions concerning this license or the applicable additional terms
 
 #pragma once
 
-
+#include <cstdint>  // for uint32_t, etc.
 #include "../game/q_shared.h"
 #include "tr_types.h"
 #include "../game/bg_public.h"

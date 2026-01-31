@@ -32,6 +32,8 @@ If you have questions concerning this license or the applicable additional terms
 #include <cmath>    // for fabsf, etc.
 #include <cfloat>   // for FLT_MAX, etc.
 #include <limits>   // for std::numeric_limits
+#include <cstdint>  // for uint32_t, etc.
+#include <cstring> // for memcpy
 
 #ifdef INFINITUM
 	#undef INFINITUM

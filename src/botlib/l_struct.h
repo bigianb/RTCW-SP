@@ -34,7 +34,7 @@ If you have questions concerning this license or the applicable additional terms
  *
  *
  *****************************************************************************/
-
+#include <cstdint>  // for uint32_t, etc.
 
 #define MAX_STRINGFIELD             80
 //field types

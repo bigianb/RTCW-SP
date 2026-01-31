@@ -1,5 +1,7 @@
 #pragma once
 
+#include <cstdint>  // for uint32_t, etc.
+
 typedef enum {
 	F_NONE,
 	F_STRING,
