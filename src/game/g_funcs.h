@@ -919,7 +919,6 @@ If you have questions concerning this license or the applicable additional terms
 {"SaveRegisteredItems", (uint8_t *)SaveRegisteredItems},
 {"RegisterItem", (uint8_t *)RegisterItem},
 {"ClearRegisteredItems", (uint8_t *)ClearRegisteredItems},
-{"G_CheckTeamItems", (uint8_t *)G_CheckTeamItems},
 {"FinishSpawningItem", (uint8_t *)FinishSpawningItem},
 {"Use_Item", (uint8_t *)Use_Item},
 {"Drop_Item", (uint8_t *)Drop_Item},

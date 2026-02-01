@@ -757,12 +757,6 @@ void G_SpawnGEntityFromSpawnVars()
 	}
 }
 
-
-/*
-====================
-G_AddSpawnVarToken
-====================
-*/
 char *G_AddSpawnVarToken( const char *string )
 {
 	size_t l = strlen( string );
@@ -815,7 +809,6 @@ bool G_ParseSpawnVars()
 	}
 	if ( com_token[0] != '{' ) {
 		Com_Error( ERR_DROP, "G_ParseSpawnVars: found %s when expecting {",com_token );
-        return false; // keep the linter happy, ERR_DROP does not return
 	}
 
 	// go through all the key / value pairs
@@ -823,7 +816,6 @@ bool G_ParseSpawnVars()
 		// parse key
 		if ( !GetEntityToken( keyname, sizeof( keyname ) ) ) {
 			Com_Error( ERR_DROP, "G_ParseSpawnVars: EOF without closing brace" );
-            return false; // keep the linter happy, ERR_DROP does not return
 		}
 
 		if ( keyname[0] == '}' ) {
@@ -833,16 +825,13 @@ bool G_ParseSpawnVars()
 		// parse value
 		if ( !GetEntityToken( com_token, sizeof( com_token ) ) ) {
 			Com_Error( ERR_DROP, "G_ParseSpawnVars: EOF without closing brace" );
-            return false; // keep the linter happy, ERR_DROP does not return
 		}
 
 		if ( com_token[0] == '}' ) {
 			Com_Error( ERR_DROP, "G_ParseSpawnVars: closing brace without data" );
-            return false; // keep the linter happy, ERR_DROP does not return
 		}
 		if ( level.numSpawnVars == MAX_SPAWN_VARS ) {
 			Com_Error( ERR_DROP, "G_ParseSpawnVars: MAX_SPAWN_VARS" );
-            return false; // keep the linter happy, ERR_DROP does not return
 		}
 		level.spawnVars[ level.numSpawnVars ][0] = G_AddSpawnVarToken( keyname );
 		level.spawnVars[ level.numSpawnVars ][1] = G_AddSpawnVarToken( com_token );
@@ -871,7 +860,6 @@ void SP_worldspawn()
 	G_SpawnString( "classname", "", &s );
 	if ( Q_stricmp( s, "worldspawn" ) ) {
 		Com_Error( ERR_DROP, "SP_worldspawn: The first entity isn't 'worldspawn'" );
-        return; // keep the linter happy, ERR_DROP does not return
 	}
 
 	// make some data visible to connecting client
@@ -923,7 +911,6 @@ void G_SpawnEntitiesFromString()
 	// needed by a level (setting configstrings or cvars, etc)
 	if ( !G_ParseSpawnVars() ) {
 		Com_Error( ERR_DROP, "SpawnEntities: no entities" );
-        return; // keep the linter happy, ERR_DROP does not return
 	}
 	SP_worldspawn();
 

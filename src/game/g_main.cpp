@@ -1305,11 +1305,6 @@ FUNCTIONS CALLED EVERY FRAME
 */
 
 
-/*
-=============
-CheckReloadStatus
-=============
-*/
 void CheckReloadStatus( void ) {
 	// if we are waiting for a reload, check the delay time
 	if ( g_reloading.integer ) {

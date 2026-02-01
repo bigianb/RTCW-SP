@@ -108,13 +108,8 @@ typedef struct {
 pushed_t pushed[MAX_GENTITIES], *pushed_p;
 
 
-/*
-============
-G_TestEntityPosition
-
-============
-*/
-GameEntity   *G_TestEntityPosition( GameEntity *ent ) {
+GameEntity   *G_TestEntityPosition( GameEntity *ent )
+{
 	trace_t tr;
 	int mask;
 
@@ -143,12 +138,6 @@ GameEntity   *G_TestEntityPosition( GameEntity *ent ) {
 	return nullptr;
 }
 
-/*
-============
-G_TestEntityDropToFloor
-
-============
-*/
 void G_TestEntityDropToFloor( GameEntity *ent, float maxdrop ) {
 	trace_t tr;
 	int mask;
@@ -178,12 +167,6 @@ void G_TestEntityDropToFloor( GameEntity *ent, float maxdrop ) {
 	}
 }
 
-/*
-============
-G_TestEntityMoveTowardsPos
-
-============
-*/
 void G_TestEntityMoveTowardsPos( GameEntity *ent, vec3_t pos ) {
 	trace_t tr;
 	int mask;
@@ -205,21 +188,11 @@ void G_TestEntityMoveTowardsPos( GameEntity *ent, vec3_t pos ) {
 	}
 }
 
-/*
-================
-G_CreateRotationMatrix
-================
-*/
 void G_CreateRotationMatrix( const vec3_t angles, vec3_t matrix[3] ) {
 	AngleVectors( angles, matrix[0], matrix[1], matrix[2] );
 	VectorInverse( matrix[1] );
 }
 
-/*
-================
-G_TransposeMatrix
-================
-*/
 // TTimo: const vec_t ** would require explicit casts for ANSI C conformance
 // see unix/const-arg.c in Wolf MP source
 void G_TransposeMatrix( /*const*/ vec3_t matrix[3], vec3_t transpose[3] )

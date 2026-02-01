@@ -29,11 +29,7 @@ If you have questions concerning this license or the applicable additional terms
 #include "g_local.h"
 #include "../qcommon/qcommon.h"
 #include "../server/server.h"
-/*
-==================
-CheatsOk
-==================
-*/
+
 bool    CheatsOk( GameEntity *ent ) {
 	if ( !g_cheats.integer ) {
 		SV_GameSendServerCommand( ent - g_entities, va( "print \"Cheats are not enabled on this server.\n\"" ) );
@@ -415,9 +411,6 @@ argv(0) noclip
 void Cmd_Noclip_f( GameEntity *ent ) {
 	const char    *msg;
 
-	if ( !CheatsOk( ent ) ) {
-		return;
-	}
 
 	if ( ent->client->noclip ) {
 		msg = "noclip OFF\n";

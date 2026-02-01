@@ -759,7 +759,6 @@ void Cmd_FollowCycle_f( GameEntity *ent, int dir );
 //
 // g_items.c
 //
-void G_CheckTeamItems( void );
 void G_RunItem( GameEntity *ent );
 void RespawnItem( GameEntity *ent );
 

@@ -176,7 +176,6 @@ struct ServerStatic
 	int numSnapshotEntities;                // sv_maxclients->integer*PACKET_BACKUP*MAX_PACKET_ENTITIES
 	int nextSnapshotEntities;               // next snapshotEntities to use
 	EntityState   *snapshotEntities;      // [numSnapshotEntities]
-	int nextHeartbeatTime;
 };
 
 //=============================================================================
@@ -193,7 +192,6 @@ extern cvar_t  *sv_rconPassword;
 extern cvar_t  *sv_privatePassword;
 
 extern cvar_t  *sv_maxclients;
-extern cvar_t  *sv_privateClients;
 extern cvar_t  *sv_hostname;
 extern cvar_t  *sv_master[MAX_MASTER_SERVERS];
 extern cvar_t  *sv_reconnectlimit;
@@ -237,7 +235,7 @@ void SV_SetUserinfo( int index, const char *val );
 void SV_GetUserinfo( int index, char *buffer, int bufferSize );
 
 void SV_ChangeMaxClients( void );
-void SV_SpawnServer( char *server, bool killBots );
+void SV_SpawnServer(const char *server, bool killBots );
 
 //RF, reliable commands
 const char *SV_GetReliableCommand( Client *cl, int index );
@@ -262,11 +260,6 @@ void SV_DropClient( Client *drop, const char *reason );
 
 void SV_ExecuteClientCommand( Client *cl, const char *s, bool clientOK );
 void SV_ClientThink( Client *cl, UserCmd *cmd );
-
-//
-// sv_ccmds.c
-//
-void SV_Heartbeat_f( void );
 
 //
 // sv_snapshot.c

@@ -572,17 +572,15 @@ clients along with it.
 This is NOT called for map_restart
 ================
 */
-void SV_SpawnServer( char *server, bool killBots )
+void SV_SpawnServer(const char *server, bool killBots )
 {
 	static cvar_t   *bot_enable;
 
-	// Rafael gameskill
 	static cvar_t   *g_gameskill;
 
 	if ( !g_gameskill ) {
-		g_gameskill = Cvar_Get( "g_gameskill", "2", CVAR_SERVERINFO | CVAR_LATCH | CVAR_ARCHIVE );     // (SA) new default '2' (was '1')
+		g_gameskill = Cvar_Get( "g_gameskill", "2", CVAR_SERVERINFO | CVAR_LATCH | CVAR_ARCHIVE );
 	}
-	// done
 
 	if ( !bot_enable ) {
 		bot_enable = Cvar_Get( "bot_enable", "1", CVAR_LATCH );
@@ -599,8 +597,6 @@ void SV_SpawnServer( char *server, bool killBots )
 		Cvar_Set( "bot_enable", "1" );
 	}
 	
-	// done.
-
 	// shut down the existing game if it is running
 	SV_ShutdownGameProgs();
     AICast_Init();
@@ -608,8 +604,7 @@ void SV_SpawnServer( char *server, bool killBots )
 	Com_Printf( "------ Server Initialization ------\n" );
 	Com_Printf( "Server: %s\n",server );
 
-	// if not running a dedicated server CL_MapLoading will connect the client to the server
-	// also print some status stuff
+	// Connect the client to the server and also print some status stuff
 	CL_MapLoading();
 
 	// make sure all the client stuff is unloaded
@@ -755,9 +750,6 @@ void SV_SpawnServer( char *server, bool killBots )
 	// to all clients
 	sv.state = SS_GAME;
 
-	// send a heartbeat now so the master will get up to date info
-	SV_Heartbeat_f();
-
 	Com_Printf( "-----------------------------------\n" );
 }
 
@@ -786,7 +778,6 @@ void SV_Init()
 	Cvar_Get( "sv_keywords", "", CVAR_SERVERINFO );
 	Cvar_Get( "protocol", va( "%i", PROTOCOL_VERSION ), CVAR_SERVERINFO | CVAR_ROM );
 	sv_mapname = Cvar_Get( "mapname", "nomap", CVAR_SERVERINFO | CVAR_ROM );
-	sv_privateClients = Cvar_Get( "sv_privateClients", "0", CVAR_SERVERINFO );
 	sv_hostname = Cvar_Get( "sv_hostname", "noname", CVAR_SERVERINFO | CVAR_ARCHIVE );
 	sv_maxclients = Cvar_Get( "sv_maxclients", "8", CVAR_SERVERINFO | CVAR_LATCH );
 	sv_maxRate = Cvar_Get( "sv_maxRate", "0", CVAR_ARCHIVE | CVAR_SERVERINFO );

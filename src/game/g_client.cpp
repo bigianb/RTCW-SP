@@ -277,18 +277,11 @@ BODYQUE
 =======================================================================
 */
 
-/*
-===============
-InitBodyQue
-===============
-*/
-void InitBodyQue( void ) {
-	int i;
-	GameEntity   *ent;
-
+void InitBodyQue()
+{	
 	level.bodyQueIndex = 0;
-	for ( i = 0; i < BODY_QUEUE_SIZE ; i++ ) {
-		ent = G_Spawn();
+	for (int i = 0; i < BODY_QUEUE_SIZE ; i++ ) {
+		GameEntity* ent = G_Spawn();
 		ent->classname = "bodyque";
 		ent->neverFree = true;
 		level.bodyQue[i] = ent;
@@ -302,7 +295,8 @@ BodySink
 After sitting around for five seconds, fall into the ground and dissapear
 =============
 */
-void BodySink( GameEntity *ent ) {
+void BodySink( GameEntity *ent )
+{
 	if ( level.time - ent->timestamp > 6500 ) {
 		// the body ques are never actually freed, they are just unlinked
 		SV_UnlinkEntity( &ent->shared );
@@ -396,35 +390,19 @@ void CopyToBodyQue( GameEntity *ent ) {
 
 //======================================================================
 
-
-/*
-==================
-SetClientViewAngle
-
-==================
-*/
-void SetClientViewAngle( GameEntity *ent, vec3_t angle ) {
-	int i;
-
+void SetClientViewAngle( GameEntity *ent, vec3_t angle )
+{
 	// set the delta angle
-	for ( i = 0 ; i < 3 ; i++ ) {
-		int cmdAngle;
-
-		cmdAngle = ANGLE2SHORT( angle[i] );
+	for (int i = 0 ; i < 3 ; i++ ) {
+		int cmdAngle = ANGLE2SHORT( angle[i] );
 		ent->client->ps.delta_angles[i] = cmdAngle - ent->client->pers.cmd.angles[i];
 	}
 	VectorCopy( angle, ent->shared.s.angles );
 	VectorCopy( ent->shared.s.angles, ent->client->ps.viewangles );
 }
 
-/*
-================
-respawn
-================
-*/
-void respawn( GameEntity *ent ) {
-	GameEntity   *tent;
-
+void respawn( GameEntity *ent )
+{
     if ( g_reloading.integer || saveGamePending ) {
         return;
     }
@@ -448,16 +426,11 @@ void respawn( GameEntity *ent ) {
 	ClientSpawn( ent );
 
 	// add a teleportation effect
-	tent = G_TempEntity( ent->client->ps.origin, EV_PLAYER_TELEPORT_IN );
+	GameEntity* tent = G_TempEntity( ent->client->ps.origin, EV_PLAYER_TELEPORT_IN );
 	tent->shared.s.clientNum = ent->shared.s.clientNum;
 }
 
 
-/*
-===========
-ClientCheckName
-============
-*/
 static void ClientCleanName( const char *in, char *out, int outSize ) {
 	int len, colorlessLen;
 	char ch;

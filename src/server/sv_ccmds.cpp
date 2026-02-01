@@ -38,13 +38,8 @@ SV_Map_f
 Restart the server on a different map
 ==================
 */
-static void SV_Map_f( void ) {
-	const char        *cmd;
-
-	char smapname[MAX_QPATH];
-	char mapname[MAX_QPATH];
-
-	char expanded[MAX_QPATH];
+static void SV_Map_f()
+{
 	int savegameTime = -1;
 
 	const char* map = Cmd_Argv( 1 );
@@ -52,13 +47,13 @@ static void SV_Map_f( void ) {
 		return;
 	}
 
-
-
 	if ( sv_reloading->integer && sv_reloading->integer != RELOAD_NEXTMAP ) { 
 		// game is in 'reload' mode, don't allow starting new maps yet.
 		return;
 	}
 
+	// temp buffer used for savegame mapname
+	char smapname[MAX_QPATH];
 	// Ridah: trap a savegame load
 	if ( strstr( map, ".svg" ) ) {
 		// open the savegame, read the mapname, and copy it to the map string
@@ -118,6 +113,7 @@ static void SV_Map_f( void ) {
 
 	// make sure the level exists before trying to change, so that
 	// a typo at the server console won't end the game
+	char expanded[MAX_QPATH];
 	snprintf( expanded, sizeof( expanded ), "maps/%s.bsp", map );
 	if ( FS_ReadFile( expanded, nullptr ) == -1 ) {
 		Com_Printf( "Can't find map %s\n", expanded );
@@ -128,26 +124,20 @@ static void SV_Map_f( void ) {
 	Cvar_Set( "r_waterFogColor", "0" );
 	Cvar_Set( "r_savegameFogColor", "0" );
 
-	// Rafael gameskill
 	Cvar_Get( "g_gameskill", "1", CVAR_SERVERINFO | CVAR_LATCH );
-	// done
 
 	Cvar_SetValue( "g_episode", 0 );
 
-	cmd = Cmd_Argv( 0 );
-	//Cvar_SetValue( "g_gametype", GT_SINGLE_PLAYER );
+	const char* cmd = Cmd_Argv( 0 );
 	Cvar_SetValue( "g_doWarmup", 0 );
 	// may not set sv_maxclients directly, always set latched
 	Cvar_SetLatched( "sv_maxclients", "32" ); // Ridah, modified this
 	cmd += 2;
 	
-	// save the map name here cause on a map restart we reload the q3config.cfg
-	// and thus nuke the arguments of the map command
-	Q_strncpyz( mapname, map, sizeof( mapname ) );
-
 	// start up the map
+	std::string mapStr = map;
 	bool killBots = true;
-	SV_SpawnServer( mapname, killBots );
+	SV_SpawnServer( mapStr.c_str(), killBots );
 
 	// set the cheat value
 	// if the level was started with "map <levelname>", then
@@ -388,18 +378,6 @@ void    SV_LoadGame_f( void ) {
 //===============================================================
 
 /*
-==================
-SV_Heartbeat_f
-
-Also called by SV_DropClient, SV_DirectConnect, and SV_SpawnServer
-==================
-*/
-void SV_Heartbeat_f( void ) {
-	svs.nextHeartbeatTime = -9999999;
-}
-
-
-/*
 ===========
 SV_Serverinfo_f
 
@@ -439,8 +417,6 @@ void SV_AddOperatorCommands( void ) {
 		return;
 	}
 	initialized = true;
-
-	Cmd_AddCommand( "heartbeat", SV_Heartbeat_f );
 
 	Cmd_AddCommand( "serverinfo", SV_Serverinfo_f );
 	Cmd_AddCommand( "systeminfo", SV_Systeminfo_f );

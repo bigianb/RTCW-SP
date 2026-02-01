@@ -934,7 +934,6 @@ extern void G_SpawnItem ( GameEntity * ent , gitem_t * item ) ;
 extern void SaveRegisteredItems ( void ) ;
 extern void RegisterItem ( gitem_t * item ) ;
 extern void ClearRegisteredItems ( void ) ;
-extern void G_CheckTeamItems ( void ) ;
 extern void FinishSpawningItem ( GameEntity * ent ) ;
 extern void Use_Item ( GameEntity * ent , GameEntity * other , GameEntity * activator ) ;
 extern GameEntity * Drop_Item ( GameEntity * ent , gitem_t * item , float angle , bool novelocity ) ;

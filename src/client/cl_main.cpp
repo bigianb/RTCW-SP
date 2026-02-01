@@ -700,24 +700,6 @@ void CL_ConnectionlessPacket( NetAddress from, msg_t *msg )
 
 	Com_DPrintf( "CL packet %s: %s\n", NET_AdrToString( from ), c );
 
-	// challenge from the server we are connecting to
-	if ( !Q_stricmp( c, "challengeResponse" ) ) {
-		if ( cls.state != CA_CONNECTING ) {
-			Com_Printf( "Unwanted challenge response received.  Ignored.\n" );
-		} else {
-			// start sending challenge repsonse instead of challenge request packets
-			clc.challenge = atoi( Cmd_Argv( 1 ) );
-			cls.state = CA_CHALLENGING;
-			clc.connectPacketCount = 0;
-			clc.connectTime = -99999;
-
-			// take this address as the new server address.  This allows
-			// a server proxy to hand off connections to multiple servers
-			clc.serverAddress = from;
-		}
-		return;
-	}
-
 	// server connection
 	if ( !Q_stricmp( c, "connectResponse" ) ) {
 		if ( cls.state >= CA_CONNECTED ) {
@@ -1370,7 +1352,6 @@ void CL_Shutdown()
 	Cmd_RemoveCommand( "record" );
 	Cmd_RemoveCommand( "cinematic" );
 	Cmd_RemoveCommand( "stoprecord" );
-	Cmd_RemoveCommand( "connect" );
 
 	Cmd_RemoveCommand( "model" );
 

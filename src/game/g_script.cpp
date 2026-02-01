@@ -305,11 +305,6 @@ void G_Script_ScriptParse( GameEntity *ent )
 	ent->numScriptEvents = static_cast<int>( ent->scriptEvents.size() );
 }
 
-/*
-================
-G_Script_ScriptChange
-================
-*/
 bool G_Script_ScriptRun( GameEntity *ent );
 void G_Script_ScriptChange( GameEntity *ent, int newScriptNum ) {
 	g_script_status_t scriptStatusBackup;

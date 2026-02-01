@@ -39,57 +39,35 @@ SV_DirectConnect
 A "connect" OOB command has been received
 ==================
 */
-void SV_DirectConnect( NetAddress from ) {
+void SV_DirectConnect( NetAddress from )
+{
 	char userinfo[MAX_INFO_STRING];
 	int i;
 	Client    *cl, *newcl;
     Client temp;
 	SharedEntity *ent;
 	int clientNum;
-	int version;
-	int qport;
-	int challenge;
-
-	int startIndex;
-
-	int count;
 
 	Com_DPrintf( "SVC_DirectConnect ()\n" );
 
 	Q_strncpyz( userinfo, Cmd_Argv( 1 ), sizeof( userinfo ) );
 
-	version = atoi( Info_ValueForKey( userinfo, "protocol" ) );
+	int version = atoi( Info_ValueForKey( userinfo, "protocol" ) );
 	if ( version != PROTOCOL_VERSION ) {
 		NET_OutOfBandPrint( NS_SERVER, from, "print\nServer uses protocol version %i.\n", PROTOCOL_VERSION );
 		Com_DPrintf( "    rejected connect from version %i\n", version );
 		return;
 	}
 
-	qport = atoi( Info_ValueForKey( userinfo, "qport" ) );
-	challenge = atoi( Info_ValueForKey( userinfo, "challenge" ) );
-
-	// quick reject
-	for ( i = 0,cl = svs.clients ; i < sv_maxclients->integer ; i++,cl++ ) {
-		if ( cl->state == CS_FREE ) {
-			continue;
-		}
-		if ( NET_CompareBaseAdr( from, cl->netchan.remoteAddress )
-			 && ( cl->netchan.qport == qport
-				  || from.port == cl->netchan.remoteAddress.port ) ) {
-			if ( ( svs.time - cl->lastConnectTime )
-				 < ( sv_reconnectlimit->integer * 1000 ) ) {
-				Com_DPrintf( "%s:reconnect rejected : too soon\n", NET_AdrToString( from ) );
-				return;
-			}
-			break;
-		}
-	}
+	int qport = atoi( Info_ValueForKey( userinfo, "qport" ) );
+	int challenge = atoi( Info_ValueForKey( userinfo, "challenge" ) );
 
 	Info_SetValueForKey( userinfo, "ip", "localhost" );
 
 	newcl = &temp;
 	memset( newcl, 0, sizeof( Client ) );
 
+	newcl = nullptr;
 	// if there is already a slot for this ip, reuse it
 	for ( i = 0,cl = svs.clients ; i < sv_maxclients->integer ; i++,cl++ ) {
 		if ( cl->state == CS_FREE ) {
@@ -104,32 +82,12 @@ void SV_DirectConnect( NetAddress from ) {
 			// player might have are dropped
 			ClientDisconnect(newcl - svs.clients );
 			//
-			goto gotnewcl;
+			break;
 		}
 	}
 
-	// find a client slot
-	// if "sv_privateClients" is set > 0, then that number
-	// of client slots will be reserved for connections that
-	// have "password" set to the value of "sv_privatePassword"
-	// Info requests will report the maxclients as if the private
-	// slots didn't exist, to prevent people from trying to connect
-	// to a full server.
-	// This is to allow us to reserve a couple slots here on our
-	// servers so we can play without having to kick people.
-
-	// check for privateClient password
-	{
-		const char* password = Info_ValueForKey( userinfo, "password" );
-		if ( !strcmp( password, sv_privatePassword->string ) ) {
-			startIndex = 0;
-		} else {
-			// skip past the reserved slots
-			startIndex = sv_privateClients->integer;
-		}
-	}
-	newcl = nullptr;
-	for ( i = startIndex; i < sv_maxclients->integer ; i++ ) {
+	
+	for ( i = 0; newcl != nullptr && i < sv_maxclients->integer ; i++ ) {
 		cl = &svs.clients[i];
 		if ( cl->state == CS_FREE ) {
 			newcl = cl;
@@ -138,25 +96,19 @@ void SV_DirectConnect( NetAddress from ) {
 	}
 
 	if ( !newcl ) {
-		if ( NET_IsLocalAddress( from ) ) {
-			count = 0;
-			for ( i = startIndex; i < sv_maxclients->integer ; i++ ) {
-				cl = &svs.clients[i];
-				if ( cl->netchan.remoteAddress.type == NA_BOT ) {
-					count++;
-				}
+		int count = 0;
+		for ( i = 0; i < sv_maxclients->integer ; i++ ) {
+			cl = &svs.clients[i];
+			if ( cl->netchan.remoteAddress.type == NA_BOT ) {
+				count++;
 			}
-			// if they're all bots
-			if ( count >= sv_maxclients->integer - startIndex ) {
-				SV_DropClient( &svs.clients[sv_maxclients->integer - 1], "only bots on server" );
-				newcl = &svs.clients[sv_maxclients->integer - 1];
-			} else {
-				Com_Error( ERR_FATAL, "server is full on local connect\n" );
-				return;
-			}
+		}
+		// if they're all bots
+		if ( count >= sv_maxclients->integer ) {
+			SV_DropClient( &svs.clients[sv_maxclients->integer - 1], "only bots on server" );
+			newcl = &svs.clients[sv_maxclients->integer - 1];
 		} else {
-			NET_OutOfBandPrint( NS_SERVER, from, "print\nServer is full.\n" );
-			Com_DPrintf( "Rejected a connection.\n" );
+			Com_Error( ERR_FATAL, "server is full on local connect\n" );
 			return;
 		}
 	}
@@ -165,7 +117,6 @@ void SV_DirectConnect( NetAddress from ) {
 	cl->reliableAcknowledge = 0;
 	cl->reliableSequence = 0;
 
-gotnewcl:
 	// build a new connection
 	// accept the new client
 	// this is the only place a Client is ever initialized
@@ -214,18 +165,6 @@ gotnewcl:
 	// notice that it is from a different serverid and that the
 	// gamestate message was not just sent, forcing a retransmit
 	newcl->gamestateMessageNum = -1;
-
-	// if this was the first client on the server, or the last client
-	// the server can hold, send a heartbeat to the master.
-	count = 0;
-	for ( i = 0,cl = svs.clients ; i < sv_maxclients->integer ; i++,cl++ ) {
-		if ( svs.clients[i].state >= CS_CONNECTED ) {
-			count++;
-		}
-	}
-	if ( count == 1 || count == sv_maxclients->integer ) {
-		SV_Heartbeat_f();
-	}
 }
 
 
@@ -274,19 +213,6 @@ void SV_DropClient( Client *drop, const char *reason ) {
 
 	// RF, nuke reliable commands
 	SV_FreeReliableCommandsForClient( drop );
-
-	// if this was the last client on the server, send a heartbeat
-	// to the master so it is known the server is empty
-	// send a heartbeat now so the master will get up to date info
-	// if there is already a slot for this ip, reuse it
-	for ( i = 0 ; i < sv_maxclients->integer ; i++ ) {
-		if ( svs.clients[i].state >= CS_CONNECTED ) {
-			break;
-		}
-	}
-	if ( i == sv_maxclients->integer ) {
-		SV_Heartbeat_f();
-	}
 }
 
 /*

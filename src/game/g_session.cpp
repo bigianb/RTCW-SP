@@ -83,18 +83,18 @@ void G_ReadSessionData( GameClient *client ) {
 	var = va( "session%i", client - level.clients );
 	Cvar_VariableStringBuffer( var, s, sizeof( s ) );
 
-	sscanf( s, "%i %i %i %i %i %i %i %i %i %i %i",       // DHM - Nerve
+	sscanf( s, "%i %i %i %i %i %i %i %i %i %i %i",
 			(int *)&client->sess.sessionTeam,
 			&client->sess.spectatorTime,
 			(int *)&client->sess.spectatorState,
 			&client->sess.spectatorClient,
 			&client->sess.wins,
 			&client->sess.losses,
-			&client->sess.playerType,       // DHM - Nerve
-			&client->sess.playerWeapon,     // DHM - Nerve
-			&client->sess.playerPistol,     // DHM - Nerve
-			&client->sess.playerItem,       // DHM - Nerve
-			&client->sess.playerSkin        // DHM - Nerve
+			&client->sess.playerType, 
+			&client->sess.playerWeapon,
+			&client->sess.playerPistol,
+			&client->sess.playerItem,
+			&client->sess.playerSkin 
 			);
 }
 
@@ -123,13 +123,11 @@ void G_InitSessionData( GameClient *client, char *userinfo ) {
 	sess->spectatorState = SPECTATOR_FREE;
 	sess->spectatorTime = level.time;
 
-	// DHM - Nerve
 	sess->playerType = 0;
 	sess->playerWeapon = 0;
 	sess->playerPistol = 0;
 	sess->playerItem = 0;
 	sess->playerSkin = 0;
-	// dhm - end
 
 	G_WriteClientSessionData( client );
 }

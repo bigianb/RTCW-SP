@@ -446,17 +446,11 @@ GameEntity *G_Spawn()
 	return e;
 }
 
-/*
-=================
-G_EntitiesFree
-=================
-*/
-bool G_EntitiesFree( void ) {
-	int i;
-	GameEntity   *e;
 
-	e = &g_entities[MAX_CLIENTS];
-	for ( i = MAX_CLIENTS; i < level.num_entities; i++, e++ ) {
+bool G_EntitiesFree()
+{
+	GameEntity*e = &g_entities[MAX_CLIENTS];
+	for (int i = MAX_CLIENTS; i < level.num_entities; i++, e++ ) {
 		if ( e->inuse ) {
 			continue;
 		}
@@ -625,14 +619,10 @@ void G_Sound( GameEntity *ent, int soundIndex ) {
 	te->shared.s.eventParm = soundIndex;
 }
 
-/*
-=============
-G_AnimScriptSound
-=============
-*/
-void G_AnimScriptSound( int soundIndex, vec3_t org, int client ) {
-	GameEntity *e;
-	e = &g_entities[client];
+
+void G_AnimScriptSound( int soundIndex, vec3_t org, int client )
+{
+	GameEntity* e = &g_entities[client];
 	G_AddEvent( e, EV_GENERAL_SOUND, soundIndex );
 	AICast_RecordScriptSound( client );
 }
@@ -657,12 +647,6 @@ void G_SetOrigin( GameEntity *ent, vec3_t origin ) {
 	VectorCopy( origin, ent->shared.r.currentOrigin );
 }
 
-
-/*
-==============
-G_SetOrigin
-==============
-*/
 void G_SetAngle( GameEntity *ent, vec3_t angle ) {
 
 	VectorCopy( angle, ent->shared.s.apos.trBase );
@@ -673,12 +657,6 @@ void G_SetAngle( GameEntity *ent, vec3_t angle ) {
 
 	VectorCopy( angle, ent->shared.r.currentAngles );
 }
-
-/*
-====================
-infront
-====================
-*/
 
 bool infront( GameEntity *self, GameEntity *other ) {
 	vec3_t vec;
@@ -721,12 +699,6 @@ bool infront( GameEntity *self, GameEntity *other ) {
 	return false;
 }
 
-//RF, tag connections
-/*
-==================
-G_ProcessTagConnect
-==================
-*/
 void G_ProcessTagConnect( GameEntity *ent, bool clearAngles ) {
 	if ( !ent->tagName ) {
 		Com_Error( ERR_DROP, "G_ProcessTagConnect: nullptr ent->tagName\n" );
