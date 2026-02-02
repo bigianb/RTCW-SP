@@ -160,7 +160,8 @@ Completely restarts a level, but doesn't send a new gamestate to the clients.
 This allows fair starts with variable load times.
 ================
 */
-static void SV_MapRestart_f( void ) {
+static void SV_MapRestart_f()
+{
 	int i;
 	Client    *client;
 	
@@ -297,15 +298,10 @@ static void SV_MapRestart_f( void ) {
 	svs.time += 100;
 }
 
-/*
-=================
-SV_LoadGame_f
-=================
-*/
-void    SV_LoadGame_f( void ) {
+void    SV_LoadGame_f()
+{
 	char filename[MAX_QPATH], mapname[MAX_QPATH];
 	uint8_t *buffer;
-	int size;
 
 	// dont allow command if another loadgame is pending
 	if ( Cvar_VariableIntegerValue( "savegame_loading" ) ) {
@@ -332,7 +328,7 @@ void    SV_LoadGame_f( void ) {
 		*(char *)strstr( filename, "\\" ) = '/';
 	}
 
-	size = FS_ReadFile( filename, nullptr );
+	int size = FS_ReadFile( filename, nullptr );
 	if ( size < 0 ) {
 		Com_Printf( "Can't find savegame %s\n", filename );
 		return;

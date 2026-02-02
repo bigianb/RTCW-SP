@@ -157,7 +157,6 @@ void SV_DirectConnect( NetAddress from )
 	Com_DPrintf( "Going from CS_FREE to CS_CONNECTED for %s\n", newcl->name );
 
 	newcl->state = CS_CONNECTED;
-	newcl->nextSnapshotTime = svs.time;
 	newcl->lastPacketTime = svs.time;
 	newcl->lastConnectTime = svs.time;
 
@@ -308,7 +307,6 @@ void SV_ClientEnterWorld( Client *client, UserCmd *cmd ) {
 	client->gentity = ent;
 
 	client->deltaMessage = -1;
-	client->nextSnapshotTime = svs.time;    // generate a snapshot immediately
 	client->lastUsercmd = *cmd;
 
 	// call the game begin function

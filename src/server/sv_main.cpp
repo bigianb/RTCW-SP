@@ -141,32 +141,6 @@ CONNECTIONLESS COMMANDS
 ==============================================================================
 */
 
-/*
-================
-SVC_Status
-
-Responds with all the info that qplug or qspy can see about the server
-and all connected players.  Used for getting detailed information after
-the simple info query.
-================
-*/
-void SVC_Status( NetAddress from ) {
-	
-	return;
-}
-
-/*
-================
-SVC_Info
-
-Responds with a short info message that should be enough to determine
-if a user is interested in a server to do a full status
-================
-*/
-void SVC_Info( NetAddress from ) {
-	
-	return;
-}
 
 /*
 =================
@@ -202,14 +176,6 @@ void SV_ConnectionlessPacket( NetAddress from, msg_t *msg )
 	}
 }
 
-
-//============================================================================
-
-/*
-=================
-SV_ReadPackets
-=================
-*/
 void SV_PacketEvent( NetAddress from, msg_t *msg )
 {
 	// check for connectionless packet (0xffffffff) first
@@ -257,29 +223,9 @@ void SV_PacketEvent( NetAddress from, msg_t *msg )
 }
 
 
-/*
-==================
-SV_CheckPaused
-==================
-*/
 bool SV_CheckPaused()
 {
 	if ( !cl_paused->integer ) {
-		return false;
-	}
-
-	// only pause if there is just a single client connected
-	int count = 0;
-	for (int i = 0; i < sv_maxclients->integer; i++ ) {
-		Client *cl = &svs.clients[i];
-		if ( cl->state >= CS_CONNECTED && cl->netchan.remoteAddress.type != NA_BOT ) {
-			count++;
-		}
-	}
-
-	if ( count > 1 ) {
-		// don't pause
-		sv_paused->integer = 0;
 		return false;
 	}
 

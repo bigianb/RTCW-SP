@@ -181,9 +181,6 @@ static void SV_WriteSnapshotToClient(Client *client, msg_t *msg) {
   MSG_WriteByte(msg, lastframe);
 
   int snapFlags = svs.snapFlagServerBit;
-  if (client->rateDelayed) {
-    snapFlags |= SNAPFLAG_RATE_DELAYED;
-  }
   if (client->state != CS_ACTIVE) {
     snapFlags |= SNAPFLAG_NOT_ACTIVE;
   }
@@ -219,14 +216,13 @@ SV_UpdateServerCommandsToClient
 (re)send all server commands the client hasn't acknowledged yet
 ==================
 */
-void SV_UpdateServerCommandsToClient(Client *client, msg_t *msg) {
+void SV_UpdateServerCommandsToClient(Client *client, msg_t *msg)
+{
   // write any unacknowledged serverCommands
-  for (int i = client->reliableAcknowledge + 1; i <= client->reliableSequence;
-       i++) {
+  for (int i = client->reliableAcknowledge + 1; i <= client->reliableSequence; i++) {
     MSG_WriteByte(msg, svc_serverCommand);
     MSG_WriteLong(msg, i);
-    MSG_WriteString(
-        msg, SV_GetReliableCommand(client, i & (MAX_RELIABLE_COMMANDS - 1)));
+    MSG_WriteString(msg, SV_GetReliableCommand(client, i & (MAX_RELIABLE_COMMANDS - 1)));
   }
   client->reliableSent = client->reliableSequence;
 }
@@ -241,16 +237,12 @@ Build a client snapshot structure
 
 #define MAX_SNAPSHOT_ENTITIES 2048
 
-typedef struct {
+struct snapshotEntityNumbers_t
+{
   int numSnapshotEntities;
   int snapshotEntities[MAX_SNAPSHOT_ENTITIES];
-} snapshotEntityNumbers_t;
+};
 
-/*
-=======================
-SV_QsortEntityNumbers
-=======================
-*/
 static int SV_QsortEntityNumbers(const void *a, const void *b) {
   int *ea = (int *)a;
   int *eb = (int *)b;
@@ -266,11 +258,6 @@ static int SV_QsortEntityNumbers(const void *a, const void *b) {
   return 1;
 }
 
-/*
-===============
-SV_AddEntToSnapshot
-===============
-*/
 static void SV_AddEntToSnapshot(ServerEntity *svEnt, SharedEntity *gEnt,
                                 snapshotEntityNumbers_t *eNums) {
   // if we have already added this entity to this snapshot, don't add again
@@ -288,11 +275,6 @@ static void SV_AddEntToSnapshot(ServerEntity *svEnt, SharedEntity *gEnt,
   eNums->numSnapshotEntities++;
 }
 
-/*
-===============
-SV_AddEntitiesVisibleFromPoint
-===============
-*/
 static void SV_AddEntitiesVisibleFromPoint(vec3_t origin,
                                            ClientSnapshot *frame,
                                            snapshotEntityNumbers_t *eNums,
@@ -513,7 +495,7 @@ copies off the playerstate and areabits.
 This properly handles multiple recursive portals, but the render
 currently doesn't.
 
-For viewing through other player's eyes, clent can be something other than
+For viewing through other player's eyes, client can be something other than
 client->gentity
 =============
 */
@@ -522,8 +504,7 @@ static void SV_BuildClientSnapshot(Client *client) {
   sv.snapshotCounter++;
 
   // this is the frame we are creating
-  ClientSnapshot *frame =
-      &client->frames[client->netchan.outgoingSequence & PACKET_MASK];
+  ClientSnapshot *frame = &client->frames[client->netchan.outgoingSequence & PACKET_MASK];
 
   // clear everything in this snapshot
   snapshotEntityNumbers_t entityNumbers;
@@ -544,7 +525,6 @@ static void SV_BuildClientSnapshot(Client *client) {
   int clientNum = frame->ps.clientNum;
   if (clientNum < 0 || clientNum >= MAX_GENTITIES) {
     Com_Error(ERR_DROP, "SV_SvEntityForGentity: bad gEnt");
-    return; // keep the linter happy, ERR_DROP does not return
   }
   ServerEntity *svEnt = &sv.svEntities[clientNum];
 
@@ -598,56 +578,22 @@ static void SV_BuildClientSnapshot(Client *client) {
 }
 
 /*
-====================
-SV_RateMsec
-
-Return the number of msec a given size message is supposed
-to take to clear, based on the current rate
-====================
-*/
-#define HEADER_RATE_BYTES 48 // include our header, IP header, and some overhead
-static int SV_RateMsec(Client *client, int messageSize) {
-  // individual messages will never be larger than fragment size
-  if (messageSize > 1500) {
-    messageSize = 1500;
-  }
-  int rate = client->rate;
-  if (sv_maxRate->integer) {
-    if (sv_maxRate->integer < 1000) {
-      Cvar_Set("sv_MaxRate", "1000");
-    }
-    if (sv_maxRate->integer < rate) {
-      rate = sv_maxRate->integer;
-    }
-  }
-  int rateMsec = (messageSize + HEADER_RATE_BYTES) * 1000 / rate;
-
-  return rateMsec;
-}
-
-/*
 =======================
 SV_SendMessageToClient
 
 Called by SV_SendClientSnapshot and SV_SendClientGameState
 =======================
 */
-void SV_SendMessageToClient(msg_t *msg, Client *client) {
+void SV_SendMessageToClient(msg_t *msg, Client *client)
+{
   // record information about the message
-  client->frames[client->netchan.outgoingSequence & PACKET_MASK].messageSize =
-      msg->cursize;
-  client->frames[client->netchan.outgoingSequence & PACKET_MASK].messageSent =
-      svs.time;
-  client->frames[client->netchan.outgoingSequence & PACKET_MASK].messageAcked =
-      -1;
+  client->frames[client->netchan.outgoingSequence & PACKET_MASK].messageSize = msg->cursize;
+  client->frames[client->netchan.outgoingSequence & PACKET_MASK].messageSent = svs.time;
+  client->frames[client->netchan.outgoingSequence & PACKET_MASK].messageAcked = -1;
 
   // send the datagram
-  SV_Netchan_Transmit(client, msg); // msg->cursize, msg->data );
+  SV_Netchan_Transmit(client, msg);
 
-  // set nextSnapshotTime based on rate and requested number of updates
-
-  // local clients get snapshots every frame
-  client->nextSnapshotTime = svs.time - 1;
   return;
 }
 
@@ -659,8 +605,9 @@ Also called by SV_FinalMessage
 
 =======================
 */
-void SV_SendClientSnapshot(Client *client) {
-  // RF, AI don't need snapshots built
+void SV_SendClientSnapshot(Client *client)
+{
+  // AI don't need snapshots built
   if (client->gentity && client->gentity->r.svFlags & SVF_CASTAI) {
     return;
   }
@@ -699,12 +646,8 @@ void SV_SendClientSnapshot(Client *client) {
   SV_SendMessageToClient(&msg, client);
 }
 
-/*
-=======================
-SV_SendClientMessages
-=======================
-*/
-void SV_SendClientMessages() {
+void SV_SendClientMessages()
+{
   // send a message to each connected client
   for (int i = 0; i < sv_maxclients->integer; i++) {
     Client *c = &svs.clients[i];
@@ -712,16 +655,9 @@ void SV_SendClientMessages() {
       continue; // not connected
     }
 
-    if (svs.time < c->nextSnapshotTime) {
-      continue; // not time yet
-    }
-
     // send additional message fragments if the last message
     // was too large to send at once
     if (c->netchan.unsentFragments) {
-      c->nextSnapshotTime =
-          svs.time + SV_RateMsec(c, c->netchan.unsentLength -
-                                        c->netchan.unsentFragmentStart);
       SV_Netchan_TransmitNextFragment(&c->netchan);
       continue;
     }

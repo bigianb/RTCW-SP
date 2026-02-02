@@ -723,7 +723,6 @@ void SV_SpawnServer(const char *server, bool killBots )
 					client->gentity = ent;
 
 					client->deltaMessage = -1;
-					client->nextSnapshotTime = svs.time;    // generate a snapshot immediately
 
 					ClientBegin( i );
 				}
@@ -831,8 +830,6 @@ void SV_FinalMessage( const char *message )
 		for (int i = 0; i < sv_maxclients->integer ; i++ ) {
 			Client    *cl = &svs.clients[i];
 			if ( cl->state >= CS_CONNECTED ) {
-				// force a snapshot to be sent
-				cl->nextSnapshotTime = -1;
 				SV_SendClientSnapshot( cl );
 			}
 		}
