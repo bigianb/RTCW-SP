@@ -15,13 +15,6 @@ if(ENABLE_TESTS)
 	find_package(Catch2 REQUIRED)
 endif()
 
-# Enforced colored output
-if (CMAKE_COMPILER_IS_GNUCC)
-	add_compile_options(-fdiagnostics-color=always)
-elseif(CMAKE_C_COMPILER_ID MATCHES "Clang")
-	add_compile_options(-fcolor-diagnostics)
-endif ()
-
 if(NOT MSVC)
 	message(STATUS CMAKE_BUILD_TYPE: ${CMAKE_BUILD_TYPE})
 endif()
@@ -237,6 +230,7 @@ set(GAME_SOURCES
 	src/game/g_weapon.cpp
 	src/game/q_math.cpp
 	src/game/q_shared.cpp
+	src/game/entities/dlight.cpp
 )
 
 set(QCOMMON_INCLUDES

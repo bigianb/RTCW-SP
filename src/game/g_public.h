@@ -33,6 +33,8 @@ If you have questions concerning this license or the applicable additional terms
 
 #pragma once
 
+#include "q_shared.h"	// vec3_t
+
 #define GAME_API_VERSION    8
 
 // entity->svFlags

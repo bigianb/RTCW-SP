@@ -1200,8 +1200,8 @@ typedef enum {
 #define MAX_ITEM_MODELS 5
 #define MAX_ITEM_ICONS 4
 
-// JOSEPH 4-17-00
-typedef struct gitem_s {
+struct gitem_t
+{
 	const char        *classname; // spawning name
 	const char        *pickup_sound;
 	const char        *world_model[MAX_ITEM_MODELS];
@@ -1222,8 +1222,7 @@ typedef struct gitem_s {
 	const char        *sounds;        // string of all sounds this item will use
 
 	int gameskillnumber[4];
-} gitem_t;
-// END JOSEPH
+};
 
 // included in both the game dll and the client
 extern gitem_t bg_itemlist[];

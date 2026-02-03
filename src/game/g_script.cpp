@@ -32,6 +32,7 @@ If you have questions concerning this license or the applicable additional terms
 #include "../qcommon/qcommon.h"
 #include "../server/server.h"
 #include "../scripting/ScriptParser.h"
+#include "gameEntity.h"
 
 /*
 Scripting that allows the designers to control the behaviour of entities
