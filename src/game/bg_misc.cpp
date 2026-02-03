@@ -3086,14 +3086,7 @@ bool    BG_CanItemBeGrabbed( const EntityState *ent, const PlayerState *ps ) {
 	return false;
 }
 
-//======================================================================
 
-/*
-================
-BG_EvaluateTrajectory
-
-================
-*/
 void BG_EvaluateTrajectory( const trajectory_t *tr, int atTime, vec3_t result ) {
 	float deltaTime;
 	float phase;

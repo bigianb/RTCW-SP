@@ -230,7 +230,12 @@ set(GAME_SOURCES
 	src/game/g_weapon.cpp
 	src/game/q_math.cpp
 	src/game/q_shared.cpp
+	src/game/entities/corona.cpp
 	src/game/entities/dlight.cpp
+	src/game/entities/mg42.cpp
+	src/game/entities/portalCamera.cpp
+	src/game/entities/shooters.cpp
+	src/game/entities/snow.cpp
 )
 
 set(QCOMMON_INCLUDES
