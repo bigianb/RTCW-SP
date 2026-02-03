@@ -470,23 +470,6 @@ void CG_CheckLocalSounds( PlayerState *ps, PlayerState *ops ) {
 			S_StartLocalSound( cgs.media.suddenDeathSound, CHAN_ANNOUNCER );
 		}
 	}
-
-	// fraglimit warnings
-	if ( cgs.fraglimit > 0) {
-		highScore = cgs.scores1;
-		if ( cgs.fraglimit > 3 && !( cg.fraglimitWarnings & 1 ) && highScore == ( cgs.fraglimit - 3 ) ) {
-			cg.fraglimitWarnings |= 1;
-			S_StartLocalSound( cgs.media.threeFragSound, CHAN_ANNOUNCER );
-		}
-		if ( cgs.fraglimit > 2 && !( cg.fraglimitWarnings & 2 ) && highScore == ( cgs.fraglimit - 2 ) ) {
-			cg.fraglimitWarnings |= 2;
-			S_StartLocalSound( cgs.media.twoFragSound, CHAN_ANNOUNCER );
-		}
-		if ( !( cg.fraglimitWarnings & 4 ) && highScore == ( cgs.fraglimit - 1 ) ) {
-			cg.fraglimitWarnings |= 4;
-			S_StartLocalSound( cgs.media.oneFragSound, CHAN_ANNOUNCER );
-		}
-	}
 }
 
 /*

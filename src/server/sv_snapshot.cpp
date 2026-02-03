@@ -59,17 +59,12 @@ A normal server packet will look like:
 */
 
 /*
-=============
-SV_EmitPacketEntities
-
 Writes a delta update of an EntityState list to the message.
-=============
 */
-static void SV_EmitPacketEntities(ClientSnapshot *from, ClientSnapshot *to,
-                                  msg_t *msg) {
+static void SV_EmitPacketEntities(ClientSnapshot *from, ClientSnapshot *to, msg_t *msg)
+{
   int from_num_entities;
 
-  // generate the delta update
   if (!from) {
     from_num_entities = 0;
   } else {
@@ -85,8 +80,7 @@ static void SV_EmitPacketEntities(ClientSnapshot *from, ClientSnapshot *to,
     if (newindex >= to->num_entities) {
       newnum = 9999;
     } else {
-      newent = &svs.snapshotEntities[(to->first_entity + newindex) %
-                                     svs.numSnapshotEntities];
+      newent = &svs.snapshotEntities[(to->first_entity + newindex) % svs.numSnapshotEntities];
       newnum = newent->number;
     }
 
@@ -94,8 +88,7 @@ static void SV_EmitPacketEntities(ClientSnapshot *from, ClientSnapshot *to,
     if (oldindex >= from_num_entities) {
       oldnum = 9999;
     } else {
-      oldent = &svs.snapshotEntities[(from->first_entity + oldindex) %
-                                     svs.numSnapshotEntities];
+      oldent = &svs.snapshotEntities[(from->first_entity + oldindex) % svs.numSnapshotEntities];
       oldnum = oldent->number;
     }
 
@@ -106,48 +99,35 @@ static void SV_EmitPacketEntities(ClientSnapshot *from, ClientSnapshot *to,
       MSG_WriteDeltaEntity(msg, oldent, newent, false);
       oldindex++;
       newindex++;
-      continue;
-    }
 
-    if (newnum < oldnum) {
+    } else if (newnum < oldnum) {
       // this is a new entity, send it from the baseline
       MSG_WriteDeltaEntity(msg, &sv.svEntities[newnum].baseline, newent, true);
       newindex++;
-      continue;
-    }
-
-    if (newnum > oldnum) {
+    } else if (newnum > oldnum) {
       // the old entity isn't present in the new message
       MSG_WriteDeltaEntity(msg, oldent, nullptr, true);
       oldindex++;
-      continue;
     }
   }
 
-  MSG_WriteBits(msg, (MAX_GENTITIES - 1),
-                GENTITYNUM_BITS); // end of packetentities
+  MSG_WriteBits(msg, (MAX_GENTITIES - 1), GENTITYNUM_BITS); // end of packetentities
 }
 
-/*
-==================
-SV_WriteSnapshotToClient
-==================
-*/
-static void SV_WriteSnapshotToClient(Client *client, msg_t *msg) {
+
+static void SV_WriteSnapshotToClient(Client *client, msg_t *msg)
+{
   int lastframe;
 
   // this is the snapshot we are creating
-  ClientSnapshot *frame =
-      &client->frames[client->netchan.outgoingSequence & PACKET_MASK];
+  ClientSnapshot *frame = &client->frames[client->netchan.outgoingSequence & PACKET_MASK];
   ClientSnapshot *oldframe = nullptr;
-  // try to use a previous frame as the source for delta compressing the
-  // snapshot
+  // try to use a previous frame as the source for delta compressing the snapshot
   if (client->deltaMessage <= 0 || client->state != CS_ACTIVE) {
     // client is asking for a retransmit
     oldframe = nullptr;
     lastframe = 0;
-  } else if (client->netchan.outgoingSequence - client->deltaMessage >=
-             (PACKET_BACKUP - 3)) {
+  } else if (client->netchan.outgoingSequence - client->deltaMessage >= (PACKET_BACKUP - 3)) {
     // client hasn't gotten a good message through in a long time
     Com_DPrintf("%s: Delta request from out of date packet.\n", client->name);
     oldframe = nullptr;
@@ -158,10 +138,8 @@ static void SV_WriteSnapshotToClient(Client *client, msg_t *msg) {
     lastframe = client->netchan.outgoingSequence - client->deltaMessage;
 
     // the snapshot's entities may still have rolled off the buffer, though
-    if (oldframe->first_entity <=
-        svs.nextSnapshotEntities - svs.numSnapshotEntities) {
-      Com_DPrintf("%s: Delta request from out of date entities.\n",
-                  client->name);
+    if (oldframe->first_entity <= svs.nextSnapshotEntities - svs.numSnapshotEntities) {
+      Com_DPrintf("%s: Delta request from out of date entities.\n", client->name);
       oldframe = nullptr;
       lastframe = 0;
     }
@@ -169,12 +147,7 @@ static void SV_WriteSnapshotToClient(Client *client, msg_t *msg) {
 
   MSG_WriteByte(msg, svc_snapshot);
 
-  // NOTE, MRE: now sent at the start of every message from server to client
-  // let the client know which reliable clientCommands we have received
-  // MSG_WriteLong( msg, client->lastClientCommand );
-
-  // send over the current server time so the client can drift
-  // its view of time to try to match
+  // send over the current server time so the client can drift its view of time to try to match
   MSG_WriteLong(msg, svs.time);
 
   // what we are delta'ing from
@@ -200,21 +173,10 @@ static void SV_WriteSnapshotToClient(Client *client, msg_t *msg) {
 
   // delta encode the entities
   SV_EmitPacketEntities(oldframe, frame, msg);
-
-  // padding for rate debugging
-  if (sv_padPackets->integer) {
-    for (int i = 0; i < sv_padPackets->integer; i++) {
-      MSG_WriteByte(msg, svc_nop);
-    }
-  }
 }
 
 /*
-==================
-SV_UpdateServerCommandsToClient
-
 (re)send all server commands the client hasn't acknowledged yet
-==================
 */
 void SV_UpdateServerCommandsToClient(Client *client, msg_t *msg)
 {
@@ -243,7 +205,8 @@ struct snapshotEntityNumbers_t
   int snapshotEntities[MAX_SNAPSHOT_ENTITIES];
 };
 
-static int SV_QsortEntityNumbers(const void *a, const void *b) {
+static int SV_QsortEntityNumbers(const void *a, const void *b)
+{
   int *ea = (int *)a;
   int *eb = (int *)b;
 
@@ -258,8 +221,8 @@ static int SV_QsortEntityNumbers(const void *a, const void *b) {
   return 1;
 }
 
-static void SV_AddEntToSnapshot(ServerEntity *svEnt, SharedEntity *gEnt,
-                                snapshotEntityNumbers_t *eNums) {
+static void SV_AddEntToSnapshot(ServerEntity *svEnt, SharedEntity *gEnt, snapshotEntityNumbers_t *eNums)
+{
   // if we have already added this entity to this snapshot, don't add again
   if (svEnt->snapshotCounter == sv.snapshotCounter) {
     return;
@@ -278,7 +241,8 @@ static void SV_AddEntToSnapshot(ServerEntity *svEnt, SharedEntity *gEnt,
 static void SV_AddEntitiesVisibleFromPoint(vec3_t origin,
                                            ClientSnapshot *frame,
                                            snapshotEntityNumbers_t *eNums,
-                                           bool portal) {
+                                           bool portal)
+{
   // during an error shutdown message we may need to transmit
   // the shutdown message after the server has shutdown, so
   // specfically check for it
@@ -354,7 +318,7 @@ static void SV_AddEntitiesVisibleFromPoint(vec3_t origin,
       continue;
     }
 
-	uint8_t *bitvector = clientpvs;
+	  uint8_t *bitvector = clientpvs;
 	
     // ignore if not touching a PV leaf
     // check area
@@ -477,8 +441,7 @@ static void SV_AddEntitiesVisibleFromPoint(vec3_t origin,
       // keep players around if they are alive and active (so sounds dont get
       // messed up)
       if (!(ent->s.eFlags & EF_DEAD)) {
-        ent->s.eFlags |=
-            EF_NODRAW; // don't draw, just process events and sounds
+        ent->s.eFlags |= EF_NODRAW; // don't draw, just process events and sounds
         SV_AddEntToSnapshot(svEnt, ent, eNums);
       }
     }
@@ -486,8 +449,7 @@ static void SV_AddEntitiesVisibleFromPoint(vec3_t origin,
 }
 
 /*
-=============
-SV_BuildClientSnapshot
+
 
 Decides which entities are going to be visible to the client, and
 copies off the playerstate and areabits.
@@ -497,9 +459,9 @@ currently doesn't.
 
 For viewing through other player's eyes, client can be something other than
 client->gentity
-=============
 */
-static void SV_BuildClientSnapshot(Client *client) {
+static void SV_BuildClientSnapshot(Client *client)
+{
   // bump the counter used to prevent double adding
   sv.snapshotCounter++;
 
@@ -565,8 +527,7 @@ static void SV_BuildClientSnapshot(Client *client) {
   frame->first_entity = svs.nextSnapshotEntities;
   for (int i = 0; i < entityNumbers.numSnapshotEntities; i++) {
     SharedEntity *ent = SV_GentityNum(entityNumbers.snapshotEntities[i]);
-    EntityState *state = &svs.snapshotEntities[svs.nextSnapshotEntities %
-                                                 svs.numSnapshotEntities];
+    EntityState *state = &svs.snapshotEntities[svs.nextSnapshotEntities % svs.numSnapshotEntities];
     *state = ent->s;
     svs.nextSnapshotEntities++;
     // this should never hit, map should always be restarted first in SV_Frame

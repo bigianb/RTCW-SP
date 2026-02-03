@@ -959,7 +959,7 @@ MSG_WriteDeltaEntity
 
 GENTITYNUM_BITS 1 : remove this entity
 GENTITYNUM_BITS 0 1 SMALL_VECTOR_BITS <data>
-GENTITYNUM_BITS 0 0 LARGE_VECTOR_BITS >data>
+GENTITYNUM_BITS 0 0 LARGE_VECTOR_BITS <data>
 
 Writes part of a packetentities message, including the entity number.
 Can delta from either a baseline or a previous packet_entity
@@ -968,9 +968,10 @@ If force is not set, then nothing at all will be generated if the entity is
 identical, under the assumption that the in-order delta code will catch it.
 ==================
 */
-void MSG_WriteDeltaEntity( msg_t *msg, EntityState *from, EntityState *to, bool force ) {
-	int i, c;
-	int numFields;
+void MSG_WriteDeltaEntity( msg_t *msg, EntityState *from, EntityState *to, bool force )
+{
+	int i;
+
 	netField_t  *field;
 	int trunc;
 	float fullFloat;
@@ -986,7 +987,7 @@ void MSG_WriteDeltaEntity( msg_t *msg, EntityState *from, EntityState *to, bool 
 		startBit = ( msg->cursize - 1 ) * 8 + msg->bit - GENTITYNUM_BITS;
 	}
 
-	numFields = sizeof( entityStateFields ) / sizeof( entityStateFields[0] );
+	int numFields = sizeof( entityStateFields ) / sizeof( entityStateFields[0] );
 
 	// all fields should be 32 bits to avoid any compiler packing issues
 	// the "number" field is not part of the field list
@@ -994,7 +995,7 @@ void MSG_WriteDeltaEntity( msg_t *msg, EntityState *from, EntityState *to, bool 
 	// struct without updating the message fields
 	assert( numFields + 1 == sizeof( *from ) / 4 );
 
-	c = msg->cursize;
+	int c = msg->cursize;
 
 	// a nullptr to is a delta remove message
 	if ( to == nullptr ) {
@@ -1049,7 +1050,6 @@ void MSG_WriteDeltaEntity( msg_t *msg, EntityState *from, EntityState *to, bool 
 	MSG_WriteBits( msg, 0, 1 );         // not removed
 	MSG_WriteBits( msg, 1, 1 );         // we have a delta
 
-//	MSG_WriteBits( msg, compressedVector, SMALL_VECTOR_BITS );
 	if ( compressedVector == -1 ) {
 		oldsize += 4;
 		MSG_WriteBits( msg, 1, 1 );          // complete change
@@ -1110,36 +1110,20 @@ void MSG_WriteDeltaEntity( msg_t *msg, EntityState *from, EntityState *to, bool 
 }
 
 /*
-==================
-MSG_ReadDeltaEntity
-
 The entity number has already been read from the message, which
 is how the from state is identified.
 
 If the delta removes the entity, EntityState->number will be set to MAX_GENTITIES-1
 
 Can go from either a baseline or a previous packet_entity
-==================
 */
-
-void MSG_ReadDeltaEntity( msg_t *msg, EntityState *from, EntityState *to,
-						  int number ) {
-	int i;
-	int numFields;
-	netField_t  *field;
-	int         *fromF, *toF;
-
-	int trunc;
-	int startBit, endBit;
-	int compressedVector;
-	uint8_t expandedVector[CHANGE_VECTOR_BYTES];
-	uint8_t        *changeVector;
-
+void MSG_ReadDeltaEntity( msg_t *msg, EntityState *from, EntityState *to, int number )
+{
 	if ( number < 0 || number >= MAX_GENTITIES ) {
 		Com_Error( ERR_DROP, "Bad delta entity number: %i", number );
-        return; // keep the linter happy, ERR_DROP does not return
 	}
 
+	int startBit;
 	if ( msg->bit == 0 ) {
 		startBit = msg->readcount * 8 - GENTITYNUM_BITS;
 	} else {
@@ -1150,7 +1134,6 @@ void MSG_ReadDeltaEntity( msg_t *msg, EntityState *from, EntityState *to,
 	if ( MSG_ReadBits( msg, 1 ) == 1 ) {
 		memset( to, 0, sizeof( *to ) );
 		to->number = MAX_GENTITIES - 1;
-
 		return;
 	}
 
@@ -1161,15 +1144,18 @@ void MSG_ReadDeltaEntity( msg_t *msg, EntityState *from, EntityState *to,
 		return;
 	}
 
-	numFields = sizeof( entityStateFields ) / sizeof( entityStateFields[0] );
+	int numFields = sizeof( entityStateFields ) / sizeof( entityStateFields[0] );
 
 	// get the entire change vector, either compressed or uncompressed
 
+	uint8_t expandedVector[CHANGE_VECTOR_BYTES];
+	uint8_t *changeVector;
 	if ( MSG_ReadBits( msg, 1 ) ) {
 		// not a compressed vector, so read the entire thing
 		c_uncompressedVectors++;
 		// we didn't find a fast match so we need to write the entire delta
-		for ( i = 0 ; i + 8 <= numFields ; i += 8 ) {
+		int i;
+		for (i = 0 ; i + 8 <= numFields ; i += 8 ) {
 			expandedVector[i >> 3] = MSG_ReadByte( msg );
 		}
 		if ( numFields & 7 ) {
@@ -1177,19 +1163,19 @@ void MSG_ReadDeltaEntity( msg_t *msg, EntityState *from, EntityState *to,
 		}
 		changeVector = expandedVector;
 	} else {
-		compressedVector = MSG_ReadBits( msg, SMALL_VECTOR_BITS );
+		int compressedVector = MSG_ReadBits( msg, SMALL_VECTOR_BITS );
 		c_compressedVectors++;
 		changeVector = changeVectorLog[ compressedVector ].vector;
 	}
 
-
 	to->number = number;
 
-	for ( i = 0, field = entityStateFields ; i < numFields ; i++, field++ ) {
-		fromF = ( int * )( (uint8_t *)from + field->offset );
-		toF = ( int * )( (uint8_t *)to + field->offset );
+	for (int i = 0; i < numFields ; i++) {
+		netField_t* field = &entityStateFields[i];
+		int* fromF = ( int * )( (uint8_t *)from + field->offset );
+		int* toF = ( int * )( (uint8_t *)to + field->offset );
 
-		if ( !( changeVector[ i >> 3 ] & ( 1 << ( i & 7 ) ) ) ) {   // MSG_ReadBits( msg, 1 ) == 0 ) {
+		if ( !( changeVector[ i >> 3 ] & ( 1 << ( i & 7 ) ) ) ) {
 			// no change
 			*toF = *fromF;
 		} else {
@@ -1200,7 +1186,7 @@ void MSG_ReadDeltaEntity( msg_t *msg, EntityState *from, EntityState *to,
 				} else {
 					if ( MSG_ReadBits( msg, 1 ) == 0 ) {
 						// integral float
-						trunc = MSG_ReadBits( msg, FLOAT_INT_BITS );
+						int trunc = MSG_ReadBits( msg, FLOAT_INT_BITS );
 						// bias to allow equal parts positive and negative
 						trunc -= FLOAT_INT_BIAS;
 						*(float *)toF = trunc;
@@ -1275,7 +1261,7 @@ netField_t playerStateFields[] =
 	{ PSF( clientNum ), 8 },
 	{ PSF( weapons[0] ), 32 },
 	{ PSF( weapons[1] ), 32 },
-	{ PSF( weapon ), 7 }, // (SA) yup, even more
+	{ PSF( weapon ), 7 }, 
 	{ PSF( weaponstate ), 4 },
 	{ PSF( viewangles[0] ), 0 },
 	{ PSF( viewangles[1] ), 0 },
@@ -1306,29 +1292,22 @@ netField_t playerStateFields[] =
 	{ PSF( gunfx ), 8},
 	{ PSF( onFireStart ), 32},
 	{ PSF( curWeapHeat ), 8 },
-	{ PSF( sprintTime ), 16}, // FIXME: to be removed
+	{ PSF( sprintTime ), 16},
 	{ PSF( aimSpreadScale ), 8},
 	{ PSF( aiState ), 2},
-	{ PSF( serverCursorHint ), 8}, //----(SA)	added
-	{ PSF( serverCursorHintVal ), 8}, //----(SA)	added
-// RF not needed anymore
-//{ PSF(classWeaponTime), 32}, // JPW NERVE
+	{ PSF( serverCursorHint ), 8}, 
+	{ PSF( serverCursorHintVal ), 8}, 
 	{ PSF( footstepCount ), 0},
 };
 
-/*
-=============
-MSG_WriteDeltaPlayerstate
 
-=============
-*/
 void MSG_WriteDeltaPlayerstate( msg_t *msg, PlayerState *from, PlayerState *to ) {
 	int i, j;
 	PlayerState dummy;
 	int statsbits;
 	int persistantbits;
-	int ammobits[4];                //----(SA)	modified
-	int clipbits;                   //----(SA)	added
+	int ammobits[4];    
+	int clipbits; 
 	int powerupbits;
 	int holdablebits;
 	int numFields;
@@ -1426,9 +1405,7 @@ void MSG_WriteDeltaPlayerstate( msg_t *msg, PlayerState *from, PlayerState *to )
 			MSG_WriteShort( msg, statsbits );
 			for ( i = 0 ; i < 16 ; i++ )
 				if ( statsbits & ( 1 << i ) ) {
-					// RF, changed to long to allow more flexibility
-//					MSG_WriteLong (msg, to->stats[i]);
-					MSG_WriteShort( msg, to->stats[i] );  //----(SA)	back to short since weapon bits are handled elsewhere now
+					MSG_WriteShort( msg, to->stats[i] );
 				}
 		} else {
 			MSG_WriteBits( msg, 0, 1 ); // no change to stats
@@ -1537,11 +1514,6 @@ void MSG_WriteDeltaPlayerstate( msg_t *msg, PlayerState *from, PlayerState *to )
 }
 
 
-/*
-===================
-MSG_ReadDeltaPlayerstate
-===================
-*/
 void MSG_ReadDeltaPlayerstate( msg_t *msg, PlayerState *from, PlayerState *to ) {
 	int i, j;
 	int bits;
@@ -1939,13 +1911,12 @@ int msg_hData[256] = {
 	13504,      // 255
 };
 
-void MSG_initHuffman() {
-	int i,j;
-
+void MSG_initHuffman()
+{
 	msgInit = true;
 	Huff_Init( &msgHuff );
-	for ( i = 0; i < 256; i++ ) {
-		for ( j = 0; j < msg_hData[i]; j++ ) {
+	for (int i = 0; i < 256; i++ ) {
+		for (int j = 0; j < msg_hData[i]; j++ ) {
 			Huff_addRef( &msgHuff.compressor,    (uint8_t)i );           /* Do update */
 			Huff_addRef( &msgHuff.decompressor,  (uint8_t)i );           /* Do update */
 		}

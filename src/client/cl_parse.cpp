@@ -51,12 +51,9 @@ MESSAGE PARSING
 */
 
 /*
-==================
-CL_DeltaEntity
 
 Parses deltas from the given base and adds the resulting entity
 to the current frame
-==================
 */
 void CL_DeltaEntity( msg_t *msg, clSnapshot_t *frame, int newnum, EntityState *old, bool unchanged )
 {
@@ -77,12 +74,6 @@ void CL_DeltaEntity( msg_t *msg, clSnapshot_t *frame, int newnum, EntityState *o
 	frame->numEntities++;
 }
 
-/*
-==================
-CL_ParsePacketEntities
-
-==================
-*/
 void CL_ParsePacketEntities( msg_t *msg, clSnapshot_t *oldframe, clSnapshot_t *newframe )
 {
 	int oldnum;
@@ -115,7 +106,6 @@ void CL_ParsePacketEntities( msg_t *msg, clSnapshot_t *oldframe, clSnapshot_t *n
 
 		if ( msg->readcount > msg->cursize ) {
 			Com_Error( ERR_DROP,"CL_ParsePacketEntities: end of message" );
-            return;  // Keep linter happy. ERR_DROP does not return
 		}
 
 		while ( oldnum < newnum ) {
@@ -175,13 +165,9 @@ void CL_ParsePacketEntities( msg_t *msg, clSnapshot_t *oldframe, clSnapshot_t *n
 
 
 /*
-================
-CL_ParseSnapshot
-
 If the snapshot is parsed properly, it will be copied to
 cl.snap and saved in cl.snapshots[].  If the snapshot is invalid
 for any reason, no changes to the state will be made at all.
-================
 */
 void CL_ParseSnapshot( msg_t *msg )
 {
@@ -308,11 +294,6 @@ void CL_SystemInfoChanged( void ) {
 	}
 }
 
-/*
-==================
-CL_ParseGamestate
-==================
-*/
 void CL_ParseGamestate( msg_t *msg )
 {
 	Con_Close();
@@ -338,14 +319,12 @@ void CL_ParseGamestate( msg_t *msg )
 			int i = MSG_ReadShort( msg );
 			if ( i < 0 || i >= MAX_CONFIGSTRINGS ) {
 				Com_Error( ERR_DROP, "configstring > MAX_CONFIGSTRINGS" );
-				return;
 			}
 			char* s = MSG_ReadBigString( msg );
 			size_t len = strlen( s );
 
 			if ( len + 1 + cl.gameState.dataCount > MAX_GAMESTATE_CHARS ) {
 				Com_Error( ERR_DROP, "MAX_GAMESTATE_CHARS exceeded" );
-				return;
 			}
 
 			// append it to the gameState string buffer
@@ -356,7 +335,6 @@ void CL_ParseGamestate( msg_t *msg )
 			int newnum = MSG_ReadBits( msg, GENTITYNUM_BITS );
 			if ( newnum < 0 || newnum >= MAX_GENTITIES ) {
 				Com_Error( ERR_DROP, "Baseline number out of range: %i", newnum );
-                return;  // Keep linter happy. ERR_DROP does not return
 			}
 			EntityState nullstate;
 			memset( &nullstate, 0, sizeof( nullstate ) );
@@ -364,7 +342,6 @@ void CL_ParseGamestate( msg_t *msg )
 			MSG_ReadDeltaEntity( msg, &nullstate, es, newnum );
 		} else {
 			Com_Error( ERR_DROP, "CL_ParseGamestate: bad command uint8_t" );
-            return;  // Keep linter happy. ERR_DROP does not return
 		}
 	}
 
@@ -439,12 +416,6 @@ void CL_ParseCommandString( msg_t *msg )
 	Q_strncpyz( clc.serverCommands[ index ], s, sizeof( clc.serverCommands[ index ] ) );
 }
 
-
-/*
-=====================
-CL_ParseServerMessage
-=====================
-*/
 void CL_ParseServerMessage( msg_t *msg )
 {
 	MSG_Bitstream( msg );
@@ -462,7 +433,6 @@ void CL_ParseServerMessage( msg_t *msg )
 	while ( 1 ) {
 		if ( msg->readcount > msg->cursize ) {
 			Com_Error( ERR_DROP,"CL_ParseServerMessage: read past end of server message" );
-            return;  // Keep linter happy. ERR_DROP does not return
 			break;
 		}
 
@@ -476,7 +446,6 @@ void CL_ParseServerMessage( msg_t *msg )
 		switch ( cmd ) {
 		default:
 			Com_Error( ERR_DROP,"CL_ParseServerMessage: Illegible server message\n" );
-            return;  // Keep linter happy. ERR_DROP does not return
 			break;
 		case svc_nop:
 			break;

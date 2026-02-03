@@ -45,7 +45,6 @@ cvar_t  *sv_hostname;
 cvar_t  *sv_master[MAX_MASTER_SERVERS];     // master server ip address
 cvar_t  *sv_reconnectlimit;     // minimum seconds between connect messages
 cvar_t  *sv_showloss;           // report when usercmds are lost
-cvar_t  *sv_padPackets;         // add nop bytes to messages
 cvar_t  *sv_mapname;
 
 cvar_t  *sv_serverid;

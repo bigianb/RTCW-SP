@@ -904,7 +904,7 @@ void CalcMuzzlePointForActivate( GameEntity *ent, vec3_t forward, vec3_t right, 
 //
 
 void SetClientViewAngle( GameEntity *ent, vec3_t angle );
-GameEntity *SelectSpawnPoint( vec3_t avoidPoint, vec3_t origin, vec3_t angles );
+
 void respawn( GameEntity *ent );
 
 void InitClientPersistant( GameClient *client );
@@ -913,7 +913,7 @@ void InitBodyQue( void );
 void ClientSpawn( GameEntity *ent );
 void player_die( GameEntity *self, GameEntity *inflictor, GameEntity *attacker, int damage, int mod );
 void AddScore( GameEntity *ent, int score );
-bool SpotWouldTelefrag( GameEntity *spot );
+
 bool G_GetModelInfo( int clientNum, char *modelName, animModelInfo_t **modelInfo );
 
 //
@@ -930,7 +930,6 @@ void FireWeapon( GameEntity *ent );
 //
 // p_hud.c
 //
-void MoveClientToIntermission( GameEntity *client );
 void G_SetStats( GameEntity *ent );
 
 
@@ -946,7 +945,7 @@ void G_SetStats( GameEntity *ent );
 //
 // g_main.c
 //
-void FindIntermissionPoint( void );
+
 void G_RunThink( GameEntity *ent );
 void  G_LogPrintf( const char *fmt, ... );
 
@@ -1062,7 +1061,6 @@ extern vmCvar_t g_dmflags;
 extern vmCvar_t g_fraglimit;
 extern vmCvar_t g_timelimit;
 extern vmCvar_t g_capturelimit;
-extern vmCvar_t g_friendlyFire;
 
 extern vmCvar_t g_needpass;
 extern vmCvar_t g_gravity;
@@ -1082,14 +1080,14 @@ extern vmCvar_t g_syncronousClients;
 extern vmCvar_t g_motd;
 extern vmCvar_t g_warmup;
 extern vmCvar_t g_blood;
-extern vmCvar_t g_allowVote;
+
 
 extern vmCvar_t g_needpass;
 extern vmCvar_t g_weaponTeamRespawn;
 extern vmCvar_t g_doWarmup;
 extern vmCvar_t g_teamAutoJoin;
 extern vmCvar_t g_teamForceBalance;
-extern vmCvar_t g_banIPs;
+
 extern vmCvar_t g_filterBan;
 extern vmCvar_t g_rankings;
 extern vmCvar_t g_enableBreath;

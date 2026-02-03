@@ -43,7 +43,6 @@ typedef struct {
 	int cvarFlags;
 	int modificationCount;          // for tracking changes
 	bool trackChange;           // track this variable, and announce if changed
-	bool teamShader;      // track and if changed, update shader state
 } cvarTable_t;
 
 GameEntity g_entities[MAX_GENTITIES];
@@ -65,7 +64,6 @@ vmCvar_t g_dmflags;
 vmCvar_t g_fraglimit;
 vmCvar_t g_timelimit;
 vmCvar_t g_capturelimit;
-vmCvar_t g_friendlyFire;
 
 vmCvar_t g_maxclients;
 vmCvar_t g_maxGameClients;
@@ -93,7 +91,6 @@ vmCvar_t g_logSync;
 vmCvar_t g_blood;
 vmCvar_t g_podiumDist;
 vmCvar_t g_podiumDrop;
-vmCvar_t g_allowVote;
 
 vmCvar_t g_needpass;
 vmCvar_t g_weaponTeamRespawn;
@@ -101,7 +98,7 @@ vmCvar_t g_doWarmup;
 vmCvar_t g_teamAutoJoin;
 vmCvar_t g_teamForceBalance;
 vmCvar_t g_listEntity;
-vmCvar_t g_banIPs;
+
 vmCvar_t g_filterBan;
 vmCvar_t g_rankings;
 vmCvar_t g_enableBreath;
@@ -145,10 +142,10 @@ cvarTable_t gameCvarTable[] = {
 	// latched vars
 
 	// Rafael gameskill
-	{ &g_gameskill, "g_gameskill", "2", CVAR_SERVERINFO | CVAR_LATCH, 0, false  },   // (SA) new default '2' (was '1')
+	{ &g_gameskill, "g_gameskill", "2", CVAR_SERVERINFO | CVAR_LATCH, 0, false  }, 
 	// done
 
-	{ &g_reloading, "g_reloading", "0", CVAR_ROM },   //----(SA)	added
+	{ &g_reloading, "g_reloading", "0", CVAR_ROM }, 
 
 	{ &g_playerStart, "g_playerStart", "0", CVAR_ROM, 0, false  },
 
@@ -157,20 +154,16 @@ cvarTable_t gameCvarTable[] = {
 
 	// change anytime vars
 	{ &g_dmflags, "dmflags", "0", CVAR_SERVERINFO | CVAR_ARCHIVE, 0, true  },
-	{ &g_fraglimit, "fraglimit", "20", CVAR_SERVERINFO | CVAR_ARCHIVE | CVAR_NORESTART, 0, true },
+
 	{ &g_timelimit, "timelimit", "0", CVAR_SERVERINFO | CVAR_ARCHIVE | CVAR_NORESTART, 0, true },
 	{ &g_capturelimit, "capturelimit", "8", CVAR_SERVERINFO | CVAR_ARCHIVE | CVAR_NORESTART, 0, true },
 
 	{ &g_syncronousClients, "g_syncronousClients", "0", CVAR_SYSTEMINFO, 0, false  },
 
-	{ &g_friendlyFire, "g_friendlyFire", "1", CVAR_ARCHIVE, 0, true  },
-
 	{ &g_warmup, "g_warmup", "20", CVAR_ARCHIVE, 0, true  },
 	{ &g_doWarmup, "g_doWarmup", "0", 0, 0, true  },
 	{ &g_log, "g_log", "games.log", CVAR_ARCHIVE, 0, false  },
 	{ &g_logSync, "g_logSync", "0", CVAR_ARCHIVE, 0, false  },
-
-	{ &g_banIPs, "g_banIPs", "", CVAR_ARCHIVE, 0, false  },
 
 	{ &g_speed, "g_speed", "320", 0, 0, true  },
 	{ &g_gravity, "g_gravity", "800", 0, 0, true  },
@@ -195,7 +188,6 @@ cvarTable_t gameCvarTable[] = {
 	{ &g_podiumDist, "g_podiumDist", "80", 0, 0, false },
 	{ &g_podiumDrop, "g_podiumDrop", "70", 0, 0, false },
 
-	{ &g_allowVote, "g_allowVote", "1", 0, 0, false },
 	{ &g_listEntity, "g_listEntity", "0", 0, 0, false },
 
 	{ &g_enableBreath, "g_enableBreath", "1", CVAR_SERVERINFO, 0, true},
@@ -227,9 +219,7 @@ cvarTable_t gameCvarTable[] = {
 	{&ai_scriptName, "ai_scriptName", "", CVAR_ROM, 0, false},
 };
 
-// bk001129 - made static to avoid aliasing
 static int gameCvarTableSize = sizeof( gameCvarTable ) / sizeof( gameCvarTable[0] );
-
 
 void G_InitGame( int levelTime, int randomSeed, int restart );
 
@@ -257,11 +247,6 @@ bool G_canStealthStab( int aiChar ) {
 	return false;
 }
 
-/*
-==============
-G_EndGame
-==============
-*/
 void G_EndGame( void ) {
     Com_Error( ERR_ENDGAME, "endgame" );
 }
@@ -299,27 +284,15 @@ static int nextCheckTime = 0;
 #define AITEAM_MONSTER  2
 #define AITEAM_NEUTRAL  7   // yes, '7'
 
-void G_CheckForCursorHints( GameEntity *ent ) {
+void G_CheckForCursorHints( GameEntity *ent )
+{
 	vec3_t forward, right, up, offset, end;
-	trace_t     *tr;
-	float dist;
-	GameEntity   *checkEnt, *traceEnt = 0;
-	PlayerState *ps;
-	int hintType, hintDist, hintVal, oldHintType;
-	bool zooming, indirectHit;      // indirectHit means the checkent was not the ent hit by the trace (checkEnt!=traceEnt)
-	int trace_contents;                 // DHM - Nerve
-
-	// FIXME:	no need at all to do this trace/string comparison every frame.
-	//			stagger it at least a little bit
-
-//	if(!servercursorhints)
-//		return;
 
 	if ( !ent->client ) {
 		return;
 	}
 
-	ps = &ent->client->ps;
+	PlayerState *ps = &ent->client->ps;
 
 	// don't change anything if reloading.  just set the exit hint
 	if ( g_reloading.integer == RELOAD_NEXTMAP_WAITING ) {
@@ -327,8 +300,6 @@ void G_CheckForCursorHints( GameEntity *ent ) {
 		ps->serverCursorHintVal = 0;
 		return;
 	}
-//	player->client->ps.serverCursorHint = HINT_EXIT;
-
 
 	if ( ps->aiChar != AICHAR_NONE ) {
 		return;
@@ -340,13 +311,12 @@ void G_CheckForCursorHints( GameEntity *ent ) {
 
 	nextCheckTime = level.time + 100;   // wait a little before checking again	(10hz)
 
-	indirectHit = false;
-
-	zooming = (bool)( ps->eFlags & EF_ZOOMING );
+	// indirectHit means the checkent was not the ent hit by the trace (checkEnt!=traceEnt)
+	bool indirectHit = false;
+	bool zooming = ( ps->eFlags & EF_ZOOMING ) == EF_ZOOMING;
 
 	AngleVectors( ps->viewangles, forward, right, up );
 
-	//----(SA)	modified to use shared routine for finding start point
 	CalcMuzzlePointForActivate( ent, forward, right, up, offset );
 
 	if ( zooming ) {
@@ -355,16 +325,18 @@ void G_CheckForCursorHints( GameEntity *ent ) {
 		VectorMA( offset, CH_MAX_DIST, forward, end );
 	}
 
-	tr = &ps->serverCursorHintTrace;
-	trace_contents = ( CONTENTS_TRIGGER | CONTENTS_SOLID | CONTENTS_PLAYERCLIP | CONTENTS_BODY | CONTENTS_CORPSE );   // SP fine checking corpses
+	trace_t* tr = &ps->serverCursorHintTrace;
+	int trace_contents = ( CONTENTS_TRIGGER | CONTENTS_SOLID | CONTENTS_PLAYERCLIP | CONTENTS_BODY | CONTENTS_CORPSE );
 	SV_Trace( tr, offset, nullptr, nullptr, end, ps->clientNum, trace_contents, false );
 
-	oldHintType = ps->serverCursorHint; // store the old one so we know when there's a transition
+	int oldHintType = ps->serverCursorHint; // store the old one so we know when there's a transition
 
 	// reset all
-	hintType    = ps->serverCursorHint      = HINT_NONE;
-	hintVal     = ps->serverCursorHintVal   = 0;
+	int hintType    = ps->serverCursorHint      = HINT_NONE;
+	int hintVal     = ps->serverCursorHintVal   = 0;
 
+	int hintDist;
+	float dist;
 	if ( zooming ) {
 		dist        = tr->fraction * CH_MAX_DIST_ZOOM;
 		hintDist    = CH_MAX_DIST_ZOOM;
@@ -377,8 +349,7 @@ void G_CheckForCursorHints( GameEntity *ent ) {
 		return;
 	}
 
-	traceEnt = &g_entities[tr->entityNum];
-
+	GameEntity* traceEnt = &g_entities[tr->entityNum];
 
 	//
 	// WORLD
@@ -403,7 +374,7 @@ void G_CheckForCursorHints( GameEntity *ent ) {
 			vec3_t pforward, eforward;
 			bool canKnife = false;
 
-// only knife certain characters
+			// only knife certain characters
 			if ( G_canStealthStab( traceEnt->client->ps.aiChar ) ) {
 				canKnife = true;
 			}
@@ -430,7 +401,7 @@ void G_CheckForCursorHints( GameEntity *ent ) {
 	// OTHER ENTITIES
 	//
 	else {
-		checkEnt = traceEnt;
+		GameEntity* checkEnt = traceEnt;
 
 		// check invisible_users first since you don't want to draw a hint based
 		// on that ent, but rather on what they are targeting.
@@ -468,8 +439,7 @@ void G_CheckForCursorHints( GameEntity *ent ) {
 				// target = 'endmap'
 				//
 				if ( !Q_stricmp( traceEnt->classname, "ai_trigger" ) ) {
-					if ( ( !Q_stricmp( traceEnt->aiName, "player" ) ) &&
-						 ( !Q_stricmp( traceEnt->target, "endmap" ) ) ) {
+					if ( ( !Q_stricmp( traceEnt->aiName, "player" ) ) && ( !Q_stricmp( traceEnt->target, "endmap" ) ) ) {
 
 						hintDist = CH_EXIT_DIST;
 
@@ -666,9 +636,6 @@ void G_CheckForCursorHints( GameEntity *ent ) {
 		ps->serverCursorHint = hintType;
 		ps->serverCursorHintVal = hintVal;
 	}
-
-
-//	Com_Printf("hint: %d\n", ps->serverCursorHint);
 }
 
 
@@ -683,14 +650,12 @@ All but the first will have the FL_TEAMSLAVE flag set and teammaster field set
 All but the last will have the teamchain field set to the next one
 ================
 */
-void G_FindTeams( void ) {
-	GameEntity   *e, *e2;
-	int i, j;
-	int c, c2;
-
-	c = 0;
-	c2 = 0;
-	for ( i = 1, e = g_entities + i ; i < level.num_entities ; i++,e++ ) {
+void G_FindTeams()
+{
+	int c = 0;
+	int c2 = 0;
+	for (int i = 1; i < level.num_entities; i++ ) {
+		GameEntity* e = &g_entities[i];
 		if ( !e->inuse ) {
 			continue;
 		}
@@ -703,7 +668,6 @@ void G_FindTeams( void ) {
 			continue;
 		}
 
-//----(SA)	this was never setting a master except for tramcar's...
 		if ( !Q_stricmp( e->classname, "func_tramcar" ) ) {
 			if ( e->spawnflags & 8 ) { // leader
 				e->teammaster = e;
@@ -713,12 +677,12 @@ void G_FindTeams( void ) {
 		} else {
 			e->teammaster = e;
 		}
-//----(SA)	end
 
 		c++;
 		c2++;
-		for ( j = i + 1, e2 = e + 1 ; j < level.num_entities ; j++,e2++ )
+		for (int j = i + 1; j < level.num_entities ; j++ )
 		{
+			GameEntity* e2 = &g_entities[j];
 			if ( !e2->inuse ) {
 				continue;
 			}
@@ -757,41 +721,14 @@ void G_FindTeams( void ) {
 
 }
 
-
-/*
-==============
-G_RemapTeamShaders
-==============
-*/
-void G_RemapTeamShaders() {
-
-}
-
-
-/*
-=================
-G_RegisterCvars
-=================
-*/
-void G_RegisterCvars( void ) {
-	int i;
-	cvarTable_t *cv;
-	bool remapped = false;
-
-	for ( i = 0, cv = gameCvarTable ; i < gameCvarTableSize ; i++, cv++ ) {
-		Cvar_Register( cv->vmCvar, cv->cvarName,
-							cv->defaultString, cv->cvarFlags );
+void G_RegisterCvars()
+{
+	for (int i = 0; i < gameCvarTableSize ; i++) {
+		cvarTable_t *cv = &gameCvarTable[i];
+		Cvar_Register( cv->vmCvar, cv->cvarName, cv->defaultString, cv->cvarFlags );
 		if ( cv->vmCvar ) {
 			cv->modificationCount = cv->vmCvar->modificationCount;
 		}
-
-		if ( cv->teamShader ) {
-			remapped = true;
-		}
-	}
-
-	if ( remapped ) {
-		G_RemapTeamShaders();
 	}
 
 	// Rafael gameskill
@@ -801,24 +738,15 @@ void G_RegisterCvars( void ) {
 	}
 
 	bg_pmove_gameskill_integer = g_gameskill.integer;
-	// done
-
 	level.warmupModificationCount = g_warmup.modificationCount;
 }
 
 extern void AICast_CastScriptThink( void ) ;
 
-/*
-=================
-G_UpdateCvars
-=================
-*/
-void G_UpdateCvars( void ) {
-	int i;
-	cvarTable_t *cv;
-	bool remapped = false;
-
-	for ( i = 0, cv = gameCvarTable ; i < gameCvarTableSize ; i++, cv++ ) {
+void G_UpdateCvars()
+{
+	for (int i = 0; i < gameCvarTableSize; i++) {
+		cvarTable_t *cv = &gameCvarTable[i];
 		if ( cv->vmCvar ) {
 			Cvar_Update( cv->vmCvar );
 
@@ -826,18 +754,12 @@ void G_UpdateCvars( void ) {
 				cv->modificationCount = cv->vmCvar->modificationCount;
 
 				if ( cv->trackChange ) {
-					SV_GameSendServerCommand( -1, va( "print \"Server: %s changed to %s\n\"",
-													cv->cvarName, cv->vmCvar->string ) );
-				}
-
-				if ( cv->teamShader ) {
-					remapped = true;
+					SV_GameSendServerCommand( -1, va( "print \"Server: %s changed to %s\n\"", cv->cvarName, cv->vmCvar->string ) );
 				}
 
 				// check for changed values for particular cvars
 				if ( !Q_stricmp( cv->cvarName, "g_playerStart" ) ) {
-					GameEntity *player;
-					player = AICast_FindEntityForName( "player" );
+					GameEntity *player = AICast_FindEntityForName( "player" );
 					if ( player && cv->vmCvar->integer ) {
 						char filename[MAX_QPATH];
 						char mapname[MAX_QPATH];
@@ -872,21 +794,17 @@ void G_UpdateCvars( void ) {
 			}
 		}
 	}
-
-	if ( remapped ) {
-		G_RemapTeamShaders();
-	}
 }
 
 
 
 /*
-==============
-G_SpawnScriptCamera
+
 	create the game entity that's used for camera<->script communication and portal location for camera view
-==============
+
 */
-void G_SpawnScriptCamera( void ) {
+void G_SpawnScriptCamera()
+{
 	if ( g_camEnt ) {
 		G_FreeEntity( g_camEnt );
 	}
@@ -920,19 +838,20 @@ G_SendMissionStats
 	for updating the g_missionStats string to the client
 ==============
 */
-int G_SendMissionStats() {
+int G_SendMissionStats()
+{
 	char cmd[MAX_QPATH];
-	GameEntity   *player;
-	int i, attempts = 0, playtime = 0, minutes, objs = 0, sec = 0, treas = 0;
+
+	int attempts = 0, playtime = 0, minutes, objs = 0, sec = 0, treas = 0;
 	int canExit = 0;
 
-	player = AICast_FindEntityForName( "player" );
+	GameEntity   *player = AICast_FindEntityForName( "player" );
 	if ( player ) {
 		attempts = AICast_NumAttempts( player->shared.s.number ) + 1;    // attempts tracks '0' as attempt 1
 		AICast_AgePlayTime( player->shared.s.number );
 		playtime = AICast_PlayTime( player->shared.s.number );
 
-		for ( i = 0; i < 8; i++ ) {  // max objectives is '8'.  FIXME: use #define somewhere
+		for (int i = 0; i < 8; i++ ) {  // max objectives is '8'.  FIXME: use #define somewhere
 			if ( player->missionObjectives & ( 1 << i ) ) {
 				objs++;
 			}
@@ -1009,7 +928,7 @@ void G_InitGame( int levelTime, int randomSeed, int restart )
 	level.clients = g_clients;
 
 	// set client fields on player ents
-	for (int i = 0 ; i < level.maxclients ; i++ ) {
+	for (int i = 0; i < level.maxclients; i++ ) {
 		g_entities[i].client = level.clients + i;
 	}
 
@@ -1066,7 +985,6 @@ void G_InitGame( int levelTime, int randomSeed, int restart )
 		BotAILoadMap( restart );
 	}
 
-	G_RemapTeamShaders();
 }
 
 void G_ShutdownGame( int restart ) {
@@ -1106,70 +1024,6 @@ MAP CHANGING
 
 ========================================================================
 */
-
-
-/*
-========================
-MoveClientToIntermission
-
-When the intermission starts, this will be called for all players.
-If a new client connects, this will be called after the spawn function.
-========================
-*/
-void MoveClientToIntermission( GameEntity *ent ) {
-	// take out of follow mode if needed
-	if ( ent->client->sess.spectatorState == SPECTATOR_FOLLOW ) {
-		StopFollowing( ent );
-	}
-
-
-	// move to the spot
-	VectorCopy( level.intermission_origin, ent->shared.s.origin );
-	VectorCopy( level.intermission_origin, ent->client->ps.origin );
-	VectorCopy( level.intermission_angle, ent->client->ps.viewangles );
-	ent->client->ps.pm_type = PM_INTERMISSION;
-
-	// clean up powerup info
-	memset( ent->client->ps.powerups, 0, sizeof( ent->client->ps.powerups ) );
-
-	ent->client->ps.eFlags = 0;
-	ent->shared.s.eFlags = 0;
-	ent->shared.s.eType = ET_GENERAL;
-	ent->shared.s.modelindex = 0;
-	ent->shared.s.loopSound = 0;
-	ent->shared.s.event = 0;
-	ent->shared.r.contents = 0;
-}
-
-/*
-==================
-FindIntermissionPoint
-
-This is also used for spectator spawns
-==================
-*/
-void FindIntermissionPoint( void ) {
-	GameEntity   *ent, *target;
-	vec3_t dir;
-
-	// find the intermission spot
-	ent = G_Find( nullptr, FOFS( classname ), "info_player_intermission" );
-	if ( !ent ) {   // the map creator forgot to put in an intermission point...
-		SelectSpawnPoint( vec3_origin, level.intermission_origin, level.intermission_angle );
-	} else {
-		VectorCopy( ent->shared.s.origin, level.intermission_origin );
-		VectorCopy( ent->shared.s.angles, level.intermission_angle );
-		// if it has a target, look towards it
-		if ( ent->target ) {
-			target = G_PickTarget( ent->target );
-			if ( target ) {
-				VectorSubtract( target->shared.s.origin, level.intermission_origin, dir );
-				vectoangles( dir, level.intermission_angle );
-			}
-		}
-	}
-
-}
 
 
 /*
@@ -1338,15 +1192,11 @@ void CheckReloadStatus( void ) {
 }
 
 /*
-=============
-G_RunThink
-
 Runs thinking code for this frame if necessary
-=============
 */
-void G_RunThink( GameEntity *ent ) {
+void G_RunThink( GameEntity *ent )
+{
 
-	// RF, run scripting
 	if ( ent->shared.s.number >= MAX_CLIENTS ) {
 		ent->scriptStatusCurrent = ent->scriptStatus;
 		G_Script_ScriptRun( ent );
@@ -1360,7 +1210,6 @@ void G_RunThink( GameEntity *ent ) {
 	ent->nextthink = 0;
 	if ( !ent->think ) {
 		Com_Error( ERR_DROP, "nullptr ent->think" );
-        return; // keep the linter happy, ERR_DROP does not return
 	}
 	ent->think( ent );
 }
@@ -1388,11 +1237,6 @@ void G_RunFrame( int levelTime )
 
 	// get any cvar changes
 	G_UpdateCvars();
-
-	//
-	// go through all allocated objects
-	//
-	//start = Sys_Milliseconds();
 
 	for (int i = 0 ; i < level.num_entities; i++) {
 		GameEntity* ent = &g_entities[i];
@@ -1424,7 +1268,7 @@ void G_RunFrame( int levelTime )
 		// clear events that are too old
 		if ( ent->eventTime && level.time - ent->eventTime > EVENT_VALID_MSEC ) {
 			if ( ent->shared.s.event ) {
-				ent->shared.s.event = 0;   // &= EV_EVENT_BITS;
+				ent->shared.s.event = 0; 
 			}
 			// Clear all listed events (fixes hearing lots of sounds and events after vid_restart)
 			memset( ent->shared.s.events, 0, sizeof( ent->shared.s.events ) );
@@ -1532,5 +1376,4 @@ void G_RunFrame( int levelTime )
 
 	// Ridah, check if we are reloading, and times have expired
 	CheckReloadStatus();
-
 }

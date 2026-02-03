@@ -48,10 +48,10 @@ Targets will be fired when someone spawns in on them.
 "nohumans" will prevent non-bots from using this spot.
 If the start position is targeting an entity, the players camera will start out facing that ent (like an info_notnull)
 */
-void SP_info_player_deathmatch( GameEntity *ent ) {
+void SP_info_player_deathmatch( GameEntity *ent )
+{
 	int i;
-	vec3_t dir;
-
+	
 	G_SpawnInt( "nobots", "0", &i );
 	if ( i ) {
 		ent->flags |= FL_NO_BOTS;
@@ -63,6 +63,7 @@ void SP_info_player_deathmatch( GameEntity *ent ) {
 
 	ent->enemy = G_PickTarget( ent->target );
 	if ( ent->enemy ) {
+		vec3_t dir;
 		VectorSubtract( ent->enemy->shared.s.origin, ent->shared.s.origin, dir );
 		vectoangles( dir, ent->shared.s.angles );
 	}
@@ -87,144 +88,6 @@ void SP_info_player_intermission( GameEntity *ent ) {
 }
 
 
-
-/*
-=======================================================================
-
-  SelectSpawnPoint
-
-=======================================================================
-*/
-
-/*
-================
-SpotWouldTelefrag
-
-================
-*/
-bool SpotWouldTelefrag( GameEntity *spot ) {
-	int i, num;
-	int touch[MAX_GENTITIES];
-	GameEntity   *hit;
-	vec3_t mins, maxs;
-
-	VectorAdd( spot->shared.s.origin, playerMins, mins );
-	VectorAdd( spot->shared.s.origin, playerMaxs, maxs );
-	num = SV_AreaEntities( mins, maxs, touch, MAX_GENTITIES );
-
-	for ( i = 0 ; i < num ; i++ ) {
-		hit = &g_entities[touch[i]];
-		if ( hit->client && hit->client->ps.stats[STAT_HEALTH] > 0 ) {
-			return true;
-		}
-
-	}
-
-	return false;
-}
-
-/*
-================
-SelectNearestDeathmatchSpawnPoint
-
-Find the spot that we DON'T want to use
-================
-*/
-#define MAX_SPAWN_POINTS    128
-GameEntity *SelectNearestDeathmatchSpawnPoint( vec3_t from ) {
-	GameEntity   *spot;
-	vec3_t delta;
-	float dist, nearestDist;
-	GameEntity   *nearestSpot;
-
-	nearestDist = 999999;
-	nearestSpot = nullptr;
-	spot = nullptr;
-
-	while ( ( spot = G_Find( spot, FOFS( classname ), "info_player_deathmatch" ) ) != nullptr ) {
-
-		VectorSubtract( spot->shared.s.origin, from, delta );
-		dist = VectorLength( delta );
-		if ( dist < nearestDist ) {
-			nearestDist = dist;
-			nearestSpot = spot;
-		}
-	}
-
-	return nearestSpot;
-}
-
-
-/*
-================
-SelectRandomDeathmatchSpawnPoint
-
-go to a random point that doesn't telefrag
-================
-*/
-#define MAX_SPAWN_POINTS    128
-GameEntity *SelectRandomDeathmatchSpawnPoint( void ) {
-	GameEntity   *spot;
-	int count;
-	int selection;
-	GameEntity   *spots[MAX_SPAWN_POINTS];
-
-	count = 0;
-	spot = nullptr;
-
-	while ( ( spot = G_Find( spot, FOFS( classname ), "info_player_deathmatch" ) ) != nullptr ) {
-		if ( SpotWouldTelefrag( spot ) ) {
-			continue;
-		}
-		spots[ count ] = spot;
-		count++;
-	}
-
-	if ( !count ) { // no spots that won't telefrag
-		return G_Find( nullptr, FOFS( classname ), "info_player_deathmatch" );
-	}
-
-	selection = rand() % count;
-	return spots[ selection ];
-}
-
-
-/*
-===========
-SelectSpawnPoint
-
-Chooses a player start, deathmatch start, etc
-============
-*/
-GameEntity *SelectSpawnPoint( vec3_t avoidPoint, vec3_t origin, vec3_t angles ) {
-	GameEntity   *spot;
-	GameEntity   *nearestSpot;
-
-	nearestSpot = SelectNearestDeathmatchSpawnPoint( avoidPoint );
-
-	spot = SelectRandomDeathmatchSpawnPoint();
-	if ( spot == nearestSpot ) {
-		// roll again if it would be real close to point of death
-		spot = SelectRandomDeathmatchSpawnPoint();
-		if ( spot == nearestSpot ) {
-			// last try
-			spot = SelectRandomDeathmatchSpawnPoint();
-		}
-	}
-
-	// find a single player start spot
-	if ( !spot ) {
-		Com_Error( ERR_DROP, "Couldn't find a spawn point" );
-        return nullptr; // keep the linter happy, ERR_DROP does not return
-	}
-
-	VectorCopy( spot->shared.s.origin, origin );
-	origin[2] += 9;
-	VectorCopy( spot->shared.s.angles, angles );
-
-	return spot;
-}
-
 /*
 ===========
 SelectInitialSpawnPoint
@@ -233,18 +96,18 @@ Try to find a spawn point marked 'initial', otherwise
 use normal spawn selection.
 ============
 */
-GameEntity *SelectInitialSpawnPoint( vec3_t origin, vec3_t angles ) {
-	GameEntity   *spot;
-
-	spot = nullptr;
+GameEntity *SelectInitialSpawnPoint( vec3_t origin, vec3_t angles )
+{
+	GameEntity   *spot = nullptr;
 	while ( ( spot = G_Find( spot, FOFS( classname ), "info_player_deathmatch" ) ) != nullptr ) {
 		if ( spot->spawnflags & 1 ) {
 			break;
 		}
 	}
 
-	if ( !spot || SpotWouldTelefrag( spot ) ) {
-		return SelectSpawnPoint( vec3_origin, origin, angles );
+	if ( !spot ) {
+		// Couldn't find one marked initial, so just use the first one.
+		spot = G_Find( nullptr, FOFS( classname ), "info_player_deathmatch" );
 	}
 
 	VectorCopy( spot->shared.s.origin, origin );
@@ -252,21 +115,6 @@ GameEntity *SelectInitialSpawnPoint( vec3_t origin, vec3_t angles ) {
 	VectorCopy( spot->shared.s.angles, angles );
 
 	return spot;
-}
-
-/*
-===========
-SelectSpectatorSpawnPoint
-
-============
-*/
-GameEntity *SelectSpectatorSpawnPoint( vec3_t origin, vec3_t angles ) {
-	FindIntermissionPoint();
-
-	VectorCopy( level.intermission_origin, origin );
-	VectorCopy( level.intermission_angle, angles );
-
-	return nullptr;
 }
 
 /*
@@ -932,18 +780,12 @@ void ClientBegin( int clientNum ) {
 		AICast_ScriptEvent( AICast_GetCastState( clientNum ), "spawn", "" );
 	}
 
-	{
-		// send event
-		tent = G_TempEntity( ent->client->ps.origin, EV_PLAYER_TELEPORT_IN );
-		tent->shared.s.clientNum = ent->shared.s.clientNum;
-
-		// Ridah
-		if ( !(ent->shared.r.svFlags & SVF_CASTAI) ) {
-			// done.
-			SV_GameSendServerCommand( -1, va( "print \"%s" S_COLOR_WHITE " entered the game\n\"", client->pers.netname ) );
-		}
+	
+	// send event
+	tent = G_TempEntity( ent->client->ps.origin, EV_PLAYER_TELEPORT_IN );
+	tent->shared.s.clientNum = ent->shared.s.clientNum;
 		
-	}
+	
 	G_LogPrintf( "ClientBegin: %i\n", clientNum );
 
 }
@@ -983,45 +825,14 @@ void ClientSpawn( GameEntity *ent ) {
 		VectorCopy( ent->shared.s.origin, spawn_origin );
 		spawn_origin[2] += 9;   // spawns seem to be sunk into ground?
 		VectorCopy( ent->shared.s.angles, spawn_angles );
-	} else
-	{
+	} else {
 		ent->aiName = "player";  // needed for script AI
 		ent->aiTeam = 1;        // member of allies
 		ent->client->ps.teamNum = ent->aiTeam;
 		AICast_ScriptParse( AICast_GetCastState( ent->shared.s.number ) );
-		// done.
 
-		
-		do {
-			// the first spawn should be at a good looking spot
-			if ( !client->pers.initialSpawn ) {
-				client->pers.initialSpawn = true;
-				spawnPoint = SelectInitialSpawnPoint( spawn_origin, spawn_angles );
-			} else {
-				// don't spawn near existing origin if possible
-				spawnPoint = SelectSpawnPoint(
-					client->ps.origin,
-					spawn_origin, spawn_angles );
-			}
-
-			// Tim needs to prevent bots from spawning at the initial point
-			// on q3dm0...
-			if ( ( spawnPoint->flags & FL_NO_BOTS ) && ( ent->shared.r.svFlags & SVF_BOT ) ) {
-				continue;   // try again
-			}
-			// just to be symetric, we have a nohumans option...
-			if ( ( spawnPoint->flags & FL_NO_HUMANS ) && !( ent->shared.r.svFlags & SVF_BOT ) ) {
-				continue;   // try again
-			}
-
-			break;
-
-		} while ( 1 );
-		
-
-		// Ridah
+		spawnPoint = SelectInitialSpawnPoint( spawn_origin, spawn_angles );
 	}
-	// done.
 
 	client->pers.teamState.state = TEAM_ACTIVE;
 
@@ -1126,13 +937,10 @@ void ClientSpawn( GameEntity *ent ) {
 	client->latched_wbuttons = 0;
 
 
-	if ( level.intermissiontime ) {
-		MoveClientToIntermission( ent );
-	} else {
-		// fire the targets of the spawn point
-		G_UseTargets( spawnPoint, ent );
 
-	}
+	// fire the targets of the spawn point
+	G_UseTargets( spawnPoint, ent );
+
 
 	// run a client frame to drop exactly to the floor,
 	// initialize animations and other things

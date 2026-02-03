@@ -1474,7 +1474,6 @@ typedef struct {
 
 	int dmflags;
 	int teamflags;
-	int fraglimit;
 	int capturelimit;
 	int timelimit;
 	int maxclients;

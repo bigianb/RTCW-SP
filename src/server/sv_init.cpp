@@ -767,7 +767,6 @@ void SV_Init()
 
 	// serverinfo vars
 	Cvar_Get( "dmflags", "0", CVAR_SERVERINFO );
-	Cvar_Get( "fraglimit", "20", CVAR_SERVERINFO );
 	Cvar_Get( "timelimit", "0", CVAR_SERVERINFO );
 
 	// Rafael gameskill
@@ -804,7 +803,6 @@ void SV_Init()
 	sv_master[4] = Cvar_Get( "sv_master5", "", CVAR_ARCHIVE );
 	sv_reconnectlimit = Cvar_Get( "sv_reconnectlimit", "3", 0 );
 	sv_showloss = Cvar_Get( "sv_showloss", "0", 0 );
-	sv_padPackets = Cvar_Get( "sv_padPackets", "0", 0 );
 
 	sv_reloading = Cvar_Get( "g_reloading", "0", CVAR_ROM ); 
 

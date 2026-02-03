@@ -49,12 +49,8 @@ extern void SetClientViewAngle ( GameEntity * ent , vec3_t angle ) ;
 extern void CopyToBodyQue ( GameEntity * ent ) ;
 extern void BodySink ( GameEntity * ent ) ;
 extern void InitBodyQue ( void ) ;
-extern GameEntity * SelectSpectatorSpawnPoint ( vec3_t origin , vec3_t angles ) ;
-extern GameEntity * SelectInitialSpawnPoint ( vec3_t origin , vec3_t angles ) ;
-extern GameEntity * SelectSpawnPoint ( vec3_t avoidPoint , vec3_t origin , vec3_t angles ) ;
-extern GameEntity * SelectRandomDeathmatchSpawnPoint ( void ) ;
-extern GameEntity * SelectNearestDeathmatchSpawnPoint ( vec3_t from ) ;
-extern bool SpotWouldTelefrag ( GameEntity * spot ) ;
+
+
 extern void SP_info_player_intermission ( GameEntity * ent ) ;
 extern void SP_info_player_start ( GameEntity * ent ) ;
 extern void SP_info_player_deathmatch ( GameEntity * ent ) ;
@@ -882,9 +878,6 @@ extern void LogExit ( const char * string ) ;
 extern void  G_LogPrintf ( const char * fmt , ... ) ;
 extern void ExitLevel ( void ) ;
 
-extern void FindIntermissionPoint ( void ) ;
-extern void MoveClientToIntermission ( GameEntity * ent ) ;
-
 extern void  Com_Printf ( const char * msg , ... ) ;
 extern void  Com_Error ( int level , const char * error , ... ) ;
 extern void G_ShutdownGame ( int restart ) ;
@@ -893,7 +886,7 @@ extern int G_SendMissionStats ( ) ;
 extern void G_SpawnScriptCamera ( void ) ;
 extern void G_UpdateCvars ( void ) ;
 extern void G_RegisterCvars ( void ) ;
-extern void G_RemapTeamShaders ( ) ;
+
 extern void G_FindTeams ( void ) ;
 extern void G_CheckForCursorHints ( GameEntity * ent ) ;
 extern void G_EndGame ( void ) ;

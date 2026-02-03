@@ -43,12 +43,8 @@ If you have questions concerning this license or the applicable additional terms
 {"CopyToBodyQue", (uint8_t *)CopyToBodyQue},
 {"BodySink", (uint8_t *)BodySink},
 {"InitBodyQue", (uint8_t *)InitBodyQue},
-{"SelectSpectatorSpawnPoint", (uint8_t *)SelectSpectatorSpawnPoint},
-{"SelectInitialSpawnPoint", (uint8_t *)SelectInitialSpawnPoint},
-{"SelectSpawnPoint", (uint8_t *)SelectSpawnPoint},
-{"SelectRandomDeathmatchSpawnPoint", (uint8_t *)SelectRandomDeathmatchSpawnPoint},
-{"SelectNearestDeathmatchSpawnPoint", (uint8_t *)SelectNearestDeathmatchSpawnPoint},
-{"SpotWouldTelefrag", (uint8_t *)SpotWouldTelefrag},
+
+
 {"SP_info_player_intermission", (uint8_t *)SP_info_player_intermission},
 {"SP_info_player_start", (uint8_t *)SP_info_player_start},
 {"SP_info_player_deathmatch", (uint8_t *)SP_info_player_deathmatch},
@@ -867,9 +863,6 @@ If you have questions concerning this license or the applicable additional terms
 {"G_LogPrintf", (uint8_t *)G_LogPrintf},
 {"ExitLevel", (uint8_t *)ExitLevel},
 
-{"FindIntermissionPoint", (uint8_t *)FindIntermissionPoint},
-{"MoveClientToIntermission", (uint8_t *)MoveClientToIntermission},
-
 {"Com_Printf", (uint8_t *)Com_Printf},
 {"Com_Error", (uint8_t *)Com_Error},
 {"G_ShutdownGame", (uint8_t *)G_ShutdownGame},
@@ -878,7 +871,7 @@ If you have questions concerning this license or the applicable additional terms
 {"G_SpawnScriptCamera", (uint8_t *)G_SpawnScriptCamera},
 {"G_UpdateCvars", (uint8_t *)G_UpdateCvars},
 {"G_RegisterCvars", (uint8_t *)G_RegisterCvars},
-{"G_RemapTeamShaders", (uint8_t *)G_RemapTeamShaders},
+
 {"G_FindTeams", (uint8_t *)G_FindTeams},
 {"G_CheckForCursorHints", (uint8_t *)G_CheckForCursorHints},
 {"G_EndGame", (uint8_t *)G_EndGame},

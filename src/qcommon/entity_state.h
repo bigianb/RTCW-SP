@@ -1,7 +1,8 @@
 #pragma once
 
 
-typedef enum {
+enum trType_t
+{
 	TR_STATIONARY,
 	TR_INTERPOLATE,
 	TR_LINEAR,
@@ -14,15 +15,16 @@ typedef enum {
 	TR_GRAVITY_PAUSED,
 	TR_ACCELERATE,
 	TR_DECCELERATE
-} trType_t;
+};
 
-typedef struct {
+struct trajectory_t
+{
 	trType_t trType;
 	int trTime;
 	int trDuration;             // if non 0, trTime + trDuration = stop time
 	vec3_t trBase;
 	vec3_t trDelta;             // velocity, etc
-} trajectory_t;
+};
 
 // RF, put this here so we have a central means of defining a Zombie (kind of a hack, but this is to minimize bandwidth usage)
 #define SET_FLAMING_ZOMBIE( x,y ) ( x.frame = y )
