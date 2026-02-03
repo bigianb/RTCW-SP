@@ -429,14 +429,7 @@ By default this sound is "sound/movers/doors/default_door_locked.wav"
 NO_LOCKED_NOISE specifies that it will be silent if activated without proper key
 */
 void target_relay_use( GameEntity *self, GameEntity *other, GameEntity *activator ) {
-	if ( ( self->spawnflags & 1 ) && activator && activator->client
-		 && activator->client->sess.sessionTeam != TEAM_RED ) {
-		return;
-	}
-	if ( ( self->spawnflags & 2 ) && activator && activator->client
-		 && activator->client->sess.sessionTeam != TEAM_BLUE ) {
-		return;
-	}
+	
 
 	if ( self->spawnflags & 4 ) {
 		GameEntity   *ent;

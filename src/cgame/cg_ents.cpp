@@ -1252,7 +1252,7 @@ static void CG_Missile( centity_t *cent ) {
 	// Added this since it may be a propExlosion
 	if ( ent.hModel ) {
 		// add to refresh list, possibly with quad glow
-		CG_AddRefEntityWithPowerups( &ent, s1->powerups, TEAM_FREE, s1, vec3_origin );
+		CG_AddRefEntityWithPowerups( &ent, s1->powerups, s1, vec3_origin );
 	}
 
 }
@@ -1301,7 +1301,7 @@ static void CG_ZombieSpit( centity_t *cent ) {
 	}
 
 	// add to refresh list, possibly with quad glow
-	CG_AddRefEntityWithPowerups( &ent, s1->powerups, TEAM_FREE, s1, vec3_origin );
+	CG_AddRefEntityWithPowerups( &ent, s1->powerups, s1, vec3_origin );
 
 	// smoke trail effect
 	CG_Particle_Bleed( cgs.media.smokePuffShader, ent.origin, vec3_origin, 1, 180 );
@@ -1378,7 +1378,7 @@ static void CG_Crowbar( centity_t *cent ) {
 	}
 
 	// add to refresh list, possibly with quad glow
-	CG_AddRefEntityWithPowerups( &ent, s1->powerups, TEAM_FREE, s1, vec3_origin );
+	CG_AddRefEntityWithPowerups( &ent, s1->powerups, s1, vec3_origin );
 
 }
 

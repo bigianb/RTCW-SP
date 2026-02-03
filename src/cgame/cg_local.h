@@ -510,7 +510,6 @@ typedef struct {
 	int clientNum;
 
 	char name[MAX_QPATH];
-	team_t team;
 
 	int botSkill;                   // 0 = not bot, 1-5 = bot
 
@@ -1810,7 +1809,7 @@ void CG_ApplyShakeCamera();
 bool CG_EntOnFire( centity_t *cent );    // Ridah
 void CG_Player( centity_t *cent );
 void CG_ResetPlayerEntity( centity_t *cent );
-void CG_AddRefEntityWithPowerups( refEntity_t *ent, int powerups, int team, EntityState *es, const vec3_t fireRiseDir );
+void CG_AddRefEntityWithPowerups( refEntity_t *ent, int powerups, EntityState *es, const vec3_t fireRiseDir );
 void CG_NewClientInfo( int clientNum );
 sfxHandle_t CG_CustomSound( int clientNum, const char *soundName );
 

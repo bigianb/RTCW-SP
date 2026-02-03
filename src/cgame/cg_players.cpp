@@ -1383,10 +1383,6 @@ void CG_NewClientInfo( int clientNum ) {
 	v = Info_ValueForKey( configstring, "l" );
 	newInfo.losses = atoi( v );
 
-	// team
-	v = Info_ValueForKey( configstring, "t" );
-	newInfo.team = (team_t)atoi( v );
-
 	// head
 	v = Info_ValueForKey( configstring, "head" );
 
@@ -3925,7 +3921,7 @@ Adds a piece with modifications or duplications for powerups
 Also called by CG_Missile for quad rockets, but nobody can tell...
 ===============
 */
-void CG_AddRefEntityWithPowerups( refEntity_t *ent, int powerups, int team, EntityState *es, const vec3_t fireRiseDir ) {
+void CG_AddRefEntityWithPowerups( refEntity_t *ent, int powerups, EntityState *es, const vec3_t fireRiseDir ) {
 	centity_t *cent;
 	refEntity_t backupRefEnt; //, parentEnt;
 	bool onFire = false;
@@ -3959,11 +3955,7 @@ void CG_AddRefEntityWithPowerups( refEntity_t *ent, int powerups, int team, Enti
 		trap_R_AddRefEntityToScene( ent );
 
 		if ( powerups & ( 1 << PW_QUAD ) ) {
-			if ( team == TEAM_RED ) {
-				ent->customShader = cgs.media.redQuadShader;
-			} else {
-				ent->customShader = cgs.media.quadShader;
-			}
+			ent->customShader = cgs.media.quadShader;
 			trap_R_AddRefEntityToScene( ent );
 		}
 		if ( powerups & ( 1 << PW_REGEN ) ) {
@@ -4337,7 +4329,7 @@ void CG_Player( centity_t *cent ) {
 	VectorCopy( legs.origin, legs.oldorigin );   // don't positionally lerp at all
 
 	if ( !ci->isSkeletal ) {
-		CG_AddRefEntityWithPowerups( &legs, cent->currentState.powerups, ci->team, &cent->currentState, cent->fireRiseDir );
+		CG_AddRefEntityWithPowerups( &legs, cent->currentState.powerups, &cent->currentState, cent->fireRiseDir );
 	}
 
 	cent->pe.legsRefEnt = legs;
@@ -4390,7 +4382,7 @@ void CG_Player( centity_t *cent ) {
 
 	if ( !ci->isSkeletal ) {
 
-		CG_AddRefEntityWithPowerups( &torso,    cent->currentState.powerups, ci->team, &cent->currentState, cent->fireRiseDir );
+		CG_AddRefEntityWithPowerups( &torso,    cent->currentState.powerups, &cent->currentState, cent->fireRiseDir );
 
 	} else {    // SKELETAL ANIMATION
 
@@ -4402,7 +4394,7 @@ void CG_Player( centity_t *cent ) {
 		memcpy( legs.torsoAxis, torso.axis, sizeof( torso.axis ) );
 		legs.torsoBacklerp = torso.backlerp;
 
-		CG_AddRefEntityWithPowerups( &legs, cent->currentState.powerups, ci->team, &cent->currentState, cent->fireRiseDir );
+		CG_AddRefEntityWithPowerups( &legs, cent->currentState.powerups, &cent->currentState, cent->fireRiseDir );
 
 		cent->pe.legsRefEnt = legs;
 		torso = legs;       // so tag calls use the correct values
@@ -4544,7 +4536,7 @@ void CG_Player( centity_t *cent ) {
 	}
 
 
-	CG_AddRefEntityWithPowerups( &head, cent->currentState.powerups, ci->team, &cent->currentState, cent->fireRiseDir );
+	CG_AddRefEntityWithPowerups( &head, cent->currentState.powerups, &cent->currentState, cent->fireRiseDir );
 
 	cent->pe.headRefEnt = head;
 
@@ -4571,7 +4563,7 @@ void CG_Player( centity_t *cent ) {
 
 		acc.hModel = cgs.media.thirdPersonBinocModel;
 		CG_PositionEntityOnTag( &acc, &torso, "tag_weapon", 0, nullptr );
-		CG_AddRefEntityWithPowerups( &acc, cent->currentState.powerups, ci->team, &cent->currentState, cent->fireRiseDir );
+		CG_AddRefEntityWithPowerups( &acc, cent->currentState.powerups, &cent->currentState, cent->fireRiseDir );
 	}
 
 	if ( ( cent->currentState.clientNum != cg.snap->ps.clientNum ) &&
@@ -4579,7 +4571,7 @@ void CG_Player( centity_t *cent ) {
 
 		acc.hModel = cgs.media.cigModel;
 		CG_PositionEntityOnTag( &acc, &torso, "tag_weapon2", 0, nullptr );
-		CG_AddRefEntityWithPowerups( &acc, cent->currentState.powerups, ci->team, &cent->currentState, cent->fireRiseDir );
+		CG_AddRefEntityWithPowerups( &acc, cent->currentState.powerups, &cent->currentState, cent->fireRiseDir );
 
 		// smoke
 		if ( !cg_paused.integer ) {    // don't add while paused
@@ -4604,7 +4596,7 @@ void CG_Player( centity_t *cent ) {
 			angles[YAW] = CG_SpinnerSpinAngle( cent );
 			AnglesToAxis( angles, acc.axis );
 			CG_PositionRotatedEntityOnTag( &acc, &legs, "tag_spinner" );
-			CG_AddRefEntityWithPowerups( &acc, cent->currentState.powerups, ci->team, &cent->currentState, cent->fireRiseDir );
+			CG_AddRefEntityWithPowerups( &acc, cent->currentState.powerups, &cent->currentState, cent->fireRiseDir );
 		}
 	}
 //----(SA)	modified
@@ -4724,105 +4716,12 @@ void CG_Player( centity_t *cent ) {
 				}
 			}
 
-			CG_AddRefEntityWithPowerups( &acc, cent->currentState.powerups, ci->team, &cent->currentState, cent->fireRiseDir );
+			CG_AddRefEntityWithPowerups( &acc, cent->currentState.powerups, &cent->currentState, cent->fireRiseDir );
 		}
 	} else if ( cent->currentState.aiChar == AICHAR_WARZOMBIE &&
 				( !Q_strcasecmp( (char *)ci->modelInfo->modelname, "dark" ) ) ) {
-		// TTimo: unused
-		/*
-			char *tags[] = {		"tag_armleft",
-									"tag_armright",
-									"tag_back",
-									"tag_back",
-									"tag_calfleft",
-									"tag_calfleft",
-									"tag_calfright",
-									"tag_calfright",
-									"tag_chest",
-									"tag_chest",
-									"tag_footleft",
-									"tag_footright",
-									"tag_legleft",
-									"tag_sholeft",
-									"tag_shoright",
-									"tag_torso"
-									};
-					*/
-
-// TTimo: unused
-		/*
-int parts[] = { 34,
-				38,
-				0,
-				19,
-				0,
-				14,
-				21,
-				15,
-				16,
-				0,
-				0,
-				32,
-				0,
-				33,
-				0,
-				45
-				};
-	*/
-
-//		char *parts[] = {		"dam_lftforarm2",//	34
-//								"dam_rtforarm2",//38
-//								"dam_rtshoulder",
-//								"dam_lftshoulder1",//19
-//								"dam_lftcalf",
-//								"nodam_lftknee",//14
-//								"dam_rtcalf1",//21
-//								"nodam_rtknee",//15
-//								"dam_chest1",//16
-//								"dam_chest3",
-//								"dam_lftfoot",
-//								"dam_rtfoot2",//32
-//								"dam_lftthigh",
-//								"dam_lftuparm2",//33
-//								"dam_rtuparm",
-//								"dam_waist2"//45
-//								};
-
-
-// do not turn on unless asked for
-/*
-		for(i=0;i<16;i++) {
-			acc.hModel = cgs.media.superArmor[parts[i]];
-			CG_PositionEntityOnTag( &acc, &torso, tags[i], 0, nullptr);
-			CG_AddRefEntityWithPowerups( &acc, cent->currentState.powerups, ci->team, &cent->currentState, cent->fireRiseDir );
-		}
-*/
-//
+		
 	}
-
-
-
-//#if 1
-#ifdef TEST_HEADLIGHT
-	// used for testing spotlights.
-	// this just puts one in the mouth of every other player so you can
-	// get a good read of how well the various elements of spots are working
-//	if(cent->currentState.number != cg.predictedPlayerState.clientNum)
-	{
-		vec3_t morg, viewDir;
-//		vec4_t	color = {1,1,1,0.1f};
-		vec4_t color = {0.7,0.7,0.7,0.1f};
-
-		CG_GetOriginForTag( cent, &head, "tag_mouth", 0, morg, nullptr );
-		AngleVectors( cent->lerpAngles, viewDir, nullptr, nullptr );
-		CG_Spotlight( cent, color, morg, viewDir, 12, 512, 2, 5, SL_TRACEWORLDONLY | SL_NOCORE | SL_LOCKUV ); // SL_NOTRACE
-//		color[0] = 1;
-//		color[1] = 1;
-//		color[2] = 1;
-		color[3] = 0.1f;
-		CG_Spotlight( cent, color, morg, viewDir, 12, 512, 1.5, 2, SL_TRACEWORLDONLY | SL_NOCORE | SL_NODLIGHT | SL_LOCKUV );   // SL_NOTRACE
-	}
-#endif
 
 
 	//
@@ -4885,7 +4784,7 @@ int parts[] = { 34,
 			continue;
 		}
 
-		CG_AddRefEntityWithPowerups( &acc, cent->currentState.powerups, ci->team, &cent->currentState, cent->fireRiseDir );
+		CG_AddRefEntityWithPowerups( &acc, cent->currentState.powerups, &cent->currentState, cent->fireRiseDir );
 	}
 
 	for ( i = 0; i < 8; i++ ) {
@@ -4904,7 +4803,7 @@ int parts[] = { 34,
 
 		}
 		CG_PositionEntityOnTag( &acc, &legs, va( "tag_animscript%s", i ), 0, nullptr );
-		CG_AddRefEntityWithPowerups( &acc, cent->currentState.powerups, ci->team, &cent->currentState, cent->fireRiseDir );
+		CG_AddRefEntityWithPowerups( &acc, cent->currentState.powerups, &cent->currentState, cent->fireRiseDir );
 	}
 
 

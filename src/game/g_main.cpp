@@ -1187,9 +1187,7 @@ void ExitLevel()
 	level.changemap = nullptr;
 	level.intermissiontime = 0;
 
-	// reset all the scores so we don't enter the intermission again
-	level.teamScores[TEAM_RED] = 0;
-	level.teamScores[TEAM_BLUE] = 0;
+
 	for (int i = 0 ; i < g_maxclients.integer ; i++ ) {
 		GameClient* cl = level.clients + i;
 		if ( cl->pers.connected != CON_CONNECTED ) {

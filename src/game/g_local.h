@@ -471,7 +471,7 @@ typedef struct {
 // time and reading them back at connection time.  Anything added here
 // MUST be dealt with in G_InitSessionData() / G_ReadSessionData() / G_WriteSessionData()
 typedef struct {
-	team_t sessionTeam;
+
 	int spectatorTime;              // for determining next-in-line to play
 	spectatorState_t spectatorState;
 	int spectatorClient;            // for chasecam and follow mode
@@ -634,9 +634,6 @@ typedef struct {
 
 	int startTime;                      // level.time the map was started
 
-	int teamScores[TEAM_NUM_TEAMS];
-	int lastTeamLocationTime;               // last time of client team location update
-
 	bool restarted;                 // waiting for a map_restart to fire
 
 	int numConnectedClients;
@@ -656,14 +653,6 @@ typedef struct {
 	int voteExecuteTime;                // time the vote is executed
 	int voteYes;
 	int voteNo;
-
-
-	// team voting state
-	char teamVoteString[2][MAX_STRING_CHARS];
-	int teamVoteTime[2];                // level.time vote was called
-	int teamVoteYes[2];
-	int teamVoteNo[2];
-	int numteamVotingClients[TEAM_NUM_TEAMS];        // set by CalculateRanks
 
 	// spawn variables
 	bool spawning;                  // the G_Spawn*() functions are valid
@@ -711,12 +700,6 @@ typedef struct {
 
 	int knifeSound[4];
 
-// JPW NERVE
-	int redReinforceTime, blueReinforceTime;         // last time reinforcements arrived in ms
-	int redNumWaiting, blueNumWaiting;         // number of reinforcements in queue
-	vec3_t spawntargets[MAX_MULTI_SPAWNTARGETS];      // coordinates of spawn targets
-	int numspawntargets;         // # spawntargets in this map
-// jpw
 
 	std::vector<ScriptParser::EntityScript> scriptEntity;
 

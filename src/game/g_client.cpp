@@ -760,13 +760,13 @@ void ClientUserinfoChanged( int clientNum ) {
 
 	if ( ent->shared.r.svFlags & SVF_BOT ) {
 
-		s = va( "n\\%s\\t\\%i\\model\\%s\\head\\%s\\c1\\%s\\hc\\%i\\w\\%i\\l\\%i\\skill\\%s",
-				client->pers.netname, client->sess.sessionTeam, model, head, c1,
+		s = va( "n\\%s\\model\\%s\\head\\%s\\c1\\%s\\hc\\%i\\w\\%i\\l\\%i\\skill\\%s",
+				client->pers.netname, model, head, c1,
 				client->pers.maxHealth, client->sess.wins, client->sess.losses,
 				Info_ValueForKey( userinfo, "skill" ) );
 	} else {
-		s = va( "n\\%s\\t\\%i\\model\\%s\\head\\%s\\c1\\%s\\hc\\%i\\w\\%i\\l\\%i",
-				client->pers.netname, client->sess.sessionTeam, model, head, c1,
+		s = va( "n\\%s\\model\\%s\\head\\%s\\c1\\%s\\hc\\%i\\w\\%i\\l\\%i",
+				client->pers.netname, model, head, c1,
 				client->pers.maxHealth, client->sess.wins, client->sess.losses );
 	}
 
@@ -1051,7 +1051,6 @@ void ClientSpawn( GameEntity *ent ) {
 
 	// increment the spawncount so the client will detect the respawn
 	client->ps.persistant[PERS_SPAWN_COUNT]++;
-	client->ps.persistant[PERS_TEAM] = client->sess.sessionTeam;
 
 	client->airOutTime = level.time + 12000;
 
@@ -1203,8 +1202,7 @@ void ClientDisconnect( int clientNum ) {
 	ent->inuse = false;
 	ent->classname = "disconnected";
 	ent->client->pers.connected = CON_DISCONNECTED;
-	ent->client->ps.persistant[PERS_TEAM] = TEAM_FREE;
-	ent->client->sess.sessionTeam = TEAM_FREE;
+
 
 	SV_SetConfigstring( CS_PLAYERS + clientNum, "" );
 

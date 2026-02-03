@@ -3062,23 +3062,6 @@ bool    BG_CanItemBeGrabbed( const EntityState *ent, const PlayerState *ps ) {
 
 	case IT_TEAM:     // team items, such as flags
 
-		// DHM - Nerve :: otherEntity2 is now used instead of modelindex2
-		// ent->modelindex2 is non-zero on items if they are dropped
-		// we need to know this because we can pick up our dropped flag (and return it)
-		// but we can't pick up our flag at base
-		if ( ps->persistant[PERS_TEAM] == TEAM_RED ) {
-			if ( item->giTag == PW_BLUEFLAG ||
-				 ( item->giTag == PW_REDFLAG && ent->otherEntityNum2 /*ent->modelindex2*/ ) ||
-				 ( item->giTag == PW_REDFLAG && ps->powerups[PW_BLUEFLAG] ) ) {
-				return true;
-			}
-		} else if ( ps->persistant[PERS_TEAM] == TEAM_BLUE ) {
-			if ( item->giTag == PW_REDFLAG ||
-				 ( item->giTag == PW_BLUEFLAG && ent->otherEntityNum2 /*ent->modelindex2*/ ) ||
-				 ( item->giTag == PW_BLUEFLAG && ps->powerups[PW_REDFLAG] ) ) {
-				return true;
-			}
-		}
 		return false;
 
 

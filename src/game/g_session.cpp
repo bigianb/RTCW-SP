@@ -50,8 +50,7 @@ void G_WriteClientSessionData( GameClient *client ) {
 	const char  *s;
 	const char  *var;
 
-	s = va( "%i %i %i %i %i %i %i %i %i %i %i",       // DHM - Nerve
-			client->sess.sessionTeam,
+	s = va( "%i %i %i %i %i %i %i %i %i %i",       // DHM - Nerve
 			client->sess.spectatorTime,
 			client->sess.spectatorState,
 			client->sess.spectatorClient,
@@ -83,8 +82,7 @@ void G_ReadSessionData( GameClient *client ) {
 	var = va( "session%i", client - level.clients );
 	Cvar_VariableStringBuffer( var, s, sizeof( s ) );
 
-	sscanf( s, "%i %i %i %i %i %i %i %i %i %i %i",
-			(int *)&client->sess.sessionTeam,
+	sscanf( s, "%i %i %i %i %i %i %i %i %i %i",
 			&client->sess.spectatorTime,
 			(int *)&client->sess.spectatorState,
 			&client->sess.spectatorClient,
@@ -111,14 +109,6 @@ void G_InitSessionData( GameClient *client, char *userinfo ) {
 	const char      *value;
 
 	sess = &client->sess;
-
-	// initial team determination
-	if ( g_maxGameClients.integer > 0 &&
-		 level.numNonSpectatorClients >= g_maxGameClients.integer ) {
-		sess->sessionTeam = TEAM_SPECTATOR;
-	} else {
-		sess->sessionTeam = TEAM_FREE;
-	}
 
 	sess->spectatorState = SPECTATOR_FREE;
 	sess->spectatorTime = level.time;

@@ -467,8 +467,6 @@ to free floating spectator mode
 =================
 */
 void StopFollowing( GameEntity *ent ) {
-	ent->client->ps.persistant[ PERS_TEAM ] = TEAM_SPECTATOR;
-	ent->client->sess.sessionTeam = TEAM_SPECTATOR;
 	
 	ent->client->sess.spectatorState = SPECTATOR_FREE;
 	ent->shared.r.svFlags &= ~SVF_BOT;
