@@ -75,22 +75,13 @@ static void AddBotToSpawnQueue( int clientNum, int delay )
 }
 
 
-/*
-===============
-G_QueueBotBegin
-===============
-*/
-void G_QueueBotBegin( int clientNum ) {
+void G_QueueBotBegin( int clientNum )
+{
 	AddBotToSpawnQueue( clientNum, botBeginDelay );
 	botBeginDelay += BOT_BEGIN_DELAY_INCREMENT;
 }
 
 
-/*
-===============
-G_BotConnect
-===============
-*/
 bool G_BotConnect( int clientNum, bool restart ) {
 	bot_settings_t settings;
 	char userinfo[MAX_INFO_STRING];

@@ -278,34 +278,6 @@ void G_UseTargets( GameEntity *ent, GameEntity *activator ) {
 	}
 }
 
-
-/*
-=============
-TempVector
-
-This is just a convenience function
-for making temporary vectors for function calls
-=============
-*/
-/*
-float	*tv( float x, float y, float z ) {
-	static	int		index;
-	static	vec3_t	vecs[8];
-	float	*v;
-
-	// use an array so that multiple tempvectors won't collide
-	// for a while
-	v = vecs[index];
-	index = (index + 1)&7;
-
-	v[0] = x;
-	v[1] = y;
-	v[2] = z;
-
-	return v;
-}
-*/
-
 /*
 =============
 VectorToString
@@ -327,6 +299,7 @@ char    *vtos( const vec3_t v ) {
 
 	return s;
 }
+
 char    *vtosf( const vec3_t v ) {
 	static int index;
 	static char str[8][64];

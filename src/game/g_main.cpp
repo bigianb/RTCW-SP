@@ -1097,6 +1097,8 @@ void  G_LogPrintf( const char *fmt, ... ) {
 	va_end( argptr );
 
 	if ( !level.logFile ) {
+		// IJB - for now always log to stdout at least.
+		printf("%s", string);
 		return;
 	}
 
