@@ -29,14 +29,13 @@ If you have questions concerning this license or the applicable additional terms
 #include "g_local.h"
 #include "../server/server.h"
 
-bool    G_SpawnString( const char *key, const char *defaultString, const char **out ) {
-	int i;
-
+bool    G_SpawnString( const char *key, const char *defaultString, const char **out )
+{
 	if ( !level.spawning ) {
 		*out = (char *)defaultString;
 	}
 
-	for ( i = 0 ; i < level.numSpawnVars ; i++ ) {
+	for (int i = 0 ; i < level.numSpawnVars ; i++ ) {
 		if ( !strcmp( key, level.spawnVars[i][0] ) ) {
 			*out = level.spawnVars[i][1];
 			return true;
@@ -47,39 +46,36 @@ bool    G_SpawnString( const char *key, const char *defaultString, const char **
 	return false;
 }
 
-bool    G_SpawnFloat( const char *key, const char *defaultString, float *out ) {
+bool    G_SpawnFloat( const char *key, const char *defaultString, float *out )
+{
 	const char        *s;
-	bool present;
-
-	present = G_SpawnString( key, defaultString, &s );
+	bool present = G_SpawnString( key, defaultString, &s );
 	*out = atof( s );
 	return present;
 }
 
-bool    G_SpawnInt( const char *key, const char *defaultString, int *out ) {
+bool    G_SpawnInt( const char *key, const char *defaultString, int *out )
+{
 	const char        *s;
-	bool present;
-
-	present = G_SpawnString( key, defaultString, &s );
+	bool present = G_SpawnString( key, defaultString, &s );
 	*out = atoi( s );
 	return present;
 }
 
-bool    G_SpawnVector( const char *key, const char *defaultString, float *out ) {
+bool    G_SpawnVector( const char *key, const char *defaultString, float *out )
+{
 	const char        *s;
-	bool present;
-
-	present = G_SpawnString( key, defaultString, &s );
+	bool present = G_SpawnString( key, defaultString, &s );
 	sscanf( s, "%f %f %f", &out[0], &out[1], &out[2] );
 	return present;
 }
 
 
-
 //
 // fields are needed for spawning from the entity string
 //
-typedef enum {
+enum fieldtype_t
+{
 	F_INT,
 	F_FLOAT,
 	F_LSTRING,          // string on disk, pointer in memory, TAG_LEVEL
@@ -90,15 +86,15 @@ typedef enum {
 	F_ITEM,             // index on disk, pointer in memory
 	F_CLIENT,           // index on disk, pointer in memory
 	F_IGNORE
-} fieldtype_t;
+};
 
-typedef struct
+struct gentity_field_t
 {
 	const char    *name;
 	intptr_t ofs;
 	fieldtype_t type;
 	int flags;
-} gentity_field_t;
+};
 
 gentity_field_t fields[] = {
 	{"classname",    FOFS( classname ),    F_LSTRING},
@@ -162,19 +158,18 @@ gentity_field_t fields[] = {
 
 	// Rafael
 	{"spawnitem",        FOFS( spawnitem ),            F_LSTRING},
-
 	{"track",            FOFS( track ),                F_LSTRING},
-
 	{"scriptName",       FOFS( scriptName ),           F_LSTRING},
 
 	{nullptr}
 };
 
 
-typedef struct {
+struct spawn_t
+{
 	const char    *name;
 	void ( *spawn )( GameEntity *ent );
-} spawn_t;
+};
 
 void SP_info_player_start( GameEntity *ent );
 void SP_info_player_deathmatch( GameEntity *ent );
@@ -186,7 +181,7 @@ void SP_info_podium( GameEntity *ent );
 
 void SP_func_plat( GameEntity *ent );
 void SP_func_static( GameEntity *ent );
-void SP_func_leaky( GameEntity *ent ); //----(SA)	added
+void SP_func_leaky( GameEntity *ent );
 void SP_func_rotating( GameEntity *ent );
 void SP_func_bobbing( GameEntity *ent );
 void SP_func_pendulum( GameEntity *ent );
@@ -195,13 +190,10 @@ void SP_func_explosive( GameEntity *ent );
 void SP_func_door( GameEntity *ent );
 void SP_func_train( GameEntity *ent );
 void SP_func_timer( GameEntity *self );
-// JOSEPH 1-26-00
 void SP_func_train_rotating( GameEntity *ent );
 void SP_func_secret( GameEntity *ent );
-// END JOSEPH
-// Rafael
+
 void SP_func_door_rotating( GameEntity *ent );
-// RF
 void SP_func_bats( GameEntity *self );
 
 void SP_trigger_always( GameEntity *ent );
@@ -210,9 +202,8 @@ void SP_trigger_push( GameEntity *ent );
 void SP_trigger_teleport( GameEntity *ent );
 void SP_trigger_hurt( GameEntity *ent );
 
-//---- (SA) Wolf triggers
 void SP_trigger_once( GameEntity *ent );
-//---- done
+
 
 void SP_target_remove_powerups( GameEntity *ent );
 void SP_target_give( GameEntity *ent );
@@ -230,8 +221,6 @@ void SP_target_location( GameEntity *ent );
 void SP_target_push( GameEntity *ent );
 void SP_target_script_trigger( GameEntity *ent );
 
-//---- (SA) Wolf targets
-// targets
 void SP_target_alarm( GameEntity *ent );
 void SP_target_counter( GameEntity *ent );
 void SP_target_lock( GameEntity *ent );
@@ -243,12 +232,10 @@ void SP_target_autosave( GameEntity *ent );
 void SP_misc_vis_dummy( GameEntity *ent );
 void SP_misc_vis_dummy_multiple( GameEntity *ent );
 
-//----(SA) done
-
 void SP_light( GameEntity *self );
 void SP_info_null( GameEntity *self );
 void SP_info_notnull( GameEntity *self );
-void SP_info_notnull_big( GameEntity *ent );  //----(SA)	added
+void SP_info_notnull_big( GameEntity *ent ); 
 void SP_info_camp( GameEntity *self );
 void SP_path_corner( GameEntity *self );
 
@@ -259,18 +246,15 @@ void SP_misc_portal_camera( GameEntity *ent );
 void SP_misc_portal_surface( GameEntity *ent );
 void SP_misc_light_surface( GameEntity *ent );
 void SP_misc_grabber_trap( GameEntity *ent );
-void SP_misc_spotlight( GameEntity *ent ); //----(SA)	added
+void SP_misc_spotlight( GameEntity *ent );
 
 void SP_shooter_rocket( GameEntity *ent );
 void SP_shooter_grenade( GameEntity *ent );
 
-// JOSEPH 1-18-00
 void SP_props_box_32( GameEntity *self );
 void SP_props_box_48( GameEntity *self );
 void SP_props_box_64( GameEntity *self );
-// END JOSEPH
 
-// Ridah
 void SP_ai_soldier( GameEntity *ent );
 void SP_ai_american( GameEntity *ent );
 void SP_ai_zombie( GameEntity *ent );
@@ -292,37 +276,26 @@ void SP_ai_protosoldier( GameEntity *ent );
 void SP_ai_frogman( GameEntity *ent );
 void SP_ai_partisan( GameEntity *ent );
 void SP_ai_civilian( GameEntity *ent );
-// done.
 
-// Rafael particles
 void SP_Snow( GameEntity *ent );
 void SP_target_smoke( GameEntity *ent );
 void SP_Bubbles( GameEntity *ent );
-// done.
 
-// (SA) dlights
+
 void SP_dlight( GameEntity *ent );
-// done
 void SP_corona( GameEntity *ent );
 
-// Rafael mg42
 void SP_mg42( GameEntity *ent );
-// done.
 
-// Rafael sniper
 void SP_shooter_sniper( GameEntity *ent );
 void SP_sniper_brush( GameEntity *ent );
-// done
 
-//----(SA)
+
 void SP_shooter_zombiespit( GameEntity *ent );
 void SP_shooter_mortar( GameEntity *ent );
 void SP_shooter_tesla( GameEntity *ent );
 
-// alarm
 void SP_alarm_box( GameEntity *ent );
-//----(SA)	end
-
 
 void SP_trigger_objective_info( GameEntity *ent );   // DHM - Nerve
 
@@ -387,7 +360,7 @@ void SP_script_mover( GameEntity *ent );
 
 void SP_props_footlocker( GameEntity *self );
 void SP_misc_firetrails( GameEntity *ent );
-void SP_misc_tagemitter( GameEntity *ent );   //----(SA)	added
+void SP_misc_tagemitter( GameEntity *ent );
 void SP_trigger_deathCheck( GameEntity *ent );
 void SP_misc_spawner( GameEntity *ent );
 void SP_props_decor_Scale( GameEntity *ent );

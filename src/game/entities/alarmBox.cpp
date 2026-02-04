@@ -26,48 +26,36 @@ If you have questions concerning this license or the applicable additional terms
 ===========================================================================
 */
 
-#include "g_local.h"
-#include "../server/server.h"
+#include "../gameEntity.h"
+#include "../g_local.h"             // for spawn stuff
+#include "../../server/server.h"    // SV_LinkEntity, SV_UnlinkEntity
 
-/*
-==============
-alarmExplosion
-	copied from propExplosion
-==============
-*/
-void alarmExplosion( GameEntity *ent ) {
-
-	// death sound
+void alarmExplosion( GameEntity *ent )
+{
 	G_AddEvent( ent, EV_GENERAL_SOUND, ent->sound1to2 );
-
 	G_AddEvent( ent, EV_ENTDEATH, ent->shared.s.eType );
-
 	G_RadiusDamage( ent->shared.s.origin, ent, ent->damage, ent->damage, ent, MOD_EXPLOSIVE );
 }
 
-
-/*
-==============
-alarmbox_updateparts
-==============
-*/
-void alarmbox_updateparts( GameEntity *ent, bool matestoo ) {
+void alarmbox_updateparts( GameEntity *ent, bool matestoo )
+{
 	GameEntity   *t, *mate;
 	bool alarming = ( ent->shared.s.frame == 1 );
 
 	// update teammates
 	if ( matestoo ) {
-		for ( mate = ent->teammaster; mate; mate = mate->teamchain )
-		{
+		for ( mate = ent->teammaster; mate; mate = mate->teamchain ) {
 			if ( mate == ent ) {
 				continue;
 			}
 
-			if ( !( mate->active ) ) { // don't update dead alarm boxes, they stay dead
+			if ( !( mate->active ) ) {
+				// don't update dead alarm boxes, they stay dead
 				continue;
 			}
 
-			if ( !( ent->active ) ) { // destroyed, so just turn teammates off
+			if ( !( ent->active ) ) {
+				// destroyed, so just turn teammates off
 				mate->shared.s.frame = 0;
 			} else {
 				mate->shared.s.frame = ent->shared.s.frame;
@@ -87,8 +75,7 @@ void alarmbox_updateparts( GameEntity *ent, bool matestoo ) {
 	{
 		if ( t == ent ) {
 			Com_Printf( "WARNING: Entity used itself.\n" );
-		} else
-		{
+		} else {
 			// give the dlight the sound
 			if ( !Q_stricmp( t->classname, "dlight" ) ) {
 				t->soundLoop = ent->soundLoop;
@@ -98,8 +85,7 @@ void alarmbox_updateparts( GameEntity *ent, bool matestoo ) {
 					if ( !( t->shared.r.linked ) ) {
 						t->use( t, ent, 0 );
 					}
-				} else
-				{
+				} else {
 					if ( t->shared.r.linked ) {
 						t->use( t, ent, 0 );
 					}
@@ -108,7 +94,8 @@ void alarmbox_updateparts( GameEntity *ent, bool matestoo ) {
 			// alarmbox can tell script_trigger about activation
 			// (but don't trigger if dying, only activation)
 			else if ( !Q_stricmp( t->classname, "target_script_trigger" ) ) {
-				if ( ent->active && matestoo ) { // not dead (and this is the box that was used)
+				if ( ent->active && matestoo ) {
+					// not dead (and this is the box that was used)
 					t->use( t, ent, 0 );
 				}
 			}
@@ -116,12 +103,8 @@ void alarmbox_updateparts( GameEntity *ent, bool matestoo ) {
 	}
 }
 
-/*
-==============
-alarmbox_use
-==============
-*/
-void alarmbox_use( GameEntity *ent, GameEntity *other, GameEntity *foo ) {
+void alarmbox_use( GameEntity *ent, GameEntity *other, GameEntity *foo )
+{
 	if ( !( ent->active ) ) {
 		return;
 	}
@@ -136,18 +119,10 @@ void alarmbox_use( GameEntity *ent, GameEntity *other, GameEntity *foo ) {
 	if ( other->client ) {
 		G_AddEvent( ent, EV_GENERAL_SOUND, ent->soundPos3 );
 	}
-
 }
 
-
-/*
-==============
-alarmbox_die
-==============
-*/
-void alarmbox_die( GameEntity *ent, GameEntity *inflictor, GameEntity *attacker, int damage, int mod ) {
-	GameEntity *t;
-
+void alarmbox_die( GameEntity *ent, GameEntity *inflictor, GameEntity *attacker, int damage, int mod )
+{
 	alarmExplosion( ent );
 	ent->shared.s.frame    = 2;
 	ent->active     = false;
@@ -156,9 +131,8 @@ void alarmbox_die( GameEntity *ent, GameEntity *inflictor, GameEntity *attacker,
 
 	// fire 'death' targets
 	if ( ent->targetdeath ) {
-		t = nullptr;
-		while ( ( t = G_Find( t, FOFS( targetname ), ent->targetdeath ) ) != nullptr )
-		{
+		GameEntity* t = nullptr;
+		while ( ( t = G_Find( t, FOFS( targetname ), ent->targetdeath ) ) != nullptr ) {
 			if ( t == ent ) {
 				Com_Printf( "WARNING: Entity used itself.\n" );
 			} else {
@@ -170,21 +144,12 @@ void alarmbox_die( GameEntity *ent, GameEntity *inflictor, GameEntity *attacker,
 
 }
 
-
-
-
-/*
-==============
-alarmbox_finishspawning
-==============
-*/
-void alarmbox_finishspawning( GameEntity *ent ) {
-	GameEntity *mate;
-
+void alarmbox_finishspawning( GameEntity *ent )
+{
 	// make sure they all have the same master (picked arbitrarily.  last spawned)
-	for ( mate = ent; mate; mate = mate->teamchain )
+	for (GameEntity* mate = ent; mate; mate = mate->teamchain ){
 		mate->teammaster = ent->teammaster;
-
+	}
 	// find lights and set their state
 	alarmbox_updateparts( ent, true );
 }
@@ -206,9 +171,8 @@ alarm sound locations are also placed in the dlights, so wherever you place an a
 model: the model used is "models/mapobjects/electronics/alarmbox.md3"
 place the origin at the center of your trigger box
 */
-void SP_alarm_box( GameEntity *ent ) {
-	
-
+void SP_alarm_box( GameEntity *ent )
+{
 	if ( !ent->model ) {
 		Com_Printf( S_COLOR_RED "alarm_box with nullptr model\n" );
 		return;
@@ -254,5 +218,4 @@ void SP_alarm_box( GameEntity *ent ) {
 
 	SV_LinkEntity( &ent->shared );
 }
-
 

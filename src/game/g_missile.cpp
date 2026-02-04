@@ -40,29 +40,12 @@ extern void SP_target_smoke( GameEntity *ent );
 
 void G_ExplodeMissilePoisonGas( GameEntity *ent );
 void M_think( GameEntity *ent );
-/*
-================
-G_BounceMissile
 
-================
-*/
 bool G_BounceMissile( GameEntity *ent, trace_t *trace ) {
 	vec3_t velocity;
 	float dot;
 	int hitTime;
-	int contents;       //----(SA)	added
-/*
-		// Ridah, if we are a grenade, and we have hit an AI that is waiting to catch us, give them a grenade, and delete ourselves
-	if ((ent->splashMethodOfDeath == MOD_GRENADE_SPLASH) && (g_entities[trace->entityNum].flags & FL_AI_GRENADE_KICK) &&
-		(trace->endpos[2] > g_entities[trace->entityNum].r.currentOrigin[2])) {
-		g_entities[trace->entityNum].grenadeExplodeTime = ent->nextthink;
-		g_entities[trace->entityNum].flags &= ~FL_AI_GRENADE_KICK;
-		Add_Ammo( &g_entities[trace->entityNum], WP_GRENADE_LAUNCHER, 1, false );	//----(SA)	modified
-		G_FreeEntity( ent );
-		return false;
-	}
-*/
-	contents = SV_PointContents( ent->shared.s.origin, -1 );
+	int contents = SV_PointContents( ent->shared.s.origin, -1 );
 
 	// reflect the velocity on the trace plane
 	hitTime = level.previousTime + ( level.time - level.previousTime ) * trace->fraction;
@@ -344,31 +327,12 @@ void Concussive_fx( vec3_t origin ) {
 
 
 	concussive = G_Spawn();
-//	VectorCopy (ent->shared.s.origin, concussive->shared.s.origin);
 	VectorCopy( origin, concussive->shared.s.origin );
 	concussive->think = Concussive_think;
 	concussive->nextthink = level.time + FRAMETIME;
 	concussive->delay = level.time + 500;
 
 	return;
-
-// Grenade and bomb flinching event
-/*
-	player = AICast_FindEntityForName( "player" );
-
-	if (!player)
-		return;
-
-	if ( SV_inPVS (player->shared.r.currentOrigin, ent->shared.s.origin) )
-	{
-		tent = G_TempEntity (ent->shared.s.origin, EV_CONCUSSIVE);
-		VectorCopy (ent->shared.s.origin, tent->shared.s.origin);
-		tent->shared.s.density = player->shared.s.number;
-
-		// Com_Printf ("sending concussive event\n");
-	}
-*/
-
 }
 
 /*
@@ -380,9 +344,6 @@ void M_think( GameEntity *ent ) {
 	GameEntity *tent;
 
 	ent->count++;
-
-//	if (ent->count == 1)
-//		Concussive_fx (ent);	//----(SA)	moved to G_ExplodeMissile()
 
 	if ( ent->count == ent->health ) {
 		ent->think = G_FreeEntity;
@@ -707,15 +668,6 @@ int G_PredictMissile( GameEntity *ent, int duration, vec3_t endPos, bool allowBo
 			break;
 		}
 	}
-/*
-	if (!allowBounce && tr.fraction < 1 && tr.entityNum > level.maxclients) {
-		// go back a bit in time, so we can catch it in the air
-		time -= 200;
-		if (time < level.time + FRAMETIME)
-			time = level.time + FRAMETIME;
-		BG_EvaluateTrajectory( &pos, time, org );
-	}
-*/
 
 	// get current position
 	VectorCopy( org, endPos );
@@ -728,14 +680,6 @@ int G_PredictMissile( GameEntity *ent, int duration, vec3_t endPos, bool allowBo
 		return time;
 	}
 }
-
-// Rafael zombiespit
-/*
-================
-G_RunSpit
-================
-*/
-
 
 void G_RunSpit( GameEntity *ent ) {
 	vec3_t origin;

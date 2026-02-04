@@ -442,24 +442,6 @@ void Cmd_Kill_f( GameEntity *ent ) {
 
 /*
 =================
-SetWolfData
-=================
-*/
-void SetWolfData( GameEntity *ent, char *ptype, char *weap, char *pistol, char *grenade, char *skinnum ) {   // DHM - Nerve
-	GameClient   *client;
-
-	client = ent->client;
-
-	client->sess.playerType = atoi( ptype );
-	client->sess.playerWeapon = atoi( weap );
-	client->sess.playerPistol = atoi( pistol );
-	client->sess.playerItem = atoi( grenade );
-	client->sess.playerSkin = atoi( skinnum );
-}
-// dhm - end
-
-/*
-=================
 StopFollowing
 
 If the client being followed leaves the game, or you just want to drop

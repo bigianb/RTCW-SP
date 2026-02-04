@@ -204,7 +204,6 @@ set(GAME_SOURCES
 	src/game/bg_pmove.cpp
 	src/game/bg_slidemove.cpp
 	src/game/g_active.cpp
-	src/game/g_alarm.cpp
 	src/game/g_bot.cpp
 	src/game/g_client.cpp
 	src/game/g_cmds.cpp
@@ -230,8 +229,11 @@ set(GAME_SOURCES
 	src/game/g_weapon.cpp
 	src/game/q_math.cpp
 	src/game/q_shared.cpp
+	src/game/entities/alarmBox.cpp
+	src/game/entities/chairs.cpp
 	src/game/entities/corona.cpp
 	src/game/entities/dlight.cpp
+	src/game/entities/flameBarrel.cpp
 	src/game/entities/mg42.cpp
 	src/game/entities/portalCamera.cpp
 	src/game/entities/shooters.cpp

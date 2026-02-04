@@ -990,7 +990,6 @@ extern void Cmd_FollowCycle_f ( GameEntity * ent , int dir ) ;
 extern void Cmd_Follow_f ( GameEntity * ent ) ;
 
 extern void StopFollowing ( GameEntity * ent ) ;
-extern void SetWolfData ( GameEntity * ent , char * ptype , char * weap , char * pistol , char * grenade , char * skinnum ) ;
 
 extern void Cmd_Kill_f ( GameEntity * ent ) ;
 

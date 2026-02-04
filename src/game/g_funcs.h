@@ -975,7 +975,7 @@ If you have questions concerning this license or the applicable additional terms
 {"Cmd_Follow_f", (uint8_t *)Cmd_Follow_f},
 
 {"StopFollowing", (uint8_t *)StopFollowing},
-{"SetWolfData", (uint8_t *)SetWolfData},
+
 
 {"Cmd_Kill_f", (uint8_t *)Cmd_Kill_f},
 

@@ -418,7 +418,6 @@ bool G_CallSpawn( GameEntity *ent );
 
 void StopFollowing( GameEntity *ent );
 
-void SetWolfData( GameEntity *ent, char *ptype, char *weap, char *pistol, char *grenade, char *skinnum );    // DHM - Nerve
 void Cmd_FollowCycle_f( GameEntity *ent, int dir );
 
 //
