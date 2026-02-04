@@ -230,14 +230,26 @@ set(GAME_SOURCES
 	src/game/q_math.cpp
 	src/game/q_shared.cpp
 	src/game/entities/alarmBox.cpp
+	src/game/entities/boxes.cpp
 	src/game/entities/chairs.cpp
+	src/game/entities/crates.cpp
 	src/game/entities/corona.cpp
+	src/game/entities/decoration.cpp
 	src/game/entities/dlight.cpp
+	src/game/entities/door.cpp
+	src/game/entities/dust.cpp
 	src/game/entities/flameBarrel.cpp
+	src/game/entities/flamethrower.cpp
+	src/game/entities/flippyTable.cpp
+	src/game/entities/funcExplosive.cpp
+	src/game/entities/funcStatic.cpp
+	src/game/entities/locker.cpp
 	src/game/entities/mg42.cpp
 	src/game/entities/portalCamera.cpp
 	src/game/entities/shooters.cpp
 	src/game/entities/snow.cpp
+	src/game/entities/statue.cpp
+	src/game/entities/targetEffect.cpp
 )
 
 set(QCOMMON_INCLUDES

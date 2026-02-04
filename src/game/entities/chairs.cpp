@@ -830,11 +830,6 @@ void SP_Props_ChairChatArm( GameEntity *ent ) {
 	ent->count = shard_wood; // wood break sound
 }
 
-/*
-==============
-SP_Props_ChairSide
-==============
-*/
 void SP_Props_ChairSide( GameEntity *ent ) {
 	if ( !ent->model ) {
 		ent->model = "models/furniture/chair/sidechair3.md3";
