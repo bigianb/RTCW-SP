@@ -2275,7 +2275,7 @@ void UI_Init()
     uiInfo.uiDC.drawTopBottom = &UI_DrawTopBottom;
     uiInfo.uiDC.clearScene = &trap_R_ClearScene;
     uiInfo.uiDC.addRefEntityToScene = &trap_R_AddRefEntityToScene;
-    uiInfo.uiDC.renderScene = &trap_R_RenderScene;
+    
     uiInfo.uiDC.registerFont = &trap_R_RegisterFont;
     uiInfo.uiDC.getValue = &UI_GetValue;
     uiInfo.uiDC.ownerDrawVisible = &UI_OwnerDrawVisible;

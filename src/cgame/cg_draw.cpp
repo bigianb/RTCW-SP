@@ -82,7 +82,7 @@ void CG_Draw3DModel( float x, float y, float w, float h, qhandle_t model, qhandl
 
 	trap_R_ClearScene();
 	trap_R_AddRefEntityToScene( &ent );
-	trap_R_RenderScene( &refdef );
+	RE_RenderScene( &refdef );
 }
 
 
@@ -1396,8 +1396,8 @@ CG_DrawActive
 Perform all drawing needed to completely fill the screen
 =====================
 */
-void CG_DrawActive( stereoFrame_t stereoView ) {
-	float separation;
+void CG_DrawActive( stereoFrame_t stereoView )
+{
 	vec3_t baseOrg;
 
 	// optionally draw the info screen instead
@@ -1413,6 +1413,7 @@ void CG_DrawActive( stereoFrame_t stereoView ) {
         return;
     }
 	
+	float separation;
 	switch ( stereoView ) {
 	case STEREO_CENTER:
 		separation = 0;
@@ -1426,7 +1427,6 @@ void CG_DrawActive( stereoFrame_t stereoView ) {
 	default:
 		separation = 0;
 		Com_Error( ERR_DROP, "CG_DrawActive: Undefined stereoView" );
-        return;  // Keep linter happy. ERR_DROP does not return
 	}
 
 	// offset vieworg appropriately if we're doing stereo separation
@@ -1442,7 +1442,7 @@ void CG_DrawActive( stereoFrame_t stereoView ) {
 		cg.refdef.rdflags &= ~RDF_DRAWSKYBOX;
 	}
 
-	trap_R_RenderScene( &cg.refdef );
+	RE_RenderScene( &cg.refdef );
 
 	// restore original viewpoint if running stereo
 	if ( separation != 0 ) {

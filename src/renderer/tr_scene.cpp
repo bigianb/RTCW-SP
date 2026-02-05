@@ -406,24 +406,20 @@ Rendering a scene may require multiple views to be rendered
 to handle mirrors,
 @@@@@@@@@@@@@@@@@@@@@
 */
-void RE_RenderScene( const refdef_t *fd ) {
-	viewParms_t parms;
-	int startTime;
-
+void RE_RenderScene( const refdef_t *fd )
+{
 	if ( !tr.registered ) {
 		return;
 	}
-	GLimp_LogComment( "====== RE_RenderScene =====\n" );
 
 	if ( r_norefresh->integer ) {
 		return;
 	}
 
-	startTime = ri.Milliseconds();
+	int startTime = ri.Milliseconds();
 
 	if ( !tr.world && !( fd->rdflags & RDF_NOWORLDMODEL ) ) {
 		ri.Error( ERR_DROP, "R_RenderScene: nullptr worldmodel" );
-        return; // keep the linter happy, ERR_DROP does not return
 	}
 
 	memcpy( tr.refdef.text, fd->text, sizeof( tr.refdef.text ) );
@@ -457,12 +453,9 @@ void RE_RenderScene( const refdef_t *fd ) {
 	// will force a reset of the visible leafs even if the view hasn't moved
 	tr.refdef.areamaskModified = false;
 	if ( !( tr.refdef.rdflags & RDF_NOWORLDMODEL ) ) {
-		int areaDiff;
-		int i;
-
 		// compare the area bits
-		areaDiff = 0;
-		for ( i = 0 ; i < MAX_MAP_AREA_BYTES / 4 ; i++ ) {
+		int areaDiff = 0;
+		for (int i = 0 ; i < MAX_MAP_AREA_BYTES / 4 ; i++ ) {
 			areaDiff |= ( (int *)tr.refdef.areamask )[i] ^ ( (int *)fd->areamask )[i];
 			( (int *)tr.refdef.areamask )[i] = ( (int *)fd->areamask )[i];
 		}
@@ -495,7 +488,7 @@ void RE_RenderScene( const refdef_t *fd ) {
 
 	// turn off dynamic lighting globally by clearing all the
 	// dlights if it needs to be disabled or if vertex lighting is enabled
-	if ( /*r_dynamiclight->integer == 0 ||*/    // RF, disabled so we can force things like lightning dlights
+	if ( 
 		r_vertexLight->integer == 1 ||
 		glConfig.hardwareType == GLHW_PERMEDIA2 ) {
 		tr.refdef.num_dlights = 0;
@@ -515,6 +508,7 @@ void RE_RenderScene( const refdef_t *fd ) {
 	// The refdef takes 0-at-the-top y coordinates, so
 	// convert to GL's 0-at-the-bottom space
 	//
+	viewParms_t parms;
 	memset( &parms, 0, sizeof( parms ) );
 	parms.viewportX = tr.refdef.x;
 	parms.viewportY = glConfig.vidHeight - ( tr.refdef.y + tr.refdef.height );

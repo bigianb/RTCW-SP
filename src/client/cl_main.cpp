@@ -864,7 +864,7 @@ void CL_Frame( int msec )
 	SCR_UpdateScreen();
 
 	// update audio
-	// IJB S_Update();
+	S_Update();
 
 	// advance local effects for next frame
 	SCR_RunCinematic();

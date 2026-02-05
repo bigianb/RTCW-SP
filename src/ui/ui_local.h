@@ -643,7 +643,7 @@ void            trap_R_AddRefEntityToScene( const refEntity_t *re );
 void            trap_R_AddPolyToScene( qhandle_t hShader, int numVerts, const polyVert_t *verts );
 void            trap_R_AddLightToScene( const vec3_t org, float intensity, float r, float g, float b, unsigned int overdraw );
 void            trap_R_AddCoronaToScene( const vec3_t org, float r, float g, float b, float scale, int id, int flags );
-void            trap_R_RenderScene( const refdef_t *fd );
+
 void            RE_SetColor( const float *rgba );
 void            trap_R_DrawStretchPic( float x, float y, float w, float h, float s1, float t1, float s2, float t2, qhandle_t hShader );
 void            trap_R_ModelBounds( clipHandle_t model, vec3_t mins, vec3_t maxs );

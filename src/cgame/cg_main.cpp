@@ -26,13 +26,6 @@ If you have questions concerning this license or the applicable additional terms
 ===========================================================================
 */
 
-/*
- * name:		cg_main.c
- *
- * desc:		initialization and primary entry point for cgame
- *
-*/
-
 
 #include "cg_local.h"
 #include "../ui/ui_shared.h"
@@ -368,12 +361,9 @@ static cvarTable_t cvarTable[] = {
 };
 static int cvarTableSize = sizeof( cvarTable ) / sizeof( cvarTable[0] );
 
-/*
-=================
-CG_RegisterCvars
-=================
-*/
-void CG_RegisterCvars( void ) {
+
+void CG_RegisterCvars( void )
+{
 	int i;
 	cvarTable_t *cv;
 	char var[MAX_TOKEN_CHARS];
@@ -547,11 +537,6 @@ static void CG_RegisterItemSounds( int itemNum ) {
 // this is the only thing that sets a cap on # items.  would like it to be adaptable.
 // (rather than 256 max items with pickup name fixed at 32 chars)
 
-/*
-==============
-CG_LoadPickupNames
-==============
-*/
 #define MAX_BUFFER          20000
 static void CG_LoadPickupNames( void ) {
 	char buffer[MAX_BUFFER];
@@ -673,11 +658,6 @@ static void CG_RegisterSounds( void ) {
 	cgs.media.gibBounce1Sound = S_RegisterSound( "sound/player/gibimp1.wav" );
 	cgs.media.gibBounce2Sound = S_RegisterSound( "sound/player/gibimp2.wav" );
 	cgs.media.gibBounce3Sound = S_RegisterSound( "sound/player/gibimp3.wav" );
-
-//	cgs.media.teleInSound = S_RegisterSound( "sound/world/telein.wav" );
-//	cgs.media.teleOutSound = S_RegisterSound( "sound/world/teleout.wav" );
-//	cgs.media.respawnSound = S_RegisterSound( "sound/items/respawn1.wav" );
-
 
 	cgs.media.grenadebounce[GRENBOUNCE_DEFAULT][0]  = S_RegisterSound( "sound/weapons/grenade/hgrenb1a.wav" );
 	cgs.media.grenadebounce[GRENBOUNCE_DEFAULT][1]  = S_RegisterSound( "sound/weapons/grenade/hgrenb2a.wav" );
@@ -815,9 +795,6 @@ static void CG_RegisterSounds( void ) {
 
 	cgs.media.batsFlyingLoopSound = S_RegisterSound( "sound/world/bats_flying.wav" );
 
-	// FIXME: only needed with item
-//	cgs.media.flightSound = S_RegisterSound( "sound/items/flight.wav" );
-//	cgs.media.medkitSound = S_RegisterSound ("sound/items/use_medkit.wav");
 	cgs.media.elecSound = S_RegisterSound( "sound/items/use_elec.wav" );
 	cgs.media.fireSound = S_RegisterSound( "sound/items/use_fire.wav" );
 	cgs.media.waterSound = S_RegisterSound( "sound/items/use_water.wav" );
@@ -828,7 +805,6 @@ static void CG_RegisterSounds( void ) {
 	cgs.media.sfx_ric1 = S_RegisterSound( "sound/weapons/machinegun/ric1.wav" );
 	cgs.media.sfx_ric2 = S_RegisterSound( "sound/weapons/machinegun/ric2.wav" );
 	cgs.media.sfx_ric3 = S_RegisterSound( "sound/weapons/machinegun/ric3.wav" );
-//	cgs.media.sfx_railg = S_RegisterSound ("sound/weapons/railgun/railgf1a.wav");
 	cgs.media.sfx_rockexp = S_RegisterSound( "sound/weapons/rocket/rocklx1a.wav" );
 	cgs.media.sfx_dynamiteexp = S_RegisterSound( "sound/weapons/dynamite/dynamite_exp.wav" );
 	cgs.media.sfx_dynamiteexpDist = S_RegisterSound( "sound/weapons/dynamite/dynamite_exp_dist.wav" );   //----(SA)	added
@@ -868,10 +844,6 @@ static void CG_RegisterSounds( void ) {
 	cgs.media.sparkSounds[1] = S_RegisterSound( "sound/world/arc2.wav" );
 
 
-//----(SA)	doors and kick
-
-	//----(SA)	removed some unnecessary stuff
-
 	S_RegisterSound( "sound/weapons/melee/fstatck.wav" );
 	S_RegisterSound( "sound/weapons/melee/fstmiss.wav" );
 
@@ -879,10 +851,6 @@ static void CG_RegisterSounds( void ) {
 	S_RegisterSound( "sound/Loogie/sizzle.wav" );
 
 }
-
-
-//===================================================================================
-
 
 
 /*
@@ -1262,19 +1230,10 @@ static void CG_RegisterGraphics( void ) {
 
 }
 
-/*
-===================
-CG_RegisterClients
-
-===================
-*/
-static void CG_RegisterClients( void ) {
-	int i;
-
-	for ( i = 0 ; i < MAX_CLIENTS ; i++ ) {
-		const char      *clientInfo;
-
-		clientInfo = CG_ConfigString( CS_PLAYERS + i );
+static void CG_RegisterClients( void )
+{
+	for (int i = 0 ; i < MAX_CLIENTS ; i++ ) {
+		const char* clientInfo = CG_ConfigString( CS_PLAYERS + i );
 		if ( !clientInfo[0] ) {
 			continue;
 		}
@@ -1283,29 +1242,14 @@ static void CG_RegisterClients( void ) {
 	}
 }
 
-//===========================================================================
-
-/*
-=================
-CG_ConfigString
-=================
-*/
-const char *CG_ConfigString( int index ) {
+const char *CG_ConfigString( int index )
+{
 	if ( index < 0 || index >= MAX_CONFIGSTRINGS ) {
 		Com_Error( ERR_DROP, "CG_ConfigString: bad index: %i", index );
-        return nullptr;  // Keep linter happy. ERR_DROP does not return
 	}
 	return cgs.gameState.stringData + cgs.gameState.stringOffsets[ index ];
 }
 
-//==================================================================
-
-/*
-======================
-CG_StartMusic
-
-======================
-*/
 void CG_StartMusic( void ) {
 
 	char parm1[MAX_QPATH], parm2[MAX_QPATH];
@@ -1320,12 +1264,6 @@ void CG_StartMusic( void ) {
 	}
 }
 
-//----(SA)	added
-/*
-==============
-CG_QueueMusic
-==============
-*/
 void CG_QueueMusic( void ) {
 
 	char parm[MAX_QPATH];
@@ -1340,8 +1278,6 @@ void CG_QueueMusic( void ) {
 	//				it doesn't have to go through startbackgroundtrack() (which is stupid)
 	trap_S_StartBackgroundTrack( parm, "", -2 );  // '-2' for 'queue looping track' (QUEUED_PLAY_LOOPED)
 }
-
-//----(SA)	end
 
 
 void CG_Text_PaintWithCursor( float x, float y, int font, float scale, vec4_t color, const char *text, int cursorPos, char cursor, int limit, int style ) {
@@ -1373,12 +1309,11 @@ CG_translateString
 	presumably if this gets used more extensively, it'll be modified to a hash table
 ==============
 */
-const char *CG_translateString( const char *str ) {
-	int i, numStrings;
+const char *CG_translateString( const char *str )
+{
+	int numStrings = sizeof( translateStrings ) / sizeof( translateStrings[0] ) - 1;
 
-	numStrings = sizeof( translateStrings ) / sizeof( translateStrings[0] ) - 1;
-
-	for ( i = 0; i < numStrings; i++ ) {
+	for (int i = 0; i < numStrings; i++ ) {
 		if ( !translateStrings[i].name || !strlen( translateStrings[i].name ) ) {
 			return str;
 		}
@@ -1394,12 +1329,12 @@ const char *CG_translateString( const char *str ) {
 	return str;
 }
 
-void CG_LoadHudMenu() {
+void CG_LoadHudMenu()
+{
 	char buff[1024];
-	const char *hudSet;
 
 	Cvar_VariableStringBuffer( "cg_hudFiles", buff, sizeof( buff ) );
-	hudSet = buff;
+	const char* hudSet = buff;
 	if ( hudSet[0] == '\0' ) {
 		hudSet = "ui/hud.txt";
 	}

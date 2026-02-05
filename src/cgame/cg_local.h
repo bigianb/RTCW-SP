@@ -2175,7 +2175,7 @@ void        trap_RB_ZombieFXAddNewHit( int entityNum, const vec3_t hitPos, const
 // done.
 void        trap_R_AddLightToScene( const vec3_t org, float intensity, float r, float g, float b, unsigned int overdraw );
 void        trap_R_AddCoronaToScene( const vec3_t org, float r, float g, float b, float scale, int id, int flags );  //----(SA)	modified
-void        trap_R_RenderScene( const refdef_t *fd );
+
 void        RE_SetColor( const float *rgba );   // nullptr = 1,1,1,1
 void        trap_R_DrawStretchPic( float x, float y, float w, float h,
 								   float s1, float t1, float s2, float t2, qhandle_t hShader );

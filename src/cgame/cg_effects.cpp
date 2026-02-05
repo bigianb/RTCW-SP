@@ -345,25 +345,6 @@ void CG_Bleed( vec3_t origin, int entityNum ) {
 		return;
 	}
 
-/*
-	ex = CG_AllocLocalEntity();
-	ex->leType = LE_EXPLOSION;
-
-	ex->startTime = cg.time;
-	ex->endTime = ex->startTime + 500;
-
-	VectorCopy ( origin, ex->refEntity.origin);
-	ex->refEntity.reType = RT_SPRITE;
-	ex->refEntity.rotation = rand() % 360;
-	ex->refEntity.radius = 3;
-
-	ex->refEntity.customShader = cgs.media.bloodExplosionShader;
-
-	// don't show player's own blood in view
-	if ( entityNum == cg.snap->ps.clientNum ) {
-		ex->refEntity.renderfx |= RF_THIRD_PERSON;
-	}
-*/
 	// Ridah, blood spurts
 	if ( entityNum != cg.snap->ps.clientNum ) {
 		vec3_t vhead, vlegs, vtorso, bOrigin, dir, vec, pvec, ndir;

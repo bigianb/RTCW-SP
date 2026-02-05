@@ -151,9 +151,6 @@ void    trap_R_SetFog( int fogvar, int var1, int var2, float r, float g, float b
 	R_SetFog( fogvar, var1, var2, r, g, b, density );
 }
 
-void    trap_R_RenderScene( const refdef_t *fd ) {
-	RE_RenderScene(fd );
-}
 
 void    trap_R_DrawStretchPic( float x, float y, float w, float h,
 							   float s1, float t1, float s2, float t2, qhandle_t hShader ) {

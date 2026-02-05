@@ -31,6 +31,7 @@ If you have questions concerning this license or the applicable additional terms
 #include "cg_local.h"
 #include "../qcommon/qcommon.h"
 #include "../client/snd_public.h"
+#include "../renderer/tr_public.h"
 
 //========================
 extern int notebookModel;
@@ -1179,7 +1180,7 @@ void CG_DrawSkyBoxPortal( void ) {
 	cg.refdef.time = cg.time;
 
 	// draw the skybox
-	trap_R_RenderScene( &cg.refdef );
+	RE_RenderScene( &cg.refdef );
 
 	cg.refdef = backuprefdef;
 }
@@ -1194,10 +1195,9 @@ CG_DrawActiveFrame
 Generates and draws a game scene and status information at the given time.
 =================
 */
-void CG_DrawActiveFrame( int serverTime, stereoFrame_t stereoView) {
-	int inwater;
-
-	cg.cld = 0;         // NERVE - SMF - reset clientDamage
+void CG_DrawActiveFrame( int serverTime, stereoFrame_t stereoView)
+{
+	cg.cld = 0;
 
 	cg.time = serverTime;
 
@@ -1229,8 +1229,7 @@ void CG_DrawActiveFrame( int serverTime, stereoFrame_t stereoView) {
 	}
 
 	if ( cg.weaponSelect == WP_FG42SCOPE || cg.weaponSelect == WP_SNOOPERSCOPE || cg.weaponSelect == WP_SNIPERRIFLE ) {
-		float spd;
-		spd = VectorLength( cg.snap->ps.velocity );
+		float spd = VectorLength( cg.snap->ps.velocity );
 		if ( spd > 180.0f ) {
 			switch ( cg.weaponSelect ) {
 			case WP_FG42SCOPE:
@@ -1265,7 +1264,7 @@ void CG_DrawActiveFrame( int serverTime, stereoFrame_t stereoView) {
 	cg.renderingThirdPerson = cg_thirdPerson.integer;
 
 	// build cg.refdef
-	inwater = CG_CalcViewValues();
+	int inwater = CG_CalcViewValues();
 
 	CG_CalcShakeCamera();
 	CG_ApplyShakeCamera();
@@ -1284,24 +1283,18 @@ void CG_DrawActiveFrame( int serverTime, stereoFrame_t stereoView) {
 
 	// build the render lists
 	if ( !cg.hyperspace ) {
-		CG_AddPacketEntities();         // adter calcViewValues, so predicted player state is correct
+		CG_AddPacketEntities();         // after calcViewValues, so predicted player state is correct
 		CG_AddMarks();
-
-		// Rafael particles
 		CG_AddParticles();
-		// done.
-
 		CG_AddLocalEntities();
 	}
 
 	CG_AddViewWeapon( &cg.predictedPlayerState );
 
-	// Ridah, trails
 	if ( !cg.hyperspace ) {
 		CG_AddFlameChunks();
 		CG_AddTrails();         // this must come last, so the trails dropped this frame get drawn
 	}
-	// done.
 
 
 	cg.refdef.time = cg.time;

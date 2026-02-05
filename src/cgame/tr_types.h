@@ -187,7 +187,8 @@ typedef enum {
 } glfogType_t;
 
 
-typedef struct {
+struct glfog_t
+{
 	int mode;                   // GL_LINEAR, GL_EXP
 	int hint;                   // GL_DONT_CARE
 	int startTime;              // in ms
@@ -202,15 +203,14 @@ typedef struct {
 	int clearscreen;       // clear the GL color buffer. TODO: bool
 
 	int dirty;
-} glfog_t;
-
-//----(SA)	end
+};
 
 
 #define MAX_RENDER_STRINGS          8
 #define MAX_RENDER_STRING_LENGTH    32
 
-typedef struct {
+struct refdef_t
+{
 	int x, y, width, height;
 	float fov_x, fov_y;
 	vec3_t vieworg;
@@ -222,18 +222,12 @@ typedef struct {
 	// 1 bits will prevent the associated area from rendering at all
 	uint8_t areamask[MAX_MAP_AREA_BYTES];
 
-
-
-
 	// text messages for deform text shaders
 	char text[MAX_RENDER_STRINGS][MAX_RENDER_STRING_LENGTH];
 
-
-//----(SA)	added (needed to pass fog infos into the portal sky scene)
+	// needed to pass fog infos into the portal sky scene
 	glfog_t glfog;
-//----(SA)	end
-
-} refdef_t;
+};
 
 
 typedef enum {

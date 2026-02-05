@@ -26,12 +26,6 @@ If you have questions concerning this license or the applicable additional terms
 ===========================================================================
 */
 
-/*
- * name:		tr_main.c
- *
- * desc:		main control flow for each frame
- *
-*/
 
 #include "tr_local.h"
 
@@ -58,12 +52,6 @@ glfog_t glfogsettings[NUM_FOGS];
 glfogType_t glfogNum = FOG_NONE;
 bool fogIsOn = false;
 
-
-/*
-=================
-R_Fog (void)
-=================
-*/
 void R_Fog( glfog_t *curfog ) {
 	static glfog_t setfog;
 
@@ -72,12 +60,11 @@ void R_Fog( glfog_t *curfog ) {
 		return;
 	}
 
-	if ( !curfog->registered ) {   //----(SA)
+	if ( !curfog->registered ) { 
 		R_FogOff();
 		return;
 	}
 
-	//----(SA) assme values of '0' for these parameters means 'use default'
 	if ( !curfog->density ) {
 		curfog->density = 1;
 	}
@@ -87,73 +74,43 @@ void R_Fog( glfog_t *curfog ) {
 	if ( !curfog->mode ) {
 		curfog->mode = GL_LINEAR;
 	}
-	//----(SA)	end
-
 
 	R_FogOn();
 
-	// TODO: FIXME: only send changes if necessary
-
-//	if(curfog->mode != setfog.mode || !setfog.registered) {
 	qglFogi( GL_FOG_MODE, curfog->mode );
-//		setfog.mode = curfog->mode;
-//	}
-//	if(curfog->color[0] != setfog.color[0] || curfog->color[1] != setfog.color[1] || curfog->color[2] != setfog.color[2] || !setfog.registered) {
 	qglFogfv( GL_FOG_COLOR, curfog->color );
-//		VectorCopy(setfog.color, curfog->color);
-//	}
-//	if(curfog->density != setfog.density || !setfog.registered) {
 	qglFogf( GL_FOG_DENSITY, curfog->density );
-//		setfog.density = curfog->density;
-//	}
-//	if(curfog->hint != setfog.hint || !setfog.registered) {
 	qglHint( GL_FOG_HINT, curfog->hint );
-//		setfog.hint = curfog->hint;
-//	}
-//	if(curfog->start != setfog.start || !setfog.registered) {
 	if ( backEnd.refdef.rdflags & RDF_SNOOPERVIEW ) {
 		qglFogf( GL_FOG_START, curfog->end );       // snooper starts GL fog out further
 	} else {
 		qglFogf( GL_FOG_START, curfog->start );
 	}
-//		setfog.start = curfog->start;
-//	}
 
 	if ( r_zfar->value ) {             // (SA) allow override for helping level designers test fog distances
-//		if(setfog.end != r_zfar->value || !setfog.registered) {
 		qglFogf( GL_FOG_END, r_zfar->value );
-//			setfog.end = r_zfar->value;
-//		}
 	} else {
-//		if(curfog->end != setfog.end || !setfog.registered) {
 		if ( backEnd.refdef.rdflags & RDF_SNOOPERVIEW ) {
 			qglFogf( GL_FOG_END, curfog->end + 1000 );      // snooper ends GL fog out further.  this works fine with our maps, but could be 'funky' with later maps
-		}
-//				qglFogf (GL_FOG_END, curfog->end);
-		else {
+		} else {
 			qglFogf( GL_FOG_END, curfog->end );
 		}
-//			setfog.end = curfog->end;
-//		}
 	}
 
 
-//----(SA)	added
 	// NV fog mode
 	if ( glConfig.NVFogAvailable ) {
 		qglFogi( GL_FOG_DISTANCE_MODE_NV, glConfig.NVFogMode );
 	}
-//----(SA)	end
 
 	setfog.registered = true;
 
 	qglClearColor( curfog->color[0], curfog->color[1], curfog->color[2], curfog->color[3] );
-
-
 }
 
 // Ridah, allow disabling fog temporarily
-void R_FogOff( void ) {
+void R_FogOff( void )
+{
 	if ( !fogIsOn ) {
 		return;
 	}
@@ -161,15 +118,11 @@ void R_FogOff( void ) {
 	fogIsOn = false;
 }
 
-void R_FogOn( void ) {
+void R_FogOn( void )
+{
 	if ( fogIsOn ) {
 		return;
 	}
-
-//	if(r_uiFullScreen->integer) {	// don't fog in the menu
-//		R_FogOff();
-//		return;
-//	}
 
 	if ( backEnd.projection2D ) {  // no fog in 2d
 		R_FogOff();
@@ -180,10 +133,6 @@ void R_FogOn( void ) {
 		return;
 	}
 
-//	if(backEnd.viewParms.isGLFogged) {
-//		if(!(backEnd.viewParms.glFog.registered))
-//			return;
-//	}
 
 	if ( backEnd.refdef.rdflags & RDF_SKYBOXPORTAL ) { // don't force world fog on portal sky
 		if ( !( glfogsettings[FOG_PORTALVIEW].registered ) ) {
@@ -196,11 +145,7 @@ void R_FogOn( void ) {
 	qglEnable( GL_FOG );
 	fogIsOn = true;
 }
-// done.
 
-
-
-//----(SA)
 /*
 ==============
 R_SetFog
@@ -258,16 +203,11 @@ void R_SetFog( int fogvar, int var1, int var2, float r, float g, float b, float 
 		if ( glfogsettings[FOG_CURRENT].registered ) {
 			memcpy( &glfogsettings[FOG_LAST], &glfogsettings[FOG_CURRENT], sizeof( glfog_t ) );
 		}
-
 		memcpy( &glfogsettings[FOG_TARGET], &glfogsettings[glfogNum], sizeof( glfog_t ) );
-
 
 		// clear, clear, clear
 		memset( &glfogsettings[FOG_MAP], 0, sizeof( glfog_t ) );
-//		memset(&glfogsettings[FOG_CURRENT], 0, sizeof(glfog_t));
 		memset( &glfogsettings[FOG_TARGET], 0, sizeof( glfog_t ) );
-//		glfogsettings[FOG_CURRENT].registered = false;
-//		glfogsettings[FOG_TARGET].registered = false;
 		glfogNum = FOG_NONE;
 		return;
 	}
@@ -305,8 +245,6 @@ void R_SetFog( int fogvar, int var1, int var2, float r, float g, float b, float 
 	}
 }
 
-//----(SA) end
-
 /*
 =================
 R_CullLocalBox
@@ -314,21 +252,17 @@ R_CullLocalBox
 Returns CULL_IN, CULL_CLIP, or CULL_OUT
 =================
 */
-int R_CullLocalBox( vec3_t bounds[2] ) {
-	int i, j;
+int R_CullLocalBox( vec3_t bounds[2] )
+{
 	vec3_t transformed[8];
-	float dists[8];
-	vec3_t v;
-	cplane_t    *frust;
-	int anyBack;
-	int front, back;
-
+	
 	if ( r_nocull->integer ) {
 		return CULL_CLIP;
 	}
 
 	// transform into world space
-	for ( i = 0 ; i < 8 ; i++ ) {
+	for (int i = 0 ; i < 8 ; i++ ) {
+		vec3_t v;
 		v[0] = bounds[i & 1][0];
 		v[1] = bounds[( i >> 1 ) & 1][1];
 		v[2] = bounds[( i >> 2 ) & 1][2];
@@ -340,12 +274,14 @@ int R_CullLocalBox( vec3_t bounds[2] ) {
 	}
 
 	// check against frustum planes
-	anyBack = 0;
-	for ( i = 0 ; i < 4 ; i++ ) {
-		frust = &tr.viewParms.frustum[i];
+	int anyBack = 0;
+	for (int i = 0 ; i < 4 ; i++ ) {
+		cplane_t* frust = &tr.viewParms.frustum[i];
 
-		front = back = 0;
-		for ( j = 0 ; j < 8 ; j++ ) {
+		int front = 0;
+		int back = 0;
+		float dists[8];
+		for (int j = 0 ; j < 8 ; j++ ) {
 			dists[j] = DotProduct( transformed[j], frust->normal );
 			if ( dists[j] > frust->dist ) {
 				front = 1;
@@ -370,24 +306,16 @@ int R_CullLocalBox( vec3_t bounds[2] ) {
 	return CULL_CLIP;       // partially clipped
 }
 
-/*
-** R_CullLocalPointAndRadius
-*/
-int R_CullLocalPointAndRadius( vec3_t pt, float radius ) {
+int R_CullLocalPointAndRadius( vec3_t pt, float radius )
+{
 	vec3_t transformed;
-
 	R_LocalPointToWorld( pt, transformed );
 
 	return R_CullPointAndRadius( transformed, radius );
 }
 
-/*
-** R_CullPointAndRadius
-*/
-int R_CullPointAndRadius( vec3_t pt, float radius ) {
-	int i;
-	float dist;
-	cplane_t    *frust;
+int R_CullPointAndRadius( vec3_t pt, float radius )
+{
 	bool mightBeClipped = false;
 
 	if ( r_nocull->integer ) {
@@ -395,11 +323,11 @@ int R_CullPointAndRadius( vec3_t pt, float radius ) {
 	}
 
 	// check against frustum planes
-	for ( i = 0 ; i < 4 ; i++ )
+	for (int i = 0 ; i < 4 ; i++ )
 	{
-		frust = &tr.viewParms.frustum[i];
+		cplane_t* frust = &tr.viewParms.frustum[i];
 
-		dist = DotProduct( pt, frust->normal ) - frust->dist;
+		float dist = DotProduct( pt, frust->normal ) - frust->dist;
 		if ( dist < -radius ) {
 			return CULL_OUT;
 		} else if ( dist <= radius )   {
@@ -414,54 +342,29 @@ int R_CullPointAndRadius( vec3_t pt, float radius ) {
 	return CULL_IN;     // completely inside frustum
 }
 
-
-/*
-=================
-R_LocalNormalToWorld
-
-=================
-*/
 void R_LocalNormalToWorld( vec3_t local, vec3_t world ) {
 	world[0] = local[0] * tr.orientation.axis[0][0] + local[1] * tr.orientation.axis[1][0] + local[2] * tr.orientation.axis[2][0];
 	world[1] = local[0] * tr.orientation.axis[0][1] + local[1] * tr.orientation.axis[1][1] + local[2] * tr.orientation.axis[2][1];
 	world[2] = local[0] * tr.orientation.axis[0][2] + local[1] * tr.orientation.axis[1][2] + local[2] * tr.orientation.axis[2][2];
 }
 
-/*
-=================
-R_LocalPointToWorld
-
-=================
-*/
 void R_LocalPointToWorld( vec3_t local, vec3_t world ) {
 	world[0] = local[0] * tr.orientation.axis[0][0] + local[1] * tr.orientation.axis[1][0] + local[2] * tr.orientation.axis[2][0] + tr.orientation.origin[0];
 	world[1] = local[0] * tr.orientation.axis[0][1] + local[1] * tr.orientation.axis[1][1] + local[2] * tr.orientation.axis[2][1] + tr.orientation.origin[1];
 	world[2] = local[0] * tr.orientation.axis[0][2] + local[1] * tr.orientation.axis[1][2] + local[2] * tr.orientation.axis[2][2] + tr.orientation.origin[2];
 }
 
-/*
-=================
-R_WorldToLocal
-
-=================
-*/
 void R_WorldToLocal( vec3_t world, vec3_t local ) {
 	local[0] = DotProduct( world, tr.orientation.axis[0] );
 	local[1] = DotProduct( world, tr.orientation.axis[1] );
 	local[2] = DotProduct( world, tr.orientation.axis[2] );
 }
 
-/*
-==========================
-R_TransformModelToClip
 
-==========================
-*/
 void R_TransformModelToClip( const vec3_t src, const float *modelMatrix, const float *projectionMatrix,
-							 vec4_t eye, vec4_t dst ) {
-	int i;
-
-	for ( i = 0 ; i < 4 ; i++ ) {
+							 vec4_t eye, vec4_t dst )
+{
+	for (int i = 0 ; i < 4 ; i++ ) {
 		eye[i] =
 			src[0] * modelMatrix[ i + 0 * 4 ] +
 			src[1] * modelMatrix[ i + 1 * 4 ] +
@@ -469,7 +372,7 @@ void R_TransformModelToClip( const vec3_t src, const float *modelMatrix, const f
 			1 * modelMatrix[ i + 3 * 4 ];
 	}
 
-	for ( i = 0 ; i < 4 ; i++ ) {
+	for (int i = 0 ; i < 4 ; i++ ) {
 		dst[i] =
 			eye[0] * projectionMatrix[ i + 0 * 4 ] +
 			eye[1] * projectionMatrix[ i + 1 * 4 ] +
@@ -478,13 +381,8 @@ void R_TransformModelToClip( const vec3_t src, const float *modelMatrix, const f
 	}
 }
 
-/*
-==========================
-R_TransformClipToWindow
-
-==========================
-*/
-void R_TransformClipToWindow( const vec4_t clip, const viewParms_t *view, vec4_t normalized, vec4_t window ) {
+void R_TransformClipToWindow( const vec4_t clip, const viewParms_t *view, vec4_t normalized, vec4_t window )
+{
 	normalized[0] = clip[0] / clip[3];
 	normalized[1] = clip[1] / clip[3];
 	normalized[2] = ( clip[2] + clip[3] ) / ( 2 * clip[3] );
@@ -497,18 +395,10 @@ void R_TransformClipToWindow( const vec4_t clip, const viewParms_t *view, vec4_t
 	window[1] = (int) ( window[1] + 0.5 );
 }
 
-
-/*
-==========================
-myGlMultMatrix
-
-==========================
-*/
-void myGlMultMatrix( const float *a, const float *b, float *out ) {
-	int i, j;
-
-	for ( i = 0 ; i < 4 ; i++ ) {
-		for ( j = 0 ; j < 4 ; j++ ) {
+void myGlMultMatrix( const float *a, const float *b, float *out )
+{
+	for (int i = 0 ; i < 4 ; i++ ) {
+		for (int j = 0 ; j < 4 ; j++ ) {
 			out[ i * 4 + j ] =
 				a [ i * 4 + 0 ] * b [ 0 * 4 + j ]
 				+ a [ i * 4 + 1 ] * b [ 1 * 4 + j ]
@@ -635,15 +525,8 @@ void R_RotateForViewer( void ) {
 
 }
 
-
-
-/*
-==============
-R_SetFrameFog
-==============
-*/
-void R_SetFrameFog( void ) {
-
+void R_SetFrameFog( void )
+{
 	if ( r_speeds->integer == 5 ) {
 		if ( !glfogsettings[FOG_TARGET].registered ) {
 			ri.Printf( PRINT_ALL, "no fog - calc zFar: %0.1f\n", tr.viewParms.zFar );
@@ -701,10 +584,8 @@ void R_SetFrameFog( void ) {
 		glfogsettings[FOG_CURRENT].dirty = 1;
 	} else {
 		// potential FIXME: since this is the most common occurance, diff first and only set changes
-//		if(glfogsettings[FOG_CURRENT].dirty) {
 		memcpy( &glfogsettings[FOG_CURRENT], &glfogsettings[FOG_TARGET], sizeof( glfog_t ) );
 		glfogsettings[FOG_CURRENT].dirty = 0;
-//		}
 	}
 
 
@@ -719,8 +600,6 @@ void R_SetFrameFog( void ) {
 
 		}
 	}
-//	else
-//		glfogsettings[FOG_CURRENT].end = 5;
 
 
 	if ( r_speeds->integer == 5 ) {
@@ -733,15 +612,8 @@ void R_SetFrameFog( void ) {
 }
 
 
-/*
-==============
-SetFarClip
-==============
-*/
-static void SetFarClip( void ) {
-	float farthestCornerDistance = 0;
-	int i;
-
+static void SetFarClip()
+{
 	// if not rendering the world (icons, menus, etc)
 	// set a 2k far clip plane
 	if ( tr.refdef.rdflags & RDF_NOWORLDMODEL ) {
@@ -766,8 +638,8 @@ static void SetFarClip( void ) {
 	//
 	// set far clipping planes dynamically
 	//
-	farthestCornerDistance = 0;
-	for ( i = 0; i < 8; i++ )
+	float farthestCornerDistance = 0;
+	for (int i = 0; i < 8; i++ )
 	{
 		vec3_t v;
 		vec3_t vecTo;
@@ -808,38 +680,31 @@ static void SetFarClip( void ) {
 }
 
 
-/*
-===============
-R_SetupProjection
-===============
-*/
-void R_SetupProjection( void ) {
-	float xmin, xmax, ymin, ymax;
-	float width, height, depth;
-	float zNear, zFar;
-
+void R_SetupProjection()
+{
 	// dynamically compute far clip plane distance
 	SetFarClip();
 
 	//
 	// set up projection matrix
 	//
-	zNear   = r_znear->value;
+	float zNear   = r_znear->value;
+	float zFar;
 	if ( r_zfar->value ) {
 		zFar = r_zfar->value;   // (SA) allow override for helping level designers test fog distances
 	} else {
 		zFar = tr.viewParms.zFar;
 	}
 
-	ymax = zNear * tan( tr.refdef.fov_y * M_PI / 360.0f );
-	ymin = -ymax;
+	float ymax = zNear * tan( tr.refdef.fov_y * M_PI / 360.0f );
+	float ymin = -ymax;
 
-	xmax = zNear * tan( tr.refdef.fov_x * M_PI / 360.0f );
-	xmin = -xmax;
+	float xmax = zNear * tan( tr.refdef.fov_x * M_PI / 360.0f );
+	float xmin = -xmax;
 
-	width = xmax - xmin;
-	height = ymax - ymin;
-	depth = zFar - zNear;
+	float width = xmax - xmin;
+	float height = ymax - ymin;
+	float depth = zFar - zNear;
 
 	tr.viewParms.projectionMatrix[0] = 2 * zNear / width;
 	tr.viewParms.projectionMatrix[4] = 0;
@@ -869,14 +734,11 @@ R_SetupFrustum
 Setup that culling frustum planes for the current view
 =================
 */
-void R_SetupFrustum( void ) {
-	int i;
-	float xs, xc;
-	float ang;
-
-	ang = tr.viewParms.fovX / 180 * M_PI * 0.5f;
-	xs = sin( ang );
-	xc = cos( ang );
+void R_SetupFrustum()
+{	
+	float ang = tr.viewParms.fovX / 180 * M_PI * 0.5f;
+	float xs = sin( ang );
+	float xc = cos( ang );
 
 	VectorScale( tr.viewParms.orientation.axis[0], xs, tr.viewParms.frustum[0].normal );
 	VectorMA( tr.viewParms.frustum[0].normal, xc, tr.viewParms.orientation.axis[1], tr.viewParms.frustum[0].normal );
@@ -894,7 +756,7 @@ void R_SetupFrustum( void ) {
 	VectorScale( tr.viewParms.orientation.axis[0], xs, tr.viewParms.frustum[3].normal );
 	VectorMA( tr.viewParms.frustum[3].normal, -xc, tr.viewParms.orientation.axis[2], tr.viewParms.frustum[3].normal );
 
-	for ( i = 0 ; i < 4 ; i++ ) {
+	for (int i = 0 ; i < 4 ; i++ ) {
 		tr.viewParms.frustum[i].type = PLANE_NON_AXIAL;
 		tr.viewParms.frustum[i].dist = DotProduct( tr.viewParms.orientation.origin, tr.viewParms.frustum[i].normal );
 		SetPlaneSignbits( &tr.viewParms.frustum[i] );
@@ -902,79 +764,67 @@ void R_SetupFrustum( void ) {
 }
 
 
-/*
-=================
-R_MirrorPoint
-=================
-*/
-void R_MirrorPoint( vec3_t in, orientation_t *surface, orientation_t *camera, vec3_t out ) {
-	int i;
+void R_MirrorPoint( vec3_t in, orientation_t *surface, orientation_t *camera, vec3_t out )
+{	
 	vec3_t local;
 	vec3_t transformed;
-	float d;
-
+	
 	VectorSubtract( in, surface->origin, local );
-
 	VectorClear( transformed );
-	for ( i = 0 ; i < 3 ; i++ ) {
-		d = DotProduct( local, surface->axis[i] );
+	for (int i = 0 ; i < 3 ; i++ ) {
+		float d = DotProduct( local, surface->axis[i] );
 		VectorMA( transformed, d, camera->axis[i], transformed );
 	}
 
 	VectorAdd( transformed, camera->origin, out );
 }
 
-void R_MirrorVector( vec3_t in, orientation_t *surface, orientation_t *camera, vec3_t out ) {
-	int i;
-	float d;
-
+void R_MirrorVector( vec3_t in, orientation_t *surface, orientation_t *camera, vec3_t out )
+{
 	VectorClear( out );
-	for ( i = 0 ; i < 3 ; i++ ) {
-		d = DotProduct( in, surface->axis[i] );
+	for (int i = 0 ; i < 3 ; i++ ) {
+		float d = DotProduct( in, surface->axis[i] );
 		VectorMA( out, d, camera->axis[i], out );
 	}
 }
 
-
-/*
-=============
-R_PlaneForSurface
-=============
-*/
-void R_PlaneForSurface( surfaceType_t *surfType, cplane_t *plane ) {
-	srfTriangles_t  *tri;
-	srfPoly_t       *poly;
-	drawVert_t      *v1, *v2, *v3;
-	vec4_t plane4;
-
+void R_PlaneForSurface( surfaceType_t *surfType, cplane_t *plane )
+{
 	if ( !surfType ) {
 		memset( plane, 0, sizeof( *plane ) );
 		plane->normal[0] = 1;
 		return;
 	}
+
 	switch ( *surfType ) {
 	case SF_FACE:
 		*plane = ( (srfSurfaceFace_t *)surfType )->plane;
-		return;
+		break;
 	case SF_TRIANGLES:
-		tri = (srfTriangles_t *)surfType;
-		v1 = tri->verts + tri->indexes[0];
-		v2 = tri->verts + tri->indexes[1];
-		v3 = tri->verts + tri->indexes[2];
+	{
+		srfTriangles_t* tri = (srfTriangles_t *)surfType;
+		drawVert_t* v1 = tri->verts + tri->indexes[0];
+		drawVert_t* v2 = tri->verts + tri->indexes[1];
+		drawVert_t* v3 = tri->verts + tri->indexes[2];
+		vec4_t plane4;
 		PlaneFromPoints( plane4, v1->xyz, v2->xyz, v3->xyz );
 		VectorCopy( plane4, plane->normal );
 		plane->dist = plane4[3];
-		return;
+	}
+		break;
 	case SF_POLY:
-		poly = (srfPoly_t *)surfType;
+	{
+		srfPoly_t* poly = (srfPoly_t *)surfType;
+		vec4_t plane4;
 		PlaneFromPoints( plane4, poly->verts[0].xyz, poly->verts[1].xyz, poly->verts[2].xyz );
 		VectorCopy( plane4, plane->normal );
 		plane->dist = plane4[3];
-		return;
+	}
+		break;
 	default:
 		memset( plane, 0, sizeof( *plane ) );
 		plane->normal[0] = 1;
-		return;
+		break;
 	}
 }
 
@@ -1167,17 +1017,15 @@ static bool IsMirror( const drawSurf_t *drawSurf, int entityNum ) {
 **
 ** Determines if a surface is completely offscreen.
 */
-static bool SurfIsOffscreen( const drawSurf_t *drawSurf, vec4_t clipDest[128] ) {
+static bool SurfIsOffscreen( const drawSurf_t *drawSurf, vec4_t clipDest[128] )
+{
 	float shortest = 100000000;
 	int entityNum;
-	int numTriangles;
 	shader_t *shader;
 	int fogNum;
 	int dlighted;
-// GR - tessellation flag
 	int atiTess;
-	vec4_t clip, eye;
-	int i;
+	
 	unsigned int pointOr = 0;
 	unsigned int pointAnd = (unsigned int)~0;
 
@@ -1187,21 +1035,19 @@ static bool SurfIsOffscreen( const drawSurf_t *drawSurf, vec4_t clipDest[128] ) 
 
 	R_RotateForViewer();
 
-// GR - decompose with tessellation flag
 	R_DecomposeSort( drawSurf->sort, &entityNum, &shader, &fogNum, &dlighted, &atiTess );
 	RB_BeginSurface( shader, fogNum );
 	rb_surfaceTable[ *drawSurf->surface ]( drawSurf->surface );
 
 	assert( tess.numVertexes < 128 );
 
-	for ( i = 0; i < tess.numVertexes; i++ )
+	for (int i = 0; i < tess.numVertexes; i++ )
 	{
-		int j;
 		unsigned int pointFlags = 0;
-
+		vec4_t clip, eye;
 		R_TransformModelToClip( tess.xyz[i], tr.orientation.modelMatrix, tr.viewParms.projectionMatrix, eye, clip );
 
-		for ( j = 0; j < 3; j++ )
+		for (int j = 0; j < 3; j++ )
 		{
 			if ( clip[j] >= clip[3] ) {
 				pointFlags |= ( 1 << ( j * 2 ) );
@@ -1223,22 +1069,21 @@ static bool SurfIsOffscreen( const drawSurf_t *drawSurf, vec4_t clipDest[128] ) 
 	// based on vertex distance isn't 100% correct (we should be checking for
 	// range to the surface), but it's good enough for the types of portals
 	// we have in the game right now.
-	numTriangles = tess.numIndexes / 3;
+	int numTriangles = tess.numIndexes / 3;
 
-	for ( i = 0; i < tess.numIndexes; i += 3 )
+	for (int i = 0; i < tess.numIndexes; i += 3 )
 	{
 		vec3_t normal;
-		float dot;
-		float len;
 
 		VectorSubtract( tess.xyz[tess.indexes[i]], tr.viewParms.orientation.origin, normal );
 
-		len = VectorLengthSquared( normal );            // lose the sqrt
+		float len = VectorLengthSquared( normal );            // lose the sqrt
 		if ( len < shortest ) {
 			shortest = len;
 		}
 
-		if ( ( dot = DotProduct( normal, tess.normal[tess.indexes[i]] ) ) >= 0 ) {
+		float dot = DotProduct( normal, tess.normal[tess.indexes[i]] );
+		if ( dot >= 0 ) {
 			numTriangles--;
 		}
 	}
@@ -1278,7 +1123,6 @@ bool R_MirrorViewBySurface( drawSurf_t *drawSurf, int entityNum ) {
 		return false;
 	}
 
-//	if ( r_noportals->integer || r_fastsky->integer || tr.levelGLFog) {
 	if ( r_noportals->integer || r_fastsky->integer ) {
 		return false;
 	}
@@ -1324,16 +1168,15 @@ R_SpriteFogNum
 See if a sprite is inside a fog volume
 =================
 */
-int R_SpriteFogNum( trRefEntity_t *ent ) {
-	int i, j;
-	fog_t           *fog;
-
+int R_SpriteFogNum( trRefEntity_t *ent ) 
+{
 	if ( tr.refdef.rdflags & RDF_NOWORLDMODEL ) {
 		return 0;
 	}
 
-	for ( i = 1 ; i < tr.world->numfogs ; i++ ) {
-		fog = &tr.world->fogs[i];
+	for (int i = 1 ; i < tr.world->numfogs ; i++ ) {
+		fog_t *fog = &tr.world->fogs[i];
+		int j;
 		for ( j = 0 ; j < 3 ; j++ ) {
 			if ( ent->e.origin[j] - ent->e.radius >= fog->bounds[1][j] ) {
 				break;
@@ -1357,32 +1200,26 @@ DRAWSURF SORTING
 
 ==========================================================================================
 */
-/*
-===============
-R_Radix
-===============
-*/
-static inline void R_Radix( int uint8_t, int size, drawSurf_t *source, drawSurf_t *dest )
+
+static inline void R_Radix( int key, int size, drawSurf_t *source, drawSurf_t *dest )
 {
   int           count[ 256 ] = { 0 };
   int           index[ 256 ];
-  int           i;
-  unsigned char *sortKey = nullptr;
-  unsigned char *end = nullptr;
 
-  sortKey = ( (unsigned char *)&source[ 0 ].sort ) + uint8_t;
-  end = sortKey + ( size * sizeof( drawSurf_t ) );
-  for( ; sortKey < end; sortKey += sizeof( drawSurf_t ) )
+  unsigned char* sortKey = ( (unsigned char *)&source[ 0 ].sort ) + key;
+  unsigned char* end = sortKey + ( size * sizeof( drawSurf_t ) );
+  for( ; sortKey < end; sortKey += sizeof( drawSurf_t ) ){
     ++count[ *sortKey ];
-
+  }
   index[ 0 ] = 0;
 
-  for( i = 1; i < 256; ++i )
+  for(int i = 1; i < 256; ++i ){
     index[ i ] = index[ i - 1 ] + count[ i - 1 ];
-
-  sortKey = ( (unsigned char *)&source[ 0 ].sort ) + uint8_t;
-  for( i = 0; i < size; ++i, sortKey += sizeof( drawSurf_t ) )
+  }
+  sortKey = ( (unsigned char *)&source[ 0 ].sort ) + key;
+  for(int i = 0; i < size; ++i, sortKey += sizeof( drawSurf_t ) ){
     dest[ index[ *sortKey ]++ ] = source[ i ];
+  }
 }
 
 /*
@@ -1400,26 +1237,16 @@ static void R_RadixSort( drawSurf_t *source, int size )
   R_Radix( 1, size, scratch, source );
   R_Radix( 2, size, source, scratch );
   R_Radix( 3, size, scratch, source );
-
 }
 
-//==========================================================================================
-
-/*
-=================
-R_AddDrawSurf
-=================
-*/
 void R_AddDrawSurf( surfaceType_t *surface, shader_t *shader,
-					int fogIndex, int dlightMap, int atiTess ) {
-	int index;
-
+					int fogIndex, int dlightMap, int atiTess )
+{
 	// instead of checking for overflow, we just mask the index
 	// so it wraps around
-	index = tr.refdef.numDrawSurfs & DRAWSURF_MASK;
+	int index = tr.refdef.numDrawSurfs & DRAWSURF_MASK;
 	// the sort data is packed into a single 32 bit value so it can be
 	// compared quickly during the qsorting process
-// GR - add tesselation flag to the sort
 	tr.refdef.drawSurfs[index].sort = ( shader->sortedIndex << QSORT_SHADERNUM_SHIFT )
 									  | ( atiTess << QSORT_ATI_TESS_SHIFT )
 									  | tr.shiftedEntityNum | ( fogIndex << QSORT_FOGNUM_SHIFT ) | (int)dlightMap;
@@ -1427,37 +1254,19 @@ void R_AddDrawSurf( surfaceType_t *surface, shader_t *shader,
 	tr.refdef.numDrawSurfs++;
 }
 
-/*
-=================
-R_DecomposeSort
-=================
-*/
-// GR - decompose  with tessellation flag
+
 void R_DecomposeSort( unsigned sort, int *entityNum, shader_t **shader,
-					  int *fogNum, int *dlightMap, int *atiTess ) {
+					  int *fogNum, int *dlightMap, int *atiTess )
+{
 	*fogNum = ( sort >> QSORT_FOGNUM_SHIFT ) & 31;
 	*shader = tr.sortedShaders[ ( sort >> QSORT_SHADERNUM_SHIFT ) & ( MAX_SHADERS - 1 ) ];
-//	*entityNum = ( sort >> QSORT_ENTITYNUM_SHIFT ) & 1023;
-	*entityNum = ( sort >> QSORT_ENTITYNUM_SHIFT ) & ( MAX_GENTITIES - 1 );   // (SA) uppded entity count for Wolf to 11 bits
+	*entityNum = ( sort >> QSORT_ENTITYNUM_SHIFT ) & ( MAX_GENTITIES - 1 );
 	*dlightMap = sort & 3;
-//GR - extract tessellation flag
 	*atiTess = ( sort >> QSORT_ATI_TESS_SHIFT ) & 1;
 }
 
-/*
-=================
-R_SortDrawSurfs
-=================
-*/
-void R_SortDrawSurfs( drawSurf_t *drawSurfs, int numDrawSurfs ) {
-	shader_t        *shader;
-	int fogNum;
-	int entityNum;
-	int dlighted;
-	int i;
-// GR - tessellation flag
-	int atiTess;
-
+void R_SortDrawSurfs( drawSurf_t *drawSurfs, int numDrawSurfs )
+{
 	// it is possible for some views to not have any surfaces
 	if ( numDrawSurfs < 1 ) {
 		// we still need to add it for hyperspace cases
@@ -1477,8 +1286,12 @@ void R_SortDrawSurfs( drawSurf_t *drawSurfs, int numDrawSurfs ) {
 
 	// check for any pass through drawing, which
 	// may cause another view to be rendered first
-	for ( i = 0 ; i < numDrawSurfs ; i++ ) {
-// GR - decompose with tessellation flag
+	for (int i = 0 ; i < numDrawSurfs ; i++ ) {
+		shader_t *shader;
+		int fogNum;
+		int entityNum;
+		int dlighted;
+		int atiTess;
 		R_DecomposeSort( ( drawSurfs + i )->sort, &entityNum, &shader, &fogNum, &dlighted, &atiTess );
 
 		if ( shader->sort > SS_PORTAL ) {
@@ -1488,7 +1301,6 @@ void R_SortDrawSurfs( drawSurf_t *drawSurfs, int numDrawSurfs ) {
 		// no shader should ever have this sort type
 		if ( shader->sort == SS_BAD ) {
 			ri.Error( ERR_DROP, "Shader '%s'with sort == SS_BAD", shader->name );
-            return; // keep the linter happy, ERR_DROP does not return
 		}
 
 		// if the mirror was completely clipped away, we may need to check another surface
@@ -1504,15 +1316,8 @@ void R_SortDrawSurfs( drawSurf_t *drawSurfs, int numDrawSurfs ) {
 	R_AddDrawSurfCmd( drawSurfs, numDrawSurfs );
 }
 
-/*
-=============
-R_AddEntitySurfaces
-=============
-*/
-void R_AddEntitySurfaces( void ) {
-	trRefEntity_t   *ent;
-	shader_t        *shader;
-
+void R_AddEntitySurfaces()
+{
 	if ( !r_drawentities->integer ) {
 		return;
 	}
@@ -1520,7 +1325,7 @@ void R_AddEntitySurfaces( void ) {
 	for ( tr.currentEntityNum = 0;
 		  tr.currentEntityNum < tr.refdef.num_entities;
 		  tr.currentEntityNum++ ) {
-		ent = tr.currentEntity = &tr.refdef.entities[tr.currentEntityNum];
+		trRefEntity_t* ent = tr.currentEntity = &tr.refdef.entities[tr.currentEntityNum];
 
 		ent->needDlights = 0;
 
@@ -1547,15 +1352,16 @@ void R_AddEntitySurfaces( void ) {
 		case RT_RAIL_CORE:
 		case RT_RAIL_CORE_TAPER:
 		case RT_RAIL_RINGS:
+		{
 			// self blood sprites, talk balloons, etc should not be drawn in the primary
 			// view.  We can't just do this check for all entities, because md3
 			// entities may still want to cast shadows from them
 			if ( ( ent->e.renderfx & RF_THIRD_PERSON ) && !tr.viewParms.isPortal ) {
 				continue;
 			}
-			shader = R_GetShaderByHandle( ent->e.customShader );
-// GR - these entities are not tessellated
+			shader_t* shader = R_GetShaderByHandle( ent->e.customShader );
 			R_AddDrawSurf( &entitySurface, shader, R_SpriteFogNum( ent ), 0, ATI_TESS_NONE );
+		}
 			break;
 
 		case RT_MODEL:
@@ -1564,7 +1370,6 @@ void R_AddEntitySurfaces( void ) {
 
 			tr.currentModel = R_GetModelByHandle( ent->e.hModel );
 			if ( !tr.currentModel ) {
-// GR - not tessellated
 				R_AddDrawSurf( &entitySurface, tr.defaultShader, 0, 0, ATI_TESS_NONE );
 			} else {
 				switch ( tr.currentModel->type ) {
@@ -1586,32 +1391,25 @@ void R_AddEntitySurfaces( void ) {
 					if ( ( ent->e.renderfx & RF_THIRD_PERSON ) && !tr.viewParms.isPortal ) {
 						break;
 					}
-					shader = R_GetShaderByHandle( ent->e.customShader );
-// GR - not tessellated
+					//shader = R_GetShaderByHandle( ent->e.customShader );
 					R_AddDrawSurf( &entitySurface, tr.defaultShader, 0, 0, ATI_TESS_NONE );
 					break;
 				default:
 					ri.Error( ERR_DROP, "R_AddEntitySurfaces: Bad modeltype" );
-                    return; // keep the linter happy, ERR_DROP does not return
 					break;
 				}
 			}
 			break;
 		default:
 			ri.Error( ERR_DROP, "R_AddEntitySurfaces: Bad reType" );
-            return; // keep the linter happy, ERR_DROP does not return
 		}
 	}
 
 }
 
 
-/*
-====================
-R_GenerateDrawSurfs
-====================
-*/
-void R_GenerateDrawSurfs( void ) {
+void R_GenerateDrawSurfs()
+{
 	R_AddWorldSurfaces();
 
 	R_AddPolygonSurfaces();
@@ -1626,21 +1424,15 @@ void R_GenerateDrawSurfs( void ) {
 	R_AddEntitySurfaces();
 }
 
-/*
-================
-R_DebugPolygon
-================
-*/
-void R_DebugPolygon( int color, int numPoints, float *points ) {
-	int i;
-
+void R_DebugPolygon( int color, int numPoints, float *points )
+{
 	GL_State( GLS_DEPTHMASK_TRUE | GLS_SRCBLEND_ONE | GLS_DSTBLEND_ONE );
 
 	// draw solid shade
 
 	qglColor3f( color & 1, ( color >> 1 ) & 1, ( color >> 2 ) & 1 );
 	qglBegin( GL_POLYGON );
-	for ( i = 0 ; i < numPoints ; i++ ) {
+	for (int i = 0 ; i < numPoints ; i++ ) {
 		qglVertex3fv( points + i * 3 );
 	}
 	qglEnd();
@@ -1650,7 +1442,7 @@ void R_DebugPolygon( int color, int numPoints, float *points ) {
 	qglDepthRange( 0, 0 );
 	qglColor3f( 1, 1, 1 );
 	qglBegin( GL_POLYGON );
-	for ( i = 0 ; i < numPoints ; i++ ) {
+	for (int i = 0 ; i < numPoints ; i++ ) {
 		qglVertex3fv( points + i * 3 );
 	}
 	qglEnd();
@@ -1665,9 +1457,8 @@ A view may be either the actual camera view,
 or a mirror / remote location
 ================
 */
-void R_RenderView( viewParms_t *parms ) {
-	int firstDrawSurf;
-
+void R_RenderView( viewParms_t *parms )
+{
 	if ( parms->viewportWidth <= 0 || parms->viewportHeight <= 0 ) {
 		return;
 	}
@@ -1685,7 +1476,6 @@ void R_RenderView( viewParms_t *parms ) {
 			lastTime = tr.refdef.time;
 		}
 	}
-	// done.
 
 	tr.viewCount++;
 
@@ -1693,7 +1483,7 @@ void R_RenderView( viewParms_t *parms ) {
 	tr.viewParms.frameSceneNum = tr.frameSceneNum;
 	tr.viewParms.frameCount = tr.frameCount;
 
-	firstDrawSurf = tr.refdef.numDrawSurfs;
+	int firstDrawSurf = tr.refdef.numDrawSurfs;
 
 	tr.viewCount++;
 

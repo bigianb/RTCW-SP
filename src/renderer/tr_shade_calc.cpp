@@ -110,12 +110,6 @@ DEFORMATIONS
 ====================================================================
 */
 
-/*
-========================
-RB_CalcDeformVertexes
-
-========================
-*/
 void RB_CalcDeformVertexes( deformStage_t *ds ) {
 	int i;
 	vec3_t offset;
@@ -243,12 +237,6 @@ void RB_CalcDeformNormals( deformStage_t *ds ) {
 	}
 }
 
-/*
-========================
-RB_CalcBulgeVertexes
-
-========================
-*/
 void RB_CalcBulgeVertexes( deformStage_t *ds ) {
 	int i;
 	const float *st = ( const float * ) tess.texCoords[0];
@@ -378,11 +366,6 @@ void DeformText( const char *text ) {
 	}
 }
 
-/*
-==================
-GlobalVectorToLocal
-==================
-*/
 void GlobalVectorToLocal( const vec3_t in, vec3_t out ) {
 	out[0] = DotProduct( in, backEnd.orientation.axis[0] );
 	out[1] = DotProduct( in, backEnd.orientation.axis[1] );
@@ -580,12 +563,6 @@ static void Autosprite2Deform( void ) {
 }
 
 
-/*
-=====================
-RB_DeformTessGeometry
-
-=====================
-*/
 void RB_DeformTessGeometry( void ) {
 	int i;
 	deformStage_t   *ds;
@@ -639,10 +616,6 @@ COLORS
 ====================================================================
 */
 
-
-/*
-** RB_CalcColorFromEntity
-*/
 void RB_CalcColorFromEntity( unsigned char *dstColors ) {
 	int i;
 	int *pColors = ( int * ) dstColors;
@@ -660,9 +633,6 @@ void RB_CalcColorFromEntity( unsigned char *dstColors ) {
 	}
 }
 
-/*
-** RB_CalcColorFromOneMinusEntity
-*/
 void RB_CalcColorFromOneMinusEntity( unsigned char *dstColors ) {
 	int i;
 	int *pColors = ( int * ) dstColors;
@@ -686,9 +656,6 @@ void RB_CalcColorFromOneMinusEntity( unsigned char *dstColors ) {
 	}
 }
 
-/*
-** RB_CalcAlphaFromEntity
-*/
 void RB_CalcAlphaFromEntity( unsigned char *dstColors ) {
 	int i;
 
@@ -704,9 +671,6 @@ void RB_CalcAlphaFromEntity( unsigned char *dstColors ) {
 	}
 }
 
-/*
-** RB_CalcAlphaFromOneMinusEntity
-*/
 void RB_CalcAlphaFromOneMinusEntity( unsigned char *dstColors ) {
 	int i;
 
@@ -722,9 +686,6 @@ void RB_CalcAlphaFromOneMinusEntity( unsigned char *dstColors ) {
 	}
 }
 
-/*
-** RB_CalcWaveColor
-*/
 void RB_CalcWaveColor( const waveForm_t *wf, unsigned char *dstColors ) {
 	int i;
 	int v;
@@ -755,9 +716,6 @@ void RB_CalcWaveColor( const waveForm_t *wf, unsigned char *dstColors ) {
 	}
 }
 
-/*
-** RB_CalcWaveAlpha
-*/
 void RB_CalcWaveAlpha( const waveForm_t *wf, unsigned char *dstColors ) {
 	int i;
 	int v;
@@ -773,9 +731,6 @@ void RB_CalcWaveAlpha( const waveForm_t *wf, unsigned char *dstColors ) {
 	}
 }
 
-/*
-** RB_CalcModulateColorsByFog
-*/
 void RB_CalcModulateColorsByFog( unsigned char *colors ) {
 	int i;
 	float texCoords[SHADER_MAX_VERTEXES][2];
@@ -793,9 +748,6 @@ void RB_CalcModulateColorsByFog( unsigned char *colors ) {
 	}
 }
 
-/*
-** RB_CalcModulateAlphasByFog
-*/
 void RB_CalcModulateAlphasByFog( unsigned char *colors ) {
 	int i;
 	float texCoords[SHADER_MAX_VERTEXES][2];
@@ -811,9 +763,6 @@ void RB_CalcModulateAlphasByFog( unsigned char *colors ) {
 	}
 }
 
-/*
-** RB_CalcModulateRGBAsByFog
-*/
 void RB_CalcModulateRGBAsByFog( unsigned char *colors ) {
 	int i;
 	float texCoords[SHADER_MAX_VERTEXES][2];
@@ -929,10 +878,6 @@ void RB_CalcFogTexCoords( float *st ) {
 }
 
 
-
-/*
-** RB_CalcEnvironmentTexCoords
-*/
 void RB_CalcEnvironmentTexCoords( float *st ) {
 	int i;
 	float       *v, *normal;
@@ -958,9 +903,6 @@ void RB_CalcEnvironmentTexCoords( float *st ) {
 	}
 }
 
-/*
-** RB_CalcFireRiseEnvTexCoords
-*/
 void RB_CalcFireRiseEnvTexCoords( float *st ) {
 	int i;
 	float       *v, *normal;
@@ -986,10 +928,6 @@ void RB_CalcFireRiseEnvTexCoords( float *st ) {
 	}
 }
 
-
-/*
-** RB_CalcSwapTexCoords
-*/
 void RB_CalcSwapTexCoords( float *st ) {
 	int i;
 
@@ -1003,9 +941,6 @@ void RB_CalcSwapTexCoords( float *st ) {
 	}
 }
 
-/*
-** RB_CalcTurbulentTexCoords
-*/
 void RB_CalcTurbulentTexCoords( const waveForm_t *wf, float *st ) {
 	int i;
 	float now;
@@ -1022,9 +957,6 @@ void RB_CalcTurbulentTexCoords( const waveForm_t *wf, float *st ) {
 	}
 }
 
-/*
-** RB_CalcScaleTexCoords
-*/
 void RB_CalcScaleTexCoords( const float scale[2], float *st ) {
 	int i;
 
@@ -1035,9 +967,6 @@ void RB_CalcScaleTexCoords( const float scale[2], float *st ) {
 	}
 }
 
-/*
-** RB_CalcScrollTexCoords
-*/
 void RB_CalcScrollTexCoords( const float scrollSpeed[2], float *st ) {
 	int i;
 	float timeScale = tess.shaderTime;
@@ -1058,9 +987,6 @@ void RB_CalcScrollTexCoords( const float scrollSpeed[2], float *st ) {
 	}
 }
 
-/*
-** RB_CalcTransformTexCoords
-*/
 void RB_CalcTransformTexCoords( const texModInfo_t *tmi, float *st  ) {
 	int i;
 
@@ -1074,9 +1000,6 @@ void RB_CalcTransformTexCoords( const texModInfo_t *tmi, float *st  ) {
 	}
 }
 
-/*
-** RB_CalcRotateTexCoords
-*/
 void RB_CalcRotateTexCoords( float degsPerSecond, float *st ) {
 	float timeScale = tess.shaderTime;
 	float degs;
