@@ -2266,7 +2266,7 @@ AICast_ScriptAction_ChangeLevel
 
 	syntax: changelevel <mapname> [exitTime] <persistent> <silent>
 
-  Issues an spdevmap/spmap to the consol.
+  Issues an spdevmap/spmap to the console.
   Optionally add
 	"persistent" if you want the player to keep their inventory through the transition.
 	"silent" if you want it to not play the mission success music

@@ -31,19 +31,12 @@ If you have questions concerning this license or the applicable additional terms
 #include "../game/g_func_decs.h"
 #include "../qcommon/clip_model.h"
 
-/*
-===============
-SV_SetConfigstring
-
-===============
-*/
 void SV_SetConfigstring( int index, const char *val )
 {
 	int maxChunkSize = MAX_STRING_CHARS - 24;
 	
 	if ( index < 0 || index >= MAX_CONFIGSTRINGS ) {
 		Com_Error( ERR_DROP, "SV_SetConfigstring: bad index %i\n", index );
-        return; // keep the linter happy, ERR_DROP does not return
 	}
 
 	if ( !val ) {
@@ -110,22 +103,13 @@ void SV_SetConfigstring( int index, const char *val )
 }
 
 
-
-/*
-===============
-SV_GetConfigstring
-
-===============
-*/
 void SV_GetConfigstring( int index, char *buffer, int bufferSize )
 {
 	if ( bufferSize < 1 ) {
 		Com_Error( ERR_DROP, "SV_GetConfigstring: bufferSize == %i", bufferSize );
-        return; // keep the linter happy, ERR_DROP does not return
 	}
 	if ( index < 0 || index >= MAX_CONFIGSTRINGS ) {
 		Com_Error( ERR_DROP, "SV_GetConfigstring: bad index %i\n", index );
-        return; // keep the linter happy, ERR_DROP does not return
 	}
 	if ( !sv.configstrings[index] ) {
 		buffer[0] = 0;
@@ -136,17 +120,10 @@ void SV_GetConfigstring( int index, char *buffer, int bufferSize )
 }
 
 
-/*
-===============
-SV_SetUserinfo
-
-===============
-*/
 void SV_SetUserinfo( int index, const char *val )
 {
 	if ( index < 0 || index >= sv_maxclients->integer ) {
 		Com_Error( ERR_DROP, "SV_SetUserinfo: bad index %i\n", index );
-        return; // keep the linter happy, ERR_DROP does not return
 	}
 
 	if ( !val ) {
@@ -158,22 +135,13 @@ void SV_SetUserinfo( int index, const char *val )
 }
 
 
-
-/*
-===============
-SV_GetUserinfo
-
-===============
-*/
 void SV_GetUserinfo( int index, char *buffer, int bufferSize )
 {
 	if ( bufferSize < 1 ) {
 		Com_Error( ERR_DROP, "SV_GetUserinfo: bufferSize == %i", bufferSize );
-        return; // keep the linter happy, ERR_DROP does not return
 	}
 	if ( index < 0 || index >= sv_maxclients->integer ) {
 		Com_Error( ERR_DROP, "SV_GetUserinfo: bad index %i\n", index );
-        return; // keep the linter happy, ERR_DROP does not return
 	}
 	Q_strncpyz( buffer, svs.clients[ index ].userinfo, bufferSize );
 }
@@ -205,12 +173,6 @@ void SV_CreateBaseline()
 }
 
 
-/*
-===============
-SV_BoundMaxClients
-
-===============
-*/
 void SV_BoundMaxClients( int minimum )
 {
 	// get the current maxclients value
@@ -225,11 +187,6 @@ void SV_BoundMaxClients( int minimum )
 	}
 }
 
-/*
-===============
-SV_InitReliableCommandsForClient
-===============
-*/
 void SV_InitReliableCommandsForClient( Client *cl, int commands )
 {
 	if ( !commands ) {
@@ -244,11 +201,6 @@ void SV_InitReliableCommandsForClient( Client *cl, int commands )
 	cl->reliableCommands.rover = cl->reliableCommands.buf;
 }
 
-/*
-===============
-SV_InitReliableCommands
-===============
-*/
 void SV_InitReliableCommands( Client *clients )
 {
     for (int i = 0; i < sv_maxclients->integer; i++ ) {
@@ -256,11 +208,6 @@ void SV_InitReliableCommands( Client *clients )
     }
 }
 
-/*
-===============
-SV_FreeReliableCommandsForClient
-===============
-*/
 void SV_FreeReliableCommandsForClient( Client *cl )
 {
 	if ( !cl->reliableCommands.bufSize ) {
@@ -273,11 +220,6 @@ void SV_FreeReliableCommandsForClient( Client *cl )
 	Com_Memset( &cl->reliableCommands, 0, sizeof( cl->reliableCommands.bufSize ) );
 }
 
-/*
-===============
-SV_GetReliableCommand
-===============
-*/
 const char *SV_GetReliableCommand( Client *cl, int index )
 {
 	if ( !cl->reliableCommands.bufSize ) {
@@ -291,11 +233,6 @@ const char *SV_GetReliableCommand( Client *cl, int index )
 	return cl->reliableCommands.commands[index];
 }
 
-/*
-===============
-SV_AddReliableCommand
-===============
-*/
 bool SV_AddReliableCommand( Client *cl, int index, const char *cmd )
 {
 	size_t i, j;
@@ -354,11 +291,6 @@ bool SV_AddReliableCommand( Client *cl, int index, const char *cmd )
 	return true;
 }
 
-/*
-===============
-SV_FreeAcknowledgedReliableCommands
-===============
-*/
 void SV_FreeAcknowledgedReliableCommands( Client *cl )
 {
 	if ( !cl->reliableCommands.bufSize ) {
@@ -423,11 +355,6 @@ void SV_Startup()
 }
 
 
-/*
-==================
-SV_ChangeMaxClients
-==================
-*/
 void SV_ChangeMaxClients()
 {
 	// get the highest client number in use
@@ -548,11 +475,6 @@ void SV_SetExpectedHunkUsage( char *mapname )
 	Cvar_Set( "com_expectedhunkusage", "-1" );
 }
 
-/*
-================
-SV_ClearServer
-================
-*/
 void SV_ClearServer()
 {
 	for (int i = 0 ; i < MAX_CONFIGSTRINGS ; i++ ) {
@@ -575,7 +497,6 @@ This is NOT called for map_restart
 void SV_SpawnServer(const char *server, bool killBots )
 {
 	static cvar_t   *bot_enable;
-
 	static cvar_t   *g_gameskill;
 
 	if ( !g_gameskill ) {
@@ -687,45 +608,24 @@ void SV_SpawnServer(const char *server, bool killBots )
 	// create a baseline for more efficient communications
 	SV_CreateBaseline();
 
-	bool isBot = false;	// IJB: what should the default be?
 	for (int i = 0 ; i < sv_maxclients->integer ; i++ ) {
 		// send the new gamestate to all connected clients
 		if ( svs.clients[i].state >= CS_CONNECTED ) {
-
 			if ( svs.clients[i].netchan.remoteAddress.type == NA_BOT ) {
-				 
 				SV_DropClient( &svs.clients[i], " gametype is Single Player" );      //DAJ added message
 				continue;
-	
-			} else {
-				isBot = false;
-			}
+			} 
 
 			// connect the client again
-			const char* denied = ClientConnect( i, false, isBot ); // firstTime = false
+			const char* denied = ClientConnect( i, false, false ); // firstTime = false
 			if ( denied ) {
 				// this generally shouldn't happen, because the client
 				// was connected before the level change
 				SV_DropClient( &svs.clients[i], denied );
 			} else {
-				if ( !isBot ) {
-					// when we get the next packet from a connected client,
-					// the new gamestate will be sent
-					svs.clients[i].state = CS_CONNECTED;
-				} else {
-					Client        *client;
-					SharedEntity  *ent;
-
-					client = &svs.clients[i];
-					client->state = CS_ACTIVE;
-					ent = SV_GentityNum( i );
-					ent->s.number = i;
-					client->gentity = ent;
-
-					client->deltaMessage = -1;
-
-					ClientBegin( i );
-				}
+				// when we get the next packet from a connected client,
+				// the new gamestate will be sent
+				svs.clients[i].state = CS_CONNECTED;
 			}
 		}
 	}
@@ -862,8 +762,7 @@ void SV_Shutdown( const char *finalmsg )
 
 	// free server static data
 	if ( svs.clients ) {
-		//free( svs.clients );
-		free( svs.clients );    // RF, avoid trying to allocate large chunk on a fragmented zone
+		free( svs.clients );
 	}
 	memset( &svs, 0, sizeof( svs ) );
 

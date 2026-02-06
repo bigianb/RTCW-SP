@@ -183,12 +183,6 @@ bool SV_inPVSIgnorePortals( const vec3_t p1, const vec3_t p2 )
 	return true;
 }
 
-
-/*
-========================
-SV_AdjustAreaPortalState
-========================
-*/
 void SV_AdjustAreaPortalState( SharedEntity *ent, bool open )
 {
 	ServerEntity* svEnt = SV_SvEntityForGentity( ent );
@@ -199,11 +193,6 @@ void SV_AdjustAreaPortalState( SharedEntity *ent, bool open )
 }
 
 
-/*
-==================
-SV_GameAreaEntities
-==================
-*/
 bool    SV_EntityContact( const vec3_t mins, const vec3_t maxs, const SharedEntity *gEnt, const int capsule )
 {
 	// check for exact collision
@@ -219,12 +208,6 @@ bool    SV_EntityContact( const vec3_t mins, const vec3_t maxs, const SharedEnti
 }
 
 
-/*
-===============
-SV_GetServerinfo
-
-===============
-*/
 void SV_GetServerinfo( char *buffer, int bufferSize )
 {
 	if ( bufferSize < 1 ) {
@@ -234,12 +217,6 @@ void SV_GetServerinfo( char *buffer, int bufferSize )
 	Q_strncpyz( buffer, Cvar_InfoString( CVAR_SERVERINFO ), bufferSize );
 }
 
-/*
-===============
-SV_LocateGameData
-
-===============
-*/
 void SV_LocateGameData( SharedEntity *gEnts, int numGEntities, int sizeofGEntity_t,
 						PlayerState *clients, int sizeofGameClient ) {
 	sv.gentities = gEnts;
@@ -251,12 +228,6 @@ void SV_LocateGameData( SharedEntity *gEnts, int numGEntities, int sizeofGEntity
 }
 
 
-/*
-===============
-SV_GetUsercmd
-
-===============
-*/
 void SV_GetUsercmd( int clientNum, UserCmd *cmd )
 {
 	if ( clientNum < 0 || clientNum >= sv_maxclients->integer ) {

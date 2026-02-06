@@ -42,9 +42,7 @@ A "connect" OOB command has been received
 void SV_DirectConnect( NetAddress from )
 {
 	char userinfo[MAX_INFO_STRING];
-	int i;
-	Client    *cl, *newcl;
-    Client temp;
+    
 	SharedEntity *ent;
 	int clientNum;
 
@@ -64,30 +62,32 @@ void SV_DirectConnect( NetAddress from )
 
 	Info_SetValueForKey( userinfo, "ip", "localhost" );
 
-	newcl = &temp;
+	Client temp;
+	Client* newcl = &temp;
 	memset( newcl, 0, sizeof( Client ) );
 
 	newcl = nullptr;
+	Client *cl = nullptr;
 	// if there is already a slot for this ip, reuse it
-	for ( i = 0,cl = svs.clients ; i < sv_maxclients->integer ; i++,cl++ ) {
+	for (int i = 0; i < sv_maxclients->integer ; i++ ) {
+		cl = &svs.clients[i];
 		if ( cl->state == CS_FREE ) {
 			continue;
 		}
 		if ( NET_CompareBaseAdr( from, cl->netchan.remoteAddress )
-			 && ( cl->netchan.qport == qport
-				  || from.port == cl->netchan.remoteAddress.port ) ) {
+			 && ( cl->netchan.qport == qport || from.port == cl->netchan.remoteAddress.port ) )
+		{
 			Com_Printf( "%s:reconnect\n", NET_AdrToString( from ) );
 			newcl = cl;
 			// disconnect the client from the game first so any flags the
 			// player might have are dropped
 			ClientDisconnect(newcl - svs.clients );
-			//
 			break;
 		}
 	}
 
 	
-	for ( i = 0; newcl != nullptr && i < sv_maxclients->integer ; i++ ) {
+	for (int i = 0; newcl != nullptr && i < sv_maxclients->integer ; i++ ) {
 		cl = &svs.clients[i];
 		if ( cl->state == CS_FREE ) {
 			newcl = cl;
@@ -96,15 +96,15 @@ void SV_DirectConnect( NetAddress from )
 	}
 
 	if ( !newcl ) {
-		int count = 0;
-		for ( i = 0; i < sv_maxclients->integer ; i++ ) {
+		int botCount = 0;
+		for (int i = 0; i < sv_maxclients->integer; i++ ) {
 			cl = &svs.clients[i];
 			if ( cl->netchan.remoteAddress.type == NA_BOT ) {
-				count++;
+				botCount++;
 			}
 		}
 		// if they're all bots
-		if ( count >= sv_maxclients->integer ) {
+		if ( botCount >= sv_maxclients->integer ) {
 			SV_DropClient( &svs.clients[sv_maxclients->integer - 1], "only bots on server" );
 			newcl = &svs.clients[sv_maxclients->integer - 1];
 		} else {
@@ -287,22 +287,14 @@ void SV_SendClientGameState( Client *client ) {
 	SV_SendMessageToClient( &msg, client );
 }
 
-
-/*
-==================
-SV_ClientEnterWorld
-==================
-*/
-void SV_ClientEnterWorld( Client *client, UserCmd *cmd ) {
-	int clientNum;
-	SharedEntity *ent;
-
+void SV_ClientEnterWorld( Client *client, UserCmd *cmd )
+{
 	Com_DPrintf( "Going from CS_PRIMED to CS_ACTIVE for %s\n", client->name );
 	client->state = CS_ACTIVE;
 
 	// set up the entity for the client
-	clientNum = client - svs.clients;
-	ent = SV_GentityNum( clientNum );
+	int clientNum = client - svs.clients;
+	SharedEntity* ent = SV_GentityNum( clientNum );
 	ent->s.number = clientNum;
 	client->gentity = ent;
 
@@ -522,8 +514,8 @@ each of the backup packets.
 ==================
 */
 static void SV_UserMove( Client *cl, msg_t *msg, bool delta ) {
-	int i, key;
-	int cmdCount;
+	int i;
+
 	UserCmd nullcmd;
 	UserCmd cmds[MAX_PACKET_USERCMDS];
 	UserCmd   *cmd, *oldcmd;
@@ -534,7 +526,7 @@ static void SV_UserMove( Client *cl, msg_t *msg, bool delta ) {
 		cl->deltaMessage = -1;
 	}
 
-	cmdCount = MSG_ReadByte( msg );
+	int cmdCount = MSG_ReadByte( msg );
 
 	if ( cmdCount < 1 ) {
 		Com_Printf( "cmdCount < 1\n" );
@@ -547,7 +539,7 @@ static void SV_UserMove( Client *cl, msg_t *msg, bool delta ) {
 	}
 
 	// use the checksum feed in the key
-	key = sv.checksumFeed;
+	int key = sv.checksumFeed;
 	// also use the message acknowledge
 	key ^= cl->messageAcknowledge;
 	// also use the last acknowledged server command in the key
@@ -558,7 +550,6 @@ static void SV_UserMove( Client *cl, msg_t *msg, bool delta ) {
 	for ( i = 0 ; i < cmdCount ; i++ ) {
 		cmd = &cmds[i];
 		MSG_ReadDeltaUsercmdKey( msg, key, oldcmd, cmd );
-//		MSG_ReadDeltaUsercmd( msg, oldcmd, cmd );
 		oldcmd = cmd;
 	}
 
@@ -592,27 +583,13 @@ static void SV_UserMove( Client *cl, msg_t *msg, bool delta ) {
 
 
 /*
-===========================================================================
-
-USER CMD EXECUTION
-
-===========================================================================
-*/
-
-/*
-===================
-SV_ExecuteClientMessage
-
 Parse a client packet
-===================
 */
-void SV_ExecuteClientMessage( Client *cl, msg_t *msg ) {
-	int c;
-	int serverId;
-
+void SV_ExecuteClientMessage( Client *cl, msg_t *msg )
+{
 	MSG_Bitstream( msg );
 
-	serverId = MSG_ReadLong( msg );
+	int serverId = MSG_ReadLong( msg );
 	cl->messageAcknowledge = MSG_ReadLong( msg );
 
 	if ( cl->messageAcknowledge < 0 ) {
@@ -655,6 +632,7 @@ void SV_ExecuteClientMessage( Client *cl, msg_t *msg ) {
 	// RF, kill any reliableCommands that have been acknowledged
 	SV_FreeAcknowledgedReliableCommands( cl );
 
+	int c;
 	// read optional clientCommand strings
 	do {
 		c = MSG_ReadByte( msg );
@@ -680,8 +658,5 @@ void SV_ExecuteClientMessage( Client *cl, msg_t *msg ) {
 	} else if ( c != clc_EOF ) {
 		Com_Printf( "WARNING: bad command uint8_t for client %i\n", cl - svs.clients );
 	}
-//	if ( msg->readcount != msg->cursize ) {
-//		Com_Printf( "WARNING: Junk at end of packet for client %i\n", cl - svs.clients );
-//	}
 }
 

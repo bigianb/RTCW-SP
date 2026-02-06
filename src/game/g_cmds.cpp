@@ -456,11 +456,6 @@ void StopFollowing( GameEntity *ent ) {
 }
 
 
-/*
-=================
-Cmd_Follow_f
-=================
-*/
 void Cmd_Follow_f( GameEntity *ent ) {
 	int i;
 	char arg[MAX_TOKEN_CHARS];
@@ -487,11 +482,6 @@ void Cmd_Follow_f( GameEntity *ent ) {
 	ent->client->sess.spectatorClient = i;
 }
 
-/*
-=================
-Cmd_FollowCycle_f
-=================
-*/
 void Cmd_FollowCycle_f( GameEntity *ent, int dir ) {
 	int clientnum;
 	int original;
@@ -528,15 +518,9 @@ void Cmd_FollowCycle_f( GameEntity *ent, int dir ) {
 }
 
 
-/*
-==================
-Cmd_Where_f
-==================
-*/
 void Cmd_Where_f( GameEntity *ent ) {
 	SV_GameSendServerCommand( ent - g_entities, va( "print \"%s\n\"", vtos( ent->shared.s.origin ) ) );
 }
-
 
 
 bool G_canPickupMelee( GameEntity *ent ) {
@@ -560,12 +544,6 @@ bool G_canPickupMelee( GameEntity *ent ) {
 	return false;
 }
 
-
-/*
-=================
-Cmd_SetViewpos_f
-=================
-*/
 void Cmd_SetViewpos_f( GameEntity *ent ) {
 	vec3_t origin, angles;
 	char buffer[MAX_TOKEN_CHARS];
@@ -592,11 +570,6 @@ void Cmd_SetViewpos_f( GameEntity *ent ) {
 	TeleportPlayer( ent, origin, angles );
 }
 
-/*
-=================
-Cmd_StartCamera_f
-=================
-*/
 void Cmd_StartCamera_f( GameEntity *ent ) {
 	g_camEnt->shared.r.svFlags |= SVF_PORTAL;
 	g_camEnt->shared.r.svFlags &= ~SVF_NOCLIENT;
@@ -606,11 +579,6 @@ void Cmd_StartCamera_f( GameEntity *ent ) {
 
 }
 
-/*
-=================
-Cmd_StopCamera_f
-=================
-*/
 void Cmd_StopCamera_f( GameEntity *ent ) {
 	GameEntity *sp;
 
@@ -635,11 +603,6 @@ void Cmd_StopCamera_f( GameEntity *ent ) {
 	}
 }
 
-/*
-=================
-Cmd_SetCameraOrigin_f
-=================
-*/
 void Cmd_SetCameraOrigin_f( GameEntity *ent ) {
 	char buffer[MAX_TOKEN_CHARS];
 	int i;
@@ -656,24 +619,13 @@ void Cmd_SetCameraOrigin_f( GameEntity *ent ) {
 }
 
 
-/*
-==============
-Cmd_InterruptCamera_f
-==============
-*/
 void Cmd_InterruptCamera_f( GameEntity *ent ) {
 	AICast_ScriptEvent( AICast_GetCastState( ent->shared.s.number ), "trigger", "cameraInterrupt" );
 }
 
-/*
-==============
-G_ThrowChair
-==============
-*/
 bool G_ThrowChair( GameEntity *ent, vec3_t dir, bool force ) {
 	trace_t trace;
 	vec3_t mins, maxs;
-//	vec3_t		forward;
 	vec3_t start, end;
 	bool isthrown = true;
 	GameEntity   *traceEnt;
@@ -685,12 +637,10 @@ bool G_ThrowChair( GameEntity *ent, vec3_t dir, bool force ) {
 	VectorCopy( ent->shared.r.mins, mins );
 	VectorCopy( ent->shared.r.maxs, maxs );
 
-//	AngleVectors (ent->shared.r.currentAngles, forward, nullptr, nullptr);
 	VectorCopy( ent->shared.r.currentOrigin, start );
 
 	start[2] += 24;
 	VectorMA( start, 17, dir, start );
-//	start[2] += 24;
 
 	VectorCopy( start, end );
 	VectorMA( end, 32, dir, end );
@@ -714,7 +664,6 @@ bool G_ThrowChair( GameEntity *ent, vec3_t dir, bool force ) {
 		ent->melee = nullptr;
 		ent->active = false;
 		ent->client->ps.eFlags &= ~EF_MELEE_ACTIVE;
-//		ent->shared.s.eFlags &= ~EF_MELEE_ACTIVE;
 	}
 
 	if ( !isthrown && force ) {    // was not successfully thrown, but you /need/ to drop it.  break it.
@@ -725,12 +674,6 @@ bool G_ThrowChair( GameEntity *ent, vec3_t dir, bool force ) {
 }
 
 
-// Rafael
-/*
-==================
-Cmd_Activate_f
-==================
-*/
 void Cmd_Activate_f( GameEntity *ent ) {
 	trace_t tr;
 	vec3_t end;
@@ -782,8 +725,6 @@ void Cmd_Activate_f( GameEntity *ent ) {
 					&& ( traceEnt->shared.s.apos.trType == TR_STATIONARY && traceEnt->shared.s.pos.trType == TR_STATIONARY )
 					&& !traceEnt->active) {
 			G_TryDoor( traceEnt, ent, ent );      // (door,other,activator)
-//			Use_BinaryMover (traceEnt, ent, ent);
-//			traceEnt->active = true;
 		} else if ( !Q_stricmp( traceEnt->classname, "func_invisible_user" ) )     {
 			if ( walking ) {
 				traceEnt->flags |= FL_SOFTACTIVATE;     // no noise
@@ -875,7 +816,6 @@ void Cmd_Activate_f( GameEntity *ent ) {
 						ent->active = true;
 						ent->melee = traceEnt;
 						ent->client->ps.eFlags |= EF_MELEE_ACTIVE;
-//						ent->shared.s.eFlags |= EF_MELEE_ACTIVE;
 					}
 				}
 			}
@@ -905,11 +845,6 @@ void Cmd_Activate_f( GameEntity *ent ) {
 		oldactivatetime = activatetime;
 	}
 }
-
-// Rafael WolfKick
-//===================
-//	Cmd_WolfKick
-//===================
 
 #define WOLFKICKDISTANCE    96
 int Cmd_WolfKick_f( GameEntity *ent ) {
@@ -960,13 +895,10 @@ int Cmd_WolfKick_f( GameEntity *ent ) {
 		if ( ( Q_stricmp( traceEnt->classname, "func_door_rotating" ) == 0 )
 			 && ( traceEnt->shared.s.apos.trType == TR_STATIONARY && traceEnt->shared.s.pos.trType == TR_STATIONARY )
 			 && !traceEnt->active ) {
-//			if(traceEnt->key < 0) {	// door force locked
 			if ( traceEnt->key >= KEY_LOCKED_TARGET ) {    // door force locked
 
-				//----(SA)	play kick "hit" sound
 				tent = G_TempEntity( tr.endpos, EV_WOLFKICK_HIT_WALL );
 				tent->shared.s.otherEntityNum = ent->shared.s.number;	\
-				//----(SA)	end
 
 				AICast_AudibleEvent( ent->shared.s.clientNum, tr.endpos, HEAR_RANGE_DOOR_KICKLOCKED ); // "someone kicked a locked door near me!"
 
@@ -975,7 +907,6 @@ int Cmd_WolfKick_f( GameEntity *ent ) {
 				return 1;   //----(SA)	changed.  shows boot for locked doors
 			}
 
-//			if(traceEnt->key > 0) {	// door requires key
 			if ( traceEnt->key > KEY_NONE && traceEnt->key < KEY_NUM_KEYS ) {
 				gitem_t *item = BG_FindItemForKey( (wkey_t)traceEnt->key, 0 );
 				if ( !( ent->client->ps.stats[STAT_KEYS] & ( 1 << item->giTag ) ) ) {
@@ -1080,14 +1011,7 @@ int Cmd_WolfKick_f( GameEntity *ent ) {
 
 	return ( 1 );
 }
-// done
 
-// NERVE - SMF
-/*
-============
-ClientDamage
-============
-*/
 void ClientDamage( GameEntity *clent, int entnum, int enemynum, int id ) {
 	GameEntity *enemy, *ent;
 	vec3_t vec;
@@ -1183,13 +1107,7 @@ void ClientDamage( GameEntity *clent, int entnum, int enemynum, int id ) {
 		break;
 	}
 }
-// -NERVE - SMF
 
-/*
-============
-Cmd_ClientDamage_f
-============
-*/
 void Cmd_ClientDamage_f( GameEntity *clent ) {
 	char s[MAX_STRING_CHARS];
 	int entnum, id, enemynum;
@@ -1210,11 +1128,6 @@ void Cmd_ClientDamage_f( GameEntity *clent ) {
 	ClientDamage( clent, entnum, enemynum, id );
 }
 
-/*
-==============
-Cmd_EntityCount_f
-==============
-*/
 #define AITEAM_NAZI     0
 #define AITEAM_ALLIES   1
 #define AITEAM_MONSTER  2
@@ -1274,12 +1187,6 @@ void Cmd_EntityCount_f( GameEntity *ent ) {
 	}
 }
 
-// NERVE - SMF
-/*
-============
-Cmd_SetSpawnPoint_f
-============
-*/
 void Cmd_SetSpawnPoint_f( GameEntity *clent ) {
 	char arg[MAX_TOKEN_CHARS];
 	int spawnIndex;
@@ -1291,13 +1198,7 @@ void Cmd_SetSpawnPoint_f( GameEntity *clent ) {
 	Cmd_ArgvBuffer( 1, arg, sizeof( arg ) );
 	spawnIndex = atoi( arg );
 }
-// -NERVE - SMF
 
-/*
-=================
-ClientCommand
-=================
-*/
 void ClientCommand( int clientNum )
 {
 	char cmd[MAX_TOKEN_CHARS];

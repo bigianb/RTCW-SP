@@ -83,7 +83,6 @@ static void SV_Map_f()
 				Hunk_FreeTempMemory( buffer );
 				FS_Delete( "save/current.svg" );
 				Com_Error( ERR_DROP, "Insufficient free disk space.\n\nPlease free at least 5mb of free space on game drive." );
-                return; // keep the linter happy, ERR_DROP does not return
 			}
 		}
 
@@ -106,10 +105,9 @@ static void SV_Map_f()
 		Hunk_FreeTempMemory( buffer );
 	} else {
 		Cvar_Set( "savegame_loading", "0" );  // make sure it's turned off
-		// set the filename
 		Cvar_Set( "savegame_filename", "" );
 	}
-	// done.
+
 
 	// make sure the level exists before trying to change, so that
 	// a typo at the server console won't end the game
@@ -131,7 +129,7 @@ static void SV_Map_f()
 	const char* cmd = Cmd_Argv( 0 );
 	Cvar_SetValue( "g_doWarmup", 0 );
 	// may not set sv_maxclients directly, always set latched
-	Cvar_SetLatched( "sv_maxclients", "32" ); // Ridah, modified this
+	Cvar_SetLatched( "sv_maxclients", "32" );
 	cmd += 2;
 	
 	// start up the map
@@ -164,8 +162,7 @@ static void SV_MapRestart_f()
 {
 	int i;
 	Client    *client;
-	
-	bool isBot;
+
 	int delay;
 
 	// make sure we aren't restarting twice in the same frame
@@ -220,7 +217,6 @@ static void SV_MapRestart_f()
 			return;
 		}
 
-		//buffer = Hunk_AllocateTempMemory(size);
 		FS_ReadFile( savemap, (void **)&buffer );
 
 		// the mapname is at the very start of the savegame file
@@ -269,12 +265,8 @@ static void SV_MapRestart_f()
 			continue;
 		}
 
-		if ( client->netchan.remoteAddress.type == NA_BOT ) {
-			isBot = true;
-		} else {
-			isBot = false;
-		}
-
+		bool isBot =  client->netchan.remoteAddress.type == NA_BOT;
+	
 		// add the map_restart command
 		SV_AddServerCommand( client, "map_restart\n" );
 
@@ -315,8 +307,7 @@ void    SV_LoadGame_f()
 	if ( !filename[0] ) {
 		Com_Printf( "You must specify a savegame to load\n" );
 		return;
-	}
-	if ( Q_strncmp( filename, "save/", 5 ) && Q_strncmp( filename, "save\\", 5 ) ) {
+	} if ( Q_strncmp( filename, "save/", 5 ) && Q_strncmp( filename, "save\\", 5 ) ) {
 		Q_strncpyz( filename, va( "save/%s", filename ), sizeof( filename ) );
 	}
 	// enforce .svg extension
@@ -371,42 +362,20 @@ void    SV_LoadGame_f()
 	}
 }
 
-//===============================================================
-
-/*
-===========
-SV_Serverinfo_f
-
-Examine the serverinfo string
-===========
-*/
 static void SV_Serverinfo_f( void ) {
 	Com_Printf( "Server info settings:\n" );
 	Info_Print( Cvar_InfoString( CVAR_SERVERINFO ) );
 }
 
 
-/*
-===========
-SV_Systeminfo_f
-
-Examine or change the serverinfo string
-===========
-*/
-static void SV_Systeminfo_f( void ) {
+static void SV_Systeminfo_f( void )
+{
 	Com_Printf( "System info settings:\n" );
 	Info_Print( Cvar_InfoString( CVAR_SYSTEMINFO ) );
 }
 
-
-//===========================================================
-
-/*
-==================
-SV_AddOperatorCommands
-==================
-*/
-void SV_AddOperatorCommands( void ) {
+void SV_AddOperatorCommands( void )
+{
 	static bool initialized;
 
 	if ( initialized ) {

@@ -216,12 +216,6 @@ void P_WorldEffects( GameEntity *ent ) {
 }
 
 
-
-/*
-===============
-G_SetClientSound
-===============
-*/
 void G_SetClientSound( GameEntity *ent ) {
 	if ( ent->aiCharacter ) {
 		return;
@@ -235,14 +229,6 @@ void G_SetClientSound( GameEntity *ent ) {
 }
 
 
-
-//==============================================================
-
-/*
-==============
-ClientImpacts
-==============
-*/
 void ClientImpacts( GameEntity *ent, pmove_t *pm ) {
 	int i, j;
 	trace_t trace;
@@ -386,11 +372,6 @@ void ClientTimerActions( GameEntity *ent, int msec ) {
 	}
 }
 
-/*
-====================
-ClientIntermissionThink
-====================
-*/
 void ClientIntermissionThink( GameClient *client ) {
 	client->ps.eFlags &= ~EF_TALK;
 	client->ps.eFlags &= ~EF_FIRING;
@@ -401,7 +382,6 @@ void ClientIntermissionThink( GameClient *client ) {
 	client->oldbuttons = client->buttons;
 	client->buttons = client->pers.cmd.buttons;
 
-//----(SA)	added
 	client->oldwbuttons = client->wbuttons;
 	client->wbuttons = client->pers.cmd.wbuttons;
 
@@ -502,7 +482,6 @@ void ClientEvents( GameEntity *ent, int oldEventSequence ) {
 		case EV_FALL_SHORT:
 
 			break;
-//----(SA)	end
 
 		case EV_FIRE_WEAPON_MG42:
 		case EV_FIRE_WEAPON:
@@ -570,11 +549,6 @@ void ClientEvents( GameEntity *ent, int oldEventSequence ) {
 
 }
 
-/*
-==============
-SendPendingPredictableEvents
-==============
-*/
 void SendPendingPredictableEvents( PlayerState *ps ) {
 	
 }
@@ -1140,16 +1114,13 @@ A fast client will have multiple ClientThink for each ClientEdFrame,
 while a slow client may have multiple ClientEndFrame between ClientThink.
 ==============
 */
-void ClientEndFrame( GameEntity *ent ) {
-	int i;
-	clientPersistant_t  *pers;
-
-
-	pers = &ent->client->pers;
+void ClientEndFrame( GameEntity *ent )
+{
+	clientPersistant_t  *pers = &ent->client->pers;
 
 	if ( !ent->aiCharacter ) {
 		// turn off any expired powerups
-		for ( i = 0 ; i < MAX_POWERUPS ; i++ ) {
+		for (int i = 0 ; i < MAX_POWERUPS ; i++ ) {
 
 			if ( i == PW_NOFATIGUE ) {     // not dependant on level.time
 				continue;

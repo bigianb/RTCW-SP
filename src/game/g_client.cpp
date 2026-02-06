@@ -488,12 +488,11 @@ The game can override any of the settings and call SV_SetUserinfo
 if desired.
 ============
 */
-void ClientUserinfoChanged( int clientNum ) {
+void ClientUserinfoChanged( int clientNum )
+{
 	GameEntity *ent;
 	const char    *s;
 	char model[MAX_QPATH], modelname[MAX_QPATH];
-
-//----(SA) added this for head separation
 	char head[MAX_QPATH];
 
 	char oldname[MAX_STRING_CHARS];
@@ -665,7 +664,8 @@ to the server machine, but false on map changes and tournement
 restarts.
 ============
 */
-const char *ClientConnect( int clientNum, bool firstTime, bool isBot ) {
+const char *ClientConnect( int clientNum, bool firstTime, bool isBot )
+{
 
 	GameClient   *client;
 	char userinfo[MAX_INFO_STRING];
@@ -1019,12 +1019,6 @@ void ClientDisconnect( int clientNum ) {
 	}
 }
 
-
-/*
-==================
-G_RetrieveMoveSpeedsFromClient
-==================
-*/
 void G_RetrieveMoveSpeedsFromClient( int entnum, const char *text ) {
 	
 	animation_t *anim;
