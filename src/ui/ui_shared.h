@@ -360,7 +360,6 @@ typedef struct {
 	void ( *drawTopBottom )( float x, float y, float w, float h, float size );
 	void ( *clearScene )();
 	void ( *addRefEntityToScene )( const refEntity_t *re );
-	void ( *renderScene )( const refdef_t *fd );
 	void ( *registerFont )( const char *pFontname, int pointSize, fontInfo_t *font );
 	void ( *ownerDrawItem )( float x, float y, float w, float h, float text_x, float text_y, int ownerDraw, int ownerDrawFlags, int align, float special, int font, float scale, vec4_t color, qhandle_t shader, int textStyle );
 	float ( *getValue )( int ownerDraw, int type );
@@ -374,7 +373,7 @@ typedef struct {
 	int ( *feederCount )( float feederID );
 	const char *( *feederItemText )( float feederID, int index, int column, qhandle_t * handle );
 
-	const char *( *fileText )( char *flieName );    //----(SA)	added
+	const char *( *fileText )( char *fileName );    //----(SA)	added
 	const char *( *getTranslatedString )( const char *inString );   //----(SA)	added
 
 	qhandle_t ( *feederItemImage )( float feederID, int index );

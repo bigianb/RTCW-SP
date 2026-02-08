@@ -39,11 +39,10 @@ If you have questions concerning this license or the applicable additional terms
 #include "../qcommon/qcommon.h"
 
 
-void CG_TargetCommand_f( void ) {
-	int targetNum;
+void CG_TargetCommand_f( ) {
 	char test[4];
 
-	targetNum = CG_CrosshairPlayer();
+	int targetNum = CG_CrosshairPlayer();
 	if ( !targetNum ) {
 		return;
 	}
@@ -61,8 +60,8 @@ CG_SizeUp_f
 Keybinding command
 =================
 */
-static void CG_SizeUp_f( void ) {
-	Cvar_Set( "cg_viewsize", va( "%i",(int)( cg_viewsize.integer + 10 ) ) );
+static void CG_SizeUp_f( ) {
+	Cvar_Set( "cg_viewsize", va( "%i",static_cast<int>(cg_viewsize.integer + 10) ) );
 }
 
 
@@ -73,8 +72,8 @@ CG_SizeDown_f
 Keybinding command
 =================
 */
-static void CG_SizeDown_f( void ) {
-	Cvar_Set( "cg_viewsize", va( "%i",(int)( cg_viewsize.integer - 10 ) ) );
+static void CG_SizeDown_f( ) {
+	Cvar_Set( "cg_viewsize", va( "%i",static_cast<int>(cg_viewsize.integer - 10) ) );
 }
 
 
@@ -85,27 +84,26 @@ CG_Viewpos_f
 Debugging command to print the current position
 =============
 */
-static void CG_Viewpos_f( void ) {
+static void CG_Viewpos_f( ) {
 	Com_Printf( "(%i %i %i) : %i\n", (int)cg.refdef.vieworg[0],
 			   (int)cg.refdef.vieworg[1], (int)cg.refdef.vieworg[2],
 			   (int)cg.refdefViewAngles[YAW] );
 }
 
-static void CG_InventoryDown_f( void ) {
+static void CG_InventoryDown_f( ) {
 	cg.showItems = true;
 }
 
-static void CG_InventoryUp_f( void ) {
+static void CG_InventoryUp_f( ) {
 	cg.showItems = false;
 	cg.itemFadeTime = cg.time;
 }
 
-static void CG_TellTarget_f( void ) {
-	int clientNum;
+static void CG_TellTarget_f( ) {
 	char command[128];
 	char message[128];
 
-	clientNum = CG_CrosshairPlayer();
+	int clientNum = CG_CrosshairPlayer();
 	if ( clientNum == -1 ) {
 		return;
 	}
@@ -115,12 +113,11 @@ static void CG_TellTarget_f( void ) {
 	CL_AddReliableCommand( command );
 }
 
-static void CG_TellAttacker_f( void ) {
-	int clientNum;
+static void CG_TellAttacker_f( ) {
 	char command[128];
 	char message[128];
 
-	clientNum = CG_LastAttacker();
+	int clientNum = CG_LastAttacker();
 	if ( clientNum == -1 ) {
 		return;
 	}
@@ -134,9 +131,9 @@ static void CG_TellAttacker_f( void ) {
 #define MAX_CAMERAS 64  // matches define in splines.cpp
 bool cameraInuse[MAX_CAMERAS];
 
-int CG_LoadCamera( const char *name ) {
-	int i;
-	for ( i = 1; i < MAX_CAMERAS; i++ ) {    // start at '1' since '0' is always taken by the cutscene camera
+int CG_LoadCamera( const char *name )
+{
+	for (int i = 1; i < MAX_CAMERAS; i++ ) {    // start at '1' since '0' is always taken by the cutscene camera
 		if ( !cameraInuse[i] ) {
 			if ( trap_loadCamera( i, name ) ) {
 				cameraInuse[i] = true;
@@ -186,7 +183,7 @@ void CG_StartCamera( const char *name, bool startBlack ) {
 CG_SopCamera
 ==============
 */
-void CG_StopCamera( void ) {
+void CG_StopCamera( ) {
 	cg.cameraMode = false;                 // camera off in cgame
 	CL_AddReliableCommand( "stopCamera" );    // camera off in game
 	trap_stopCamera( CAM_PRIMARY );           // camera off in client
@@ -198,27 +195,24 @@ void CG_StopCamera( void ) {
 
 }
 
-static void CG_Camera_f( void ) {
+static void CG_Camera_f( ) {
 	char name[MAX_QPATH];
 	Cmd_ArgvBuffer( 1, name, sizeof( name ) );
 
 	CG_StartCamera( name, false );
 }
 
-static void CG_Fade_f( void ) {
-	int r, g, b, a;
-	float duration;
-
+static void CG_Fade_f( ) {
 	if ( Cmd_Argc() < 6 ) {
 		return;
 	}
 
-	r = atof( CG_Argv( 1 ) );
-	g = atof( CG_Argv( 2 ) );
-	b = atof( CG_Argv( 3 ) );
-	a = atof( CG_Argv( 4 ) );
+	int r = atof(CG_Argv(1));
+	int g = atof(CG_Argv(2));
+	int b = atof(CG_Argv(3));
+	int a = atof(CG_Argv(4));
 
-	duration = atof( CG_Argv( 5 ) ) * 1000;
+	float duration = atof(CG_Argv(5)) * 1000;
 
 	CG_Fade( r, g, b, a, cg.time, duration );
 }
@@ -226,7 +220,7 @@ static void CG_Fade_f( void ) {
 
 typedef struct {
 	const char    *cmd;
-	void ( *function )( void );
+	void ( *function )( );
 } consoleCommand_t;
 
 static consoleCommand_t commands[] = {
@@ -271,9 +265,9 @@ bool CG_ConsoleCommand()
 {
 	const char* cmd = CG_Argv( 0 );
 
-	for (int i = 0 ; i < sizeof( commands ) / sizeof( commands[0] ) ; i++ ) {
-		if ( !Q_stricmp( cmd, commands[i].cmd ) ) {
-			commands[i].function();
+	for (auto & command : commands) {
+		if ( !Q_stricmp( cmd, command.cmd ) ) {
+			command.function();
 			return true;
 		}
 	}
@@ -292,8 +286,8 @@ so it can perform tab completion
 */
 void CG_InitConsoleCommands()
 {
-	for (int i = 0 ; i < sizeof( commands ) / sizeof( commands[0] ) ; i++ ) {
-		Cmd_AddCommand( commands[i].cmd, nullptr );
+	for (auto & command : commands) {
+		Cmd_AddCommand( command.cmd, nullptr );
 	}
 
 	//

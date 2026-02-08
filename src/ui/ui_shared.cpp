@@ -3847,7 +3847,7 @@ void Item_Model_Paint( itemDef_t *item ) {
 	VectorCopy( ent.origin, ent.oldorigin );
 
 	DC->addRefEntityToScene( &ent );
-	DC->renderScene( &refdef );
+	RE_RenderScene( &refdef );
 
 }
 
