@@ -26,20 +26,9 @@ If you have questions concerning this license or the applicable additional terms
 ===========================================================================
 */
 
-/*
- * name:		g_save.c
- *
- */
-
 #include "../game/g_local.h"
 #include "../game/q_shared.h"
-#include "../game/botlib.h"      //bot lib interface
-#include "../game/be_aas.h"
-#include "../game/be_ea.h"
 #include "../game/be_ai_gen.h"
-#include "../game/be_ai_goal.h"
-#include "../game/be_ai_move.h"
-#include "../botai/botai.h"          //bot ai interface
 #include "g_save.h"
 #include "ai_cast.h"
 #include "../qcommon/qcommon.h"
@@ -108,19 +97,9 @@ static saveField_t gentityFields_17[] = {
 	{FOFS( scriptStatus.animatingParams ),    F_STRINGVECTOR},
 	{FOFS( tagName ),     F_STRING},
 	{FOFS( tagParent ),   F_ENTITY},
-
-	{0, F_NONE}
-};
-
-// TTimo
-// show_bug.cgi?id=434
-// new field for v18 saved games
-// not in gentityField to keep backward compatibility loading v17
-static saveField_t gentityFields_18[] = {
 	{FOFS( targetdeath ), F_STRING},
 	{0, F_NONE}
 };
-
 
 static saveField_t gclientFields[] = {
 	{CFOFS( hook ),       F_ENTITY},
@@ -150,19 +129,6 @@ typedef struct {
 	intptr_t ofs;
 	int len;
 } ignoreField_t;
-
-static ignoreField_t gentityIgnoreFields[] =
-{
-	{FOFS( numScriptEvents ), sizeof( int )},
-	{FOFS( scriptEvents ),    sizeof( std::vector<g_script_event_t> ) },   // gets created upon parsing the script file, this is static while playing
-
-	{0, 0}
-};
-
-static ignoreField_t gclientIgnoreFields[] =
-{
-	{0, 0}
-};
 
 static ignoreField_t castStateIgnoreFields[] =
 {
@@ -235,17 +201,8 @@ funcList_t funcList[] = {
 //-----------------
 
 
-//=========================================================
-
-/*
-===============
-G_SaveWriteError
-===============
-*/
 void G_SaveWriteError( void ) {
-
 	Com_Error( ERR_DROP, "Insufficient free disk space.\n\nPlease free at least 5mb of free space on game drive." );
-
 }
 
 static int saveByteCount;
@@ -266,10 +223,10 @@ int G_SaveWrite( const void *buffer, int len, fileHandle_t f )
 
 //=========================================================
 
-funcList_t *G_FindFuncAtAddress( uint8_t *adr )
+funcList_t *G_FindFuncAtAddress( uint8_t *addr )
 {
 	for (int i = 0; funcList[i].funcStr; i++ ) {
-		if ( funcList[i].funcPtr == adr ) {
+		if ( funcList[i].funcPtr == addr ) {
 			return &funcList[i];
 		}
 	}
@@ -288,21 +245,19 @@ uint8_t *G_FindFuncByName( char *name )
 
 void WriteField1( saveField_t *field, uint8_t *base )
 {
-
 	int len;
 	int index;
-	funcList_t  *func;
 
-	void *p = ( void * )( base + field->ofs );
+	auto p = static_cast<void*>(base + field->ofs);
 	switch ( field->type )
 	{
 	case F_STRING:
-		if ( *(char **)p ) {
-			len = strlen( *(char **)p ) + 1;
+		if ( *static_cast<char**>(p) ) {
+			len = strlen( *static_cast<char**>(p) ) + 1;
 		} else {
 			len = 0;
 		}
-		*(int *)p = len;
+		*static_cast<int*>(p) = len;
 		break;
 	case F_STRINGVECTOR:
 		{
@@ -312,7 +267,7 @@ void WriteField1( saveField_t *field, uint8_t *base )
 			//   int string length
 			//   char data[length]
 			//  padding to 4 byte boundary
-			std::vector<std::string>& vec = *(std::vector<std::string> *)p;
+			std::vector<std::string>& vec = *static_cast<std::vector<std::string>*>(p);
 			if ( vec.empty() ) {
 				len = 0;
 			} else {
@@ -326,57 +281,54 @@ void WriteField1( saveField_t *field, uint8_t *base )
 					len = ( len + 3 ) & ~3;
 				}
 			}
-			*(int *)p = len;
+			*static_cast<int*>(p) = len;
 		}
 		break;
 	case F_ENTITY:
-		if ( *(GameEntity **)p == nullptr ) {
+		if ( *static_cast<GameEntity**>(p) == nullptr ) {
 			index = -1;
 		} else {
-			index = *(GameEntity **)p - g_entities;
+			index = *static_cast<GameEntity**>(p) - g_entities;
 		}
 		if ( index >= MAX_GENTITIES || index < -1 ) {
 			Com_Error( ERR_DROP, "WriteField1: entity out of range (%i)", index );
-            return; // keep the linter happy, ERR_DROP does not return
 		}
-		*(int *)p = index;
+		*static_cast<int*>(p) = index;
 		break;
 	case F_CLIENT:
-		if ( *(GameClient **)p == nullptr ) {
+		if ( *static_cast<GameClient**>(p) == nullptr ) {
 			index = -1;
 		} else {
-			index = *(GameClient **)p - level.clients;
+			index = *static_cast<GameClient**>(p) - level.clients;
 		}
 		if ( index >= MAX_CLIENTS || index < -1 ) {
 			Com_Error( ERR_DROP, "WriteField1: client out of range (%i)", index );
-            return; // keep the linter happy, ERR_DROP does not return
 		}
-		*(int *)p = index;
+		*static_cast<int*>(p) = index;
 		break;
 	case F_ITEM:
-		if ( *(gitem_t **)p == nullptr ) {
+		if ( *static_cast<gitem_t**>(p) == nullptr ) {
 			index = -1;
 		} else {
-			index = *(gitem_t **)p - bg_itemlist;
+			index = *static_cast<gitem_t**>(p) - bg_itemlist;
 		}
-		*(int *)p = index;
+		*static_cast<int*>(p) = index;
 		break;
 
 		//	match this with a function address in the function list, which is built using the
 		//	"extractfuncs.bat" in the utils folder. We then save the string equivalent
 		//	of the function. This effectively gives us cross-version save games.
 	case F_FUNCTION:
-		if ( *(uint8_t **)p == nullptr ) {
+		if ( *static_cast<uint8_t**>(p) == nullptr ) {
 			len = 0;
 		} else {
-			func = G_FindFuncAtAddress( *(uint8_t **)p );
+			funcList_t* func = G_FindFuncAtAddress(*static_cast<uint8_t**>(p));
 			if ( !func ) {
 				Com_Error( ERR_DROP, "WriteField1: unknown function, cannot save game" );
-                return; // keep the linter happy, ERR_DROP does not return
 			}
 			len = strlen( func->funcStr ) + 1;
 		}
-		*(int *)p = len;
+		*static_cast<int*>(p) = len;
 		break;
 
 	default:
@@ -388,25 +340,24 @@ void WriteField1( saveField_t *field, uint8_t *base )
 void WriteField2( fileHandle_t f, saveField_t *field, uint8_t *base )
 {
 	size_t len;
-	funcList_t  *func;
 
-	void *p = ( void * )( base + field->ofs );
+	void *p = ( base + field->ofs );
 	switch ( field->type )
 	{
 	case F_STRING:
-		if ( *(char **)p ) {
-			len = strlen( *(char **)p ) + 1;
-			if ( !G_SaveWrite( *(char **)p, len, f ) ) {
+		if ( *static_cast<char**>(p) ) {
+			len = strlen( *static_cast<char**>(p) ) + 1;
+			if ( !G_SaveWrite( *static_cast<char**>(p), len, f ) ) {
 				G_SaveWriteError();
 			}
 		}
 		break;
 	case F_STRINGVECTOR:
 		{
-			std::vector<std::string>& vec = *(std::vector<std::string> *)p;
+			std::vector<std::string>& vec = *static_cast<std::vector<std::string>*>(p);
 
 			// write the number of strings in the vector
-			int numStrings = static_cast<int>( vec.size() );
+			const int numStrings = static_cast<int>( vec.size() );
 			if ( !G_SaveWrite( &numStrings, sizeof( int ), f ) ) {
 				G_SaveWriteError();
 			}
@@ -434,11 +385,10 @@ void WriteField2( fileHandle_t f, saveField_t *field, uint8_t *base )
 		}
 		break;
 	case F_FUNCTION:
-		if ( *(uint8_t **)p ) {
-			func = G_FindFuncAtAddress( *(uint8_t **)p );
+		if ( *static_cast<uint8_t**>(p) ) {
+			funcList_t* func = G_FindFuncAtAddress(*static_cast<uint8_t**>(p));
 			if ( !func ) {
 				Com_Error( ERR_DROP, "WriteField1: unknown function, cannot save game" );
-                return; // keep the linter happy, ERR_DROP does not return
 			}
 			len = strlen( func->funcStr ) + 1;
 			if ( !G_SaveWrite( func->funcStr, len, f ) ) {
@@ -457,15 +407,14 @@ void ReadField( fileHandle_t f, saveField_t *field, uint8_t *base )
 	int index;
 	char funcStr[512];
 
-	void *p = ( void * )( base + field->ofs );
+	void *p = ( base + field->ofs );
 	switch ( field->type )
 	{
 	case F_STRING:
 		len = *(int *)p;
 		if ( !len ) {
 			*(char **)p = nullptr;
-		} else
-		{
+		} else {
 			*(char **)p = (char *)G_Alloc( len );
 			FS_Read( *(char **)p, len, f );
 		}
@@ -475,7 +424,7 @@ void ReadField( fileHandle_t f, saveField_t *field, uint8_t *base )
 			// read number of strings
 			int numStrings;
 			FS_Read( &numStrings, sizeof( int ), f );
-			std::vector<std::string>& vec = *(std::vector<std::string> *)p;
+			std::vector<std::string>& vec = *static_cast<std::vector<std::string>*>(p);
 			vec.clear();
 			// read each string
 			for ( int i = 0; i < numStrings; i++ ) {
@@ -483,7 +432,7 @@ void ReadField( fileHandle_t f, saveField_t *field, uint8_t *base )
 				// read length
 				FS_Read( &strLen, sizeof( int ), f );
 				// read string data
-				char *strData = new char[strLen];
+				auto strData = new char[strLen];
 				FS_Read( strData, strLen, f );
 				vec.emplace_back( strData );
 				delete[] strData;
@@ -499,7 +448,6 @@ void ReadField( fileHandle_t f, saveField_t *field, uint8_t *base )
 		index = *(int *)p;
 		if ( index >= MAX_GENTITIES || index < -1 ) {
 			Com_Error( ERR_DROP, "ReadField: entity out of range (%i)", index );
-            return; // keep the linter happy, ERR_DROP does not return
 		}
 		if ( index == -1 ) {
 			*(GameEntity **)p = nullptr;
@@ -511,7 +459,6 @@ void ReadField( fileHandle_t f, saveField_t *field, uint8_t *base )
 		index = *(int *)p;
 		if ( index >= MAX_CLIENTS || index < -1 ) {
 			Com_Error( ERR_DROP, "ReadField: client out of range (%i)", index );
-            return; // keep the linter happy, ERR_DROP does not return
 		}
 		if ( index == -1 ) {
 			*(GameClient **)p = nullptr;
@@ -528,7 +475,6 @@ void ReadField( fileHandle_t f, saveField_t *field, uint8_t *base )
 		}
 		break;
 
-		//relative to code segment
 	case F_FUNCTION:
 		len = *(int *)p;
 		if ( !len ) {
@@ -536,12 +482,10 @@ void ReadField( fileHandle_t f, saveField_t *field, uint8_t *base )
 		} else {
 			if ( len > sizeof( funcStr ) ) {
 				Com_Error( ERR_DROP, "ReadField: function name is greater than buffer (%i chars)", sizeof( funcStr ) );
-                return; // keep the linter happy, ERR_DROP does not return
 			}
 			FS_Read( funcStr, len, f );
-			if ( !( *(uint8_t **)p = G_FindFuncByName( funcStr ) ) ) {
+			if ( !( (*(uint8_t **)p = G_FindFuncByName( funcStr )) ) ) {
 				Com_Error( ERR_DROP, "ReadField: unknown function '%s'\ncannot load game", funcStr );
-                return; // keep the linter happy, ERR_DROP does not return
 			}
 		}
 		break;
@@ -551,10 +495,6 @@ void ReadField( fileHandle_t f, saveField_t *field, uint8_t *base )
 	}
 }
 
-//=========================================================
-
-#define SAVE_ENCODE_COUNT_BYTES     1
-
 /*
 ===============
 G_Save_Encode
@@ -562,7 +502,8 @@ G_Save_Encode
   returns the number of bytes written to "out"
 ===============
 */
-int G_Save_Encode( uint8_t *raw, uint8_t *out, int rawsize, int outsize )
+static
+int G_Save_Encode( const uint8_t *raw, uint8_t *out, int rawsize, int outsize )
 {
 	int rawcount = 0;
 	int outcount = 0;
@@ -577,44 +518,44 @@ int G_Save_Encode( uint8_t *raw, uint8_t *out, int rawsize, int outsize )
 		}
 		// calc the count
 		uint8_t count = 0;
-		while ( rawcount < rawsize && ( raw[rawcount] != 0 ) == mode && count < ( ( ( 1 << ( SAVE_ENCODE_COUNT_BYTES * 8 - 1 ) ) - 1 ) ) ) {
+		while ( rawcount < rawsize && ( raw[rawcount] != 0 ) == mode && count <  127) {
 			rawcount++;
 			count++;
 		}
 		// write the count, followed by data if required
-		memcpy( out + outcount, &count, SAVE_ENCODE_COUNT_BYTES );
+		out[outcount] = count;
+
 		// switch the sign bit if zeros
 		if ( !mode ) {
-			out[outcount + SAVE_ENCODE_COUNT_BYTES - 1] |= ( 1 << 7 );
-			outcount += SAVE_ENCODE_COUNT_BYTES;
+			out[outcount] |= ( 1 << 7 );
+			outcount += 1;
 		} else {
-			outcount += SAVE_ENCODE_COUNT_BYTES;
+			outcount += 1;
 			// write the data
 			memcpy( out + outcount, raw + oldrawcount, count );
 			outcount += count;
 		}
 	}
 
+	if (outcount > outsize){
+		Com_Error( ERR_DROP, "G_Save_Encode: buffer overrun" );
+	}
+
 	return outcount;
 }
 
-/*
-===============
-G_Save_Decode
-===============
-*/
-void G_Save_Decode( uint8_t *in, int insize, uint8_t *out, int outsize )
+static
+void G_Save_Decode( const uint8_t *in, int insize, uint8_t *out, int outsize )
 {
 	int incount = 0;
 	int outcount = 0;
-	while ( incount < insize ) {
+	while ( incount < insize && outcount < outsize ) {
 		// read the count
-		uint8_t count = 0;
-		memcpy( &count, in + incount, SAVE_ENCODE_COUNT_BYTES );
-		incount += SAVE_ENCODE_COUNT_BYTES;
+		uint8_t count = in[incount];
+		incount += 1;
 		// if it's negative, zero it out
-		if ( count & ( 1 << ( ( SAVE_ENCODE_COUNT_BYTES * 8 ) - 1 ) ) ) {
-			count &= ~( 1 << ( ( SAVE_ENCODE_COUNT_BYTES * 8 ) - 1 ) );
+		if ( count & 0x80 ) {
+			count &= 0x7F;
 			memset( out + outcount, 0, count );
 			outcount += count;
 		} else {
@@ -624,17 +565,13 @@ void G_Save_Decode( uint8_t *in, int insize, uint8_t *out, int outsize )
 			incount += count;
 		}
 	}
+	if (outcount > outsize){
+		Com_Error( ERR_DROP, "G_Save_Decode: buffer overrun" );
+	}
 }
 
-//=========================================================
+uint8_t clientBuf[ 2 * sizeof( GameClient ) ];
 
-uint8_t clientBuf[ 2 * sizeof( GameEntity ) ];
-
-/*
-===============
-WriteClient
-===============
-*/
 void WriteClient( fileHandle_t f, GameClient *cl )
 {
 	// copy the structure across, then process the fields
@@ -648,13 +585,11 @@ void WriteClient( fileHandle_t f, GameClient *cl )
 	temp.ps.entityEventSequence = 0;
 
 	// change the pointers to lengths or indexes
-	for (saveField_t * field = gclientFields ; field->type ; field++ )
-	{
+	for (saveField_t * field = gclientFields ; field->type ; field++ ) {
 		WriteField1( field, (uint8_t *)&temp );
 	}
 
 	// write the block
-	//if (!G_SaveWrite (&temp, sizeof(temp), f)) G_SaveWriteError();
 	int length = G_Save_Encode( (uint8_t *)&temp, clientBuf, sizeof( temp ), sizeof( clientBuf ) );
 	if ( !G_SaveWrite( &length, sizeof( length ), f ) ) {
 		G_SaveWriteError();
@@ -664,18 +599,12 @@ void WriteClient( fileHandle_t f, GameClient *cl )
 	}
 
 	// now write any allocated data following the edict
-	for (saveField_t * field = gclientFields ; field->type ; field++ )
-	{
+	for (saveField_t * field = gclientFields ; field->type ; field++ ){
 		WriteField2( f, field, (uint8_t *)cl );
 	}
 
 }
 
-/*
-===============
-ReadClient
-===============
-*/
 void ReadClient( fileHandle_t f, GameClient *client, int size )
 {
 	int decodedSize;
@@ -684,21 +613,15 @@ void ReadClient( fileHandle_t f, GameClient *client, int size )
     FS_Read( &decodedSize, sizeof( int ), f );
     if ( decodedSize > sizeof( clientBuf ) ) {
         Com_Error( ERR_DROP, "G_LoadGame: encoded chunk is greater than buffer" );
-        return; // keep the linter happy, ERR_DROP does not return
     }
     
     FS_Read( clientBuf, decodedSize, f );
     GameClient temp;
     G_Save_Decode( clientBuf, decodedSize, (uint8_t *)&temp, sizeof( temp ) );
 	
-	// convert any feilds back to the correct data
+	// convert any fields back to the correct data
 	for (saveField_t *field = gclientFields ; field->type ; field++ ) {
 		ReadField( f, field, (uint8_t *)&temp );
-	}
-
-	// backup any fields that we don't want to read in
-	for (ignoreField_t *ifield = gclientIgnoreFields ; ifield->len ; ifield++ ) {
-		memcpy( ( (uint8_t *)&temp ) + ifield->ofs, ( (uint8_t *)client ) + ifield->ofs, ifield->len );
 	}
 
 	// now copy the temp structure into the existing structure
@@ -734,15 +657,9 @@ void ReadClient( fileHandle_t f, GameClient *client, int size )
 	}
 }
 
-//=========================================================
 
 uint8_t entityBuf[ 2 * sizeof( GameEntity ) ];
 
-/*
-===============
-WriteEntity
-===============
-*/
 void WriteEntity( fileHandle_t f, GameEntity *ent )
 {
 	// copy the structure across, then process the fields
@@ -754,17 +671,11 @@ void WriteEntity( fileHandle_t f, GameEntity *ent )
 	temp.shared.s.eventSequence = 0;
 
 	// change the pointers to lengths or indexes
-	for (saveField_t *field = gentityFields_17 ; field->type ; field++ )
-	{
+	for (saveField_t *field = gentityFields_17 ; field->type ; field++ ){
 		WriteField1( field, (uint8_t *)&temp );
 	}
-	// TTimo
-	// show_bug.cgi?id=434
-	WriteField1( gentityFields_18, (uint8_t *)&temp );
 
-	// write the block
-	//if (!G_SaveWrite (&temp, sizeof(temp), f)) G_SaveWriteError();
-	int length = G_Save_Encode( (uint8_t *)&temp, entityBuf, sizeof( temp ), sizeof( entityBuf ) );
+	const int length = G_Save_Encode( (uint8_t *)&temp, entityBuf, sizeof( temp ), sizeof( entityBuf ) );
 	if ( !G_SaveWrite( &length, sizeof( length ), f ) ) {
 		G_SaveWriteError();
 	}
@@ -776,15 +687,8 @@ void WriteEntity( fileHandle_t f, GameEntity *ent )
 	for (saveField_t *field = gentityFields_17 ; field->type ; field++ ) {
 		WriteField2( f, field, (uint8_t *)ent );
 	}
-
-	WriteField2( f, gentityFields_18, (uint8_t *)ent );
 }
 
-/*
-===============
-ReadEntity
-===============
-*/
 void ReadEntity( fileHandle_t f, GameEntity *ent, int size )
 {
     GameEntity backup = *ent;
@@ -794,24 +698,19 @@ void ReadEntity( fileHandle_t f, GameEntity *ent, int size )
     FS_Read( &decodedSize, sizeof( int ), f );
     if ( decodedSize > sizeof( entityBuf ) ) {
         Com_Error( ERR_DROP, "G_LoadGame: encoded chunk is greater than buffer" );
-        return; // keep the linter happy, ERR_DROP does not return
     }
     FS_Read( entityBuf, decodedSize, f );
     GameEntity temp;
     G_Save_Decode( entityBuf, decodedSize, (uint8_t *)&temp, sizeof( temp ) );
-	
 
 	// convert any fields back to the correct data
 	for (saveField_t *field = gentityFields_17 ; field->type ; field++ ) {
 		ReadField( f, field, (uint8_t *)&temp );
 	}
-
-    ReadField( f, gentityFields_18, (uint8_t *)&temp );
 	
 	// backup any fields that we don't want to read in
-	for (ignoreField_t *ifield = gentityIgnoreFields ; ifield->len ; ifield++ ) {
-		memcpy( ( (uint8_t *)&temp ) + ifield->ofs, ( (uint8_t *)ent ) + ifield->ofs, ifield->len );
-	}
+	temp.numScriptEvents = ent->numScriptEvents;
+	temp.scriptEvents = ent->scriptEvents;
 
 	// kill all events (assume they have been processed)
 	if ( !temp.freeAfterEvent ) {
@@ -823,7 +722,7 @@ void ReadEntity( fileHandle_t f, GameEntity *ent, int size )
 	}
 
 	// now copy the temp structure into the existing structure
-	memcpy( ent, &temp, size );
+	*ent = temp;
 
 	// notify server of changes in position/orientation
 	if ( ent->shared.r.linked && ( !( ent->shared.r.svFlags & SVF_CASTAI ) || !ent->aiInactive ) ) {
@@ -888,20 +787,11 @@ void ReadEntity( fileHandle_t f, GameEntity *ent, int size )
         vmCvar_t cvar;
 		Cvar_Register( &cvar, "g_episode", "0", CVAR_ROM );
 		Cvar_Set( "g_episode", va( "%s", ent->missionLevel ) );
-
 	}
-
 }
-
-//=========================================================
 
 uint8_t castStateBuf[ 2 * sizeof( cast_state_t ) ];
 
-/*
-===============
-WriteCastState
-===============
-*/
 void WriteCastState( fileHandle_t f, cast_state_t *cs )
 {
 	// copy the structure across, then process the fields
@@ -927,11 +817,6 @@ void WriteCastState( fileHandle_t f, cast_state_t *cs )
 	}
 }
 
-/*
-===============
-ReadCastState
-===============
-*/
 void ReadCastState( fileHandle_t f, cast_state_t *cs, int size )
 {
     // read the encoded chunk
@@ -939,7 +824,6 @@ void ReadCastState( fileHandle_t f, cast_state_t *cs, int size )
     FS_Read( &decodedSize, sizeof( int ), f );
     if ( decodedSize > sizeof( castStateBuf ) ) {
         Com_Error( ERR_DROP, "G_LoadGame: encoded chunk is greater than buffer" );
-        return; // keep the linter happy, ERR_DROP does not return
     }
     FS_Read( castStateBuf, decodedSize, f );
     cast_state_t temp;
@@ -974,12 +858,6 @@ void ReadCastState( fileHandle_t f, cast_state_t *cs, int size )
 	}
 }
 
-
-/*
-==============
-WriteTime
-==============
-*/
 void WriteTime( fileHandle_t f )
 {
 	qtime_t tm;
@@ -997,11 +875,6 @@ void WriteTime( fileHandle_t f )
 	G_SaveWrite( &tm.tm_isdst, sizeof( tm.tm_isdst ),f );     /* daylight savings time flag */
 }
 
-/*
-==============
-ReadTime
-==============
-*/
 void ReadTime( fileHandle_t f, qtime_t *tm )
 {
 	FS_Read( &tm->tm_sec, sizeof( tm->tm_sec ), f );
@@ -1015,11 +888,6 @@ void ReadTime( fileHandle_t f, qtime_t *tm )
 	FS_Read( &tm->tm_isdst, sizeof( tm->tm_isdst ), f );
 }
 
-/*
-==============
-G_Save_TimeStr
-==============
-*/
 char *G_Save_TimeStr()
 {
 	qtime_t tm;
@@ -1039,11 +907,6 @@ static const char *monthStr[12] =
 	"JAN", "FEB", "MAR", "APR", "MAY", "JUN", "JUL", "AUG", "SEP", "OCT", "NOV", "DEC"
 };
 
-/*
-==============
-G_Save_DateStr
-==============
-*/
 char *G_Save_DateStr()
 {
 	qtime_t tm;
@@ -1065,16 +928,7 @@ static char infoString[SAVE_INFOSTRING_LENGTH];
 #define SA_ADDEDFOG     16  //
 
 /*
-===============
-G_SaveGame
-
   returns true if successful
-
-  TODO: have G_SaveWrite return the number of uint8_t's written, so if it doesn't
-  succeed, we can abort the save, and not save the file. This means we should
-  save to a temporary name, then copy it across to the real name after success,
-  so full disks don't result in lost saved games.
-===============
 */
 bool G_SaveGame( const char *username )
 {
@@ -1111,7 +965,6 @@ bool G_SaveGame( const char *username )
     fileHandle_t f;
 	if ( FS_FOpenFileByMode( filename, &f, FS_WRITE ) < 0 ) {
 		Com_Error( ERR_DROP, "G_SaveGame: cannot open file for saving\n" );
-        return false; // keep the linter happy, ERR_DROP does not return
 	}
 
 	// write the version
@@ -1323,10 +1176,8 @@ void G_LoadGame( const char *filename )
 {
 	char mapname[MAX_QPATH];
 	fileHandle_t f;
-	int i, leveltime, size, last;
+	int i;
 	GameEntity   *ent;
-	GameClient   *cl;
-	cast_state_t    *cs;
 	qtime_t tm;
 	bool serverEntityUpdate = false;
 
@@ -1342,7 +1193,6 @@ void G_LoadGame( const char *filename )
 	// open the file
 	if ( FS_FOpenFileByMode( filename, &f, FS_READ ) < 0 ) {
 		Com_Error( ERR_DROP, "G_LoadGame: savegame '%s' not found\n", filename );
-        return; // keep the linter happy, ERR_DROP does not return
 	}
 
 	// read the version
@@ -1351,7 +1201,6 @@ void G_LoadGame( const char *filename )
 	if ( i != SAVE_VERSION ) {
 		FS_FCloseFile( f );
 		Com_Error( ERR_DROP, "G_LoadGame: savegame '%s' is wrong version (%i, should be %i)\n", filename, i, SAVE_VERSION );
-        return; // keep the linter happy, ERR_DROP does not return
 	}
 
 	// read the mapname (this is only used in the sever exe, so just discard it)
@@ -1359,7 +1208,7 @@ void G_LoadGame( const char *filename )
 
 	// read the level time
 	FS_Read( &i, sizeof( i ), f );
-	leveltime = i;
+	int leveltime = i;
 
 	// read the totalPlayTime
 	FS_Read( &i, sizeof( i ), f );
@@ -1428,9 +1277,9 @@ void G_LoadGame( const char *filename )
 
 	// read the entity structures
 	FS_Read( &i, sizeof( i ), f );
-	size = i;
-	last = 0;
-	while ( 1 )
+	int size = i;
+	int last = 0;
+	while ( true )
 	{
 		FS_Read( &i, sizeof( i ), f );
 		if ( i < 0 ) {
@@ -1439,7 +1288,6 @@ void G_LoadGame( const char *filename )
 		if ( i >= MAX_GENTITIES ) {
 			FS_FCloseFile( f );
 			Com_Error( ERR_DROP, "G_LoadGame: entitynum out of range (%i, MAX = %i)\n", i, MAX_GENTITIES );
-            return; // keep the linter happy, ERR_DROP does not return
 		}
 		if ( i >= level.num_entities ) {  // notify server
 			level.num_entities = i;
@@ -1462,7 +1310,7 @@ void G_LoadGame( const char *filename )
 
 	// clear all remaining entities
 	for ( ent = &g_entities[last] ; last < MAX_GENTITIES ; last++, ent++ ) {
-		memset( ent, 0, sizeof( *ent ) );
+		// TODO: need a clear function
 		ent->classname = "freed";
 		ent->freetime = level.time;
 		ent->inuse = false;
@@ -1471,7 +1319,7 @@ void G_LoadGame( const char *filename )
 	// read the client structures
 	FS_Read( &i, sizeof( i ), f );
 	size = i;
-	while ( 1 )
+	while ( true )
 	{
 		FS_Read( &i, sizeof( i ), f );
 		if ( i < 0 ) {
@@ -1480,13 +1328,11 @@ void G_LoadGame( const char *filename )
 		if ( i > MAX_CLIENTS ) {
 			FS_FCloseFile( f );
 			Com_Error( ERR_DROP, "G_LoadGame: clientnum out of range\n" );
-            return; // keep the linter happy, ERR_DROP does not return
 		}
-		cl = &level.clients[i];
+		GameClient* cl = &level.clients[i];
 		if ( cl->pers.connected == CON_DISCONNECTED ) {
 			FS_FCloseFile( f );
 			Com_Error( ERR_DROP, "G_LoadGame: client mis-match in savegame" );
-            return; // keep the linter happy, ERR_DROP does not return
 		}
 		ReadClient( f, cl, size );
 	}
@@ -1494,7 +1340,7 @@ void G_LoadGame( const char *filename )
 	// read the cast_state structures
 	FS_Read( &i, sizeof( i ), f );
 	size = i;
-	while ( 1 )
+	while ( true )
 	{
 		FS_Read( &i, sizeof( i ), f );
 		if ( i < 0 ) {
@@ -1505,7 +1351,7 @@ void G_LoadGame( const char *filename )
 			Com_Error( ERR_DROP, "G_LoadGame: clientnum out of range\n" );
             return; // keep the linter happy, ERR_DROP does not return
 		}
-		cs = &caststates[i];
+		cast_state_t* cs = &caststates[i];
 		ReadCastState( f, cs, size );
 	}
 
@@ -1551,66 +1397,38 @@ void G_LoadGame( const char *filename )
 	level.lastLoadTime = leveltime;
 }
 
-//=========================================================
-
-/*
-===============
-PersWriteClient
-===============
-*/
 void PersWriteClient( fileHandle_t f, GameClient *cl )
 {
-	for (persField_t *field = gclientPersFields ; field->len ; field++ ) {
-		G_SaveWrite( ( void * )( (uint8_t *)cl + field->ofs ), field->len, f );
+	for (const persField_t *field = gclientPersFields ; field->len ; field++ ) {
+		G_SaveWrite( (uint8_t *)cl + field->ofs , field->len, f );
 	}
 }
 
-/*
-===============
-PersReadClient
-===============
-*/
 void PersReadClient( fileHandle_t f, GameClient *cl )
 {
-	for (persField_t *field = gclientPersFields ; field->len ; field++ ) {
-		FS_Read( ( void * )( (uint8_t *)cl + field->ofs ), field->len, f );
+	for (const persField_t *field = gclientPersFields ; field->len ; field++ ) {
+		FS_Read(  (uint8_t *)cl + field->ofs , field->len, f );
 	}
 }
 
-//=========================================================
-
-/*
-===============
-PersWriteEntity
-===============
-*/
 void PersWriteEntity( fileHandle_t f, GameEntity *ent )
 {
     for (persField_t *field = gentityPersFields ; field->len ; field++ ) {
-		G_SaveWrite( ( void * )( (uint8_t *)ent + field->ofs ), field->len, f );
+		G_SaveWrite( (uint8_t *)ent + field->ofs , field->len, f );
 	}
 }
 
-/*
-===============
-PersReadEntity
-===============
-*/
 void PersReadEntity( fileHandle_t f, GameEntity *cl )
 {
 	for (persField_t *field = gentityPersFields ; field->len ; field++ ) {
-		FS_Read( ( void * )( (uint8_t *)cl + field->ofs ), field->len, f );
+		FS_Read(  (uint8_t *)cl + field->ofs, field->len, f );
 	}
 }
-
-
-//=========================================================
-
 
 void PersWriteCastState( fileHandle_t f, cast_state_t *cs )
 {
 	for (persField_t *field = castStatePersFields ; field->len ; field++ ) {
-		G_SaveWrite( ( void * )( (uint8_t *)cs + field->ofs ), field->len, f );
+		G_SaveWrite(  (uint8_t *)cs + field->ofs, field->len, f );
 	}
 }
 
@@ -1618,25 +1436,14 @@ void PersWriteCastState( fileHandle_t f, cast_state_t *cs )
 void PersReadCastState( fileHandle_t f, cast_state_t *cs )
 {
 	for (persField_t *field = castStatePersFields ; field->len ; field++ ) {
-		FS_Read( ( void * )( (uint8_t *)cs + field->ofs ), field->len, f );
+		FS_Read( (uint8_t *)cs + field->ofs, field->len, f );
 	}
 }
 
-//=========================================================
-
 /*
-===============
-G_SavePersistant
-
   returns true if successful
 
   NOTE: only saves the local player's data, doesn't support AI characters
-
-  TODO: have G_SaveWrite return the number of uint8_t's written, so if it doesn't
-  succeed, we can abort the save, and not save the file. This means we should
-  save to a temporary name, then copy it across to the real name after success,
-  so full disks don't result in lost saved games.
-===============
 */
 bool G_SavePersistant( char *nextmap )
 {
@@ -1649,7 +1456,6 @@ bool G_SavePersistant( char *nextmap )
 	snprintf( filename, MAX_QPATH, "save\\temp.psw" );
 	if ( FS_FOpenFileByMode( filename, &f, FS_WRITE ) < 0 ) {
 		Com_Error( ERR_DROP, "G_SavePersistant: cannot open '%s' for saving\n", filename );
-        return false;
 	}
 	// write the mapname
 	G_SaveWrite( nextmap, MAX_QPATH, f );
@@ -1694,11 +1500,6 @@ bool G_SavePersistant( char *nextmap )
 	return true;
 }
 
-/*
-===============
-G_LoadPersistant
-===============
-*/
 void G_LoadPersistant()
 {
 	fileHandle_t f;

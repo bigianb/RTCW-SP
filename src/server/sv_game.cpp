@@ -142,11 +142,11 @@ bool SV_inPVS( const vec3_t p1, const vec3_t p2 )
 	int leafnum = CM_PointLeafnum( p1 );
 	int cluster = clipModel.leafCluster( leafnum );
 	int area1 = clipModel.leafArea( leafnum );
-	uint8_t* mask = CM_ClusterPVS( cluster );
+	const uint8_t* mask = CM_ClusterPVS( cluster );
 
 	leafnum = CM_PointLeafnum( p2 );
 	cluster = clipModel.leafCluster( leafnum );
-	int area2 = clipModel.leafArea( leafnum );
+	const int area2 = clipModel.leafArea( leafnum );
 	if ( mask && ( !( mask[cluster >> 3] & ( 1 << ( cluster & 7 ) ) ) ) ) {
 		return false;
 	}

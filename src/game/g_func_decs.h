@@ -1302,8 +1302,7 @@ extern void ReadEntity ( fileHandle_t f , GameEntity * ent , int size ) ;
 extern void WriteEntity ( fileHandle_t f , GameEntity * ent ) ;
 extern void ReadClient ( fileHandle_t f , GameClient * client , int size ) ;
 extern void WriteClient ( fileHandle_t f , GameClient * cl ) ;
-extern void G_Save_Decode ( uint8_t * in , int insize , uint8_t * out , int outsize ) ;
-extern int G_Save_Encode ( uint8_t * raw , uint8_t * out , int rawsize , int outsize ) ;
+
 extern void ReadField ( fileHandle_t f , saveField_t * field , uint8_t * base ) ;
 extern void WriteField2 ( fileHandle_t f , saveField_t * field , uint8_t * base ) ;
 extern void WriteField1 ( saveField_t * field , uint8_t * base ) ;

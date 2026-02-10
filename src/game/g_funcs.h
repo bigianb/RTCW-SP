@@ -1286,8 +1286,6 @@ If you have questions concerning this license or the applicable additional terms
 {"WriteEntity", (uint8_t *)WriteEntity},
 {"ReadClient", (uint8_t *)ReadClient},
 {"WriteClient", (uint8_t *)WriteClient},
-{"G_Save_Decode", (uint8_t *)G_Save_Decode},
-{"G_Save_Encode", (uint8_t *)G_Save_Encode},
 {"ReadField", (uint8_t *)ReadField},
 {"WriteField2", (uint8_t *)WriteField2},
 {"WriteField1", (uint8_t *)WriteField1},
