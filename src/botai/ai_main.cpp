@@ -518,16 +518,12 @@ void BotScheduleBotThink() {
 	}
 }
 
-/*
-==============
-BotAISetupClient
-==============
-*/
+
 int BotAISetupClient( int client, struct bot_settings_s *settings ) {
 	char filename[MAX_AIPATH], name[MAX_AIPATH], gender[MAX_AIPATH];
 
 	if ( !botstates[client] ) {
-		botstates[client] = (bot_state_t *)G_Alloc( sizeof( bot_state_t ) );
+		botstates[client] = static_cast<bot_state_t *>(calloc(1, sizeof(bot_state_t)));
 	}
 	bot_state_t* bs = botstates[client];
 

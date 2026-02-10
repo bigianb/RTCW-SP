@@ -296,11 +296,6 @@ bool    ConsoleCommand( void ) {
 		return true;
 	}
 
-	if ( Q_stricmp( cmd, "game_memory" ) == 0 ) {
-		Svcmd_GameMem_f();
-		return true;
-	}
-
 	return false;
 }
 

@@ -1,11 +1,24 @@
 # Return to Castle Wolfenstein single player GPL source release
 
 This is a very simplified port of the Return to Castle Wolfenstein code.
-The aim is to have something easy to understand. In particular the dynamic library
+The aim is to have something easy to understand. It's probably worth
+repeating that the motivation behind this is to better understand the codebase and design.
+What is easier for me to understand may not be easier for you to undßerstand.
+
+In particular the dynamic library
 loading and Quake C interpreter / recompiler have been removed.
 The primary development environment is a mac although other platforms should also work fine.
 
 [![Codacy Badge](https://app.codacy.com/project/badge/Grade/3734c1dd820b421e8b0a96899321a641)](https://app.codacy.com/gh/bigianb/RTCW-SP/dashboard?utm_source=gh&utm_medium=referral&utm_content=&utm_campaign=Badge_grade)
+
+## Summary of changes
+
+* Removed all code related to multi-player
+* Removed all DLL linkages
+* Removed all VM code
+* Converted C code to c++
+* Replaced hunk memory allocators with standard memory allocators
+* cmake build system
 
 ## GENERAL NOTES
 
@@ -25,9 +38,15 @@ Run the downloaded offline installer using
 [wine](https://gitlab.winehq.org/wine/wine/-/wikis/Download).
 I assume the steam version will work too but I have not tried.
 
-By defult this will install to `~/.wine/drive_c/GOG Games/Return to Castle Wolfenstein`
+By default, this will install to `~/.wine/drive_c/GOG Games/Return to Castle Wolfenstein`
 
 You can use shift+command+period to toggle showing hidden files in finder (.wine is a hidden directory)
+
+You need to pass the command line then as (obviously xxx would be your username):
+
+```
++set fs_basepath "/Users/xxx/.wine/drive_c/GOG Games/Return to Castle Wolfenstein"
+```
 
 ### Linux build
 

@@ -658,8 +658,7 @@ void G_RunClient( GameEntity *ent );
 // g_mem.c
 //
 void *G_Alloc( size_t size );
-void G_InitMemory( void );
-void Svcmd_GameMem_f( void );
+
 
 //
 // g_session.c

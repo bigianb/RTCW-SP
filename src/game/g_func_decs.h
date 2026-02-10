@@ -911,7 +911,7 @@ extern void AICast_DelayedSpawnCast ( GameEntity * ent , int castType ) ;
 extern void AIChar_AIScript_AlertEntity ( GameEntity * ent ) ;
 extern GameEntity * AICast_TravEntityForName ( GameEntity * startent , char * name ) ;
 extern GameEntity * AICast_FindEntityForName ( const char * name ) ;
-extern void AICast_Init ( void ) ;
+extern void AICast_Init () ;
 extern GameEntity * AICast_CreateCharacter ( GameEntity * ent , float * attributes , cast_weapon_info_t * weaponInfo , const char * castname , const char * model , const char * head , const char * sex , const char * color , const char * handicap ) ;
 extern void AICast_SetAASIndex ( cast_state_t * cs ) ;
 extern void AICast_CheckLevelAttributes ( cast_state_t * cs , GameEntity * ent , const char * * ppStr ) ;
@@ -965,8 +965,7 @@ extern weapon_t BG_FindClipForWeapon ( weapon_t weapon ) ;
 extern gitem_t * BG_FindItemForWeapon ( weapon_t weapon ) ;
 extern gitem_t * BG_FindItemForHoldable ( holdable_t pw ) ;
 extern gitem_t * BG_FindItemForPowerup ( powerup_t pw ) ;
-extern void Svcmd_GameMem_f ( void ) ;
-extern void G_InitMemory ( void ) ;
+
 extern void * G_Alloc ( size_t size ) ;
 extern void ClientCommand ( int clientNum ) ;
 extern void Cmd_SetSpawnPoint_f ( GameEntity * clent ) ;

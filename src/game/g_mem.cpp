@@ -26,41 +26,12 @@ If you have questions concerning this license or the applicable additional terms
 ===========================================================================
 */
 
-//
-// g_mem.c
-//
-
-
 #include "g_local.h"
 
-#define POOLSIZE    ( 4096 * 1024 )
-
-static char memoryPool[POOLSIZE];
-static int allocPoint;
 
 void *G_Alloc( size_t size ) {
-	char    *p;
-
-	if ( g_debugAlloc.integer ) {
-		Com_Printf( "G_Alloc of %i bytes (%i left)\n", size, POOLSIZE - allocPoint - ( ( size + 31 ) & ~31 ) );
-	}
-
-	if ( allocPoint + size > POOLSIZE ) {
-		Com_Error( ERR_DROP, "G_Alloc: failed on allocation of %u bytes\n", size );
-		return nullptr;
-	}
-
-	p = &memoryPool[allocPoint];
-
-	allocPoint += ( size + 31 ) & ~31;
-
-	return p;
+	return calloc(1, size);
 }
 
-void G_InitMemory( void ) {
-	allocPoint = 0;
-}
 
-void Svcmd_GameMem_f( void ) {
-	Com_Printf( "Game memory status: %i out of %i bytes allocated\n", allocPoint, POOLSIZE );
-}
+

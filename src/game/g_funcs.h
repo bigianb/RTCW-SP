@@ -950,8 +950,6 @@ If you have questions concerning this license or the applicable additional terms
 {"BG_FindItemForWeapon", (uint8_t *)BG_FindItemForWeapon},
 {"BG_FindItemForHoldable", (uint8_t *)BG_FindItemForHoldable},
 {"BG_FindItemForPowerup", (uint8_t *)BG_FindItemForPowerup},
-{"Svcmd_GameMem_f", (uint8_t *)Svcmd_GameMem_f},
-{"G_InitMemory", (uint8_t *)G_InitMemory},
 {"G_Alloc", (uint8_t *)G_Alloc},
 {"ClientCommand", (uint8_t *)ClientCommand},
 {"Cmd_SetSpawnPoint_f", (uint8_t *)Cmd_SetSpawnPoint_f},

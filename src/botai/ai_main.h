@@ -201,7 +201,7 @@ void BotEntityInfo( int entnum, aas_entityinfo_t *info );
 
 // Ridah, defines for AI Cast system
 int AICast_ShutdownClient( int client );
-void AICast_Init( void );
+void AICast_Init();
 void AICast_StartFrame( int time );
 // done.
 

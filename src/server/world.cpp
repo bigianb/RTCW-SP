@@ -2,7 +2,7 @@
 
 World::Sector* World::createSector(int depth, const idVec3& min, const idVec3& max) {
     // Implementation for creating a sector in the world
-    Sector* newSector = new Sector();
+    auto* newSector = new Sector();
     sectors.push_back(newSector);
 
     if (depth == areaDepth){

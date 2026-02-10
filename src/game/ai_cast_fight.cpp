@@ -836,14 +836,10 @@ bool AICast_CheckAttack( cast_state_t *cs, int enemy, bool allowHitWorld ) {
 	}
 }
 
-/*
-==================
-AICast_UpdateBattleInventory
-==================
-*/
-void AICast_UpdateBattleInventory( cast_state_t *cs, int enemy ) {
+
+void AICast_UpdateBattleInventory( cast_state_t *cs, int enemy )
+{
 	vec3_t dir;
-	int i;
 
 	if ( enemy >= 0 ) {
 		VectorSubtract( cs->vislist[cs->enemyNum].visible_pos, cs->bs->origin, dir );
@@ -852,7 +848,7 @@ void AICast_UpdateBattleInventory( cast_state_t *cs, int enemy ) {
 	}
 
 	// stock up ammo that should never run out
-	for ( i = 0; i < WP_NUM_WEAPONS; i++ ) {
+	for ( int i = 0; i < WP_NUM_WEAPONS; i++ ) {
 		if ( ( i >= WP_MONSTER_ATTACK1 && i <= WP_MONSTER_ATTACK3 ) || ( g_entities[cs->bs->entitynum].client->ps.ammo[ BG_FindAmmoForWeapon( (weapon_t)i )] > 800 ) ) {
 			Add_Ammo( &g_entities[cs->entityNum], i, 999, false );
 		}
@@ -862,34 +858,22 @@ void AICast_UpdateBattleInventory( cast_state_t *cs, int enemy ) {
 
 }
 
-/*
-==============
-AICast_WeaponWantScale
-==============
-*/
 float AICast_WeaponWantScale( cast_state_t *cs, int weapon ) {
 	switch ( weapon ) {
 	case WP_GAUNTLET:
 		return 0.1;
 	case WP_FLAMETHROWER:
-		return 2.0;     // if we have this up close, definately use it
+		return 2.0;     // if we have this up close, definitely use it
 	default:
 		return 1.0;
 	}
 }
 
-/*
-==============
-AICast_GotEnoughAmmoForWeapon
-==============
-*/
-bool AICast_GotEnoughAmmoForWeapon( cast_state_t *cs, int weapon ) {
-	GameEntity *ent;
-	int ammo, clip;
-
-	ent = &g_entities[cs->entityNum];
-	ammo = ent->client->ps.ammo[BG_FindAmmoForWeapon( (weapon_t)weapon )];
-	clip = ent->client->ps.ammoclip[BG_FindClipForWeapon( (weapon_t)weapon )];
+bool AICast_GotEnoughAmmoForWeapon( cast_state_t *cs, int weapon )
+{
+	GameEntity *ent = &g_entities[cs->entityNum];
+	int ammo = ent->client->ps.ammo[BG_FindAmmoForWeapon((weapon_t) weapon)];
+	int clip = ent->client->ps.ammoclip[BG_FindClipForWeapon((weapon_t) weapon)];
 
 	// TODO!! check some kind of weapon list that holds the minimum requirements for each weapon
 	switch ( weapon ) {
@@ -913,17 +897,17 @@ AICast_WeaponUsable
 ==============
 */
 bool AICast_WeaponUsable( cast_state_t *cs, int weaponNum ) {
-	int delay, oldweap, hitclient;
+	int hitclient;
 	float dist = -1;
-	GameEntity *ent, *grenade;
+	GameEntity *grenade;
 
 	if ( cs->enemyNum >= 0 ) {
 		dist = Distance( cs->bs->origin, g_entities[cs->enemyNum].shared.s.pos.trBase );
 	}
 
-	oldweap = cs->weaponNum;
-	ent = &g_entities[cs->entityNum];
-	delay = -1;
+	int oldweap = cs->weaponNum;
+	GameEntity *ent = &g_entities[cs->entityNum];
+	int delay = -1;
 
 	// just return false if this weapon isn't ready for use
 	switch ( weaponNum ) {
@@ -1103,20 +1087,13 @@ bool AICast_WeaponUsable( cast_state_t *cs, int weaponNum ) {
 	return ( !cs->weaponFireTimes[weaponNum] || ( cs->weaponFireTimes[weaponNum] < level.time - delay ) );
 }
 
-/*
-==============
-AICast_ChooseWeapon
-==============
-*/
 void AICast_ChooseWeapon( cast_state_t *cs, bool battleFunc ) {
-	int i;
-	int *ammo;
-	float wantScale, bestWantScale, enemyDist = 0;
-	bool inRange = false, thisInRange, gotOne;
+	float enemyDist = 0;
+	bool inRange = false;
 
 	BotAI_GetClientState( cs->entityNum, &( cs->bs->cur_ps ) );
-	ammo = cs->bs->cur_ps.ammo;
-	bestWantScale = 0.0;
+	int *ammo = cs->bs->cur_ps.ammo;
+	float bestWantScale = 0.0;
 
 	if ( cs->enemyNum >= 0 ) {
 		enemyDist = VectorDistance( g_entities[cs->enemyNum].shared.s.pos.trBase, cs->bs->origin );
@@ -1131,10 +1108,6 @@ void AICast_ChooseWeapon( cast_state_t *cs, bool battleFunc ) {
 		return;
 	}
 
-// disabled this, makes grenade guy keep trying to throw a grenade he doesn't have
-//	if (cs->bs->cur_ps.weaponDelay || cs->bs->cur_ps.weaponTime)
-//		return;
-
 	if ( cs->weaponNum && ( cs->castScriptStatus.scriptFlags & SFL_NOCHANGEWEAPON ) ) {
 		if ( AICast_GotEnoughAmmoForWeapon( cs, cs->weaponNum ) && AICast_WeaponUsable( cs, cs->weaponNum ) ) {
 			return;
@@ -1147,10 +1120,10 @@ void AICast_ChooseWeapon( cast_state_t *cs, bool battleFunc ) {
 		}
 	}
 
-	gotOne = false;
+	bool gotOne = false;
 
 	// choose the best weapon to fight with
-	for ( i = 0; i < WP_NUM_WEAPONS; i++ ) {
+	for ( int i = 0; i < WP_NUM_WEAPONS; i++ ) {
 		if ( i == WP_GRENADE_LAUNCHER || i == WP_GRENADE_PINEAPPLE ) {
 			continue;   // never choose grenades at will, only when going into grenade flush mode
 		}
@@ -1173,8 +1146,8 @@ void AICast_ChooseWeapon( cast_state_t *cs, bool battleFunc ) {
 				continue;
 			}
 			// get the wantScale for this weapon given the current circumstances (0.0 - 1.0)
-			wantScale = AICast_WeaponWantScale( cs, i );
-			thisInRange = false;
+			float wantScale = AICast_WeaponWantScale(cs, i);
+			bool thisInRange = false;
 			// in range?
 			if ( enemyDist && AICast_WeaponRange( cs, i ) > enemyDist ) {
 				thisInRange = true;
@@ -1191,10 +1164,6 @@ void AICast_ChooseWeapon( cast_state_t *cs, bool battleFunc ) {
 	}
 
 	if ( !gotOne && ( cs->weaponNum < WP_MONSTER_ATTACK1 || cs->weaponNum > WP_MONSTER_ATTACK3 ) ) {
-		if ( g_cheats.integer && ( !cs->bs->cur_ps.weapons[0] && !cs->bs->cur_ps.weapons[1] ) ) {
-// (SA) the print statement is a bit much.  lots of actors have no ammo...
-//			Com_Printf( "AI: %s has no ammo\n", g_entities[cs->entityNum].aiName);
-		}
 		// select no weapon
 		cs->weaponNum = WP_NONE;
 		// if we have no weapons at all, we dont need to switch
@@ -1213,15 +1182,10 @@ AICast_Aggression
 ==================
 */
 float AICast_Aggression( cast_state_t *cs ) {
-	bot_state_t *bs;
-	float scale, dist;
-	int painTime;
-	int     *ammo;
-
-	bs = cs->bs;
+	bot_state_t *bs = cs->bs;
 
 	// if we are out of ammo, we should never chase
-	ammo = cs->bs->cur_ps.ammo;
+	int *ammo = cs->bs->cur_ps.ammo;
 	if ( g_entities[cs->entityNum].aiTeam != AITEAM_MONSTER ) {
 		if ( !AICast_GotEnoughAmmoForWeapon( cs, cs->weaponNum ) ) {
 			return 0;
@@ -1229,7 +1193,7 @@ float AICast_Aggression( cast_state_t *cs ) {
 	}
 
 	// start fully willing to attack
-	scale = 1.0;
+	float scale = 1.0;
 
 	//if the enemy is located way higher
 	//if (cs->enemyHeight > 200)
@@ -1242,7 +1206,7 @@ float AICast_Aggression( cast_state_t *cs ) {
 
 	// if they've recently hit us, factor that in, so we get scared off by being
 	// damaged, but later return once we've regained our confidence
-	painTime = 15000 - (int)( 10000.0 * cs->attributes[AGGRESSION] * cs->attributes[AGGRESSION] );
+	int painTime = 15000 - (int) (10000.0 * cs->attributes[AGGRESSION] * cs->attributes[AGGRESSION]);
 	if ( cs->lastPain + painTime > level.time ) {
 		scale -= 3 * ( 1.0 - cs->attributes[AGGRESSION] )   * ( (float)( cs->lastPain + painTime - level.time ) / (float)painTime );
 	}
@@ -1255,7 +1219,7 @@ float AICast_Aggression( cast_state_t *cs ) {
 
 	// gain in confidence the further we are away
 	if ( cs->enemyNum >= 0 ) {
-		dist = Distance( cs->bs->origin, g_entities[cs->enemyNum].shared.s.pos.trBase );
+		float dist = Distance(cs->bs->origin, g_entities[cs->enemyNum].shared.s.pos.trBase);
 		//if (dist > 512) {
 		scale += ( dist - 800.0 ) / ( 8000.0 );
 		//}
@@ -1271,7 +1235,7 @@ float AICast_Aggression( cast_state_t *cs ) {
 	// this should increase the chances of an ambush attack
 	if ( cs->entityNum >= 0 && ( ( level.time + 2000 * g_entities[cs->entityNum].aiTeam ) % ( 4000 + 500 * g_entities[cs->entityNum].aiTeam ) ) > 4000 ) {
 		if ( cs->vislist[cs->entityNum].visible_timestamp > level.time - 10000 ) {
-			scale += 0.3 * (float)( level.time - cs->vislist[cs->entityNum].visible_timestamp ) / 10000.0;
+			scale += 0.3f * (float)( level.time - cs->vislist[cs->entityNum].visible_timestamp ) / 10000.0;
 		}
 	}
 
@@ -1282,14 +1246,8 @@ float AICast_Aggression( cast_state_t *cs ) {
 	return scale;
 }
 
-/*
-==================
-AICast_WantsToChase
-==================
-*/
 int AICast_WantsToChase( cast_state_t *cs ) {
-	int     *ammo;
-	ammo = cs->bs->cur_ps.ammo;
+
 	if ( g_entities[cs->entityNum].aiTeam != AITEAM_MONSTER ) {
 		if ( !AICast_GotEnoughAmmoForWeapon( cs, cs->weaponNum ) ) {
 			return false;
@@ -1304,16 +1262,9 @@ int AICast_WantsToChase( cast_state_t *cs ) {
 	return false;
 }
 
-/*
-==================
-AICast_WantsToTakeCover
-==================
-*/
 int AICast_WantsToTakeCover( cast_state_t *cs, bool attacking ) {
 	float aggrScale;
-	int     *ammo;
 
-	ammo = cs->bs->cur_ps.ammo;
 	if ( g_entities[cs->entityNum].aiTeam != AITEAM_MONSTER ) {
 		if ( !cs->weaponNum ) {
 			return true;
@@ -1360,32 +1311,26 @@ int AICast_WantsToTakeCover( cast_state_t *cs, bool attacking ) {
 	return false;
 }
 
-/*
-==================
-AICast_CombatMove
-==================
-*/
+
 bot_moveresult_t AICast_CombatMove( cast_state_t *cs, int tfl ) {
-	bot_state_t *bs;
-	float attack_skill, croucher, dist;
 	vec3_t forward, backward; //, up = {0, 0, 1};
 	bot_moveresult_t moveresult;
-	bot_goal_t goal;
+	bot_goal_t goal{};
 
-	bs = cs->bs;
+	bot_state_t *bs = cs->bs;
 
 	//get the enemy entity info
 	memset( &moveresult, 0, sizeof( bot_moveresult_t ) );
 	//
-	attack_skill = cs->attributes[ATTACK_SKILL];
-	croucher = ( cs->attributes[ATTACK_CROUCH] > 0.1 );
+	float attack_skill = cs->attributes[ATTACK_SKILL];
+	float croucher = (cs->attributes[ATTACK_CROUCH] > 0.1);
 
 	//initialize the movement state
 	BotSetupForMovement( bs );
 	//direction towards the enemy
 	VectorSubtract( cs->vislist[cs->enemyNum].visible_pos, bs->origin, forward );
 	//the distance towards the enemy
-	dist = VectorNormalize( forward );
+	float dist = VectorNormalize(forward);
 	VectorNegate( forward, backward );
 	//
 	// do we have somewhere we are trying to get to?
@@ -1480,12 +1425,9 @@ AICast_AimAtEnemy
 ==================
 */
 bool AICast_AimAtEnemy( cast_state_t *cs ) {
-	bot_state_t *bs;
-	float aim_skill, aim_accuracy;
 	vec3_t dir, bestorigin, start, enemyOrg;
-//	vec3_t mins = {-4,-4,-4}, maxs = {4, 4, 4};
+
 	float dist;
-	cast_visibility_t *vis;
 
 	//
 	if ( cs->castScriptStatus.scriptNoAttackTime >= ( level.time + 500 ) ) {
@@ -1496,15 +1438,15 @@ bool AICast_AimAtEnemy( cast_state_t *cs ) {
 		return false;
 	}
 	//
-	bs = cs->bs;
+	bot_state_t *bs = cs->bs;
 	//
 	//if the bot has no enemy
 	if ( cs->enemyNum < 0 ) {
 		return false;
 	}
 	//
-	aim_skill = cs->attributes[AIM_SKILL];
-	aim_accuracy = AICast_GetAccuracy( cs->entityNum );
+	float aim_skill = cs->attributes[AIM_SKILL];
+	float aim_accuracy = AICast_GetAccuracy(cs->entityNum);
 	if ( aim_accuracy <= 0 ) {
 		aim_accuracy = 0.0001;
 	}
@@ -1518,7 +1460,7 @@ bool AICast_AimAtEnemy( cast_state_t *cs ) {
 	//get the weapon information
 
 	//get the enemy entity information
-	vis = &cs->vislist[cs->enemyNum];
+	cast_visibility_t *vis = &cs->vislist[cs->enemyNum];
 	if ( vis->visible_timestamp < vis->lastcheck_timestamp ) {
 		// use our last visible position of them
 		if ( vis->real_visible_timestamp == vis->lastcheck_timestamp ) {
@@ -1580,11 +1522,6 @@ bool AICast_AimAtEnemy( cast_state_t *cs ) {
 	return true;   // do real aim checking after we've moved the angles
 }
 
-/*
-==================
-AICast_CanMoveWhileFiringWeapon
-==================
-*/
 bool AICast_CanMoveWhileFiringWeapon( int weaponnum ) {
 	switch ( weaponnum ) {
 	case WP_MAUSER:
@@ -1599,11 +1536,6 @@ bool AICast_CanMoveWhileFiringWeapon( int weaponnum ) {
 	}
 }
 
-/*
-================
-AICast_RandomTriggerRelease
-================
-*/
 bool AICast_RandomTriggerRelease( cast_state_t *cs ) {
 	// some characters override all weapon settings for trigger release
 	switch ( cs->aiCharacter ) {
@@ -1727,11 +1659,6 @@ void AICast_ProcessAttack( cast_state_t *cs ) {
 
 }
 
-/*
-==============
-AICast_GetTakeCoverPos
-==============
-*/
 bool AICast_GetTakeCoverPos( cast_state_t *cs, int enemyNum, vec3_t enemyPos, vec3_t returnPos ) {
 	cs->crouchHideFlag = false;
 	//
@@ -1785,22 +1712,15 @@ bool AICast_GetTakeCoverPos( cast_state_t *cs, int enemyNum, vec3_t enemyPos, ve
 	return false;
 }
 
-/*
-==============
-AICast_AIDamageOK
-==============
-*/
 bool AICast_AIDamageOK( cast_state_t *cs, cast_state_t *ocs ) {
 	if ( cs->castScriptStatus.scriptFlags & SFL_NOAIDAMAGE ) {
 		return false;
-	} else {
-
-		if ( cs->aiCharacter == AICHAR_LOPER && ocs->aiCharacter == AICHAR_LOPER ) {
-			return false;
-		}
-
-		return true;
 	}
+	if ( cs->aiCharacter == AICHAR_LOPER && ocs->aiCharacter == AICHAR_LOPER ) {
+		return false;
+	}
+
+	return true;
 }
 
 /*
@@ -1831,11 +1751,6 @@ void AICast_RecordWeaponFire( GameEntity *ent ) {
 	}
 }
 
-/*
-===============
-AICast_GetWeaponSoundRange
-===============
-*/
 float AICast_GetWeaponSoundRange( int weapon ) {
 	// NOTE: made this a case, that way changing the ordering of weapons won't cause problems, as it would
 	// with an array lookup

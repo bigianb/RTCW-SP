@@ -26,24 +26,12 @@ If you have questions concerning this license or the applicable additional terms
 ===========================================================================
 */
 
-//===========================================================================
-//
-// Name:			ai_cast.c
-// Function:		Wolfenstein AI Character Routines
-// Programmer:		Ridah
-// Tab Size:		4 (real tabs)
-//===========================================================================
-
 #include "../idlib/math/Math.h"
 #include "../game/g_local.h"
 #include "../game/q_shared.h"
-#include "../game/botlib.h"      //bot lib interface
+#include "../game/botlib.h"
 #include "../game/be_aas.h"
-#include "../game/be_ea.h"
 #include "../game/be_ai_gen.h"
-#include "../game/be_ai_goal.h"
-#include "../game/be_ai_move.h"
-#include "../botai/botai.h"          //bot ai interface
 #include "../qcommon/qcommon.h"
 #include "ai_cast.h"
 #include "../server/server.h"
@@ -57,17 +45,17 @@ typically within the ai_cast*.c files.
 Some modifications to the botlib and botai are to be expected, the extent of those
 changes is currently unknown.
 
-Currently, this seems to the the best approach, since if we're going to
+Currently, this seems to the best approach, since if we're going to
 use the AAS for navigation, we want to avoid having to re-write the movement
 routines which are heavily associated with the AAS information.
 */
 
 //cast states (allocated at run-time)
-cast_state_t    *caststates;
+cast_state_t    *caststates = nullptr;
 //number of characters
-int numcast;
+int numcast = 0;
 //
-bool saveGamePending;
+bool saveGamePending = false;
 //
 // minimum time between thinks (maximum is double this)
 int aicast_thinktime;
@@ -111,11 +99,6 @@ const char *castAttributeStrings[] =
 	nullptr
 };
 
-/*
-============
-AICast_Printf
-============
-*/
 void AICast_Printf( int type, const char *fmt, ... ) {
 	char str[2048];
 	va_list ap;
@@ -138,40 +121,26 @@ void AICast_Printf( int type, const char *fmt, ... ) {
 	}
 }
 
-/*
-============
-AICast_GetCastState
-============
-*/
 cast_state_t *AICast_GetCastState( int entitynum ) {
 	if ( entitynum < 0 || entitynum > level.maxclients ) {
 		return nullptr;
 	}
-	//
 	return &( caststates[ entitynum ] );
 }
 
-/*
-==============
-AICast_SetupClient
-==============
-*/
-int AICast_SetupClient( int client ) {
-	cast_state_t    *cs;
-	bot_state_t     *bs;
-
+int AICast_SetupClient( int client )
+{
 	if ( !botstates[client] ) {
-		botstates[client] = (bot_state_t *)G_Alloc( sizeof( bot_state_t ) );
-		memset( botstates[client], 0, sizeof( bot_state_t ) );
+		botstates[client] = static_cast<bot_state_t *>(calloc(1, sizeof(bot_state_t)));
 	}
-	bs = botstates[client];
+	bot_state_t *bs = botstates[client];
 
 	if ( bs->inuse ) {
 		BotAI_Print( PRT_FATAL, "client %d already setup\n", client );
 		return false;
 	}
 
-	cs = AICast_GetCastState( client );
+	cast_state_t *cs = AICast_GetCastState(client);
 	cs->bs = bs;
 
 	//allocate a goal state
@@ -187,16 +156,11 @@ int AICast_SetupClient( int client ) {
 	return true;
 }
 
-/*
-==============
-AICast_ShutdownClient
-==============
-*/
-int AICast_ShutdownClient( int client ) {
-	cast_state_t    *cs;
-	bot_state_t *bs;
+int AICast_ShutdownClient( int client )
+{
+	bot_state_t *bs = botstates[client];
 
-	if ( !( bs = botstates[client] ) ) {
+	if ( !bs ) {
 		return BLERR_NOERROR;
 	}
 	if ( !bs->inuse ) {
@@ -204,7 +168,7 @@ int AICast_ShutdownClient( int client ) {
 		return BLERR_AICLIENTALREADYSHUTDOWN;
 	}
 
-	cs = AICast_GetCastState( client );
+	cast_state_t *cs = AICast_GetCastState(client);
 	//
 	memset( cs, 0, sizeof( cast_state_t ) );
 	numcast--;
@@ -225,8 +189,6 @@ int AICast_ShutdownClient( int client ) {
 }
 
 GameEntity *AICast_AddCastToGame( GameEntity *ent, const char *castname, const char *model, const char *head, const char *sex, const char *color, const char *handicap ) {
-	int clientNum;
-	GameEntity *bot;
 	char userinfo[MAX_INFO_STRING];
 	UserCmd cmd;
 
@@ -242,12 +204,12 @@ GameEntity *AICast_AddCastToGame( GameEntity *ent, const char *castname, const c
 	Info_SetValueForKey( userinfo, "color", color );
 
 	// have the server allocate a client slot
-	clientNum = SV_BotAllocateClient();
+	int clientNum = SV_BotAllocateClient();
 	if ( clientNum == -1 ) {
 		Com_Printf( S_COLOR_RED "BotAllocateClient failed\n" );
 		return nullptr;
 	}
-	bot = &g_entities[ clientNum ];
+	GameEntity *bot = &g_entities[clientNum];
 	bot->shared.r.svFlags |= SVF_BOT;
 	bot->shared.r.svFlags |= SVF_CASTAI;       // flag it for special Cast AI behaviour
 
@@ -255,10 +217,7 @@ GameEntity *AICast_AddCastToGame( GameEntity *ent, const char *castname, const c
 	SV_SetUserinfo( bot->shared.s.number, userinfo );
 
 	// have it connect to the game as a normal client
-//----(SA) ClientConnect requires a third 'isbot' parameter.  setting to false and noting
 	ClientConnect( bot->shared.s.number, true, false );
-//----(SA) end
-
 	// copy the origin/angles across
 	VectorCopy( ent->shared.s.origin, bot->shared.s.origin );
 	VectorCopy( ent->shared.s.angles, bot->shared.s.angles );
@@ -278,7 +237,7 @@ void AICast_CheckLevelAttributes( cast_state_t *cs, GameEntity *ent, const char 
 		return;
 	}
 
-	while ( 1 ) {
+	while ( true ) {
 		const char* s = COM_Parse( ppStr );
 		if ( !s[0] || !Q_strncmp( s, "}", 2 ) ) {    // end of attributes
 			break;
@@ -299,11 +258,6 @@ void AICast_SetLevelAttribute( cast_state_t *cs, const char *attribute, float va
 	}
 }
 
-/*
-============
-AICast_SetAASIndex
-============
-*/
 void AICast_SetAASIndex( cast_state_t *cs ) {
 	if ( aiDefaults[cs->aiCharacter].bboxType == BBOX_SMALL ) {
 		cs->aasWorldIndex = AASWORLD_STANDARD;
@@ -329,10 +283,6 @@ AICast_CreateCharacter
 ============
 */
 GameEntity *AICast_CreateCharacter( GameEntity *ent, float *attributes, cast_weapon_info_t *weaponInfo, const char *castname, const char *model, const char *head, const char *sex, const char *color, const char *handicap ) {
-	GameEntity       *newent;
-	GameClient       *client;
-	cast_state_t    *cs;
-	char            **ppStr;
 	int j;
 
 	// are bots enabled?
@@ -351,22 +301,22 @@ GameEntity *AICast_CreateCharacter( GameEntity *ent, float *attributes, cast_wea
 	// add it to the list (only do this if everything else passed)
 	//
 
-	newent = AICast_AddCastToGame( ent, castname, model, head, sex, color, handicap );
+	GameEntity *newent = AICast_AddCastToGame(ent, castname, model, head, sex, color, handicap);
 
 	if ( !newent ) {
 		return nullptr;
 	}
-	client = newent->client;
+	GameClient *client = newent->client;
 	//
 	// setup the character..
 	//
-	cs = AICast_GetCastState( newent->shared.s.number );
+	cast_state_t *cs = AICast_GetCastState(newent->shared.s.number);
 	//
 	cs->aiCharacter = ent->aiCharacter;
 	client->ps.aiChar = ent->aiCharacter;
 	// setup the attributes
 	memcpy( cs->attributes, attributes, sizeof( cs->attributes ) );
-	ppStr = &ent->aiAttributes;
+	char **ppStr = &ent->aiAttributes;
 	AICast_CheckLevelAttributes( cs, ent, (const char **)ppStr );
 	//
 	AICast_SetAASIndex( cs );
@@ -423,12 +373,9 @@ GameEntity *AICast_CreateCharacter( GameEntity *ent, float *attributes, cast_wea
 	//update the attack inventory values
 	AICast_UpdateBattleInventory( cs, cs->enemyNum );
 
-//----(SA)	make sure all clips are loaded so we don't hear everyone loading up
-//			(we don't want to do this inside AICast_UpdateBattleInventory(), only on spawn or giveweapon)
 	for ( j = 0; j < WP_NUM_WEAPONS; j++ ) {
 		Fill_Clip( &client->ps, j );
 	}
-//----(SA)	end
 
 	// select a weapon
 	AICast_ChooseWeapon( cs, false );
@@ -437,9 +384,9 @@ GameEntity *AICast_CreateCharacter( GameEntity *ent, float *attributes, cast_wea
 	// set the default function, overwrite if necessary
 	cs->aiFlags |= AIFL_JUST_SPAWNED;
 	AIFunc_DefaultStart( cs );
-	//
+
 	numcast++;
-	//
+
 	return newent;
 }
 
@@ -452,9 +399,9 @@ AICast_Init
 */
 static int numSpawningCast;
 
-void AICast_Init( void ) {
+void AICast_Init()
+{
 	vmCvar_t cvar;
-	int i;
 
 	numcast = 0;
 	numSpawningCast = 0;
@@ -477,22 +424,18 @@ void AICast_Init( void ) {
 	aicast_maxthink = Cvar_VariableIntegerValue( "aicast_maxthink" );
 
 	aicast_maxclients = Cvar_VariableIntegerValue( "sv_maxclients" );
-
 	aicast_skillscale = (float)Cvar_VariableIntegerValue( "g_gameSkill" ) / (float)GSKILL_MAX;
 
-	caststates = (cast_state_t *)G_Alloc( aicast_maxclients * sizeof( cast_state_t ) );
-	memset( caststates, 0, aicast_maxclients * sizeof( cast_state_t ) );
-	for ( i = 0; i < MAX_CLIENTS; i++ ) {
+	if (caststates) {
+		free(caststates);
+	}
+	caststates = static_cast<cast_state_t*>(calloc(aicast_maxclients, sizeof(cast_state_t)));
+	for ( int i = 0; i < aicast_maxclients; i++ ) {
 		caststates[i].entityNum = i;
 	}
 
 }
 
-/*
-===============
-AICast_FindEntityForName
-===============
-*/
 GameEntity *AICast_FindEntityForName( const char *name ) {
 	GameEntity *trav;
 	int i;
@@ -515,11 +458,6 @@ GameEntity *AICast_FindEntityForName( const char *name ) {
 	return nullptr;
 }
 
-/*
-===============
-AICast_TravEntityForName
-===============
-*/
 GameEntity *AICast_TravEntityForName( GameEntity *startent, char *name ) {
 	GameEntity *trav;
 
@@ -606,12 +544,6 @@ void AIChar_AIScript_AlertEntity( GameEntity *ent ) {
 	trap_BotUserCommand( cs->bs->client, &( cs->lastucmd ) );
 }
 
-
-/*
-================
-AICast_DelayedSpawnCast
-================
-*/
 void AICast_DelayedSpawnCast( GameEntity *ent, int castType )
 {
 	// ............................
@@ -654,12 +586,7 @@ void AICast_DelayedSpawnCast( GameEntity *ent, int castType )
 	numSpawningCast++;
 }
 
-/*
-==================
-AICast_CastScriptThink
-==================
-*/
-void AICast_CastScriptThink( void )
+void AICast_CastScriptThink()
 {
 	GameEntity *ent = g_entities;
 	cast_state_t *cs = caststates;
@@ -678,11 +605,6 @@ void AICast_CastScriptThink( void )
 	}
 }
 
-/*
-==================
-AICast_EnableRenderingThink
-==================
-*/
 void AICast_EnableRenderingThink( GameEntity *ent ) {
 	Cvar_Set( "cg_norender", "0" );
 	G_FreeEntity( ent );
@@ -697,7 +619,7 @@ AICast_CheckLoadGame
   we must wait for all AI to spawn themselves, and a real client to connect
 ==================
 */
-void AICast_CheckLoadGame( void ) {
+void AICast_CheckLoadGame(  ) {
 	char loading[4];
 	GameEntity *ent = nullptr;
 	bool ready;
@@ -787,11 +709,6 @@ void AICast_CheckLoadGame( void ) {
 	}
 }
 
-/*
-===============
-AICast_SolidsInBBox
-===============
-*/
 bool AICast_SolidsInBBox( vec3_t pos, vec3_t mins, vec3_t maxs, int entnum, int mask ) {
 	trace_t tr;
 
@@ -807,15 +724,8 @@ bool AICast_SolidsInBBox( vec3_t pos, vec3_t mins, vec3_t maxs, int entnum, int 
 	}
 }
 
-/*
-===============
-AICast_Activate
-===============
-*/
 void AICast_Activate( int activatorNum, int entNum ) {
-	cast_state_t *cs;
-
-	cs = AICast_GetCastState( entNum );
+	cast_state_t *cs = AICast_GetCastState(entNum);
 	if ( cs->activate ) {
 		cs->activate( entNum, activatorNum );
 	}
@@ -823,35 +733,22 @@ void AICast_Activate( int activatorNum, int entNum ) {
 	AICast_Printf( AICAST_PRT_DEBUG, "activated entity # %i\n", entNum );
 }
 
-/*
-================
-AICast_NoFlameDamage
-================
-*/
-bool AICast_NoFlameDamage( int entNum ) {
-	cast_state_t *cs;
 
+bool AICast_NoFlameDamage( int entNum ) {
 	if ( entNum >= MAX_CLIENTS ) {
 		return false;
 	}
 
-	cs = AICast_GetCastState( entNum );
+	const cast_state_t *cs = AICast_GetCastState(entNum);
 	return ( ( cs->aiFlags & AIFL_NO_FLAME_DAMAGE ) != 0 );
 }
 
-/*
-================
-AICast_SetFlameDamage
-================
-*/
 void AICast_SetFlameDamage( int entNum, bool status ) {
-	cast_state_t *cs;
-
 	if ( entNum >= MAX_CLIENTS ) {
 		return;
 	}
 
-	cs = AICast_GetCastState( entNum );
+	cast_state_t *cs = AICast_GetCastState(entNum);
 
 	if ( status ) {
 		cs->aiFlags |= AIFL_NO_FLAME_DAMAGE;
@@ -872,22 +769,12 @@ void G_SetAASBlockingEntity( GameEntity *ent, bool blocking ) {
 	trap_AAS_SetAASBlockingEntity( ent->shared.r.absmin, ent->shared.r.absmax, blocking );
 }
 
-/*
-===============
-AICast_AdjustIdealYawForMover
-===============
-*/
 void AICast_AdjustIdealYawForMover( int entnum, float yaw ) {
 	cast_state_t *cs = AICast_GetCastState( entnum );
 	//
 	cs->ideal_viewangles[YAW] += yaw;
 }
 
-/*
-===============
-AICast_AgePlayTime
-===============
-*/
 void AICast_AgePlayTime( int entnum ) {
 	cast_state_t *cs = AICast_GetCastState( entnum );
 	//
@@ -912,36 +799,20 @@ void AICast_AgePlayTime( int entnum ) {
 	}
 }
 
-/*
-===============
-AICast_NoReload
-===============
-*/
 int AICast_NoReload( int entnum ) {
 	cast_state_t *cs = AICast_GetCastState( entnum );
 	//
-	return ( ( cs->aiFlags & AIFL_NO_RELOAD ) != 0 );
+	return ( cs->aiFlags & AIFL_NO_RELOAD ) != 0 ;
 }
 
-
-/*
-==============
-AICast_PlayTime
-==============
-*/
 int AICast_PlayTime( int entnum ) {
 	cast_state_t *cs = AICast_GetCastState( entnum );
-	return ( cs->totalPlayTime );
+	return cs->totalPlayTime;
 }
 
-/*
-==============
-AICast_NumAttempts
-==============
-*/
 int AICast_NumAttempts( int entnum ) {
-	cast_state_t *cs = AICast_GetCastState( entnum );
-	return ( cs->attempts );
+	const cast_state_t *cs = AICast_GetCastState( entnum );
+	return  cs->attempts;
 }
 
 void AICast_RegisterPain( int entnum ) {

@@ -385,18 +385,17 @@ typedef struct cast_state_s
 	cast_visibility_t vislist[MAX_CLIENTS];         // array of all other client entities, allocated at level start-up
 	int weaponFireTimes[MAX_WEAPONS];
 
-	const char    *( *aifunc )( struct cast_state_s *cs );            //current AI function
-	const char    *( *oldAifunc )( struct cast_state_s *cs );         // just so we can restore the last aiFunc if required
+	const char    *( *aifunc )(cast_state_s *cs );            //current AI function
+	const char    *( *oldAifunc )(  cast_state_s *cs );         // just so we can restore the last aiFunc if required
 
-	const char    *( *aifuncAttack1 )( struct cast_state_s *cs );     //use this battle aifunc for monster_attack1
-	const char    *( *aifuncAttack2 )( struct cast_state_s *cs );     //use this battle aifunc for monster_attack2
-	const char    *( *aifuncAttack3 )( struct cast_state_s *cs );     //use this battle aifunc for monster_attack2
+	const char    *( *aifuncAttack1 )(  cast_state_s *cs );     //use this battle aifunc for monster_attack1
+	const char    *( *aifuncAttack2 )(  cast_state_s *cs );     //use this battle aifunc for monster_attack2
+	const char    *( *aifuncAttack3 )(  cast_state_s *cs );     //use this battle aifunc for monster_attack2
 
 	void ( *painfunc )( GameEntity *ent, GameEntity *attacker, int damage, vec3_t point );
-	void ( *deathfunc )( GameEntity *ent, GameEntity *attacker, int damage, int mod ); //----(SA)	added mod
+	void ( *deathfunc )( GameEntity *ent, GameEntity *attacker, int damage, int mod );
 	void ( *sightfunc )( GameEntity *ent, GameEntity *other, int lastSight );
 
-	//int		(*getDeathAnim)(GameEntity *ent, GameEntity *attacker, int damage);
 	void ( *sightEnemy )( GameEntity *ent, GameEntity *other );
 	void ( *sightFriend )( GameEntity *ent, GameEntity *other );
 
@@ -617,7 +616,7 @@ extern vmCvar_t aicast_scripts;
 void    AIChar_SetBBox( GameEntity *ent, cast_state_t *cs, bool useHeadTag );
 void    AICast_Printf( int type, const char *fmt, ... );
 GameEntity *AICast_CreateCharacter( GameEntity *ent, float *attributes, cast_weapon_info_t *weaponInfo, const char *castname, const char *model, const char *head, const char *sex, const char *color, const char *handicap );
-void    AICast_Init( void );
+void    AICast_Init();
 void    AICast_DelayedSpawnCast( GameEntity *ent, int castType );
 bool AICast_SolidsInBBox( vec3_t pos, vec3_t mins, vec3_t maxs, int entnum, int mask );
 void    AICast_CheckLevelAttributes( cast_state_t *cs, GameEntity *ent, const char **ppStr );

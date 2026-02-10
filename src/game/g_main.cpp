@@ -48,17 +48,11 @@ typedef struct {
 GameEntity g_entities[MAX_GENTITIES];
 GameClient g_clients[MAX_CLIENTS];
 
-GameEntity       *g_camEnt = nullptr;   //----(SA)	script camera
+GameEntity       *g_camEnt = nullptr;
 
-// Rafael gameskill
 extern int bg_pmove_gameskill_integer;
-// done
-
-// Rafael gameskill
 vmCvar_t g_gameskill;
-// done
-
-vmCvar_t g_reloading;       //----(SA)	added
+vmCvar_t g_reloading;
 
 vmCvar_t g_dmflags;
 vmCvar_t g_fraglimit;
@@ -219,20 +213,7 @@ cvarTable_t gameCvarTable[] = {
 	{&ai_scriptName, "ai_scriptName", "", CVAR_ROM, 0, false},
 };
 
-static int gameCvarTableSize = sizeof( gameCvarTable ) / sizeof( gameCvarTable[0] );
-
-void G_InitGame( int levelTime, int randomSeed, int restart );
-
-void G_ShutdownGame( int restart );
-
-// Ridah, Cast AI
-bool AICast_VisibleFromPos( vec3_t srcpos, int srcnum,
-								vec3_t destpos, int destnum, bool updateVisPos );
-bool AICast_CheckAttackAtPos( int entnum, int enemy, vec3_t pos, bool ducking, bool allowHitWorld );
-void AICast_Init( void );
-// done.
-
-void G_RetrieveMoveSpeedsFromClient( int entnum, const char *text );
+static int gameCvarTableSize = std::size(gameCvarTable);
 
 bool G_canStealthStab( int aiChar ) {
 	switch ( aiChar ) {
@@ -247,7 +228,7 @@ bool G_canStealthStab( int aiChar ) {
 	return false;
 }
 
-void G_EndGame( void ) {
+void G_EndGame(  ) {
     Com_Error( ERR_ENDGAME, "endgame" );
 }
 
@@ -901,7 +882,8 @@ void G_InitGame( int levelTime, int randomSeed, int restart )
 
 	G_RegisterCvars();
 
-	G_InitMemory();
+	// probably need to free memory here.
+	//G_InitMemory();
 
 	// set some level globals
 	memset( &level, 0, sizeof( level ) );
