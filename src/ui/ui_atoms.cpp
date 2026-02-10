@@ -61,12 +61,10 @@ char *UI_Cvar_VariableString( const char *var_name ) {
 
 
 bool UI_ConsoleCommand( int realTime ) {
-	char    *cmd;
-
 	uiInfo.uiDC.frameTime = realTime - uiInfo.uiDC.realTime;
 	uiInfo.uiDC.realTime = realTime;
 
-	cmd = UI_Argv( 0 );
+	const char* cmd = UI_Argv(0);
 
 
 	if ( Q_stricmp( cmd, "ui_load" ) == 0 ) {
@@ -105,9 +103,7 @@ void UI_AdjustFrom640( float *x, float *y, float *w, float *h ) {
 }
 
 void UI_DrawNamedPic( float x, float y, float width, float height, const char *picname ) {
-	qhandle_t hShader;
-
-	hShader = RE_RegisterShaderNoMip( picname );
+	const qhandle_t hShader = RE_RegisterShaderNoMip(picname);
 	UI_AdjustFrom640( &x, &y, &width, &height );
 	RE_StretchPic( x, y, width, height, 0, 0, 1, 1, hShader );
 }
@@ -160,7 +156,7 @@ void UI_SetColor( const float *rgba ) {
 	RE_SetColor( rgba );
 }
 
-void UI_UpdateScreen( void ) {
+void UI_UpdateScreen() {
 	SCR_UpdateScreen();
 }
 

@@ -26,7 +26,6 @@ If you have questions concerning this license or the applicable additional terms
 ===========================================================================
 */
 
-// cg_info.c -- display information while data is being loading
 
 #include "cg_local.h"
 #include "../ui/ui_shared.h"
@@ -36,47 +35,6 @@ If you have questions concerning this license or the applicable additional terms
 #define MAX_LOADING_PLAYER_ICONS    16
 #define MAX_LOADING_ITEM_ICONS      26
 
-static int loadingPlayerIconCount;
-static int loadingItemIconCount;
-static qhandle_t loadingPlayerIcons[MAX_LOADING_PLAYER_ICONS];
-static qhandle_t loadingItemIcons[MAX_LOADING_ITEM_ICONS];
-
-
-/*
-===================
-CG_DrawLoadingIcons
-===================
-*/
-static void CG_DrawLoadingIcons( void ) {
-	int n;
-	int x, y;
-
-	// JOSEPH 5-2-00 Per MAXX
-	return;
-
-	for ( n = 0; n < loadingPlayerIconCount; n++ ) {
-		x = 16 + n * 78;
-		y = 324;
-		CG_DrawPic( x, y, 64, 64, loadingPlayerIcons[n] );
-	}
-
-	for ( n = 0; n < loadingItemIconCount; n++ ) {
-		y = 400;
-		if ( n >= 13 ) {
-			y += 40;
-		}
-		x = 16 + n % 13 * 48;
-		CG_DrawPic( x, y, 32, 32, loadingItemIcons[n] );
-	}
-}
-
-
-/*
-======================
-CG_LoadingString
-
-======================
-*/
 void CG_LoadingString( const char *s ) {
 	Q_strncpyz( cg.infoScreenText, s, sizeof( cg.infoScreenText ) );
 
@@ -87,40 +45,11 @@ void CG_LoadingString( const char *s ) {
 	SCR_UpdateScreen();
 }
 
-/*
-===================
-CG_LoadingItem
-===================
-*/
 void CG_LoadingItem( int itemNum ) {
-	gitem_t     *item;
 
-	item = &bg_itemlist[itemNum];
-
-	if ( item->giType == IT_KEY ) { // do not show keys at level startup //----(SA)
-		return;
-	}
-
-//----(SA)	Max Kaufman request that we don't show any pacifier stuff for items
-	return;
-//----(SA)	end
-
-
-	if ( item->icon && loadingItemIconCount < MAX_LOADING_ITEM_ICONS ) {
-		loadingItemIcons[loadingItemIconCount++] = RE_RegisterShaderNoMip( item->icon );
-	}
-
-	CG_LoadingString( cgs.itemPrintNames[item - bg_itemlist] );
 }
 
-/*
-===================
-CG_LoadingClient
-===================
-*/
 void CG_LoadingClient( int clientNum ) {
-	const char      *info;
-	const char            *skin;
 	char personality[MAX_QPATH];
 	char model[MAX_QPATH];
 	char iconName[MAX_QPATH];
@@ -129,10 +58,10 @@ void CG_LoadingClient( int clientNum ) {
 		return;
 	}
 
-	info = CG_ConfigString( CS_PLAYERS + clientNum );
+	const char* info = CG_ConfigString(CS_PLAYERS + clientNum);
 
 	Q_strncpyz( model, Info_ValueForKey( info, "model" ), sizeof( model ) );
-	skin = Q_strrchr( model, '/' );
+	const char* skin = Q_strrchr(model, '/');
 	if ( skin ) {
 		++skin;
 	} else {
@@ -197,12 +126,11 @@ CG_DrawStats
 ==============
 */
 void CG_DrawStats( char *stats ) {
-	int i, y, v, j;
+	int i, y, v;
 	#define MAX_STATS_VARS  64
 	int vars[MAX_STATS_VARS];
-	char *str, *token;
+	char *str;
 	char *formatStr;
-	int varIndex;
 	char string[MAX_QPATH];
 
 	UI_DrawProportionalString( 320, 120, "MISSION STATS",
@@ -220,12 +148,11 @@ void CG_DrawStats( char *stats ) {
 	for ( i = 0, y = 0, v = 0; statsItems[i].label; i++ ) {
 		y += statsItems[i].YOfs;
 		if ( statsItems[i].numVars ) {
-			varIndex = v;
-			for ( j = 0; j < statsItems[i].numVars; j++ ) {
-				token = COM_Parse( (const char **)&str );
+			const int varIndex = v;
+			for ( int j = 0; j < statsItems[i].numVars; j++ ) {
+				const char* token = COM_Parse((const char**)&str);
 				if ( !token || !token[0] ) {
 					Com_Error( ERR_DROP, "error parsing mission stats\n" );
-					return;
 				}
 
 				vars[v++] = atoi( token );
@@ -262,11 +189,10 @@ CG_DrawExitStats
 ==============
 */
 
-void CG_DrawExitStats( void ) {
-	int i, y, v, j;
-	float *color;   // faded color based on cursor hint drawing
+void CG_DrawExitStats() {
+	int i, y, v;
+	// faded color based on cursor hint drawing
 	float color2[4] = {0, 0, 0, 1};
-	const char *str;
 	char *token;
 
 	#define MAX_STATS_VARS  64
@@ -279,7 +205,7 @@ void CG_DrawExitStats( void ) {
 		return;
 	}
 
-	color = CG_FadeColor( cg.cursorHintTime, cg.cursorHintFade );
+	float* color = CG_FadeColor(cg.cursorHintTime, cg.cursorHintFade);
 
 	if ( !color ) { // currently faded out, don't draw
 		return;
@@ -294,7 +220,7 @@ void CG_DrawExitStats( void ) {
 
 
 // parse it
-	str = CG_ConfigString( CS_MISSIONSTATS );
+	const char* str = CG_ConfigString(CS_MISSIONSTATS);
 
 	if ( !str || !str[0] ) {
 		return;
@@ -320,7 +246,6 @@ void CG_DrawExitStats( void ) {
 		CG_FilledBar( 170, 154 + ( 28 * i ), 300, 20, color2, nullptr, nullptr, 1.0f, 0 );
 	}
 
-
 	// green title
 	color2[0] = color2[2] = 0;
 	color2[1] = 0.3f;
@@ -331,20 +256,12 @@ void CG_DrawExitStats( void ) {
 	// title
 	color2[0] = color2[1] = color2[2] = 1;
 	color2[3] = color[3];
-//	Text_Paint(280, 120, 2, 0.25f, color2, va("%s", CG_translateString("end_title")), 0, 0, ITEM_TEXTSTYLE_SHADOWEDMORE);
-	//----(SA)	scale change per MK
 	Text_Paint( 270, 120, 2, 0.313f, color2, va( "%s", CG_translateString( "end_title" ) ), 0, 0, ITEM_TEXTSTYLE_SHADOWEDMORE );
 
 	color2[0] = color2[1] = color2[2] = 1;
 	if ( cg.cursorHintIcon == HINT_NOEXIT ) {
-		// "exit not available"
-//		Text_Paint(250, 320, 2, 0.3f, color2, va("%s", CG_translateString("end_noexit")), 0, 0, ITEM_TEXTSTYLE_SHADOWEDMORE);
-		//----(SA)	scale change per MK
 		Text_Paint( 260, 320, 2, 0.225f, color2, va( "%s", CG_translateString( "end_noexit" ) ), 0, 0, ITEM_TEXTSTYLE_SHADOWEDMORE );
 	} else {
-		// "forward to proceed"
-//		Text_Paint(230, 320, 2, 0.3f, color2, va("%s", CG_translateString("end_exit")), 0, 0, ITEM_TEXTSTYLE_SHADOWEDMORE);
-		//----(SA)	scale change per MK
 		Text_Paint( 250, 320, 2, 0.225f, color2, va( "%s", CG_translateString( "end_exit" ) ), 0, 0, ITEM_TEXTSTYLE_SHADOWEDMORE );
 	}
 
@@ -358,17 +275,15 @@ void CG_DrawExitStats( void ) {
 		y += statsItems[i].YOfs;
 
 		VectorCopy4( statsItems[i].labelColor, color2 );
-//		statsItems[i].labelColor[3] = statsItems[i].formatColor[3] = color[3];	// set proper alpha
 		color2[3] = statsItems[i].formatColor[3] = color[3];    // set proper alpha
 
 
 		if ( statsItems[i].numVars ) {
 			varIndex = v;
-			for ( j = 0; j < statsItems[i].numVars; j++ ) {
+			for ( int j = 0; j < statsItems[i].numVars; j++ ) {
 				token = COM_Parse( (const char **)&mstats );
 				if ( !token || !token[0] ) {
 					Com_Error( ERR_DROP, "error parsing mission stats\n" );
-					return;
 				}
 
 				vars[v++] = atoi( token );
@@ -407,15 +322,11 @@ void CG_DrawExitStats( void ) {
 			}
 		}
 
-//		UI_DrawProportionalString( statsItems[i].labelX, y, statsItems[i].label, statsItems[i].labelFlags, *statsItems[i].labelColor );
-
-//		Text_Paint(statsItems[i].labelX, y, 2, 0.3, statsItems[i].labelColor, va("%s:", CG_translateString(statsItems[i].label)), 0, 0, statsItems[i].labelFlags);
 		Text_Paint( statsItems[i].labelX, y, 2, 0.3, color2, va( "%s:", CG_translateString( statsItems[i].label ) ), 0, 0, statsItems[i].labelFlags );
 
 	}
 	token = COM_Parse( (const char **)&mstats );
 
-// end (parse it)
 }
 
 
@@ -426,21 +337,12 @@ CG_DrawInformation
 Draw all the status / pacifier stuff during level loading
 ====================
 */
-void CG_DrawInformation( void ) {
-	const char  *s;
-	const char  *info;
-	const char  *sysInfo;
-	int y;
-	int value;
+void CG_DrawInformation() {
 	qhandle_t levelshot = 0;   // TTimo: init
 
-	char buf[1024];
 	static int lastDraw = 0;  // Ridah, so we don't draw the screen more often than we need to
-	int ms;
 	static int callCount = 0;
-	float percentDone;
 
-	int expectedHunk;
 	char hunkBuf[MAX_QPATH];
 
 	vec4_t color;
@@ -453,7 +355,7 @@ void CG_DrawInformation( void ) {
 		return;
 	}
 
-	ms = Sys_Milliseconds();
+	int ms = Sys_Milliseconds();
 	if ( ( lastDraw <= ms ) && ( lastDraw > ms - 100 ) ) {
 		return;
 	}
@@ -461,14 +363,14 @@ void CG_DrawInformation( void ) {
 
 	callCount++;
 
-	info = CG_ConfigString( CS_SERVERINFO );
-	sysInfo = CG_ConfigString( CS_SYSTEMINFO );
+	const char* info = CG_ConfigString(CS_SERVERINFO);
+	const char* sysInfo = CG_ConfigString(CS_SYSTEMINFO);
 
 	Cvar_VariableStringBuffer( "com_expectedhunkusage", hunkBuf, MAX_QPATH );
-	expectedHunk = atoi( hunkBuf );
+	int expectedHunk = atoi(hunkBuf);
 
 
-	s = Info_ValueForKey( info, "mapname" );
+	const char* s = Info_ValueForKey(info, "mapname");
 
 	if ( s && s[0] != 0 ) {  // there is often no 's'
 		levelshot = RE_RegisterShaderNoMip( va( "levelshots/%s.tga", s ) );
@@ -491,7 +393,7 @@ void CG_DrawInformation( void ) {
 		// draw the mission stats while loading
 
 		if ( expectedHunk > 0 ) {
-			percentDone = (float)( cg_hunkUsed.integer + cg_soundAdjust.integer ) / (float)( expectedHunk );
+			float percentDone = (float)(cg_hunkUsed.integer + cg_soundAdjust.integer) / (float)(expectedHunk);
 			if ( percentDone > 0.97 ) { // never actually show 100%, since we are not in the game yet
 				percentDone = 0.97;
 			}
@@ -510,5 +412,4 @@ void CG_DrawInformation( void ) {
 
     SCR_UpdateScreen();
     callCount--;
-    return;
 }

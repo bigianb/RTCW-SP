@@ -82,8 +82,8 @@ static bool debugMode = false;
 static int lastListBoxClickTime = 0;
 
 void Item_RunScript( itemDef_t *item, const char *s );
-void Item_SetupKeywordHash( void );
-void Menu_SetupKeywordHash( void );
+void Item_SetupKeywordHash();
+void Menu_SetupKeywordHash();
 int BindingIDFromName( const char *name );
 bool Item_Bind_HandleKey( itemDef_t *item, int key, bool down );
 itemDef_t *Menu_SetPrevCursorItem( menuDef_t *menu );
@@ -153,33 +153,21 @@ translateString_t translateStrings[] = {
 	{"or"}                       //
 };
 
-/*
-===============
-UI_Alloc
-===============
-*/
 void *UI_Alloc( size_t size ) {
-	char    *p;
-
 	if ( allocPoint + size > MEM_POOL_SIZE ) {
 		outOfMemory = true;
 		Com_Printf( "UI_Alloc: Failure. Out of memory!\n" );
 		return nullptr;
 	}
 
-	p = &memoryPool[allocPoint];
+	char* p = &memoryPool[allocPoint];
 
 	allocPoint += ( size + 15 ) & ~15;
 
 	return p;
 }
 
-/*
-===============
-UI_InitMemory
-===============
-*/
-void UI_InitMemory( void ) {
+void UI_InitMemory( ) {
 	allocPoint = 0;
 	outOfMemory = false;
 }
@@ -195,15 +183,11 @@ return a hash value for the string
 ================
 */
 static long hashForString( const char *str ) {
-	int i;
-	long hash;
-	char letter;
-
-	hash = 0;
-	i = 0;
+	long hash = 0;
+	int i = 0;
 	while ( str[i] != '\0' ) {
-		letter = tolower( str[i] );
-		hash += (long)( letter ) * ( i + 119 );
+		const char letter = tolower(str[i]);
+		hash += static_cast<long>(letter) * ( i + 119 );
 		i++;
 	}
 	hash &= ( HASH_TABLE_SIZE - 1 );
@@ -223,9 +207,6 @@ static stringDef_t *strHandle[HASH_TABLE_SIZE];
 
 
 const char *String_Alloc( const char *p ) {
-
-	long hash;
-	stringDef_t *str, *last;
 	static const char *staticNULL = "";
 
 	if ( p == nullptr ) {
@@ -236,9 +217,9 @@ const char *String_Alloc( const char *p ) {
 		return staticNULL;
 	}
 
-	hash = hashForString( p );
+	const long hash = hashForString(p);
 
-	str = strHandle[hash];
+	stringDef_t* str = strHandle[hash];
 	while ( str ) {
 		if ( strcmp( p, str->str ) == 0 ) {
 			return str->str;
@@ -248,18 +229,18 @@ const char *String_Alloc( const char *p ) {
 
 	size_t len = strlen( p );
 	if ( len + strPoolIndex + 1 < STRING_POOL_SIZE ) {
-		int ph = strPoolIndex;
+		const int ph = strPoolIndex;
 		strcpy( &strPool[strPoolIndex], p );
 		strPoolIndex += len + 1;
 
 		str = strHandle[hash];
-		last = str;
+		stringDef_t* last = str;
 		while ( str && str->next ) {
 			last = str;
 			str = str->next;
 		}
 
-		str  = (stringDef_t*)UI_Alloc( sizeof( stringDef_t ) );
+		str  = static_cast<stringDef_t*>(UI_Alloc(sizeof(stringDef_t)));
 		str->next = nullptr;
 		str->str = &strPool[ph];
 		if ( last ) {
@@ -272,15 +253,9 @@ const char *String_Alloc( const char *p ) {
 	return nullptr;
 }
 
-/*
-=================
-String_Init
-=================
-*/
 void String_Init() {
-	int i;
-	for ( i = 0; i < HASH_TABLE_SIZE; i++ ) {
-		strHandle[i] = 0;
+	for (auto & i : strHandle) {
+		i = nullptr;
 	}
 	strHandleCount = 0;
 	strPoolIndex = 0;
@@ -317,8 +292,7 @@ LerpColor
 =================
 */
 void LerpColor( vec4_t a, vec4_t b, vec4_t c, float t ) {
-	int i;
-	for ( i = 0; i < 4; i++ )
+	for ( int i = 0; i < 4; i++ )
 	{
 		c[i] = a[i] + t * ( b[i] - a[i] );
 		if ( c[i] < 0 ) {
@@ -329,14 +303,8 @@ void LerpColor( vec4_t a, vec4_t b, vec4_t c, float t ) {
 	}
 }
 
-/*
-=================
-Float_Parse
-=================
-*/
 bool Float_Parse( const char **p, float *f ) {
-	const char    *token;
-	token = COM_ParseExt( p, false );
+	const char* token = COM_ParseExt(p, false);
 	if ( token && token[0] != 0 ) {
 		*f = atof( token );
 		return true;
@@ -345,11 +313,6 @@ bool Float_Parse( const char **p, float *f ) {
 	}
 }
 
-/*
-=================
-PC_Float_Parse
-=================
-*/
 bool PC_Float_Parse( int handle, float *f ) {
 	pc_token_t token;
 	int negative = false;
@@ -375,16 +338,10 @@ bool PC_Float_Parse( int handle, float *f ) {
 	return true;
 }
 
-/*
-=================
-Color_Parse
-=================
-*/
 bool Color_Parse( const char **p, vec4_t *c ) {
-	int i;
 	float f;
 
-	for ( i = 0; i < 4; i++ ) {
+	for ( int i = 0; i < 4; i++ ) {
 		if ( !Float_Parse( p, &f ) ) {
 			return false;
 		}
@@ -393,16 +350,10 @@ bool Color_Parse( const char **p, vec4_t *c ) {
 	return true;
 }
 
-/*
-=================
-PC_Color_Parse
-=================
-*/
 bool PC_Color_Parse( int handle, vec4_t *c ) {
-	int i;
 	float f;
 
-	for ( i = 0; i < 4; i++ ) {
+	for ( int i = 0; i < 4; i++ ) {
 		if ( !PC_Float_Parse( handle, &f ) ) {
 			return false;
 		}
@@ -411,28 +362,16 @@ bool PC_Color_Parse( int handle, vec4_t *c ) {
 	return true;
 }
 
-/*
-=================
-Int_Parse
-=================
-*/
 bool Int_Parse( const char **p, int *i ) {
-	const char    *token;
-	token = COM_ParseExt( p, false );
+	const char* token = COM_ParseExt(p, false);
 
 	if ( token && token[0] != 0 ) {
 		*i = atoi( token );
 		return true;
-	} else {
-		return false;
 	}
+	return false;
 }
 
-/*
-=================
-PC_Int_Parse
-=================
-*/
 bool PC_Int_Parse( int handle, int *i ) {
 	pc_token_t token;
 	int negative = false;
@@ -457,11 +396,6 @@ bool PC_Int_Parse( int handle, int *i ) {
 	return true;
 }
 
-/*
-=================
-Rect_Parse
-=================
-*/
 bool Rect_Parse( const char **p, rectDef_t *r ) {
 	if ( Float_Parse( p, &r->x ) ) {
 		if ( Float_Parse( p, &r->y ) ) {
@@ -475,11 +409,6 @@ bool Rect_Parse( const char **p, rectDef_t *r ) {
 	return false;
 }
 
-/*
-=================
-PC_Rect_Parse
-=================
-*/
 bool PC_Rect_Parse( int handle, rectDef_t *r ) {
 	if ( PC_Float_Parse( handle, &r->x ) ) {
 		if ( PC_Float_Parse( handle, &r->y ) ) {
@@ -493,15 +422,8 @@ bool PC_Rect_Parse( int handle, rectDef_t *r ) {
 	return false;
 }
 
-/*
-=================
-String_Parse
-=================
-*/
 bool String_Parse( const char **p, const char **out ) {
-	const char *token;
-
-	token = COM_ParseExt( p, false );
+	const char* token = COM_ParseExt(p, false);
 	if ( token && token[0] != 0 ) {
 		*( out ) = String_Alloc( token );
 		return true;
@@ -509,11 +431,6 @@ bool String_Parse( const char **p, const char **out ) {
 	return false;
 }
 
-/*
-=================
-PC_String_Parse
-=================
-*/
 bool PC_String_Parse( int handle, const char **out ) {
 	pc_token_t token;
 
@@ -525,12 +442,6 @@ bool PC_String_Parse( int handle, const char **out ) {
 	return true;
 }
 
-// NERVE - SMF
-/*
-=================
-PC_Char_Parse
-=================
-*/
 bool PC_Char_Parse( int handle, char *out ) {
 	pc_token_t token;
 
@@ -541,13 +452,7 @@ bool PC_Char_Parse( int handle, char *out ) {
 	*( out ) = token.string[0];
 	return true;
 }
-// -NERVE - SMF
 
-/*
-=================
-PC_Script_Parse
-=================
-*/
 bool PC_Script_Parse( int handle, const char **out ) {
 	char script[1024];
 	pc_token_t token;
@@ -563,7 +468,7 @@ bool PC_Script_Parse( int handle, const char **out ) {
 		return false;
 	}
 
-	while ( 1 ) {
+	while ( true ) {
 		if ( !PC_ReadTokenHandle( handle, &token ) ) {
 			return false;
 		}
@@ -765,17 +670,14 @@ void Item_SetScreenCoords( itemDef_t *item, float x, float y ) {
 
 // FIXME: consolidate this with nearby stuff
 void Item_UpdatePosition( itemDef_t *item ) {
-	float x, y;
-	menuDef_t *menu;
-
 	if ( item == nullptr || item->parent == nullptr ) {
 		return;
 	}
 
-	menu = (menuDef_t*)item->parent;
+	auto* menu = static_cast<menuDef_t*>(item->parent);
 
-	x = menu->window.rect.x;
-	y = menu->window.rect.y;
+	float x = menu->window.rect.x;
+	float y = menu->window.rect.y;
 
 	if ( menu->window.border != 0 ) {
 		x += menu->window.borderSize;
@@ -788,21 +690,18 @@ void Item_UpdatePosition( itemDef_t *item ) {
 
 // menus
 void Menu_UpdatePosition( menuDef_t *menu ) {
-	int i;
-	float x, y;
-
 	if ( menu == nullptr ) {
 		return;
 	}
 
-	x = menu->window.rect.x;
-	y = menu->window.rect.y;
+	float x = menu->window.rect.x;
+	float y = menu->window.rect.y;
 	if ( menu->window.border != 0 ) {
 		x += menu->window.borderSize;
 		y += menu->window.borderSize;
 	}
 
-	for ( i = 0; i < menu->itemCount; i++ ) {
+	for ( int i = 0; i < menu->itemCount; i++ ) {
 		Item_SetScreenCoords( menu->items[i], x, y );
 	}
 }
@@ -821,14 +720,13 @@ void Menu_PostParse( menuDef_t *menu ) {
 }
 
 itemDef_t *Menu_ClearFocus( menuDef_t *menu ) {
-	int i;
 	itemDef_t *ret = nullptr;
 
 	if ( menu == nullptr ) {
 		return nullptr;
 	}
 
-	for ( i = 0; i < menu->itemCount; i++ ) {
+	for ( int i = 0; i < menu->itemCount; i++ ) {
 		if ( menu->items[i]->window.flags & WINDOW_HASFOCUS ) {
 			ret = menu->items[i];
 		}
@@ -881,7 +779,6 @@ int Menu_ItemsMatchingGroup( menuDef_t *menu, const char *name ) {
 }
 
 itemDef_t *Menu_GetMatchingItemByNumber( menuDef_t *menu, int index, const char *name ) {
-	int i;
 	int count = 0;
 
 	int wildcard = -1;  // if wildcard is set, it's value is the number of characters to compare
@@ -891,7 +788,7 @@ itemDef_t *Menu_GetMatchingItemByNumber( menuDef_t *menu, int index, const char 
 		wildcard = pdest - name;
 	}
 
-	for ( i = 0; i < menu->itemCount; i++ ) {
+	for ( int i = 0; i < menu->itemCount; i++ ) {
 		if ( wildcard != -1 ) {
 			if ( Q_strncmp( menu->items[i]->window.name, name, wildcard ) == 0 || ( menu->items[i]->window.group && Q_strncmp( menu->items[i]->window.group, name, wildcard ) == 0 ) ) {
 				if ( count == index ) {
@@ -915,12 +812,10 @@ itemDef_t *Menu_GetMatchingItemByNumber( menuDef_t *menu, int index, const char 
 
 void Script_SetColor( itemDef_t *item, const char **args ) {
 	const char *name;
-	int i;
 	float f;
-	vec4_t *out;
 	// expecting type of color to set and 4 args for the color
 	if ( String_Parse( args, &name ) ) {
-		out = nullptr;
+		vec4_t* out = nullptr;
 		if ( Q_stricmp( name, "backcolor" ) == 0 ) {
 			out = &item->window.backColor;
 			item->window.flags |= WINDOW_BACKCOLORSET;
@@ -931,8 +826,9 @@ void Script_SetColor( itemDef_t *item, const char **args ) {
 			out = &item->window.borderColor;
 		}
 
-		if ( out ) {
-			for ( i = 0; i < 4; i++ ) {
+		if ( out )
+		{
+			for ( int i = 0; i < 4; i++ ) {
 				if ( !Float_Parse( args, &f ) ) {
 					return;
 				}
@@ -964,13 +860,11 @@ void Script_SetBackground( itemDef_t *item, const char **args ) {
 
 
 itemDef_t *Menu_FindItemByName( menuDef_t *menu, const char *p ) {
-	int i;
-
 	if ( menu == nullptr || p == nullptr ) {
 		return nullptr;
 	}
 
-	for ( i = 0; i < menu->itemCount; i++ ) {
+	for ( int i = 0; i < menu->itemCount; i++ ) {
 		if ( Q_stricmp( p, menu->items[i]->window.name ) == 0 ) {
 			return menu->items[i];
 		}
@@ -985,7 +879,7 @@ void Script_SetItemColor( itemDef_t *item, const char **args ) {
 
 	// expecting type of color to set and 4 args for the color
 	if ( String_Parse( args, &itemname ) && String_Parse( args, &name ) ) {
-		int count = Menu_ItemsMatchingGroup( (menuDef_t *)item->parent, itemname );
+		const int count = Menu_ItemsMatchingGroup( static_cast<menuDef_t*>(item->parent), itemname );
 
 		vec4_t color;
 		if ( !Color_Parse( args, &color ) ) {
@@ -993,7 +887,7 @@ void Script_SetItemColor( itemDef_t *item, const char **args ) {
 		}
 
 		for (int j = 0; j < count; j++ ) {
-			itemDef_t* item2 = Menu_GetMatchingItemByNumber((menuDef_t*)item->parent, j, itemname);
+			itemDef_t* item2 = Menu_GetMatchingItemByNumber(static_cast<menuDef_t*>(item->parent), j, itemname);
 			if ( item2 != nullptr ) {
 				vec4_t* out = nullptr;
 				if ( Q_stricmp( name, "backcolor" ) == 0 ) {
@@ -1052,13 +946,13 @@ void Menu_FadeItemByName( menuDef_t *menu, const char *p, bool fadeOut ) {
 }
 
 menuDef_t *Menus_FindByName( const char *p ) {
-	int i;
-	for ( i = 0; i < menuCount; i++ ) {
+
+	for (int i = 0; i < menuCount; i++ ) {
 		if ( Q_stricmp( Menus[i].window.name, p ) == 0 ) {
 			return &Menus[i];
 		}
 	}
-	for ( i = 0; i < hudMenuCount; i++ ) {
+	for (int i = 0; i < hudMenuCount; i++ ) {
 		if ( Q_stricmp( HudMenus[i].window.name, p ) == 0 ) {
 			return &HudMenus[i];
 		}
@@ -1130,8 +1024,6 @@ void Script_FadeOut( itemDef_t *item, const char **args ) {
 	}
 }
 
-
-
 void Script_Open( itemDef_t *item, const char **args ) {
 	const char *name;
 	if ( String_Parse( args, &name ) ) {
@@ -1194,9 +1086,9 @@ void Script_NotebookShowpage( itemDef_t *item, const char **args ) {
 
 		if ( inc ) {
 			int newpage = 0;
-			int dec = 0;
 
 			if ( inc > 0 ) {
+				int dec = 0;
 				int i;
 				for ( i = 1; i < NOTEBOOK_MAX_PAGES; i++ ) {
 					newpage = curpage + i;
@@ -1279,8 +1171,6 @@ void Menu_TransitionItemByName( menuDef_t *menu, const char *p, rectDef_t rectFr
 
 void Script_Transition( itemDef_t *item, const  char **args ) {
 	const char *name;
-
-
 	if ( String_Parse( args, &name ) ) {
 		rectDef_t rectFrom, rectTo;
 		int time;
@@ -1312,8 +1202,6 @@ void Menu_OrbitItemByName( menuDef_t *menu, const char *p, float x, float y, flo
 
 void Script_Orbit( itemDef_t *item, const char **args ) {
 	const char *name;
-
-
 	if ( String_Parse( args, &name ) ) {
 		float cx, cy, x, y;
 		int time;
@@ -1373,7 +1261,6 @@ void Script_playLooped( itemDef_t *item, const char **args ) {
 	}
 }
 
-// NERVE - SMF
 void Script_AddListItem( itemDef_t *item, const char **args ) {
 	const char *itemname, *val, *name;
 
@@ -1420,7 +1307,7 @@ void Item_RunScript( itemDef_t *item, const char *s ) {
 	if ( item && s && s[0] ) {
 		Q_strcat( script, 1024, s );
 		const char* p = script;
-		while ( 1 ) {
+		while ( true ) {
 			const char *command;
 			// expect command then arguments, ; ends command, nullptr ends script
 			if ( !String_Parse( &p, &command ) ) {
@@ -1582,16 +1469,15 @@ int Item_ListBox_ThumbPosition( itemDef_t *item ) {
 		}
 		pos *= listPtr->startPos;
 		return item->window.rect.x + 1 + SCROLLBAR_SIZE + pos;
-	} else {
-		size = item->window.rect.h - ( SCROLLBAR_SIZE * 2 ) - 2;
-		if ( max > 0 ) {
-			pos = ( size - SCROLLBAR_SIZE ) / static_cast<float>(max);
-		} else {
-			pos = 0;
-		}
-		pos *= listPtr->startPos;
-		return item->window.rect.y + 1 + SCROLLBAR_SIZE + pos;
 	}
+	size = item->window.rect.h - ( SCROLLBAR_SIZE * 2 ) - 2;
+	if ( max > 0 ) {
+		pos = ( size - SCROLLBAR_SIZE ) / static_cast<float>(max);
+	} else {
+		pos = 0;
+	}
+	pos *= listPtr->startPos;
+	return item->window.rect.y + 1 + SCROLLBAR_SIZE + pos;
 }
 
 int Item_ListBox_ThumbDrawPosition( itemDef_t *item ) {
@@ -1650,7 +1536,7 @@ float Item_Slider_ThumbPosition( itemDef_t *item ) {
 int Item_Slider_OverSlider( itemDef_t *item, float x, float y ) {
 	rectDef_t r;
 
-	r.x = Item_Slider_ThumbPosition( item ) - ( SLIDER_THUMB_WIDTH / 2 );
+	r.x = Item_Slider_ThumbPosition( item ) - ( SLIDER_THUMB_WIDTH / 2.0f );
 	r.y = item->window.rect.y - 2;
 	r.w = SLIDER_THUMB_WIDTH;
 	r.h = SLIDER_THUMB_HEIGHT;
@@ -1663,12 +1549,10 @@ int Item_Slider_OverSlider( itemDef_t *item, float x, float y ) {
 
 int Item_ListBox_OverLB( itemDef_t *item, float x, float y ) {
 	rectDef_t r;
-	listBoxDef_t *listPtr;
 	int thumbstart;
-	int count;
 
-	count = DC->feederCount( item->special );
-	listPtr = (listBoxDef_t*)item->typeData;
+	int count = DC->feederCount(item->special);
+	auto* listPtr = static_cast<listBoxDef_t*>(item->typeData);
 	if ( item->window.flags & WINDOW_HORIZONTAL ) {
 		// check if on left arrow
 		r.x = item->window.rect.x;
@@ -1731,14 +1615,14 @@ int Item_ListBox_OverLB( itemDef_t *item, float x, float y ) {
 
 void Item_ListBox_MouseEnter( itemDef_t *item, float x, float y ) {
 	rectDef_t r;
-	listBoxDef_t *listPtr = static_cast<listBoxDef_t*>(item->typeData);
+	auto *listPtr = static_cast<listBoxDef_t*>(item->typeData);
 
 	item->window.flags &= ~( WINDOW_LB_LEFTARROW | WINDOW_LB_RIGHTARROW | WINDOW_LB_THUMB | WINDOW_LB_PGUP | WINDOW_LB_PGDN );
 	item->window.flags |= Item_ListBox_OverLB( item, x, y );
 
 	if ( item->window.flags & WINDOW_HORIZONTAL ) {
 		if ( !( item->window.flags & ( WINDOW_LB_LEFTARROW | WINDOW_LB_RIGHTARROW | WINDOW_LB_THUMB | WINDOW_LB_PGUP | WINDOW_LB_PGDN ) ) ) {
-			// check for selection hit as we have exausted buttons and thumb
+			// check for selection hit as we have exhausted buttons and thumb
 			if ( listPtr->elementStyle == LISTBOX_IMAGE ) {
 				r.x = item->window.rect.x;
 				r.y = item->window.rect.y;
@@ -1853,12 +1737,12 @@ bool Item_OwnerDraw_HandleKey( itemDef_t *item, int key ) {
 }
 
 bool Item_ListBox_HandleKey( itemDef_t *item, int key, bool down, bool force ) {
-	listBoxDef_t *listPtr = static_cast<listBoxDef_t*>(item->typeData);
+	auto *listPtr = static_cast<listBoxDef_t*>(item->typeData);
 	const int count = DC->feederCount( item->special );
 
 	if ( force || ( Rect_ContainsPoint( &item->window.rect, DC->cursorx, DC->cursory ) && item->window.flags & WINDOW_HASFOCUS ) ) {
 		int viewmax;
-		int max = Item_ListBox_MaxScroll(item);
+		const int max = Item_ListBox_MaxScroll(item);
 		if ( item->window.flags & WINDOW_HORIZONTAL ) {
 			viewmax = ( item->window.rect.w / listPtr->elementWidth );
 			if ( key == K_LEFTARROW || key == K_KP_LEFTARROW ) {
@@ -2104,14 +1988,13 @@ const char *Item_Multi_Setting( itemDef_t *item ) {
 	char buff[1024];
 	multiDef_t *multiPtr = static_cast<multiDef_t*>(item->typeData);
 	if ( multiPtr ) {
-		int i;
 		float value = 0;
 		if ( multiPtr->strDef ) {
 			Cvar_VariableStringBuffer( item->cvar, buff, sizeof( buff ) );
 		} else {
 			value = Cvar_VariableValue( item->cvar );
 		}
-		for ( i = 0; i < multiPtr->count; i++ ) {
+		for ( int i = 0; i < multiPtr->count; i++ ) {
 			if ( multiPtr->strDef ) {
 				if ( Q_stricmp( buff, multiPtr->cvarStr[i] ) == 0 ) {
 					return multiPtr->cvarList[i];
@@ -2156,7 +2039,7 @@ bool Item_Multi_HandleKey( itemDef_t *item, int key ) {
 bool Item_TextField_HandleKey( itemDef_t *item, int key ) {
 	char buff[1024];
 
-	editFieldDef_t *editPtr = static_cast<editFieldDef_t*>(item->typeData);
+	auto *editPtr = static_cast<editFieldDef_t*>(item->typeData);
 
 	if ( item->cvar ) {
 		itemDef_t *newItem = nullptr;
@@ -2169,7 +2052,6 @@ bool Item_TextField_HandleKey( itemDef_t *item, int key ) {
 		}
 		if ( key & K_CHAR_FLAG ) {
 			key &= ~K_CHAR_FLAG;
-
 
 			if ( key == 'h' - 'a' + 1 ) {      // ctrl-h is backspace
 				if ( item->cursorPos > 0 ) {
@@ -2311,7 +2193,7 @@ bool Item_TextField_HandleKey( itemDef_t *item, int key ) {
 }
 
 static void Scroll_ListBox_AutoFunc( void *p ) {
-	scrollInfo_t *si = static_cast<scrollInfo_t*>(p);
+	auto *si = static_cast<scrollInfo_t*>(p);
 	if ( DC->realTime > si->nextScrollTime ) {
 		// need to scroll which is done by simulating a click to the item
 		// this is done a bit sideways as the autoscroll "knows" that the item is a listbox
@@ -2329,11 +2211,11 @@ static void Scroll_ListBox_AutoFunc( void *p ) {
 }
 
 static void Scroll_ListBox_ThumbFunc( void *p ) {
-	scrollInfo_t *si = static_cast<scrollInfo_t*>(p);
+	auto *si = static_cast<scrollInfo_t*>(p);
 	rectDef_t r;
 	int pos, max;
 
-	listBoxDef_t *listPtr = static_cast<listBoxDef_t*>(si->item->typeData);
+	auto *listPtr = static_cast<listBoxDef_t*>(si->item->typeData);
 	if ( si->item->window.flags & WINDOW_HORIZONTAL ) {
 		if ( DC->cursorx == si->xStart ) {
 			return;
@@ -2388,8 +2270,8 @@ static void Scroll_ListBox_ThumbFunc( void *p ) {
 
 static void Scroll_Slider_ThumbFunc( void *p ) {
 	float x;
-	scrollInfo_t *si = static_cast<scrollInfo_t*>(p);
-	editFieldDef_t *editDef = static_cast<editFieldDef_t*>(si->item->typeData);
+	const scrollInfo_t *si = static_cast<scrollInfo_t*>(p);
+	const editFieldDef_t *editDef = static_cast<editFieldDef_t*>(si->item->typeData);
 
 	if ( si->item->text ) {
 		x = si->item->textRect.x + si->item->textRect.w + 8;
@@ -2464,12 +2346,11 @@ void Item_StopCapture( itemDef_t *item ) {
 }
 
 bool Item_Slider_HandleKey( itemDef_t *item, int key, bool down ) {
-	float x, work;
-
 	if ( item->window.flags & WINDOW_HASFOCUS && item->cvar && Rect_ContainsPoint( &item->window.rect, DC->cursorx, DC->cursory ) ) {
 		if ( key == K_MOUSE1 || key == K_ENTER || key == K_MOUSE2 || key == K_MOUSE3 ) {
 			editFieldDef_t *editDef = static_cast<editFieldDef_t*>(item->typeData);
 			if ( editDef ) {
+				float x;
 				rectDef_t testRect;
 				float width = SLIDER_WIDTH;
 				if ( item->text ) {
@@ -2484,7 +2365,7 @@ bool Item_Slider_HandleKey( itemDef_t *item, int key, bool down ) {
 				testRect.x -= value;
 				testRect.w = ( SLIDER_WIDTH + (float)SLIDER_THUMB_WIDTH / 2 );
 				if ( Rect_ContainsPoint( &testRect, DC->cursorx, DC->cursory ) ) {
-					work = DC->cursorx - x;
+					float work = DC->cursorx - x;
 					value = work / width;
 					value *= ( editDef->maxVal - editDef->minVal );
 					value += editDef->minVal;
@@ -2575,7 +2456,7 @@ void Item_Action( itemDef_t *item ) {
 
 itemDef_t *Menu_SetPrevCursorItem( menuDef_t *menu ) {
 	bool wrapped = false;
-	int oldCursor = menu->cursorItem;
+	const int oldCursor = menu->cursorItem;
 
 	if ( menu->cursorItem < 0 ) {
 		menu->cursorItem = menu->itemCount - 1;
@@ -2603,7 +2484,7 @@ itemDef_t *Menu_SetPrevCursorItem( menuDef_t *menu ) {
 itemDef_t *Menu_SetNextCursorItem( menuDef_t *menu ) {
 
 	bool wrapped = false;
-	int oldCursor = menu->cursorItem;
+	const int oldCursor = menu->cursorItem;
 
 
 	if ( menu->cursorItem == -1 ) {
@@ -2643,9 +2524,8 @@ static void Window_CloseCinematic( windowDef_t *window ) {
 
 static void Menu_CloseCinematics( menuDef_t *menu ) {
 	if ( menu ) {
-		int i;
 		Window_CloseCinematic( &menu->window );
-		for ( i = 0; i < menu->itemCount; i++ ) {
+		for ( int i = 0; i < menu->itemCount; i++ ) {
 			Window_CloseCinematic( &menu->items[i]->window );
 			if ( menu->items[i]->type == ITEM_TYPE_OWNERDRAW ) {
 				DC->stopCinematic( 0 - menu->items[i]->window.ownerDraw );
@@ -2655,8 +2535,7 @@ static void Menu_CloseCinematics( menuDef_t *menu ) {
 }
 
 static void Display_CloseCinematics() {
-	int i;
-	for ( i = 0; i < menuCount; i++ ) {
+	for ( int i = 0; i < menuCount; i++ ) {
 		Menu_CloseCinematics( &Menus[i] );
 	}
 }
@@ -2748,11 +2627,12 @@ void Menu_HandleKey( menuDef_t *menu, int key, bool down ) {
 			g_editItem = nullptr;
 			inHandler = false;
 			return;
-		} else if ( key == K_MOUSE1 || key == K_MOUSE2 || key == K_MOUSE3 ) {
+		}
+		if ( key == K_MOUSE1 || key == K_MOUSE2 || key == K_MOUSE3 ) {
 			g_editingField = false;
 			g_editItem = nullptr;
 			Display_MouseMove( nullptr, DC->cursorx, DC->cursory );
-//		} else if (key == K_TAB || key == K_UPARROW || key == K_DOWNARROW) {
+			//		} else if (key == K_TAB || key == K_UPARROW || key == K_DOWNARROW) {
 		} else {
 			return;
 		}
@@ -2960,21 +2840,21 @@ void Item_SetTextExtents( itemDef_t *item, int *width, int *height, const char *
 
 void Item_TextColor( itemDef_t *item, vec4_t *newColor ) {
 	vec4_t lowLight;
-	menuDef_t *parent = static_cast<menuDef_t*>(item->parent);
+	auto *parent = static_cast<menuDef_t*>(item->parent);
 
 	Fade( &item->window.flags, &item->window.foreColor[3], parent->fadeClamp, &item->window.nextTime, parent->fadeCycle, true, parent->fadeAmount );
 
 	if ( item->window.flags & WINDOW_HASFOCUS ) {
-		lowLight[0] = 0.8 * parent->focusColor[0];
-		lowLight[1] = 0.8 * parent->focusColor[1];
-		lowLight[2] = 0.8 * parent->focusColor[2];
-		lowLight[3] = 0.8 * parent->focusColor[3];
+		lowLight[0] = 0.8f * parent->focusColor[0];
+		lowLight[1] = 0.8f * parent->focusColor[1];
+		lowLight[2] = 0.8f * parent->focusColor[2];
+		lowLight[3] = 0.8f * parent->focusColor[3];
 		LerpColor( parent->focusColor,lowLight,*newColor,0.5 + 0.5 * sin( DC->realTime / PULSE_DIVISOR ) );
 	} else if ( item->textStyle == ITEM_TEXTSTYLE_BLINK && !( ( DC->realTime / BLINK_DIVISOR ) & 1 ) ) {
-		lowLight[0] = 0.8 * item->window.foreColor[0];
-		lowLight[1] = 0.8 * item->window.foreColor[1];
-		lowLight[2] = 0.8 * item->window.foreColor[2];
-		lowLight[3] = 0.8 * item->window.foreColor[3];
+		lowLight[0] = 0.8f * item->window.foreColor[0];
+		lowLight[1] = 0.8f * item->window.foreColor[1];
+		lowLight[2] = 0.8f * item->window.foreColor[2];
+		lowLight[3] = 0.8f * item->window.foreColor[3];
 		LerpColor( item->window.foreColor,lowLight,*newColor,0.5 + 0.5 * sin( DC->realTime / PULSE_DIVISOR ) );
 	} else {
 		memcpy( newColor, &item->window.foreColor, sizeof( vec4_t ) );
@@ -3075,10 +2955,9 @@ void Item_Text_Wrapped_Paint( itemDef_t *item ) {
 	if ( item->text == nullptr ) {
 		if ( item->cvar == nullptr ) {
 			return;
-		} else {
-			Cvar_VariableStringBuffer( item->cvar, text, sizeof( text ) );
-			textPtr = text;
 		}
+		Cvar_VariableStringBuffer( item->cvar, text, sizeof( text ) );
+		textPtr = text;
 	} else {
 		textPtr = item->text;
 	}
@@ -3158,8 +3037,8 @@ void Item_Text_Paint( itemDef_t *item ) {
 void Item_TextField_Paint( itemDef_t *item ) {
 	char buff[1024];
 	vec4_t newColor, lowLight;
-	menuDef_t *parent = static_cast<menuDef_t*>(item->parent);
-	editFieldDef_t *editPtr = static_cast<editFieldDef_t*>(item->typeData);
+	auto *parent = static_cast<menuDef_t*>(item->parent);
+	const editFieldDef_t *editPtr = static_cast<editFieldDef_t*>(item->typeData);
 
 	Item_Text_Paint( item );
 
@@ -3193,8 +3072,8 @@ void Item_TextField_Paint( itemDef_t *item ) {
 
 void Item_YesNo_Paint( itemDef_t *item ) {
 	vec4_t newColor, lowLight;
-	menuDef_t *parent = static_cast<menuDef_t*>(item->parent);
-	const char *yes_str = "yes", *no_str = "no";
+	auto *parent = static_cast<menuDef_t*>(item->parent);
+	auto yes_str = "yes", no_str = "no";
 
 	const float value = (item->cvar) ? Cvar_VariableValue(item->cvar) : 0;
 
@@ -3221,8 +3100,8 @@ void Item_YesNo_Paint( itemDef_t *item ) {
 
 void Item_Multi_Paint( itemDef_t *item ) {
 	vec4_t newColor, lowLight;
-	const char *text = "";
-	menuDef_t *parent = static_cast<menuDef_t*>(item->parent);
+	auto text = "";
+	auto *parent = static_cast<menuDef_t*>(item->parent);
 
 	if ( item->window.flags & WINDOW_HASFOCUS ) {
 		lowLight[0] = 0.8f * parent->focusColor[0];
@@ -3376,15 +3255,8 @@ static bind_t g_bindings[] =
 };
 
 
-static const int g_bindCount = sizeof( g_bindings ) / sizeof( bind_t );
+static constexpr int g_bindCount = sizeof( g_bindings ) / sizeof( bind_t );
 
-// (SA) removed code that made me nervous and didn't do anything.  (10/11/01)
-
-/*
-=================
-Controls_GetKeyAssignment
-=================
-*/
 static void Controls_GetKeyAssignment( const char *command, int *twokeys ) {
 	char b[256];
 
@@ -3407,11 +3279,6 @@ static void Controls_GetKeyAssignment( const char *command, int *twokeys ) {
 	}
 }
 
-/*
-=================
-Controls_GetConfig
-=================
-*/
 void Controls_GetConfig( ) {
 	int twokeys[2];
 
@@ -3425,11 +3292,6 @@ void Controls_GetConfig( ) {
 	}
 }
 
-/*
-=================
-Controls_SetConfig
-=================
-*/
 void Controls_SetConfig( bool restart ) {
 	// iterate each command, get its numeric binding
 	for (const auto & g_binding : g_bindings)
@@ -3450,11 +3312,7 @@ void Controls_SetConfig( bool restart ) {
 #endif
 }
 
-/*
-=================
-Controls_SetDefaults
-=================
-*/
+
 void Controls_SetDefaults( ) {
 	// iterate each command, set its default binding
 	for (auto & g_binding : g_bindings)
@@ -3462,15 +3320,6 @@ void Controls_SetDefaults( ) {
 		g_binding.bind1 = g_binding.defaultbind1;
 		g_binding.bind2 = g_binding.defaultbind2;
 	}
-
-	//s_controls.invertmouse.curvalue  = Controls_GetCvarDefault( "m_pitch" ) < 0;
-	//s_controls.smoothmouse.curvalue  = Controls_GetCvarDefault( "m_filter" );
-	//s_controls.alwaysrun.curvalue    = Controls_GetCvarDefault( "cl_run" );
-	//s_controls.autoswitch.curvalue   = Controls_GetCvarDefault( "cg_autoswitch" );
-	//s_controls.sensitivity.curvalue  = Controls_GetCvarDefault( "sensitivity" );
-	//s_controls.joyenable.curvalue    = Controls_GetCvarDefault( "in_joystick" );
-	//s_controls.joythreshold.curvalue = Controls_GetCvarDefault( "joy_threshold" );
-	//s_controls.freelook.curvalue     = Controls_GetCvarDefault( "cl_freelook" );
 }
 
 int BindingIDFromName( const char *name ) {
@@ -3513,15 +3362,15 @@ void BindingFromName( const char *cvar ) {
 void Item_Slider_Paint( itemDef_t *item ) {
 	vec4_t newColor, lowLight;
 	float x;
-	menuDef_t *parent = static_cast<menuDef_t*>(item->parent);
+	auto *parent = static_cast<menuDef_t*>(item->parent);
 
 	float value = (item->cvar) ? Cvar_VariableValue(item->cvar) : 0;
 
 	if ( item->window.flags & WINDOW_HASFOCUS ) {
-		lowLight[0] = 0.8 * parent->focusColor[0];
-		lowLight[1] = 0.8 * parent->focusColor[1];
-		lowLight[2] = 0.8 * parent->focusColor[2];
-		lowLight[3] = 0.8 * parent->focusColor[3];
+		lowLight[0] = 0.8f * parent->focusColor[0];
+		lowLight[1] = 0.8f * parent->focusColor[1];
+		lowLight[2] = 0.8f * parent->focusColor[2];
+		lowLight[3] = 0.8f * parent->focusColor[3];
 		LerpColor( parent->focusColor,lowLight,newColor,0.5 + 0.5 * sin( DC->realTime / PULSE_DIVISOR ) );
 	} else {
 		memcpy( &newColor, &item->window.foreColor, sizeof( vec4_t ) );
@@ -3544,8 +3393,8 @@ void Item_Slider_Paint( itemDef_t *item ) {
 void Item_Bind_Paint( itemDef_t *item ) {
 	vec4_t newColor, lowLight;
 	int maxChars = 0;
-	menuDef_t *parent = static_cast<menuDef_t*>(item->parent);
-	editFieldDef_t *editPtr = static_cast<editFieldDef_t*>(item->typeData);
+	auto *parent = static_cast<menuDef_t*>(item->parent);
+	auto *editPtr = static_cast<editFieldDef_t*>(item->typeData);
 	if ( editPtr ) {
 		maxChars = editPtr->maxPaintChars;
 	}
@@ -3687,11 +3536,11 @@ void AdjustFrom640( float *x, float *y, float *w, float *h ) {
 
 void Item_Model_Paint( itemDef_t *item ) {
 	float x, y, w, h;   //,xx;
-	refdef_t refdef;
+	refdef_t refdef{};
 	refEntity_t ent;
 	vec3_t mins, maxs, origin;
 	vec3_t angles;
-	modelDef_t *modelPtr = static_cast<modelDef_t*>(item->typeData);
+	auto *modelPtr = static_cast<modelDef_t*>(item->typeData);
 
 	if ( modelPtr == nullptr ) {
 		return;
@@ -3701,7 +3550,7 @@ void Item_Model_Paint( itemDef_t *item ) {
 		return;
 	}
 
-	qhandle_t hModel = item->asset;
+	const qhandle_t hModel = item->asset;
 
 	// setup the refdef
 	memset( &refdef, 0, sizeof( refdef ) );
@@ -3721,12 +3570,12 @@ void Item_Model_Paint( itemDef_t *item ) {
 
 	DC->modelBounds( hModel, mins, maxs );
 
-	origin[2] = -0.5 * ( mins[2] + maxs[2] );
-	origin[1] = 0.5 * ( mins[1] + maxs[1] );
+	origin[2] = -0.5f * ( mins[2] + maxs[2] );
+	origin[1] = 0.5f * ( mins[1] + maxs[1] );
 
 	// calculate distance so the model nearly fills the box
-	float len = 0.5 * ( maxs[2] - mins[2] );
-	origin[0] = len / 0.268;    // len / tan( fov/2 )
+	const float len = 0.5f * ( maxs[2] - mins[2] );
+	origin[0] = len / 0.268f;    // len / tan( fov/2 )
 
 
 
@@ -3763,7 +3612,7 @@ void Item_Model_Paint( itemDef_t *item ) {
 	}
 
 	if ( modelPtr->backlerp > 1 ) {
-		int backLerpWhole = floor(modelPtr->backlerp);
+		const int backLerpWhole = floor(modelPtr->backlerp);
 
 		modelPtr->frame += ( backLerpWhole );
 		if ( ( modelPtr->frame - modelPtr->startframe ) > modelPtr->numframes ) {
@@ -3962,14 +3811,13 @@ void Item_OwnerDraw_Paint( itemDef_t *item ) {
 		return;
 	}
 	vec4_t color, lowLight;
-	menuDef_t *parent = static_cast<menuDef_t*>(item->parent);
+	auto *parent = static_cast<menuDef_t*>(item->parent);
 	Fade( &item->window.flags, &item->window.foreColor[3], parent->fadeClamp, &item->window.nextTime, parent->fadeCycle, true, parent->fadeAmount );
 	memcpy( &color, &item->window.foreColor, sizeof( color ) );
 	if ( item->numColors > 0) {
 		// if the value is within one of the ranges then set color to that, otherwise leave at default
-		int i;
-		float f = CG_GetValue( item->window.ownerDraw, item->colorRangeType );
-		for ( i = 0; i < item->numColors; i++ ) {
+		const float f = CG_GetValue( item->window.ownerDraw, item->colorRangeType );
+		for ( int i = 0; i < item->numColors; i++ ) {
 			if ( f >= item->colorRanges[i].low && f <= item->colorRanges[i].high ) {
 				memcpy( &color, &item->colorRanges[i].color, sizeof( color ) );
 				break;
@@ -4030,13 +3878,13 @@ void Item_Paint( itemDef_t *item ) {
 		if ( DC->realTime > item->window.nextTime ) {
 			item->window.nextTime = DC->realTime + item->window.offsetTime;
 			// translate
-			float w = item->window.rectClient.w / 2;
-			float h = item->window.rectClient.h / 2;
-			float rx = item->window.rectClient.x + w - item->window.rectEffects.x;
-			float ry = item->window.rectClient.y + h - item->window.rectEffects.y;
-			float a = 3 * M_PI / 180;
-			float c = cos(a);
-			float s = sin(a);
+			const float w = item->window.rectClient.w / 2;
+			const float h = item->window.rectClient.h / 2;
+			const float rx = item->window.rectClient.x + w - item->window.rectEffects.x;
+			const float ry = item->window.rectClient.y + h - item->window.rectEffects.y;
+			const float a = 3.0 * M_PI / 180.0;
+			const float c = cos(a);
+			const float s = sin(a);
 			item->window.rectClient.x = ( rx * c - ry * s ) + item->window.rectEffects.x - w;
 			item->window.rectClient.y = ( rx * s + ry * c ) + item->window.rectEffects.y - h;
 			Item_UpdatePosition( item );
@@ -4154,7 +4002,7 @@ void Item_Paint( itemDef_t *item ) {
 
 	if ( debugMode ) {
 		vec4_t color;
-		rectDef_t *r = Item_CorrectedTextRect( item );
+		const rectDef_t *r = Item_CorrectedTextRect( item );
 		color[1] = color[3] = 1;
 		color[0] = color[2] = 0;
 		DC->drawRect( r->x, r->y, r->w, r->h, 1, color );
@@ -4261,7 +4109,7 @@ void Menu_SetFeederSelection( menuDef_t *menu, int feeder, int index, const char
 		for ( int i = 0; i < menu->itemCount; i++ ) {
 			if ( menu->items[i]->special == feeder ) {
 				if ( index == 0 ) {
-					listBoxDef_t *listPtr = static_cast<listBoxDef_t*>(menu->items[i]->typeData);
+					auto *listPtr = static_cast<listBoxDef_t*>(menu->items[i]->typeData);
 					listPtr->cursorPos = 0;
 					listPtr->startPos = 0;
 				}
@@ -4419,11 +4267,6 @@ void Menu_Paint( menuDef_t *menu, bool forcePaint ) {
 	}
 }
 
-/*
-===============
-Item_ValidateTypeData
-===============
-*/
 void Item_ValidateTypeData( itemDef_t *item ) {
 	if ( item->typeData ) {
 		return;
@@ -4449,12 +4292,6 @@ void Item_ValidateTypeData( itemDef_t *item ) {
 	}
 }
 
-/*
-===============
-Keyword Hash
-===============
-*/
-
 #define KEYWORDHASH_SIZE    512
 
 typedef struct keywordHash_s
@@ -4478,7 +4315,7 @@ int KeywordHash_Key( const char *keyword ) {
 }
 
 void KeywordHash_Add( keywordHash_t *table[], keywordHash_t *key ) {
-	int hash = KeywordHash_Key( key->keyword );
+	const int hash = KeywordHash_Key( key->keyword );
 
 	key->next = table[hash];
 	table[hash] = key;
@@ -4527,7 +4364,6 @@ bool ItemParse_text( itemDef_t *item, int handle ) {
 	return true;
 }
 
-//----(SA)	added
 
 // textfile <string>
 // read an external textfile into item->text
@@ -4543,10 +4379,6 @@ bool ItemParse_textfile( itemDef_t *item, int handle ) {
 
 	return true;
 }
-//----(SA)
-
-
-//----(SA)	added
 bool ItemParse_textsavegame( itemDef_t *item, int handle ) {
 
 	// this'll get picked up when the savegames are parsed
@@ -4554,8 +4386,6 @@ bool ItemParse_textsavegame( itemDef_t *item, int handle ) {
 	item->textSavegameInfo = true;
 	return true;
 }
-//----(SA)	end
-
 
 
 // group <string>
@@ -4571,7 +4401,7 @@ bool ItemParse_group( itemDef_t *item, int handle ) {
 bool ItemParse_asset_model( itemDef_t *item, int handle ) {
 	const char *temp;
 	Item_ValidateTypeData( item );
-	modelDef_t* modelPtr = static_cast<modelDef_t*>(item->typeData);
+	auto* modelPtr = static_cast<modelDef_t*>(item->typeData);
 
 	if ( !PC_String_Parse( handle, &temp ) ) {
 		return false;
@@ -4597,7 +4427,7 @@ bool ItemParse_asset_shader( itemDef_t *item, int handle ) {
 // model_origin <number> <number> <number>
 bool ItemParse_model_origin( itemDef_t *item, int handle ) {
 	Item_ValidateTypeData( item );
-	modelDef_t* modelPtr = static_cast<modelDef_t*>(item->typeData);
+	auto* modelPtr = static_cast<modelDef_t*>(item->typeData);
 
 	if ( PC_Float_Parse( handle, &modelPtr->origin[0] ) ) {
 		if ( PC_Float_Parse( handle, &modelPtr->origin[1] ) ) {
@@ -4612,7 +4442,7 @@ bool ItemParse_model_origin( itemDef_t *item, int handle ) {
 // model_fovx <number>
 bool ItemParse_model_fovx( itemDef_t *item, int handle ) {
 	Item_ValidateTypeData( item );
-	modelDef_t* modelPtr = static_cast<modelDef_t*>(item->typeData);
+	auto* modelPtr = static_cast<modelDef_t*>(item->typeData);
 
 	if ( !PC_Float_Parse( handle, &modelPtr->fov_x ) ) {
 		return false;
@@ -4623,7 +4453,7 @@ bool ItemParse_model_fovx( itemDef_t *item, int handle ) {
 // model_fovy <number>
 bool ItemParse_model_fovy( itemDef_t *item, int handle ) {
 	Item_ValidateTypeData( item );
-	modelDef_t* modelPtr = static_cast<modelDef_t*>(item->typeData);
+	auto* modelPtr = static_cast<modelDef_t*>(item->typeData);
 
 	if ( !PC_Float_Parse( handle, &modelPtr->fov_y ) ) {
 		return false;
@@ -4634,7 +4464,7 @@ bool ItemParse_model_fovy( itemDef_t *item, int handle ) {
 // model_rotation <integer>
 bool ItemParse_model_rotation( itemDef_t *item, int handle ) {
 	Item_ValidateTypeData( item );
-	modelDef_t* modelPtr = static_cast<modelDef_t*>(item->typeData);
+	auto* modelPtr = static_cast<modelDef_t*>(item->typeData);
 
 	if ( !PC_Int_Parse( handle, &modelPtr->rotationSpeed ) ) {
 		return false;
@@ -4645,7 +4475,7 @@ bool ItemParse_model_rotation( itemDef_t *item, int handle ) {
 // model_angle <integer>
 bool ItemParse_model_angle( itemDef_t *item, int handle ) {
 	Item_ValidateTypeData( item );
-	modelDef_t* modelPtr = static_cast<modelDef_t*>(item->typeData);
+	auto* modelPtr = static_cast<modelDef_t*>(item->typeData);
 
 	if ( !PC_Int_Parse( handle, &modelPtr->angle ) ) {
 		return false;
@@ -4656,7 +4486,7 @@ bool ItemParse_model_angle( itemDef_t *item, int handle ) {
 // model_animplay <int(startframe)> <int(numframes)> <int(loopframes)> <int(fps)>
 bool ItemParse_model_animplay( itemDef_t *item, int handle ) {
 	Item_ValidateTypeData( item );
-	modelDef_t* modelPtr = static_cast<modelDef_t*>(item->typeData);
+	auto* modelPtr = static_cast<modelDef_t*>(item->typeData);
 
 	modelPtr->animated = 1;
 
@@ -4706,7 +4536,7 @@ bool ItemParse_decoration( itemDef_t *item, int handle ) {
 // notselectable
 bool ItemParse_notselectable( itemDef_t *item, int handle ) {
 	Item_ValidateTypeData( item );
-	listBoxDef_t* listPtr = static_cast<listBoxDef_t*>(item->typeData);
+	auto* listPtr = static_cast<listBoxDef_t*>(item->typeData);
 	if ( item->type == ITEM_TYPE_LISTBOX && listPtr ) {
 		listPtr->notselectable = true;
 	}
@@ -4745,7 +4575,7 @@ bool ItemParse_type( itemDef_t *item, int handle ) {
 // uses textalignx for storage
 bool ItemParse_elementwidth( itemDef_t *item, int handle ) {
 	Item_ValidateTypeData( item );
-	listBoxDef_t* listPtr = static_cast<listBoxDef_t*>(item->typeData);
+	auto* listPtr = static_cast<listBoxDef_t*>(item->typeData);
 	if ( !PC_Float_Parse( handle, &listPtr->elementWidth ) ) {
 		return false;
 	}
@@ -4756,7 +4586,7 @@ bool ItemParse_elementwidth( itemDef_t *item, int handle ) {
 // uses textaligny for storage
 bool ItemParse_elementheight( itemDef_t *item, int handle ) {
 	Item_ValidateTypeData( item );
-	listBoxDef_t* listPtr = static_cast<listBoxDef_t*>(item->typeData);
+	auto* listPtr = static_cast<listBoxDef_t*>(item->typeData);
 	if ( !PC_Float_Parse( handle, &listPtr->elementHeight ) ) {
 		return false;
 	}
@@ -4778,7 +4608,7 @@ bool ItemParse_elementtype( itemDef_t *item, int handle ) {
 	if ( !item->typeData ) {
 		return false;
 	}
-	listBoxDef_t* listPtr = static_cast<listBoxDef_t*>(item->typeData);
+	auto* listPtr = static_cast<listBoxDef_t*>(item->typeData);
 	if ( !PC_Int_Parse( handle, &listPtr->elementStyle ) ) {
 		return false;
 	}
@@ -5078,7 +4908,7 @@ bool ItemParse_maxChars( itemDef_t *item, int handle ) {
 	if ( !PC_Int_Parse( handle, &maxChars ) ) {
 		return false;
 	}
-	editFieldDef_t* editPtr = static_cast<editFieldDef_t*>(item->typeData);
+	auto* editPtr = static_cast<editFieldDef_t*>(item->typeData);
 	editPtr->maxChars = maxChars;
 	return true;
 }
@@ -5094,7 +4924,7 @@ bool ItemParse_maxPaintChars( itemDef_t *item, int handle ) {
 	if ( !PC_Int_Parse( handle, &maxChars ) ) {
 		return false;
 	}
-	editFieldDef_t* editPtr = (editFieldDef_t*)item->typeData;
+	auto* editPtr = static_cast<editFieldDef_t*>(item->typeData);
 	editPtr->maxPaintChars = maxChars;
 	return true;
 }
@@ -5106,7 +4936,7 @@ bool ItemParse_cvarFloat( itemDef_t *item, int handle ) {
 	if ( !item->typeData ) {
 		return false;
 	}
-	editFieldDef_t* editPtr = (editFieldDef_t*)item->typeData;
+	auto* editPtr = static_cast<editFieldDef_t*>(item->typeData);
 	if ( PC_String_Parse( handle, &item->cvar ) &&
 		 PC_Float_Parse( handle, &editPtr->defVal ) &&
 		 PC_Float_Parse( handle, &editPtr->minVal ) &&
@@ -5123,7 +4953,7 @@ bool ItemParse_cvarStrList( itemDef_t *item, int handle ) {
 	if ( !item->typeData ) {
 		return false;
 	}
-	multiDef_t* multiPtr = static_cast<multiDef_t*>(item->typeData);
+	auto* multiPtr = static_cast<multiDef_t*>(item->typeData);
 	multiPtr->count = 0;
 	multiPtr->strDef = true;
 
@@ -5173,7 +5003,7 @@ bool ItemParse_cvarFloatList( itemDef_t *item, int handle ) {
 	if ( !item->typeData ) {
 		return false;
 	}
-	multiDef_t* multiPtr = (multiDef_t*)item->typeData;
+	auto multiPtr = static_cast<multiDef_t*>(item->typeData);
 	multiPtr->count = 0;
 	multiPtr->strDef = false;
 
@@ -5362,25 +5192,13 @@ keywordHash_t itemParseKeywords[] = {
 
 keywordHash_t *itemParseKeywordHash[KEYWORDHASH_SIZE];
 
-/*
-===============
-Item_SetupKeywordHash
-===============
-*/
 void Item_SetupKeywordHash( ) {
-	int i;
-
 	memset( itemParseKeywordHash, 0, sizeof( itemParseKeywordHash ) );
-	for ( i = 0; itemParseKeywords[i].keyword; i++ ) {
+	for ( int i = 0; itemParseKeywords[i].keyword; i++ ) {
 		KeywordHash_Add( itemParseKeywordHash, &itemParseKeywords[i] );
 	}
 }
 
-/*
-===============
-Item_Parse
-===============
-*/
 bool Item_Parse( int handle, itemDef_t *item ) {
 	pc_token_t token;
 
@@ -5439,7 +5257,7 @@ Menu Keyword Parse functions
 */
 
 bool MenuParse_font( itemDef_t *item, int handle ) {
-	menuDef_t *menu = (menuDef_t*)item;
+	auto *menu = (menuDef_t*)item;
 	if ( !PC_String_Parse( handle, &menu->font ) ) {
 		return false;
 	}
@@ -5451,7 +5269,7 @@ bool MenuParse_font( itemDef_t *item, int handle ) {
 }
 
 bool MenuParse_name( itemDef_t *item, int handle ) {
-	menuDef_t *menu = (menuDef_t*)item;
+	auto *menu = (menuDef_t*)item;
 	if ( !PC_String_Parse( handle, &menu->window.name ) ) {
 		return false;
 	}
@@ -5459,7 +5277,7 @@ bool MenuParse_name( itemDef_t *item, int handle ) {
 }
 
 bool MenuParse_fullscreen( itemDef_t *item, int handle ) {
-	menuDef_t *menu = (menuDef_t*)item;
+	auto *menu = (menuDef_t*)item;
 	if ( !PC_Int_Parse( handle, (int*)&menu->fullScreen ) ) {
 		return false;
 	}
@@ -5467,7 +5285,7 @@ bool MenuParse_fullscreen( itemDef_t *item, int handle ) {
 }
 
 bool MenuParse_rect( itemDef_t *item, int handle ) {
-	menuDef_t *menu = (menuDef_t*)item;
+	auto *menu = (menuDef_t*)item;
 	if ( !PC_Rect_Parse( handle, &menu->window.rect ) ) {
 		return false;
 	}
@@ -5475,7 +5293,7 @@ bool MenuParse_rect( itemDef_t *item, int handle ) {
 }
 
 bool MenuParse_style( itemDef_t *item, int handle ) {
-	menuDef_t *menu = (menuDef_t*)item;
+	auto *menu = (menuDef_t*)item;
 	if ( !PC_Int_Parse( handle, &menu->window.style ) ) {
 		return false;
 	}
@@ -5484,7 +5302,7 @@ bool MenuParse_style( itemDef_t *item, int handle ) {
 
 bool MenuParse_visible( itemDef_t *item, int handle ) {
 	int i;
-	menuDef_t *menu = (menuDef_t*)item;
+	auto *menu = (menuDef_t*)item;
 
 	if ( !PC_Int_Parse( handle, &i ) ) {
 		return false;
@@ -5496,61 +5314,40 @@ bool MenuParse_visible( itemDef_t *item, int handle ) {
 }
 
 bool MenuParse_onOpen( itemDef_t *item, int handle ) {
-	menuDef_t *menu = (menuDef_t*)item;
-	if ( !PC_Script_Parse( handle, &menu->onOpen ) ) {
-		return false;
-	}
-	return true;
+	auto *menu = (menuDef_t*)item;
+	return PC_Script_Parse( handle, &menu->onOpen );
 }
 
 bool MenuParse_onClose( itemDef_t *item, int handle ) {
-	menuDef_t *menu = (menuDef_t*)item;
-	if ( !PC_Script_Parse( handle, &menu->onClose ) ) {
-		return false;
-	}
-	return true;
+	auto *menu = (menuDef_t*)item;
+	return PC_Script_Parse( handle, &menu->onClose );
 }
 
 bool MenuParse_onESC( itemDef_t *item, int handle ) {
-	menuDef_t *menu = (menuDef_t*)item;
-	if ( !PC_Script_Parse( handle, &menu->onESC ) ) {
-		return false;
-	}
-	return true;
+	auto *menu = (menuDef_t*)item;
+	return PC_Script_Parse( handle, &menu->onESC );
 }
 
-//----(SA)	added
+
 bool MenuParse_onROQDone( itemDef_t *item, int handle ) {
-	menuDef_t *menu = (menuDef_t*)item;
-	if ( !PC_Script_Parse( handle, &menu->onROQDone ) ) {
-		return false;
-	}
-	return true;
+	auto *menu = (menuDef_t*)item;
+	return PC_Script_Parse( handle, &menu->onROQDone );
 }
-
-//----(SA)	end
-
 
 
 bool MenuParse_border( itemDef_t *item, int handle ) {
-	menuDef_t *menu = (menuDef_t*)item;
-	if ( !PC_Int_Parse( handle, &menu->window.border ) ) {
-		return false;
-	}
-	return true;
+	auto *menu = (menuDef_t*)item;
+	return PC_Int_Parse( handle, &menu->window.border ) ;
 }
 
 bool MenuParse_borderSize( itemDef_t *item, int handle ) {
-	menuDef_t *menu = (menuDef_t*)item;
-	if ( !PC_Float_Parse( handle, &menu->window.borderSize ) ) {
-		return false;
-	}
-	return true;
+	auto *menu = (menuDef_t*)item;
+	return PC_Float_Parse( handle, &menu->window.borderSize );
 }
 
 bool MenuParse_backcolor( itemDef_t *item, int handle ) {
 
-	menuDef_t *menu = (menuDef_t*)item;
+	auto *menu = (menuDef_t*)item;
 
 	for (float & i : menu->window.backColor) {
 		float f;
@@ -5564,7 +5361,7 @@ bool MenuParse_backcolor( itemDef_t *item, int handle ) {
 
 bool MenuParse_forecolor( itemDef_t *item, int handle ) {
 
-	menuDef_t *menu = (menuDef_t*)item;
+	auto *menu = (menuDef_t*)item;
 
 	for (float & i : menu->window.foreColor) {
 		float f;
@@ -5579,7 +5376,7 @@ bool MenuParse_forecolor( itemDef_t *item, int handle ) {
 
 bool MenuParse_bordercolor( itemDef_t *item, int handle ) {
 
-	menuDef_t *menu = (menuDef_t*)item;
+	auto *menu = (menuDef_t*)item;
 
 	for (float & i : menu->window.borderColor) {
 		float f;
@@ -5592,7 +5389,7 @@ bool MenuParse_bordercolor( itemDef_t *item, int handle ) {
 }
 
 bool MenuParse_focuscolor( itemDef_t *item, int handle ) {
-	menuDef_t *menu = (menuDef_t*)item;
+	auto *menu = (menuDef_t*)item;
 
 	for (float & i : menu->focusColor) {
 		float f;
@@ -5606,7 +5403,7 @@ bool MenuParse_focuscolor( itemDef_t *item, int handle ) {
 
 bool MenuParse_disablecolor( itemDef_t *item, int handle ) {
 
-	menuDef_t *menu = (menuDef_t*)item;
+	auto *menu = (menuDef_t*)item;
 	for (float & i : menu->disableColor) {
 		float f;
 		if ( !PC_Float_Parse( handle, &f ) ) {
@@ -5619,16 +5416,13 @@ bool MenuParse_disablecolor( itemDef_t *item, int handle ) {
 
 
 bool MenuParse_outlinecolor( itemDef_t *item, int handle ) {
-	menuDef_t *menu = (menuDef_t*)item;
-	if ( !PC_Color_Parse( handle, &menu->window.outlineColor ) ) {
-		return false;
-	}
-	return true;
+	auto *menu = (menuDef_t*)item;
+	return PC_Color_Parse( handle, &menu->window.outlineColor );
 }
 
 bool MenuParse_background( itemDef_t *item, int handle ) {
 	const char *buff;
-	menuDef_t *menu = (menuDef_t*)item;
+	auto *menu = (menuDef_t*)item;
 
 	if ( !PC_String_Parse( handle, &buff ) ) {
 		return false;
@@ -5638,17 +5432,14 @@ bool MenuParse_background( itemDef_t *item, int handle ) {
 }
 
 bool MenuParse_cinematic( itemDef_t *item, int handle ) {
-	menuDef_t *menu = (menuDef_t*)item;
+	auto *menu = (menuDef_t*)item;
 
-	if ( !PC_String_Parse( handle, &menu->window.cinematicName ) ) {
-		return false;
-	}
-	return true;
+	return PC_String_Parse( handle, &menu->window.cinematicName );
 }
 
 bool MenuParse_ownerdrawFlag( itemDef_t *item, int handle ) {
 	int i;
-	menuDef_t *menu = (menuDef_t*)item;
+	auto *menu = (menuDef_t*)item;
 
 	if ( !PC_Int_Parse( handle, &i ) ) {
 		return false;
@@ -5658,78 +5449,63 @@ bool MenuParse_ownerdrawFlag( itemDef_t *item, int handle ) {
 }
 
 bool MenuParse_ownerdraw( itemDef_t *item, int handle ) {
-	menuDef_t *menu = (menuDef_t*)item;
+	auto *menu = (menuDef_t*)item;
 
-	if ( !PC_Int_Parse( handle, &menu->window.ownerDraw ) ) {
-		return false;
-	}
-	return true;
+	return PC_Int_Parse( handle, &menu->window.ownerDraw );
 }
 
 
 // decoration
 bool MenuParse_popup( itemDef_t *item, int handle ) {
-	menuDef_t *menu = (menuDef_t*)item;
+	auto *menu = (menuDef_t*)item;
 	menu->window.flags |= WINDOW_POPUP;
 	return true;
 }
 
 
 bool MenuParse_outOfBounds( itemDef_t *item, int handle ) {
-	menuDef_t *menu = (menuDef_t*)item;
+	auto *menu = (menuDef_t*)item;
 
 	menu->window.flags |= WINDOW_OOB_CLICK;
 	return true;
 }
 
 bool MenuParse_soundLoop( itemDef_t *item, int handle ) {
-	menuDef_t *menu = (menuDef_t*)item;
+	auto *menu = (menuDef_t*)item;
 
-	if ( !PC_String_Parse( handle, &menu->soundName ) ) {
-		return false;
-	}
-	return true;
+	return PC_String_Parse( handle, &menu->soundName );
 }
 
 bool MenuParse_fadeClamp( itemDef_t *item, int handle ) {
-	menuDef_t *menu = (menuDef_t*)item;
+	auto *menu = (menuDef_t*)item;
 
-	if ( !PC_Float_Parse( handle, &menu->fadeClamp ) ) {
-		return false;
-	}
-	return true;
+	return PC_Float_Parse( handle, &menu->fadeClamp );
 }
 
 bool MenuParse_fadeAmount( itemDef_t *item, int handle ) {
-	menuDef_t *menu = (menuDef_t*)item;
+	auto *menu = (menuDef_t*)item;
 
-	if ( !PC_Float_Parse( handle, &menu->fadeAmount ) ) {
-		return false;
-	}
-	return true;
+	return PC_Float_Parse( handle, &menu->fadeAmount );
 }
 
 
 bool MenuParse_fadeCycle( itemDef_t *item, int handle ) {
-	menuDef_t *menu = (menuDef_t*)item;
+	auto *menu = (menuDef_t*)item;
 
-	if ( !PC_Int_Parse( handle, &menu->fadeCycle ) ) {
-		return false;
-	}
-	return true;
+	return PC_Int_Parse( handle, &menu->fadeCycle );
 }
 
 
 bool MenuParse_itemDef( itemDef_t *item, int handle ) {
-	menuDef_t *menu = (menuDef_t*)item;
+	auto *menu = (menuDef_t*)item;
 	if ( menu->itemCount < MAX_MENUITEMS ) {
         
-		menu->items[menu->itemCount] = (itemDef_t *)UI_Alloc( sizeof( itemDef_t ) );
+		menu->items[menu->itemCount] = static_cast<itemDef_t*>(UI_Alloc(sizeof(itemDef_t)));
 		Item_Init( menu->items[menu->itemCount] );
 		if ( !Item_Parse( handle, menu->items[menu->itemCount] ) ) {
 			return false;
 		}
-        itemDef_t* childDef = menu->items[menu->itemCount];
+        const itemDef_t* childDef = menu->items[menu->itemCount];
         if (strcmp(childDef->window.name, "modoptions") == 0){
             // No modes in sp wolf
             return true;
@@ -5744,9 +5520,8 @@ bool MenuParse_itemDef( itemDef_t *item, int handle ) {
 	return true;
 }
 
-// NERVE - SMF
 bool MenuParse_execKey( itemDef_t *item, int handle ) {
-	menuDef_t *menu = ( menuDef_t* )item;
+	auto *menu = ( menuDef_t* )item;
 	char keyname;
 
 	if ( !PC_Char_Parse( handle, &keyname ) ) {
@@ -5761,7 +5536,7 @@ bool MenuParse_execKey( itemDef_t *item, int handle ) {
 }
 
 bool MenuParse_execKeyInt( itemDef_t *item, int handle ) {
-	menuDef_t *menu = ( menuDef_t* )item;
+	auto *menu = ( menuDef_t* )item;
 	int keyname;
 
 	if ( !PC_Int_Parse( handle, &keyname ) ) {
@@ -5773,7 +5548,7 @@ bool MenuParse_execKeyInt( itemDef_t *item, int handle ) {
 	}
 	return true;
 }
-// -NERVE - SMF
+
 
 keywordHash_t menuParseKeywords[] = {
 	{"font", MenuParse_font, nullptr},
@@ -5812,11 +5587,6 @@ keywordHash_t menuParseKeywords[] = {
 
 keywordHash_t *menuParseKeywordHash[KEYWORDHASH_SIZE];
 
-/*
-===============
-Menu_SetupKeywordHash
-===============
-*/
 void Menu_SetupKeywordHash( ) {
 	memset( menuParseKeywordHash, 0, sizeof( menuParseKeywordHash ) );
 	for ( int i = 0; menuParseKeywords[i].keyword; i++ ) {
@@ -5824,11 +5594,6 @@ void Menu_SetupKeywordHash( ) {
 	}
 }
 
-/*
-===============
-Menu_Parse
-===============
-*/
 bool Menu_Parse( int handle, menuDef_t *menu ) {
 	pc_token_t token;
 
@@ -5863,11 +5628,6 @@ bool Menu_Parse( int handle, menuDef_t *menu ) {
 	}
 }
 
-/*
-===============
-Menu_New
-===============
-*/
 void Menu_New( int handle, bool isHud ) {
 	int* pMenuCount = isHud ? &hudMenuCount : &menuCount;
 	menuDef_t *menu = isHud ? &HudMenus[*pMenuCount] : &Menus[*pMenuCount];
@@ -5931,7 +5691,7 @@ void *Display_CaptureItem( int x, int y ) {
 // FIXME:
 bool Display_MouseMove( void *p, int x, int y ) {
 	
-	menuDef_t *menu = (menuDef_t*)p;
+	auto *menu = static_cast<menuDef_t*>(p);
 
 	if ( menu == nullptr ) {
 		menu = Menu_GetFocused();
@@ -5968,7 +5728,7 @@ int Display_CursorType( int x, int y ) {
 
 
 void Display_HandleKey( int key, bool down, int x, int y ) {
-	menuDef_t *menu = static_cast<menuDef_t*>(Display_CaptureItem(x, y));
+	auto *menu = static_cast<menuDef_t*>(Display_CaptureItem(x, y));
 	if ( menu == nullptr ) {
 		menu = Menu_GetFocused();
 	}
@@ -5984,14 +5744,6 @@ static void Window_CacheContents( windowDef_t *window ) {
 			DC->stopCinematic( cin );
 		}
 	}
-}
-
-
-static void Item_CacheContents( itemDef_t *item ) {
-	if ( item ) {
-		Window_CacheContents( &item->window );
-	}
-
 }
 
 static bool Menu_OverActiveItem( menuDef_t *menu, float x, float y ) {

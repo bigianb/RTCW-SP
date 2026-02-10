@@ -34,30 +34,23 @@ If you have questions concerning this license or the applicable additional terms
 
 uiInfo_t uiInfo;
 
-static int gamecodetoui[] = {4,2,3,0,5,1,6};
-static int uitogamecode[] = {4,6,2,3,1,5,7};
-
 static uiMenuCommand_t menutype = UIMENU_NONE;
-
-// externs
 extern displayContextDef_t *DC;
 
 static int  UI_SavegamesQsortCompare( const void *arg1, const void *arg2 );
-
 void Text_PaintCenter( float x, float y, int font, float scale, vec4_t color, const char *text, float adjust );
-
 
 vmCvar_t ui_new;
 vmCvar_t ui_debug;
 vmCvar_t ui_initialized;
 vmCvar_t ui_WolfFirstRun;
 
-void UI_Init( void );
-void UI_Shutdown( void );
+void UI_Init();
+void UI_Shutdown();
 void UI_KeyEvent( int key, bool down );
 void UI_MouseEvent( int dx, int dy );
 
-bool UI_IsFullscreen( void );
+bool UI_IsFullscreen();
 
 
 void AssetCache()
@@ -143,7 +136,7 @@ int Text_Width( const char *text, int font, float scale, int limit )
 {
     fontInfo_t *fnt = getTextFont(font, scale);
 
-	float useScale = scale * fnt->glyphScale;
+	const float useScale = scale * fnt->glyphScale;
 	float out = 0;
 	if ( text ) {
 		size_t len = strnlen( text, 1024);
@@ -157,7 +150,7 @@ int Text_Width( const char *text, int font, float scale, int limit )
 				s += 2;
 				continue;
 			} else {
-                glyphInfo_t *glyph = &fnt->glyphs[(unsigned char)*s];
+                glyphInfo_t *glyph = &fnt->glyphs[static_cast<unsigned char>(*s)];
 				out += glyph->xSkip;
 				s++;
 				count++;
@@ -171,7 +164,7 @@ int Text_Height( const char *text, int font, float scale, int limit )
 {
     fontInfo_t *fnt = getTextFont(font, scale);
 
-	float useScale = scale * fnt->glyphScale;
+	const float useScale = scale * fnt->glyphScale;
 	float max = 0;
 	if ( text ) {
         size_t len = strnlen( text, 1024);
@@ -199,8 +192,8 @@ int Text_Height( const char *text, int font, float scale, int limit )
 
 void Text_PaintChar( float x, float y, float scale, glyphInfo_t *glyph )
 {
-    float width = glyph->imageWidth;
-    float height = glyph->imageHeight;
+    const float width = glyph->imageWidth;
+    const float height = glyph->imageHeight;
     float w = width * scale;
     float h = height * scale;
     UI_AdjustFrom640( &x, &y, &w, &h );
@@ -215,7 +208,7 @@ void Text_Paint( float x, float y, int font, float scale, vec4_t color, const ch
     
     fontInfo_t *fnt = getTextFont(font, scale);
 
-	float useScale = scale * fnt->glyphScale;
+	const float useScale = scale * fnt->glyphScale;
 
     const char *s = text;
     RE_SetColor( color );
@@ -312,18 +305,12 @@ void Text_PaintWithCursor( float x, float y, int font, float scale, vec4_t color
 
 void UI_DrawCenteredPic( qhandle_t image, int w, int h )
 {
-	int x = ( SCREEN_WIDTH - w ) / 2;
-	int y = ( SCREEN_HEIGHT - h ) / 2;
+	const int x = ( SCREEN_WIDTH - w ) / 2;
+	const int y = ( SCREEN_HEIGHT - h ) / 2;
 	UI_DrawHandlePic( x, y, w, h, image );
 }
 
-/*
-=================
-UI_Shutdown
-=================
-*/
-void UI_Shutdown( void ) {
-
+void UI_Shutdown() {
 }
 
 bool Asset_Parse( int handle ) {
@@ -337,7 +324,7 @@ bool Asset_Parse( int handle ) {
 		return false;
 	}
 
-	while ( 1 ) {
+	while ( true ) {
 
 		memset( &token, 0, sizeof( pc_token_t ) );
 
@@ -482,7 +469,6 @@ bool Asset_Parse( int handle ) {
 				return false;
 			}
 			uiInfo.uiDC.Assets.shadowFadeClamp = uiInfo.uiDC.Assets.shadowColor[3];
-			continue;
 		}
 
 	}
@@ -494,15 +480,14 @@ void UI_ParseMenu( const char *menuFile, bool isHud  )
 {
 	Com_Printf( "Parsing menu file:%s\n", menuFile );
 
-	int handle = trap_PC_LoadSource( menuFile );
+	const int handle = trap_PC_LoadSource( menuFile );
 	if ( !handle ) {
 		return;
 	}
 
-	while ( 1 ) {
-        pc_token_t token;
-		memset( &token, 0, sizeof( pc_token_t ) );
-		if ( !PC_ReadTokenHandle( handle, &token ) ) {
+	while ( true ) {
+        pc_token_t token = {};
+        if ( !PC_ReadTokenHandle( handle, &token ) ) {
 			break;
 		}
 
@@ -548,11 +533,10 @@ bool Load_Menu( int handle, bool isHud )
 
 void LoadMenus( const char *menuFile, bool reset, bool isHud )
 {
-	int start = Sys_Milliseconds();
-	int handle = trap_PC_LoadSource( menuFile );
+	const int start = Sys_Milliseconds();
+	const int handle = trap_PC_LoadSource( menuFile );
 	if ( !handle ) {
         Com_Error( ERR_DROP, S_COLOR_YELLOW "menu file not found: %s, using default\n", menuFile );
-        return; // keep the linter happy, ERR_DROP does not return
 	}
 
 	ui_new.integer = 1;
@@ -580,19 +564,14 @@ void LoadMenus( const char *menuFile, bool reset, bool isHud )
 	trap_PC_FreeSource( handle );
 }
 
-/*
-==============
-UI_LoadTranslationStrings
-==============
-*/
 #define MAX_BUFFER          20000
-static void UI_LoadTranslationStrings( void )
+static void UI_LoadTranslationStrings()
 {
 	char filename[MAX_QPATH];
 	fileHandle_t f;
 
 	snprintf( filename, MAX_QPATH, "text/strings.txt" );
-	int len = FS_FOpenFileByMode( filename, &f, FS_READ );
+	const int len = FS_FOpenFileByMode( filename, &f, FS_READ );
 	if ( len <= 0 ) {
 		Com_Printf( S_COLOR_RED "WARNING: string translation file (strings.txt not found in main/text)\n" );
 		return;
@@ -625,7 +604,7 @@ static void UI_LoadTranslationStrings( void )
 
 void UI_Load() {
 	char lastName[1024];
-	menuDef_t *menu = Menu_GetFocused();
+	const menuDef_t *menu = Menu_GetFocused();
 	const char *menuSet = UI_Cvar_VariableString( "ui_menuFiles" );
 	if ( menu && menu->window.name ) {
 		strcpy( lastName, menu->window.name );
@@ -644,17 +623,9 @@ void UI_Load() {
 	Menus_ActivateByName( lastName );
 }
 
-//----(SA)	added
-/*
-==============
-UI_DrawSavegameName
-==============
-*/
 static void UI_DrawSavegameName( rectDef_t *rect, int font, float scale, vec4_t color, int textStyle ) {
 	Text_PaintCenter( rect->x, rect->y, font, scale, color, ui_savegameName.string, textStyle );
 }
-
-
 
 /*
 ==============
@@ -686,11 +657,7 @@ static int UI_SavegameIndexFromName2( const char *name )
 	return uiInfo.savegameStatus.displaySavegames[index];
 }
 
-/*
-==============
-UI_DrawSaveGameShot
-==============
-*/
+
 static void UI_DrawSaveGameShot( rectDef_t *rect, float scale, vec4_t color )
 {
 	qhandle_t image;
@@ -729,22 +696,6 @@ static void UI_DrawPregameCinematic( rectDef_t *rect, float scale, vec4_t color 
 
 }
 
-static void UI_DrawPreviewCinematic( rectDef_t *rect, float scale, vec4_t color ) {
-	if ( uiInfo.previewMovie > -2 ) {
-		uiInfo.previewMovie = trap_CIN_PlayCinematic( va( "%s.roq", uiInfo.movieList[uiInfo.movieIndex] ), 0, 0, 0, 0, ( CIN_loop | CIN_silent ) );
-		if ( uiInfo.previewMovie >= 0 ) {
-			trap_CIN_RunCinematic( uiInfo.previewMovie );
-			CIN_SetExtents( uiInfo.previewMovie, rect->x, rect->y, rect->w, rect->h );
-			trap_CIN_DrawCinematic( uiInfo.previewMovie );
-		} else {
-			uiInfo.previewMovie = -2;
-		}
-	}
-
-}
-
-
-//----(SA)	added
 /*
 ==============
 UI_DrawMapLevelshot
@@ -803,7 +754,6 @@ flags:
 
 void UI_FilledBar( float x, float y, float w, float h, float *startColor, float *endColor, const float *bgColor, float frac, int flags ) {
 	vec4_t backgroundcolor = {1, 1, 1, 0.25f}, colorAtPos;  // colorAtPos is the lerped color if necessary
-	int indent = BAR_BORDERSIZE;
 
 	if ( ( flags & BAR_BG ) && bgColor ) { // BAR_BG set, and color specified, use specified bg color
 		Vector4Copy( bgColor, backgroundcolor );
@@ -825,6 +775,7 @@ void UI_FilledBar( float x, float y, float w, float h, float *startColor, float 
 
 	// background
 	if ( ( flags & BAR_BG ) ) {
+		int indent = BAR_BORDERSIZE;
 		// draw background at full size and shrink the remaining box to fit inside with a border.  (alternate border may be specified by a BAR_BGSPACING_xx)
 		UI_FillRect(   x,
 					   y,
@@ -880,20 +831,12 @@ void UI_FilledBar( float x, float y, float w, float h, float *startColor, float 
 }
 
 
-
-/*
-==============
-UI_DrawLoadStatus
-==============
-*/
 static void UI_DrawLoadStatus( rectDef_t *rect, vec4_t color, int align )
 {
-    
     int flags = 0;
     
     if ( align != HUD_HORIZONTAL ) {
         flags |= 4;   // BAR_VERT
-        //		flags|=1;	// BAR_LEFT (left, when vertical means grow 'up')
     }
     
     flags |= 16;      // BAR_BG			- draw the filled contrast box
@@ -950,7 +893,7 @@ static int UI_OwnerDrawWidth( int ownerDraw, int font, float scale )
 
 static void UI_DrawCrosshair( rectDef_t *rect, float scale, vec4_t color )
 {
-	int ch = ( uiInfo.currentCrosshair % NUM_CROSSHAIRS );
+	const int ch = ( uiInfo.currentCrosshair % NUM_CROSSHAIRS );
 
 	if ( !ch ) {
 		return;
@@ -1141,15 +1084,15 @@ static float UI_GetValue( int ownerDraw, int type ) {
 
 static int  UI_SavegamesQsortCompare( const void *arg1, const void *arg2 )
 {
-	int *ea = (int *)arg1;
-	int *eb = (int *)arg2;
+	const int *ea = (int *)arg1;
+	const int *eb = (int *)arg2;
 
 	if ( *ea == *eb ) {
 		return 0;
 	}
 
-    SavegameInfo *sg = &uiInfo.savegameList[*eb];
-    SavegameInfo *sg2 = &uiInfo.savegameList[*ea];
+    const SavegameInfo *sg = &uiInfo.savegameList[*eb];
+    const SavegameInfo *sg2 = &uiInfo.savegameList[*ea];
 
     int ret = 0;
 	if ( uiInfo.savegameStatus.sortKey == SORT_SAVENAME ) {
@@ -1203,9 +1146,8 @@ static int  UI_SavegamesQsortCompare( const void *arg1, const void *arg2 )
 
 	if ( uiInfo.savegameStatus.sortDir ) {
 		return ret;
-	} else {
-		return -ret;
 	}
+	return -ret;
 }
 
 static void UI_FeederSelection( float feederID, int index );
@@ -1238,7 +1180,7 @@ void UI_SavegameSort( int column, bool force )
 
 static void UI_DelSavegame()
 {
-	int i = UI_SavegameIndexFromName2( ui_savegameName.string );
+	const int i = UI_SavegameIndexFromName2( ui_savegameName.string );
 
 	int ret = FS_Delete( va( "save/%s.svg", uiInfo.savegameList[i].savegameFile ) );
 
@@ -1347,7 +1289,7 @@ static void UI_LoadSavegames(const char *dir )
         int remaining = 4096;
 		for (int i = 0; i < uiInfo.savegameCount; i++ ) {
 
-            size_t len = strnlen( sgname, remaining );
+            const size_t len = strnlen( sgname, remaining );
             remaining -= (len + 1);
             
 			if ( !Q_stricmp( sgname, "current.svg" ) ) {    // ignore some savegames that have special uses and shouldn't be loaded by the user directly
@@ -1386,21 +1328,17 @@ static void UI_LoadSavegames(const char *dir )
 
 		// sort it
 		UI_SavegameSort( 0, true );
-
-		// set current selection
-//		i = UI_SavegameIndexFromName(ui_savegameName.string);
-//		Menu_SetFeederSelection(nullptr, FEEDER_SAVEGAMES, i, nullptr);
 	}
 }
 
 
 static void UI_Update( const char *name ) {
-	int val = Cvar_VariableValue( name );
+	const int val = Cvar_VariableValue( name );
 
 	if ( Q_stricmp( name, "ui_SetName" ) == 0 ) {
 		Cvar_Set( "name", UI_Cvar_VariableString( "ui_Name" ) );
 	} else if ( Q_stricmp( name, "ui_setRate" ) == 0 ) {
-		float rate = Cvar_VariableValue( "rate" );
+		const float rate = Cvar_VariableValue( "rate" );
 		if ( rate >= 5000 ) {
 			Cvar_Set( "cl_maxpackets", "30" );
 			Cvar_Set( "cl_packetdup", "1" );
@@ -1575,7 +1513,6 @@ static void scriptResetDefaults()
 
 static void UI_RunMenuScript( const char **args ) {
 	const char *name, *name2;
-	char buff[1024];
 
 	if ( String_Parse( args, &name ) ) {
 		if ( Q_stricmp( name, "resetDefaults" ) == 0 ) {
@@ -1642,25 +1579,16 @@ static void UI_RunMenuScript( const char **args ) {
 	}
 }
 
-// NERVE - SMF
 static void UI_FeederAddItem( float feederID, const char *name, int index ) {
 
 }
-// -NERVE - SMF
 
-
-/*
-==============
-UI_FileText
-==============
-*/
 static const char *UI_FileText( char *fileName )
 {
-
 	fileHandle_t f;
 	static char buf[MAX_MENUDEFFILE];
 
-	int len = FS_FOpenFileByMode( fileName, &f, FS_READ );
+	const int len = FS_FOpenFileByMode( fileName, &f, FS_READ );
 	if ( !f ) {
 		return nullptr;
 	}
@@ -1671,15 +1599,9 @@ static const char *UI_FileText( char *fileName )
 	return &buf[0];
 }
 
-//----(SA)	added
-/*
-==============
-UI_translateString
-==============
-*/
 static const char *UI_translateString( const char *inString )
 {
-	int numStrings = sizeof( translateStrings ) / sizeof( translateStrings[0] ) - 1;
+	const int numStrings = sizeof( translateStrings ) / sizeof( translateStrings[0] ) - 1;
 
 	for (int i = 0; i < numStrings; i++ ) {
 		if ( !translateStrings[i].name || !strnlen( translateStrings[i].name, 1024 ) ) {
@@ -1696,7 +1618,6 @@ static const char *UI_translateString( const char *inString )
 
 	return inString;
 }
-//----(SA)	end
 
 static qhandle_t UI_FeederItemImage( float feederID, int index ) {
     if ( feederID == FEEDER_SAVEGAMES ) {
@@ -1712,9 +1633,7 @@ static qhandle_t UI_FeederItemImage( float feederID, int index ) {
 }
 
 static void UI_FeederSelection( float feederID, int index ) {
-    static char info[MAX_STRING_CHARS];
-   
-    if ( feederID == FEEDER_CINEMATICS ) {
+	if ( feederID == FEEDER_CINEMATICS ) {
         uiInfo.movieIndex = index;
         if ( uiInfo.previewMovie >= 0 ) {
             trap_CIN_StopCinematic( uiInfo.previewMovie );
@@ -1738,11 +1657,7 @@ static int UI_FeederCount( float feederID ) {
     }
     return 0;
 }
-/*
-==============
-UI_FeederItemText
-==============
-*/
+
 static const char *UI_FeederItemText( float feederID, int index, int column, qhandle_t *handle )
 {
 	*handle = -1;
@@ -1802,12 +1717,6 @@ static void UI_RunCinematicFrame( int handle ) {
 	trap_CIN_RunCinematic( handle );
 }
 
-
-/*
-=================
-UI_KeyEvent
-=================
-*/
 void UI_KeyEvent( int key, bool down )
 {
 	if ( Menu_Count() > 0 ) {
@@ -1826,11 +1735,7 @@ void UI_KeyEvent( int key, bool down )
 	}
 }
 
-/*
-=================
-UI_MouseEvent
-=================
-*/
+
 void UI_MouseEvent( int dx, int dy )
 {
 	// update mouse screen position
@@ -1985,55 +1890,14 @@ void UI_SetActiveMenu( uiMenuCommand_t menu )
 	}
 }
 
-bool UI_IsFullscreen( void ) {
+bool UI_IsFullscreen() {
 	return Menus_AnyFullScreenVisible();
 }
 
-
-
-static connstate_t lastConnState;
-static char lastLoadingText[MAX_INFO_VALUE];
-
-static void UI_ReadableSize( char *buf, int bufsize, int value ) {
-	if ( value > 1024 * 1024 * 1024 ) { // gigs
-		snprintf( buf, bufsize, "%d", value / ( 1024 * 1024 * 1024 ) );
-		snprintf( buf + strnlen( buf, bufsize ), bufsize - strnlen( buf, bufsize ), ".%02d GB",
-					 ( value % ( 1024 * 1024 * 1024 ) ) * 100 / ( 1024 * 1024 * 1024 ) );
-	} else if ( value > 1024 * 1024 ) { // megs
-		snprintf( buf, bufsize, "%d", value / ( 1024 * 1024 ) );
-		snprintf( buf + strnlen( buf, bufsize ), bufsize - strnlen( buf, bufsize ), ".%02d MB",
-					 ( value % ( 1024 * 1024 ) ) * 100 / ( 1024 * 1024 ) );
-	} else if ( value > 1024 ) { // kilos
-		snprintf( buf, bufsize, "%d KB", value / 1024 );
-	} else { // bytes
-		snprintf( buf, bufsize, "%d bytes", value );
-	}
-}
-
-// Assumes time is in msec
-static void UI_PrintTime( char *buf, int bufsize, int time ) {
-	time /= 1000;  // change to seconds
-
-	if ( time > 3600 ) { // in the hours range
-		snprintf( buf, bufsize, "%d hr %d min", time / 3600, ( time % 3600 ) / 60 );
-	} else if ( time > 60 ) { // mins
-		snprintf( buf, bufsize, "%d min %d sec", time / 60, time % 60 );
-	} else  { // secs
-		snprintf( buf, bufsize, "%d sec", time );
-	}
-}
-
 void Text_PaintCenter( float x, float y, int font, float scale, vec4_t color, const char *text, float adjust ) {
-	int len = Text_Width( text, font, scale, 0 );
+	const int len = Text_Width( text, font, scale, 0 );
 	Text_Paint( x - len / 2, y, font, scale, color, text, 0, 0, ITEM_TEXTSTYLE_SHADOWEDMORE );
 }
-
-
-/*
-================
-cvars
-================
-*/
 
 typedef struct {
 	vmCvar_t    *vmCvar;
@@ -2172,21 +2036,14 @@ static cvarTable_t cvarTable[] = {
 
 static int cvarTableSize = sizeof( cvarTable ) / sizeof( cvarTable[0] );
 
-
-/*
-=================
-UI_RegisterCvars
-=================
-*/
 static
-void UI_RegisterCvars( void )
+void UI_RegisterCvars()
 {
 	for (int i = 0; i < cvarTableSize; i++ ) {
 		cvarTable_t *cv = &cvarTable[i];
 		Cvar_Register( cv->vmCvar, cv->cvarName, cv->defaultString, cv->cvarFlags );
 	}
 }
-
 
 static
 void UI_UpdateCvars()
@@ -2215,8 +2072,8 @@ void UI_Refresh( int realtime )
     if ( index > UI_FPS_FRAMES ) {
         // average multiple frames together to smooth changes out a bit
         int total = 0;
-        for (int i = 0 ; i < UI_FPS_FRAMES ; i++ ) {
-            total += previousTimes[i];
+        for (int previousTime : previousTimes) {
+            total += previousTime;
         }
         if ( !total ) {
             total = 1;
@@ -2246,7 +2103,7 @@ void UI_Init()
     UI_RegisterCvars();
     UI_InitMemory();
 
-    // cache redundant calulations
+    // cache redundant calculations
     CL_GetGlconfig( &uiInfo.uiDC.glconfig );
 
     // for 640x480 virtualized screen

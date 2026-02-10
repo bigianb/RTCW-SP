@@ -139,9 +139,7 @@ BotAI_GetClientState
 ==================
 */
 int BotAI_GetClientState( int clientNum, PlayerState *state ) {
-	GameEntity   *ent;
-
-	ent = &g_entities[clientNum];
+	GameEntity* ent = &g_entities[clientNum];
 	if ( !ent->inuse ) {
 		return false;
 	}
@@ -159,9 +157,7 @@ BotAI_GetEntityState
 ==================
 */
 int BotAI_GetEntityState( int entityNum, EntityState *state ) {
-	GameEntity   *ent;
-
-	ent = &g_entities[entityNum];
+	GameEntity* ent = &g_entities[entityNum];
 	memset( state, 0, sizeof( EntityState ) );
 	if ( !ent->inuse ) {
 		return false;
@@ -182,9 +178,7 @@ BotAI_GetSnapshotEntity
 ==================
 */
 int BotAI_GetSnapshotEntity( int clientNum, int sequence, EntityState *state ) {
-	int entNum;
-
-	entNum = trap_BotGetSnapshotEntity( clientNum, sequence );
+	int entNum = trap_BotGetSnapshotEntity(clientNum, sequence);
 	if ( entNum == -1 ) {
 		memset( state, 0, sizeof( EntityState ) );
 		return -1;
@@ -211,9 +205,7 @@ AngleDifference
 ==============
 */
 float AngleDifference( float ang1, float ang2 ) {
-	float diff;
-
-	diff = ang1 - ang2;
+	float diff = ang1 - ang2;
 	if ( ang1 > ang2 ) {
 		if ( diff > 180.0 ) {
 			diff -= 360.0;
@@ -232,14 +224,12 @@ BotChangeViewAngle
 ==============
 */
 float BotChangeViewAngle( float angle, float ideal_angle, float speed ) {
-	float move;
-
 	angle = AngleMod( angle );
 	ideal_angle = AngleMod( ideal_angle );
 	if ( angle == ideal_angle ) {
 		return angle;
 	}
-	move = ideal_angle - angle;
+	float move = ideal_angle - angle;
 	if ( ideal_angle > angle ) {
 		if ( move > 180.0 ) {
 			move -= 360.0;
@@ -267,8 +257,7 @@ BotChangeViewAngles
 ==============
 */
 void BotChangeViewAngles( bot_state_t *bs, float thinktime ) {
-	float diff, factor, maxchange, anglespeed;
-	int i;
+	float factor, maxchange;
 
 	if ( bs->ideal_viewangles[PITCH] > 180 ) {
 		bs->ideal_viewangles[PITCH] -= 360;
@@ -282,9 +271,9 @@ void BotChangeViewAngles( bot_state_t *bs, float thinktime ) {
 		maxchange = 300;
 	}
 	maxchange *= thinktime;
-	for ( i = 0; i < 2; i++ ) {
-		diff = fabsf( AngleDifference( bs->viewangles[i], bs->ideal_viewangles[i] ) );
-		anglespeed = diff * factor;
+	for ( int i = 0; i < 2; i++ ) {
+		float diff = fabsf(AngleDifference(bs->viewangles[i], bs->ideal_viewangles[i]));
+		float anglespeed = diff * factor;
 		if ( anglespeed > maxchange ) {
 			anglespeed = maxchange;
 		}
@@ -307,8 +296,6 @@ BotInputToUserCommand
 */
 void BotInputToUserCommand( bot_input_t *bi, UserCmd *ucmd, int delta_angles[3], int time ) {
 	vec3_t angles, forward, right;
-	short temp;
-	int j;
 
 	//clear the whole structure
 	memset( ucmd, 0, sizeof( UserCmd ) );
@@ -347,8 +334,8 @@ void BotInputToUserCommand( bot_input_t *bi, UserCmd *ucmd, int delta_angles[3],
 	ucmd->angles[YAW] = ANGLE2SHORT( bi->viewangles[YAW] );
 	ucmd->angles[ROLL] = ANGLE2SHORT( bi->viewangles[ROLL] );
 	//subtract the delta angles
-	for ( j = 0; j < 3; j++ ) {
-		temp = ucmd->angles[j] - delta_angles[j];
+	for ( int j = 0; j < 3; j++ ) {
+		short temp = ucmd->angles[j] - delta_angles[j];
 		/*NOTE: disabled because temp should be mod first
 		if ( j == PITCH ) {
 			// don't let the player look up or down more than 90 degrees
@@ -435,7 +422,7 @@ void BotUpdateInput( bot_state_t *bs, int time ) {
 BotAIRegularUpdate
 ==============
 */
-void BotAIRegularUpdate( void ) {
+void BotAIRegularUpdate() {
 	if ( regularupdate_time < trap_AAS_Time() ) {
 		trap_BotUpdateEntityItems();
 		regularupdate_time = trap_AAS_Time() + 1;
@@ -448,13 +435,12 @@ BotAI
 ==============
 */
 int BotAI( int client, float thinktime ) {
-	bot_state_t *bs;
-	char buf[1024], *args;
+	char buf[1024];
 	int j;
 
 	trap_EA_ResetInput( client, nullptr );
 	//
-	bs = botstates[client];
+	bot_state_t* bs = botstates[client];
 	if ( !bs || !bs->inuse ) {
 		BotAI_Print( PRT_FATAL, "client %d hasn't been setup\n", client );
 		return BLERR_AICLIENTNOTSETUP;
@@ -466,7 +452,7 @@ int BotAI( int client, float thinktime ) {
 	//retrieve any waiting console messages
 	while ( trap_BotGetServerCommand( client, buf, sizeof( buf ) ) ) {
 		//have buf point to the command and args to the command arguments
-		args = strchr( buf, ' ' );
+		char* args = strchr(buf, ' ');
 		if ( !args ) {
 			continue;
 		}
@@ -519,12 +505,10 @@ int BotAI( int client, float thinktime ) {
 BotScheduleBotThink
 ==================
 */
-void BotScheduleBotThink( void ) {
-	int i, botnum;
+void BotScheduleBotThink() {
+	int botnum = 0;
 
-	botnum = 0;
-
-	for ( i = 0; i < MAX_CLIENTS; i++ ) {
+	for ( int i = 0; i < MAX_CLIENTS; i++ ) {
 		if ( !botstates[i] || !botstates[i]->inuse ) {
 			continue;
 		}
@@ -541,13 +525,11 @@ BotAISetupClient
 */
 int BotAISetupClient( int client, struct bot_settings_s *settings ) {
 	char filename[MAX_AIPATH], name[MAX_AIPATH], gender[MAX_AIPATH];
-	bot_state_t *bs;
-	int errnum;
 
 	if ( !botstates[client] ) {
 		botstates[client] = (bot_state_t *)G_Alloc( sizeof( bot_state_t ) );
 	}
-	bs = botstates[client];
+	bot_state_t* bs = botstates[client];
 
 	if ( bs && bs->inuse ) {
 		BotAI_Print( PRT_FATAL, "client %d already setup\n", client );
@@ -571,7 +553,7 @@ int BotAISetupClient( int client, struct bot_settings_s *settings ) {
 	bs->gs = trap_BotAllocGoalState( client );
 	//load the item weights
 	trap_Characteristic_String( bs->character, CHARACTERISTIC_ITEMWEIGHTS, filename, MAX_AIPATH );
-	errnum = trap_BotLoadItemWeights( bs->gs, filename );
+	int errnum = trap_BotLoadItemWeights(bs->gs, filename);
 	if ( errnum != BLERR_NOERROR ) {
 		trap_BotFreeGoalState( bs->gs );
 		return false;
@@ -611,14 +593,7 @@ int BotAISetupClient( int client, struct bot_settings_s *settings ) {
 	return true;
 }
 
-/*
-==============
-BotAIShutdownClient
-==============
-*/
 int BotAIShutdownClient( int client ) {
-	bot_state_t *bs;
-
 	// Wolfenstein
 	if ( g_entities[client].shared.r.svFlags & SVF_CASTAI ) {
 		AICast_ShutdownClient( client );
@@ -626,7 +601,7 @@ int BotAIShutdownClient( int client ) {
 	}
 	// done.
 
-	bs = botstates[client];
+	bot_state_t* bs = botstates[client];
 	if ( !bs || !bs->inuse ) {
 		// BotAI_Print(PRT_ERROR, "client %d already shutdown\n", client);
 		return BLERR_AICLIENTALREADYSHUTDOWN;
@@ -663,25 +638,21 @@ when the level is changed
 ==============
 */
 void BotResetState( bot_state_t *bs ) {
-	int client, entitynum, inuse;
-	int movestate, goalstate, chatstate, weaponstate;
 	bot_settings_t settings;
-	int character;
 	PlayerState ps;                           //current player state
-	float entergame_time;
 
 	//save some things that should not be reset here
 	memcpy( &settings, &bs->settings, sizeof( bot_settings_t ) );
 	memcpy( &ps, &bs->cur_ps, sizeof( PlayerState ) );
-	inuse = bs->inuse;
-	client = bs->client;
-	entitynum = bs->entitynum;
-	character = bs->character;
-	movestate = bs->ms;
-	goalstate = bs->gs;
-	chatstate = bs->cs;
-	weaponstate = bs->ws;
-	entergame_time = bs->entergame_time;
+	const int inuse = bs->inuse;
+	const int client = bs->client;
+	const int entitynum = bs->entitynum;
+	const int character = bs->character;
+	const int movestate = bs->ms;
+	const int goalstate = bs->gs;
+	const int chatstate = bs->cs;
+	const int weaponstate = bs->ws;
+	const float entergame_time = bs->entergame_time;
 	//free checkpoints and patrol points
 	BotFreeWaypoints( bs->checkpoints );
 	BotFreeWaypoints( bs->patrolpoints );
@@ -717,11 +688,6 @@ void BotResetState( bot_state_t *bs ) {
 	}
 }
 
-/*
-==============
-BotAILoadMap
-==============
-*/
 int BotAILoadMap( int restart )
 {
 	if ( !restart ) {
@@ -730,10 +696,10 @@ int BotAILoadMap( int restart )
 		trap_BotLibLoadMap( mapname.string );
 	}
 
-	for (int i = 0; i < MAX_CLIENTS; i++ ) {
-		if ( botstates[i] && botstates[i]->inuse ) {
-			BotResetState( botstates[i] );
-			botstates[i]->setupcount = 4;
+	for (auto & botstate : botstates) {
+		if ( botstate && botstate->inuse ) {
+			BotResetState( botstate );
+			botstate->setupcount = 4;
 		}
 	}
 
@@ -742,18 +708,11 @@ int BotAILoadMap( int restart )
 	return BLERR_NOERROR;
 }
 
-/*
-==================
-BotAIStartFrame
-==================
-*/
 int BotAIStartFrame( int time ) {
-
-	GameEntity   *ent;
 	bot_entitystate_t state;
 	//EntityState entitystate;
 	//vec3_t mins = {-15, -15, -24}, maxs = {15, 15, 32};
-	int elapsed_time, thinktime;
+	int thinktime;
 	static int local_time;
 	static int botlib_residual;
 	static int lastbotthink_time;
@@ -779,7 +738,7 @@ int BotAIStartFrame( int time ) {
 		BotScheduleBotThink();
 	}
 
-	elapsed_time = time - local_time;
+	const int elapsed_time = time - local_time;
 	local_time = time;
 
 	botlib_residual += elapsed_time;
@@ -809,7 +768,7 @@ int BotAIStartFrame( int time ) {
 				break;
 			}
 
-			ent = &g_entities[i];
+			const GameEntity* ent = &g_entities[i];
 			if ( !ent->inuse ) {
 				continue;
 			}
@@ -856,12 +815,7 @@ int BotAIStartFrame( int time ) {
 	return BLERR_NOERROR;
 }
 
-/*
-==============
-BotInitLibrary
-==============
-*/
-int BotInitLibrary( void ) {
+int BotInitLibrary() {
 	char buf[144];
 
 	//set the maxclients and maxentities library variables before calling BotSetupLibrary
@@ -961,11 +915,7 @@ int BotInitLibrary( void ) {
 	return SV_BotLibSetup();
 }
 
-/*
-==============
-BotAISetup
-==============
-*/
+
 int BotAISetup( int restart ) {
 	int errnum;
 
@@ -993,19 +943,14 @@ int BotAISetup( int restart ) {
 	return BLERR_NOERROR;
 }
 
-/*
-==============
-BotAIShutdown
-==============
-*/
 int BotAIShutdown( int restart )
 {
 	//if the game is restarted for a tournament
 	if ( restart ) {
 		//shutdown all the bots in the botlib
-		for (int i = 0; i < MAX_CLIENTS; i++ ) {
-			if ( botstates[i] && botstates[i]->inuse ) {
-				BotAIShutdownClient( botstates[i]->client );
+		for (auto & botstate : botstates) {
+			if ( botstate && botstate->inuse ) {
+				BotAIShutdownClient( botstate->client );
 			}
 		}
 		//don't shutdown the bot library
