@@ -172,7 +172,7 @@ bool AICast_ScriptAction_GotoMarker( cast_state_t *cs, char *params ) {
 									// dont reload prematurely
 									cs->noReloadTime = level.time + 1000;
 									// force fire
-									trap_EA_Attack( cs->bs->client );
+									EA_Attack( cs->bs->client );
 									//
 									cs->bFlags |= BFL_ATTACKED;
 									// dont reload prematurely
@@ -360,7 +360,7 @@ bool AICast_ScriptAction_GotoCast( cast_state_t *cs, char *params ) {
 									// dont reload prematurely
 									cs->noReloadTime = level.time + 1000;
 									// force fire
-									trap_EA_Attack( cs->bs->client );
+									EA_Attack( cs->bs->client );
 									//
 									cs->bFlags |= BFL_ATTACKED;
 									// dont reload prematurely
@@ -1693,7 +1693,7 @@ bool AICast_ScriptAction_FireAtTarget( cast_state_t *cs, char *params ) {
 	}
 
 	// force fire
-	trap_EA_Attack( cs->bs->client );
+	EA_Attack( cs->bs->client );
 	//
 	cs->bFlags |= BFL_ATTACKED;
 	//
@@ -2150,7 +2150,7 @@ bool AICast_ScriptAction_Mount( cast_state_t *cs, char *params ) {
 
 	if ( dist > 40 ) {
 		// walk towards it
-		trap_EA_Move( cs->entityNum, vec, 80 );
+		EA_Move( cs->entityNum, vec, 80 );
 		return false;
 	}
 

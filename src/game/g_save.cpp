@@ -190,6 +190,8 @@ static persField_t castStatePersFields[] = {
 
 #include "g_func_decs.h" // declare all game functions
 
+#include "be_ea.h"
+
 funcList_t funcList[] = {
 	#include "g_funcs.h"
 };
@@ -854,7 +856,7 @@ void ReadCastState( fileHandle_t f, cast_state_t *cs, int size )
 		// make sure they think right away
 		cs->lastThink = -9999;
 		// reset the input
-		trap_EA_ResetInput( cs->entityNum, nullptr );
+		EA_ResetInput( cs->entityNum, nullptr );
 	}
 }
 

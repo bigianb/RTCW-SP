@@ -270,7 +270,7 @@ void BotChooseWeapon( bot_state_t *bs ) {
 			bs->cur_ps.weaponstate == WEAPON_RAISING_TORELOAD ||    //----(SA)	added
 			bs->cur_ps.weaponstate == WEAPON_DROPPING ||
 			bs->cur_ps.weaponstate == WEAPON_DROPPING_TORELOAD ) {   //----(SA)	added
-		trap_EA_SelectWeapon( bs->client, bs->weaponnum );
+		EA_SelectWeapon( bs->client, bs->weaponnum );
 	} else {
 		newweaponnum = trap_BotChooseBestFightWeapon( bs->ws, bs->inventory );
 		if ( bs->weaponnum != newweaponnum ) {
@@ -278,7 +278,7 @@ void BotChooseWeapon( bot_state_t *bs ) {
 		}
 		bs->weaponnum = newweaponnum;
 		//BotAI_Print(PRT_MESSAGE, "bs->weaponnum = %d\n", bs->weaponnum);
-		trap_EA_SelectWeapon( bs->client, bs->weaponnum );
+		EA_SelectWeapon( bs->client, bs->weaponnum );
 	}
 }
 
@@ -388,10 +388,10 @@ BotBattleUseItems
 void BotBattleUseItems( bot_state_t *bs ) {
 	if ( bs->inventory[INVENTORY_HEALTH] < 40 ) {
 		if ( bs->inventory[INVENTORY_TELEPORTER] > 0 ) {
-			trap_EA_Use( bs->client );
+			EA_Use( bs->client );
 		}
 		if ( bs->inventory[INVENTORY_MEDKIT] > 0 ) {
-			trap_EA_Use( bs->client );
+			EA_Use( bs->client );
 		}
 	}
 }
@@ -1635,7 +1635,7 @@ void BotAimAtEnemy( bot_state_t *bs ) {
 			bs->ideal_viewangles[PITCH] -= 360;
 		}
 		VectorCopy( bs->ideal_viewangles, bs->viewangles );
-		trap_EA_View( bs->client, bs->viewangles );
+		EA_View( bs->client, bs->viewangles );
 	}
 }
 
@@ -1744,10 +1744,10 @@ void BotCheckAttack( bot_state_t *bs ) {
 	//if fire has to be release to activate weapon
 	if ( wi.flags & WFL_FIRERELEASED ) {
 		if ( bs->flags & BFL_ATTACKED ) {
-			trap_EA_Attack( bs->client );
+			EA_Attack( bs->client );
 		}
 	} else {
-		trap_EA_Attack( bs->client );
+		EA_Attack( bs->client );
 	}
 	bs->flags ^= BFL_ATTACKED;
 }
@@ -1826,7 +1826,7 @@ void BotMapScripts( bot_state_t *bs ) {
 			bs->ideal_viewangles[YAW] = AngleMod( bs->ideal_viewangles[YAW] );
 			//
 			if ( InFieldOfVision( bs->viewangles, 20, bs->ideal_viewangles ) ) {
-				trap_EA_Attack( bs->client );
+				EA_Attack( bs->client );
 			}
 		}
 	}
@@ -2051,9 +2051,9 @@ void BotAIBlocked( bot_state_t *bs, bot_moveresult_t *moveresult, int activate )
 				vectoangles( movedir, moveresult->ideal_viewangles );
 				moveresult->flags |= MOVERESULT_MOVEMENTVIEW;
 				//select the blaster
-				trap_EA_SelectWeapon( bs->client, WEAPONINDEX_MACHINEGUN );
+				EA_SelectWeapon( bs->client, WEAPONINDEX_MACHINEGUN );
 				//shoot
-				trap_EA_Attack( bs->client );
+				EA_Attack( bs->client );
 				return;
 			} //end if
 			else
@@ -2086,7 +2086,7 @@ void BotAIBlocked( bot_state_t *bs, bot_moveresult_t *moveresult, int activate )
 					if ( bs->activatemessage_time < trap_AAS_Time() ) {
 						snprintf( buf, sizeof( buf ), "I have to activate a button at %1.1f %1.1f %1.1f in area %d\n",
 									 goalorigin[0], goalorigin[1], goalorigin[2], areas[i] );
-						trap_EA_Say( bs->client, buf );
+						EA_Say( bs->client, buf );
 						bs->activatemessage_time = trap_AAS_Time() + 5;
 					} //end if
 #endif //OBSTACLEDEBUG
@@ -2269,7 +2269,7 @@ void BotCheckEvents( bot_state_t *bs, EntityState *state ) {
 				//if the bot has a personal teleporter
 				if ( bs->inventory[INVENTORY_TELEPORTER] > 0 ) {
 					//use the holdable item
-					trap_EA_Use( bs->client );
+					EA_Use( bs->client );
 				}
 			}
 		}
@@ -2340,7 +2340,7 @@ void BotDeathmatchAI( bot_state_t *bs, float thinktime ) {
 		SV_SetUserinfo( bs->client, userinfo );
 		//set the team
 		snprintf( buf, sizeof( buf ), "team %s", bs->settings.team );
-		trap_EA_Command( bs->client, buf );
+		EA_Command( bs->client, buf );
 		//set the chat gender
 
 		//set the chat name

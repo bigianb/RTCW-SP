@@ -157,7 +157,7 @@ void AICast_ChangeViewAngles( cast_state_t *cs, float thinktime ) {
 		cs->viewangles[PITCH] -= 360;
 	}
 	//elementary action: view
-	trap_EA_View( bs->client, cs->viewangles );
+	EA_View( bs->client, cs->viewangles );
 }
 
 
@@ -354,8 +354,8 @@ void AICast_UpdateInput( cast_state_t *cs, int time ) {
 	AICast_ChangeViewAngles( cs, (float) time / 1000 );
 	//
 	if ( cs->pauseTime > level.time ) {
-		trap_EA_View( bs->client, cs->viewangles );
-		trap_EA_GetInput( bs->client, (float) time / 1000, &bi );
+		EA_View( bs->client, cs->viewangles );
+		EA_GetInput( bs->client, (float) time / 1000, &bi );
 		AICast_InputToUserCommand( cs, &bi, &cs->lastucmd, bs->cur_ps.delta_angles );
 		g_entities[cs->bs->entitynum].client->ps.pm_flags &= ~PMF_RESPAWNED;
 		//
@@ -367,7 +367,7 @@ void AICast_UpdateInput( cast_state_t *cs, int time ) {
 		return;
 	}
 	//
-	trap_EA_GetInput( bs->client, (float) time / 1000, &bi );
+	EA_GetInput( bs->client, (float) time / 1000, &bi );
 	//
 	// restrict the speed according to the character and their current speedScale
 	// HACK, don't slow down while crouching
@@ -460,7 +460,7 @@ void AICast_Think( int client, float thinktime ) {
 		return;
 	}
 	//
-	trap_EA_ResetInput( client, nullptr );
+	EA_ResetInput( client, nullptr );
 	cs->aiFlags &= ~AIFL_VIEWLOCKED;
 	cs->aiFlags &= ~AIFL_SPECIAL_FUNC;
 	//cs->weaponNum = ent->client->ps.weapon;
@@ -694,7 +694,7 @@ void AICast_Think( int client, float thinktime ) {
 		// if we are not moving, and we are firing, always stand, unless we are allowed to crouch + fire
 		if ( ( cs->lastucmd.forwardmove || cs->lastucmd.rightmove ) || ( cs->lastWeaponFired < level.time - 2000 ) || ( cs->aiFlags & AIFL_ATTACK_CROUCH ) ) {
 			cs->lastAttackCrouch = level.time;
-			trap_EA_Crouch( cs->bs->client );
+			EA_Crouch( cs->bs->client );
 		}
 	}
 	//
@@ -718,7 +718,7 @@ void AICast_Think( int client, float thinktime ) {
 		AICast_ProcessAIFunctions( cs, thinktime );
 		//
 		// make sure the correct weapon is selected
-		trap_EA_SelectWeapon( cs->bs->client, cs->weaponNum );
+		EA_SelectWeapon( cs->bs->client, cs->weaponNum );
 		//
 		// process current script if it exists
 		cs->castScriptStatusCurrent = cs->castScriptStatus;
@@ -742,7 +742,7 @@ void AICast_Think( int client, float thinktime ) {
 			cs->actionFlags |= CASTACTION_WALK;
 			break;
 		case MS_CROUCH:
-			trap_EA_Crouch( cs->entityNum );
+			EA_Crouch( cs->entityNum );
 			break;
 		default:
 			break;
@@ -1084,7 +1084,7 @@ void AICast_PredictMovement( cast_state_t *cs, int numframes, float frametime, a
 
 	if ( cs->bs ) {
 		ps = cs->bs->cur_ps;
-		trap_EA_GetInput( cs->entityNum, (float) level.time / 1000, &bi );
+		EA_GetInput( cs->entityNum, (float) level.time / 1000, &bi );
 	} else {
 		ps = g_entities[cs->entityNum].client->ps;
 	}
@@ -1340,7 +1340,7 @@ void AICast_Blocked( cast_state_t *cs, bot_moveresult_t *moveresult, int activat
 				return;
 			}
 			// are we going to hit someone soon?
-			trap_EA_GetInput( cs->entityNum, (float) level.time / 1000, &bi );
+			EA_GetInput( cs->entityNum, (float) level.time / 1000, &bi );
 			AICast_InputToUserCommand( cs, &bi, &ucmd, cs->bs->cur_ps.delta_angles );
 			AICast_PredictMovement( cs, 1, 0.6, &move, &ucmd, ( goal && goal->entitynum > -1 ) ? goal->entitynum : cs->entityNum );
 
@@ -1479,10 +1479,10 @@ void AICast_Blocked( cast_state_t *cs, bot_moveresult_t *moveresult, int activat
 	AngleVectors( pos, dir, nullptr, nullptr );
 
 	if ( moveresult->flags & MOVERESULT_ONTOPOFOBSTACLE ) {
-		trap_EA_Jump( cs->bs->entitynum );
+		EA_Jump( cs->bs->entitynum );
 	}
 
-	trap_EA_Move( cs->bs->entitynum, dir, 200 ); //400);
+	EA_Move( cs->bs->entitynum, dir, 200 ); //400);
 
 	vectoangles( dir, cs->ideal_viewangles );
 	cs->ideal_viewangles[2] *= 0.5;
@@ -1689,5 +1689,5 @@ void AICast_IdleReload( cast_state_t *cs ) {
 		return;
 	}
 	//
-	trap_EA_Reload( cs->entityNum );
+	EA_Reload( cs->entityNum );
 }

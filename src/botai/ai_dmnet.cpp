@@ -369,18 +369,18 @@ int BotGetLongTermGoal( bot_state_t *bs, int tfl, int retreat, bot_goal_t *goal 
 				if ( bs->arrive_time < trap_AAS_Time() - 2 ) {
 					//if not arrived yet
 					if ( !bs->arrive_time ) {
-						trap_EA_Gesture( bs->client );
+						EA_Gesture( bs->client );
 
 						bs->arrive_time = trap_AAS_Time();
 					}
 					//if the bot wants to crouch
 					else if ( bs->attackcrouch_time > trap_AAS_Time() ) {
-						trap_EA_Crouch( bs->client );
+						EA_Crouch( bs->client );
 					}
 					//else do some model taunts
 					else if ( random() < bs->thinktime * 0.3 ) {
 						//do a gesture :)
-						trap_EA_Gesture( bs->client );
+						EA_Gesture( bs->client );
 					}
 				}
 				//if just arrived look at the companion
@@ -555,7 +555,7 @@ int BotGetLongTermGoal( bot_state_t *bs, int tfl, int retreat, bot_goal_t *goal 
 			}
 			//if the bot wants to crouch
 			if ( bs->attackcrouch_time > trap_AAS_Time() ) {
-				trap_EA_Crouch( bs->client );
+				EA_Crouch( bs->client );
 			}
 			//don't crouch when swimming
 			if ( trap_AAS_Swimming( bs->origin ) ) {
@@ -780,7 +780,7 @@ int AINode_Stand( bot_state_t *bs ) {
 		}
 		bs->standfindenemy_time = trap_AAS_Time() + 1;
 	}
-	trap_EA_Talk( bs->client );
+	EA_Talk( bs->client );
 	if ( bs->stand_time < trap_AAS_Time() ) {
 
 		AIEnter_Seek_LTG( bs );
@@ -821,13 +821,13 @@ int AINode_Respawn( bot_state_t *bs ) {
 		if ( !BotIsDead( bs ) ) {
 			AIEnter_Seek_LTG( bs );
 		} else {
-			trap_EA_Respawn( bs->client );
+			EA_Respawn( bs->client );
 		}
 	} else if ( bs->respawn_time < trap_AAS_Time() )     {
 		//wait until respawned
 		bs->respawn_wait = true;
 		//elementary action respawn
-		trap_EA_Respawn( bs->client );
+		EA_Respawn( bs->client );
 		//
 		if ( bs->respawnchat_time ) {
 
@@ -835,7 +835,7 @@ int AINode_Respawn( bot_state_t *bs ) {
 		}
 	}
 	if ( bs->respawnchat_time && bs->respawnchat_time < trap_AAS_Time() - 0.5 ) {
-		trap_EA_Talk( bs->client );
+		EA_Talk( bs->client );
 	}
 	//
 	return true;
@@ -1158,7 +1158,7 @@ int AINode_Seek_LTG( bot_state_t *bs ) {
 	//
 	if ( bs->killedenemy_time > trap_AAS_Time() - 2 ) {
 		if ( random() < bs->thinktime * 1 ) {
-			trap_EA_Gesture( bs->client );
+			EA_Gesture( bs->client );
 		}
 	}
 	//if there is an enemy

@@ -1602,7 +1602,7 @@ void AICast_ProcessAttack( cast_state_t *cs ) {
 			AICast_AimAtEnemy( cs );    // keep looking at them regardless
 		}
 		// if we're trying to move somewhere, don't let us shoot, until we've arrived
-		trap_EA_GetInput( bs->client, (float) level.time / 1000, &bi );
+		EA_GetInput( bs->client, (float) level.time / 1000, &bi );
 		if (    ( cs->castScriptStatus.scriptNoMoveTime < level.time ) &&
 				(   ( bi.actionflags & ACTION_MOVEFORWARD ) ||
 					( bi.actionflags & ACTION_MOVEBACK ) ||
@@ -1653,7 +1653,7 @@ void AICast_ProcessAttack( cast_state_t *cs ) {
 	}
 	//
 	// FIXME: handle fire-on-release weapons?
-	trap_EA_Attack( bs->client );
+	EA_Attack( bs->client );
 	//
 	cs->bFlags |= BFL_ATTACKED;
 

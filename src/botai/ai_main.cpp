@@ -286,7 +286,7 @@ void BotChangeViewAngles( bot_state_t *bs, float thinktime ) {
 		bs->viewangles[PITCH] -= 360;
 	}
 	//elementary action: view
-	trap_EA_View( bs->client, bs->viewangles );
+	EA_View( bs->client, bs->viewangles );
 }
 
 /*
@@ -401,7 +401,7 @@ void BotUpdateInput( bot_state_t *bs, int time ) {
 	}
 	//
 	BotChangeViewAngles( bs, (float) time / 1000 );
-	trap_EA_GetInput( bs->client, (float) time / 1000, &bi );
+	EA_GetInput( bs->client, (float) time / 1000, &bi );
 	//respawn hack
 	if ( bi.actionflags & ACTION_RESPAWN ) {
 		if ( bs->lastucmd.buttons & BUTTON_ATTACK ) {
@@ -438,7 +438,7 @@ int BotAI( int client, float thinktime ) {
 	char buf[1024];
 	int j;
 
-	trap_EA_ResetInput( client, nullptr );
+	EA_ResetInput( client, nullptr );
 	//
 	bot_state_t* bs = botstates[client];
 	if ( !bs || !bs->inuse ) {
@@ -491,7 +491,7 @@ int BotAI( int client, float thinktime ) {
 	//the real AI
 	BotDeathmatchAI( bs, thinktime );
 	//set the weapon selection every AI frame
-	trap_EA_SelectWeapon( bs->client, bs->weaponnum );
+	EA_SelectWeapon( bs->client, bs->weaponnum );
 	//subtract the delta angles
 	for ( j = 0; j < 3; j++ ) {
 		bs->viewangles[j] = AngleMod( bs->viewangles[j] - SHORT2ANGLE( bs->cur_ps.delta_angles[j] ) );

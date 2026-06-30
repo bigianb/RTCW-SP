@@ -844,44 +844,11 @@ int         trap_AAS_AreaTravelTimeToGoalArea( int areanum, vec3_t origin, int g
 int         trap_AAS_Swimming( vec3_t origin );
 int         trap_AAS_PredictClientMovement( void /* aas_clientmove_s */ *move, int entnum, vec3_t origin, int presencetype, int onground, vec3_t velocity, vec3_t cmdmove, int cmdframes, int maxframes, float frametime, int stopevent, int stopareanum, int visualize );
 
-// Ridah, route-tables
 void        trap_AAS_RT_ShowRoute( vec3_t srcpos, int srcnum, int destnum );
 bool    trap_AAS_RT_GetHidePos( vec3_t srcpos, int srcnum, int srcarea, vec3_t destpos, int destnum, int destarea, vec3_t returnPos );
 int         trap_AAS_FindAttackSpotWithinRange( int srcnum, int rangenum, int enemynum, float rangedist, int travelflags, float *outpos );
 bool    trap_AAS_GetRouteFirstVisPos( vec3_t srcpos, vec3_t destpos, int travelflags, vec3_t retpos );
 void        trap_AAS_SetAASBlockingEntity( vec3_t absmin, vec3_t absmax, int blocking );
-// done.
-
-void    trap_EA_Say( int client, char *str );
-void    trap_EA_SayTeam( int client, char *str );
-void    trap_EA_UseItem( int client, char *it );
-void    trap_EA_DropItem( int client, char *it );
-void    trap_EA_UseInv( int client, char *inv );
-void    trap_EA_DropInv( int client, char *inv );
-void    trap_EA_Gesture( int client );
-void    trap_EA_Command( int client, char *command );
-
-void    trap_EA_SelectWeapon( int client, int weapon );
-void    trap_EA_Talk( int client );
-void    trap_EA_Attack( int client );
-void    trap_EA_Reload( int client );
-void    trap_EA_Use( int client );
-void    trap_EA_Respawn( int client );
-void    trap_EA_Jump( int client );
-void    trap_EA_DelayedJump( int client );
-void    trap_EA_Crouch( int client );
-void    trap_EA_MoveUp( int client );
-void    trap_EA_MoveDown( int client );
-void    trap_EA_MoveForward( int client );
-void    trap_EA_MoveBack( int client );
-void    trap_EA_MoveLeft( int client );
-void    trap_EA_MoveRight( int client );
-void    trap_EA_Move( int client, vec3_t dir, float speed );
-void    trap_EA_View( int client, vec3_t viewangles );
-
-void    trap_EA_EndRegular( int client, float thinktime );
-void    trap_EA_GetInput( int client, float thinktime, void /* struct bot_input_s */ *input );
-void    trap_EA_ResetInput( int client, void *init );
 
 
 int     trap_BotLoadCharacter( char *charfile, int skill );

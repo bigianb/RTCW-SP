@@ -224,7 +224,7 @@ bot_moveresult_t *AICast_MoveToPos( cast_state_t *cs, vec3_t pos, int entnum ) {
 			trap_BotResetAvoidReach( bs->ms );
 			//BotAI_Print(PRT_MESSAGE, "movement failure %d\n", lmoveresult.traveltype);
 			// clear all movement
-			trap_EA_Move( cs->entityNum, vec3_origin, 0 );
+			EA_Move( cs->entityNum, vec3_origin, 0 );
 
 		} else {
 
@@ -241,7 +241,7 @@ bot_moveresult_t *AICast_MoveToPos( cast_state_t *cs, vec3_t pos, int entnum ) {
 			} else if ( !( cs->bFlags & BFL_ATTACKED ) )       { // if we are attacking, don't change angles
 				bot_input_t bi;
 
-				trap_EA_GetInput( bs->client, 0.1, &bi );
+				EA_GetInput( bs->client, 0.1, &bi );
 				if ( VectorLength( lmoveresult.movedir ) < 0.5 ) {
 					VectorSubtract( goal.origin, bs->origin, dir );
 					vectoangles( dir, cs->ideal_viewangles );
@@ -275,9 +275,9 @@ bot_moveresult_t *AICast_MoveToPos( cast_state_t *cs, vec3_t pos, int entnum ) {
 
 		VectorSubtract( pos, cs->bs->origin, dir );
 		if ( ( dist = VectorNormalize( dir ) ) < 64 ) {
-			trap_EA_Move( cs->entityNum, dir, 100.0 + 300.0 * ( dist / 64.0 ) );
+			EA_Move( cs->entityNum, dir, 100.0 + 300.0 * ( dist / 64.0 ) );
 		} else {
-			trap_EA_Move( cs->entityNum, dir, 400 );
+			EA_Move( cs->entityNum, dir, 400 );
 		}
 
 		// look towards the marker also
@@ -362,7 +362,7 @@ void AICast_SpecialFunc( cast_state_t *cs ) {
 				//&&	(infront( ent, enemy ))
 				&&  ( infront( enemy, ent ) ) ) {
 			// crouch
-			trap_EA_Crouch( cs->entityNum );
+			EA_Crouch( cs->entityNum );
 			// enable defense pose
 			ent->flags |= FL_DEFENSE_CROUCH;
 		}
@@ -757,8 +757,8 @@ const char *AIFunc_InspectFriendly( cast_state_t *cs ) {
 				if ( !ent->waterlevel ) {
 					dir[2] = 0;
 				}
-				//trap_EA_Move(cs->entityNum, dir, 400);
-				trap_EA_GetInput( cs->entityNum, (float) level.time / 1000, &bi );
+				//EA_Move(cs->entityNum, dir, 400);
+				EA_GetInput( cs->entityNum, (float) level.time / 1000, &bi );
 				VectorCopy( dir, bi.dir );
 				bi.speed = 400;
 				bi.actionflags = 0;
@@ -766,12 +766,12 @@ const char *AIFunc_InspectFriendly( cast_state_t *cs ) {
 				AICast_PredictMovement( cs, 10, 0.8, &move, &ucmd, cs->followEntity );
 
 				if ( move.stopevent == PREDICTSTOP_HITENT ) { // success!
-					trap_EA_Move( cs->entityNum, dir, 400 );  // set the movement
+					EA_Move( cs->entityNum, dir, 400 );  // set the movement
 					vectoangles( dir, cs->ideal_viewangles );
 					cs->ideal_viewangles[2] *= 0.5;
 					moved = true;
 				} else {    // clear movement
-					//trap_EA_Move(cs->entityNum, dir, 0);
+					//EA_Move(cs->entityNum, dir, 0);
 				}
 			}
 		}
@@ -1201,8 +1201,8 @@ const char *AIFunc_InspectAudibleEvent( cast_state_t *cs ) {
 				if ( !ent->waterlevel ) {
 					dir[2] = 0;
 				}
-				//trap_EA_Move(cs->entityNum, dir, 400);
-				trap_EA_GetInput( cs->entityNum, (float) level.time / 1000, &bi );
+				//EA_Move(cs->entityNum, dir, 400);
+				EA_GetInput( cs->entityNum, (float) level.time / 1000, &bi );
 				VectorCopy( dir, bi.dir );
 				bi.speed = 400;
 				bi.actionflags = 0;
@@ -1210,12 +1210,12 @@ const char *AIFunc_InspectAudibleEvent( cast_state_t *cs ) {
 				AICast_PredictMovement( cs, 10, 0.8, &move, &ucmd, gent->shared.s.number );
 				//
 				if ( move.stopevent == PREDICTSTOP_HITENT ) { // success!
-					trap_EA_Move( cs->entityNum, dir, 400 );
+					EA_Move( cs->entityNum, dir, 400 );
 					vectoangles( dir, cs->ideal_viewangles );
 					cs->ideal_viewangles[2] *= 0.5;
 					moved = true;
 				} else {    // clear movement
-					//trap_EA_Move(cs->entityNum, dir, 0);
+					//EA_Move(cs->entityNum, dir, 0);
 				}
 				//
 				G_FreeEntity( gent );
@@ -1671,8 +1671,8 @@ const char *AIFunc_ChaseGoal( cast_state_t *cs ) {
 				dir[2] = 0;
 			}
 			goaldist = VectorNormalize( dir );
-			//trap_EA_Move(cs->entityNum, dir, 400);
-			trap_EA_GetInput( cs->entityNum, (float) level.time / 1000, &bi );
+			//EA_Move(cs->entityNum, dir, 400);
+			EA_GetInput( cs->entityNum, (float) level.time / 1000, &bi );
 			VectorCopy( dir, bi.dir );
 			bi.speed = 400;
 			bi.actionflags = 0;
@@ -1682,14 +1682,14 @@ const char *AIFunc_ChaseGoal( cast_state_t *cs ) {
 			if ( move.stopevent == PREDICTSTOP_HITENT ) { // success!
 				// make sure we didnt spend a lot of time sliding along an obstacle
 				if ( ( move.frames * frameTime ) < ( 1.0 + ( goaldist / ( bs->cur_ps.speed * bs->cur_ps.runSpeedScale ) ) ) ) {
-					trap_EA_Move( cs->entityNum, dir, 400 );
+					EA_Move( cs->entityNum, dir, 400 );
 					vectoangles( dir, cs->ideal_viewangles );
 					cs->ideal_viewangles[2] *= 0.5;
 					moved = true;
 				}
 			}
 			if ( !moved ) {
-				//trap_EA_Move(cs->entityNum, dir, 0);
+				//EA_Move(cs->entityNum, dir, 0);
 			}
 		}
 	}
@@ -1899,13 +1899,13 @@ const char *AIFunc_BattleRoll( cast_state_t *cs ) {
 		return AIFunc_DefaultStart( cs );
 	}
 	//
-	trap_EA_Crouch( cs->entityNum );
+	EA_Crouch( cs->entityNum );
 	cs->attackcrouch_time = level.time + 500;
 	// all characters so far only move during the first second of animation
 	if ( cs->thinkFuncChangeTime > level.time - 1000 ) {
 		// just move in the direction of our ideal_viewangles
 		AngleVectors( cs->ideal_viewangles, dir, nullptr, nullptr );
-		trap_EA_Move( cs->entityNum, dir, 300 );
+		EA_Move( cs->entityNum, dir, 300 );
 		// we are crouching, move a little faster than normal
 		cs->speedScale = 1.5;
 	} else if ( cs->takeCoverTime > level.time ) {
@@ -2018,7 +2018,7 @@ const char *AIFunc_FlipMove( cast_state_t *cs ) {
 	//
 	// just move in the direction of our ideal_viewangles
 	AngleVectors( cs->ideal_viewangles, dir, nullptr, nullptr );
-	trap_EA_Move( cs->entityNum, dir, 400 );
+	EA_Move( cs->entityNum, dir, 400 );
 	// if we are crouching, move a little faster than normal
 	if ( cs->attackcrouch_time > level.time ) {
 		cs->speedScale = 1.5;
@@ -2368,14 +2368,14 @@ const char *AIFunc_BattleAmbush( cast_state_t *cs ) {
 				} else if ( AICast_EntityVisible( cs, enemies[i], false ) ) {
 					bot_input_t bi_back;
 					// try and move to them, if successful, then start chasing
-					trap_EA_GetInput( cs->entityNum, (float) level.time / 1000, &bi_back );
+					EA_GetInput( cs->entityNum, (float) level.time / 1000, &bi_back );
 					if ( AICast_MoveToPos( cs, g_entities[enemies[i]].client->ps.origin, enemies[i] ) ) {
 						if ( !moveresult->failure ) {
 							cs->enemyNum = enemies[i];
 							return AIFunc_BattleChaseStart( cs );
 						}
 					} else {
-						trap_EA_ResetInput( cs->entityNum, &bi_back );
+						EA_ResetInput( cs->entityNum, &bi_back );
 					}
 				}
 			}
@@ -2805,8 +2805,8 @@ const char *AIFunc_BattleChase( cast_state_t *cs ) {
 			if ( !ent->waterlevel ) {
 				dir[2] = 0;
 			}
-			//trap_EA_Move(cs->entityNum, dir, 400);
-			trap_EA_GetInput( cs->entityNum, (float) level.time / 1000, &bi );
+			//EA_Move(cs->entityNum, dir, 400);
+			EA_GetInput( cs->entityNum, (float) level.time / 1000, &bi );
 			VectorCopy( dir, bi.dir );
 			bi.speed = 400;
 			bi.actionflags = 0;
@@ -2814,16 +2814,16 @@ const char *AIFunc_BattleChase( cast_state_t *cs ) {
 			AICast_PredictMovement( cs, 5, 2.0, &move, &ucmd, cs->enemyNum );
 
 			if ( move.stopevent == PREDICTSTOP_HITENT ) { // success!
-				trap_EA_Move( cs->entityNum, dir, 400 );
+				EA_Move( cs->entityNum, dir, 400 );
 				// RF, if we are really close, we might be stuck on a corner, so randomly move sideways
 				if ( ( VectorLength( followent->client->ps.velocity ) < 50 ) && ( dist < 10 + ( sqrt( cs->bs->cur_ps.maxs[0] * cs->bs->cur_ps.maxs[0] * 8.0 ) / 2.0 + sqrt( followent->client->ps.maxs[0] * followent->client->ps.maxs[0] * 8.0 ) / 2.0 ) ) ) {
 					// if the box trace is unsuccessful
 					SV_Trace( &tr, cs->bs->origin, cs->bs->cur_ps.mins, cs->bs->cur_ps.maxs, followent->shared.r.currentOrigin, cs->entityNum, g_entities[cs->entityNum].clipmask, false );
 					if ( tr.entityNum != followent->shared.s.number ) {
 						if ( level.time % 6000 < 2000 ) {
-							trap_EA_MoveRight( cs->entityNum );
+							EA_MoveRight( cs->entityNum );
 						} else {
-							trap_EA_MoveLeft( cs->entityNum );
+							EA_MoveLeft( cs->entityNum );
 						}
 					}
 				}
@@ -2831,7 +2831,7 @@ const char *AIFunc_BattleChase( cast_state_t *cs ) {
 				cs->ideal_viewangles[2] *= 0.5;
 				moved = true;
 			} else {    // clear movement
-				//trap_EA_Move(cs->entityNum, dir, 0);
+				//EA_Move(cs->entityNum, dir, 0);
 			}
 		}
 	}
@@ -2960,7 +2960,7 @@ const char *AIFunc_BattleChase( cast_state_t *cs ) {
 		if ( cs->weaponNum == WP_GAUNTLET ) {
 			if ( move.stopevent == PREDICTSTOP_HITENT ) {
 				AICast_AimAtEnemy( cs );
-				trap_EA_Attack( bs->client );
+				EA_Attack( bs->client );
 				cs->bFlags |= BFL_ATTACKED;
 			}
 		}
@@ -3677,7 +3677,7 @@ const char *AIFunc_GrenadeFlush( cast_state_t *cs ) {
 			}
 			if ( !cs->bs->cur_ps.grenadeTimeLeft ) {
 				// hold fire button down
-				trap_EA_Attack( bs->client );
+				EA_Attack( bs->client );
 				cs->bFlags |= BFL_ATTACKED;
 			}
 			cs->lockViewAnglesTime = level.time + 500;
@@ -3819,8 +3819,8 @@ const char *AIFunc_GrenadeFlush( cast_state_t *cs ) {
 				if ( !ent->waterlevel ) {
 					dir[2] = 0;
 				}
-				//trap_EA_Move(cs->entityNum, dir, 400);
-				trap_EA_GetInput( cs->entityNum, (float) level.time / 1000, &bi );
+				//EA_Move(cs->entityNum, dir, 400);
+				EA_GetInput( cs->entityNum, (float) level.time / 1000, &bi );
 				VectorCopy( dir, bi.dir );
 				bi.speed = 400;
 				bi.actionflags = 0;
@@ -3828,12 +3828,12 @@ const char *AIFunc_GrenadeFlush( cast_state_t *cs ) {
 				AICast_PredictMovement( cs, 5, 2.0, &move, &ucmd, cs->enemyNum );
 
 				if ( move.stopevent == PREDICTSTOP_HITENT ) { // success!
-					trap_EA_Move( cs->entityNum, dir, 400 );
+					EA_Move( cs->entityNum, dir, 400 );
 					vectoangles( dir, cs->ideal_viewangles );
 					cs->ideal_viewangles[2] *= 0.5;
 					moved = true;
 				} else {    // clear movement
-					//trap_EA_Move(cs->entityNum, dir, 0);
+					//EA_Move(cs->entityNum, dir, 0);
 				}
 			}
 		}
@@ -3894,7 +3894,7 @@ const char *AIFunc_GrenadeFlush( cast_state_t *cs ) {
 		if ( cs->thinkFuncChangeTime < level.time - 200 ) {
 			// if it went reasonably close to them, but safe from us, then fire away
 			if ( Distance( endPos, cs->bs->origin ) > 100 + Distance( endPos, g_entities[cs->enemyNum].shared.r.currentOrigin ) ) {
-				trap_EA_Attack( bs->client );
+				EA_Attack( bs->client );
 				cs->bFlags |= BFL_ATTACKED;
 				cs->weaponNum = grenadeType;    // select grenade launcher
 				cs->grenadeFlushFiring = cs->weaponNum;
@@ -4066,7 +4066,7 @@ const char *AIFunc_BattleMG42( cast_state_t *cs ) {
 	//
 	VectorCopy( angles, cs->ideal_viewangles );
 	if ( cs->triggerReleaseTime < level.time ) {
-		trap_EA_Attack( bs->client );
+		EA_Attack( bs->client );
 		cs->bFlags |= BFL_ATTACKED;
 
 		if ( cs->triggerReleaseTime < level.time - 3000 ) {
@@ -4159,7 +4159,7 @@ const char *AIFunc_InspectBody( cast_state_t *cs ) {
 		// if they were gibbed, don't go all the way
 		if ( g_entities[cs->enemyNum].health < GIB_HEALTH && ( Distance( cs->bs->origin, enemyOrg ) < 180 ) ) {
 			cs->inspectBodyTime = level.time + 1000 + rand() % 1000;
-			trap_EA_Gesture( cs->entityNum );
+			EA_Gesture( cs->entityNum );
 			G_AddEvent( &g_entities[cs->entityNum], EV_GENERAL_SOUND, G_SoundIndex( aiDefaults[cs->aiCharacter].soundScripts[ORDERSSOUNDSCRIPT] ) );
 		}
 		// walk to them
@@ -4187,7 +4187,7 @@ const char *AIFunc_InspectBody( cast_state_t *cs ) {
 	} else if ( cs->inspectBodyTime < 0 ) {
 		// just reached them
 		cs->inspectBodyTime = level.time + 1000 + rand() % 1000;
-		trap_EA_Gesture( cs->entityNum );
+		EA_Gesture( cs->entityNum );
 		G_AddEvent( &g_entities[cs->entityNum], EV_GENERAL_SOUND, G_SoundIndex( aiDefaults[cs->aiCharacter].soundScripts[ORDERSSOUNDSCRIPT] ) );
 	} else if ( cs->inspectBodyTime < level.time ) {
 		vec3_t vec;
@@ -4559,7 +4559,7 @@ const char *AIFunc_Battle( cast_state_t *cs ) {
 		if ( !cs->bs->areanum ) {
 			if ( cs->obstructingTime >= level.time ) {
 				// move there
-				trap_EA_Move( cs->entityNum, cs->takeCoverPos, 200 );
+				EA_Move( cs->entityNum, cs->takeCoverPos, 200 );
 			} else if ( AICast_GetAvoid( cs, nullptr, cs->takeCoverPos, true, cs->enemyNum ) ) {
 				VectorSubtract( cs->takeCoverPos, cs->bs->origin, cs->takeCoverPos );
 				if ( VectorNormalize( cs->takeCoverPos ) > 60 ) {
@@ -4733,18 +4733,18 @@ const char *AIFunc_Battle( cast_state_t *cs ) {
 
 			cs->lastRollMove = level.time;
 
-			trap_EA_GetInput( cs->entityNum, (float) level.time / 1000, &bi_back );
-			trap_EA_ResetInput( cs->entityNum, nullptr );
+			EA_GetInput( cs->entityNum, (float) level.time / 1000, &bi_back );
+			EA_ResetInput( cs->entityNum, nullptr );
 			if ( level.time % 200 < 100 ) {
 				VectorNegate( right, dir );
 			} else { VectorCopy( right, dir );}
-			trap_EA_Move( cs->entityNum, dir, 400 );
-			trap_EA_GetInput( cs->entityNum, (float) level.time / 1000, &bi );
+			EA_Move( cs->entityNum, dir, 400 );
+			EA_GetInput( cs->entityNum, (float) level.time / 1000, &bi );
 			VectorCopy( dir, bi.dir );
 			AICast_InputToUserCommand( cs, &bi, &ucmd, bs->cur_ps.delta_angles );
 			AICast_PredictMovement( cs, 4, simTime / 4, &move, &ucmd, cs->enemyNum );
 
-			trap_EA_ResetInput( cs->entityNum, &bi_back );
+			EA_ResetInput( cs->entityNum, &bi_back );
 
 			if ( move.groundEntityNum == ENTITYNUM_WORLD &&
 				 VectorDistance( move.endpos, cs->bs->origin ) > simTime * cs->attributes[RUNNING_SPEED] * 0.8 ) {
@@ -4760,7 +4760,7 @@ const char *AIFunc_Battle( cast_state_t *cs ) {
 	// reload?
 	if ( ( cs->bs->cur_ps.weaponstate != WEAPON_RELOADING ) && ( cs->bs->cur_ps.ammoclip[BG_FindClipForWeapon( (weapon_t)cs->bs->cur_ps.weapon )] < (int)( ammoTable[cs->bs->cur_ps.weapon].uses ) ) ) {
 		if ( AICast_GotEnoughAmmoForWeapon( cs, cs->weaponNum ) ) {
-			trap_EA_Reload( cs->entityNum );
+			EA_Reload( cs->entityNum );
 		} else {    // no ammo, switch?
 			AICast_ChooseWeapon( cs, false );
 			if ( cs->weaponNum == WP_NONE ) {

@@ -237,7 +237,7 @@ const char *AIFunc_Helga_Melee( cast_state_t *cs ) {
 	if ( enemyDist > 8 ) {    // we can get closer
 		//if (!ent->client->ps.legsTimer) {
 		//	cs->castScriptStatus.scriptNoMoveTime = 0;
-		trap_EA_MoveForward( cs->entityNum );
+		EA_MoveForward( cs->entityNum );
 		//}
 		//ent->client->ps.legsTimer = 0;		// allow legs us to move
 	}
@@ -413,7 +413,7 @@ const char *AIFunc_Heinrich_SwordLunge( cast_state_t *cs ) {
 
 	if ( ent->client->ps.torsoTimer < 500 ) {
 		if ( !ent->client->ps.legsTimer ) {
-			trap_EA_MoveForward( cs->entityNum );
+			EA_MoveForward( cs->entityNum );
 		}
 		ent->client->ps.legsTimer = 0;
 		ent->client->ps.torsoTimer = 0;
@@ -453,7 +453,7 @@ const char *AIFunc_Heinrich_SwordLunge( cast_state_t *cs ) {
 			ent->client->ps.legsTimer = 0;      // allow legs to move us
 		}
 		if ( cs->castScriptStatus.scriptNoMoveTime < level.time ) {
-			trap_EA_MoveForward( cs->entityNum );
+			EA_MoveForward( cs->entityNum );
 		}
 	}
 
@@ -502,7 +502,7 @@ const char *AIFunc_Heinrich_SwordKnockback( cast_state_t *cs ) {
 
 	if ( ent->client->ps.torsoTimer < 500 ) {
 		if ( !ent->client->ps.legsTimer ) {
-			trap_EA_MoveForward( cs->entityNum );
+			EA_MoveForward( cs->entityNum );
 		}
 		ent->client->ps.legsTimer = 0;
 		ent->client->ps.torsoTimer = 0;
@@ -594,7 +594,7 @@ const char *AIFunc_Heinrich_SwordSideSlash( cast_state_t *cs ) {
 
 	if ( ent->client->ps.torsoTimer < 500 ) {
 		if ( !ent->client->ps.legsTimer ) {
-			trap_EA_MoveForward( cs->entityNum );
+			EA_MoveForward( cs->entityNum );
 		}
 		ent->client->ps.legsTimer = 0;
 		ent->client->ps.torsoTimer = 0;
@@ -639,7 +639,7 @@ const char *AIFunc_Heinrich_SwordSideSlash( cast_state_t *cs ) {
 			ent->client->ps.legsTimer = 0;      // allow legs to move us
 		}
 		if ( cs->castScriptStatus.scriptNoMoveTime < level.time ) {
-			trap_EA_MoveForward( cs->entityNum );
+			EA_MoveForward( cs->entityNum );
 		}
 	}
 
