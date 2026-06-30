@@ -637,33 +637,9 @@ int             Sys_Milliseconds( void );
 
 void            Cvar_Update( vmCvar_t *vmCvar );
 
-qhandle_t       RE_RegisterShaderNoMip( const char *name );
-
-void            RE_AddRefEntityToScene( const refEntity_t *re );
-
-void            RE_StretchPic( float x, float y, float w, float h, float s1, float t1, float s2, float t2, qhandle_t hShader );
-void            SCR_UpdateScreen( void );
-
-void            trap_S_FadeAllSound( float targetvol, int time );
-
-
-bool        trap_Key_IsDown( int keynum );
-
-void            trap_Key_SetOverstrikeMode( bool state );
-
-int             trap_Key_GetCatcher( void );
-void            trap_Key_SetCatcher( int catcher );
-
 int             GetConfigString( int index, char* buff, int buffsize );
 
-void            RE_RegisterFont( const char *pFontname, int pointSize, fontInfo_t *font );
-
-int             trap_CIN_PlayCinematic( const char *arg0, int xpos, int ypos, int width, int height, int bits );
-e_status        trap_CIN_StopCinematic( int handle );
-e_status        trap_CIN_RunCinematic( int handle );
-void            trap_CIN_DrawCinematic( int handle );
-
-void            trap_R_RemapShader( const char *oldShader, const char *newShader, const char *timeOffset );
+void            R_RemapShader( const char *oldShader, const char *newShader, const char *timeOffset );
 
 //
 // ui_loadconfig.c

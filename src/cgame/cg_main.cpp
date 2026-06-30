@@ -34,7 +34,7 @@ If you have questions concerning this license or the applicable additional terms
 #include "../renderer/tr_public.h"
 #include "../qcommon/qcommon.h"
 #include "../qcommon/clip_model.h"
-
+#include "../client/client.h"
 
 int forceModelModificationCount = -1;
 
@@ -896,227 +896,227 @@ static void CG_RegisterGraphics( void ) {
 	CG_LoadingString( " - textures" );
 
 	for ( i = 0 ; i < 11 ; i++ ) {
-		cgs.media.numberShaders[i] = trap_R_RegisterShader( sb_nums[i] );
+		cgs.media.numberShaders[i] = RegisterShaderAndDrawInfo( sb_nums[i] );
 	}
 
 
-	cgs.media.smokePuffShader = trap_R_RegisterShader( "smokePuff" );
+	cgs.media.smokePuffShader = RegisterShaderAndDrawInfo( "smokePuff" );
 
 	// Rafael - blood pool
-	//cgs.media.bloodPool = trap_R_RegisterShader ("bloodPool");
+	//cgs.media.bloodPool = RegisterShaderAndDrawInfo ("bloodPool");
 
 	// RF, blood cloud
-	cgs.media.bloodCloudShader = trap_R_RegisterShader( "bloodCloud" );
+	cgs.media.bloodCloudShader = RegisterShaderAndDrawInfo( "bloodCloud" );
 
 	// Rafael - cannon
-	cgs.media.smokePuffShaderdirty = trap_R_RegisterShader( "smokePuffdirty" );
-	cgs.media.smokePuffShaderb1 = trap_R_RegisterShader( "smokePuffblack1" );
-	cgs.media.smokePuffShaderb2 = trap_R_RegisterShader( "smokePuffblack2" );
-	cgs.media.smokePuffShaderb3 = trap_R_RegisterShader( "smokePuffblack3" );
-	cgs.media.smokePuffShaderb4 = trap_R_RegisterShader( "smokePuffblack4" );
-	cgs.media.smokePuffShaderb5 = trap_R_RegisterShader( "smokePuffblack5" );
+	cgs.media.smokePuffShaderdirty = RegisterShaderAndDrawInfo( "smokePuffdirty" );
+	cgs.media.smokePuffShaderb1 = RegisterShaderAndDrawInfo( "smokePuffblack1" );
+	cgs.media.smokePuffShaderb2 = RegisterShaderAndDrawInfo( "smokePuffblack2" );
+	cgs.media.smokePuffShaderb3 = RegisterShaderAndDrawInfo( "smokePuffblack3" );
+	cgs.media.smokePuffShaderb4 = RegisterShaderAndDrawInfo( "smokePuffblack4" );
+	cgs.media.smokePuffShaderb5 = RegisterShaderAndDrawInfo( "smokePuffblack5" );
 	// done
 
 	// Rafael - bleedanim
 	for ( i = 0; i < 5; i++ ) {
-		cgs.media.viewBloodAni[i] = trap_R_RegisterShader( va( "viewBloodBlend%i", i + 1 ) );
+		cgs.media.viewBloodAni[i] = RegisterShaderAndDrawInfo( va( "viewBloodBlend%i", i + 1 ) );
 	}
-	cgs.media.viewFlashBlood = trap_R_RegisterShader( "viewFlashBlood" );
+	cgs.media.viewFlashBlood = RegisterShaderAndDrawInfo( "viewFlashBlood" );
 	for ( i = 0; i < 16; i++ ) {
-		cgs.media.viewFlashFire[i] = trap_R_RegisterShader( va( "viewFlashFire%i", i + 1 ) );
+		cgs.media.viewFlashFire[i] = RegisterShaderAndDrawInfo( va( "viewFlashFire%i", i + 1 ) );
 	}
 	// done
 
 	// Rafael bats
 	for ( i = 0; i < 10; i++ ) {
-		cgs.media.bats[i] = trap_R_RegisterShader( va( "bats%i",i + 1 ) );
+		cgs.media.bats[i] = RegisterShaderAndDrawInfo( va( "bats%i",i + 1 ) );
 	}
 	// done
 
-	cgs.media.smokePuffRageProShader = trap_R_RegisterShader( "smokePuffRagePro" );
-	cgs.media.shotgunSmokePuffShader = trap_R_RegisterShader( "shotgunSmokePuff" );
+	cgs.media.smokePuffRageProShader = RegisterShaderAndDrawInfo( "smokePuffRagePro" );
+	cgs.media.shotgunSmokePuffShader = RegisterShaderAndDrawInfo( "shotgunSmokePuff" );
 
-	cgs.media.bloodTrailShader = trap_R_RegisterShader( "bloodTrail" );
-	cgs.media.connectionShader = trap_R_RegisterShader( "disconnected" );
+	cgs.media.bloodTrailShader = RegisterShaderAndDrawInfo( "bloodTrail" );
+	cgs.media.connectionShader = RegisterShaderAndDrawInfo( "disconnected" );
 
-	cgs.media.nailPuffShader = trap_R_RegisterShader( "nailtrail" );
+	cgs.media.nailPuffShader = RegisterShaderAndDrawInfo( "nailtrail" );
 
 
-//	cgs.media.reticleShaderSimple = trap_R_RegisterShader( "gfx/misc/reticlesimple" );		// TODO: remove
-	cgs.media.reticleShaderSimpleQ = trap_R_RegisterShader( "gfx/misc/reticlesimple_quarter" );
+//	cgs.media.reticleShaderSimple = RegisterShaderAndDrawInfo( "gfx/misc/reticlesimple" );		// TODO: remove
+	cgs.media.reticleShaderSimpleQ = RegisterShaderAndDrawInfo( "gfx/misc/reticlesimple_quarter" );
 
-	cgs.media.snooperShaderSimple = trap_R_RegisterShader( "gfx/misc/snoopersimple" );
+	cgs.media.snooperShaderSimple = RegisterShaderAndDrawInfo( "gfx/misc/snoopersimple" );
 
-//	cgs.media.binocShaderSimple = trap_R_RegisterShader( "gfx/misc/binocsimple" );			// TODO: remove
-	cgs.media.binocShaderSimpleQ = trap_R_RegisterShader( "gfx/misc/binocsimple_quarter" );  //----(SA)	added
+//	cgs.media.binocShaderSimple = RegisterShaderAndDrawInfo( "gfx/misc/binocsimple" );			// TODO: remove
+	cgs.media.binocShaderSimpleQ = RegisterShaderAndDrawInfo( "gfx/misc/binocsimple_quarter" );  //----(SA)	added
 
 
 	// Rafael
-	// cgs.media.snowShader = trap_R_RegisterShader ( "snowPuff" );
-	cgs.media.snowShader = trap_R_RegisterShader( "snow_tri" );
+	// cgs.media.snowShader = RegisterShaderAndDrawInfo ( "snowPuff" );
+	cgs.media.snowShader = RegisterShaderAndDrawInfo( "snow_tri" );
 
-	cgs.media.oilParticle = trap_R_RegisterShader( "oilParticle" );
-	cgs.media.oilSlick = trap_R_RegisterShader( "oilSlick" );
+	cgs.media.oilParticle = RegisterShaderAndDrawInfo( "oilParticle" );
+	cgs.media.oilSlick = RegisterShaderAndDrawInfo( "oilSlick" );
 
-	cgs.media.waterBubbleShader = trap_R_RegisterShader( "waterBubble" );
+	cgs.media.waterBubbleShader = RegisterShaderAndDrawInfo( "waterBubble" );
 
-	cgs.media.tracerShader = trap_R_RegisterShader( "gfx/misc/tracer" );
-	cgs.media.selectShader = trap_R_RegisterShader( "gfx/2d/select" );
+	cgs.media.tracerShader = RegisterShaderAndDrawInfo( "gfx/misc/tracer" );
+	cgs.media.selectShader = RegisterShaderAndDrawInfo( "gfx/2d/select" );
 
 
-	cgs.media.hintShaders[HINT_ACTIVATE]            = trap_R_RegisterShader( "gfx/2d/usableHint" );
-	cgs.media.hintShaders[HINT_NOACTIVATE]          = trap_R_RegisterShader( "gfx/2d/notUsableHint" );
-	cgs.media.hintShaders[HINT_DOOR]                = trap_R_RegisterShader( "gfx/2d/doorHint" );
-	cgs.media.hintShaders[HINT_DOOR_ROTATING]       = trap_R_RegisterShader( "gfx/2d/doorRotateHint" );
-	cgs.media.hintShaders[HINT_DOOR_LOCKED]         = trap_R_RegisterShader( "gfx/2d/doorLockHint" );
-	cgs.media.hintShaders[HINT_DOOR_ROTATING_LOCKED] = trap_R_RegisterShader( "gfx/2d/doorRotateLockHint" );
-	cgs.media.hintShaders[HINT_MG42]                = trap_R_RegisterShader( "gfx/2d/mg42Hint" );
-	cgs.media.hintShaders[HINT_BREAKABLE]           = trap_R_RegisterShader( "gfx/2d/breakableHint" );
-	cgs.media.hintShaders[HINT_CHAIR]               = trap_R_RegisterShader( "gfx/2d/chairHint" );
-	cgs.media.hintShaders[HINT_ALARM]               = trap_R_RegisterShader( "gfx/2d/alarmHint" );
-	cgs.media.hintShaders[HINT_HEALTH]              = trap_R_RegisterShader( "gfx/2d/healthHint" );
-	cgs.media.hintShaders[HINT_TREASURE]            = trap_R_RegisterShader( "gfx/2d/treasureHint" );
-	cgs.media.hintShaders[HINT_KNIFE]               = trap_R_RegisterShader( "gfx/2d/knifeHint" );
-	cgs.media.hintShaders[HINT_LADDER]              = trap_R_RegisterShader( "gfx/2d/ladderHint" );
-	cgs.media.hintShaders[HINT_BUTTON]              = trap_R_RegisterShader( "gfx/2d/buttonHint" );
-	cgs.media.hintShaders[HINT_WATER]               = trap_R_RegisterShader( "gfx/2d/waterHint" );
-	cgs.media.hintShaders[HINT_CAUTION]             = trap_R_RegisterShader( "gfx/2d/cautionHint" );
-	cgs.media.hintShaders[HINT_DANGER]              = trap_R_RegisterShader( "gfx/2d/dangerHint" );
-	cgs.media.hintShaders[HINT_SECRET]              = trap_R_RegisterShader( "gfx/2d/secretHint" );
-	cgs.media.hintShaders[HINT_QUESTION]            = trap_R_RegisterShader( "gfx/2d/questionHint" );
-	cgs.media.hintShaders[HINT_EXCLAMATION]         = trap_R_RegisterShader( "gfx/2d/exclamationHint" );
-	cgs.media.hintShaders[HINT_CLIPBOARD]           = trap_R_RegisterShader( "gfx/2d/clipboardHint" );
-	cgs.media.hintShaders[HINT_WEAPON]              = trap_R_RegisterShader( "gfx/2d/weaponHint" );
-	cgs.media.hintShaders[HINT_AMMO]                = trap_R_RegisterShader( "gfx/2d/ammoHint" );
-	cgs.media.hintShaders[HINT_ARMOR]               = trap_R_RegisterShader( "gfx/2d/armorHint" );
-	cgs.media.hintShaders[HINT_POWERUP]             = trap_R_RegisterShader( "gfx/2d/powerupHint" );
-	cgs.media.hintShaders[HINT_HOLDABLE]            = trap_R_RegisterShader( "gfx/2d/holdableHint" );
-	cgs.media.hintShaders[HINT_INVENTORY]           = trap_R_RegisterShader( "gfx/2d/inventoryHint" );
-	cgs.media.hintShaders[HINT_EXIT]                = trap_R_RegisterShader( "gfx/2d/exitHint" );
+	cgs.media.hintShaders[HINT_ACTIVATE]            = RegisterShaderAndDrawInfo( "gfx/2d/usableHint" );
+	cgs.media.hintShaders[HINT_NOACTIVATE]          = RegisterShaderAndDrawInfo( "gfx/2d/notUsableHint" );
+	cgs.media.hintShaders[HINT_DOOR]                = RegisterShaderAndDrawInfo( "gfx/2d/doorHint" );
+	cgs.media.hintShaders[HINT_DOOR_ROTATING]       = RegisterShaderAndDrawInfo( "gfx/2d/doorRotateHint" );
+	cgs.media.hintShaders[HINT_DOOR_LOCKED]         = RegisterShaderAndDrawInfo( "gfx/2d/doorLockHint" );
+	cgs.media.hintShaders[HINT_DOOR_ROTATING_LOCKED] = RegisterShaderAndDrawInfo( "gfx/2d/doorRotateLockHint" );
+	cgs.media.hintShaders[HINT_MG42]                = RegisterShaderAndDrawInfo( "gfx/2d/mg42Hint" );
+	cgs.media.hintShaders[HINT_BREAKABLE]           = RegisterShaderAndDrawInfo( "gfx/2d/breakableHint" );
+	cgs.media.hintShaders[HINT_CHAIR]               = RegisterShaderAndDrawInfo( "gfx/2d/chairHint" );
+	cgs.media.hintShaders[HINT_ALARM]               = RegisterShaderAndDrawInfo( "gfx/2d/alarmHint" );
+	cgs.media.hintShaders[HINT_HEALTH]              = RegisterShaderAndDrawInfo( "gfx/2d/healthHint" );
+	cgs.media.hintShaders[HINT_TREASURE]            = RegisterShaderAndDrawInfo( "gfx/2d/treasureHint" );
+	cgs.media.hintShaders[HINT_KNIFE]               = RegisterShaderAndDrawInfo( "gfx/2d/knifeHint" );
+	cgs.media.hintShaders[HINT_LADDER]              = RegisterShaderAndDrawInfo( "gfx/2d/ladderHint" );
+	cgs.media.hintShaders[HINT_BUTTON]              = RegisterShaderAndDrawInfo( "gfx/2d/buttonHint" );
+	cgs.media.hintShaders[HINT_WATER]               = RegisterShaderAndDrawInfo( "gfx/2d/waterHint" );
+	cgs.media.hintShaders[HINT_CAUTION]             = RegisterShaderAndDrawInfo( "gfx/2d/cautionHint" );
+	cgs.media.hintShaders[HINT_DANGER]              = RegisterShaderAndDrawInfo( "gfx/2d/dangerHint" );
+	cgs.media.hintShaders[HINT_SECRET]              = RegisterShaderAndDrawInfo( "gfx/2d/secretHint" );
+	cgs.media.hintShaders[HINT_QUESTION]            = RegisterShaderAndDrawInfo( "gfx/2d/questionHint" );
+	cgs.media.hintShaders[HINT_EXCLAMATION]         = RegisterShaderAndDrawInfo( "gfx/2d/exclamationHint" );
+	cgs.media.hintShaders[HINT_CLIPBOARD]           = RegisterShaderAndDrawInfo( "gfx/2d/clipboardHint" );
+	cgs.media.hintShaders[HINT_WEAPON]              = RegisterShaderAndDrawInfo( "gfx/2d/weaponHint" );
+	cgs.media.hintShaders[HINT_AMMO]                = RegisterShaderAndDrawInfo( "gfx/2d/ammoHint" );
+	cgs.media.hintShaders[HINT_ARMOR]               = RegisterShaderAndDrawInfo( "gfx/2d/armorHint" );
+	cgs.media.hintShaders[HINT_POWERUP]             = RegisterShaderAndDrawInfo( "gfx/2d/powerupHint" );
+	cgs.media.hintShaders[HINT_HOLDABLE]            = RegisterShaderAndDrawInfo( "gfx/2d/holdableHint" );
+	cgs.media.hintShaders[HINT_INVENTORY]           = RegisterShaderAndDrawInfo( "gfx/2d/inventoryHint" );
+	cgs.media.hintShaders[HINT_EXIT]                = RegisterShaderAndDrawInfo( "gfx/2d/exitHint" );
 	cgs.media.hintShaders[HINT_NOEXIT]              = cgs.media.hintShaders[HINT_EXIT];
 	cgs.media.hintShaders[HINT_EXIT_FAR]            = cgs.media.hintShaders[HINT_EXIT];
 	cgs.media.hintShaders[HINT_NOEXIT_FAR]          = cgs.media.hintShaders[HINT_EXIT];
 
-	cgs.media.youGotMailShader      = trap_R_RegisterShader( "gfx/2d/yougotmail" );    //----(SA)	added
-	cgs.media.youGotObjectiveShader = trap_R_RegisterShader( "gfx/2d/yougotobjective" );   //----(SA)	added
+	cgs.media.youGotMailShader      = RegisterShaderAndDrawInfo( "gfx/2d/yougotmail" );    //----(SA)	added
+	cgs.media.youGotObjectiveShader = RegisterShaderAndDrawInfo( "gfx/2d/yougotobjective" );   //----(SA)	added
 
 	for ( i = 0 ; i < NUM_CROSSHAIRS ; i++ ) {
 		cgs.media.crosshairShader[i] = RE_RegisterShaderNoMip( va( "gfx/2d/crosshair%c", 'a' + i ) );
 	}
 
-	cgs.media.crosshairFriendly =  trap_R_RegisterShader( "gfx/2d/friendlycross" );  //----(SA)	added
+	cgs.media.crosshairFriendly =  RegisterShaderAndDrawInfo( "gfx/2d/friendlycross" );  //----(SA)	added
 
-	cgs.media.backTileShader = trap_R_RegisterShader( "gfx/2d/backtile" );
-	cgs.media.noammoShader = trap_R_RegisterShader( "icons/noammo" );
+	cgs.media.backTileShader = RegisterShaderAndDrawInfo( "gfx/2d/backtile" );
+	cgs.media.noammoShader = RegisterShaderAndDrawInfo( "icons/noammo" );
 
 	CG_LoadingString( " - models" );
 
-	cgs.media.machinegunBrassModel = trap_R_RegisterModel( "models/weapons2/shells/m_shell.md3" );
-	cgs.media.panzerfaustBrassModel = trap_R_RegisterModel( "models/weapons2/shells/pf_shell.md3" );
-	cgs.media.smallgunBrassModel = trap_R_RegisterModel( "models/weapons2/shells/sm_shell.md3" );
+	cgs.media.machinegunBrassModel = RegisterModelAndDrawInfo( "models/weapons2/shells/m_shell.md3" );
+	cgs.media.panzerfaustBrassModel = RegisterModelAndDrawInfo( "models/weapons2/shells/pf_shell.md3" );
+	cgs.media.smallgunBrassModel = RegisterModelAndDrawInfo( "models/weapons2/shells/sm_shell.md3" );
 
-	cgs.media.debBlock[0] = trap_R_RegisterModel( "models/mapobjects/debris/brick1.md3" );
-	cgs.media.debBlock[1] = trap_R_RegisterModel( "models/mapobjects/debris/brick2.md3" );
-	cgs.media.debBlock[2] = trap_R_RegisterModel( "models/mapobjects/debris/brick3.md3" );
-	cgs.media.debBlock[3] = trap_R_RegisterModel( "models/mapobjects/debris/brick4.md3" );
-	cgs.media.debBlock[4] = trap_R_RegisterModel( "models/mapobjects/debris/brick5.md3" );
-	cgs.media.debBlock[5] = trap_R_RegisterModel( "models/mapobjects/debris/brick6.md3" );
+	cgs.media.debBlock[0] = RegisterModelAndDrawInfo( "models/mapobjects/debris/brick1.md3" );
+	cgs.media.debBlock[1] = RegisterModelAndDrawInfo( "models/mapobjects/debris/brick2.md3" );
+	cgs.media.debBlock[2] = RegisterModelAndDrawInfo( "models/mapobjects/debris/brick3.md3" );
+	cgs.media.debBlock[3] = RegisterModelAndDrawInfo( "models/mapobjects/debris/brick4.md3" );
+	cgs.media.debBlock[4] = RegisterModelAndDrawInfo( "models/mapobjects/debris/brick5.md3" );
+	cgs.media.debBlock[5] = RegisterModelAndDrawInfo( "models/mapobjects/debris/brick6.md3" );
 
-	cgs.media.debRock[0] = trap_R_RegisterModel( "models/mapobjects/debris/rubble1.md3" );
-	cgs.media.debRock[1] = trap_R_RegisterModel( "models/mapobjects/debris/rubble2.md3" );
-	cgs.media.debRock[2] = trap_R_RegisterModel( "models/mapobjects/debris/rubble3.md3" );
+	cgs.media.debRock[0] = RegisterModelAndDrawInfo( "models/mapobjects/debris/rubble1.md3" );
+	cgs.media.debRock[1] = RegisterModelAndDrawInfo( "models/mapobjects/debris/rubble2.md3" );
+	cgs.media.debRock[2] = RegisterModelAndDrawInfo( "models/mapobjects/debris/rubble3.md3" );
 
 
-	cgs.media.debWood[0] = trap_R_RegisterModel( "models/gibs/wood/wood1.md3" );
-	cgs.media.debWood[1] = trap_R_RegisterModel( "models/gibs/wood/wood2.md3" );
-	cgs.media.debWood[2] = trap_R_RegisterModel( "models/gibs/wood/wood3.md3" );
-	cgs.media.debWood[3] = trap_R_RegisterModel( "models/gibs/wood/wood4.md3" );
-	cgs.media.debWood[4] = trap_R_RegisterModel( "models/gibs/wood/wood5.md3" );
-	cgs.media.debWood[5] = trap_R_RegisterModel( "models/gibs/wood/wood6.md3" );
+	cgs.media.debWood[0] = RegisterModelAndDrawInfo( "models/gibs/wood/wood1.md3" );
+	cgs.media.debWood[1] = RegisterModelAndDrawInfo( "models/gibs/wood/wood2.md3" );
+	cgs.media.debWood[2] = RegisterModelAndDrawInfo( "models/gibs/wood/wood3.md3" );
+	cgs.media.debWood[3] = RegisterModelAndDrawInfo( "models/gibs/wood/wood4.md3" );
+	cgs.media.debWood[4] = RegisterModelAndDrawInfo( "models/gibs/wood/wood5.md3" );
+	cgs.media.debWood[5] = RegisterModelAndDrawInfo( "models/gibs/wood/wood6.md3" );
 
-	cgs.media.debFabric[0] = trap_R_RegisterModel( "models/shards/fabric1.md3" );
-	cgs.media.debFabric[1] = trap_R_RegisterModel( "models/shards/fabric2.md3" );
-	cgs.media.debFabric[2] = trap_R_RegisterModel( "models/shards/fabric3.md3" );
+	cgs.media.debFabric[0] = RegisterModelAndDrawInfo( "models/shards/fabric1.md3" );
+	cgs.media.debFabric[1] = RegisterModelAndDrawInfo( "models/shards/fabric2.md3" );
+	cgs.media.debFabric[2] = RegisterModelAndDrawInfo( "models/shards/fabric3.md3" );
 
-	cgs.media.balloonShader = trap_R_RegisterShader( "sprites/balloon3" );
+	cgs.media.balloonShader = RegisterShaderAndDrawInfo( "sprites/balloon3" );
 
 	for ( i = 0; i < MAX_AISTATES; i++ ) {
-		cgs.media.aiStateShaders[i] = trap_R_RegisterShader( va( "sprites/aistate%i", i + 1 ) );
+		cgs.media.aiStateShaders[i] = RegisterShaderAndDrawInfo( va( "sprites/aistate%i", i + 1 ) );
 	}
 
-	cgs.media.bloodExplosionShader = trap_R_RegisterShader( "bloodExplosion" );
+	cgs.media.bloodExplosionShader = RegisterShaderAndDrawInfo( "bloodExplosion" );
 
 	// Ridah, spark particles
-	cgs.media.sparkParticleShader = trap_R_RegisterShader( "sparkParticle" );
-	cgs.media.smokeTrailShader = trap_R_RegisterShader( "smokeTrail" );
-	cgs.media.lightningBoltShader = trap_R_RegisterShader( "lightningBolt" );
-	cgs.media.flamethrowerFireStream = trap_R_RegisterShader( "flamethrowerFireStream" );
-	cgs.media.flamethrowerBlueStream = trap_R_RegisterShader( "flamethrowerBlueStream" );
+	cgs.media.sparkParticleShader = RegisterShaderAndDrawInfo( "sparkParticle" );
+	cgs.media.smokeTrailShader = RegisterShaderAndDrawInfo( "smokeTrail" );
+	cgs.media.lightningBoltShader = RegisterShaderAndDrawInfo( "lightningBolt" );
+	cgs.media.flamethrowerFireStream = RegisterShaderAndDrawInfo( "flamethrowerFireStream" );
+	cgs.media.flamethrowerBlueStream = RegisterShaderAndDrawInfo( "flamethrowerBlueStream" );
 
-	cgs.media.onFireShader2 = trap_R_RegisterShader( "entityOnFire1" );
-	cgs.media.onFireShader = trap_R_RegisterShader( "entityOnFire2" );
-	cgs.media.viewFadeBlack = trap_R_RegisterShader( "viewFadeBlack" );
-	cgs.media.sparkFlareShader = trap_R_RegisterShader( "sparkFlareParticle" );
+	cgs.media.onFireShader2 = RegisterShaderAndDrawInfo( "entityOnFire1" );
+	cgs.media.onFireShader = RegisterShaderAndDrawInfo( "entityOnFire2" );
+	cgs.media.viewFadeBlack = RegisterShaderAndDrawInfo( "viewFadeBlack" );
+	cgs.media.sparkFlareShader = RegisterShaderAndDrawInfo( "sparkFlareParticle" );
 
 	// spotlight
 	// shaders
-	cgs.media.spotLightShader = trap_R_RegisterShader( "spotLight" );
-	cgs.media.spotLightBeamShader = trap_R_RegisterShader( "lightBeam" );
+	cgs.media.spotLightShader = RegisterShaderAndDrawInfo( "spotLight" );
+	cgs.media.spotLightBeamShader = RegisterShaderAndDrawInfo( "lightBeam" );
 
 	// models
-	cgs.media.spotLightBaseModel = trap_R_RegisterModel( "models/mapobjects/light/searchlight1_b.md3" );
-	cgs.media.spotLightLightModel = trap_R_RegisterModel( "models/mapobjects/light/searchlight1_l.md3" );
-	cgs.media.spotLightLightModelBroke = trap_R_RegisterModel( "models/mapobjects/light/searchlight_l_broke.md3" );
+	cgs.media.spotLightBaseModel = RegisterModelAndDrawInfo( "models/mapobjects/light/searchlight1_b.md3" );
+	cgs.media.spotLightLightModel = RegisterModelAndDrawInfo( "models/mapobjects/light/searchlight1_l.md3" );
+	cgs.media.spotLightLightModelBroke = RegisterModelAndDrawInfo( "models/mapobjects/light/searchlight_l_broke.md3" );
 
 
-	cgs.media.lightningHitWallShader = trap_R_RegisterShader( "lightningHitWall" );
-	cgs.media.lightningWaveShader = trap_R_RegisterShader( "lightningWave" );
-	cgs.media.bulletParticleTrailShader = trap_R_RegisterShader( "bulletParticleTrail" );
-	cgs.media.smokeParticleShader = trap_R_RegisterShader( "smokeParticle" );
+	cgs.media.lightningHitWallShader = RegisterShaderAndDrawInfo( "lightningHitWall" );
+	cgs.media.lightningWaveShader = RegisterShaderAndDrawInfo( "lightningWave" );
+	cgs.media.bulletParticleTrailShader = RegisterShaderAndDrawInfo( "bulletParticleTrail" );
+	cgs.media.smokeParticleShader = RegisterShaderAndDrawInfo( "smokeParticle" );
 
 	// DHM - Nerve :: bullet hitting dirt
-	cgs.media.dirtParticle1Shader = trap_R_RegisterShader( "dirt_splash" );
-	cgs.media.dirtParticle2Shader = trap_R_RegisterShader( "water_splash" );
+	cgs.media.dirtParticle1Shader = RegisterShaderAndDrawInfo( "dirt_splash" );
+	cgs.media.dirtParticle2Shader = RegisterShaderAndDrawInfo( "water_splash" );
 
-	cgs.media.teslaDamageEffectShader = trap_R_RegisterShader( "teslaDamageEffect" );
-	cgs.media.teslaAltDamageEffectShader = trap_R_RegisterShader( "teslaAltDamageEffect" );
-	cgs.media.viewTeslaDamageEffectShader = trap_R_RegisterShader( "viewTeslaDamageEffect" );
-	cgs.media.viewTeslaAltDamageEffectShader = trap_R_RegisterShader( "viewTeslaAltDamageEffect" );
+	cgs.media.teslaDamageEffectShader = RegisterShaderAndDrawInfo( "teslaDamageEffect" );
+	cgs.media.teslaAltDamageEffectShader = RegisterShaderAndDrawInfo( "teslaAltDamageEffect" );
+	cgs.media.viewTeslaDamageEffectShader = RegisterShaderAndDrawInfo( "viewTeslaDamageEffect" );
+	cgs.media.viewTeslaAltDamageEffectShader = RegisterShaderAndDrawInfo( "viewTeslaAltDamageEffect" );
 	// done.
 
-	cgs.media.railCoreShader = trap_R_RegisterShader( "railCore" ); 
+	cgs.media.railCoreShader = RegisterShaderAndDrawInfo( "railCore" ); 
 
-	cgs.media.thirdPersonBinocModel = trap_R_RegisterModel( "models/powerups/holdable/binocs_thirdperson.md3" ); //----(SA)	added
-	cgs.media.cigModel = trap_R_RegisterModel( "models/players/infantryss/acc/cig.md3" );    //----(SA)	added
+	cgs.media.thirdPersonBinocModel = RegisterModelAndDrawInfo( "models/powerups/holdable/binocs_thirdperson.md3" ); //----(SA)	added
+	cgs.media.cigModel = RegisterModelAndDrawInfo( "models/players/infantryss/acc/cig.md3" );    //----(SA)	added
 
 	// zombie shot
-	cgs.media.flamebarrel = trap_R_RegisterModel( "models/furniture/barrel/barrel_a.md3" );
+	cgs.media.flamebarrel = RegisterModelAndDrawInfo( "models/furniture/barrel/barrel_a.md3" );
 
-	cgs.media.mg42muzzleflash = trap_R_RegisterModel( "models/weapons2/machinegun/mg42_flash.md3" );
+	cgs.media.mg42muzzleflash = RegisterModelAndDrawInfo( "models/weapons2/machinegun/mg42_flash.md3" );
 
-	cgs.media.planemuzzleflash = trap_R_RegisterModel( "models/mapobjects/vehicles/gunflare.md3" );
+	cgs.media.planemuzzleflash = RegisterModelAndDrawInfo( "models/mapobjects/vehicles/gunflare.md3" );
 
-	cgs.media.crowbar = trap_R_RegisterModel( "models/weapons2/wrench/wrench.md3" );
+	cgs.media.crowbar = RegisterModelAndDrawInfo( "models/weapons2/wrench/wrench.md3" );
 
 	// Rafael shards
-	cgs.media.shardGlass1 = trap_R_RegisterModel( "models/shards/glass1.md3" );
-	cgs.media.shardGlass2 = trap_R_RegisterModel( "models/shards/glass2.md3" );
-	cgs.media.shardWood1 = trap_R_RegisterModel( "models/shards/wood1.md3" );
-	cgs.media.shardWood2 = trap_R_RegisterModel( "models/shards/wood2.md3" );
-	cgs.media.shardMetal1 = trap_R_RegisterModel( "models/shards/metal1.md3" );
-	cgs.media.shardMetal2 = trap_R_RegisterModel( "models/shards/metal2.md3" );
-	cgs.media.shardCeramic1 = trap_R_RegisterModel( "models/shards/ceramic1.md3" );
-	cgs.media.shardCeramic2 = trap_R_RegisterModel( "models/shards/ceramic2.md3" );
+	cgs.media.shardGlass1 = RegisterModelAndDrawInfo( "models/shards/glass1.md3" );
+	cgs.media.shardGlass2 = RegisterModelAndDrawInfo( "models/shards/glass2.md3" );
+	cgs.media.shardWood1 = RegisterModelAndDrawInfo( "models/shards/wood1.md3" );
+	cgs.media.shardWood2 = RegisterModelAndDrawInfo( "models/shards/wood2.md3" );
+	cgs.media.shardMetal1 = RegisterModelAndDrawInfo( "models/shards/metal1.md3" );
+	cgs.media.shardMetal2 = RegisterModelAndDrawInfo( "models/shards/metal2.md3" );
+	cgs.media.shardCeramic1 = RegisterModelAndDrawInfo( "models/shards/ceramic1.md3" );
+	cgs.media.shardCeramic2 = RegisterModelAndDrawInfo( "models/shards/ceramic2.md3" );
 	// done
 
-	cgs.media.shardRubble1 = trap_R_RegisterModel( "models/mapobjects/debris/brick000.md3" );
-	cgs.media.shardRubble2 = trap_R_RegisterModel( "models/mapobjects/debris/brick001.md3" );
-	cgs.media.shardRubble3 = trap_R_RegisterModel( "models/mapobjects/debris/brick002.md3" );
+	cgs.media.shardRubble1 = RegisterModelAndDrawInfo( "models/mapobjects/debris/brick000.md3" );
+	cgs.media.shardRubble2 = RegisterModelAndDrawInfo( "models/mapobjects/debris/brick001.md3" );
+	cgs.media.shardRubble3 = RegisterModelAndDrawInfo( "models/mapobjects/debris/brick002.md3" );
 
 	for ( i = 0; i < MAX_LOCKER_DEBRIS; i++ )
 	{
 		snprintf( name, sizeof( name ), "models/mapobjects/debris/personal%i.md3", i + 1 );
-		cgs.media.shardJunk[i] = trap_R_RegisterModel( name );
+		cgs.media.shardJunk[i] = RegisterModelAndDrawInfo( name );
 	}
 
 	memset( cg_items, 0, sizeof( cg_items ) );
@@ -1157,26 +1157,26 @@ static void CG_RegisterGraphics( void ) {
 	}
 
 	// wall marks
-	cgs.media.bulletMarkShader = trap_R_RegisterShader( "gfx/damage/bullet_mrk" );
-	cgs.media.burnMarkShader = trap_R_RegisterShader( "gfx/damage/burn_med_mrk" );
-	cgs.media.holeMarkShader = trap_R_RegisterShader( "gfx/damage/hole_lg_mrk" );
-	cgs.media.shadowMarkShader = trap_R_RegisterShader( "markShadow" );
-	cgs.media.shadowFootShader = trap_R_RegisterShader( "markShadowFoot" );
-	cgs.media.shadowTorsoShader = trap_R_RegisterShader( "markShadowTorso" );
-	cgs.media.wakeMarkShader = trap_R_RegisterShader( "wake" );
-	cgs.media.wakeMarkShaderAnim = trap_R_RegisterShader( "wakeAnim" ); // (SA)
+	cgs.media.bulletMarkShader = RegisterShaderAndDrawInfo( "gfx/damage/bullet_mrk" );
+	cgs.media.burnMarkShader = RegisterShaderAndDrawInfo( "gfx/damage/burn_med_mrk" );
+	cgs.media.holeMarkShader = RegisterShaderAndDrawInfo( "gfx/damage/hole_lg_mrk" );
+	cgs.media.shadowMarkShader = RegisterShaderAndDrawInfo( "markShadow" );
+	cgs.media.shadowFootShader = RegisterShaderAndDrawInfo( "markShadowFoot" );
+	cgs.media.shadowTorsoShader = RegisterShaderAndDrawInfo( "markShadowTorso" );
+	cgs.media.wakeMarkShader = RegisterShaderAndDrawInfo( "wake" );
+	cgs.media.wakeMarkShaderAnim = RegisterShaderAndDrawInfo( "wakeAnim" ); // (SA)
 
-	cgs.media.bulletMarkShaderMetal = trap_R_RegisterShader( "gfx/damage/metal_mrk" );
-	cgs.media.bulletMarkShaderWood = trap_R_RegisterShader( "gfx/damage/wood_mrk" );
-	cgs.media.bulletMarkShaderCeramic = trap_R_RegisterShader( "gfx/damage/ceramic_mrk" );
-	cgs.media.bulletMarkShaderGlass = trap_R_RegisterShader( "gfx/damage/glass_mrk" );
+	cgs.media.bulletMarkShaderMetal = RegisterShaderAndDrawInfo( "gfx/damage/metal_mrk" );
+	cgs.media.bulletMarkShaderWood = RegisterShaderAndDrawInfo( "gfx/damage/wood_mrk" );
+	cgs.media.bulletMarkShaderCeramic = RegisterShaderAndDrawInfo( "gfx/damage/ceramic_mrk" );
+	cgs.media.bulletMarkShaderGlass = RegisterShaderAndDrawInfo( "gfx/damage/glass_mrk" );
 
 	for ( i = 0 ; i < 5 ; i++ ) {
 		char name[32];
 		//snprintf( name, sizeof(name), "textures/decals/blood%i", i+1 );
-		//cgs.media.bloodMarkShaders[i] = trap_R_RegisterShader( name );
+		//cgs.media.bloodMarkShaders[i] = RegisterShaderAndDrawInfo( name );
 		snprintf( name, sizeof( name ), "blood_dot%i", i + 1 );
-		cgs.media.bloodDotShaders[i] = trap_R_RegisterShader( name );
+		cgs.media.bloodDotShaders[i] = RegisterShaderAndDrawInfo( name );
 	}
 
 	CG_LoadingString( " - inline models" );
@@ -1189,7 +1189,7 @@ static void CG_RegisterGraphics( void ) {
 		int j;
 
 		snprintf( name, sizeof( name ), "*%i", i );
-		cgs.inlineDrawModel[i] = trap_R_RegisterModel( name );
+		cgs.inlineDrawModel[i] = RegisterModelAndDrawInfo( name );
 		R_ModelBounds( cgs.inlineDrawModel[i], mins, maxs );
 		for ( j = 0 ; j < 3 ; j++ ) {
 			cgs.inlineModelMidpoints[i][j] = mins[j] + 0.5 * ( maxs[j] - mins[j] );
@@ -1206,7 +1206,7 @@ static void CG_RegisterGraphics( void ) {
 		if ( !modelName[0] ) {
 			break;
 		}
-		cgs.gameModels[i] = trap_R_RegisterModel( modelName );
+		cgs.gameModels[i] = RegisterModelAndDrawInfo( modelName );
 	}
 
 	CG_LoadingString( " - particles" );
@@ -1286,23 +1286,21 @@ void CG_Text_PaintWithCursor( float x, float y, int font, float scale, vec4_t co
 }
 
 static int CG_PlayCinematic( const char *name, float x, float y, float w, float h ) {
-	return trap_CIN_PlayCinematic( name, x, y, w, h, CIN_loop );
+	return CIN_PlayCinematic( name, x, y, w, h, CIN_loop );
 }
 
 static void CG_StopCinematic( int handle ) {
-	trap_CIN_StopCinematic( handle );
+	CIN_StopCinematic( handle );
 }
 
 static void CG_DrawCinematic( int handle, float x, float y, float w, float h ) {
-	trap_CIN_SetExtents( handle, x, y, w, h );
-	trap_CIN_DrawCinematic( handle );
+	CIN_SetExtents( handle, x, y, w, h );
+	CIN_DrawCinematic( handle );
 }
 
 static void CG_RunCinematicFrame( int handle ) {
-	trap_CIN_RunCinematic( handle );
+	CIN_RunCinematic( handle );
 }
-
-
 
 /*
 ==============
@@ -1370,11 +1368,11 @@ void CG_Init( int serverMessageNum, int serverCommandSequence ) {
 
 	// load a few needed things before we do any screen updates
 	// (SA) using Nerve's text since they have foreign characters
-	cgs.media.charsetShader     = trap_R_RegisterShader( "gfx/2d/hudchars" ); //trap_R_RegisterShader( "gfx/2d/bigchars" );
+	cgs.media.charsetShader     = RegisterShaderAndDrawInfo( "gfx/2d/hudchars" ); //RegisterShaderAndDrawInfo( "gfx/2d/bigchars" );
 	// JOSEPH 4-17-00
-	cgs.media.menucharsetShader = trap_R_RegisterShader( "gfx/2d/hudchars" );
+	cgs.media.menucharsetShader = RegisterShaderAndDrawInfo( "gfx/2d/hudchars" );
 	// END JOSEPH
-	cgs.media.whiteShader       = trap_R_RegisterShader( "white" );
+	cgs.media.whiteShader       = RegisterShaderAndDrawInfo( "white" );
 	cgs.media.charsetProp       = RE_RegisterShaderNoMip( "menu/art/font1_prop.tga" );
 	cgs.media.charsetPropGlow   = RE_RegisterShaderNoMip( "menu/art/font1_prop_glo.tga" );
 	cgs.media.charsetPropB      = RE_RegisterShaderNoMip( "menu/art/font2_prop.tga" );
@@ -1389,7 +1387,7 @@ void CG_Init( int serverMessageNum, int serverCommandSequence ) {
 	cgs.screenYScale = cgs.glconfig.vidHeight / 480.0;
 
 	// get the gamestate from the client system
-	trap_GetGameState( &cgs.gameState );
+	CL_GetGameState( &cgs.gameState );
 
 	// check version
 	s = CG_ConfigString( CS_GAME_VERSION );
@@ -1435,7 +1433,7 @@ void CG_Init( int serverMessageNum, int serverCommandSequence ) {
 	CG_InitMarkPolys();
 
 	// RF, init ZombieFX
-	trap_RB_ZombieFXAddNewHit( -1, nullptr, nullptr );
+	RB_ZombieFXAddNewHit( -1, nullptr, nullptr );
 
 	// remove the last loading update
 	cg.infoScreenText[0] = 0;

@@ -59,6 +59,8 @@ void RB_ZombieFXAddNewHit( int entityNum, const vec3_t hitPos, const vec3_t hitD
 void RE_AddLightToScene( const vec3_t org, float intensity, float r, float g, float b, unsigned int overdraw );
 void RE_AddCoronaToScene( const vec3_t org, float r, float g, float b, float scale, int id, int flags );
 
+qhandle_t  RE_RegisterShaderNoMip( const char *name );
+
 void R_SetFog( int fogvar, int var1, int var2, float r, float g, float b, float density );
 void RE_RenderScene( const refdef_t *fd );
 
@@ -95,10 +97,8 @@ typedef struct {
 	qhandle_t ( *RegisterModel )( const char *name );
 	qhandle_t ( *RegisterSkin )( const char *name );
 	qhandle_t ( *RegisterShader )( const char *name );
-	qhandle_t ( *RegisterShaderNoMip )( const char *name );
-	void ( *LoadWorld )( const char *name );
 
-	qhandle_t ( *GetShaderFromModel )( qhandle_t modelid, int surfnum, int withlightmap );                //----(SA)	added
+	void ( *LoadWorld )( const char *name );
 
 	// the vis data is a large enough block of data that we go to the trouble
 	// of sharing it with the clipmodel subsystem
@@ -121,12 +121,6 @@ typedef struct {
 
 	// if the pointers are not nullptr, timing info will be returned
 	void ( *EndFrame )( int *frontEndMsec, int *backEndMsec );
-
-	int ( *LerpTag )( orientation_t *tag,  const refEntity_t *refent, const char *tagName, int startIndex );
-
-	void ( *RemapShader )( const char *oldShader, const char *newShader, const char *offsetTime );
-	// RF
-	void ( *ZombieFXAddNewHit )( int entityNum, const vec3_t hitPos, const vec3_t hitDir );
 
 } refexport_t;
 

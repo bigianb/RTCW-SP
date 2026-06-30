@@ -37,6 +37,7 @@ If you have questions concerning this license or the applicable additional terms
 #include "cg_local.h"
 #include "../client/snd_public.h"
 #include "../renderer/tr_public.h"
+#include "../splines/splines_camera.h"
 
 ///////////////////////
 extern int propellerModel;
@@ -58,7 +59,7 @@ void CG_PositionEntityOnTag( refEntity_t *entity, const refEntity_t *parent,
 	orientation_t lerped;
 
 	// lerp the tag
-	trap_R_LerpTag( &lerped, parent, tagName, startIndex );
+	R_LerpTag( &lerped, parent, tagName, startIndex );
 
 	// FIXME: allow origin offsets along tag?	//----(SA) Yes! Adding.
 
@@ -97,7 +98,7 @@ void CG_PositionRotatedEntityOnTag( refEntity_t *entity, const refEntity_t *pare
 
 //AxisClear( entity->axis );
 	// lerp the tag
-	trap_R_LerpTag( &lerped, parent, tagName, 0 );
+	R_LerpTag( &lerped, parent, tagName, 0 );
 
 	// FIXME: allow origin offsets along tag?
 	VectorCopy( parent->origin, entity->origin );
@@ -491,9 +492,9 @@ static void CG_EntityEffects( centity_t *cent ) {
 
 		if ( cent->currentState.eType == ET_SPEAKER ) {
 			if ( cent->currentState.dmgFlags ) { // range is set
-				trap_S_AddRangedLoopingSound( cent->currentState.number, cent->lerpOrigin, vec3_origin, cgs.gameSounds[ cent->currentState.loopSound ], cent->currentState.dmgFlags );
+				S_AddLoopingSound(cent->currentState.number, cent->lerpOrigin, vec3_origin, cent->currentState.dmgFlags, cgs.gameSounds[ cent->currentState.loopSound ], 255 );
 			} else {
-				trap_S_AddLoopingSound( cent->currentState.number, cent->lerpOrigin, vec3_origin, cgs.gameSounds[ cent->currentState.loopSound ], 255 );
+				S_AddLoopingSound(cent->currentState.number, cent->lerpOrigin, vec3_origin, 1250, cgs.gameSounds[ cent->currentState.loopSound ], 255 );
 			}
 		} else if ( cent->currentState.solid == SOLID_BMODEL )   {
 			vec3_t origin;
@@ -503,14 +504,14 @@ static void CG_EntityEffects( centity_t *cent ) {
 			VectorAdd( cent->lerpOrigin, v, origin );
 
 			if ( cgs.gameSoundTypes[ cent->currentState.loopSound ] == 1 ) {   // old style
-				trap_S_AddLoopingSound( cent->currentState.number, origin, vec3_origin, cgs.gameSounds[ cent->currentState.loopSound ], 255 );
+				S_AddLoopingSound( cent->currentState.number, origin, vec3_origin, 1250, cgs.gameSounds[ cent->currentState.loopSound ], 255 );
 			} else {                                                        // from script
 				int soundIndex;
 				soundIndex = soundScripts[cgs.gameSounds[ cent->currentState.loopSound ] - 1 ].soundList->sfxHandle;
-				trap_S_AddLoopingSound( cent->currentState.number, origin, vec3_origin, soundIndex, 255 );
+				S_AddLoopingSound( cent->currentState.number, origin, vec3_origin, 1250, soundIndex, 255 );
 			}
 		} else {
-			trap_S_AddLoopingSound( cent->currentState.number, cent->lerpOrigin, vec3_origin, cgs.gameSounds[ cent->currentState.loopSound ], 255 );
+			S_AddLoopingSound( cent->currentState.number, cent->lerpOrigin, vec3_origin, 1250, cgs.gameSounds[ cent->currentState.loopSound ], 255 );
 		}
 	} 
 
@@ -537,9 +538,9 @@ static void CG_EntityEffects( centity_t *cent ) {
 	// Ridah, flaming sounds
 	if ( CG_EntOnFire( cent ) ) {
 		// play a flame blow sound when moving
-		trap_S_AddLoopingSound( cent->currentState.number, cent->lerpOrigin, vec3_origin, cgs.media.flameBlowSound, (int)( 255.0 * ( 1.0 - fabs( cent->fireRiseDir[2] ) ) ) );
+		S_AddLoopingSound( cent->currentState.number, cent->lerpOrigin, vec3_origin, 1250, cgs.media.flameBlowSound, (int)( 255.0 * ( 1.0 - fabs( cent->fireRiseDir[2] ) ) ) );
 		// play a burning sound when not moving
-		trap_S_AddLoopingSound( cent->currentState.number, cent->lerpOrigin, vec3_origin, cgs.media.flameSound, (int)( 0.3 * 255.0 * ( pow( cent->fireRiseDir[2],2 ) ) ) );
+		S_AddLoopingSound( cent->currentState.number, cent->lerpOrigin, vec3_origin, 1250, cgs.media.flameSound, (int)( 0.3 * 255.0 * ( pow( cent->fireRiseDir[2],2 ) ) ) );
 	}
 
 }
@@ -1206,7 +1207,7 @@ static void CG_Missile( centity_t *cent ) {
 		vec3_t velocity;
 
 		BG_EvaluateTrajectoryDelta( &cent->currentState.pos, cg.time, velocity );
-		trap_S_AddLoopingSound( cent->currentState.number, cent->lerpOrigin, velocity, weapon->missileSound, 255 );
+		S_AddLoopingSound( cent->currentState.number, cent->lerpOrigin, velocity, 1250, weapon->missileSound, 255 );
 	}
 
 	// create the render entity
@@ -1332,7 +1333,7 @@ static void CG_Bat( centity_t *cent ) {
 	// draw it
 	RE_AddRefEntityToScene( &refent );
 	// emit a sound
-	trap_S_AddLoopingSound( 0, refent.origin, vec3_origin, cgs.media.zombieSpiritLoopSound, 255 );
+	S_AddLoopingSound( 0, refent.origin, vec3_origin, 1250, cgs.media.zombieSpiritLoopSound, 255 );
 }
 
 /*
@@ -1689,10 +1690,10 @@ static void CG_Efx( centity_t *cent ) {
 		} else {
 			vec3_t angles;
 			if ( splinetarget != -1 ) {
-				if ( trap_getCameraInfo( splinetarget, time, &targetpos, &angles, &fov ) ) {
+				if ( getCameraInfo( splinetarget, time, targetpos, angles, &fov ) ) {
 				} else {    // loop
 					trap_startCamera( splinetarget, cg.time );
-					trap_getCameraInfo( splinetarget, cg.time, &targetpos, &angles, &fov );
+					getCameraInfo( splinetarget, cg.time, targetpos, angles, &fov );
 				}
 			}
 		}

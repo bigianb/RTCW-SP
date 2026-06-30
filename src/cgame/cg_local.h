@@ -2085,14 +2085,6 @@ void CG_TransitionPlayerState( PlayerState *ps, PlayerState *ops );
 void CG_LoadClientInfo( clientInfo_t *ci );
 
 
-//===============================================
-
-//
-// system traps
-// These functions are how the cgame communicates with the main game system
-//
-
-
 // milliseconds should only be used for performance tuning, never
 // for anything game related.  Get time from the CG_DrawActiveFrame parameter
 int         Sys_Milliseconds( void );
@@ -2111,82 +2103,12 @@ void        Cmd_ArgsBuffer( char *buffer, int bufferLength );
 // are processed
 void        Cbuf_AddText( const char *text );
 
-// send a string to the server over the network
-void        CL_AddReliableCommand( const char *s );
-
-// force a screen update, only used during gamestate load
-void        SCR_UpdateScreen( void );
-
-// model collision
-
-int         CM_PointContents( const vec3_t p, clipHandle_t model );
-
-// normal sounds will have their volume dynamically changed as their entity
-// moves and the listener moves
-
-
-// a local sound is always played full volume
-
-void        trap_S_AddLoopingSound( int entityNum, const vec3_t origin, const vec3_t velocity, sfxHandle_t sfx, int volume );
-void        trap_S_AddRangedLoopingSound( int entityNum, const vec3_t origin, const vec3_t velocity, sfxHandle_t sfx, int range );
-
-void        S_StartBackgroundTrack( const char *intro, const char *loop, int fadeupTime ); // empty name stops music
-
-void        trap_S_FadeBackgroundTrack( float targetvol, int time, int sound );  //----(SA)	added
-void        trap_S_StartStreamingSound( const char *intro, const char *loop, int entnum, int channel, int attenuation );
-void        trap_S_FadeAllSound( float targetvol, int time ); //----(SA)	added
-
-
 // all media should be registered during level startup to prevent
 // hitches during gameplay
-qhandle_t   trap_R_RegisterModel( const char *name );           // returns rgb axis if not found
-qhandle_t   trap_R_RegisterSkin( const char *name );            // returns all white if not found
-qhandle_t   trap_R_RegisterShader( const char *name );          // returns all white if not found
-qhandle_t   RE_RegisterShaderNoMip( const char *name );         // returns all white if not found
+qhandle_t   RegisterModelAndDrawInfo( const char *name );           // returns rgb axis if not found
+qhandle_t   RegisterSkinAndDrawInfo( const char *name );            // returns all white if not found
+qhandle_t   RegisterShaderAndDrawInfo( const char *name );          // returns all white if not found
 
-qhandle_t   trap_R_GetShaderFromModel( qhandle_t modelid, int surfnum, int withlightmap );   //----(SA)	added
-
-void        trap_RB_ZombieFXAddNewHit( int entityNum, const vec3_t hitPos, const vec3_t hitDir );
-
-int         trap_R_LerpTag( orientation_t *tag, const refEntity_t *refent, const char *tagName, int startIndex );
-void        trap_R_RemapShader( const char *oldShader, const char *newShader, const char *timeOffset );
-
-// the gamestate should be grabbed at startup, and whenever a
-// configstring changes
-void        trap_GetGameState( gameState_t *gamestate );
-
-// cgame will poll each frame to see if a newer snapshot has arrived
-// that it is interested in.  The time is returned seperately so that
-// snapshot latency can be calculated.
-void        trap_GetCurrentSnapshotNumber( int *snapshotNumber, int *serverTime );
-
-// a snapshot get can fail if the snapshot (or the entties it holds) is so
-// old that it has fallen out of the client system queue
-bool    trap_GetSnapshot( int snapshotNumber, snapshot_t *snapshot );
-
-// retrieve a text command from the server stream
-// the current snapshot will hold the number of the most recent command
-// false can be returned if the client system handled the command
-// argc() / argv() can be used to examine the parameters of the command
-bool    trap_GetServerCommand( int serverCommandNumber );
-
-// returns the most recent command number that can be passed to GetUserCmd
-// this will always be at least one higher than the number in the current
-// snapshot, and it may be quite a few higher if it is a fast computer on
-// a lagged connection
-int         trap_GetCurrentCmdNumber( void );
-
-// used for the weapon/holdable select and zoom
-void        trap_SetUserCmdValue( int stateValue, int holdValue, float sensitivityScale, int cld );     // NERVE - SMF - added cld
-
-void        RE_RegisterFont( const char *fontName, int pointSize, fontInfo_t *font );
-bool    trap_Key_IsDown( int keynum );
-int         trap_Key_GetCatcher( void );
-void        trap_Key_SetCatcher( int catcher );
-int         trap_Key_GetKey( const char *binding );
-
-// RF
-void trap_SendMoveSpeedsToGame( int entnum, const char *movespeeds );
 
 typedef enum {
 	SYSTEM_PRINT,
@@ -2194,32 +2116,18 @@ typedef enum {
 	TEAMCHAT_PRINT
 } q3print_t; // bk001201 - warning: useless keyword or type name in empty declaration
 
-void trap_UI_Popup( const char *arg0 );   //----(SA)	added
-void trap_UI_ClosePopup( const char *arg0 );     // NERVE - SMF
-
-
-int trap_CIN_PlayCinematic( const char *arg0, int xpos, int ypos, int width, int height, int bits );
-e_status trap_CIN_StopCinematic( int handle );
-e_status trap_CIN_RunCinematic( int handle );
-void trap_CIN_DrawCinematic( int handle );
-void trap_CIN_SetExtents( int handle, int x, int y, int w, int h );
-
 // Duffy, camera stuff
 #define CAM_PRIMARY 0   // the main camera for cutscenes, etc.
-bool    trap_loadCamera( int camNum, const char *name );
+
 void        trap_startCamera( int camNum, int time );
-void        trap_stopCamera( int camNum );    //----(SA)	added
-bool    trap_getCameraInfo( int camNum, int time, vec3_t *origin, vec3_t *angles, float *fov );
+void        trap_stopCamera( int camNum ); 
+
 void        CG_StartCamera( const char *name, bool startBlack );
 void        CG_StopCamera( void );
 
-//----(SA)	added
 int         CG_LoadCamera( const char *name );
 void        CG_FreeCamera( int camNum );
-//----(SA)	end
 
 void CG_StartShakeCamera( float p, int duration, vec3_t src, float radius );
-
-bool    trap_GetModelInfo( int clientNum, char *modelName, animModelInfo_t **modelInfo );
 
 void CL_GetGlconfig( glconfig_t *glconfig );

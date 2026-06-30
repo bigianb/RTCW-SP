@@ -37,6 +37,8 @@ If you have questions concerning this license or the applicable additional terms
 #include "../client/snd_public.h"
 #include "../renderer/tr_public.h"
 #include "../qcommon/qcommon.h"
+#include "../client/client.h"
+#include "../game/g_func_decs.h"
 
 /*
 ================
@@ -250,7 +252,7 @@ void CG_ShaderStateChanged( void ) {
 				strncpy( timeOffset, t, o - t );
 				timeOffset[o - t] = 0;
 				o++;
-				trap_R_RemapShader( originalShader, newShader, timeOffset );
+				R_RemapShader( originalShader, newShader, timeOffset );
 			}
 		} else {
 			break;
@@ -272,7 +274,7 @@ static void CG_ConfigStringModified( void ) {
 
 	// get the gamestate from the client system, which will have the
 	// new configstring already integrated
-	trap_GetGameState( &cgs.gameState );
+	CL_GetGameState( &cgs.gameState );
 
 	// look up the individual string that was modified
 	str = CG_ConfigString( num );
@@ -312,7 +314,7 @@ static void CG_ConfigStringModified( void ) {
 	} else if ( num == CS_FOGVARS ) {
 		CG_ParseFog();
 	} else if ( num >= CS_MODELS && num < CS_MODELS + MAX_MODELS ) {
-		cgs.gameModels[ num - CS_MODELS ] = trap_R_RegisterModel( str );
+		cgs.gameModels[ num - CS_MODELS ] = RegisterModelAndDrawInfo( str );
 	} else if ( num >= CS_SOUNDS && num < CS_SOUNDS + MAX_MODELS ) {
 		if ( str[0] != '*' ) {   // player specific sounds don't register here
 
@@ -368,7 +370,7 @@ void CG_SendMoveSpeed( animation_t *animList, int numAnims, char *modelName ) {
 	}
 
 	// send the movespeeds to the server
-	trap_SendMoveSpeedsToGame( 0, text );
+	G_RetrieveMoveSpeedsFromClient( 0, text );
 }
 
 
@@ -434,7 +436,7 @@ static void CG_MapRestart( void ) {
 	// done.
 
 	// RF, init ZombieFX
-	trap_RB_ZombieFXAddNewHit( -1, nullptr, nullptr );
+	RB_ZombieFXAddNewHit( -1, nullptr, nullptr );
 
 	// make sure the "3 frags left" warnings play again
 	cg.fraglimitWarnings = 0;
@@ -611,7 +613,7 @@ static void CG_ServerCommand( void ) {
 			Q_strncpyz(shader2, CG_Argv(2), sizeof(shader2));
 			Q_strncpyz(shader3, CG_Argv(3), sizeof(shader3));
 
-			trap_R_RemapShader(shader1, shader2, shader3);
+			R_RemapShader(shader1, shader2, shader3);
 		}
 	}
 
@@ -659,7 +661,7 @@ static void CG_ServerCommand( void ) {
 		if ( strlen( text ) ) {
 			fadeTime = atoi( text );
 		}
-		trap_S_FadeBackgroundTrack( 0.0f, fadeTime, 0 );
+		S_FadeStreamingSound( 0.0f, fadeTime, 0 );
 		S_StartBackgroundTrack( "", "", -2 ); // '-2' for 'queue looping track' (QUEUED_PLAY_LOOPED)
 		return;
 	}
@@ -667,23 +669,23 @@ static void CG_ServerCommand( void ) {
 	if ( !strcmp( cmd, "mu_fade" ) ) {
 		int time = atoi( CG_Argv( 2 ) );
 
-		trap_S_FadeBackgroundTrack( atof( CG_Argv( 1 ) ), time, 0 );
+		S_FadeStreamingSound( atof( CG_Argv( 1 ) ), time, 0 );
 		return;
 	}
 
 	if ( !strcmp( cmd, "snd_fade" ) ) {
 		int time = atoi( CG_Argv( 2 ) );
 
-		trap_S_FadeAllSound( atof( CG_Argv( 1 ) ), time );
+		S_FadeAllSounds( atof( CG_Argv( 1 ) ), time );
 		return;
 	}
 
 	if ( !strcmp( cmd, "rockandroll" ) ) {   // map loaded, game is ready to begin.
 		CG_Fade( 0, 0, 0, 255, cg.time, 0 );      // go black
-		trap_UI_Popup( "pregame" );                // start pregame menu
+		IngamePopup( "pregame" );                // start pregame menu
 		Cvar_Set( "cg_norender", "1" );    // don't render the world until the player clicks in and the 'playerstart' func has been called (g_main in G_UpdateCvars() ~ilne 949)
 
-		trap_S_FadeAllSound( 1.0f, 1000 );    // fade sound up
+		S_FadeAllSounds( 1.0f, 1000 );    // fade sound up
 
 		return;
 	}
@@ -702,7 +704,7 @@ with this this snapshot.
 */
 void CG_ExecuteNewServerCommands( int latestSequence ) {
 	while ( cgs.serverCommandSequence < latestSequence ) {
-		if ( trap_GetServerCommand( ++cgs.serverCommandSequence ) ) {
+		if ( CL_GetServerCommand( ++cgs.serverCommandSequence ) ) {
 			CG_ServerCommand();
 		}
 	}

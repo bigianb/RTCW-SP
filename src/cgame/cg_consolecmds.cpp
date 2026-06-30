@@ -37,6 +37,8 @@ If you have questions concerning this license or the applicable additional terms
 #include "cg_local.h"
 #include "../ui/ui_shared.h"
 #include "../qcommon/qcommon.h"
+#include "../client/client.h"
+#include "../splines/splines_camera.h"
 
 
 void CG_TargetCommand_f( ) {
@@ -135,7 +137,7 @@ int CG_LoadCamera( const char *name )
 {
 	for (int i = 1; i < MAX_CAMERAS; i++ ) {    // start at '1' since '0' is always taken by the cutscene camera
 		if ( !cameraInuse[i] ) {
-			if ( trap_loadCamera( i, name ) ) {
+			if ( loadCamera( i, name ) ) {
 				cameraInuse[i] = true;
 				return i;
 			}
@@ -159,7 +161,7 @@ void CG_StartCamera( const char *name, bool startBlack ) {
 	COM_StripExtension( name, lname );
 	strcat( lname, ".camera" );
 
-	if ( trap_loadCamera( CAM_PRIMARY, va( "cameras/%s", lname ) ) ) {
+	if ( loadCamera( CAM_PRIMARY, va( "cameras/%s", lname ) ) ) {
 		cg.cameraMode = true;                  // camera on in cgame
 		if ( startBlack ) {
 			CG_Fade( 0, 0, 0, 255, cg.time, 0 );  // go black

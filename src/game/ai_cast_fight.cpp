@@ -1377,7 +1377,7 @@ bot_moveresult_t AICast_CombatMove( cast_state_t *cs, int tfl ) {
 					&&  ( cs->combatSpotDelayTime < level.time ) ) ) {
 
 			if (    ( cs->attributes[TACTICAL] > 0.3 + random() * 0.5 )
-					&&  trap_AAS_RT_GetHidePos( cs->bs->origin, cs->bs->entitynum, cs->bs->areanum, cs->vislist[cs->enemyNum].visible_pos, cs->enemyNum, BotPointAreaNum( cs->vislist[cs->enemyNum].visible_pos ), cs->combatGoalOrigin ) ) {
+					&&  AAS_RT_GetHidePos( cs->bs->origin, cs->bs->entitynum, cs->bs->areanum, cs->vislist[cs->enemyNum].visible_pos, cs->enemyNum, BotPointAreaNum( cs->vislist[cs->enemyNum].visible_pos ), cs->combatGoalOrigin ) ) {
 				cs->combatGoalTime = level.time + 10000;                // give us plenty of time to get there
 				//cs->combatSpotAttackCount = cs->startAttackCount + 3;	// don't keep moving around to different positions on our own
 				cs->combatSpotDelayTime = level.time + 3000 + rand() % 3000;
@@ -1696,7 +1696,7 @@ bool AICast_GetTakeCoverPos( cast_state_t *cs, int enemyNum, vec3_t enemyPos, ve
 	}
 	// if we are in a void, then we can't hide
 	// look for a hiding spot
-	if ( cs->bs->areanum && trap_AAS_RT_GetHidePos( cs->bs->origin, cs->bs->entitynum, cs->bs->areanum, enemyPos, enemyNum, BotPointAreaNum( enemyPos ), returnPos ) ) {
+	if ( cs->bs->areanum && AAS_RT_GetHidePos( cs->bs->origin, cs->bs->entitynum, cs->bs->areanum, enemyPos, enemyNum, BotPointAreaNum( enemyPos ), returnPos ) ) {
 		return true;
 	}
 	// if we are hiding from a dangerous entity, try and avoid it

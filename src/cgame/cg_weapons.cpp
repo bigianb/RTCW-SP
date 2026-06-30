@@ -37,6 +37,7 @@ If you have questions concerning this license or the applicable additional terms
 #include "../client/snd_public.h"
 #include "../renderer/tr_public.h"
 #include "../qcommon/qcommon.h"
+#include "../client/client.h"
 
 int wolfkickModel;
 int hWeaponSnd;
@@ -937,9 +938,9 @@ void CG_RegisterWeapon( int weaponNum ) {
 	// load cmodel before model so filecache works
 
 	// alternate view weapon
-	weaponInfo->weaponModel[W_TP_MODEL] = trap_R_RegisterModel( item->world_model[W_TP_MODEL] );
-	weaponInfo->weaponModel[W_FP_MODEL] = trap_R_RegisterModel( item->world_model[W_FP_MODEL] );
-	weaponInfo->weaponModel[W_SKTP_MODEL] = trap_R_RegisterModel( item->world_model[W_SKTP_MODEL] );
+	weaponInfo->weaponModel[W_TP_MODEL] = RegisterModelAndDrawInfo( item->world_model[W_TP_MODEL] );
+	weaponInfo->weaponModel[W_FP_MODEL] = RegisterModelAndDrawInfo( item->world_model[W_FP_MODEL] );
+	weaponInfo->weaponModel[W_SKTP_MODEL] = RegisterModelAndDrawInfo( item->world_model[W_SKTP_MODEL] );
 
 	if ( !weaponInfo->weaponModel[W_FP_MODEL] || !cg_drawFPGun.integer ) {
 		weaponInfo->weaponModel[W_FP_MODEL] = weaponInfo->weaponModel[W_TP_MODEL];
@@ -973,11 +974,11 @@ void CG_RegisterWeapon( int weaponNum ) {
 		weaponInfo->weaponMidpoint[i] = mins[i] + 0.5 * ( maxs[i] - mins[i] );
 	}
 
-	weaponInfo->weaponIcon[0] = trap_R_RegisterShader( item->icon );
-	weaponInfo->weaponIcon[1] = trap_R_RegisterShader( va( "%s_select", item->icon ) );    // get the 'selected' icon as well
+	weaponInfo->weaponIcon[0] = RegisterShaderAndDrawInfo( item->icon );
+	weaponInfo->weaponIcon[1] = RegisterShaderAndDrawInfo( va( "%s_select", item->icon ) );    // get the 'selected' icon as well
 
 	// JOSEPH 4-17-00
-	weaponInfo->ammoIcon = trap_R_RegisterShader( item->ammoicon );
+	weaponInfo->ammoIcon = RegisterShaderAndDrawInfo( item->ammoicon );
 	// END JOSEPH
 
 	for ( ammo = bg_itemlist + 1 ; ammo->classname ; ammo++ ) {
@@ -986,7 +987,7 @@ void CG_RegisterWeapon( int weaponNum ) {
 		}
 	}
 	if ( ammo->classname && ammo->world_model[0] ) {
-		weaponInfo->ammoModel = trap_R_RegisterModel( ammo->world_model[0] );
+		weaponInfo->ammoModel = RegisterModelAndDrawInfo( ammo->world_model[0] );
 	}
 
 	if ( item->world_model[W_FP_MODEL] ) {
@@ -1012,7 +1013,7 @@ void CG_RegisterWeapon( int weaponNum ) {
 
 		COM_StripExtension( path, path );
 		strcat( path, "_flash.md3" );
-		weaponInfo->flashModel[i] = trap_R_RegisterModel( path );
+		weaponInfo->flashModel[i] = RegisterModelAndDrawInfo( path );
 
 
 		for ( j = 0; j < W_MAX_PARTS; j++ ) {
@@ -1027,7 +1028,7 @@ void CG_RegisterWeapon( int weaponNum ) {
 			} else {
 				strcat( path, va( "_barrel%d.md3", j + 1 ) );
 			}
-			weaponInfo->wpPartModels[i][j] = trap_R_RegisterModel( path );
+			weaponInfo->wpPartModels[i][j] = RegisterModelAndDrawInfo( path );
 		}
 
 		// used for spinning belt on venom
@@ -1039,7 +1040,7 @@ void CG_RegisterWeapon( int weaponNum ) {
 			}
 			COM_StripExtension( path, path );
 			strcat( path, "_barrel6b.md3" );
-			weaponInfo->wpPartModels[i][W_PART_7] = trap_R_RegisterModel( path );
+			weaponInfo->wpPartModels[i][W_PART_7] = RegisterModelAndDrawInfo( path );
 		}
 	}
 
@@ -1054,7 +1055,7 @@ void CG_RegisterWeapon( int weaponNum ) {
 		}
 		COM_StripExtension( path, path );
 		strcat( path, "_scope.md3" );
-		weaponInfo->modModel[0] = trap_R_RegisterModel( path );
+		weaponInfo->modModel[0] = RegisterModelAndDrawInfo( path );
 	}
 
 	if ( !item->world_model[W_FP_MODEL] ) {
@@ -1064,10 +1065,10 @@ void CG_RegisterWeapon( int weaponNum ) {
 	}
 	COM_StripExtension( path, path );
 	strcat( path, "_hand.md3" );
-	weaponInfo->handsModel = trap_R_RegisterModel( path );
+	weaponInfo->handsModel = RegisterModelAndDrawInfo( path );
 
 	if ( !weaponInfo->handsModel ) {
-		weaponInfo->handsModel = trap_R_RegisterModel( "models/weapons2/shotgun/shotgun_hand.md3" );
+		weaponInfo->handsModel = RegisterModelAndDrawInfo( "models/weapons2/shotgun/shotgun_hand.md3" );
 	}
 
 
@@ -1079,7 +1080,7 @@ void CG_RegisterWeapon( int weaponNum ) {
 	}
 	COM_StripExtension( path, path );
 	strcat( path, "_stand.md3" );
-	weaponInfo->standModel = trap_R_RegisterModel( path );
+	weaponInfo->standModel = RegisterModelAndDrawInfo( path );
 //----(SA)	end
 
 	switch ( weaponNum ) {
@@ -1203,7 +1204,7 @@ void CG_RegisterWeapon( int weaponNum ) {
 
 	case WP_PANZERFAUST:
 		weaponInfo->ejectBrassFunc      = CG_PanzerFaustEjectBrass;
-		weaponInfo->missileModel        = trap_R_RegisterModel( "models/ammo/rocket/rocket.md3" );
+		weaponInfo->missileModel        = RegisterModelAndDrawInfo( "models/ammo/rocket/rocket.md3" );
 		weaponInfo->missileSound        = S_RegisterSound( "sound/weapons/rocket/rockfly.wav" );
 		weaponInfo->missileTrailFunc    = CG_RocketTrail;
 		weaponInfo->missileDlight       = 200;
@@ -1213,7 +1214,7 @@ void CG_RegisterWeapon( int weaponNum ) {
 		MAKERGB( weaponInfo->missileDlightColor, 0.75, 0.3, 0.0 );
 		weaponInfo->flashSound[0]       = S_RegisterSound( "sound/weapons/rocket/rocklf1a.wav" );
 		weaponInfo->reloadSound         = S_RegisterSound( "sound/weapons/rocket/rocklf_reload.wav" );
-		cgs.media.rocketExplosionShader = trap_R_RegisterShader( "rocketExplosion" );
+		cgs.media.rocketExplosionShader = RegisterShaderAndDrawInfo( "rocketExplosion" );
 		break;
 
 	case WP_MORTAR:
@@ -1227,7 +1228,7 @@ void CG_RegisterWeapon( int weaponNum ) {
 		break;
 // JPW NERVE
 	case WP_GRENADE_SMOKE:
-		weaponInfo->missileModel = trap_R_RegisterModel( "models/weapons2/grenade/pineapple.md3" );
+		weaponInfo->missileModel = RegisterModelAndDrawInfo( "models/weapons2/grenade/pineapple.md3" );
 		weaponInfo->missileTrailFunc    = CG_PyroSmokeTrail;
 		weaponInfo->missileDlight       = 200;
 		weaponInfo->wiTrailTime         = 4000;
@@ -1244,9 +1245,9 @@ void CG_RegisterWeapon( int weaponNum ) {
 	case WP_GRENADE_LAUNCHER:
 	case WP_GRENADE_PINEAPPLE:
 		if ( weaponNum == WP_GRENADE_LAUNCHER ) {
-			weaponInfo->missileModel = trap_R_RegisterModel( "models/ammo/grenade1.md3" );
+			weaponInfo->missileModel = RegisterModelAndDrawInfo( "models/ammo/grenade1.md3" );
 		} else {
-			weaponInfo->missileModel = trap_R_RegisterModel( "models/weapons2/grenade/pineapple.md3" );
+			weaponInfo->missileModel = RegisterModelAndDrawInfo( "models/weapons2/grenade/pineapple.md3" );
 		}
 		weaponInfo->missileTrailFunc = CG_GrenadeTrail;
 		weaponInfo->wiTrailTime = 700;
@@ -1256,14 +1257,14 @@ void CG_RegisterWeapon( int weaponNum ) {
 		MAKERGB( weaponInfo->flashDlightColor, 1, 0.7, 0.5 );
 		weaponInfo->flashSound[0] = S_RegisterSound( "sound/weapons/grenade/grenlf1a.wav" );
 		weaponInfo->reloadSound = S_RegisterSound( "sound/weapons/grenade/grenlf_reload.wav" );
-		cgs.media.grenadeExplosionShader = trap_R_RegisterShader( "grenadeExplosion" );
+		cgs.media.grenadeExplosionShader = RegisterShaderAndDrawInfo( "grenadeExplosion" );
 		break;
 
 	case WP_DYNAMITE:
-		weaponInfo->missileModel = trap_R_RegisterModel( "models/ammo/dynamite.md3" );
+		weaponInfo->missileModel = RegisterModelAndDrawInfo( "models/ammo/dynamite.md3" );
 //		weaponInfo->flashSound[0] = S_RegisterSound( "sound/weapons/grenade/grenlf1a.wav" );
 //		weaponInfo->reloadSound = S_RegisterSound( "sound/weapons/grenade/grenlf_reload.wav" );
-		cgs.media.grenadeExplosionShader = trap_R_RegisterShader( "grenadeExplosion" );
+		cgs.media.grenadeExplosionShader = RegisterShaderAndDrawInfo( "grenadeExplosion" );
 		break;
 
 	case WP_VENOM:
@@ -1329,14 +1330,14 @@ void CG_RegisterItemVisuals( int itemNum ) {
 	//	itemInfo->registered = true;
 
 	for ( i = 0; i < MAX_ITEM_MODELS; i++ )
-		itemInfo->models[i] = trap_R_RegisterModel( item->world_model[i] );
+		itemInfo->models[i] = RegisterModelAndDrawInfo( item->world_model[i] );
 
 
-	itemInfo->icons[0] = trap_R_RegisterShader( item->icon );
+	itemInfo->icons[0] = RegisterShaderAndDrawInfo( item->icon );
 	if ( item->giType == IT_HOLDABLE ) {
 		// (SA) register alternate icons (since holdables can have multiple uses, they might have different icons to represent how many uses are left)
 		for ( i = 1; i < MAX_ITEM_ICONS; i++ )
-			itemInfo->icons[i] = trap_R_RegisterShader( va( "%s%i", item->icon, i + 1 ) );
+			itemInfo->icons[i] = RegisterShaderAndDrawInfo( va( "%s%i", item->icon, i + 1 ) );
 	}
 
 	if ( item->giType == IT_WEAPON ) {
@@ -1345,14 +1346,14 @@ void CG_RegisterItemVisuals( int itemNum ) {
 
 	itemInfo->registered = true;   //----(SA)	moved this down after the registerweapon()
 
-	wolfkickModel = trap_R_RegisterModel( "models/weapons2/foot/v_wolfoot_10f.md3" );
+	wolfkickModel = RegisterModelAndDrawInfo( "models/weapons2/foot/v_wolfoot_10f.md3" );
 	hWeaponSnd = S_RegisterSound( "sound/weapons/mg42/37mm.wav" );
 
 	hflakWeaponSnd = S_RegisterSound( "sound/weapons/flak/flak.wav" );
 
-	notebookModel = trap_R_RegisterModel( "models/mapobjects/book/book.md3" );
+	notebookModel = RegisterModelAndDrawInfo( "models/mapobjects/book/book.md3" );
 
-	propellerModel = trap_R_RegisterModel( "models/mapobjects/vehicles/m109_prop.md3" );
+	propellerModel = RegisterModelAndDrawInfo( "models/mapobjects/vehicles/m109_prop.md3" );
 
 
 	maxWeapBanks = MAX_WEAP_BANKS;
@@ -2104,7 +2105,7 @@ void CG_PlayerTeslaCoilFire( centity_t *cent, vec3_t flashorigin ) {
 
 	if ( cg.time % 3 ) {  // break it up a bit
 		// add the looping sound
-		trap_S_AddLoopingSound( cent->currentState.number, cent->lerpOrigin, vec3_origin, cgs.media.teslaLoopSound, 255 );
+		S_AddLoopingSound( cent->currentState.number, cent->lerpOrigin, vec3_origin, 1250, cgs.media.teslaLoopSound, 255 );
 	}
 
 	// drop a dynamic light out infront of us
@@ -2296,10 +2297,10 @@ void CG_AddPlayerWeapon( refEntity_t *parent, PlayerState *ps, centity_t *cent )
 		cent->pe.lightningFiring = false;
 		if ( ( cent->currentState.eFlags & EF_FIRING ) && weapon->firingSound ) {
 			// lightning gun and guantlet make a different sound when fire is held down
-			trap_S_AddLoopingSound( cent->currentState.number, cent->lerpOrigin, vec3_origin, weapon->firingSound, 255 );
+			S_AddLoopingSound( cent->currentState.number, cent->lerpOrigin, vec3_origin, 1250, weapon->firingSound, 255 );
 			cent->pe.lightningFiring = 1;
 		} else if ( weapon->readySound ) {
-			trap_S_AddLoopingSound( cent->currentState.number, cent->lerpOrigin, vec3_origin, weapon->readySound, 255 );
+			S_AddLoopingSound( cent->currentState.number, cent->lerpOrigin, vec3_origin, 1250, weapon->readySound, 255 );
 		}
 	}
 

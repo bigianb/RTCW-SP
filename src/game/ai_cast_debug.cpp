@@ -123,19 +123,19 @@ void AICast_DBG_RouteTable_f( vec3_t org, char *param ) {
 	AAS_SetCurrentWorld( 0 );  // use the default world, which should have a routetable
 
 	if ( Q_stricmp( param, "toggle" ) == 0 ) {
-		trap_AAS_RT_ShowRoute( vec3_origin, -666, -666 );   // stupid toggle hack
+		AAS_RT_ShowRoute( vec3_origin, -666, -666 );   // stupid toggle hack
 		return;
 	}
 
 	if ( Q_stricmp( param, "src" ) == 0 ) { // set the src
-		srcarea = 1 + trap_AAS_PointAreaNum( org );
+		srcarea = 1 + AAS_PointAreaNum( org );
 		return;
 	} else if ( Q_stricmp( param, "dest" ) == 0 )        {
-		dstarea = 1 + trap_AAS_PointAreaNum( org );
+		dstarea = 1 + AAS_PointAreaNum( org );
 	}
 
 	if ( srcarea && dstarea ) { // show the path
-		trap_AAS_RT_ShowRoute( org, srcarea - 1, dstarea - 1 );
+		AAS_RT_ShowRoute( org, srcarea - 1, dstarea - 1 );
 	} else
 	{
         Com_Printf( "You must specify 'src' & 'dest' first\n" );

@@ -456,7 +456,7 @@ void AICast_Think( int client, float thinktime ) {
 	//
 	// make sure we have a valid navigation system
 	//
-	if ( !trap_AAS_Initialized() ) {
+	if ( !AAS_Initialized() ) {
 		return;
 	}
 	//
@@ -1240,7 +1240,7 @@ bool AICast_GetAvoid( cast_state_t *cs, bot_goal_t *goal, vec3_t outpos, bool re
 	bestyaw = 360;
 	besttraveltime = 9999999;
 	if ( goal ) {
-		starttraveltime = trap_AAS_AreaTravelTimeToGoalArea( cs->bs->areanum, cs->bs->origin, goal->areanum, cs->travelflags );
+		starttraveltime = AAS_AreaTravelTimeToGoalArea( cs->bs->areanum, cs->bs->origin, goal->areanum, cs->travelflags );
 	}
 	memcpy( &ucmd, &cs->lastucmd, sizeof( UserCmd ) );
 	ucmd.forwardmove = 127;
@@ -1288,7 +1288,7 @@ bool AICast_GetAvoid( cast_state_t *cs, bot_goal_t *goal, vec3_t outpos, bool re
 		if ( cs->dangerEntity >= 0 && cs->dangerEntityValidTime >= level.time ) {
 			distmoved = Distance( castmove.endpos, cs->dangerEntityPos );
 		} else if ( goal ) {
-			//distmoved = 99999 - trap_AAS_AreaTravelTimeToGoalArea( BotPointAreaNum(castmove.endpos), castmove.endpos, goal->areanum, cs->travelflags );
+			//distmoved = 99999 - AAS_AreaTravelTimeToGoalArea( BotPointAreaNum(castmove.endpos), castmove.endpos, goal->areanum, cs->travelflags );
 			distmoved = 99999 - Distance( castmove.endpos, goal->origin );
 		} else {
 			distmoved = Distance( castmove.endpos, cs->bs->cur_ps.origin );
@@ -1298,7 +1298,7 @@ bool AICast_GetAvoid( cast_state_t *cs, bot_goal_t *goal, vec3_t outpos, bool re
 				&&  ( castmove.groundEntityNum != ENTITYNUM_NONE ) ) {
 			// they all passed, check any other stuff
 			if ( !enemyVisible || AICast_CheckAttackAtPos( cs->entityNum, cs->enemyNum, castmove.endpos, false, false ) ) {
-				if ( !goal || ( traveltime = trap_AAS_AreaTravelTimeToGoalArea( BotPointAreaNum( castmove.endpos ), castmove.endpos, goal->areanum, cs->travelflags ) ) < ( starttraveltime + 200 ) ) {
+				if ( !goal || ( traveltime = AAS_AreaTravelTimeToGoalArea( BotPointAreaNum( castmove.endpos ), castmove.endpos, goal->areanum, cs->travelflags ) ) < ( starttraveltime + 200 ) ) {
 					bestyaw = yaw;
 					bestmoved = distmoved;
 					besttraveltime = traveltime;

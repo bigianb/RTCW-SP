@@ -37,6 +37,7 @@ If you have questions concerning this license or the applicable additional terms
 #include "../idlib/math/Math.h"
 #include "cg_local.h"
 #include "../qcommon/qcommon.h"
+#include "../client/snd_public.h"
 #include "../renderer/tr_public.h"
 
 // a flameChunk is a ball or section of fuel which goes from fuel->blue ignition->flame ball
@@ -1500,11 +1501,11 @@ void CG_InitFlameChunks( void ) {
 
 	for ( i = 0; i < NUM_FLAME_SPRITES; i++ ) {
 		snprintf( filename, MAX_QPATH, "flamethrowerFire%i", i + 1 );
-		flameShaders[i] = trap_R_RegisterShader( filename );
+		flameShaders[i] = RegisterShaderAndDrawInfo( filename );
 	}
 	for ( i = 0; i < NUM_NOZZLE_SPRITES; i++ ) {
 		snprintf( filename, MAX_QPATH, "nozzleFlame%i", i + 1 );
-		nozzleShaders[i] = trap_R_RegisterShader( filename );
+		nozzleShaders[i] = RegisterShaderAndDrawInfo( filename );
 	}
 	initFlameShaders = false;
 }
@@ -1593,16 +1594,16 @@ void CG_UpdateFlamethrowerSounds( void ) {
 		if ( centFlameInfo[f->ownerCent].lastSoundUpdate != cg.time ) {
 			// blow/ignition sound
 			if ( centFlameStatus[f->ownerCent].blowVolume * 255.0 > MIN_BLOW_VOLUME ) {
-				trap_S_AddLoopingSound( f->ownerCent, f->org, vec3_origin, cgs.media.flameBlowSound, (int)( 255.0 * centFlameStatus[f->ownerCent].blowVolume ) );
+				S_AddLoopingSound( f->ownerCent, f->org, vec3_origin, 1250, cgs.media.flameBlowSound, (int)( 255.0 * centFlameStatus[f->ownerCent].blowVolume ) );
 			} else {
-				trap_S_AddLoopingSound( f->ownerCent, f->org, vec3_origin, cgs.media.flameBlowSound, MIN_BLOW_VOLUME );
+				S_AddLoopingSound( f->ownerCent, f->org, vec3_origin, 1250, cgs.media.flameBlowSound, MIN_BLOW_VOLUME );
 			}
 
 			if ( centFlameStatus[f->ownerCent].streamVolume ) {
 				if ( cg_entities[f->ownerCent].currentState.aiChar != AICHAR_ZOMBIE ) {
-					trap_S_AddLoopingSound( f->ownerCent, f->org, vec3_origin, cgs.media.flameStreamSound, (int)( 255.0 /**centFlameStatus[f->ownerCent].streamVolume*/ ) );
+					S_AddLoopingSound( f->ownerCent, f->org, vec3_origin, 1250, cgs.media.flameStreamSound, (int)( 255.0 /**centFlameStatus[f->ownerCent].streamVolume*/ ) );
 				} else {
-					trap_S_AddLoopingSound( f->ownerCent, f->org, vec3_origin, cgs.media.flameCrackSound, (int)( 255.0 * centFlameStatus[f->ownerCent].streamVolume ) );
+					S_AddLoopingSound( f->ownerCent, f->org, vec3_origin, 1250, cgs.media.flameCrackSound, (int)( 255.0 * centFlameStatus[f->ownerCent].streamVolume ) );
 				}
 			}
 
@@ -1614,7 +1615,7 @@ void CG_UpdateFlamethrowerSounds( void ) {
 			// update the sound volume
 			if ( trav->blueLife + 100 < ( cg.time - trav->timeStart ) ) {
 				//if (!lastSoundFlameChunk || Distance( lastSoundFlameChunk->org, trav->org ) > lastSoundFlameChunk->size) {
-				trap_S_AddLoopingSound( trav->ownerCent, trav->org, vec3_origin, cgs.media.flameSound, (int)( 255.0 * ( 0.2 * ( trav->size / FLAME_MAX_SIZE ) ) ) );
+				S_AddLoopingSound( trav->ownerCent, trav->org, vec3_origin, 1250, cgs.media.flameSound, (int)( 255.0 * ( 0.2 * ( trav->size / FLAME_MAX_SIZE ) ) ) );
 				//	lastSoundFlameChunk = trav;
 				//}
 			}

@@ -684,11 +684,11 @@ static void UI_DrawSaveGameShot( rectDef_t *rect, float scale, vec4_t color )
 
 static void UI_DrawPregameCinematic( rectDef_t *rect, float scale, vec4_t color ) {
 	if ( uiInfo.previewMovie > -2 ) {
-		uiInfo.previewMovie = trap_CIN_PlayCinematic( va( "%s.roq", "assault" ), 0, 0, 0, 0, ( CIN_loop | CIN_silent | CIN_system ) );
+		uiInfo.previewMovie = CIN_PlayCinematic( va( "%s.roq", "assault" ), 0, 0, 0, 0, ( CIN_loop | CIN_silent | CIN_system ) );
 		if ( uiInfo.previewMovie >= 0 ) {
-			trap_CIN_RunCinematic( uiInfo.previewMovie );
+			CIN_RunCinematic( uiInfo.previewMovie );
 			CIN_SetExtents( uiInfo.previewMovie, rect->x, rect->y, rect->w, rect->h );
-			trap_CIN_DrawCinematic( uiInfo.previewMovie );
+			CIN_DrawCinematic( uiInfo.previewMovie );
 		} else {
 			uiInfo.previewMovie = -2;
 		}
@@ -1555,13 +1555,13 @@ static void UI_RunMenuScript( const char **args ) {
 			Cbuf_ExecuteText( EXEC_NOW, "quit" );
 		} else if ( Q_stricmp( name, "Controls" ) == 0 ) {
 			Cvar_Set( "cl_paused", "1" );
-			trap_Key_SetCatcher( KEYCATCH_UI );
+			Key_SetCatcher( KEYCATCH_UI );
 			Menus_CloseAll();
 			Menus_ActivateByName( "setup_menu2" );
 		
 		
 		} else if ( Q_stricmp( name, "closeingame" ) == 0 ) {
-			trap_Key_SetCatcher( trap_Key_GetCatcher() & ~KEYCATCH_UI );
+			Key_SetCatcher( Key_GetCatcher() & ~KEYCATCH_UI );
 			Key_ClearStates();
 			Cvar_Set( "cl_paused", "0" );
 			Menus_CloseAll();
@@ -1636,7 +1636,7 @@ static void UI_FeederSelection( float feederID, int index ) {
 	if ( feederID == FEEDER_CINEMATICS ) {
         uiInfo.movieIndex = index;
         if ( uiInfo.previewMovie >= 0 ) {
-            trap_CIN_StopCinematic( uiInfo.previewMovie );
+            CIN_StopCinematic( uiInfo.previewMovie );
         }
         uiInfo.previewMovie = -1;
     } else if ( feederID == FEEDER_SAVEGAMES ) {
@@ -1688,10 +1688,10 @@ static void UI_Pause( bool b )
 	if ( b ) {
 		// pause the game and set the ui keycatcher
 		Cvar_Set( "cl_paused", "1" );
-		trap_Key_SetCatcher( KEYCATCH_UI );
+		Key_SetCatcher( KEYCATCH_UI );
 	} else {
 		// unpause the game and clear the ui keycatcher
-		trap_Key_SetCatcher( trap_Key_GetCatcher() & ~KEYCATCH_UI );
+		Key_SetCatcher( Key_GetCatcher() & ~KEYCATCH_UI );
 		Key_ClearStates();
 		Cvar_Set( "cl_paused", "0" );
 	}
@@ -1699,22 +1699,22 @@ static void UI_Pause( bool b )
 
 
 static int UI_PlayCinematic( const char *name, float x, float y, float w, float h ) {
-	return trap_CIN_PlayCinematic( name, x, y, w, h, ( CIN_loop | CIN_silent ) );
+	return CIN_PlayCinematic( name, x, y, w, h, ( CIN_loop | CIN_silent ) );
 }
 
 static void UI_StopCinematic( int handle ) {
 	if ( handle >= 0 ) {
-		trap_CIN_StopCinematic( handle );
+		CIN_StopCinematic( handle );
 	}
 }
 
 static void UI_DrawCinematic( int handle, float x, float y, float w, float h ) {
 	CIN_SetExtents( handle, x, y, w, h );
-	trap_CIN_DrawCinematic( handle );
+	CIN_DrawCinematic( handle );
 }
 
 static void UI_RunCinematicFrame( int handle ) {
-	trap_CIN_RunCinematic( handle );
+	CIN_RunCinematic( handle );
 }
 
 void UI_KeyEvent( int key, bool down )
@@ -1728,7 +1728,7 @@ void UI_KeyEvent( int key, bool down )
 				Menu_HandleKey( menu, key, down );
 			}
 		} else {
-			trap_Key_SetCatcher( trap_Key_GetCatcher() & ~KEYCATCH_UI );
+			Key_SetCatcher( Key_GetCatcher() & ~KEYCATCH_UI );
 			Key_ClearStates();
 			Cvar_Set( "cl_paused", "0" );
 		}
@@ -1790,14 +1790,14 @@ void UI_SetActiveMenu( uiMenuCommand_t menu )
 
 		switch ( menu ) {
 		case UIMENU_NONE:
-			trap_Key_SetCatcher( trap_Key_GetCatcher() & ~KEYCATCH_UI );
+			Key_SetCatcher( Key_GetCatcher() & ~KEYCATCH_UI );
 			Key_ClearStates();
 			Cvar_Set( "cl_paused", "0" );
 			Menus_CloseAll();
 
 			return;
 		case UIMENU_MAIN:
-			trap_Key_SetCatcher( KEYCATCH_UI );
+			Key_SetCatcher( KEYCATCH_UI );
 			if ( uiInfo.inGameLoad ) {
 				UI_LoadNonIngame();
 			}
@@ -1809,7 +1809,7 @@ void UI_SetActiveMenu( uiMenuCommand_t menu )
 				Menus_ActivateByName( "error_popmenu" );
 			}
 			// ensure sound is there for the menu
-			trap_S_FadeAllSound( 1.0f, 1000 );    // make sure sound fades up
+			S_FadeAllSounds( 1.0f, 1000 );    // make sure sound fades up
 
 			// ensure savegames are loadable
 			Cvar_Set( "g_reloading", "0" );
@@ -1819,16 +1819,16 @@ void UI_SetActiveMenu( uiMenuCommand_t menu )
 
 		case UIMENU_ENDGAME:
 			// ensure sound is there for the menu
-			trap_S_FadeAllSound( 1.0f, 1000 );
+			S_FadeAllSounds( 1.0f, 1000 );
 			// ensure savegames are loadable
 			Cvar_Set( "g_reloading", "0" );
 
-			trap_Key_SetCatcher( KEYCATCH_UI );
+			Key_SetCatcher( KEYCATCH_UI );
 			Menus_ActivateByName( "credit" );
 			return;
 
 		case UIMENU_POSTGAME:
-			trap_Key_SetCatcher( KEYCATCH_UI );
+			Key_SetCatcher( KEYCATCH_UI );
 			if ( uiInfo.inGameLoad ) {
 				UI_LoadNonIngame();
 			}
@@ -1838,7 +1838,7 @@ void UI_SetActiveMenu( uiMenuCommand_t menu )
 
 		case UIMENU_INGAME:
 			Cvar_Set( "cl_paused", "1" );
-			trap_Key_SetCatcher( KEYCATCH_UI );
+			Key_SetCatcher( KEYCATCH_UI );
 
 			Menus_CloseAll();
 			Menus_ActivateByName( "ingame" );
@@ -1846,14 +1846,14 @@ void UI_SetActiveMenu( uiMenuCommand_t menu )
 
 		case UIMENU_PREGAME:
 			Cvar_Set( "cl_paused", "1" );
-			trap_Key_SetCatcher( KEYCATCH_UI );
+			Key_SetCatcher( KEYCATCH_UI );
 			Menus_CloseAll();
 			Menus_ActivateByName( "pregame" );
 			return;
 
 		case UIMENU_NOTEBOOK:
 			Cvar_Set( "cl_paused", "1" );
-			trap_Key_SetCatcher( KEYCATCH_UI );
+			Key_SetCatcher( KEYCATCH_UI );
 			Menus_CloseAll();
 			Menus_ActivateByName( "notebook" );
 			return;
@@ -1861,14 +1861,14 @@ void UI_SetActiveMenu( uiMenuCommand_t menu )
 		case UIMENU_BOOK1:
 		case UIMENU_BOOK2:
 		case UIMENU_BOOK3:
-			trap_Key_SetCatcher( KEYCATCH_UI );
+			Key_SetCatcher( KEYCATCH_UI );
 			Menus_CloseAll();
 			Menus_ActivateByName( va( "hbook%d", ( menu - UIMENU_BOOK1 ) + 1 ) );
 			return;
 
 		case UIMENU_CLIPBOARD:
 			Cvar_Set( "cl_paused", "1" );
-			trap_Key_SetCatcher( KEYCATCH_UI );
+			Key_SetCatcher( KEYCATCH_UI );
 			Menus_CloseAll();
 			Menus_ActivateByName( "clipboard" );
 			return;
@@ -1879,7 +1879,7 @@ void UI_SetActiveMenu( uiMenuCommand_t menu )
                 return;
 
 		case UIMENU_WM_QUICKMESSAGE:
-			trap_Key_SetCatcher( KEYCATCH_UI );
+			Key_SetCatcher( KEYCATCH_UI );
 			Menus_CloseAll();
 			Menus_OpenByName( "wm_quickmessage" );
 			return;
@@ -2116,8 +2116,6 @@ void UI_Init()
         // no wide screen
         uiInfo.uiDC.bias = 0;
     }
-
-    uiInfo.uiDC.registerShaderNoMip = &RE_RegisterShaderNoMip;
 
     uiInfo.uiDC.drawHandlePic = &UI_DrawHandlePic;
 

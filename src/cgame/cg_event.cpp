@@ -33,7 +33,9 @@ If you have questions concerning this license or the applicable additional terms
 #include "cg_local.h"
 #include "../ui/ui_shared.h" // for Menus_CloseAll()
 #include "../client/snd_public.h"
+#include "../renderer/tr_public.h"
 #include "../qcommon/qcommon.h"
+#include "../client/client.h"
 
 extern int hWeaponSnd;
 
@@ -399,7 +401,7 @@ void CG_Explode( centity_t *cent, vec3_t origin, vec3_t dir, qhandle_t shader ) 
 //			inheritmodel = cent->currentState.modelindex;
 			inheritmodel = cgs.inlineDrawModel[cent->currentState.modelindex];  // okay, this should be better.
 			if ( inheritmodel ) {
-				shader = trap_R_GetShaderFromModel( inheritmodel, 0, 0 );
+				shader = RE_GetShaderFromModel( inheritmodel, 0, 0 );
 			}
 		}
 	}
@@ -863,7 +865,7 @@ void CG_Effect( centity_t *cent, vec3_t origin, vec3_t dir ) {
 
 		s = CG_ConfigString( CS_TARGETEFFECT ); // see if ent has a shader specified
 		if ( s && strlen( s ) > 0 ) {
-			sh = trap_R_RegisterShader( va( "textures/%s", s ) );    // FIXME: don't do this here.  only for testing
+			sh = RegisterShaderAndDrawInfo( va( "textures/%s", s ) );    // FIXME: don't do this here.  only for testing
 
 		}
 		cent->currentState.eFlags &= ~EF_INHERITSHADER; // don't try to inherit shader
@@ -1937,14 +1939,14 @@ void CG_EntityEvent( centity_t *cent, vec3_t position ) {
 		break;
 
 	case EV_POPUPBOOK:
-		trap_UI_Popup( va( "hbook%d", es->eventParm ) );
+		IngamePopup( va( "hbook%d", es->eventParm ) );
 		break;
 
 	case EV_POPUP:
 		s = CG_ConfigString( CS_CLIPBOARDS + es->eventParm );
 		// 's' is now the name of the menu script to run
 		Cvar_Set( "cg_clipboardName", s );    // store new current page name for the ui to pick up
-		trap_UI_Popup( s );
+		IngamePopup( s );
 		break;
 
 	case EV_CLOSEMENU:

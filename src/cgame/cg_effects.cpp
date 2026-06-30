@@ -612,7 +612,7 @@ int CG_GetOriginForTag( centity_t *cent, refEntity_t *parent, const char *tagNam
 	int retval;
 
 	// lerp the tag
-	retval = trap_R_LerpTag( &lerped, parent, tagName, startIndex );
+	retval = R_LerpTag( &lerped, parent, tagName, startIndex );
 
 	if ( retval < 0 ) {
 		return retval;

@@ -32,6 +32,7 @@ If you have questions concerning this license or the applicable additional terms
 #include "../client/snd_public.h"
 #include "../renderer/tr_public.h"
 #include "../qcommon/qcommon.h"
+#include "../client/client.h"
 
 #define MAX_LOADING_PLAYER_ICONS    16
 #define MAX_LOADING_ITEM_ICONS      26
@@ -409,7 +410,7 @@ void CG_DrawInformation() {
 		return;
 	}
 
-    trap_UI_Popup( "briefing" );
+    IngamePopup( "briefing" );
 
     SCR_UpdateScreen();
     callCount--;

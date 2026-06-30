@@ -31,12 +31,10 @@ If you have questions concerning this license or the applicable additional terms
 #include "client.h"
 #include "cgame/cg_local.h"
 #include "../botlib/botlib.h"
+#include "../splines/splines_camera.h"
 
 extern botlib_export_t *botlib_export;
 
-
-extern void startCamera( int camNum, int time );
-extern bool getCameraInfo( int camNum, int time, vec3_t *origin, vec3_t *angles, float *fov );
 
 /*
 ====================

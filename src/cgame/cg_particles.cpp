@@ -184,7 +184,7 @@ void CG_ClearParticles()
 	// Ridah, init the shaderAnims
 	for (i = 0; shaderAnimNames[i]; i++ ) {
 		for (int j = 0; j < shaderAnimCounts[i]; j++ ) {
-			shaderAnims[i][j] = trap_R_RegisterShader( va( "%s%i", shaderAnimNames[i], j + 1 ) );
+			shaderAnims[i][j] = RegisterShaderAndDrawInfo( va( "%s%i", shaderAnimNames[i], j + 1 ) );
 		}
 	}
 	numShaderAnims = i;
@@ -1476,7 +1476,7 @@ void CG_ParticleDirtBulletDebris_Core( vec3_t org, vec3_t vel, int duration,
 
 	p->rotate = false;
 
-	p->pshader = trap_R_RegisterShader( shadername ); // JPW NERVE was "dirt_splash"
+	p->pshader = RegisterShaderAndDrawInfo( shadername ); // JPW NERVE was "dirt_splash"
 
 	p->type = P_SMOKE;
 

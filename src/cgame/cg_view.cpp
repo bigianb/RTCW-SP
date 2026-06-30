@@ -32,6 +32,8 @@ If you have questions concerning this license or the applicable additional terms
 #include "../qcommon/qcommon.h"
 #include "../client/snd_public.h"
 #include "../renderer/tr_public.h"
+#include "../splines/splines_camera.h"
+#include "../client/client.h"
 
 //========================
 extern int notebookModel;
@@ -747,8 +749,7 @@ CG_UnderwaterSounds
 */
 #define UNDERWATER_BIT 8
 static void CG_UnderwaterSounds( void ) {
-//	trap_S_AddLoopingSound( cent->currentState.number, cent->lerpOrigin, vec3_origin, cgs.media.underWaterSound, 255 );
-	trap_S_AddLoopingSound( cg.snap->ps.clientNum, cg.snap->ps.origin, vec3_origin, cgs.media.underWaterSound, 255 & ( 1 << 8 ) );
+	S_AddLoopingSound( cg.snap->ps.clientNum, cg.snap->ps.origin, vec3_origin, 1250, cgs.media.underWaterSound, 255 & ( 1 << 8 ) );
 }
 
 
@@ -841,7 +842,7 @@ static int CG_CalcViewValues( void ) {
 		float fov = 90;
 		float x;
 
-		if ( trap_getCameraInfo( CAM_PRIMARY, cg.time, &origin, &angles, &fov ) ) {
+		if ( getCameraInfo( CAM_PRIMARY, cg.time, origin, angles, &fov ) ) {
 			VectorCopy( origin, cg.refdef.vieworg );
 			angles[ROLL] = 0;
 			angles[PITCH] = -angles[PITCH];     // (SA) compensate for reversed pitch (this makes the game match the editor, however I'm guessing the real fix is to be done there)
@@ -1313,7 +1314,7 @@ void CG_DrawActiveFrame( int serverTime, stereoFrame_t stereoView)
 	}
 
 	// let the client system know what our weapon, holdable item and zoom settings are
-	trap_SetUserCmdValue( cg.weaponSelect, cg.holdableSelect, cg.zoomSensitivity, cg.cld );
+	CL_SetUserCmdValue( cg.weaponSelect, cg.holdableSelect, cg.zoomSensitivity, cg.cld );
 
 	// actually issue the rendering calls
 	CG_DrawActive( stereoView );

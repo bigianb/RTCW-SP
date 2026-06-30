@@ -199,7 +199,7 @@ bot_moveresult_t *AICast_MoveToPos( cast_state_t *cs, vec3_t pos, int entnum ) {
 	//
 	// debugging, show the route
 	if ( aicast_debug.integer == 2 && ( g_entities[cs->entityNum].aiName && !strcmp( aicast_debugname.string, g_entities[cs->entityNum].aiName ) ) ) {
-		trap_AAS_RT_ShowRoute( cs->bs->origin, cs->bs->areanum, goal.areanum );
+		AAS_RT_ShowRoute( cs->bs->origin, cs->bs->areanum, goal.areanum );
 	}
 	//
 	//initialize the movement state
@@ -783,7 +783,7 @@ const char *AIFunc_InspectFriendly( cast_state_t *cs ) {
 			if ( !moveresult || moveresult->failure ) {
 				// if we can get a visible target, then face it
 				if ( !( cs->aiFlags & AIFL_MISCFLAG2 ) ) {
-					if ( trap_AAS_GetRouteFirstVisPos( followent->shared.r.currentOrigin, cs->bs->origin, cs->travelflags, cs->takeCoverEnemyPos ) ) {
+					if ( AAS_GetRouteFirstVisPos( followent->shared.r.currentOrigin, cs->bs->origin, cs->travelflags, cs->takeCoverEnemyPos ) ) {
 						cs->aiFlags |= AIFL_MISCFLAG2;
 					} else {
 						// if it failed, just use their origin for now, but keep checking
@@ -1094,7 +1094,7 @@ const char *AIFunc_InspectBulletImpactStart( cast_state_t *cs ) {
 	// if the origin is not visible, set the bullet origin to the closest visible area from the src
 	if ( !SV_inPVS( cs->bulletImpactStart, cs->bs->origin ) ) {
 		// if it fails, then just look at the source
-		trap_AAS_GetRouteFirstVisPos( g_entities[cs->bulletImpactEntity].shared.s.pos.trBase, cs->bs->origin, cs->travelflags, cs->bulletImpactStart );
+		AAS_GetRouteFirstVisPos( g_entities[cs->bulletImpactEntity].shared.s.pos.trBase, cs->bs->origin, cs->travelflags, cs->bulletImpactStart );
 	}
 	//
 	cs->aifunc = AIFunc_InspectBulletImpact;
@@ -1229,7 +1229,7 @@ const char *AIFunc_InspectAudibleEvent( cast_state_t *cs ) {
 			if ( moveresult && moveresult->failure ) {
 
 				// if we can get a visible target, then face it
-				if ( trap_AAS_GetRouteFirstVisPos( cs->audibleEventOrg, cs->bs->origin, cs->travelflags, destorg ) ) {
+				if ( AAS_GetRouteFirstVisPos( cs->audibleEventOrg, cs->bs->origin, cs->travelflags, destorg ) ) {
 					cs->aiFlags |= AIFL_MISCFLAG2;
 					VectorSubtract( destorg, cs->bs->origin, destorg );
 					VectorNormalize( destorg );
@@ -2850,7 +2850,7 @@ const char *AIFunc_BattleChase( cast_state_t *cs ) {
 			if ( cs->combatGoalTime < level.time ) {
 				if ( cs->attackSpotTime < level.time ) {
 					cs->attackSpotTime = level.time + 500 + rand() % 500;
-					if ( trap_AAS_FindAttackSpotWithinRange( cs->entityNum, cs->leaderNum, cs->enemyNum, MAX_LEADER_DIST, AICAST_TFL_DEFAULT, cs->combatGoalOrigin ) ) {
+					if ( AAS_FindAttackSpotWithinRange( cs->entityNum, cs->leaderNum, cs->enemyNum, MAX_LEADER_DIST, AICAST_TFL_DEFAULT, cs->combatGoalOrigin ) ) {
 						cs->combatGoalTime = level.time + 2000;
 					}
 				}
@@ -2882,7 +2882,7 @@ const char *AIFunc_BattleChase( cast_state_t *cs ) {
 			if ( cs->combatGoalTime < level.time ) {
 				if ( cs->attackSpotTime < level.time ) {
 					cs->attackSpotTime = level.time + 500 + rand() % 500;
-					if ( trap_AAS_FindAttackSpotWithinRange( cs->entityNum, cs->entityNum, cs->enemyNum, 512, AICAST_TFL_DEFAULT, cs->combatGoalOrigin ) ) {
+					if ( AAS_FindAttackSpotWithinRange( cs->entityNum, cs->entityNum, cs->enemyNum, 512, AICAST_TFL_DEFAULT, cs->combatGoalOrigin ) ) {
 						cs->combatGoalTime = level.time + 2000;
 					}
 				}
@@ -2977,8 +2977,8 @@ const char *AIFunc_BattleChase( cast_state_t *cs ) {
 			// if we'll be closer after the move, proceed
 			destarea = BotPointAreaNum( destorg );
 			simarea = BotPointAreaNum( move.endpos );
-			starttravel = trap_AAS_AreaTravelTimeToGoalArea( cs->bs->areanum, cs->bs->origin, destarea, cs->travelflags );
-			simtravel = trap_AAS_AreaTravelTimeToGoalArea( simarea, move.endpos, destarea, cs->travelflags );
+			starttravel = AAS_AreaTravelTimeToGoalArea( cs->bs->areanum, cs->bs->origin, destarea, cs->travelflags );
+			simtravel = AAS_AreaTravelTimeToGoalArea( simarea, move.endpos, destarea, cs->travelflags );
 			if ( simtravel < starttravel ) {
 				return AIFunc_FlipMoveStart( cs, vec );
 			}
@@ -3449,7 +3449,7 @@ const char *AIFunc_BattleTakeCover( cast_state_t *cs ) {
 		// if they cant see us, then stay here
 		if ( !( cs->aiFlags & AIFL_MISCFLAG1 ) && !AICast_VisibleFromPos( cs->vislist[cs->enemyNum].real_visible_pos, cs->enemyNum, move.endpos, cs->entityNum, false )
 			 &&  !AICast_VisibleFromPos( cs->vislist[cs->enemyNum].real_visible_pos, cs->enemyNum, cs->bs->origin, cs->entityNum, false )
-			 &&  trap_AAS_PointAreaNum( move.endpos ) ) { // make sure the endpos is in a valid area
+			 &&  AAS_PointAreaNum( move.endpos ) ) { // make sure the endpos is in a valid area
 			VectorCopy( move.endpos, cs->takeCoverPos );
 			dist = 0;
 			cs->aiFlags |= AIFL_MISCFLAG1;  // dont do this again
@@ -3460,8 +3460,8 @@ const char *AIFunc_BattleTakeCover( cast_state_t *cs ) {
 			// if we'll be closer after the move, proceed
 			destarea = BotPointAreaNum( destorg );
 			simarea = BotPointAreaNum( move.endpos );
-			starttravel = trap_AAS_AreaTravelTimeToGoalArea( cs->bs->areanum, cs->bs->origin, destarea, cs->travelflags );
-			simtravel = trap_AAS_AreaTravelTimeToGoalArea( simarea, move.endpos, destarea, cs->travelflags );
+			starttravel = AAS_AreaTravelTimeToGoalArea( cs->bs->areanum, cs->bs->origin, destarea, cs->travelflags );
+			simtravel = AAS_AreaTravelTimeToGoalArea( simarea, move.endpos, destarea, cs->travelflags );
 			if ( simtravel < starttravel ) {
 				return AIFunc_FlipMoveStart( cs, vec );
 			}

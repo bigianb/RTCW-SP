@@ -1275,7 +1275,7 @@ void G_LoadGame( const char *filename )
     aicast_skillscale = (float)i / (float)GSKILL_MAX;
     
 	// reset all AAS blocking entities
-	trap_AAS_SetAASBlockingEntity( vec3_origin, vec3_origin, -1 );
+	AAS_SetAASBlockingEntity( vec3_origin, vec3_origin, -1 );
 
 	// read the entity structures
 	FS_Read( &i, sizeof( i ), f );

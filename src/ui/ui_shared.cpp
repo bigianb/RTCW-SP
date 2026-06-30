@@ -852,7 +852,7 @@ void Script_SetBackground( itemDef_t *item, const char **args ) {
 	const char *name;
 	// expecting name to set asset to
 	if ( String_Parse( args, &name ) ) {
-		item->window.background = DC->registerShaderNoMip( name );
+		item->window.background = RE_RegisterShaderNoMip( name );
 	}
 }
 
@@ -4420,7 +4420,7 @@ bool ItemParse_asset_shader( itemDef_t *item, int handle ) {
 	if ( !PC_String_Parse( handle, &temp ) ) {
 		return false;
 	}
-	item->asset = DC->registerShaderNoMip( temp );
+	item->asset = RE_RegisterShaderNoMip( temp );
 	return true;
 }
 
@@ -4784,7 +4784,7 @@ bool ItemParse_background( itemDef_t *item, int handle ) {
 	if ( !PC_String_Parse( handle, &temp ) ) {
 		return false;
 	}
-	item->window.background = DC->registerShaderNoMip( temp );
+	item->window.background = RE_RegisterShaderNoMip( temp );
 	return true;
 }
 
@@ -5427,7 +5427,7 @@ bool MenuParse_background( itemDef_t *item, int handle ) {
 	if ( !PC_String_Parse( handle, &buff ) ) {
 		return false;
 	}
-	menu->window.background = DC->registerShaderNoMip( buff );
+	menu->window.background = RE_RegisterShaderNoMip( buff );
 	return true;
 }
 

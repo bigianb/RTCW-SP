@@ -225,16 +225,11 @@ typedef struct aas_export_s
 	// be_aas_entity.h
 	//-----------------------------------
 	void ( *AAS_EntityInfo )( int entnum, struct aas_entityinfo_s *info );
-	//-----------------------------------
-	// be_aas_main.h
-	//-----------------------------------
-	int ( *AAS_Initialized )( void );
-	void ( *AAS_PresenceTypeBoundingBox )( int presencetype, vec3_t mins, vec3_t maxs );
-	float ( *AAS_Time )( void );
+
 	//--------------------------------------------
 	// be_aas_sample.c
 	//--------------------------------------------
-	int ( *AAS_PointAreaNum )( vec3_t point );
+
 	int ( *AAS_TraceAreas )( vec3_t start, vec3_t end, int *areas, vec3_t *points, int maxareas );
 	//--------------------------------------------
 	// be_aas_bspq3.c

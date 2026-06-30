@@ -28,6 +28,7 @@ If you have questions concerning this license or the applicable additional terms
 
 #include "ui_local.h"
 #include "../renderer/tr_local.h"
+#include "../client/client.h"
 
 uiStatic_t uis;
 bool m_entersound;              // after a frame, so caching won't disrupt the sound
@@ -78,7 +79,7 @@ bool UI_ConsoleCommand( int realTime ) {
 			char shader2[MAX_QPATH];
 			Q_strncpyz( shader1, UI_Argv( 1 ), sizeof( shader1 ) );
 			Q_strncpyz( shader2, UI_Argv( 2 ), sizeof( shader2 ) );
-			trap_R_RemapShader( shader1, shader2, UI_Argv( 3 ) );
+			R_RemapShader( shader1, shader2, UI_Argv( 3 ) );
 			return true;
 		}
 	}

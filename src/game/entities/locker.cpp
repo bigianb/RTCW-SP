@@ -141,8 +141,6 @@ void props_locker_spawn_item( GameEntity *ent )
 	}
 }
 
-extern qhandle_t    trap_R_GetShaderFromModel( qhandle_t modelid, int surfnum, int withlightmap );
-
 void props_locker_mass( GameEntity *ent ) {
 	GameEntity   *tent;
 	vec3_t start;

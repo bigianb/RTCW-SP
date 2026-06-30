@@ -268,7 +268,7 @@ static void CG_InterpolatePlayerState( bool grabAngles ) {
 		UserCmd cmd;
 		int cmdNum;
 
-		cmdNum = trap_GetCurrentCmdNumber();
+		cmdNum = CL_GetCurrentCmdNumber();
 		CL_GetUserCmd( cmdNum, &cmd );
 
 		PM_UpdateViewAngles( out, &cmd, CG_Trace );
@@ -554,7 +554,7 @@ void CG_PredictPlayerState( void ) {
 	// save the state before the pmove so we can detect transitions
 	oldPlayerState = cg.predictedPlayerState;
 
-	current = trap_GetCurrentCmdNumber();
+	current = CL_GetCurrentCmdNumber();
 
 	// if we don't have the commands right after the snapshot, we
 	// can't accurately predict a current position, so just freeze at

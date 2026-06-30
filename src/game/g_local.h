@@ -821,36 +821,6 @@ int     trap_BotGetServerCommand( int clientNum, char *message, int size );
 //int		trap_BotGetConsoleMessage(int clientNum, char *message, int size);
 void    trap_BotUserCommand( int client, UserCmd *ucmd );
 
-void        trap_AAS_EntityInfo( int entnum, void /* struct aas_entityinfo_s */ *info );
-
-int         trap_AAS_Initialized( void );
-void        trap_AAS_PresenceTypeBoundingBox( int presencetype, vec3_t mins, vec3_t maxs );
-float       trap_AAS_Time( void );
-
-int         trap_AAS_PointAreaNum( vec3_t point );
-int         trap_AAS_TraceAreas( vec3_t start, vec3_t end, int *areas, vec3_t *points, int maxareas );
-
-int         trap_AAS_PointContents( vec3_t point );
-int         trap_AAS_NextBSPEntity( int ent );
-int         trap_AAS_ValueForBSPEpairKey( int ent, const char *key, char *value, int size );
-int         trap_AAS_VectorForBSPEpairKey( int ent, const char *key, vec3_t v );
-int         trap_AAS_FloatForBSPEpairKey( int ent, const char *key, float *value );
-int         trap_AAS_IntForBSPEpairKey( int ent, const char *key, int *value );
-
-int         trap_AAS_AreaReachability( int areanum );
-
-int         trap_AAS_AreaTravelTimeToGoalArea( int areanum, vec3_t origin, int goalareanum, int travelflags );
-
-int         trap_AAS_Swimming( vec3_t origin );
-int         trap_AAS_PredictClientMovement( void /* aas_clientmove_s */ *move, int entnum, vec3_t origin, int presencetype, int onground, vec3_t velocity, vec3_t cmdmove, int cmdframes, int maxframes, float frametime, int stopevent, int stopareanum, int visualize );
-
-void        trap_AAS_RT_ShowRoute( vec3_t srcpos, int srcnum, int destnum );
-bool    trap_AAS_RT_GetHidePos( vec3_t srcpos, int srcnum, int srcarea, vec3_t destpos, int destnum, int destarea, vec3_t returnPos );
-int         trap_AAS_FindAttackSpotWithinRange( int srcnum, int rangenum, int enemynum, float rangedist, int travelflags, float *outpos );
-bool    trap_AAS_GetRouteFirstVisPos( vec3_t srcpos, vec3_t destpos, int travelflags, vec3_t retpos );
-void        trap_AAS_SetAASBlockingEntity( vec3_t absmin, vec3_t absmax, int blocking );
-
-
 int     trap_BotLoadCharacter( char *charfile, int skill );
 void    trap_BotFreeCharacter( int character );
 float   trap_Characteristic_Float( int character, int index );

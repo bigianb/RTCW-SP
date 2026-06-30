@@ -345,7 +345,7 @@ typedef struct {
 } commandDef_t;
 
 typedef struct {
-	qhandle_t ( *registerShaderNoMip )( const char *p );
+
 	void ( *drawHandlePic )( float x, float y, float w, float h, qhandle_t asset );
 
 	int ( *textWidth )( const char *text, int font, float scale, int limit );

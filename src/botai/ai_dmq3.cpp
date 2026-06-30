@@ -102,13 +102,13 @@ int BotPointAreaNum( vec3_t origin ) {
 	vec3_t end, ofs;
 	#define BOTAREA_JIGGLE_DIST     32
 
-	areanum = trap_AAS_PointAreaNum( origin );
+	areanum = AAS_PointAreaNum( origin );
 	if ( areanum ) {
 		return areanum;
 	}
 	VectorCopy( origin, end );
 	end[2] += 10;
-	numareas = trap_AAS_TraceAreas( origin, end, areas, nullptr, 1 );
+	numareas = AAS_TraceAreas( origin, end, areas, nullptr, 1 );
 	if ( numareas > 0 ) {
 		return areas[0];
 	}
@@ -118,7 +118,7 @@ int BotPointAreaNum( vec3_t origin ) {
 	for ( ofs[0] = -BOTAREA_JIGGLE_DIST; ofs[0] <= BOTAREA_JIGGLE_DIST; ofs[0] += BOTAREA_JIGGLE_DIST * 2 ) {
 		for ( ofs[1] = -BOTAREA_JIGGLE_DIST; ofs[1] <= BOTAREA_JIGGLE_DIST; ofs[1] += BOTAREA_JIGGLE_DIST * 2 ) {
 			VectorAdd( origin, ofs, end );
-			numareas = trap_AAS_TraceAreas( origin, end, areas, nullptr, 1 );
+			numareas = AAS_TraceAreas( origin, end, areas, nullptr, 1 );
 			if ( numareas > 0 ) {
 				return areas[0];
 			}
@@ -274,7 +274,7 @@ void BotChooseWeapon( bot_state_t *bs ) {
 	} else {
 		newweaponnum = trap_BotChooseBestFightWeapon( bs->ws, bs->inventory );
 		if ( bs->weaponnum != newweaponnum ) {
-			bs->weaponchange_time = trap_AAS_Time();
+			bs->weaponchange_time = AAS_Time();
 		}
 		bs->weaponnum = newweaponnum;
 		//BotAI_Print(PRT_MESSAGE, "bs->weaponnum = %d\n", bs->weaponnum);
@@ -403,7 +403,7 @@ BotSetTeleportTime
 */
 void BotSetTeleportTime( bot_state_t *bs ) {
 	if ( ( bs->cur_ps.eFlags ^ bs->last_eFlags ) & EF_TELEPORT_BIT ) {
-		bs->teleport_time = trap_AAS_Time();
+		bs->teleport_time = AAS_Time();
 	}
 	bs->last_eFlags = bs->cur_ps.eFlags;
 }
@@ -456,7 +456,7 @@ bool BotInLava( bot_state_t *bs ) {
 
 	VectorCopy( bs->origin, feet );
 	feet[2] -= 23;
-	return ( trap_AAS_PointContents( feet ) & CONTENTS_LAVA );
+	return ( AAS_PointContents( feet ) & CONTENTS_LAVA );
 }
 
 /*
@@ -469,7 +469,7 @@ bool BotInSlime( bot_state_t *bs ) {
 
 	VectorCopy( bs->origin, feet );
 	feet[2] -= 23;
-	return ( trap_AAS_PointContents( feet ) & CONTENTS_SLIME );
+	return ( AAS_PointContents( feet ) & CONTENTS_SLIME );
 }
 
 /*
@@ -773,7 +773,7 @@ void BotGoCamp( bot_state_t *bs, bot_goal_t *goal ) {
 		bs->teamgoal_time = 99999;
 	} else { bs->teamgoal_time = 120 + 180 * camper + random() * 15;}
 	//set the last time the bot started camping
-	bs->camp_time = trap_AAS_Time();
+	bs->camp_time = AAS_Time();
 	//the teammate that requested the camping
 	bs->teammate = 0;
 	//do NOT type arrive message
@@ -806,12 +806,12 @@ int BotWantsToCamp( bot_state_t *bs ) {
 		return false;
 	}
 	//if camped recently
-	if ( bs->camp_time > trap_AAS_Time() - 60 + 300 * ( 1 - camper ) ) {
+	if ( bs->camp_time > AAS_Time() - 60 + 300 * ( 1 - camper ) ) {
 		return false;
 	}
 	//
 	if ( random() > camper ) {
-		bs->camp_time = trap_AAS_Time();
+		bs->camp_time = AAS_Time();
 		return false;
 	}
 	//if the bot isn't healthy anough
@@ -828,7 +828,7 @@ int BotWantsToCamp( bot_state_t *bs ) {
 	//find the closest camp spot
 	besttraveltime = 99999;
 	for ( cs = trap_BotGetNextCampSpotGoal( 0, &goal ); cs; cs = trap_BotGetNextCampSpotGoal( cs, &goal ) ) {
-		traveltime = trap_AAS_AreaTravelTimeToGoalArea( bs->areanum, bs->origin, goal.areanum, TFL_DEFAULT );
+		traveltime = AAS_AreaTravelTimeToGoalArea( bs->areanum, bs->origin, goal.areanum, TFL_DEFAULT );
 		if ( traveltime && traveltime < besttraveltime ) {
 			besttraveltime = traveltime;
 			memcpy( &bestgoal, &goal, sizeof( bot_goal_t ) );
@@ -955,7 +955,7 @@ bot_moveresult_t BotAttackMove( bot_state_t *bs, int tfl ) {
 	bot_moveresult_t moveresult;
 	bot_goal_t goal;
 
-	if ( bs->attackchase_time > trap_AAS_Time() ) {
+	if ( bs->attackchase_time > AAS_Time() ) {
 		//create the chase goal
 		goal.entitynum = bs->enemy;
 		goal.areanum = bs->lastenemyareanum;
@@ -990,25 +990,25 @@ bot_moveresult_t BotAttackMove( bot_state_t *bs, int tfl ) {
 	//walk, crouch or jump
 	movetype = MOVE_WALK;
 	//
-	if ( bs->attackcrouch_time < trap_AAS_Time() - 1 ) {
+	if ( bs->attackcrouch_time < AAS_Time() - 1 ) {
 		if ( random() < jumper ) {
 			movetype = MOVE_JUMP;
 		}
 		//wait at least one second before crouching again
-		else if ( bs->attackcrouch_time < trap_AAS_Time() - 1 && random() < croucher ) {
-			bs->attackcrouch_time = trap_AAS_Time() + croucher * 5;
+		else if ( bs->attackcrouch_time < AAS_Time() - 1 && random() < croucher ) {
+			bs->attackcrouch_time = AAS_Time() + croucher * 5;
 		}
 	}
-	if ( bs->attackcrouch_time > trap_AAS_Time() ) {
+	if ( bs->attackcrouch_time > AAS_Time() ) {
 		movetype = MOVE_CROUCH;
 	}
 	//if the bot should jump
 	if ( movetype == MOVE_JUMP ) {
 		//if jumped last frame
-		if ( bs->attackjump_time > trap_AAS_Time() ) {
+		if ( bs->attackjump_time > AAS_Time() ) {
 			movetype = MOVE_WALK;
 		} else {
-			bs->attackjump_time = trap_AAS_Time() + 1;
+			bs->attackjump_time = AAS_Time() + 1;
 		}
 	}
 	if ( bs->cur_ps.weapon == WP_GAUNTLET ) {
@@ -1166,7 +1166,7 @@ float BotEntityVisible( int viewer, vec3_t eye, vec3_t viewangles, float fov, in
 		return 0;
 	}
 	//
-	pc = trap_AAS_PointContents( eye );
+	pc = AAS_PointContents( eye );
 	infog = ( pc & CONTENTS_SOLID );
 	inwater = ( pc & ( CONTENTS_LAVA | CONTENTS_SLIME | CONTENTS_WATER ) );
 	//
@@ -1181,7 +1181,7 @@ float BotEntityVisible( int viewer, vec3_t eye, vec3_t viewangles, float fov, in
 		VectorCopy( eye, start );
 		VectorCopy( middle, end );
 		//if the entity is in water, lava or slime
-		if ( trap_AAS_PointContents( middle ) & ( CONTENTS_LAVA | CONTENTS_SLIME | CONTENTS_WATER ) ) {
+		if ( AAS_PointContents( middle ) & ( CONTENTS_LAVA | CONTENTS_SLIME | CONTENTS_WATER ) ) {
 			contents_mask |= ( CONTENTS_LAVA | CONTENTS_SLIME | CONTENTS_WATER );
 		}
 		//if eye is in water, lava or slime
@@ -1211,7 +1211,7 @@ float BotEntityVisible( int viewer, vec3_t eye, vec3_t viewangles, float fov, in
 		if ( trace.fraction >= 1 || trace.ent == hitent ) {
 			//check for fog, assuming there's only one fog brush where
 			//either the viewer or the entity is in or both are in
-			otherinfog = ( trap_AAS_PointContents( middle ) & CONTENTS_FOG );
+			otherinfog = ( AAS_PointContents( middle ) & CONTENTS_FOG );
 			if ( infog && otherinfog ) {
 				VectorSubtract( trace.endpos, eye, dir );
 				fogdist = VectorLength( dir );
@@ -1306,7 +1306,7 @@ int BotFindEnemy( bot_state_t *bs, int curenemy ) {
 			continue;
 		}
 		//
-		if ( lastteleport_time > trap_AAS_Time() - 3 ) {
+		if ( lastteleport_time > AAS_Time() - 3 ) {
 			VectorSubtract( entinfo.origin, lastteleport_origin, dir );
 			if ( VectorLength( dir ) < 70 ) {
 				continue;
@@ -1354,8 +1354,8 @@ int BotFindEnemy( bot_state_t *bs, int curenemy ) {
 		//found an enemy
 		bs->enemy = entinfo.number;
 		if ( curenemy >= 0 ) {
-			bs->enemysight_time = trap_AAS_Time() - 2;
-		} else { bs->enemysight_time = trap_AAS_Time();}
+			bs->enemysight_time = AAS_Time() - 2;
+		} else { bs->enemysight_time = AAS_Time();}
 		bs->enemysuicide = false;
 		bs->enemydeath_time = 0;
 		return true;
@@ -1392,10 +1392,10 @@ void BotAimAtEnemy( bot_state_t *bs ) {
 	if ( aim_skill > 0.95 ) {
 		//don't aim too early
 		reactiontime = 0.5 * trap_Characteristic_BFloat( bs->character, CHARACTERISTIC_REACTIONTIME, 0, 1 );
-		if ( bs->enemysight_time > trap_AAS_Time() - reactiontime ) {
+		if ( bs->enemysight_time > AAS_Time() - reactiontime ) {
 			return;
 		}
-		if ( bs->teleport_time > trap_AAS_Time() - reactiontime ) {
+		if ( bs->teleport_time > AAS_Time() - reactiontime ) {
 			return;
 		}
 	}
@@ -1445,9 +1445,9 @@ void BotAimAtEnemy( bot_state_t *bs ) {
 	VectorSubtract( entinfo.origin, entinfo.lastvisorigin, enemyvelocity );
 	VectorScale( enemyvelocity, 1 / entinfo.update_time, enemyvelocity );
 	//enemy origin and velocity is remembered every 0.5 seconds
-	if ( bs->enemyposition_time < trap_AAS_Time() ) {
+	if ( bs->enemyposition_time < AAS_Time() ) {
 		//
-		bs->enemyposition_time = trap_AAS_Time() + 0.5;
+		bs->enemyposition_time = AAS_Time() + 0.5;
 		VectorCopy( enemyvelocity, bs->enemyvelocity );
 		VectorCopy( entinfo.origin, bs->enemyorigin );
 	}
@@ -1509,12 +1509,12 @@ void BotAimAtEnemy( bot_state_t *bs ) {
 					//
 					VectorClear( cmdmove );
 					//AAS_ClearShownDebugLines();
-					trap_AAS_PredictClientMovement( &move, bs->enemy, origin,
+					AAS_PredictClientMovement( &move, bs->enemy, origin,
 													PRESENCE_CROUCH, false,
 													dir, cmdmove, 0,
 													dist * 10 / wi.speed, 0.1, 0, 0, false );
 					VectorCopy( move.endpos, bestorigin );
-					//BotAI_Print(PRT_MESSAGE, "%1.1f predicted speed = %f, frames = %f\n", trap_AAS_Time(), VectorLength(dir), dist * 10 / wi.speed);
+					//BotAI_Print(PRT_MESSAGE, "%1.1f predicted speed = %f, frames = %f\n", AAS_Time(), VectorLength(dir), dist * 10 / wi.speed);
 				}
 				//if not that skilled do linear prediction
 				else if ( aim_skill > 0.4 ) {
@@ -1629,7 +1629,7 @@ void BotAimAtEnemy( bot_state_t *bs ) {
 	bs->ideal_viewangles[YAW] += 6 * wi.hspread * crandom() * ( 1 - aim_accuracy );
 	bs->ideal_viewangles[YAW] = AngleMod( bs->ideal_viewangles[YAW] );
 	//if the bot is really accurate and has the enemy in view for some time
-	if ( aim_accuracy > 0.9 && bs->enemysight_time < trap_AAS_Time() - 1 ) {
+	if ( aim_accuracy > 0.9 && bs->enemysight_time < AAS_Time() - 1 ) {
 		//set the view angles directly
 		if ( bs->ideal_viewangles[PITCH] > 180 ) {
 			bs->ideal_viewangles[PITCH] -= 360;
@@ -1659,27 +1659,27 @@ void BotCheckAttack( bot_state_t *bs ) {
 	}
 	//
 	reactiontime = trap_Characteristic_BFloat( bs->character, CHARACTERISTIC_REACTIONTIME, 0, 1 );
-	if ( bs->enemysight_time > trap_AAS_Time() - reactiontime ) {
+	if ( bs->enemysight_time > AAS_Time() - reactiontime ) {
 		return;
 	}
-	if ( bs->teleport_time > trap_AAS_Time() - reactiontime ) {
+	if ( bs->teleport_time > AAS_Time() - reactiontime ) {
 		return;
 	}
 	//if changing weapons
-	if ( bs->weaponchange_time > trap_AAS_Time() - 0.1 ) {
+	if ( bs->weaponchange_time > AAS_Time() - 0.1 ) {
 		return;
 	}
 	//check fire throttle characteristic
-	if ( bs->firethrottlewait_time > trap_AAS_Time() ) {
+	if ( bs->firethrottlewait_time > AAS_Time() ) {
 		return;
 	}
 	firethrottle = trap_Characteristic_BFloat( bs->character, CHARACTERISTIC_FIRETHROTTLE, 0, 1 );
-	if ( bs->firethrottleshoot_time < trap_AAS_Time() ) {
+	if ( bs->firethrottleshoot_time < AAS_Time() ) {
 		if ( random() > firethrottle ) {
-			bs->firethrottlewait_time = trap_AAS_Time() + firethrottle;
+			bs->firethrottlewait_time = AAS_Time() + firethrottle;
 			bs->firethrottleshoot_time = 0;
 		} else {
-			bs->firethrottleshoot_time = trap_AAS_Time() + 1 - firethrottle;
+			bs->firethrottleshoot_time = AAS_Time() + 1 - firethrottle;
 			bs->firethrottlewait_time = 0;
 		}
 	}
@@ -1850,8 +1850,8 @@ int BotEntityToActivate( int entitynum ) {
 
 	BotEntityInfo( entitynum, &entinfo );
 	snprintf( model, sizeof( model ), "*%d", entinfo.modelindex );
-	for ( ent = trap_AAS_NextBSPEntity( 0 ); ent; ent = trap_AAS_NextBSPEntity( ent ) ) {
-		if ( !trap_AAS_ValueForBSPEpairKey( ent, "model", tmpmodel, sizeof( tmpmodel ) ) ) {
+	for ( ent = AAS_NextBSPEntity( 0 ); ent; ent = AAS_NextBSPEntity( ent ) ) {
+		if ( !AAS_ValueForBSPEpairKey( ent, "model", tmpmodel, sizeof( tmpmodel ) ) ) {
 			continue;
 		}
 		if ( !strcmp( model, tmpmodel ) ) {
@@ -1862,14 +1862,14 @@ int BotEntityToActivate( int entitynum ) {
 		BotAI_Print( PRT_ERROR, "BotEntityToActivate: no entity found with model %s\n", model );
 		return 0;
 	}
-	trap_AAS_ValueForBSPEpairKey( ent, "classname", classname, sizeof( classname ) );
+	AAS_ValueForBSPEpairKey( ent, "classname", classname, sizeof( classname ) );
 	if ( !classname[0] ) {
 		BotAI_Print( PRT_ERROR, "BotEntityToActivate: entity with model %s has no classname\n", model );
 		return 0;
 	}
 	//if it is a door
 	if ( !strcmp( classname, "func_door" ) ) {
-		if ( trap_AAS_FloatForBSPEpairKey( ent, "health", &health ) ) {
+		if ( AAS_FloatForBSPEpairKey( ent, "health", &health ) ) {
 			//if health the door must be shot to open
 			if ( health ) {
 				return ent;
@@ -1877,20 +1877,20 @@ int BotEntityToActivate( int entitynum ) {
 		}
 	}
 	//get the targetname so we can find an entity with a matching target
-	if ( !trap_AAS_ValueForBSPEpairKey( ent, "targetname", targetname[0], sizeof( targetname[0] ) ) ) {
+	if ( !AAS_ValueForBSPEpairKey( ent, "targetname", targetname[0], sizeof( targetname[0] ) ) ) {
 #ifdef OBSTACLEDEBUG
 		BotAI_Print( PRT_ERROR, "BotEntityToActivate: entity with model \"%s\" has no targetname\n", model );
 #endif //OBSTACLEDEBUG
 		return 0;
 	}
-	cur_entities[0] = trap_AAS_NextBSPEntity( 0 );
+	cur_entities[0] = AAS_NextBSPEntity( 0 );
 	for ( i = 0; i >= 0 && i < 10; ) {
-		for ( ent = cur_entities[i]; ent; ent = trap_AAS_NextBSPEntity( ent ) ) {
-			if ( !trap_AAS_ValueForBSPEpairKey( ent, "target", target, sizeof( target ) ) ) {
+		for ( ent = cur_entities[i]; ent; ent = AAS_NextBSPEntity( ent ) ) {
+			if ( !AAS_ValueForBSPEpairKey( ent, "target", target, sizeof( target ) ) ) {
 				continue;
 			}
 			if ( !strcmp( targetname[i], target ) ) {
-				cur_entities[i] = trap_AAS_NextBSPEntity( ent );
+				cur_entities[i] = AAS_NextBSPEntity( ent );
 				break;
 			}
 		}
@@ -1899,7 +1899,7 @@ int BotEntityToActivate( int entitynum ) {
 			i--;
 			continue;
 		}
-		if ( !trap_AAS_ValueForBSPEpairKey( ent, "classname", classname, sizeof( classname ) ) ) {
+		if ( !AAS_ValueForBSPEpairKey( ent, "classname", classname, sizeof( classname ) ) ) {
 			BotAI_Print( PRT_ERROR, "BotEntityToActivate: entity with target \"%s\" has no classname\n", targetname[i] );
 			continue;
 		}
@@ -1999,7 +1999,7 @@ void BotAIBlocked( bot_state_t *bs, bot_moveresult_t *moveresult, int activate )
 			BotAI_Print( PRT_MESSAGE, "%s: can't find activator for blocking entity\n", ClientName( bs->client, netname, sizeof( netname ) ) );
 #endif //OBSTACLEDEBUG
 		} else {
-			trap_AAS_ValueForBSPEpairKey( ent, "classname", classname, sizeof( classname ) );
+			AAS_ValueForBSPEpairKey( ent, "classname", classname, sizeof( classname ) );
 #ifdef OBSTACLEDEBUG
 			ClientName( bs->client, netname, sizeof( netname ) );
 			BotAI_Print( PRT_MESSAGE, "%s: I should activate %s\n", netname, classname );
@@ -2012,7 +2012,7 @@ void BotAIBlocked( bot_state_t *bs, bot_moveresult_t *moveresult, int activate )
 	   
 		if ( !strcmp( classname, "func_button" ) ) {
 			//create a bot goal towards the button
-			trap_AAS_ValueForBSPEpairKey( ent, "model", model, sizeof( model ) );
+			AAS_ValueForBSPEpairKey( ent, "model", model, sizeof( model ) );
 			modelindex = atoi( model + 1 );
 			//if the model is not loaded
 			if ( !modelindex ) {
@@ -2021,12 +2021,12 @@ void BotAIBlocked( bot_state_t *bs, bot_moveresult_t *moveresult, int activate )
 			VectorClear( angles );
 			BotModelMinsMaxs( modelindex, mins, maxs );
 			//get the lip of the button
-			trap_AAS_FloatForBSPEpairKey( ent, "lip", &lip );
+			AAS_FloatForBSPEpairKey( ent, "lip", &lip );
 			if ( !lip ) {
 				lip = 4;
 			}
 			//get the move direction from the angle
-			trap_AAS_FloatForBSPEpairKey( ent, "angle", &angle );
+			AAS_FloatForBSPEpairKey( ent, "angle", &angle );
 			VectorSet( angles, 0, angle, 0 );
 			BotSetMovedir( angles, movedir );
 			//button size
@@ -2038,7 +2038,7 @@ void BotAIBlocked( bot_state_t *bs, bot_moveresult_t *moveresult, int activate )
 			dist = fabs( movedir[0] ) * size[0] + fabs( movedir[1] ) * size[1] + fabs( movedir[2] ) * size[2];
 			dist *= 0.5;
 			//
-			trap_AAS_FloatForBSPEpairKey( ent, "health", &health );
+			AAS_FloatForBSPEpairKey( ent, "health", &health );
 			//if the button is shootable
 			if ( health ) {
 				//calculate the goal origin
@@ -2059,7 +2059,7 @@ void BotAIBlocked( bot_state_t *bs, bot_moveresult_t *moveresult, int activate )
 			else
 			{
 				//add bounding box size to the dist
-				trap_AAS_PresenceTypeBoundingBox( PRESENCE_CROUCH, bboxmins, bboxmaxs );
+				AAS_PresenceTypeBoundingBox( PRESENCE_CROUCH, bboxmins, bboxmaxs );
 				for ( i = 0; i < 3; i++ )
 				{
 					if ( movedir[i] < 0 ) {
@@ -2073,21 +2073,21 @@ void BotAIBlocked( bot_state_t *bs, bot_moveresult_t *moveresult, int activate )
 				start[2] += 24;
 				VectorCopy( start, end );
 				end[2] -= 100;
-				numareas = trap_AAS_TraceAreas( start, end, areas, nullptr, 10 );
+				numareas = AAS_TraceAreas( start, end, areas, nullptr, 10 );
 				//
 				for ( i = 0; i < numareas; i++ ) {
-					if ( trap_AAS_AreaReachability( areas[i] ) ) {
+					if ( AAS_AreaReachability( areas[i] ) ) {
 						break;
 					}
 				}
 				if ( i < numareas ) {
 					//
 #ifdef OBSTACLEDEBUG
-					if ( bs->activatemessage_time < trap_AAS_Time() ) {
+					if ( bs->activatemessage_time < AAS_Time() ) {
 						snprintf( buf, sizeof( buf ), "I have to activate a button at %1.1f %1.1f %1.1f in area %d\n",
 									 goalorigin[0], goalorigin[1], goalorigin[2], areas[i] );
 						EA_Say( bs->client, buf );
-						bs->activatemessage_time = trap_AAS_Time() + 5;
+						bs->activatemessage_time = AAS_Time() + 5;
 					} //end if
 #endif //OBSTACLEDEBUG
 					//
@@ -2104,7 +2104,7 @@ void BotAIBlocked( bot_state_t *bs, bot_moveresult_t *moveresult, int activate )
 					bs->activategoal.entitynum = entinfo.number;
 					bs->activategoal.number = 0;
 					bs->activategoal.flags = 0;
-					bs->activate_time = trap_AAS_Time() + 10;
+					bs->activate_time = AAS_Time() + 10;
 					AIEnter_Seek_ActivateEntity( bs );
 				} //end if
 				else
@@ -2227,7 +2227,7 @@ void BotCheckEvents( bot_state_t *bs, EntityState *state ) {
 		else if ( attacker == bs->client ) {
 			bs->enemydeathtype = mod;
 			bs->lastkilledplayer = target;
-			bs->killedenemy_time = trap_AAS_Time();
+			bs->killedenemy_time = AAS_Time();
 			//
 			bs->num_kills++;
 		} else if ( attacker == bs->enemy && target == attacker )     {
@@ -2251,7 +2251,7 @@ void BotCheckEvents( bot_state_t *bs, EntityState *state ) {
 	case EV_PLAYER_TELEPORT_IN:
 	{
 		VectorCopy( state->origin, lastteleport_origin );
-		lastteleport_time = trap_AAS_Time();
+		lastteleport_time = AAS_Time();
 		break;
 	}
 	case EV_GENERAL_SOUND:
@@ -2309,11 +2309,11 @@ BotCheckAir
 */
 void BotCheckAir( bot_state_t *bs ) {
 	if ( bs->inventory[INVENTORY_ENVIRONMENTSUIT] <= 0 ) {
-		if ( trap_AAS_PointContents( bs->eye ) & ( CONTENTS_WATER | CONTENTS_SLIME | CONTENTS_LAVA ) ) {
+		if ( AAS_PointContents( bs->eye ) & ( CONTENTS_WATER | CONTENTS_SLIME | CONTENTS_LAVA ) ) {
 			return;
 		}
 	}
-	bs->lastair_time = trap_AAS_Time();
+	bs->lastair_time = AAS_Time();
 }
 
 /*
@@ -2370,7 +2370,7 @@ void BotDeathmatchAI( bot_state_t *bs, float thinktime ) {
 		AIEnter_Seek_LTG( bs );
 	}
 	//if the bot entered the game less than 8 seconds ago
-	if ( !bs->entergamechat && bs->entergame_time > trap_AAS_Time() - 8 ) {
+	if ( !bs->entergamechat && bs->entergame_time > AAS_Time() - 8 ) {
 		
 		bs->entergamechat = true;
 	}
@@ -2392,7 +2392,7 @@ void BotDeathmatchAI( bot_state_t *bs, float thinktime ) {
 		trap_BotDumpAvoidGoals( bs->gs );
 		BotDumpNodeSwitches( bs );
 		ClientName( bs->client, name, sizeof( name ) );
-		BotAI_Print( PRT_ERROR, "%s at %1.1f switched more than %d AI nodes\n", name, trap_AAS_Time(), MAX_NODESWITCHES );
+		BotAI_Print( PRT_ERROR, "%s at %1.1f switched more than %d AI nodes\n", name, AAS_Time(), MAX_NODESWITCHES );
 	}
 	//
 	bs->lastframe_health = bs->inventory[INVENTORY_HEALTH];
@@ -2419,8 +2419,8 @@ void BotSetupDeathmatchAI( void ) {
 	Cvar_Register( &bot_testrchat, "bot_testrchat", "0", 0 );
 
 	max_bspmodelindex = 0;
-	for ( ent = trap_AAS_NextBSPEntity( 0 ); ent; ent = trap_AAS_NextBSPEntity( ent ) ) {
-		if ( !trap_AAS_ValueForBSPEpairKey( ent, "model", model, sizeof( model ) ) ) {
+	for ( ent = AAS_NextBSPEntity( 0 ); ent; ent = AAS_NextBSPEntity( ent ) ) {
+		if ( !AAS_ValueForBSPEpairKey( ent, "model", model, sizeof( model ) ) ) {
 			continue;
 		}
 		if ( model[0] == '*' ) {

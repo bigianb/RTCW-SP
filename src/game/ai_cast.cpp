@@ -150,7 +150,7 @@ int AICast_SetupClient( int client )
 	bs->client = client;
 	bs->entitynum = client;
 	bs->setupcount = true;
-	bs->entergame_time = trap_AAS_Time();
+	bs->entergame_time = AAS_Time();
 	bs->ms = trap_BotAllocMoveState();
 
 	return true;
@@ -766,7 +766,7 @@ G_SetAASBlockingEntity
 */
 void G_SetAASBlockingEntity( GameEntity *ent, bool blocking ) {
 	ent->AASblocking = blocking;
-	trap_AAS_SetAASBlockingEntity( ent->shared.r.absmin, ent->shared.r.absmax, blocking );
+	AAS_SetAASBlockingEntity( ent->shared.r.absmin, ent->shared.r.absmax, blocking );
 }
 
 void AICast_AdjustIdealYawForMover( int entnum, float yaw ) {

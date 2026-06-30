@@ -1341,7 +1341,7 @@ skin_t  *R_GetSkinByHandle( qhandle_t hSkin );
 //
 qhandle_t        RE_RegisterShaderLightMap( const char *name, int lightmapIndex );
 
-qhandle_t        RE_RegisterShaderNoMip( const char *name );
+
 qhandle_t RE_RegisterShaderFromImage( const char *name, int lightmapIndex, image_t *image, bool mipRawImage );
 
 shader_t    *R_FindShader( const char *name, int lightmapIndex, bool mipRawImage );

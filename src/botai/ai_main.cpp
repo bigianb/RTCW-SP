@@ -196,7 +196,7 @@ BotEntityInfo
 ==============
 */
 void BotEntityInfo( int entnum, aas_entityinfo_t *info ) {
-	trap_AAS_EntityInfo( entnum, info );
+	AAS_EntityInfo( entnum, info );
 }
 
 /*
@@ -423,9 +423,9 @@ BotAIRegularUpdate
 ==============
 */
 void BotAIRegularUpdate() {
-	if ( regularupdate_time < trap_AAS_Time() ) {
+	if ( regularupdate_time < AAS_Time() ) {
 		trap_BotUpdateEntityItems();
-		regularupdate_time = trap_AAS_Time() + 1;
+		regularupdate_time = AAS_Time() + 1;
 	}
 }
 
@@ -532,7 +532,7 @@ int BotAISetupClient( int client, struct bot_settings_s *settings ) {
 		return false;
 	}
 
-	if ( !trap_AAS_Initialized() ) {
+	if ( !AAS_Initialized() ) {
 		BotAI_Print( PRT_FATAL, "AAS not initialized\n" );
 		return false;
 	}
@@ -578,7 +578,7 @@ int BotAISetupClient( int client, struct bot_settings_s *settings ) {
 	bs->client = client;
 	bs->entitynum = client;
 	bs->setupcount = 4;
-	bs->entergame_time = trap_AAS_Time();
+	bs->entergame_time = AAS_Time();
 	bs->ms = trap_BotAllocMoveState();
 	bs->walker = trap_Characteristic_BFloat( bs->character, CHARACTERISTIC_WALKER, 0, 1 );
 	numbots++;
@@ -752,7 +752,7 @@ int BotAIStartFrame( int time ) {
 		// Ridah, only check the default world
 		AAS_SetCurrentWorld( 0 );
 
-		if ( !trap_AAS_Initialized() ) {
+		if ( !AAS_Initialized() ) {
 			return BLERR_NOERROR;
 		}
 

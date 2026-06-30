@@ -289,7 +289,7 @@ static void CG_DrawDisconnect( void ) {
 	int w;          // bk010215 - FIXME char message[1024];
 
 	// draw the phone jack if we are completely past our buffers
-	cmdNum = trap_GetCurrentCmdNumber() - CMD_BACKUP + 1;
+	cmdNum = CL_GetCurrentCmdNumber() - CMD_BACKUP + 1;
 	CL_GetUserCmd( cmdNum, &cmd );
 	if ( cmd.serverTime <= cg.snap->ps.commandTime
 		 || cmd.serverTime > cg.time ) { // special check for map_restart // bk 0102165 - FIXME
@@ -309,7 +309,7 @@ static void CG_DrawDisconnect( void ) {
 	x = 640 - 48;
 	y = 480 - 48;
 
-	CG_DrawPic( x, y, 48, 48, trap_R_RegisterShader( "gfx/2d/net.tga" ) );
+	CG_DrawPic( x, y, 48, 48, RegisterShaderAndDrawInfo( "gfx/2d/net.tga" ) );
 }
 
 /*
@@ -1055,8 +1055,8 @@ static void CG_DrawFlashFire( void ) {
 		CG_DrawPic( -10, -10, 650, 490, cgs.media.viewFlashFire[( cg.time / 50 ) % 16] );
 		RE_SetColor( nullptr );
 
-		trap_S_AddLoopingSound( cg.snap->ps.clientNum, cg.snap->ps.origin, vec3_origin, cgs.media.flameSound, (int)( 255.0 * alpha ) );
-		trap_S_AddLoopingSound( cg.snap->ps.clientNum, cg.snap->ps.origin, vec3_origin, cgs.media.flameCrackSound, (int)( 255.0 * alpha ) );
+		S_AddLoopingSound( cg.snap->ps.clientNum, cg.snap->ps.origin, vec3_origin, 1250, cgs.media.flameSound, (int)( 255.0 * alpha ) );
+		S_AddLoopingSound( cg.snap->ps.clientNum, cg.snap->ps.origin, vec3_origin, 1250, cgs.media.flameCrackSound, (int)( 255.0 * alpha ) );
 	} else {
 		cg.v_noFireTime = cg.time;
 	}

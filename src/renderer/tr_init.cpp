@@ -1348,10 +1348,8 @@ refexport_t *GetRefAPI( int apiVersion, refimport_t *rimp ) {
 	re.RegisterModel    = RE_RegisterModel;
 	re.RegisterSkin     = RE_RegisterSkin;
 
-	re.GetShaderFromModel   = RE_GetShaderFromModel;
-
 	re.RegisterShader   = RE_RegisterShader;
-	re.RegisterShaderNoMip = RE_RegisterShaderNoMip;
+
 	re.LoadWorld        = RE_LoadWorldMap;
 	re.SetWorldVisData  = RE_SetWorldVisData;
 	re.EndRegistration  = RE_EndRegistration;
@@ -1359,16 +1357,9 @@ refexport_t *GetRefAPI( int apiVersion, refimport_t *rimp ) {
 	re.BeginFrame       = RE_BeginFrame;
 	re.EndFrame         = RE_EndFrame;
 
-	re.LerpTag          = R_LerpTag;
-
 	re.DrawStretchPicGradient   = RE_StretchPicGradient;
 	re.DrawStretchRaw   = RE_StretchRaw;
 	re.UploadCinematic  = RE_UploadCinematic;
-
-	re.RemapShader      = R_RemapShader;
-
-	// RF
-	re.ZombieFXAddNewHit = RB_ZombieFXAddNewHit;
 
 	return &re;
 }
