@@ -1394,9 +1394,9 @@ void CIN_DrawCinematic( int handle ) {
 
 		barheight = ( (float)LETTERBOX_OFFSET / 480.0f ) * vh;  //----(SA)	added
 
-		re.SetColor( &colorBlack[0] );
-		re.DrawStretchPic( 0, 0, w, barheight, 0, 0, 0, 0, cls.whiteShader );
-		re.DrawStretchPic( 0, vh - barheight - 1, w, barheight + 1, 0, 0, 0, 0, cls.whiteShader );
+		RE_SetColor( &colorBlack[0] );
+		RE_StretchPic( 0, 0, w, barheight, 0, 0, 0, 0, cls.whiteShader );
+		RE_StretchPic( 0, vh - barheight - 1, w, barheight + 1, 0, 0, 0, 0, cls.whiteShader );
 	}
 
 	if ( cinTable[handle].dirty && ( cinTable[handle].CIN_WIDTH != cinTable[handle].drawX || cinTable[handle].CIN_HEIGHT != cinTable[handle].drawY ) ) {

@@ -29,6 +29,7 @@ If you have questions concerning this license or the applicable additional terms
 // Ridah, cg_trails.c - draws a trail using multiple junction points
 
 #include "cg_local.h"
+#include "../renderer/tr_public.h"
 
 typedef struct trailJunc_s
 {
@@ -488,7 +489,7 @@ void CG_AddTrailToScene( trailJunc_t *trail, int iteration, int numJuncs ) {
 		verts[3].modulate[2] = 255;
 		verts[3].modulate[3] = ( unsigned char )( j->alpha * 255.0 );
 
-		trap_R_AddPolyToScene( cgs.media.sparkFlareShader, 4, verts );
+		RE_AddPolyToScene( cgs.media.sparkFlareShader, 4, verts );
 	}
 
 //	if (trail->flags & TJFL_CROSSOVER && iteration < 1) {
@@ -694,11 +695,10 @@ void CG_AddTrailToScene( trailJunc_t *trail, int iteration, int numJuncs ) {
 		}
 
 		if ( !( trail->flags & TJFL_NOPOLYMERGE ) ) {
-			trap_R_AddPolysToScene( trail->shader, 3, &outVerts[0], numOutVerts / 3 );
+			RE_AddPolysToScene( trail->shader, 3, &outVerts[0], numOutVerts / 3 );
 		} else {
-			int k;
-			for ( k = 0; k < numOutVerts / 3; k++ ) {
-				trap_R_AddPolyToScene( trail->shader, 3, &outVerts[k * 3] );
+			for (int k = 0; k < numOutVerts / 3; k++ ) {
+				RE_AddPolyToScene( trail->shader, 3, &outVerts[k * 3] );
 			}
 		}
 	} else
@@ -706,11 +706,10 @@ void CG_AddTrailToScene( trailJunc_t *trail, int iteration, int numJuncs ) {
 		// send the polygons
 		// FIXME: is it possible to send a GL_STRIP here? We are actually sending 2x the verts we really need to
 		if ( !( trail->flags & TJFL_NOPOLYMERGE ) ) {
-			trap_R_AddPolysToScene( trail->shader, 4, &verts[0], i / 4 );
+			RE_AddPolysToScene( trail->shader, 4, &verts[0], i / 4 );
 		} else {
-			int k;
-			for ( k = 0; k < i / 4; k++ ) {
-				trap_R_AddPolyToScene( trail->shader, 4, &verts[k * 4] );
+			for (int k = 0; k < i / 4; k++ ) {
+				RE_AddPolyToScene( trail->shader, 4, &verts[k * 4] );
 			}
 		}
 	}

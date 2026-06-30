@@ -37,14 +37,14 @@ void S_StartSoundEx( vec3_t origin, int entnum, int entchannel, sfxHandle_t sfx,
 void S_StartLocalSound( sfxHandle_t sfx, int channelNum );
 
 void S_StartBackgroundTrack( const char *intro, const char *loop, int fadeupTime );
-void S_StopBackgroundTrack( void );
-void S_QueueBackgroundTrack( const char *loop );            //----(SA)	added
-void S_FadeStreamingSound( float targetvol, int time, int ssNum );  //----(SA)	added
-void S_FadeAllSounds( float targetvol, int time );    //----(SA)	added
+void S_StopBackgroundTrack(  );
+void S_QueueBackgroundTrack( const char *loop ); 
+void S_FadeStreamingSound( float targetvol, int time, int ssNum ); 
+void S_FadeAllSounds( float targetvol, int time );
 
 void S_StartStreamingSound( const char *intro, const char *loop, int entnum, int channel, int attenuation );
 void S_StopStreamingSound( int index );
-void S_StopEntStreamingSound( int entNum ); //----(SA)	added
+void S_StopEntStreamingSound( int entNum );
 
 // cinematics and voice-over-network will send raw samples
 // 1.0 volume will be direct output of source samples
@@ -56,7 +56,7 @@ void S_StopAllSounds( void );
 
 // all continuous looping sounds must be added before calling S_Update
 void S_ClearLoopingSounds( void );
-void S_ClearSounds( bool clearStreaming, bool clearMusic ); //----(SA)	modified
+void S_ClearSounds( bool clearStreaming, bool clearMusic );
 void S_AddLoopingSound( int entityNum, const vec3_t origin, const vec3_t velocity, const int range, sfxHandle_t sfxHandle, int volume );
 void S_AddRealLoopingSound( int entityNum, const vec3_t origin, const vec3_t velocity, const int range, sfxHandle_t sfx );
 void S_StopLoopingSound( int entityNum );

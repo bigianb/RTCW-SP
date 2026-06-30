@@ -35,6 +35,7 @@ If you have questions concerning this license or the applicable additional terms
 #include "cg_local.h"
 #include "../ui/ui_shared.h" // bk001205 - for Q3_ui as well
 #include "../client/snd_public.h"
+#include "../renderer/tr_public.h"
 #include "../qcommon/qcommon.h"
 
 /*
@@ -188,7 +189,7 @@ static void CG_ParseFog( void ) {
 	if ( !token || !token[0] ) {
 		// set to  'no fog'
 		// 'FOG_MAP' is not registered, so it will always make fog go away
-		trap_R_SetFog( FOG_CMD_SWITCHFOG, FOG_MAP, (int)ne, 0, 0, 0, 0 );
+		R_SetFog( FOG_CMD_SWITCHFOG, FOG_MAP, (int)ne, 0, 0, 0, 0 );
 		return;
 	}
 
@@ -200,8 +201,8 @@ static void CG_ParseFog( void ) {
 	token = COM_Parse( &info );    b = atof( token );
 	token = COM_Parse( &info );    time = atoi( token );
 
-	trap_R_SetFog( FOG_SERVER, (int)ne, (int)fa, r, g, b, density );
-	trap_R_SetFog( FOG_CMD_SWITCHFOG, FOG_SERVER, time, 0, 0, 0, 0 );
+	R_SetFog( FOG_SERVER, (int)ne, (int)fa, r, g, b, density );
+	R_SetFog( FOG_CMD_SWITCHFOG, FOG_SERVER, time, 0, 0, 0, 0 );
 }
 
 /*
@@ -450,7 +451,8 @@ static void CG_MapRestart( void ) {
 
 	CG_StartMusic();
 
-	trap_S_ClearLoopingSounds( 1 );
+	S_ClearLoopingSounds();
+	S_ClearSounds( true, false );
 
 	// we really should clear more parts of cg here and stop sounds
 	cg.v_dmg_time = 0;
@@ -634,7 +636,7 @@ static void CG_ServerCommand( void ) {
 			fadeTime = atoi( text );
 		}
 
-		trap_S_StartBackgroundTrack( CG_Argv( 1 ), CG_Argv( 1 ), fadeTime );
+		S_StartBackgroundTrack( CG_Argv( 1 ), CG_Argv( 1 ), fadeTime );
 		return;
 	}
 	// plays once then back to whatever the loop was \/
@@ -646,7 +648,7 @@ static void CG_ServerCommand( void ) {
 			fadeTime = atoi( text );
 		}
 
-		trap_S_StartBackgroundTrack( CG_Argv( 1 ), "onetimeonly", fadeTime );
+		S_StartBackgroundTrack( CG_Argv( 1 ), "onetimeonly", fadeTime );
 		return;
 	}
 
@@ -658,7 +660,7 @@ static void CG_ServerCommand( void ) {
 			fadeTime = atoi( text );
 		}
 		trap_S_FadeBackgroundTrack( 0.0f, fadeTime, 0 );
-		trap_S_StartBackgroundTrack( "", "", -2 ); // '-2' for 'queue looping track' (QUEUED_PLAY_LOOPED)
+		S_StartBackgroundTrack( "", "", -2 ); // '-2' for 'queue looping track' (QUEUED_PLAY_LOOPED)
 		return;
 	}
 

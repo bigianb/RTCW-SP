@@ -30,6 +30,7 @@ If you have questions concerning this license or the applicable additional terms
 #include "cg_local.h"
 #include "../ui/ui_shared.h"
 #include "../client/snd_public.h"
+#include "../renderer/tr_public.h"
 #include "../qcommon/qcommon.h"
 
 #define MAX_LOADING_PLAYER_ICONS    16

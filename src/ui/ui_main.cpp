@@ -83,16 +83,16 @@ void UI_DrawSides( float x, float y, float w, float h, float size )
 {
 	UI_AdjustFrom640( &x, &y, &w, &h );
 	size *= uiInfo.uiDC.xscale;
-	trap_R_DrawStretchPic( x, y, size, h, 0, 0, 0, 0, uiInfo.uiDC.whiteShader );
-	trap_R_DrawStretchPic( x + w - size, y, size, h, 0, 0, 0, 0, uiInfo.uiDC.whiteShader );
+	RE_StretchPic( x, y, size, h, 0, 0, 0, 0, uiInfo.uiDC.whiteShader );
+	RE_StretchPic( x + w - size, y, size, h, 0, 0, 0, 0, uiInfo.uiDC.whiteShader );
 }
 
 void UI_DrawTopBottom( float x, float y, float w, float h, float size )
 {
 	UI_AdjustFrom640( &x, &y, &w, &h );
 	size *= uiInfo.uiDC.yscale;
-	trap_R_DrawStretchPic( x, y, w, size, 0, 0, 0, 0, uiInfo.uiDC.whiteShader );
-	trap_R_DrawStretchPic( x, y + h - size, w, size, 0, 0, 0, 0, uiInfo.uiDC.whiteShader );
+	RE_StretchPic( x, y, w, size, 0, 0, 0, 0, uiInfo.uiDC.whiteShader );
+	RE_StretchPic( x, y + h - size, w, size, 0, 0, 0, 0, uiInfo.uiDC.whiteShader );
 }
 /*
 ================
@@ -197,7 +197,7 @@ void Text_PaintChar( float x, float y, float scale, glyphInfo_t *glyph )
     float w = width * scale;
     float h = height * scale;
     UI_AdjustFrom640( &x, &y, &w, &h );
-    trap_R_DrawStretchPic( x, y, w, h, glyph->s, glyph->t, glyph->s2, glyph->t2, glyph->glyph);
+    RE_StretchPic( x, y, w, h, glyph->s, glyph->t, glyph->s2, glyph->t2, glyph->glyph);
 }
 
 void Text_Paint( float x, float y, int font, float scale, vec4_t color, const char *text, float adjust, int limit, int style )
@@ -342,7 +342,7 @@ bool Asset_Parse( int handle ) {
 			if ( !PC_String_Parse( handle, &tempStr ) || !PC_Int_Parse( handle,&pointSize ) ) {
 				return false;
 			}
-			trap_R_RegisterFont( tempStr, pointSize, &uiInfo.uiDC.Assets.textFont );
+			RE_RegisterFont( tempStr, pointSize, &uiInfo.uiDC.Assets.textFont );
 			uiInfo.uiDC.Assets.fontRegistered = true;
 			continue;
 		}
@@ -352,7 +352,7 @@ bool Asset_Parse( int handle ) {
 			if ( !PC_String_Parse( handle, &tempStr ) || !PC_Int_Parse( handle,&pointSize ) ) {
 				return false;
 			}
-			trap_R_RegisterFont( tempStr, pointSize, &uiInfo.uiDC.Assets.smallFont );
+			RE_RegisterFont( tempStr, pointSize, &uiInfo.uiDC.Assets.smallFont );
 			continue;
 		}
 
@@ -361,7 +361,7 @@ bool Asset_Parse( int handle ) {
 			if ( !PC_String_Parse( handle, &tempStr ) || !PC_Int_Parse( handle,&pointSize ) ) {
 				return false;
 			}
-			trap_R_RegisterFont( tempStr, pointSize, &uiInfo.uiDC.Assets.bigFont );
+			RE_RegisterFont( tempStr, pointSize, &uiInfo.uiDC.Assets.bigFont );
 			continue;
 		}
 
@@ -371,7 +371,7 @@ bool Asset_Parse( int handle ) {
 			if ( !PC_String_Parse( handle, &tempStr ) || !PC_Int_Parse( handle,&pointSize ) ) {
 				return false;
 			}
-			trap_R_RegisterFont( tempStr, pointSize, &uiInfo.uiDC.Assets.handwritingFont );
+			RE_RegisterFont( tempStr, pointSize, &uiInfo.uiDC.Assets.handwritingFont );
 			continue;
 		}
 
@@ -480,7 +480,7 @@ void UI_ParseMenu( const char *menuFile, bool isHud  )
 {
 	Com_Printf( "Parsing menu file:%s\n", menuFile );
 
-	const int handle = trap_PC_LoadSource( menuFile );
+	const int handle = PC_LoadSourceHandle( menuFile );
 	if ( !handle ) {
 		return;
 	}
@@ -508,7 +508,7 @@ void UI_ParseMenu( const char *menuFile, bool isHud  )
 			Menu_New( handle, isHud );
 		}
 	}
-	trap_PC_FreeSource( handle );
+	PC_FreeSourceHandle( handle );
 }
 
 bool Load_Menu( int handle, bool isHud )
@@ -534,7 +534,7 @@ bool Load_Menu( int handle, bool isHud )
 void LoadMenus( const char *menuFile, bool reset, bool isHud )
 {
 	const int start = Sys_Milliseconds();
-	const int handle = trap_PC_LoadSource( menuFile );
+	const int handle = PC_LoadSourceHandle( menuFile );
 	if ( !handle ) {
         Com_Error( ERR_DROP, S_COLOR_YELLOW "menu file not found: %s, using default\n", menuFile );
 	}
@@ -561,7 +561,7 @@ void LoadMenus( const char *menuFile, bool reset, bool isHud )
 
 	Com_Printf( "UI menu load time = %d milli seconds\n", Sys_Milliseconds() - start );
 
-	trap_PC_FreeSource( handle );
+	PC_FreeSourceHandle( handle );
 }
 
 #define MAX_BUFFER          20000
@@ -2089,7 +2089,7 @@ void UI_Refresh( int realtime )
     }
 
     // draw cursor
-    UI_SetColor( nullptr );
+    RE_SetColor( nullptr );
     if ( Menu_Count() > 0 ) {
         uiMenuCommand_t mymenu = UI_GetActiveMenu();
         if ( mymenu != UIMENU_BRIEFING ) {
@@ -2118,22 +2118,17 @@ void UI_Init()
     }
 
     uiInfo.uiDC.registerShaderNoMip = &RE_RegisterShaderNoMip;
-    uiInfo.uiDC.setColor = &UI_SetColor;
+
     uiInfo.uiDC.drawHandlePic = &UI_DrawHandlePic;
-    uiInfo.uiDC.drawStretchPic = &trap_R_DrawStretchPic;
 
     uiInfo.uiDC.textWidth = &Text_Width;
     uiInfo.uiDC.textHeight = &Text_Height;
 
-    uiInfo.uiDC.modelBounds = &trap_R_ModelBounds;
     uiInfo.uiDC.fillRect = &UI_FillRect;
     uiInfo.uiDC.drawRect = &UI_DrawRect;
 
     uiInfo.uiDC.drawTopBottom = &UI_DrawTopBottom;
-    uiInfo.uiDC.clearScene = &trap_R_ClearScene;
-    uiInfo.uiDC.addRefEntityToScene = &trap_R_AddRefEntityToScene;
     
-    uiInfo.uiDC.registerFont = &trap_R_RegisterFont;
     uiInfo.uiDC.getValue = &UI_GetValue;
     uiInfo.uiDC.ownerDrawVisible = &UI_OwnerDrawVisible;
     uiInfo.uiDC.runScript = &UI_RunMenuScript;
@@ -2158,8 +2153,7 @@ void UI_Init()
     uiInfo.uiDC.Pause = &UI_Pause;
     uiInfo.uiDC.ownerDrawWidth = &UI_OwnerDrawWidth;
     uiInfo.uiDC.registerSound = &S_RegisterSound;
-    uiInfo.uiDC.startBackgroundTrack = &trap_S_StartBackgroundTrack;
-    uiInfo.uiDC.stopBackgroundTrack = &trap_S_StopBackgroundTrack;
+
     uiInfo.uiDC.playCinematic = &UI_PlayCinematic;
     uiInfo.uiDC.stopCinematic = &UI_StopCinematic;
     uiInfo.uiDC.drawCinematic = &UI_DrawCinematic;

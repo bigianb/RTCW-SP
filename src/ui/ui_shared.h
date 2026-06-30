@@ -346,21 +346,16 @@ typedef struct {
 
 typedef struct {
 	qhandle_t ( *registerShaderNoMip )( const char *p );
-	void ( *setColor )( const vec4_t v );
 	void ( *drawHandlePic )( float x, float y, float w, float h, qhandle_t asset );
-	void ( *drawStretchPic )( float x, float y, float w, float h, float s1, float t1, float s2, float t2, qhandle_t hShader );
 
 	int ( *textWidth )( const char *text, int font, float scale, int limit );
 	int ( *textHeight )( const char *text, int font, float scale, int limit );
 
-	void ( *modelBounds )( qhandle_t model, vec3_t min, vec3_t max );
 	void ( *fillRect )( float x, float y, float w, float h, const vec4_t color );
 	void ( *drawRect )( float x, float y, float w, float h, float size, const vec4_t color );
 
 	void ( *drawTopBottom )( float x, float y, float w, float h, float size );
-	void ( *clearScene )();
-	void ( *addRefEntityToScene )( const refEntity_t *re );
-	void ( *registerFont )( const char *pFontname, int pointSize, fontInfo_t *font );
+
 	void ( *ownerDrawItem )( float x, float y, float w, float h, float text_x, float text_y, int ownerDraw, int ownerDrawFlags, int align, float special, int font, float scale, vec4_t color, qhandle_t shader, int textStyle );
 	float ( *getValue )( int ownerDraw, int type );
 	bool ( *ownerDrawVisible )( int flags );
@@ -386,8 +381,7 @@ typedef struct {
 	void ( *Pause )( bool b );
 	int ( *ownerDrawWidth )( int ownerDraw, int font, float scale );
 	sfxHandle_t ( *registerSound )( const char *name );
-	void ( *startBackgroundTrack )( const char *intro, const char *loop, int fadeupTime );
-	void ( *stopBackgroundTrack )();
+
 	int ( *playCinematic )( const char *name, float x, float y, float w, float h );
 	void ( *stopCinematic )( int handle );
 	void ( *drawCinematic )( int handle, float x, float y, float w, float h );
@@ -479,8 +473,8 @@ void        Controls_GetConfig( void );
 void        Controls_SetConfig( bool restart );
 void        Controls_SetDefaults( void );
 
-int         trap_PC_AddGlobalDefine( char *define );
-int         trap_PC_LoadSource( const char *filename );
-int         trap_PC_FreeSource( int handle );
+int         PC_AddGlobalDefine( char *define );
+int         PC_LoadSourceHandle( const char *filename );
+int         PC_FreeSourceHandle( int handle );
 int         PC_ReadTokenHandle( int handle, pc_token_t *pc_token );
 

@@ -57,35 +57,6 @@ void trap_DebugPolygonDelete( int id ) {
 	BotImport_DebugPolygonDelete(id );
 }
 
-time_t trap_RealTime( qtime_t *qtime ) {
-	return Com_RealTime( qtime );
-}
-
-void trap_SnapVector( float *v ) {
-	Sys_SnapVector( v );
-}
-
-
-int trap_BotLibShutdown( void ) {
-	return SV_BotLibShutdown();
-}
-
-
-extern int Export_BotLibVarSet( const char *var_name, const char *value );
-int trap_BotLibVarSet( const char *var_name, const char *value ) {
-	return Export_BotLibVarSet(var_name, value );
-}
-
-extern int Export_BotLibVarGet(const char *var_name, char *value, int size );
-int trap_BotLibVarGet( const char *var_name, char *value, int size ) {
-	return Export_BotLibVarGet(var_name, value, size );
-}
-
-extern int PC_AddGlobalDefine( char *string );
-int trap_BotLibDefine( char *string ) {
-	return PC_AddGlobalDefine( string );
-}
-
 extern bool BotLibSetup( const char *str );
 int trap_BotLibStartFrame( float time ) {
 	if ( !BotLibSetup( "BotStartFrame" ) ) {

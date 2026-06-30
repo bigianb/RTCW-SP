@@ -244,7 +244,7 @@ void CG_ImpactMark( qhandle_t markShader, const vec3_t origin, const vec3_t dir,
 		
 		if ( temporary ) {
 			// if it is a temporary (shadow) mark, add it immediately and forget about it
-			trap_R_AddPolyToScene( markShader, mf->numPoints, verts );
+			RE_AddPolyToScene( markShader, mf->numPoints, verts );
 		} else {
 			// otherwise save it persistantly
 			mark = CG_AllocMark( cg.time + duration );
@@ -341,8 +341,7 @@ void CG_AddMarks()
 				}
 			}
 		}
-
-		trap_R_AddPolyToScene( mp->markShader, mp->poly.numVerts, mp->verts );
+		RE_AddPolyToScene( mp->markShader, mp->poly.numVerts, mp->verts );
 	}
 }
 

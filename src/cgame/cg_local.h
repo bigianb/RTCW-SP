@@ -1735,9 +1735,7 @@ void CG_FillRect( float x, float y, float width, float height, const float *colo
 void CG_HorizontalPercentBar( float x, float y, float width, float height, float percent );
 void CG_DrawPic( float x, float y, float width, float height, qhandle_t hShader );
 void CG_FilledBar( float x, float y, float w, float h, const float *startColorIn, float *endColor, const float *bgColor, float frac, int flags );
-// JOSEPH 10-26-99
-void CG_DrawStretchPic( float x, float y, float width, float height, qhandle_t hShader );
-// END JOSEPH
+
 void CG_DrawString( float x, float y, const char *string,
 					float charWidth, float charHeight, const float *modulate );
 
@@ -2126,30 +2124,18 @@ int         CM_PointContents( const vec3_t p, clipHandle_t model );
 // normal sounds will have their volume dynamically changed as their entity
 // moves and the listener moves
 
-void        trap_S_StopStreamingSound( int entnum );  // usually AI.  character is talking and needs to be shut up /now/
 
 // a local sound is always played full volume
 
-void        trap_S_ClearLoopingSounds( int killall );
 void        trap_S_AddLoopingSound( int entityNum, const vec3_t origin, const vec3_t velocity, sfxHandle_t sfx, int volume );
 void        trap_S_AddRangedLoopingSound( int entityNum, const vec3_t origin, const vec3_t velocity, sfxHandle_t sfx, int range );
-void        trap_S_UpdateEntityPosition( int entityNum, const vec3_t origin );
 
-// Ridah, talking animations
-int         trap_S_GetVoiceAmplitude( int entityNum );
-// done.
+void        S_StartBackgroundTrack( const char *intro, const char *loop, int fadeupTime ); // empty name stops music
 
-// repatialize recalculates the volumes of sound as they should be heard by the
-// given entityNum and position
-void trap_S_Respatialize( int entityNum, const vec3_t origin, vec3_t axis[3], int inwater );
-
-void        trap_S_StartBackgroundTrack( const char *intro, const char *loop, int fadeupTime ); // empty name stops music
-void        trap_S_StopBackgroundTrack( void );
 void        trap_S_FadeBackgroundTrack( float targetvol, int time, int sound );  //----(SA)	added
 void        trap_S_StartStreamingSound( const char *intro, const char *loop, int entnum, int channel, int attenuation );
 void        trap_S_FadeAllSound( float targetvol, int time ); //----(SA)	added
 
-void        trap_R_LoadWorldMap( const char *mapname );
 
 // all media should be registered during level startup to prevent
 // hitches during gameplay
@@ -2158,38 +2144,12 @@ qhandle_t   trap_R_RegisterSkin( const char *name );            // returns all w
 qhandle_t   trap_R_RegisterShader( const char *name );          // returns all white if not found
 qhandle_t   RE_RegisterShaderNoMip( const char *name );         // returns all white if not found
 
-bool    trap_R_GetSkinModel( qhandle_t skinid, const char *type, char *name );   //----(SA) added
 qhandle_t   trap_R_GetShaderFromModel( qhandle_t modelid, int surfnum, int withlightmap );   //----(SA)	added
 
-// a scene is built up by calls to R_ClearScene and the various R_Add functions.
-// Nothing is drawn until R_RenderScene is called.
-void        trap_R_ClearScene( void );
-void        trap_R_AddRefEntityToScene( const refEntity_t *re );
-
-// polys are intended for simple wall marks, not really for doing
-// significant construction
-void        trap_R_AddPolyToScene( qhandle_t hShader, int numVerts, const polyVert_t *verts );
-// Ridah
-void        trap_R_AddPolysToScene( qhandle_t hShader, int numVerts, const polyVert_t *verts, int numPolys );
 void        trap_RB_ZombieFXAddNewHit( int entityNum, const vec3_t hitPos, const vec3_t hitDir );
-// done.
-void        trap_R_AddLightToScene( const vec3_t org, float intensity, float r, float g, float b, unsigned int overdraw );
-void        trap_R_AddCoronaToScene( const vec3_t org, float r, float g, float b, float scale, int id, int flags );  //----(SA)	modified
 
-void        RE_SetColor( const float *rgba );   // nullptr = 1,1,1,1
-void        trap_R_DrawStretchPic( float x, float y, float w, float h,
-								   float s1, float t1, float s2, float t2, qhandle_t hShader );
-void        trap_R_DrawStretchPicGradient( float x, float y, float w, float h,
-										   float s1, float t1, float s2, float t2, qhandle_t hShader, const float *gradientColor, int gradientType );
-
-void        trap_R_ModelBounds( clipHandle_t model, vec3_t mins, vec3_t maxs );
 int         trap_R_LerpTag( orientation_t *tag, const refEntity_t *refent, const char *tagName, int startIndex );
 void        trap_R_RemapShader( const char *oldShader, const char *newShader, const char *timeOffset );
-
-//----(SA)
-void    trap_R_SetFog( int fogvar, int var1, int var2, float r, float g, float b, float density );
-
-//----(SA)
 
 // the gamestate should be grabbed at startup, and whenever a
 // configstring changes
@@ -2219,7 +2179,7 @@ int         trap_GetCurrentCmdNumber( void );
 // used for the weapon/holdable select and zoom
 void        trap_SetUserCmdValue( int stateValue, int holdValue, float sensitivityScale, int cld );     // NERVE - SMF - added cld
 
-void        trap_R_RegisterFont( const char *fontName, int pointSize, fontInfo_t *font );
+void        RE_RegisterFont( const char *fontName, int pointSize, fontInfo_t *font );
 bool    trap_Key_IsDown( int keynum );
 int         trap_Key_GetCatcher( void );
 void        trap_Key_SetCatcher( int catcher );
@@ -2243,8 +2203,6 @@ e_status trap_CIN_StopCinematic( int handle );
 e_status trap_CIN_RunCinematic( int handle );
 void trap_CIN_DrawCinematic( int handle );
 void trap_CIN_SetExtents( int handle, int x, int y, int w, int h );
-
-void trap_SnapVector( float *v );
 
 // Duffy, camera stuff
 #define CAM_PRIMARY 0   // the main camera for cutscenes, etc.

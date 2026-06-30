@@ -1347,10 +1347,9 @@ refexport_t *GetRefAPI( int apiVersion, refimport_t *rimp ) {
 	re.BeginRegistration = RE_BeginRegistration;
 	re.RegisterModel    = RE_RegisterModel;
 	re.RegisterSkin     = RE_RegisterSkin;
-//----(SA) added
-	re.GetSkinModel         = RE_GetSkinModel;
+
 	re.GetShaderFromModel   = RE_GetShaderFromModel;
-//----(SA) end
+
 	re.RegisterShader   = RE_RegisterShader;
 	re.RegisterShaderNoMip = RE_RegisterShaderNoMip;
 	re.LoadWorld        = RE_LoadWorldMap;
@@ -1361,27 +1360,11 @@ refexport_t *GetRefAPI( int apiVersion, refimport_t *rimp ) {
 	re.EndFrame         = RE_EndFrame;
 
 	re.LerpTag          = R_LerpTag;
-	re.ModelBounds      = R_ModelBounds;
 
-	re.ClearScene       = RE_ClearScene;
-	re.AddRefEntityToScene = RE_AddRefEntityToScene;
-	re.AddPolyToScene   = RE_AddPolyToScene;
-	// Ridah
-	re.AddPolysToScene  = RE_AddPolysToScene;
-	// done.
-	re.AddLightToScene  = RE_AddLightToScene;
-//----(SA)
-	re.AddCoronaToScene = RE_AddCoronaToScene;
-	re.SetFog           = R_SetFog;
-//----(SA)
-	re.RenderScene      = RE_RenderScene;
-
-	re.SetColor         = RE_SetColor;
-	re.DrawStretchPic   = RE_StretchPic;
 	re.DrawStretchPicGradient   = RE_StretchPicGradient;
 	re.DrawStretchRaw   = RE_StretchRaw;
 	re.UploadCinematic  = RE_UploadCinematic;
-	re.RegisterFont     = RE_RegisterFont;
+
 	re.RemapShader      = R_RemapShader;
 
 	// RF

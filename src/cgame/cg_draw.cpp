@@ -80,8 +80,8 @@ void CG_Draw3DModel( float x, float y, float w, float h, qhandle_t model, qhandl
 		refdef.rdflags &= ~RDF_DRAWSKYBOX;
 	}
 
-	trap_R_ClearScene();
-	trap_R_AddRefEntityToScene( &ent );
+	RE_ClearScene();
+	RE_AddRefEntityToScene( &ent );
 	RE_RenderScene( &refdef );
 }
 
@@ -452,10 +452,10 @@ static void CG_DrawWeapReticle( void ) {
 
 		// center
 		if ( cgs.media.reticleShaderSimpleQ ) {
-			trap_R_DrawStretchPic( x, 0, w, h, 0, 0, 1, 1, cgs.media.reticleShaderSimpleQ );    // tl
-			trap_R_DrawStretchPic( x + w, 0, w, h, 1, 0, 0, 1, cgs.media.reticleShaderSimpleQ );  // tr
-			trap_R_DrawStretchPic( x, h, w, h, 0, 1, 1, 0, cgs.media.reticleShaderSimpleQ );    // bl
-			trap_R_DrawStretchPic( x + w, h, w, h, 1, 1, 0, 0, cgs.media.reticleShaderSimpleQ );  // br
+			RE_StretchPic( x, 0, w, h, 0, 0, 1, 1, cgs.media.reticleShaderSimpleQ );    // tl
+			RE_StretchPic( x + w, 0, w, h, 1, 0, 0, 1, cgs.media.reticleShaderSimpleQ );  // tr
+			RE_StretchPic( x, h, w, h, 0, 1, 1, 0, cgs.media.reticleShaderSimpleQ );    // bl
+			RE_StretchPic( x + w, h, w, h, 1, 1, 0, 0, cgs.media.reticleShaderSimpleQ );  // br
 		}
 
 		// hairs
@@ -509,10 +509,10 @@ static void CG_DrawWeapReticle( void ) {
 
 		// center
 		if ( cgs.media.reticleShaderSimpleQ ) {
-			trap_R_DrawStretchPic( x,   0, w, h, 0, 0, 1, 1, cgs.media.reticleShaderSimpleQ );  // tl
-			trap_R_DrawStretchPic( x + w, 0, w, h, 1, 0, 0, 1, cgs.media.reticleShaderSimpleQ );  // tr
-			trap_R_DrawStretchPic( x,   h, w, h, 0, 1, 1, 0, cgs.media.reticleShaderSimpleQ );  // bl
-			trap_R_DrawStretchPic( x + w, h, w, h, 1, 1, 0, 0, cgs.media.reticleShaderSimpleQ );  // br
+			RE_StretchPic( x,   0, w, h, 0, 0, 1, 1, cgs.media.reticleShaderSimpleQ );  // tl
+			RE_StretchPic( x + w, 0, w, h, 1, 0, 0, 1, cgs.media.reticleShaderSimpleQ );  // tr
+			RE_StretchPic( x,   h, w, h, 0, 1, 1, 0, cgs.media.reticleShaderSimpleQ );  // bl
+			RE_StretchPic( x + w, h, w, h, 1, 1, 0, 0, cgs.media.reticleShaderSimpleQ );  // br
 		}
 
 		// hairs
@@ -544,10 +544,10 @@ static void CG_DrawBinocReticle( void ) {
 
 	if ( cgs.media.binocShaderSimpleQ ) {
 		CG_AdjustFrom640( &x, &y, &w, &h );
-		trap_R_DrawStretchPic( 0, 0, w, h, 0, 0, 1, 1, cgs.media.binocShaderSimpleQ );  // tl
-		trap_R_DrawStretchPic( w, 0, w, h, 1, 0, 0, 1, cgs.media.binocShaderSimpleQ );  // tr
-		trap_R_DrawStretchPic( 0, h, w, h, 0, 1, 1, 0, cgs.media.binocShaderSimpleQ );  // bl
-		trap_R_DrawStretchPic( w, h, w, h, 1, 1, 0, 0, cgs.media.binocShaderSimpleQ );  // br
+		RE_StretchPic( 0, 0, w, h, 0, 0, 1, 1, cgs.media.binocShaderSimpleQ );  // tl
+		RE_StretchPic( w, 0, w, h, 1, 0, 0, 1, cgs.media.binocShaderSimpleQ );  // tr
+		RE_StretchPic( 0, h, w, h, 0, 1, 1, 0, cgs.media.binocShaderSimpleQ );  // bl
+		RE_StretchPic( w, h, w, h, 1, 1, 0, 0, cgs.media.binocShaderSimpleQ );  // br
 	}
 
 	CG_FillRect( 146, 239, 348, 1, color );
@@ -722,7 +722,7 @@ static void CG_DrawCrosshair( void ) {
 
 	// NERVE - SMF - modified, fixes crosshair offset in shifted/scaled 3d views
 	// (SA) also breaks scaled view...
-	trap_R_DrawStretchPic(  x + cg.refdef.x + 0.5 * ( cg.refdef.width - w ),
+	RE_StretchPic(  x + cg.refdef.x + 0.5 * ( cg.refdef.width - w ),
 							y + cg.refdef.y + 0.5 * ( cg.refdef.height - h ),
 							w, h, 0, 0, 1, 1, hShader );
 }

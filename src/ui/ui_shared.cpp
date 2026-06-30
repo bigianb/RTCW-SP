@@ -508,9 +508,9 @@ void Init_Display( displayContextDef_t *dc ) {
 
 void GradientBar_Paint( rectDef_t *rect, vec4_t color ) {
 	// gradient bar takes two paints
-	DC->setColor( color );
+	RE_SetColor( color );
 	DC->drawHandlePic( rect->x, rect->y, rect->w, rect->h, DC->Assets.gradientBar );
-	DC->setColor( nullptr );
+	RE_SetColor( nullptr );
 }
 
 
@@ -578,9 +578,9 @@ void Window_Paint( Window *w, float fadeAmount, float fadeClamp, float fadeCycle
 		// box, but possible a shader that needs filled
 		if ( w->background ) {
 			Fade( &w->flags, &w->backColor[3], fadeClamp, &w->nextTime, fadeCycle, true, fadeAmount );
-			DC->setColor( w->backColor );
+			RE_SetColor( w->backColor );
 			DC->drawHandlePic( fillRect.x, fillRect.y, fillRect.w, fillRect.h, w->background );
-			DC->setColor( nullptr );
+			RE_SetColor( nullptr );
 		} else {
 			DC->fillRect( fillRect.x, fillRect.y, fillRect.w, fillRect.h, w->backColor );
 		}
@@ -589,10 +589,10 @@ void Window_Paint( Window *w, float fadeAmount, float fadeClamp, float fadeCycle
 		// gradient bar
 	} else if ( w->style == WINDOW_STYLE_SHADER ) {
 		if ( w->flags & WINDOW_FORECOLORSET ) {
-			DC->setColor( w->foreColor );
+			RE_SetColor( w->foreColor );
 		}
 		DC->drawHandlePic( fillRect.x, fillRect.y, fillRect.w, fillRect.h, w->background );
-		DC->setColor( nullptr );
+		RE_SetColor( nullptr );
 
 	} else if ( w->style == WINDOW_STYLE_CINEMATIC ) {
 		if ( w->cinematic == -1 ) {
@@ -627,14 +627,14 @@ void Window_Paint( Window *w, float fadeAmount, float fadeClamp, float fadeCycle
 		}
 	} else if ( w->border == WINDOW_BORDER_HORZ ) {
 		// top/bottom
-		DC->setColor( w->borderColor );
+		RE_SetColor( w->borderColor );
 		DC->drawTopBottom( w->rect.x, w->rect.y, w->rect.w, w->rect.h, w->borderSize );
-		DC->setColor( nullptr );
+		RE_SetColor( nullptr );
 	} else if ( w->border == WINDOW_BORDER_VERT ) {
 		// left right
-		DC->setColor( w->borderColor );
+		RE_SetColor( w->borderColor );
         UI_DrawSides( w->rect.x, w->rect.y, w->rect.w, w->rect.h, w->borderSize );
-		DC->setColor( nullptr );
+		RE_SetColor( nullptr );
 	} else if ( w->border == WINDOW_BORDER_KCGRADIENT ) {
 		// this is just two gradient bars along each horz edge
 		rectDef_t r = w->rect;
@@ -1257,7 +1257,7 @@ void Script_Play( itemDef_t *item, const char **args ) {
 void Script_playLooped( itemDef_t *item, const char **args ) {
 	const char *val;
 	if ( String_Parse( args, &val ) ) {
-		DC->startBackgroundTrack( val, val, 0 );
+		S_StartBackgroundTrack( val, val, 0 );
 	}
 }
 
@@ -2549,7 +2549,7 @@ void  Menus_Activate( menuDef_t *menu ) {
 	}
 
 	if ( menu->soundName && *menu->soundName ) {
-		DC->startBackgroundTrack( menu->soundName, menu->soundName, 0 );
+		S_StartBackgroundTrack( menu->soundName, menu->soundName, 0 );
 	}
 
 	Display_CloseCinematics();
@@ -3383,7 +3383,7 @@ void Item_Slider_Paint( itemDef_t *item ) {
 	} else {
 		x = item->window.rect.x;
 	}
-	DC->setColor( newColor );
+	RE_SetColor( newColor );
 	DC->drawHandlePic( x, y, SLIDER_WIDTH, SLIDER_HEIGHT, DC->Assets.sliderBar );
 
 	x = Item_Slider_ThumbPosition( item );
@@ -3568,7 +3568,7 @@ void Item_Model_Paint( itemDef_t *item ) {
 	refdef.width = w;
 	refdef.height = h;
 
-	DC->modelBounds( hModel, mins, maxs );
+	R_ModelBounds( hModel, mins, maxs );
 
 	origin[2] = -0.5f * ( mins[2] + maxs[2] );
 	origin[1] = 0.5f * ( mins[1] + maxs[1] );
@@ -3582,7 +3582,7 @@ void Item_Model_Paint( itemDef_t *item ) {
 	refdef.fov_x = ( modelPtr->fov_x ) ? modelPtr->fov_x : w;
 	refdef.fov_y = ( modelPtr->fov_y ) ? modelPtr->fov_y : h;
 
-	DC->clearScene();
+	RE_ClearScene();
 
 	refdef.time = DC->realTime;
 
@@ -3638,7 +3638,7 @@ void Item_Model_Paint( itemDef_t *item ) {
 	ent.renderfx = RF_LIGHTING_ORIGIN | RF_NOSHADOW;
 	VectorCopy( ent.origin, ent.oldorigin );
 
-	DC->addRefEntityToScene( &ent );
+	RE_AddRefEntityToScene( &ent );
 	RE_RenderScene( &refdef );
 
 }
@@ -5262,7 +5262,7 @@ bool MenuParse_font( itemDef_t *item, int handle ) {
 		return false;
 	}
 	if ( !DC->Assets.fontRegistered ) {
-		DC->registerFont( menu->font, 48, &DC->Assets.textFont );
+		RE_RegisterFont( menu->font, 48, &DC->Assets.textFont );
 		DC->Assets.fontRegistered = true;
 	}
 	return true;

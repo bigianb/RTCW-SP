@@ -67,12 +67,12 @@ Coordinates are 640*480 virtual values
 */
 void SCR_FillRect( float x, float y, float width, float height, const float *color )
 {
-	re.SetColor( color );
+	RE_SetColor( color );
 
 	SCR_AdjustFrom640( &x, &y, &width, &height );
-	re.DrawStretchPic( x, y, width, height, 0, 0, 0, 0, cls.whiteShader );
+	RE_StretchPic( x, y, width, height, 0, 0, 0, 0, cls.whiteShader );
 
-	re.SetColor( nullptr );
+	RE_SetColor( nullptr );
 }
 
 
@@ -86,7 +86,7 @@ Coordinates are 640*480 virtual values
 void SCR_DrawPic( float x, float y, float width, float height, qhandle_t hShader )
 {
 	SCR_AdjustFrom640( &x, &y, &width, &height );
-	re.DrawStretchPic( x, y, width, height, 0, 0, 1, 1, hShader );
+	RE_StretchPic( x, y, width, height, 0, 0, 1, 1, hShader );
 }
 
 /*
@@ -118,7 +118,7 @@ static void SCR_DrawChar( int x, int y, float size, int ch )
 	float fcol = col * 0.0625;
 	size = 0.0625;
 
-	re.DrawStretchPic( ax, ay, aw, ah,
+	RE_StretchPic( ax, ay, aw, ah,
 					   fcol, frow,
 					   fcol + size, frow + size,
 					   cls.charSetShader );
@@ -147,7 +147,7 @@ void SCR_DrawSmallChar( int x, int y, int ch )
 	float fcol = col * 0.0625;
 	float size = 0.0625;
 
-	re.DrawStretchPic( x, y, SMALLCHAR_WIDTH, SMALLCHAR_HEIGHT,
+	RE_StretchPic( x, y, SMALLCHAR_WIDTH, SMALLCHAR_HEIGHT,
 					   fcol, frow,
 					   fcol + size, frow + size,
 					   cls.charSetShader );
@@ -170,7 +170,7 @@ void SCR_DrawStringExt( int x, int y, float size, const char *string, float *set
 	// draw the drop shadow
 	color[0] = color[1] = color[2] = 0;
 	color[3] = setColor[3];
-	re.SetColor( color );
+	RE_SetColor( color );
 	const char* s = string;
 	int xx = x;
 	while ( *s ) {
@@ -187,13 +187,13 @@ void SCR_DrawStringExt( int x, int y, float size, const char *string, float *set
 	// draw the colored text
 	s = string;
 	xx = x;
-	re.SetColor( setColor );
+	RE_SetColor( setColor );
 	while ( *s ) {
 		if ( Q_IsColorString( s ) ) {
 			if ( !forceColor ) {
 				memcpy( color, g_color_table[ColorIndex( *( s + 1 ) )], sizeof( color ) );
 				color[3] = setColor[3];
-				re.SetColor( color );
+				RE_SetColor( color );
 			}
 			s += 2;
 			continue;
@@ -202,7 +202,7 @@ void SCR_DrawStringExt( int x, int y, float size, const char *string, float *set
 		xx += size;
 		s++;
 	}
-	re.SetColor( nullptr );
+	RE_SetColor( nullptr );
 }
 
 
@@ -236,13 +236,13 @@ void SCR_DrawSmallStringExt( int x, int y, const char *string, float *setColor, 
 	// draw the colored text
 	const char*s = string;
 	int xx = x;
-	re.SetColor( setColor );
+	RE_SetColor( setColor );
 	while ( *s ) {
 		if ( Q_IsColorString( s ) ) {
 			if ( !forceColor ) {
 				memcpy( color, g_color_table[ColorIndex( *( s + 1 ) )], sizeof( color ) );
 				color[3] = setColor[3];
-				re.SetColor( color );
+				RE_SetColor( color );
 			}
 			s += 2;
 		} else {
@@ -251,7 +251,7 @@ void SCR_DrawSmallStringExt( int x, int y, const char *string, float *setColor, 
 			s++;
 		}
 	}
-	re.SetColor( nullptr );
+	RE_SetColor( nullptr );
 }
 
 
@@ -276,9 +276,9 @@ void SCR_DrawScreenField( stereoFrame_t stereoFrame )
 	// unless they are displaying game renderings
 	if ( cls.state != CA_ACTIVE ) {
 		if ( cls.glconfig.vidWidth * 480 > cls.glconfig.vidHeight * 640 ) {
-			re.SetColor( g_color_table[0] );
-			re.DrawStretchPic( 0, 0, cls.glconfig.vidWidth, cls.glconfig.vidHeight, 0, 0, 0, 0, cls.whiteShader );
-			re.SetColor( nullptr );
+			RE_SetColor( g_color_table[0] );
+			RE_StretchPic( 0, 0, cls.glconfig.vidWidth, cls.glconfig.vidHeight, 0, 0, 0, 0, cls.whiteShader );
+			RE_SetColor( nullptr );
 		}
 	}
 

@@ -826,14 +826,11 @@ extern int trap_BotGetSnapshotEntity ( int clientNum , int sequence ) ;
 extern int trap_BotLibUpdateEntity ( int ent , void * bue ) ;
 extern int trap_BotLibLoadMap ( const char * mapname ) ;
 extern int trap_BotLibStartFrame ( float time ) ;
-extern int trap_BotLibDefine ( char * string ) ;
-extern int trap_BotLibVarGet ( const char * var_name , char * value , int size ) ;
-extern int trap_BotLibVarSet ( const char * var_name , const char * value ) ;
-extern int trap_BotLibShutdown ( void ) ;
+
+extern int SV_BotLibShutdown ( void ) ;
 
 extern bool CG_GetTag ( int clientNum , const char * tagName , orientation_t * orientation ) ;
-extern void trap_SnapVector ( float * v ) ;
-extern time_t trap_RealTime ( qtime_t * qtime ) ;
+
 extern void trap_DebugPolygonDelete ( int id ) ;
 extern int trap_DebugPolygonCreate ( int color , int numPoints , vec3_t * points ) ;
 

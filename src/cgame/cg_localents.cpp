@@ -33,6 +33,7 @@ If you have questions concerning this license or the applicable additional terms
 #include "cg_local.h"
 #include "qcommon/cm_public.h"
 #include "../client/snd_public.h"
+#include "../renderer/tr_public.h"
 
 // Ridah, increased this
 //#define	MAX_LOCAL_ENTITIES	512
@@ -481,15 +482,15 @@ void CG_AddFragment( localEntity_t *le ) {
 			le->refEntity.shaderRGBA[3] = ( unsigned char )( 255.0 * flameAlpha );
 			VectorCopy( flameDir, le->refEntity.fireRiseDir );
 			le->refEntity.customShader = cgs.media.onFireShader;
-			trap_R_AddRefEntityToScene( &le->refEntity );
+			RE_AddRefEntityToScene( &le->refEntity );
 			le->refEntity.customShader = cgs.media.onFireShader2;
-			trap_R_AddRefEntityToScene( &le->refEntity );
+			RE_AddRefEntityToScene( &le->refEntity );
 
 			le->refEntity = backupEnt;
 		}
 
 		t = le->endTime - cg.time;
-		trap_R_AddRefEntityToScene( &le->refEntity );
+		RE_AddRefEntityToScene( &le->refEntity );
 
 		return;
 
@@ -508,15 +509,15 @@ void CG_AddFragment( localEntity_t *le ) {
 			le->refEntity.shaderRGBA[3] = ( unsigned char )( 255.0 * flameAlpha );
 			VectorCopy( flameDir, le->refEntity.fireRiseDir );
 			le->refEntity.customShader = cgs.media.onFireShader;
-			trap_R_AddRefEntityToScene( &le->refEntity );
+			RE_AddRefEntityToScene( &le->refEntity );
 			le->refEntity.customShader = cgs.media.onFireShader2;
-			trap_R_AddRefEntityToScene( &le->refEntity );
+			RE_AddRefEntityToScene( &le->refEntity );
 
 			le->refEntity = backupEnt;
 		}
 
 		t = le->endTime - cg.time;
-		trap_R_AddRefEntityToScene( &le->refEntity );
+		RE_AddRefEntityToScene( &le->refEntity );
 
 
 		// trace a line from previous position down, to see if I should start falling again
@@ -611,14 +612,14 @@ void CG_AddFragment( localEntity_t *le ) {
 			le->refEntity.shaderRGBA[3] = ( unsigned char )( 255.0 * flameAlpha );
 			VectorCopy( flameDir, le->refEntity.fireRiseDir );
 			le->refEntity.customShader = cgs.media.onFireShader;
-			trap_R_AddRefEntityToScene( &le->refEntity );
+			RE_AddRefEntityToScene( &le->refEntity );
 			le->refEntity.customShader = cgs.media.onFireShader2;
-			trap_R_AddRefEntityToScene( &le->refEntity );
+			RE_AddRefEntityToScene( &le->refEntity );
 
 			le->refEntity = backupEnt;
 		}
 
-		trap_R_AddRefEntityToScene( &le->refEntity );
+		RE_AddRefEntityToScene( &le->refEntity );
 
 		// add a blood trail
 		if ( le->leBounceSoundType == LEBS_BLOOD ) {
@@ -712,14 +713,14 @@ void CG_AddFragment( localEntity_t *le ) {
 		le->refEntity.shaderRGBA[3] = ( unsigned char )( 255.0 * flameAlpha );
 		VectorCopy( flameDir, le->refEntity.fireRiseDir );
 		le->refEntity.customShader = cgs.media.onFireShader;
-		trap_R_AddRefEntityToScene( &le->refEntity );
+		RE_AddRefEntityToScene( &le->refEntity );
 		le->refEntity.customShader = cgs.media.onFireShader2;
-		trap_R_AddRefEntityToScene( &le->refEntity );
+		RE_AddRefEntityToScene( &le->refEntity );
 
 		le->refEntity = backupEnt;
 	}
 
-	trap_R_AddRefEntityToScene( &le->refEntity );
+	RE_AddRefEntityToScene( &le->refEntity );
 }
 
 // Ridah
@@ -1233,13 +1234,13 @@ void CG_AddClientCritter( localEntity_t *le ) {
 			re.shaderTime = le->refEntity.shaderTime - cnt*100;
 			VectorCopy( le->oldPos[i], re.origin );
 			re.shaderRGBA[3] = (unsigned char)(255.0 * alpha);
-			trap_R_AddRefEntityToScene( &re );
+			RE_AddRefEntityToScene( &re );
 
 			if (--i<0) i=MAX_OLD_POS-1;
 			cnt++;
 		}
 	} else {
-*/  trap_R_AddRefEntityToScene( &le->refEntity );
+*/  RE_AddRefEntityToScene( &le->refEntity );
 //	}
 
 	// Bats, add the flame
@@ -1252,9 +1253,9 @@ void CG_AddClientCritter( localEntity_t *le ) {
 		VectorNormalize2( v, le->refEntity.fireRiseDir );
 
 		le->refEntity.customShader = cgs.media.onFireShader2;
-		trap_R_AddRefEntityToScene( &le->refEntity );
+		RE_AddRefEntityToScene( &le->refEntity );
 		le->refEntity.shaderTime = 1434;
-		trap_R_AddRefEntityToScene( &le->refEntity );
+		RE_AddRefEntityToScene( &le->refEntity );
 
 		le->refEntity.customShader = 0;
 		le->refEntity.shaderTime = 0;
@@ -1377,10 +1378,10 @@ void CG_AddShrapnel( localEntity_t *le ) {
 			le->refEntity.renderfx |= RF_LIGHTING_ORIGIN;
 			oldZ = le->refEntity.origin[2];
 			le->refEntity.origin[2] -= 16 * ( 1.0 - (float)t / SINK_TIME );
-			trap_R_AddRefEntityToScene( &le->refEntity );
+			RE_AddRefEntityToScene( &le->refEntity );
 			le->refEntity.origin[2] = oldZ;
 		} else {
-			trap_R_AddRefEntityToScene( &le->refEntity );
+			RE_AddRefEntityToScene( &le->refEntity );
 			CG_AddParticleShrapnel( le );
 		}
 
@@ -1403,7 +1404,7 @@ void CG_AddShrapnel( localEntity_t *le ) {
 			AnglesToAxis( angles, le->refEntity.axis );
 		}
 
-		trap_R_AddRefEntityToScene( &le->refEntity );
+		RE_AddRefEntityToScene( &le->refEntity );
 		CG_AddParticleShrapnel( le );
 		return;
 	}
@@ -1425,7 +1426,7 @@ void CG_AddShrapnel( localEntity_t *le ) {
 	// reflect the velocity on the trace plane
 	CG_ReflectVelocity( le, &trace );
 
-	trap_R_AddRefEntityToScene( &le->refEntity );
+	RE_AddRefEntityToScene( &le->refEntity );
 	CG_AddParticleShrapnel( le );
 }
 // done.
@@ -1458,7 +1459,7 @@ void CG_AddFadeRGB( localEntity_t *le ) {
 	re->shaderRGBA[2] = le->color[2] * c;
 	re->shaderRGBA[3] = le->color[3] * c;
 
-	trap_R_AddRefEntityToScene( re );
+	RE_AddRefEntityToScene( re );
 }
 
 /*
@@ -1506,7 +1507,7 @@ static void CG_AddMoveScaleFade( localEntity_t *le ) {
 		return;
 	}
 
-	trap_R_AddRefEntityToScene( re );
+	RE_AddRefEntityToScene( re );
 }
 
 
@@ -1544,7 +1545,7 @@ static void CG_AddScaleFade( localEntity_t *le ) {
 		return;
 	}
 
-	trap_R_AddRefEntityToScene( re );
+	RE_AddRefEntityToScene( re );
 }
 
 
@@ -1584,7 +1585,7 @@ static void CG_AddFallScaleFade( localEntity_t *le ) {
 		return;
 	}
 
-	trap_R_AddRefEntityToScene( re );
+	RE_AddRefEntityToScene( re );
 }
 
 
@@ -1602,7 +1603,7 @@ static void CG_AddExplosion( localEntity_t *ex ) {
 	// add the entity
 	// RF, don't add if shader is invalid
 	if ( ent->customShader >= 0 ) {
-		trap_R_AddRefEntityToScene( ent );
+		RE_AddRefEntityToScene( ent );
 	}
 
 	// add the dlight
@@ -1616,7 +1617,7 @@ static void CG_AddExplosion( localEntity_t *ex ) {
 			light = 1.0 - ( light - 0.5 ) * 2;
 		}
 		light = ex->light * light;
-		trap_R_AddLightToScene( ent->origin, light, ex->lightColor[0], ex->lightColor[1], ex->lightColor[2], 0 );
+		RE_AddLightToScene( ent->origin, light, ex->lightColor[0], ex->lightColor[1], ex->lightColor[2], 0 );
 	}
 }
 
@@ -1650,7 +1651,7 @@ static void CG_AddSpriteExplosion( localEntity_t *le ) {
 
 	// RF, don't add if shader is invalid
 	if ( re.customShader >= 0 ) {
-		trap_R_AddRefEntityToScene( &re );
+		RE_AddRefEntityToScene( &re );
 	}
 
 	// add the dlight
@@ -1666,7 +1667,7 @@ static void CG_AddSpriteExplosion( localEntity_t *le ) {
 			light = 1.0 - ( light - 0.5 ) * 2;
 		}
 		light = le->light * light;
-		trap_R_AddLightToScene(re.origin, light, le->lightColor[0], le->lightColor[1], le->lightColor[2], 0 );
+		RE_AddLightToScene(re.origin, light, le->lightColor[0], le->lightColor[1], le->lightColor[2], 0 );
 		*/
 		light = (float)( cg.time - le->startTime ) / ( le->endTime - le->startTime );
 		if ( light < 0.5 ) {
@@ -1674,7 +1675,7 @@ static void CG_AddSpriteExplosion( localEntity_t *le ) {
 		} else {
 			light = 1.0 - ( light - 0.5 ) * 2;
 		}
-		trap_R_AddLightToScene( re.origin, le->light, light * le->lightColor[0], light * le->lightColor[1], light * le->lightColor[2], 0 );
+		RE_AddLightToScene( re.origin, le->light, light * le->lightColor[0], light * le->lightColor[1], light * le->lightColor[2], 0 );
 		// done.
 	}
 }

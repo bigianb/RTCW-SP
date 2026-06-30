@@ -2129,7 +2129,7 @@ void CG_EntityEvent( centity_t *cent, vec3_t position ) {
 //----(SA)	added
 	case EV_STOPSTREAMINGSOUND:
 		DEBUGNAME( "EV_STOPSTREAMINGSOUND" );
-		trap_S_StopStreamingSound( es->number );
+		S_StopEntStreamingSound( es->number );
 
 		// hope this does not cause trouble.
 		// can re-work if this causes trouble

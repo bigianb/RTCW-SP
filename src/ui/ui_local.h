@@ -606,7 +606,7 @@ extern void         UI_FillRect( float x, float y, float width, float height, co
 extern void 		UI_DrawRect( float x, float y, float width, float height, float size, const float *color );
 
 extern void         UI_UpdateScreen( void );
-extern void         UI_SetColor( const float *rgba );
+
 extern void         UI_LerpColor( vec4_t a, vec4_t b, vec4_t c, float t );
 extern void         UI_DrawBannerString( int x, int y, const char* str, int style, vec4_t color );
 extern float        UI_ProportionalSizeScale( int style );
@@ -633,23 +633,18 @@ extern uiStatic_t uis;
 // ui_syscalls.c
 //
 
-int             Sys_Milliseconds( void );
+int             Sys_Milliseconds( void );	
 
 void            Cvar_Update( vmCvar_t *vmCvar );
 
 qhandle_t       RE_RegisterShaderNoMip( const char *name );
-void            trap_R_ClearScene( void );
-void            trap_R_AddRefEntityToScene( const refEntity_t *re );
-void            trap_R_AddPolyToScene( qhandle_t hShader, int numVerts, const polyVert_t *verts );
-void            trap_R_AddLightToScene( const vec3_t org, float intensity, float r, float g, float b, unsigned int overdraw );
-void            trap_R_AddCoronaToScene( const vec3_t org, float r, float g, float b, float scale, int id, int flags );
 
-void            RE_SetColor( const float *rgba );
-void            trap_R_DrawStretchPic( float x, float y, float w, float h, float s1, float t1, float s2, float t2, qhandle_t hShader );
-void            trap_R_ModelBounds( clipHandle_t model, vec3_t mins, vec3_t maxs );
+void            RE_AddRefEntityToScene( const refEntity_t *re );
+
+void            RE_StretchPic( float x, float y, float w, float h, float s1, float t1, float s2, float t2, qhandle_t hShader );
 void            SCR_UpdateScreen( void );
 
-void            trap_S_FadeAllSound( float targetvol, int time ); //----(SA)	added
+void            trap_S_FadeAllSound( float targetvol, int time );
 
 
 bool        trap_Key_IsDown( int keynum );
@@ -661,15 +656,13 @@ void            trap_Key_SetCatcher( int catcher );
 
 int             GetConfigString( int index, char* buff, int buffsize );
 
-void            trap_R_RegisterFont( const char *pFontname, int pointSize, fontInfo_t *font );
-void            trap_S_StopBackgroundTrack( void );
-void            trap_S_StartBackgroundTrack( const char *intro, const char *loop, int fadeupTime );
+void            RE_RegisterFont( const char *pFontname, int pointSize, fontInfo_t *font );
+
 int             trap_CIN_PlayCinematic( const char *arg0, int xpos, int ypos, int width, int height, int bits );
 e_status        trap_CIN_StopCinematic( int handle );
 e_status        trap_CIN_RunCinematic( int handle );
 void            trap_CIN_DrawCinematic( int handle );
 
-int             trap_RealTime( qtime_t *qtime );
 void            trap_R_RemapShader( const char *oldShader, const char *newShader, const char *timeOffset );
 
 //

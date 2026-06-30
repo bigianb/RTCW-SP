@@ -152,10 +152,6 @@ void UI_FillRect( float x, float y, float width, float height, const float *colo
 	RE_SetColor( nullptr );
 }
 
-void UI_SetColor( const float *rgba ) {
-	RE_SetColor( rgba );
-}
-
 void UI_UpdateScreen() {
 	SCR_UpdateScreen();
 }

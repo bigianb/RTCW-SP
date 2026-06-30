@@ -32,6 +32,7 @@ If you have questions concerning this license or the applicable additional terms
 // takes a playerstate and a usercmd as input and returns a modifed playerstate
 #include "../idlib/math/Math.h"
 #include "q_shared.h"
+#include "qcommon.h"
 #include "bg_public.h"
 #include "bg_local.h"
 
@@ -3646,14 +3647,6 @@ void PM_Sprint( void ) {
 	}
 }
 
-/*
-================
-PmoveSingle
-
-================
-*/
-void trap_SnapVector( float *v );
-
 void PmoveSingle( pmove_t *pmove ) {
 	// Ridah
 
@@ -3882,10 +3875,8 @@ void PmoveSingle( pmove_t *pmove ) {
 		PM_WaterEvents();
 
 		// snap some parts of playerstate to save network bandwidth
-		trap_SnapVector( pm->ps->velocity );
-//		SnapVector( pm->ps->velocity );
+		Sys_SnapVector( pm->ps->velocity );
 
-		// Ridah
 	}
 	// done.
 }

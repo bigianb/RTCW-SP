@@ -36,6 +36,7 @@ If you have questions concerning this license or the applicable additional terms
 #include <algorithm>
 #include "cg_local.h"
 #include "../client/snd_public.h"
+#include "../renderer/tr_public.h"
 
 ///////////////////////
 extern int propellerModel;
@@ -382,9 +383,9 @@ void CG_SetEntitySoundPosition( centity_t *cent ) {
 
 		v = cgs.inlineModelMidpoints[ cent->currentState.modelindex ];
 		VectorAdd( cent->lerpOrigin, v, origin );
-		trap_S_UpdateEntityPosition( cent->currentState.number, origin );
+		S_UpdateEntityPosition( cent->currentState.number, origin );
 	} else {
-		trap_S_UpdateEntityPosition( cent->currentState.number, cent->lerpOrigin );
+		S_UpdateEntityPosition( cent->currentState.number, cent->lerpOrigin );
 	}
 }
 
@@ -464,7 +465,7 @@ void CG_AddLightstyle( centity_t *cent ) {
 	g = ( cl >> 8 ) & 255;
 	b = ( cl >> 16 ) & 255;
 
-	trap_R_AddLightToScene( cent->lerpOrigin, lightval, (float)r / 255.0f, (float)g / 255.0f, (float)b / 255.0f, 0 ); // overdraw forced to 0 for now
+	RE_AddLightToScene( cent->lerpOrigin, lightval, (float)r / 255.0f, (float)g / 255.0f, (float)b / 255.0f, 0 ); // overdraw forced to 0 for now
 }
 
 
@@ -529,7 +530,7 @@ static void CG_EntityEffects( centity_t *cent ) {
 			b = ( cl >> 16 ) & 255;
 			i = ( ( cl >> 24 ) & 255 ) * 4;
 
-			trap_R_AddLightToScene( cent->lerpOrigin, i, (float)r / 255.0f, (float)g / 255.0f, (float)b / 255.0f, 0 );
+			RE_AddLightToScene( cent->lerpOrigin, i, (float)r / 255.0f, (float)g / 255.0f, (float)b / 255.0f, 0 );
 		}
 	}
 
@@ -602,7 +603,7 @@ static void CG_General( centity_t *cent ) {
 	}
 
 	// add to refresh list
-	trap_R_AddRefEntityToScene( &ent );
+	RE_AddRefEntityToScene( &ent );
 
 	memcpy( &cent->refEnt, &ent, sizeof( refEntity_t ) );
 }
@@ -964,7 +965,7 @@ static void CG_Item( centity_t *cent ) {
 		ent.shaderRGBA[1] = 255;
 		ent.shaderRGBA[2] = 255;
 		ent.shaderRGBA[3] = 255;
-		trap_R_AddRefEntityToScene( &ent );
+		RE_AddRefEntityToScene( &ent );
 		return;
 	}
 
@@ -1086,7 +1087,7 @@ static void CG_Item( centity_t *cent ) {
 		vec3_t mins, maxs, offset;
 		int i;
 
-		trap_R_ModelBounds( ent.hModel, mins, maxs );           // get bounds
+		R_ModelBounds( ent.hModel, mins, maxs );           // get bounds
 
 		for ( i = 0 ; i < 3 ; i++ ) {
 			offset[i] = mins[i] + 0.5 * ( maxs[i] - mins[i] );  // find object-space center
@@ -1120,11 +1121,11 @@ static void CG_Item( centity_t *cent ) {
 			highlight = true;
 
 			if ( item->giType == IT_TREASURE ) {
-				trap_R_AddCoronaToScene( cent->highlightOrigin, 1, 0.85, 0.5, 2, cent->currentState.number, 1 );     //----(SA)	add corona to treasure
+				RE_AddCoronaToScene( cent->highlightOrigin, 1, 0.85, 0.5, 2, cent->currentState.number, 1 );     //----(SA)	add corona to treasure
 			}
 		} else {
 			if ( item->giType == IT_TREASURE ) {
-				trap_R_AddCoronaToScene( cent->highlightOrigin, 1, 0.85, 0.5, 2, cent->currentState.number, 0 ); //----(SA)	"empty corona" for proper fades
+				RE_AddCoronaToScene( cent->highlightOrigin, 1, 0.85, 0.5, 2, cent->currentState.number, 0 ); //----(SA)	"empty corona" for proper fades
 			}
 		}
 
@@ -1155,7 +1156,7 @@ static void CG_Item( centity_t *cent ) {
 
 
 	// add to refresh list
-	trap_R_AddRefEntityToScene( &ent );
+	RE_AddRefEntityToScene( &ent );
 }
 
 //============================================================================
@@ -1194,7 +1195,7 @@ static void CG_Missile( centity_t *cent ) {
 
 	// add dynamic light
 	if ( weapon->missileDlight ) {
-		trap_R_AddLightToScene( cent->lerpOrigin, weapon->missileDlight,
+		RE_AddLightToScene( cent->lerpOrigin, weapon->missileDlight,
 								weapon->missileDlightColor[0], weapon->missileDlightColor[1], weapon->missileDlightColor[2], 0 );
 	}
 
@@ -1329,7 +1330,7 @@ static void CG_Bat( centity_t *cent ) {
 	VectorCopy( cent->lerpOrigin, refent.origin );
 	AnglesToAxis( cent->currentState.angles, refent.axis );
 	// draw it
-	trap_R_AddRefEntityToScene( &refent );
+	RE_AddRefEntityToScene( &refent );
 	// emit a sound
 	trap_S_AddLoopingSound( 0, refent.origin, vec3_origin, cgs.media.zombieSpiritLoopSound, 255 );
 }
@@ -1489,7 +1490,7 @@ static void CG_Trap( centity_t *cent ) {
 
 	AnglesToAxis( cent->lerpAngles, ent.axis );
 
-	trap_R_AddRefEntityToScene( &ent );
+	RE_AddRefEntityToScene( &ent );
 
 	memcpy( &cent->refEnt, &ent, sizeof( refEntity_t ) );
 }
@@ -1551,7 +1552,7 @@ static void CG_Corona( centity_t *cent ) {
 			flags = 1;
 		}
 
-		trap_R_AddCoronaToScene( cent->lerpOrigin, (float)r / 255.0f, (float)g / 255.0f, (float)b / 255.0f, (float)cent->currentState.density / 255.0f, cent->currentState.number, flags );
+		RE_AddCoronaToScene( cent->lerpOrigin, (float)r / 255.0f, (float)g / 255.0f, (float)b / 255.0f, (float)cent->currentState.density / 255.0f, cent->currentState.number, flags );
 	}
 }
 
@@ -1642,7 +1643,7 @@ static void CG_Efx( centity_t *cent ) {
 				r = dli & 255;
 				g = ( dli >> 8 ) & 255;
 				b = ( dli >> 16 ) & 255;
-				trap_R_AddLightToScene( cent->currentState.origin, cent->currentState.time, (float)r / 255.0f, (float)g / 255.0f, (float)b / 255.0f, 0 );
+				RE_AddLightToScene( cent->currentState.origin, cent->currentState.time, (float)r / 255.0f, (float)g / 255.0f, (float)b / 255.0f, 0 );
 			}
 		}
 	} else if ( cent->currentState.eType == ET_SPOTLIGHT_EF )     {
@@ -1809,15 +1810,15 @@ static void CG_Explosive( centity_t *cent ) {
 	}
 
 	// add to refresh list
-	// trap_R_AddRefEntityToScene(&ent);
+	// RE_AddRefEntityToScene(&ent);
 
 	// add the secondary model
 	if ( s1->modelindex2 ) {
 		ent.skinNum = 0;
 		ent.hModel = cgs.gameModels[s1->modelindex2];
-		trap_R_AddRefEntityToScene( &ent );
+		RE_AddRefEntityToScene( &ent );
 	} else {
-		trap_R_AddRefEntityToScene( &ent );
+		RE_AddRefEntityToScene( &ent );
 	}
 
 }
@@ -1857,7 +1858,7 @@ static void CG_Mover( centity_t *cent ) {
 	}
 
 	// add to refresh list
-	//trap_R_AddRefEntityToScene(&ent);
+	//RE_AddRefEntityToScene(&ent);
 
 
 	// Rafael
@@ -1890,10 +1891,10 @@ static void CG_Mover( centity_t *cent ) {
 			ent.oldframe -= 1;
 			ent.backlerp = 1 - cg.frameInterpolation;
 		}
-		trap_R_AddRefEntityToScene( &ent );
+		RE_AddRefEntityToScene( &ent );
 		memcpy( &cent->refEnt, &ent, sizeof( refEntity_t ) );
 	} else {
-		trap_R_AddRefEntityToScene( &ent );
+		RE_AddRefEntityToScene( &ent );
 	}
 
 	// add propeller and sfx to me109
@@ -1914,7 +1915,7 @@ static void CG_Mover( centity_t *cent ) {
 
 		CG_PositionRotatedEntityOnTag( &propeller, &ent, "tag_prop" );
 
-		trap_R_AddRefEntityToScene( &propeller );
+		RE_AddRefEntityToScene( &propeller );
 
 		if ( cent->currentState.density == 8 ) {
 			refEntity_t flash;
@@ -1931,8 +1932,8 @@ static void CG_Mover( centity_t *cent ) {
 			AnglesToAxis( angles, flash.axis );
 			CG_PositionRotatedEntityOnTag( &flash, &ent, "tag_gun1" );
 
-			trap_R_AddRefEntityToScene( &flash );
-			trap_R_AddLightToScene( flash.origin, 200 + ( rand() & 31 ),1.0, 0.6, 0.23, 0 );
+			RE_AddRefEntityToScene( &flash );
+			RE_AddLightToScene( flash.origin, 200 + ( rand() & 31 ),1.0, 0.6, 0.23, 0 );
 
 			memset( &flash, 0, sizeof( flash ) );
 			flash.renderfx = ent.shadowPlane;
@@ -1942,8 +1943,8 @@ static void CG_Mover( centity_t *cent ) {
 			AnglesToAxis( angles, flash.axis );
 			CG_PositionRotatedEntityOnTag( &flash, &ent, "tag_gun02" );
 
-			trap_R_AddRefEntityToScene( &flash );
-			trap_R_AddLightToScene( flash.origin, 200 + ( rand() & 31 ),1.0, 0.6, 0.23, 0 );
+			RE_AddRefEntityToScene( &flash );
+			RE_AddLightToScene( flash.origin, 200 + ( rand() & 31 ),1.0, 0.6, 0.23, 0 );
 		}
 	}
 
@@ -1991,7 +1992,7 @@ void CG_Beam( centity_t *cent ) {
 	ent.renderfx = RF_NOSHADOW;
 
 	// add to refresh list
-	trap_R_AddRefEntityToScene( &ent );
+	RE_AddRefEntityToScene( &ent );
 }
 
 
@@ -2023,7 +2024,7 @@ static void CG_Portal( centity_t *cent ) {
 	ent.skinNum = s1->clientNum / 256.0 * 360;    // roll offset
 
 	// add to refresh list
-	trap_R_AddRefEntityToScene( &ent );
+	RE_AddRefEntityToScene( &ent );
 }
 
 /*
@@ -2106,17 +2107,17 @@ static void CG_Prop( centity_t *cent ) {
 	}
 
 	// add to refresh list
-	//trap_R_AddRefEntityToScene(&ent);
+	//RE_AddRefEntityToScene(&ent);
 
 	// add the secondary model
 	if ( s1->modelindex2 ) {
 		ent.skinNum = 0;
 		ent.hModel = cgs.gameModels[s1->modelindex2];
 		ent.frame = s1->frame;
-		trap_R_AddRefEntityToScene( &ent );
+		RE_AddRefEntityToScene( &ent );
 		memcpy( &cent->refEnt, &ent, sizeof( refEntity_t ) );
 	} else {
-		trap_R_AddRefEntityToScene( &ent );
+		RE_AddRefEntityToScene( &ent );
 	}
 
 }

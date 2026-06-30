@@ -865,7 +865,7 @@ void WriteTime( fileHandle_t f )
 	qtime_t tm;
 
 	// just save it all so it can be interpreted as desired
-	trap_RealTime( &tm );
+	Com_RealTime( &tm );
 	G_SaveWrite( &tm.tm_sec,       sizeof( tm.tm_sec ),  f );     /* seconds after the minute - [0,59] */
 	G_SaveWrite( &tm.tm_min,       sizeof( tm.tm_min ),  f );     /* minutes after the hour - [0,59] */
 	G_SaveWrite( &tm.tm_hour,  sizeof( tm.tm_hour ), f );     /* hours since midnight - [0,23] */
@@ -893,7 +893,7 @@ void ReadTime( fileHandle_t f, qtime_t *tm )
 char *G_Save_TimeStr()
 {
 	qtime_t tm;
-	trap_RealTime( &tm );
+	Com_RealTime( &tm );
 
 	return va( "%2i:%s%i:%s%i %s",
 			   ( 1 + ( tm.tm_hour + 11 ) % 12 ), // 12 hour format
@@ -912,7 +912,7 @@ static const char *monthStr[12] =
 char *G_Save_DateStr()
 {
 	qtime_t tm;
-	trap_RealTime( &tm );
+	Com_RealTime( &tm );
 
 	return va( "%s %i, %i",
 			   monthStr[tm.tm_mon],

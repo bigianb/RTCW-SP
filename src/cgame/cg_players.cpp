@@ -35,6 +35,7 @@ If you have questions concerning this license or the applicable additional terms
 #include <algorithm>
 #include "cg_local.h"
 #include "../client/snd_public.h"
+#include "../renderer/tr_public.h"
 #include "../qcommon/qcommon.h"
 
 #define SWING_RIGHT 1
@@ -394,7 +395,7 @@ static bool CG_RegisterAcc( clientInfo_t *ci, const char *modelName, const char 
 		*skin = trap_R_RegisterSkin( va( "%s/%s.skin", modelName, skinName ) );
 
 		if ( *skin ) {
-			if ( trap_R_GetSkinModel( *skin, "md3_part", &namefromskin[0] ) ) {
+			if ( RE_GetSkinModel( *skin, "md3_part", &namefromskin[0] ) ) {
 				snprintf( filename, sizeof( filename ), "%s/acc/%s", modelName, namefromskin );
 				// NOTE: FIXME: this will currently only work with accessories in the <modelName>/acc directory.
 				//				It will have to strip the directory off the end and then use the remaining
@@ -502,7 +503,7 @@ static bool CG_RegisterClientModelname( clientInfo_t *ci, const char *modelName,
 
 	// load cmodels before models so filecache works
 
-	if ( trap_R_GetSkinModel( ci->legsSkin, "md3_part", &namefromskin[0] ) ) {
+	if ( RE_GetSkinModel( ci->legsSkin, "md3_part", &namefromskin[0] ) ) {
 		snprintf( filename, sizeof( filename ), "models/players/%s/%s", modelName, namefromskin );
 		ci->legsModel = trap_R_RegisterModel( filename );
 	} else {    // try skeletal model
@@ -525,7 +526,7 @@ static bool CG_RegisterClientModelname( clientInfo_t *ci, const char *modelName,
 			return false;
 		}
 
-		if ( trap_R_GetSkinModel( ci->torsoSkin, "md3_part", &namefromskin[0] ) ) {
+		if ( RE_GetSkinModel( ci->torsoSkin, "md3_part", &namefromskin[0] ) ) {
 			snprintf( filename, sizeof( filename ), "models/players/%s/%s", modelName, namefromskin );
 		} else {
 			snprintf( filename, sizeof( filename ), "models/players/%s/upper.md3", modelName );
@@ -549,7 +550,7 @@ static bool CG_RegisterClientModelname( clientInfo_t *ci, const char *modelName,
 
 		string_p = scaleString;
 
-		if ( trap_R_GetSkinModel( ci->legsSkin, "playerscale", &scaleString[0] ) ) {
+		if ( RE_GetSkinModel( ci->legsSkin, "playerscale", &scaleString[0] ) ) {
 			scaleToken = COM_Parse( &string_p );
 			if ( !scaleToken ) {
 				badscale = true;   // and drop to "if(badscale)" below
@@ -585,28 +586,28 @@ static bool CG_RegisterClientModelname( clientInfo_t *ci, const char *modelName,
 
 
 	// try all the accessories
-	if ( trap_R_GetSkinModel( ci->legsSkin, "md3_beltr", &namefromskin[0] ) ) {
+	if ( RE_GetSkinModel( ci->legsSkin, "md3_beltr", &namefromskin[0] ) ) {
 		CG_RegisterAcc( ci, va( "models/players/%s", modelName ), namefromskin, &ci->accModels[ACC_BELT_LEFT], &ci->accSkins[ACC_BELT_LEFT] );
 	}
-	if ( trap_R_GetSkinModel( ci->legsSkin, "md3_beltl", &namefromskin[0] ) ) {
+	if ( RE_GetSkinModel( ci->legsSkin, "md3_beltl", &namefromskin[0] ) ) {
 		CG_RegisterAcc( ci, va( "models/players/%s", modelName ), namefromskin, &ci->accModels[ACC_BELT_RIGHT], &ci->accSkins[ACC_BELT_RIGHT] );
 	}
-	if ( trap_R_GetSkinModel( ci->torsoSkin, "md3_belt", &namefromskin[0] ) ) {
+	if ( RE_GetSkinModel( ci->torsoSkin, "md3_belt", &namefromskin[0] ) ) {
 		CG_RegisterAcc( ci, va( "models/players/%s", modelName ), namefromskin, &ci->accModels[ACC_BELT], &ci->accSkins[ACC_BELT] );
 	}
-	if ( trap_R_GetSkinModel( ci->torsoSkin, "md3_back", &namefromskin[0] ) ) {
+	if ( RE_GetSkinModel( ci->torsoSkin, "md3_back", &namefromskin[0] ) ) {
 		CG_RegisterAcc( ci, va( "models/players/%s", modelName ), namefromskin, &ci->accModels[ACC_BACK], &ci->accSkins[ACC_BACK] );
 	}
-	if ( trap_R_GetSkinModel( ci->torsoSkin, "md3_weapon", &namefromskin[0] ) ) {
+	if ( RE_GetSkinModel( ci->torsoSkin, "md3_weapon", &namefromskin[0] ) ) {
 		CG_RegisterAcc( ci, va( "models/players/%s", modelName ), namefromskin, &ci->accModels[ACC_WEAPON], &ci->accSkins[ACC_WEAPON] );
 	}
-	if ( trap_R_GetSkinModel( ci->torsoSkin, "md3_weapon2", &namefromskin[0] ) ) {
+	if ( RE_GetSkinModel( ci->torsoSkin, "md3_weapon2", &namefromskin[0] ) ) {
 		CG_RegisterAcc( ci, va( "models/players/%s", modelName ), namefromskin, &ci->accModels[ACC_WEAPON2], &ci->accSkins[ACC_WEAPON2] );
 	}
 //----(SA)	added
 	// try anim script parts
 	for ( i = 0; i < 8; i++ ) {
-		if ( trap_R_GetSkinModel( ci->torsoSkin, va( "md3_animscript%d", i ), &namefromskin[0] ) ) {
+		if ( RE_GetSkinModel( ci->torsoSkin, va( "md3_animscript%d", i ), &namefromskin[0] ) ) {
 			CG_RegisterAcc( ci, va( "models/players/%s", modelName ), namefromskin, &ci->partModels[ACC_WEAPON], &ci->partSkins[ACC_WEAPON] );
 		}
 	}
@@ -1083,7 +1084,7 @@ static bool CG_RegisterClientHeadname( clientInfo_t *ci, const char *modelName, 
 		return false;
 	}
 
-	if ( trap_R_GetSkinModel( ci->headSkin, "md3_part", &namefromskin[0] ) ) {
+	if ( RE_GetSkinModel( ci->headSkin, "md3_part", &namefromskin[0] ) ) {
 		snprintf( filename, sizeof( filename ), "models/players/%s/%s", modelName, namefromskin );
 	} else {
 		snprintf( filename, sizeof( filename ), "models/players/%s/head.md3", modelName );
@@ -1095,12 +1096,12 @@ static bool CG_RegisterClientHeadname( clientInfo_t *ci, const char *modelName, 
 		return false;
 	}
 
-	if ( trap_R_GetSkinModel( ci->headSkin, "md3_hat", &namefromskin[0] ) ) {
+	if ( RE_GetSkinModel( ci->headSkin, "md3_hat", &namefromskin[0] ) ) {
 		CG_RegisterAcc( ci, va( "models/players/%s", modelName ), namefromskin, &ci->accModels[ACC_HAT], &ci->accSkins[ACC_HAT] );
 	}
 
 	for ( i = 0; i < ACC_NUM_MOUTH - 1; i++ ) {
-		if ( trap_R_GetSkinModel( ci->headSkin, va( "md3_hat%d", 2 + i ), &namefromskin[0] ) ) {
+		if ( RE_GetSkinModel( ci->headSkin, va( "md3_hat%d", 2 + i ), &namefromskin[0] ) ) {
 			CG_RegisterAcc( ci, va( "models/players/%s", modelName ), namefromskin, &ci->accModels[ACC_MOUTH2 + i], &ci->accSkins[ACC_MOUTH2 + i] );
 		}
 	}
@@ -2476,7 +2477,7 @@ static void CG_TrailItem( centity_t *cent, qhandle_t hModel ) {
 	VectorScale( cg.autoAxis[1], 0.75, ent.axis[1] );
 	VectorScale( cg.autoAxis[2], 0.75, ent.axis[2] );
 	ent.hModel = hModel;
-	trap_R_AddRefEntityToScene( &ent );
+	RE_AddRefEntityToScene( &ent );
 }
 
 
@@ -2489,7 +2490,7 @@ static void CG_PlayerPowerups( centity_t *cent ) {
 	int powerups;
 
 	if ( cent->pe.teslaDamagedTime > cg.time - 400 ) {
-		trap_R_AddLightToScene( cent->lerpOrigin, 128 + 128 * sin( cg.time * cg.time ), 0.2, 0.6, 1, 0 );
+		RE_AddLightToScene( cent->lerpOrigin, 128 + 128 * sin( cg.time * cg.time ), 0.2, 0.6, 1, 0 );
 	}
 
 	// RF, AI don't use these effects, they are generally added manually by the game
@@ -2509,7 +2510,7 @@ static void CG_PlayerPowerups( centity_t *cent ) {
 //		VectorMA(orig, 1000, forward, li);
 //		CG_Trace(&trace, orig, nullptr, nullptr, li, -1, MASK_SHOT);
 //		VectorMA(trace.endpos, -5, forward, li);
-//		trap_R_AddLightToScene( li, 100 + 100*trace.fraction, 1, 1, 1, 1 );
+//		RE_AddLightToScene( li, 100 + 100*trace.fraction, 1, 1, 1, 1 );
 //	}
 //----(SA)	end
 
@@ -2520,7 +2521,7 @@ static void CG_PlayerPowerups( centity_t *cent ) {
 
 	// quad gives a dlight
 	if ( powerups & ( 1 << PW_QUAD ) ) {
-		trap_R_AddLightToScene( cent->lerpOrigin, 200 + ( rand() & 31 ), 0.2, 0.2, 1, 0 );
+		RE_AddLightToScene( cent->lerpOrigin, 200 + ( rand() & 31 ), 0.2, 0.2, 1, 0 );
 	}
 
 	// flight plays a looped sound
@@ -2531,13 +2532,13 @@ static void CG_PlayerPowerups( centity_t *cent ) {
 	// redflag
 	if ( powerups & ( 1 << PW_REDFLAG ) ) {
 		CG_TrailItem( cent, cgs.media.redFlagModel );
-		trap_R_AddLightToScene( cent->lerpOrigin, 200 + ( rand() & 31 ), 1, 0.2, 0.2, 0 );
+		RE_AddLightToScene( cent->lerpOrigin, 200 + ( rand() & 31 ), 1, 0.2, 0.2, 0 );
 	}
 
 	// blueflag
 	if ( powerups & ( 1 << PW_BLUEFLAG ) ) {
 		CG_TrailItem( cent, cgs.media.blueFlagModel );
-		trap_R_AddLightToScene( cent->lerpOrigin, 200 + ( rand() & 31 ), 0.2, 0.2, 1, 0 );
+		RE_AddLightToScene( cent->lerpOrigin, 200 + ( rand() & 31 ), 0.2, 0.2, 1, 0 );
 	}
 
 	// haste leaves smoke trails
@@ -2576,7 +2577,7 @@ static void CG_PlayerFloatSprite( centity_t *cent, qhandle_t shader, int height 
 	ent.shaderRGBA[1] = 255;
 	ent.shaderRGBA[2] = 255;
 	ent.shaderRGBA[3] = 255;
-	trap_R_AddRefEntityToScene( &ent );
+	RE_AddRefEntityToScene( &ent );
 }
 
 
@@ -2842,7 +2843,7 @@ static void CG_PlayerSplash( centity_t *cent ) {
 	verts[3].modulate[2] = 255;
 	verts[3].modulate[3] = 255;
 
-	trap_R_AddPolyToScene( cgs.media.wakeMarkShader, 4, verts );
+	RE_AddPolyToScene( cgs.media.wakeMarkShader, 4, verts );
 }
 
 //==========================================================================
@@ -3133,7 +3134,7 @@ void CG_AddZombieSpiritEffect( centity_t *cent ) {
 		}
 		//
 		// if we didn't kill it, draw it
-		trap_R_AddRefEntityToScene( &refent );
+		RE_AddRefEntityToScene( &refent );
 	}
 
 	if ( cg.time > cent->pe.nextZombieSpiritSound && cent->pe.cueZombieSpirit ) { //&& (cg.time < cent->pe.zombieSpiritStartTime + sndDuration)) {
@@ -3162,7 +3163,7 @@ void CG_AddZombieSpiritEffect( centity_t *cent ) {
 		}
 	}
 	fadeRatio *= 0.7;
-	trap_R_AddLightToScene( cent->lerpOrigin, 300.0, 1.0 * fadeRatio, 1.0 * fadeRatio, 1.0 * fadeRatio, 10 );
+	RE_AddLightToScene( cent->lerpOrigin, 300.0, 1.0 * fadeRatio, 1.0 * fadeRatio, 1.0 * fadeRatio, 10 );
 }
 
 /*
@@ -3401,7 +3402,7 @@ void CG_AddLoperLightningEffect( centity_t *cent ) {
 	}
 	//VectorScale( c, alpha, c );
 	// add the light
-	trap_R_AddLightToScene( tagPos, LOPER_LIGHTNING_NORMAL_DIST * ( 2.5 + ( 1.0 + sin( cg.time ) ) / 4.0 ), c[0], c[1], c[2], 1 );
+	RE_AddLightToScene( tagPos, LOPER_LIGHTNING_NORMAL_DIST * ( 2.5 + ( 1.0 + sin( cg.time ) ) / 4.0 ), c[0], c[1], c[2], 1 );
 
 	for ( i = 0; i < numPoints; i++ ) {
 		// if this point has timed out, find a new spot
@@ -3555,8 +3556,8 @@ void CG_AddLoperGroundEffect( centity_t *cent ) {
 	}
 	VectorScale( c, alpha, c );
 	// add the light
-	trap_R_AddLightToScene( cent->lerpOrigin, LOPER_GROUNDCHARGE_RADIUS * ( 3.0 + 2.0 * ( 1.0 + sin( 0.001 * ( ( cg.time ) % ( 1000 * ( 2 + cent->currentState.number ) ) ) ) ) / 2.0 ), c[0], c[1], c[2], 1 );
-	//trap_R_AddLightToScene( cent->lerpOrigin, LOPER_GROUNDCHARGE_RADIUS*(2.0 + 1.0*(1.0+cos(0.001343*((cg.time)%(1000*(2+cent->currentState.number)))))/2.0), c[0], c[1], c[2], 0 );
+	RE_AddLightToScene( cent->lerpOrigin, LOPER_GROUNDCHARGE_RADIUS * ( 3.0 + 2.0 * ( 1.0 + sin( 0.001 * ( ( cg.time ) % ( 1000 * ( 2 + cent->currentState.number ) ) ) ) ) / 2.0 ), c[0], c[1], c[2], 1 );
+	//RE_AddLightToScene( cent->lerpOrigin, LOPER_GROUNDCHARGE_RADIUS*(2.0 + 1.0*(1.0+cos(0.001343*((cg.time)%(1000*(2+cent->currentState.number)))))/2.0), c[0], c[1], c[2], 0 );
 
 	if ( !alpha ) {
 		return;
@@ -3878,7 +3879,7 @@ void CG_AddHelgaSpiritEffect( centity_t *cent ) {
 		}
 		//
 		// if we didn't kill it, draw it
-		trap_R_AddRefEntityToScene( &refent );
+		RE_AddRefEntityToScene( &refent );
 	}
 
 	if ( cg.time > cent->pe.nextZombieSpiritSound && cent->pe.cueZombieSpirit ) { //&& (cg.time < cent->pe.zombieSpiritStartTime + sndDuration)) {
@@ -3908,7 +3909,7 @@ void CG_AddHelgaSpiritEffect( centity_t *cent ) {
 		}
 	}
 	fadeRatio *= 0.7;
-	trap_R_AddLightToScene( cent->lerpOrigin, 500.0, 1.0 * fadeRatio, 1.0 * fadeRatio, 1.0 * fadeRatio, 10 );
+	RE_AddLightToScene( cent->lerpOrigin, 500.0, 1.0 * fadeRatio, 1.0 * fadeRatio, 1.0 * fadeRatio, 10 );
 }
 
 //==========================================================================
@@ -3944,7 +3945,7 @@ void CG_AddRefEntityWithPowerups( refEntity_t *ent, int powerups, EntityState *e
 
 	if ( powerups & ( 1 << PW_INVIS ) ) {
 		ent->customShader = cgs.media.invisShader;
-		trap_R_AddRefEntityToScene( ent );
+		RE_AddRefEntityToScene( ent );
 		// -------------------------------
 	} else {
 
@@ -3952,21 +3953,21 @@ void CG_AddRefEntityWithPowerups( refEntity_t *ent, int powerups, EntityState *e
 			ent->reFlags |= REFLAG_FORCE_LOD;
 		}
 
-		trap_R_AddRefEntityToScene( ent );
+		RE_AddRefEntityToScene( ent );
 
 		if ( powerups & ( 1 << PW_QUAD ) ) {
 			ent->customShader = cgs.media.quadShader;
-			trap_R_AddRefEntityToScene( ent );
+			RE_AddRefEntityToScene( ent );
 		}
 		if ( powerups & ( 1 << PW_REGEN ) ) {
 			if ( ( ( cg.time / 100 ) % 10 ) == 1 ) {
 				ent->customShader = cgs.media.regenShader;
-				trap_R_AddRefEntityToScene( ent );
+				RE_AddRefEntityToScene( ent );
 			}
 		}
 		if ( powerups & ( 1 << PW_BATTLESUIT ) ) {
 			ent->customShader = cgs.media.battleSuitShader;
-			trap_R_AddRefEntityToScene( ent );
+			RE_AddRefEntityToScene( ent );
 		}
 	}
 
@@ -3999,10 +4000,10 @@ void CG_AddRefEntityWithPowerups( refEntity_t *ent, int powerups, EntityState *e
 		}
 
 		ent->customShader = cgs.media.onFireShader;
-		trap_R_AddRefEntityToScene( ent );
+		RE_AddRefEntityToScene( ent );
 
 		ent->customShader = cgs.media.onFireShader2;
-		trap_R_AddRefEntityToScene( ent );
+		RE_AddRefEntityToScene( ent );
 
 		if ( ent->hModel == cent->pe.legsRefEnt.hModel ) {
 			trap_S_AddLoopingSound( es->number, ent->origin, vec3_origin, cgs.media.flameCrackSound, (int)( 40.0 * alpha ) );
@@ -4024,7 +4025,7 @@ void CG_AddRefEntityWithPowerups( refEntity_t *ent, int powerups, EntityState *e
 		} else {
 			ent->customShader = cgs.media.teslaDamageEffectShader;
 		}
-		trap_R_AddRefEntityToScene( ent );
+		RE_AddRefEntityToScene( ent );
 	}
 
 	*ent = backupRefEnt;
@@ -4076,7 +4077,7 @@ static void CG_AddFireLight( centity_t *cent ) {
 		}
 		if (alpha <= 0.0) return;
 
-		trap_R_AddLightToScene( cent->lerpOrigin, 128 + 128*alpha, 1.000000*alpha, 0.603922*alpha, 0.207843*alpha, 0 );
+		RE_AddLightToScene( cent->lerpOrigin, 128 + 128*alpha, 1.000000*alpha, 0.603922*alpha, 0.207843*alpha, 0 );
 	}
 */
 }
@@ -4435,7 +4436,7 @@ void CG_Player( centity_t *cent ) {
 		#define NUM_EMOTIONS            2   // 0 neutral, 1 happy, 2 angry
 		int emotion = 0;  // this should default to the entity's current emotion
 
-		gumsflappin = (float)trap_S_GetVoiceAmplitude( clientNum );
+		gumsflappin = (float)S_GetVoiceAmplitude( clientNum );
 		talk_frame = (int)floor( ( HEAD_EMOTION_SUBTYPES - 1 ) * ( gumsflappin / 256.0 ) );
 
 		// add the current frame to the total, so when it comes to pick a new frame, we choose the average

@@ -28,6 +28,7 @@ If you have questions concerning this license or the applicable additional terms
 
 #include "../idlib/math/Math.h"
 #include "cg_local.h"
+#include "../renderer/tr_public.h"
 
 #define MUSTARD     1
 #define BLOODRED    2
@@ -878,11 +879,10 @@ void CG_AddParticleToScene( cparticle_t *p, vec3_t org, float alpha ) {
 	}
 
 	if ( p->type == P_WEATHER || p->type == P_WEATHER_TURBULENT || p->type == P_WEATHER_FLURRY ) {
-		trap_R_AddPolyToScene( p->pshader, 3, TRIverts );
+		RE_AddPolyToScene( p->pshader, 3, TRIverts );
 	} else {
-		trap_R_AddPolyToScene( p->pshader, 4, verts );
+		RE_AddPolyToScene( p->pshader, 4, verts );
 	}
-
 }
 
 // Ridah, made this static so it doesn't interfere with other files

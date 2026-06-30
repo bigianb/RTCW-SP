@@ -71,6 +71,7 @@ int         R_LerpTag( orientation_t *tag, const refEntity_t *refent, const char
 void        R_ModelBounds( qhandle_t handle, vec3_t mins, vec3_t maxs );
 void    R_RemapShader( const char *oldShader, const char *newShader, const char *timeOffset );
 
+void RE_SetColor( const float *rgba );
 
 //
 // these are the functions exported by the refresh module
@@ -96,7 +97,7 @@ typedef struct {
 	qhandle_t ( *RegisterShader )( const char *name );
 	qhandle_t ( *RegisterShaderNoMip )( const char *name );
 	void ( *LoadWorld )( const char *name );
-	bool ( *GetSkinModel )( qhandle_t skinid, const char *type, char *name );    //----(SA)	added
+
 	qhandle_t ( *GetShaderFromModel )( qhandle_t modelid, int surfnum, int withlightmap );                //----(SA)	added
 
 	// the vis data is a large enough block of data that we go to the trouble
@@ -107,25 +108,8 @@ typedef struct {
 	// them to be loaded into card memory
 	void ( *EndRegistration )( void );
 
-	// a scene is built up by calls to R_ClearScene and the various R_Add functions.
-	// Nothing is drawn until R_RenderScene is called.
-	void ( *ClearScene )( void );
-	void ( *AddRefEntityToScene )( const refEntity_t *re );
 	int ( *LightForPoint )( vec3_t point, vec3_t ambientLight, vec3_t directedLight, vec3_t lightDir );
-	void ( *AddPolyToScene )( qhandle_t hShader, int numVerts, const polyVert_t *verts );
-	// Ridah
-	void ( *AddPolysToScene )( qhandle_t hShader, int numVerts, const polyVert_t *verts, int numPolys );
-	// done.
-	void ( *AddLightToScene )( const vec3_t org, float intensity, float r, float g, float b, unsigned int overdraw );
-//----(SA)
-	void ( *AddCoronaToScene )( const vec3_t org, float r, float g, float b, float scale, int id, int flags );
-	void ( *SetFog )( int fogvar, int var1, int var2, float r, float g, float b, float density );
-//----(SA)
-	void ( *RenderScene )( const refdef_t *fd );
 
-	void ( *SetColor )( const float *rgba );    // nullptr = 1,1,1,1
-	void ( *DrawStretchPic )( float x, float y, float w, float h,
-							  float s1, float t1, float s2, float t2, qhandle_t hShader ); // 0 = white
 	void ( *DrawStretchPicGradient )( float x, float y, float w, float h,
 									  float s1, float t1, float s2, float t2, qhandle_t hShader, const float *gradientColor, int gradientType );
 
@@ -139,9 +123,7 @@ typedef struct {
 	void ( *EndFrame )( int *frontEndMsec, int *backEndMsec );
 
 	int ( *LerpTag )( orientation_t *tag,  const refEntity_t *refent, const char *tagName, int startIndex );
-	void ( *ModelBounds )( qhandle_t model, vec3_t mins, vec3_t maxs );
 
-	void ( *RegisterFont )( const char *fontName, int pointSize, fontInfo_t *font );
 	void ( *RemapShader )( const char *oldShader, const char *newShader, const char *offsetTime );
 	// RF
 	void ( *ZombieFXAddNewHit )( int entityNum, const vec3_t hitPos, const vec3_t hitDir );

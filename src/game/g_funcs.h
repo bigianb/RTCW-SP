@@ -844,13 +844,13 @@ If you have questions concerning this license or the applicable additional terms
 {"trap_BotLibUpdateEntity", (uint8_t *)trap_BotLibUpdateEntity},
 {"trap_BotLibLoadMap", (uint8_t *)trap_BotLibLoadMap},
 {"trap_BotLibStartFrame", (uint8_t *)trap_BotLibStartFrame},
-{"trap_BotLibDefine", (uint8_t *)trap_BotLibDefine},
-{"trap_BotLibVarGet", (uint8_t *)trap_BotLibVarGet},
-{"trap_BotLibVarSet", (uint8_t *)trap_BotLibVarSet},
-{"trap_BotLibShutdown", (uint8_t *)trap_BotLibShutdown},
 
-{"trap_SnapVector", (uint8_t *)trap_SnapVector},
-{"trap_RealTime", (uint8_t *)trap_RealTime},
+
+{"Export_BotLibVarSet", (uint8_t *)Export_BotLibVarSet},
+{"SV_BotLibShutdown", (uint8_t *)SV_BotLibShutdown},
+
+{"Sys_SnapVector", (uint8_t *)Sys_SnapVector},
+{"Com_RealTime", (uint8_t *)Com_RealTime},
 {"trap_DebugPolygonDelete", (uint8_t *)trap_DebugPolygonDelete},
 {"trap_DebugPolygonCreate", (uint8_t *)trap_DebugPolygonCreate},
 

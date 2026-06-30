@@ -31,6 +31,7 @@ If you have questions concerning this license or the applicable additional terms
 
 #include "../idlib/math/Math.h"
 #include "cg_local.h"
+#include "../renderer/tr_public.h"
 
 
 /*
@@ -1425,12 +1426,12 @@ void CG_Spotlight( centity_t *cent, float *color, vec3_t realstart, vec3_t light
 	vectoangles( lightDir, angles );
 	angles[ROLL] = 0.0f;        // clear out roll so it doesn't interfere
 	AnglesToAxis( angles, ent.axis );
-	trap_R_AddRefEntityToScene( &ent );
+	RE_AddRefEntityToScene( &ent );
 
 	ent.hModel = cgs.media.spotLightBaseModel;
 	angles[PITCH] = 0.0f;       // flatten out pitch so it only yaws
 	AnglesToAxis( angles, ent.axis );
-	trap_R_AddRefEntityToScene( &ent );
+	RE_AddRefEntityToScene( &ent );
 
 	// push start out a bit so the beam fits to the front of the base model
 	VectorMA( start, 14, lightDir, start );
@@ -1495,7 +1496,7 @@ void CG_Spotlight( centity_t *cent, float *color, vec3_t realstart, vec3_t light
 			}
 		}
 
-		trap_R_AddPolyToScene( cgs.media.spotLightBeamShader, 4, &coreverts[0] );
+		RE_AddPolyToScene( cgs.media.spotLightBeamShader, 4, &coreverts[0] );
 	}
 
 
@@ -1563,12 +1564,12 @@ void CG_Spotlight( centity_t *cent, float *color, vec3_t realstart, vec3_t light
 		}
 	}
 
-	trap_R_AddPolysToScene( cgs.media.spotLightBeamShader, 4, &verts[0], segs );
+	RE_AddPolysToScene( cgs.media.spotLightBeamShader, 4, &verts[0], segs );
 
 
 	// plug up the start circle
 	if ( capStart ) {
-		trap_R_AddPolyToScene( cgs.media.spotLightBeamShader, segs, &plugVerts[0] );
+			RE_AddPolyToScene( cgs.media.spotLightBeamShader, segs, &plugVerts[0] );
 	}
 
 
@@ -1596,7 +1597,7 @@ void CG_Spotlight( centity_t *cent, float *color, vec3_t realstart, vec3_t light
 	if ( !( flags & SL_NODLIGHT ) ) {
 		vec3_t dlightLoc;
 		VectorMA( tr.endpos, 0, lightDir, dlightLoc );    // back away from the hit
-		trap_R_AddLightToScene( dlightLoc, radius * 2, 0.3, 0.3, 0.3, 0 );  // ,REF_JUNIOR_DLIGHT);
+		RE_AddLightToScene( dlightLoc, radius * 2, 0.3, 0.3, 0.3, 0 );  // ,REF_JUNIOR_DLIGHT);
 	}
 
 
@@ -1641,10 +1642,10 @@ void CG_Spotlight( centity_t *cent, float *color, vec3_t realstart, vec3_t light
 				coronasize *= ( 512.0f / dist );
 			}
 
-			trap_R_AddCoronaToScene( start, colorNorm[0], colorNorm[1], colorNorm[2], coronasize, cent->currentState.number, 3 );    // 1&2 ('visible' & 'spotlightflare')
+			RE_AddCoronaToScene( start, colorNorm[0], colorNorm[1], colorNorm[2], coronasize, cent->currentState.number, 3 );    // 1&2 ('visible' & 'spotlightflare')
 		} else {
 			// even though it's off, still need to add it, but turned off so it can fade in/out properly
-			trap_R_AddCoronaToScene( start, colorNorm[0], colorNorm[1], colorNorm[2], 0, cent->currentState.number, 2 ); // 0&2 ('not visible' & 'spotlightflare')
+			RE_AddCoronaToScene( start, colorNorm[0], colorNorm[1], colorNorm[2], 0, cent->currentState.number, 2 ); // 0&2 ('not visible' & 'spotlightflare')
 		}
 	}
 

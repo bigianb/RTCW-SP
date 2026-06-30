@@ -811,7 +811,7 @@ static void CG_DamageBlendBlob( void ) {
 		ent.shaderRGBA[1] = 255;
 		ent.shaderRGBA[2] = 255;
 		ent.shaderRGBA[3] = 255;
-		trap_R_AddRefEntityToScene( &ent );
+		RE_AddRefEntityToScene( &ent );
 
 		redFlash += ent.radius;
 	}
@@ -1084,12 +1084,12 @@ void CG_DrawSkyBoxPortal( void ) {
 						fogEnd = atoi( token );
 					}
 
-					trap_R_SetFog( FOG_PORTALVIEW, fogStart, fogEnd, fogColor[0], fogColor[1], fogColor[2], 1.1 );
+					R_SetFog( FOG_PORTALVIEW, fogStart, fogEnd, fogColor[0], fogColor[1], fogColor[2], 1.1 );
 					foginited = true;
 				}
 			} else {
 				if ( !foginited ) {
-					trap_R_SetFog( FOG_PORTALVIEW, 0,0,0,0,0,0 ); // init to null
+					R_SetFog( FOG_PORTALVIEW, 0,0,0,0,0,0 ); // init to null
 					foginited = true;
 				}
 			}
@@ -1213,10 +1213,10 @@ void CG_DrawActiveFrame( int serverTime, stereoFrame_t stereoView)
 
 	// any looped sounds will be respecified as entities
 	// are added to the render list
-	trap_S_ClearLoopingSounds( 0 );
+	S_ClearLoopingSounds();
 
 	// clear all the render lists
-	trap_R_ClearScene();
+	RE_ClearScene();
 
 	// set up cg.snap and possibly cg.nextSnap
 	CG_ProcessSnapshots();
@@ -1319,7 +1319,7 @@ void CG_DrawActiveFrame( int serverTime, stereoFrame_t stereoView)
 	CG_DrawActive( stereoView );
 
 	// update audio positions
-	trap_S_Respatialize( cg.snap->ps.clientNum, cg.refdef.vieworg, cg.refdef.viewaxis, inwater );
+	S_Respatialize( cg.snap->ps.clientNum, cg.refdef.vieworg, cg.refdef.viewaxis, inwater );
 
 	if ( cg_stats.integer ) {
 		Com_Printf( "cg.clientFrame:%i\n", cg.clientFrame );

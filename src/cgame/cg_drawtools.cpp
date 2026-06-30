@@ -28,6 +28,7 @@ If you have questions concerning this license or the applicable additional terms
 
 // cg_drawtools.c -- helper functions called by cg_draw, cg_scoreboard, cg_info, etc
 #include "cg_local.h"
+#include "../renderer/tr_public.h"
 
 /*
 ================
@@ -56,7 +57,7 @@ void CG_FillRect( float x, float y, float width, float height, const float *colo
 	RE_SetColor( color );
 
 	CG_AdjustFrom640( &x, &y, &width, &height );
-	trap_R_DrawStretchPic( x, y, width, height, 0, 0, 0, 1, cgs.media.whiteShader );
+	RE_StretchPic( x, y, width, height, 0, 0, 0, 1, cgs.media.whiteShader );
 
 	RE_SetColor( nullptr );
 }
@@ -70,7 +71,7 @@ void CG_FillRectGradient( float x, float y, float width, float height, const flo
 	RE_SetColor( color );
 
 	CG_AdjustFrom640( &x, &y, &width, &height );
-	trap_R_DrawStretchPicGradient( x, y, width, height, 0, 0, 0, 0, cgs.media.whiteShader, gradcolor, gradientType );
+	RE_StretchPicGradient( x, y, width, height, 0, 0, 0, 0, cgs.media.whiteShader, gradcolor, gradientType );
 
 	RE_SetColor( nullptr );
 }
@@ -215,15 +216,15 @@ Coords are virtual 640x480
 void CG_DrawSides( float x, float y, float w, float h, float size ) {
 	CG_AdjustFrom640( &x, &y, &w, &h );
 	size *= cgs.screenXScale;
-	trap_R_DrawStretchPic( x, y, size, h, 0, 0, 0, 0, cgs.media.whiteShader );
-	trap_R_DrawStretchPic( x + w - size, y, size, h, 0, 0, 0, 0, cgs.media.whiteShader );
+	RE_StretchPic( x, y, size, h, 0, 0, 0, 0, cgs.media.whiteShader );
+	RE_StretchPic( x + w - size, y, size, h, 0, 0, 0, 0, cgs.media.whiteShader );
 }
 
 void CG_DrawTopBottom( float x, float y, float w, float h, float size ) {
 	CG_AdjustFrom640( &x, &y, &w, &h );
 	size *= cgs.screenYScale;
-	trap_R_DrawStretchPic( x, y, w, size, 0, 0, 0, 0, cgs.media.whiteShader );
-	trap_R_DrawStretchPic( x, y + h - size, w, size, 0, 0, 0, 0, cgs.media.whiteShader );
+	RE_StretchPic( x, y, w, size, 0, 0, 0, 0, cgs.media.whiteShader );
+	RE_StretchPic( x, y + h - size, w, size, 0, 0, 0, 0, cgs.media.whiteShader );
 }
 
 void CG_DrawRect( float x, float y, float width, float height, float size, const float *color ) {
@@ -251,7 +252,7 @@ Coordinates are 640*480 virtual values
 */
 void CG_DrawPic( float x, float y, float width, float height, qhandle_t hShader ) {
 	CG_AdjustFrom640( &x, &y, &width, &height );
-	trap_R_DrawStretchPic( x, y, width, height, 0, 0, 1, 1, hShader );
+	RE_StretchPic( x, y, width, height, 0, 0, 1, 1, hShader );
 }
 
 
@@ -288,7 +289,7 @@ void CG_DrawChar( int x, int y, int width, int height, int ch ) {
 	fcol = col * 0.0625;
 	size = 0.0625;
 
-	trap_R_DrawStretchPic( ax, ay, aw, ah,
+	RE_StretchPic( ax, ay, aw, ah,
 						   fcol, frow,
 						   fcol + size, frow + size,
 						   cgs.media.charsetShader );
@@ -326,7 +327,7 @@ void CG_DrawChar2( int x, int y, int width, int height, int ch ) {
 	fcol = col * 0.0625;
 	size = 0.0625;
 
-	trap_R_DrawStretchPic( ax, ay, aw, ah,
+	RE_StretchPic( ax, ay, aw, ah,
 						   fcol, frow,
 						   fcol + size, frow + size,
 						   cgs.media.menucharsetShader );
@@ -613,7 +614,7 @@ static void CG_TileClearBox( int x, int y, int w, int h, qhandle_t hShader ) {
 	t1 = y / 64.0;
 	s2 = ( x + w ) / 64.0;
 	t2 = ( y + h ) / 64.0;
-	trap_R_DrawStretchPic( x, y, w, h, s1, t1, s2, t2, hShader );
+	RE_StretchPic( x, y, w, h, s1, t1, s2, t2, hShader );
 }
 
 
@@ -967,7 +968,7 @@ static void UI_DrawBannerString2( int x, int y, const char* str, vec4_t color ) 
 			fheight = (float)PROPB_HEIGHT / 256.0f;
 			aw = (float)propMapB[ch][2] * cgs.screenXScale;
 			ah = (float)PROPB_HEIGHT * cgs.screenXScale;
-			trap_R_DrawStretchPic( ax, ay, aw, ah, fcol, frow, fcol + fwidth, frow + fheight, cgs.media.charsetPropB );
+			RE_StretchPic( ax, ay, aw, ah, fcol, frow, fcol + fwidth, frow + fheight, cgs.media.charsetPropB );
 			ax += ( aw + (float)PROPB_GAP_WIDTH * cgs.screenXScale );
 		}
 		s++;
@@ -1073,7 +1074,7 @@ static void UI_DrawProportionalString2( int x, int y, const char* str, vec4_t co
 			fheight = (float)PROP_HEIGHT / 256.0f;
 			aw = (float)propMap[ch][2] * cgs.screenXScale * sizeScale;
 			ah = (float)PROP_HEIGHT * cgs.screenXScale * sizeScale;
-			trap_R_DrawStretchPic( ax, ay, aw, ah, fcol, frow, fcol + fwidth, frow + fheight, charset );
+			RE_StretchPic( ax, ay, aw, ah, fcol, frow, fcol + fwidth, frow + fheight, charset );
 		} else {
 			aw = 0;
 		}

@@ -37,6 +37,7 @@ If you have questions concerning this license or the applicable additional terms
 #include "../idlib/math/Math.h"
 #include "cg_local.h"
 #include "../qcommon/qcommon.h"
+#include "../renderer/tr_public.h"
 
 // a flameChunk is a ball or section of fuel which goes from fuel->blue ignition->flame ball
 // optimization is necessary, since lots of these will be spawned, but as they grow, they can be
@@ -1064,7 +1065,7 @@ void CG_AddFlameSpriteToScene( flameChunk_t *f, float lifeFrac, float alpha ) {
 		frameNum = NUM_FLAME_SPRITES - 1;
 	}
 
-	trap_R_AddPolyToScene( flameShaders[frameNum], 4, verts );
+		RE_AddPolyToScene( flameShaders[frameNum], 4, verts );
 	VectorCopy( f->org, lastPos );
 }
 
@@ -1334,7 +1335,7 @@ void CG_AddFlameToScene( flameChunk_t *fHead ) {
 				if ( lightSize < 200 ) {
 					lightSize = 200;
 				}
-				trap_R_AddLightToScene( f->org, lightSize, 1.0 * lightAlpha, 0.7 * lightAlpha, 0.3 * lightAlpha, 0 );
+				RE_AddLightToScene( f->org, lightSize, 1.0 * lightAlpha, 0.7 * lightAlpha, 0.3 * lightAlpha, 0 );
 				VectorCopy( f->org, lastLightPos );
 				lastLightFlameChunk = f;
 				lastLightSize = lightSize;
@@ -1365,9 +1366,9 @@ void CG_AddFlameToScene( flameChunk_t *fHead ) {
 		if ( lightSize > 80 ) {
 			lightSize = 80;
 		}
-		trap_R_AddLightToScene( lightOrg, 90 + lightSize, 0, 0, alpha * 0.5, 0 );
+		RE_AddLightToScene( lightOrg, 90 + lightSize, 0, 0, alpha * 0.5, 0 );
 	} else if ( isClientFlame || ( fHead->ownerCent == cg.snap->ps.clientNum ) ) {
-		//trap_R_AddLightToScene( lightOrg, 90 + lightSize, 1.000000*alpha, 0.603922*alpha, 0.207843*alpha, 2/*isClientFlame * (fHead->ownerCent == cg.snap->ps.clientNum)*/  );
+		//RE_AddLightToScene( lightOrg, 90 + lightSize, 1.000000*alpha, 0.603922*alpha, 0.207843*alpha, 2/*isClientFlame * (fHead->ownerCent == cg.snap->ps.clientNum)*/  );
 	}
 }
 

@@ -35,6 +35,7 @@ If you have questions concerning this license or the applicable additional terms
 
 #include "cg_local.h"
 #include "../client/snd_public.h"
+#include "../renderer/tr_public.h"
 #include "../qcommon/qcommon.h"
 
 int wolfkickModel;
@@ -966,7 +967,7 @@ void CG_RegisterWeapon( int weaponNum ) {
 //----(SA)	end
 
 	// calc midpoint for rotation
-	trap_R_ModelBounds( weaponInfo->weaponModel[W_TP_MODEL], mins, maxs );
+	R_ModelBounds( weaponInfo->weaponModel[W_TP_MODEL], mins, maxs );
 
 	for ( i = 0 ; i < 3 ; i++ ) {
 		weaponInfo->weaponMidpoint[i] = mins[i] + 0.5 * ( maxs[i] - mins[i] );
@@ -1850,17 +1851,17 @@ static void CG_AddWeaponWithPowerups( refEntity_t *gun, int powerups, PlayerStat
 	// add powerup effects
 	if ( powerups & ( 1 << PW_INVIS ) ) {
 		gun->customShader = cgs.media.invisShader;
-		trap_R_AddRefEntityToScene( gun );
+		RE_AddRefEntityToScene( gun );
 	} else {
-		trap_R_AddRefEntityToScene( gun );
+		RE_AddRefEntityToScene( gun );
 
 		if ( powerups & ( 1 << PW_BATTLESUIT ) ) {
 			gun->customShader = cgs.media.battleWeaponShader;
-			trap_R_AddRefEntityToScene( gun );
+			RE_AddRefEntityToScene( gun );
 		}
 		if ( powerups & ( 1 << PW_QUAD ) ) {
 			gun->customShader = cgs.media.quadWeaponShader;
-			trap_R_AddRefEntityToScene( gun );
+			RE_AddRefEntityToScene( gun );
 		}
 	}
 }
@@ -2114,13 +2115,13 @@ void CG_PlayerTeslaCoilFire( centity_t *cent, vec3_t flashorigin ) {
 
 	if ( ( cg.time / 50 ) % ( 4 + ( cg.time % 4 ) ) == 0 ) {
 		// alt light
-		trap_R_AddLightToScene( tr.endpos, 256 + 600 * tr.fraction, 0.2, 0.6, 1, 1 );
+		RE_AddLightToScene( tr.endpos, 256 + 600 * tr.fraction, 0.2, 0.6, 1, 1 );
 	} else if ( ( cg.time / 50 ) % ( 4 + ( cg.time % 4 ) ) == 1 ) {
 		// no light
-		//trap_R_AddLightToScene( tr.endpos, 128 + 500*tr.fraction, 1, 1, 1, 10 );
+		//RE_AddLightToScene( tr.endpos, 128 + 500*tr.fraction, 1, 1, 1, 10 );
 	} else {
 		// blue light
-		trap_R_AddLightToScene( tr.endpos, 256 + 600 * tr.fraction, 0.2, 0.6, 1, 0 );
+		RE_AddLightToScene( tr.endpos, 256 + 600 * tr.fraction, 0.2, 0.6, 1, 0 );
 	}
 
 
@@ -2570,7 +2571,7 @@ void CG_AddPlayerWeapon( refEntity_t *parent, PlayerState *ps, centity_t *cent )
 			// RF, changed this so the muzzle flash stays onscreen for long enough to be seen
 			if ( cg.time - cent->muzzleFlashTime < MUZZLE_FLASH_TIME ) {
 //			if (firing) {	// Ridah
-				trap_R_AddRefEntityToScene( &flash );
+				RE_AddRefEntityToScene( &flash );
 			}
 		}
 	}
@@ -2591,7 +2592,7 @@ void CG_AddPlayerWeapon( refEntity_t *parent, PlayerState *ps, centity_t *cent )
 
 			// make a dlight for the flash
 			if ( weapon->flashDlightColor[0] || weapon->flashDlightColor[1] || weapon->flashDlightColor[2] ) {
-				trap_R_AddLightToScene( flash.origin, 200 + ( rand() & 31 ), weapon->flashDlightColor[0],
+				RE_AddLightToScene( flash.origin, 200 + ( rand() & 31 ), weapon->flashDlightColor[0],
 										weapon->flashDlightColor[1], weapon->flashDlightColor[2], 0 );
 			}
 		} else {
@@ -2657,7 +2658,7 @@ void CG_AddPlayerFoot( refEntity_t *parent, PlayerState *ps, centity_t *cent ) {
 	wolfkick.frame = frame;
 	wolfkick.oldframe = frame - 1;
 	wolfkick.backlerp = 1 - cg.frameInterpolation;
-	trap_R_AddRefEntityToScene( &wolfkick );
+	RE_AddRefEntityToScene( &wolfkick );
 
 }
 
@@ -4072,7 +4073,7 @@ void CG_MG42EFX( centity_t *cent ) {
 	VectorCopy( cent->currentState.origin, point );
 	AngleVectors( cent->currentState.angles, forward, nullptr, nullptr );
 	VectorMA( point, 40, forward, point );
-	trap_R_AddLightToScene( point, 200 + ( rand() & 31 ),1.0, 0.6, 0.23, 0 );
+	RE_AddLightToScene( point, 200 + ( rand() & 31 ),1.0, 0.6, 0.23, 0 );
 
 	memset( &flash, 0, sizeof( flash ) );
 	flash.renderfx = RF_LIGHTING_ORIGIN;
@@ -4081,7 +4082,7 @@ void CG_MG42EFX( centity_t *cent ) {
 	VectorCopy( point, flash.origin );
 	AnglesToAxis( cg.refdefViewAngles, flash.axis );
 
-	trap_R_AddRefEntityToScene( &flash );
+	RE_AddRefEntityToScene( &flash );
 }
 
 void CG_FLAKEFX( centity_t *cent, int whichgun ) {
@@ -4114,7 +4115,7 @@ void CG_FLAKEFX( centity_t *cent, int whichgun ) {
 		VectorMA( point, -22, right, point );
 	}
 
-	trap_R_AddLightToScene( point, 200 + ( rand() & 31 ),1.0, 0.6, 0.23, 0 );
+	RE_AddLightToScene( point, 200 + ( rand() & 31 ),1.0, 0.6, 0.23, 0 );
 
 	memset( &flash, 0, sizeof( flash ) );
 	flash.renderfx = RF_LIGHTING_ORIGIN;
@@ -4123,7 +4124,7 @@ void CG_FLAKEFX( centity_t *cent, int whichgun ) {
 	VectorCopy( point, flash.origin );
 	AnglesToAxis( cg.refdefViewAngles, flash.axis );
 
-	trap_R_AddRefEntityToScene( &flash );
+	RE_AddRefEntityToScene( &flash );
 
 	S_StartSound( nullptr, ent->number, CHAN_WEAPON, hflakWeaponSnd );
 }
@@ -4146,7 +4147,7 @@ void CG_MortarEFX( centity_t *cent ) {
 
 	if ( cent->currentState.density & 2 ) {
 		// light
-		trap_R_AddLightToScene( cent->currentState.origin, 200 + ( rand() & 31 ), 1.0, 1.0, 1.0, 0 );
+		RE_AddLightToScene( cent->currentState.origin, 200 + ( rand() & 31 ), 1.0, 1.0, 1.0, 0 );
 
 		// muzzle flash
 		memset( &flash, 0, sizeof( flash ) );
@@ -4154,7 +4155,7 @@ void CG_MortarEFX( centity_t *cent ) {
 		flash.hModel = cgs.media.mg42muzzleflash;
 		VectorCopy( cent->currentState.origin, flash.origin );
 		AnglesToAxis( cg.refdefViewAngles, flash.axis );
-		trap_R_AddRefEntityToScene( &flash );
+		RE_AddRefEntityToScene( &flash );
 	}
 }
 
@@ -5411,7 +5412,7 @@ void CG_DrawTracer( vec3_t start, vec3_t finish ) {
 	verts[3].modulate[2] = 255;
 	verts[3].modulate[3] = 255;
 
-	trap_R_AddPolyToScene( cgs.media.tracerShader, 4, verts );
+	RE_AddPolyToScene( cgs.media.tracerShader, 4, verts );
 }
 
 /*

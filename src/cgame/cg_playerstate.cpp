@@ -259,7 +259,7 @@ void CG_Respawn( void ) {
 	cg.zoomval = 0;
 
 	// reset fog to world fog (if present)
-//	trap_R_SetFog(FOG_CMD_SWITCHFOG, FOG_MAP,20,0,0,0,0);
+//	R_SetFog(FOG_CMD_SWITCHFOG, FOG_MAP,20,0,0,0,0);
 
 	// dhm - end
 

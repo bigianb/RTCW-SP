@@ -31,6 +31,7 @@ If you have questions concerning this license or the applicable additional terms
 #include "../ui/ui_shared.h"
 #include "../qcommon/cm_public.h"
 #include "../client/snd_public.h"
+#include "../renderer/tr_public.h"
 #include "../qcommon/qcommon.h"
 #include "../qcommon/clip_model.h"
 
@@ -882,11 +883,11 @@ static void CG_RegisterGraphics( void ) {
 
 	// clear any references to old media
 	memset( &cg.refdef, 0, sizeof( cg.refdef ) );
-	trap_R_ClearScene();
+	RE_ClearScene();
 
 	CG_LoadingString( cgs.mapname );
 
-	trap_R_LoadWorldMap( cgs.mapname );
+	RE_LoadWorldMap( cgs.mapname );
 
 	// precache status bar pics
 	CG_LoadingString( "game media" );
@@ -1189,7 +1190,7 @@ static void CG_RegisterGraphics( void ) {
 
 		snprintf( name, sizeof( name ), "*%i", i );
 		cgs.inlineDrawModel[i] = trap_R_RegisterModel( name );
-		trap_R_ModelBounds( cgs.inlineDrawModel[i], mins, maxs );
+		R_ModelBounds( cgs.inlineDrawModel[i], mins, maxs );
 		for ( j = 0 ; j < 3 ; j++ ) {
 			cgs.inlineModelMidpoints[i][j] = mins[j] + 0.5 * ( maxs[j] - mins[j] );
 		}
@@ -1260,7 +1261,7 @@ void CG_StartMusic( void ) {
 	Q_strncpyz( parm2, COM_Parse( &s ), sizeof( parm2 ) );
 
 	if ( strlen( parm1 ) ) {
-		trap_S_StartBackgroundTrack( parm1, parm2, 0 );
+		S_StartBackgroundTrack( parm1, parm2, 0 );
 	}
 }
 
@@ -1276,7 +1277,7 @@ void CG_QueueMusic( void ) {
 
 	// TODO: \/		the values stored in here will be made accessable so
 	//				it doesn't have to go through startbackgroundtrack() (which is stupid)
-	trap_S_StartBackgroundTrack( parm, "", -2 );  // '-2' for 'queue looping track' (QUEUED_PLAY_LOOPED)
+	S_StartBackgroundTrack( parm, "", -2 );  // '-2' for 'queue looping track' (QUEUED_PLAY_LOOPED)
 }
 
 
@@ -1451,6 +1452,7 @@ void CG_Init( int serverMessageNum, int serverCommandSequence ) {
 	CG_ShaderStateChanged();
 
 	// RF, clear all sounds, so we dont hear anything after level load
-	trap_S_ClearLoopingSounds( 2 );
+	S_ClearLoopingSounds();
+	S_ClearSounds( true, true );
 
 }
