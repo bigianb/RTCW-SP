@@ -144,14 +144,14 @@ int AICast_SetupClient( int client )
 	cs->bs = bs;
 
 	//allocate a goal state
-	bs->gs = trap_BotAllocGoalState( client );
+	bs->gs = BotAllocGoalState( client );
 
 	bs->inuse = true;
 	bs->client = client;
 	bs->entitynum = client;
 	bs->setupcount = true;
 	bs->entergame_time = AAS_Time();
-	bs->ms = trap_BotAllocMoveState();
+	bs->ms = BotAllocMoveState();
 
 	return true;
 }
@@ -176,9 +176,9 @@ int AICast_ShutdownClient( int client )
 	// now do the other bot stuff
 
 
-	trap_BotFreeMoveState( bs->ms );
+	BotFreeMoveState( bs->ms );
 	//free the goal state
-	trap_BotFreeGoalState( bs->gs );
+	BotFreeGoalState( bs->gs );
 	//
 	//clear the bot state
 	memset( bs, 0, sizeof( bot_state_t ) );

@@ -805,79 +805,13 @@ void    Cvar_Set( const char *var_name, const char *value );
 
 bool SV_inPVS( const vec3_t p1, const vec3_t p2 );
 
-int     trap_DebugPolygonCreate( int color, int numPoints, vec3_t *points );
-void    trap_DebugPolygonDelete( int id );
 
 int     SV_BotLibShutdown( void );
 int     Export_BotLibVarSet( const char *var_name, const char *value );
 
 
-int     trap_BotLibStartFrame( float time );
-int     trap_BotLibLoadMap( const char *mapname );
-int     trap_BotLibUpdateEntity( int ent, void /* struct bot_updateentity_s */ *bue );
-
-int     trap_BotGetSnapshotEntity( int clientNum, int sequence );
-int     trap_BotGetServerCommand( int clientNum, char *message, int size );
-//int		trap_BotGetConsoleMessage(int clientNum, char *message, int size);
 void    trap_BotUserCommand( int client, UserCmd *ucmd );
 
-int     trap_BotLoadCharacter( char *charfile, int skill );
-void    trap_BotFreeCharacter( int character );
-float   trap_Characteristic_Float( int character, int index );
-float   trap_Characteristic_BFloat( int character, int index, float min, float max );
-int     trap_Characteristic_Integer( int character, int index );
-int     trap_Characteristic_BInteger( int character, int index, int min, int max );
-void    trap_Characteristic_String( int character, int index, char *buf, int size );
-
-void    trap_BotResetGoalState( int goalstate );
-void    trap_BotRemoveFromAvoidGoals( int goalstate, int number );
-void    trap_BotResetAvoidGoals( int goalstate );
-void    trap_BotPushGoal( int goalstate, void /* struct bot_goal_s */ *goal );
-void    trap_BotPopGoal( int goalstate );
-void    trap_BotEmptyGoalStack( int goalstate );
-void    trap_BotDumpAvoidGoals( int goalstate );
-void    trap_BotDumpGoalStack( int goalstate );
-void    trap_BotGoalName( int number, char *name, int size );
-int     trap_BotGetTopGoal( int goalstate, void /* struct bot_goal_s */ *goal );
-int     trap_BotGetSecondGoal( int goalstate, void /* struct bot_goal_s */ *goal );
-int     trap_BotChooseLTGItem( int goalstate, vec3_t origin, int *inventory, int travelflags );
-int     trap_BotChooseNBGItem( int goalstate, vec3_t origin, int *inventory, int travelflags, void /* struct bot_goal_s */ *ltg, float maxtime );
-int     trap_BotTouchingGoal( vec3_t origin, void /* struct bot_goal_s */ *goal );
-int     trap_BotItemGoalInVisButNotVisible( int viewer, vec3_t eye, vec3_t viewangles, void /* struct bot_goal_s */ *goal );
-int     trap_BotGetNextCampSpotGoal( int num, void /* struct bot_goal_s */ *goal );
-int     trap_BotGetMapLocationGoal( char *name, void /* struct bot_goal_s */ *goal );
-int     trap_BotGetLevelItemGoal( int index, const char *classname, void /* struct bot_goal_s */ *goal );
-float   trap_BotAvoidGoalTime( int goalstate, int number );
-void    trap_BotInitLevelItems( void );
-void    trap_BotUpdateEntityItems( void );
-int     trap_BotLoadItemWeights( int goalstate, char *filename );
-void    trap_BotFreeItemWeights( int goalstate );
-
-void    trap_BotMutateGoalFuzzyLogic( int goalstate, float range );
-int     trap_BotAllocGoalState( int state );
-void    trap_BotFreeGoalState( int handle );
-
-void    trap_BotResetMoveState( int movestate );
-void    trap_BotMoveToGoal( void /* struct bot_moveresult_s */ *result, int movestate, void /* struct bot_goal_s */ *goal, int travelflags );
-int     trap_BotMoveInDirection( int movestate, vec3_t dir, float speed, int type );
-void    trap_BotResetAvoidReach( int movestate );
-void    trap_BotResetLastAvoidReach( int movestate );
-int     trap_BotReachabilityArea( vec3_t origin, int testground );
-int     trap_BotMovementViewTarget( int movestate, void /* struct bot_goal_s */ *goal, int travelflags, float lookahead, vec3_t target );
-int     trap_BotPredictVisiblePosition( vec3_t origin, int areanum, void /* struct bot_goal_s */ *goal, int travelflags, vec3_t target );
-int     trap_BotAllocMoveState( void );
-void    trap_BotFreeMoveState( int handle );
-void    trap_BotInitMoveState( int handle, void /* struct bot_initmove_s */ *initmove );
-// Ridah
-void    trap_BotInitAvoidReach( int handle );
-// done.
-
-int     trap_BotChooseBestFightWeapon( int weaponstate, int *inventory );
-void    trap_BotGetWeaponInfo( int weaponstate, int weapon, void /* struct weaponinfo_s */ *weaponinfo );
-int     trap_BotLoadWeaponWeights( int weaponstate, char *filename );
-int     trap_BotAllocWeaponState( void );
-void    trap_BotFreeWeaponState( int weaponstate );
-void    trap_BotResetWeaponState( int weaponstate );
 
 typedef enum
 {

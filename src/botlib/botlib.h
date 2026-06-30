@@ -368,8 +368,7 @@ typedef struct botlib_export_s
 	int ( *BotLibVarGet )( char *var_name, char *value, int size );
 	//sets a C-like define returns BLERR_
 	int ( *BotLibDefine )( char *string );
-	//start a frame in the bot library
-	int ( *BotLibStartFrame )( float time );
+
 	//load a new map in the bot library
 	int ( *BotLibLoadMap )( const char *mapname );
 	//entity updates
@@ -379,6 +378,8 @@ typedef struct botlib_export_s
 } botlib_export_t;
 
 void BotImport_Print( int type, const char *fmt, ... );
+
+int BotLibStartFrame ( float time ) ;
 
 int Export_BotLibSetup();
 int Export_BotLibShutdown();

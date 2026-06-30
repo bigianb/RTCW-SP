@@ -745,73 +745,11 @@ extern void moveit ( GameEntity * ent , float yaw , float dist ) ;
 extern void DropToFloor ( GameEntity * ent ) ;
 extern void DropToFloorG ( GameEntity * ent ) ;
 
-extern void trap_BotResetWeaponState ( int weaponstate ) ;
-extern void trap_BotFreeWeaponState ( int weaponstate ) ;
-extern int trap_BotAllocWeaponState ( void ) ;
-extern int trap_BotLoadWeaponWeights ( int weaponstate , char * filename ) ;
-extern void trap_BotGetWeaponInfo ( int weaponstate , int weapon , void * weaponinfo ) ;
-extern int trap_BotChooseBestFightWeapon ( int weaponstate , int * inventory ) ;
-extern void trap_BotInitAvoidReach ( int handle ) ;
-extern void trap_BotInitMoveState ( int handle , void * initmove ) ;
-extern void trap_BotFreeMoveState ( int handle ) ;
-extern int trap_BotAllocMoveState ( void ) ;
-extern int trap_BotPredictVisiblePosition ( vec3_t origin , int areanum , void * goal , int travelflags , vec3_t target ) ;
-extern int trap_BotMovementViewTarget ( int movestate , void * goal , int travelflags , float lookahead , vec3_t target ) ;
-extern int trap_BotReachabilityArea ( vec3_t origin , int testground ) ;
-extern void trap_BotResetLastAvoidReach ( int movestate ) ;
-extern void trap_BotResetAvoidReach ( int movestate ) ;
-extern int trap_BotMoveInDirection ( int movestate , vec3_t dir , float speed , int type ) ;
-extern void trap_BotMoveToGoal ( void * result , int movestate , void * goal , int travelflags ) ;
-extern void trap_BotResetMoveState ( int movestate ) ;
-extern void trap_BotFreeGoalState ( int handle ) ;
-extern int trap_BotAllocGoalState ( int state ) ;
-extern void trap_BotMutateGoalFuzzyLogic ( int goalstate , float range ) ;
-
-extern void trap_BotFreeItemWeights ( int goalstate ) ;
-extern int trap_BotLoadItemWeights ( int goalstate , char * filename ) ;
-extern void trap_BotUpdateEntityItems ( void ) ;
-extern void trap_BotInitLevelItems ( void ) ;
-extern float trap_BotAvoidGoalTime ( int goalstate , int number ) ;
-extern int trap_BotGetMapLocationGoal ( char * name , void * goal ) ;
-extern int trap_BotGetNextCampSpotGoal ( int num , void * goal ) ;
-extern int trap_BotGetLevelItemGoal ( int index , const char * classname , void * goal ) ;
-extern int trap_BotItemGoalInVisButNotVisible ( int viewer , vec3_t eye , vec3_t viewangles , void * goal ) ;
-extern int trap_BotTouchingGoal ( vec3_t origin , void * goal ) ;
-extern int trap_BotChooseNBGItem ( int goalstate , vec3_t origin , int * inventory , int travelflags , void * ltg , float maxtime ) ;
-extern int trap_BotChooseLTGItem ( int goalstate , vec3_t origin , int * inventory , int travelflags ) ;
-extern int trap_BotGetSecondGoal ( int goalstate , void * goal ) ;
-extern int trap_BotGetTopGoal ( int goalstate , void * goal ) ;
-extern void trap_BotGoalName ( int number , char * name , int size ) ;
-extern void trap_BotDumpGoalStack ( int goalstate ) ;
-extern void trap_BotDumpAvoidGoals ( int goalstate ) ;
-extern void trap_BotEmptyGoalStack ( int goalstate ) ;
-extern void trap_BotPopGoal ( int goalstate ) ;
-extern void trap_BotPushGoal ( int goalstate , void * goal ) ;
-extern void trap_BotRemoveFromAvoidGoals ( int goalstate , int number ) ;
-extern void trap_BotResetAvoidGoals ( int goalstate ) ;
-extern void trap_BotResetGoalState ( int goalstate ) ;
-
-extern void trap_Characteristic_String ( int character , int index , char * buf , int size ) ;
-extern int trap_Characteristic_BInteger ( int character , int index , int min , int max ) ;
-extern int trap_Characteristic_Integer ( int character , int index ) ;
-extern float trap_Characteristic_BFloat ( int character , int index , float min , float max ) ;
-extern float trap_Characteristic_Float ( int character , int index ) ;
-extern void trap_BotFreeCharacter ( int character ) ;
-extern int trap_BotLoadCharacter ( char * charfile , int skill ) ;
-
 extern void trap_BotUserCommand ( int clientNum , UserCmd * ucmd ) ;
-extern int trap_BotGetServerCommand ( int clientNum , char * message , int size ) ;
-extern int trap_BotGetSnapshotEntity ( int clientNum , int sequence ) ;
-extern int trap_BotLibUpdateEntity ( int ent , void * bue ) ;
-extern int trap_BotLibLoadMap ( const char * mapname ) ;
-extern int trap_BotLibStartFrame ( float time ) ;
 
 extern int SV_BotLibShutdown ( void ) ;
 
 extern bool CG_GetTag ( int clientNum , const char * tagName , orientation_t * orientation ) ;
-
-extern void trap_DebugPolygonDelete ( int id ) ;
-extern int trap_DebugPolygonCreate ( int color , int numPoints , vec3_t * points ) ;
 
 extern void Cvar_Update ( vmCvar_t * cvar ) ;
 

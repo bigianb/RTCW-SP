@@ -80,7 +80,7 @@ void AICast_ProcessAIFunctions( cast_state_t *cs, float thinktime ) {
 		if ( !( funcname = cs->aifunc( cs ) ) ) {
 			break;
 		} else {
-			trap_BotResetAvoidReach( cs->bs->ms );    // reset avoidreach
+			BotResetAvoidReach( cs->bs->ms );    // reset avoidreach
 			cs->thinkFuncChangeTime = level.time;
 			AICast_DBG_AddAIFunc( cs, funcname );
 		}
@@ -815,7 +815,7 @@ void AICast_StartFrame( int time )
 	}
 	//
 	// make sure the AAS gets updated
-	trap_BotLibStartFrame( (float) time / 1000 );
+	BotLibStartFrame( (float) time / 1000 );
 	//
 	//
 	elapsed = time - lasttime;
@@ -966,7 +966,7 @@ void AICast_StartServerFrame( int time ) {
 	}
 	//
 	// make sure the AAS gets updated
-	trap_BotLibStartFrame( (float) time / 1000 );
+	BotLibStartFrame( (float) time / 1000 );
 	//
 	//
 	elapsed = time - lasttime;

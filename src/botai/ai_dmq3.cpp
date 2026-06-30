@@ -272,7 +272,7 @@ void BotChooseWeapon( bot_state_t *bs ) {
 			bs->cur_ps.weaponstate == WEAPON_DROPPING_TORELOAD ) {   //----(SA)	added
 		EA_SelectWeapon( bs->client, bs->weaponnum );
 	} else {
-		newweaponnum = trap_BotChooseBestFightWeapon( bs->ws, bs->inventory );
+		newweaponnum = BotChooseBestFightWeapon( bs->ws, bs->inventory );
 		if ( bs->weaponnum != newweaponnum ) {
 			bs->weaponchange_time = AAS_Time();
 		}
@@ -321,7 +321,7 @@ void BotSetupForMovement( bot_state_t *bs ) {
 	//
 	VectorCopy( bs->viewangles, initmove.viewangles );
 	//
-	trap_BotInitMoveState( bs->ms, &initmove );
+	BotInitMoveState( bs->ms, &initmove );
 }
 
 /*
@@ -746,7 +746,7 @@ int BotCanAndWantsToRocketJump( bot_state_t *bs ) {
 			return false;
 		}
 	}
-	rocketjumper = trap_Characteristic_BFloat( bs->character, CHARACTERISTIC_WEAPONJUMPING, 0, 1 );
+	rocketjumper = Characteristic_BFloat( bs->character, CHARACTERISTIC_WEAPONJUMPING, 0, 1 );
 	if ( rocketjumper < 0.5 ) {
 		return false;
 	}
@@ -768,7 +768,7 @@ void BotGoCamp( bot_state_t *bs, bot_goal_t *goal ) {
 	//set the team goal
 	memcpy( &bs->teamgoal, goal, sizeof( bot_goal_t ) );
 	//get the team goal time
-	camper = trap_Characteristic_BFloat( bs->character, CHARACTERISTIC_CAMPER, 0, 1 );
+	camper = Characteristic_BFloat( bs->character, CHARACTERISTIC_CAMPER, 0, 1 );
 	if ( camper > 0.99 ) {
 		bs->teamgoal_time = 99999;
 	} else { bs->teamgoal_time = 120 + 180 * camper + random() * 15;}
@@ -790,7 +790,7 @@ int BotWantsToCamp( bot_state_t *bs ) {
 	int cs, traveltime, besttraveltime;
 	bot_goal_t goal, bestgoal;
 
-	camper = trap_Characteristic_BFloat( bs->character, CHARACTERISTIC_CAMPER, 0, 1 );
+	camper = Characteristic_BFloat( bs->character, CHARACTERISTIC_CAMPER, 0, 1 );
 	if ( camper < 0.1 ) {
 		return false;
 	}
@@ -827,7 +827,7 @@ int BotWantsToCamp( bot_state_t *bs ) {
 	}
 	//find the closest camp spot
 	besttraveltime = 99999;
-	for ( cs = trap_BotGetNextCampSpotGoal( 0, &goal ); cs; cs = trap_BotGetNextCampSpotGoal( cs, &goal ) ) {
+	for ( cs = BotGetNextCampSpotGoal( 0, &goal ); cs; cs = BotGetNextCampSpotGoal( cs, &goal ) ) {
 		traveltime = AAS_AreaTravelTimeToGoalArea( bs->areanum, bs->origin, goal.areanum, TFL_DEFAULT );
 		if ( traveltime && traveltime < besttraveltime ) {
 			besttraveltime = traveltime;
@@ -852,10 +852,10 @@ void BotDontAvoid( bot_state_t *bs, const char *itemname ) {
 	bot_goal_t goal;
 	int num;
 
-	num = trap_BotGetLevelItemGoal( -1, itemname, &goal );
+	num = BotGetLevelItemGoal( -1, itemname, &goal );
 	while ( num >= 0 ) {
-		trap_BotRemoveFromAvoidGoals( bs->gs, goal.number );
-		num = trap_BotGetLevelItemGoal( num, itemname, &goal );
+		BotRemoveFromAvoidGoals( bs->gs, goal.number );
+		num = BotGetLevelItemGoal( num, itemname, &goal );
 	}
 }
 
@@ -965,15 +965,15 @@ bot_moveresult_t BotAttackMove( bot_state_t *bs, int tfl ) {
 		//initialize the movement state
 		BotSetupForMovement( bs );
 		//move towards the goal
-		trap_BotMoveToGoal( &moveresult, bs->ms, &goal, tfl );
+		BotMoveToGoal( &moveresult, bs->ms, &goal, tfl );
 		return moveresult;
 	}
 	//
 	memset( &moveresult, 0, sizeof( bot_moveresult_t ) );
 	//
-	attack_skill = trap_Characteristic_BFloat( bs->character, CHARACTERISTIC_ATTACK_SKILL, 0, 1 );
-	jumper = trap_Characteristic_BFloat( bs->character, CHARACTERISTIC_JUMPER, 0, 1 );
-	croucher = trap_Characteristic_BFloat( bs->character, CHARACTERISTIC_CROUCHER, 0, 1 );
+	attack_skill = Characteristic_BFloat( bs->character, CHARACTERISTIC_ATTACK_SKILL, 0, 1 );
+	jumper = Characteristic_BFloat( bs->character, CHARACTERISTIC_JUMPER, 0, 1 );
+	croucher = Characteristic_BFloat( bs->character, CHARACTERISTIC_CROUCHER, 0, 1 );
 	//if the bot is really stupid
 	if ( attack_skill < 0.2 ) {
 		return moveresult;
@@ -1022,12 +1022,12 @@ bot_moveresult_t BotAttackMove( bot_state_t *bs, int tfl ) {
 	if ( attack_skill <= 0.4 ) {
 		//just walk to or away from the enemy
 		if ( dist > attack_dist + attack_range ) {
-			if ( trap_BotMoveInDirection( bs->ms, forward, 400, movetype ) ) {
+			if ( BotMoveInDirection( bs->ms, forward, 400, movetype ) ) {
 				return moveresult;
 			}
 		}
 		if ( dist < attack_dist - attack_range ) {
-			if ( trap_BotMoveInDirection( bs->ms, backward, 400, movetype ) ) {
+			if ( BotMoveInDirection( bs->ms, backward, 400, movetype ) ) {
 				return moveresult;
 			}
 		}
@@ -1073,7 +1073,7 @@ bot_moveresult_t BotAttackMove( bot_state_t *bs, int tfl ) {
 			}
 		}
 		//perform the movement
-		if ( trap_BotMoveInDirection( bs->ms, sideward, 400, movetype ) ) {
+		if ( BotMoveInDirection( bs->ms, sideward, 400, movetype ) ) {
 			return moveresult;
 		}
 		//movement failed, flip the strafe direction
@@ -1263,8 +1263,8 @@ int BotFindEnemy( bot_state_t *bs, int curenemy ) {
 	aas_entityinfo_t entinfo, curenemyinfo;
 	vec3_t dir, angles;
 
-	alertness = trap_Characteristic_BFloat( bs->character, CHARACTERISTIC_ALERTNESS, 0, 1 );
-	easyfragger = trap_Characteristic_BFloat( bs->character, CHARACTERISTIC_EASY_FRAGGER, 0, 1 );
+	alertness = Characteristic_BFloat( bs->character, CHARACTERISTIC_ALERTNESS, 0, 1 );
+	easyfragger = Characteristic_BFloat( bs->character, CHARACTERISTIC_EASY_FRAGGER, 0, 1 );
 	//check if the health decreased
 	healthdecrease = bs->lasthealth > bs->inventory[INVENTORY_HEALTH];
 	//remember the current health value
@@ -1386,12 +1386,12 @@ void BotAimAtEnemy( bot_state_t *bs ) {
 	//
 	//BotAI_Print(PRT_MESSAGE, "client %d: aiming at client %d\n", bs->entitynum, bs->enemy);
 	//
-	aim_skill = trap_Characteristic_BFloat( bs->character, CHARACTERISTIC_AIM_SKILL, 0, 1 );
-	aim_accuracy = trap_Characteristic_BFloat( bs->character, CHARACTERISTIC_AIM_ACCURACY, 0, 1 );
+	aim_skill = Characteristic_BFloat( bs->character, CHARACTERISTIC_AIM_SKILL, 0, 1 );
+	aim_accuracy = Characteristic_BFloat( bs->character, CHARACTERISTIC_AIM_ACCURACY, 0, 1 );
 	//
 	if ( aim_skill > 0.95 ) {
 		//don't aim too early
-		reactiontime = 0.5 * trap_Characteristic_BFloat( bs->character, CHARACTERISTIC_REACTIONTIME, 0, 1 );
+		reactiontime = 0.5 * Characteristic_BFloat( bs->character, CHARACTERISTIC_REACTIONTIME, 0, 1 );
 		if ( bs->enemysight_time > AAS_Time() - reactiontime ) {
 			return;
 		}
@@ -1401,33 +1401,33 @@ void BotAimAtEnemy( bot_state_t *bs ) {
 	}
 
 	//get the weapon information
-	trap_BotGetWeaponInfo( bs->ws, bs->weaponnum, &wi );
+	BotGetWeaponInfo( bs->ws, bs->weaponnum, &wi );
 	//get the weapon specific aim accuracy and or aim skill
 //----(SA) commented out the weapons that aren't ours.
 //----(SA) if we're not using this routine at all and my changes are irrelivant, please let me know.
 //	if (wi.number == WP_MACHINEGUN) {
-//		aim_accuracy = trap_Characteristic_BFloat(bs->character, CHARACTERISTIC_AIM_ACCURACY_MACHINEGUN, 0, 1);
+//		aim_accuracy = Characteristic_BFloat(bs->character, CHARACTERISTIC_AIM_ACCURACY_MACHINEGUN, 0, 1);
 //	}
 //	if (wi.number == WP_SHOTGUN) {
-//		aim_accuracy = trap_Characteristic_BFloat(bs->character, CHARACTERISTIC_AIM_ACCURACY_SHOTGUN, 0, 1);
+//		aim_accuracy = Characteristic_BFloat(bs->character, CHARACTERISTIC_AIM_ACCURACY_SHOTGUN, 0, 1);
 //	}
 	if ( wi.number == WP_GRENADE_LAUNCHER ) {
-		aim_accuracy = trap_Characteristic_BFloat( bs->character, CHARACTERISTIC_AIM_ACCURACY_GRENADELAUNCHER, 0, 1 );
-		aim_skill = trap_Characteristic_BFloat( bs->character, CHARACTERISTIC_AIM_SKILL_GRENADELAUNCHER, 0, 1 );
+		aim_accuracy = Characteristic_BFloat( bs->character, CHARACTERISTIC_AIM_ACCURACY_GRENADELAUNCHER, 0, 1 );
+		aim_skill = Characteristic_BFloat( bs->character, CHARACTERISTIC_AIM_SKILL_GRENADELAUNCHER, 0, 1 );
 	}
 	if ( wi.number == WP_FLAMETHROWER ) {
-		aim_accuracy = trap_Characteristic_BFloat( bs->character, CHARACTERISTIC_AIM_ACCURACY_LIGHTNING, 0, 1 );
+		aim_accuracy = Characteristic_BFloat( bs->character, CHARACTERISTIC_AIM_ACCURACY_LIGHTNING, 0, 1 );
 	}
 //	if (wi.number == WP_RAILGUN) {
-//		aim_accuracy = trap_Characteristic_BFloat(bs->character, CHARACTERISTIC_AIM_ACCURACY_RAILGUN, 0, 1);
+//		aim_accuracy = Characteristic_BFloat(bs->character, CHARACTERISTIC_AIM_ACCURACY_RAILGUN, 0, 1);
 //	}
 	if ( wi.number == WP_SILENCER ) {
-		aim_accuracy = trap_Characteristic_BFloat( bs->character, CHARACTERISTIC_AIM_ACCURACY_SP5, 0, 1 );
-		aim_skill = trap_Characteristic_BFloat( bs->character, CHARACTERISTIC_AIM_SKILL_SP5, 0, 1 );
+		aim_accuracy = Characteristic_BFloat( bs->character, CHARACTERISTIC_AIM_ACCURACY_SP5, 0, 1 );
+		aim_skill = Characteristic_BFloat( bs->character, CHARACTERISTIC_AIM_SKILL_SP5, 0, 1 );
 	}
 //	if (wi.number == WP_BFG) {
-//		aim_accuracy = trap_Characteristic_BFloat(bs->character, CHARACTERISTIC_AIM_ACCURACY_BFG10K, 0, 1);
-//		aim_skill = trap_Characteristic_BFloat(bs->character, CHARACTERISTIC_AIM_SKILL_BFG10K, 0, 1);
+//		aim_accuracy = Characteristic_BFloat(bs->character, CHARACTERISTIC_AIM_ACCURACY_BFG10K, 0, 1);
+//		aim_skill = Characteristic_BFloat(bs->character, CHARACTERISTIC_AIM_SKILL_BFG10K, 0, 1);
 //	}
 	//
 	if ( aim_accuracy <= 0 ) {
@@ -1586,7 +1586,7 @@ void BotAimAtEnemy( bot_state_t *bs ) {
 				VectorSet( goal.mins, -8, -8, -8 );
 				VectorSet( goal.maxs, 8, 8, 8 );
 				//
-				if ( trap_BotPredictVisiblePosition( bs->lastenemyorigin, bs->lastenemyareanum, &goal, TFL_DEFAULT, target ) ) {
+				if ( BotPredictVisiblePosition( bs->lastenemyorigin, bs->lastenemyareanum, &goal, TFL_DEFAULT, target ) ) {
 					VectorCopy( target, bestorigin );
 					bestorigin[2] -= 20;
 				}
@@ -1658,7 +1658,7 @@ void BotCheckAttack( bot_state_t *bs ) {
 		return;
 	}
 	//
-	reactiontime = trap_Characteristic_BFloat( bs->character, CHARACTERISTIC_REACTIONTIME, 0, 1 );
+	reactiontime = Characteristic_BFloat( bs->character, CHARACTERISTIC_REACTIONTIME, 0, 1 );
 	if ( bs->enemysight_time > AAS_Time() - reactiontime ) {
 		return;
 	}
@@ -1673,7 +1673,7 @@ void BotCheckAttack( bot_state_t *bs ) {
 	if ( bs->firethrottlewait_time > AAS_Time() ) {
 		return;
 	}
-	firethrottle = trap_Characteristic_BFloat( bs->character, CHARACTERISTIC_FIRETHROTTLE, 0, 1 );
+	firethrottle = Characteristic_BFloat( bs->character, CHARACTERISTIC_FIRETHROTTLE, 0, 1 );
 	if ( bs->firethrottleshoot_time < AAS_Time() ) {
 		if ( random() > firethrottle ) {
 			bs->firethrottlewait_time = AAS_Time() + firethrottle;
@@ -1706,7 +1706,7 @@ void BotCheckAttack( bot_state_t *bs ) {
 	}
 
 	//get the weapon info
-	trap_BotGetWeaponInfo( bs->ws, bs->weaponnum, &wi );
+	BotGetWeaponInfo( bs->ws, bs->weaponnum, &wi );
 	//get the start point shooting from
 	VectorCopy( bs->origin, start );
 	start[2] += bs->cur_ps.viewheight;
@@ -1733,7 +1733,7 @@ void BotCheckAttack( bot_state_t *bs ) {
 			if ( trace.fraction * 1000 < wi.proj.radius ) {
 				points = ( wi.proj.damage - 0.5 * trace.fraction * 1000 ) * 0.5;
 				if ( points > 0 ) {
-//					selfpreservation = trap_Characteristic_BFloat(bs->character, CHARACTERISTIC_SELFPRESERVATION, 0, 1);
+//					selfpreservation = Characteristic_BFloat(bs->character, CHARACTERISTIC_SELFPRESERVATION, 0, 1);
 //					if (random() < selfpreservation) return;
 					return;
 				}
@@ -1819,7 +1819,7 @@ void BotMapScripts( bot_state_t *bs ) {
 			bs->flags |= BFL_IDEALVIEWSET;
 			VectorSubtract( buttonorg, bs->eye, dir );
 			vectoangles( dir, bs->ideal_viewangles );
-			aim_accuracy = trap_Characteristic_BFloat( bs->character, CHARACTERISTIC_AIM_ACCURACY, 0, 1 );
+			aim_accuracy = Characteristic_BFloat( bs->character, CHARACTERISTIC_AIM_ACCURACY, 0, 1 );
 			bs->ideal_viewangles[PITCH] += 8 * crandom() * ( 1 - aim_accuracy );
 			bs->ideal_viewangles[PITCH] = AngleMod( bs->ideal_viewangles[PITCH] );
 			bs->ideal_viewangles[YAW] += 8 * crandom() * ( 1 - aim_accuracy );
@@ -2152,15 +2152,15 @@ void BotAIBlocked( bot_state_t *bs, bot_moveresult_t *moveresult, int activate )
 		VectorNegate( sideward, sideward );
 	}
 	//try to crouch straight forward?
-	if ( movetype != MOVE_CROUCH || !trap_BotMoveInDirection( bs->ms, hordir, 400, movetype ) ) {
+	if ( movetype != MOVE_CROUCH || !BotMoveInDirection( bs->ms, hordir, 400, movetype ) ) {
 		//perform the movement
-		if ( !trap_BotMoveInDirection( bs->ms, sideward, 400, movetype ) ) {
+		if ( !BotMoveInDirection( bs->ms, sideward, 400, movetype ) ) {
 			//flip the avoid direction flag
 			bs->flags ^= BFL_AVOIDRIGHT;
 			//flip the direction
 			VectorNegate( sideward, sideward );
 			//move in the other direction
-			trap_BotMoveInDirection( bs->ms, sideward, 400, movetype );
+			BotMoveInDirection( bs->ms, sideward, 400, movetype );
 		}
 	}
 	//just reset goals and hope the bot will go into another direction
@@ -2333,7 +2333,7 @@ void BotDeathmatchAI( bot_state_t *bs, float thinktime ) {
 			return;
 		}
 		//get the gender characteristic
-		trap_Characteristic_String( bs->character, CHARACTERISTIC_GENDER, gender, sizeof( gender ) );
+		Characteristic_String( bs->character, CHARACTERISTIC_GENDER, gender, sizeof( gender ) );
 		//set the bot gender
 		SV_GetUserinfo( bs->client, userinfo, sizeof( userinfo ) );
 		Info_SetValueForKey( userinfo, "sex", gender );
@@ -2388,8 +2388,8 @@ void BotDeathmatchAI( bot_state_t *bs, float thinktime ) {
 	}
 	//if the bot executed too many AI nodes
 	if ( i >= MAX_NODESWITCHES ) {
-		trap_BotDumpGoalStack( bs->gs );
-		trap_BotDumpAvoidGoals( bs->gs );
+		BotDumpGoalStack( bs->gs );
+		BotDumpAvoidGoals( bs->gs );
 		BotDumpNodeSwitches( bs );
 		ClientName( bs->client, name, sizeof( name ) );
 		BotAI_Print( PRT_ERROR, "%s at %1.1f switched more than %d AI nodes\n", name, AAS_Time(), MAX_NODESWITCHES );

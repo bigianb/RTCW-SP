@@ -41,6 +41,8 @@ If you have questions concerning this license or the applicable additional terms
 #include "../game/be_ai_weap.h"
 #include "../botai/botai.h"
 
+#include "../botlib/be_interface.h"
+
 #include "../server/server.h"
 
 #include "../qcommon/qcommon.h"
@@ -178,7 +180,7 @@ BotAI_GetSnapshotEntity
 ==================
 */
 int BotAI_GetSnapshotEntity( int clientNum, int sequence, EntityState *state ) {
-	int entNum = trap_BotGetSnapshotEntity(clientNum, sequence);
+	int entNum = SV_BotGetSnapshotEntity(clientNum, sequence);
 	if ( entNum == -1 ) {
 		memset( state, 0, sizeof( EntityState ) );
 		return -1;
@@ -264,8 +266,8 @@ void BotChangeViewAngles( bot_state_t *bs, float thinktime ) {
 	}
 	//
 	if ( bs->enemy >= 0 ) {
-		factor = trap_Characteristic_BFloat( bs->character, CHARACTERISTIC_VIEW_FACTOR, 0.01, 1 );
-		maxchange = trap_Characteristic_BFloat( bs->character, CHARACTERISTIC_VIEW_MAXCHANGE, 1, 1800 );
+		factor = Characteristic_BFloat( bs->character, CHARACTERISTIC_VIEW_FACTOR, 0.01, 1 );
+		maxchange = Characteristic_BFloat( bs->character, CHARACTERISTIC_VIEW_MAXCHANGE, 1, 1800 );
 	} else {
 		factor = 0.25;
 		maxchange = 300;
@@ -424,7 +426,7 @@ BotAIRegularUpdate
 */
 void BotAIRegularUpdate() {
 	if ( regularupdate_time < AAS_Time() ) {
-		trap_BotUpdateEntityItems();
+		BotUpdateEntityItems();
 		regularupdate_time = AAS_Time() + 1;
 	}
 }
@@ -450,7 +452,7 @@ int BotAI( int client, float thinktime ) {
 	BotAI_GetClientState( client, &bs->cur_ps );
 
 	//retrieve any waiting console messages
-	while ( trap_BotGetServerCommand( client, buf, sizeof( buf ) ) ) {
+	while ( SV_BotGetConsoleMessage( client, buf, sizeof( buf ) ) ) {
 		//have buf point to the command and args to the command arguments
 		char* args = strchr(buf, ' ');
 		if ( !args ) {
@@ -538,7 +540,7 @@ int BotAISetupClient( int client, struct bot_settings_s *settings ) {
 	}
 
 	//load the bot character
-	bs->character = trap_BotLoadCharacter( settings->characterfile, settings->skill );
+	bs->character = BotLoadCharacter( settings->characterfile, settings->skill );
 	if ( !bs->character ) {
 		BotAI_Print( PRT_FATAL, "couldn't load skill %d from %s\n", settings->skill, settings->characterfile );
 		return false;
@@ -546,32 +548,32 @@ int BotAISetupClient( int client, struct bot_settings_s *settings ) {
 	//copy the settings
 	memcpy( &bs->settings, settings, sizeof( bot_settings_t ) );
 	//allocate a goal state
-	bs->gs = trap_BotAllocGoalState( client );
+	bs->gs = BotAllocGoalState( client );
 	//load the item weights
-	trap_Characteristic_String( bs->character, CHARACTERISTIC_ITEMWEIGHTS, filename, MAX_AIPATH );
-	int errnum = trap_BotLoadItemWeights(bs->gs, filename);
+	Characteristic_String( bs->character, CHARACTERISTIC_ITEMWEIGHTS, filename, MAX_AIPATH );
+	int errnum = BotLoadItemWeights(bs->gs, filename);
 	if ( errnum != BLERR_NOERROR ) {
-		trap_BotFreeGoalState( bs->gs );
+		BotFreeGoalState( bs->gs );
 		return false;
 	}
 	//allocate a weapon state
-	bs->ws = trap_BotAllocWeaponState();
+	bs->ws = BotAllocWeaponState();
 	//load the weapon weights
-	trap_Characteristic_String( bs->character, CHARACTERISTIC_WEAPONWEIGHTS, filename, MAX_AIPATH );
-	errnum = trap_BotLoadWeaponWeights( bs->ws, filename );
+	Characteristic_String( bs->character, CHARACTERISTIC_WEAPONWEIGHTS, filename, MAX_AIPATH );
+	errnum = BotLoadWeaponWeights( bs->ws, filename );
 	if ( errnum != BLERR_NOERROR ) {
-		trap_BotFreeGoalState( bs->gs );
-		trap_BotFreeWeaponState( bs->ws );
+		BotFreeGoalState( bs->gs );
+		BotFreeWeaponState( bs->ws );
 		return false;
 	}
 	//allocate a chat state
 
 	//load the chat file
-	trap_Characteristic_String( bs->character, CHARACTERISTIC_CHAT_FILE, filename, MAX_AIPATH );
-	trap_Characteristic_String( bs->character, CHARACTERISTIC_CHAT_NAME, name, MAX_AIPATH );
+	Characteristic_String( bs->character, CHARACTERISTIC_CHAT_FILE, filename, MAX_AIPATH );
+	Characteristic_String( bs->character, CHARACTERISTIC_CHAT_NAME, name, MAX_AIPATH );
 	
 	//get the gender characteristic
-	trap_Characteristic_String( bs->character, CHARACTERISTIC_GENDER, gender, MAX_AIPATH );
+	Characteristic_String( bs->character, CHARACTERISTIC_GENDER, gender, MAX_AIPATH );
 
 
 	bs->inuse = true;
@@ -579,8 +581,8 @@ int BotAISetupClient( int client, struct bot_settings_s *settings ) {
 	bs->entitynum = client;
 	bs->setupcount = 4;
 	bs->entergame_time = AAS_Time();
-	bs->ms = trap_BotAllocMoveState();
-	bs->walker = trap_Characteristic_BFloat( bs->character, CHARACTERISTIC_WALKER, 0, 1 );
+	bs->ms = BotAllocMoveState();
+	bs->walker = Characteristic_BFloat( bs->character, CHARACTERISTIC_WALKER, 0, 1 );
 	numbots++;
 
 	//NOTE: reschedule the bot thinking
@@ -604,14 +606,14 @@ int BotAIShutdownClient( int client ) {
 	}
 
 
-	trap_BotFreeMoveState( bs->ms );
+	BotFreeMoveState( bs->ms );
 	//free the goal state
-	trap_BotFreeGoalState( bs->gs );
+	BotFreeGoalState( bs->gs );
 
 	//free the weapon weights
-	trap_BotFreeWeaponState( bs->ws );
+	BotFreeWeaponState( bs->ws );
 	//free the bot character
-	trap_BotFreeCharacter( bs->character );
+	BotFreeCharacter( bs->character );
 	//
 	BotFreeWaypoints( bs->checkpoints );
 	BotFreeWaypoints( bs->patrolpoints );
@@ -668,19 +670,19 @@ void BotResetState( bot_state_t *bs ) {
 	bs->entergame_time = entergame_time;
 	//reset several states
 	if ( bs->ms ) {
-		trap_BotResetMoveState( bs->ms );
+		BotResetMoveState( bs->ms );
 	}
 	if ( bs->gs ) {
-		trap_BotResetGoalState( bs->gs );
+		BotResetGoalState( bs->gs );
 	}
 	if ( bs->ws ) {
-		trap_BotResetWeaponState( bs->ws );
+		BotResetWeaponState( bs->ws );
 	}
 	if ( bs->gs ) {
-		trap_BotResetAvoidGoals( bs->gs );
+		BotResetAvoidGoals( bs->gs );
 	}
 	if ( bs->ms ) {
-		trap_BotResetAvoidReach( bs->ms );
+		BotResetAvoidReach( bs->ms );
 	}
 }
 
@@ -689,7 +691,7 @@ int BotAILoadMap( int restart )
 	if ( !restart ) {
 		vmCvar_t mapname;
 		Cvar_Register( &mapname, "mapname", "", CVAR_SERVERINFO | CVAR_ROM );
-		trap_BotLibLoadMap( mapname.string );
+		Export_BotLibLoadMap( mapname.string );
 	}
 
 	for (auto & botstate : botstates) {
@@ -747,7 +749,7 @@ int BotAIStartFrame( int time ) {
 	if ( botlib_residual >= thinktime ) {
 		botlib_residual -= thinktime;
 
-		trap_BotLibStartFrame( (float) time / 1000 );
+		BotLibStartFrame( (float) time / 1000 );
 
 		// Ridah, only check the default world
 		AAS_SetCurrentWorld( 0 );
@@ -801,7 +803,7 @@ int BotAIStartFrame( int time ) {
 			state.weapon = ent->shared.s.weapon;
 
 			//
-			trap_BotLibUpdateEntity( i, &state );
+			Export_BotLibUpdateEntity( i, &state );
 		}
 
 		BotAIRegularUpdate();

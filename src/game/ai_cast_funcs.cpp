@@ -207,21 +207,21 @@ bot_moveresult_t *AICast_MoveToPos( cast_state_t *cs, vec3_t pos, int entnum ) {
 	//if this is a slow moving creature, don't use avoidreach
 	if ( cs->attributes[RUNNING_SPEED] < 100 ) {
 		//reset the avoid reach, otherwise bot is stuck in current area
-		trap_BotResetAvoidReach( bs->ms );
+		BotResetAvoidReach( bs->ms );
 	} else if ( !VectorCompare( cs->lastMoveToPosGoalOrg, pos ) ) {
 		//reset the avoid reach, otherwise bot is stuck in current area
-		trap_BotResetAvoidReach( bs->ms );
+		BotResetAvoidReach( bs->ms );
 		VectorCopy( pos, cs->lastMoveToPosGoalOrg );
 	}
 	//move towards the goal
 	if ( !( cs->aiFlags & AIFL_EXPLICIT_ROUTING ) || ( entnum < 0 ) || Q_strcasecmp( g_entities[entnum].classname, "ai_marker" ) ) {
 		// use AAS routing
-		trap_BotMoveToGoal( &lmoveresult, bs->ms, &goal, tfl );
+		BotMoveToGoal( &lmoveresult, bs->ms, &goal, tfl );
 		//if the movement failed
 		if ( lmoveresult.failure ) {
 
 			//reset the avoid reach, otherwise bot is stuck in current area
-			trap_BotResetAvoidReach( bs->ms );
+			BotResetAvoidReach( bs->ms );
 			//BotAI_Print(PRT_MESSAGE, "movement failure %d\n", lmoveresult.traveltype);
 			// clear all movement
 			EA_Move( cs->entityNum, vec3_origin, 0 );
@@ -638,7 +638,7 @@ const char *AIFunc_IdleStart( cast_state_t *cs ) {
 		}
 	}
 	// make sure we don't avoid any areas when we start again
-	trap_BotInitAvoidReach( cs->bs->ms );
+	BotInitAvoidReach( cs->bs->ms );
 
 	// randomly choose idle animation
 //----(SA)	try always using the 'casual' stand on spawn and change to crouching one when 'alerted'
@@ -1508,7 +1508,7 @@ AIFunc_ChaseGoalIdleStart()
 */
 const char *AIFunc_ChaseGoalIdleStart( cast_state_t *cs, int entitynum, float reachdist ) {
 	// make sure we don't avoid any areas when we start again
-	trap_BotInitAvoidReach( cs->bs->ms );
+	BotInitAvoidReach( cs->bs->ms );
 
 	// if we are following someone, always use the default (ready for action) anim
 	if ( entitynum < MAX_CLIENTS ) {
@@ -2413,7 +2413,7 @@ const char *AIFunc_BattleAmbush( cast_state_t *cs ) {
 			//if the movement failed
 			if ( moveresult->failure ) {
 				//reset the avoid reach, otherwise bot is stuck in current area
-				trap_BotResetAvoidReach( bs->ms );
+				BotResetAvoidReach( bs->ms );
 				// couldn't get there, so stop trying to get there
 				VectorClear( cs->takeCoverPos );
 				dist = 0;
@@ -3164,7 +3164,7 @@ const char *AIFunc_AvoidDanger( cast_state_t *cs ) {
 			//if the movement failed
 			if ( moveresult->failure || moveresult->blocked ) {
 				//reset the avoid reach, otherwise bot is stuck in current area
-				trap_BotResetAvoidReach( bs->ms );
+				BotResetAvoidReach( bs->ms );
 				if ( g_entities[cs->dangerEntity].inuse ) {
 					// find a better spot?
 					AICast_GetTakeCoverPos( cs, cs->dangerEntity, cs->dangerEntityPos, cs->takeCoverPos );
@@ -3406,7 +3406,7 @@ const char *AIFunc_BattleTakeCover( cast_state_t *cs ) {
 			//if the movement failed
 			if ( moveresult->failure ) {
 				//reset the avoid reach, otherwise bot is stuck in current area
-				trap_BotResetAvoidReach( bs->ms );
+				BotResetAvoidReach( bs->ms );
 				// couldn't get there, so stop trying to get there
 				VectorClear( cs->takeCoverPos );
 				dist = 0;
@@ -4172,7 +4172,7 @@ const char *AIFunc_InspectBody( cast_state_t *cs ) {
 		//if the movement failed
 		if ( moveresult && ( moveresult->failure || moveresult->blocked ) ) {
 			//reset the avoid reach, otherwise bot is stuck in current area
-			trap_BotResetAvoidReach( bs->ms );
+			BotResetAvoidReach( bs->ms );
 			// couldn't get there, so stop trying to get there
 			cs->enemyNum = -1;
 			return AIFunc_IdleStart( cs );
@@ -4203,7 +4203,7 @@ const char *AIFunc_InspectBody( cast_state_t *cs ) {
 			//if the movement failed
 			if ( moveresult && ( moveresult->failure || moveresult->blocked ) ) {
 				//reset the avoid reach, otherwise bot is stuck in current area
-				trap_BotResetAvoidReach( bs->ms );
+				BotResetAvoidReach( bs->ms );
 				// couldn't get there, so stop trying to get there
 				cs->enemyNum = -1;
 				return AIFunc_IdleStart( cs );
@@ -4420,7 +4420,7 @@ const char *AIFunc_GrenadeKick( cast_state_t *cs ) {
 			//if the movement failed
 			if ( moveresult->failure ) {
 				//reset the avoid reach, otherwise bot is stuck in current area
-				trap_BotResetAvoidReach( bs->ms );
+				BotResetAvoidReach( bs->ms );
 				// couldn't get there, so stop trying to get there
 				level.lastGrenadeKick = level.time;
 				return AIFunc_DefaultStart( cs );
@@ -4789,7 +4789,7 @@ const char *AIFunc_BattleStart( cast_state_t *cs ) {
 	const char *rval;
 	int lastweap;
 	// make sure we don't avoid any areas when we start again
-	trap_BotInitAvoidReach( cs->bs->ms );
+	BotInitAvoidReach( cs->bs->ms );
 	// wait some time before taking cover again
 	cs->takeCoverTime = level.time + 300 + rand() % ( 2000 + (int)( 2000.0 * cs->attributes[AGGRESSION] ) );
 	// wait some time before going to a combat spot

@@ -239,18 +239,14 @@ int Export_BotLibVarGet( const char *var_name, char *value, int size )
 	value[size - 1] = '\0';
 	return BLERR_NOERROR;
 } //end of the function Export_BotLibVarGet
-//===========================================================================
-//
-// Parameter:				-
-// Returns:					-
-// Changes Globals:		-
-//===========================================================================
-int Export_BotLibStartFrame( float time ) {
+
+int BotLibStartFrame( float time ) {
 	if ( !BotLibSetup( "BotStartFrame" ) ) {
 		return BLERR_LIBRARYNOTSETUP;
 	}
 	return AAS_StartFrame( time );
-} //end of the function Export_BotLibStartFrame
+} 
+
 //===========================================================================
 //
 // Parameter:				-

@@ -730,5 +730,5 @@ int DebugLine( vec3_t start, vec3_t end, int color ) {
 	VectorMA( points[2], -2, cross, points[2] );
 	VectorMA( points[3], 2, cross, points[3] );
 
-	return trap_DebugPolygonCreate( color, 4, points );
+	return BotImport_DebugPolygonCreate( color, 4, points );
 }
