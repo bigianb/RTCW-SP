@@ -49,7 +49,6 @@ extern field_t historyEditLines[COMMAND_HISTORY];
 extern field_t g_consoleField;
 extern field_t chatField;
 extern int anykeydown;		// number of keys down
-extern bool chat_team;
 
 extern int chat_playerNum;
 

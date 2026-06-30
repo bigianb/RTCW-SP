@@ -103,24 +103,10 @@ Con_MessageMode_f
 void Con_MessageMode_f()
 {
 	chat_playerNum = -1;
-	chat_team = false;
+
 	Field_Clear( &chatField );
 	chatField.widthInChars = 30;
 
-	cls.keyCatchers ^= KEYCATCH_MESSAGE;
-}
-
-/*
-================
-Con_MessageMode2_f
-================
-*/
-void Con_MessageMode2_f()
-{
-	chat_playerNum = -1;
-	chat_team = true;
-	Field_Clear( &chatField );
-	chatField.widthInChars = 25;
 	cls.keyCatchers ^= KEYCATCH_MESSAGE;
 }
 
@@ -136,7 +122,7 @@ void Con_MessageMode3_f()
 		chat_playerNum = -1;
 		return;
 	}
-	chat_team = false;
+
 	Field_Clear( &chatField );
 	chatField.widthInChars = 30;
 	cls.keyCatchers ^= KEYCATCH_MESSAGE;
@@ -154,7 +140,7 @@ void Con_MessageMode4_f()
 		chat_playerNum = -1;
 		return;
 	}
-	chat_team = false;
+
 	Field_Clear( &chatField );
 	chatField.widthInChars = 30;
 	cls.keyCatchers ^= KEYCATCH_MESSAGE;
@@ -334,7 +320,7 @@ void Con_Init()
 
 	Cmd_AddCommand( "toggleconsole", Con_ToggleConsole_f );
 	Cmd_AddCommand( "messagemode", Con_MessageMode_f );
-	Cmd_AddCommand( "messagemode2", Con_MessageMode2_f );
+
 	Cmd_AddCommand( "messagemode3", Con_MessageMode3_f );
 	Cmd_AddCommand( "messagemode4", Con_MessageMode4_f );
 	Cmd_AddCommand( "clear", Con_Clear_f );
@@ -535,15 +521,9 @@ void Con_DrawNotify()
 
 	// draw the chat line
 	if ( cls.keyCatchers & KEYCATCH_MESSAGE ) {
-		int skip;
-		if ( chat_team ) {
-			SCR_DrawBigString( 8, v, "say_team:", 1.0f );
-			skip = 11;
-		} else {
-			SCR_DrawBigString( 8, v, "say:", 1.0f );
-			skip = 5;
-		}
-
+		SCR_DrawBigString( 8, v, "say:", 1.0f );
+		int skip = 5;
+		
 		Field_BigDraw( &chatField, skip * BIGCHAR_WIDTH, v,
 					   SCREEN_WIDTH - ( skip + 1 ) * BIGCHAR_WIDTH, true );
 

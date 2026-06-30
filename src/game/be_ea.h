@@ -32,7 +32,7 @@ If you have questions concerning this license or the applicable additional terms
 
 //ClientCommand elementary actions
 void EA_Say( int client, char *str );
-void EA_SayTeam( int client, char *str );
+
 void EA_UseItem( int client, char *it );
 void EA_DropItem( int client, char *it );
 void EA_UseInv( int client, char *inv );

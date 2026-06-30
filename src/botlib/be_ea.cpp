@@ -59,15 +59,7 @@ bot_input_t *botinputs;
 void EA_Say( int client, char *str ) {
 	BotClientCommand( client, va( "say %s", str ) );
 } //end of the function EA_Say
-//===========================================================================
-//
-// Parameter:				-
-// Returns:					-
-// Changes Globals:		-
-//===========================================================================
-void EA_SayTeam( int client, char *str ) {
-	BotClientCommand( client, va( "say_team %s", str ) );
-} //end of the function EA_SayTeam
+
 //===========================================================================
 //
 // Parameter:				-

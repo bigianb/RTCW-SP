@@ -39,12 +39,6 @@ If you have questions concerning this license or the applicable additional terms
 #define MAX_CHATTYPE_NAME       32
 #define MAX_MATCHVARIABLES      8
 
-#define CHAT_GENDERLESS         0
-#define CHAT_GENDERFEMALE       1
-#define CHAT_GENDERMALE         2
-
-#define CHAT_ALL                    0
-#define CHAT_TEAM                   1
 
 //a console message
 typedef struct bot_consolemessage_s

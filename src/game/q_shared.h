@@ -1172,7 +1172,7 @@ typedef enum _flag_status {
 #define MAX_SERVERSTATUSREQUESTS    16
 
 #define SAY_ALL     0
-#define SAY_TEAM    1
+
 #define SAY_TELL    2
 
 #define CDCHKSUM_LEN 2

@@ -815,7 +815,7 @@ If you have questions concerning this license or the applicable additional terms
 {"EA_UseInv", (uint8_t *)EA_UseInv},
 {"EA_DropItem", (uint8_t *)EA_DropItem},
 {"EA_UseItem", (uint8_t *)EA_UseItem},
-{"EA_SayTeam", (uint8_t *)EA_SayTeam},
+
 {"EA_Say", (uint8_t *)EA_Say},
 {"trap_AAS_SetAASBlockingEntity", (uint8_t *)trap_AAS_SetAASBlockingEntity},
 {"trap_AAS_GetRouteFirstVisPos", (uint8_t *)trap_AAS_GetRouteFirstVisPos},
