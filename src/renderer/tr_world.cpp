@@ -511,7 +511,7 @@ static mnode_t *R_PointInLeaf( vec3_t p ) {
 	cplane_t    *plane;
 
 	if ( !tr.world ) {
-		ri.Error( ERR_DROP, "R_PointInLeaf: bad model" );
+		Com_Error( ERR_DROP, "R_PointInLeaf: bad model" );
         return nullptr; // keep the linter happy, ERR_DROP does not return
 	}
 
@@ -583,7 +583,7 @@ static void R_MarkLeaves( void ) {
 	if ( r_showcluster->modified || r_showcluster->integer ) {
 		r_showcluster->modified = false;
 		if ( r_showcluster->integer ) {
-			ri.Printf( PRINT_ALL, "cluster:%i  area:%i\n", cluster, leaf->area );
+			Com_Printf("cluster:%i  area:%i\n", cluster, leaf->area );
 		}
 	}
 

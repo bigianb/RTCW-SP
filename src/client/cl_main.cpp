@@ -95,9 +95,6 @@ clientActive_t cl;
 clientConnection_t clc;
 clientStatic_t cls;
 
-// Structure containing functions exported from refresh DLL
-refexport_t re;
-
 ping_t cl_pinglist[MAX_PINGREQUESTS];
 
 struct ServerStatus
@@ -163,10 +160,7 @@ void CL_ShutdownAll()
 	CL_ShutdownCGame();
 	CL_ShutdownUI();
 
-	// shutdown the renderer
-	if ( re.Shutdown ) {
-		re.Shutdown( false );      // don't destroy window or context
-	}
+	RE_Shutdown( false );      // don't destroy window or context
 
 	cls.uiStarted = false;
 	cls.cgameStarted = false;
@@ -1014,54 +1008,21 @@ void CL_SetRecommended_f()
 	}
 }
 
-/*
-================
-CL_RefPrintf
-
-DLL glue
-================
-*/
-#define MAXPRINTMSG 4096
-void  CL_RefPrintf( int print_level, const char *fmt, ... )
-{
-	va_list argptr;
-	char msg[MAXPRINTMSG];
-
-	va_start( argptr, fmt );
-	vsnprintf( msg, MAXPRINTMSG, fmt, argptr );
-	va_end( argptr );
-
-	Com_Printf( "%s", msg );
-	/* IJB
-	if ( print_level == PRINT_ALL ) {
-		Com_Printf( "%s", msg );
-	} else if ( print_level == PRINT_WARNING ) {
-		Com_Printf( S_COLOR_YELLOW "%s", msg );       // yellow
-	} else if ( print_level == PRINT_DEVELOPER ) {
-		Com_DPrintf( S_COLOR_RED "%s", msg );     // red
-	}
-		*/
-}
-
 void CL_ShutdownRef()
 {
-	if ( !re.Shutdown ) {
-		return;
-	}
-	re.Shutdown( true );
-	memset( &re, 0, sizeof( re ) );
+	RE_Shutdown( true );
 }
 
 void CL_InitRenderer()
 {
 	// this sets up the renderer and calls R_Init
-	re.BeginRegistration( &cls.glconfig );
+	RE_BeginRegistration( &cls.glconfig );
 
 	// load character sets
-	cls.charSetShader = re.RegisterShader( "gfx/2d/bigchars" );
-	cls.whiteShader = re.RegisterShader( "white" );
-	cls.consoleShader = re.RegisterShader( "console" );
-	cls.consoleShader2 = re.RegisterShader( "console2" );
+	cls.charSetShader = RE_RegisterShader( "gfx/2d/bigchars" );
+	cls.whiteShader = RE_RegisterShader( "white" );
+	cls.consoleShader = RE_RegisterShader( "console" );
+	cls.consoleShader2 = RE_RegisterShader( "console2" );
 	g_console_field_width = cls.glconfig.vidWidth / SMALLCHAR_WIDTH - 2;
 	g_consoleField.widthInChars = g_console_field_width;
 }
@@ -1114,58 +1075,11 @@ int CL_ScaledMilliseconds()
 
 void CL_InitRef()
 {
-	refimport_t ri;
-
 	Com_Printf( "----- Initializing Renderer ----\n" );
-
-	ri.Cmd_AddCommand = Cmd_AddCommand;
-	ri.Cmd_RemoveCommand = Cmd_RemoveCommand;
-	ri.Cmd_Argc = Cmd_Argc;
-	ri.Cmd_Argv = Cmd_Argv;
-
-	ri.Printf = CL_RefPrintf;
-	ri.Error = Com_Error;
-	ri.Milliseconds = CL_ScaledMilliseconds;
-
-#ifdef HUNK_DEBUG
-	ri.Hunk_AllocDebug = Hunk_AllocDebug;
-#else
-	ri.Hunk_Alloc = Hunk_Alloc;
-#endif
-
-	ri.Hunk_FreeTempMemory = Hunk_FreeTempMemory;
-
-	ri.FS_FreeFile = FS_FreeFile;
-	ri.FS_WriteFile = FS_WriteFile;
-	ri.FS_FreeFileList = FS_FreeFileList;
-	ri.FS_ListFiles = FS_ListFiles;
-	ri.FS_FileIsInPAK = FS_FileIsInPAK;
-	ri.FS_FileExists = FS_FileExists;
-	ri.Cvar_Get = Cvar_Get;
-	ri.Cvar_Set = Cvar_Set;
-
-	// cinematic stuff
-
-	ri.CIN_UploadCinematic = CIN_UploadCinematic;
-	ri.CIN_PlayCinematic = CIN_PlayCinematic;
-	ri.CIN_RunCinematic = CIN_RunCinematic;
-
-	refexport_t* ret = GetRefAPI( REF_API_VERSION, &ri );
-
-	Com_Printf( "-------------------------------\n" );
-
-	if ( !ret ) {
-		Com_Error( ERR_FATAL, "Couldn't initialize refresh" );
-	}
-
-	re = *ret;
 
 	// unpause so the cgame definately gets a snapshot and renders a frame
 	Cvar_Set( "cl_paused", "0" );
 }
-
-//===========================================================================================
-
 
 void CL_Init()
 {

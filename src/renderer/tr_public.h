@@ -30,16 +30,6 @@ If you have questions concerning this license or the applicable additional terms
 
 #include "../cgame/tr_types.h"
 
-#define REF_API_VERSION     8
-
-/*
-============================================================
-
-MARKERS, POLYGON PROJECTION ON WORLD POLYGONS
-
-============================================================
-*/
-
 int R_MarkFragments( int orientation, const vec3_t *points, const vec3_t projection,
 					 int maxPoints, vec3_t pointBuffer, int maxFragments, markFragment_t *fragmentBuffer );
 
@@ -47,11 +37,11 @@ void        RE_LoadWorldMap( const char *mapname );
 qhandle_t   RE_RegisterModel( const char *name );
 
 bool    RE_GetSkinModel( qhandle_t skinid, const char *type, char *name );
-qhandle_t   RE_GetShaderFromModel( qhandle_t modelid, int surfnum, int withlightmap );    //----(SA)
+qhandle_t   RE_GetShaderFromModel( qhandle_t modelid, int surfnum, int withlightmap );
 qhandle_t   RE_RegisterSkin( const char *name );
 qhandle_t   RE_RegisterShader( const char *name );
 void RE_RegisterFont( const char *fontName, int pointSize, fontInfo_t *font );
-void RE_ClearScene( void );
+void RE_ClearScene();
 void RE_AddRefEntityToScene( const refEntity_t *ent );
 void RE_AddPolyToScene( qhandle_t hShader, int numVerts, const polyVert_t *verts );
 void RE_AddPolysToScene( qhandle_t hShader, int numVerts, const polyVert_t *verts, int numPolys );
@@ -68,109 +58,19 @@ void RE_StretchPic( float x, float y, float w, float h,
 					float s1, float t1, float s2, float t2, qhandle_t hShader );
 void RE_StretchPicGradient( float x, float y, float w, float h,
 							float s1, float t1, float s2, float t2, qhandle_t hShader, const float *gradientColor, int gradientType );
+void RE_StretchRaw( int x, int y, int w, int h, int cols, int rows, const uint8_t *data, int client, bool dirty );
 
-int         R_LerpTag( orientation_t *tag, const refEntity_t *refent, const char *tagName, int startIndex );
-void        R_ModelBounds( qhandle_t handle, vec3_t mins, vec3_t maxs );
-void    R_RemapShader( const char *oldShader, const char *newShader, const char *timeOffset );
+int  R_LerpTag( orientation_t *tag, const refEntity_t *refent, const char *tagName, int startIndex );
+void R_ModelBounds( qhandle_t handle, vec3_t mins, vec3_t maxs );
+void R_RemapShader( const char *oldShader, const char *newShader, const char *timeOffset );
 
 void RE_SetColor( const float *rgba );
+void RE_BeginRegistration( glconfig_t *glconfig );
+void RE_EndRegistration();
 
-//
-// these are the functions exported by the refresh module
-//
-typedef struct {
-	// called before the library is unloaded
-	// if the system is just reconfiguring, pass destroyWindow = false,
-	// which will keep the screen from flashing to the desktop.
-	void ( *Shutdown )( bool destroyWindow );
+void RE_BeginFrame( stereoFrame_t stereoFrame );
+void RE_EndFrame( int *frontEndMsec, int *backEndMsec );
 
-	// All data that will be used in a level should be
-	// registered before rendering any frames to prevent disk hits,
-	// but they can still be registered at a later time
-	// if necessary.
-	//
-	// BeginRegistration makes any existing media pointers invalid
-	// and returns the current gl configuration, including screen width
-	// and height, which can be used by the client to intelligently
-	// size display elements
-	void ( *BeginRegistration )( glconfig_t *config );
-	qhandle_t ( *RegisterModel )( const char *name );
-	qhandle_t ( *RegisterSkin )( const char *name );
-	qhandle_t ( *RegisterShader )( const char *name );
+void RE_UploadCinematic( int w, int h, int cols, int rows, const uint8_t *data, int client, bool dirty );
 
-	void ( *LoadWorld )( const char *name );
-
-	// the vis data is a large enough block of data that we go to the trouble
-	// of sharing it with the clipmodel subsystem
-	void ( *SetWorldVisData )( const uint8_t *vis );
-
-	// EndRegistration will draw a tiny polygon with each texture, forcing
-	// them to be loaded into card memory
-	void ( *EndRegistration )( void );
-
-	int ( *LightForPoint )( vec3_t point, vec3_t ambientLight, vec3_t directedLight, vec3_t lightDir );
-
-	void ( *DrawStretchPicGradient )( float x, float y, float w, float h,
-									  float s1, float t1, float s2, float t2, qhandle_t hShader, const float *gradientColor, int gradientType );
-
-	// Draw images for cinematic rendering, pass as 32 bit rgba
-	void ( *DrawStretchRaw )( int x, int y, int w, int h, int cols, int rows, const uint8_t *data, int client, bool dirty );
-	void ( *UploadCinematic )( int w, int h, int cols, int rows, const uint8_t *data, int client, bool dirty );
-
-	void ( *BeginFrame )( stereoFrame_t stereoFrame );
-
-	// if the pointers are not nullptr, timing info will be returned
-	void ( *EndFrame )( int *frontEndMsec, int *backEndMsec );
-
-} refexport_t;
-
-//
-// these are the functions imported by the refresh module
-//
-typedef struct {
-	// print message on the local console
-	void (  * Printf )( int printLevel, const char *fmt, ... );
-
-	// abort the game
-	void (  * Error )( int errorLevel, const char *fmt, ... );
-
-	// milliseconds should only be used for profiling, never
-	// for anything game related.  Get time from the refdef
-	int ( *Milliseconds )( void );
-
-	void    *( *Hunk_Alloc )( int size, ha_pref pref );
-
-	void ( *Hunk_FreeTempMemory )( void *block );
-
-	cvar_t  *( *Cvar_Get )( const char *name, const char *value, int flags );
-	void ( *Cvar_Set )( const char *name, const char *value );
-
-	void ( *Cmd_AddCommand )( const char *name, void( *cmd ) ( void ) );
-	void ( *Cmd_RemoveCommand )( const char *name );
-
-	int ( *Cmd_Argc )( void );
-	const char    *( *Cmd_Argv )( int i );
-
-	// a -1 return means the file does not exist
-	// nullptr can be passed for buf to just determine existance
-	int ( *FS_FileIsInPAK )( const char *name, int *pChecksum );
-	int ( *FS_ReadFile )( const char *name, void **buf );
-	void ( *FS_FreeFile )( const void *buf );
-	char ** ( *FS_ListFiles )( const char *name, const char *extension, int *numfilesfound );
-	void ( *FS_FreeFileList )( char **filelist );
-	void ( *FS_WriteFile )( const char *qpath, const void *buffer, size_t size );
-	bool ( *FS_FileExists )( const char *file );
-
-	// cinematic stuff
-	void ( *CIN_UploadCinematic )( int handle );
-	int ( *CIN_PlayCinematic )( const char *arg0, int xpos, int ypos, int width, int height, int bits );
-	e_status ( *CIN_RunCinematic )( int handle );
-
-} refimport_t;
-
-
-// this is the only function actually exported at the linker level
-// If the module can't init to a valid rendering state, nullptr will be
-// returned.
-refexport_t*GetRefAPI( int apiVersion, refimport_t *rimp );
-
+void RE_Shutdown( bool destroyWindow );

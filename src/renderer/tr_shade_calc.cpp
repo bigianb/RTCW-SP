@@ -51,7 +51,7 @@ static float *TableForFunc( genFunc_t func ) {
 		break;
 	}
 
-	ri.Error( ERR_DROP, "TableForFunc called with invalid function '%d' in shader '%s'\n", func, tess.shader->name );
+	Com_Error( ERR_DROP, "TableForFunc called with invalid function '%d' in shader '%s'\n", func, tess.shader->name );
 	return nullptr;
 }
 
@@ -390,10 +390,10 @@ static void AutospriteDeform( void ) {
 	vec3_t leftDir, upDir;
 
 	if ( tess.numVertexes & 3 ) {
-		ri.Printf( PRINT_WARNING, "Autosprite shader %s had odd vertex count", tess.shader->name );
+		Com_Printf(S_COLOR_YELLOW  "Autosprite shader %s had odd vertex count", tess.shader->name );
 	}
 	if ( tess.numIndexes != ( tess.numVertexes >> 2 ) * 6 ) {
-		ri.Printf( PRINT_WARNING, "Autosprite shader %s had odd index count", tess.shader->name );
+		Com_Printf(S_COLOR_YELLOW  "Autosprite shader %s had odd index count", tess.shader->name );
 	}
 
 	oldVerts = tess.numVertexes;
@@ -467,10 +467,10 @@ static void Autosprite2Deform( void ) {
 	vec3_t forward;
 
 	if ( tess.numVertexes & 3 ) {
-		ri.Printf( PRINT_WARNING, "Autosprite2 shader %s had odd vertex count", tess.shader->name );
+		Com_Printf(S_COLOR_YELLOW  "Autosprite2 shader %s had odd vertex count", tess.shader->name );
 	}
 	if ( tess.numIndexes != ( tess.numVertexes >> 2 ) * 6 ) {
-		ri.Printf( PRINT_WARNING, "Autosprite2 shader %s had odd index count", tess.shader->name );
+		Com_Printf(S_COLOR_YELLOW  "Autosprite2 shader %s had odd index count", tess.shader->name );
 	}
 
 	if ( backEnd.currentEntity != &tr.worldEntity ) {

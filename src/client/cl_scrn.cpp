@@ -270,7 +270,7 @@ This will be called twice if rendering in stereo mode
 */
 void SCR_DrawScreenField( stereoFrame_t stereoFrame )
 {
-	re.BeginFrame( stereoFrame );
+	RE_BeginFrame( stereoFrame );
 
 	// wide aspect ratio screens need to have the sides cleared
 	// unless they are displaying game renderings
@@ -360,9 +360,9 @@ void SCR_UpdateScreen()
 	}
 
 	if ( com_speeds->integer ) {
-		re.EndFrame( &time_frontend, &time_backend );
+		RE_EndFrame( &time_frontend, &time_backend );
 	} else {
-		re.EndFrame( nullptr, nullptr );
+		RE_EndFrame( nullptr, nullptr );
 	}
 
 	recursive = 0;

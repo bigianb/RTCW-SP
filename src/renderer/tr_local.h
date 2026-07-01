@@ -808,8 +808,6 @@ model_t     *R_GetModelByHandle( qhandle_t hModel );
 
 void        R_Modellist_f( void );
 
-//====================================================
-extern refimport_t ri;
 
 #define MAX_DRAWIMAGES          2048
 #define MAX_LIGHTMAPS           256
@@ -1290,16 +1288,14 @@ void    GL_Cull( int cullType );
 
 #define GLS_DEFAULT         GLS_DEPTHMASK_TRUE
 
-void    RE_StretchRaw( int x, int y, int w, int h, int cols, int rows, const uint8_t *data, int client, bool dirty );
-void    RE_UploadCinematic( int w, int h, int cols, int rows, const uint8_t *data, int client, bool dirty );
 
-void        RE_BeginFrame( stereoFrame_t stereoFrame );
-void        RE_BeginRegistration( glconfig_t *glconfig );
+
+
 
 void        RE_SetWorldVisData( const uint8_t *vis );
 
 
-void        RE_Shutdown( bool destroyWindow );
+
 
 bool    R_GetEntityToken( char *buffer, int size );
 
@@ -1718,8 +1714,7 @@ void R_SyncRenderThread( void );
 
 void R_AddDrawSurfCmd( drawSurf_t *drawSurfs, int numDrawSurfs );
 
-void RE_BeginFrame( stereoFrame_t stereoFrame );
-void RE_EndFrame( int *frontEndMsec, int *backEndMsec );
+
 
 // font stuff
 void R_InitFreeType();

@@ -174,13 +174,13 @@ void GL_TextureMode( const char *string ) {
 	// hack to prevent trilinear from being set on voodoo,
 	// because their driver freaks...
 	if ( i == 5 && glConfig.hardwareType == GLHW_3DFX_2D3D ) {
-		ri.Printf( PRINT_ALL, "Refusing to set trilinear on a voodoo.\n" );
+		Com_Printf("Refusing to set trilinear on a voodoo.\n" );
 		i = 3;
 	}
 
 
 	if ( i == 6 ) {
-		ri.Printf( PRINT_ALL, "bad filter name\n" );
+		Com_Printf("bad filter name\n" );
 		return;
 	}
 
@@ -230,67 +230,67 @@ void R_ImageList_f( void ) {
 		"no ", "yes"
 	};
 
-	ri.Printf( PRINT_ALL, "\n      -w-- -h-- -mm- -TMU- -if-- wrap --name-------\n" );
+	Com_Printf("\n      -w-- -h-- -mm- -TMU- -if-- wrap --name-------\n" );
 	texels = 0;
 
 	for ( i = 0 ; i < tr.numImages ; i++ ) {
 		image = tr.images[ i ];
 
 		texels += image->uploadWidth * image->uploadHeight;
-		ri.Printf( PRINT_ALL,  "%4i: %4i %4i  %s   %d   ",
+		Com_Printf( "%4i: %4i %4i  %s   %d   ",
 				   i, image->uploadWidth, image->uploadHeight, yesno[image->mipmap], image->TMU );
 		switch ( image->internalFormat ) {
 		case 1:
-			ri.Printf( PRINT_ALL, "I    " );
+			Com_Printf("I    " );
 			break;
 		case 2:
-			ri.Printf( PRINT_ALL, "IA   " );
+			Com_Printf("IA   " );
 			break;
 		case 3:
-			ri.Printf( PRINT_ALL, "RGB  " );
+			Com_Printf("RGB  " );
 			break;
 		case 4:
-			ri.Printf( PRINT_ALL, "RGBA " );
+			Com_Printf("RGBA " );
 			break;
 		case GL_RGBA8:
-			ri.Printf( PRINT_ALL, "RGBA8" );
+			Com_Printf("RGBA8" );
 			break;
 		case GL_RGB8:
-			ri.Printf( PRINT_ALL, "RGB8" );
+			Com_Printf("RGB8" );
 			break;
 		case GL_COMPRESSED_RGBA_S3TC_DXT5_EXT:
-			ri.Printf( PRINT_ALL, "DXT5 " );
+			Com_Printf("DXT5 " );
 			break;
 		case GL_RGB4_S3TC:
-			ri.Printf( PRINT_ALL, "S3TC4" );
+			Com_Printf("S3TC4" );
 			break;
 		case GL_RGBA4:
-			ri.Printf( PRINT_ALL, "RGBA4" );
+			Com_Printf("RGBA4" );
 			break;
 		case GL_RGB5:
-			ri.Printf( PRINT_ALL, "RGB5 " );
+			Com_Printf("RGB5 " );
 			break;
 		default:
-			ri.Printf( PRINT_ALL, "???? " );
+			Com_Printf("???? " );
 		}
 
 		switch ( image->wrapClampMode ) {
 		case GL_REPEAT:
-			ri.Printf( PRINT_ALL, "rept " );
+			Com_Printf("rept " );
 			break;
 		case GL_CLAMP:
-			ri.Printf( PRINT_ALL, "clmp " );
+			Com_Printf("clmp " );
 			break;
 		default:
-			ri.Printf( PRINT_ALL, "%4i ", image->wrapClampMode );
+			Com_Printf("%4i ", image->wrapClampMode );
 			break;
 		}
 
-		ri.Printf( PRINT_ALL, " %s\n", image->imgName );
+		Com_Printf(" %s\n", image->imgName );
 	}
-	ri.Printf( PRINT_ALL, " ---------\n" );
-	ri.Printf( PRINT_ALL, " %i total texels (not including mipmaps)\n", texels );
-	ri.Printf( PRINT_ALL, " %i total images\n\n", tr.numImages );
+	Com_Printf(" ---------\n" );
+	Com_Printf(" %i total texels (not including mipmaps)\n", texels );
+	Com_Printf(" %i total images\n\n", tr.numImages );
 }
 
 //=======================================================================
@@ -452,7 +452,7 @@ static void R_MipMap2( unsigned *in, int inWidth, int inHeight ) {
 	}
 
 	memcpy( in, temp, outWidth * outHeight * 4 );
-	ri.Hunk_FreeTempMemory( temp );
+	Hunk_FreeTempMemory( temp );
 }
 
 /*
@@ -629,7 +629,7 @@ static void Upload32(   unsigned *data,
 			data = resampledBuffer;
 			width = width >> 1;
 			height = height >> 1;
-			ri.Printf( PRINT_ALL, "r_rmse of %f has saved %dkb\n", r_rmse->value, ( rmse_saved / 1024 ) );
+			Com_Printf("r_rmse of %f has saved %dkb\n", r_rmse->value, ( rmse_saved / 1024 ) );
 		}
 	} else {
 		// just do the RMSE of 1 (reduce perfect)
@@ -640,7 +640,7 @@ static void Upload32(   unsigned *data,
 			data = resampledBuffer;
 			width = width >> 1;
 			height = height >> 1;
-			ri.Printf( PRINT_ALL, "r_rmse of %f has saved %dkb\n", r_rmse->value, ( rmse_saved / 1024 ) );
+			Com_Printf("r_rmse of %f has saved %dkb\n", r_rmse->value, ( rmse_saved / 1024 ) );
 		}
 	}
 	//
@@ -703,7 +703,7 @@ static void Upload32(   unsigned *data,
 			scaled_height >>= 1;
 		}
 
-		ri.Printf( PRINT_ALL, "r_lowMemTextureSize forcing reduction from %i x %i to %i x %i\n", width, height, scaled_width, scaled_height );
+		Com_Printf("r_lowMemTextureSize forcing reduction from %i x %i to %i x %i\n", width, height, scaled_width, scaled_height );
 
 		resampledBuffer = (unsigned *)R_GetImageBuffer( scaled_width * scaled_height * 4, BUFFER_RESAMPLED );
 		ResampleTexture( data, width, height, resampledBuffer, scaled_width, scaled_height );
@@ -856,9 +856,9 @@ done:
 	GL_CheckErrors();
 
 	//if ( scaledBuffer != 0 )
-	//	ri.Hunk_FreeTempMemory( scaledBuffer );
+	//	Hunk_FreeTempMemory( scaledBuffer );
 	//if ( resampledBuffer != 0 )
-	//	ri.Hunk_FreeTempMemory( resampledBuffer );
+	//	Hunk_FreeTempMemory( resampledBuffer );
 }
 
 
@@ -880,7 +880,7 @@ image_t *R_CreateImageExt( const char *name, const uint8_t *pic, int width, int 
 	bool noCompress = false;
 
 	if ( strlen( name ) >= MAX_QPATH ) {
-		ri.Error( ERR_DROP, "R_CreateImage: \"%s\" is too long\n", name );
+		Com_Error( ERR_DROP, "R_CreateImage: \"%s\" is too long\n", name );
         return nullptr; // keep the linter happy, ERR_DROP does not return
 	}
 	if ( !strncmp( name, "*lightmap", 9 ) ) {
@@ -901,7 +901,7 @@ image_t *R_CreateImageExt( const char *name, const uint8_t *pic, int width, int 
 	}
 
 	if ( tr.numImages == MAX_DRAWIMAGES ) {
-		ri.Error( ERR_DROP, "R_CreateImage: MAX_DRAWIMAGES hit\n" );
+		Com_Error( ERR_DROP, "R_CreateImage: MAX_DRAWIMAGES hit\n" );
         return nullptr; // keep the linter happy, ERR_DROP does not return
 	}
 
@@ -1064,19 +1064,19 @@ static void LoadBMP( const char *name, uint8_t **pic, int *width, int *height ) 
 	}
 
 	if ( bmpHeader.id[0] != 'B' && bmpHeader.id[1] != 'M' ) {
-		ri.Error( ERR_DROP, "LoadBMP: only Windows-style BMP files supported (%s)\n", name );
+		Com_Error( ERR_DROP, "LoadBMP: only Windows-style BMP files supported (%s)\n", name );
         return; // keep the linter happy, ERR_DROP does not return
 	}
     if ( bmpHeader.fileSize != length ) {
-        ri.Error( ERR_DROP, "LoadBMP: header size does not match file size (%d vs. %d) (%s)\n", bmpHeader.fileSize, length, name );
+        Com_Error( ERR_DROP, "LoadBMP: header size does not match file size (%d vs. %d) (%s)\n", bmpHeader.fileSize, length, name );
         return; // keep the linter happy, ERR_DROP does not return
     }
 	if ( bmpHeader.compression != 0 ) {
-		ri.Error( ERR_DROP, "LoadBMP: only uncompressed BMP files supported (%s)\n", name );
+		Com_Error( ERR_DROP, "LoadBMP: only uncompressed BMP files supported (%s)\n", name );
         return; // keep the linter happy, ERR_DROP does not return
 	}
 	if ( bmpHeader.bitsPerPixel < 8 ) {
-		ri.Error( ERR_DROP, "LoadBMP: monochrome and 4-bit BMP files not supported (%s)\n", name );
+		Com_Error( ERR_DROP, "LoadBMP: monochrome and 4-bit BMP files not supported (%s)\n", name );
         return; // keep the linter happy, ERR_DROP does not return
 	}
 
@@ -1147,14 +1147,14 @@ static void LoadBMP( const char *name, uint8_t **pic, int *width, int *height ) 
 				*pixbuf++ = alpha;
 				break;
 			default:
-				ri.Error( ERR_DROP, "LoadBMP: illegal pixel_size '%d' in file '%s'\n", bmpHeader.bitsPerPixel, name );
+				Com_Error( ERR_DROP, "LoadBMP: illegal pixel_size '%d' in file '%s'\n", bmpHeader.bitsPerPixel, name );
                 return; // keep the linter happy, ERR_DROP does not return
 				break;
 			}
 		}
 	}
 
-	ri.FS_FreeFile( buffer );
+	FS_FreeFile( buffer );
 
 }
 
@@ -1208,7 +1208,7 @@ static void LoadPCX( const char *filename, uint8_t **pic, uint8_t **palette, int
 		 || pcx->bits_per_pixel != 8
 		 || xmax >= 1024
 		 || ymax >= 1024 ) {
-		ri.Printf( PRINT_ALL, "Bad pcx file %s (%i x %i) (%i x %i)\n", filename, xmax + 1, ymax + 1, pcx->xmax, pcx->ymax );
+		Com_Printf("Bad pcx file %s (%i x %i) (%i x %i)\n", filename, xmax + 1, ymax + 1, pcx->xmax, pcx->ymax );
 		return;
 	}
 
@@ -1251,12 +1251,12 @@ static void LoadPCX( const char *filename, uint8_t **pic, uint8_t **palette, int
 	}
 
 	if ( raw - (uint8_t *)pcx > len ) {
-		ri.Printf( PRINT_DEVELOPER, "PCX file %s was malformed", filename );
+		Com_Printf(S_COLOR_RED  "PCX file %s was malformed", filename );
 		free( *pic );
 		*pic = nullptr;
 	}
 
-	ri.FS_FreeFile( pcx );
+	FS_FreeFile( pcx );
 }
 
 
@@ -1349,17 +1349,17 @@ void LoadTGA( const char *name, uint8_t **pic, int *width, int *height ) {
 	if ( targa_header.image_type != 2
 		 && targa_header.image_type != 10
 		 && targa_header.image_type != 3 ) {
-		ri.Error( ERR_DROP, "LoadTGA: Only type 2 (RGB), 3 (gray), and 10 (RGB) TGA images supported\n" );
+		Com_Error( ERR_DROP, "LoadTGA: Only type 2 (RGB), 3 (gray), and 10 (RGB) TGA images supported\n" );
         return; // keep the linter happy, ERR_DROP does not return
 	}
 
 	if ( targa_header.colormap_type != 0 ) {
-		ri.Error( ERR_DROP, "LoadTGA: colormaps not supported\n" );
+		Com_Error( ERR_DROP, "LoadTGA: colormaps not supported\n" );
         return; // keep the linter happy, ERR_DROP does not return
 	}
 
 	if ( ( targa_header.pixel_size != 32 && targa_header.pixel_size != 24 ) && targa_header.image_type != 3 ) {
-		ri.Error( ERR_DROP, "LoadTGA: Only 32 or 24 bit images supported (no colormaps)\n" );
+		Com_Error( ERR_DROP, "LoadTGA: Only 32 or 24 bit images supported (no colormaps)\n" );
         return; // keep the linter happy, ERR_DROP does not return
 	}
 
@@ -1422,7 +1422,7 @@ void LoadTGA( const char *name, uint8_t **pic, int *width, int *height ) {
 					*pixbuf++ = alphabyte;
 					break;
 				default:
-					ri.Error( ERR_DROP, "LoadTGA: illegal pixel_size '%d' in file '%s'\n", targa_header.pixel_size, name );
+					Com_Error( ERR_DROP, "LoadTGA: illegal pixel_size '%d' in file '%s'\n", targa_header.pixel_size, name );
                     return; // keep the linter happy, ERR_DROP does not return
 					break;
 				}
@@ -1456,7 +1456,7 @@ void LoadTGA( const char *name, uint8_t **pic, int *width, int *height ) {
 						alphabyte = *buf_p++;
 						break;
 					default:
-						ri.Error( ERR_DROP, "LoadTGA: illegal pixel_size '%d' in file '%s'\n", targa_header.pixel_size, name );
+						Com_Error( ERR_DROP, "LoadTGA: illegal pixel_size '%d' in file '%s'\n", targa_header.pixel_size, name );
                         return; // keep the linter happy, ERR_DROP does not return
 						break;
 					}
@@ -1500,7 +1500,7 @@ void LoadTGA( const char *name, uint8_t **pic, int *width, int *height ) {
 							*pixbuf++ = alphabyte;
 							break;
 						default:
-							ri.Error( ERR_DROP, "LoadTGA: illegal pixel_size '%d' in file '%s'\n", targa_header.pixel_size, name );
+							Com_Error( ERR_DROP, "LoadTGA: illegal pixel_size '%d' in file '%s'\n", targa_header.pixel_size, name );
                             return; // keep the linter happy, ERR_DROP does not return
                             break;
 						}
@@ -1521,7 +1521,7 @@ breakOut:;
 		}
 	}
 
-	ri.FS_FreeFile( buffer );
+	FS_FreeFile( buffer );
 }
 
 static void LoadJPG( const char *filename, unsigned char **pic, int *width, int *height ) {
@@ -1614,7 +1614,7 @@ static void LoadJPG( const char *filename, unsigned char **pic, int *width, int 
 	jpeg_finish_decompress( &cinfo );
 	jpeg_destroy_decompress( &cinfo );
 
-	ri.FS_FreeFile( fbuffer );
+	FS_FreeFile( fbuffer );
 }
 
 /*
@@ -1694,16 +1694,16 @@ image_t *R_FindImageFileExt( const char *name, bool mipmap, bool allowPicmip, bo
 			// the white image can be used with any set of parms, but other mismatches are errors
 			if ( strcmp( name, "*white" ) ) {
 				if ( image->mipmap != mipmap ) {
-					ri.Printf( PRINT_DEVELOPER, "WARNING: reused image %s with mixed mipmap parm\n", name );
+					Com_Printf(S_COLOR_RED  "WARNING: reused image %s with mixed mipmap parm\n", name );
 				}
 				if ( image->allowPicmip != allowPicmip ) {
-					ri.Printf( PRINT_DEVELOPER, "WARNING: reused image %s with mixed allowPicmip parm\n", name );
+					Com_Printf(S_COLOR_RED  "WARNING: reused image %s with mixed allowPicmip parm\n", name );
 				}
 				if ( image->characterMIP != characterMIP ) {
-					ri.Printf( PRINT_DEVELOPER, "WARNING: reused image %s with mixed characterMIP parm\n", name );
+					Com_Printf(S_COLOR_RED  "WARNING: reused image %s with mixed characterMIP parm\n", name );
 				}
 				if ( image->wrapClampMode != glWrapClampMode ) {
-					ri.Printf( PRINT_ALL, "WARNING: reused image %s with mixed glWrapClampMode parm\n", name );
+					Com_Printf("WARNING: reused image %s with mixed glWrapClampMode parm\n", name );
 				}
 			}
 			return image;
@@ -1735,13 +1735,13 @@ image_t *R_FindImageFileExt( const char *name, bool mipmap, bool allowPicmip, bo
 		altname[len - 3] = toupper( altname[len - 3] );   // and try upper case extension for unix systems
 		altname[len - 2] = toupper( altname[len - 2] );   //
 		altname[len - 1] = toupper( altname[len - 1] );   //
-		ri.Printf( PRINT_DEVELOPER, "trying %s...", altname );
+		Com_Printf(S_COLOR_RED  "trying %s...", altname );
 		R_LoadImage( altname, &pic, &width, &height );      //
 		if ( pic == nullptr ) {                              // if that fails
-			ri.Printf( PRINT_DEVELOPER, "no\n" );
+			Com_Printf(S_COLOR_RED  "no\n" );
 			return nullptr;                                  // bail
 		}
-		ri.Printf( PRINT_DEVELOPER, "yes\n" );
+		Com_Printf(S_COLOR_RED  "yes\n" );
 #else
 		return nullptr;
 #endif
@@ -2006,13 +2006,13 @@ void R_SetColorMappings( void ) {
 
 
 	if ( r_intensity->value <= 1 ) {
-		ri.Cvar_Set( "r_intensity", "1" );
+		Cvar_Set( "r_intensity", "1" );
 	}
 
 	if ( r_gamma->value < 0.5f ) {
-		ri.Cvar_Set( "r_gamma", "0.5" );
+		Cvar_Set( "r_gamma", "0.5" );
 	} else if ( r_gamma->value > 3.0f ) {
-		ri.Cvar_Set( "r_gamma", "3.0" );
+		Cvar_Set( "r_gamma", "3.0" );
 	}
 
 	g = r_gamma->value;
@@ -2334,7 +2334,7 @@ qhandle_t RE_RegisterSkin( const char *name ) {
 
 	// allocate a new skin
 	if ( tr.numSkins == MAX_SKINS ) {
-		ri.Printf( PRINT_WARNING, "WARNING: RE_RegisterSkin( '%s' ) MAX_SKINS hit\n", name );
+		Com_Printf(S_COLOR_YELLOW  "WARNING: RE_RegisterSkin( '%s' ) MAX_SKINS hit\n", name );
 		return 0;
 	}
 
@@ -2349,13 +2349,13 @@ qhandle_t RE_RegisterSkin( const char *name ) {
 	// If not a .skin file, load as a single shader
 	if ( strcmp( name + strlen( name ) - 5, ".skin" ) ) {
 		tr.numSkins++;
-		skin = (skin_t *)ri.Hunk_Alloc( sizeof( skin_t ), h_low );
+		skin = (skin_t *)Hunk_Alloc( sizeof( skin_t ), h_low );
 		tr.skins[hSkin] = skin;
 		Q_strncpyz( skin->name, name, sizeof( skin->name ) );
 		skin->numSurfaces   = 0;
 		skin->numModels     = 0;    //----(SA) added
 		skin->numSurfaces = 1;
-		skin->surfaces = (skinSurface_t *)ri.Hunk_Alloc( sizeof(skinSurface_t), h_low );
+		skin->surfaces = (skinSurface_t *)Hunk_Alloc( sizeof(skinSurface_t), h_low );
 		skin->surfaces[0].shader = R_FindShader( name, LIGHTMAP_NONE, true );
 		return hSkin;
 	}
@@ -2367,7 +2367,7 @@ qhandle_t RE_RegisterSkin( const char *name ) {
 	}
 
 	tr.numSkins++;
-	skin = (skin_t *)ri.Hunk_Alloc( sizeof( skin_t ), h_low );
+	skin = (skin_t *)Hunk_Alloc( sizeof( skin_t ), h_low );
 	tr.skins[hSkin] = skin;
 	Q_strncpyz( skin->name, name, sizeof( skin->name ) );
 	skin->numSurfaces   = 0;
@@ -2397,7 +2397,7 @@ qhandle_t RE_RegisterSkin( const char *name ) {
 		}
 
 		if ( strstr( token, "md3_" ) ) {  // this is specifying a model
-			model = skin->models[ skin->numModels ] = (skinModel_t *)ri.Hunk_Alloc( sizeof( *skin->models[0] ), h_low );
+			model = skin->models[ skin->numModels ] = (skinModel_t *)Hunk_Alloc( sizeof( *skin->models[0] ), h_low );
 			Q_strncpyz( model->type, token, sizeof( model->type ) );
 
 			// get the model name
@@ -2432,7 +2432,7 @@ qhandle_t RE_RegisterSkin( const char *name ) {
         totalSurfaces++;
 	}
 
-	ri.FS_FreeFile( text );
+	FS_FreeFile( text );
 
 
 	// never let a skin have 0 shaders
@@ -2446,7 +2446,7 @@ qhandle_t RE_RegisterSkin( const char *name ) {
 	}
 
     // copy surfaces to skin
-    skin->surfaces = (skinSurface_t *)ri.Hunk_Alloc( skin->numSurfaces * sizeof( skinSurface_t ), h_low );
+    skin->surfaces = (skinSurface_t *)Hunk_Alloc( skin->numSurfaces * sizeof( skinSurface_t ), h_low );
     memcpy( skin->surfaces, parseSurfaces, skin->numSurfaces * sizeof( skinSurface_t ) );
 
     
@@ -2465,10 +2465,10 @@ void    R_InitSkins( void ) {
 	tr.numSkins = 1;
 
 	// make the default skin have all default shaders
-	skin = tr.skins[0] = (skin_t *)ri.Hunk_Alloc( sizeof( skin_t ), h_low );
+	skin = tr.skins[0] = (skin_t *)Hunk_Alloc( sizeof( skin_t ), h_low );
 	Q_strncpyz( skin->name, "<default skin>", sizeof( skin->name )  );
 	skin->numSurfaces = 1;
-	skin->surfaces = (skinSurface_t *)ri.Hunk_Alloc( sizeof( skinSurface_t ), h_low );
+	skin->surfaces = (skinSurface_t *)Hunk_Alloc( sizeof( skinSurface_t ), h_low );
 	skin->surfaces[0].shader = tr.defaultShader;
 }
 
@@ -2493,18 +2493,18 @@ void    R_SkinList_f( void ) {
 	int i, j;
 	skin_t      *skin;
 
-	ri.Printf( PRINT_ALL, "------------------\n" );
+	Com_Printf("------------------\n" );
 
 	for ( i = 0 ; i < tr.numSkins ; i++ ) {
 		skin = tr.skins[i];
 
-		ri.Printf( PRINT_ALL, "%3i:%s\n", i, skin->name );
+		Com_Printf("%3i:%s\n", i, skin->name );
 		for ( j = 0 ; j < skin->numSurfaces ; j++ ) {
-			ri.Printf( PRINT_ALL, "       %s = %s\n",
+			Com_Printf("       %s = %s\n",
 					   skin->surfaces[j].name, skin->surfaces[j].shader->name );
 		}
 	}
-	ri.Printf( PRINT_ALL, "------------------\n" );
+	Com_Printf("------------------\n" );
 }
 
 // Ridah, utility for automatically cropping and numbering a bunch of images in a directory
@@ -2555,9 +2555,9 @@ void SaveTGA( char *name, uint8_t **pic, int width, int height ) {
 		}
 	}
 
-	ri.FS_WriteFile( name, outbuf, (int)( outpixel - outbuf ) );
+	FS_WriteFile( name, outbuf, (int)( outpixel - outbuf ) );
 
-	ri.Hunk_FreeTempMemory( outbuf );
+	Hunk_FreeTempMemory( outbuf );
 
 }
 
@@ -2608,9 +2608,9 @@ void SaveTGAAlpha( char *name, uint8_t **pic, int width, int height ) {
 		}
 	}
 
-	ri.FS_WriteFile( name, outbuf, (int)( outpixel - outbuf ) );
+	FS_WriteFile( name, outbuf, (int)( outpixel - outbuf ) );
 
-	ri.Hunk_FreeTempMemory( outbuf );
+	Hunk_FreeTempMemory( outbuf );
 
 }
 
@@ -2953,14 +2953,14 @@ void    R_CropAndNumberImagesInDirectory( const char *dir, const char *ext, int 
 	int b,c,d,lastNumber;
 	int lastBox[2] = {0,0};
 
-	fileList = ri.FS_ListFiles( dir, ext, &numFiles );
+	fileList = FS_ListFiles( dir, ext, &numFiles );
 
 	if ( !numFiles ) {
-		ri.Printf( PRINT_ALL, "no '%s' files in directory '%s'\n", ext, dir );
+		Com_Printf("no '%s' files in directory '%s'\n", ext, dir );
 		return;
 	}
 
-	ri.Printf( PRINT_ALL, "%i files found, beginning processing..\n", numFiles );
+	Com_Printf("%i files found, beginning processing..\n", numFiles );
 
 	for ( j = 0; j < numFiles; j++ ) {
 		char filename[MAX_QPATH], outfilename[MAX_QPATH];
@@ -2970,17 +2970,17 @@ void    R_CropAndNumberImagesInDirectory( const char *dir, const char *ext, int 
 		}
 
 		snprintf( filename, sizeof( filename ), "%s/%s", dir, fileList[j] );
-		ri.Printf( PRINT_ALL, "...cropping '%s'.. ", filename );
+		Com_Printf("...cropping '%s'.. ", filename );
 
 		R_LoadImage( filename, &pic, &width, &height );
 		if ( !pic ) {
-			ri.Printf( PRINT_ALL, "error reading file, ignoring.\n" );
+			Com_Printf("error reading file, ignoring.\n" );
 			continue;
 		}
 
 		// file has been read, crop it, resize it down to a power of 2, then save
 		if ( !R_CropImage( filename, &pic, 6, &width, &height, lastBox ) ) {
-			ri.Printf( PRINT_ALL, "unable to crop image.\n" );
+			Com_Printf("unable to crop image.\n" );
 			//ri.Free( pic );
 			break;
 		}
@@ -3042,7 +3042,7 @@ void    R_CropAndNumberImagesInDirectory( const char *dir, const char *ext, int 
 		// free the pixel data
 		//ri.Free( pic );
 
-		ri.Printf( PRINT_ALL, "done.\n" );
+		Com_Printf("done.\n" );
 	}
 #endif
 }
@@ -3054,13 +3054,13 @@ R_CropImages_f
 */
 void R_CropImages_f( void ) {
 #ifdef CROPIMAGES_ENABLED
-	if ( ri.Cmd_Argc() < 5 ) {
-		ri.Printf( PRINT_ALL, "syntax: cropimages <dir> <extension> <maxWidth> <maxHeight> <alpha 0/1>\neg: 'cropimages sprites/fire1 .tga 64 64 0'\n" );
+	if ( Cmd_Argc() < 5 ) {
+		Com_Printf("syntax: cropimages <dir> <extension> <maxWidth> <maxHeight> <alpha 0/1>\neg: 'cropimages sprites/fire1 .tga 64 64 0'\n" );
 		return;
 	}
-	R_CropAndNumberImagesInDirectory( ri.Cmd_Argv( 1 ), ri.Cmd_Argv( 2 ), atoi( ri.Cmd_Argv( 3 ) ), atoi( ri.Cmd_Argv( 4 ) ), atoi( ri.Cmd_Argv( 5 ) ) );
+	R_CropAndNumberImagesInDirectory( Cmd_Argv( 1 ), Cmd_Argv( 2 ), atoi( Cmd_Argv( 3 ) ), atoi( Cmd_Argv( 4 ) ), atoi( Cmd_Argv( 5 ) ) );
 #else
-	ri.Printf( PRINT_ALL, "This command has been disabled.\n" );
+	Com_Printf("This command has been disabled.\n" );
 #endif
 }
 // done.
@@ -3085,7 +3085,7 @@ void *R_CacheImageAlloc( int size ) {
 		return malloc( size );
 		//return ri.calloc( size );
 	} else {
-		return ri.Hunk_Alloc( size, h_low );
+		return Hunk_Alloc( size, h_low );
 	}
 }
 
@@ -3130,7 +3130,7 @@ bool R_TouchImage( image_t *inImage ) {
 		if ( bImage == inImage ) {
 			// add it to the current images
 			if ( tr.numImages == MAX_DRAWIMAGES ) {
-				ri.Error( ERR_DROP, "R_CreateImage: MAX_DRAWIMAGES hit\n" );
+				Com_Error( ERR_DROP, "R_CreateImage: MAX_DRAWIMAGES hit\n" );
                 return false; // keep the linter happy, ERR_DROP does not return
 			}
 
@@ -3287,7 +3287,7 @@ image_t *R_FindCachedImage( const char *name, int hash ) {
 		if ( !Q_stricmp( name, bImage->imgName ) ) {
 			// add it to the current images
 			if ( tr.numImages == MAX_DRAWIMAGES ) {
-				ri.Error( ERR_DROP, "R_CreateImage: MAX_DRAWIMAGES hit\n" );
+				Com_Error( ERR_DROP, "R_CreateImage: MAX_DRAWIMAGES hit\n" );
                 return nullptr; // keep the linter happy, ERR_DROP does not return
 			}
 
@@ -3344,7 +3344,7 @@ void R_FindFreeTexnum( image_t *inImage ) {
 		inImage->texnum = 1024 + i;
 		texnumImages[i] = inImage;
 	} else {
-		ri.Error( ERR_DROP, "R_FindFreeTexnum: MAX_DRAWIMAGES hit\n" );
+		Com_Error( ERR_DROP, "R_FindFreeTexnum: MAX_DRAWIMAGES hit\n" );
         return; // keep the linter happy, ERR_DROP does not return
 	}
 }
@@ -3384,7 +3384,7 @@ void R_LoadCacheImages( void ) {
 		R_FindImageFileExt( name, parms[0], parms[1], parms[2], parms[3] );
 	}
 
-	ri.Hunk_FreeTempMemory( buf );
+	Hunk_FreeTempMemory( buf );
 }
 // done.
 //==========================================================================================

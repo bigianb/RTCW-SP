@@ -135,7 +135,7 @@ void RE_RegisterFont( const char *fontName, int pointSize, fontInfo_t *font ) {
 	R_SyncRenderThread();
 
 	if ( registeredFontCount >= MAX_FONTS ) {
-		ri.Printf( PRINT_ALL, "RE_RegisterFont: Too many fonts registered already.\n" );
+		Com_Printf("RE_RegisterFont: Too many fonts registered already.\n" );
 		return;
 	}
 
@@ -180,7 +180,7 @@ void RE_RegisterFont( const char *fontName, int pointSize, fontInfo_t *font ) {
 		return;
 	}
 
-	ri.Printf( PRINT_ALL, "RE_RegisterFont: FreeType code not available\n" );
+	Com_Printf( "RE_RegisterFont: FreeType code not available\n" );
 
 }
 

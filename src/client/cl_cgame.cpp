@@ -418,7 +418,7 @@ void CL_InitCGame()
 
 	// have the renderer touch all its images, so they are present
 	// on the card even if the driver does deferred loading
-	re.EndRegistration();
+	RE_EndRegistration();
 
 	// clear anything that got printed
 	Con_ClearNotify();

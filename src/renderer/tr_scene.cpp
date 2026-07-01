@@ -26,8 +26,8 @@ If you have questions concerning this license or the applicable additional terms
 ===========================================================================
 */
 
-
 #include "tr_local.h"
+#include "../client/client.h"
 
 int r_firstSceneDrawSurf;
 
@@ -144,7 +144,7 @@ void RE_AddPolyToScene( qhandle_t hShader, int numVerts, const polyVert_t *verts
 	}
 
 	if ( !hShader ) {
-		ri.Printf( PRINT_WARNING, "WARNING: RE_AddPolyToScene: nullptr poly shader\n" );
+		Com_Printf(S_COLOR_YELLOW  "WARNING: RE_AddPolyToScene: nullptr poly shader\n" );
 		return;
 	}
 
@@ -218,13 +218,13 @@ void RE_AddPolysToScene( qhandle_t hShader, int numVerts, const polyVert_t *vert
 	}
 
 	if ( !hShader ) {
-		ri.Printf( PRINT_WARNING, "WARNING: RE_AddPolysToScene: nullptr poly shader\n" );
+		Com_Printf(S_COLOR_YELLOW  "WARNING: RE_AddPolysToScene: nullptr poly shader\n" );
 		return;
 	}
 
 	for ( j = 0; j < numPolys; j++ ) {
 		if ( r_numpolyverts + numVerts > max_polyverts || r_numpolys >= max_polys ) {
-//			ri.Printf( PRINT_WARNING, "WARNING: RE_AddPolysToScene: MAX_POLYS or MAX_POLYVERTS reached\n");
+//			Com_Printf(S_COLOR_YELLOW  "WARNING: RE_AddPolysToScene: MAX_POLYS or MAX_POLYVERTS reached\n");
 			return;
 		}
 
@@ -299,7 +299,7 @@ void RE_AddRefEntityToScene( const refEntity_t *ent ) {
 		return;
 	}
 	if ( ent->reType < 0 || ent->reType >= RT_MAX_REF_ENTITY_TYPE ) {
-		ri.Error( ERR_DROP, "RE_AddRefEntityToScene: bad reType %i", ent->reType );
+		Com_Error( ERR_DROP, "RE_AddRefEntityToScene: bad reType %i", ent->reType );
         return; // keep the linter happy, ERR_DROP does not return
 	}
 
@@ -416,10 +416,10 @@ void RE_RenderScene( const refdef_t *fd )
 		return;
 	}
 
-	int startTime = ri.Milliseconds();
+	int startTime = CL_ScaledMilliseconds();
 
 	if ( !tr.world && !( fd->rdflags & RDF_NOWORLDMODEL ) ) {
-		ri.Error( ERR_DROP, "R_RenderScene: nullptr worldmodel" );
+		Com_Error( ERR_DROP, "R_RenderScene: nullptr worldmodel" );
 	}
 
 	memcpy( tr.refdef.text, fd->text, sizeof( tr.refdef.text ) );
@@ -534,5 +534,5 @@ void RE_RenderScene( const refdef_t *fd )
 	r_firstSceneDlight = r_numdlights;
 	r_firstScenePoly = r_numpolys;
 
-	tr.frontEndMsec += ri.Milliseconds() - startTime;
+	tr.frontEndMsec += CL_ScaledMilliseconds() - startTime;
 }

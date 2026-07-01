@@ -72,7 +72,7 @@ model_t *R_AllocModel( void ) {
 		return nullptr;
 	}
 
-	mod = (model_t *)ri.Hunk_Alloc( sizeof( *tr.models[tr.numModels] ), h_low );
+	mod = (model_t *)Hunk_Alloc( sizeof( *tr.models[tr.numModels] ), h_low );
 	mod->index = tr.numModels;
 	tr.models[tr.numModels] = mod;
 	tr.numModels++;
@@ -103,7 +103,7 @@ qhandle_t RE_RegisterModel( const char *name ) {
 
 	if ( !name || !name[0] ) {
 		// Ridah, disabled this, we can see models that can't be found because they won't be there
-		//ri.Printf( PRINT_ALL, "RE_RegisterModel: nullptr name\n" );
+		//Com_Printf("RE_RegisterModel: nullptr name\n" );
 		return 0;
 	}
 
@@ -133,7 +133,7 @@ qhandle_t RE_RegisterModel( const char *name ) {
 	// allocate a new model_t
 
 	if ( ( mod = R_AllocModel() ) == nullptr ) {
-		ri.Printf( PRINT_WARNING, "RE_RegisterModel: R_AllocModel() failed for '%s'\n", name );
+		Com_Printf(S_COLOR_YELLOW  "RE_RegisterModel: R_AllocModel() failed for '%s'\n", name );
 		return 0;
 	}
 
@@ -175,7 +175,7 @@ qhandle_t RE_RegisterModel( const char *name ) {
 				loaded = R_LoadMDS( mod, buf, name );
 			}
 
-			ri.FS_FreeFile( buf );
+			FS_FreeFile( buf );
 		}
 
 		if ( loaded ) {
@@ -222,7 +222,7 @@ qhandle_t RE_RegisterModel( const char *name ) {
 		ident = LittleLong( *(unsigned *)buf );
 		// Ridah, mesh compression
 		if ( ident != MD3_IDENT && ident != MDC_IDENT ) {
-			ri.Printf( PRINT_WARNING,"RE_RegisterModel: unknown fileid for %s\n", name );
+			Com_Printf(S_COLOR_YELLOW "RE_RegisterModel: unknown fileid for %s\n", name );
 			goto fail;
 		}
 
@@ -238,7 +238,7 @@ qhandle_t RE_RegisterModel( const char *name ) {
 		}
 		// done.
 
-		ri.FS_FreeFile( buf );
+		FS_FreeFile( buf );
 
 		if ( !loaded ) {
 			if ( lod == 0 ) {
@@ -583,7 +583,7 @@ static bool R_MDC_ConvertMD3( model_t *mod, int lod, const char *mod_name ) {
 	// report the memory differences
 	Com_Printf( "Compressed %s. Old = %i, New = %i\n", mod_name, md3->ofsEnd, mdcHeader.ofsEnd );
 
-	mdc = (mdcHeader_t *)ri.Hunk_Alloc( mdcHeader.ofsEnd, h_low );
+	mdc = (mdcHeader_t *)Hunk_Alloc( mdcHeader.ofsEnd, h_low );
 	mod->mdc[lod] = mdc;
 
 	// we have the memory allocated, so lets fill it in
@@ -659,7 +659,7 @@ static bool R_MDC_ConvertMD3( model_t *mod, int lod, const char *mod_name ) {
 				frameBaseFrames[f] = i - 1;
 			} else {
 				if ( !R_MDC_CompressSurfaceFrame( md3, surf, f, baseFrames[i - 1], ( mdcXyzCompressed_t * )( (uint8_t *)cSurf + cSurf->ofsXyzCompressed + sizeof( mdcXyzCompressed_t ) * cSurf->numVerts * c ) ) ) {
-					ri.Error( ERR_DROP, "R_MDC_ConvertMD3: tried to compress an unsuitable frame\n" );
+					Com_Error( ERR_DROP, "R_MDC_ConvertMD3: tried to compress an unsuitable frame\n" );
                     return false; // keep the linter happy, ERR_DROP does not return
 				}
 				frameCompFrames[f] = c;
@@ -676,10 +676,10 @@ static bool R_MDC_ConvertMD3( model_t *mod, int lod, const char *mod_name ) {
 	mod->type = MOD_MDC;
 
 	// free allocated memory
-	ri.Hunk_FreeTempMemory( baseFrames );
+	Hunk_FreeTempMemory( baseFrames );
 
 	// kill the md3 memory
-	ri.Hunk_FreeTempMemory( md3 );
+	Hunk_FreeTempMemory( md3 );
 	mod->md3[lod] = nullptr;
 
 	return true;
@@ -709,7 +709,7 @@ static bool R_LoadMDC( model_t *mod, int lod, void *buffer, const char *mod_name
 
 	version = LittleLong( pinmodel->version );
 	if ( version != MDC_VERSION ) {
-		ri.Printf( PRINT_WARNING, "R_LoadMDC: %s has wrong version (%i should be %i)\n",
+		Com_Printf(S_COLOR_YELLOW  "R_LoadMDC: %s has wrong version (%i should be %i)\n",
 				   mod_name, version, MDC_VERSION );
 		return false;
 	}
@@ -717,7 +717,7 @@ static bool R_LoadMDC( model_t *mod, int lod, void *buffer, const char *mod_name
 	mod->type = MOD_MDC;
 	size = LittleLong( pinmodel->ofsEnd );
 	mod->dataSize += size;
-	mod->mdc[lod] = (mdcHeader_t *)ri.Hunk_Alloc( size, h_low );
+	mod->mdc[lod] = (mdcHeader_t *)Hunk_Alloc( size, h_low );
 
 	memcpy( mod->mdc[lod], buffer, LittleLong( pinmodel->ofsEnd ) );
 
@@ -736,7 +736,7 @@ static bool R_LoadMDC( model_t *mod, int lod, void *buffer, const char *mod_name
 
 
 	if ( mod->mdc[lod]->numFrames < 1 ) {
-		ri.Printf( PRINT_WARNING, "R_LoadMDC: %s has no frames\n", mod_name );
+		Com_Printf(S_COLOR_YELLOW  "R_LoadMDC: %s has no frames\n", mod_name );
 		return false;
 	}
 
@@ -793,12 +793,12 @@ static bool R_LoadMDC( model_t *mod, int lod, void *buffer, const char *mod_name
 		LL( surf->ofsEnd );
 
 		if ( surf->numVerts > SHADER_MAX_VERTEXES ) {
-			ri.Error( ERR_DROP, "R_LoadMDC: %s has more than %i verts on a surface (%i)",
+			Com_Error( ERR_DROP, "R_LoadMDC: %s has more than %i verts on a surface (%i)",
 					  mod_name, SHADER_MAX_VERTEXES, surf->numVerts );
             return false; // keep the linter happy, ERR_DROP does not return
 		}
 		if ( surf->numTriangles * 3 > SHADER_MAX_INDEXES ) {
-			ri.Error( ERR_DROP, "R_LoadMDC: %s has more than %i triangles on a surface (%i)",
+			Com_Error( ERR_DROP, "R_LoadMDC: %s has more than %i triangles on a surface (%i)",
 					  mod_name, SHADER_MAX_INDEXES / 3, surf->numTriangles );
             return false; // keep the linter happy, ERR_DROP does not return
 		}
@@ -914,7 +914,7 @@ static bool R_LoadMD3( model_t *mod, int lod, void *buffer, const char *mod_name
 
 	version = LittleLong( pinmodel->version );
 	if ( version != MD3_VERSION ) {
-		ri.Printf( PRINT_WARNING, "R_LoadMD3: %s has wrong version (%i should be %i)\n",
+		Com_Printf(S_COLOR_YELLOW  "R_LoadMD3: %s has wrong version (%i should be %i)\n",
 				   mod_name, version, MD3_VERSION );
 		return false;
 	}
@@ -943,7 +943,7 @@ static bool R_LoadMD3( model_t *mod, int lod, void *buffer, const char *mod_name
 	LL( mod->md3[lod]->ofsEnd );
 
 	if ( mod->md3[lod]->numFrames < 1 ) {
-		ri.Printf( PRINT_WARNING, "R_LoadMD3: %s has no frames\n", mod_name );
+		Com_Printf(S_COLOR_YELLOW  "R_LoadMD3: %s has no frames\n", mod_name );
 		return false;
 	}
 
@@ -1009,12 +1009,12 @@ static bool R_LoadMD3( model_t *mod, int lod, void *buffer, const char *mod_name
 		LL( surf->ofsEnd );
 
 		if ( surf->numVerts > SHADER_MAX_VERTEXES ) {
-			ri.Error( ERR_DROP, "R_LoadMD3: %s has more than %i verts on a surface (%i)",
+			Com_Error( ERR_DROP, "R_LoadMD3: %s has more than %i verts on a surface (%i)",
 					  mod_name, SHADER_MAX_VERTEXES, surf->numVerts );
             return false; // keep the linter happy, ERR_DROP does not return
 		}
 		if ( surf->numTriangles * 3 > SHADER_MAX_INDEXES ) {
-			ri.Error( ERR_DROP, "R_LoadMD3: %s has more than %i triangles on a surface (%i)",
+			Com_Error( ERR_DROP, "R_LoadMD3: %s has more than %i triangles on a surface (%i)",
 					  mod_name, SHADER_MAX_INDEXES / 3, surf->numTriangles );
             return false; // keep the linter happy, ERR_DROP does not return
 		}
@@ -1116,7 +1116,7 @@ static bool R_LoadMDS( model_t *mod, void *buffer, const char *mod_name ) {
 
 	version = LittleLong( pinmodel->version );
 	if ( version != MDS_VERSION ) {
-		ri.Printf( PRINT_WARNING, "R_LoadMDS: %s has wrong version (%i should be %i)\n",
+		Com_Printf(S_COLOR_YELLOW  "R_LoadMDS: %s has wrong version (%i should be %i)\n",
 				   mod_name, version, MDS_VERSION );
 		return false;
 	}
@@ -1124,7 +1124,7 @@ static bool R_LoadMDS( model_t *mod, void *buffer, const char *mod_name ) {
 	mod->type = MOD_MDS;
 	size = LittleLong( pinmodel->ofsEnd );
 	mod->dataSize += size;
-	mds = mod->mds = (mdsHeader_t *)ri.Hunk_Alloc( size, h_low );
+	mds = mod->mds = (mdsHeader_t *)Hunk_Alloc( size, h_low );
 
 	memcpy( mds, buffer, LittleLong( pinmodel->ofsEnd ) );
 
@@ -1144,7 +1144,7 @@ static bool R_LoadMDS( model_t *mod, void *buffer, const char *mod_name ) {
 	LL( mds->torsoParent );
 
 	if ( mds->numFrames < 1 ) {
-		ri.Printf( PRINT_WARNING, "R_LoadMDS: %s has no frames\n", mod_name );
+		Com_Printf(S_COLOR_YELLOW  "R_LoadMDS: %s has no frames\n", mod_name );
 		return false;
 	}
 
@@ -1202,12 +1202,12 @@ static bool R_LoadMDS( model_t *mod, void *buffer, const char *mod_name ) {
 		}
 
 		if ( surf->numVerts > SHADER_MAX_VERTEXES ) {
-			ri.Error( ERR_DROP, "R_LoadMDS: %s has more than %i verts on a surface (%i)",
+			Com_Error( ERR_DROP, "R_LoadMDS: %s has more than %i verts on a surface (%i)",
 					  mod_name, SHADER_MAX_VERTEXES, surf->numVerts );
             return false; // keep the linter happy, ERR_DROP does not return
 		}
 		if ( surf->numTriangles * 3 > SHADER_MAX_INDEXES ) {
-			ri.Error( ERR_DROP, "R_LoadMDS: %s has more than %i triangles on a surface (%i)",
+			Com_Error( ERR_DROP, "R_LoadMDS: %s has more than %i triangles on a surface (%i)",
 					  mod_name, SHADER_MAX_INDEXES / 3, surf->numTriangles );
             return false; // keep the linter happy, ERR_DROP does not return
 		}
@@ -1344,14 +1344,14 @@ void R_Modellist_f( void ) {
 				lods++;
 			}
 		}
-		ri.Printf( PRINT_ALL, "%8i : (%i) %s\n",mod->dataSize, lods, mod->name );
+		Com_Printf("%8i : (%i) %s\n",mod->dataSize, lods, mod->name );
 		total += mod->dataSize;
 	}
-	ri.Printf( PRINT_ALL, "%8i : Total models\n", total );
+	Com_Printf("%8i : Total models\n", total );
 
 #if 0       // not working right with new hunk
 	if ( tr.world ) {
-		ri.Printf( PRINT_ALL, "\n%8i : %s\n", tr.world->dataSize, tr.world->name );
+		Com_Printf("\n%8i : %s\n", tr.world->dataSize, tr.world->name );
 	}
 #endif
 }
@@ -1601,31 +1601,31 @@ void R_TagInfo_f( void ) {
 	orientation_t tag;
 	int frame = -1;
 
-	if (ri.Cmd_Argc() < 3) {
+	if (Cmd_Argc() < 3) {
 		Com_Printf("usage: taginfo <model> <tag>\n");
 		return;
 	}
 
-	handle = RE_RegisterModel( ri.Cmd_Argv(1) );
+	handle = RE_RegisterModel( Cmd_Argv(1) );
 
 	if (handle) {
-		Com_Printf("found model %s..\n", ri.Cmd_Argv(1));
+		Com_Printf("found model %s..\n", Cmd_Argv(1));
 	} else {
-		Com_Printf("cannot find model %s\n", ri.Cmd_Argv(1));
+		Com_Printf("cannot find model %s\n", Cmd_Argv(1));
 		return;
 	}
 
-	if (ri.Cmd_Argc() < 3) {
+	if (Cmd_Argc() < 3) {
 		frame = 0;
 	} else {
-		frame = atoi(ri.Cmd_Argv(3));
+		frame = atoi(Cmd_Argv(3));
 	}
 
 	Com_Printf("using frame %i..\n", frame);
 
-	R_LerpTag( &tag, handle, frame, frame, 0.0, (const char *)ri.Cmd_Argv(2) );
+	R_LerpTag( &tag, handle, frame, frame, 0.0, (const char *)Cmd_Argv(2) );
 
-	Com_Printf("%s at position: %.1f %.1f %.1f\n", ri.Cmd_Argv(2), tag.origin[0], tag.origin[1], tag.origin[2] );
+	Com_Printf("%s at position: %.1f %.1f %.1f\n", Cmd_Argv(2), tag.origin[0], tag.origin[1], tag.origin[2] );
 */
 }
 
@@ -1730,7 +1730,7 @@ void *R_Hunk_Begin( void ) {
 #endif
 
 	if ( !membase ) {
-		ri.Error( ERR_DROP, "R_Hunk_Begin: reserve failed" );
+		Com_Error( ERR_DROP, "R_Hunk_Begin: reserve failed" );
         return nullptr; // keep the linter happy, ERR_DROP does not return
 	}
 
@@ -1754,7 +1754,7 @@ void *R_Hunk_Alloc( int size ) {
 
 	if ( !buf ) {
 		FormatMessage( FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM, nullptr, GetLastError(), MAKELANGID( LANG_NEUTRAL, SUBLANG_DEFAULT ), (LPTSTR) &buf, 0, nullptr );
-		ri.Error( ERR_DROP, "VirtualAlloc commit failed.\n%s", buf );
+		Com_Error( ERR_DROP, "VirtualAlloc commit failed.\n%s", buf );
 	}
 
 #elif defined( __MACOS__ )
@@ -1765,7 +1765,7 @@ void *R_Hunk_Alloc( int size ) {
 
 	hunkcursize += size;
 	if ( hunkcursize > hunkmaxsize ) {
-		ri.Error( ERR_DROP, "R_Hunk_Alloc overflow" );
+		Com_Error( ERR_DROP, "R_Hunk_Alloc overflow" );
         return nullptr; // keep the linter happy, ERR_DROP does not return
 	}
 
@@ -1802,7 +1802,7 @@ void R_Hunk_Reset( void ) {
 
 #if !defined( __MACOS__ )
 	if ( !membase ) {
-		ri.Error( ERR_DROP, "R_Hunk_Reset called without a membase!" );
+		Com_Error( ERR_DROP, "R_Hunk_Reset called without a membase!" );
         return; // keep the linter happy, ERR_DROP does not return
 	}
 #endif
@@ -1841,7 +1841,7 @@ void *R_CacheModelAlloc( int size ) {
 	} else {
 		// if r_cache 0, this function is not supposed to get called
 		Com_Printf( "FIXME: unexpected R_CacheModelAlloc call with r_cache 0\n" );
-		return ri.Hunk_Alloc( size, h_low );
+		return Hunk_Alloc( size, h_low );
 	}
 }
 
@@ -2044,7 +2044,7 @@ bool R_FindCachedModel( const char *name, model_t *newmod ) {
 				for ( j = MD3_MAX_LODS - 1; j >= 0; j-- ) {
 					if ( j < mod->numLods && mod->md3[j] ) {
 						if ( ( j == MD3_MAX_LODS - 1 ) || ( mod->md3[j] != mod->md3[j + 1] ) ) {
-							newmod->md3[j] = (md3Header_t *)ri.Hunk_Alloc( mod->md3[j]->ofsEnd, h_low );
+							newmod->md3[j] = (md3Header_t *)Hunk_Alloc( mod->md3[j]->ofsEnd, h_low );
 							memcpy( newmod->md3[j], mod->md3[j], mod->md3[j]->ofsEnd );
 							R_RegisterMD3Shaders( newmod, j );
 							R_CacheModelFree( mod->md3[j] );
@@ -2058,7 +2058,7 @@ bool R_FindCachedModel( const char *name, model_t *newmod ) {
 				for ( j = MD3_MAX_LODS - 1; j >= 0; j-- ) {
 					if ( j < mod->numLods && mod->mdc[j] ) {
 						if ( ( j == MD3_MAX_LODS - 1 ) || ( mod->mdc[j] != mod->mdc[j + 1] ) ) {
-							newmod->mdc[j] = (mdcHeader_t *)ri.Hunk_Alloc( mod->mdc[j]->ofsEnd, h_low );
+							newmod->mdc[j] = (mdcHeader_t *)Hunk_Alloc( mod->mdc[j]->ofsEnd, h_low );
 							memcpy( newmod->mdc[j], mod->mdc[j], mod->mdc[j]->ofsEnd );
 							R_RegisterMDCShaders( newmod, j );
 							R_CacheModelFree( mod->mdc[j] );
@@ -2118,7 +2118,7 @@ void R_LoadCacheModels( void ) {
 		RE_RegisterModel( name );
 	}
 
-	ri.Hunk_FreeTempMemory( buf );
+	Hunk_FreeTempMemory( buf );
 }
 // done.
 //========================================================================

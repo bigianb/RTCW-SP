@@ -290,11 +290,6 @@ typedef struct {
 
 extern clientStatic_t cls;
 
-//=============================================================================
-
-//extern vm_t            *cgvm;   // interface to cgame dll or vm
-extern refexport_t re;          // interface to refresh .dll
-
 
 //
 // cvars
@@ -381,6 +376,7 @@ void CL_ReadDemoMessage( void );
 
 void CL_ShutdownRef( void );
 void CL_InitRef( void );
+int CL_ScaledMilliseconds();
 
 //
 // cl_input
