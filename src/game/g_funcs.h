@@ -818,7 +818,7 @@ If you have questions concerning this license or the applicable additional terms
 {"AAS_PresenceTypeBoundingBox", (uint8_t *)AAS_PresenceTypeBoundingBox},
 {"AAS_Initialized", (uint8_t *)AAS_Initialized},
 {"AAS_EntityInfo", (uint8_t *)AAS_EntityInfo},
-{"trap_BotUserCommand", (uint8_t *)trap_BotUserCommand},
+{"BotUserCommand", (uint8_t *)BotUserCommand},
 {"SV_BotGetConsoleMessage", (uint8_t *)SV_BotGetConsoleMessage},
 {"SV_BotGetSnapshotEntity", (uint8_t *)SV_BotGetSnapshotEntity},
 

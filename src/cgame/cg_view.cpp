@@ -863,7 +863,7 @@ static int CG_CalcViewValues( void ) {
 			cg.cameraMode = false;                 // camera off in cgame
 			Cvar_Set( "cg_letterbox", "0" );
 			CL_AddReliableCommand( "stopCamera" );    // camera off in game
-			trap_stopCamera( CAM_PRIMARY );           // camera off in client
+			CGstopCamera( CAM_PRIMARY );           // camera off in client
 
 			CG_Fade( 0, 0, 0, 255, 0, 0 );                // go black
 			CG_Fade( 0, 0, 0, 0, cg.time + 200, 1500 );   // then fadeup

@@ -50,7 +50,7 @@ If you have questions concerning this license or the applicable additional terms
 #include "../game/be_ai_weap.h"
 
 
-void trap_BotUserCommand( int clientNum, UserCmd *ucmd ) {
+void BotUserCommand( int clientNum, UserCmd *ucmd ) {
 	SV_ClientThink( &svs.clients[clientNum], ucmd );
 }
 

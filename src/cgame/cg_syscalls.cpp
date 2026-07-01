@@ -50,14 +50,14 @@ qhandle_t RegisterShaderAndDrawInfo( const char *name ) {
 }
 
 extern void startCamera( int camNum, int time );
-void trap_startCamera( int camNum, int time ) {
+void CGstartCamera( int camNum, int time ) {
 	if (camNum  == 0 ) {
 		cl.cameraMode = true;
 	}
 	startCamera( camNum, time );
 }
 
-void trap_stopCamera( int camNum ) {
+void CGstopCamera( int camNum ) {
 	if ( camNum == 0 ) {
 		cl.cameraMode = false;
 	}

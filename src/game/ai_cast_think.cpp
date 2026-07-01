@@ -1031,7 +1031,7 @@ void AICast_StartServerFrame( int time ) {
 						//
 						serverTime = time;
 						AICast_UpdateInput( cs, elapsed );
-						trap_BotUserCommand( cs->bs->client, &( cs->lastucmd ) );
+						BotUserCommand( cs->bs->client, &( cs->lastucmd ) );
 						cs->lastMoveThink = level.time;
 						//
 						// check for anim changes that may require us to stay still

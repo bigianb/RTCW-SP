@@ -541,7 +541,7 @@ void AIChar_AIScript_AlertEntity( GameEntity *ent ) {
 	AICast_Think( ent->shared.s.number, (float)FRAMETIME / 1000 );
 	cs->lastThink = level.time;
 	AICast_UpdateInput( cs, FRAMETIME );
-	trap_BotUserCommand( cs->bs->client, &( cs->lastucmd ) );
+	BotUserCommand( cs->bs->client, &( cs->lastucmd ) );
 }
 
 void AICast_DelayedSpawnCast( GameEntity *ent, int castType )

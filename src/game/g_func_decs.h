@@ -745,7 +745,7 @@ extern void moveit ( GameEntity * ent , float yaw , float dist ) ;
 extern void DropToFloor ( GameEntity * ent ) ;
 extern void DropToFloorG ( GameEntity * ent ) ;
 
-extern void trap_BotUserCommand ( int clientNum , UserCmd * ucmd ) ;
+extern void BotUserCommand ( int clientNum , UserCmd * ucmd ) ;
 
 extern int SV_BotLibShutdown ( void ) ;
 

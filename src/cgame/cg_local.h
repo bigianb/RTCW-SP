@@ -2119,8 +2119,8 @@ typedef enum {
 // Duffy, camera stuff
 #define CAM_PRIMARY 0   // the main camera for cutscenes, etc.
 
-void        trap_startCamera( int camNum, int time );
-void        trap_stopCamera( int camNum ); 
+void        CGstartCamera( int camNum, int time );
+void        CGstopCamera( int camNum ); 
 
 void        CG_StartCamera( const char *name, bool startBlack );
 void        CG_StopCamera( void );

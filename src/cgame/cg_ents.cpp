@@ -1685,14 +1685,14 @@ static void CG_Efx( centity_t *cent ) {
 			cs = (char *)CG_ConfigString( CS_SPLINES + cent->currentState.density );
 			cent->overheatTime = splinetarget = CG_LoadCamera( va( "cameras/%s.camera", cs ) );
 			if ( splinetarget != -1 ) {
-				trap_startCamera( splinetarget, cg.time );
+				CGstartCamera( splinetarget, cg.time );
 			}
 		} else {
 			vec3_t angles;
 			if ( splinetarget != -1 ) {
 				if ( getCameraInfo( splinetarget, time, targetpos, angles, &fov ) ) {
 				} else {    // loop
-					trap_startCamera( splinetarget, cg.time );
+					CGstartCamera( splinetarget, cg.time );
 					getCameraInfo( splinetarget, cg.time, targetpos, angles, &fov );
 				}
 			}

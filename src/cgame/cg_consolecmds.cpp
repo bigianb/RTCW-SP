@@ -168,12 +168,12 @@ void CG_StartCamera( const char *name, bool startBlack ) {
 		}
 		Cvar_Set( "cg_letterbox", "1" ); // go letterbox
 		CL_AddReliableCommand( "startCamera" );   // camera on in game
-		trap_startCamera( CAM_PRIMARY, cg.time ); // camera on in client
+		CGstartCamera( CAM_PRIMARY, cg.time ); // camera on in client
 	} else {
 //----(SA)	removed check for cams in main dir
 		cg.cameraMode = false;                 // camera off in cgame
 		CL_AddReliableCommand( "stopCamera" );    // camera off in game
-		trap_stopCamera( CAM_PRIMARY );           // camera off in client
+		CGstopCamera( CAM_PRIMARY );           // camera off in client
 		CG_Fade( 0, 0, 0, 0, cg.time, 0 );        // ensure fadeup
 		Cvar_Set( "cg_letterbox", "0" );
 		Com_Printf( "Unable to load camera %s\n",lname );
@@ -188,7 +188,7 @@ CG_SopCamera
 void CG_StopCamera( ) {
 	cg.cameraMode = false;                 // camera off in cgame
 	CL_AddReliableCommand( "stopCamera" );    // camera off in game
-	trap_stopCamera( CAM_PRIMARY );           // camera off in client
+	CGstopCamera( CAM_PRIMARY );           // camera off in client
 	Cvar_Set( "cg_letterbox", "0" );
 
 	// fade back into world

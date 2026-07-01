@@ -810,7 +810,7 @@ int     SV_BotLibShutdown( void );
 int     Export_BotLibVarSet( const char *var_name, const char *value );
 
 
-void    trap_BotUserCommand( int client, UserCmd *ucmd );
+void    BotUserCommand( int client, UserCmd *ucmd );
 
 
 typedef enum
