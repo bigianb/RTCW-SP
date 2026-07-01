@@ -183,11 +183,6 @@ int CM_BoxLeafnums( const vec3_t mins, const vec3_t maxs, int *list, int listsiz
 	return ll.count;
 }
 
-/*
-==================
-CM_BoxBrushes
-==================
-*/
 int CM_BoxBrushes( const vec3_t mins, const vec3_t maxs, cBrush_t **list, int listsize ) {
 	leafList_t ll;
 
@@ -209,15 +204,6 @@ int CM_BoxBrushes( const vec3_t mins, const vec3_t maxs, cBrush_t **list, int li
 }
 
 
-//====================================================================
-
-
-/*
-==================
-CM_PointContents
-
-==================
-*/
 int CM_PointContents( const vec3_t p, clipHandle_t model ) {
 	int leafnum;
 	int i, k;
@@ -351,12 +337,6 @@ void CM_FloodArea_r( int areaNum, int floodnum ) {
 	}
 }
 
-/*
-====================
-CM_FloodAreaConnections
-
-====================
-*/
 void    CM_FloodAreaConnections( void ) {
 	int i;
 	cArea_t *area;
@@ -378,12 +358,6 @@ void    CM_FloodAreaConnections( void ) {
 
 }
 
-/*
-====================
-CM_AdjustAreaPortalState
-
-====================
-*/
 void    CM_AdjustAreaPortalState( int area1, int area2, bool open ) {
 	if ( area1 < 0 || area2 < 0 ) {
 		return;
@@ -410,12 +384,6 @@ void    CM_AdjustAreaPortalState( int area1, int area2, bool open ) {
 	CM_FloodAreaConnections();
 }
 
-/*
-====================
-CM_AreasConnected
-
-====================
-*/
 bool    CM_AreasConnected( int area1, int area2 )
 {
 	if ( area1 < 0 || area2 < 0 ) {

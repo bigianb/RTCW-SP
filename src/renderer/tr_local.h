@@ -733,8 +733,6 @@ typedef struct {
 	char name[MAX_QPATH];               // ie: maps/tim_dm2.bsp
 	char baseName[MAX_QPATH];           // ie: tim_dm2
 
-	int dataSize;
-
 	int numShaders;
 	dshader_t   *shaders;
 
@@ -943,10 +941,7 @@ typedef struct {
 
 	int frameSceneNum;                      // zeroed at RE_BeginFrame
 
-	bool worldMapLoaded;
 	world_t                 *world;
-
-	const uint8_t              *externalVisData;   // from RE_SetWorldVisData, shared with CM_Load
 
 	image_t                 *defaultImage;
 	image_t                 *scratchImage[32];
@@ -958,8 +953,7 @@ typedef struct {
 
 	shader_t                *defaultShader;
 	shader_t                *shadowShader;
-//	shader_t				*projectionShadowShader;
-	shader_t                *dlightShader;      //----(SA) added
+	shader_t                *dlightShader; 
 
 	shader_t                *flareShader;
 	shader_t                *spotFlareShader;
@@ -991,12 +985,8 @@ typedef struct {
 	vec3_t sunLight;                            // from the sky shader for this level
 	vec3_t sunDirection;
 
-//----(SA)	added
 	float lightGridMulAmbient;          // lightgrid multipliers specified in sky shader
 	float lightGridMulDirected;         //
-//----(SA)	end
-
-//	bool				levelGLFog;
 
 	frontEndCounters_t pc;
 	int frontEndMsec;                           // not in pc due to clearing issue
@@ -1279,7 +1269,7 @@ void    GL_Cull( int cullType );
 #define GLS_DEPTHTEST_DISABLE                   0x00010000
 #define GLS_DEPTHFUNC_EQUAL                     0x00020000
 
-#define GLS_FOG_DISABLE                         0x00020000  //----(SA)	added
+#define GLS_FOG_DISABLE                         0x00020000  
 
 #define GLS_ATEST_GT_0                          0x10000000
 #define GLS_ATEST_LT_80                         0x20000000
@@ -1287,14 +1277,6 @@ void    GL_Cull( int cullType );
 #define     GLS_ATEST_BITS                      0x70000000
 
 #define GLS_DEFAULT         GLS_DEPTHMASK_TRUE
-
-
-
-
-
-void        RE_SetWorldVisData( const uint8_t *vis );
-
-
 
 
 bool    R_GetEntityToken( char *buffer, int size );
@@ -1305,7 +1287,7 @@ model_t     *R_AllocModel( void );
 
 void        R_Init( void );
 image_t     *R_FindImageFile( const char *name, bool mipmap, bool allowPicmip, int glWrapClampMode );
-image_t     *R_FindImageFileExt( const char *name, bool mipmap, bool allowPicmip, bool characterMip, int glWrapClampMode ); //----(SA)	added
+image_t     *R_FindImageFileExt( const char *name, bool mipmap, bool allowPicmip, bool characterMip, int glWrapClampMode ); 
 
 image_t     *R_CreateImage( const char *name, const uint8_t *pic, int width, int height, bool mipmap
 							, bool allowPicmip, int wrapClampMode );
@@ -1514,8 +1496,6 @@ CURVE TESSELATION
 
 ============================================================
 */
-
-#define PATCH_STITCHING
 
 srfGridMesh_t *R_SubdividePatchToGrid( int width, int height,
 									   drawVert_t points[MAX_PATCH_SIZE * MAX_PATCH_SIZE] );

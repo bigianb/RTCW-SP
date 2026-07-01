@@ -668,8 +668,6 @@ int BoxOnPlaneSide2 (vec3_t emins, vec3_t emaxs, cplane_t *p)
 
 ==================
 */
-#if !( defined __linux__ && defined __i386__ && !defined C_ONLY )
-#if defined __LCC__ || defined C_ONLY || !id386
 
 int BoxOnPlaneSide( vec3_t emins, vec3_t emaxs, cplane_t *p ) {
 	float dist1, dist2;
@@ -736,247 +734,7 @@ int BoxOnPlaneSide( vec3_t emins, vec3_t emaxs, cplane_t *p ) {
 
 	return sides;
 }
-#else
-#pragma warning( disable: 4035 )
 
-__declspec( naked ) int BoxOnPlaneSide( vec3_t emins, vec3_t emaxs, cplane_t *p ) {
-	static int bops_initialized;
-	static int Ljmptab[8];
-
-	__asm {
-
-		push ebx
-
-		cmp bops_initialized, 1
-		je initialized
-		mov bops_initialized, 1
-
-		mov Ljmptab[0 * 4], offset Lcase0
-		mov Ljmptab[1 * 4], offset Lcase1
-		mov Ljmptab[2 * 4], offset Lcase2
-		mov Ljmptab[3 * 4], offset Lcase3
-		mov Ljmptab[4 * 4], offset Lcase4
-		mov Ljmptab[5 * 4], offset Lcase5
-		mov Ljmptab[6 * 4], offset Lcase6
-		mov Ljmptab[7 * 4], offset Lcase7
-
-initialized:
-
-		mov edx,uint32_t ptr[4 + 12 + esp]
-		mov ecx,uint32_t ptr[4 + 4 + esp]
-		xor eax,eax
-		mov ebx,uint32_t ptr[4 + 8 + esp]
-		mov al,uint8_t ptr[17 + edx]
-		cmp al,8
-		jge Lerror
-		fld uint32_t ptr[0 + edx]
-		fld st( 0 )
-		jmp uint32_t ptr[Ljmptab + eax * 4]
-		Lcase0 :
-			fmul uint32_t ptr[ebx]
-			fld uint32_t ptr[0 + 4 + edx]
-			fxch st( 2 )
-			fmul uint32_t ptr[ecx]
-			fxch st( 2 )
-			fld st( 0 )
-			fmul uint32_t ptr[4 + ebx]
-			fld uint32_t ptr[0 + 8 + edx]
-			fxch st( 2 )
-			fmul uint32_t ptr[4 + ecx]
-			fxch st( 2 )
-			fld st( 0 )
-			fmul uint32_t ptr[8 + ebx]
-			fxch st( 5 )
-			faddp st( 3 ),st( 0 )
-			fmul uint32_t ptr[8 + ecx]
-			fxch st( 1 )
-			faddp st( 3 ),st( 0 )
-			fxch st( 3 )
-			faddp st( 2 ),st( 0 )
-			jmp LSetSides
-			Lcase1 :
-				fmul uint32_t ptr[ecx]
-				fld uint32_t ptr[0 + 4 + edx]
-				fxch st( 2 )
-				fmul uint32_t ptr[ebx]
-				fxch st( 2 )
-				fld st( 0 )
-				fmul uint32_t ptr[4 + ebx]
-				fld uint32_t ptr[0 + 8 + edx]
-				fxch st( 2 )
-				fmul uint32_t ptr[4 + ecx]
-				fxch st( 2 )
-				fld st( 0 )
-				fmul uint32_t ptr[8 + ebx]
-				fxch st( 5 )
-				faddp st( 3 ),st( 0 )
-				fmul uint32_t ptr[8 + ecx]
-				fxch st( 1 )
-				faddp st( 3 ),st( 0 )
-				fxch st( 3 )
-				faddp st( 2 ),st( 0 )
-				jmp LSetSides
-				Lcase2 :
-					fmul uint32_t ptr[ebx]
-					fld uint32_t ptr[0 + 4 + edx]
-					fxch st( 2 )
-					fmul uint32_t ptr[ecx]
-					fxch st( 2 )
-					fld st( 0 )
-					fmul uint32_t ptr[4 + ecx]
-					fld uint32_t ptr[0 + 8 + edx]
-					fxch st( 2 )
-					fmul uint32_t ptr[4 + ebx]
-					fxch st( 2 )
-					fld st( 0 )
-					fmul uint32_t ptr[8 + ebx]
-					fxch st( 5 )
-					faddp st( 3 ),st( 0 )
-					fmul uint32_t ptr[8 + ecx]
-					fxch st( 1 )
-					faddp st( 3 ),st( 0 )
-					fxch st( 3 )
-					faddp st( 2 ),st( 0 )
-					jmp LSetSides
-					Lcase3 :
-						fmul uint32_t ptr[ecx]
-						fld uint32_t ptr[0 + 4 + edx]
-						fxch st( 2 )
-						fmul uint32_t ptr[ebx]
-						fxch st( 2 )
-						fld st( 0 )
-						fmul uint32_t ptr[4 + ecx]
-						fld uint32_t ptr[0 + 8 + edx]
-						fxch st( 2 )
-						fmul uint32_t ptr[4 + ebx]
-						fxch st( 2 )
-						fld st( 0 )
-						fmul uint32_t ptr[8 + ebx]
-						fxch st( 5 )
-						faddp st( 3 ),st( 0 )
-						fmul uint32_t ptr[8 + ecx]
-						fxch st( 1 )
-						faddp st( 3 ),st( 0 )
-						fxch st( 3 )
-						faddp st( 2 ),st( 0 )
-						jmp LSetSides
-						Lcase4 :
-							fmul uint32_t ptr[ebx]
-							fld uint32_t ptr[0 + 4 + edx]
-							fxch st( 2 )
-							fmul uint32_t ptr[ecx]
-							fxch st( 2 )
-							fld st( 0 )
-							fmul uint32_t ptr[4 + ebx]
-							fld uint32_t ptr[0 + 8 + edx]
-							fxch st( 2 )
-							fmul uint32_t ptr[4 + ecx]
-							fxch st( 2 )
-							fld st( 0 )
-							fmul uint32_t ptr[8 + ecx]
-							fxch st( 5 )
-							faddp st( 3 ),st( 0 )
-							fmul uint32_t ptr[8 + ebx]
-							fxch st( 1 )
-							faddp st( 3 ),st( 0 )
-							fxch st( 3 )
-							faddp st( 2 ),st( 0 )
-							jmp LSetSides
-							Lcase5 :
-								fmul uint32_t ptr[ecx]
-								fld uint32_t ptr[0 + 4 + edx]
-								fxch st( 2 )
-								fmul uint32_t ptr[ebx]
-								fxch st( 2 )
-								fld st( 0 )
-								fmul uint32_t ptr[4 + ebx]
-								fld uint32_t ptr[0 + 8 + edx]
-								fxch st( 2 )
-								fmul uint32_t ptr[4 + ecx]
-								fxch st( 2 )
-								fld st( 0 )
-								fmul uint32_t ptr[8 + ecx]
-								fxch st( 5 )
-								faddp st( 3 ),st( 0 )
-								fmul uint32_t ptr[8 + ebx]
-								fxch st( 1 )
-								faddp st( 3 ),st( 0 )
-								fxch st( 3 )
-								faddp st( 2 ),st( 0 )
-								jmp LSetSides
-								Lcase6 :
-									fmul uint32_t ptr[ebx]
-									fld uint32_t ptr[0 + 4 + edx]
-									fxch st( 2 )
-									fmul uint32_t ptr[ecx]
-									fxch st( 2 )
-									fld st( 0 )
-									fmul uint32_t ptr[4 + ecx]
-									fld uint32_t ptr[0 + 8 + edx]
-									fxch st( 2 )
-									fmul uint32_t ptr[4 + ebx]
-									fxch st( 2 )
-									fld st( 0 )
-									fmul uint32_t ptr[8 + ecx]
-									fxch st( 5 )
-									faddp st( 3 ),st( 0 )
-									fmul uint32_t ptr[8 + ebx]
-									fxch st( 1 )
-									faddp st( 3 ),st( 0 )
-									fxch st( 3 )
-									faddp st( 2 ),st( 0 )
-									jmp LSetSides
-									Lcase7 :
-										fmul uint32_t ptr[ecx]
-										fld uint32_t ptr[0 + 4 + edx]
-										fxch st( 2 )
-										fmul uint32_t ptr[ebx]
-										fxch st( 2 )
-										fld st( 0 )
-										fmul uint32_t ptr[4 + ecx]
-										fld uint32_t ptr[0 + 8 + edx]
-										fxch st( 2 )
-										fmul uint32_t ptr[4 + ebx]
-										fxch st( 2 )
-										fld st( 0 )
-										fmul uint32_t ptr[8 + ecx]
-										fxch st( 5 )
-										faddp st( 3 ),st( 0 )
-										fmul uint32_t ptr[8 + ebx]
-										fxch st( 1 )
-										faddp st( 3 ),st( 0 )
-										fxch st( 3 )
-										faddp st( 2 ),st( 0 )
-										LSetSides :
-											faddp st( 2 ),st( 0 )
-											fcomp uint32_t ptr[12 + edx]
-											xor ecx,ecx
-											fnstsw ax
-											fcomp uint32_t ptr[12 + edx]
-											and ah,1
-											xor ah,1
-											add cl,ah
-											fnstsw ax
-											and ah,1
-											add ah,ah
-											add cl,ah
-											pop ebx
-											mov eax,ecx
-											ret
-											Lerror :
-												int 3
-	}
-}
-#pragma warning( default: 4035 )
-
-#endif
-#endif
-
-/*
-=================
-RadiusFromBounds
-=================
-*/
 float RadiusFromBounds( const vec3_t mins, const vec3_t maxs ) {
 	int i;
 	vec3_t corner;
@@ -1167,32 +925,6 @@ int Q_log2( int val ) {
 	return answer;
 }
 
-
-
-/*
-=================
-PlaneTypeForNormal
-=================
-*/
-/*
-int	PlaneTypeForNormal (vec3_t normal) {
-	if ( normal[0] == 1.0 )
-		return PLANE_X;
-	if ( normal[1] == 1.0 )
-		return PLANE_Y;
-	if ( normal[2] == 1.0 )
-		return PLANE_Z;
-
-	return PLANE_NON_AXIAL;
-}
-*/
-
-
-/*
-================
-MatrixMultiply
-================
-*/
 void MatrixMultiply( float in1[3][3], float in2[3][3], float out[3][3] ) {
 	out[0][0] = in1[0][0] * in2[0][0] + in1[0][1] * in2[1][0] +
 				in1[0][2] * in2[2][0];
@@ -1301,11 +1033,6 @@ void GetPerpendicularViewVector( const vec3_t point, const vec3_t p1, const vec3
 	VectorNormalize( up );
 }
 
-/*
-================
-ProjectPointOntoVector
-================
-*/
 void ProjectPointOntoVector( vec3_t point, vec3_t vStart, vec3_t vEnd, vec3_t vProj ) {
 	vec3_t pVec, vec;
 
@@ -1379,4 +1106,4 @@ float VectorDistance( vec3_t v1, vec3_t v2 ) {
 	VectorSubtract( v2, v1, dir );
 	return VectorLength( dir );
 }
-// done.
+

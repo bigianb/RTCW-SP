@@ -26,42 +26,26 @@ If you have questions concerning this license or the applicable additional terms
 ===========================================================================
 */
 
-// tr_map.c
 
 #include "tr_local.h"
 #include <stddef.h> 
-
-/*
-
-Loads and prepares a map file for scene rendering.
-
-A single entry point:
-
-void RE_LoadWorldMap( const char *name );
-
-*/
-
-static world_t s_worldData;
-static uint8_t        *fileBase;
+#include "bsp_reader.h"
 
 int c_subdivisions;
 int c_gridVerts;
 
 //===============================================================================
 
-static void HSVtoRGB( float h, float s, float v, float rgb[3] ) {
-	int i;
-	float f;
-	float p, q, t;
+static void HSVtoRGB( float h, float s, float v, float rgb[3] )
+{
+	h *= 5.0f;
 
-	h *= 5;
+	int i = floor( h );
+	float f = h - i;
 
-	i = floor( h );
-	f = h - i;
-
-	p = v * ( 1 - s );
-	q = v * ( 1 - s * f );
-	t = v * ( 1 - s * ( 1 - f ) );
+	float p = v * ( 1 - s );
+	float q = v * ( 1 - s * f );
+	float t = v * ( 1 - s * ( 1 - f ) );
 
 	switch ( i )
 	{
@@ -98,22 +82,15 @@ static void HSVtoRGB( float h, float s, float v, float rgb[3] ) {
 	}
 }
 
-/*
-===============
-R_ColorShiftLightingBytes
-
-===============
-*/
-static void R_ColorShiftLightingBytes( uint8_t in[4], uint8_t out[4] ) {
-	int shift, r, g, b;
-
+static void R_ColorShiftLightingBytes( uint8_t in[4], uint8_t out[4] )
+{
 	// shift the color data based on overbright range
-	shift = r_mapOverBrightBits->integer - tr.overbrightBits;
+	int shift = r_mapOverBrightBits->integer - tr.overbrightBits;
 
 	// shift the data based on overbright range
-	r = in[0] << shift;
-	g = in[1] << shift;
-	b = in[2] << shift;
+	int r = in[0] << shift;
+	int g = in[1] << shift;
+	int b = in[2] << shift;
 
 	// normalize by color instead of saturating to white
 	if ( ( r | g | b ) > 255 ) {
@@ -132,26 +109,21 @@ static void R_ColorShiftLightingBytes( uint8_t in[4], uint8_t out[4] ) {
 	out[3] = in[3];
 }
 
-/*
-===============
-R_LoadLightmaps
-
-===============
-*/
+// TODO: address tr side effects
 #define LIGHTMAP_SIZE   128
-static void R_LoadLightmaps( lump_t *l ) {
-	uint8_t        *buf, *buf_p;
-	int len;
+void BSPReader::loadLightmaps(world_t* world)
+{
     uint8_t image[LIGHTMAP_SIZE * LIGHTMAP_SIZE * 4];
-	int i, j;
-	float maxIntensity = 0;
-	double sumIntensity = 0;
+	float maxIntensity = 0.0f;
+	double sumIntensity = 0.0;
 
-	len = l->filelen;
+	lump_t *l = &header->lumps[LUMP_LIGHTMAPS];
+
+	int len = l->filelen;
 	if ( !len ) {
 		return;
 	}
-	buf = fileBase + l->fileofs;
+	uint8_t* buf = fileBase + l->fileofs;
 
 	// we are about to upload textures
 	R_SyncRenderThread();
@@ -169,12 +141,12 @@ static void R_LoadLightmaps( lump_t *l ) {
 		return;
 	}
 
-	for ( i = 0 ; i < tr.numLightmaps ; i++ ) {
+	for (int i = 0 ; i < tr.numLightmaps ; i++ ) {
 		// expand the 24 bit on-disk to 32 bit
-		buf_p = buf + i * LIGHTMAP_SIZE * LIGHTMAP_SIZE * 3;
+		uint8_t* buf_p = buf + i * LIGHTMAP_SIZE * LIGHTMAP_SIZE * 3;
 
 		if ( r_lightmap->integer == 2 ) { // color code by intensity as development tool	(FIXME: check range)
-			for ( j = 0; j < LIGHTMAP_SIZE * LIGHTMAP_SIZE; j++ )
+			for ( int j = 0; j < LIGHTMAP_SIZE * LIGHTMAP_SIZE; j++ )
 			{
 				float r = buf_p[j * 3 + 0];
 				float g = buf_p[j * 3 + 1];
@@ -204,7 +176,7 @@ static void R_LoadLightmaps( lump_t *l ) {
 				sumIntensity += intensity;
 			}
 		} else {
-			for ( j = 0 ; j < LIGHTMAP_SIZE * LIGHTMAP_SIZE; j++ ) {
+			for ( int j = 0 ; j < LIGHTMAP_SIZE * LIGHTMAP_SIZE; j++ ) {
 				R_ColorShiftLightingBytes( &buf_p[j * 3], &image[j * 4] );
 				image[j * 4 + 3] = 255;
 			}
@@ -218,73 +190,37 @@ static void R_LoadLightmaps( lump_t *l ) {
 	}
 }
 
-
-/*
-=================
-RE_SetWorldVisData
-
-This is called by the clipmodel subsystem so we can share the 1.8 megs of
-space in big maps...
-=================
-*/
-void        RE_SetWorldVisData( const uint8_t *vis ) {
-	tr.externalVisData = vis;
-}
-
-
-/*
-=================
-R_LoadVisibility
-=================
-*/
-static void R_LoadVisibility( lump_t *l ) {
-	int len;
-	uint8_t    *buf;
-
-	len = ( s_worldData.numClusters + 63 ) & ~63;
-	s_worldData.novis = (uint8_t*)Hunk_Alloc( len, h_low );
-	memset( s_worldData.novis, 0xff, len );
+void BSPReader::loadVisibility(world_t* world)
+{
+	lump_t *l = &header->lumps[LUMP_VISIBILITY];
+	int len = ( world->numClusters + 63 ) & ~63;
+	world->novis = (uint8_t*)Hunk_Alloc( len, h_low );
+	memset( world->novis, 0xff, len );
 
 	len = l->filelen;
 	if ( !len ) {
 		return;
 	}
-	buf = fileBase + l->fileofs;
+	uint8_t* buf = fileBase + l->fileofs;
 
-	s_worldData.numClusters = LittleLong( ( (int *)buf )[0] );
-	s_worldData.clusterBytes = LittleLong( ( (int *)buf )[1] );
+	world->numClusters = LittleLong( ( (int *)buf )[0] );
+	world->clusterBytes = LittleLong( ( (int *)buf )[1] );
 
-	// CM_Load should have given us the vis data to share, so
-	// we don't need to allocate another copy
-	if ( tr.externalVisData ) {
-		s_worldData.vis = tr.externalVisData;
-	} else {
-		uint8_t    *dest;
-
-		dest = (uint8_t*)Hunk_Alloc( len - 8, h_low );
-		memcpy( dest, buf + 8, len - 8 );
-		s_worldData.vis = dest;
-	}
+	uint8_t* dest = (uint8_t*)Hunk_Alloc( len - 8, h_low );
+	memcpy( dest, buf + 8, len - 8 );
+	world->vis = dest;
 }
 
-//===============================================================================
-
-
-/*
-===============
-ShaderForShaderNum
-===============
-*/
-static shader_t *ShaderForShaderNum( int shaderNum, int lightmapNum ) {
-	shader_t    *shader;
-	dshader_t   *dsh;
-
+static shader_t *ShaderForShaderNum(dshader_t *dsh, int lightmapNum )
+{
+	/*
 	shaderNum = LittleLong( shaderNum );
 	if ( shaderNum < 0 || shaderNum >= s_worldData.numShaders ) {
 		Com_Error( ERR_DROP, "ShaderForShaderNum: bad num %i", shaderNum );
         return nullptr; // keep the linter happy, ERR_DROP does not return
 	}
 	dsh = &s_worldData.shaders[ shaderNum ];
+	*/
 
 	if ( r_vertexLight->integer || glConfig.hardwareType == GLHW_PERMEDIA2 ) {
 		lightmapNum = LIGHTMAP_BY_VERTEX;
@@ -294,7 +230,7 @@ static shader_t *ShaderForShaderNum( int shaderNum, int lightmapNum ) {
 		lightmapNum = LIGHTMAP_WHITEIMAGE;
 	}
 
-	shader = R_FindShader( dsh->shader, lightmapNum, true );
+	shader_t* shader = R_FindShader( dsh->shader, lightmapNum, true );
 
 	// if the shader had errors, just use default shader
 	if ( shader->defaultShader ) {
@@ -345,11 +281,6 @@ void *R_GetSurfMemory( int size ) {
 	return (void *)retval;
 }
 
-/*
-===============
-ParseFace
-===============
-*/
 static void ParseFace( dsurface_t *ds, drawVert_t *verts, msurface_t *surf, int *indexes  ) {
 	int i, j;
 	srfSurfaceFace_t    *cv;
@@ -363,6 +294,7 @@ static void ParseFace( dsurface_t *ds, drawVert_t *verts, msurface_t *surf, int 
 	surf->fogIndex = LittleLong( ds->fogNum ) + 1;
 
 	// get shader value
+	dshader_t *dsh = world->shaders + LittleLong( ds->shaderNum );
 	surf->shader = ShaderForShaderNum( ds->shaderNum, lightmapNum );
 	if ( r_singleShader->integer && !surf->shader->isSky ) {
 		surf->shader = tr.defaultShader;
@@ -418,12 +350,6 @@ static void ParseFace( dsurface_t *ds, drawVert_t *verts, msurface_t *surf, int 
 	surf->data = (surfaceType_t *)cv;
 }
 
-
-/*
-===============
-ParseMesh
-===============
-*/
 static void ParseMesh( dsurface_t *ds, drawVert_t *verts, msurface_t *surf ) {
 	srfGridMesh_t   *grid;
 	int i, j;
@@ -486,11 +412,6 @@ static void ParseMesh( dsurface_t *ds, drawVert_t *verts, msurface_t *surf ) {
 	grid->lodRadius = VectorLength( tmpVec );
 }
 
-/*
-===============
-ParseTriSurf
-===============
-*/
 static void ParseTriSurf( dsurface_t *ds, drawVert_t *verts, msurface_t *surf, int *indexes ) {
 	srfTriangles_t  *tri;
 	int i, j;
@@ -549,11 +470,6 @@ static void ParseTriSurf( dsurface_t *ds, drawVert_t *verts, msurface_t *surf, i
 	}
 }
 
-/*
-===============
-ParseFlare
-===============
-*/
 static void ParseFlare( dsurface_t *ds, drawVert_t *verts, msurface_t *surf, int *indexes ) {
 	srfFlare_t      *flare;
 	int i;
@@ -831,12 +747,6 @@ void R_FixSharedVertexLodError( void ) {
 	}
 }
 
-
-/*
-===============
-R_StitchPatches
-===============
-*/
 int R_StitchPatches( int grid1num, int grid2num ) {
 	int k, l, m, n, offset1, offset2, row, column;
 	srfGridMesh_t *grid1, *grid2;
@@ -1393,11 +1303,7 @@ int R_TryStitchingPatch( int grid1num ) {
 	return numstitches;
 }
 
-/*
-===============
-R_StitchAllPatches
-===============
-*/
+
 void R_StitchAllPatches( void ) {
 	int i, stitched, numstitches;
 	srfGridMesh_t *grid1;
@@ -1461,45 +1367,34 @@ void R_MovePatchSurfacesToHunk( void ) {
 	}
 }
 
-/*
-===============
-R_LoadSurfaces
-===============
-*/
-static void R_LoadSurfaces( lump_t *surfs, lump_t *verts, lump_t *indexLump ) {
-	dsurface_t  *in;
-	msurface_t  *out;
-	drawVert_t  *dv;
-	int         *indexes;
-	int count;
-	int numFaces, numMeshes, numTriSurfs, numFlares;
-	int i;
+void BSPReader::loadSurfaces( world_t* world )
+{
+	lump_t *surfs = &header->lumps[LUMP_SURFACES];
+	lump_t *verts = &header->lumps[LUMP_DRAWVERTS];
+	lump_t *indexLump = &header->lumps[LUMP_DRAWINDEXES];
 
-	numFaces = 0;
-	numMeshes = 0;
-	numTriSurfs = 0;
-	numFlares = 0;
+	int numFaces = 0;
+	int numMeshes = 0;
+	int numTriSurfs = 0;
+	int numFlares = 0;
 
-	in = ( dsurface_t * )( fileBase + surfs->fileofs );
+	dsurface_t* in = ( dsurface_t * )( fileBase + surfs->fileofs );
 	if ( surfs->filelen % sizeof( *in ) ) {
 		Com_Error( ERR_DROP, "LoadMap: funny lump size in %s",s_worldData.name );
-        return; // keep the linter happy, ERR_DROP does not return
 	}
-	count = surfs->filelen / sizeof( *in );
+	int count = surfs->filelen / sizeof( *in );
 
-	dv = ( drawVert_t * )( fileBase + verts->fileofs );
+	drawVert_t* dv = ( drawVert_t * )( fileBase + verts->fileofs );
 	if ( verts->filelen % sizeof( *dv ) ) {
 		Com_Error( ERR_DROP, "LoadMap: funny lump size in %s",s_worldData.name );
-        return; // keep the linter happy, ERR_DROP does not return
 	}
 
-	indexes = ( int * )( fileBase + indexLump->fileofs );
+	int* indexes = ( int * )( fileBase + indexLump->fileofs );
 	if ( indexLump->filelen % sizeof( *indexes ) ) {
 		Com_Error( ERR_DROP, "LoadMap: funny lump size in %s",s_worldData.name );
-        return; // keep the linter happy, ERR_DROP does not return
 	}
 
-	out = (msurface_t *)Hunk_Alloc( count * sizeof( *out ), h_low );
+	msurface_t* out = (msurface_t *)Hunk_Alloc( count * sizeof( *out ), h_low );
 
 	s_worldData.surfaces = out;
 	s_worldData.numsurfaces = count;
@@ -1509,7 +1404,7 @@ static void R_LoadSurfaces( lump_t *surfs, lump_t *verts, lump_t *indexLump ) {
 	// as we go
 	R_InitSurfMemory();
 
-	for ( i = 0 ; i < count ; i++, in++, out++ ) {
+	for (int i = 0 ; i < count ; i++, in++, out++ ) {
 		switch ( LittleLong( in->surfaceType ) ) {
 		case MST_PATCH:
 			ParseMesh( in, dv, out );
@@ -1529,49 +1424,32 @@ static void R_LoadSurfaces( lump_t *surfs, lump_t *verts, lump_t *indexLump ) {
 			break;
 		default:
 			Com_Error( ERR_DROP, "Bad surfaceType" );
-            return; // keep the linter happy, ERR_DROP does not return
 		}
 	}
 
-#ifdef PATCH_STITCHING
 	R_StitchAllPatches();
-#endif
-
 	R_FixSharedVertexLodError();
-
-#ifdef PATCH_STITCHING
 	R_MovePatchSurfacesToHunk();
-#endif
 
 	Com_Printf( "...loaded %d faces, %i meshes, %i trisurfs, %i flares\n",
 			   numFaces, numMeshes, numTriSurfs, numFlares );
 }
 
+void BSPReader::loadSubmodels(world_t* world)
+{
+	lump_t *l = &header->lumps[LUMP_MODELS];
 
-
-/*
-=================
-R_LoadSubmodels
-=================
-*/
-static void R_LoadSubmodels( lump_t *l ) {
-	dmodel_t    *in;
-	bmodel_t    *out;
-	int i, j, count;
-
-	in = ( dmodel_t * )( fileBase + l->fileofs );
+	dmodel_t* in = ( dmodel_t * )( fileBase + l->fileofs );
 	if ( l->filelen % sizeof( *in ) ) {
-		Com_Error( ERR_DROP, "LoadMap: funny lump size in %s",s_worldData.name );
-        return; // keep the linter happy, ERR_DROP does not return
+		Com_Error( ERR_DROP, "LoadMap: funny lump size in %s", world->name );
 	}
-	count = l->filelen / sizeof( *in );
+	int count = l->filelen / sizeof( *in );
 
-	s_worldData.bmodels = out = (bmodel_t *)Hunk_Alloc( count * sizeof( *out ), h_low );
+	world->bmodels = (bmodel_t *)Hunk_Alloc( count * sizeof( bmodel_t ), h_low );
 
-	for ( i = 0 ; i < count ; i++, in++, out++ ) {
-		model_t *model;
-
-		model = R_AllocModel();
+	bmodel_t* out = world->bmodels;
+	for ( int i = 0 ; i < count ; i++, in++, out++ ) {
+		model_t *model = R_AllocModel();
 
 		assert( model != nullptr );            // this should never happen
 
@@ -1579,7 +1457,7 @@ static void R_LoadSubmodels( lump_t *l ) {
 		model->bmodel = out;
 		snprintf( model->name, sizeof( model->name ), "*%d", i );
 
-		for ( j = 0 ; j < 3 ; j++ ) {
+		for ( int j = 0 ; j < 3 ; j++ ) {
 			out->bounds[0][j] = LittleFloat( in->mins[j] );
 			out->bounds[1][j] = LittleFloat( in->maxs[j] );
 		}
@@ -1589,15 +1467,6 @@ static void R_LoadSubmodels( lump_t *l ) {
 	}
 }
 
-
-
-//==================================================================
-
-/*
-=================
-R_SetParent
-=================
-*/
 static void R_SetParent( mnode_t *node, mnode_t *parent ) {
 	node->parent = parent;
 	if ( node->contents != -1 ) {
@@ -1607,50 +1476,42 @@ static void R_SetParent( mnode_t *node, mnode_t *parent ) {
 	R_SetParent( node->children[1], node );
 }
 
-/*
-=================
-R_LoadNodesAndLeafs
-=================
-*/
-static void R_LoadNodesAndLeafs( lump_t *nodeLump, lump_t *leafLump ) {
-	int i, j, p;
-	dnode_t     *in;
-	dleaf_t     *inLeaf;
-	mnode_t     *out;
-	int numNodes, numLeafs;
+void BSPReader::loadNodesAndLeafs(world_t* world)
+{
+	lump_t *nodeLump = &header->lumps[LUMP_NODES];
+	lump_t *leafLump = &header->lumps[LUMP_LEAFS];
 
-	in = ( dnode_t * )( fileBase + nodeLump->fileofs );
+	dnode_t* in = ( dnode_t * )( fileBase + nodeLump->fileofs );
 	if ( nodeLump->filelen % sizeof( dnode_t ) ||
 		 leafLump->filelen % sizeof( dleaf_t ) ) {
-		Com_Error( ERR_DROP, "LoadMap: funny lump size in %s",s_worldData.name );
-        return; // keep the linter happy, ERR_DROP does not return
+		Com_Error( ERR_DROP, "LoadMap: funny lump size in %s", world->name );
 	}
-	numNodes = nodeLump->filelen / sizeof( dnode_t );
-	numLeafs = leafLump->filelen / sizeof( dleaf_t );
+	int numNodes = nodeLump->filelen / sizeof( dnode_t );
+	int numLeafs = leafLump->filelen / sizeof( dleaf_t );
 
-	out = (mnode_t *)Hunk_Alloc( ( numNodes + numLeafs ) * sizeof( *out ), h_low );
+	mnode_t* out = (mnode_t *)Hunk_Alloc( ( numNodes + numLeafs ) * sizeof( *out ), h_low );
 
-	s_worldData.nodes = out;
-	s_worldData.numnodes = numNodes + numLeafs;
-	s_worldData.numDecisionNodes = numNodes;
+	world->nodes = out;
+	world->numnodes = numNodes + numLeafs;
+	world->numDecisionNodes = numNodes;
 
 	// load nodes
-	for ( i = 0 ; i < numNodes; i++, in++, out++ )
+	for (int i = 0 ; i < numNodes; i++, in++, out++ )
 	{
-		for ( j = 0 ; j < 3 ; j++ )
+		for (int j = 0 ; j < 3 ; j++ )
 		{
 			out->mins[j] = LittleLong( in->mins[j] );
 			out->maxs[j] = LittleLong( in->maxs[j] );
 		}
 
-		p = LittleLong( in->planeNum );
+		int p = LittleLong( in->planeNum );
 		out->plane = s_worldData.planes + p;
 
 		out->contents = CONTENTS_NODE;  // differentiate from leafs
 
-		for ( j = 0 ; j < 2 ; j++ )
+		for ( int j = 0 ; j < 2 ; j++ )
 		{
-			p = LittleLong( in->children[j] );
+			int p = LittleLong( in->children[j] );
 			if ( p >= 0 ) {
 				out->children[j] = s_worldData.nodes + p;
 			} else {
@@ -1660,10 +1521,10 @@ static void R_LoadNodesAndLeafs( lump_t *nodeLump, lump_t *leafLump ) {
 	}
 
 	// load leafs
-	inLeaf = ( dleaf_t * )( fileBase + leafLump->fileofs );
-	for ( i = 0 ; i < numLeafs ; i++, inLeaf++, out++ )
+	dleaf_t* inLeaf = ( dleaf_t * )( fileBase + leafLump->fileofs );
+	for ( int i = 0 ; i < numLeafs ; i++, inLeaf++, out++ )
 	{
-		for ( j = 0 ; j < 3 ; j++ )
+		for ( int j = 0 ; j < 3 ; j++ )
 		{
 			out->mins[j] = LittleLong( inLeaf->mins[j] );
 			out->maxs[j] = LittleLong( inLeaf->maxs[j] );
@@ -1687,90 +1548,68 @@ static void R_LoadNodesAndLeafs( lump_t *nodeLump, lump_t *leafLump ) {
 
 //=============================================================================
 
-/*
-=================
-R_LoadShaders
-=================
-*/
-static void R_LoadShaders( lump_t *l ) {
-	int i, count;
-	dshader_t   *in, *out;
 
-	in = ( dshader_t * )( fileBase + l->fileofs );
+void BSPReader::loadShaders(world_t* world)
+{
+	lump_t *l = &header->lumps[LUMP_SHADERS];
+
+	dshader_t* in = ( dshader_t * )( fileBase + l->fileofs );
 	if ( l->filelen % sizeof( *in ) ) {
 		Com_Error( ERR_DROP, "LoadMap: funny lump size in %s",s_worldData.name );
-        return; // keep the linter happy, ERR_DROP does not return
 	}
-	count = l->filelen / sizeof( *in );
-	out = (dshader_t *)Hunk_Alloc( count * sizeof( *out ), h_low );
+	int count = l->filelen / sizeof( *in );
+	dshader_t* out = (dshader_t *)Hunk_Alloc( count * sizeof( *out ), h_low );
 
-	s_worldData.shaders = out;
-	s_worldData.numShaders = count;
+	world->shaders = out;
+	world->numShaders = count;
 
 	memcpy( out, in, count * sizeof( *out ) );
 
-	for ( i = 0 ; i < count ; i++ ) {
+	for (int i = 0 ; i < count ; i++ ) {
 		out[i].surfaceFlags = LittleLong( out[i].surfaceFlags );
 		out[i].contentFlags = LittleLong( out[i].contentFlags );
 	}
 }
 
+void BSPReader::loadMarkSurfaces( world_t* world )
+{
+	lump_t *l = &header->lumps[LUMP_LEAFSURFACES];
 
-/*
-=================
-R_LoadMarksurfaces
-=================
-*/
-static void R_LoadMarksurfaces( lump_t *l ) {
-	int i, j, count;
-	int     *in;
-	msurface_t **out;
-
-	in = ( int * )( fileBase + l->fileofs );
+	int *in = ( int * )( fileBase + l->fileofs );
 	if ( l->filelen % sizeof( *in ) ) {
 		Com_Error( ERR_DROP, "LoadMap: funny lump size in %s",s_worldData.name );
         return; // keep the linter happy, ERR_DROP does not return
 	}
-	count = l->filelen / sizeof( *in );
-	out = (msurface_t **)Hunk_Alloc( count * sizeof( *out ), h_low );
+	int count = l->filelen / sizeof( *in );
+	msurface_t ** out = (msurface_t **)Hunk_Alloc( count * sizeof( *out ), h_low );
 
-	s_worldData.marksurfaces = out;
-	s_worldData.nummarksurfaces = count;
+	world->marksurfaces = out;
+	world->nummarksurfaces = count;
 
-	for ( i = 0 ; i < count ; i++ )
+	for ( int i = 0 ; i < count ; i++ )
 	{
-		j = LittleLong( in[i] );
+		int j = LittleLong( in[i] );
 		out[i] = s_worldData.surfaces + j;
 	}
 }
 
+void BSPReader::loadPlanes(world_t* world)
+{
+	lump_t* l = &header->lumps[LUMP_PLANES];
 
-/*
-=================
-R_LoadPlanes
-=================
-*/
-static void R_LoadPlanes( lump_t *l ) {
-	int i, j;
-	cplane_t    *out;
-	dplane_t    *in;
-	int count;
-	int bits;
-
-	in = ( dplane_t * )( fileBase + l->fileofs );
+	dplane_t* in = ( dplane_t * )( fileBase + l->fileofs );
 	if ( l->filelen % sizeof( *in ) ) {
-		Com_Error( ERR_DROP, "LoadMap: funny lump size in %s",s_worldData.name );
-        return; // keep the linter happy, ERR_DROP does not return
+		Com_Error( ERR_DROP, "LoadMap: funny lump size in %s", world->name );
 	}
-	count = l->filelen / sizeof( *in );
-	out = (cplane_t *)Hunk_Alloc( count * 2 * sizeof( *out ), h_low );
+	int count = l->filelen / sizeof( *in );
+	cplane_t* out = (cplane_t *)Hunk_Alloc( count * 2 * sizeof( *out ), h_low );
 
-	s_worldData.planes = out;
-	s_worldData.numplanes = count;
+	world->planes = out;
+	world->numplanes = count;
 
-	for ( i = 0 ; i < count ; i++, in++, out++ ) {
-		bits = 0;
-		for ( j = 0 ; j < 3 ; j++ ) {
+	for (int i = 0 ; i < count ; i++, in++, out++ ) {
+		int bits = 0;
+		for ( int j = 0 ; j < 3 ; j++ ) {
 			out->normal[j] = LittleFloat( in->normal[j] );
 			if ( out->normal[j] < 0 ) {
 				bits |= 1 << j;
@@ -1783,74 +1622,58 @@ static void R_LoadPlanes( lump_t *l ) {
 	}
 }
 
-/*
-=================
-R_LoadFogs
+void BSPReader::loadFogs(world_t* world)
+{
+	lump_t *l = &header->lumps[LUMP_FOGS];
+	lump_t *brushesLump = &header->lumps[LUMP_BRUSHES];
+	lump_t *sidesLump = &header->lumps[LUMP_BRUSHSIDES];
 
-=================
-*/
-static void R_LoadFogs( lump_t *l, lump_t *brushesLump, lump_t *sidesLump ) {
-	int i;
-	fog_t       *out;
-	dfog_t      *fogs;
-	dbrush_t    *brushes, *brush;
-	dbrushside_t    *sides;
-	int count, brushesCount, sidesCount;
-	int sideNum;
-	int planeNum;
-	shader_t    *shader;
-	float d;
-	int firstSide;
-
-	fogs = ( dfog_t * )( fileBase + l->fileofs );
+	dfog_t* fogs = ( dfog_t * )( fileBase + l->fileofs );
 	if ( l->filelen % sizeof( *fogs ) ) {
 		Com_Error( ERR_DROP, "LoadMap: funny lump size in %s",s_worldData.name );
-        return; // keep the linter happy, ERR_DROP does not return
 	}
-	count = l->filelen / sizeof( *fogs );
+	int count = l->filelen / sizeof( *fogs );
 
 	// create fog strucutres for them
-	s_worldData.numfogs = count + 1;
-	s_worldData.fogs = (fog_t *)Hunk_Alloc( s_worldData.numfogs * sizeof( *out ), h_low );
-	out = s_worldData.fogs + 1;
+	world->numfogs = count + 1;
+	world->fogs = (fog_t *)Hunk_Alloc( world->numfogs * sizeof( fog_t ), h_low );
+	fog_t* out = world->fogs + 1;
 
 	if ( !count ) {
 		return;
 	}
 
-	brushes = ( dbrush_t * )( fileBase + brushesLump->fileofs );
+	dbrush_t* brushes = ( dbrush_t * )( fileBase + brushesLump->fileofs );
 	if ( brushesLump->filelen % sizeof( *brushes ) ) {
 		Com_Error( ERR_DROP, "LoadMap: funny lump size in %s",s_worldData.name );
         return; // keep the linter happy, ERR_DROP does not return
 	}
-	brushesCount = brushesLump->filelen / sizeof( *brushes );
+	int brushesCount = brushesLump->filelen / sizeof( *brushes );
 
-	sides = ( dbrushside_t * )( fileBase + sidesLump->fileofs );
+	dbrushside_t* sides = ( dbrushside_t * )( fileBase + sidesLump->fileofs );
 	if ( sidesLump->filelen % sizeof( *sides ) ) {
 		Com_Error( ERR_DROP, "LoadMap: funny lump size in %s",s_worldData.name );
         return; // keep the linter happy, ERR_DROP does not return
 	}
-	sidesCount = sidesLump->filelen / sizeof( *sides );
+	int sidesCount = sidesLump->filelen / sizeof( *sides );
 
-	for ( i = 0 ; i < count ; i++, fogs++ ) {
+	for ( int i = 0 ; i < count ; i++, fogs++ ) {
 		out->originalBrushNumber = LittleLong( fogs->brushNum );
 
 		if ( (unsigned)out->originalBrushNumber >= brushesCount ) {
 			Com_Error( ERR_DROP, "fog brushNumber out of range" );
-            return; // keep the linter happy, ERR_DROP does not return
 		}
-		brush = brushes + out->originalBrushNumber;
+		dbrush_t *brush = brushes + out->originalBrushNumber;
 
-		firstSide = LittleLong( brush->firstSide );
+		int firstSide = LittleLong( brush->firstSide );
 
 		if ( (unsigned)firstSide > sidesCount - 6 ) {
 			Com_Error( ERR_DROP, "fog brush sideNumber out of range" );
-            return; // keep the linter happy, ERR_DROP does not return
 		}
 
 		// brushes are always sorted with the axial sides first
-		sideNum = firstSide + 0;
-		planeNum = LittleLong( sides[ sideNum ].planeNum );
+		int sideNum = firstSide + 0;
+		int planeNum = LittleLong( sides[ sideNum ].planeNum );
 		out->bounds[0][0] = -s_worldData.planes[ planeNum ].dist;
 
 		sideNum = firstSide + 1;
@@ -1874,7 +1697,7 @@ static void R_LoadFogs( lump_t *l, lump_t *brushesLump, lump_t *sidesLump ) {
 		out->bounds[1][2] = s_worldData.planes[ planeNum ].dist;
 
 		// get information from the shader for fog parameters
-		shader = R_FindShader( fogs->shader, LIGHTMAP_NONE, true );
+		shader_t *shader = R_FindShader( fogs->shader, LIGHTMAP_NONE, true );
 
 		out->parms = shader->fogParms;
 
@@ -1882,7 +1705,7 @@ static void R_LoadFogs( lump_t *l, lump_t *brushesLump, lump_t *sidesLump ) {
 									 shader->fogParms.color[1] * tr.identityLight,
 									 shader->fogParms.color[2] * tr.identityLight, 1.0 );
 
-		d = shader->fogParms.depthForOpaque < 1 ? 1 : shader->fogParms.depthForOpaque;
+		int d = shader->fogParms.depthForOpaque < 1 ? 1 : shader->fogParms.depthForOpaque;
 		out->tcScale = 1.0f / ( d * 8 );
 
 		// set the gradient vector
@@ -1902,17 +1725,10 @@ static void R_LoadFogs( lump_t *l, lump_t *brushesLump, lump_t *sidesLump ) {
 
 }
 
-
-/*
-==============
-R_FindLightGridBounds
-==============
-*/
 void R_FindLightGridBounds( vec3_t mins, vec3_t maxs ) {
 	world_t *w;
 	msurface_t  *surf;
 	srfSurfaceFace_t *surfFace;
-//	cplane_t	*plane;
 	struct shader_s     *shd;
 
 	bool foundGridBrushes = false;
@@ -1924,135 +1740,69 @@ void R_FindLightGridBounds( vec3_t mins, vec3_t maxs ) {
 	VectorCopy( w->bmodels[0].bounds[0], mins );
 	VectorCopy( w->bmodels[0].bounds[1], maxs );
 	return;
-//----(SA)	temp
-
-
-
-
-	ClearBounds( mins, maxs );
-
-// wrong!
-	for ( i = 0; i < w->bmodels[0].numSurfaces; i++ ) {
-		surf = w->bmodels[0].firstSurface + i;
-		shd = surf->shader;
-
-		if ( !( *surf->data == SF_FACE ) ) {
-			continue;
-		}
-
-		if ( !( shd->contentFlags & CONTENTS_LIGHTGRID ) ) {
-			continue;
-		}
-
-		foundGridBrushes = true;
-	}
-
-
-// wrong!
-	for ( i = 0; i < w->numsurfaces; i++ ) {
-		surf = &w->surfaces[i];
-		shd = surf->shader;
-		if ( !( *surf->data == SF_FACE ) ) {
-			continue;
-		}
-
-		if ( !( shd->contentFlags & CONTENTS_LIGHTGRID ) ) {
-			continue;
-		}
-
-		foundGridBrushes = true;
-
-		surfFace = ( srfSurfaceFace_t * )surf->data;
-
-		for ( j = 0; j < surfFace->numPoints; j++ ) {
-			AddPointToBounds( surfFace->points[j], mins, maxs );
-		}
-
-	}
-
-	foundGridBrushes = false;  // disable this whole thing for now
-
-	if ( !foundGridBrushes ) {
-		VectorCopy( w->bmodels[0].bounds[0], mins );
-		VectorCopy( w->bmodels[0].bounds[1], maxs );
-	}
 }
 
-/*
-================
-R_LoadLightGrid
+void BSPReader::loadLightGrid( world_t* world ) 
+{
+	lump_t *l = &header->lumps[LUMP_LIGHTGRID];
 
-================
-*/
-void R_LoadLightGrid( lump_t *l ) {
-	int i;
-	vec3_t maxs;
-	int numGridPoints;
-	world_t *w;
-//	float	*wMins, *wMaxs;
-	vec3_t wMins, wMaxs;
+	world->lightGridInverseSize[0] = 1.0 / world->lightGridSize[0];
+	world->lightGridInverseSize[1] = 1.0 / world->lightGridSize[1];
+	world->lightGridInverseSize[2] = 1.0 / world->lightGridSize[2];
 
-	w = &s_worldData;
-
-	w->lightGridInverseSize[0] = 1.0 / w->lightGridSize[0];
-	w->lightGridInverseSize[1] = 1.0 / w->lightGridSize[1];
-	w->lightGridInverseSize[2] = 1.0 / w->lightGridSize[2];
-
+	// TODO: this makes little sense.
+	vec3_t wMins;
+	vec3_t wMaxs;
 //----(SA)	modified
 	R_FindLightGridBounds( wMins, wMaxs );
 //	wMins = w->bmodels[0].bounds[0];
 //	wMaxs = w->bmodels[0].bounds[1];
 //----(SA)	end
 
-	for ( i = 0 ; i < 3 ; i++ ) {
-		w->lightGridOrigin[i] = w->lightGridSize[i] * ceil( wMins[i] / w->lightGridSize[i] );
-		maxs[i] = w->lightGridSize[i] * floor( wMaxs[i] / w->lightGridSize[i] );
-		w->lightGridBounds[i] = ( maxs[i] - w->lightGridOrigin[i] ) / w->lightGridSize[i] + 1;
+	vec3_t maxs;
+	for (int i = 0 ; i < 3 ; i++ ) {
+		world->lightGridOrigin[i] = world->lightGridSize[i] * ceil( wMins[i] / world->lightGridSize[i] );
+		maxs[i] = world->lightGridSize[i] * floor( wMaxs[i] / world->lightGridSize[i] );
+		world->lightGridBounds[i] = ( maxs[i] - world->lightGridOrigin[i] ) / world->lightGridSize[i] + 1;
 	}
 
-	numGridPoints = w->lightGridBounds[0] * w->lightGridBounds[1] * w->lightGridBounds[2];
+	int numGridPoints = world->lightGridBounds[0] * world->lightGridBounds[1] * world->lightGridBounds[2];
 
 	if ( l->filelen != numGridPoints * 8 ) {
 		Com_Printf(S_COLOR_YELLOW "WARNING: light grid mismatch\n" );
-		w->lightGridData = nullptr;
+		world->lightGridData = nullptr;
 		return;
 	}
 
-	w->lightGridData = (uint8_t *)Hunk_Alloc( l->filelen, h_low );
-	memcpy( w->lightGridData, ( void * )( fileBase + l->fileofs ), l->filelen );
+	world->lightGridData = (uint8_t *)Hunk_Alloc( l->filelen, h_low );
+	memcpy( world->lightGridData, ( void * )( fileBase + l->fileofs ), l->filelen );
 
 	// deal with overbright bits
-	for ( i = 0 ; i < numGridPoints ; i++ ) {
-		R_ColorShiftLightingBytes( &w->lightGridData[i * 8], &w->lightGridData[i * 8] );
-		R_ColorShiftLightingBytes( &w->lightGridData[i * 8 + 3], &w->lightGridData[i * 8 + 3] );
+	for (int i = 0 ; i < numGridPoints ; i++ ) {
+		R_ColorShiftLightingBytes( &world->lightGridData[i * 8], &world->lightGridData[i * 8] );
+		R_ColorShiftLightingBytes( &world->lightGridData[i * 8 + 3], &world->lightGridData[i * 8 + 3] );
 	}
 }
 
-/*
-================
-R_LoadEntities
-================
-*/
-void R_LoadEntities( lump_t *l )
+void BSPReader::loadEntities( world_t* world )
 {
-	char *token;
 	char keyname[MAX_TOKEN_CHARS];
 	char value[MAX_TOKEN_CHARS];
-	world_t *w;
 
-	w = &s_worldData;
-	w->lightGridSize[0] = 64;
-	w->lightGridSize[1] = 64;
-	w->lightGridSize[2] = 128;
+	lump_t *l = &header->lumps[LUMP_ENTITIES];
+
+	world->lightGridSize[0] = 64;
+	world->lightGridSize[1] = 64;
+	world->lightGridSize[2] = 128;
 
 	const char* p = ( const char * )( fileBase + l->fileofs );
 
 	// store for reference by the cgame
-	w->entityString = (char *)Hunk_Alloc( l->filelen + 1, h_low );
-	strcpy( w->entityString, p );
-	w->entityParsePoint = w->entityString;
+	world->entityString = (char *)Hunk_Alloc( l->filelen + 1, h_low );
+	strcpy( world->entityString, p );
+	world->entityParsePoint = world->entityString;
 
-	token = COM_ParseExt( &p, true );
+	char *token = COM_ParseExt( &p, true );
 	if ( !*token || *token != '{' ) {
 		return;
 	}
@@ -2103,17 +1853,13 @@ void R_LoadEntities( lump_t *l )
 		}
 		// check for a different grid size
 		if ( !Q_stricmp( keyname, "gridsize" ) ) {
-			sscanf( value, "%f %f %f", &w->lightGridSize[0], &w->lightGridSize[1], &w->lightGridSize[2] );
+			sscanf( value, "%f %f %f", &world->lightGridSize[0], &world->lightGridSize[1], &world->lightGridSize[2] );
 			continue;
 		}
 	}
 }
 
-/*
-=================
-R_GetEntityToken
-=================
-*/
+
 bool R_GetEntityToken( char *buffer, int size ) {
 	const char  *s;
 
@@ -2128,24 +1874,10 @@ bool R_GetEntityToken( char *buffer, int size ) {
 }
 
 /*
-=================
-RE_LoadWorldMap
-
 Called directly from cgame
-=================
 */
 void RE_LoadWorldMap( const char *name ) {
-	int i;
-	dheader_t   *header;
-	uint8_t        *buffer;
-	uint8_t        *startMarker;
-
 	skyboxportal = 0;
-
-	if ( tr.worldMapLoaded ) {
-		Com_Error( ERR_DROP, "ERROR: attempted to redundantly load world map\n" );
-        return; // keep the linter happy, ERR_DROP does not return
-	}
 
 	// set default sun direction to be used if it isn't
 	// overridden by a shader
@@ -2170,78 +1902,91 @@ void RE_LoadWorldMap( const char *name ) {
 
 	VectorNormalize( tr.sunDirection );
 
-	tr.worldMapLoaded = true;
-
-	// load it
-	FS_ReadFile( name, (void **)&buffer );
-	if ( !buffer ) {
-		Com_Error( ERR_DROP, "RE_LoadWorldMap: %s not found", name );
-        return; // keep the linter happy, ERR_DROP does not return
-	}
-
 	// clear tr.world so if the level fails to load, the next
 	// try will not look at the partially loaded version
+	delete(tr.world);
 	tr.world = nullptr;
 
-	memset( &s_worldData, 0, sizeof( s_worldData ) );
-	Q_strncpyz( s_worldData.name, name, sizeof( s_worldData.name ) );
-
-	Q_strncpyz( s_worldData.baseName, COM_SkipPath( s_worldData.name ), sizeof( s_worldData.name ) );
-	COM_StripExtension( s_worldData.baseName, s_worldData.baseName );
-
-	startMarker = (uint8_t *)Hunk_Alloc( 0, h_low );
-	c_gridVerts = 0;
-
-	header = (dheader_t *)buffer;
-	fileBase = (uint8_t *)header;
-
-	i = LittleLong( header->version );
-
-	if ( i != BSP_VERSION ) {
-		Com_Error( ERR_DROP, "RE_LoadWorldMap: %s has wrong version number (%i should be %i)",
-				  name, i, BSP_VERSION );
-        return; // keep the linter happy, ERR_DROP does not return
-	}
-
-	// swap all the lumps
-	for ( i = 0 ; i < sizeof( dheader_t ) / 4 ; i++ ) {
-		( (int *)header )[i] = LittleLong( ( (int *)header )[i] );
-	}
-
-	// load into heap
-	Cbuf_ExecuteText( EXEC_NOW, "updatescreen\n" );
-	R_LoadShaders( &header->lumps[LUMP_SHADERS] );
-	Cbuf_ExecuteText( EXEC_NOW, "updatescreen\n" );
-	R_LoadLightmaps( &header->lumps[LUMP_LIGHTMAPS] );
-	Cbuf_ExecuteText( EXEC_NOW, "updatescreen\n" );
-	R_LoadPlanes( &header->lumps[LUMP_PLANES] );
-	Cbuf_ExecuteText( EXEC_NOW, "updatescreen\n" );
-	R_LoadFogs( &header->lumps[LUMP_FOGS], &header->lumps[LUMP_BRUSHES], &header->lumps[LUMP_BRUSHSIDES] );
-	Cbuf_ExecuteText( EXEC_NOW, "updatescreen\n" );
-	R_LoadSurfaces( &header->lumps[LUMP_SURFACES], &header->lumps[LUMP_DRAWVERTS], &header->lumps[LUMP_DRAWINDEXES] );
-	Cbuf_ExecuteText( EXEC_NOW, "updatescreen\n" );
-	R_LoadMarksurfaces( &header->lumps[LUMP_LEAFSURFACES] );
-	Cbuf_ExecuteText( EXEC_NOW, "updatescreen\n" );
-	R_LoadNodesAndLeafs( &header->lumps[LUMP_NODES], &header->lumps[LUMP_LEAFS] );
-	Cbuf_ExecuteText( EXEC_NOW, "updatescreen\n" );
-	R_LoadSubmodels( &header->lumps[LUMP_MODELS] );
-	Cbuf_ExecuteText( EXEC_NOW, "updatescreen\n" );
-	R_LoadVisibility( &header->lumps[LUMP_VISIBILITY] );
-	Cbuf_ExecuteText( EXEC_NOW, "updatescreen\n" );
-	R_LoadEntities( &header->lumps[LUMP_ENTITIES] );
-	Cbuf_ExecuteText( EXEC_NOW, "updatescreen\n" );
-	R_LoadLightGrid( &header->lumps[LUMP_LIGHTGRID] );
-	Cbuf_ExecuteText( EXEC_NOW, "updatescreen\n" );
-
-	s_worldData.dataSize = (uint8_t *)Hunk_Alloc( 0, h_low ) - startMarker;
-
-	// only set tr.world now that we know the entire level has loaded properly
-	tr.world = &s_worldData;
+	BSPReader bspReader;
+	tr.world = bspReader.load( name );
 
 	if ( tr.sunShaderName ) {
 		tr.sunShader = R_FindShader( tr.sunShaderName, LIGHTMAP_NONE, true );
 	}
+}
 
-	FS_FreeFile( buffer );
+void updateScreen()
+{
+	updateScreen();
+}
+
+world_t* BSPReader::load(const char* name)
+{
+	FS_ReadFile( name, (void **)&fileBase );
+	if ( !fileBase ) {
+		Com_Error( ERR_DROP, "RE_LoadWorldMap: %s not found", name );
+	}
+
+	world_t* world = new world_t();
+
+	Q_strncpyz( world->name, name, sizeof( world->name ) );
+	Q_strncpyz( world->baseName, COM_SkipPath( world->name ), sizeof( world->name ) );
+	COM_StripExtension( world->baseName, world->baseName );
+
+	c_gridVerts = 0;
+
+	header = (dheader_t *)fileBase;
+
+	int version = LittleLong( header->version );
+	if ( version != BSP_VERSION ) {
+		Com_Error( ERR_DROP, "RE_LoadWorldMap: %s has wrong version number (%i should be %i)", name, version, BSP_VERSION );
+	}
+
+	// swap all the lumps
+	for (int i = 0 ; i < sizeof( dheader_t ) / 4 ; i++ ) {
+		( (int *)header )[i] = LittleLong( ( (int *)header )[i] );
+	}
+
+	// load into heap
+	updateScreen();
+	loadShaders(world);
+	updateScreen();
+
+	loadLightmaps(world);
+	updateScreen();
+
+	loadPlanes(world);
+	updateScreen();
+
+	loadFogs(world);
+	updateScreen();
+
+	loadSurfaces(world);
+	updateScreen();
+
+	loadMarkSurfaces(world);
+	updateScreen();
+
+	loadNodesAndLeafs(world);
+	updateScreen();
+
+	loadSubmodels(world);
+	updateScreen();
+
+	loadVisibility(world);
+	updateScreen();
+
+	loadEntities(world);
+	updateScreen();
+
+	loadLightGrid(world);
+	updateScreen();
+
+	
+	fileBase = nullptr;
+	header = nullptr;
+	FS_FreeFile( fileBase );
+
+	return world;
 }
 
