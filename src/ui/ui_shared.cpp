@@ -509,7 +509,7 @@ void Init_Display( displayContextDef_t *dc ) {
 void GradientBar_Paint( rectDef_t *rect, vec4_t color ) {
 	// gradient bar takes two paints
 	RE_SetColor( color );
-	DC->drawHandlePic( rect->x, rect->y, rect->w, rect->h, DC->Assets.gradientBar );
+	UI_DrawHandlePic( rect->x, rect->y, rect->w, rect->h, DC->Assets.gradientBar );
 	RE_SetColor( nullptr );
 }
 
@@ -560,7 +560,7 @@ void Window_Paint( Window *w, float fadeAmount, float fadeClamp, float fadeCycle
 
 	if ( debugMode ) {
 		color[0] = color[1] = color[2] = color[3] = 1;
-		DC->drawRect( w->rect.x, w->rect.y, w->rect.w, w->rect.h, 1, color );
+		UI_DrawRect( w->rect.x, w->rect.y, w->rect.w, w->rect.h, 1, color );
 	}
 
 	if ( w == nullptr || ( w->style == 0 && w->border == 0 ) ) {
@@ -579,10 +579,10 @@ void Window_Paint( Window *w, float fadeAmount, float fadeClamp, float fadeCycle
 		if ( w->background ) {
 			Fade( &w->flags, &w->backColor[3], fadeClamp, &w->nextTime, fadeCycle, true, fadeAmount );
 			RE_SetColor( w->backColor );
-			DC->drawHandlePic( fillRect.x, fillRect.y, fillRect.w, fillRect.h, w->background );
+			UI_DrawHandlePic( fillRect.x, fillRect.y, fillRect.w, fillRect.h, w->background );
 			RE_SetColor( nullptr );
 		} else {
-			DC->fillRect( fillRect.x, fillRect.y, fillRect.w, fillRect.h, w->backColor );
+			UI_FillRect( fillRect.x, fillRect.y, fillRect.w, fillRect.h, w->backColor );
 		}
 	} else if ( w->style == WINDOW_STYLE_GRADIENT ) {
 		GradientBar_Paint( &fillRect, w->backColor );
@@ -591,19 +591,19 @@ void Window_Paint( Window *w, float fadeAmount, float fadeClamp, float fadeCycle
 		if ( w->flags & WINDOW_FORECOLORSET ) {
 			RE_SetColor( w->foreColor );
 		}
-		DC->drawHandlePic( fillRect.x, fillRect.y, fillRect.w, fillRect.h, w->background );
+		UI_DrawHandlePic( fillRect.x, fillRect.y, fillRect.w, fillRect.h, w->background );
 		RE_SetColor( nullptr );
 
 	} else if ( w->style == WINDOW_STYLE_CINEMATIC ) {
 		if ( w->cinematic == -1 ) {
-			w->cinematic = DC->playCinematic( w->cinematicName, fillRect.x, fillRect.y, fillRect.w, fillRect.h );
+			w->cinematic = UI_PlayCinematic( w->cinematicName, fillRect.x, fillRect.y, fillRect.w, fillRect.h );
 			if ( w->cinematic == -1 ) {
 				w->cinematic = -2;
 			}
 		}
 		if ( w->cinematic >= 0 ) {
-			DC->runCinematicFrame( w->cinematic );
-			DC->drawCinematic( w->cinematic, fillRect.x, fillRect.y, fillRect.w, fillRect.h );
+			UI_RunCinematicFrame( w->cinematic );
+			UI_DrawCinematic( w->cinematic, fillRect.x, fillRect.y, fillRect.w, fillRect.h );
 		}
 	}
 
@@ -621,14 +621,14 @@ void Window_Paint( Window *w, float fadeAmount, float fadeClamp, float fadeCycle
 				color[0] = color[1] = .5;
 			}
 			color[3] = 1;
-			DC->drawRect( w->rect.x, w->rect.y, w->rect.w, w->rect.h, w->borderSize, color );
+			UI_DrawRect( w->rect.x, w->rect.y, w->rect.w, w->rect.h, w->borderSize, color );
 		} else {
-			DC->drawRect( w->rect.x, w->rect.y, w->rect.w, w->rect.h, w->borderSize, w->borderColor );
+			UI_DrawRect( w->rect.x, w->rect.y, w->rect.w, w->rect.h, w->borderSize, w->borderColor );
 		}
 	} else if ( w->border == WINDOW_BORDER_HORZ ) {
 		// top/bottom
 		RE_SetColor( w->borderColor );
-		DC->drawTopBottom( w->rect.x, w->rect.y, w->rect.w, w->rect.h, w->borderSize );
+		UI_DrawTopBottom( w->rect.x, w->rect.y, w->rect.w, w->rect.h, w->borderSize );
 		RE_SetColor( nullptr );
 	} else if ( w->border == WINDOW_BORDER_VERT ) {
 		// left right
@@ -921,7 +921,7 @@ void Menu_ShowItemByName( menuDef_t *menu, const char *p, bool bShow ) {
 				item->window.flags &= ~WINDOW_VISIBLE;
 				// stop cinematics playing in the window
 				if ( item->window.cinematic >= 0 ) {
-					DC->stopCinematic( item->window.cinematic );
+					UI_StopCinematic( item->window.cinematic );
 					item->window.cinematic = -1;
 				}
 			}
@@ -1143,7 +1143,7 @@ void Script_NotebookShowpage( itemDef_t *item, const char **args ) {
 			Menu_ShowItemByName( static_cast<menuDef_t*>(item->parent), "cover", true );
 		}
 
-		DC->setCVar( "ui_notebookCurrentPage", va( "%d", curpage ) ); // store new current page
+		Cvar_Set( "ui_notebookCurrentPage", va( "%d", curpage ) ); // store new current page
 
 	}
 }
@@ -1225,7 +1225,7 @@ void Script_SetFocus( itemDef_t *item, const char **args ) {
 				Item_RunScript( focusItem, focusItem->onFocus );
 			}
 			if ( DC->Assets.itemFocusSound ) {
-				DC->startLocalSound( DC->Assets.itemFocusSound, CHAN_LOCAL_SOUND );
+				S_StartLocalSound( DC->Assets.itemFocusSound, CHAN_LOCAL_SOUND );
 			}
 		}
 	}
@@ -1235,7 +1235,7 @@ void Script_SetFocus( itemDef_t *item, const char **args ) {
 void Script_SetCvar( itemDef_t *item, const char **args ) {
 	const char *cvar, *val;
 	if ( String_Parse( args, &cvar ) && String_Parse( args, &val ) ) {
-		DC->setCVar( cvar, val );
+		Cvar_Set( cvar, val );
 	}
 
 }
@@ -1243,14 +1243,14 @@ void Script_SetCvar( itemDef_t *item, const char **args ) {
 void Script_Exec( itemDef_t *item, const char **args ) {
 	const char *val;
 	if ( String_Parse( args, &val ) ) {
-		DC->executeText( EXEC_APPEND, va( "%s ; ", val ) );
+		Cbuf_ExecuteText( EXEC_APPEND, va( "%s ; ", val ) );
 	}
 }
 
 void Script_Play( itemDef_t *item, const char **args ) {
 	const char *val;
 	if ( String_Parse( args, &val ) ) {
-		DC->startLocalSound( DC->registerSound( val ), CHAN_LOCAL_SOUND );      // all sounds are not 3d
+		S_StartLocalSound( S_RegisterSound( val ), CHAN_LOCAL_SOUND );      // all sounds are not 3d
 	}
 }
 
@@ -1267,7 +1267,7 @@ void Script_AddListItem( itemDef_t *item, const char **args ) {
 	if ( String_Parse( args, &itemname ) && String_Parse( args, &val ) && String_Parse( args, &name ) ) {
 		itemDef_t* t = Menu_FindItemByName(static_cast<menuDef_t*>(item->parent), itemname);
 		if ( t && t->special ) {
-			DC->feederAddItem( t->special, name, atoi( val ) );
+			UI_FeederAddItem( t->special, name, atoi( val ) );
 		}
 	}
 }
@@ -1328,7 +1328,7 @@ void Item_RunScript( itemDef_t *item, const char *s ) {
 			}
 			// not in our auto list, pass to handler
 			if ( !bRan ) {
-				DC->runScript( &p );
+				UI_RunMenuScript( &p );
 			}
 		}
 	}
@@ -1426,7 +1426,7 @@ bool Item_SetFocus( itemDef_t *item, float x, float y ) {
 	}
 
 	if ( playSound && sfx ) {
-		DC->startLocalSound( *sfx, CHAN_LOCAL_SOUND );
+		S_StartLocalSound( *sfx, CHAN_LOCAL_SOUND );
 	}
 
 	for ( int i = 0; i < parent->itemCount; i++ ) {
@@ -1441,7 +1441,7 @@ bool Item_SetFocus( itemDef_t *item, float x, float y ) {
 
 int Item_ListBox_MaxScroll( itemDef_t *item ) {
 	auto *listPtr = static_cast<listBoxDef_t*>(item->typeData);
-	const int count = DC->feederCount( item->special );
+	const int count = UI_FeederCount( item->special );
 	int max;
 
 	if ( item->window.flags & WINDOW_HORIZONTAL ) {
@@ -1551,7 +1551,7 @@ int Item_ListBox_OverLB( itemDef_t *item, float x, float y ) {
 	rectDef_t r;
 	int thumbstart;
 
-	int count = DC->feederCount(item->special);
+	int count = UI_FeederCount(item->special);
 	auto* listPtr = static_cast<listBoxDef_t*>(item->typeData);
 	if ( item->window.flags & WINDOW_HORIZONTAL ) {
 		// check if on left arrow
@@ -1738,7 +1738,7 @@ bool Item_OwnerDraw_HandleKey( itemDef_t *item, int key ) {
 
 bool Item_ListBox_HandleKey( itemDef_t *item, int key, bool down, bool force ) {
 	auto *listPtr = static_cast<listBoxDef_t*>(item->typeData);
-	const int count = DC->feederCount( item->special );
+	const int count = UI_FeederCount( item->special );
 
 	if ( force || ( Rect_ContainsPoint( &item->window.rect, DC->cursorx, DC->cursory ) && item->window.flags & WINDOW_HASFOCUS ) ) {
 		int viewmax;
@@ -1758,7 +1758,7 @@ bool Item_ListBox_HandleKey( itemDef_t *item, int key, bool down, bool force ) {
 						listPtr->startPos = listPtr->cursorPos - viewmax + 1;
 					}
 					item->cursorPos = listPtr->cursorPos;
-					DC->feederSelection( item->special, item->cursorPos );
+					UI_FeederSelection( item->special, item->cursorPos );
 				} else {
 					listPtr->startPos--;
 					if ( listPtr->startPos < 0 ) {
@@ -1780,7 +1780,7 @@ bool Item_ListBox_HandleKey( itemDef_t *item, int key, bool down, bool force ) {
 						listPtr->startPos = listPtr->cursorPos - viewmax + 1;
 					}
 					item->cursorPos = listPtr->cursorPos;
-					DC->feederSelection( item->special, item->cursorPos );
+					UI_FeederSelection( item->special, item->cursorPos );
 				} else {
 					listPtr->startPos++;
 					if ( listPtr->startPos >= count ) {
@@ -1804,7 +1804,7 @@ bool Item_ListBox_HandleKey( itemDef_t *item, int key, bool down, bool force ) {
 						listPtr->startPos = listPtr->cursorPos - viewmax + 1;
 					}
 					item->cursorPos = listPtr->cursorPos;
-					DC->feederSelection( item->special, item->cursorPos );
+					UI_FeederSelection( item->special, item->cursorPos );
 				} else {
 					listPtr->startPos--;
 					if ( listPtr->startPos < 0 ) {
@@ -1826,7 +1826,7 @@ bool Item_ListBox_HandleKey( itemDef_t *item, int key, bool down, bool force ) {
 						listPtr->startPos = listPtr->cursorPos - viewmax + 1;
 					}
 					item->cursorPos = listPtr->cursorPos;
-					DC->feederSelection( item->special, item->cursorPos );
+					UI_FeederSelection( item->special, item->cursorPos );
 				} else {
 					listPtr->startPos++;
 					if ( listPtr->startPos > max ) {
@@ -1870,10 +1870,10 @@ bool Item_ListBox_HandleKey( itemDef_t *item, int key, bool down, bool force ) {
 				}
 				lastListBoxClickTime = DC->realTime + DOUBLE_CLICK_DELAY;
 				if ( item->cursorPos != listPtr->cursorPos ) {
-					if ( listPtr->cursorPos < DC->feederCount( item->special ) ) {
+					if ( listPtr->cursorPos < UI_FeederCount( item->special ) ) {
 						item->cursorPos = listPtr->cursorPos;   // only set if it's valid
 					}
-					DC->feederSelection( item->special, item->cursorPos );
+					UI_FeederSelection( item->special, item->cursorPos );
 				}
 			}
 			return true;
@@ -1902,7 +1902,7 @@ bool Item_ListBox_HandleKey( itemDef_t *item, int key, bool down, bool force ) {
 					listPtr->startPos = listPtr->cursorPos - viewmax + 1;
 				}
 				item->cursorPos = listPtr->cursorPos;
-				DC->feederSelection( item->special, item->cursorPos );
+				UI_FeederSelection( item->special, item->cursorPos );
 			} else {
 				listPtr->startPos -= viewmax;
 				if ( listPtr->startPos < 0 ) {
@@ -1925,7 +1925,7 @@ bool Item_ListBox_HandleKey( itemDef_t *item, int key, bool down, bool force ) {
 					listPtr->startPos = listPtr->cursorPos - viewmax + 1;
 				}
 				item->cursorPos = listPtr->cursorPos;
-				DC->feederSelection( item->special, item->cursorPos );
+				UI_FeederSelection( item->special, item->cursorPos );
 			} else {
 				listPtr->startPos += viewmax;
 				if ( listPtr->startPos > max ) {
@@ -1942,7 +1942,7 @@ bool Item_YesNo_HandleKey( itemDef_t *item, int key ) {
 
 	if ( Rect_ContainsPoint( &item->window.rect, DC->cursorx, DC->cursory ) && item->window.flags & WINDOW_HASFOCUS && item->cvar ) {
 		if ( key == K_MOUSE1 || key == K_ENTER || key == K_MOUSE2 || key == K_MOUSE3 ) {
-			DC->setCVar( item->cvar, va( "%i", !Cvar_VariableValue( item->cvar ) ) );
+			Cvar_Set( item->cvar, va( "%i", !Cvar_VariableValue( item->cvar ) ) );
 			return true;
 		}
 	}
@@ -2020,13 +2020,13 @@ bool Item_Multi_HandleKey( itemDef_t *item, int key ) {
 					current = 0;
 				}
 				if ( multiPtr->strDef ) {
-					DC->setCVar( item->cvar, multiPtr->cvarStr[current] );
+					Cvar_Set( item->cvar, multiPtr->cvarStr[current] );
 				} else {
 					float value = multiPtr->cvarValue[current];
 					if ( ( (float)( (int) value ) ) == value ) {
-						DC->setCVar( item->cvar, va( "%i", (int) value ) );
+						Cvar_Set( item->cvar, va( "%i", (int) value ) );
 					} else {
-						DC->setCVar( item->cvar, va( "%f", value ) );
+						Cvar_Set( item->cvar, va( "%f", value ) );
 					}
 				}
 				return true;
@@ -2061,7 +2061,7 @@ bool Item_TextField_HandleKey( itemDef_t *item, int key ) {
 						editPtr->paintOffset--;
 					}
 				}
-				DC->setCVar( item->cvar, buff );
+				Cvar_Set( item->cvar, buff );
 				return true;
 			}
 
@@ -2099,7 +2099,7 @@ bool Item_TextField_HandleKey( itemDef_t *item, int key ) {
 
 			buff[item->cursorPos] = key;
 
-			DC->setCVar( item->cvar, buff );
+			Cvar_Set( item->cvar, buff );
 
 			if ( item->cursorPos < len + 1 ) {
 				item->cursorPos++;
@@ -2113,7 +2113,7 @@ bool Item_TextField_HandleKey( itemDef_t *item, int key ) {
 			if ( key == K_DEL || key == K_KP_DEL ) {
 				if ( item->cursorPos < len ) {
 					memmove( buff + item->cursorPos, buff + item->cursorPos + 1, len - item->cursorPos );
-					DC->setCVar( item->cvar, buff );
+					Cvar_Set( item->cvar, buff );
 				}
 				return true;
 			}
@@ -2290,7 +2290,7 @@ static void Scroll_Slider_ThumbFunc( void *p ) {
 	value /= SLIDER_WIDTH;
 	value *= ( editDef->maxVal - editDef->minVal );
 	value += editDef->minVal;
-	DC->setCVar( si->item->cvar, va( "%f", value ) );
+	Cvar_Set( si->item->cvar, va( "%f", value ) );
 }
 
 void Item_StartCapture( itemDef_t *item, int key ) {
@@ -2369,7 +2369,7 @@ bool Item_Slider_HandleKey( itemDef_t *item, int key, bool down ) {
 					value = work / width;
 					value *= ( editDef->maxVal - editDef->minVal );
 					value += editDef->minVal;
-					DC->setCVar( item->cvar, va( "%f", value ) );
+					Cvar_Set( item->cvar, va( "%f", value ) );
 					return true;
 				}
 			}
@@ -2517,7 +2517,7 @@ itemDef_t *Menu_SetNextCursorItem( menuDef_t *menu ) {
 
 static void Window_CloseCinematic( windowDef_t *window ) {
 	if ( window->style == WINDOW_STYLE_CINEMATIC && window->cinematic >= 0 ) {
-		DC->stopCinematic( window->cinematic );
+		UI_StopCinematic( window->cinematic );
 		window->cinematic = -1;
 	}
 }
@@ -2528,7 +2528,7 @@ static void Menu_CloseCinematics( menuDef_t *menu ) {
 		for ( int i = 0; i < menu->itemCount; i++ ) {
 			Window_CloseCinematic( &menu->items[i]->window );
 			if ( menu->items[i]->type == ITEM_TYPE_OWNERDRAW ) {
-				DC->stopCinematic( 0 - menu->items[i]->window.ownerDraw );
+				UI_StopCinematic( 0 - menu->items[i]->window.ownerDraw );
 			}
 		}
 	}
@@ -2586,9 +2586,7 @@ void Menus_HandleOOBClick( menuDef_t *menu, int key, bool down ) {
 		}
 
 		if ( Display_VisibleMenuCount() == 0 ) {
-			if ( DC->Pause ) {
-				DC->Pause( false );
-			}
+			UI_Pause( false );
 		}
 		Display_CloseCinematics();
 	}
@@ -2700,7 +2698,7 @@ void Menu_HandleKey( menuDef_t *menu, int key, bool down ) {
 
 	case K_F12:
 		if ( Cvar_VariableValue( "developer" ) ) {
-			DC->executeText( EXEC_APPEND, "screenshot\n" );
+			Cbuf_ExecuteText( EXEC_APPEND, "screenshot\n" );
 		}
 		break;
 	case K_KP_UPARROW:
@@ -2812,18 +2810,18 @@ void Item_SetTextExtents( itemDef_t *item, int *width, int *height, const char *
 
 	// keeps us from computing the widths and heights more than once
 	if ( *width == 0 || ( item->type == ITEM_TYPE_OWNERDRAW && item->textalignment == ITEM_ALIGN_CENTER ) ) {
-		int originalWidth = DC->textWidth( item->text, item->font, item->textscale, 0 );
+		int originalWidth = Text_Width( item->text, item->font, item->textscale, 0 );
 
 		if ( item->type == ITEM_TYPE_OWNERDRAW && ( item->textalignment == ITEM_ALIGN_CENTER || item->textalignment == ITEM_ALIGN_RIGHT ) ) {
-			originalWidth += DC->ownerDrawWidth( item->window.ownerDraw, item->font, item->textscale );
+			originalWidth += UI_OwnerDrawWidth( item->window.ownerDraw, item->font, item->textscale );
 		} else if ( ( item->type == ITEM_TYPE_EDITFIELD || item->type == ITEM_TYPE_VALIDFILEFIELD ) && item->textalignment == ITEM_ALIGN_CENTER && item->cvar ) {
 			char buff[256];
 			Cvar_VariableStringBuffer( item->cvar, buff, 256 );
-			originalWidth += DC->textWidth( buff, item->font, item->textscale, 0 );
+			originalWidth += Text_Width( buff, item->font, item->textscale, 0 );
 		}
 
-		*width = DC->textWidth( textPtr, item->font, item->textscale, 0 );
-		*height = DC->textHeight( textPtr, item->font, item->textscale, 0 );
+		*width = Text_Width( textPtr, item->font, item->textscale, 0 );
+		*height = Text_Height( textPtr, item->font, item->textscale, 0 );
 		item->textRect.w = *width;
 		item->textRect.h = *height;
 		item->textRect.x = item->textalignx;
@@ -2905,7 +2903,7 @@ void Item_Text_AutoWrapped_Paint( itemDef_t *item ) {
 			newLinePtr = p + 1;
 			newLineWidth = textWidth;
 		}
-		textWidth = DC->textWidth( buff, item->font, item->textscale, 0 );
+		textWidth = Text_Width( buff, item->font, item->textscale, 0 );
 		if ( ( newLine && textWidth > item->window.rect.w ) || *p == '\n' || *p == '\0' ) {
 			if ( len ) {
 				if ( item->textalignment == ITEM_ALIGN_LEFT ) {
@@ -3087,8 +3085,8 @@ void Item_YesNo_Paint( itemDef_t *item ) {
 		memcpy( &newColor, &item->window.foreColor, sizeof( vec4_t ) );
 	}
 
-	yes_str = DC->getTranslatedString( yes_str );
-	no_str = DC->getTranslatedString( no_str );
+	yes_str = UI_translateString( yes_str );
+	no_str = UI_translateString( no_str );
 
 	if ( item->text ) {
 		Item_Text_Paint( item );
@@ -3308,7 +3306,7 @@ void Controls_SetConfig( bool restart ) {
 	// TTimo: FIXME
 	// show_bug.cgi?id=430
 #if !defined( __MACOS__ )
-	DC->executeText( EXEC_APPEND, "in_restart\n" );
+	Cbuf_ExecuteText( EXEC_APPEND, "in_restart\n" );
 #endif
 }
 
@@ -3350,7 +3348,7 @@ void BindingFromName( const char *cvar ) {
 			if (int b2 = g_binding.bind2; b2 != -1 ) {
                 Key_KeynumToStringBuf( b2, g_nameBind2, 32 );
 				Q_strupr( g_nameBind2 );
-				strcat( g_nameBind1, va( " %s ", DC->getTranslatedString( "or" ) ) );
+				strcat( g_nameBind1, va( " %s ", UI_translateString( "or" ) ) );
 				strcat( g_nameBind1, g_nameBind2 );
 			}
 			return;
@@ -3384,10 +3382,10 @@ void Item_Slider_Paint( itemDef_t *item ) {
 		x = item->window.rect.x;
 	}
 	RE_SetColor( newColor );
-	DC->drawHandlePic( x, y, SLIDER_WIDTH, SLIDER_HEIGHT, DC->Assets.sliderBar );
+	UI_DrawHandlePic( x, y, SLIDER_WIDTH, SLIDER_HEIGHT, DC->Assets.sliderBar );
 
 	x = Item_Slider_ThumbPosition( item );
-	DC->drawHandlePic( x - ( SLIDER_THUMB_WIDTH / 2 ), y - 2, SLIDER_THUMB_WIDTH, SLIDER_THUMB_HEIGHT, DC->Assets.sliderThumb );
+	UI_DrawHandlePic( x - ( SLIDER_THUMB_WIDTH / 2 ), y - 2, SLIDER_THUMB_WIDTH, SLIDER_THUMB_HEIGHT, DC->Assets.sliderThumb );
 }
 
 void Item_Bind_Paint( itemDef_t *item ) {
@@ -3648,7 +3646,7 @@ void Item_Image_Paint( itemDef_t *item ) {
 	if ( item == nullptr ) {
 		return;
 	}
-	DC->drawHandlePic( item->window.rect.x + 1, item->window.rect.y + 1, item->window.rect.w - 2, item->window.rect.h - 2, item->asset );
+	UI_DrawHandlePic( item->window.rect.x + 1, item->window.rect.y + 1, item->window.rect.w - 2, item->window.rect.h - 2, item->asset );
 }
 
 void Item_ListBox_Paint( itemDef_t *item ) {
@@ -3662,25 +3660,25 @@ void Item_ListBox_Paint( itemDef_t *item ) {
 	// elements are enumerated from the DC and either text or image handles are acquired from the DC as well
 	// textscale is used to size the text, textalignx and textaligny are used to size image elements
 	// there is no clipping available so only the last completely visible item is painted
-	const int count = DC->feederCount(item->special);
+	const int count = UI_FeederCount(item->special);
 	// default is vertical if horizontal flag is not here
 	if ( item->window.flags & WINDOW_HORIZONTAL ) {
 		// draw scrollbar in bottom of the window
 		// bar
 		x = item->window.rect.x + 1;
 		y = item->window.rect.y + item->window.rect.h - SCROLLBAR_SIZE - 1;
-		DC->drawHandlePic( x, y, SCROLLBAR_SIZE, SCROLLBAR_SIZE, DC->Assets.scrollBarArrowLeft );
+		UI_DrawHandlePic( x, y, SCROLLBAR_SIZE, SCROLLBAR_SIZE, DC->Assets.scrollBarArrowLeft );
 		x += SCROLLBAR_SIZE - 1;
 		size = item->window.rect.w - ( SCROLLBAR_SIZE * 2 );
-		DC->drawHandlePic( x, y, size + 1, SCROLLBAR_SIZE, DC->Assets.scrollBar );
+		UI_DrawHandlePic( x, y, size + 1, SCROLLBAR_SIZE, DC->Assets.scrollBar );
 		x += size - 1;
-		DC->drawHandlePic( x, y, SCROLLBAR_SIZE, SCROLLBAR_SIZE, DC->Assets.scrollBarArrowRight );
+		UI_DrawHandlePic( x, y, SCROLLBAR_SIZE, SCROLLBAR_SIZE, DC->Assets.scrollBarArrowRight );
 		// thumb
 		thumb = Item_ListBox_ThumbDrawPosition( item ); //Item_ListBox_ThumbPosition(item);
 		if ( thumb > x - SCROLLBAR_SIZE - 1 ) {
 			thumb = x - SCROLLBAR_SIZE - 1;
 		}
-		DC->drawHandlePic( thumb, y, SCROLLBAR_SIZE, SCROLLBAR_SIZE, DC->Assets.scrollBarThumb );
+		UI_DrawHandlePic( thumb, y, SCROLLBAR_SIZE, SCROLLBAR_SIZE, DC->Assets.scrollBarThumb );
 		//
 		listPtr->endPos = listPtr->startPos;
 		size = item->window.rect.w - 2;
@@ -3693,13 +3691,13 @@ void Item_ListBox_Paint( itemDef_t *item ) {
 			for ( i = listPtr->startPos; i < count; i++ ) {
 				// always draw at least one
 				// which may overdraw the box if it is too small for the element
-				image = DC->feederItemImage( item->special, i );
+				image = UI_FeederItemImage( item->special, i );
 				if ( image ) {
-					DC->drawHandlePic( x + 1, y + 1, listPtr->elementWidth - 2, listPtr->elementHeight - 2, image );
+					UI_DrawHandlePic( x + 1, y + 1, listPtr->elementWidth - 2, listPtr->elementHeight - 2, image );
 				}
 
 				if ( i == item->cursorPos ) {
-					DC->drawRect( x, y, listPtr->elementWidth - 1, listPtr->elementHeight - 1, item->window.borderSize, item->window.borderColor );
+					UI_DrawRect( x, y, listPtr->elementWidth - 1, listPtr->elementHeight - 1, item->window.borderSize, item->window.borderColor );
 				}
 
 				size -= listPtr->elementWidth;
@@ -3718,20 +3716,20 @@ void Item_ListBox_Paint( itemDef_t *item ) {
 		// draw scrollbar to right side of the window
 		x = item->window.rect.x + item->window.rect.w - SCROLLBAR_SIZE - 1;
 		y = item->window.rect.y + 1;
-		DC->drawHandlePic( x, y, SCROLLBAR_SIZE, SCROLLBAR_SIZE, DC->Assets.scrollBarArrowUp );
+		UI_DrawHandlePic( x, y, SCROLLBAR_SIZE, SCROLLBAR_SIZE, DC->Assets.scrollBarArrowUp );
 		y += SCROLLBAR_SIZE - 1;
 
 		listPtr->endPos = listPtr->startPos;
 		size = item->window.rect.h - ( SCROLLBAR_SIZE * 2 );
-		DC->drawHandlePic( x, y, SCROLLBAR_SIZE, size + 1, DC->Assets.scrollBar );
+		UI_DrawHandlePic( x, y, SCROLLBAR_SIZE, size + 1, DC->Assets.scrollBar );
 		y += size - 1;
-		DC->drawHandlePic( x, y, SCROLLBAR_SIZE, SCROLLBAR_SIZE, DC->Assets.scrollBarArrowDown );
+		UI_DrawHandlePic( x, y, SCROLLBAR_SIZE, SCROLLBAR_SIZE, DC->Assets.scrollBarArrowDown );
 		// thumb
 		thumb = Item_ListBox_ThumbDrawPosition( item ); //Item_ListBox_ThumbPosition(item);
 		if ( thumb > y - SCROLLBAR_SIZE - 1 ) {
 			thumb = y - SCROLLBAR_SIZE - 1;
 		}
-		DC->drawHandlePic( x, thumb, SCROLLBAR_SIZE, SCROLLBAR_SIZE, DC->Assets.scrollBarThumb );
+		UI_DrawHandlePic( x, thumb, SCROLLBAR_SIZE, SCROLLBAR_SIZE, DC->Assets.scrollBarThumb );
 
 		// adjust size for item painting
 		size = item->window.rect.h - 2;
@@ -3742,13 +3740,13 @@ void Item_ListBox_Paint( itemDef_t *item ) {
 			for ( i = listPtr->startPos; i < count; i++ ) {
 				// always draw at least one
 				// which may overdraw the box if it is too small for the element
-				image = DC->feederItemImage( item->special, i );
+				image = UI_FeederItemImage( item->special, i );
 				if ( image ) {
-					DC->drawHandlePic( x + 1, y + 1, listPtr->elementWidth - 2, listPtr->elementHeight - 2, image );
+					UI_DrawHandlePic( x + 1, y + 1, listPtr->elementWidth - 2, listPtr->elementHeight - 2, image );
 				}
 
 				if ( i == item->cursorPos ) {
-					DC->drawRect( x, y, listPtr->elementWidth - 1, listPtr->elementHeight - 1, item->window.borderSize, item->window.borderColor );
+					UI_DrawRect( x, y, listPtr->elementWidth - 1, listPtr->elementHeight - 1, item->window.borderSize, item->window.borderColor );
 				}
 
 				listPtr->endPos++;
@@ -3771,24 +3769,24 @@ void Item_ListBox_Paint( itemDef_t *item ) {
 				if ( listPtr->numColumns > 0 ) {
 					int j;
 					for ( j = 0; j < listPtr->numColumns; j++ ) {
-						text = DC->feederItemText( item->special, i, j, &optionalImage );
+						text = UI_FeederItemText( item->special, i, j, &optionalImage );
 						if ( optionalImage >= 0 ) {
-							DC->drawHandlePic( x + 4 + listPtr->columnInfo[j].pos, y - 1 + listPtr->elementHeight / 2, listPtr->columnInfo[j].width, listPtr->columnInfo[j].width, optionalImage );
+							UI_DrawHandlePic( x + 4 + listPtr->columnInfo[j].pos, y - 1 + listPtr->elementHeight / 2, listPtr->columnInfo[j].width, listPtr->columnInfo[j].width, optionalImage );
 						} else if ( text ) {
                             Text_Paint( x + 4 + listPtr->columnInfo[j].pos, y + listPtr->elementHeight, item->font, item->textscale, item->window.foreColor, text, 0, listPtr->columnInfo[j].maxChars, item->textStyle );
 						}
 					}
 				} else {
-					text = DC->feederItemText( item->special, i, 0, &optionalImage );
+					text = UI_FeederItemText( item->special, i, 0, &optionalImage );
 					if ( optionalImage >= 0 ) {
-						//DC->drawHandlePic(x + 4 + listPtr->elementHeight, y, listPtr->columnInfo[j].width, listPtr->columnInfo[j].width, optionalImage);
+						//UI_DrawHandlePic(x + 4 + listPtr->elementHeight, y, listPtr->columnInfo[j].width, listPtr->columnInfo[j].width, optionalImage);
 					} else if ( text ) {
                         Text_Paint( x + 4, y + listPtr->elementHeight, item->font, item->textscale, item->window.foreColor, text, 0, 0, item->textStyle );
 					}
 				}
 
 				if ( i == item->cursorPos ) {
-					DC->fillRect( x + 2, y + 2, item->window.rect.w - SCROLLBAR_SIZE - 4, listPtr->elementHeight, item->window.outlineColor );
+					UI_FillRect( x + 2, y + 2, item->window.rect.w - SCROLLBAR_SIZE - 4, listPtr->elementHeight, item->window.outlineColor );
 				}
 
 				size -= listPtr->elementHeight;
@@ -3976,8 +3974,8 @@ void Item_Paint( itemDef_t *item ) {
 		}
 	}
 
-	if ( item->window.ownerDrawFlags && DC->ownerDrawVisible ) {
-		if ( !DC->ownerDrawVisible( item->window.ownerDrawFlags ) ) {
+	if ( item->window.ownerDrawFlags ) {
+		if ( !UI_OwnerDrawVisible( item->window.ownerDrawFlags ) ) {
 			item->window.flags &= ~WINDOW_VISIBLE;
 		} else {
 			item->window.flags |= WINDOW_VISIBLE;
@@ -4005,7 +4003,7 @@ void Item_Paint( itemDef_t *item ) {
 		const rectDef_t *r = Item_CorrectedTextRect( item );
 		color[1] = color[3] = 1;
 		color[0] = color[2] = 0;
-		DC->drawRect( r->x, r->y, r->w, r->h, 1, color );
+		UI_DrawRect( r->x, r->y, r->w, r->h, 1, color );
 	}
 
 	switch ( item->type ) {
@@ -4114,7 +4112,7 @@ void Menu_SetFeederSelection( menuDef_t *menu, int feeder, int index, const char
 					listPtr->startPos = 0;
 				}
 				menu->items[i]->cursorPos = index;
-				DC->feederSelection( menu->items[i]->special, menu->items[i]->cursorPos );
+				UI_FeederSelection( menu->items[i]->special, menu->items[i]->cursorPos );
 				return;
 			}
 		}
@@ -4234,7 +4232,7 @@ void Menu_Paint( menuDef_t *menu, bool forcePaint ) {
 		return;
 	}
 
-	if ( menu->window.ownerDrawFlags && DC->ownerDrawVisible && !DC->ownerDrawVisible( menu->window.ownerDrawFlags ) ) {
+	if ( menu->window.ownerDrawFlags && !UI_OwnerDrawVisible( menu->window.ownerDrawFlags ) ) {
 		return;
 	}
 
@@ -4246,7 +4244,7 @@ void Menu_Paint( menuDef_t *menu, bool forcePaint ) {
 	if ( menu->fullScreen ) {
 		// implies a background shader
 		// FIXME: make sure we have a default shader if fullscreen is set with no background
-		DC->drawHandlePic( 0, 0, SCREEN_WIDTH, SCREEN_HEIGHT, menu->window.background );
+		UI_DrawHandlePic( 0, 0, SCREEN_WIDTH, SCREEN_HEIGHT, menu->window.background );
 	} else if ( menu->window.background ) {
 		// this allows a background shader without being full screen
 		//UI_DrawHandlePic(menu->window.rect.x, menu->window.rect.y, menu->window.rect.w, menu->window.rect.h, menu->backgroundShader);
@@ -4263,7 +4261,7 @@ void Menu_Paint( menuDef_t *menu, bool forcePaint ) {
 		vec4_t color;
 		color[0] = color[2] = color[3] = 1;
 		color[1] = 0;
-		DC->drawRect( menu->window.rect.x, menu->window.rect.y, menu->window.rect.w, menu->window.rect.h, 1, color );
+		UI_DrawRect( menu->window.rect.x, menu->window.rect.y, menu->window.rect.w, menu->window.rect.h, 1, color );
 	}
 }
 
@@ -4351,7 +4349,7 @@ bool ItemParse_focusSound( itemDef_t *item, int handle ) {
 	if ( !PC_String_Parse( handle, &temp ) ) {
 		return false;
 	}
-	item->focusSound = DC->registerSound( temp );
+	item->focusSound = S_RegisterSound( temp );
 	return true;
 }
 
@@ -4374,7 +4372,7 @@ bool ItemParse_textfile( itemDef_t *item, int handle ) {
 		return false;
 	}
 
-	const char* newtext = DC->fileText(token.string);
+	const char* newtext = UI_FileText(token.string);
 	item->text = String_Alloc( newtext );
 
 	return true;
@@ -5740,8 +5738,8 @@ void Display_HandleKey( int key, bool down, int x, int y ) {
 static void Window_CacheContents( windowDef_t *window ) {
 	if ( window ) {
 		if ( window->cinematicName ) {
-			const int cin = DC->playCinematic( window->cinematicName, 0, 0, 0, 0 );
-			DC->stopCinematic( cin );
+			const int cin = UI_PlayCinematic( window->cinematicName, 0, 0, 0, 0 );
+			UI_StopCinematic( cin );
 		}
 	}
 }

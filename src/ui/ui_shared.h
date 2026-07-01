@@ -345,48 +345,6 @@ typedef struct {
 } commandDef_t;
 
 typedef struct {
-
-	void ( *drawHandlePic )( float x, float y, float w, float h, qhandle_t asset );
-
-	int ( *textWidth )( const char *text, int font, float scale, int limit );
-	int ( *textHeight )( const char *text, int font, float scale, int limit );
-
-	void ( *fillRect )( float x, float y, float w, float h, const vec4_t color );
-	void ( *drawRect )( float x, float y, float w, float h, float size, const vec4_t color );
-
-	void ( *drawTopBottom )( float x, float y, float w, float h, float size );
-
-	void ( *ownerDrawItem )( float x, float y, float w, float h, float text_x, float text_y, int ownerDraw, int ownerDrawFlags, int align, float special, int font, float scale, vec4_t color, qhandle_t shader, int textStyle );
-	float ( *getValue )( int ownerDraw, int type );
-	bool ( *ownerDrawVisible )( int flags );
-	void ( *runScript )( const char **p );
-
-
-	void ( *setCVar )( const char *cvar, const char *value );
-
-	void ( *startLocalSound )( sfxHandle_t sfx, int channelNum );
-	int ( *feederCount )( float feederID );
-	const char *( *feederItemText )( float feederID, int index, int column, qhandle_t * handle );
-
-	const char *( *fileText )( char *fileName );    //----(SA)	added
-	const char *( *getTranslatedString )( const char *inString );   //----(SA)	added
-
-	qhandle_t ( *feederItemImage )( float feederID, int index );
-	void ( *feederSelection )( float feederID, int index );
-	void ( *feederAddItem )( float feederID, const char *name, int index );           // NERVE - SMF
-
-	void ( *executeText )( int exec_when, const char *text );
-	void ( *Error )( int level, const char *error, ... );
-	void ( *Print )( const char *msg, ... );
-	void ( *Pause )( bool b );
-	int ( *ownerDrawWidth )( int ownerDraw, int font, float scale );
-	sfxHandle_t ( *registerSound )( const char *name );
-
-	int ( *playCinematic )( const char *name, float x, float y, float w, float h );
-	void ( *stopCinematic )( int handle );
-	void ( *drawCinematic )( int handle, float x, float y, float w, float h );
-	void ( *runCinematicFrame )( int handle );
-
 	float yscale;
 	float xscale;
 	float bias;

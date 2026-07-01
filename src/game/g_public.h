@@ -35,8 +35,6 @@ If you have questions concerning this license or the applicable additional terms
 
 #include "q_shared.h"	// vec3_t
 
-#define GAME_API_VERSION    8
-
 // entity->svFlags
 // the server does not know how to interpret most of the values
 // in entityStates (level eType), so the game must explicitly flag

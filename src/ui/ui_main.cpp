@@ -853,11 +853,11 @@ static void UI_DrawLoadStatus( rectDef_t *rect, vec4_t color, int align )
         
         UI_FilledBar( rect->x, rect->y, rect->w, rect->h, color, nullptr, nullptr, percentDone, flags );
     } else {
-        Text_Paint( rect->x, rect->y, UI_FONT_DEFAULT, 0.2f, color, DC->getTranslatedString( "pleasewait" ), 0, 0, 0 );
+        Text_Paint( rect->x, rect->y, UI_FONT_DEFAULT, 0.2f, color, UI_translateString( "pleasewait" ), 0, 0, 0 );
     }
 }
 
-static int UI_OwnerDrawWidth( int ownerDraw, int font, float scale )
+int UI_OwnerDrawWidth( int ownerDraw, int font, float scale )
 {
 	const char *s = nullptr;
 	switch ( ownerDraw ) {
@@ -875,9 +875,9 @@ static int UI_OwnerDrawWidth( int ownerDraw, int font, float scale )
 
 	case UI_KEYBINDSTATUS:
 		if ( Display_KeyBindPending() ) {
-			s = DC->getTranslatedString( "keywait" );
+			s = UI_translateString( "keywait" );
 		} else {
-			s = DC->getTranslatedString( "keychange" );
+			s = UI_translateString( "keychange" );
 		}
 		break;
 	default:
@@ -908,9 +908,9 @@ static void UI_DrawCrosshair( rectDef_t *rect, float scale, vec4_t color )
 static void UI_DrawKeyBindStatus( rectDef_t *rect, int font, float scale, vec4_t color, int textStyle )
 {
 	if ( Display_KeyBindPending() ) {
-		Text_Paint( rect->x, rect->y, font, scale, color, DC->getTranslatedString( "keywait" ), 0, 0, textStyle );
+		Text_Paint( rect->x, rect->y, font, scale, color, UI_translateString( "keywait" ), 0, 0, textStyle );
 	} else {
-		Text_Paint( rect->x, rect->y, font, scale, color, DC->getTranslatedString( "keychange" ), 0, 0, textStyle );
+		Text_Paint( rect->x, rect->y, font, scale, color, UI_translateString( "keychange" ), 0, 0, textStyle );
 	}
 }
 
@@ -1004,7 +1004,7 @@ void UI_OwnerDraw( float x, float y, float w, float h, float text_x, float text_
 	}
 }
 
-static bool UI_OwnerDrawVisible( int flags )
+bool UI_OwnerDrawVisible( int flags )
 {
 	return true;
 }
@@ -1150,7 +1150,6 @@ static int  UI_SavegamesQsortCompare( const void *arg1, const void *arg2 )
 	return -ret;
 }
 
-static void UI_FeederSelection( float feederID, int index );
 void UI_SavegameSort( int column, bool force )
 {
 	if ( !force ) {
@@ -1511,7 +1510,7 @@ static void scriptResetDefaults()
     Cbuf_ExecuteText( EXEC_APPEND, "vid_restart\n" );
 }
 
-static void UI_RunMenuScript( const char **args ) {
+void UI_RunMenuScript( const char **args ) {
 	const char *name, *name2;
 
 	if ( String_Parse( args, &name ) ) {
@@ -1579,11 +1578,11 @@ static void UI_RunMenuScript( const char **args ) {
 	}
 }
 
-static void UI_FeederAddItem( float feederID, const char *name, int index ) {
+void UI_FeederAddItem( float feederID, const char *name, int index ) {
 
 }
 
-static const char *UI_FileText( char *fileName )
+const char *UI_FileText( char *fileName )
 {
 	fileHandle_t f;
 	static char buf[MAX_MENUDEFFILE];
@@ -1599,7 +1598,7 @@ static const char *UI_FileText( char *fileName )
 	return &buf[0];
 }
 
-static const char *UI_translateString( const char *inString )
+const char *UI_translateString( const char *inString )
 {
 	const int numStrings = sizeof( translateStrings ) / sizeof( translateStrings[0] ) - 1;
 
@@ -1619,7 +1618,7 @@ static const char *UI_translateString( const char *inString )
 	return inString;
 }
 
-static qhandle_t UI_FeederItemImage( float feederID, int index ) {
+qhandle_t UI_FeederItemImage( float feederID, int index ) {
     if ( feederID == FEEDER_SAVEGAMES ) {
         if ( index >= 0 && index < uiInfo.savegameCount ) {
             if ( uiInfo.savegameList[uiInfo.savegameStatus.displaySavegames[index]].sshotImage == -1 ) {
@@ -1632,7 +1631,7 @@ static qhandle_t UI_FeederItemImage( float feederID, int index ) {
     return 0;
 }
 
-static void UI_FeederSelection( float feederID, int index ) {
+void UI_FeederSelection( float feederID, int index ) {
 	if ( feederID == FEEDER_CINEMATICS ) {
         uiInfo.movieIndex = index;
         if ( uiInfo.previewMovie >= 0 ) {
@@ -1651,14 +1650,14 @@ static void UI_FeederSelection( float feederID, int index ) {
     }
 }
 
-static int UI_FeederCount( float feederID ) {
+int UI_FeederCount( float feederID ) {
     if ( feederID == FEEDER_SAVEGAMES ) {
         return uiInfo.savegameCount;
     }
     return 0;
 }
 
-static const char *UI_FeederItemText( float feederID, int index, int column, qhandle_t *handle )
+const char *UI_FeederItemText( float feederID, int index, int column, qhandle_t *handle )
 {
 	*handle = -1;
 	if ( feederID == FEEDER_CINEMATICS ) {
@@ -1683,7 +1682,7 @@ static const char *UI_FeederItemText( float feederID, int index, int column, qha
 }
 
 
-static void UI_Pause( bool b )
+void UI_Pause( bool b )
 {
 	if ( b ) {
 		// pause the game and set the ui keycatcher
@@ -1698,22 +1697,22 @@ static void UI_Pause( bool b )
 }
 
 
-static int UI_PlayCinematic( const char *name, float x, float y, float w, float h ) {
+int UI_PlayCinematic( const char *name, float x, float y, float w, float h ) {
 	return CIN_PlayCinematic( name, x, y, w, h, ( CIN_loop | CIN_silent ) );
 }
 
-static void UI_StopCinematic( int handle ) {
+void UI_StopCinematic( int handle ) {
 	if ( handle >= 0 ) {
 		CIN_StopCinematic( handle );
 	}
 }
 
-static void UI_DrawCinematic( int handle, float x, float y, float w, float h ) {
+void UI_DrawCinematic( int handle, float x, float y, float w, float h ) {
 	CIN_SetExtents( handle, x, y, w, h );
 	CIN_DrawCinematic( handle );
 }
 
-static void UI_RunCinematicFrame( int handle ) {
+void UI_RunCinematicFrame( int handle ) {
 	CIN_RunCinematic( handle );
 }
 
@@ -2116,47 +2115,6 @@ void UI_Init()
         // no wide screen
         uiInfo.uiDC.bias = 0;
     }
-
-    uiInfo.uiDC.drawHandlePic = &UI_DrawHandlePic;
-
-    uiInfo.uiDC.textWidth = &Text_Width;
-    uiInfo.uiDC.textHeight = &Text_Height;
-
-    uiInfo.uiDC.fillRect = &UI_FillRect;
-    uiInfo.uiDC.drawRect = &UI_DrawRect;
-
-    uiInfo.uiDC.drawTopBottom = &UI_DrawTopBottom;
-    
-    uiInfo.uiDC.getValue = &UI_GetValue;
-    uiInfo.uiDC.ownerDrawVisible = &UI_OwnerDrawVisible;
-    uiInfo.uiDC.runScript = &UI_RunMenuScript;
-
-    uiInfo.uiDC.setCVar = Cvar_Set;
-
-    uiInfo.uiDC.startLocalSound = &S_StartLocalSound;
-    uiInfo.uiDC.feederCount = &UI_FeederCount;
-    uiInfo.uiDC.feederItemImage = &UI_FeederItemImage;
-    uiInfo.uiDC.feederItemText = &UI_FeederItemText;
-    uiInfo.uiDC.fileText = &UI_FileText;    //----(SA)
-
-    uiInfo.uiDC.getTranslatedString = &UI_translateString;  //----(SA) added
-
-    uiInfo.uiDC.feederSelection = &UI_FeederSelection;
-    uiInfo.uiDC.feederAddItem = &UI_FeederAddItem;                  // NERVE - SMF
-
-
-    uiInfo.uiDC.executeText = &Cbuf_ExecuteText;
-    uiInfo.uiDC.Error = &Com_Error;
-    uiInfo.uiDC.Print = &Com_Printf;
-    uiInfo.uiDC.Pause = &UI_Pause;
-    uiInfo.uiDC.ownerDrawWidth = &UI_OwnerDrawWidth;
-    uiInfo.uiDC.registerSound = &S_RegisterSound;
-
-    uiInfo.uiDC.playCinematic = &UI_PlayCinematic;
-    uiInfo.uiDC.stopCinematic = &UI_StopCinematic;
-    uiInfo.uiDC.drawCinematic = &UI_DrawCinematic;
-    uiInfo.uiDC.runCinematicFrame = &UI_RunCinematicFrame;
-
     Init_Display( &uiInfo.uiDC );
 
     String_Init();
