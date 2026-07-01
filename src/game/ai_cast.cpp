@@ -29,7 +29,7 @@ If you have questions concerning this license or the applicable additional terms
 #include "../idlib/math/Math.h"
 #include "../game/g_local.h"
 #include "../game/q_shared.h"
-#include "../game/botlib.h"
+#include "../botlib/botlib.h"
 #include "../game/be_aas.h"
 #include "../game/be_ai_gen.h"
 #include "../qcommon/qcommon.h"

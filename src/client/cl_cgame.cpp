@@ -33,14 +33,7 @@ If you have questions concerning this license or the applicable additional terms
 #include "../botlib/botlib.h"
 #include "../splines/splines_camera.h"
 
-extern botlib_export_t *botlib_export;
 
-
-/*
-====================
-CL_GetGameState
-====================
-*/
 void CL_GetGameState( gameState_t *gs ) {
 	*gs = cl.gameState;
 }
@@ -49,12 +42,6 @@ void CL_GetGlconfig( glconfig_t *glconfig ) {
 	*glconfig = cls.glconfig;
 }
 
-
-/*
-====================
-CL_GetUserCmd
-====================
-*/
 bool CL_GetUserCmd( int cmdNumber, UserCmd *ucmd )
 {
 	// cmds[cmdNumber] is the last properly generated command
@@ -80,12 +67,6 @@ int CL_GetCurrentCmdNumber() {
 	return cl.cmdNumber;
 }
 
-
-/*
-====================
-CL_GetParseEntityState
-====================
-*/
 bool    CL_GetParseEntityState( int parseEntityNumber, EntityState *state )
 {
 	// can't return anything that hasn't been parsed yet
@@ -102,23 +83,13 @@ bool    CL_GetParseEntityState( int parseEntityNumber, EntityState *state )
 	*state = cl.parseEntities[ parseEntityNumber & ( MAX_PARSE_ENTITIES - 1 ) ];
 	return true;
 }
-
-/*
-====================
-CL_GetCurrentSnapshotNumber
-====================
-*/
 void    CL_GetCurrentSnapshotNumber( int *snapshotNumber, int *serverTime )
 {
 	*snapshotNumber = cl.snap.messageNum;
 	*serverTime = cl.snap.serverTime;
 }
 
-/*
-====================
-CL_GetSnapshot
-====================
-*/
+
 bool    CL_GetSnapshot( int snapshotNumber, snapshot_t *snapshot )
 {
 	if ( snapshotNumber > cl.snap.messageNum ) {
@@ -166,11 +137,6 @@ bool    CL_GetSnapshot( int snapshotNumber, snapshot_t *snapshot )
 	return true;
 }
 
-/*
-==============
-CL_SetUserCmdValue
-==============
-*/
 void CL_SetUserCmdValue( int userCmdValue, int holdableValue, float sensitivityScale, int cld )
 {
 	cl.cgameUserCmdValue        = userCmdValue;
@@ -179,11 +145,6 @@ void CL_SetUserCmdValue( int userCmdValue, int holdableValue, float sensitivityS
 	cl.cgameCld                 = cld;
 }
 
-/*
-=====================
-CL_ConfigstringModified
-=====================
-*/
 void CL_ConfigstringModified()
 {
 	int index = atoi( Cmd_Argv( 1 ) );
@@ -346,12 +307,6 @@ rescan:
 	return true;
 }
 
-/*
-====================
-CL_ShutdonwCGame
-
-====================
-*/
 void CL_ShutdownCGame()
 {
 	cls.keyCatchers &= ~KEYCATCH_CGAME;
@@ -436,13 +391,6 @@ bool CL_GameCommand( void ) {
 	return CG_ConsoleCommand();
 }
 
-
-
-/*
-=====================
-CL_CGameRendering
-=====================
-*/
 void CL_CGameRendering( stereoFrame_t stereo ) {
 	CG_DrawActiveFrame(cl.serverTime, stereo );
 }
@@ -521,12 +469,6 @@ void CL_AdjustTimeDelta()
 	}
 }
 
-
-/*
-==================
-CL_FirstSnapshot
-==================
-*/
 void CL_FirstSnapshot()
 {
 	// ignore snapshots that don't have entities
@@ -549,11 +491,6 @@ void CL_FirstSnapshot()
 	}
 }
 
-/*
-==================
-CL_SetCGameTime
-==================
-*/
 void CL_SetCGameTime()
 {
 	// getting a valid frame message ends the connection process

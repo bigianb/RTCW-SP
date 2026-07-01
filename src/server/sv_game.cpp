@@ -32,8 +32,6 @@ If you have questions concerning this license or the applicable additional terms
 #include "../game/g_func_decs.h"
 #include "../qcommon/clip_model.h"
 
-botlib_export_t *botlib_export;
-
 SharedEntity *SV_GentityNum( size_t num )
 {
 	SharedEntity* ent = ( SharedEntity * )( (uint8_t *)sv.gentities + sv.gentitySize * ( num ) );

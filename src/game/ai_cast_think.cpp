@@ -37,7 +37,7 @@ If you have questions concerning this license or the applicable additional terms
 #include "../idlib/math/Math.h"
 #include "../game/g_local.h"
 #include "../game/q_shared.h"
-#include "../game/botlib.h"      //bot lib interface
+#include "../botlib/botlib.h"      //bot lib interface
 #include "../game/be_aas.h"
 #include "../game/be_ea.h"
 #include "../game/be_ai_gen.h"

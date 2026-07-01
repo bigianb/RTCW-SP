@@ -43,7 +43,7 @@ If you have questions concerning this license or the applicable additional terms
 #include "l_libvar.h"
 #include "l_utils.h"
 #include "aasfile.h"
-#include "../game/botlib.h"
+#include "botlib.h"
 #include "../game/be_aas.h"
 #include "be_aas_funcs.h"
 #include "be_interface.h"

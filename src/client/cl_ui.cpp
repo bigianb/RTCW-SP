@@ -30,8 +30,6 @@ If you have questions concerning this license or the applicable additional terms
 #include "client.h"
 #include "../botlib/botlib.h"
 
-extern botlib_export_t *botlib_export;
-
 /*
 ====================
 CL_GetGlConfig

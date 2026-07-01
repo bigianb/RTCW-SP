@@ -28,7 +28,7 @@ If you have questions concerning this license or the applicable additional terms
 
 
 #include "../game/q_shared.h"
-#include "../game/botlib.h"
+#include "botlib.h"
 #include "l_log.h"
 #include "be_interface.h"
 #include "../qcommon/qcommon.h"

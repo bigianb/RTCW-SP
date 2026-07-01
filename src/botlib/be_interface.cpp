@@ -62,8 +62,6 @@ If you have questions concerning this license or the applicable additional terms
 //library globals in a structure
 botlib_globals_t botlibglobals;
 
-botlib_export_t be_botlib_export;
-//
 int bot_developer;
 //true if the library is setup
 int botlibsetup = false;

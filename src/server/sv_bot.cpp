@@ -48,7 +48,6 @@ typedef struct bot_debugpoly_s
 
 static bot_debugpoly_t debugpolygons[MAX_DEBUGPOLYS];
 
-extern botlib_export_t  *botlib_export;
 int bot_enable;
 
 int SV_BotAllocateClient()
@@ -351,13 +350,7 @@ void SV_BotFrame( int time ) {
 	BotAIStartFrame( time );
 }
 
-/*
-===============
-SV_BotLibSetup
-===============
-*/
-
-int SV_BotLibSetup( void ) {
+int SV_BotLibSetup() {
 	return Export_BotLibSetup();
 }
 
@@ -369,13 +362,8 @@ Called when either the entire server is being killed, or
 it is changing to a different game directory.
 ===============
 */
-int SV_BotLibShutdown( void ) {
-
-	if ( !botlib_export ) {
-		return -1;
-	}
-
-	return botlib_export->BotLibShutdown();
+int SV_BotLibShutdown() {
+	return Export_BotLibShutdown();
 }
 
 /*
