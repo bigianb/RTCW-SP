@@ -165,7 +165,8 @@ Sys_Exit
 Single exit point (regular exit or in case of error)
 =================
 */
-static __attribute__ ((noreturn)) void Sys_Exit( int exitCode )
+[[noreturn]]
+static void Sys_Exit( int exitCode )
 {
 	SDL_Quit( );
 	exit( exitCode );
@@ -214,6 +215,10 @@ void Sys_AnsiColorPrint( const char *msg )
 		35, // COLOR_MAGENTA
 		0   // COLOR_WHITE
 	};
+
+	if (!msg) {
+		return;
+	}
 
 	while( *msg )
 	{

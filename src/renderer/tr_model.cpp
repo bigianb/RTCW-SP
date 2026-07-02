@@ -1701,18 +1701,6 @@ void *R_Hunk_Begin( void ) {
 	hunkcursize = 0;
 	hunkmaxsize = maxsize;
 
-#ifdef _WIN32
-
-	// this will "reserve" a chunk of memory for use by this application
-	// it will not be "committed" just yet, but the swap file will grow
-	// now if needed
-	membase = VirtualAlloc( nullptr, maxsize, MEM_RESERVE, PAGE_NOACCESS );
-
-#elif defined( __MACOS__ )
-
-	return; //DAJ FIXME memory leak
-
-#else   // just allocate it now
 
 	// show_bug.cgi?id=440
 	// it is possible that we have been allocated already, in case we don't do anything
@@ -1727,8 +1715,6 @@ void *R_Hunk_Begin( void ) {
 		memset( membase, 0, maxsize );
 	}
 
-#endif
-
 	if ( !membase ) {
 		Com_Error( ERR_DROP, "R_Hunk_Begin: reserve failed" );
         return nullptr; // keep the linter happy, ERR_DROP does not return
@@ -1738,30 +1724,11 @@ void *R_Hunk_Begin( void ) {
 }
 
 void *R_Hunk_Alloc( int size ) {
-#ifdef _WIN32
-	void    *buf;
-#endif
 
 	//Com_Printf("R_Hunk_Alloc(%d)\n", size);
 
 	// round to cacheline
 	size = ( size + 31 ) & ~31;
-
-#ifdef _WIN32
-
-	// commit pages as needed
-	buf = VirtualAlloc( membase, hunkcursize + size, MEM_COMMIT, PAGE_READWRITE );
-
-	if ( !buf ) {
-		FormatMessage( FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM, nullptr, GetLastError(), MAKELANGID( LANG_NEUTRAL, SUBLANG_DEFAULT ), (LPTSTR) &buf, 0, nullptr );
-		Com_Error( ERR_DROP, "VirtualAlloc commit failed.\n%s", buf );
-	}
-
-#elif defined( __MACOS__ )
-
-	return nullptr;    //DAJ
-
-#endif
 
 	hunkcursize += size;
 	if ( hunkcursize > hunkmaxsize ) {
@@ -1781,13 +1748,7 @@ void R_Hunk_End( void ) {
 	}
 
 	if ( membase ) {
-#ifdef _WIN32
-		VirtualFree( membase, 0, MEM_RELEASE );
-#elif defined( __MACOS__ )
-		//DAJ FIXME free (membase);
-#else
 		free( membase );
-#endif
 	}
 
 	membase = nullptr;
@@ -1800,17 +1761,11 @@ void R_Hunk_Reset( void ) {
 		return;
 	}
 
-#if !defined( __MACOS__ )
 	if ( !membase ) {
 		Com_Error( ERR_DROP, "R_Hunk_Reset called without a membase!" );
         return; // keep the linter happy, ERR_DROP does not return
 	}
-#endif
 
-#ifdef _WIN32
-	// mark the existing committed pages as reserved, but not committed
-	VirtualFree( membase, hunkcursize, MEM_DECOMMIT );
-#endif
 	// on non win32 OS, we keep the allocated chunk as is, just start again to curzise = 0
 
 	// start again at the top
@@ -1833,11 +1788,7 @@ R_CacheModelAlloc
 */
 void *R_CacheModelAlloc( int size ) {
 	if ( r_cache->integer && r_cacheModels->integer ) {
-#if defined( __MACOS__ )
-		return malloc( size );      //DAJ FIXME was co
-#else
 		return R_Hunk_Alloc( size );
-#endif
 	} else {
 		// if r_cache 0, this function is not supposed to get called
 		Com_Printf( "FIXME: unexpected R_CacheModelAlloc call with r_cache 0\n" );
@@ -1853,9 +1804,6 @@ R_CacheModelFree
 void R_CacheModelFree( void *ptr ) {
 	if ( r_cache->integer && r_cacheModels->integer ) {
 		// TTimo: it's in the hunk, leave it there, next R_Hunk_Begin will clear it all
-#if defined( __MACOS__ )
-		free( ptr );    //DAJ FIXME was co
-#endif
 	} else
 	{
 		// if r_cache 0, this function is not supposed to get called

@@ -9,8 +9,8 @@ set(CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake)
 set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 
 find_package(OpenGL REQUIRED COMPONENTS OpenGL)
-find_package(JPEG)
-find_package(SDL3 REQUIRED)
+find_package(JPEG REQUIRED)
+find_package(SDL3 CONFIG REQUIRED)
 if(ENABLE_TESTS)
 	find_package(Catch2 REQUIRED)
 endif()
@@ -175,8 +175,7 @@ set(GAME_INCLUDES
 	src/game/be_ai_weap.h
 	src/game/be_ea.h       
 	src/game/bg_local.h      
-	src/game/bg_public.h     
-	src/game/botlib.h         
+	src/game/bg_public.h             
 	src/game/g_func_decs.h     
 	src/game/g_funcs.h      
 	src/game/g_local.h    

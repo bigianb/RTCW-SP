@@ -1,4 +1,6 @@
 build
+build_vs2026
 cmake-build-debug
 .DS_Store
 /xcode
+/vcpkg_installed
