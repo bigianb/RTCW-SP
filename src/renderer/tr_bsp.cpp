@@ -1920,7 +1920,7 @@ void RE_LoadWorldMap( const char *name ) {
 
 void updateScreen()
 {
-	updateScreen();
+	Cbuf_ExecuteText( EXEC_NOW, "updatescreen\n" );
 }
 
 world_t* BSPReader::load(const char* name)
@@ -1985,11 +1985,10 @@ world_t* BSPReader::load(const char* name)
 	loadLightGrid(world);
 	updateScreen();
 
-	
+	FS_FreeFile( fileBase );
 	fileBase = nullptr;
 	header = nullptr;
-	FS_FreeFile( fileBase );
-
+	
 	return world;
 }
 
