@@ -213,15 +213,6 @@ void BSPReader::loadVisibility(world_t* world)
 
 static shader_t *ShaderForShaderNum(dshader_t *dsh, int lightmapNum )
 {
-	/*
-	shaderNum = LittleLong( shaderNum );
-	if ( shaderNum < 0 || shaderNum >= s_worldData.numShaders ) {
-		Com_Error( ERR_DROP, "ShaderForShaderNum: bad num %i", shaderNum );
-        return nullptr; // keep the linter happy, ERR_DROP does not return
-	}
-	dsh = &s_worldData.shaders[ shaderNum ];
-	*/
-
 	if ( r_vertexLight->integer || glConfig.hardwareType == GLHW_PERMEDIA2 ) {
 		lightmapNum = LIGHTMAP_BY_VERTEX;
 	}
@@ -258,11 +249,6 @@ void R_InitSurfMemory( void ) {
 	surfHunkSize = 0;
 }
 
-/*
-==============
-R_GetSurfMemory
-==============
-*/
 void *R_GetSurfMemory( int size ) {
 	uint8_t *retval;
 
@@ -282,13 +268,8 @@ void *R_GetSurfMemory( int size ) {
 }
 
 static void ParseFace(world_t* world, dsurface_t *ds, drawVert_t *verts, msurface_t *surf, int *indexes  ) {
-	int i, j;
-	srfSurfaceFace_t    *cv;
-	int numPoints, numIndexes;
-	int lightmapNum;
-	int sfaceSize, ofsIndexes;
 
-	lightmapNum = LittleLong( ds->lightmapNum );
+	int lightmapNum = LittleLong( ds->lightmapNum );
 
 	// get fog volume
 	surf->fogIndex = LittleLong( ds->fogNum ) + 1;
@@ -300,22 +281,21 @@ static void ParseFace(world_t* world, dsurface_t *ds, drawVert_t *verts, msurfac
 		surf->shader = tr.defaultShader;
 	}
 
-	numPoints = LittleLong( ds->numVerts );
+	int numPoints = LittleLong( ds->numVerts );
 	if ( numPoints > MAX_FACE_POINTS ) {
 		Com_Printf( S_COLOR_YELLOW "WARNING: MAX_FACE_POINTS exceeded: %i\n", numPoints );
 		numPoints = MAX_FACE_POINTS;
 		surf->shader = tr.defaultShader;
 	}
 
-	numIndexes = LittleLong( ds->numIndexes );
+	int numIndexes = LittleLong( ds->numIndexes );
 
 	// create the srfSurfaceFace_t
-	sfaceSize = offsetof( srfSurfaceFace_t, points ) + sizeof( *cv->points ) * numPoints;
-	ofsIndexes = sfaceSize;
+	int sfaceSize = offsetof( srfSurfaceFace_t, points ) + sizeof( srfSurfaceFace_t::points ) * numPoints;
+	int ofsIndexes = sfaceSize;
 	sfaceSize += sizeof( int ) * numIndexes;
 
-	//cv = Hunk_Alloc( sfaceSize );
-	cv = (srfSurfaceFace_t *)R_GetSurfMemory( sfaceSize );
+	srfSurfaceFace_t *cv = (srfSurfaceFace_t *)R_GetSurfMemory( sfaceSize );
 
 	cv->surfaceType = SF_FACE;
 	cv->numPoints = numPoints;
@@ -323,11 +303,11 @@ static void ParseFace(world_t* world, dsurface_t *ds, drawVert_t *verts, msurfac
 	cv->ofsIndices = ofsIndexes;
 
 	verts += LittleLong( ds->firstVert );
-	for ( i = 0 ; i < numPoints ; i++ ) {
-		for ( j = 0 ; j < 3 ; j++ ) {
+	for (int i = 0 ; i < numPoints ; i++ ) {
+		for ( int j = 0 ; j < 3 ; j++ ) {
 			cv->points[i][j] = LittleFloat( verts[i].xyz[j] );
 		}
-		for ( j = 0 ; j < 2 ; j++ ) {
+		for ( int j = 0 ; j < 2 ; j++ ) {
 			cv->points[i][3 + j] = LittleFloat( verts[i].st[j] );
 			cv->points[i][5 + j] = LittleFloat( verts[i].lightmap[j] );
 		}
@@ -335,12 +315,12 @@ static void ParseFace(world_t* world, dsurface_t *ds, drawVert_t *verts, msurfac
 	}
 
 	indexes += LittleLong( ds->firstIndex );
-	for ( i = 0 ; i < numIndexes ; i++ ) {
+	for ( int i = 0 ; i < numIndexes ; i++ ) {
 		( ( int * )( (uint8_t *)cv + cv->ofsIndices ) )[i] = LittleLong( indexes[ i ] );
 	}
 
 	// take the plane information from the lightmap vector
-	for ( i = 0 ; i < 3 ; i++ ) {
+	for ( int i = 0 ; i < 3 ; i++ ) {
 		cv->plane.normal[i] = LittleFloat( ds->lightmapVecs[2][i] );
 	}
 	cv->plane.dist = DotProduct( cv->points[0], cv->plane.normal );
@@ -351,16 +331,12 @@ static void ParseFace(world_t* world, dsurface_t *ds, drawVert_t *verts, msurfac
 }
 
 static void ParseMesh( world_t* world, dsurface_t *ds, drawVert_t *verts, msurface_t *surf ) {
-	srfGridMesh_t   *grid;
-	int i, j;
-	int width, height, numPoints;
+
     drawVert_t points[MAX_PATCH_SIZE * MAX_PATCH_SIZE];
-	int lightmapNum;
-	vec3_t bounds[2];
-	vec3_t tmpVec;
+
 	static surfaceType_t skipData = SF_SKIP;
 
-	lightmapNum = LittleLong( ds->lightmapNum );
+	int lightmapNum = LittleLong( ds->lightmapNum );
 
 	// get fog volume
 	surf->fogIndex = LittleLong( ds->fogNum ) + 1;
@@ -379,17 +355,17 @@ static void ParseMesh( world_t* world, dsurface_t *ds, drawVert_t *verts, msurfa
 		return;
 	}
 
-	width = LittleLong( ds->patchWidth );
-	height = LittleLong( ds->patchHeight );
+	int width = LittleLong( ds->patchWidth );
+	int height = LittleLong( ds->patchHeight );
 
 	verts += LittleLong( ds->firstVert );
-	numPoints = width * height;
-	for ( i = 0 ; i < numPoints ; i++ ) {
-		for ( j = 0 ; j < 3 ; j++ ) {
+	int numPoints = width * height;
+	for ( int i = 0 ; i < numPoints ; i++ ) {
+		for ( int j = 0 ; j < 3 ; j++ ) {
 			points[i].xyz[j] = LittleFloat( verts[i].xyz[j] );
 			points[i].normal[j] = LittleFloat( verts[i].normal[j] );
 		}
-		for ( j = 0 ; j < 2 ; j++ ) {
+		for ( int j = 0 ; j < 2 ; j++ ) {
 			points[i].st[j] = LittleFloat( verts[i].st[j] );
 			points[i].lightmap[j] = LittleFloat( verts[i].lightmap[j] );
 		}
@@ -397,26 +373,26 @@ static void ParseMesh( world_t* world, dsurface_t *ds, drawVert_t *verts, msurfa
 	}
 
 	// pre-tesseleate
-	grid = R_SubdividePatchToGrid( width, height, points );
+	srfGridMesh_t  *grid = R_SubdividePatchToGrid( width, height, points );
 	surf->data = (surfaceType_t *)grid;
 
 	// copy the level of detail origin, which is the center
 	// of the group of all curves that must subdivide the same
 	// to avoid cracking
-	for ( i = 0 ; i < 3 ; i++ ) {
+	vec3_t bounds[2];
+	
+	for ( int i = 0 ; i < 3 ; i++ ) {
 		bounds[0][i] = LittleFloat( ds->lightmapVecs[0][i] );
 		bounds[1][i] = LittleFloat( ds->lightmapVecs[1][i] );
 	}
 	VectorAdd( bounds[0], bounds[1], bounds[1] );
 	VectorScale( bounds[1], 0.5f, grid->lodOrigin );
+	vec3_t tmpVec;
 	VectorSubtract( bounds[0], grid->lodOrigin, tmpVec );
 	grid->lodRadius = VectorLength( tmpVec );
 }
 
 static void ParseTriSurf( world_t* world, dsurface_t *ds, drawVert_t *verts, msurface_t *surf, int *indexes ) {
-	srfTriangles_t  *tri;
-	int i, j;
-	int numVerts, numIndexes;
 
 	// get fog volume
 	surf->fogIndex = LittleLong( ds->fogNum ) + 1;
@@ -428,12 +404,12 @@ static void ParseTriSurf( world_t* world, dsurface_t *ds, drawVert_t *verts, msu
 		surf->shader = tr.defaultShader;
 	}
 
-	numVerts = LittleLong( ds->numVerts );
-	numIndexes = LittleLong( ds->numIndexes );
+	int numVerts = LittleLong( ds->numVerts );
+	int numIndexes = LittleLong( ds->numIndexes );
 
 	//tri = Hunk_Alloc( sizeof( *tri ) + numVerts * sizeof( tri->verts[0] )
 	//	+ numIndexes * sizeof( tri->indexes[0] ) );
-	tri = (srfTriangles_t *)R_GetSurfMemory( sizeof( *tri ) + numVerts * sizeof( tri->verts[0] )
+	srfTriangles_t* tri = (srfTriangles_t *)R_GetSurfMemory( sizeof( *tri ) + numVerts * sizeof( tri->verts[0] )
 						   + numIndexes * sizeof( tri->indexes[0] ) );
 
 	tri->surfaceType = SF_TRIANGLES;
@@ -447,13 +423,13 @@ static void ParseTriSurf( world_t* world, dsurface_t *ds, drawVert_t *verts, msu
 	// copy vertexes
 	ClearBounds( tri->bounds[0], tri->bounds[1] );
 	verts += LittleLong( ds->firstVert );
-	for ( i = 0 ; i < numVerts ; i++ ) {
-		for ( j = 0 ; j < 3 ; j++ ) {
+	for (int i = 0 ; i < numVerts ; i++ ) {
+		for (int j = 0 ; j < 3 ; j++ ) {
 			tri->verts[i].xyz[j] = LittleFloat( verts[i].xyz[j] );
 			tri->verts[i].normal[j] = LittleFloat( verts[i].normal[j] );
 		}
 		AddPointToBounds( tri->verts[i].xyz, tri->bounds[0], tri->bounds[1] );
-		for ( j = 0 ; j < 2 ; j++ ) {
+		for (int j = 0 ; j < 2 ; j++ ) {
 			tri->verts[i].st[j] = LittleFloat( verts[i].st[j] );
 			tri->verts[i].lightmap[j] = LittleFloat( verts[i].lightmap[j] );
 		}
@@ -463,7 +439,7 @@ static void ParseTriSurf( world_t* world, dsurface_t *ds, drawVert_t *verts, msu
 
 	// copy indexes
 	indexes += LittleLong( ds->firstIndex );
-	for ( i = 0 ; i < numIndexes ; i++ ) {
+	for (int i = 0 ; i < numIndexes ; i++ ) {
 		tri->indexes[i] = LittleLong( indexes[i] );
 		if ( tri->indexes[i] < 0 || tri->indexes[i] >= numVerts ) {
 			Com_Error( ERR_DROP, "Bad index in triangle surface" );
@@ -473,8 +449,6 @@ static void ParseTriSurf( world_t* world, dsurface_t *ds, drawVert_t *verts, msu
 }
 
 static void ParseFlare( world_t* world, dsurface_t *ds, drawVert_t *verts, msurface_t *surf, int *indexes ) {
-	srfFlare_t      *flare;
-	int i;
 
 	// get fog volume
 	surf->fogIndex = LittleLong( ds->fogNum ) + 1;
@@ -486,12 +460,12 @@ static void ParseFlare( world_t* world, dsurface_t *ds, drawVert_t *verts, msurf
 		surf->shader = tr.defaultShader;
 	}
 
-	flare = (srfFlare_t *)Hunk_Alloc( sizeof( *flare ), h_low );
+	srfFlare_t* flare = (srfFlare_t *)Hunk_Alloc( sizeof( *flare ), h_low );
 	flare->surfaceType = SF_FLARE;
 
 	surf->data = (surfaceType_t *)flare;
 
-	for ( i = 0 ; i < 3 ; i++ ) {
+	for ( int i = 0 ; i < 3 ; i++ ) {
 		flare->origin[i] = LittleFloat( ds->lightmapOrigin[i] );
 		flare->color[i] = LittleFloat( ds->lightmapVecs[0][i] );
 		flare->normal[i] = LittleFloat( ds->lightmapVecs[2][i] );
@@ -507,10 +481,9 @@ returns true if there are grid points merged on a width edge
 =================
 */
 int R_MergedWidthPoints( srfGridMesh_t *grid, int offset ) {
-	int i, j;
 
-	for ( i = 1; i < grid->width - 1; i++ ) {
-		for ( j = i + 1; j < grid->width - 1; j++ ) {
+	for (int i = 1; i < grid->width - 1; i++ ) {
+		for (int j = i + 1; j < grid->width - 1; j++ ) {
 			if ( Q_fabs( grid->verts[i + offset].xyz[0] - grid->verts[j + offset].xyz[0] ) > .1 ) {
 				continue;
 			}
@@ -534,10 +507,9 @@ returns true if there are grid points merged on a height edge
 =================
 */
 int R_MergedHeightPoints( srfGridMesh_t *grid, int offset ) {
-	int i, j;
 
-	for ( i = 1; i < grid->height - 1; i++ ) {
-		for ( j = i + 1; j < grid->height - 1; j++ ) {
+	for (int i = 1; i < grid->height - 1; i++ ) {
+		for (int j = i + 1; j < grid->height - 1; j++ ) {
 			if ( Q_fabs( grid->verts[grid->width * i + offset].xyz[0] - grid->verts[grid->width * j + offset].xyz[0] ) > .1 ) {
 				continue;
 			}
@@ -562,13 +534,11 @@ NOTE: never sync LoD through grid edges with merged points!
 FIXME: write generalized version that also avoids cracks between a patch and one that meets half way?
 =================
 */
-void R_FixSharedVertexLodError_r( world_t* world, int start, srfGridMesh_t *grid1 ) {
-	int j, k, l, m, n, offset1, offset2, touch;
-	srfGridMesh_t *grid2;
-
-	for ( j = start; j < world->numsurfaces; j++ ) {
+void R_FixSharedVertexLodError_r( world_t* world, int start, srfGridMesh_t *grid1 )
+{
+	for (int j = start; j < world->numsurfaces; j++ ) {
 		//
-		grid2 = (srfGridMesh_t *) world->surfaces[j].data;
+		srfGridMesh_t *grid2 = (srfGridMesh_t *) world->surfaces[j].data;
 		// if this surface is not a grid
 		if ( grid2->surfaceType != SF_GRID ) {
 			continue;
@@ -592,25 +562,25 @@ void R_FixSharedVertexLodError_r( world_t* world, int start, srfGridMesh_t *grid
 			continue;
 		}
 		//
-		touch = false;
-		for ( n = 0; n < 2; n++ ) {
-			//
+		bool touch = false;
+		for (int n = 0; n < 2; n++ ) {
+			int offset1;
 			if ( n ) {
 				offset1 = ( grid1->height - 1 ) * grid1->width;
 			} else { offset1 = 0;}
 			if ( R_MergedWidthPoints( grid1, offset1 ) ) {
 				continue;
 			}
-			for ( k = 1; k < grid1->width - 1; k++ ) {
-				for ( m = 0; m < 2; m++ ) {
-
+			for (int k = 1; k < grid1->width - 1; k++ ) {
+				for (int m = 0; m < 2; m++ ) {
+					int offset2;
 					if ( m ) {
 						offset2 = ( grid2->height - 1 ) * grid2->width;
 					} else { offset2 = 0;}
 					if ( R_MergedWidthPoints( grid2, offset2 ) ) {
 						continue;
 					}
-					for ( l = 1; l < grid2->width - 1; l++ ) {
+					for (int l = 1; l < grid2->width - 1; l++ ) {
 						//
 						if ( Q_fabs( grid1->verts[k + offset1].xyz[0] - grid2->verts[l + offset2].xyz[0] ) > .1 ) {
 							continue;
@@ -626,15 +596,15 @@ void R_FixSharedVertexLodError_r( world_t* world, int start, srfGridMesh_t *grid
 						touch = true;
 					}
 				}
-				for ( m = 0; m < 2; m++ ) {
-
+				for (int m = 0; m < 2; m++ ) {
+					int offset2;
 					if ( m ) {
 						offset2 = grid2->width - 1;
 					} else { offset2 = 0;}
 					if ( R_MergedHeightPoints( grid2, offset2 ) ) {
 						continue;
 					}
-					for ( l = 1; l < grid2->height - 1; l++ ) {
+					for (int l = 1; l < grid2->height - 1; l++ ) {
 						//
 						if ( Q_fabs( grid1->verts[k + offset1].xyz[0] - grid2->verts[grid2->width * l + offset2].xyz[0] ) > .1 ) {
 							continue;
@@ -652,24 +622,24 @@ void R_FixSharedVertexLodError_r( world_t* world, int start, srfGridMesh_t *grid
 				}
 			}
 		}
-		for ( n = 0; n < 2; n++ ) {
-			//
+		for (int n = 0; n < 2; n++ ) {
+			int offset1;
 			if ( n ) {
 				offset1 = grid1->width - 1;
 			} else { offset1 = 0;}
 			if ( R_MergedHeightPoints( grid1, offset1 ) ) {
 				continue;
 			}
-			for ( k = 1; k < grid1->height - 1; k++ ) {
-				for ( m = 0; m < 2; m++ ) {
-
+			for (int k = 1; k < grid1->height - 1; k++ ) {
+				for (int m = 0; m < 2; m++ ) {
+					int offset2;
 					if ( m ) {
 						offset2 = ( grid2->height - 1 ) * grid2->width;
 					} else { offset2 = 0;}
 					if ( R_MergedWidthPoints( grid2, offset2 ) ) {
 						continue;
 					}
-					for ( l = 1; l < grid2->width - 1; l++ ) {
+					for (int l = 1; l < grid2->width - 1; l++ ) {
 						//
 						if ( Q_fabs( grid1->verts[grid1->width * k + offset1].xyz[0] - grid2->verts[l + offset2].xyz[0] ) > .1 ) {
 							continue;
@@ -685,15 +655,16 @@ void R_FixSharedVertexLodError_r( world_t* world, int start, srfGridMesh_t *grid
 						touch = true;
 					}
 				}
-				for ( m = 0; m < 2; m++ ) {
+				for (int m = 0; m < 2; m++ ) {
 
+					int offset2;
 					if ( m ) {
 						offset2 = grid2->width - 1;
 					} else { offset2 = 0;}
 					if ( R_MergedHeightPoints( grid2, offset2 ) ) {
 						continue;
 					}
-					for ( l = 1; l < grid2->height - 1; l++ ) {
+					for (int l = 1; l < grid2->height - 1; l++ ) {
 						//
 						if ( Q_fabs( grid1->verts[grid1->width * k + offset1].xyz[0] - grid2->verts[grid2->width * l + offset2].xyz[0] ) > .1 ) {
 							continue;
@@ -728,13 +699,11 @@ This function assumes that all patches in one group are nicely stitched together
 If this is not the case this function will still do its job but won't fix the highest LoD cracks.
 =================
 */
-void R_FixSharedVertexLodError( world_t* world ) {
-	int i;
-	srfGridMesh_t *grid1;
-
-	for ( i = 0; i < world->numsurfaces; i++ ) {
+void R_FixSharedVertexLodError( world_t* world )
+{
+	for (int i = 0; i < world->numsurfaces; i++ ) {
 		//
-		grid1 = (srfGridMesh_t *) world->surfaces[i].data;
+		srfGridMesh_t *grid1 = (srfGridMesh_t *) world->surfaces[i].data;
 		// if this surface is not a grid
 		if ( grid1->surfaceType != SF_GRID ) {
 			continue;
@@ -750,37 +719,35 @@ void R_FixSharedVertexLodError( world_t* world ) {
 	}
 }
 
-int R_StitchPatches( world_t* world, int grid1num, int grid2num ) {
-	int k, l, m, n, offset1, offset2, row, column;
-	srfGridMesh_t *grid1, *grid2;
-	float *v1, *v2;
-
-	grid1 = (srfGridMesh_t *) world->surfaces[grid1num].data;
-	grid2 = (srfGridMesh_t *) world->surfaces[grid2num].data;
-	for ( n = 0; n < 2; n++ ) {
-		//
+int R_StitchPatches( world_t* world, int grid1num, int grid2num )
+{
+	srfGridMesh_t *grid1 = (srfGridMesh_t *) world->surfaces[grid1num].data;
+	srfGridMesh_t *grid2 = (srfGridMesh_t *) world->surfaces[grid2num].data;
+	for (int n = 0; n < 2; n++ ) {
+		int offset1;
 		if ( n ) {
 			offset1 = ( grid1->height - 1 ) * grid1->width;
 		} else { offset1 = 0;}
 		if ( R_MergedWidthPoints( grid1, offset1 ) ) {
 			continue;
 		}
-		for ( k = 0; k < grid1->width - 2; k += 2 ) {
+		for (int k = 0; k < grid1->width - 2; k += 2 ) {
 
-			for ( m = 0; m < 2; m++ ) {
+			for (int m = 0; m < 2; m++ ) {
 
 				if ( grid2->width >= MAX_GRID_SIZE ) {
 					break;
 				}
+				int offset2;
 				if ( m ) {
 					offset2 = ( grid2->height - 1 ) * grid2->width;
 				} else { offset2 = 0;}
 				//if (R_MergedWidthPoints(grid2, offset2))
 				//	continue;
-				for ( l = 0; l < grid2->width - 1; l++ ) {
+				for (int l = 0; l < grid2->width - 1; l++ ) {
 					//
-					v1 = grid1->verts[k + offset1].xyz;
-					v2 = grid2->verts[l + offset2].xyz;
+					float *v1 = grid1->verts[k + offset1].xyz;
+					float *v2 = grid2->verts[l + offset2].xyz;
 					if ( Q_fabs( v1[0] - v2[0] ) > .1 ) {
 						continue;
 					}
@@ -813,6 +780,7 @@ int R_StitchPatches( world_t* world, int grid1num, int grid2num ) {
 					//
 					//Com_Printf("found highest LoD crack between two patches\n" );
 					// insert column into grid2 right after after column l
+					int row;
 					if ( m ) {
 						row = grid2->height - 1;
 					} else { row = 0;}
@@ -823,20 +791,21 @@ int R_StitchPatches( world_t* world, int grid1num, int grid2num ) {
 					return true;
 				}
 			}
-			for ( m = 0; m < 2; m++ ) {
+			for (int m = 0; m < 2; m++ ) {
 
 				if ( grid2->height >= MAX_GRID_SIZE ) {
 					break;
 				}
+				int offset2;
 				if ( m ) {
 					offset2 = grid2->width - 1;
 				} else { offset2 = 0;}
 				//if (R_MergedHeightPoints(grid2, offset2))
 				//	continue;
-				for ( l = 0; l < grid2->height - 1; l++ ) {
+				for (int l = 0; l < grid2->height - 1; l++ ) {
 					//
-					v1 = grid1->verts[k + offset1].xyz;
-					v2 = grid2->verts[grid2->width * l + offset2].xyz;
+					float *v1 = grid1->verts[k + offset1].xyz;
+					float *v2 = grid2->verts[grid2->width * l + offset2].xyz;
 					if ( Q_fabs( v1[0] - v2[0] ) > .1 ) {
 						continue;
 					}
@@ -869,6 +838,7 @@ int R_StitchPatches( world_t* world, int grid1num, int grid2num ) {
 					//
 					//Com_Printf("found highest LoD crack between two patches\n" );
 					// insert row into grid2 right after after row l
+					int column;
 					if ( m ) {
 						column = grid2->width - 1;
 					} else { column = 0;}
@@ -881,29 +851,30 @@ int R_StitchPatches( world_t* world, int grid1num, int grid2num ) {
 			}
 		}
 	}
-	for ( n = 0; n < 2; n++ ) {
-		//
+	for (int n = 0; n < 2; n++ ) {
+		int offset1;
 		if ( n ) {
 			offset1 = grid1->width - 1;
 		} else { offset1 = 0;}
 		if ( R_MergedHeightPoints( grid1, offset1 ) ) {
 			continue;
 		}
-		for ( k = 0; k < grid1->height - 2; k += 2 ) {
-			for ( m = 0; m < 2; m++ ) {
+		for (int k = 0; k < grid1->height - 2; k += 2 ) {
+			for (int m = 0; m < 2; m++ ) {
 
 				if ( grid2->width >= MAX_GRID_SIZE ) {
 					break;
 				}
+				int offset2;
 				if ( m ) {
 					offset2 = ( grid2->height - 1 ) * grid2->width;
 				} else { offset2 = 0;}
 				//if (R_MergedWidthPoints(grid2, offset2))
 				//	continue;
-				for ( l = 0; l < grid2->width - 1; l++ ) {
+				for (int l = 0; l < grid2->width - 1; l++ ) {
 					//
-					v1 = grid1->verts[grid1->width * k + offset1].xyz;
-					v2 = grid2->verts[l + offset2].xyz;
+					float *v1 = grid1->verts[grid1->width * k + offset1].xyz;
+					float *v2 = grid2->verts[l + offset2].xyz;
 					if ( Q_fabs( v1[0] - v2[0] ) > .1 ) {
 						continue;
 					}
@@ -936,6 +907,7 @@ int R_StitchPatches( world_t* world, int grid1num, int grid2num ) {
 					//
 					//Com_Printf("found highest LoD crack between two patches\n" );
 					// insert column into grid2 right after after column l
+					int row;
 					if ( m ) {
 						row = grid2->height - 1;
 					} else { row = 0;}
@@ -946,20 +918,21 @@ int R_StitchPatches( world_t* world, int grid1num, int grid2num ) {
 					return true;
 				}
 			}
-			for ( m = 0; m < 2; m++ ) {
+			for (int m = 0; m < 2; m++ ) {
 
 				if ( grid2->height >= MAX_GRID_SIZE ) {
 					break;
 				}
+				int offset2;
 				if ( m ) {
 					offset2 = grid2->width - 1;
 				} else { offset2 = 0;}
 				//if (R_MergedHeightPoints(grid2, offset2))
 				//	continue;
-				for ( l = 0; l < grid2->height - 1; l++ ) {
+				for (int l = 0; l < grid2->height - 1; l++ ) {
 					//
-					v1 = grid1->verts[grid1->width * k + offset1].xyz;
-					v2 = grid2->verts[grid2->width * l + offset2].xyz;
+					float *v1 = grid1->verts[grid1->width * k + offset1].xyz;
+					float *v2 = grid2->verts[grid2->width * l + offset2].xyz;
 					if ( Q_fabs( v1[0] - v2[0] ) > .1 ) {
 						continue;
 					}
@@ -992,6 +965,7 @@ int R_StitchPatches( world_t* world, int grid1num, int grid2num ) {
 					//
 					//Com_Printf("found highest LoD crack between two patches\n" );
 					// insert row into grid2 right after after row l
+					int column;
 					if ( m ) {
 						column = grid2->width - 1;
 					} else { column = 0;}
@@ -1004,30 +978,32 @@ int R_StitchPatches( world_t* world, int grid1num, int grid2num ) {
 			}
 		}
 	}
-	for ( n = 0; n < 2; n++ ) {
+	for (int n = 0; n < 2; n++ ) {
 		//
+		int offset1;
 		if ( n ) {
 			offset1 = ( grid1->height - 1 ) * grid1->width;
 		} else { offset1 = 0;}
 		if ( R_MergedWidthPoints( grid1, offset1 ) ) {
 			continue;
 		}
-		for ( k = grid1->width - 1; k > 1; k -= 2 ) {
+		for (int k = grid1->width - 1; k > 1; k -= 2 ) {
 
-			for ( m = 0; m < 2; m++ ) {
+			for (int m = 0; m < 2; m++ ) {
 
 				if ( grid2->width >= MAX_GRID_SIZE ) {
 					break;
 				}
+				int offset2;
 				if ( m ) {
 					offset2 = ( grid2->height - 1 ) * grid2->width;
 				} else { offset2 = 0;}
 				//if (R_MergedWidthPoints(grid2, offset2))
 				//	continue;
-				for ( l = 0; l < grid2->width - 1; l++ ) {
+				for (int l = 0; l < grid2->width - 1; l++ ) {
 					//
-					v1 = grid1->verts[k + offset1].xyz;
-					v2 = grid2->verts[l + offset2].xyz;
+					float *v1 = grid1->verts[k + offset1].xyz;
+					float *v2 = grid2->verts[l + offset2].xyz;
 					if ( Q_fabs( v1[0] - v2[0] ) > .1 ) {
 						continue;
 					}
@@ -1060,6 +1036,7 @@ int R_StitchPatches( world_t* world, int grid1num, int grid2num ) {
 					//
 					//Com_Printf("found highest LoD crack between two patches\n" );
 					// insert column into grid2 right after after column l
+					int row;
 					if ( m ) {
 						row = grid2->height - 1;
 					} else { row = 0;}
@@ -1070,20 +1047,21 @@ int R_StitchPatches( world_t* world, int grid1num, int grid2num ) {
 					return true;
 				}
 			}
-			for ( m = 0; m < 2; m++ ) {
+			for (int m = 0; m < 2; m++ ) {
 
 				if ( grid2->height >= MAX_GRID_SIZE ) {
 					break;
 				}
+				int offset2;
 				if ( m ) {
 					offset2 = grid2->width - 1;
 				} else { offset2 = 0;}
 				//if (R_MergedHeightPoints(grid2, offset2))
 				//	continue;
-				for ( l = 0; l < grid2->height - 1; l++ ) {
+				for (int l = 0; l < grid2->height - 1; l++ ) {
 					//
-					v1 = grid1->verts[k + offset1].xyz;
-					v2 = grid2->verts[grid2->width * l + offset2].xyz;
+					float *v1 = grid1->verts[k + offset1].xyz;
+					float *v2 = grid2->verts[grid2->width * l + offset2].xyz;
 					if ( Q_fabs( v1[0] - v2[0] ) > .1 ) {
 						continue;
 					}
@@ -1116,6 +1094,7 @@ int R_StitchPatches( world_t* world, int grid1num, int grid2num ) {
 					//
 					//Com_Printf("found highest LoD crack between two patches\n" );
 					// insert row into grid2 right after after row l
+					int column;
 					if ( m ) {
 						column = grid2->width - 1;
 					} else { column = 0;}
@@ -1131,29 +1110,31 @@ int R_StitchPatches( world_t* world, int grid1num, int grid2num ) {
 			}
 		}
 	}
-	for ( n = 0; n < 2; n++ ) {
+	for (int n = 0; n < 2; n++ ) {
 		//
+		int offset1;
 		if ( n ) {
 			offset1 = grid1->width - 1;
 		} else { offset1 = 0;}
 		if ( R_MergedHeightPoints( grid1, offset1 ) ) {
 			continue;
 		}
-		for ( k = grid1->height - 1; k > 1; k -= 2 ) {
-			for ( m = 0; m < 2; m++ ) {
+		for (int k = grid1->height - 1; k > 1; k -= 2 ) {
+			for (int m = 0; m < 2; m++ ) {
 
 				if ( grid2->width >= MAX_GRID_SIZE ) {
 					break;
 				}
+				int offset2;
 				if ( m ) {
 					offset2 = ( grid2->height - 1 ) * grid2->width;
 				} else { offset2 = 0;}
 				//if (R_MergedWidthPoints(grid2, offset2))
 				//	continue;
-				for ( l = 0; l < grid2->width - 1; l++ ) {
+				for (int l = 0; l < grid2->width - 1; l++ ) {
 					//
-					v1 = grid1->verts[grid1->width * k + offset1].xyz;
-					v2 = grid2->verts[l + offset2].xyz;
+					float *v1 = grid1->verts[grid1->width * k + offset1].xyz;
+					float *v2 = grid2->verts[l + offset2].xyz;
 					if ( Q_fabs( v1[0] - v2[0] ) > .1 ) {
 						continue;
 					}
@@ -1186,6 +1167,7 @@ int R_StitchPatches( world_t* world, int grid1num, int grid2num ) {
 					//
 					//Com_Printf("found highest LoD crack between two patches\n" );
 					// insert column into grid2 right after after column l
+					int row;
 					if ( m ) {
 						row = grid2->height - 1;
 					} else { row = 0;}
@@ -1196,20 +1178,21 @@ int R_StitchPatches( world_t* world, int grid1num, int grid2num ) {
 					return true;
 				}
 			}
-			for ( m = 0; m < 2; m++ ) {
+			for (int m = 0; m < 2; m++ ) {
 
 				if ( grid2->height >= MAX_GRID_SIZE ) {
 					break;
 				}
+				int offset2;
 				if ( m ) {
 					offset2 = grid2->width - 1;
 				} else { offset2 = 0;}
 				//if (R_MergedHeightPoints(grid2, offset2))
 				//	continue;
-				for ( l = 0; l < grid2->height - 1; l++ ) {
+				for (int l = 0; l < grid2->height - 1; l++ ) {
 					//
-					v1 = grid1->verts[grid1->width * k + offset1].xyz;
-					v2 = grid2->verts[grid2->width * l + offset2].xyz;
+					float *v1 = grid1->verts[grid1->width * k + offset1].xyz;
+					float *v2 = grid2->verts[grid2->width * l + offset2].xyz;
 					if ( Q_fabs( v1[0] - v2[0] ) > .1 ) {
 						continue;
 					}
@@ -1242,6 +1225,7 @@ int R_StitchPatches( world_t* world, int grid1num, int grid2num ) {
 					//
 					//Com_Printf("found highest LoD crack between two patches\n" );
 					// insert row into grid2 right after after row l
+					int column;
 					if ( m ) {
 						column = grid2->width - 1;
 					} else { column = 0;}
@@ -1271,14 +1255,12 @@ might still appear at that side.
 ===============
 */
 int R_TryStitchingPatch( world_t* world, int grid1num ) {
-	int j, numstitches;
-	srfGridMesh_t *grid1, *grid2;
 
-	numstitches = 0;
-	grid1 = (srfGridMesh_t *) world->surfaces[grid1num].data;
-	for ( j = 0; j < world->numsurfaces; j++ ) {
+	int numstitches = 0;
+	srfGridMesh_t *grid1 = (srfGridMesh_t *) world->surfaces[grid1num].data;
+	for (int j = 0; j < world->numsurfaces; j++ ) {
 		//
-		grid2 = (srfGridMesh_t *) world->surfaces[j].data;
+		srfGridMesh_t *grid2 = (srfGridMesh_t *) world->surfaces[j].data;
 		// if this surface is not a grid
 		if ( grid2->surfaceType != SF_GRID ) {
 			continue;
@@ -1308,16 +1290,14 @@ int R_TryStitchingPatch( world_t* world, int grid1num ) {
 
 
 void R_StitchAllPatches( world_t* world ) {
-	int i, stitched, numstitches;
-	srfGridMesh_t *grid1;
-
-	numstitches = 0;
+	int stitched;
+	int numstitches = 0;
 	do
 	{
 		stitched = false;
-		for ( i = 0; i < world->numsurfaces; i++ ) {
+		for ( int i = 0; i < world->numsurfaces; i++ ) {
 			//
-			grid1 = (srfGridMesh_t *) world->surfaces[i].data;
+			srfGridMesh_t *grid1 = (srfGridMesh_t *) world->surfaces[i].data;
 			// if this surface is not a grid
 			if ( grid1->surfaceType != SF_GRID ) {
 				continue;
@@ -1343,19 +1323,17 @@ R_MovePatchSurfacesToHunk
 ===============
 */
 void R_MovePatchSurfacesToHunk( world_t* world ) {
-	int i, size;
-	srfGridMesh_t *grid, *hunkgrid;
 
-	for ( i = 0; i < world->numsurfaces; i++ ) {
+	for (int i = 0; i < world->numsurfaces; i++ ) {
 		//
-		grid = (srfGridMesh_t *) world->surfaces[i].data;
+		srfGridMesh_t *grid = (srfGridMesh_t *) world->surfaces[i].data;
 		// if this surface is not a grid
 		if ( grid->surfaceType != SF_GRID ) {
 			continue;
 		}
 		//
-		size = ( grid->width * grid->height - 1 ) * sizeof( drawVert_t ) + sizeof( *grid );
-		hunkgrid = (srfGridMesh_t *)Hunk_Alloc( size, h_low );
+		int size = ( grid->width * grid->height - 1 ) * sizeof( drawVert_t ) + sizeof( *grid );
+		srfGridMesh_t *hunkgrid = (srfGridMesh_t *)Hunk_Alloc( size, h_low );
 		Com_Memcpy( hunkgrid, grid, size );
 
 		hunkgrid->widthLodError = (float *)Hunk_Alloc( grid->width * 4, h_low );
@@ -1728,20 +1706,10 @@ void BSPReader::loadFogs(world_t* world)
 
 }
 
-void R_FindLightGridBounds(world_t *world, vec3_t mins, vec3_t maxs ) {
-	world_t *w;
-	msurface_t  *surf;
-	srfSurfaceFace_t *surfFace;
-	struct shader_s     *shd;
-
-	bool foundGridBrushes = false;
-	int i,j;
-
-	w = world;
-
-//----(SA)	temp - disable this whole thing for now
-	VectorCopy( w->bmodels[0].bounds[0], mins );
-	VectorCopy( w->bmodels[0].bounds[1], maxs );
+void R_FindLightGridBounds(world_t *world, vec3_t mins, vec3_t maxs )
+{
+	VectorCopy( world->bmodels[0].bounds[0], mins );
+	VectorCopy( world->bmodels[0].bounds[1], maxs );
 	return;
 }
 
@@ -1864,9 +1832,7 @@ void BSPReader::loadEntities( world_t* world )
 
 
 bool R_GetEntityToken(world_t *world, char *buffer, int size ) {
-	const char  *s;
-
-	s = COM_Parse( (const char**)&world->entityParsePoint );
+	const char  *s = COM_Parse( (const char**)&world->entityParsePoint );
 	Q_strncpyz( buffer, s, size );
 	if ( !world->entityParsePoint || !s[0] ) {
 		world->entityParsePoint = world->entityString;
