@@ -33,16 +33,6 @@ If you have questions concerning this license or the applicable additional terms
 uiStatic_t uis;
 bool m_entersound;              // after a frame, so caching won't disrupt the sound
 
-float UI_ClampCvar( float min, float max, float value ) {
-	if ( value < min ) {
-		return min;
-	}
-	if ( value > max ) {
-		return max;
-	}
-	return value;
-}
-
 char *UI_Argv( int arg ) {
 	static char buffer[MAX_STRING_CHARS];
 
@@ -152,11 +142,6 @@ void UI_FillRect( float x, float y, float width, float height, const float *colo
 
 	RE_SetColor( nullptr );
 }
-
-void UI_UpdateScreen() {
-	SCR_UpdateScreen();
-}
-
 
 void UI_DrawTextBox( int x, int y, int width, int lines ) {
 	UI_FillRect( x + BIGCHAR_WIDTH / 2, y + BIGCHAR_HEIGHT / 2, ( width + 1 ) * BIGCHAR_WIDTH, ( lines + 1 ) * BIGCHAR_HEIGHT, colorBlack );

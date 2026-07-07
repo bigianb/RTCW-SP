@@ -1,0 +1,47 @@
+{
+    // Use IntelliSense to learn about possible attributes.
+    // Hover to view descriptions of existing attributes.
+    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "inputs": [
+        {
+            "id": "alicePath",
+            "type": "command",
+            "command": "cmake.launchTargetPath",
+            "args": { "targetName": "alice" }
+        },
+        {
+            "id": "wolfPath",
+            "type": "command",
+            "command": "cmake.launchTargetPath",
+            "args": { "targetName": "wolf" }
+        }
+    ],
+    "configurations": [
+        {
+            "name": "(lldb) Launch Alice",
+            "type": "cppdbg",
+            "request": "launch",
+            // Resolved by CMake Tools:
+            "program": "${input:alicePath}",
+            "cwd": "/Users/ian/.wine/drive_c/GOG Games/Return to Castle Wolfenstein",
+            "args": [],
+            "stopAtEntry": false,
+            "externalConsole": false,
+            "MIMode": "lldb"
+        },
+        {
+            "name": "(lldb) Launch Wolf",
+            "type": "cppdbg",
+            "request": "launch",
+            // Resolved by CMake Tools:
+            "program": "${input:wolfPath}",
+            "cwd": "/Users/ian/.wine/drive_c/GOG Games/Return to Castle Wolfenstein",
+            "args": [],
+            "stopAtEntry": false,
+            "externalConsole": false,
+            "MIMode": "lldb"
+        }
+
+    ]
+}

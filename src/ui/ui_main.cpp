@@ -833,28 +833,7 @@ void UI_FilledBar( float x, float y, float w, float h, float *startColor, float 
 
 static void UI_DrawLoadStatus( rectDef_t *rect, vec4_t color, int align )
 {
-    int flags = 0;
-    
-    if ( align != HUD_HORIZONTAL ) {
-        flags |= 4;   // BAR_VERT
-    }
-    
-    flags |= 16;      // BAR_BG			- draw the filled contrast box
-    
-    char hunkBuf[MAX_QPATH];
-    Cvar_VariableStringBuffer( "com_expectedhunkusage", hunkBuf, MAX_QPATH );
-    int expectedHunk = atoi( hunkBuf );
-    
-    if ( expectedHunk > 0 ) {
-        float percentDone = (float)( ui_hunkUsed.integer ) / (float)( expectedHunk );
-        if ( percentDone > 0.97 ) { // never actually show 100%, since we are not in the game yet
-            percentDone = 0.97;
-        }
-        
-        UI_FilledBar( rect->x, rect->y, rect->w, rect->h, color, nullptr, nullptr, percentDone, flags );
-    } else {
-        Text_Paint( rect->x, rect->y, UI_FONT_DEFAULT, 0.2f, color, UI_translateString( "pleasewait" ), 0, 0, 0 );
-    }
+    Text_Paint( rect->x, rect->y, UI_FONT_DEFAULT, 0.2f, color, UI_translateString( "pleasewait" ), 0, 0, 0 );
 }
 
 int UI_OwnerDrawWidth( int ownerDraw, int font, float scale )
@@ -1964,7 +1943,7 @@ vmCvar_t ui_dedicated;
 vmCvar_t ui_notebookCurrentPage;
 vmCvar_t ui_clipboardName;          // the name of the group for the current clipboard item 
 vmCvar_t ui_hudAlpha;
-vmCvar_t ui_hunkUsed;
+
 vmCvar_t ui_cameraMode;
 vmCvar_t ui_savegameListAutosave;
 vmCvar_t ui_savegameName;
@@ -2025,7 +2004,6 @@ static cvarTable_t cvarTable[] = {
 	{ &ui_clipboardName, "cg_clipboardName", "", CVAR_ROM },
 
 	{ &ui_hudAlpha, "cg_hudAlpha", "0.8", CVAR_ARCHIVE },
-	{ &ui_hunkUsed, "com_hunkused", "0", 0 },
 	{ &ui_cameraMode, "com_cameraMode", "0", 0}, 
 
 	{ &ui_savegameName, "ui_savegameName", "", CVAR_ROM}

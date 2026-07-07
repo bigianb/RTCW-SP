@@ -94,7 +94,6 @@ extern vmCvar_t ui_dedicated;
 extern vmCvar_t ui_notebookCurrentPage;
 extern vmCvar_t ui_clipboardName;
 extern vmCvar_t ui_hudAlpha;
-extern vmCvar_t ui_hunkUsed;    //----(SA)	added
 extern vmCvar_t ui_cameraMode;  //----(SA)	added
 extern vmCvar_t ui_savegameListAutosave;    //----(SA)	added
 extern vmCvar_t ui_savegameName;    //----(SA)	added
@@ -599,13 +598,10 @@ extern void         UI_Init( void );
 extern void         UI_Shutdown( void );
 extern void         UI_MouseEvent( int dx, int dy );
 extern bool     UI_ConsoleCommand( int realTime );
-extern float        UI_ClampCvar( float min, float max, float value );
 extern void         UI_DrawNamedPic( float x, float y, float width, float height, const char *picname );
 extern void         UI_DrawHandlePic( float x, float y, float w, float h, qhandle_t hShader );
 extern void         UI_FillRect( float x, float y, float width, float height, const float *color );
 extern void 		UI_DrawRect( float x, float y, float width, float height, float size, const float *color );
-
-extern void         UI_UpdateScreen( void );
 
 extern void         UI_LerpColor( vec4_t a, vec4_t b, vec4_t c, float t );
 extern void         UI_DrawBannerString( int x, int y, const char* str, int style, vec4_t color );

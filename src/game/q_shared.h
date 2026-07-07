@@ -652,13 +652,6 @@ COLLISION DETECTION
 #define PLANE_Z         2
 #define PLANE_NON_AXIAL 3
 
-
-/*
-=================
-PlaneTypeForNormal
-=================
-*/
-
 #define PlaneTypeForNormal( x ) ( x[0] == 1.0 ? PLANE_X : ( x[1] == 1.0 ? PLANE_Y : ( x[2] == 1.0 ? PLANE_Z : PLANE_NON_AXIAL ) ) )
 
 // plane_t structure

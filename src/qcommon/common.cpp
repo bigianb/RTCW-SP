@@ -81,8 +81,6 @@ cvar_t  *com_recommendedSet;
 // Rafael Notebook
 cvar_t  *cl_notebook;
 
-cvar_t  *com_hunkused;      // Ridah
-
 cvar_t  *game_cvar;			// Allows the support of different games. Defaults to wolf.
 
 // com_speeds times
@@ -913,8 +911,6 @@ void Com_Init( char *commandLine )
 
 	Cvar_Get( "savegame_loading", "0", CVAR_ROM );
 
-	com_hunkused = Cvar_Get( "com_hunkused", "0", 0 );
-
 	Cmd_AddCommand( "quit", Com_Quit_f );
 	Cmd_AddCommand( "changeVectors", MSG_ReportChangeVectors_f );
 	Cmd_AddCommand( "writeconfig", Com_WriteConfig_f );
@@ -948,7 +944,7 @@ void Com_Init( char *commandLine )
 		Cvar_Set( "com_recommendedSet", "1" );
 	}
 
-
+	// TODO: wolf specific
     if ( !com_introPlayed->integer ) {
         Cbuf_AddText( "cinematic wolfintro.RoQ 3\n" );
     }

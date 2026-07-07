@@ -436,6 +436,10 @@ source_group("ui" FILES ${UI_SOURCES})
 source_group("sdl" FILES ${SDL_INCLUDES})
 source_group("sdl" FILES ${SDL_SOURCES})
 
+add_library(scriptlib STATIC ${SCRIPTING_SOURCES} ${SCRIPTING_INCLUDES})
+add_library(idlib STATIC ${IDLIB_SOURCES} ${IDLIB_INCLUDES})
+add_library(server STATIC ${SERVER_SOURCES} ${SERVER_INCLUDES})
+
 set(WOLF_INCLUDES 
 	${BOTAI_INCLUDES}
 	${BOTLIB_INCLUDES}
@@ -461,12 +465,39 @@ set(WOLF_SOURCES
     ${UI_SOURCES}
     ${SDL_SOURCES}
 )
-add_library(scriptlib STATIC ${SCRIPTING_SOURCES} ${SCRIPTING_INCLUDES})
-add_library(idlib STATIC ${IDLIB_SOURCES} ${IDLIB_INCLUDES})
-add_library(server STATIC ${SERVER_SOURCES} ${SERVER_INCLUDES})
 
 add_executable(wolf WIN32 MACOSX_BUNDLE ${WOLF_INCLUDES} ${WOLF_SOURCES})
 target_link_libraries(wolf server idlib scriptlib SDL3::SDL3 OpenGL::GL JPEG::JPEG)
+
+set(ALICE_INCLUDES 
+	${BOTAI_INCLUDES}
+	${BOTLIB_INCLUDES}
+	${CGAME_INCLUDES}
+	${CLIENT_INCLUDES}
+	${GAME_INCLUDES}
+	${QCOMMON_INCLUDES}
+	${RENDERER_INCLUDES}
+	${SPLINES_INCLUDES}
+	${UI_INCLUDES}
+	${SDL_INCLUDES}
+)
+
+set(ALICE_SOURCES 
+    ${BOTAI_SOURCES}
+    ${BOTLIB_SOURCES}
+    ${CGAME_SOURCES}
+    ${CLIENT_SOURCES}
+    ${GAME_SOURCES}
+    ${QCOMMON_SOURCES}
+    ${RENDERER_SOURCES}
+    ${SPLINES_SOURCES}
+    ${UI_SOURCES}
+    ${SDL_SOURCES}
+)
+
+add_executable(alice WIN32 MACOSX_BUNDLE ${ALICE_INCLUDES} ${ALICE_SOURCES})
+target_link_libraries(alice server idlib scriptlib SDL3::SDL3 OpenGL::GL JPEG::JPEG)
+
 
 if(ENABLE_TESTS)
 	enable_testing()
