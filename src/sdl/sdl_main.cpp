@@ -172,21 +172,12 @@ static void Sys_Exit( int exitCode )
 	exit( exitCode );
 }
 
-/*
-=================
-Sys_Quit
-=================
-*/
+[[noreturn]]
 void Sys_Quit( void )
 {
 	Sys_Exit( 0 );
 }
 
-/*
-=================
-Sys_Init
-=================
-*/
 void Sys_Init(void)
 {
 	Cmd_AddCommand( "in_restart", Sys_In_Restart_f );
@@ -266,11 +257,6 @@ void Sys_AnsiColorPrint( const char *msg )
 	}
 }
 
-/*
-=================
-Sys_Print
-=================
-*/
 void Sys_Print( const char *msg )
 {
 	//CON_LogWrite( msg );
@@ -278,11 +264,6 @@ void Sys_Print( const char *msg )
 	printf("%s", msg);
 }
 
-/*
-=================
-Sys_Error
-=================
-*/
 [[noreturn]]
 void Sys_Error( const char *error, ... )
 {
@@ -298,18 +279,13 @@ void Sys_Error( const char *error, ... )
 	Sys_Exit( 3 );
 }
 
-/*
-=================
-Sys_ParseArgs
-=================
-*/
 void Sys_ParseArgs( int argc, char **argv )
 {
 	if( argc == 2 )
 	{
 		if( !strcmp( argv[1], "--version" ) || !strcmp( argv[1], "-v" ) )
 		{
-			fprintf( stdout, Q3_VERSION " dedicated server\n" );
+			fprintf( stdout, ENGINE_VERSION "\n" );
 			Sys_Exit( 0 );
 		}
 	}
@@ -323,26 +299,18 @@ void Sys_ParseArgs( int argc, char **argv )
 #	endif
 #endif
 
-/*
-=================
-Sys_SigHandler
-=================
-*/
+
 void Sys_SigHandler( int signal )
 {
 	static bool signalcaught = false;
 
 	if( signalcaught )
 	{
-		fprintf( stderr, "DOUBLE SIGNAL FAULT: Received signal %d, exiting...\n",
-			signal );
+		fprintf( stderr, "DOUBLE SIGNAL FAULT: Received signal %d, exiting...\n", signal );
 	}
 	else
 	{
 		signalcaught = true;
-	//	VM_Forced_Unload_Start();
-	//	SV_Shutdown(va("Received signal %d", signal) );
-	//	VM_Forced_Unload_Done();
 	}
 
 	if( signal == SIGTERM || signal == SIGINT )
@@ -351,27 +319,18 @@ void Sys_SigHandler( int signal )
 		Sys_Exit( 2 );
 }
 
-/*
-=================
-main
-=================
-*/
+
 int main( int argc, char **argv )
 {
 	char  commandLine[ MAX_STRING_CHARS ] = { 0 };
-
-	//Sys_PlatformInit( );
 
 	// Set the initial time base
 	Sys_Milliseconds( );
 
 	Sys_ParseArgs( argc, argv );
-	//Sys_SetBinaryPath( Sys_Dirname( argv[ 0 ] ) );
-	//Sys_SetDefaultInstallPath( DEFAULT_BASEDIR );
 
 	// Concatenate the command line for passing to Com_Init
-	for(int i = 1; i < argc; i++ )
-	{
+	for(int i = 1; i < argc; i++ ) {
 		const bool containsSpaces = strchr(argv[i], ' ') != nullptr;
 		if (containsSpaces){
 			Q_strcat( commandLine, sizeof( commandLine ), "\"" );
@@ -384,16 +343,8 @@ int main( int argc, char **argv )
 		Q_strcat( commandLine, sizeof( commandLine ), " " );
 	}
 
-	//CON_Init( );
 	Com_Init( commandLine );
-	//NET_Init( );
-/*
-	signal( SIGILL, Sys_SigHandler );
-	signal( SIGFPE, Sys_SigHandler );
-	signal( SIGSEGV, Sys_SigHandler );
-	signal( SIGTERM, Sys_SigHandler );
-	signal( SIGINT, Sys_SigHandler );
-*/
+
 	while( 1 )
 	{
 		Com_Frame( );

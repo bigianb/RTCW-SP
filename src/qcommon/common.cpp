@@ -83,6 +83,8 @@ cvar_t  *cl_notebook;
 
 cvar_t  *com_hunkused;      // Ridah
 
+cvar_t  *game_cvar;			// Allows the support of different games. Defaults to wolf.
+
 // com_speeds times
 int time_game;
 int time_frontend;          // renderer frontend time
@@ -309,8 +311,7 @@ void Com_ParseCommandLine( char *commandLine )
 			if ( com_numConsoleLines == MAX_CONSOLE_LINES ) {
 				return;
 			}
-			com_consoleLines[com_numConsoleLines] = commandLine + 1;
-			com_numConsoleLines++;
+			com_consoleLines[com_numConsoleLines++] = commandLine + 1;
 			*commandLine = 0;
 		}
 		commandLine++;
@@ -324,27 +325,24 @@ Com_StartupVariable
 Searches for command line parameters that are set commands.
 If match is not nullptr, only that cvar will be looked for.
 That is necessary because cddir and basedir need to be set
-before the filesystem is started, but all other sets shouls
+before the filesystem is started, but all other sets should
+d
 be after execing the config and default.
 ===============
 */
 void Com_StartupVariable( const char *match ) {
-	int i;
-	const char    *s;
-	cvar_t  *cv;
 
-	for ( i = 0 ; i < com_numConsoleLines ; i++ ) {
+	for (int i = 0 ; i < com_numConsoleLines ; i++ ) {
 		Cmd_TokenizeString( com_consoleLines[i] );
 		if ( strcmp( Cmd_Argv( 0 ), "set" ) ) {
 			continue;
 		}
 
-		s = Cmd_Argv( 1 );
+		const char *s = Cmd_Argv( 1 );
 		if ( !match || !strcmp( s, match ) ) {
 			Cvar_Set( s, Cmd_Argv( 2 ) );
-			cv = Cvar_Get( s, "", 0 );
+			cvar_t* cv = Cvar_Get( s, "", 0 );
 			cv->flags |= CVAR_USER_CREATED;
-//			com_consoleLines[i] = 0;
 		}
 	}
 }
@@ -424,11 +422,6 @@ void Info_Print( const char *s ) {
 	}
 }
 
-/*
-============
-Com_StringContains
-============
-*/
 char *Com_StringContains( char *str1, char *str2, int casesensitive ) {
 
 	size_t len = strlen( str1 ) - strlen( str2 );
@@ -576,14 +569,13 @@ int Com_HashKey( const char *string, int maxlen )
 }
 
 time_t Com_RealTime( qtime_t *qtime ) {
-	time_t t;
-	struct tm *tms;
 
-	t = time( nullptr );
+
+	time_t t = time( nullptr );
 	if ( !qtime ) {
 		return t;
 	}
-	tms = localtime( &t );
+	struct tm *tms = localtime( &t );
 	if ( tms ) {
 		qtime->tm_sec = tms->tm_sec;
 		qtime->tm_min = tms->tm_min;
@@ -613,56 +605,10 @@ char *CopyString( const char *in )
 	return out;
 }
 
-#define HUNK_MAGIC  0x89537892
-#define HUNK_FREE_MAGIC 0x89537893
-
-typedef struct {
-	int magic;
-	int size;
-} hunkHeader_t;
-
-typedef struct {
-	int mark;
-	int permanent;
-	int temp;
-	int tempHighwater;
-} hunkUsed_t;
-
-typedef struct hunkblock_s {
-	int size;
-	uint8_t printed;
-	struct hunkblock_s *next;
-	char *label;
-	char *file;
-	int line;
-} hunkblock_t;
-
-static hunkblock_t *hunkblocks;
-
-static hunkUsed_t hunk_low, hunk_high;
-static hunkUsed_t  *hunk_permanent, *hunk_temp;
-
-static uint8_t    *s_hunkData = nullptr;
-static int s_hunkTotal;
-
-static int s_zoneTotal;
-
 
 void Com_InitZoneMemory( void ) {
 
 }
-
-
-/*
-=================
-Com_InitZoneMemory
-=================
-*/
-void Com_InitHunkMemory( void ) {
-
-
-}
-
 
 void CL_ShutdownCGame( void );
 void CL_ShutdownUI( void );
@@ -892,7 +838,7 @@ void Com_SetRecommended( bool vidrestart )
 
 void Com_Init( char *commandLine )
 {
-	Com_Printf( "%s %s\n", Q3_VERSION, __DATE__ );
+	Com_Printf( "%s %s\n", ENGINE_VERSION, __DATE__ );
 
 	if ( setjmp( abortframe ) ) {
 		Sys_Error( "Error during initialization" );
@@ -920,6 +866,10 @@ void Com_Init( char *commandLine )
 	// done early so bind command exists
 	CL_InitKeyCommands();
 
+	// Init game type early.
+	Com_StartupVariable( "game" );
+	game_cvar = Cvar_Get( "game", "wolf", CVAR_INIT );
+
 	FS_InitFilesystem();
 
 	Cbuf_AddText( "exec default.cfg\n" );
@@ -930,9 +880,6 @@ void Com_Init( char *commandLine )
 
 	// override anything from the config files with command line args
 	Com_StartupVariable( nullptr );
-
-	// allocate the stack based hunk allocator
-	Com_InitHunkMemory();
 
 	// if any archived cvars are modified after this, we will trigger a writing
 	// of the config file
@@ -1009,6 +956,7 @@ void Com_Init( char *commandLine )
 	com_fullyInitialized = true;
 	Com_Printf( "--- Common Initialization Complete ---\n" );
 }
+
 void Com_WriteConfigToFile( const char *filename )
 {
     fileHandle_t f = FS_FOpenFileWrite( filename );

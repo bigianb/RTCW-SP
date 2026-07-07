@@ -766,7 +766,7 @@ void    *Sys_GetBotLibAPI( void *parms );
 const char    *Sys_GetCurrentUser( void );
 
 [[noreturn]] void  Sys_Error( const char *error, ... );
-void    Sys_Quit( void );
+[[noreturn]] void    Sys_Quit( void );
 char    *Sys_GetClipboardData( void );  // note that this isn't journaled...
 
 void    Sys_Print( const char *msg );

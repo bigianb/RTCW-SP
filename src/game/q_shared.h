@@ -31,7 +31,7 @@ If you have questions concerning this license or the applicable additional terms
 // q_shared.h -- included first by ALL program modules.
 // A user mod should never modify this file
 
-#define Q3_VERSION      "Wolf 1.41"
+#define ENGINE_VERSION      "Wolf IJB"
 
 #define NEW_ANIMS
 #define MAX_TEAMNAME    32

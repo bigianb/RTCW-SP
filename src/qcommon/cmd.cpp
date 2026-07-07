@@ -73,11 +73,6 @@ void Cmd_Wait_f( void ) {
 =============================================================================
 */
 
-/*
-============
-Cbuf_Init
-============
-*/
 void Cbuf_Init( void ) {
 	cmd_text.data = cmd_text_buf;
 	cmd_text.maxsize = MAX_CMD_BUFFER;
@@ -134,11 +129,6 @@ void Cbuf_InsertText( const char *text )
 }
 
 
-/*
-============
-Cbuf_ExecuteText
-============
-*/
 void Cbuf_ExecuteText( int exec_when, const char *text ) {
 	switch ( exec_when )
 	{
@@ -160,11 +150,6 @@ void Cbuf_ExecuteText( int exec_when, const char *text ) {
 	}
 }
 
-/*
-============
-Cbuf_Execute
-============
-*/
 void Cbuf_Execute()
 {
 	char line[MAX_CMD_LINE];
@@ -229,11 +214,6 @@ void Cbuf_Execute()
 */
 
 
-/*
-===============
-Cmd_Exec_f
-===============
-*/
 void Cmd_Exec_f( void ) {
 	char    *f;
 	char filename[MAX_QPATH];
@@ -315,20 +295,12 @@ static char cmd_tokenized[BIG_INFO_STRING + MAX_STRING_TOKENS];         // will 
 
 static cmd_function_t  *cmd_functions;      // possible commands to execute
 
-/*
-============
-Cmd_Argc
-============
-*/
+
 int     Cmd_Argc( void ) {
 	return cmd_argc;
 }
 
-/*
-============
-Cmd_Argv
-============
-*/
+
 const char    *Cmd_Argv( int arg ) {
 	if ( (unsigned)arg >= cmd_argc ) {
 		return "";
@@ -512,11 +484,6 @@ void Cmd_TokenizeString( const char *text_in )
 }
 
 
-/*
-============
-Cmd_AddCommand
-============
-*/
 void    Cmd_AddCommand( const char *cmd_name, xcommand_t function ) {
 	cmd_function_t  *cmd;
 
@@ -531,7 +498,6 @@ void    Cmd_AddCommand( const char *cmd_name, xcommand_t function ) {
 		}
 	}
 
-	// use a small malloc to avoid zone fragmentation
 	cmd = (cmd_function_t *)calloc(1, sizeof( cmd_function_t ) );
 	cmd->name = CopyString( cmd_name );
 	cmd->function = function;
@@ -539,11 +505,6 @@ void    Cmd_AddCommand( const char *cmd_name, xcommand_t function ) {
 	cmd_functions = cmd;
 }
 
-/*
-============
-Cmd_RemoveCommand
-============
-*/
 void    Cmd_RemoveCommand( const char *cmd_name ) {
 	cmd_function_t  *cmd, **back;
 
@@ -567,11 +528,6 @@ void    Cmd_RemoveCommand( const char *cmd_name ) {
 }
 
 
-/*
-============
-Cmd_CommandCompletion
-============
-*/
 void    Cmd_CommandCompletion( void ( *callback )(const char *s) ) {
 	cmd_function_t  *cmd;
 
@@ -643,11 +599,6 @@ void    Cmd_ExecuteString( const char *text ) {
 	CL_ForwardCommandToServer( text );
 }
 
-/*
-============
-Cmd_List_f
-============
-*/
 void Cmd_List_f()
 {
 	const char            *match;
@@ -669,11 +620,7 @@ void Cmd_List_f()
 	Com_Printf( "%i commands\n", i );
 }
 
-/*
-============
-Cmd_Init
-============
-*/
+
 void Cmd_Init( void ) {
 	Cmd_AddCommand( "cmdlist",Cmd_List_f );
 	Cmd_AddCommand( "exec",Cmd_Exec_f );
