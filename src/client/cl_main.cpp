@@ -1077,6 +1077,8 @@ void CL_InitRef()
 {
 	Com_Printf( "----- Initializing Renderer ----\n" );
 
+	CL_InitRenderer();
+
 	// unpause so the cgame definately gets a snapshot and renders a frame
 	Cvar_Set( "cl_paused", "0" );
 }

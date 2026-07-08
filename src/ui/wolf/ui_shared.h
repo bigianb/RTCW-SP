@@ -30,7 +30,7 @@ If you have questions concerning this license or the applicable additional terms
 
 #include "../game/q_shared.h"
 #include "../cgame/tr_types.h"
-#include "keycodes.h"
+#include "../keycodes.h"
 
 #include "../../main/ui/menudef.h"
 

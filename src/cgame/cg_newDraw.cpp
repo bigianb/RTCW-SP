@@ -29,8 +29,8 @@ If you have questions concerning this license or the applicable additional terms
 
 
 #include "cg_local.h"
-#include "../ui/ui_shared.h"
-#include "../ui/ui_local.h"
+#include "../ui/wolf/ui_shared.h"
+#include "../ui/wolf/ui_local.h"	// needed for uiInfo to get the fonts. seems wrong.
 #include "../client/snd_public.h"
 #include "../client/client.h"
 

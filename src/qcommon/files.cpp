@@ -1715,10 +1715,6 @@ int FS_GetFileList(  const char *path, const char *extension, char *listbuf, int
 	int nFiles = 0;
 	int nTotal = 0;
 
-	if ( Q_stricmp( path, "$modlist" ) == 0 ) {
-		return FS_GetModList( listbuf, bufsize );
-	}
-
 	char** pFiles = FS_ListFiles( path, extension, &nFiles );
 
 	for (int i = 0; i < nFiles; i++ ) {
@@ -1805,119 +1801,6 @@ static char** Sys_ConcatenateFileLists( char **list0, char **list1, char **list2
 	return cat;
 }
 
-/*
-================
-FS_GetModList
-
-Returns a list of mod directory names
-A mod directory is a peer to baseq3 with a pk3 in it
-The directories are searched in base path, cd path and home path
-================
-*/
-int FS_GetModList( char *listbuf, int bufsize ) {
-	int nMods, i, j, nTotal, nPaks, nPotential;
-	char **pFiles = nullptr;
-	char **pPaks = nullptr;
-	char *name, *path;
-	char descPath[MAX_OSPATH];
-	fileHandle_t descHandle;
-
-	int dummy;
-	char **pFiles0 = nullptr;
-	char **pFiles1 = nullptr;
-	char **pFiles2 = nullptr;
-	bool bDrop = false;
-
-	*listbuf = 0;
-	nMods = nPotential = nTotal = 0;
-
-	pFiles0 = Sys_ListFiles( fs_homepath->string, nullptr, nullptr, &dummy, true );
-	pFiles1 = Sys_ListFiles( fs_basepath->string, nullptr, nullptr, &dummy, true );
-
-	// we searched for mods in the two paths
-	// it is likely that we have duplicate names now, which we will cleanup below
-	pFiles = Sys_ConcatenateFileLists( pFiles0, pFiles1, pFiles2 );
-	nPotential = Sys_CountFileList( pFiles );
-
-	for ( i = 0 ; i < nPotential ; i++ ) {
-		name = pFiles[i];
-		// NOTE: cleaner would involve more changes
-		// ignore duplicate mod directories
-		if ( i != 0 ) {
-			bDrop = false;
-			for ( j = 0; j < i; j++ )
-			{
-				if ( Q_stricmp( pFiles[j],name ) == 0 ) {
-					// this one can be dropped
-					bDrop = true;
-					break;
-				}
-			}
-		}
-		if ( bDrop ) {
-			continue;
-		}
-		// we drop the basegame, "." and ".."
-		if ( Q_stricmp( name, BASEGAME ) && Q_stricmpn( name, ".", 1 ) ) {
-			// now we need to find some .pk3 files to validate the mod
-			// NOTE TTimo: (actually I'm not sure why .. what if it's a mod under developement with no .pk3?)
-			// we didn't keep the information when we merged the directory names, as to what OS Path it was found under
-			//   so it could be in base path, cd path or home path
-			//   we will try each three of them here (yes, it's a bit messy)
-			path = FS_BuildOSPath( fs_basepath->string, name, "" );
-			nPaks = 0;
-			pPaks = Sys_ListFiles( path, ".pk3", nullptr, &nPaks, false );
-			Sys_FreeFileList( pPaks ); // we only use Sys_ListFiles to check wether .pk3 files are present
-
-			/* try on home path */
-			if ( nPaks <= 0 ) {
-				path = FS_BuildOSPath( fs_homepath->string, name, "" );
-				nPaks = 0;
-				pPaks = Sys_ListFiles( path, ".pk3", nullptr, &nPaks, false );
-				Sys_FreeFileList( pPaks );
-			}
-
-			if ( nPaks > 0 ) {
-				size_t nLen = strlen( name ) + 1;
-				// nLen is the length of the mod path
-				// we need to see if there is a description available
-				descPath[0] = '\0';
-				strcpy( descPath, name );
-				strcat( descPath, "/description.txt" );
-				size_t nDescLen = FS_SV_FOpenFileRead( descPath, &descHandle );
-				if ( nDescLen > 0 && descHandle ) {
-					FILE *file;
-					file = FS_FileForHandle( descHandle );
-					Com_Memset( descPath, 0, sizeof( descPath ) );
-					nDescLen = fread( descPath, 1, 48, file );
-					if ( nDescLen >= 0 ) {
-						descPath[nDescLen] = '\0';
-					}
-					FS_FCloseFile( descHandle );
-				} else {
-					strcpy( descPath, name );
-				}
-				nDescLen = strlen( descPath ) + 1;
-
-				if ( nTotal + nLen + 1 + nDescLen + 1 < bufsize ) {
-					strcpy( listbuf, name );
-					listbuf += nLen;
-					strcpy( listbuf, descPath );
-					listbuf += nDescLen;
-					nTotal += nLen + nDescLen;
-					nMods++;
-				} else {
-					break;
-				}
-			}
-		}
-	}
-	Sys_FreeFileList( pFiles );
-
-	return nMods;
-}
-
-
 void FS_Dir_f()
 {
 	if ( Cmd_Argc() < 2 || Cmd_Argc() > 3 ) {
@@ -1994,11 +1877,6 @@ int FS_PathCmp( const char *s1, const char *s2 ) {
 	return 0;       // strings are equal
 }
 
-/*
-================
-FS_SortFileList
-================
-*/
 void FS_SortFileList( char **filelist, int numfiles ) {
 	int i, j, k, numsortedfiles;
 	char **sortedlist;
@@ -2022,11 +1900,6 @@ void FS_SortFileList( char **filelist, int numfiles ) {
 	free( sortedlist );
 }
 
-/*
-================
-FS_NewDir_f
-================
-*/
 void FS_NewDir_f( void ) {
 
 	char    **dirnames;
@@ -2308,12 +2181,6 @@ void FS_InitFilesystem( void ) {
 	Q_strncpyz( lastValidGame, fs_gamedirvar->string, sizeof( lastValidGame ) );
 }
 
-
-/*
-================
-FS_Restart
-================
-*/
 void FS_Restart( int checksumFeed ) {
 
 	// free anything we currently have loaded
@@ -2329,18 +2196,6 @@ void FS_Restart( int checksumFeed ) {
 	// busted and error out now, rather than getting an unreadable
 	// graphics screen when the font fails to load
 	if ( FS_ReadFile( "default.cfg", nullptr ) <= 0 ) {
-		// this might happen when connecting to a pure server not using BASEGAME/pak0.pk3
-		// (for instance a TA demo server)
-		if ( lastValidBase[0] ) {
-
-			Cvar_Set( "fs_basepath", lastValidBase );
-			Cvar_Set( "fs_gamedirvar", lastValidGame );
-			lastValidBase[0] = '\0';
-			lastValidGame[0] = '\0';
-			FS_Restart( checksumFeed );
-			Com_Error( ERR_DROP, "Invalid game folder\n" );
-            return; // keep the linter happy, ERR_DROP does not return
-		}
 		Com_Error( ERR_FATAL, "Couldn't load default.cfg" );
 	}
 

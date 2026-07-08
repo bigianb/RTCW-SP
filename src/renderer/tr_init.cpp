@@ -1227,7 +1227,7 @@ void RE_Shutdown( bool destroyWindow ) {
 	// shut down platform specific OpenGL stuff
 	if ( destroyWindow ) {
 		GLimp_Shutdown();
-
+		memset(&glConfig, 0, sizeof(glConfig));
 		// Ridah, release the virtual memory
 		R_Hunk_End();
 		R_FreeImageBuffer();

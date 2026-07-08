@@ -872,7 +872,11 @@ void Com_Init( char *commandLine )
 
 	Cbuf_AddText( "exec default.cfg\n" );
 	Cbuf_AddText( "exec language.cfg\n" );
-	Cbuf_AddText( "exec wolfconfig.cfg\n" );
+	
+	Cbuf_AddText( "exec " );
+	Cbuf_AddText( gameConfigName );
+	Cbuf_AddText( "\n" );
+
 	Cbuf_AddText( "exec autoexec.cfg\n" );
 	Cbuf_Execute();
 

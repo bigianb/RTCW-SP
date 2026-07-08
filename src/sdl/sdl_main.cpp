@@ -320,7 +320,7 @@ void Sys_SigHandler( int signal )
 }
 
 
-int main( int argc, char **argv )
+int common_main( int argc, char **argv )
 {
 	char  commandLine[ MAX_STRING_CHARS ] = { 0 };
 

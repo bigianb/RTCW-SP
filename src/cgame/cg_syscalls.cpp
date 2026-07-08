@@ -28,11 +28,6 @@ If you have questions concerning this license or the applicable additional terms
 
 #include "cg_local.h"
 #include "client.h"
-#include "botlib/l_script.h"
-#include "botlib/l_precomp.h"
-#include "../game/g_func_decs.h"
-#include "../splines/splines_camera.h"
-#include "../src/ui/ui_shared.h"
 
 qhandle_t RegisterModelAndDrawInfo( const char *name ) {
 	CG_DrawInformation();

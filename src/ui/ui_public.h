@@ -58,25 +58,4 @@ void	UI_SetActiveMenu( uiMenuCommand_t menu );
 bool UI_IsFullscreen( void );
 bool UI_ConsoleCommand( int realTime );
 
-void UI_FeederAddItem( float feederID, const char *name, int index );
-int UI_FeederCount( float feederID );
-void UI_FeederSelection( float feederID, int index );
-qhandle_t UI_FeederItemImage( float feederID, int index );
-const char *UI_FeederItemText( float feederID, int index, int column, qhandle_t *handle );
-void UI_RunMenuScript( const char **args );
-void UI_DrawTopBottom( float x, float y, float w, float h, float size );
 
-int UI_PlayCinematic( const char *name, float x, float y, float w, float h );
-void UI_StopCinematic( int handle );
-void UI_DrawCinematic( int handle, float x, float y, float w, float h );
-void UI_RunCinematicFrame( int handle );
-const char *UI_translateString( const char *inString );
-const char *UI_FileText( char *fileName );
-bool UI_OwnerDrawVisible( int flags );
-int UI_OwnerDrawWidth( int ownerDraw, int font, float scale );
-void UI_Pause( bool b );
-
-int Text_Height( const char *text, int font, float scale, int limit );
-
-#define SORT_SAVENAME       0
-#define SORT_SAVETIME       1

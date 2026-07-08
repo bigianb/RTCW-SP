@@ -31,7 +31,7 @@ If you have questions concerning this license or the applicable additional terms
 // cg_event.c -- handle entity events at snapshot or playerstate transitions
 
 #include "cg_local.h"
-#include "../ui/ui_shared.h" // for Menus_CloseAll()
+#include "../ui/wolf/ui_shared.h" // for Menus_CloseAll()
 #include "../client/snd_public.h"
 #include "../renderer/tr_public.h"
 #include "../qcommon/qcommon.h"

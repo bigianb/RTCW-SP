@@ -31,8 +31,8 @@ If you have questions concerning this license or the applicable additional terms
 #include "../game/q_shared.h"
 #include "../cgame/tr_types.h"
 #include "../cgame/cg_local.h"
-#include "ui_public.h"
-#include "keycodes.h"
+#include "../ui_public.h"
+#include "../keycodes.h"
 #include "../game/bg_public.h"
 #include "ui_shared.h"
 
@@ -53,13 +53,11 @@ extern vmCvar_t ui_master;
 extern vmCvar_t ui_brassTime;
 extern vmCvar_t ui_drawCrosshair;
 extern vmCvar_t ui_drawCrosshairNames;
-extern vmCvar_t ui_drawCrosshairPickups;    //----(SA) added
-extern vmCvar_t ui_useSuggestedWeapons;     //----(SA)	added
+extern vmCvar_t ui_drawCrosshairPickups;  
+extern vmCvar_t ui_useSuggestedWeapons;  
 extern vmCvar_t ui_marks;
-// JOSEPH 12-3-99
 extern vmCvar_t ui_autoactivate;
 extern vmCvar_t ui_emptyswitch;
-// END JOSEPH
 
 extern vmCvar_t ui_server1;
 extern vmCvar_t ui_server2;
@@ -94,9 +92,9 @@ extern vmCvar_t ui_dedicated;
 extern vmCvar_t ui_notebookCurrentPage;
 extern vmCvar_t ui_clipboardName;
 extern vmCvar_t ui_hudAlpha;
-extern vmCvar_t ui_cameraMode;  //----(SA)	added
-extern vmCvar_t ui_savegameListAutosave;    //----(SA)	added
-extern vmCvar_t ui_savegameName;    //----(SA)	added
+extern vmCvar_t ui_cameraMode;  
+extern vmCvar_t ui_savegameListAutosave; 
+extern vmCvar_t ui_savegameName;  
 
 //
 // ui_qmenu.c
@@ -166,9 +164,7 @@ typedef struct _tag_menuframework
 	bool fullscreen;
 	bool showlogo;
 
-	// JOSEPH 11-9-99
 	int specialmenutype;
-	// END JOSEPH
 } menuframework_s;
 
 typedef struct
@@ -268,9 +264,7 @@ extern void         Menu_Focus( menucommon_s *m );
 extern void         Menu_AddItem( menuframework_s *menu, void *item );
 extern void         Menu_AdjustCursor( menuframework_s *menu, int dir );
 extern void         Menu_Draw( menuframework_s *menu );
-// JOSEPH 11-9-99
 extern void         Menu_Draw_Inactive( menuframework_s *menu );
-// END JOSEPH
 extern void         *Menu_ItemAtCursor( menuframework_s *m );
 extern sfxHandle_t  Menu_ActivateItem( menuframework_s *s, menucommon_s* item );
 extern void         Menu_SetCursor( menuframework_s *s, int cursor );
@@ -279,9 +273,7 @@ extern sfxHandle_t  Menu_DefaultKey( menuframework_s *s, int key );
 extern void         Bitmap_Init( menubitmap_s *b );
 extern void         Bitmap_Draw( menubitmap_s *b );
 extern void         ScrollList_Draw( menulist_s *l );
-// JOSEPH 11-23-99
 extern void         ScrollList_Draw2( menulist_s *l );
-// END JOSEPH
 extern sfxHandle_t  ScrollList_Key( menulist_s *l, int key );
 extern sfxHandle_t menu_in_sound;
 extern sfxHandle_t menu_move_sound;
@@ -296,9 +288,7 @@ extern vec4_t menu_red_color;
 extern vec4_t menu_black_color;
 extern vec4_t menu_dim_color;
 extern vec4_t color_black;
-// JOSEPH 11-29-99
 extern vec4_t color_halfblack;
-// END JOSEPH
 extern vec4_t color_white;
 extern vec4_t color_yellow;
 extern vec4_t color_blue;
@@ -308,9 +298,7 @@ extern vec4_t color_dim;
 extern vec4_t name_color;
 extern vec4_t list_color;
 extern vec4_t listbar_color;
-// JOSEPH 11-23-99
 extern vec4_t listbar_color2;
-// END JOSEPH
 extern vec4_t text_color_disabled;
 extern vec4_t text_color_normal;
 extern vec4_t text_color_highlight;
@@ -326,9 +314,7 @@ extern void         MField_Clear( mfield_t *edit );
 extern void         MField_KeyDownEvent( mfield_t *edit, int key );
 extern void         MField_CharEvent( mfield_t *edit, int ch );
 extern void         MField_Draw( mfield_t *edit, int x, int y, int style, vec4_t color );
-// JOSEPH 11-23-99
 extern void         MenuField_Draw2( menufield_s *f, int specialtype );
-// END JOSEPH
 extern void         MenuField_Init( menufield_s* m );
 extern void         MenuField_Draw( menufield_s *f );
 extern sfxHandle_t  MenuField_Key( menufield_s* m, int* key );
@@ -463,7 +449,7 @@ typedef struct {
 
 	int realWeapon;
 
-	// NERVE - SMF - added fields so it will work with wolf's skeletal animation system
+	// Added fields so it will work with wolf's skeletal animation system
 	// parsed from the start of the cfg file
 	gender_t gender;
 	footstep_t footsteps;
@@ -474,7 +460,7 @@ typedef struct {
 
 	qhandle_t backpackModel;
 	qhandle_t helmetModel;
-	// -NERVE - SMF
+
 } playerInfo_t;
 
 //
@@ -500,14 +486,14 @@ typedef struct {
 	qhandle_t cursor;
 	qhandle_t rb_on;
 	qhandle_t rb_off;
-	// JOSEPH 11-9-99
+
 	qhandle_t menu;
 	qhandle_t menu1a;
 	qhandle_t menu1b;
 	qhandle_t menu2a;
 	qhandle_t menu2b;
 	qhandle_t menuchars;
-	// END JOSEPH
+
 	float scale;
 	float bias;
 	bool firstdraw;
@@ -667,3 +653,26 @@ void UI_SoundOptionsMenu( void );
 //
 void UI_OwnerDraw( float x, float y, float w, float h, float text_x, float text_y, int ownerDraw, int ownerDrawFlags, int align, float special, int font, float scale, vec4_t color, qhandle_t shader, int textStyle );
 
+void UI_FeederAddItem( float feederID, const char *name, int index );
+int UI_FeederCount( float feederID );
+void UI_FeederSelection( float feederID, int index );
+qhandle_t UI_FeederItemImage( float feederID, int index );
+const char *UI_FeederItemText( float feederID, int index, int column, qhandle_t *handle );
+
+void UI_RunMenuScript( const char **args );
+void UI_DrawTopBottom( float x, float y, float w, float h, float size );
+
+int UI_PlayCinematic( const char *name, float x, float y, float w, float h );
+void UI_StopCinematic( int handle );
+void UI_DrawCinematic( int handle, float x, float y, float w, float h );
+void UI_RunCinematicFrame( int handle );
+const char *UI_translateString( const char *inString );
+const char *UI_FileText( char *fileName );
+bool UI_OwnerDrawVisible( int flags );
+int UI_OwnerDrawWidth( int ownerDraw, int font, float scale );
+void UI_Pause( bool b );
+
+int Text_Height( const char *text, int font, float scale, int limit );
+
+#define SORT_SAVENAME       0
+#define SORT_SAVETIME       1

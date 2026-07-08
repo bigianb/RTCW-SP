@@ -28,7 +28,7 @@ If you have questions concerning this license or the applicable additional terms
 
 
 #include "cg_local.h"
-#include "../ui/ui_shared.h"
+#include "../ui/wolf/ui_shared.h"
 #include "../qcommon/cm_public.h"
 #include "../client/snd_public.h"
 #include "../renderer/tr_public.h"

@@ -33,7 +33,7 @@ If you have questions concerning this license or the applicable additional terms
 // be a valid snapshot this frame
 
 #include "cg_local.h"
-#include "../ui/ui_shared.h" // bk001205 - for Q3_ui as well
+#include "../ui/wolf/ui_shared.h" 
 #include "../client/snd_public.h"
 #include "../renderer/tr_public.h"
 #include "../qcommon/qcommon.h"

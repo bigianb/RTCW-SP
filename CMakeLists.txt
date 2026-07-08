@@ -376,14 +376,17 @@ file(GLOB SPLINES_SOURCES src/splines/*.cpp)
 
 set (UI_INCLUDES
 	src/ui/keycodes.h
-	src/ui/ui_local.h
 	src/ui/ui_public.h
-	src/ui/ui_shared.h
 )
-set(UI_SOURCES
-	src/ui/ui_atoms.cpp
-	src/ui/ui_main.cpp
-	src/ui/ui_shared.cpp
+
+set (WOLF_UI_INCLUDES
+	src/ui/wolf/ui_local.h
+	src/ui/wolf/ui_shared.h
+)
+set(WOLF_UI_SOURCES
+	src/ui/wolf/ui_atoms.cpp
+	src/ui/wolf/ui_main.cpp
+	src/ui/wolf/ui_shared.cpp
 )
 
 set(SDL_INCLUDES )
@@ -431,7 +434,9 @@ source_group("splines" FILES ${SPLINES_INCLUDES})
 source_group("splines" FILES ${SPLINES_SOURCES})
 
 source_group("ui" FILES ${UI_INCLUDES})
-source_group("ui" FILES ${UI_SOURCES})
+
+source_group("wolf_ui" FILES ${WOLF_UI_INCLUDES})
+source_group("wolf_ui" FILES ${WOLF_UI_SOURCES})
 
 source_group("sdl" FILES ${SDL_INCLUDES})
 source_group("sdl" FILES ${SDL_SOURCES})
@@ -450,6 +455,7 @@ set(WOLF_INCLUDES
 	${RENDERER_INCLUDES}
 	${SPLINES_INCLUDES}
 	${UI_INCLUDES}
+	${WOLF_UI_INCLUDES}
 	${SDL_INCLUDES}
 )
 
@@ -462,8 +468,9 @@ set(WOLF_SOURCES
     ${QCOMMON_SOURCES}
     ${RENDERER_SOURCES}
     ${SPLINES_SOURCES}
-    ${UI_SOURCES}
+    ${WOLF_UI_SOURCES}
     ${SDL_SOURCES}
+	src/sdl/sdl_wolf.cpp
 )
 
 add_executable(wolf WIN32 MACOSX_BUNDLE ${WOLF_INCLUDES} ${WOLF_SOURCES})
@@ -479,6 +486,7 @@ set(ALICE_INCLUDES
 	${RENDERER_INCLUDES}
 	${SPLINES_INCLUDES}
 	${UI_INCLUDES}
+	${WOLF_UI_INCLUDES}
 	${SDL_INCLUDES}
 )
 
@@ -491,8 +499,9 @@ set(ALICE_SOURCES
     ${QCOMMON_SOURCES}
     ${RENDERER_SOURCES}
     ${SPLINES_SOURCES}
-    ${UI_SOURCES}
+    ${WOLF_UI_SOURCES}
     ${SDL_SOURCES}
+	src/sdl/sdl_alice.cpp
 )
 
 add_executable(alice WIN32 MACOSX_BUNDLE ${ALICE_INCLUDES} ${ALICE_SOURCES})

@@ -425,8 +425,8 @@ issues.
 ==============================================================
 */
 
-// GOG installer makes it upper case
-#define BASEGAME "Main"
+extern const char* BASEGAME;
+extern const char* gameConfigName;
 
 #define MAX_FILE_HANDLES    64
 
@@ -451,7 +451,7 @@ bool FS_FileExists( const char *file );
 int     FS_LoadStack();
 
 int     FS_GetFileList(  const char *path, const char *extension, char *listbuf, int bufsize );
-int     FS_GetModList(  char *listbuf, int bufsize );
+
 
 fileHandle_t    FS_FOpenFileWrite( const char *qpath );
 // will properly create any needed paths and deal with seperater character issues
