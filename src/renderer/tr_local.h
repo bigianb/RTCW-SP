@@ -729,7 +729,64 @@ typedef struct {
 	int numSurfaces;
 } bmodel_t;
 
-typedef struct {
+class world_t {
+	public:
+		world_t()
+		{
+			name[0] = 0;
+			baseName[0] = 0;
+			
+			numShaders = 0;
+			shaders = nullptr;
+			bmodels = nullptr;
+
+			numplanes = 0;
+			planes = nullptr;
+			
+			numnodes = 0;
+			numDecisionNodes = 0;
+			nodes = nullptr;
+			
+			numsurfaces = 0;
+			surfaces = nullptr;
+			
+			nummarksurfaces = 0;
+			marksurfaces = nullptr;
+			
+			numfogs = 0;
+			fogs = nullptr;
+			
+			lightGridData = nullptr;
+		}
+
+		~world_t()
+		{
+			if ( shaders ) {
+				free( shaders );
+			}
+			if ( bmodels ) {
+				free( bmodels );
+			}
+			if ( planes ) {
+				free(  planes );
+			}
+			if ( nodes ) {
+				free( nodes );
+			}
+			if ( surfaces ) {
+				free( surfaces );
+			}
+			if ( marksurfaces ) {
+				free( marksurfaces );
+			}
+			if ( fogs ) {
+				free( fogs );
+			}
+			if ( lightGridData ) {
+				free( lightGridData );
+			}
+		}
+
 	char name[MAX_QPATH];               // ie: maps/tim_dm2.bsp
 	char baseName[MAX_QPATH];           // ie: tim_dm2
 
@@ -768,7 +825,7 @@ typedef struct {
 
 	char        *entityString;
 	char        *entityParsePoint;
-} world_t;
+};
 
 //======================================================================
 
