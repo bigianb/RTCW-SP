@@ -87,7 +87,7 @@ void SV_DirectConnect( NetAddress from )
 	}
 
 	
-	for (int i = 0; newcl != nullptr && i < sv_maxclients->integer ; i++ ) {
+	for (int i = 0; newcl == nullptr && i < sv_maxclients->integer ; i++ ) {
 		cl = &svs.clients[i];
 		if ( cl->state == CS_FREE ) {
 			newcl = cl;

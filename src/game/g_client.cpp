@@ -392,11 +392,7 @@ bool G_CheckForExistingModelInfo( GameClient *cl, char *modelName, animModelInfo
 	return false;
 }
 
-/*
-==============
-G_GetModelInfo
-==============
-*/
+
 bool G_ParseAnimationFiles( char *modelname, GameClient *cl );
 bool G_GetModelInfo( int clientNum, char *modelName, animModelInfo_t **modelInfo ) {
 
@@ -411,11 +407,6 @@ bool G_GetModelInfo( int clientNum, char *modelName, animModelInfo_t **modelInfo
 	return true;
 }
 
-/*
-=============
-G_ParseAnimationFiles
-=============
-*/
 bool G_ParseAnimationFiles( char *modelname, GameClient *cl ) {
 	char text[100000];
 	char filename[MAX_QPATH];
@@ -666,7 +657,6 @@ restarts.
 */
 const char *ClientConnect( int clientNum, bool firstTime, bool isBot )
 {
-
 	GameClient   *client;
 	char userinfo[MAX_INFO_STRING];
 	GameEntity   *ent;

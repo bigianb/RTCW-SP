@@ -406,9 +406,6 @@ void SV_ChangeMaxClients()
 		Com_Error( ERR_FATAL, "SV_Startup: unable to allocate svs.clients" );
 	}
 
-
-	Com_Memset( svs.clients, 0, sv_maxclients->integer * sizeof( Client ) );
-
 	// copy the clients over
 	for (int i = 0 ; i < count ; i++ ) {
 		if ( oldClients[i].state >= CS_CONNECTED ) {
