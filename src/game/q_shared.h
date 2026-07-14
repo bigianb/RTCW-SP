@@ -457,10 +457,10 @@ int Com_HexStrToInt( const char *str );
 
 // mode parm for FS_FOpenFile
 typedef enum {
-	FS_READ,
-	FS_WRITE,
-	FS_APPEND,
-	FS_APPEND_SYNC
+	FS_READ = 0,
+	FS_WRITE = 1,
+	FS_APPEND = 2,
+	FS_APPEND_SYNC = 3
 } fsMode_t;
 
 typedef enum {

@@ -280,6 +280,15 @@ set(QCOMMON_SOURCES
 	src/qcommon/unzip.cpp
 )
 
+set(FRAMEWORK_INCLUDES
+	src/sys/platform.h
+	src/framework/File.h
+)
+
+set(FRAMEWORK_SOURCES
+	src/framework/File.cpp
+)
+
 set(RENDERER_INCLUDES
 	src/renderer/anorms256.h
 	src/renderer/qgl_linked.h
@@ -346,6 +355,8 @@ set(IDLIB_INCLUDES
 	src/idlib/math/Simd.h
 	src/idlib/math/Quat.h
 	src/idlib/math/Vector.h
+	src/idlib/Heap.h
+	src/idlib/Str.h
 )
 
 set(IDLIB_SOURCES
@@ -361,6 +372,8 @@ set(IDLIB_SOURCES
 	src/idlib/math/Simd.cpp
 	src/idlib/math/Quat.cpp
 	src/idlib/math/Vector.cpp
+	src/idlib/Heap.cpp
+	src/idlib/Str.cpp
 )
 
 set(SCRIPTING_INCLUDES
@@ -444,6 +457,7 @@ source_group("sdl" FILES ${SDL_SOURCES})
 add_library(scriptlib STATIC ${SCRIPTING_SOURCES} ${SCRIPTING_INCLUDES})
 add_library(idlib STATIC ${IDLIB_SOURCES} ${IDLIB_INCLUDES})
 add_library(server STATIC ${SERVER_SOURCES} ${SERVER_INCLUDES})
+add_library(framework STATIC ${FRAMEWORK_SOURCES} ${FRAMEWORK_INCLUDES})
 
 set(WOLF_INCLUDES 
 	${BOTAI_INCLUDES}
@@ -474,7 +488,7 @@ set(WOLF_SOURCES
 )
 
 add_executable(wolf WIN32 MACOSX_BUNDLE ${WOLF_INCLUDES} ${WOLF_SOURCES})
-target_link_libraries(wolf server idlib scriptlib SDL3::SDL3 OpenGL::GL JPEG::JPEG)
+target_link_libraries(wolf server idlib scriptlib framework SDL3::SDL3 OpenGL::GL JPEG::JPEG)
 
 set(ALICE_INCLUDES 
 	${BOTAI_INCLUDES}
@@ -505,7 +519,7 @@ set(ALICE_SOURCES
 )
 
 add_executable(alice WIN32 MACOSX_BUNDLE ${ALICE_INCLUDES} ${ALICE_SOURCES})
-target_link_libraries(alice server idlib scriptlib SDL3::SDL3 OpenGL::GL JPEG::JPEG)
+target_link_libraries(alice server idlib scriptlib framework SDL3::SDL3 OpenGL::GL JPEG::JPEG)
 
 
 if(ENABLE_TESTS)

@@ -27,18 +27,13 @@ If you have questions concerning this license or the applicable additional terms
 */
 
 #include "sys/platform.h"
-#include "framework/Unzip.h"
-#include "framework/FileSystem.h"
-
-#include "framework/File.h"
+//#include "framework/Unzip.h"
+//#include "framework/FileSystem.h"
+#include "game/q_shared.h"	// not the right place
+#include "File.h"
 
 #define	MAX_PRINT_MSG		4096
 
-/*
-=================
-FS_WriteFloatString
-=================
-*/
 int FS_WriteFloatString( char *buf, const char *fmt, va_list argPtr ) {
 	int i;
 	unsigned int u;
@@ -110,7 +105,7 @@ int FS_WriteFloatString( char *buf, const char *fmt, va_list argPtr ) {
 						index += sprintf( buf+index, "%s", format.c_str() );
 						break;
 					default:
-						common->Error( "FS_WriteFloatString: invalid format %s", format.c_str() );
+						//common->Error( "FS_WriteFloatString: invalid format %s", format.c_str() );
 						break;
 				}
 				fmt++;
@@ -131,7 +126,7 @@ int FS_WriteFloatString( char *buf, const char *fmt, va_list argPtr ) {
 						index += sprintf( buf+index, "\\" );
 						break;
 					default:
-						common->Error( "FS_WriteFloatString: unknown escape character \'%c\'", *fmt );
+						//common->Error( "FS_WriteFloatString: unknown escape character \'%c\'", *fmt );
 						break;
 				}
 				fmt++;
@@ -178,7 +173,7 @@ idFile::Read
 =================
 */
 int idFile::Read( void *buffer, int len ) {
-	common->FatalError( "idFile::Read: cannot read from idFile" );
+	//common->FatalError( "idFile::Read: cannot read from idFile" );
 	return 0;
 }
 
@@ -188,7 +183,7 @@ idFile::Write
 =================
 */
 int idFile::Write( const void *buffer, int len ) {
-	common->FatalError( "idFile::Write: cannot write to idFile" );
+	//common->FatalError( "idFile::Write: cannot write to idFile" );
 	return 0;
 }
 
@@ -310,7 +305,6 @@ int idFile::WriteFloatString( const char *fmt, ... ) {
  */
 int idFile::ReadInt( int &value ) {
 	int result = Read( &value, sizeof( value ) );
-	value = LittleInt(value);
 	return result;
 }
 
@@ -321,7 +315,6 @@ int idFile::ReadInt( int &value ) {
  */
 int idFile::ReadUnsignedInt( unsigned int &value ) {
 	int result = Read( &value, sizeof( value ) );
-	value = LittleInt(value);
 	return result;
 }
 
@@ -332,7 +325,6 @@ int idFile::ReadUnsignedInt( unsigned int &value ) {
  */
 int idFile::ReadShort( short &value ) {
 	int result = Read( &value, sizeof( value ) );
-	value = LittleShort(value);
 	return result;
 }
 
@@ -343,7 +335,6 @@ int idFile::ReadShort( short &value ) {
  */
 int idFile::ReadUnsignedShort( unsigned short &value ) {
 	int result = Read( &value, sizeof( value ) );
-	value = LittleShort(value);
 	return result;
 }
 
@@ -372,7 +363,6 @@ int idFile::ReadUnsignedChar( unsigned char &value ) {
  */
 int idFile::ReadFloat( float &value ) {
 	int result = Read( &value, sizeof( value ) );
-	value = LittleFloat(value);
 	return result;
 }
 
@@ -412,7 +402,6 @@ int idFile::ReadString( idStr &string ) {
  */
 int idFile::ReadVec2( idVec2 &vec ) {
 	int result = Read( &vec, sizeof( vec ) );
-	LittleRevBytes( &vec, sizeof(float), sizeof(vec)/sizeof(float) );
 	return result;
 }
 
@@ -423,7 +412,6 @@ int idFile::ReadVec2( idVec2 &vec ) {
  */
 int idFile::ReadVec3( idVec3 &vec ) {
 	int result = Read( &vec, sizeof( vec ) );
-	LittleRevBytes( &vec, sizeof(float), sizeof(vec)/sizeof(float) );
 	return result;
 }
 
@@ -434,7 +422,6 @@ int idFile::ReadVec3( idVec3 &vec ) {
  */
 int idFile::ReadVec4( idVec4 &vec ) {
 	int result = Read( &vec, sizeof( vec ) );
-	LittleRevBytes( &vec, sizeof(float), sizeof(vec)/sizeof(float) );
 	return result;
 }
 
@@ -445,7 +432,6 @@ int idFile::ReadVec4( idVec4 &vec ) {
  */
 int idFile::ReadVec6( idVec6 &vec ) {
 	int result = Read( &vec, sizeof( vec ) );
-	LittleRevBytes( &vec, sizeof(float), sizeof(vec)/sizeof(float) );
 	return result;
 }
 
@@ -456,7 +442,6 @@ int idFile::ReadVec6( idVec6 &vec ) {
  */
 int idFile::ReadMat3( idMat3 &mat ) {
 	int result = Read( &mat, sizeof( mat ) );
-	LittleRevBytes( &mat, sizeof(float), sizeof(mat)/sizeof(float) );
 	return result;
 }
 
@@ -466,7 +451,7 @@ int idFile::ReadMat3( idMat3 &mat ) {
  =================
  */
 int idFile::WriteInt( const int value ) {
-	int v = LittleInt(value);
+	int v = value;
 	return Write( &v, sizeof( v ) );
 }
 
@@ -476,7 +461,7 @@ int idFile::WriteInt( const int value ) {
  =================
  */
 int idFile::WriteUnsignedInt( const unsigned int value ) {
-	unsigned int v = LittleInt(value);
+	unsigned int v = value;
 	return Write( &v, sizeof( v ) );
 }
 
@@ -486,7 +471,7 @@ int idFile::WriteUnsignedInt( const unsigned int value ) {
  =================
  */
 int idFile::WriteShort( const short value ) {
-	short v = LittleShort(value);
+	short v = value;
 	return Write( &v, sizeof( v ) );
 }
 
@@ -496,7 +481,7 @@ int idFile::WriteShort( const short value ) {
  =================
  */
 int idFile::WriteUnsignedShort( const unsigned short value ) {
-	unsigned short v = LittleShort(value);
+	unsigned short v = value;
 	return Write( &v, sizeof( v ) );
 }
 
@@ -524,7 +509,7 @@ int idFile::WriteUnsignedChar( const unsigned char value ) {
  =================
  */
 int idFile::WriteFloat( const float value ) {
-	float v = LittleFloat(value);
+	float v = value;
 	return Write( &v, sizeof( v ) );
 }
 
@@ -557,9 +542,8 @@ int idFile::WriteString( const char *value ) {
  =================
  */
 int idFile::WriteVec2( const idVec2 &vec ) {
-	idVec2 v = vec;
-	LittleRevBytes( &v, sizeof(float), sizeof(v)/sizeof(float) );
-	return Write( &v, sizeof( v ) );
+
+	return Write( &vec, sizeof( vec ) );
 }
 
 /*
@@ -569,7 +553,6 @@ int idFile::WriteVec2( const idVec2 &vec ) {
  */
 int idFile::WriteVec3( const idVec3 &vec ) {
 	idVec3 v = vec;
-	LittleRevBytes( &v, sizeof(float), sizeof(v)/sizeof(float) );
 	return Write( &v, sizeof( v ) );
 }
 
@@ -580,7 +563,6 @@ int idFile::WriteVec3( const idVec3 &vec ) {
  */
 int idFile::WriteVec4( const idVec4 &vec ) {
 	idVec4 v = vec;
-	LittleRevBytes( &v, sizeof(float), sizeof(v)/sizeof(float) );
 	return Write( &v, sizeof( v ) );
 }
 
@@ -591,7 +573,6 @@ int idFile::WriteVec4( const idVec4 &vec ) {
  */
 int idFile::WriteVec6( const idVec6 &vec ) {
 	idVec6 v = vec;
-	LittleRevBytes( &v, sizeof(float), sizeof(v)/sizeof(float) );
 	return Write( &v, sizeof( v ) );
 }
 
@@ -602,7 +583,6 @@ int idFile::WriteVec6( const idVec6 &vec ) {
  */
 int idFile::WriteMat3( const idMat3 &mat ) {
 	idMat3 v = mat;
-	LittleRevBytes(&v, sizeof(float), sizeof(v)/sizeof(float) );
 	return Write( &v, sizeof( v ) );
 }
 
@@ -702,7 +682,7 @@ idFile_Memory::Read
 int idFile_Memory::Read( void *buffer, int len ) {
 
 	if ( !( mode & ( 1 << FS_READ ) ) ) {
-		common->FatalError( "idFile_Memory::Read: %s not opened in read mode", name.c_str() );
+		//common->FatalError( "idFile_Memory::Read: %s not opened in read mode", name.c_str() );
 		return 0;
 	}
 
@@ -722,14 +702,14 @@ idFile_Memory::Write
 int idFile_Memory::Write( const void *buffer, int len ) {
 
 	if ( !( mode & ( 1 << FS_WRITE ) ) ) {
-		common->FatalError( "idFile_Memory::Write: %s not opened in write mode", name.c_str() );
+		//common->FatalError( "idFile_Memory::Write: %s not opened in write mode", name.c_str() );
 		return 0;
 	}
 
 	int alloc = curPtr + len + 1 - filePtr - allocated; // need room for len+1
 	if ( alloc > 0 ) {
 		if ( maxSize != 0 ) {
-			common->Error( "idFile_Memory::Write: exceeded maximum size %d", maxSize );
+			//common->Error( "idFile_Memory::Write: exceeded maximum size %d", maxSize );
 			return 0;
 		}
 		int extra = granularity * ( 1 + alloc / granularity );
@@ -817,7 +797,7 @@ int idFile_Memory::Seek( long offset, fsOrigin_t origin ) {
 			break;
 		}
 		default: {
-			common->FatalError( "idFile_Memory::Seek: bad origin for %s\n", name.c_str() );
+			//common->FatalError( "idFile_Memory::Seek: bad origin for %s\n", name.c_str() );
 			return -1;
 		}
 	}
@@ -884,12 +864,8 @@ idFile_BitMsg
 
 =================================================================================
 */
+#if 0
 
-/*
-=================
-idFile_BitMsg::idFile_BitMsg
-=================
-*/
 idFile_BitMsg::idFile_BitMsg( idBitMsg &msg ) {
 	name = "*unknown*";
 	mode = ( 1 << FS_WRITE );
@@ -1004,6 +980,7 @@ int idFile_BitMsg::Seek( long offset, fsOrigin_t origin ) {
 	return -1;
 }
 
+#endif // 0
 
 /*
 =================================================================================
@@ -1051,7 +1028,7 @@ int idFile_Permanent::Read( void *buffer, int len ) {
 	int		tries;
 
 	if ( !(mode & ( 1 << FS_READ ) ) ) {
-		common->FatalError( "idFile_Permanent::Read: %s not opened in read mode", name.c_str() );
+		//common->FatalError( "idFile_Permanent::Read: %s not opened in read mode", name.c_str() );
 		return 0;
 	}
 
@@ -1079,7 +1056,7 @@ int idFile_Permanent::Read( void *buffer, int len ) {
 		}
 
 		if ( read == -1 ) {
-			common->FatalError( "idFile_Permanent::Read: -1 bytes read from %s", name.c_str() );
+			//common->FatalError( "idFile_Permanent::Read: -1 bytes read from %s", name.c_str() );
 		}
 
 		remaining -= read;
@@ -1103,7 +1080,7 @@ int idFile_Permanent::Write( const void *buffer, int len ) {
 	int		tries;
 
 	if ( !( mode & ( 1 << FS_WRITE ) ) ) {
-		common->FatalError( "idFile_Permanent::Write: %s not opened in write mode", name.c_str() );
+		//common->FatalError( "idFile_Permanent::Write: %s not opened in write mode", name.c_str() );
 		return 0;
 	}
 
@@ -1123,13 +1100,13 @@ int idFile_Permanent::Write( const void *buffer, int len ) {
 				tries = 1;
 			}
 			else {
-				common->Printf( "idFile_Permanent::Write: 0 bytes written to %s\n", name.c_str() );
+				//common->Printf( "idFile_Permanent::Write: 0 bytes written to %s\n", name.c_str() );
 				return 0;
 			}
 		}
 
 		if ( written == -1 ) {
-			common->Printf( "idFile_Permanent::Write: -1 bytes written to %s\n", name.c_str() );
+			//common->Printf( "idFile_Permanent::Write: -1 bytes written to %s\n", name.c_str() );
 			return 0;
 		}
 
@@ -1213,7 +1190,7 @@ int idFile_Permanent::Seek( long offset, fsOrigin_t origin ) {
 		}
 		default: {
 			_origin = SEEK_CUR;
-			common->FatalError( "idFile_Permanent::Seek: bad origin for %s\n", name.c_str() );
+			//common->FatalError( "idFile_Permanent::Seek: bad origin for %s\n", name.c_str() );
 			break;
 		}
 	}
@@ -1271,7 +1248,7 @@ idFile_InZip::Write
 =================
 */
 int idFile_InZip::Write( const void *buffer, int len ) {
-	common->FatalError( "idFile_InZip::Write: cannot write to the zipped file %s", name.c_str() );
+	//common->FatalError( "idFile_InZip::Write: cannot write to the zipped file %s", name.c_str() );
 	return 0;
 }
 
@@ -1281,7 +1258,7 @@ idFile_InZip::ForceFlush
 =================
 */
 void idFile_InZip::ForceFlush( void ) {
-	common->FatalError( "idFile_InZip::ForceFlush: cannot flush the zipped file %s", name.c_str() );
+	//common->FatalError( "idFile_InZip::ForceFlush: cannot flush the zipped file %s", name.c_str() );
 }
 
 /*
@@ -1290,7 +1267,7 @@ idFile_InZip::Flush
 =================
 */
 void idFile_InZip::Flush( void ) {
-	common->FatalError( "idFile_InZip::Flush: cannot flush the zipped file %s", name.c_str() );
+	//common->FatalError( "idFile_InZip::Flush: cannot flush the zipped file %s", name.c_str() );
 }
 
 /*
@@ -1357,7 +1334,7 @@ int idFile_InZip::Seek( long offset, fsOrigin_t origin ) {
 			return ( res == offset ) ? 0 : -1;
 		}
 		default: {
-			common->FatalError( "idFile_InZip::Seek: bad origin for %s\n", name.c_str() );
+			//common->FatalError( "idFile_InZip::Seek: bad origin for %s\n", name.c_str() );
 			break;
 		}
 	}

@@ -26,21 +26,12 @@ If you have questions concerning this license or the applicable additional terms
 ===========================================================================
 */
 
-#ifndef __FILE_H__
-#define __FILE_H__
+#pragma once
 
-#include "idlib/math/Vector.h"
-#include "idlib/BitMsg.h"
-
-//#include "framework/Unzip.h"
-
-/*
-==============================================================
-
-  File Streams.
-
-==============================================================
-*/
+#include "../sys/platform.h"
+#include "../idlib/math/Vector.h"
+//#include "../idlib/BitMsg.h"
+#include "../idlib/Str.h"
 
 // mode parm for Seek
 typedef enum {
@@ -161,7 +152,7 @@ private:
 	char *					curPtr;			// current read/write pointer
 };
 
-
+/*
 class idFile_BitMsg : public idFile {
 	friend class			idFileSystemLocal;
 
@@ -175,7 +166,7 @@ public:
 	virtual int				Read( void *buffer, int len );
 	virtual int				Write( const void *buffer, int len );
 	virtual int				Length( void );
-	virtual ID_TIME_T			Timestamp( void );
+	//virtual ID_TIME_T			Timestamp( void );
 	virtual int				Tell( void );
 	virtual void			ForceFlush( void );
 	virtual void			Flush( void );
@@ -186,7 +177,7 @@ private:
 	int						mode;			// open mode
 	idBitMsg *				msg;
 };
-
+*/
 
 class idFile_Permanent : public idFile {
 	friend class			idFileSystemLocal;
@@ -249,4 +240,3 @@ private:
 	void *					z;				// unzip info
 };
 
-#endif /* !__FILE_H__ */
